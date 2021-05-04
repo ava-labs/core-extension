@@ -1,0 +1,1 @@
+export { WalletHome } from './WalletHome';
