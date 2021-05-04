@@ -1,10 +1,12 @@
-import { action, makeAutoObservable, observable } from 'mobx';
+import { makeAutoObservable } from 'mobx';
+import { persistStore } from '@src/utils/mobx';
 
 class ThemeStore {
-  isDarkMode: boolean = false;
+  isDarkMode: boolean = true;
 
   constructor() {
     makeAutoObservable(this);
+    persistStore(this, ['isDarkMode'], 'ThemeStore');
   }
 
   toggleDarkMode() {
