@@ -87,6 +87,7 @@ export const FullWidthInput = styled.input`
 export const ExtensionContainer = styled.div`
   min-width: 500px;
   min-height: 500px;
+  background: ${(props) => props.theme.colors.background};
 `;
 
 export const ContentLayout = styled.div`

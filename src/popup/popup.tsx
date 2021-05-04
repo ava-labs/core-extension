@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { browser } from 'webextension-polyfill-ts';
 import { GlobalStyle, ExtensionContainer } from '@src/styles/styles';
 
+import styled, { ThemeProvider } from 'styled-components';
+import darkModeTheme from '@src/styles/dark';
+import lightModeTheme from '@src/styles/light';
+
+import { useStore } from '@src/store/store';
 import { Welcome } from '@src/pages/Welcome';
 import { FirstTimeFlow } from '@src/pages/FirstTimeFlow';
 import { Import } from '@src/pages/Import';
@@ -13,47 +18,55 @@ import { Send } from '@src/pages/Send';
 import { SendConfirm } from '@src/pages/SendConfirm';
 
 export const Popup = (): React.ReactElement => {
+  const { themeStore } = useStore();
+
+  console.log('themeStore.isDarkMode', themeStore.isDarkMode);
+
   // Sends the `popupMounted` event
-  React.useEffect(() => {
+  useEffect(() => {
     browser.runtime.sendMessage({ popupMounted: true });
   }, []);
 
   return (
-    <ExtensionContainer>
-      <Switch>
-        <Route path='/welcome/create'>
-          <CreateWallet />
-        </Route>
+    <ThemeProvider
+      theme={themeStore.isDarkMode ? darkModeTheme : lightModeTheme}
+    >
+      <ExtensionContainer>
+        <Switch>
+          <Route path="/welcome/create">
+            <CreateWallet />
+          </Route>
 
-        <Route path='/welcome'>
-          <Welcome />
-        </Route>
+          <Route path="/welcome">
+            <Welcome />
+          </Route>
 
-        <Route path='/import'>
-          <Import />
-        </Route>
+          <Route path="/import">
+            <Import />
+          </Route>
 
-        <Route path='/wallet'>
-          <WalletHome />
-        </Route>
+          <Route path="/wallet">
+            <WalletHome />
+          </Route>
 
-        <Route path='/deposit'>
-          <Deposit />
-        </Route>
+          <Route path="/deposit">
+            <Deposit />
+          </Route>
 
-        <Route path='/send/confirm'>
-          <SendConfirm />
-        </Route>
+          <Route path="/send/confirm">
+            <SendConfirm />
+          </Route>
 
-        <Route path='/send'>
-          <Send />
-        </Route>
+          <Route path="/send">
+            <Send />
+          </Route>
 
-        <Route path='/'>
-          <FirstTimeFlow />
-        </Route>
-      </Switch>
-      <GlobalStyle />
-    </ExtensionContainer>
+          <Route path="/">
+            <FirstTimeFlow />
+          </Route>
+        </Switch>
+        <GlobalStyle />
+      </ExtensionContainer>
+    </ThemeProvider>
   );
 };
