@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { ToggleDarkMode } from '@src/components/ToggleDarkMode';
+
 import { truncateAddress } from '@src/utils/addressUtils';
 export interface NavigationProps {}
 
@@ -13,8 +15,8 @@ export const Navigation = (props: NavigationProps) => {
 
   return (
     <Container>
-      <div>a</div>
-      <div className='centered'>Account 1 ({truncatedAddress})</div>
+      <ToggleDarkMode />
+      <div className="centered">Account 1 ({truncatedAddress})</div>
       <div>dropdown</div>
     </Container>
   );
