@@ -37,9 +37,20 @@
     "clipboardWrite",
     "activeTab",
     "webRequest",
-    "notifications"
+    "notifications",
+    "http://localhost/",
+    "http://*/*",
+    "https://*/*"
   ],
-  "web_accessible_resources": ["inpage.js", "phishing.html"],
+  "content_scripts": [
+    {
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
+      "js": ["js/contentscript.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": ["phishing.html"],
   "externally_connectable": {
     "matches": ["https://google.com/*"],
     "ids": ["*"]

@@ -1,4 +1,5 @@
 import { browser } from 'webextension-polyfill-ts';
+import extensionizer from 'extensionizer';
 
 // Listen for messages sent from other parts of the extension
 browser.runtime.onMessage.addListener((request: { popupMounted: boolean }) => {
