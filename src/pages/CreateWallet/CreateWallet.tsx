@@ -11,39 +11,15 @@ import { KeyboardShortcut } from './KeyboardShortcut';
 
 export interface CreateWalletProps {}
 
-const createWords = (): string[] => {
-  return [
-    'spend',
-    'elbow',
-    'student',
-    'twist',
-    'oil',
-    'obey',
-    'oppose',
-    'wall',
-    'gallerydepart',
-    'ceiling',
-    'brain',
-    'base',
-    'brisk',
-    'voice',
-    'curtain',
-    'coach',
-    'dizzy',
-    'network',
-    'govern',
-    'service',
-    'express',
-    'invest',
-    'believe',
-  ];
-};
-
 export const CreateWallet: React.FC = observer((props: CreateWalletProps) => {
   const [isCopied, setIsCopied] = useState(false);
 
-  const { onboardStore } = useStore();
+  const { onboardStore, walletStore } = useStore();
   const { currentPosition } = onboardStore;
+
+  const createWords = (): string => {
+    return walletStore.createMnemonic();
+  };
 
   const incrementPosition = (): void => {
     onboardStore.incrementPosition();
@@ -68,15 +44,15 @@ export const CreateWallet: React.FC = observer((props: CreateWalletProps) => {
               If you lose these words you will lose your money. Please store it
               somewhere safe!
             </h5>
-            <div className='words'>
-              {words.map((x, i) => {
+            <div className="words">
+              {words.split(' ').map((x, i) => {
                 return <span key={i}>{x}</span>;
               })}
             </div>
             <button
               onClick={() => {
                 setIsCopied(true);
-                navigator.clipboard.writeText(words.join(' '));
+                navigator.clipboard.writeText(words);
               }}
             >
               {isCopied ? 'Copied!' : 'Copy'}
