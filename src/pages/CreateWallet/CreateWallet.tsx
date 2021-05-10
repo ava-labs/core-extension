@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@src/store/store';
@@ -13,7 +13,7 @@ export interface CreateWalletProps {}
 
 export const CreateWallet: React.FC = observer((props: CreateWalletProps) => {
   const [isCopied, setIsCopied] = useState(false);
-
+  const [words, setWords] = useState('');
   const { onboardStore, walletStore } = useStore();
   const { currentPosition } = onboardStore;
 
@@ -28,7 +28,9 @@ export const CreateWallet: React.FC = observer((props: CreateWalletProps) => {
     onboardStore.goBack();
   };
 
-  const words = createWords();
+  useEffect(() => {
+    setWords(createWords());
+  }, []);
 
   switch (currentPosition) {
     case 1:
