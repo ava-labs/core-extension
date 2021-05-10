@@ -4,6 +4,7 @@ import ThemeStore from '@src/store/theme/themeStore';
 import ExtensionStore from '@src/store/extension/extensionStore';
 import OnboardStore from '@src/store/onboard/onboardStore';
 import NetworkStore from '@src/store/network/networkStore';
+import WalletStore from '@src/store/wallet/walletStore';
 
 export interface CombinedStores {
   asssetsStore: AssetsStore;
@@ -11,6 +12,7 @@ export interface CombinedStores {
   extensionStore: ExtensionStore;
   onboardStore: OnboardStore;
   networkStore: NetworkStore;
+  walletStore: WalletStore;
 }
 
 export const store: CombinedStores = {
@@ -19,6 +21,7 @@ export const store: CombinedStores = {
   extensionStore: new ExtensionStore(),
   onboardStore: new OnboardStore(),
   networkStore: new NetworkStore(),
+  walletStore: new WalletStore(),
 };
 
 export const StoreContext = createContext(store);
