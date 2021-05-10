@@ -20,7 +20,9 @@ import { SendConfirm } from '@src/pages/SendConfirm';
 
 export const Popup = observer(
   (): React.ReactElement => {
-    const { themeStore } = useStore();
+    const { themeStore, networkStore } = useStore();
+
+    networkStore.changeNetwork('testnet');
 
     // Sends the `popupMounted` event
     useEffect(() => {
