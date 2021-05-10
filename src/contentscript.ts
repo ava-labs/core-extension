@@ -103,7 +103,7 @@ const injectScript = (content: any) => {
 if (shouldInjectProvider()) {
   console.log('line 115');
   let inpageBundle = alert('inpage bundler, line 115');
-  injectScript(inpageBundle);
+  // injectScript(inpageBundle);
   // initializeProvider({
   //   connectionStream: metamaskStream,
   // });
