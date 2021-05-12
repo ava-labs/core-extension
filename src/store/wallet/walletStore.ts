@@ -1,6 +1,7 @@
-import { makeAutoObservable, autorun, configure } from 'mobx';
+import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
-import { MnemonicWallet, BN, Utils, ERC20 } from 'avalanche-wallet-sdk';
+import { MnemonicWallet, BN, Utils } from 'avalanche-wallet-sdk';
+import { isInArray } from '@src/utils/common';
 
 configure({
   enforceActions: 'never',
@@ -20,11 +21,14 @@ class WalletStore {
   balanceP: any = '';
   balanceERC20: any = '';
   stakeAmt: any = '';
+  customERC20Contracts: string[] = [];
   mnemonic: string =
     'surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader';
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {
+      balanceERC20: observable,
+    });
     persistStore(
       this,
       [
@@ -40,6 +44,7 @@ class WalletStore {
         'balanceERC20',
         'stakeAmt',
         'mnemonic',
+        'customERC20Contracts',
       ],
       'WalletStore'
     );
@@ -88,12 +93,12 @@ class WalletStore {
     const wallet = this.MnemonicWallet();
 
     await this.getUtxos();
+    await this.updateCustomERC20s();
 
     this.balanceCRaw = await wallet.updateAvaxBalanceC();
     this.balanceC = await Utils.bnToAvaxC(this.balanceCRaw);
     this.balanceP = await wallet.getAvaxBalanceP();
     this.balanceERC20 = await wallet.updateBalanceERC20();
-
     this.stakeAmt = await wallet.getStake();
   }
 
@@ -113,8 +118,30 @@ class WalletStore {
     return Utils.bnToAvaxX(this.stakeAmt);
   }
 
+  async updateCustomERC20s() {
+    const wallet = this.MnemonicWallet();
+    for (const each of this.customERC20Contracts) {
+      await wallet.getBalanceERC20(each);
+    }
+  }
+
   async addERC20Contract(address: string) {
-    await ERC20.addErc20Token(address);
+    const wallet = this.MnemonicWallet();
+
+    try {
+      await wallet.getBalanceERC20(address);
+      if (!isInArray(address, this.customERC20Contracts)) {
+        this.customERC20Contracts.push(address);
+      }
+    } catch (error) {
+      console.log('incorrect ERC20 address', error);
+    }
+
+    //    await ERC20.addErc20Token(address);
+  }
+
+  get ERC20Tokens() {
+    return this.balanceERC20;
   }
 }
 
