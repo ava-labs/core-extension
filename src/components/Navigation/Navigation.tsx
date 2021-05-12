@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { observer } from 'mobx-react-lite';
 
 import { ToggleDarkMode } from '@src/components/ToggleDarkMode';
 import { useStore } from '@src/store/store';
@@ -7,7 +8,7 @@ import { useStore } from '@src/store/store';
 import { truncateAddress } from '@src/utils/addressUtils';
 export interface NavigationProps {}
 
-export const Navigation = (props: NavigationProps) => {
+export const Navigation = observer((props: NavigationProps) => {
   const { walletStore } = useStore();
   const {} = props;
 
@@ -30,7 +31,7 @@ export const Navigation = (props: NavigationProps) => {
       <div>dropdown</div>
     </Container>
   );
-};
+});
 
 export const Container = styled.div`
   padding: 1rem;
