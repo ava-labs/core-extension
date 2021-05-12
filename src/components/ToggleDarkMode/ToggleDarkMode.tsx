@@ -89,5 +89,9 @@ export const Button = styled.div`
   svg {
     max-height: 1rem;
     max-width: 1rem;
+    &:hover {
+      cursor: pointer;
+      opacity: 0.8;
+    }
   }
 `;
