@@ -1,22 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { ToggleDarkMode } from '@src/components/ToggleDarkMode';
+import { useStore } from '@src/store/store';
 
 import { truncateAddress } from '@src/utils/addressUtils';
 export interface NavigationProps {}
 
 export const Navigation = (props: NavigationProps) => {
+  const { walletStore } = useStore();
   const {} = props;
 
-  const exampleAddr: string = '0x860bf60f22563b473E2EAE475BbE655995023740';
-
-  const truncatedAddress = truncateAddress(exampleAddr);
+  const [addrC] = useState(walletStore.addrC);
+  const truncatedAddress = truncateAddress(addrC);
 
   return (
     <Container>
       <ToggleDarkMode />
-      <div className="centered">Account 1 ({truncatedAddress})</div>
+      <div className="centered">
+        <div
+          className="cursor"
+          onClick={() => {
+            navigator.clipboard.writeText(addrC);
+          }}
+        >
+          ({truncatedAddress})
+        </div>
+      </div>
       <div>dropdown</div>
     </Container>
   );
@@ -33,5 +43,11 @@ export const Container = styled.div`
 
   .centered {
     text-align: center;
+  }
+  .cursor {
+    &:hover {
+      cursor: pointer;
+      opacity: 0.8;
+    }
   }
 `;
