@@ -7,6 +7,15 @@ import { useStore } from '@src/store/store';
 import { TokenRow } from '@src/components/TokenRow';
 import { Layout } from '@src/components/Layout';
 
+interface ERC20 {
+  name: string;
+  symbol: string;
+  denomination: number;
+  balance: string;
+  balanceParsed: string;
+  address: string;
+}
+
 export const WalletHome = observer(() => {
   const { walletStore } = useStore();
 
@@ -19,6 +28,15 @@ export const WalletHome = observer(() => {
     walletStore.balCClean();
   };
 
+  const AVAX: ERC20 = {
+    name: 'Avalanche',
+    symbol: 'AVAX',
+    denomination: 18,
+    balance: 'de0b6b3a7640000',
+    balanceParsed: walletStore.balanceC,
+    address: '0x34B6C87bb59Eb37EFe35C8d594a234Cd8C654D50',
+  };
+
   useEffect(() => {
     const update = async () => {
       await UpdateWallet();
@@ -29,8 +47,6 @@ export const WalletHome = observer(() => {
     }, 3200);
   }, []);
 
-  const test = walletStore.ERC20Tokens;
-  console.log('hmmm', test);
   return (
     <Layout>
       <>
@@ -42,7 +58,12 @@ export const WalletHome = observer(() => {
             <Link to="/deposit">
               <button>Deposit</button>
             </Link>
-            <Link to="/send">
+            <Link
+              to={{
+                pathname: '/send',
+                state: AVAX,
+              }}
+            >
               <button>Send</button>
             </Link>
           </div>

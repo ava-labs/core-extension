@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 export interface TokenRowProps {
   tokens: {
@@ -19,8 +20,15 @@ export const TokenRow = (props: TokenRowProps) => {
     <FlexContainer>
       {Object.entries(tokens).map(([key, value]: any) => {
         const { balanceParsed, symbol, name } = value;
+
         return (
-          <div className="coin">
+          <Link
+            to={{
+              pathname: '/send',
+              state: { ...value },
+            }}
+            className="coin"
+          >
             <div className="name">
               <img
                 src={
@@ -43,7 +51,7 @@ export const TokenRow = (props: TokenRowProps) => {
               <br />
               {/* +$2.31 */}
             </div>
-          </div>
+          </Link>
         );
       })}
     </FlexContainer>
@@ -55,6 +63,9 @@ const FlexContainer = styled.div`
   flex-wrap: wrap;
   max-width: 100%;
   flex-basis: 100%;
+  a {
+    color: black;
+  }
   .coin {
     cursor: pointer;
     max-width: 100%;
