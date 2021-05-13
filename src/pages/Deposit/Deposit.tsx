@@ -12,34 +12,34 @@ import { truncateAddress } from '@src/utils/addressUtils';
 
 export const Deposit = () => {
   const [isCopied, setIsCopied] = useState(false);
-  const { onboardStore } = useStore();
-  const exampleAddr: string = '0x860bf60f22563b473E2EAE475BbE655995023740';
-  const truncatedAddress = truncateAddress(exampleAddr);
+  const { walletStore } = useStore();
+
+  const truncatedAddress = truncateAddress(walletStore.addrC);
   return (
     <Layout>
       <Wrapper>
         <QR>
           <h1>Deposit AVAX</h1>
-          <div className='qr'>
-            <QRCode value={exampleAddr} style={{ width: '100px' }} />
+          <div className="qr">
+            <QRCode value={walletStore.addrC} style={{ width: '100px' }} />
           </div>
 
-          <div className='address'>
+          <div className="address">
             {truncatedAddress}
             <button
               onClick={() => {
                 setIsCopied(true);
-                navigator.clipboard.writeText(exampleAddr);
+                navigator.clipboard.writeText(walletStore.addrC);
               }}
             >
               {isCopied ? 'Copied!' : 'Copy'}
             </button>
           </div>
-          <div className='disclaimer'>
+          <div className="disclaimer">
             This address can only be used to receive AVAX on the __ Chain.
           </div>
 
-          <Link to='/wallet'>
+          <Link to="/wallet">
             <FullWidthButton>Close</FullWidthButton>
           </Link>
         </QR>
