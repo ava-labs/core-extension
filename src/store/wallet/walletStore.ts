@@ -102,6 +102,31 @@ class WalletStore {
     this.stakeAmt = await wallet.getStake();
   }
 
+  async sendTransaction(): Promise<string> {
+    const wallet = this.MnemonicWallet();
+
+    let to = '0x254df0daf08669c61d5886bd81c4a7fa59ff7c7e';
+    let amt = Utils.numberToBN('0.000001', 18);
+    let tokenContract = '0xEa81F6972aDf76765Fd1435E119Acc0Aafc80BeA';
+    const gasPrice = Utils.numberToBN(225, 9);
+    const gasLimit = 221000;
+
+    try {
+      const txID = await wallet.sendErc20(
+        to,
+        amt,
+        gasPrice,
+        gasLimit,
+        tokenContract
+      );
+      console.log('tx passordet', txID);
+
+      return txID;
+    } catch (error) {
+      console.log('err', error);
+    }
+  }
+
   MnemonicWallet() {
     return MnemonicWallet.fromMnemonic(this.mnemonic);
   }
