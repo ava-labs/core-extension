@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react-lite';
 import { Link, useLocation } from 'react-router-dom';
+import { Utils } from 'avalanche-wallet-sdk';
 
 import { useStore } from '@src/store/store';
 
@@ -24,11 +25,25 @@ interface ERC20 {
 
 export const Send = observer((props: SendProps) => {
   const [canPaste, setCanPaste] = useState(false);
+  // read clipboard
+  // validate address
+  // set true if valid
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState('');
   const { walletStore } = useStore();
-  let location = useLocation();
-  console.log(location);
-  const token: ERC20 | any = location.state;
+  const { state: token }: any = useLocation();
+  //  const token: ERC20 | any = location.state;
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setAmount(value);
+  };
+  const handleRecipientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setRecipient(value);
+  };
+
+  const canSend = amount && recipient;
   return (
     <Layout>
       <ContentLayout>
@@ -46,11 +61,19 @@ export const Send = observer((props: SendProps) => {
               </div>
 
               <div className="address">
-                <input placeholder={"Recipient's AVAX address"} />
+                <input
+                  type="text"
+                  onChange={handleRecipientChange}
+                  placeholder={"Recipient's AVAX address"}
+                />
                 {canPaste && <> Icon </>}
               </div>
               <div className="amount">
-                <input placeholder={'Amount'} />
+                <input
+                  type="number"
+                  onChange={handleAmountChange}
+                  placeholder={'Amount'}
+                />
               </div>
               <div className="sendMax">
                 Max:
@@ -69,8 +92,13 @@ export const Send = observer((props: SendProps) => {
           <Link to="/wallet">
             <button>Cancel</button>
           </Link>
-          <Link to="/send/confirm">
-            <button>Next</button>
+          <Link
+            to={{
+              pathname: '/send/confirm',
+              state: { ...token, amount, recipient },
+            }}
+          >
+            <button disabled={!canSend}>Next</button>
           </Link>
         </div>
       </ContentLayout>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { useStore } from '@src/store/store';
 
@@ -8,37 +8,70 @@ import { Layout } from '@src/components/Layout';
 import { ContentLayout } from '@src/styles/styles';
 
 import { truncateAddress } from '@src/utils/addressUtils';
-export const SendConfirm = () => {
-  const { onboardStore } = useStore();
-  const exampleAddr: string = '0x860bf60f22563b473E2EAE475BbE655995023740';
 
-  const truncatedAddress = truncateAddress(exampleAddr);
+interface sendProps {
+  address: string;
+  amount: string;
+  balance: string;
+  balanceParsed: string;
+  denomination: number;
+  name: string;
+  recipient: string;
+  symbol: string;
+}
+
+export const SendConfirm = () => {
+  const { walletStore } = useStore();
+
+  const { state }: any = useLocation();
+  const {
+    address,
+    amount,
+    balance,
+    balanceParsed,
+    denomination,
+    name,
+    recipient,
+    symbol,
+  } = state;
+
+  const sendTransaction = async () => {
+    console.log('pressed');
+
+    const txID = await walletStore.sendTransaction();
+    console.log('txID in line 39', txID);
+  };
+
+  const truncatedAddress = truncateAddress(recipient);
+
   return (
     <Layout>
       <ContentLayout>
-        <div className='content'>
+        <div className="content">
           <Wrapper>
             <SendDiv>
-              <div className='token'>
+              <div className="token">
                 <img
                   src={
                     'https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818'
                   }
-                  alt=''
+                  alt=""
                 />
               </div>
-              <h1>Send 13.234235 AVAX</h1>
+              <h1>
+                Send {amount} {symbol}
+              </h1>
 
               <div>To: ({truncatedAddress})</div>
             </SendDiv>
           </Wrapper>
         </div>
-        <div className='footer half-width'>
-          <Link to='/wallet'>
+        <div className="footer half-width">
+          <Link to="/wallet">
             <button>Cancel</button>
           </Link>
-          <Link to='/send/confirm'>
-            <button>Next</button>
+          <Link to="/send/confirm" onClick={sendTransaction}>
+            <button>Confirm</button>
           </Link>
         </div>
       </ContentLayout>
