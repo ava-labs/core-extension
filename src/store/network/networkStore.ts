@@ -16,10 +16,8 @@ class NetworkStore {
   }
 
   changeNetwork(network) {
-    setTimeout(function () {
-      const net = network === 'testnet' ? testnet : mainnet;
-      setNetwork(net);
-    }, 1000);
+    const net = network === 'testnet' ? testnet : mainnet;
+    setNetwork(net);
   }
 }
 
