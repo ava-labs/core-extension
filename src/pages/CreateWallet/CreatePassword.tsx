@@ -50,21 +50,23 @@ export const CreatePassword = (
         />
       </Nav>
       <Container>
-        <h1>Create a Password</h1>
-        <h5>You will use this to unlock your wallet</h5>
+        <div className="body">
+          <h1>Create a Password</h1>
+          <h5>You will use this to unlock your wallet</h5>
 
-        <FullWidthInput
-          onChange={handlePasswordChange}
-          placeholder='Password'
-          type='password'
-        />
-        <FullWidthInput
-          onChange={handlePasswordConfirmChange}
-          placeholder='Confirm Password'
-          type='password'
-        />
+          <FullWidthInput
+            onChange={handlePasswordChange}
+            placeholder="Password"
+            type="password"
+          />
+          <FullWidthInput
+            onChange={handlePasswordConfirmChange}
+            placeholder="Confirm Password"
+            type="password"
+          />
 
-        {error && <div className='error'> {error}</div>}
+          {error && <div className="error"> {error}</div>}
+        </div>
 
         <FullWidthButton
           onClick={() => {
@@ -81,21 +83,22 @@ export const CreatePassword = (
 CreatePassword.defaultProps = {};
 
 export const Container = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 4em;
+  gap: 0px 0px;
+  grid-template-areas:
+    '.'
+    '.';
+
+  .body {
+    height: 27rem;
+  }
+
   margin: 0 auto;
   padding: 1.5rem;
   text-align: center;
-  .words {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    border: 1px solid grey;
-    padding: 1rem;
-    width: 90%;
-    margin: 3rem auto;
-    background: grey;
-    span {
-      line-height: 1.2rem;
-    }
-  }
+
   .error {
     margin: 2rem auto;
     color: red;
