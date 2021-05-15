@@ -124,6 +124,7 @@ class WalletStore {
       return txID;
     } catch (error) {
       console.log('err', error);
+      return error;
     }
   }
 
