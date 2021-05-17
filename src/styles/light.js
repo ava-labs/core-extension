@@ -44,4 +44,5 @@ export default {
       bg: 'secondary',
     },
   },
+  spinner: '#333333',
 };
