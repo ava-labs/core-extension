@@ -53,6 +53,7 @@ class WalletStore {
   importHD(mnemonic): void {
     this.mnemonic = mnemonic;
     this.updateWallet();
+    this.updateBalance();
   }
 
   refreshHD(): void {
