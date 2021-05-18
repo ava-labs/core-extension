@@ -7,6 +7,8 @@ import { useStore } from '@src/store/store';
 import { TokenRow } from '@src/components/TokenRow';
 import { Layout } from '@src/components/Layout';
 
+import { Utils } from 'avalanche-wallet-sdk';
+
 interface ERC20 {
   name: string;
   symbol: string;
@@ -45,6 +47,23 @@ export const WalletHome = observer(() => {
     setTimeout(function () {
       update();
     }, 3200);
+
+    // let test = Utils.isValidAddress(
+    //   'X-fuji1dtz57htfgfsc8r8wwhrymf54nz2c0qmu3dmm4v'
+    // );
+
+    // let test = Utils.isValidAddress(
+    //   'P-fuji19lm5zwvs2x8ymk50lwc6hpm4c4wtpm54suvxvl'
+    // );
+
+    // let test = Utils.isValidAddress(
+    //   '0x254df0daf08669c61d5886bd81c4a7fa59ff7c7e'
+    // );
+
+    // let test = Utils.isValidAddress(
+    //   '0x254df0daf08669c61d5886bd81c4a7fa59ff7cz7e'
+    // );
+    // console.log('test', test);
   }, []);
 
   return (
