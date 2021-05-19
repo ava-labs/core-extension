@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react-lite';
 import { Link, useLocation } from 'react-router-dom';
@@ -24,15 +24,10 @@ interface ERC20 {
 }
 
 export const Send = observer((props: SendProps) => {
-  const [canPaste, setCanPaste] = useState(false);
-  // read clipboard
-  // validate address
-  // set true if valid
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const { walletStore } = useStore();
   const { state: token }: any = useLocation();
-  //  const token: ERC20 | any = location.state;
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -43,7 +38,9 @@ export const Send = observer((props: SendProps) => {
     setRecipient(value);
   };
 
-  const canSend = amount && recipient;
+  const isValid = typeof Utils.isValidAddress(recipient) === 'boolean';
+  const canSend = amount && recipient && isValid;
+
   return (
     <Layout>
       <ContentLayout>
@@ -66,7 +63,6 @@ export const Send = observer((props: SendProps) => {
                   onChange={handleRecipientChange}
                   placeholder={"Recipient's AVAX address"}
                 />
-                {canPaste && <> Icon </>}
               </div>
               <div className="amount">
                 <input
@@ -80,10 +76,6 @@ export const Send = observer((props: SendProps) => {
                 <span>
                   {token.balanceParsed} {token.symbol}
                 </span>
-              </div>
-
-              <div className="disclaimer">
-                This address can only be used to receive AVAX on the __ Chain.
               </div>
             </SendDiv>
           </Wrapper>
@@ -133,6 +125,11 @@ export const SendDiv = styled.div`
     span {
       text-decoration: underline;
       cursor: pointer;
+    }
+  }
+  .address {
+    input {
+      position: relative;
     }
   }
 `;
