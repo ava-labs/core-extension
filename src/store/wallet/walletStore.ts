@@ -24,6 +24,7 @@ class WalletStore {
   customERC20Contracts: string[] = [];
   mnemonic: string =
     'surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader';
+  lastTransactionSent: string = '';
 
   constructor() {
     makeAutoObservable(this, {
@@ -103,29 +104,30 @@ class WalletStore {
     this.stakeAmt = await wallet.getStake();
   }
 
-  async sendTransaction(): Promise<string> {
+  async sendTransaction(data: any): Promise<string> {
     const wallet = this.MnemonicWallet();
 
-    let to = '0x254df0daf08669c61d5886bd81c4a7fa59ff7c7e';
-    let amt = Utils.numberToBN('0.000001', 18);
-    let tokenContract = '0xEa81F6972aDf76765Fd1435E119Acc0Aafc80BeA';
+    const { to, amount, tokenContract } = data;
+
+    // let to = '0x254df0daf08669c61d5886bd81c4a7fa59ff7c7e';
+    // let amount = Utils.numberToBN('0.000001', 18);
+    // let tokenContract = '0xEa81F6972aDf76765Fd1435E119Acc0Aafc80BeA';
+
     const gasPrice = Utils.numberToBN(225, 9);
     const gasLimit = 221000;
 
     try {
       const txID = await wallet.sendErc20(
         to,
-        amt,
+        amount,
         gasPrice,
         gasLimit,
         tokenContract
       );
-      console.log('tx passordet', txID);
-
+      this.lastTransactionSent = txID;
       return txID;
     } catch (error) {
-      console.log('err', error);
-      return error;
+      return error.message;
     }
   }
 
