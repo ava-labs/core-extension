@@ -17,6 +17,7 @@ import { WalletHome } from '@src/pages/WalletHome';
 import { Deposit } from '@src/pages/Deposit';
 import { Send } from '@src/pages/Send';
 import { SendConfirm } from '@src/pages/SendConfirm';
+import { SendSuccess } from '@src/pages/SendSuccess';
 
 export const Popup = observer(
   (): React.ReactElement => {
@@ -57,6 +58,10 @@ export const Popup = observer(
 
             <Route path="/send/confirm">
               <SendConfirm />
+            </Route>
+
+            <Route path="/send/success">
+              <SendSuccess />
             </Route>
 
             <Route path="/send">
