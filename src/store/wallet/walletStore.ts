@@ -1,6 +1,6 @@
 import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
-import { MnemonicWallet, BN, Utils } from 'avalanche-wallet-sdk';
+import { MnemonicWallet, ERC20, Utils } from 'avalanche-wallet-sdk';
 import { isInArray } from '@src/utils/common';
 
 configure({
@@ -58,7 +58,7 @@ class WalletStore {
   }
 
   refreshHD(): void {
-    const wallet = this.MnemonicWallet();
+    const wallet: MnemonicWallet = this.MnemonicWallet();
 
     wallet.resetHdIndices();
   }
@@ -69,7 +69,7 @@ class WalletStore {
   }
 
   async getUtxos(): Promise<void> {
-    const wallet = this.MnemonicWallet();
+    const wallet: MnemonicWallet = this.MnemonicWallet();
 
     await wallet.getUtxosX();
     await wallet.getUtxosP();
@@ -80,7 +80,7 @@ class WalletStore {
   }
 
   updateWallet(): void {
-    const wallet = this.MnemonicWallet();
+    const wallet: MnemonicWallet = this.MnemonicWallet();
 
     this.addrX = wallet.getAddressX();
     this.addrP = wallet.getAddressP();
@@ -92,7 +92,7 @@ class WalletStore {
   }
 
   async updateBalance(): Promise<void> {
-    const wallet = this.MnemonicWallet();
+    const wallet: MnemonicWallet = this.MnemonicWallet();
 
     await this.getUtxos();
     await this.updateCustomERC20s();
@@ -105,7 +105,7 @@ class WalletStore {
   }
 
   async sendTransaction(data: any): Promise<string> {
-    const wallet = this.MnemonicWallet();
+    const wallet: MnemonicWallet = this.MnemonicWallet();
 
     const { to, amount, tokenContract } = data;
 
@@ -148,14 +148,14 @@ class WalletStore {
   }
 
   async updateCustomERC20s() {
-    const wallet = this.MnemonicWallet();
+    const wallet: MnemonicWallet = this.MnemonicWallet();
     for (const each of this.customERC20Contracts) {
       await wallet.getBalanceERC20(each);
     }
   }
 
   async addERC20Contract(address: string) {
-    const wallet = this.MnemonicWallet();
+    const wallet: MnemonicWallet = this.MnemonicWallet();
 
     try {
       await wallet.getBalanceERC20(address);
@@ -167,6 +167,11 @@ class WalletStore {
     }
 
     //    await ERC20.addErc20Token(address);
+  }
+
+  async getERC20ContractData(address: string) {
+    let test = await ERC20.getContractData(address);
+    return test;
   }
 
   get ERC20Tokens() {
