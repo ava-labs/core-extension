@@ -28,6 +28,7 @@ export const TokenRow = (props: TokenRowProps) => {
               state: { ...value },
             }}
             className="coin"
+            key={key}
           >
             <div className="name">
               <img
