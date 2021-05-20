@@ -165,8 +165,6 @@ class WalletStore {
     } catch (error) {
       console.log('incorrect ERC20 address', error);
     }
-
-    //    await ERC20.addErc20Token(address);
   }
 
   async getERC20ContractData(address: string) {

@@ -25,34 +25,35 @@ export const AddToken = observer((props: AddTokenProps) => {
 
   const { walletStore } = useStore();
   const {} = props;
+
   const handleContractChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { value } = e.target;
     setContract(value);
-
-    if (valid) {
-      const contract = await walletStore.getERC20ContractData(value);
-      const { name, symbol, decimals } = contract;
-      setName(name);
-      setSymbol(symbol);
-      setDecimals(decimals);
-    }
   };
 
   useEffect(() => {
-    const isValid = typeof Utils.isValidAddress(contract) === 'boolean';
-    console.log('isValid', isValid);
+    (async () => {
+      const isValid = typeof Utils.isValidAddress(contract) === 'boolean';
 
-    if (isValid) {
-      setValid(true);
-    } else {
-      setValid(false);
-    }
+      if (isValid) {
+        const contractData = await walletStore.getERC20ContractData(contract);
+        const { name, symbol, decimals } = contractData;
+        setName(name);
+        setSymbol(symbol);
+        setDecimals(decimals);
+        setValid(true);
+      } else {
+        setValid(false);
+      }
+    })();
   }, [contract]);
 
-  const handleSubmit = () => {
-    walletStore.addERC20Contract(contract);
+  const handleSubmit = async () => {
+    await walletStore.addERC20Contract(contract);
+    await walletStore.updateBalance();
+    await walletStore.balCClean();
   };
 
   return (

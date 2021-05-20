@@ -17,10 +17,6 @@ export const CreateWallet: React.FC = observer((props: CreateWalletProps) => {
   const { onboardStore, walletStore } = useStore();
   const { currentPosition } = onboardStore;
 
-  const createWords = (): string => {
-    return walletStore.createMnemonic();
-  };
-
   const incrementPosition = (): void => {
     onboardStore.incrementPosition();
   };
@@ -29,7 +25,9 @@ export const CreateWallet: React.FC = observer((props: CreateWalletProps) => {
   };
 
   useEffect(() => {
-    setWords(createWords());
+    // disable during dev
+    // walletStore.createMnemonic();
+    setWords(walletStore.mnemonic);
   }, []);
 
   switch (currentPosition) {
