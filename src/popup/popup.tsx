@@ -18,15 +18,16 @@ import { Deposit } from '@src/pages/Deposit';
 import { Send } from '@src/pages/Send';
 import { SendConfirm } from '@src/pages/SendConfirm';
 import { SendSuccess } from '@src/pages/SendSuccess';
+import { AddToken } from '@src/components/AddToken';
 
 export const Popup = observer(
   (): React.ReactElement => {
-    const { themeStore, networkStore } = useStore();
-
-    networkStore.changeNetwork('testnet');
+    const { themeStore, networkStore, walletStore } = useStore();
 
     // Sends the `popupMounted` event
     useEffect(() => {
+      networkStore.changeNetwork('testnet');
+      walletStore.MnemonicWallet();
       browser.runtime.sendMessage({ popupMounted: true });
     }, []);
 
@@ -46,6 +47,10 @@ export const Popup = observer(
 
             <Route path="/import">
               <Import />
+            </Route>
+
+            <Route path="/token/add">
+              <AddToken />
             </Route>
 
             <Route path="/wallet">
