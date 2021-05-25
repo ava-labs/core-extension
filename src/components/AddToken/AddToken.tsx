@@ -53,7 +53,6 @@ export const AddToken = observer((props: AddTokenProps) => {
   const handleSubmit = async () => {
     await walletStore.addERC20Contract(contract);
     await walletStore.updateBalance();
-    await walletStore.balCClean();
   };
 
   return (
