@@ -14,6 +14,7 @@ import { FirstTimeFlow } from '@src/pages/FirstTimeFlow';
 import { Import } from '@src/pages/Import';
 import { CreateWallet } from '@src/pages/CreateWallet';
 import { WalletHome } from '@src/pages/WalletHome';
+import { WalletOverview } from '@src/pages/WalletOverview';
 import { Deposit } from '@src/pages/Deposit';
 import { Send } from '@src/pages/Send';
 import { SendConfirm } from '@src/pages/SendConfirm';
@@ -51,6 +52,10 @@ export const Popup = observer(
 
             <Route path="/token/add">
               <AddToken />
+            </Route>
+
+            <Route path="/wallet/overview">
+              <WalletOverview />
             </Route>
 
             <Route path="/wallet">
