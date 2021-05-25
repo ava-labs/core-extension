@@ -1,13 +1,30 @@
 import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
-import { MnemonicWallet, ERC20, Utils } from 'avalanche-wallet-sdk';
+import { MnemonicWallet, ERC20, Utils, BN } from 'avalanche-wallet-sdk';
 import { isInArray } from '@src/utils/common';
 import { WalletType } from 'avalanche-wallet-sdk/dist/Wallet/types';
+
+import {
+  AssetBalanceP,
+  AssetBalanceX,
+  AvmExportChainType,
+  AvmImportChainType,
+  ERC20Balance,
+  WalletBalanceERC20,
+  WalletBalanceX,
+  WalletEventArgsType,
+  WalletEventType,
+  WalletNameType,
+} from './types';
 
 configure({
   enforceActions: 'never',
 });
 type Network = string;
+
+// X constants
+// assetID 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK';
+// decimals 9
 
 class WalletStore {
   wallet: WalletType | undefined = undefined;
@@ -17,10 +34,18 @@ class WalletStore {
   addrInternalX: string = '';
   hdIndexExternal: number = 0;
   hdIndexInternal: number = 0;
-  balanceCRaw: any = '';
-  balanceC: any = '';
-  balanceP: any = '';
-  balanceX: any = '';
+  balanceCRaw: BN = new BN(0);
+  balanceC: string = '';
+  balanceP: AssetBalanceP = {
+    unlocked: new BN(0),
+    locked: new BN(0),
+    lockedStakeable: new BN(0),
+  };
+  balanceX: AssetBalanceX = {
+    unlocked: new BN(0),
+    locked: new BN(0),
+    meta: { name: '', symbol: '', assetID: '', denomination: 0 },
+  };
   balanceERC20: any = '';
   stakeAmt: any = '';
   customERC20Contracts: string[] = [];
@@ -173,14 +198,6 @@ class WalletStore {
     await this.refreshHD();
   }
 
-  balCClean() {
-    if (!this.balanceC) {
-      console.log('missing C balance');
-      return;
-    }
-    return Utils.bnToAvaxC(this.balanceC);
-  }
-
   stakeAmountClean() {
     return Utils.bnToAvaxX(this.stakeAmt);
   }
@@ -203,12 +220,24 @@ class WalletStore {
   }
 
   async getERC20ContractData(address: string) {
-    let test = await ERC20.getContractData(address);
-    return test;
+    let data = await ERC20.getContractData(address);
+    return data;
   }
 
   get ERC20Tokens() {
     return this.balanceERC20;
+  }
+
+  get cleanTotalBalance() {
+    let p = new BN(this.balanceP.unlocked);
+    let x = new BN(this.balanceX.unlocked);
+    let c = new BN(this.balanceCRaw);
+
+    let test = p.add(x);
+    console.log('test', test);
+    test = test.add(c);
+    console.log('test2', test);
+    return test;
   }
 }
 
