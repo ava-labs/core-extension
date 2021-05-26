@@ -1,6 +1,9 @@
 import { browser } from 'webextension-polyfill-ts';
 import extensionizer from 'extensionizer';
-import { initializeProvider } from '@metamask/inpage-provider';
+
+let inpageBundle = require('./avalancheweb3');
+inpageBundle = JSON.stringify(inpageBundle);
+// import { initializeProvider } from '@metamask/inpage-provider';
 
 // const metamaskStream = new LocalMessageDuplexStream({
 //   name: 'inpage',
@@ -94,6 +97,13 @@ const injectScript = (content: any) => {
     scriptTag.textContent = content;
     container.insertBefore(scriptTag, container.children[0]);
 
+    var div = document.createElement('div');
+    div.style.position = 'fixed';
+    div.style.top = '0';
+    div.style.right = '0';
+    div.textContent = 'Injected!';
+    container.appendChild(div);
+
     container.removeChild(scriptTag);
   } catch (error) {
     console.error(' Provider injection failed.', error);
@@ -101,9 +111,10 @@ const injectScript = (content: any) => {
 };
 
 if (shouldInjectProvider()) {
-  // console.log('line 115');
+  console.log('line 115');
+
   // let inpageBundle = alert('inpage bundler, line 115');
-  // injectScript(inpageBundle);
+  injectScript(inpageBundle);
   // initializeProvider({
   //   connectionStream: metamaskStream,
   // });
