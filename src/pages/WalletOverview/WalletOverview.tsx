@@ -34,12 +34,16 @@ export const WalletOverview = observer(() => {
   const pLocked = Utils.bnToAvaxP(balanceP.locked);
   const pUnlocked = Utils.bnToAvaxP(balanceP.unlocked);
   const pLockedStakeable = Utils.bnToAvaxP(balanceP.lockedStakeable);
+
+  const grandTotal = walletStore.getGrandTotal();
+
   return (
     <Layout>
       <>
         <Overview>
+          <div className="fiat">Total - {grandTotal} AVAX </div>
           <div className="fiat"> C - {walletStore.balanceC} AVAX</div>
-          <div className="fiat">P - {pUnlocked}AVAX</div>
+          <div className="fiat">P - {pUnlocked} AVAX</div>
           <div className="fiat">X - {xUnlocked} AVAX</div>
           <div className="fiat">X locked - {xLocked}</div>
           <div className="fiat">P locked - {pLocked}</div>
