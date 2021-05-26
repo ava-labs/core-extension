@@ -228,16 +228,36 @@ class WalletStore {
     return this.balanceERC20;
   }
 
-  get cleanTotalBalance() {
-    let p = new BN(this.balanceP.unlocked);
-    let x = new BN(this.balanceX.unlocked);
-    let c = new BN(this.balanceCRaw);
+  getGrandTotal(precision?: number): string {
+    const p = Utils.bnToBig(this.balanceP.unlocked, 9);
+    const x = Utils.bnToBig(this.balanceX.unlocked, 9);
+    const c = Utils.bnToBig(this.balanceCRaw, 18);
 
-    let test = p.add(x);
-    console.log('test', test);
-    test = test.add(c);
-    console.log('test2', test);
-    return test;
+    const xu = Utils.bnToBig(this.balanceX.unlocked, 9);
+    const pl = Utils.bnToBig(this.balanceP.locked, 9);
+    const ps = Utils.bnToBig(this.balanceP.lockedStakeable, 9);
+
+    let total = p.add(x).add(c).add(xu).add(pl).add(ps);
+
+    if (precision) {
+      return total.toFixed(precision).toLocaleString();
+    }
+
+    return total.toLocaleString();
+  }
+
+  getCleanTotalBalance(precision?: number): string {
+    const p = Utils.bnToBig(this.balanceP.unlocked, 9);
+    const x = Utils.bnToBig(this.balanceX.unlocked, 9);
+    const c = Utils.bnToBig(this.balanceCRaw, 18);
+
+    let sum = p.add(x);
+    sum = sum.add(c);
+    if (precision) {
+      return sum.toFixed(precision).toLocaleString();
+    }
+
+    return sum.toLocaleString();
   }
 }
 
