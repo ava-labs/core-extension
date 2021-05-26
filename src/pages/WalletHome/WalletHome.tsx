@@ -19,15 +19,15 @@ interface ERC20 {
 }
 
 export const WalletHome = observer(() => {
+  const [loading, setIsLoading] = useState(true);
   const { walletStore } = useStore();
+
+  // wait for refreshHD
+  // show load screen
 
   const UpdateWallet = () => {
     walletStore.updateWallet();
     walletStore.updateBalance();
-  };
-
-  const getCBalance = () => {
-    walletStore.balCClean();
   };
 
   const AVAX: ERC20 = {
@@ -42,10 +42,12 @@ export const WalletHome = observer(() => {
   useEffect(() => {
     const update = async () => {
       await UpdateWallet();
-      await getCBalance();
+      setIsLoading(false);
     };
-    setTimeout(function () {
+
+    setTimeout(() => {
       update();
+      //      walletStore.sendXtransaction();
     }, 3200);
   }, []);
 
@@ -53,10 +55,15 @@ export const WalletHome = observer(() => {
     <Layout>
       <>
         <Balance>
-          <div className="fiat"> {walletStore.balanceC} AVAX</div>
+          <div className="fiat">
+            {loading ? 'Loading' : walletStore.getCleanTotalBalance(4)} AVAX
+          </div>
           {/* <div className="fiat">$12.34</div> */}
           {/* <div className="change">+5.24%</div> */}
           <div className="actions">
+            <Link to="/wallet/overview">
+              <button>Overview</button>
+            </Link>
             <Link to="/deposit">
               <button>Deposit</button>
             </Link>
