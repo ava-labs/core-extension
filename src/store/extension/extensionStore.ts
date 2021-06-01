@@ -60,6 +60,47 @@ class ExtensionStore {
     }
     this.openWindow(extensionURL);
   }
+
+  getActiveTabs() {
+    return new Promise((resolve, reject) => {
+      extension.tabs.query({ active: true }, (tabs) => {
+        return resolve(tabs);
+      });
+    });
+  }
+
+  getAllWindows() {
+    return new Promise((resolve, reject) => {
+      extension.windows.getAll((windows) => {
+        return resolve(windows);
+      });
+    });
+  }
+
+  currentTab() {
+    return new Promise((resolve, reject) => {
+      extension.tabs.getCurrent((tab) => {
+        resolve(tab);
+      });
+    });
+  }
+
+  switchToTab(tabId) {
+    return new Promise((resolve, reject) => {
+      extension.tabs.update(tabId, { highlighted: true }, (tab) => {
+        resolve(tab);
+      });
+    });
+  }
+
+  closeTab(tabId) {
+    extension.tabs.remove(tabId);
+    // return new Promise((resolve, reject) => {
+    //   extension.tabs.remove(tabId, () => {
+    //     resolve();
+    //   });
+    // });
+  }
 }
 
 export default ExtensionStore;
