@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { observer } from 'mobx-react-lite';
-import { Link, useLocation } from 'react-router-dom';
-import { Utils } from 'avalanche-wallet-sdk';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { observer } from "mobx-react-lite";
+import { Link, useLocation } from "react-router-dom";
+import { Utils } from "@avalabs/avalanche-wallet-sdk";
 
-import { useStore } from '@src/store/store';
+import { useStore } from "@src/store/store";
 
-import { Layout } from '@src/components/Layout';
-import { ContentLayout } from '@src/styles/styles';
+import { Layout } from "@src/components/Layout";
+import { ContentLayout } from "@src/styles/styles";
 
 export interface SendProps {
   name?: string;
@@ -24,8 +24,8 @@ interface ERC20 {
 }
 
 export const Send = observer((props: SendProps) => {
-  const [recipient, setRecipient] = useState('');
-  const [amount, setAmount] = useState('');
+  const [recipient, setRecipient] = useState("");
+  const [amount, setAmount] = useState("");
   const { walletStore } = useStore();
   const { state: token }: any = useLocation();
 
@@ -38,7 +38,7 @@ export const Send = observer((props: SendProps) => {
     setRecipient(value);
   };
 
-  const isValid = typeof Utils.isValidAddress(recipient) === 'boolean';
+  const isValid = typeof Utils.isValidAddress(recipient) === "boolean";
   const canSend = amount && recipient && isValid;
 
   return (
@@ -51,7 +51,7 @@ export const Send = observer((props: SendProps) => {
               <div className="token">
                 <img
                   src={
-                    'https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818'
+                    "https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818"
                   }
                   alt=""
                 />
@@ -68,7 +68,7 @@ export const Send = observer((props: SendProps) => {
                 <input
                   type="number"
                   onChange={handleAmountChange}
-                  placeholder={'Amount'}
+                  placeholder={"Amount"}
                 />
               </div>
               <div className="sendMax">
@@ -86,7 +86,7 @@ export const Send = observer((props: SendProps) => {
           </Link>
           <Link
             to={{
-              pathname: '/send/confirm',
+              pathname: "/send/confirm",
               state: { ...token, amount, recipient },
             }}
           >

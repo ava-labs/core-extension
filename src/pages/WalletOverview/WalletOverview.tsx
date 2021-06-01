@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
-import { useStore } from '@src/store/store';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { useStore } from "@src/store/store";
 
-import { Layout } from '@src/components/Layout';
+import { Layout } from "@src/components/Layout";
 
-import { Utils } from 'avalanche-wallet-sdk';
+import { Utils } from "@avalabs/avalanche-wallet-sdk";
 
 export const WalletOverview = observer(() => {
   const { walletStore } = useStore();
@@ -24,10 +24,10 @@ export const WalletOverview = observer(() => {
     const update = async () => {};
   }, []);
 
-  console.log('walletStore', walletStore);
+  console.log("walletStore", walletStore);
   const { balanceX, balanceP } = walletStore;
 
-  console.log('balancex', balanceP);
+  console.log("balancex", balanceP);
 
   const xLocked = Utils.bnToAvaxX(balanceX.locked);
   const xUnlocked = Utils.bnToAvaxX(balanceX.unlocked);

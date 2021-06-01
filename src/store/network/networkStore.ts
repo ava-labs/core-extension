@@ -1,6 +1,6 @@
-import { makeAutoObservable } from 'mobx';
-import { persistStore } from '@src/utils/mobx';
-import { setNetwork, NetworkConstants } from 'avalanche-wallet-sdk';
+import { makeAutoObservable } from "mobx";
+import { persistStore } from "@src/utils/mobx";
+import { setNetwork, NetworkConstants } from "@avalabs/avalanche-wallet-sdk";
 
 const testnet = NetworkConstants.TestnetConfig;
 const mainnet = NetworkConstants.MainnetConfig;
@@ -8,15 +8,15 @@ const mainnet = NetworkConstants.MainnetConfig;
 type Network = string;
 
 class NetworkStore {
-  network: Network = 'testnet';
+  network: Network = "testnet";
 
   constructor() {
     makeAutoObservable(this);
-    persistStore(this, ['network'], 'NetworkStore');
+    persistStore(this, ["network"], "NetworkStore");
   }
 
   changeNetwork(network) {
-    const net = network === 'testnet' ? testnet : mainnet;
+    const net = network === "testnet" ? testnet : mainnet;
     setNetwork(net);
   }
 }

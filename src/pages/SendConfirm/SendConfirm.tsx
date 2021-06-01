@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Link, useLocation, useHistory } from 'react-router-dom';
-import { BN, Utils } from 'avalanche-wallet-sdk';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { Link, useLocation, useHistory } from "react-router-dom";
+import { BN, Utils } from "@avalabs/avalanche-wallet-sdk";
 
-import { useStore } from '@src/store/store';
+import { useStore } from "@src/store/store";
 
-import { Layout } from '@src/components/Layout';
-import { ContentLayout } from '@src/styles/styles';
+import { Layout } from "@src/components/Layout";
+import { ContentLayout } from "@src/styles/styles";
 
-import { truncateAddress } from '@src/utils/addressUtils';
-import { Spinner } from '@src/components/misc/Spinner';
+import { truncateAddress } from "@src/utils/addressUtils";
+import { Spinner } from "@src/components/misc/Spinner";
 
 interface sendProps {
   address: string;
@@ -24,7 +24,7 @@ interface sendProps {
 
 export const SendConfirm = () => {
   const [loading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
   const { walletStore } = useStore();
   const { state }: any = useLocation();
@@ -46,7 +46,7 @@ export const SendConfirm = () => {
     const data = {
       to: recipient,
       amount: Utils.numberToBN(amount, 18),
-      tokenContract: '0xEa81F6972aDf76765Fd1435E119Acc0Aafc80BeA',
+      tokenContract: "0xEa81F6972aDf76765Fd1435E119Acc0Aafc80BeA",
     };
 
     // const data = {
@@ -56,9 +56,9 @@ export const SendConfirm = () => {
     // };
     try {
       await walletStore.sendTransaction(data);
-      history.push('/send/success');
+      history.push("/send/success");
     } catch (error) {
-      console.log('error', error);
+      console.log("error", error);
       setErrorMsg(error);
     }
   };
@@ -74,7 +74,7 @@ export const SendConfirm = () => {
               <div className="token">
                 <img
                   src={
-                    'https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818'
+                    "https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818"
                   }
                   alt=""
                 />
