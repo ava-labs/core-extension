@@ -4,9 +4,8 @@ import {
   MnemonicWallet,
   SingletonWallet,
   LedgerWallet,
-} from 'avalanche-wallet-sdk';
-
-import { BN } from 'avalanche';
+  BN,
+} from "@avalabs/avalanche-wallet-sdk";
 
 // import MnemonicWallet from '@/Wallet/MnemonicWallet';
 // import SingletonWallet from '@/Wallet/SingletonWallet';
@@ -23,12 +22,12 @@ export interface iAssetDescriptionClean {
 //   [index: number]: AVMKeyPair;
 // }
 
-export type ChainAlias = 'X' | 'P';
-export type AvmImportChainType = 'P' | 'C';
-export type AvmExportChainType = 'P' | 'C';
-export type HdChainType = 'X' | 'P';
+export type ChainAlias = "X" | "P";
+export type AvmImportChainType = "P" | "C";
+export type AvmExportChainType = "P" | "C";
+export type HdChainType = "X" | "P";
 
-export type WalletNameType = 'mnemonic' | 'ledger' | 'singleton';
+export type WalletNameType = "mnemonic" | "ledger" | "singleton";
 export type WalletType = MnemonicWallet | SingletonWallet | LedgerWallet;
 
 export interface WalletBalanceX {
@@ -68,13 +67,13 @@ export interface ERC20Balance {
 export interface ILedgerAppConfig {
   version: string;
   commit: string;
-  name: 'Avalanche';
+  name: "Avalanche";
 }
 
 export type WalletEventType =
-  | 'addressChanged'
-  | 'balanceChangedX'
-  | 'balanceChangedP';
+  | "addressChanged"
+  | "balanceChangedX"
+  | "balanceChangedP";
 export type WalletEventArgsType =
   | iWalletAddressChanged
   | WalletBalanceX
