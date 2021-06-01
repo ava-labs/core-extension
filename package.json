@@ -56,7 +56,6 @@
   },
   "dependencies": {
     "@types/react-router-dom": "^5.1.7",
-    "avalanche-wallet-sdk": "../avalanche-wallet-sdk-internal",
     "extensionizer": "^1.0.1",
     "i18next": "^20.2.1",
     "i18next-browser-languagedetector": "^6.1.0",

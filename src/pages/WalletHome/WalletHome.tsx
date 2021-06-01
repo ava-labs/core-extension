@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
-import { useStore } from '@src/store/store';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { useStore } from "@src/store/store";
 
-import { TokenRow } from '@src/components/TokenRow';
-import { Layout } from '@src/components/Layout';
+import { TokenRow } from "@src/components/TokenRow";
+import { Layout } from "@src/components/Layout";
 
-import { Utils } from 'avalanche-wallet-sdk';
+import { Utils } from "@avalabs/avalanche-wallet-sdk";
 
 interface ERC20 {
   name: string;
@@ -31,12 +31,12 @@ export const WalletHome = observer(() => {
   };
 
   const AVAX: ERC20 = {
-    name: 'Avalanche',
-    symbol: 'AVAX',
+    name: "Avalanche",
+    symbol: "AVAX",
     denomination: 18,
-    balance: 'de0b6b3a7640000',
+    balance: "de0b6b3a7640000",
     balanceParsed: walletStore.balanceC,
-    address: '0x34B6C87bb59Eb37EFe35C8d594a234Cd8C654D50',
+    address: "0x34B6C87bb59Eb37EFe35C8d594a234Cd8C654D50",
   };
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export const WalletHome = observer(() => {
       <>
         <Balance>
           <div className="fiat">
-            {loading ? 'Loading' : walletStore.getCleanTotalBalance(4)} AVAX
+            {loading ? "Loading" : walletStore.getCleanTotalBalance(4)} AVAX
           </div>
           {/* <div className="fiat">$12.34</div> */}
           {/* <div className="change">+5.24%</div> */}
@@ -69,7 +69,7 @@ export const WalletHome = observer(() => {
             </Link>
             <Link
               to={{
-                pathname: '/send',
+                pathname: "/send",
                 state: AVAX,
               }}
             >
