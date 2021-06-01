@@ -1,4 +1,4 @@
-import { KeyPair as AVMKeyPair } from 'avalanche/dist/apis/avm';
+// import { KeyPair as AVMKeyPair } from 'avalanche/dist/apis/avm';
 
 import {
   MnemonicWallet,
@@ -19,9 +19,9 @@ export interface iAssetDescriptionClean {
   denomination: number;
 }
 
-export interface IIndexKeyCache {
-  [index: number]: AVMKeyPair;
-}
+// export interface IIndexKeyCache {
+//   [index: number]: AVMKeyPair;
+// }
 
 export type ChainAlias = 'X' | 'P';
 export type AvmImportChainType = 'P' | 'C';
