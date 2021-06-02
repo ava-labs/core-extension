@@ -60,6 +60,7 @@
     "extensionizer": "^1.0.1",
     "i18next": "^20.2.1",
     "i18next-browser-languagedetector": "^6.1.0",
+    "micro-signals": "^2.4.0",
     "mobx": "^6.2.0",
     "mobx-persist-store": "^0.5.30",
     "mobx-react-lite": "^3.2.0",
