@@ -4,7 +4,11 @@ import PortStream from "extension-port-stream";
 browser.runtime.onConnect.addListener((connection) => {
   console.log("on connect attempt: ", connection);
   // new PortStream(connection).emit("ev", "Back at you :)");
-  connection.postMessage("back to ya :)");
+  connection.postMessage({ message: "back to ya :)" });
+
+  connection.onMessage.addListener((...args) => {
+    console.log("this is from foreground: ", args);
+  });
 });
 // Listen for messages sent from other parts of the extension
 browser.runtime.onMessage.addListener((...args) => {

@@ -29,17 +29,17 @@ const asdf = () => {
   // // setup stream to background
   // const extensionPort = extension.runtime.connect({ name: windowType });
   const extensionPort = extension.runtime.connect({ name: "background" });
-  const connectionStream = new PortStream(extensionPort);
-  console.log("stream: ", { extensionPort, connectionStream });
+  // const connectionStream = new PortStream(extensionPort);
+  console.log("stream: ", { extensionPort });
 
-  connectionStream.addListener("ev", (...args) => {
+  extensionPort.onMessage.addListener((...args) => {
     console.log("this is from background: ", args);
   });
 
   setInterval(() => {
     console.log("emiting");
-    connectionStream.emit("this is a message from stream");
-  }, 20000);
+    extensionPort.postMessage({ message: "this is a message from stream" });
+  }, 10000);
   window.avalanche.test();
 };
 
