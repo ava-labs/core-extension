@@ -31,6 +31,7 @@ typings/
 .npm
 
 /dist/js/popup.js
+/dist/js/inpage.js
 builds/
 .DS_Store
 /dist/js/backgroundPage.js

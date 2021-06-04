@@ -14,4 +14,8 @@ export class AvalancheBackgroundConnection {
       this.onMessage.dispatch(evt);
     });
   }
+
+  openExtension() {
+    backgroundConnection.postMessage({ message: "open_extension" });
+  }
 }

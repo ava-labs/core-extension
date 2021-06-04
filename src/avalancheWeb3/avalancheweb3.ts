@@ -1,18 +1,14 @@
 import extension from "extensionizer";
-import PortStream from "extension-port-stream";
-import { AvalancheBackgroundConnection } from "./avalancheBackgroundConnection";
-
+import { Runtime } from "webextension-polyfill-ts";
+import { Signal } from "micro-signals";
 declare global {
   interface Window {
-    avalanche: Avalanche;
+    avalanche: any;
   }
 }
 
-class Avalanche {
-  private backgroundConnection = new AvalancheBackgroundConnection();
-  constructor() {
-    window.avalanche = this;
-  }
+class AvalancheWeb3 {
+  constructor() {}
 
   test() {
     return "test";
@@ -22,3 +18,5 @@ class Avalanche {
     return "asdfasdfasasdf";
   }
 }
+
+export default new AvalancheWeb3();
