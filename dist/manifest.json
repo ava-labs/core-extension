@@ -1,7 +1,7 @@
 {
   "name": "Avalanche Wallet",
   "short_name": "Avalanche Wallet",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "manifest_version": 2,
   "author": "AvaLabs",
   "description": "Avalanche Browser Extension",
