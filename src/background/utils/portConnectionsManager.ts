@@ -1,6 +1,9 @@
 import { Duplex } from "stream";
 import { Runtime } from "webextension-polyfill-ts";
 
+/**
+ * We want to make sure that no port pair is ever connected to more than once.
+ */
 const connections = new Map<string, Runtime.Port>();
 
 function getConnectionKey(sender?: Runtime.MessageSender) {

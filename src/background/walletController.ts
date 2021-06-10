@@ -1,8 +1,13 @@
 import { Duplex } from "stream";
-import providerHandlers from "./providerHandlers";
-import web3Handlers from "./web3Handlers";
-import { JsonRpcRequest } from "./jsonRpcEngine";
+import providerHandlers from "./rpc/providerHandlers";
+import web3Handlers from "./rpc/web3Handlers";
+import { JsonRpcRequest } from "./rpc/jsonRpcEngine";
 import { resolve } from "../utils/promiseResolver";
+/**
+ * This is the core of the background logic. Every request comes in through the WalletControllerStream
+ * _write method. That method then offloads the handling to the WalletController. The result is then
+ * piped back down into the stream and sent out to its respective client.
+ */
 export class WalletController {
   /**
    * Check if a handler exists, make sure it only exists in one handler provider.
