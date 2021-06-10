@@ -6,6 +6,12 @@ export default function logger(message: string) {
   logger.on("data", (...args) => {
     console.log(`${message}: `, args);
   });
+  logger.on("end", (...args) => {
+    console.log(`${message}-end: `, args);
+  });
+  logger.on("close", () => {
+    console.log(`${message}-closed`);
+  });
 
   return logger;
 }

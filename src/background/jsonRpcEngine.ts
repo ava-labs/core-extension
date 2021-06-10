@@ -7,3 +7,5 @@ const fetchMiddleware = createFetchMiddleware({
 const engine = new JsonRpcEngine();
 engine.push(fetchMiddleware);
 export default engine;
+
+export { JsonRpcRequest } from "json-rpc-engine";

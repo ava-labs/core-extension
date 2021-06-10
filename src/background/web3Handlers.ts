@@ -1,33 +1,68 @@
-import engine from "./jsonRpcEngine";
+import engine, { JsonRpcRequest } from "./jsonRpcEngine";
+
+/**
+ * These are requests that are simply passthrough to the backend, they dont require
+ * authentication or any special handling. We should be supporting all or most of
+ *
+ * @link https://eth.wiki/json-rpc/API#json-rpc-methods
+ *
+ * This list is currently a subset of the metamaks list and needs to be groomed, just
+ * including this for now so we have something substantial
+ */
+const unauthenticatedRoutes = new Set([
+  "eth_getAssetBalance",
+  "eth_blockNumber",
+  "eth_call",
+  "eth_chainId",
+  "eth_coinbase",
+  "eth_decrypt",
+  "eth_estimateGas",
+  "eth_gasPrice",
+  "eth_getBalance",
+  "eth_getBlockByHash",
+  "eth_getBlockByNumber",
+  "eth_getBlockTransactionCountByHash",
+  "eth_getBlockTransactionCountByNumber",
+  "eth_getCode",
+  "eth_getEncryptionPublicKey",
+  "eth_getFilterChanges",
+  "eth_getFilterLogs",
+  "eth_getLogs",
+  "eth_getProof",
+  "eth_getStorageAt",
+  "eth_getTransactionByBlockHashAndIndex",
+  "eth_getTransactionByBlockNumberAndIndex",
+  "eth_getTransactionByHash",
+  "eth_getTransactionCount",
+  "eth_getTransactionReceipt",
+  "eth_getUncleByBlockHashAndIndex",
+  "eth_getUncleByBlockNumberAndIndex",
+  "eth_getUncleCountByBlockHash",
+  "eth_getUncleCountByBlockNumber",
+  "eth_getWork",
+  "eth_hashrate",
+  "eth_mining",
+  "eth_newBlockFilter",
+  "eth_newFilter",
+  "eth_newPendingTransactionFilter",
+  "eth_protocolVersion",
+  "eth_sendRawTransaction",
+  "eth_sendTransaction",
+  "eth_sign",
+  "eth_signTypedData",
+  "eth_signTypedData_v1",
+  "eth_signTypedData_v3",
+  "eth_signTypedData_v4",
+  "eth_submitHashrate",
+  "eth_submitWork",
+  "eth_syncing",
+  "eth_uninstallFilter",
+]);
 
 export default {
-  eth_getChainId(req) {
-    return engine
-      .handle(req)
-      .then((res) => console.log("response: ", res))
-      .catch((err) => console.log("error from json rpc: ", err));
-  },
-  eth_getAssetBalance(req) {
-    /**
-     * user requests balance
-     *
-     * 1.
-     * - we request the balance
-     * - the server responds and says we need signature for this
-     * - we popup and ask for it
-     * - we then resend with siganture
-     * - return response
-     *
-     * 2.
-     * - we know this call requires a signature
-     * - we popup and ask for signature
-     * - upon approval we make request
-     * - return response
-     *
-     */
-    return engine
-      .handle(req)
-      .then((res) => console.log("response: ", res))
-      .catch((err) => console.log("error from json rpc: ", err));
+  getHandlerForKey(data: JsonRpcRequest<any>) {
+    return (
+      unauthenticatedRoutes.has(data.method) && (() => engine.handle(data))
+    );
   },
 };
