@@ -52,6 +52,27 @@ export const openExtensionInBrowser = (route = null, queryString = null) => {
   openNewTab({ url: extensionURL });
 };
 
+export const openExtensionNewWindow = (route = null, queryString = null) => {
+  let extensionURL = extension.runtime.getURL('popup.html');
+
+  if (queryString) {
+    extensionURL += `?${queryString}`;
+  }
+
+  if (route) {
+    extensionURL += `#${route}`;
+  }
+
+  openWindow({
+    url: extensionURL,
+    focused: true,
+    type: 'popup',
+    height: 550,
+    left: 0,
+    width: 500,
+  });
+};
+
 export const reload = () => {
   extension.runtime.reload();
 };
@@ -60,5 +81,6 @@ export default {
   openNewTab,
   openWindow,
   openExtensionInBrowser,
+  openExtensionNewWindow,
   getTabs,
 };
