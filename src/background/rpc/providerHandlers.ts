@@ -1,5 +1,7 @@
 import { JsonRpcRequest } from "./jsonRpcEngine";
 
+const AVALANCHE_AGGREGATOR_NAME = "metamask";
+
 export default {
   async metamask_getProviderState(data) {
     return { ...data, result: { name: "this came from handler" } };

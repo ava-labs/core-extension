@@ -47,7 +47,6 @@ const unauthenticatedRoutes = new Set([
   "eth_newPendingTransactionFilter",
   "eth_protocolVersion",
   "eth_sendRawTransaction",
-  "eth_sendTransaction",
   "eth_sign",
   "eth_signTypedData",
   "eth_signTypedData_v1",
@@ -59,10 +58,16 @@ const unauthenticatedRoutes = new Set([
   "eth_uninstallFilter",
 ]);
 
+const web3CustomHandlers = {
+  async eth_sendTransaction(data: JsonRpcRequest<any>) {},
+};
+
 export default {
   getHandlerForKey(data: JsonRpcRequest<any>) {
-    return (
-      unauthenticatedRoutes.has(data.method) && (() => engine.handle(data))
-    );
+    const customHandler = web3CustomHandlers[data.method];
+
+    return customHandler
+      ? () => customHandler(data)
+      : unauthenticatedRoutes.has(data.method) && (() => engine.handle(data));
   },
 };
