@@ -1,6 +1,8 @@
 import { Runtime, Tabs, Windows } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
 
+import { NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT } from '@src/utils/constants';
+
 const checkForError = () => {
   const { lastError } = extension.runtime;
   if (!lastError) {
@@ -52,7 +54,10 @@ export const openExtensionInBrowser = (route = null, queryString = null) => {
   openNewTab({ url: extensionURL });
 };
 
-export const openExtensionNewWindow = (route = null, queryString = null) => {
+export const openExtensionNewWindow = (
+  route?: string,
+  queryString?: string
+) => {
   let extensionURL = extension.runtime.getURL('popup.html');
 
   if (queryString) {
@@ -60,16 +65,25 @@ export const openExtensionNewWindow = (route = null, queryString = null) => {
   }
 
   if (route) {
-    extensionURL += `#${route}`;
+    extensionURL += `#/${route}`;
   }
+
+  let left = 0;
+  let top = 0;
+
+  const { width, height } = window.screen;
+
+  top = Math.max(height, 0);
+  left = Math.max(width + (width - NOTIFICATION_WIDTH), 0);
 
   openWindow({
     url: extensionURL,
     focused: true,
     type: 'popup',
-    height: 550,
-    left: 0,
-    width: 500,
+    height: NOTIFICATION_HEIGHT,
+    width: NOTIFICATION_WIDTH,
+    left,
+    top,
   });
 };
 
