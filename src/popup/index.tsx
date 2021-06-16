@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { browser } from 'webextension-polyfill-ts';
 import { Popup as App } from './popup';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import { store, StoreContext } from '@src/store/store';
 import '@src/i18n';
 
