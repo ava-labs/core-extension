@@ -1,5 +1,8 @@
 import engine, { JsonRpcRequest } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { browser } from 'webextension-polyfill-ts';
+import { store } from '@src/store/store';
+
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -61,8 +64,18 @@ const unauthenticatedRoutes = new Set([
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
 
+  async open(data: JsonRpcRequest<any>) {
+    return openExtensionNewWindow('');
+  },
   async test(data: JsonRpcRequest<any>) {
-    openExtensionNewWindow();
+    console.log('opened extension to passthrough', data);
+    await openExtensionNewWindow('send/confirm');
+    const { addrC, getCleanTotalBalance } = store.walletStore;
+
+    const { unapprovedTxs, saveUnapprovedTx } = store.transactionStore;
+    console.log('addrC', addrC);
+
+    await saveUnapprovedTx(data.params, addrC);
     return { test: 'test' };
   },
 };
