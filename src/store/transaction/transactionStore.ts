@@ -12,8 +12,10 @@ class TransactionStore {
     persistStore(this, ['unapprovedTxs'], 'TransactionStore');
   }
 
-  saveUnapprovedTx(params: txParams, from: string): void {
-    const { to, value, gas, gasPrice } = params;
+  async saveUnapprovedTx(params: txParams, from: string) {
+    console.log('unapprovedTxs', this.unapprovedTxs);
+
+    const { to, value, gas, gasPrice, data } = params;
 
     let sampleTx = {
       id: 7786962153682822,
@@ -25,7 +27,7 @@ class TransactionStore {
         from: from,
         to: to,
         value: value,
-        data: '',
+        data: data,
         gas: gas,
         gasPrice: gasPrice,
       },
@@ -33,7 +35,10 @@ class TransactionStore {
       transactionCategory: 'transfer',
     };
 
+    console.log('should have saved sampleTx', sampleTx);
+
     this.unapprovedTxs.push(sampleTx);
+    return;
   }
 }
 
