@@ -65,7 +65,12 @@ const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
 
   async open(data: JsonRpcRequest<any>) {
-    return openExtensionNewWindow('');
+    return openExtensionNewWindow();
+  },
+
+  async eth_getBalance(data: JsonRpcRequest<any>) {
+    const { balanceC } = store.walletStore;
+    return { ...data, result: balanceC };
   },
   async test(data: JsonRpcRequest<any>) {
     console.log('opened extension to passthrough', data);
