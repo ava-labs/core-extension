@@ -57,6 +57,12 @@ class WalletStore {
   mnemonic: string =
     "surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader";
   lastTransactionSent: string = "";
+  /**
+   * This will be c chain addresses
+   */
+  get accounts() {
+    return [this.addrC];
+  }
 
   constructor() {
     makeAutoObservable(this, {
