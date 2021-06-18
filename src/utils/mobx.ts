@@ -1,5 +1,5 @@
-import { PersistenceStore } from 'mobx-persist-store/lib/types';
-import { persistence, StorageAdapter } from 'mobx-persist-store';
+import { PersistenceStore } from "mobx-persist-store/lib/types";
+import { persistence, StorageAdapter } from "mobx-persist-store";
 
 export const persistStore = <T extends Record<string, any>, P extends keyof T>(
   target: T,
@@ -16,13 +16,11 @@ export const persistStore = <T extends Record<string, any>, P extends keyof T>(
         return data ? JSON.parse(data) : undefined;
       },
       write: async (name, content) => {
-        console.log(name, content);
-
         window.localStorage.setItem(name, JSON.stringify(content));
       },
     }),
     reactionOptions: {
-      delay: 200,
+      delay: 0,
     },
   })(target);
 };
