@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation, useHistory } from 'react-router-dom';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@src/store/store';
 
@@ -11,7 +12,7 @@ import { ContentLayout } from '@src/styles/styles';
 import { truncateAddress } from '@src/utils/addressUtils';
 import { Spinner } from '@src/components/misc/Spinner';
 
-interface sendProps {
+interface routeProps {
   address: string;
   amount: string;
   balance: string;
@@ -22,33 +23,48 @@ interface sendProps {
   symbol: string;
 }
 
-export const SendConfirm = () => {
+export const SendConfirm = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [symbol, setSymbol] = useState('AVAX');
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState(0);
 
-  const { walletStore } = useStore();
-  let { state }: any = useLocation();
+  const { walletStore, transactionStore } = useStore();
+  let { routeProps }: any | routeProps = useLocation();
+  const history = useHistory();
 
-  if (!state) {
-    state = {
-      recipient: 'test',
-      amount: 2,
-      address: 'test',
-      symbol: 'test',
-    };
+  let jsonRPCId = history.location.search;
+  const isUnconfirmedTransactionRequest = jsonRPCId !== '';
+  if (isUnconfirmedTransactionRequest) {
+    jsonRPCId = jsonRPCId.replace('?id=', '');
   }
 
-  const {
-    address,
-    amount,
-    balance,
-    balanceParsed,
-    denomination,
-    name,
-    recipient,
-    symbol,
-  } = state;
-  const history = useHistory();
+  useEffect(() => {
+    (async () => {
+      let txParams = await transactionStore.getUnnapprovedTxById(
+        Number(jsonRPCId)
+      );
+
+      setAmount(
+        isUnconfirmedTransactionRequest
+          ? txParams?.txParams.value
+          : routeProps.amount
+      );
+
+      setRecipient(
+        isUnconfirmedTransactionRequest
+          ? txParams?.txParams.to
+          : routeProps.recipient
+      );
+
+      setSymbol(
+        isUnconfirmedTransactionRequest
+          ? txParams?.txParams.value
+          : routeProps.amount
+      );
+    })();
+  }, []);
 
   const sendTransaction = async () => {
     setIsLoading(true);
@@ -110,7 +126,7 @@ export const SendConfirm = () => {
       </ContentLayout>
     </Layout>
   );
-};
+});
 
 export const Wrapper = styled.div`
   padding: 1rem;
