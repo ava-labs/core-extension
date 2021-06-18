@@ -1,6 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
 import PortStream from "extension-port-stream";
-import { WalletControllerStream } from "./background/walletController";
+import { createWalletControllerStream } from "./background/walletController";
 import logger from "./background/utils/logging";
 import pump from "pump";
 import {
@@ -8,6 +8,9 @@ import {
   connectionExists,
   removeConnection,
 } from "./background/utils/portConnectionsManager";
+import { store } from "@src/store/store";
+
+console.log("walletStore: ", store.walletStore);
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connectionExists(connection)) {
@@ -21,8 +24,9 @@ browser.runtime.onConnect.addListener((connection) => {
     }
   }
 
-  const walletControllerStream = new WalletControllerStream();
+  const walletControllerStream = createWalletControllerStream();
   const stream = new PortStream(connection);
+
   /**
    * For any connection that is opened, we pipe the request into the wallet controller. The wallet
    * controller then gets the proper handler for that request and the response is piped out to the
