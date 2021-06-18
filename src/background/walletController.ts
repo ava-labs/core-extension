@@ -56,24 +56,3 @@ export function createWalletControllerStream() {
     },
   });
 }
-// export class WalletControllerStream extends Duplex {
-
-//   constructor() {
-//     super({ objectMode: true });
-//   }
-
-//   _read() {}
-
-//   _write(chunk, _encoding, cb) {
-//     this.controller
-//       .mapChunkToHandler(chunk)
-//       .then((result) => {
-//         this.push(result);
-//       })
-//       .finally(() => cb());
-//   }
-
-//   _final() {
-//     this.push(null);
-//   }
-// }
