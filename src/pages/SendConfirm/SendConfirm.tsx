@@ -29,7 +29,7 @@ export const SendConfirm = observer(() => {
   const [errorMsg, setErrorMsg] = useState('');
   const [symbol, setSymbol] = useState('AVAX');
   const [recipient, setRecipient] = useState('');
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<number | string>(0);
 
   const { walletStore, transactionStore } = useStore();
   let { routeProps }: any | routeProps = useLocation();
@@ -57,7 +57,7 @@ export const SendConfirm = observer(() => {
         to = routeProps.recipient;
       }
 
-      setAmount(Number(amount));
+      setAmount(amount);
       setRecipient(to);
 
       // do logic to determine if AVAX or other token
