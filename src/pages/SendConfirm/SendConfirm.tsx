@@ -11,7 +11,6 @@ import { ContentLayout } from '@src/styles/styles';
 
 import { truncateAddress } from '@src/utils/addressUtils';
 import { Spinner } from '@src/components/misc/Spinner';
-import { observe } from 'mobx';
 
 interface routeProps {
   address: string;
@@ -43,42 +42,27 @@ export const SendConfirm = observer(() => {
 
   useEffect(() => {
     (async () => {
-      console.log('transactionStore array', transactionStore.unapprovedTxs);
-
       let txParams = await transactionStore.getUnnapprovedTxById(
         Number(jsonRPCId)
       );
-      console.log('txParams for', jsonRPCId, ' : ', txParams);
 
-      const unsubscribe = observe(
-        transactionStore,
-        'unapprovedTxs',
-        (...args) => {
-          console.log('result', args);
-
-          // setAmount(
-          //   isUnconfirmedTransactionRequest
-          //     ? txParams?.txParams.value
-          //     : routeProps.amount
-          // );
-
-          // setRecipient(
-          //   isUnconfirmedTransactionRequest
-          //     ? txParams?.txParams.to
-          //     : routeProps.recipient
-          // );
-
-          // setSymbol(
-          //   isUnconfirmedTransactionRequest
-          //     ? txParams?.txParams.value
-          //     : routeProps.amount
-          // );
-        }
+      setAmount(
+        isUnconfirmedTransactionRequest
+          ? txParams?.txParams.value
+          : routeProps.amount
       );
 
-      console.log('unsubscribe', unsubscribe);
+      setRecipient(
+        isUnconfirmedTransactionRequest
+          ? txParams?.txParams.to
+          : routeProps.recipient
+      );
 
-      return unsubscribe;
+      setSymbol(
+        isUnconfirmedTransactionRequest
+          ? txParams?.txParams.value
+          : routeProps.amount
+      );
     })();
   }, []);
 

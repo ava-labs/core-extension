@@ -76,7 +76,10 @@ const web3CustomHandlers = {
   async test(data: JsonRpcRequest<any>) {
     const { addrC } = store.walletStore;
     await store.transactionStore.saveUnapprovedTx(data, addrC);
-    await openExtensionNewWindow(`send/confirm?id=${data.id}`);
+
+    setTimeout(() => {
+      openExtensionNewWindow(`send/confirm?id=${data.id}`);
+    }, 400);
   },
 
   async eth_signTransaction(data: JsonRpcRequest<any>) {
