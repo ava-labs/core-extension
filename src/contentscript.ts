@@ -5,14 +5,17 @@ import extension from "extensionizer";
 import ObjectMultiplex from "obj-multiplex";
 import PortStream from "extension-port-stream";
 import pump from "pump";
-import { CONTENT_SCRIPT, INPAGE_SCRIPT } from "./common";
+import {
+  CONTENT_SCRIPT,
+  INPAGE_SCRIPT,
+  INPAGE_PROVIDER as PROVIDER,
+} from "./common";
 import { Duplex } from "stream";
 
 const inpage = require("raw-loader!/dist/js/inpage.js");
 
 const inpageSuffix = `//# sourceURL=${extension.runtime.getURL("inpage.js")}\n`;
 const inpageBundle = `${inpage.default}` + inpageSuffix;
-const PROVIDER = "metamask-provider";
 
 const shouldInjectProvider = () => {
   return (

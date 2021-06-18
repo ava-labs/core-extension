@@ -3,6 +3,7 @@ import providerHandlers from "./rpc/providerHandlers";
 import web3Handlers from "./rpc/web3Handlers";
 import { JsonRpcRequest } from "./rpc/jsonRpcEngine";
 import { resolve } from "../utils/promiseResolver";
+
 /**
  * This is the core of the background logic. Every request comes in through the WalletControllerStream
  * _write method. That method then offloads the handling to the WalletController. The result is then
@@ -38,26 +39,41 @@ export class WalletController {
       : { ...request, data: { ...request.data, error: err } };
   }
 }
-
-export class WalletControllerStream extends Duplex {
-  controller = new WalletController();
-
-  constructor() {
-    super({ objectMode: true });
-  }
-
-  _read() {}
-
-  _write(chunk, _encoding, cb) {
-    this.controller
-      .mapChunkToHandler(chunk)
-      .then((result) => {
-        this.push(result);
-      })
-      .finally(() => cb());
-  }
-
-  _final() {
-    this.push(null);
-  }
+export function createWalletControllerStream() {
+  const controller = new WalletController();
+  return new Duplex({
+    objectMode: true,
+    write(chunk, _encoding, cb) {
+      controller
+        .mapChunkToHandler(chunk)
+        .then((result) => {
+          this.push(result);
+        })
+        .finally(() => cb());
+    },
+    read() {
+      return;
+    },
+  });
 }
+// export class WalletControllerStream extends Duplex {
+
+//   constructor() {
+//     super({ objectMode: true });
+//   }
+
+//   _read() {}
+
+//   _write(chunk, _encoding, cb) {
+//     this.controller
+//       .mapChunkToHandler(chunk)
+//       .then((result) => {
+//         this.push(result);
+//       })
+//       .finally(() => cb());
+//   }
+
+//   _final() {
+//     this.push(null);
+//   }
+// }
