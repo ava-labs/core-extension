@@ -1,7 +1,7 @@
 import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
-
 import { UnapprovedTransaction, txParams } from './types';
+import { JsonRpcRequest } from 'json-rpc-engine';
 
 class TransactionStore {
   addrX: string = '';
@@ -12,14 +12,23 @@ class TransactionStore {
     persistStore(this, ['unapprovedTxs'], 'TransactionStore');
   }
 
-  async saveUnapprovedTx(params: txParams, from: string) {
-    console.log('unapprovedTxs', this.unapprovedTxs);
+  getUnnapprovedTxById(id: string | number | void) {
+    const match = this.unapprovedTxs.find((x) => {
+      return x.id === id;
+    });
+    console.log('found match', match);
 
-    const { to, value, gas, gasPrice, data } = params;
+    return match;
+  }
+
+  async saveUnapprovedTx(data: JsonRpcRequest<any>, from: string) {
+    const { params } = data;
+    const { to, value, gas, gasPrice }: txParams = params;
+    const now = new Date().getTime();
 
     let sampleTx = {
-      id: 7786962153682822,
-      time: 1623700201,
+      id: data.id,
+      time: now,
       status: 'string',
       metamaskNetworkId: '1',
       chainId: '0xa869',
@@ -27,15 +36,12 @@ class TransactionStore {
         from: from,
         to: to,
         value: value,
-        data: data,
         gas: gas,
         gasPrice: gasPrice,
       },
       type: 'standard',
       transactionCategory: 'transfer',
     };
-
-    console.log('should have saved sampleTx', sampleTx);
 
     this.unapprovedTxs.push(sampleTx);
     return;
