@@ -14,19 +14,22 @@ class TransactionStore {
 
   getUnnapprovedTxById(id: string | number | void) {
     const match = this.unapprovedTxs.find((x) => {
-      console.log('x', x.id, 'requested ID', id);
-
       return x.id === id;
     });
-    console.log('found match', match);
-
     return match;
   }
 
+  removeUnapprovedTransaction(id: string | number) {
+    const removedArray: UnapprovedTransaction[] = this.unapprovedTxs.filter(
+      (x) => x.id !== id
+    );
+    this.unapprovedTxs = removedArray;
+    return;
+  }
 
   async saveUnapprovedTx(data: JsonRpcRequest<any>, from: string) {
     const { params } = data;
-    const { to, value, gas, gasPrice }: txParams = params;
+    let { to, value, gas, gasPrice }: txParams = params;
     const now = new Date().getTime();
 
     let sampleTx = {
