@@ -21,7 +21,7 @@ const unauthenticatedRoutes = new Set([
   'eth_decrypt',
   'eth_estimateGas',
   'eth_gasPrice',
-  'eth_getBalance',
+  // 'eth_getBalance',
   'eth_getBlockByHash',
   'eth_getBlockByNumber',
   'eth_getBlockTransactionCountByHash',
@@ -58,6 +58,7 @@ const unauthenticatedRoutes = new Set([
   'eth_submitHashrate',
   'eth_submitWork',
   'eth_syncing',
+  'eth_signTransaction',
   'eth_uninstallFilter',
 ]);
 
@@ -73,15 +74,18 @@ const web3CustomHandlers = {
     return { ...data, result: balanceC };
   },
   async test(data: JsonRpcRequest<any>) {
-    console.log('opened extension to passthrough', data);
-    await openExtensionNewWindow('send/confirm');
-    const { addrC, getCleanTotalBalance } = store.walletStore;
+    const { addrC } = store.walletStore;
+    await store.transactionStore.saveUnapprovedTx(data, addrC);
+    await openExtensionNewWindow(`send/confirm?id=${data.id}`);
+  },
 
-    const { unapprovedTxs, saveUnapprovedTx } = store.transactionStore;
-    console.log('addrC', addrC);
-
-    await saveUnapprovedTx(data.params, addrC);
-    return { test: 'test' };
+  async eth_signTransaction(data: JsonRpcRequest<any>) {
+    // pop open
+    // user clicks approved transaction
+    // call sdk to sign
+    // get signed tx
+    // broadcast signed tx
+    // return tx hash/id
   },
 };
 
