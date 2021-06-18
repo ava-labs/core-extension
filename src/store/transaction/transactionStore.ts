@@ -14,12 +14,15 @@ class TransactionStore {
 
   getUnnapprovedTxById(id: string | number | void) {
     const match = this.unapprovedTxs.find((x) => {
+      console.log('x', x.id, 'requested ID', id);
+
       return x.id === id;
     });
     console.log('found match', match);
 
     return match;
   }
+
 
   async saveUnapprovedTx(data: JsonRpcRequest<any>, from: string) {
     const { params } = data;
