@@ -1,5 +1,5 @@
 export interface UnapprovedTransaction {
-  id: number;
+  id: number | string | void;
   time: number;
   status: string;
   metamaskNetworkId: string;
@@ -14,6 +14,6 @@ export interface txParams {
   to: string;
   value: string;
   data?: string;
-  gas: string;
-  gasPrice: string;
+  gas?: string;
+  gasPrice?: string;
 }
