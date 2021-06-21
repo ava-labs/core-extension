@@ -5,6 +5,7 @@ import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@src/store/store';
+import { hexToNumber, fromWei } from '@src/utils/web3Utils';
 
 import { Layout } from '@src/components/Layout';
 import { ContentLayout } from '@src/styles/styles';
@@ -28,7 +29,7 @@ export const SendConfirm = observer(() => {
   const [errorMsg, setErrorMsg] = useState('');
   const [symbol, setSymbol] = useState('AVAX');
   const [recipient, setRecipient] = useState('');
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<number | string>(0);
 
   const { walletStore, transactionStore } = useStore();
   let { routeProps }: any | routeProps = useLocation();
@@ -46,23 +47,25 @@ export const SendConfirm = observer(() => {
         Number(jsonRPCId)
       );
 
-      setAmount(
-        isUnconfirmedTransactionRequest
-          ? txParams?.txParams.value
-          : routeProps.amount
-      );
+      let amount: number | string, to: string;
+      if (isUnconfirmedTransactionRequest && txParams !== undefined) {
+        amount = hexToNumber(txParams.txParams.value);
+        amount = fromWei(amount.toString());
+        to = txParams.txParams.to;
+      } else {
+        amount = routeProps.amount;
+        to = routeProps.recipient;
+      }
 
-      setRecipient(
-        isUnconfirmedTransactionRequest
-          ? txParams?.txParams.to
-          : routeProps.recipient
-      );
+      setAmount(amount);
+      setRecipient(to);
 
-      setSymbol(
-        isUnconfirmedTransactionRequest
-          ? txParams?.txParams.value
-          : routeProps.amount
-      );
+      // do logic to determine if AVAX or other token
+      // setSymbol(
+      //   isUnconfirmedTransactionRequest
+      //     ? txParams?.txParams.value
+      //     : routeProps.amount
+      // );
     })();
   }, []);
 
@@ -82,6 +85,9 @@ export const SendConfirm = observer(() => {
     // };
     try {
       await walletStore.sendTransaction(data);
+      if (isUnconfirmedTransactionRequest) {
+        await transactionStore.removeUnapprovedTransaction(jsonRPCId);
+      }
       history.push('/send/success');
     } catch (error) {
       console.log('error', error);
