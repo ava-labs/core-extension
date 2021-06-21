@@ -1,7 +1,7 @@
-import log from "loglevel";
-import { WindowPostMessageStream } from "@metamask/post-message-stream";
-import { initializeProvider } from "@metamask/providers/dist/initializeInpageProvider";
-import { CONTENT_SCRIPT, INPAGE_SCRIPT } from "./common";
+import log from 'loglevel';
+import { WindowPostMessageStream } from '@metamask/post-message-stream';
+import { initializeProvider } from '@metamask/providers/dist/initializeInpageProvider';
+import { CONTENT_SCRIPT, INPAGE_SCRIPT } from './common';
 
 /**
  * This is placing the metamask provider and web3 shim into the dApp environment
