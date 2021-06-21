@@ -10,7 +10,6 @@ const fujiprovider: any = {
 };
 
 const web3 = new Web3(fujiprovider);
-const { BN } = web3.utils;
 
 export const hexToNumber = (value: string): number => {
   return web3.utils.hexToNumber(value);

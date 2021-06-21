@@ -1,7 +1,8 @@
 import { browser } from "webextension-polyfill-ts";
 import PortStream from "extension-port-stream";
 import { createWalletControllerStream } from "./background/walletController";
-import logger from "./background/utils/logging";
+import { createProviderUpdateStream } from "./background/walletUpdates";
+import logger, { LoggerColors } from "./background/utils/logging";
 import pump from "pump";
 import {
   addConnection,
@@ -9,6 +10,7 @@ import {
   removeConnection,
 } from "./background/utils/portConnectionsManager";
 import { store } from "@src/store/store";
+import { createTransformToJsonRPCResponse } from "./background/utils/providerUpdate";
 
 console.log("walletStore: ", store.walletStore);
 
@@ -36,7 +38,7 @@ browser.runtime.onConnect.addListener((connection) => {
     stream,
     logger("Wallet controller request"),
     walletControllerStream,
-    logger("Wallet controller response"),
+    logger("Wallet controller response", { color: LoggerColors.success }),
     (err) => {
       /**
        * When a app refreshes the wallet connection stream throws a
@@ -55,4 +57,42 @@ browser.runtime.onConnect.addListener((connection) => {
     .addListener("close", () => {
       removeConnection(connection)?.disconnect();
     });
+
+  const providerUpdateStream = createProviderUpdateStream();
+  /**
+   * When parts of the store update the provider needs to be notified. This is specified in the spec
+   * @link https://eips.ethereum.org/EIPS/eip-1193
+   *
+   * Currently in the metamask architecture these events go through the same connection, there is then
+   * middleware that intercepts and deciphers between of these events and the above messages. Depending
+   * on wwhich one they determine it to be they either fire an event that bubbles up to the provider or they
+   * resolve the value as a response to a prviously made json rpc request. This basically comes down to whether the
+   * object contains an id or not.
+   *
+   * This middleware and logic can be found here:
+   * @link https://github.com/MetaMask/json-rpc-middleware-stream/blob/main/src/createStreamMiddleware.ts
+   *
+   * Eventually we will move away from the above architecture but for now it works
+   */
+  pump(
+    providerUpdateStream,
+    createTransformToJsonRPCResponse(),
+    logger("Wallet provider update", { color: LoggerColors.success }),
+    (err) => {
+      console.log("wallet updates stream error: ", err);
+    }
+  ).addListener("data", (result) => {
+    connection.postMessage(result);
+  });
+
+  /**
+   * When the connection closes we close one stream from each pump, will will then
+   * disconnect the remaining streams.
+   */
+  function cleanupOnDisconnect() {
+    providerUpdateStream.destroy();
+    walletControllerStream.destroy();
+    connection.onDisconnect.removeListener(cleanupOnDisconnect);
+  }
+  connection.onDisconnect.addListener(cleanupOnDisconnect);
 });
