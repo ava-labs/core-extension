@@ -1,29 +1,31 @@
-import { makeAutoObservable, autorun, observable, configure } from "mobx";
-import { persistStore } from "@src/utils/mobx";
+import { makeAutoObservable, autorun, observable, configure } from 'mobx';
+import { persistStore } from '@src/utils/mobx';
 import {
   MnemonicWallet,
-  ERC20,
   Utils,
   BN,
-} from "@avalabs/avalanche-wallet-sdk";
-import { isInArray } from "@src/utils/common";
-import { WalletType } from "@avalabs/avalanche-wallet-sdk/dist/Wallet/types";
+  Assets,
+} from '@avalabs/avalanche-wallet-sdk';
+import { isInArray } from '@src/utils/common';
+import { WalletType } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
 
 import {
-  AssetBalanceP,
-  AssetBalanceX,
-  AvmExportChainType,
-  AvmImportChainType,
-  ERC20Balance,
+  iAvaxBalance,
   WalletBalanceERC20,
   WalletBalanceX,
+  AssetBalanceP,
+  AssetBalanceRawX,
+  AssetBalanceX,
   WalletEventArgsType,
   WalletEventType,
   WalletNameType,
-} from "./types";
+  AvmExportChainType,
+  AvmImportChainType,
+  ERC20Balance,
+} from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
 
 configure({
-  enforceActions: "never",
+  enforceActions: 'never',
 });
 type Network = string;
 
@@ -33,30 +35,29 @@ type Network = string;
 
 class WalletStore {
   wallet: WalletType | undefined = undefined;
-  addrX: string = "";
-  addrP: string = "";
-  addrC: string = "";
-  addrInternalX: string = "";
+  addrX: string = '';
+  addrP: string = '';
+  addrC: string = '';
+  addrInternalX: string = '';
   hdIndexExternal: number = 0;
   hdIndexInternal: number = 0;
   balanceCRaw: BN = new BN(0);
-  balanceC: string = "";
+  balanceC: string = '';
   balanceP: AssetBalanceP = {
     unlocked: new BN(0),
     locked: new BN(0),
     lockedStakeable: new BN(0),
   };
-  balanceX: AssetBalanceX = {
+  balanceX: AssetBalanceRawX = {
     unlocked: new BN(0),
     locked: new BN(0),
-    meta: { name: "", symbol: "", assetID: "", denomination: 0 },
   };
-  balanceERC20: any = "";
-  stakeAmt: any = "";
+  balanceERC20: any = '';
+  stakeAmt: any = '';
   customERC20Contracts: string[] = [];
   mnemonic: string =
-    "surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader";
-  lastTransactionSent: string = "";
+    'surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader';
+  lastTransactionSent: string = '';
   /**
    * This will be c chain addresses
    */
@@ -71,21 +72,21 @@ class WalletStore {
     persistStore(
       this,
       [
-        "addrX",
-        "addrP",
-        "addrC",
-        "addrInternalX",
-        "hdIndexExternal",
-        "hdIndexInternal",
-        "balanceC",
-        "balanceP",
-        "balanceX",
-        "balanceERC20",
-        "stakeAmt",
-        "mnemonic",
-        "customERC20Contracts",
+        'addrX',
+        'addrP',
+        'addrC',
+        'addrInternalX',
+        'hdIndexExternal',
+        'hdIndexInternal',
+        'balanceC',
+        'balanceP',
+        'balanceX',
+        'balanceERC20',
+        'stakeAmt',
+        'mnemonic',
+        'customERC20Contracts',
       ],
-      "WalletStore"
+      'WalletStore'
     );
   }
 
@@ -122,7 +123,7 @@ class WalletStore {
 
     this.addrInternalX = this.wallet!.getChangeAddressX();
 
-    if (this.wallet!.type === "mnemonic") {
+    if (this.wallet!.type === 'mnemonic') {
       let wallet = this.wallet as MnemonicWallet;
 
       this.hdIndexExternal = wallet.getExternalIndex();
@@ -226,12 +227,12 @@ class WalletStore {
         this.customERC20Contracts.push(address);
       }
     } catch (error) {
-      console.log("incorrect ERC20 address", error);
+      console.log('incorrect ERC20 address', error);
     }
   }
 
   async getERC20ContractData(address: string) {
-    let data = await ERC20.getContractData(address);
+    let data = await Assets.getContractData(address);
     return data;
   }
 
