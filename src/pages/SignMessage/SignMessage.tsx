@@ -10,6 +10,12 @@ import { Layout } from '@src/components/Layout';
 import { ContentLayout } from '@src/styles/styles';
 
 import { Spinner } from '@src/components/misc/Spinner';
+import {
+  personalSign,
+  signTypedData_v4,
+  TypedData,
+  TypedMessage,
+} from 'eth-sig-util';
 
 // ux notes
 // elminate tech jargon
@@ -22,6 +28,7 @@ export const SignMessage = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [parsedMsg, setParsedMsg] = useState('');
+  const [msgParams, setMsgParams] = useState<TypedData>('');
 
   const { walletStore, transactionStore } = useStore();
   const history = useHistory();
@@ -34,13 +41,13 @@ export const SignMessage = observer(() => {
 
   useEffect(() => {
     (async () => {
-      const msgParams = await transactionStore.getUnnaprovedMsgById(
+      const message = await transactionStore.getUnnaprovedMsgById(
         Number(jsonRPCId)
       );
 
-      console.log('msgParams', msgParams);
-      if (msgParams !== undefined) {
-        let parsed = JSON.stringify(msgParams.msgParams, [], 4);
+      if (message !== undefined) {
+        setMsgParams(message.msgParams);
+        let parsed = JSON.stringify(message.msgParams, [], 4);
 
         setParsedMsg(parsed);
       }
@@ -49,6 +56,15 @@ export const SignMessage = observer(() => {
 
   const signTransaction = async () => {
     setIsLoading(true);
+    const privateKey = walletStore.getEthPrivateKey();
+
+    if (privateKey) {
+      const buffer = Buffer.from(privateKey, 'utf-8');
+      console.log('msgParams', msgParams);
+
+      let result = signTypedData_v4(buffer, msgParams);
+      console.log('result', result);
+    }
   };
 
   return (
