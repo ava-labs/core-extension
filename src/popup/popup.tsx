@@ -25,10 +25,14 @@ import { AddToken } from '@src/components/AddToken';
 export const Popup = observer((): React.ReactElement => {
   const { themeStore, networkStore, walletStore } = useStore();
 
-  // Sends the `popupMounted` event
+  // remove setTimeout later
+  // when sdk is updated
+
   useEffect(() => {
     networkStore.changeNetwork('testnet');
-    walletStore.MnemonicWallet();
+    setTimeout(() => {
+      walletStore.MnemonicWallet();
+    }, 1500);
     browser.runtime.sendMessage({ popupMounted: true });
   }, []);
 
