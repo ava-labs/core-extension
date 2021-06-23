@@ -10,7 +10,7 @@ browser.tabs.query({ active: true, currentWindow: true }).then(() => {
   ReactDOM.render(
     <Router>
       <StoreContext.Provider value={store}>
-        <React.Suspense fallback='Loading...'>
+        <React.Suspense fallback="Loading...">
           <App />
         </React.Suspense>
       </StoreContext.Provider>
