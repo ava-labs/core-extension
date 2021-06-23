@@ -55,6 +55,7 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
+    "@avalabs/react-components": "^0.1.7",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
     "@types/react-router-dom": "^5.1.7",
