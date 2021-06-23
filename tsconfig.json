@@ -17,7 +17,9 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "types": ["chrome"],
+    "typeRoots": ["node_modules/@types/*", "src/types/*"]
   },
   "exclude": ["**/node_modules/*"]
 }

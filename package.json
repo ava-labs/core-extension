@@ -20,7 +20,7 @@
     "@babel/preset-typescript": "^7.13.0",
     "@cypress/react": "^5.3.4",
     "@cypress/webpack-dev-server": "^1.1.4",
-    "@types/chrome": "^0.0.135",
+    "@types/chrome": "^0.0.145",
     "@types/jest": "^26.0.22",
     "@types/node": "^15.6.1",
     "@types/react": "^17.0.3",

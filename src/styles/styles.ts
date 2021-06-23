@@ -66,6 +66,10 @@ export const GlobalStyle = createGlobalStyle`
     text-rendering: optimizeLegibility;
     color: ${black};
   }
+  
+  body, html, #popup {
+    height: 100%;
+  }
 `;
 
 export const ExampleDiv = styled.div`

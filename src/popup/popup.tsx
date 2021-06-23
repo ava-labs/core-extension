@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { browser } from 'webextension-polyfill-ts';
 import { observer } from 'mobx-react-lite';
 
-import { GlobalStyle, ExtensionContainer } from '@src/styles/styles';
-import styled, { ThemeProvider } from 'styled-components';
+import { GlobalStyle } from '@src/styles/styles';
+import { ThemeProvider } from 'styled-components';
 import { lightTheme, darkTheme } from '@src/styles/theme';
 
 import { useStore } from '@src/store/store';
@@ -20,6 +20,9 @@ import { SendConfirm } from '@src/pages/SendConfirm';
 import { SendSuccess } from '@src/pages/SendSuccess';
 import { SignMessage } from '@src/pages/SignMessage';
 import { AddToken } from '@src/components/AddToken';
+import { Header } from '@src/components/common/Header';
+import { Footer } from '@src/components/common/Footer';
+import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 
 export const Popup = observer((): React.ReactElement => {
   const { themeStore, networkStore, walletStore } = useStore();
@@ -37,58 +40,68 @@ export const Popup = observer((): React.ReactElement => {
 
   return (
     <ThemeProvider theme={themeStore.isDarkMode ? darkTheme : lightTheme}>
-      <ExtensionContainer>
-        <Switch>
-          <Route path="/welcome/create">
-            <CreateWallet />
-          </Route>
+      <VerticalFlex
+        height={'100%'}
+        style={{
+          minHeight: '500px',
+          minWidth: '500px',
+        }}
+      >
+        <Header />
+        <HorizontalFlex flex={1}>
+          <Switch>
+            <Route path="/welcome/create">
+              <CreateWallet />
+            </Route>
 
-          <Route path="/welcome">
-            <Welcome />
-          </Route>
+            <Route path="/welcome">
+              <Welcome />
+            </Route>
 
-          <Route path="/import">
-            <Import />
-          </Route>
+            <Route path="/import">
+              <Import />
+            </Route>
 
-          <Route path="/token/add">
-            <AddToken />
-          </Route>
+            <Route path="/token/add">
+              <AddToken />
+            </Route>
 
-          <Route path="/wallet/overview">
-            <WalletOverview />
-          </Route>
+            <Route path="/wallet/overview">
+              <WalletOverview />
+            </Route>
 
-          <Route path="/wallet">
-            <WalletHome />
-          </Route>
+            <Route path="/wallet">
+              <WalletHome />
+            </Route>
 
-          <Route path="/deposit">
-            <Deposit />
-          </Route>
+            <Route path="/deposit">
+              <Deposit />
+            </Route>
 
-          <Route path="/send/confirm">
-            <SendConfirm />
-          </Route>
+            <Route path="/send/confirm">
+              <SendConfirm />
+            </Route>
 
-          <Route path="/send/success">
-            <SendSuccess />
-          </Route>
+            <Route path="/send/success">
+              <SendSuccess />
+            </Route>
 
-          <Route path="/send">
-            <Send />
-          </Route>
+            <Route path="/send">
+              <Send />
+            </Route>
 
-          <Route path="/sign">
-            <SignMessage />
-          </Route>
+            <Route path="/sign">
+              <SignMessage />
+            </Route>
 
-          <Route path="/">
-            <FirstTimeFlow />
-          </Route>
-        </Switch>
+            <Route path="/">
+              <FirstTimeFlow />
+            </Route>
+          </Switch>
+        </HorizontalFlex>
         <GlobalStyle />
-      </ExtensionContainer>
+        <Footer />
+      </VerticalFlex>
     </ThemeProvider>
   );
 });
