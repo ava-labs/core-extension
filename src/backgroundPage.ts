@@ -1,27 +1,25 @@
-import { browser } from "webextension-polyfill-ts";
-import PortStream from "extension-port-stream";
-import { createWalletControllerStream } from "./background/walletController";
-import { createProviderUpdateStream } from "./background/walletUpdates";
-import logger, { LoggerColors } from "./background/utils/logging";
-import pump from "pump";
+import { browser } from 'webextension-polyfill-ts';
+import PortStream from 'extension-port-stream';
+import { createWalletControllerStream } from './background/walletController';
+import { createProviderUpdateStream } from './background/walletUpdates';
+import logger, { LoggerColors } from './background/utils/logging';
+import pump from 'pump';
 import {
   addConnection,
   connectionExists,
   removeConnection,
-} from "./background/utils/portConnectionsManager";
-import { store } from "@src/store/store";
-import { createTransformToJsonRPCResponse } from "./background/utils/providerUpdate";
-
-console.log("walletStore: ", store.walletStore);
+} from './background/utils/portConnectionsManager';
+import { store } from '@src/store/store';
+import { createTransformToJsonRPCResponse } from './background/utils/providerUpdate';
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connectionExists(connection)) {
-    console.log("already connected: ", connection);
+    console.log('already connected: ', connection);
     return;
   } else {
     // we only want connection from the parent app, that is frameId = 0
     if (connection.sender?.frameId === 0) {
-      console.log("connecting: ", connection);
+      console.log('connecting: ', connection);
       addConnection(connection);
     }
   }
@@ -36,9 +34,9 @@ browser.runtime.onConnect.addListener((connection) => {
    */
   pump(
     stream,
-    logger("Wallet controller request"),
+    logger('Wallet controller request'),
     walletControllerStream,
-    logger("Wallet controller response", { color: LoggerColors.success }),
+    logger('Wallet controller response', { color: LoggerColors.success }),
     (err) => {
       /**
        * When a app refreshes the wallet connection stream throws a
@@ -47,14 +45,14 @@ browser.runtime.onConnect.addListener((connection) => {
        * it was ended, or vice versa im not 100% on this. But it continues to work for now
        * so in the future would be nice to know why and fix it.
        */
-      console.log("wallet controller stream error: ", err);
+      console.log('wallet controller stream error: ', err);
       removeConnection(connection)?.disconnect();
     }
   )
-    .addListener("data", (result) => {
+    .addListener('data', (result) => {
       connection.postMessage(result);
     })
-    .addListener("close", () => {
+    .addListener('close', () => {
       removeConnection(connection)?.disconnect();
     });
 
@@ -77,11 +75,11 @@ browser.runtime.onConnect.addListener((connection) => {
   pump(
     providerUpdateStream,
     createTransformToJsonRPCResponse(),
-    logger("Wallet provider update", { color: LoggerColors.success }),
+    logger('Wallet provider update', { color: LoggerColors.success }),
     (err) => {
-      console.log("wallet updates stream error: ", err);
+      console.log('wallet updates stream error: ', err);
     }
-  ).addListener("data", (result) => {
+  ).addListener('data', (result) => {
     connection.postMessage(result);
   });
 
