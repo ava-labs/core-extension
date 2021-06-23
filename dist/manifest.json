@@ -1,7 +1,7 @@
 {
   "name": "Avalanche Wallet",
   "short_name": "Avalanche Wallet",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "manifest_version": 2,
   "author": "AvaLabs",
   "description": "Avalanche Browser Extension",
@@ -50,7 +50,7 @@
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["phishing.html"],
+  "web_accessible_resources": ["phishing.html", "popup.html", "inpage.js"],
   "externally_connectable": {
     "matches": ["https://google.com/*"],
     "ids": ["*"]

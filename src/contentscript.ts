@@ -1,14 +1,21 @@
-import { browser } from 'webextension-polyfill-ts';
-import extensionizer from 'extensionizer';
+// import { browser } from "webextension-polyfill-ts";
+// import avalancheWeb3 from "./avalancheWeb3/avalancheweb3";
+import { WindowPostMessageStream } from "@metamask/post-message-stream";
+import extension from "extensionizer";
+import ObjectMultiplex from "obj-multiplex";
+import PortStream from "extension-port-stream";
+import pump from "pump";
+import {
+  CONTENT_SCRIPT,
+  INPAGE_SCRIPT,
+  INPAGE_PROVIDER as PROVIDER,
+} from "./common";
+import { Duplex } from "stream";
 
-let inpageBundle = require('./avalancheweb3');
-inpageBundle = JSON.stringify(inpageBundle);
-// import { initializeProvider } from '@metamask/inpage-provider';
+const inpage = require("raw-loader!/dist/js/inpage.js");
 
-// const metamaskStream = new LocalMessageDuplexStream({
-//   name: 'inpage',
-//   target: 'contentscript',
-// });
+const inpageSuffix = `//# sourceURL=${extension.runtime.getURL("inpage.js")}\n`;
+const inpageBundle = `${inpage.default}` + inpageSuffix;
 
 const shouldInjectProvider = () => {
   return (
@@ -27,7 +34,7 @@ const shouldInjectProvider = () => {
 const doctypeCheck = () => {
   const { doctype } = window.document;
   if (doctype) {
-    return doctype.name === 'html';
+    return doctype.name === "html";
   }
   return true;
 };
@@ -60,7 +67,7 @@ const suffixCheck = () => {
 const documentElementCheck = () => {
   const documentElement = document.documentElement.nodeName;
   if (documentElement) {
-    return documentElement.toLowerCase() === 'html';
+    return documentElement.toLowerCase() === "html";
   }
   return true;
 };
@@ -71,16 +78,16 @@ const documentElementCheck = () => {
  */
 const blockedDomainCheck = () => {
   const blockedDomains = [
-    'dropbox.com',
-    'cdn.shopify.com/s/javascripts/tricorder/xtld-read-only-frame.html',
+    "dropbox.com",
+    "cdn.shopify.com/s/javascripts/tricorder/xtld-read-only-frame.html",
   ];
   const currentUrl = window.location.href;
   let currentRegex;
   for (let i = 0; i < blockedDomains.length; i++) {
-    const blockedDomain = blockedDomains[i].replace('.', '\\.');
+    const blockedDomain = blockedDomains[i].replace(".", "\\.");
     currentRegex = new RegExp(
       `(?:https?:\\/\\/)(?:(?!${blockedDomain}).)*$`,
-      'u'
+      "u"
     );
     if (!currentRegex.test(currentUrl)) {
       return true;
@@ -92,30 +99,90 @@ const blockedDomainCheck = () => {
 const injectScript = (content: any) => {
   try {
     const container = document.head || document.documentElement;
-    const scriptTag = document.createElement('script');
-    scriptTag.setAttribute('async', 'false');
+    const scriptTag = document.createElement("script");
+    scriptTag.setAttribute("async", "false");
     scriptTag.textContent = content;
     container.insertBefore(scriptTag, container.children[0]);
+    container.removeChild(scriptTag);
 
-    var div = document.createElement('div');
-    div.style.position = 'fixed';
-    div.style.top = '0';
-    div.style.right = '0';
-    div.textContent = 'Injected!';
+    var div = document.createElement("div");
+    div.style.position = "fixed";
+    div.style.top = "0";
+    div.style.right = "0";
+    div.textContent = "Injected!";
     container.appendChild(div);
 
-    container.removeChild(scriptTag);
+    // container.removeChild(scriptTag);
   } catch (error) {
-    console.error(' Provider injection failed.', error);
+    console.error(" Provider injection failed.", error);
   }
 };
 
-if (shouldInjectProvider()) {
-  console.log('line 115');
+function setupStream() {
+  const pageMux: Duplex = new ObjectMultiplex();
+  pageMux.setMaxListeners(25);
 
-  // let inpageBundle = alert('inpage bundler, line 115');
+  const extensionMux: Duplex = new ObjectMultiplex();
+  extensionMux.setMaxListeners(25);
+
+  /**
+   * Wrap the postMessage api from inpage as a duplex stream
+   */
+  const pageStream = new WindowPostMessageStream({
+    name: CONTENT_SCRIPT,
+    target: INPAGE_SCRIPT,
+  });
+
+  /**
+   * Establish a connection to the background page via Runtime.Port
+   * api and then wrap that as a duplex stream
+   */
+  const extensionPort = extension.runtime.connect({ name: CONTENT_SCRIPT });
+  const extensionStream = new PortStream(extensionPort);
+
+  /**
+   * pump all pagstream events into the pageMux, pageMux is
+   * a multiplex stream
+   */
+  pump(pageMux, pageStream, pageMux, (err) =>
+    console.log("MetaMask Inpage Multiplex", err)
+  ).addListener("data", (...args) => {
+    console.log("from page: ", args);
+  });
+
+  /**
+   * pump all extensionStream events into the extensionMux, extensionMux is
+   * a multiplex stream
+   */
+  pump(extensionMux, extensionStream, extensionMux, (err) => {
+    console.log("MetaMask Background Multiplex", err);
+  }).addListener("data", (...args) => {
+    console.log("from pump: ", args);
+  });
+
+  /**
+   * note from original engineer: forward communication across inpage-background for these channels only
+   *
+   * Essentially this crosses the streams on a private substream pipe,
+   * this substream pipe is given a name. From what I can tell the provider
+   * uses the same name schema and name as above PROVIDER, this allows that provider
+   * to send messages through this private substream.
+   */
+  forwardTrafficBetweenMuxes(PROVIDER, pageMux, extensionMux);
+}
+
+function forwardTrafficBetweenMuxes(channelName, muxA, muxB) {
+  const channelA = muxA.createStream(channelName);
+  const channelB = muxB.createStream(channelName);
+  pump(channelA, channelB, channelA, (error) =>
+    console.debug(
+      `MetaMask: Muxed traffic for channel "${channelName}" failed.`,
+      error
+    )
+  );
+}
+
+if (shouldInjectProvider()) {
   injectScript(inpageBundle);
-  // initializeProvider({
-  //   connectionStream: metamaskStream,
-  // });
+  setupStream();
 }

@@ -29,8 +29,10 @@ typings/
 
 # Optional npm cache directory
 .npm
+.npmrc
 
 /dist/js/popup.js
+/dist/js/inpage.js
 builds/
 .DS_Store
 /dist/js/backgroundPage.js
