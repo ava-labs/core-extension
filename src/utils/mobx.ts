@@ -12,12 +12,10 @@ export const persistStore = <T extends Record<string, any>, P extends keyof T>(
     adapter: new StorageAdapter({
       read: async (name) => {
         const data = window.localStorage.getItem(name);
-        console.log(name, data);
         return data ? JSON.parse(data) : undefined;
       },
       write: async (name, content) => {
         window.localStorage.setItem(name, JSON.stringify(content));
-        console.log(name, content);
       },
     }),
     reactionOptions: {
