@@ -1,19 +1,31 @@
 import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
-import { UnapprovedTransaction, txParams } from './types';
+import { UnapprovedTransaction, UnapprovedMessage, txParams } from './types';
 import { JsonRpcRequest } from 'json-rpc-engine';
 
 class TransactionStore {
   addrX: string = '';
   unapprovedTxs: UnapprovedTransaction[] = [];
+  unapprovedMsgs: UnapprovedMessage[] = [];
 
   constructor() {
     makeAutoObservable(this);
-    persistStore(this, ['unapprovedTxs'], 'TransactionStore');
+    persistStore(this, ['unapprovedTxs', 'unapprovedMsgs'], 'TransactionStore');
   }
 
-  getUnnapprovedTxById(id: string | number | void) {
+  getUnnapprovedTxById(
+    id: string | number | void
+  ): UnapprovedTransaction | undefined {
     const match = this.unapprovedTxs.find((x) => {
+      return x.id === id;
+    });
+    return match;
+  }
+
+  getUnnaprovedMsgById(
+    id: string | number | void
+  ): UnapprovedMessage | undefined {
+    const match = this.unapprovedMsgs.find((x) => {
       return x.id === id;
     });
     return match;
@@ -50,6 +62,24 @@ class TransactionStore {
     };
 
     this.unapprovedTxs.push(sampleTx);
+    return;
+  }
+
+  async saveUnapprovedMsg(data: JsonRpcRequest<any>, from: string) {
+    const { params } = data;
+
+    const now = new Date().getTime();
+
+    let msgData: UnapprovedMessage = {
+      id: data.id,
+      from,
+      time: now,
+      status: 'string',
+      msgParams: params[1],
+      type: 'eth_signTypedData',
+    };
+
+    this.unapprovedMsgs.push(msgData);
     return;
   }
 }

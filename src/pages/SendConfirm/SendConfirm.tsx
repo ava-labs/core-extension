@@ -36,8 +36,8 @@ export const SendConfirm = observer(() => {
   const history = useHistory();
 
   let jsonRPCId = history.location.search;
-  const isUnconfirmedTransactionRequest = jsonRPCId !== '';
-  if (isUnconfirmedTransactionRequest) {
+  const isUnapprovedTransactionRequest = jsonRPCId !== '';
+  if (isUnapprovedTransactionRequest) {
     jsonRPCId = jsonRPCId.replace('?id=', '');
   }
 
@@ -48,7 +48,7 @@ export const SendConfirm = observer(() => {
       );
 
       let amount: number | string, to: string;
-      if (isUnconfirmedTransactionRequest && txParams !== undefined) {
+      if (isUnapprovedTransactionRequest && txParams !== undefined) {
         amount = hexToNumber(txParams.txParams.value);
         amount = fromWei(amount.toString());
         to = txParams.txParams.to;
@@ -62,7 +62,7 @@ export const SendConfirm = observer(() => {
 
       // do logic to determine if AVAX or other token
       // setSymbol(
-      //   isUnconfirmedTransactionRequest
+      //   isUnapprovedTransactionRequest
       //     ? txParams?.txParams.value
       //     : routeProps.amount
       // );
@@ -85,7 +85,7 @@ export const SendConfirm = observer(() => {
     // };
     try {
       await walletStore.sendTransaction(data);
-      if (isUnconfirmedTransactionRequest) {
+      if (isUnapprovedTransactionRequest) {
         await transactionStore.removeUnapprovedTransaction(jsonRPCId);
       }
       history.push('/send/success');

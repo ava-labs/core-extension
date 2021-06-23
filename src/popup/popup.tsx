@@ -18,15 +18,20 @@ import { Deposit } from '@src/pages/Deposit';
 import { Send } from '@src/pages/Send';
 import { SendConfirm } from '@src/pages/SendConfirm';
 import { SendSuccess } from '@src/pages/SendSuccess';
+import { SignMessage } from '@src/pages/SignMessage';
 import { AddToken } from '@src/components/AddToken';
 
 export const Popup = observer((): React.ReactElement => {
   const { themeStore, networkStore, walletStore } = useStore();
 
-  // Sends the `popupMounted` event
+  // remove setTimeout later
+  // when sdk is updated
+
   useEffect(() => {
     networkStore.changeNetwork('testnet');
-    walletStore.MnemonicWallet();
+    setTimeout(() => {
+      walletStore.MnemonicWallet();
+    }, 1500);
     browser.runtime.sendMessage({ popupMounted: true });
   }, []);
 
@@ -72,6 +77,10 @@ export const Popup = observer((): React.ReactElement => {
 
           <Route path="/send">
             <Send />
+          </Route>
+
+          <Route path="/sign">
+            <SignMessage />
           </Route>
 
           <Route path="/">

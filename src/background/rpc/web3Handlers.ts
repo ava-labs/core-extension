@@ -61,6 +61,7 @@ const unauthenticatedRoutes = new Set([
   'eth_signTransaction',
   'eth_uninstallFilter',
 ]);
+const { addrC } = store.walletStore;
 
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
@@ -74,13 +75,14 @@ const web3CustomHandlers = {
     return { ...data, result: balanceC };
   },
   async test(data: JsonRpcRequest<any>) {
-    const { addrC } = store.walletStore;
     await store.transactionStore.saveUnapprovedTx(data, addrC);
 
     openExtensionNewWindow(`send/confirm?id=${data.id}`);
   },
 
-  async eth_signTransaction(data: JsonRpcRequest<any>) {
+  async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, addrC);
+    openExtensionNewWindow(`sign?id=${data.id}`);
     // pop open
     // user clicks approved transaction
     // call sdk to sign

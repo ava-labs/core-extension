@@ -1,62 +1,60 @@
-import { makeAutoObservable, autorun, observable, configure } from "mobx";
-import { persistStore } from "@src/utils/mobx";
+import { makeAutoObservable, autorun, observable, configure } from 'mobx';
+import { persistStore } from '@src/utils/mobx';
 import {
   MnemonicWallet,
-  ERC20,
   Utils,
   BN,
-} from "@avalabs/avalanche-wallet-sdk";
-import { isInArray } from "@src/utils/common";
-import { WalletType } from "@avalabs/avalanche-wallet-sdk/dist/Wallet/types";
+  Assets,
+} from '@avalabs/avalanche-wallet-sdk';
+import { isInArray } from '@src/utils/common';
+import { WalletType } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
+import { AVAX_X_ASSET_ID } from '@src/utils/constants';
 
 import {
-  AssetBalanceP,
-  AssetBalanceX,
-  AvmExportChainType,
-  AvmImportChainType,
-  ERC20Balance,
+  iAvaxBalance,
   WalletBalanceERC20,
   WalletBalanceX,
+  AssetBalanceP,
+  AssetBalanceRawX,
+  AssetBalanceX,
   WalletEventArgsType,
   WalletEventType,
   WalletNameType,
-} from "./types";
+  AvmExportChainType,
+  AvmImportChainType,
+  ERC20Balance,
+} from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
 
 configure({
-  enforceActions: "never",
+  enforceActions: 'never',
 });
 type Network = string;
 
-// X constants
-// assetID 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK';
-// decimals 9
-
 class WalletStore {
   wallet: WalletType | undefined = undefined;
-  addrX: string = "";
-  addrP: string = "";
-  addrC: string = "";
-  addrInternalX: string = "";
+  addrX: string = '';
+  addrP: string = '';
+  addrC: string = '';
+  addrInternalX: string = '';
   hdIndexExternal: number = 0;
   hdIndexInternal: number = 0;
   balanceCRaw: BN = new BN(0);
-  balanceC: string = "";
+  balanceC: string = '';
   balanceP: AssetBalanceP = {
     unlocked: new BN(0),
     locked: new BN(0),
     lockedStakeable: new BN(0),
   };
-  balanceX: AssetBalanceX = {
+  balanceX: AssetBalanceRawX = {
     unlocked: new BN(0),
     locked: new BN(0),
-    meta: { name: "", symbol: "", assetID: "", denomination: 0 },
   };
-  balanceERC20: any = "";
-  stakeAmt: any = "";
+  balanceERC20: any = '';
+  stakeAmt: any = '';
   customERC20Contracts: string[] = [];
   mnemonic: string =
-    "surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader";
-  lastTransactionSent: string = "";
+    'surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader';
+  lastTransactionSent: string = '';
   /**
    * This will be c chain addresses
    */
@@ -71,21 +69,21 @@ class WalletStore {
     persistStore(
       this,
       [
-        "addrX",
-        "addrP",
-        "addrC",
-        "addrInternalX",
-        "hdIndexExternal",
-        "hdIndexInternal",
-        "balanceC",
-        "balanceP",
-        "balanceX",
-        "balanceERC20",
-        "stakeAmt",
-        "mnemonic",
-        "customERC20Contracts",
+        'addrX',
+        'addrP',
+        'addrC',
+        'addrInternalX',
+        'hdIndexExternal',
+        'hdIndexInternal',
+        'balanceC',
+        'balanceP',
+        'balanceX',
+        'balanceERC20',
+        'stakeAmt',
+        'mnemonic',
+        'customERC20Contracts',
       ],
-      "WalletStore"
+      'WalletStore'
     );
   }
 
@@ -106,9 +104,17 @@ class WalletStore {
     this.mnemonic = MnemonicWallet.generateMnemonicPhrase();
   }
 
-  async getUtxos(): Promise<void> {
-    await this.wallet!.getUtxosX();
-    await this.wallet!.getUtxosP();
+  getEthPrivateKey() {
+    if (this.wallet!.type !== 'ledger') {
+      let wallet = this.wallet as MnemonicWallet;
+
+      return wallet.getEvmPrivateKeyHex();
+    }
+  }
+
+  async updateUtxos(): Promise<void> {
+    await this.wallet!.updateUtxosX();
+    await this.wallet!.updateUtxosP();
   }
 
   async getPrice(): Promise<number> {
@@ -116,13 +122,17 @@ class WalletStore {
   }
 
   updateWallet(): void {
+    if (typeof this.wallet === undefined) {
+      return;
+    }
+
     this.addrX = this.wallet!.getAddressX();
     this.addrP = this.wallet!.getAddressP();
     this.addrC = this.wallet!.getAddressC();
 
     this.addrInternalX = this.wallet!.getChangeAddressX();
 
-    if (this.wallet!.type === "mnemonic") {
+    if (this.wallet!.type === 'mnemonic') {
       let wallet = this.wallet as MnemonicWallet;
 
       this.hdIndexExternal = wallet.getExternalIndex();
@@ -131,13 +141,15 @@ class WalletStore {
   }
 
   async updateBalance(): Promise<void> {
-    await this.getUtxos();
+    await this.updateUtxos();
     await this.updateCustomERC20s();
+
+    //  const { C, P, X } = await this.wallet!.getAvaxBalance();
 
     this.balanceCRaw = await this.wallet!.updateAvaxBalanceC();
     this.balanceC = await Utils.bnToAvaxC(this.balanceCRaw);
     this.balanceP = await this.wallet!.getAvaxBalanceP();
-    this.balanceX = await this.wallet!.getAvaxBalanceX();
+    // this.balanceX = await this.wallet!.getAvaxBalanceX();
     this.balanceERC20 = await this.wallet!.updateBalanceERC20();
     this.stakeAmt = await this.wallet!.getStake();
   }
@@ -226,12 +238,12 @@ class WalletStore {
         this.customERC20Contracts.push(address);
       }
     } catch (error) {
-      console.log("incorrect ERC20 address", error);
+      console.log('incorrect ERC20 address', error);
     }
   }
 
   async getERC20ContractData(address: string) {
-    let data = await ERC20.getContractData(address);
+    let data = await Assets.getContractData(address);
     return data;
   }
 
@@ -241,14 +253,15 @@ class WalletStore {
 
   getGrandTotal(precision?: number): string {
     const p = Utils.bnToBig(this.balanceP.unlocked, 9);
-    const x = Utils.bnToBig(this.balanceX.unlocked, 9);
+    //  const x = Utils.bnToBig(this.balanceX.unlocked, 9);
     const c = Utils.bnToBig(this.balanceCRaw, 18);
 
-    const xu = Utils.bnToBig(this.balanceX.unlocked, 9);
+    //  const xu = Utils.bnToBig(this.balanceX.unlocked, 9);
     const pl = Utils.bnToBig(this.balanceP.locked, 9);
     const ps = Utils.bnToBig(this.balanceP.lockedStakeable, 9);
 
-    let total = p.add(x).add(c).add(xu).add(pl).add(ps);
+    //    let total = p.add(x).add(c).add(xu).add(pl).add(ps);
+    let total = p.add(c).add(pl).add(ps);
 
     if (precision) {
       return total.toFixed(precision).toLocaleString();
@@ -259,11 +272,12 @@ class WalletStore {
 
   getCleanTotalBalance(precision?: number): string {
     const p = Utils.bnToBig(this.balanceP.unlocked, 9);
-    const x = Utils.bnToBig(this.balanceX.unlocked, 9);
+    //const x = Utils.bnToBig(this.balanceX.unlocked, 9);
     const c = Utils.bnToBig(this.balanceCRaw, 18);
 
-    let sum = p.add(x);
-    sum = sum.add(c);
+    let sum = p.add(c);
+    //  let sum = p.add(x);
+    //   sum = sum.add(c);
     if (precision) {
       return sum.toFixed(precision).toLocaleString();
     }
