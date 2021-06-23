@@ -5,38 +5,30 @@ import { JsonRpcRequest } from 'json-rpc-engine';
 
 class TransactionStore {
   addrX: string = '';
-  unapprovedTxs: UnapprovedTransaction[] = [];
-  unapprovedMsgs: UnapprovedMessage[] = [];
+
+  Transactions: Map<UnapprovedTransaction['id'], UnapprovedTransaction> =
+    new Map();
+  Messages: Map<UnapprovedMessage['id'], UnapprovedMessage> = new Map();
 
   constructor() {
     makeAutoObservable(this);
-    persistStore(this, ['unapprovedTxs', 'unapprovedMsgs'], 'TransactionStore');
+    persistStore(this, ['Transactions', 'Messages'], 'TransactionStore');
   }
 
   getUnnapprovedTxById(
-    id: string | number | void
+    id: UnapprovedTransaction['id']
   ): UnapprovedTransaction | undefined {
-    const match = this.unapprovedTxs.find((x) => {
-      return x.id === id;
-    });
-    return match;
+    return this.Transactions.get(id);
   }
 
   getUnnaprovedMsgById(
-    id: string | number | void
+    id: UnapprovedMessage['id']
   ): UnapprovedMessage | undefined {
-    const match = this.unapprovedMsgs.find((x) => {
-      return x.id === id;
-    });
-    return match;
+    return this.Messages.get(id);
   }
 
   removeUnapprovedTransaction(id: string | number) {
-    const removedArray: UnapprovedTransaction[] = this.unapprovedTxs.filter(
-      (x) => x.id !== id
-    );
-    this.unapprovedTxs = removedArray;
-    return;
+    this.Transactions.delete(id);
   }
 
   async saveUnapprovedTx(data: JsonRpcRequest<any>, from: string) {
@@ -61,7 +53,8 @@ class TransactionStore {
       transactionCategory: 'transfer',
     };
 
-    this.unapprovedTxs.push(sampleTx);
+    debugger;
+    this.Transactions.set(sampleTx.id, sampleTx);
     return;
   }
 
@@ -74,13 +67,29 @@ class TransactionStore {
       id: data.id,
       from,
       time: now,
-      status: 'string',
+      status: 'unsigned',
       msgParams: params[1],
       type: 'eth_signTypedData',
     };
 
-    this.unapprovedMsgs.push(msgData);
+    this.Messages.set(msgData.id, msgData);
     return;
+  }
+
+  async updateUnapprovedMsg({ status, id, result }) {
+    this.Messages.set(id, {
+      ...this.Messages.get(id),
+      status,
+      result,
+    } as UnapprovedMessage);
+  }
+
+  async updateUnapprovedTransaction({ status, id, result }) {
+    this.Transactions.set(id, {
+      ...this.Messages.get(id),
+      status,
+      txHash: result,
+    } as UnapprovedTransaction);
   }
 }
 

@@ -28,6 +28,7 @@ export const SignMessage = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [parsedMsg, setParsedMsg] = useState('');
+  const [stringifiedMsg, setStringifiedMsg] = useState('');
   const [msgParams, setMsgParams] = useState<TypedData>('');
 
   const { walletStore, transactionStore } = useStore();
@@ -49,7 +50,9 @@ export const SignMessage = observer(() => {
         setMsgParams(message.msgParams);
         let parsed = JSON.stringify(message.msgParams, [], 4);
 
-        setParsedMsg(parsed);
+        setStringifiedMsg(parsed);
+
+        setParsedMsg(JSON.parse(message.msgParams));
       }
     })();
   }, []);
@@ -57,12 +60,11 @@ export const SignMessage = observer(() => {
   const signTransaction = async () => {
     setIsLoading(true);
     const privateKey = walletStore.getEthPrivateKey();
-
     if (privateKey) {
-      const buffer = Buffer.from(privateKey, 'utf-8');
-      console.log('msgParams', msgParams);
+      const buffer = Buffer.from(privateKey, 'hex');
 
-      let result = signTypedData_v4(buffer, msgParams);
+      let MsgParams = { data: parsedMsg };
+      let result = signTypedData_v4(buffer, MsgParams);
       console.log('result', result);
     }
   };
@@ -74,7 +76,7 @@ export const SignMessage = observer(() => {
           <Wrapper>
             <SendDiv>
               contents:
-              <code>{parsedMsg}</code>
+              <code>{stringifiedMsg}</code>
             </SendDiv>
 
             {loading && <Spinner />}

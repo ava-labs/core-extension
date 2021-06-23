@@ -7,6 +7,7 @@ export interface UnapprovedTransaction {
   txParams: txParams;
   type: string;
   transactionCategory: string;
+  txHash?: string;
 }
 
 export interface txParams {

@@ -107,7 +107,6 @@ class WalletStore {
   getEthPrivateKey() {
     if (this.wallet!.type !== 'ledger') {
       let wallet = this.wallet as MnemonicWallet;
-
       return wallet.getEvmPrivateKeyHex();
     }
   }
