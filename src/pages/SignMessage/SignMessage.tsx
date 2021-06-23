@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link, useLocation, useHistory } from 'react-router-dom';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { Link, useHistory } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@src/store/store';
@@ -29,7 +28,7 @@ export const SignMessage = observer(() => {
   const [errorMsg, setErrorMsg] = useState('');
   const [parsedMsg, setParsedMsg] = useState('');
   const [stringifiedMsg, setStringifiedMsg] = useState('');
-  const [msgParams, setMsgParams] = useState<TypedData>('');
+  const [result, setResult] = useState('');
 
   const { walletStore, transactionStore } = useStore();
   const history = useHistory();
@@ -47,25 +46,26 @@ export const SignMessage = observer(() => {
       );
 
       if (message !== undefined) {
-        setMsgParams(message.msgParams);
-        let parsed = JSON.stringify(message.msgParams, [], 4);
-
-        setStringifiedMsg(parsed);
+        let string = JSON.stringify(message.msgParams, [], 4);
+        setStringifiedMsg(string);
 
         setParsedMsg(JSON.parse(message.msgParams));
       }
     })();
   }, []);
 
-  const signTransaction = async () => {
-    setIsLoading(true);
+  const signTransaction = () => {
     const privateKey = walletStore.getEthPrivateKey();
     if (privateKey) {
       const buffer = Buffer.from(privateKey, 'hex');
 
       let MsgParams = { data: parsedMsg };
-      let result = signTypedData_v4(buffer, MsgParams);
-      console.log('result', result);
+      try {
+        const signed = signTypedData_v4(buffer, MsgParams);
+        setResult(signed);
+      } catch (error) {
+        setErrorMsg(error);
+      }
     }
   };
 
@@ -75,11 +75,12 @@ export const SignMessage = observer(() => {
         <div className="content">
           <Wrapper>
             <SendDiv>
-              contents:
-              <code>{stringifiedMsg}</code>
+              {result ? (
+                <code> Signed Message: {result}</code>
+              ) : (
+                <code>{stringifiedMsg}</code>
+              )}
             </SendDiv>
-
-            {loading && <Spinner />}
           </Wrapper>
         </div>
         <div className="footer half-width">
