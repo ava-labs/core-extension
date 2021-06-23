@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts';
+import { browser, Runtime } from 'webextension-polyfill-ts';
 import PortStream from 'extension-port-stream';
 import { createWalletControllerStream } from './background/walletController';
 import { createProviderUpdateStream } from './background/walletUpdates';
@@ -9,8 +9,9 @@ import {
   connectionExists,
   removeConnection,
 } from './background/utils/portConnectionsManager';
-import { store } from '@src/store/store';
 import { createTransformToJsonRPCResponse } from './background/utils/providerUpdate';
+import { extension } from 'extensionizer';
+import { openExtensionInBrowser } from '@src/utils/extensionUtils';
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connectionExists(connection)) {
@@ -94,3 +95,13 @@ browser.runtime.onConnect.addListener((connection) => {
   }
   connection.onDisconnect.addListener(cleanupOnDisconnect);
 });
+
+// On first install, open a new tab
+// commented out during dev
+// extension.runtime.onInstalled.addListener((x: extension) => {
+//   const reason: Runtime.OnInstalledReason = x.reason;
+
+//   if (reason === 'install') {
+//     openExtensionInBrowser();
+//   }
+// });
