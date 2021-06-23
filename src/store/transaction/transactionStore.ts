@@ -36,6 +36,12 @@ class TransactionStore {
     this.transactions = remaining;
   }
 
+  removeUnapprovedMessage(id: string | number) {
+    const { [getTransactionOrMessageId(id)]: _removed, ...remaining } =
+      this.messages;
+    this.messages = remaining;
+  }
+
   async saveUnapprovedTx(data: JsonRpcRequest<any>, from: string) {
     const { params } = data;
     let { to, value, gas, gasPrice }: txParams = params;
