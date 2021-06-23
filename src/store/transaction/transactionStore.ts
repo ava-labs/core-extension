@@ -27,11 +27,6 @@ class TransactionStore {
   getUnnaprovedMsgById(
     id: UnapprovedMessage['id']
   ): UnapprovedMessage | undefined {
-    console.log(
-      'made it: ',
-      this.messages,
-      this.messages[getTransactionOrMessageId(id)]
-    );
     return this.messages[getTransactionOrMessageId(id)];
   }
 
@@ -63,7 +58,10 @@ class TransactionStore {
       transactionCategory: 'transfer',
     };
 
-    this.transactions[getTransactionOrMessageId(sampleTx.id)] = sampleTx;
+    this.transactions = {
+      ...this.transactions,
+      [getTransactionOrMessageId(sampleTx.id)]: sampleTx,
+    };
     return;
   }
 
@@ -81,26 +79,37 @@ class TransactionStore {
       type: 'eth_signTypedData',
     };
 
-    this.messages[getTransactionOrMessageId(msgData.id)] = msgData;
+    this.messages = {
+      ...this.messages,
+      [getTransactionOrMessageId(msgData.id)]: msgData,
+    };
     return;
   }
 
   async updateUnapprovedMsg({ status, id, result }) {
     const messId = getTransactionOrMessageId(id);
-    this.messages[messId] = {
-      ...this.messages[messId],
-      status,
-      result,
-    } as UnapprovedMessage;
+    const message = this.messages[messId];
+    this.messages = {
+      ...this.messages,
+      [messId]: {
+        ...message,
+        status,
+        result,
+      } as UnapprovedMessage,
+    };
   }
 
   async updateUnapprovedTransaction({ status, id, result }) {
     const txId = getTransactionOrMessageId(id);
-    this.transactions[txId] = {
-      ...this.transactions[txId],
-      status,
-      txHash: result,
-    } as UnapprovedTransaction;
+    const transaction = this.transactions[txId];
+    this.transactions = {
+      ...this.transactions,
+      [txId]: {
+        ...transaction,
+        status,
+        txHash: result,
+      } as UnapprovedTransaction,
+    };
   }
 }
 
