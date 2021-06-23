@@ -5,8 +5,7 @@ import { observer } from 'mobx-react-lite';
 
 import { GlobalStyle, ExtensionContainer } from '@src/styles/styles';
 import styled, { ThemeProvider } from 'styled-components';
-import darkModeTheme from '@src/styles/dark';
-import lightModeTheme from '@src/styles/light';
+import { lightTheme, darkTheme } from '@src/styles/theme';
 
 import { useStore } from '@src/store/store';
 import { Welcome } from '@src/pages/Welcome';
@@ -37,9 +36,7 @@ export const Popup = observer((): React.ReactElement => {
   }, []);
 
   return (
-    <ThemeProvider
-      theme={themeStore.isDarkMode ? darkModeTheme : lightModeTheme}
-    >
+    <ThemeProvider theme={themeStore.isDarkMode ? darkTheme : lightTheme}>
       <ExtensionContainer>
         <Switch>
           <Route path="/welcome/create">

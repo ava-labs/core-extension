@@ -34,7 +34,6 @@ export const SpinnerStyles = styled.div`
     height: 50px;
 
     & .path {
-      stroke: ${(props) => props.theme.spinner};
       stroke-linecap: round;
       animation: dash 1.5s ease-in-out infinite;
     }

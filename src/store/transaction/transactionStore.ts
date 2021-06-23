@@ -2,33 +2,38 @@ import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
 import { UnapprovedTransaction, UnapprovedMessage, txParams } from './types';
 import { JsonRpcRequest } from 'json-rpc-engine';
+import { removeTypeDuplicates } from '@babel/types';
 
+function getTransactionOrMessageId(id: UnapprovedTransaction['id']) {
+  return `${id}`;
+}
 class TransactionStore {
   addrX: string = '';
 
-  Transactions: Map<UnapprovedTransaction['id'], UnapprovedTransaction> =
-    new Map();
-  Messages: Map<UnapprovedMessage['id'], UnapprovedMessage> = new Map();
+  transactions: { [key: string]: UnapprovedTransaction } = {};
+  messages: { [key: string]: UnapprovedMessage } = {};
 
   constructor() {
     makeAutoObservable(this);
-    persistStore(this, ['Transactions', 'Messages'], 'TransactionStore');
+    persistStore(this, ['transactions', 'messages'], 'TransactionStore');
   }
 
   getUnnapprovedTxById(
     id: UnapprovedTransaction['id']
   ): UnapprovedTransaction | undefined {
-    return this.Transactions.get(id);
+    return this.transactions[getTransactionOrMessageId(id)];
   }
 
   getUnnaprovedMsgById(
     id: UnapprovedMessage['id']
   ): UnapprovedMessage | undefined {
-    return this.Messages.get(id);
+    return this.messages[getTransactionOrMessageId(id)];
   }
 
   removeUnapprovedTransaction(id: string | number) {
-    this.Transactions.delete(id);
+    const { [getTransactionOrMessageId(id)]: _removed, ...remaining } =
+      this.transactions;
+    this.transactions = remaining;
   }
 
   async saveUnapprovedTx(data: JsonRpcRequest<any>, from: string) {
@@ -53,8 +58,10 @@ class TransactionStore {
       transactionCategory: 'transfer',
     };
 
-    debugger;
-    this.Transactions.set(sampleTx.id, sampleTx);
+    this.transactions = {
+      ...this.transactions,
+      [getTransactionOrMessageId(sampleTx.id)]: sampleTx,
+    };
     return;
   }
 
@@ -72,24 +79,37 @@ class TransactionStore {
       type: 'eth_signTypedData',
     };
 
-    this.Messages.set(msgData.id, msgData);
+    this.messages = {
+      ...this.messages,
+      [getTransactionOrMessageId(msgData.id)]: msgData,
+    };
     return;
   }
 
   async updateUnapprovedMsg({ status, id, result }) {
-    this.Messages.set(id, {
-      ...this.Messages.get(id),
-      status,
-      result,
-    } as UnapprovedMessage);
+    const messId = getTransactionOrMessageId(id);
+    const message = this.messages[messId];
+    this.messages = {
+      ...this.messages,
+      [messId]: {
+        ...message,
+        status,
+        result,
+      } as UnapprovedMessage,
+    };
   }
 
   async updateUnapprovedTransaction({ status, id, result }) {
-    this.Transactions.set(id, {
-      ...this.Messages.get(id),
-      status,
-      txHash: result,
-    } as UnapprovedTransaction);
+    const txId = getTransactionOrMessageId(id);
+    const transaction = this.transactions[txId];
+    this.transactions = {
+      ...this.transactions,
+      [txId]: {
+        ...transaction,
+        status,
+        txHash: result,
+      } as UnapprovedTransaction,
+    };
   }
 }
 
