@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link, useLocation, useHistory } from 'react-router-dom';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { Link, useHistory } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@src/store/store';
@@ -28,8 +27,7 @@ export const SignMessage = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [parsedMsg, setParsedMsg] = useState('');
-  const [stringifiedMsg, setStringifiedMsg] = useState('');
-  const [msgParams, setMsgParams] = useState<TypedData>('');
+  const [result, setResult] = useState('');
 
   const { walletStore, transactionStore } = useStore();
   const history = useHistory();
@@ -47,26 +45,33 @@ export const SignMessage = observer(() => {
       );
 
       if (message !== undefined) {
-        setMsgParams(message.msgParams);
-        let parsed = JSON.stringify(message.msgParams, [], 4);
-
-        setStringifiedMsg(parsed);
-
         setParsedMsg(JSON.parse(message.msgParams));
       }
     })();
   }, []);
 
-  const signTransaction = async () => {
-    setIsLoading(true);
+  const signTransaction = () => {
     const privateKey = walletStore.getEthPrivateKey();
     if (privateKey) {
       const buffer = Buffer.from(privateKey, 'hex');
 
       let MsgParams = { data: parsedMsg };
-      let result = signTypedData_v4(buffer, MsgParams);
-      console.log('result', result);
+      try {
+        const signed = signTypedData_v4(buffer, MsgParams);
+        setResult(signed);
+        transactionStore.updateUnapprovedMsg({
+          status: 'signed',
+          id: jsonRPCId,
+          result: signed,
+        });
+      } catch (error) {
+        setErrorMsg(error);
+      }
     }
+  };
+
+  const removeUnapprovedMsg = () => {
+    transactionStore.removeUnapprovedMessage(jsonRPCId);
   };
 
   return (
@@ -74,16 +79,19 @@ export const SignMessage = observer(() => {
       <ContentLayout>
         <div className="content">
           <Wrapper>
-            <SendDiv>
-              contents:
-              <code>{stringifiedMsg}</code>
-            </SendDiv>
+            {errorMsg && errorMsg}
 
-            {loading && <Spinner />}
+            <SendDiv>
+              {result ? (
+                <code> Signed Message: {result}</code>
+              ) : (
+                <code>{renderDataTypev4(parsedMsg)}</code>
+              )}
+            </SendDiv>
           </Wrapper>
         </div>
         <div className="footer half-width">
-          <Link to="/wallet">
+          <Link to="/wallet" onClick={removeUnapprovedMsg}>
             <button>Cancel</button>
           </Link>
           <a onClick={signTransaction}>
@@ -95,12 +103,29 @@ export const SignMessage = observer(() => {
   );
 });
 
+const renderDataTypev4 = (data: any) => {
+  return (
+    <>
+      {Object.entries(data).map(([label, value], i) => (
+        <div className="group" key={i}>
+          <span className="label">{label}: </span>
+          {typeof value === 'object' && value !== null ? (
+            renderDataTypev4(value)
+          ) : (
+            <span className="value">{`${value}`}</span>
+          )}
+        </div>
+      ))}
+    </>
+  );
+};
+
 export const Wrapper = styled.div`
   padding: 1rem;
 `;
 
 export const SendDiv = styled.div`
-  margin: 2rem auto;
+  margin: auto;
   padding: 2rem;
   text-align: center;
 
@@ -109,7 +134,9 @@ export const SendDiv = styled.div`
     hyphens: auto;
     overflow-wrap: break-word;
   }
-
+  .label {
+    font-weight: bold;
+  }
   input {
     width: 100%;
     margin: 1rem auto;
