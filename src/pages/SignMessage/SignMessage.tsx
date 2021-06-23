@@ -27,7 +27,6 @@ export const SignMessage = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [parsedMsg, setParsedMsg] = useState('');
-  const [stringifiedMsg, setStringifiedMsg] = useState('');
   const [result, setResult] = useState('');
 
   const { walletStore, transactionStore } = useStore();
@@ -46,9 +45,6 @@ export const SignMessage = observer(() => {
       );
 
       if (message !== undefined) {
-        let string = JSON.stringify(message.msgParams, [], 4);
-        setStringifiedMsg(string);
-
         setParsedMsg(JSON.parse(message.msgParams));
       }
     })();
@@ -63,10 +59,19 @@ export const SignMessage = observer(() => {
       try {
         const signed = signTypedData_v4(buffer, MsgParams);
         setResult(signed);
+        transactionStore.updateUnapprovedMsg({
+          status: 'signed',
+          id: jsonRPCId,
+          result: signed,
+        });
       } catch (error) {
         setErrorMsg(error);
       }
     }
+  };
+
+  const removeUnapprovedMsg = () => {
+    transactionStore.removeUnapprovedMessage(jsonRPCId);
   };
 
   return (
@@ -74,17 +79,19 @@ export const SignMessage = observer(() => {
       <ContentLayout>
         <div className="content">
           <Wrapper>
+            {errorMsg && errorMsg}
+
             <SendDiv>
               {result ? (
                 <code> Signed Message: {result}</code>
               ) : (
-                <code>{stringifiedMsg}</code>
+                <code>{renderDataTypev4(parsedMsg)}</code>
               )}
             </SendDiv>
           </Wrapper>
         </div>
         <div className="footer half-width">
-          <Link to="/wallet">
+          <Link to="/wallet" onClick={removeUnapprovedMsg}>
             <button>Cancel</button>
           </Link>
           <a onClick={signTransaction}>
@@ -96,12 +103,29 @@ export const SignMessage = observer(() => {
   );
 });
 
+const renderDataTypev4 = (data: any) => {
+  return (
+    <>
+      {Object.entries(data).map(([label, value], i) => (
+        <div className="group" key={i}>
+          <span className="label">{label}: </span>
+          {typeof value === 'object' && value !== null ? (
+            renderDataTypev4(value)
+          ) : (
+            <span className="value">{`${value}`}</span>
+          )}
+        </div>
+      ))}
+    </>
+  );
+};
+
 export const Wrapper = styled.div`
   padding: 1rem;
 `;
 
 export const SendDiv = styled.div`
-  margin: 2rem auto;
+  margin: auto;
   padding: 2rem;
   text-align: center;
 
@@ -110,7 +134,9 @@ export const SendDiv = styled.div`
     hyphens: auto;
     overflow-wrap: break-word;
   }
-
+  .label {
+    font-weight: bold;
+  }
   input {
     width: 100%;
     margin: 1rem auto;
