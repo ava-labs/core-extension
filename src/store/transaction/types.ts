@@ -20,11 +20,14 @@ export interface txParams {
 }
 
 export type MessageType =
-  | 'eth_decrypt'
-  | 'eth_signTypedData'
+  | 'signTypedData_v3'
+  | 'signTypedData_v4'
+  | 'signTypedData_v1'
+  | 'signTypedData'
   | 'eth_getEncryptionPublicKey'
   | 'metamask_getProviderState'
   | 'personal_sign'
+  | 'eth_sign'
   | 'wallet_watchAsset'
   | 'metamask_watchAsset';
 
