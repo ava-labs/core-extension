@@ -1,11 +1,11 @@
-import { createContext, useContext } from "react";
-import AssetsStore from "@src/store/assets/assetsStore";
-import ThemeStore from "@src/store/theme/themeStore";
-import ExtensionStore from "@src/store/extension/extensionStore";
-import OnboardStore from "@src/store/onboard/onboardStore";
-import NetworkStore from "@src/store/network/networkStore";
-import WalletStore from "@src/store/wallet/walletStore";
-import TransactionStore from "@src/store/transaction/transactionStore";
+import { createContext, useContext } from 'react';
+import AssetsStore from '@src/store/assets/assetsStore';
+import ThemeStore from '@src/store/theme/themeStore';
+import ExtensionStore from '@src/store/extension/extensionStore';
+import OnboardStore from '@src/store/onboard/onboardStore';
+import NetworkStore from '@src/store/network/networkStore';
+import WalletStore from '@src/store/wallet/walletStore';
+import TransactionStore from '@src/store/transaction/transactionStore';
 
 export interface CombinedStores {
   asssetsStore: AssetsStore;

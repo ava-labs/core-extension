@@ -8,16 +8,22 @@ import {
 } from './types';
 import { JsonRpcRequest } from 'json-rpc-engine';
 import { removeTypeDuplicates } from '@babel/types';
+import { Signal } from 'micro-signals';
 
 const getTransactionOrMessageId = (id: UnapprovedTransaction['id']) => {
   return `${id}`;
 };
+
+const transactionFinalizedEvent = new Signal();
+const messageFinalizedEvent = new Signal();
 
 class TransactionStore {
   addrX: string = '';
 
   transactions: { [key: string]: UnapprovedTransaction } = {};
   messages: { [key: string]: UnapprovedMessage } = {};
+  transactionFinalizedEvent = transactionFinalizedEvent;
+  messageFinalizedEvent = messageFinalizedEvent;
 
   constructor() {
     makeAutoObservable(this);

@@ -2,7 +2,7 @@ import engine, { JsonRpcRequest } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { browser } from 'webextension-polyfill-ts';
 import { store } from '@src/store/store';
-
+import { observe } from 'mobx';
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -96,6 +96,27 @@ const web3CustomHandlers = {
       'personal_sign'
     );
     openExtensionNewWindow(`sign?id=${data.id}`);
+
+    // user signs
+    // event happens
+
+    console.log('made it here line 103');
+
+    // const result =
+    //   await store.transactionStore.messageFinalizedEvent.promisify();
+    return await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const msg = store.transactionStore.getUnnaprovedMsgById(data.id);
+        console.log('msg', msg);
+
+        msg && resolve(msg.result);
+      }, 10000);
+    });
+
+    // return result;
+    // const { result } = signedMsg;
+    // return result;
+    // promise.resolve()
   },
 
   async eth_sign(data: JsonRpcRequest<any>) {
