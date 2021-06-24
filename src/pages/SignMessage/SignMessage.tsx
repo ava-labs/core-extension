@@ -9,6 +9,7 @@ import { Layout } from '@src/components/Layout';
 import { ContentLayout } from '@src/styles/styles';
 
 import { Spinner } from '@src/components/misc/Spinner';
+import { UnapprovedMessage } from '@src/store/transaction/types';
 import {
   personalSign,
   signTypedData_v4,
@@ -25,6 +26,7 @@ import {
 
 export const SignMessage = observer(() => {
   const [loading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<UnapprovedMessage>();
   const [errorMsg, setErrorMsg] = useState('');
   const [parsedMsg, setParsedMsg] = useState('');
   const [result, setResult] = useState('');
@@ -40,12 +42,18 @@ export const SignMessage = observer(() => {
 
   useEffect(() => {
     (async () => {
-      const message = await transactionStore.getUnnaprovedMsgById(
-        Number(jsonRPCId)
-      );
+      const message: UnapprovedMessage =
+        await transactionStore.getUnnaprovedMsgById(Number(jsonRPCId));
+
+      setMessage(message);
+      console.log('message', message);
 
       if (message !== undefined) {
-        setParsedMsg(JSON.parse(message.msgParams));
+        if (message.type === 'personal_sign') {
+          setParsedMsg(message.msgParams);
+        } else if (message.type === 'signTypedData_v4') {
+          setParsedMsg(JSON.parse(message.msgParams));
+        }
       }
     })();
   }, []);
@@ -56,16 +64,25 @@ export const SignMessage = observer(() => {
       const buffer = Buffer.from(privateKey, 'hex');
 
       let MsgParams = { data: parsedMsg };
-      try {
-        const signed = signTypedData_v4(buffer, MsgParams);
-        setResult(signed);
-        transactionStore.updateUnapprovedMsg({
-          status: 'signed',
-          id: jsonRPCId,
-          result: signed,
-        });
-      } catch (error) {
-        setErrorMsg(error);
+
+      if (message !== undefined) {
+        try {
+          let signed;
+          if (message.type === 'personal_sign') {
+            signed = personalSign(buffer, MsgParams);
+          } else if (message.type === 'signTypedData_v4') {
+            signed = signTypedData_v4(buffer, MsgParams);
+          }
+
+          setResult(signed);
+          transactionStore.updateUnapprovedMsg({
+            status: 'signed',
+            id: jsonRPCId,
+            result: signed,
+          });
+        } catch (error) {
+          setErrorMsg(error);
+        }
       }
     }
   };
@@ -85,7 +102,11 @@ export const SignMessage = observer(() => {
               {result ? (
                 <code> Signed Message: {result}</code>
               ) : (
-                <code>{renderDataTypev4(parsedMsg)}</code>
+                <code>
+                  {message !== undefined && message.type === 'personal_sign'
+                    ? renderPersonalSign(parsedMsg)
+                    : renderDataTypev4(parsedMsg)}
+                </code>
               )}
             </SendDiv>
           </Wrapper>
@@ -102,6 +123,10 @@ export const SignMessage = observer(() => {
     </Layout>
   );
 });
+
+const renderPersonalSign = (data: any) => {
+  return <>{data}</>;
+};
 
 const renderDataTypev4 = (data: any) => {
   return (
