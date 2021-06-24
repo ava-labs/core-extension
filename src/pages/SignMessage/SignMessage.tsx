@@ -42,11 +42,10 @@ export const SignMessage = observer(() => {
 
   useEffect(() => {
     (async () => {
-      const message: UnapprovedMessage =
+      const message: UnapprovedMessage | undefined =
         await transactionStore.getUnnaprovedMsgById(Number(jsonRPCId));
 
       setMessage(message);
-      console.log('message', message);
 
       if (message !== undefined) {
         if (message.type === 'personal_sign') {
