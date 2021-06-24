@@ -81,14 +81,26 @@ const web3CustomHandlers = {
   },
 
   async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, addrC);
+    await store.transactionStore.saveUnapprovedMsg(
+      data,
+      addrC,
+      'signTypedData_v4'
+    );
     openExtensionNewWindow(`sign?id=${data.id}`);
-    // pop open
-    // user clicks approved transaction
-    // call sdk to sign
-    // get signed tx
-    // broadcast signed tx
-    // return tx hash/id
+  },
+
+  async personal_sign(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(
+      data,
+      addrC,
+      'personal_sign'
+    );
+    openExtensionNewWindow(`sign?id=${data.id}`);
+  },
+
+  async eth_sign(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, addrC, 'eth_sign');
+    openExtensionNewWindow(`sign?id=${data.id}`);
   },
 };
 
