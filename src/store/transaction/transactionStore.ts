@@ -1,12 +1,18 @@
 import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
-import { UnapprovedTransaction, UnapprovedMessage, txParams } from './types';
+import {
+  UnapprovedTransaction,
+  UnapprovedMessage,
+  txParams,
+  MessageType,
+} from './types';
 import { JsonRpcRequest } from 'json-rpc-engine';
 import { removeTypeDuplicates } from '@babel/types';
 
-function getTransactionOrMessageId(id: UnapprovedTransaction['id']) {
+const getTransactionOrMessageId = (id: UnapprovedTransaction['id']) => {
   return `${id}`;
-}
+};
+
 class TransactionStore {
   addrX: string = '';
 
@@ -71,7 +77,11 @@ class TransactionStore {
     return;
   }
 
-  async saveUnapprovedMsg(data: JsonRpcRequest<any>, from: string) {
+  async saveUnapprovedMsg(
+    data: JsonRpcRequest<any>,
+    from: string,
+    signType: MessageType
+  ) {
     const { params } = data;
 
     const now = new Date().getTime();
@@ -82,7 +92,7 @@ class TransactionStore {
       time: now,
       status: 'unsigned',
       msgParams: params[1],
-      type: 'eth_signTypedData',
+      type: signType,
     };
 
     this.messages = {
