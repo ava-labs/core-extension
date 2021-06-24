@@ -38,4 +38,5 @@ export interface UnapprovedMessage {
   time: number;
   status: string;
   type: MessageType;
+  result?: string;
 }
