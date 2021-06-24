@@ -1,5 +1,8 @@
 import { PersistenceStore } from 'mobx-persist-store/lib/types';
 import { persistence, StorageAdapter } from 'mobx-persist-store';
+import { enableLogging } from 'mobx-logger';
+
+enableLogging();
 
 export const persistStore = <T extends Record<string, any>, P extends keyof T>(
   target: T,
