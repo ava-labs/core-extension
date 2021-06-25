@@ -1,5 +1,6 @@
 import { makeAutoObservable, autorun, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
+import store from 'store';
 import {
   UnapprovedTransaction,
   UnapprovedMessage,
@@ -8,20 +9,36 @@ import {
 } from './types';
 import { JsonRpcRequest } from 'json-rpc-engine';
 import { removeTypeDuplicates } from '@babel/types';
+import { Signal } from 'micro-signals';
+import { getStoreFromStorage } from '@src/background/utils/storage';
 
 const getTransactionOrMessageId = (id: UnapprovedTransaction['id']) => {
   return `${id}`;
 };
 
+const transactionFinalizedEvent = new Signal();
+const messageFinalizedEvent = new Signal();
+
 class TransactionStore {
   addrX: string = '';
 
   transactions: { [key: string]: UnapprovedTransaction } = {};
-  messages: { [key: string]: UnapprovedMessage } = {};
+  _messages: { [key: string]: UnapprovedMessage } = {};
+  get messages() {
+    const transactionStore = getStoreFromStorage('TransactionStore');
+    const messages = transactionStore._messages;
+    return messages;
+  }
+  set messages(mess: any) {
+    this._messages = mess;
+  }
+
+  transactionFinalizedEvent = transactionFinalizedEvent;
+  messageFinalizedEvent = messageFinalizedEvent;
 
   constructor() {
     makeAutoObservable(this);
-    persistStore(this, ['transactions', 'messages'], 'TransactionStore');
+    persistStore(this, ['transactions', '_messages'], 'TransactionStore');
   }
 
   getUnnapprovedTxById(

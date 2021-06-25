@@ -1,6 +1,7 @@
 import { PersistenceStore } from 'mobx-persist-store/lib/types';
 import { persistence, StorageAdapter } from 'mobx-persist-store';
 import { enableLogging } from 'mobx-logger';
+import store from 'store';
 
 enableLogging();
 
@@ -14,11 +15,10 @@ export const persistStore = <T extends Record<string, any>, P extends keyof T>(
     properties: properties as string[],
     adapter: new StorageAdapter({
       read: async (name) => {
-        const data = window.localStorage.getItem(name);
-        return data ? JSON.parse(data) : undefined;
+        return store.get(name) ?? undefined;
       },
       write: async (name, content) => {
-        window.localStorage.setItem(name, JSON.stringify(content));
+        store.set(name, content);
       },
     }),
     reactionOptions: {
