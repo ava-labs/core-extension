@@ -10,12 +10,7 @@ import { ContentLayout } from '@src/styles/styles';
 
 import { Spinner } from '@src/components/misc/Spinner';
 import { UnapprovedMessage } from '@src/store/transaction/types';
-import {
-  personalSign,
-  signTypedData_v4,
-  TypedData,
-  TypedMessage,
-} from 'eth-sig-util';
+import { personalSign, signTypedData_v4, signTypedData } from 'eth-sig-util';
 
 // ux notes
 // elminate tech jargon
@@ -50,6 +45,8 @@ export const SignMessage = observer(() => {
       if (message !== undefined) {
         if (message.type === 'personal_sign') {
           setParsedMsg(message.msgParams);
+        } else if (message.type === 'signTypedData_v3') {
+          setParsedMsg(JSON.parse(message.msgParams));
         } else if (message.type === 'signTypedData_v4') {
           setParsedMsg(JSON.parse(message.msgParams));
         }
@@ -71,6 +68,8 @@ export const SignMessage = observer(() => {
             signed = personalSign(buffer, MsgParams);
           } else if (message.type === 'signTypedData_v4') {
             signed = signTypedData_v4(buffer, MsgParams);
+          } else if (message.type === 'signTypedData_v3') {
+            signed = signTypedData(buffer, MsgParams);
           }
 
           setResult(signed);
@@ -89,6 +88,28 @@ export const SignMessage = observer(() => {
   const removeUnapprovedMsg = () => {
     transactionStore.removeUnapprovedMessage(jsonRPCId);
   };
+  let renderType;
+
+  if (message !== undefined) {
+    switch (message.type) {
+      case 'personal_sign':
+        renderType = renderPersonalSign(parsedMsg);
+        break;
+      case 'signTypedData':
+        renderType = renderDataTypev3(parsedMsg);
+        break;
+      case 'signTypedData_v3':
+        renderType = renderDataTypev3(parsedMsg);
+        break;
+      case 'signTypedData_v4':
+        renderType = renderDataTypev4(parsedMsg);
+        break;
+      default:
+        renderType = renderError();
+    }
+  }
+
+  console.log('renderType', renderType);
 
   return (
     <Layout>
@@ -101,11 +122,7 @@ export const SignMessage = observer(() => {
               {result ? (
                 <code> Signed Message: {result}</code>
               ) : (
-                <code>
-                  {message !== undefined && message.type === 'personal_sign'
-                    ? renderPersonalSign(parsedMsg)
-                    : renderDataTypev4(parsedMsg)}
-                </code>
+                <code>{renderType}</code>
               )}
             </SendDiv>
           </Wrapper>
@@ -123,8 +140,32 @@ export const SignMessage = observer(() => {
   );
 });
 
+const renderError = () => {
+  return <> Error, malformed request data</>;
+};
+
 const renderPersonalSign = (data: any) => {
   return <>{data}</>;
+};
+
+const renderDataTypev3 = (data: any) => {
+  const { domain, message, primaryType } = data;
+  return (
+    <>
+      <h1>Signature Request</h1>
+
+      {Object.entries(data).map(([label, value], i) => (
+        <div className="group" key={i}>
+          <span className="label">{label}: </span>
+          {typeof value === 'object' && value !== null ? (
+            renderDataTypev3(value)
+          ) : (
+            <span className="value">{`${value}`}</span>
+          )}
+        </div>
+      ))}
+    </>
+  );
 };
 
 const renderDataTypev4 = (data: any) => {
