@@ -2,7 +2,7 @@ import engine, { JsonRpcRequest } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { browser } from 'webextension-polyfill-ts';
 import { store } from '@src/store/store';
-import { observe } from 'mobx';
+import storageListener from '../utils/storage';
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -97,26 +97,12 @@ const web3CustomHandlers = {
     );
     openExtensionNewWindow(`sign?id=${data.id}`);
 
-    // user signs
-    // event happens
+    const result = await storageListener
+      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .filter((result) => !!result)
+      .promisify();
 
-    console.log('made it here line 103');
-
-    // const result =
-    //   await store.transactionStore.messageFinalizedEvent.promisify();
-    return await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const msg = store.transactionStore.getUnnaprovedMsgById(data.id);
-        console.log('msg', msg);
-
-        msg && resolve(msg.result);
-      }, 10000);
-    });
-
-    // return result;
-    // const { result } = signedMsg;
-    // return result;
-    // promise.resolve()
+    return result;
   },
 
   async eth_sign(data: JsonRpcRequest<any>) {
