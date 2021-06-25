@@ -87,6 +87,13 @@ const web3CustomHandlers = {
       'signTypedData_v4'
     );
     openExtensionNewWindow(`sign?id=${data.id}`);
+
+    const result = await storageListener
+      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .filter((result) => !!result)
+      .promisify();
+
+    return { ...data, result };
   },
 
   async personal_sign(data: JsonRpcRequest<any>) {
@@ -102,7 +109,7 @@ const web3CustomHandlers = {
       .filter((result) => !!result)
       .promisify();
 
-    return result;
+    return { ...data, result };
   },
 
   async eth_sign(data: JsonRpcRequest<any>) {
