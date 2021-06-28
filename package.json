@@ -62,6 +62,7 @@
     "@types/react-router-dom": "^5.1.7",
     "eth-json-rpc-middleware": "7.0.1",
     "eth-sig-util": "^3.0.1",
+    "ethereumjs-util": "^7.0.10",
     "extension-port-stream": "^2.0.1",
     "extensionizer": "^1.0.1",
     "fs": "^0.0.1-security",
