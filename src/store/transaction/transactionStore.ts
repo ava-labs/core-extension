@@ -11,6 +11,9 @@ import { JsonRpcRequest } from 'json-rpc-engine';
 import { removeTypeDuplicates } from '@babel/types';
 import { Signal } from 'micro-signals';
 import { getStoreFromStorage } from '@src/background/utils/storage';
+import { normalize } from 'eth-sig-util';
+import { stripHexPrefix } from 'ethereumjs-util';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 const getTransactionOrMessageId = (id: UnapprovedTransaction['id']) => {
   return `${id}`;
@@ -116,6 +119,7 @@ class TransactionStore {
       ...this.messages,
       [getTransactionOrMessageId(msgData.id)]: msgData,
     };
+
     return;
   }
 
@@ -143,6 +147,52 @@ class TransactionStore {
         txHash: result,
       } as UnapprovedTransaction,
     };
+  }
+
+  async decryptSignedData({ msgParams }) {
+    const address = normalize(msgParams.from);
+  }
+
+  validateParams(msgData) {
+    const { msgParams } = msgData;
+    const isValid = typeof Utils.isValidAddress(msgParams.from) === 'boolean';
+
+    if (!isValid) {
+      return '"from" field must be a valid, lowercase, hexadecimal Ethereum address string.';
+    }
+
+    if (msgParams && typeof msgParams !== 'object') {
+      return 'msgParams must be an object.';
+    }
+    if (msgParams.data === undefined) {
+      return 'msgParams must include a "data" field.';
+    }
+
+    if (msgParams.from === undefined) {
+      return 'msgParams must include a "from" field.';
+    }
+
+    switch (msgData.type) {
+      case 'signTypedData_v1':
+        if (!Array.isArray(msgParams.data)) {
+          return '"msgParams.data" must be an array.';
+        }
+        break;
+      case 'signTypedData_v3':
+      case 'signTypedData_v4': {
+        if (typeof msgParams.data !== 'string') {
+          return '"msgParams.data" must be a string.';
+        }
+
+        const { chainId } = msgParams.data.domain;
+        if (chainId) {
+          // validate chain id
+          return `Cannot sign message for ${chainId} while switching networks.`;
+        }
+      }
+      default:
+        return `Unknown typed data version "${msgParams.type}"`;
+    }
   }
 }
 
