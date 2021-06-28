@@ -1,8 +1,8 @@
-import { Duplex } from "stream";
-import providerHandlers from "./rpc/providerHandlers";
-import web3Handlers from "./rpc/web3Handlers";
-import { JsonRpcRequest } from "./rpc/jsonRpcEngine";
-import { resolve } from "../utils/promiseResolver";
+import { Duplex } from 'stream';
+import providerHandlers from './rpc/providerHandlers';
+import web3Handlers from './rpc/web3Handlers';
+import { JsonRpcRequest } from './rpc/jsonRpcEngine';
+import { resolve } from '../utils/promiseResolver';
 
 /**
  * This is the core of the background logic. Every request comes in through the WalletControllerStream

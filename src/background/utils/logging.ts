@@ -1,26 +1,44 @@
-import { PassThrough } from "stream";
+import { PassThrough } from 'stream';
+import { JsonRpcRequest } from '../rpc/jsonRpcEngine';
 export const repeat = (str, times) => new Array(times + 1).join(str);
 
-export const padStart = (num, maxLength, char = " ") =>
+export const padStart = (num, maxLength, char = ' ') =>
   repeat(char, maxLength - num.toString().length) + num;
 
 export const formatTime = (time) => {
-  const h = padStart(time.getHours(), 2, "0");
-  const m = padStart(time.getMinutes(), 2, "0");
-  const s = padStart(time.getSeconds(), 2, "0");
-  const ms = padStart(time.getMilliseconds(), 3, "0");
+  const h = padStart(time.getHours(), 2, '0');
+  const m = padStart(time.getMinutes(), 2, '0');
+  const s = padStart(time.getSeconds(), 2, '0');
+  const ms = padStart(time.getMilliseconds(), 3, '0');
   return `${h}:${m}:${s}.${ms}`;
 };
 
 export const now = () => formatTime(new Date());
 
 const style = (color, bold = true) => {
-  return `color:${color};font-weight:${bold ? "600" : "300"};font-size:11px`;
+  return `color:${color};font-weight:${bold ? '600' : '300'};font-size:11px`;
 };
 
 export enum LoggerColors {
-  info = "#424242",
-  success = "#43a047",
+  info = '#424242',
+  success = '#43a047',
+}
+
+export function formatAndLog(
+  message: string,
+  value: any,
+  config?: {
+    color?: LoggerColors;
+  }
+) {
+  console.groupCollapsed(
+    '%c%s  %s',
+    style(config?.color ?? LoggerColors.info),
+    now(),
+    message
+  );
+  console.log(value.data ? requestParser(value.data) : value);
+  console.groupEnd();
 }
 
 export default function logger(
@@ -31,22 +49,21 @@ export default function logger(
 ) {
   const logger = new PassThrough({ objectMode: true });
 
-  logger.on("data", (...args) => {
-    console.groupCollapsed(
-      "%c%s  %s",
-      style(config?.color ?? LoggerColors.info),
-      now(),
-      message
-    );
-    console.log(args);
-    console.groupEnd();
+  logger.on('data', (value) => {
+    formatAndLog(message, value, config);
   });
-  logger.on("end", (...args) => {
+  logger.on('end', (...args) => {
     console.log(`${message}-end: `, args);
   });
-  logger.on("close", () => {
+  logger.on('close', () => {
     console.log(`${message}-closed`);
   });
 
   return logger;
+}
+
+export function requestParser(request: JsonRpcRequest<any>) {
+  return Object.keys(request).reduce((acc, key) => {
+    return acc ? `${acc}\n${key}: ${request[key]}` : `${key}: ${request[key]}`;
+  }, ``);
 }

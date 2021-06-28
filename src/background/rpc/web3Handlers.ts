@@ -1,8 +1,9 @@
 import engine, { JsonRpcRequest } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { browser } from 'webextension-polyfill-ts';
 import { store } from '@src/store/store';
 import storageListener from '../utils/storage';
+import { formatAndLog, LoggerColors } from '../utils/logging';
+
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -60,6 +61,7 @@ const unauthenticatedRoutes = new Set([
   'eth_syncing',
   'eth_signTransaction',
   'eth_uninstallFilter',
+  'net_version',
 ]);
 const { addrC } = store.walletStore;
 
@@ -73,11 +75,6 @@ const web3CustomHandlers = {
   async eth_getBalance(data: JsonRpcRequest<any>) {
     const { balanceC } = store.walletStore;
     return { ...data, result: balanceC };
-  },
-  async test(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedTx(data, addrC);
-
-    openExtensionNewWindow(`send/confirm?id=${data.id}`);
   },
 
   async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
@@ -109,14 +106,46 @@ const web3CustomHandlers = {
     await store.transactionStore.saveUnapprovedMsg(data, addrC, 'eth_sign');
     openExtensionNewWindow(`sign?id=${data.id}`);
   },
+  async eth_requestAccounts(data: JsonRpcRequest<any>) {
+    return {
+      ...data,
+      result: store.extensionStore.isUnlocked ? store.walletStore.accounts : [],
+    };
+  },
+  async eth_accounts(data: JsonRpcRequest<any>) {
+    return {
+      ...data,
+      result: store.extensionStore.isUnlocked ? store.walletStore.accounts : [],
+    };
+  },
 };
 
 export default {
   getHandlerForKey(data: JsonRpcRequest<any>) {
-    const customHandler = web3CustomHandlers[data.method];
+    const customHandler =
+      web3CustomHandlers[data.method] &&
+      ((data) => {
+        return web3CustomHandlers[data.method](data).then((result) => {
+          formatAndLog('Wallet Controller: (web 3 custom response)', result, {
+            color: LoggerColors.success,
+          });
+          return result;
+        });
+      });
 
     return customHandler
       ? () => customHandler(data)
-      : unauthenticatedRoutes.has(data.method) && (() => engine.handle(data));
+      : unauthenticatedRoutes.has(data.method) &&
+          (() =>
+            engine.handle(data).then((result) => {
+              formatAndLog(
+                'Wallet Controller: (web 3 response)',
+                { ...data, result },
+                {
+                  color: LoggerColors.success,
+                }
+              );
+              return result;
+            }));
   },
 };
