@@ -37,7 +37,6 @@ browser.runtime.onConnect.addListener((connection) => {
     stream,
     logger('Wallet controller request'),
     walletControllerStream,
-    logger('Wallet controller response', { color: LoggerColors.success }),
     (err) => {
       /**
        * When a app refreshes the wallet connection stream throws a

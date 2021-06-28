@@ -1,15 +1,20 @@
 import { action, makeAutoObservable, observable } from 'mobx';
 import extension from 'extensionizer';
 import { persistStore } from '@src/utils/mobx';
-
+import { store } from '@src/store/store';
 class ExtensionStore {
-  isUnlocked: boolean = true;
+  /**
+   * If they havent setup the menumonic then its considered locked
+   */
+  get isUnlocked() {
+    return !!store.walletStore.mnemonic;
+  }
   timer: any = null;
   timeoutMinutes: number = 0;
 
   constructor() {
     makeAutoObservable(this);
-    persistStore(this, ['isUnlocked'], 'ExtensionStore');
+    persistStore(this, [], 'ExtensionStore');
   }
   reload() {
     extension.runtime.reload();
@@ -33,16 +38,18 @@ class ExtensionStore {
     if (!this.timeoutMinutes) {
       return;
     }
-
-    this.timer = setTimeout(
-      () => this.setLocked(),
-      this.timeoutMinutes * 60 * 1000
-    );
+    /**
+     * Not sure we need this yet or what its suppose to do
+     */
+    // this.timer = setTimeout(
+    //   () => this.setLocked(),
+    //   this.timeoutMinutes * 60 * 1000
+    // );
   }
 
-  setLocked(): void {
-    this.isUnlocked = false;
-  }
+  // setLocked(): void {
+  //   this.isUnlocked = false;
+  // }
 
   openWindow(url: string) {
     extension.tabs.create(url);

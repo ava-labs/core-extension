@@ -1,20 +1,24 @@
 // import { browser } from "webextension-polyfill-ts";
 // import avalancheWeb3 from "./avalancheWeb3/avalancheweb3";
-import { WindowPostMessageStream } from "@metamask/post-message-stream";
-import extension from "extensionizer";
-import ObjectMultiplex from "obj-multiplex";
-import PortStream from "extension-port-stream";
-import pump from "pump";
+import { WindowPostMessageStream } from '@metamask/post-message-stream';
+import extension from 'extensionizer';
+import ObjectMultiplex from 'obj-multiplex';
+import PortStream from 'extension-port-stream';
+import pump from 'pump';
 import {
   CONTENT_SCRIPT,
   INPAGE_SCRIPT,
   INPAGE_PROVIDER as PROVIDER,
-} from "./common";
-import { Duplex } from "stream";
+} from './common';
+import { Duplex } from 'stream';
+import logger, {
+  LoggerColors,
+  requestParser,
+} from './background/utils/logging';
 
-const inpage = require("raw-loader!/dist/js/inpage.js");
+const inpage = require('raw-loader!/dist/js/inpage.js');
 
-const inpageSuffix = `//# sourceURL=${extension.runtime.getURL("inpage.js")}\n`;
+const inpageSuffix = `//# sourceURL=${extension.runtime.getURL('inpage.js')}\n`;
 const inpageBundle = `${inpage.default}` + inpageSuffix;
 
 const shouldInjectProvider = () => {
@@ -34,7 +38,7 @@ const shouldInjectProvider = () => {
 const doctypeCheck = () => {
   const { doctype } = window.document;
   if (doctype) {
-    return doctype.name === "html";
+    return doctype.name === 'html';
   }
   return true;
 };
@@ -67,7 +71,7 @@ const suffixCheck = () => {
 const documentElementCheck = () => {
   const documentElement = document.documentElement.nodeName;
   if (documentElement) {
-    return documentElement.toLowerCase() === "html";
+    return documentElement.toLowerCase() === 'html';
   }
   return true;
 };
@@ -78,16 +82,16 @@ const documentElementCheck = () => {
  */
 const blockedDomainCheck = () => {
   const blockedDomains = [
-    "dropbox.com",
-    "cdn.shopify.com/s/javascripts/tricorder/xtld-read-only-frame.html",
+    'dropbox.com',
+    'cdn.shopify.com/s/javascripts/tricorder/xtld-read-only-frame.html',
   ];
   const currentUrl = window.location.href;
   let currentRegex;
   for (let i = 0; i < blockedDomains.length; i++) {
-    const blockedDomain = blockedDomains[i].replace(".", "\\.");
+    const blockedDomain = blockedDomains[i].replace('.', '\\.');
     currentRegex = new RegExp(
       `(?:https?:\\/\\/)(?:(?!${blockedDomain}).)*$`,
-      "u"
+      'u'
     );
     if (!currentRegex.test(currentUrl)) {
       return true;
@@ -99,22 +103,22 @@ const blockedDomainCheck = () => {
 const injectScript = (content: any) => {
   try {
     const container = document.head || document.documentElement;
-    const scriptTag = document.createElement("script");
-    scriptTag.setAttribute("async", "false");
+    const scriptTag = document.createElement('script');
+    scriptTag.setAttribute('async', 'false');
     scriptTag.textContent = content;
     container.insertBefore(scriptTag, container.children[0]);
     container.removeChild(scriptTag);
 
-    var div = document.createElement("div");
-    div.style.position = "fixed";
-    div.style.top = "0";
-    div.style.right = "0";
-    div.textContent = "Injected!";
+    var div = document.createElement('div');
+    div.style.position = 'fixed';
+    div.style.top = '0';
+    div.style.right = '0';
+    div.textContent = 'Injected!';
     container.appendChild(div);
 
     // container.removeChild(scriptTag);
   } catch (error) {
-    console.error(" Provider injection failed.", error);
+    console.error(' Provider injection failed.', error);
   }
 };
 
@@ -144,21 +148,27 @@ function setupStream() {
    * pump all pagstream events into the pageMux, pageMux is
    * a multiplex stream
    */
-  pump(pageMux, pageStream, pageMux, (err) =>
-    console.log("MetaMask Inpage Multiplex", err)
-  ).addListener("data", (...args) => {
-    console.log("from page: ", args);
-  });
+  pump(
+    pageMux,
+    pageStream,
+    pageMux,
+    logger('Background reponse', { color: LoggerColors.success }),
+    (err) => console.log('MetaMask Inpage Multiplex', err)
+  );
 
   /**
    * pump all extensionStream events into the extensionMux, extensionMux is
    * a multiplex stream
    */
-  pump(extensionMux, extensionStream, extensionMux, (err) => {
-    console.log("MetaMask Background Multiplex", err);
-  }).addListener("data", (...args) => {
-    console.log("from pump: ", args);
-  });
+  pump(
+    extensionMux,
+    extensionStream,
+    extensionMux,
+    logger('Provider call'),
+    (err) => {
+      console.log('MetaMask Background Multiplex', err);
+    }
+  );
 
   /**
    * note from original engineer: forward communication across inpage-background for these channels only
