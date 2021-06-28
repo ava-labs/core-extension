@@ -149,44 +149,68 @@ const renderPersonalSign = (data: any) => {
 };
 
 const renderDataTypev3 = (data: any) => {
-  const { domain, message, primaryType } = data;
   return (
-    <>
-      <h1>Signature Request</h1>
+    <SignatureMessage>
+      {data &&
+        Object.entries(data).map(([label, value], i) => {
+          const padLeft = typeof value !== 'object' || value === null;
 
-      {Object.entries(data).map(([label, value], i) => (
-        <div className="group" key={i}>
-          <span className="label">{label}: </span>
-          {typeof value === 'object' && value !== null ? (
-            renderDataTypev3(value)
-          ) : (
-            <span className="value">{`${value}`}</span>
-          )}
-        </div>
-      ))}
-    </>
+          if (label !== 'types') {
+            return (
+              <div className={padLeft ? 'group' : 'group leaf'} key={i}>
+                <span className="label">{label}: </span>
+                {typeof value === 'object' && value !== null ? (
+                  renderDataTypev3(value)
+                ) : (
+                  <span className="value">{`${value}`}</span>
+                )}
+              </div>
+            );
+          }
+        })}
+    </SignatureMessage>
   );
 };
 
 const renderDataTypev4 = (data: any) => {
   return (
-    <>
+    <SignatureMessage>
       {Object.entries(data).map(([label, value], i) => (
         <div className="group" key={i}>
           <span className="label">{label}: </span>
-          {typeof value === 'object' && value !== null ? (
+          {typeof value !== 'object' && value !== null ? (
             renderDataTypev4(value)
           ) : (
             <span className="value">{`${value}`}</span>
           )}
         </div>
       ))}
-    </>
+    </SignatureMessage>
   );
 };
 
 export const Wrapper = styled.div`
   padding: 1rem;
+`;
+
+export const SignatureMessage = styled.div`
+  flex: 1 60%;
+  display: flex;
+  flex-direction: column;
+
+  span {
+    .label {
+      padding-bottom: 0.3rem;
+    }
+  }
+
+  .group {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .group.leaf {
+    padding-left: 0.4rem;
+  }
 `;
 
 export const SendDiv = styled.div`
