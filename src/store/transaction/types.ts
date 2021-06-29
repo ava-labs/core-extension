@@ -33,8 +33,7 @@ export type MessageType =
 
 export interface UnapprovedMessage {
   id: number | string | void;
-  from: string;
-  msgParams: any;
+  msgParams: { from: string; data: any; password?: string };
   time: number;
   status: string;
   type: MessageType;
