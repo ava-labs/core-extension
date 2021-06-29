@@ -81,11 +81,7 @@ const web3CustomHandlers = {
   },
 
   async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(
-      data,
-      addrC,
-      'signTypedData_v4'
-    );
+    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v4');
     openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
@@ -97,11 +93,7 @@ const web3CustomHandlers = {
   },
 
   async eth_signTypedData_v3(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(
-      data,
-      addrC,
-      'signTypedData_v3'
-    );
+    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v3');
     openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
@@ -113,11 +105,7 @@ const web3CustomHandlers = {
   },
 
   async personal_sign(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(
-      data,
-      addrC,
-      'personal_sign'
-    );
+    await store.transactionStore.saveUnapprovedMsg(data, 'personal_sign');
     openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
@@ -129,7 +117,7 @@ const web3CustomHandlers = {
   },
 
   async eth_sign(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, addrC, 'eth_sign');
+    await store.transactionStore.saveUnapprovedMsg(data, 'eth_sign');
     openExtensionNewWindow(`sign?id=${data.id}`);
   },
 };
