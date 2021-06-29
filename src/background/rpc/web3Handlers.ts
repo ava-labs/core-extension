@@ -68,10 +68,6 @@ const { addrC } = store.walletStore;
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
 
-  async open(data: JsonRpcRequest<any>) {
-    return openExtensionNewWindow();
-  },
-
   async eth_getBalance(data: JsonRpcRequest<any>) {
     const { balanceC } = store.walletStore;
     return { ...data, result: balanceC };
@@ -106,16 +102,30 @@ const web3CustomHandlers = {
     await store.transactionStore.saveUnapprovedMsg(data, addrC, 'eth_sign');
     openExtensionNewWindow(`sign?id=${data.id}`);
   },
+  /**
+   * This is called when the user requests to connect the via dapp. We need
+   * to popup the permissions window, get permissions for the given domain
+   * and then respond accordingly.
+   *
+   * @param data the rpc request
+   * @returns
+   */
   async eth_requestAccounts(data: JsonRpcRequest<any>) {
     return {
       ...data,
-      result: store.extensionStore.isUnlocked ? store.walletStore.accounts : [],
+      result: store.walletStore.accounts,
     };
   },
+  /**
+   * This is called right away by dapps to see if its already connected
+   *
+   * @param data the rpc request
+   * @returns an array of accounts the dapp has permissions for
+   */
   async eth_accounts(data: JsonRpcRequest<any>) {
     return {
       ...data,
-      result: store.extensionStore.isUnlocked ? store.walletStore.accounts : [],
+      result: store.walletStore.accounts,
     };
   },
 };

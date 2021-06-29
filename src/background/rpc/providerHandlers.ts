@@ -1,8 +1,7 @@
 import { JsonRpcRequest } from './jsonRpcEngine';
 import { store } from '@src/store/store';
 import { formatAndLog, LoggerColors } from '../utils/logging';
-
-// const AVALANCHE_AGGREGATOR_NAME = "metamask";
+import { DOMAIN_METADATA_METHOD } from '../permissionsController';
 
 export default {
   async metamask_getProviderState(data) {
@@ -12,13 +11,11 @@ export default {
         isUnlocked: store.extensionStore.isUnlocked,
         chainId: store.walletStore.addrC,
         networkVersion: 'avax',
-        accounts: store.extensionStore.isUnlocked
-          ? store.walletStore.accounts
-          : [],
+        accounts: store.walletStore.accounts,
       },
     };
   },
-  async metamask_sendDomainMetadata(data) {
+  async [DOMAIN_METADATA_METHOD](data) {
     return { ...data, result: data.params };
   },
 
