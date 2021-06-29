@@ -3,10 +3,7 @@ import providerHandlers from './rpc/providerHandlers';
 import web3Handlers from './rpc/web3Handlers';
 import { JsonRpcRequest } from './rpc/jsonRpcEngine';
 import { resolve } from '../utils/promiseResolver';
-import {
-  PermissionsController,
-  watchForDomainAndDispatch,
-} from './permissionsController';
+import { PermissionsController } from './permissionsController';
 
 /**
  * This is the core of the background logic. Every request comes in through the WalletControllerStream
@@ -50,18 +47,17 @@ export function createWalletControllerStream() {
   return new Duplex({
     objectMode: true,
     write(chunk, _encoding, cb) {
-      /**
-       * Since the domain comes from the provider we watch for that here. Soon as
-       * we get the rpc request we broadcas that out to all requests that require
-       * permissions, permissions are by domain and this is how we find out what domain
-       * they are coming from.
-       *
-       */
-      watchForDomainAndDispatch(chunk.data);
-
       permissions
+        /**
+         * Since the domain comes from the provider we watch for that here. Soon as
+         * we get the rpc request we broadcas that out to all requests that require
+         * permissions, permissions are by domain and this is how we find out what domain
+         * they are coming from.
+         *
+         */
+        .watchForDomainAndDispatch(chunk.data)
         .validateMethodPermissions(chunk.data)
-        .then(() => controller.mapChunkToHandler(chunk))
+        .then((data) => controller.mapChunkToHandler({ ...chunk, data }))
         .then((result) => {
           this.push(result);
         });

@@ -3,6 +3,7 @@ import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { store } from '@src/store/store';
 import storageListener from '../utils/storage';
 import { formatAndLog, LoggerColors } from '../utils/logging';
+import { CONNECT_METHOD } from '../permissionsController';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -110,10 +111,21 @@ const web3CustomHandlers = {
    * @param data the rpc request
    * @returns
    */
-  async eth_requestAccounts(data: JsonRpcRequest<any>) {
+  async [CONNECT_METHOD](data: JsonRpcRequest<any>) {
+    openExtensionNewWindow(`permissions`, `domain=${data.params.domain}`);
+
+    const hasPermissions = await storageListener
+      .filter(() =>
+        store.permissionsStore.domainPermissionsExist(data.params.domain)
+      )
+      .map(() =>
+        store.permissionsStore.domainHasPermissions(data.params.domain)
+      )
+      .promisify();
+
     return {
       ...data,
-      result: store.walletStore.accounts,
+      result: hasPermissions ? store.walletStore.accounts : [],
     };
   },
   /**

@@ -5,15 +5,16 @@ import { store } from '@src/store/store';
 import storageListener from './utils/storage';
 import { formatAndLog } from './utils/logging';
 
-const domainMetadataSignal = new Signal<DomainMetadata>();
-
 export const DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata';
+export const CONNECT_METHOD = 'eth_requestAccounts';
 
 export enum MethodsRequiringPermissions {
   eth_accounts = 'eth_accounts',
 }
 
 export class PermissionsController {
+  private domainMetadataSignal = new Signal<DomainMetadata>();
+
   private _destroy = new Signal<boolean>();
   destroy() {
     this._destroy.dispatch(true);
@@ -22,6 +23,12 @@ export class PermissionsController {
   private methodsRequiringPermissions = new Set<string>(
     Object.values(MethodsRequiringPermissions)
   );
+
+  /**
+   * Assign this as a promise of the signal, the signal will resolve on the first push
+   * and the promise will essentially act as a cache for the result
+   */
+  getDomainMetadata = this.domainMetadataSignal.promisify();
 
   private async permissionGranted(rpcReuqest: JsonRpcRequest<any>) {
     /**
@@ -39,7 +46,7 @@ export class PermissionsController {
      *   d. Verify that the permissions exists for the given domain
      */
 
-    return domainMetadataSignal
+    return this.domainMetadataSignal
       .peek((domainMetadata) =>
         formatAndLog('Permission request (domain set)', domainMetadata)
       )
@@ -76,12 +83,39 @@ export class PermissionsController {
   async validateMethodPermissions(rpcReuqest: JsonRpcRequest<any>) {
     return this.methodsRequiringPermissions.has(rpcReuqest.method)
       ? this.permissionGranted(rpcReuqest)
-      : Promise.resolve(rpcReuqest);
+      : this.onConnectAddDomainToRequest(rpcReuqest);
   }
-}
 
-export function watchForDomainAndDispatch(rpcReuqest: JsonRpcRequest<any>) {
-  if (rpcReuqest && rpcReuqest.method === DOMAIN_METADATA_METHOD) {
-    domainMetadataSignal.dispatch(rpcReuqest.params.name);
+  watchForDomainAndDispatch(rpcReuqest: JsonRpcRequest<any>) {
+    if (rpcReuqest && rpcReuqest.method === DOMAIN_METADATA_METHOD) {
+      this.domainMetadataSignal.dispatch(rpcReuqest.params.name);
+    }
+
+    return this;
+  }
+
+  /**
+   * Since we are in a connection pipe and all instances belong to a particular pipe, we
+   * essentially tag a pipe with a domain and then everything works as tagged. In the case of
+   * a connect request we dont simply allow the requester to say who they are but we instead rely
+   * on the provider to fulfill this information ahead of time. Then the connect request is bound to that
+   * and the dApp cant simply say they are a connection they are not.
+   *
+   * For that reason we update the request to include the domain that came from the provider. Then in the popup
+   * we get permissions for that domain and act accordingly. This isnt the cleanest code but it makes sure a dApp
+   * isnt injecting into the connection and becoming a bad actor.
+   *
+   * @param rpcReuqest
+   * @returns
+   */
+  private async onConnectAddDomainToRequest(rpcReuqest: JsonRpcRequest<any>) {
+    const domain = await this.getDomainMetadata;
+
+    return rpcReuqest && rpcReuqest.method === CONNECT_METHOD
+      ? {
+          ...rpcReuqest,
+          params: { domain },
+        }
+      : rpcReuqest;
   }
 }

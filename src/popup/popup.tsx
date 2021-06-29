@@ -23,6 +23,7 @@ import { AddToken } from '@src/components/AddToken';
 import { Header } from '@src/components/common/Header';
 import { Footer } from '@src/components/common/Footer';
 import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
+import { PermissionsPage } from '@src/pages/Permissions/Permissions';
 
 export const Popup = observer((): React.ReactElement => {
   const { themeStore, networkStore, walletStore } = useStore();
@@ -48,7 +49,7 @@ export const Popup = observer((): React.ReactElement => {
         }}
       >
         <Header />
-        <HorizontalFlex flex={1}>
+        <HorizontalFlex flex={1} justify={'center'}>
           <Switch>
             <Route path="/welcome/create">
               <CreateWallet />
@@ -92,6 +93,10 @@ export const Popup = observer((): React.ReactElement => {
 
             <Route path="/sign">
               <SignMessage />
+            </Route>
+
+            <Route path="/permissions">
+              <PermissionsPage />
             </Route>
 
             <Route path="/">

@@ -32,7 +32,7 @@ export default class PermissionsStore {
    * least one of those accounts needs to be granted
    *
    * @param domain the domain we want to check for permissions
-   * @returns
+   * @returns boolean
    */
   domainHasPermissions(domain: string) {
     return !!(
@@ -41,6 +41,19 @@ export default class PermissionsStore {
       Object.values(this.permissions[domain].accounts).length &&
       Object.values(this.permissions[domain].accounts).some((value) => value)
     );
+  }
+
+  /**
+   * If the permissions are popped open and the user closes it without giving permissions
+   * than we need to write to disk beofre the window closes that permissions were refused. This
+   * write will signal to the connect request that the user refused the connect and release the stream
+   * so they can click connect again.
+   *
+   * @param domain the domain name
+   * @returns boolean
+   */
+  domainPermissionsExist(domain: string) {
+    return !!this.permissions[domain];
   }
 
   addPermissionsForDomain(permissions: DappPermissions) {

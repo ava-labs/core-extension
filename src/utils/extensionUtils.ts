@@ -75,7 +75,6 @@ export const openExtensionNewWindow = (
 
   top = Math.max(height, 0);
   left = Math.max(width + (width - NOTIFICATION_WIDTH), 0);
-
   openWindow({
     url: extensionURL,
     focused: true,
