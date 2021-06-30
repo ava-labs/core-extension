@@ -3,6 +3,7 @@ import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { browser } from 'webextension-polyfill-ts';
 import { store } from '@src/store/store';
 import storageListener from '../utils/storage';
+import { recoverPersonalSignature } from 'eth-sig-util';
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -117,14 +118,29 @@ const web3CustomHandlers = {
     return { ...data, result };
   },
 
-  async eth_sign(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, 'eth_sign');
-    openExtensionNewWindow(`sign?id=${data.id}`);
+  // deprecated
+  // async eth_sign(data: JsonRpcRequest<any>) {
+  //   await store.transactionStore.saveUnapprovedMsg(data, 'eth_sign');
+  //   openExtensionNewWindow(`sign?id=${data.id}`);
 
-    const result = await storageListener
-      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
-      .filter((result) => !!result)
-      .promisify();
+  //   const result = await storageListener
+  //     .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+  //     .filter((result) => !!result)
+  //     .promisify();
+
+  //   return { ...data, result };
+  // },
+
+  async personal_ecRecover(data: JsonRpcRequest<any>) {
+    const { params } = data;
+
+    const msg = params[0];
+    const signedResult = params[1];
+
+    const result = await store.transactionStore.personalSigRecovery(
+      msg,
+      signedResult
+    );
 
     return { ...data, result };
   },
