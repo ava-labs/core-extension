@@ -14,6 +14,8 @@ import {
   personalSign,
   signTypedData_v4,
   signTypedData,
+  signTypedMessage,
+  signTypedDataLegacy,
   TypedData,
 } from 'eth-sig-util';
 
@@ -52,7 +54,8 @@ export const SignMessage = observer(() => {
         if (
           message.type === 'personal_sign' ||
           message.type === 'eth_sign' ||
-          message.type === 'signTypedData'
+          message.type === 'signTypedData' ||
+          message.type === 'signTypedData_v1'
         ) {
           setParsedMsg(message.msgParams.data);
         } else if (message.type === 'signTypedData_v3') {
@@ -79,17 +82,18 @@ export const SignMessage = observer(() => {
           if (message.type === 'personal_sign') {
             signed = personalSign(buffer, message.msgParams);
           } else if (message.type === 'eth_sign') {
-            // requires a diff sign
-            signed = personalSign(buffer, parsedMsg);
+            signed = signTypedDataLegacy(buffer, message.msgParams.data);
           } else if (message.type === 'signTypedData_v4') {
             signed = signTypedData_v4(buffer, message.msgParams.data);
           } else if (message.type === 'signTypedData_v3') {
             let MsgParams = { data: parsedMsg };
             signed = signTypedData(buffer, MsgParams);
-          } else if (message.type === 'signTypedData') {
-            //let MsgParams = { data: JSON.parse(parsedMsg) };
-            signed = signTypedData_v4(buffer, message.msgParams.data);
-            //signed = signTypedData(buffer, MsgParams);
+          } else if (
+            message.type === 'signTypedData' ||
+            message.type === 'signTypedData_v1'
+          ) {
+            let MsgParams = { data: parsedMsg };
+            signed = signTypedMessage(buffer, MsgParams, 'V1');
           }
           console.log('signedq', signed);
 
@@ -123,6 +127,9 @@ export const SignMessage = observer(() => {
         renderType = renderEthSign(parsedMsg);
         break;
       case 'signTypedData':
+        renderType = renderDataType(parsedMsg);
+        break;
+      case 'signTypedData_v1':
         renderType = renderDataType(parsedMsg);
         break;
       case 'signTypedData_v3':
