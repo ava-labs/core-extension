@@ -97,21 +97,52 @@ class TransactionStore {
     return;
   }
 
-  async saveUnapprovedMsg(
-    data: JsonRpcRequest<any>,
-    from: string,
-    signType: MessageType
-  ) {
+  async saveUnapprovedMsg(data: JsonRpcRequest<any>, signType: MessageType) {
     const { params } = data;
 
     const now = new Date().getTime();
 
+    // different sign types order the data inconsistently; we need to arrange the data specific to the request method
+    let msgParams;
+    switch (signType) {
+      case 'personal_sign':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+          password: params[2],
+        };
+        break;
+      case 'signTypedData':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+        };
+        break;
+      case 'personal_sign':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+          password: params[2],
+        };
+        break;
+      case 'eth_sign':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+        };
+      default:
+        msgParams = {
+          from: params[0],
+          data: params[1],
+        };
+        break;
+    }
+
     let msgData: UnapprovedMessage = {
       id: data.id,
-      from,
       time: now,
       status: 'unsigned',
-      msgParams: params[1],
+      msgParams,
       type: signType,
     };
 
@@ -153,7 +184,7 @@ class TransactionStore {
     const address = normalize(msgParams.from);
   }
 
-  validateParams(msgData) {
+  validateParams(msgData: UnapprovedMessage) {
     const { msgParams } = msgData;
     const isValid = typeof Utils.isValidAddress(msgParams.from) === 'boolean';
 
@@ -184,14 +215,14 @@ class TransactionStore {
           return '"msgParams.data" must be a string.';
         }
 
-        const { chainId } = msgParams.data.domain;
+        const { chainId } = msgData.msgParams.data.domain;
         if (chainId) {
           // validate chain id
           return `Cannot sign message for ${chainId} while switching networks.`;
         }
       }
       default:
-        return `Unknown typed data version "${msgParams.type}"`;
+        return `Unknown typed data version "${msgData.type}"`;
     }
   }
 }
