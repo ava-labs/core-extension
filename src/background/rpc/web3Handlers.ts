@@ -2,6 +2,7 @@ import engine, { JsonRpcRequest } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { store } from '@src/store/store';
 import storageListener from '../utils/storage';
+import { recoverPersonalSignature } from 'eth-sig-util';
 import { formatAndLog, LoggerColors } from '../utils/logging';
 import { CONNECT_METHOD } from '../permissionsController';
 
@@ -52,11 +53,6 @@ const unauthenticatedRoutes = new Set([
   'eth_newPendingTransactionFilter',
   'eth_protocolVersion',
   'eth_sendRawTransaction',
-  'eth_sign',
-  'eth_signTypedData',
-  'eth_signTypedData_v1',
-  'eth_signTypedData_v3',
-  'eth_signTypedData_v4',
   'eth_submitHashrate',
   'eth_submitWork',
   'eth_syncing',
@@ -74,21 +70,8 @@ const web3CustomHandlers = {
     return { ...data, result: balanceC };
   },
 
-  async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(
-      data,
-      addrC,
-      'signTypedData_v4'
-    );
-    openExtensionNewWindow(`sign?id=${data.id}`);
-  },
-
-  async personal_sign(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(
-      data,
-      addrC,
-      'personal_sign'
-    );
+  async eth_signTypedData(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData');
     openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
@@ -96,12 +79,69 @@ const web3CustomHandlers = {
       .filter((result) => !!result)
       .promisify();
 
-    return result;
+    return { ...data, result };
   },
 
-  async eth_sign(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, addrC, 'eth_sign');
+  async eth_signTypedData_v3(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v3');
     openExtensionNewWindow(`sign?id=${data.id}`);
+
+    const result = await storageListener
+      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .filter((result) => !!result)
+      .promisify();
+
+    return { ...data, result };
+  },
+  async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v4');
+    openExtensionNewWindow(`sign?id=${data.id}`);
+
+    const result = await storageListener
+      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .filter((result) => !!result)
+      .promisify();
+
+    return { ...data, result };
+  },
+
+  async personal_sign(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, 'personal_sign');
+    openExtensionNewWindow(`sign?id=${data.id}`);
+
+    const result = await storageListener
+      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .filter((result) => !!result)
+      .promisify();
+
+    return { ...data, result };
+  },
+
+  // deprecated
+  // async eth_sign(data: JsonRpcRequest<any>) {
+  //   await store.transactionStore.saveUnapprovedMsg(data, 'eth_sign');
+  //   openExtensionNewWindow(`sign?id=${data.id}`);
+
+  //   const result = await storageListener
+  //     .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+  //     .filter((result) => !!result)
+  //     .promisify();
+
+  //   return { ...data, result };
+  // },
+
+  async personal_ecRecover(data: JsonRpcRequest<any>) {
+    const { params } = data;
+
+    const msg = params[0];
+    const signedResult = params[1];
+
+    const result = await store.transactionStore.personalSigRecovery(
+      msg,
+      signedResult
+    );
+
+    return { ...data, result };
   },
   /**
    * This is called when the user requests to connect the via dapp. We need
