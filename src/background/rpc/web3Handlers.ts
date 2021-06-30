@@ -50,11 +50,6 @@ const unauthenticatedRoutes = new Set([
   'eth_newPendingTransactionFilter',
   'eth_protocolVersion',
   'eth_sendRawTransaction',
-  'eth_sign',
-  'eth_signTypedData',
-  'eth_signTypedData_v1',
-  'eth_signTypedData_v3',
-  'eth_signTypedData_v4',
   'eth_submitHashrate',
   'eth_submitWork',
   'eth_syncing',
@@ -74,14 +69,9 @@ const web3CustomHandlers = {
     const { balanceC } = store.walletStore;
     return { ...data, result: balanceC };
   },
-  async test(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedTx(data, addrC);
 
-    openExtensionNewWindow(`send/confirm?id=${data.id}`);
-  },
-
-  async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v4');
+  async eth_signTypedData(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData');
     openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
@@ -94,6 +84,17 @@ const web3CustomHandlers = {
 
   async eth_signTypedData_v3(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v3');
+    openExtensionNewWindow(`sign?id=${data.id}`);
+
+    const result = await storageListener
+      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .filter((result) => !!result)
+      .promisify();
+
+    return { ...data, result };
+  },
+  async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
+    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v4');
     openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
@@ -119,6 +120,13 @@ const web3CustomHandlers = {
   async eth_sign(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'eth_sign');
     openExtensionNewWindow(`sign?id=${data.id}`);
+
+    const result = await storageListener
+      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .filter((result) => !!result)
+      .promisify();
+
+    return { ...data, result };
   },
 };
 
