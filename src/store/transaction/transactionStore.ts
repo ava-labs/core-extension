@@ -11,6 +11,10 @@ import { JsonRpcRequest } from 'json-rpc-engine';
 import { removeTypeDuplicates } from '@babel/types';
 import { Signal } from 'micro-signals';
 import { getStoreFromStorage } from '@src/background/utils/storage';
+import { normalize } from 'eth-sig-util';
+import { stripHexPrefix } from 'ethereumjs-util';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { recoverPersonalSignature } from 'eth-sig-util';
 
 const getTransactionOrMessageId = (id: UnapprovedTransaction['id']) => {
   return `${id}`;
@@ -94,21 +98,52 @@ class TransactionStore {
     return;
   }
 
-  async saveUnapprovedMsg(
-    data: JsonRpcRequest<any>,
-    from: string,
-    signType: MessageType
-  ) {
+  async saveUnapprovedMsg(data: JsonRpcRequest<any>, signType: MessageType) {
     const { params } = data;
 
     const now = new Date().getTime();
 
+    // different sign types order the data inconsistently; we need to arrange the data specific to the request method
+    let msgParams;
+    switch (signType) {
+      case 'personal_sign':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+          password: params[2],
+        };
+        break;
+      case 'signTypedData':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+        };
+        break;
+      case 'personal_sign':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+          password: params[2],
+        };
+        break;
+      case 'eth_sign':
+        msgParams = {
+          data: params[0],
+          from: params[1],
+        };
+      default:
+        msgParams = {
+          from: params[0],
+          data: params[1],
+        };
+        break;
+    }
+
     let msgData: UnapprovedMessage = {
       id: data.id,
-      from,
       time: now,
       status: 'unsigned',
-      msgParams: params[1],
+      msgParams,
       type: signType,
     };
 
@@ -116,6 +151,7 @@ class TransactionStore {
       ...this.messages,
       [getTransactionOrMessageId(msgData.id)]: msgData,
     };
+
     return;
   }
 
@@ -143,6 +179,63 @@ class TransactionStore {
         txHash: result,
       } as UnapprovedTransaction,
     };
+  }
+
+  async decryptSignedData({ msgParams }) {
+    const address = normalize(msgParams.from);
+  }
+
+  /**
+   * Gets the "from" address from the data and the signed result .
+   */
+  personalSigRecovery(msg: string, signedResult: string): string {
+    const recoveredAddress = recoverPersonalSignature({
+      data: msg,
+      sig: signedResult,
+    });
+    return recoveredAddress;
+  }
+
+  validateParams(msgData: UnapprovedMessage) {
+    const { msgParams } = msgData;
+    const isValid = typeof Utils.isValidAddress(msgParams.from) === 'boolean';
+
+    if (!isValid) {
+      return '"from" field must be a valid, lowercase, hexadecimal Ethereum address string.';
+    }
+
+    if (msgParams && typeof msgParams !== 'object') {
+      return 'msgParams must be an object.';
+    }
+    if (msgParams.data === undefined) {
+      return 'msgParams must include a "data" field.';
+    }
+
+    if (msgParams.from === undefined) {
+      return 'msgParams must include a "from" field.';
+    }
+
+    switch (msgData.type) {
+      case 'signTypedData_v1':
+        if (!Array.isArray(msgParams.data)) {
+          return '"msgParams.data" must be an array.';
+        }
+        break;
+      case 'signTypedData_v3':
+      case 'signTypedData_v4': {
+        if (typeof msgParams.data !== 'string') {
+          return '"msgParams.data" must be a string.';
+        }
+
+        const { chainId } = msgData.msgParams.data.domain;
+        if (chainId) {
+          // validate chain id
+          return `Cannot sign message for ${chainId} while switching networks.`;
+        }
+      }
+      default:
+        return `Unknown typed data version "${msgData.type}"`;
+    }
   }
 }
 
