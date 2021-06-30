@@ -104,10 +104,10 @@ class WalletStore {
     this.mnemonic = MnemonicWallet.generateMnemonicPhrase();
   }
 
-  getEthPrivateKey() {
+  async getEthPrivateKey() {
     if (this.wallet!.type !== 'ledger') {
       let wallet = this.wallet as MnemonicWallet;
-      return wallet.getEvmPrivateKeyHex();
+      return await wallet.getEvmPrivateKeyHex();
     }
   }
 
