@@ -1,9 +1,10 @@
 import engine, { JsonRpcRequest } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { browser } from 'webextension-polyfill-ts';
 import { store } from '@src/store/store';
-import storageListener from '../utils/storage';
-import { recoverPersonalSignature } from 'eth-sig-util';
+import storageListener from '../utils/storage'; 
+import { recoverPersonalSignature } from 'eth-sig-util'; 
+import { formatAndLog, LoggerColors } from '../utils/logging';
+ 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -56,20 +57,17 @@ const unauthenticatedRoutes = new Set([
   'eth_syncing',
   'eth_signTransaction',
   'eth_uninstallFilter',
+  'net_version',
 ]);
 const { addrC } = store.walletStore;
 
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
 
-  async open(data: JsonRpcRequest<any>) {
-    return openExtensionNewWindow();
-  },
-
   async eth_getBalance(data: JsonRpcRequest<any>) {
     const { balanceC } = store.walletStore;
     return { ...data, result: balanceC };
-  },
+  }, 
 
   async eth_signTypedData(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData');
@@ -81,7 +79,7 @@ const web3CustomHandlers = {
       .promisify();
 
     return { ...data, result };
-  },
+  }, 
 
   async eth_signTypedData_v3(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v3');
@@ -144,14 +142,60 @@ const web3CustomHandlers = {
 
     return { ...data, result };
   },
+  /**
+   * This is called when the user requests to connect the via dapp. We need
+   * to popup the permissions window, get permissions for the given domain
+   * and then respond accordingly.
+   *
+   * @param data the rpc request
+   * @returns
+   */
+  async eth_requestAccounts(data: JsonRpcRequest<any>) {
+    return {
+      ...data,
+      result: store.walletStore.accounts,
+    };
+  },
+  /**
+   * This is called right away by dapps to see if its already connected
+   *
+   * @param data the rpc request
+   * @returns an array of accounts the dapp has permissions for
+   */
+  async eth_accounts(data: JsonRpcRequest<any>) {
+    return {
+      ...data,
+      result: store.walletStore.accounts,
+    };
+  },
 };
 
 export default {
   getHandlerForKey(data: JsonRpcRequest<any>) {
-    const customHandler = web3CustomHandlers[data.method];
+    const customHandler =
+      web3CustomHandlers[data.method] &&
+      ((data) => {
+        return web3CustomHandlers[data.method](data).then((result) => {
+          formatAndLog('Wallet Controller: (web 3 custom response)', result, {
+            color: LoggerColors.success,
+          });
+          return result;
+        });
+      });
 
     return customHandler
       ? () => customHandler(data)
-      : unauthenticatedRoutes.has(data.method) && (() => engine.handle(data));
+      : unauthenticatedRoutes.has(data.method) &&
+          (() =>
+            engine.handle(data).then((result) => {
+              formatAndLog(
+                'Wallet Controller: (web 3 response)',
+                { ...data, result },
+                {
+                  color: LoggerColors.success,
+                }
+              );
+              return result;
+            }));
   },
 };

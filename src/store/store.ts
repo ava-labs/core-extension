@@ -6,6 +6,7 @@ import OnboardStore from '@src/store/onboard/onboardStore';
 import NetworkStore from '@src/store/network/networkStore';
 import WalletStore from '@src/store/wallet/walletStore';
 import TransactionStore from '@src/store/transaction/transactionStore';
+import PermissionsStore from './permissions/permissionsStore';
 
 export interface CombinedStores {
   asssetsStore: AssetsStore;
@@ -15,6 +16,7 @@ export interface CombinedStores {
   networkStore: NetworkStore;
   walletStore: WalletStore;
   transactionStore: TransactionStore;
+  permissionsStore: PermissionsStore;
 }
 
 export const store: CombinedStores = {
@@ -25,6 +27,7 @@ export const store: CombinedStores = {
   networkStore: new NetworkStore(),
   walletStore: new WalletStore(),
   transactionStore: new TransactionStore(),
+  permissionsStore: new PermissionsStore(),
 };
 
 export const StoreContext = createContext(store);

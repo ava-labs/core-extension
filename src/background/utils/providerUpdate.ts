@@ -1,9 +1,9 @@
-import { INPAGE_PROVIDER } from "@src/common";
-import { Transform } from "stream";
+import { INPAGE_PROVIDER } from '@src/common';
+import { Transform } from 'stream';
 
 export function accountsChangedUpdate(accounts: string[]) {
   return {
-    method: "metamask_accountsChanged",
+    method: 'metamask_accountsChanged',
     params: {
       accounts,
     },
@@ -15,7 +15,7 @@ export function unlockStateChangedUpdate(
   accounts: string[]
 ) {
   return {
-    method: "metamask_unlockStateChanged",
+    method: 'metamask_unlockStateChanged',
     params: {
       isUnlocked,
       ...(isUnlocked ? { accounts } : {}),
@@ -25,10 +25,10 @@ export function unlockStateChangedUpdate(
 
 export function chainChangedUpdate(chainId: string) {
   return {
-    method: "metamask_chainChanged",
+    method: 'metamask_chainChanged',
     params: {
       chainId,
-      networkVersion: "avax",
+      networkVersion: 'avax',
     },
   };
 }
@@ -37,6 +37,7 @@ export function createTransformToJsonRPCResponse() {
   return new Transform({
     objectMode: true,
     transform(chunk, _encoding, cb) {
+      console.log('chunk: ', chunk);
       this.push({ name: INPAGE_PROVIDER, data: chunk });
       cb();
     },

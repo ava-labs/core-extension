@@ -16,7 +16,7 @@ export const AllDone = (props: AllDoneProps): React.ReactElement => {
   const history = useHistory();
   const { currentPosition, goBack } = props;
 
-  const { onboardStore } = useStore();
+  const { onboardStore, walletStore } = useStore();
 
   return (
     <>
@@ -228,6 +228,7 @@ export const AllDone = (props: AllDoneProps): React.ReactElement => {
         <FullWidthButton
           onClick={() => {
             onboardStore.markOnboarded();
+            walletStore.updateWallet();
             history.push('/wallet');
           }}
         >
