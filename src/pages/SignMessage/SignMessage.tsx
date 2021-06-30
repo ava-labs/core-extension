@@ -10,7 +10,12 @@ import { ContentLayout } from '@src/styles/styles';
 
 import { Spinner } from '@src/components/misc/Spinner';
 import { UnapprovedMessage } from '@src/store/transaction/types';
-import { personalSign, signTypedData_v4, signTypedData } from 'eth-sig-util';
+import {
+  personalSign,
+  signTypedData_v4,
+  signTypedData,
+  TypedData,
+} from 'eth-sig-util';
 
 // ux notes
 // elminate tech jargon
@@ -43,34 +48,50 @@ export const SignMessage = observer(() => {
       setMessage(message);
 
       if (message !== undefined) {
-        if (message.type === 'personal_sign') {
-          setParsedMsg(message.msgParams);
+        console.log('message.msgParams', message);
+        if (
+          message.type === 'personal_sign' ||
+          message.type === 'eth_sign' ||
+          message.type === 'signTypedData'
+        ) {
+          setParsedMsg(message.msgParams.data);
         } else if (message.type === 'signTypedData_v3') {
-          setParsedMsg(JSON.parse(message.msgParams));
+          setParsedMsg(JSON.parse(message.msgParams.data));
         } else if (message.type === 'signTypedData_v4') {
-          setParsedMsg(JSON.parse(message.msgParams));
+          console.log('hmm', JSON.parse(message.msgParams.data));
+
+          setParsedMsg(JSON.parse(message.msgParams.data));
         }
       }
     })();
   }, []);
 
-  const signTransaction = () => {
-    const privateKey = walletStore.getEthPrivateKey();
+  const signTransaction = async () => {
+    const privateKey = await walletStore.getEthPrivateKey();
+    console.log('parsedMsg', parsedMsg);
+
     if (privateKey) {
       const buffer = Buffer.from(privateKey, 'hex');
-
-      let MsgParams = { data: parsedMsg };
 
       if (message !== undefined) {
         try {
           let signed;
           if (message.type === 'personal_sign') {
-            signed = personalSign(buffer, MsgParams);
+            signed = personalSign(buffer, message.msgParams);
+          } else if (message.type === 'eth_sign') {
+            // requires a diff sign
+            signed = personalSign(buffer, parsedMsg);
           } else if (message.type === 'signTypedData_v4') {
-            signed = signTypedData_v4(buffer, MsgParams);
+            signed = signTypedData_v4(buffer, message.msgParams.data);
           } else if (message.type === 'signTypedData_v3') {
+            let MsgParams = { data: parsedMsg };
             signed = signTypedData(buffer, MsgParams);
+          } else if (message.type === 'signTypedData') {
+            //let MsgParams = { data: JSON.parse(parsedMsg) };
+            signed = signTypedData_v4(buffer, message.msgParams.data);
+            //signed = signTypedData(buffer, MsgParams);
           }
+          console.log('signedq', signed);
 
           setResult(signed);
           transactionStore.updateUnapprovedMsg({
@@ -79,6 +100,8 @@ export const SignMessage = observer(() => {
             result: signed,
           });
         } catch (error) {
+          console.log('err', error);
+
           setErrorMsg(error);
         }
       }
@@ -90,13 +113,17 @@ export const SignMessage = observer(() => {
   };
   let renderType;
 
-  if (message !== undefined) {
+  if (message !== undefined && parsedMsg !== undefined) {
+    console.log('parsedMsg line 95', parsedMsg);
     switch (message.type) {
       case 'personal_sign':
         renderType = renderPersonalSign(parsedMsg);
         break;
+      case 'eth_sign':
+        renderType = renderEthSign(parsedMsg);
+        break;
       case 'signTypedData':
-        renderType = renderDataTypev3(parsedMsg);
+        renderType = renderDataType(parsedMsg);
         break;
       case 'signTypedData_v3':
         renderType = renderDataTypev3(parsedMsg);
@@ -108,8 +135,6 @@ export const SignMessage = observer(() => {
         renderType = renderError();
     }
   }
-
-  console.log('renderType', renderType);
 
   return (
     <Layout>
@@ -148,6 +173,30 @@ const renderPersonalSign = (data: any) => {
   return <>{data}</>;
 };
 
+const renderEthSign = (data: any) => {
+  console.log('render data', data);
+
+  return <>{data}</>;
+};
+
+const renderDataType = (data: any) => {
+  return (
+    <SignatureMessage>
+      {data &&
+        data.map((x, i) => {
+          const { type, name, value } = x;
+
+          return (
+            <div key={i}>
+              <span className="label">{name}: </span>
+              <span className="value">{`${value}`}</span>
+            </div>
+          );
+        })}
+    </SignatureMessage>
+  );
+};
+
 const renderDataTypev3 = (data: any) => {
   return (
     <SignatureMessage>
@@ -173,18 +222,21 @@ const renderDataTypev3 = (data: any) => {
 };
 
 const renderDataTypev4 = (data: any) => {
+  console.log('data', data, typeof data);
+
   return (
     <SignatureMessage>
-      {Object.entries(data).map(([label, value], i) => (
-        <div className="group" key={i}>
-          <span className="label">{label}: </span>
-          {typeof value !== 'object' && value !== null ? (
-            renderDataTypev4(value)
-          ) : (
-            <span className="value">{`${value}`}</span>
-          )}
-        </div>
-      ))}
+      {data &&
+        Object.entries(data).map(([label, value], i) => (
+          <div className="group" key={i}>
+            <span className="label">{label}: </span>
+            {typeof value !== 'object' && value !== null ? (
+              renderDataTypev4(value)
+            ) : (
+              <span className="value">{`${value}`}</span>
+            )}
+          </div>
+        ))}
     </SignatureMessage>
   );
 };
