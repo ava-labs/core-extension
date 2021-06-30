@@ -19,13 +19,6 @@ import {
   TypedData,
 } from 'eth-sig-util';
 
-// ux notes
-// elminate tech jargon
-// explain why they need to sign (prove wallet ownership / log them in )
-// provide hover tooltip explanations
-// explain it wont cost anything
-// frame message to set expectations
-
 export const SignMessage = observer(() => {
   const [loading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<UnapprovedMessage>();
@@ -61,8 +54,6 @@ export const SignMessage = observer(() => {
         } else if (message.type === 'signTypedData_v3') {
           setParsedMsg(JSON.parse(message.msgParams.data));
         } else if (message.type === 'signTypedData_v4') {
-          console.log('hmm', JSON.parse(message.msgParams.data));
-
           setParsedMsg(JSON.parse(message.msgParams.data));
         }
       }
@@ -71,7 +62,6 @@ export const SignMessage = observer(() => {
 
   const signTransaction = async () => {
     const privateKey = await walletStore.getEthPrivateKey();
-    console.log('parsedMsg', parsedMsg);
 
     if (privateKey) {
       const buffer = Buffer.from(privateKey, 'hex');
@@ -82,9 +72,10 @@ export const SignMessage = observer(() => {
           if (message.type === 'personal_sign') {
             signed = personalSign(buffer, message.msgParams);
           } else if (message.type === 'eth_sign') {
-            signed = signTypedDataLegacy(buffer, message.msgParams.data);
+            signed = signTypedDataLegacy(buffer, { data: parsedMsg });
           } else if (message.type === 'signTypedData_v4') {
-            signed = signTypedData_v4(buffer, message.msgParams.data);
+            let MsgParams = { data: parsedMsg };
+            signed = signTypedData_v4(buffer, MsgParams);
           } else if (message.type === 'signTypedData_v3') {
             let MsgParams = { data: parsedMsg };
             signed = signTypedData(buffer, MsgParams);
@@ -95,7 +86,6 @@ export const SignMessage = observer(() => {
             let MsgParams = { data: parsedMsg };
             signed = signTypedMessage(buffer, MsgParams, 'V1');
           }
-          console.log('signedq', signed);
 
           setResult(signed);
           transactionStore.updateUnapprovedMsg({
@@ -105,7 +95,6 @@ export const SignMessage = observer(() => {
           });
         } catch (error) {
           console.log('err', error);
-
           setErrorMsg(error);
         }
       }
@@ -115,10 +104,10 @@ export const SignMessage = observer(() => {
   const removeUnapprovedMsg = () => {
     transactionStore.removeUnapprovedMessage(jsonRPCId);
   };
+
   let renderType;
 
   if (message !== undefined && parsedMsg !== undefined) {
-    console.log('parsedMsg line 95', parsedMsg);
     switch (message.type) {
       case 'personal_sign':
         renderType = renderPersonalSign(parsedMsg);
@@ -237,7 +226,7 @@ const renderDataTypev4 = (data: any) => {
         Object.entries(data).map(([label, value], i) => (
           <div className="group" key={i}>
             <span className="label">{label}: </span>
-            {typeof value !== 'object' && value !== null ? (
+            {typeof value === 'object' && value !== null ? (
               renderDataTypev4(value)
             ) : (
               <span className="value">{`${value}`}</span>
