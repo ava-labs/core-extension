@@ -14,6 +14,7 @@ import { getStoreFromStorage } from '@src/background/utils/storage';
 import { normalize } from 'eth-sig-util';
 import { stripHexPrefix } from 'ethereumjs-util';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { recoverPersonalSignature } from 'eth-sig-util';
 
 const getTransactionOrMessageId = (id: UnapprovedTransaction['id']) => {
   return `${id}`;
@@ -182,6 +183,17 @@ class TransactionStore {
 
   async decryptSignedData({ msgParams }) {
     const address = normalize(msgParams.from);
+  }
+
+  /**
+   * Gets the "from" address from the data and the signed result .
+   */
+  personalSigRecovery(msg: string, signedResult: string): string {
+    const recoveredAddress = recoverPersonalSignature({
+      data: msg,
+      sig: signedResult,
+    });
+    return recoveredAddress;
   }
 
   validateParams(msgData: UnapprovedMessage) {
