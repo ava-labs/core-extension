@@ -46,35 +46,30 @@ export class PermissionsController {
      *   d. Verify that the permissions exists for the given domain
      */
 
-    return this.connectionDomainSignal
-      .peek((domain) => formatAndLog('Permission request (domain set)', domain))
-      .promisify()
-      .then((domain) => {
-        formatAndLog('Permission request', rpcReuqest);
+    return this.getDomain.then((domain) => {
+      formatAndLog('Permission request', rpcReuqest);
 
-        const domainHasPermissions =
-          store.permissionsStore.domainHasPermissions(domain);
+      const domainHasPermissions =
+        store.permissionsStore.domainHasPermissions(domain);
 
-        return domainHasPermissions
-          ? rpcReuqest
-          : storageListener
-              .filter(() => {
-                return store.permissionsStore.domainHasPermissions(domain);
+      return domainHasPermissions
+        ? rpcReuqest
+        : storageListener
+            .filter(() => {
+              return store.permissionsStore.domainHasPermissions(domain);
+            })
+            .peek(() => formatAndLog('Permission request, granted', rpcReuqest))
+            .map(() => rpcReuqest)
+            .promisify(
+              this._destroy.map(() => {
+                /**
+                 * Cheating here and throwing an error when destroyed is called so we
+                 * close the promise and thus the listener
+                 */
+                'destroyed connection';
               })
-              .peek(() =>
-                formatAndLog('Permission request, granted', rpcReuqest)
-              )
-              .map(() => rpcReuqest)
-              .promisify(
-                this._destroy.map(() => {
-                  /**
-                   * Cheating here and throwing an error when destroyed is called so we
-                   * close the promise and thus the listener
-                   */
-                  'destroyed connection';
-                })
-              );
-      });
+            );
+    });
   }
 
   async validateMethodPermissions(rpcReuqest: JsonRpcRequest<any>) {
