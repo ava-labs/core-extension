@@ -13,7 +13,7 @@ export enum MethodsRequiringPermissions {
 }
 
 export class PermissionsController {
-  private domainMetadataSignal = new Signal<DomainMetadata>();
+  private connectionDomainSignal = new Signal<string>();
 
   private _destroy = new Signal<boolean>();
   destroy() {
@@ -28,7 +28,7 @@ export class PermissionsController {
    * Assign this as a promise of the signal, the signal will resolve on the first push
    * and the promise will essentially act as a cache for the result
    */
-  getDomainMetadata = this.domainMetadataSignal.promisify();
+  getDomain = this.connectionDomainSignal.promisify();
 
   private async permissionGranted(rpcReuqest: JsonRpcRequest<any>) {
     /**
@@ -46,22 +46,20 @@ export class PermissionsController {
      *   d. Verify that the permissions exists for the given domain
      */
 
-    return this.domainMetadataSignal
-      .peek((domainMetadata) =>
-        formatAndLog('Permission request (domain set)', domainMetadata)
-      )
+    return this.connectionDomainSignal
+      .peek((domain) => formatAndLog('Permission request (domain set)', domain))
       .promisify()
-      .then((domainMetadata) => {
+      .then((domain) => {
         formatAndLog('Permission request', rpcReuqest);
-        return store.permissionsStore.domainHasPermissions(
-          domainMetadata.method
-        )
+
+        const domainHasPermissions =
+          store.permissionsStore.domainHasPermissions(domain);
+
+        return domainHasPermissions
           ? rpcReuqest
           : storageListener
               .filter(() => {
-                return store.permissionsStore.domainHasPermissions(
-                  domainMetadata.method
-                );
+                return store.permissionsStore.domainHasPermissions(domain);
               })
               .peek(() =>
                 formatAndLog('Permission request, granted', rpcReuqest)
@@ -87,7 +85,7 @@ export class PermissionsController {
 
   watchForDomainAndDispatch(rpcReuqest: JsonRpcRequest<any>) {
     if (rpcReuqest && rpcReuqest.method === DOMAIN_METADATA_METHOD) {
-      this.domainMetadataSignal.dispatch(rpcReuqest.params.name);
+      this.connectionDomainSignal.dispatch(rpcReuqest.params.name);
     }
 
     return this;
@@ -108,7 +106,7 @@ export class PermissionsController {
    * @returns
    */
   private async onConnectAddDomainToRequest(rpcReuqest: JsonRpcRequest<any>) {
-    const domain = await this.getDomainMetadata;
+    const domain = await this.getDomain;
 
     return rpcReuqest && rpcReuqest.method === CONNECT_METHOD
       ? {
