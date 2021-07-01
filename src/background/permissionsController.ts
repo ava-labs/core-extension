@@ -58,15 +58,6 @@ export class PermissionsController {
         )
           ? rpcReuqest
           : storageListener
-              .merge(
-                this._destroy.map(() => {
-                  /**
-                   * Cheating here and throwing an error when destroyed is called so we
-                   * close the promise and thus the listener
-                   */
-                  throw new Error('destroyed connection');
-                })
-              )
               .filter(() => {
                 return store.permissionsStore.domainHasPermissions(
                   domainMetadata.method
@@ -76,7 +67,15 @@ export class PermissionsController {
                 formatAndLog('Permission request, granted', rpcReuqest)
               )
               .map(() => rpcReuqest)
-              .promisify();
+              .promisify(
+                this._destroy.map(() => {
+                  /**
+                   * Cheating here and throwing an error when destroyed is called so we
+                   * close the promise and thus the listener
+                   */
+                  'destroyed connection';
+                })
+              );
       });
   }
 

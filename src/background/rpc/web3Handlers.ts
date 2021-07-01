@@ -60,7 +60,6 @@ const unauthenticatedRoutes = new Set([
   'eth_uninstallFilter',
   'net_version',
 ]);
-const { addrC } = store.walletStore;
 
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
@@ -152,8 +151,15 @@ const web3CustomHandlers = {
    * @returns
    */
   async [CONNECT_METHOD](data: JsonRpcRequest<any>) {
-    openExtensionNewWindow(`permissions`, `domain=${data.params.domain}`);
-
+    const window = await openExtensionNewWindow(
+      `permissions`,
+      `domain=${data.params.domain}`
+    );
+    /**
+     * If the user updates permissions and then closes the window then the permissions are written and this
+     * promise is resolved. If not and the window is closed before then the promise will also be resolved and
+     * the consumer will be notified that the window closed prematurely
+     */
     const hasPermissions = await storageListener
       .filter(() =>
         store.permissionsStore.domainPermissionsExist(data.params.domain)
@@ -161,7 +167,10 @@ const web3CustomHandlers = {
       .map(() =>
         store.permissionsStore.domainHasPermissions(data.params.domain)
       )
-      .promisify();
+      .merge()
+      .promisify(
+        window.removed.map(() => 'Window closed before permissions granted')
+      );
 
     return {
       ...data,

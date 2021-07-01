@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   VerticalFlex,
@@ -9,6 +9,7 @@ import {
   PrimaryButton,
 } from '@avalabs/react-components';
 import { store } from '@src/store/store';
+import { DappPermissions } from '@src/store/permissions';
 
 function accountsToPermissions(accounts: string[], domain: string) {
   return {
@@ -35,6 +36,10 @@ function updateAnAccount(
   };
 }
 
+function atleastOneAccountHasPermissions(permissions: DappPermissions) {
+  return (Object.values(permissions.accounts) || []).some((value) => value);
+}
+
 function component() {
   const params = new URLSearchParams(window.location.search);
   let domain = params.get('domain') as string;
@@ -47,6 +52,11 @@ function component() {
     return (state: boolean) =>
       updatePermissions(updateAnAccount(permissions, { [key]: state }));
   }
+
+  const acceptPermissionsDisabled = useMemo(
+    () => !atleastOneAccountHasPermissions(permissions),
+    [permissions]
+  );
   return (
     <VerticalFlex align={'center'} padding={'0 0 20px 0'}>
       <Typography size={14}>The dApp</Typography>
@@ -69,8 +79,16 @@ function component() {
         ))}
       </VerticalFlex>
       <HorizontalFlex>
-        <SecondaryButton>cancel</SecondaryButton>
-        <PrimaryButton>approve</PrimaryButton>
+        <SecondaryButton onClick={() => window.close()}>cancel</SecondaryButton>
+        <PrimaryButton
+          disabled={acceptPermissionsDisabled}
+          onClick={() => {
+            store.permissionsStore.addPermissionsForDomain(permissions);
+            window.close();
+          }}
+        >
+          approve
+        </PrimaryButton>
       </HorizontalFlex>
     </VerticalFlex>
   );

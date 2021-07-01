@@ -35,6 +35,7 @@ export class WalletController {
   async mapChunkToHandler(request) {
     const handler = this.getRequestHandler(request.data);
     const [result, err] = await resolve(handler(request.data));
+
     return result
       ? { ...request, data: result }
       : { ...request, data: { ...request.data, error: err } };

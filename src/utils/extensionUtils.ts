@@ -1,7 +1,49 @@
-import { Runtime, Tabs, Windows } from 'webextension-polyfill-ts';
+import { Tabs, Windows } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
+import { Signal } from 'micro-signals';
 
 import { NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT } from '@src/utils/constants';
+
+/**
+ * Fired when a window is removed (closed).
+ */
+const windowRemovedSignal = new Signal<number>();
+
+/**
+ * Fired when the currently focused window changes. Returns chrome.windows.WINDOW_ID_NONE if
+ * all Chrome windows have lost focus. Note: On some Linux window managers, WINDOW_ID_NONE is
+ * always sent immediately preceding a switch from one Chrome window to another.
+ */
+const windowFocusChangedSignal = new Signal<number>();
+
+/**
+ * Pipe the two events blow into the matching signal. This way we dont create a bunch of listeners
+ */
+extension.windows.onRemoved.addListener((windowId: number) => {
+  windowRemovedSignal.dispatch(windowId);
+});
+
+extension.windows.onFocusChanged.addListener((windowId: number) => {
+  windowFocusChangedSignal.dispatch(windowId);
+});
+
+/**
+ * Since we cant get direct events from the window we have to rely on a global events that a window has been
+ * closed. Each window or tab created then returns a config with a listener on the global events. The listener
+ * filters by the windowId tied to the event. Once that is reached then the consumer is notified and can act accordingly
+ *
+ * @param info the window configs used to create the window
+ * @returns
+ */
+function createWindowInfoAndEvents(info: Windows.Window) {
+  return {
+    ...info,
+    removed: windowRemovedSignal.filter((windowId) => windowId === info.id),
+    focusChanged: windowRemovedSignal.filter(
+      (windowId) => windowId === info.id
+    ),
+  };
+}
 
 const checkForError = () => {
   const { lastError } = extension.runtime;
@@ -29,11 +71,13 @@ export const openNewTab = (options: { url: string; selected?: boolean }) => {
 };
 
 export const openWindow = (options: Windows.CreateCreateDataType) => {
-  return new Promise((resolve, reject) => {
-    extension.windows.create(options, (newWindow: Windows.Window) => {
-      return resolve(newWindow);
-    });
-  });
+  return new Promise<ReturnType<typeof createWindowInfoAndEvents>>(
+    (resolve, reject) => {
+      extension.windows.create(options, (newWindow: Windows.Window) => {
+        return resolve(createWindowInfoAndEvents(newWindow));
+      });
+    }
+  );
 };
 
 export const getTabs = () => {
@@ -51,7 +95,7 @@ export const openExtensionInBrowser = (route = null, queryString = null) => {
     extensionURL += `#${route}`;
   }
 
-  openNewTab({ url: extensionURL });
+  return openNewTab({ url: extensionURL });
 };
 
 export const openExtensionNewWindow = (
@@ -75,7 +119,7 @@ export const openExtensionNewWindow = (
 
   top = Math.max(height, 0);
   left = Math.max(width + (width - NOTIFICATION_WIDTH), 0);
-  openWindow({
+  return openWindow({
     url: extensionURL,
     focused: true,
     type: 'popup',
