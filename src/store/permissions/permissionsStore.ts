@@ -34,7 +34,7 @@ export default class PermissionsStore {
    * @param domain the domain we want to check for permissions
    * @returns boolean
    */
-  domainHasPermissions(domain: string) {
+  domainHasAccountsPermissions(domain: string) {
     return !!(
       this.permissions[domain] &&
       this.permissions[domain].accounts &&
@@ -61,5 +61,24 @@ export default class PermissionsStore {
       ...this.permissions,
       [permissions.domain]: permissions,
     };
+  }
+
+  /**
+   * In order to work with the @link https://metamask.github.io/test-dapp/ we convert our own
+   * permissions to the structure currently used by metamask
+   *
+   * @param domain the domain for which permissions are being requested
+   * @returns
+   */
+  getPermissionsConvertedToMetaMaskStructure(domain: string) {
+    const hasAccountsPermission = this.domainHasAccountsPermissions(domain);
+    return hasAccountsPermission
+      ? [
+          {
+            invoker: domain,
+            parentCapability: 'accounts',
+          },
+        ]
+      : [];
   }
 }

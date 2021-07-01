@@ -165,9 +165,8 @@ const web3CustomHandlers = {
         store.permissionsStore.domainPermissionsExist(data.params.domain)
       )
       .map(() =>
-        store.permissionsStore.domainHasPermissions(data.params.domain)
+        store.permissionsStore.domainHasAccountsPermissions(data.params.domain)
       )
-      .merge()
       .promisify(
         window.removed.map(() => 'Window closed before permissions granted')
       );
@@ -187,6 +186,35 @@ const web3CustomHandlers = {
     return {
       ...data,
       result: store.walletStore.accounts,
+    };
+  },
+  async wallet_requestPermissions(data: JsonRpcRequest<any>) {
+    const window = await openExtensionNewWindow(
+      `permissions`,
+      `domain=${data.params.domain}`
+    );
+
+    /**
+     * At this point the user has previously given permissions and we are possibly editing them
+     * and/or adding more permissions.
+     */
+    const permissions = await window.removed
+      .map(() => store.permissionsStore.permissions[data.params.domain])
+      .promisify();
+
+    return {
+      ...data,
+      result: store.permissionsStore.getPermissionsConvertedToMetaMaskStructure(
+        data.params.domain
+      ),
+    };
+  },
+  async wallet_getPermissions(data: JsonRpcRequest<any>) {
+    return {
+      ...data,
+      result: store.permissionsStore.getPermissionsConvertedToMetaMaskStructure(
+        data.params.domain
+      ),
     };
   },
 };

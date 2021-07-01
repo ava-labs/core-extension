@@ -58,6 +58,15 @@ export function createWalletControllerStream() {
          */
         .watchForDomainAndDispatch(chunk.data)
         .validateMethodPermissions(chunk.data)
+        /**
+         * At this map chunk stage it is VERY possible that the user pops a window and then
+         * orphans said window and thus orphans the promise. That promise would then be stuck in
+         * memory. We need to come up with a mechanism that when the connection is destroyed it
+         * cleans up any of its orphaned promises belonging to the corresponding connection. The promise
+         * does however listen for the window to close already, if it does then it will reject the promise
+         * and thuse closing the promise, this should be enough that the garbage collector will clean it up.
+         *
+         */
         .then((data) => controller.mapChunkToHandler({ ...chunk, data }))
         .then((result) => {
           this.push(result);

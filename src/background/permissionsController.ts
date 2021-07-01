@@ -50,13 +50,15 @@ export class PermissionsController {
       formatAndLog('Permission request', rpcReuqest);
 
       const domainHasPermissions =
-        store.permissionsStore.domainHasPermissions(domain);
+        store.permissionsStore.domainHasAccountsPermissions(domain);
 
       return domainHasPermissions
         ? rpcReuqest
         : storageListener
             .filter(() => {
-              return store.permissionsStore.domainHasPermissions(domain);
+              return store.permissionsStore.domainHasAccountsPermissions(
+                domain
+              );
             })
             .peek(() => formatAndLog('Permission request, granted', rpcReuqest))
             .map(() => rpcReuqest)
@@ -88,10 +90,8 @@ export class PermissionsController {
 
   /**
    * Since we are in a connection pipe and all instances belong to a particular pipe, we
-   * essentially tag a pipe with a domain and then everything works as tagged. In the case of
-   * a connect request we dont simply allow the requester to say who they are but we instead rely
-   * on the provider to fulfill this information ahead of time. Then the connect request is bound to that
-   * and the dApp cant simply say they are a connection they are not.
+   * essentially tag a pipe with a domain and then everything works as tagged. Downstream methods such
+   * as permissions and what not use this "tag" to determine context'
    *
    * For that reason we update the request to include the domain that came from the provider. Then in the popup
    * we get permissions for that domain and act accordingly. This isnt the cleanest code but it makes sure a dApp
@@ -103,10 +103,10 @@ export class PermissionsController {
   private async onConnectAddDomainToRequest(rpcReuqest: JsonRpcRequest<any>) {
     const domain = await this.getDomain;
 
-    return rpcReuqest && rpcReuqest.method === CONNECT_METHOD
+    return rpcReuqest && rpcReuqest.method
       ? {
           ...rpcReuqest,
-          params: { domain },
+          params: { ...(rpcReuqest.params || {}), domain },
         }
       : rpcReuqest;
   }
