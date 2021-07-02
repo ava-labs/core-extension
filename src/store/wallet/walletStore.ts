@@ -10,6 +10,7 @@ import { isInArray } from '@src/utils/common';
 import { WalletType } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
 import { AVAX_X_ASSET_ID } from '@src/utils/constants';
 import { store } from '@src/store/store';
+import { normalize } from 'eth-sig-util';
 
 import {
   iAvaxBalance,
@@ -60,7 +61,7 @@ class WalletStore {
    * This will be c chain addresses
    */
   get accounts() {
-    return store.extensionStore.isUnlocked ? [this.addrC] : [];
+    return (store.extensionStore.isUnlocked ? [this.addrC] : []).map(normalize);
   }
 
   constructor() {

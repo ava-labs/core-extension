@@ -36,3 +36,4 @@ typings/
 builds/
 .DS_Store
 /dist/js/backgroundPage.js
+todo.*

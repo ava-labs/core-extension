@@ -198,7 +198,7 @@ const web3CustomHandlers = {
      * At this point the user has previously given permissions and we are possibly editing them
      * and/or adding more permissions.
      */
-    const permissions = await window.removed
+    await window.removed
       .map(() => store.permissionsStore.permissions[data.params.domain])
       .promisify();
 
