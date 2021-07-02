@@ -10,8 +10,6 @@ import {
   removeConnection,
 } from './background/utils/portConnectionsManager';
 import { createTransformToJsonRPCResponse } from './background/utils/providerUpdate';
-import { extension } from 'extensionizer';
-import { openExtensionInBrowser } from '@src/utils/extensionUtils';
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connectionExists(connection)) {
@@ -84,23 +82,14 @@ browser.runtime.onConnect.addListener((connection) => {
   });
 
   /**
-   * When the connection closes we close one stream from each pump, will will then
+   * When the connection closes we close one stream from each pump, this will then
    * disconnect the remaining streams.
    */
   function cleanupOnDisconnect() {
     providerUpdateStream.destroy();
     walletControllerStream.destroy();
     connection.onDisconnect.removeListener(cleanupOnDisconnect);
+    removeConnection(connection)?.disconnect();
   }
   connection.onDisconnect.addListener(cleanupOnDisconnect);
 });
-
-// On first install, open a new tab
-// commented out during dev
-// extension.runtime.onInstalled.addListener((x: extension) => {
-//   const reason: Runtime.OnInstalledReason = x.reason;
-
-//   if (reason === 'install') {
-//     openExtensionInBrowser();
-//   }
-// });

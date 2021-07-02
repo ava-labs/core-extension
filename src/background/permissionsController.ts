@@ -47,7 +47,7 @@ export class PermissionsController {
      */
 
     return this.getDomain.then((domain) => {
-      formatAndLog('Permission request', rpcReuqest);
+      formatAndLog('Permission request (pending)', rpcReuqest);
 
       const domainHasPermissions =
         store.permissionsStore.domainHasAccountsPermissions(domain);
@@ -60,16 +60,19 @@ export class PermissionsController {
                 domain
               );
             })
-            .peek(() => formatAndLog('Permission request, granted', rpcReuqest))
+            .peek(() =>
+              formatAndLog('Permission request (granted)', rpcReuqest)
+            )
             .map(() => rpcReuqest)
             .promisify(
-              this._destroy.map(() => {
-                /**
-                 * Cheating here and throwing an error when destroyed is called so we
-                 * close the promise and thus the listener
-                 */
-                'destroyed connection';
-              })
+              this._destroy
+                .peek(() => {
+                  formatAndLog(
+                    'Permission request canceled (connection destroyed)',
+                    rpcReuqest
+                  );
+                })
+                .map(() => 'destroyed connection')
             );
     });
   }

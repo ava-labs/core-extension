@@ -3,7 +3,13 @@ import { persistence, StorageAdapter } from 'mobx-persist-store';
 import { enableLogging } from 'mobx-logger';
 import store from 'store';
 
-enableLogging();
+/**
+ * Disabling actions simply because storage listener spams actions and makes a mess out of the logs
+ *
+ * We can disable actions by method @link https://github.com/winterbe/mobx-logger#logger-config
+ * this may be a better way to go later
+ */
+enableLogging({ action: false });
 
 export const persistStore = <T extends Record<string, any>, P extends keyof T>(
   target: T,
