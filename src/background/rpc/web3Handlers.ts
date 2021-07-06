@@ -71,47 +71,47 @@ const web3CustomHandlers = {
 
   async eth_signTypedData(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData');
-    openExtensionNewWindow(`sign?id=${data.id}`);
+    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
       .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
       .filter((result) => !!result)
-      .promisify();
+      .promisify(window.removed.map(() => 'Window closed before signed'));
 
     return { ...data, result };
   },
 
   async eth_signTypedData_v3(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v3');
-    openExtensionNewWindow(`sign?id=${data.id}`);
+    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
       .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
       .filter((result) => !!result)
-      .promisify();
+      .promisify(window.removed.map(() => 'Window closed before signed'));
 
     return { ...data, result };
   },
   async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v4');
-    openExtensionNewWindow(`sign?id=${data.id}`);
+    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
       .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
       .filter((result) => !!result)
-      .promisify();
+      .promisify(window.removed.map(() => 'Window closed before signed'));
 
     return { ...data, result };
   },
 
   async personal_sign(data: JsonRpcRequest<any>) {
     await store.transactionStore.saveUnapprovedMsg(data, 'personal_sign');
-    openExtensionNewWindow(`sign?id=${data.id}`);
+    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
       .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
       .filter((result) => !!result)
-      .promisify();
+      .promisify(window.removed.map(() => 'Window closed before signed'));
 
     return { ...data, result };
   },

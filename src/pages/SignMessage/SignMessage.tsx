@@ -96,6 +96,8 @@ export const SignMessage = observer(() => {
         } catch (error) {
           console.log('err', error);
           setErrorMsg(error);
+        } finally {
+          window.close();
         }
       }
     }
