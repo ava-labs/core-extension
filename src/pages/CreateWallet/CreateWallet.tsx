@@ -1,117 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React from 'react';
+import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
 import { observer } from 'mobx-react-lite';
+import { useState } from 'react';
+import {
+  VerticalFlex,
+  Typography,
+  Mneumonic,
+  HorizontalSeparator,
+  SecondaryCard,
+  PrimaryButton,
+  SecondaryButton,
+  HorizontalFlex,
+} from '@avalabs/react-components';
+import { useOnboardState } from '@src/store/onboard/useOnboardState';
 import { useStore } from '@src/store/store';
 
-import { Progress } from '@src/components/misc/progress';
-import { FullWidthButton } from '@src/styles/styles';
-import { CreatePassword } from './CreatePassword';
-import { AllDone } from './AllDone';
-import { KeyboardShortcut } from './KeyboardShortcut';
-
-export interface CreateWalletProps {}
-
-export const CreateWallet: React.FC = observer((props: CreateWalletProps) => {
+function component() {
   const [isCopied, setIsCopied] = useState(false);
-  const [words, setWords] = useState('');
-  const { onboardStore, walletStore } = useStore();
-  const { currentPosition } = onboardStore;
 
-  const incrementPosition = (): void => {
-    onboardStore.incrementPosition();
-  };
-  const goBack = (): void => {
-    onboardStore.goBack();
-  };
-
-  useEffect(() => {
-    // disable during dev
-    // walletStore.createMnemonic();
-    setWords(walletStore.mnemonic);
-  }, []);
-
-  switch (currentPosition) {
-    case 1:
-      return (
-        <>
-          <Nav>
-            <Progress currentPosition={currentPosition} totalDots={4} />
-          </Nav>
-
-          <Container>
-            <h1>Save your seed phrase!</h1>
-            <h5>
-              If you lose these words you will lose your money. Please store it
-              somewhere safe!
-            </h5>
-            <div className="words">
-              {words.split(' ').map((x, i) => {
-                return <span key={i}>{x}</span>;
-              })}
-            </div>
-            <button
+  const { goToNextOnboardingStep } = useOnboardState(OnboardStepPhase.MNEMONIC);
+  const { walletStore } = useStore();
+  return (
+    <VerticalFlex width={'100%'} align={'center'}>
+      <Typography>Your new wallet phrase</Typography>
+      <HorizontalSeparator />
+      <br />
+      <br />
+      <SecondaryCard>
+        <VerticalFlex align={'center'}>
+          <Typography size={14}>
+            This is your Mnemonic phrase, this needs to be kept in a safe place.
+          </Typography>
+          <br />
+          <Mneumonic phrase={walletStore.mnemonic} />
+          <br />
+          <HorizontalFlex>
+            <SecondaryButton
               onClick={() => {
                 setIsCopied(true);
-                navigator.clipboard.writeText(words);
+                navigator.clipboard.writeText(walletStore.mnemonic);
               }}
             >
-              {isCopied ? 'Copied!' : 'Copy'}
-            </button>
-            <FullWidthButton
+              {isCopied ? 'Phrase copied' : 'Copy Phrase'}
+            </SecondaryButton>
+            <PrimaryButton
               disabled={!isCopied}
-              onClick={() => incrementPosition()}
+              onClick={() => goToNextOnboardingStep && goToNextOnboardingStep()}
             >
-              OK, I saved it somewhere safe
-            </FullWidthButton>
-          </Container>
-        </>
-      );
+              Next
+            </PrimaryButton>
+          </HorizontalFlex>
+        </VerticalFlex>
+      </SecondaryCard>
+    </VerticalFlex>
+  );
+}
 
-    case 2:
-      return (
-        <CreatePassword
-          currentPosition={currentPosition}
-          incrementPosition={incrementPosition}
-          goBack={goBack}
-        />
-      );
-    case 3:
-      return (
-        <KeyboardShortcut
-          currentPosition={currentPosition}
-          incrementPosition={incrementPosition}
-          goBack={goBack}
-        />
-      );
-    case 4:
-      return <AllDone currentPosition={currentPosition} goBack={goBack} />;
-    default:
-      return <></>;
-  }
-});
-
-CreateWallet.defaultProps = {};
-
-export const Container = styled.div`
-  margin: 0 auto;
-  padding: 1.5rem;
-  text-align: center;
-  .words {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    border: 1px solid grey;
-    padding: 1rem;
-    width: 90%;
-    margin: 3rem auto;
-    background: grey;
-    span {
-      line-height: 1.2rem;
-    }
-  }
-`;
-
-export const Nav = styled.div`
-  width: 100%;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid grey;
-`;
+export const CreateWallet = observer(component);

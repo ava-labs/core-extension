@@ -7,14 +7,22 @@ import {
   Typography,
   PrimaryButton,
 } from '@avalabs/react-components';
+import { useStore } from '@src/store/store';
+import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
 
-export const Welcome = observer((): React.ReactElement => {
+export const Welcome = observer(() => {
   const { t } = useTranslation();
-
+  const { walletStore, onboardStore } = useStore();
   return (
     <VerticalFlex align={'center'} padding={'0 10px'}>
       <Typography>{t('home.desc')}</Typography>
-      <Link to="/welcome/create">
+      <Link
+        to="/welcome/create"
+        onClick={() => {
+          onboardStore.setPosition(OnboardStepPhase.MNEMONIC);
+          walletStore.createMnemonic();
+        }}
+      >
         <PrimaryButton>Create a new wallet</PrimaryButton>
       </Link>
       <Link to="/import">

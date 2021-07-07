@@ -8,6 +8,8 @@ export const wait = (waitTime: number) => {
   });
 };
 
+export const noop = () => {};
+
 export default {
   isInArray,
   wait,

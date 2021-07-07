@@ -1,4 +1,4 @@
-import { makeAutoObservable, autorun, observable, configure } from 'mobx';
+import { makeAutoObservable, observable, configure } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
 import {
   MnemonicWallet,
@@ -8,29 +8,18 @@ import {
 } from '@avalabs/avalanche-wallet-sdk';
 import { isInArray } from '@src/utils/common';
 import { WalletType } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
-import { AVAX_X_ASSET_ID } from '@src/utils/constants';
 import { store } from '@src/store/store';
 import { normalize } from 'eth-sig-util';
 
 import {
-  iAvaxBalance,
-  WalletBalanceERC20,
-  WalletBalanceX,
   AssetBalanceP,
   AssetBalanceRawX,
-  AssetBalanceX,
-  WalletEventArgsType,
-  WalletEventType,
-  WalletNameType,
-  AvmExportChainType,
-  AvmImportChainType,
-  ERC20Balance,
 } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
+import { Signal } from 'micro-signals';
 
 configure({
   enforceActions: 'never',
 });
-type Network = string;
 
 class WalletStore {
   wallet: WalletType | undefined = undefined;
@@ -54,8 +43,7 @@ class WalletStore {
   balanceERC20: any = '';
   stakeAmt: any = '';
   customERC20Contracts: string[] = [];
-  mnemonic: string =
-    'surge dance motion borrow similar kangaroo reform swear exercise chief suffer dash rabbit piano chapter viable normal barrel age mask arch ozone cherry leader';
+  mnemonic: string = '';
   lastTransactionSent: string = '';
   /**
    * This will be c chain addresses
@@ -63,6 +51,12 @@ class WalletStore {
   get accounts() {
     return (store.extensionStore.isUnlocked ? [this.addrC] : []).map(normalize);
   }
+
+  /**
+   * This is fired when mnemonic is set from anywhere so that we can create a wallet only if mnemonic exists or
+   * when it is set
+   */
+  mnemonicSetSignal = new Signal<string>();
 
   constructor() {
     makeAutoObservable(this, {
@@ -104,6 +98,7 @@ class WalletStore {
   createMnemonic(): void {
     MnemonicWallet.create();
     this.mnemonic = MnemonicWallet.generateMnemonicPhrase();
+    this.mnemonicSetSignal.dispatch(this.mnemonic);
   }
 
   async getEthPrivateKey() {
@@ -158,10 +153,6 @@ class WalletStore {
   async sendTransaction(data: any): Promise<string> {
     const { to, amount, tokenContract } = data;
 
-    // let to = '0x254df0daf08669c61d5886bd81c4a7fa59ff7c7e';
-    // let amount = Utils.numberToBN('0.000001', 18);
-    // let tokenContract = '0xEa81F6972aDf76765Fd1435E119Acc0Aafc80BeA';
-
     const gasPrice = Utils.numberToBN(225, 9);
     const gasLimit = 221000;
 
@@ -201,24 +192,10 @@ class WalletStore {
 
   async MnemonicWallet() {
     // check for wallet type, singleton vs mnemonic
-    this.wallet = MnemonicWallet.fromMnemonic(this.mnemonic);
-
-    // this.wallet!.on('addressChanged', (a) => {
-    //   console.log('a', a);
-    //   console.log('in address changed');
-    //   this.updateWallet();
-    // });
-    // this.wallet!.on('balanceChangedX', (x) => {
-    //   console.log('x', x);
-    //   console.log('in balanceChangedX');
-    //   this.wallet!.getAvaxBalanceX();
-    // });
-    // this.wallet!.on('balanceChangedP', (p) => {
-    //   console.log('p', p);
-    //   console.log('in balanceChangedP');
-    //   this.wallet!.getAvaxBalanceP();
-    // });
-
+    const mnemonic = await (this.mnemonic
+      ? Promise.resolve(this.mnemonic)
+      : this.mnemonicSetSignal.promisify());
+    this.wallet = MnemonicWallet.fromMnemonic(mnemonic);
     await this.refreshHD();
   }
 

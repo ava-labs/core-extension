@@ -1,68 +1,58 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Progress } from '@src/components/misc/progress';
-import { FullWidthButton, FullWidthInput } from '@src/styles/styles';
+import React from 'react';
+import {
+  VerticalFlex,
+  Typography,
+  HorizontalSeparator,
+  PrimaryButton,
+  SecondaryButton,
+  HorizontalFlex,
+  SecondaryCard,
+} from '@avalabs/react-components';
+import { useOnboardState } from '@src/store/onboard/useOnboardState';
+import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
+import { useStore } from '@src/store/store';
 
-export interface KeyboardShortcutProps {
-  currentPosition: number;
-  incrementPosition: () => void;
-  goBack: () => void;
-}
+export const KeyboardShortcut = () => {
+  const { goToNextOnboardingStep, goBackToPreviousOnboardingStep } =
+    useOnboardState(OnboardStepPhase.KEYBOARD_SHORTCUT);
+  const { onboardStore } = useStore();
 
-export const KeyboardShortcut = (
-  props: KeyboardShortcutProps
-): React.ReactElement => {
-  const { currentPosition, incrementPosition, goBack } = props;
   return (
-    <>
-      <Nav>
-        <Progress
-          goBack={goBack}
-          currentPosition={currentPosition}
-          totalDots={4}
-        />
-      </Nav>
-      <Container>
-        <h1>Keyboard shortcut</h1>
-        <h5>
-          You can open this extension at any time by using this handy keyboard
-          shortcut
-        </h5>
+    <VerticalFlex width={'100%'} align={'center'}>
+      <Typography>Keyboard shortcut</Typography>
+      <HorizontalSeparator />
+      <br />
+      <br />
+      <Typography>
+        You can open this extension at any time by using this handy keyboard
+        shortcut
+      </Typography>
+      <br />
 
-        <FullWidthButton
+      <SecondaryCard>
+        <HorizontalFlex justify={'center'}>
+          <Typography>List of shortcuts here?</Typography>
+        </HorizontalFlex>
+      </SecondaryCard>
+      <br />
+
+      <HorizontalFlex>
+        <SecondaryButton
+          onClick={() =>
+            goBackToPreviousOnboardingStep && goBackToPreviousOnboardingStep()
+          }
+        >
+          Back
+        </SecondaryButton>
+        <PrimaryButton
           onClick={() => {
-            incrementPosition();
+            onboardStore.isOnboarded = true;
+            goToNextOnboardingStep && goToNextOnboardingStep();
           }}
         >
           Finish
-        </FullWidthButton>
-      </Container>
-    </>
+        </PrimaryButton>
+      </HorizontalFlex>
+    </VerticalFlex>
   );
 };
-
-KeyboardShortcut.defaultProps = {};
-
-export const Container = styled.div`
-  margin: 0 auto;
-  padding: 1.5rem;
-  text-align: center;
-  .words {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    border: 1px solid grey;
-    padding: 1rem;
-    width: 90%;
-    margin: 3rem auto;
-    background: grey;
-    span {
-      line-height: 1.2rem;
-    }
-  }
-`;
-
-export const Nav = styled.div`
-  width: 100%;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid grey;
-`;

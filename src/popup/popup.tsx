@@ -11,7 +11,7 @@ import { useStore } from '@src/store/store';
 import { Welcome } from '@src/pages/Welcome';
 import { FirstTimeFlow } from '@src/pages/FirstTimeFlow';
 import { Import } from '@src/pages/Import';
-import { CreateWallet } from '@src/pages/CreateWallet';
+import { CreateWalletFlow } from '@src/pages/CreateWallet';
 import { WalletHome } from '@src/pages/WalletHome';
 import { WalletOverview } from '@src/pages/WalletOverview';
 import { Deposit } from '@src/pages/Deposit';
@@ -52,7 +52,7 @@ export const Popup = observer((): React.ReactElement => {
         <HorizontalFlex flex={1} justify={'center'}>
           <Switch>
             <Route path="/welcome/create">
-              <CreateWallet />
+              <CreateWalletFlow />
             </Route>
 
             <Route path="/welcome">

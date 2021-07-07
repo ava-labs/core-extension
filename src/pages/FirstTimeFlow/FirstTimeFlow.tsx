@@ -4,17 +4,14 @@ import { useStore } from '@src/store/store';
 
 export const FirstTimeFlow = () => {
   const { onboardStore } = useStore();
-  const { isOnboarded, currentPosition } = onboardStore;
 
-  const inProgress = currentPosition !== 1 && currentPosition !== 4;
-
-  if (inProgress) {
-    return <Redirect to='/welcome/create' />;
+  if (onboardStore.onboardIsInProgress()) {
+    return <Redirect to="/welcome/create" />;
   }
 
-  if (!isOnboarded) {
-    return <Redirect to='/welcome' />;
+  if (!onboardStore.isOnboarded) {
+    return <Redirect to="/welcome" />;
   }
 
-  return <Redirect to='/wallet' />;
+  return <Redirect to="/wallet" />;
 };
