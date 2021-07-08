@@ -1,22 +1,16 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { Link } from "react-router-dom";
-import { observer } from "mobx-react-lite";
-import { useStore } from "@src/store/store";
-
-import { TokenRow } from "@src/components/TokenRow";
-import { Layout } from "@src/components/Layout";
-
-import { Utils } from "@avalabs/avalanche-wallet-sdk";
-
-interface ERC20 {
-  name: string;
-  symbol: string;
-  denomination: number;
-  balance: string;
-  balanceParsed: string;
-  address: string;
-}
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
+import { useStore } from '@src/store/store';
+import {
+  VerticalFlex,
+  LoadingIcon,
+  HorizontalFlex,
+  Typography,
+  PrimaryButton,
+} from '@avalabs/react-components';
+import { createAvaxERC20 } from '@src/store/wallet/walletStore';
+// import { TokenRow } from '@src/components/TokenRow';
 
 export const WalletHome = observer(() => {
   const [loading, setIsLoading] = useState(true);
@@ -25,85 +19,56 @@ export const WalletHome = observer(() => {
   // wait for refreshHD
   // show load screen
 
-  const UpdateWallet = () => {
-    walletStore.updateWallet();
-    walletStore.updateBalance();
-  };
-
-  const AVAX: ERC20 = {
-    name: "Avalanche",
-    symbol: "AVAX",
-    denomination: 18,
-    balance: "de0b6b3a7640000",
-    balanceParsed: walletStore.balanceC,
-    address: "0x34B6C87bb59Eb37EFe35C8d594a234Cd8C654D50",
-  };
-
   useEffect(() => {
-    const update = async () => {
-      await UpdateWallet();
-      setIsLoading(false);
-    };
+    (async () => {
+      if (walletStore.wallet) {
+        walletStore.updateWallet();
+        await walletStore.updateBalance();
+        setIsLoading(false);
+      }
+    })();
+  }, [walletStore.wallet]);
 
-    setTimeout(() => {
-      update();
-      //      walletStore.sendXtransaction();
-    }, 3200);
-  }, []);
+  if (loading) {
+    return <LoadingIcon />;
+  }
+
+  console.log('walletStore.balanceERC20: ', walletStore.balanceERC20);
 
   return (
-    <Layout>
-      <>
-        <Balance>
-          <div className="fiat">
-            {loading ? "Loading" : walletStore.getCleanTotalBalance(4)} AVAX
-          </div>
-          {/* <div className="fiat">$12.34</div> */}
-          {/* <div className="change">+5.24%</div> */}
-          <div className="actions">
-            <Link to="/wallet/overview">
-              <button>Overview</button>
-            </Link>
-            <Link to="/deposit">
-              <button>Deposit</button>
-            </Link>
-            <Link
-              to={{
-                pathname: "/send",
-                state: AVAX,
-              }}
-            >
-              <button>Send</button>
-            </Link>
-          </div>
-        </Balance>
-        <TokenRow tokens={walletStore.balanceERC20} />
-        <Link to="/token/add">
-          <button>Add Token</button>
+    <VerticalFlex width={'100%'} align={'center'}>
+      <br />
+      <HorizontalFlex>
+        <Typography>{walletStore.getCleanTotalBalance(4)} AVAX</Typography>
+      </HorizontalFlex>
+      {/* <div className="fiat">$12.34</div> */}
+      {/* <div className="change">+5.24%</div> */}
+      <br />
+      <br />
+      <HorizontalFlex>
+        <Link to="/wallet/overview">
+          <PrimaryButton>Overview</PrimaryButton>
         </Link>
-      </>
-    </Layout>
+        <Link to="/deposit">
+          <PrimaryButton>Deposit</PrimaryButton>
+        </Link>
+        <Link
+          to={{
+            pathname: '/send',
+            state: createAvaxERC20('0.00'),
+          }}
+        >
+          <PrimaryButton>Send</PrimaryButton>
+        </Link>
+      </HorizontalFlex>
+      {/**
+       * This erc20 stuff isnt fully fleshed out so leaving this for later
+       * @link https://ava-labs.atlassian.net/browse/PM-197
+       */}
+      {/* <TokenRow tokens={walletStore.balanceERC20} />
+      <Link to="/token/add">
+        <SecondaryButton>Add Token</SecondaryButton>
+      </Link> */}
+    </VerticalFlex>
   );
 });
-
-export const Wrapper = styled.div`
-  padding: 1rem;
-`;
-
-export const Balance = styled.div`
-  .fiat {
-    text-align: center;
-    font-size: 2rem;
-  }
-  .change {
-    text-align: center;
-    color: green;
-  }
-  .actions {
-    display: flex;
-    justify-content: center;
-    button {
-      margin: 1rem 0.4rem;
-    }
-  }
-`;

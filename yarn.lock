@@ -27,10 +27,10 @@
     typescript-transform-paths "^2.2.3"
     web3 "^1.3.5"
 
-"@avalabs/react-components@^0.1.9":
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-0.1.9.tgz#4b62caeccde743594b51d0739034fc9006001fcf"
-  integrity sha512-0VSzC7km07LTuAxQ2c+hQ44Ok5R24TLM3kot288axf2NRKxWHbsoiKRzwCjjVbbfzOkbjVjyp4xyyrHhJLHETQ==
+"@avalabs/react-components@^0.1.10":
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-0.1.10.tgz#c7ec6554a6fa109926438f2b4668e0093b48570a"
+  integrity sha512-qBH6M+Yz//liC1ksKSoGAr2r7N+I8FmX5vESzfPwDnxG3Yvmjl0m5ve2M8na5oaUK3LDdU+JAv78ShN9bHXbHg==
   dependencies:
     body-parser "1.19.0"
     connect-history-api-fallback "1.6.0"

@@ -25,7 +25,7 @@ import { Footer } from '@src/components/common/Footer';
 import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { PermissionsPage } from '@src/pages/Permissions/Permissions';
 
-export const Popup = observer((): React.ReactElement => {
+export const Popup = observer(() => {
   const { themeStore, networkStore, walletStore } = useStore();
 
   // remove setTimeout later

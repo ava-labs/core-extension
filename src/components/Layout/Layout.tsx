@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Navigation } from '@src/components/Navigation';
-
 export interface LayoutProps {
   children: React.ReactNode;
 }
@@ -12,10 +10,7 @@ export const Layout = (props: LayoutProps): React.ReactElement => {
 
   return (
     <Container>
-      <div className='header'>
-        <Navigation />
-      </div>
-      <div className='content'>{children}</div>
+      <div className="content">{children}</div>
     </Container>
   );
 };
