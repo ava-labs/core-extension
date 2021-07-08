@@ -103,10 +103,11 @@ class WalletStore {
     );
   }
 
-  importHD(mnemonic): void {
+  importHD(mnemonic: string) {
     this.mnemonic = mnemonic;
+    this.wallet = MnemonicWallet.fromMnemonic(mnemonic);
     this.updateWallet();
-    this.updateBalance();
+    return this.updateBalance();
   }
 
   async refreshHD() {

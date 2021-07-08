@@ -74,6 +74,7 @@ class OnboardStore {
 
   markOnboarded() {
     this.isOnboarded = true;
+    this.currentPosition = OnboardStepPhase.FINALIZE;
   }
 
   onboardIsInProgress() {
