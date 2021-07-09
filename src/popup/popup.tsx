@@ -4,7 +4,7 @@ import { browser } from 'webextension-polyfill-ts';
 import { observer } from 'mobx-react-lite';
 
 import { GlobalStyle } from '@src/styles/styles';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider, useTheme } from 'styled-components';
 import { lightTheme, darkTheme } from '@src/styles/theme';
 
 import { useStore } from '@src/store/store';
@@ -27,10 +27,10 @@ import { PermissionsPage } from '@src/pages/Permissions/Permissions';
 
 export const Popup = observer(() => {
   const { themeStore, networkStore, walletStore } = useStore();
-
+  const theme = themeStore.isDarkMode ? darkTheme : lightTheme;
   // remove setTimeout later
   // when sdk is updated
-
+  console.log(theme);
   useEffect(() => {
     networkStore.changeNetwork('testnet');
     setTimeout(() => {
@@ -40,12 +40,13 @@ export const Popup = observer(() => {
   }, []);
 
   return (
-    <ThemeProvider theme={themeStore.isDarkMode ? darkTheme : lightTheme}>
+    <ThemeProvider theme={theme}>
       <VerticalFlex
         height={'100%'}
         style={{
           minHeight: '500px',
           minWidth: '500px',
+          backgroundColor: theme.colors.bg,
         }}
       >
         <Header />

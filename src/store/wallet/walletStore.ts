@@ -268,21 +268,6 @@ class WalletStore {
 
     return total.toLocaleString();
   }
-
-  getCleanTotalBalance(precision?: number): string {
-    const p = Utils.bnToBig(this.balanceP.unlocked, 9);
-    //const x = Utils.bnToBig(this.balanceX.unlocked, 9);
-    const c = Utils.bnToBig(this.balanceCRaw, 18);
-
-    let sum = p.add(c);
-    //  let sum = p.add(x);
-    //   sum = sum.add(c);
-    if (precision) {
-      return sum.toFixed(precision).toLocaleString();
-    }
-
-    return sum.toLocaleString();
-  }
 }
 
 export default WalletStore;

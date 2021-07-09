@@ -10,12 +10,20 @@ import {
   PrimaryButton,
 } from '@avalabs/react-components';
 import { createAvaxERC20 } from '@src/store/wallet/walletStore';
+import { useBalance } from '@src/hooks/useBalance';
+import { usePrices } from '@src/hooks/usePrices';
+import { Big } from '@avalabs/avalanche-wallet-sdk';
+
 // import { TokenRow } from '@src/components/TokenRow';
 
 export const WalletHome = observer(() => {
   const [loading, setIsLoading] = useState(true);
-  const { walletStore } = useStore();
-
+  const { walletStore, networkStore } = useStore();
+  const { balanceAvaxTotal } = useBalance(
+    walletStore.wallet,
+    networkStore.network
+  );
+  const { avaxUSD } = usePrices();
   // wait for refreshHD
   // show load screen
 
@@ -33,14 +41,15 @@ export const WalletHome = observer(() => {
     return <LoadingIcon />;
   }
 
-  console.log('walletStore.balanceERC20: ', walletStore.balanceERC20);
-
   return (
     <VerticalFlex width={'100%'} align={'center'}>
       <br />
-      <HorizontalFlex>
-        <Typography>{walletStore.getCleanTotalBalance(4)} AVAX</Typography>
-      </HorizontalFlex>
+      <VerticalFlex>
+        <Typography>{balanceAvaxTotal.toLocaleString()} AVAX</Typography>
+        <Typography>
+          ${balanceAvaxTotal.mul(Big(avaxUSD)).toLocaleString(2)} AVAX
+        </Typography>
+      </VerticalFlex>
       {/* <div className="fiat">$12.34</div> */}
       {/* <div className="change">+5.24%</div> */}
       <br />
