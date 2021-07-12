@@ -25,7 +25,9 @@ export function Erc20TokenList() {
             <Erc20TokenImg src={token.logoURI} />
             <Typography>{token.name}</Typography>
             <Typography>{truncateAddress(token.address)}</Typography>
-            <Typography>{token.balanceParsed ?? 0}</Typography>
+            <Typography>
+              {token.balanceParsed ? Number(token.balanceParsed).toFixed(4) : 0}
+            </Typography>
           </HorizontalFlex>
           <HorizontalSeparator margin={'5px 0'} />
         </VerticalFlex>

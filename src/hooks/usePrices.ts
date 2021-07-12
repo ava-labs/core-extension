@@ -6,11 +6,12 @@ export function usePrices() {
 
   function updatePrice() {
     Utils.getAvaxPrice().then((res) => {
-      setAvaxUSD(res);
+      res !== avaxUSD && setAvaxUSD(res);
     });
   }
 
   useEffect(() => {
+    updatePrice();
     let interval = setInterval(() => {
       updatePrice();
     }, 5000);

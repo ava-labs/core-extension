@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 const FUJI_LIST =
   'https://raw.githubusercontent.com/dasconnor/tokenlist/main/fuji.tokenlist.json';
 const MAINNET_LIST =
-  'https://tokenlists.org/token-list?url=https://raw.githubusercontent.com/pangolindex/tokenlists/main/top15.tokenlist.json';
+  'https://raw.githubusercontent.com/pangolindex/tokenlists/main/top15.tokenlist.json';
 
 export function useGetErc20Tokens() {
   const [tokens, setTokens] = useState<any[]>();
@@ -12,10 +12,12 @@ export function useGetErc20Tokens() {
 
   useEffect(() => {
     (async function () {
+      console.log('networkStore.isFujiNetwork: ', networkStore.isFujiNetwork);
       const { tokens }: { tokens: any[] } = await (
         await fetch(networkStore.isFujiNetwork ? FUJI_LIST : MAINNET_LIST)
       ).json();
 
+      console.log('tokens: ', tokens);
       const tokensWithBalances = await Promise.all(
         tokens.map(async (token) => {
           const result = await walletStore.wallet!.getBalanceERC20(
