@@ -167,7 +167,6 @@ class WalletStore {
     this.balanceC = await Utils.bnToAvaxC(this.balanceCRaw);
     this.balanceP = await this.wallet!.getAvaxBalanceP();
     // this.balanceX = await this.wallet!.getAvaxBalanceX();
-    this.balanceERC20 = await this.wallet!.updateBalanceERC20();
     this.stakeAmt = await this.wallet!.getStake();
   }
 

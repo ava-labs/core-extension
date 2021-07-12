@@ -30,9 +30,12 @@ export const Popup = observer(() => {
   const theme = themeStore.isDarkMode ? darkTheme : lightTheme;
   // remove setTimeout later
   // when sdk is updated
-  console.log(theme);
   useEffect(() => {
-    networkStore.changeNetwork('testnet');
+    /**
+     * This netwrok change is temp and shoud get cleaned up with
+     * @link https://ava-labs.atlassian.net/browse/PM-207
+     */
+    networkStore.changeToFujiNetwork();
     setTimeout(() => {
       walletStore.MnemonicWallet();
     }, 1500);

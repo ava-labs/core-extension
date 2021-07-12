@@ -13,8 +13,7 @@ import { createAvaxERC20 } from '@src/store/wallet/walletStore';
 import { useBalance } from '@src/hooks/useBalance';
 import { usePrices } from '@src/hooks/usePrices';
 import { Big } from '@avalabs/avalanche-wallet-sdk';
-
-// import { TokenRow } from '@src/components/TokenRow';
+import { Erc20TokenList } from '@src/components/Erc20Tokens/Erc20TokenList';
 
 export const WalletHome = observer(() => {
   const [loading, setIsLoading] = useState(true);
@@ -74,10 +73,7 @@ export const WalletHome = observer(() => {
        * This erc20 stuff isnt fully fleshed out so leaving this for later
        * @link https://ava-labs.atlassian.net/browse/PM-197
        */}
-      {/* <TokenRow tokens={walletStore.balanceERC20} />
-      <Link to="/token/add">
-        <SecondaryButton>Add Token</SecondaryButton>
-      </Link> */}
+      <Erc20TokenList />
     </VerticalFlex>
   );
 });
