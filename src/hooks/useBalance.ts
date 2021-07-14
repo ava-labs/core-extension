@@ -59,21 +59,17 @@ export function useBalance(wallet, networkConfig) {
 
   useEffect(() => {
     if (!wallet) return;
-    console.log('calling this to hook up events');
     function balanceChangeX(val: any) {
-      console.log('balance x changed');
       updateBalanceX();
       updateAvaxBalance();
     }
 
     function balanceChangeC(val: any) {
-      console.log('balance c changed');
       updateAvaxBalance();
       updateBalanceErc20();
     }
 
     function onAddressChange() {
-      console.log('balance address changed');
       updateBalanceX();
     }
 
