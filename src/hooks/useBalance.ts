@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Big, Utils } from '@avalabs/avalanche-wallet-sdk';
-// import { useWalletContext } from "../contexts/wallet.context";
+
 import {
   iAvaxBalance,
   WalletBalanceERC20,
@@ -12,6 +12,13 @@ export function useBalance(wallet, networkConfig) {
   const [balanceERC20, setBalanceERC20] = useState<WalletBalanceERC20>({});
   const [balanceAvax, setBalanceAvax] = useState<iAvaxBalance>();
   const [balanceAvaxTotal, setBalanceAvaxTotal] = useState<Big>(Big(0));
+  /**
+   * Need to get this working so that when network is changed we show that we are
+   * refreshing the balances. The UI right now show kinda updates after some time
+   * and its not obvious.
+   * @link https://ava-labs.atlassian.net/browse/PM-212
+   */
+  const [refreshingBalances, setRefreshingBalances] = useState(false);
 
   function updateBalanceErc20() {
     if (!wallet) return;
@@ -52,18 +59,21 @@ export function useBalance(wallet, networkConfig) {
 
   useEffect(() => {
     if (!wallet) return;
-
+    console.log('calling this to hook up events');
     function balanceChangeX(val: any) {
+      console.log('balance x changed');
       updateBalanceX();
       updateAvaxBalance();
     }
 
     function balanceChangeC(val: any) {
+      console.log('balance c changed');
       updateAvaxBalance();
       updateBalanceErc20();
     }
 
     function onAddressChange() {
+      console.log('balance address changed');
       updateBalanceX();
     }
 
@@ -72,7 +82,6 @@ export function useBalance(wallet, networkConfig) {
     wallet.on('addressChanged', onAddressChange);
 
     return () => {
-      console.log('Wallet use effect');
       wallet.off('balanceChangedX', balanceChangeX);
       wallet.off('balanceChangedC', balanceChangeC);
       wallet.off('addressChanged', onAddressChange);
@@ -81,7 +90,6 @@ export function useBalance(wallet, networkConfig) {
 
   useEffect(() => {
     return () => {
-      console.log('Network use effect');
       updateAvaxBalance();
       updateBalanceErc20();
       updateBalanceX();
@@ -90,11 +98,16 @@ export function useBalance(wallet, networkConfig) {
 
   useEffect(() => {
     if (!wallet) return;
-    console.log('Use effect default');
     wallet.getUtxosX();
     updateBalanceErc20();
     updateBalanceX();
   }, []);
 
-  return { balanceX, balanceAvax, balanceAvaxTotal, balanceERC20 };
+  return {
+    balanceX,
+    balanceAvax,
+    balanceAvaxTotal,
+    balanceERC20,
+    refreshingBalances,
+  };
 }

@@ -12,12 +12,10 @@ export function useGetErc20Tokens() {
 
   useEffect(() => {
     (async function () {
-      console.log('networkStore.isFujiNetwork: ', networkStore.isFujiNetwork);
       const { tokens }: { tokens: any[] } = await (
         await fetch(networkStore.isFujiNetwork ? FUJI_LIST : MAINNET_LIST)
       ).json();
 
-      console.log('tokens: ', tokens);
       const tokensWithBalances = await Promise.all(
         tokens.map(async (token) => {
           const result = await walletStore.wallet!.getBalanceERC20(

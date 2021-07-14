@@ -20,27 +20,6 @@ import { Signal } from 'micro-signals';
 configure({
   enforceActions: 'never',
 });
-
-interface ERC20 {
-  name: string;
-  symbol: string;
-  denomination: number;
-  balance: string;
-  balanceParsed: string;
-  address: string;
-  imgUrl: string;
-}
-
-export const createAvaxERC20 = (balanceParsed: string) => ({
-  name: 'Avalanche',
-  symbol: 'AVAX',
-  denomination: 18,
-  balance: 'de0b6b3a7640000',
-  balanceParsed: balanceParsed,
-  address: '0x34B6C87bb59Eb37EFe35C8d594a234Cd8C654D50',
-  imgUrl:
-    'https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818',
-});
 class WalletStore {
   wallet: WalletType | undefined = undefined;
   addrX: string = '';

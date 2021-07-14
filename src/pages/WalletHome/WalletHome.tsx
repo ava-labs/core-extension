@@ -9,16 +9,16 @@ import {
   Typography,
   PrimaryButton,
 } from '@avalabs/react-components';
-import { createAvaxERC20 } from '@src/store/wallet/walletStore';
 import { useBalance } from '@src/hooks/useBalance';
 import { usePrices } from '@src/hooks/usePrices';
 import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { Erc20TokenList } from '@src/components/Erc20Tokens/Erc20TokenList';
+import { TransactionSendType } from '@src/store/wallet/types';
 
 export const WalletHome = observer(() => {
   const [loading, setIsLoading] = useState(true);
   const { walletStore, networkStore } = useStore();
-  const { balanceAvaxTotal } = useBalance(
+  const { balanceAvaxTotal, refreshingBalances } = useBalance(
     walletStore.wallet,
     networkStore.network
   );
@@ -36,7 +36,7 @@ export const WalletHome = observer(() => {
     })();
   }, [walletStore.wallet]);
 
-  if (loading) {
+  if (loading || refreshingBalances) {
     return <LoadingIcon />;
   }
 
@@ -63,7 +63,7 @@ export const WalletHome = observer(() => {
         <Link
           to={{
             pathname: '/send',
-            state: createAvaxERC20('0.00'),
+            state: { type: TransactionSendType.AVAX },
           }}
         >
           <PrimaryButton>Send</PrimaryButton>
