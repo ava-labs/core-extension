@@ -42,7 +42,7 @@ function Component() {
         onChange={(bigAmount) => setAmount(bigAmount)}
       />
       <Typography>{targetChain}</Typography>
-      {!txId && (
+      {!txId ? (
         <>
           <Typography>{error}</Typography>
 
@@ -50,10 +50,11 @@ function Component() {
             Confirm
           </PrimaryButton>
         </>
+      ) : (
+        <PrimaryButton onClick={clearForm}>Start Again</PrimaryButton>
       )}
-      {txId && <PrimaryButton onClick={clearForm}>Start Again</PrimaryButton>}
 
-      {txs.length > 0 && (
+      {txs.length && (
         <VerticalFlex>
           <Typography>
             Additional transactions needed to complete this send transaction.

@@ -47,7 +47,9 @@ function component() {
             >
               {hasBeenCopied ? 'copied' : 'copy'}
             </TextButton>
-            <Typography margin="0 auto 0 5px">{addressC}</Typography>
+            <Typography margin="0 auto 0 5px">
+              {addressC} ({networkStore.network})
+            </Typography>
             <CaretIcon height="16px" />
           </HorizontalFlex>
         </Card>

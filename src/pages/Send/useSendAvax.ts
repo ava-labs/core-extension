@@ -80,7 +80,6 @@ export function useSendAvax() {
       return;
     }
 
-    console.log('Amount: ', amount.toString());
     // Get the transactions needed to have the necessary balance on the destination chain
     try {
       // Add the required fee to amount
@@ -98,7 +97,7 @@ export function useSendAvax() {
       );
       txArray && setTxs(txArray);
     } catch (e) {
-      console.log('Unable to complete transaction');
+      console.log('Unable to complete transaction', e);
     }
   }, [canSubmit, targetChain, amount]);
 

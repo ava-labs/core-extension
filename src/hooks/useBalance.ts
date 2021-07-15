@@ -22,14 +22,12 @@ export function useBalance(wallet, networkConfig) {
 
   async function updateBalanceX() {
     if (!wallet) return;
-    console.log('updateBalanceX ');
     let val = wallet.getBalanceX();
     setBalanceX(val);
   }
 
   function updateAvaxBalance() {
     if (!wallet) return;
-    console.log('updateAvaxBalance ');
     let bal = wallet.getAvaxBalance();
     setBalanceAvax(bal);
     updateTotalAvax();
