@@ -83,6 +83,10 @@ export function useGetErc20Tokens() {
       tokensWithBalances && setTokens(tokensWithBalances);
     }
     /**
+     * Call first time so it loads the list
+     */
+    getTokensAndBalances();
+    /**
      * We want to watch for changes to the C chain balance and
      * for custom tokens added. In either case we want to update the tokens in the UI
      */
