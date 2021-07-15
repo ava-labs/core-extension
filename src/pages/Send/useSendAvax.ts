@@ -187,5 +187,6 @@ export function useSendAvax() {
     setAmount,
     setAddress,
     amount,
+    address,
   };
 }

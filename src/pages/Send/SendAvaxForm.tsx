@@ -22,6 +22,8 @@ function Component() {
     txs,
     setAmount,
     setAddress,
+    amount,
+    address,
   } = useSendAvax();
 
   return (
@@ -35,9 +37,13 @@ function Component() {
         </Typography>
       </VerticalFlex>
       <Typography>To</Typography>
-      <Input onChange={(e) => setAddress(e.currentTarget.value)} />
+      <Input
+        value={address}
+        onChange={(e) => setAddress(e.currentTarget.value)}
+      />
       <Typography>Amount</Typography>
       <BNInput
+        value={amount}
         denomination={9}
         onChange={(bigAmount) => setAmount(bigAmount)}
       />
@@ -54,7 +60,7 @@ function Component() {
         <PrimaryButton onClick={clearForm}>Start Again</PrimaryButton>
       )}
 
-      {txs.length && (
+      {txs.length ? (
         <VerticalFlex>
           <Typography>
             Additional transactions needed to complete this send transaction.
@@ -64,6 +70,8 @@ function Component() {
 
           {/* <TransactionsList txs={txs}></TransactionsList> */}
         </VerticalFlex>
+      ) : (
+        ''
       )}
     </VerticalFlex>
   );
