@@ -10,7 +10,7 @@ function indexTokensByAddress(tokens: ERC20[]) {
   return tokens.reduce<{ [key: string]: ERC20 }>((acc, token) => {
     return {
       ...acc,
-      [token.address]: token,
+      [token.address.toLocaleLowerCase()]: token,
     };
   }, {});
 }
@@ -57,8 +57,8 @@ async function combineTokensAndBalances(
     .then(indexTokensByAddress);
 
   return Object.keys(tokenIndex).reduce((acc: ERC20[], address) => {
-    const listToken = tokenIndex[address];
-    const balanceResult = tokensWithBalancesIndex[address];
+    const listToken = tokenIndex[address.toLowerCase()];
+    const balanceResult = tokensWithBalancesIndex[address.toLowerCase()];
     return [...acc, { ...listToken, ...balanceResult }];
   }, []);
 }

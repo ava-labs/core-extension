@@ -9,7 +9,7 @@ import React from 'react';
 import { useSendAvax } from './useSendAvax';
 import { observer } from 'mobx-react-lite';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-
+import { SendTransactionsList } from './SendTransactionsList';
 function Component() {
   const { balances, prices } = useWalletContext();
   const {
@@ -68,7 +68,7 @@ function Component() {
             amount.
           </Typography>
 
-          {/* <TransactionsList txs={txs}></TransactionsList> */}
+          <SendTransactionsList txs={txs} />
         </VerticalFlex>
       ) : (
         ''
