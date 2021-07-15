@@ -20,23 +20,23 @@ export function useBalance(wallet, networkConfig) {
    */
   const [refreshingBalances, setRefreshingBalances] = useState(false);
 
-  function updateBalanceErc20() {
-    if (!wallet) return;
-    setBalanceERC20(wallet.balanceERC20);
-  }
-
   async function updateBalanceX() {
     if (!wallet) return;
-
+    console.log('updateBalanceX ');
     let val = wallet.getBalanceX();
     setBalanceX(val);
   }
 
   function updateAvaxBalance() {
     if (!wallet) return;
+    console.log('updateAvaxBalance ');
     let bal = wallet.getAvaxBalance();
     setBalanceAvax(bal);
     updateTotalAvax();
+  }
+
+  function getAvaxBalanceUSD(avaxUSD: number) {
+    return balanceAvaxTotal.mul(Big(avaxUSD));
   }
 
   function updateTotalAvax() {
@@ -54,6 +54,7 @@ export function useBalance(wallet, networkConfig) {
     let totC = Utils.bnToAvaxC(cUnlocked);
 
     let totAvax = totX.add(totP).add(totC);
+
     setBalanceAvaxTotal(totAvax);
   }
 
@@ -66,7 +67,6 @@ export function useBalance(wallet, networkConfig) {
 
     function balanceChangeC(val: any) {
       updateAvaxBalance();
-      updateBalanceErc20();
     }
 
     function onAddressChange() {
@@ -85,17 +85,13 @@ export function useBalance(wallet, networkConfig) {
   }, [wallet]);
 
   useEffect(() => {
-    return () => {
-      updateAvaxBalance();
-      updateBalanceErc20();
-      updateBalanceX();
-    };
-  }, [networkConfig.selected]);
+    updateAvaxBalance();
+    updateBalanceX();
+  }, [networkConfig]);
 
   useEffect(() => {
     if (!wallet) return;
     wallet.getUtxosX();
-    updateBalanceErc20();
     updateBalanceX();
   }, []);
 
@@ -105,5 +101,6 @@ export function useBalance(wallet, networkConfig) {
     balanceAvaxTotal,
     balanceERC20,
     refreshingBalances,
+    getAvaxBalanceUSD,
   };
 }

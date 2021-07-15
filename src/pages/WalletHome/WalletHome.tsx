@@ -9,22 +9,14 @@ import {
   Typography,
   PrimaryButton,
 } from '@avalabs/react-components';
-import { useBalance } from '@src/hooks/useBalance';
-import { usePrices } from '@src/hooks/usePrices';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { Erc20TokenList } from '@src/components/Erc20Tokens/Erc20TokenList';
 import { TransactionSendType } from '@src/store/wallet/types';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export const WalletHome = observer(() => {
   const [loading, setIsLoading] = useState(true);
-  const { walletStore, networkStore } = useStore();
-  const { balanceAvaxTotal, refreshingBalances } = useBalance(
-    walletStore.wallet,
-    networkStore.network
-  );
-  const { avaxUSD } = usePrices();
-  // wait for refreshHD
-  // show load screen
+  const { balances, prices } = useWalletContext();
+  const { walletStore } = useStore();
 
   useEffect(() => {
     (async () => {
@@ -36,7 +28,7 @@ export const WalletHome = observer(() => {
     })();
   }, [walletStore.wallet]);
 
-  if (loading || refreshingBalances) {
+  if (loading || balances.refreshingBalances) {
     return <LoadingIcon />;
   }
 
@@ -44,9 +36,11 @@ export const WalletHome = observer(() => {
     <VerticalFlex width={'100%'} align={'center'}>
       <br />
       <VerticalFlex>
-        <Typography>{balanceAvaxTotal.toLocaleString()} AVAX</Typography>
         <Typography>
-          ${balanceAvaxTotal.mul(Big(avaxUSD)).toLocaleString(2)} AVAX
+          {balances.balanceAvaxTotal.toLocaleString()} AVAX
+        </Typography>
+        <Typography>
+          ${balances.getAvaxBalanceUSD(prices.avaxUSD).toLocaleString(2)} AVAX
         </Typography>
       </VerticalFlex>
       {/* <div className="fiat">$12.34</div> */}

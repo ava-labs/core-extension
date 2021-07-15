@@ -24,6 +24,7 @@ import { Header } from '@src/components/common/Header';
 import { Footer } from '@src/components/common/Footer';
 import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { PermissionsPage } from '@src/pages/Permissions/Permissions';
+import { WalletContextProvider } from '@src/contexts/WalletProvider';
 
 export const Popup = observer(() => {
   const { themeStore, networkStore, walletStore } = useStore();
@@ -44,73 +45,75 @@ export const Popup = observer(() => {
 
   return (
     <ThemeProvider theme={theme}>
-      <VerticalFlex
-        height={'100%'}
-        style={{
-          minHeight: '500px',
-          minWidth: '500px',
-          backgroundColor: theme.colors.bg,
-        }}
-      >
-        <Header />
-        <HorizontalFlex flex={1} justify={'center'}>
-          <Switch>
-            <Route path="/welcome/create">
-              <CreateWalletFlow />
-            </Route>
+      <WalletContextProvider>
+        <VerticalFlex
+          height={'100%'}
+          style={{
+            minHeight: '500px',
+            minWidth: '500px',
+            backgroundColor: theme.colors.bg,
+          }}
+        >
+          <Header />
+          <HorizontalFlex flex={1} justify={'center'}>
+            <Switch>
+              <Route path="/welcome/create">
+                <CreateWalletFlow />
+              </Route>
 
-            <Route path="/welcome">
-              <Welcome />
-            </Route>
+              <Route path="/welcome">
+                <Welcome />
+              </Route>
 
-            <Route path="/import">
-              <Import />
-            </Route>
+              <Route path="/import">
+                <Import />
+              </Route>
 
-            <Route path="/token/add">
-              <AddToken />
-            </Route>
+              <Route path="/token/add">
+                <AddToken />
+              </Route>
 
-            <Route path="/wallet/overview">
-              <WalletOverview />
-            </Route>
+              <Route path="/wallet/overview">
+                <WalletOverview />
+              </Route>
 
-            <Route path="/wallet">
-              <WalletHome />
-            </Route>
+              <Route path="/wallet">
+                <WalletHome />
+              </Route>
 
-            <Route path="/deposit">
-              <Deposit />
-            </Route>
+              <Route path="/deposit">
+                <Deposit />
+              </Route>
 
-            <Route path="/send/confirm">
-              <SendConfirm />
-            </Route>
+              <Route path="/send/confirm">
+                <SendConfirm />
+              </Route>
 
-            <Route path="/send/success">
-              <SendSuccess />
-            </Route>
+              <Route path="/send/success">
+                <SendSuccess />
+              </Route>
 
-            <Route path="/send">
-              <Send />
-            </Route>
+              <Route path="/send">
+                <Send />
+              </Route>
 
-            <Route path="/sign">
-              <SignMessage />
-            </Route>
+              <Route path="/sign">
+                <SignMessage />
+              </Route>
 
-            <Route path="/permissions">
-              <PermissionsPage />
-            </Route>
+              <Route path="/permissions">
+                <PermissionsPage />
+              </Route>
 
-            <Route path="/">
-              <FirstTimeFlow />
-            </Route>
-          </Switch>
-        </HorizontalFlex>
-        <GlobalStyle />
-        <Footer />
-      </VerticalFlex>
+              <Route path="/">
+                <FirstTimeFlow />
+              </Route>
+            </Switch>
+          </HorizontalFlex>
+          <GlobalStyle />
+          <Footer />
+        </VerticalFlex>
+      </WalletContextProvider>
     </ThemeProvider>
   );
 });
