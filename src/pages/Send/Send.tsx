@@ -11,10 +11,14 @@ import { TransactionSendType } from '@src/store/wallet/types';
 import { SendAvaxForm } from '@src/pages/Send/SendAvaxForm';
 import { SendAntForm } from '@src/pages/Send/SendAntForm';
 import { SendERC20Form } from '@src/pages/Send/SendERC20Form';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Redirect } from 'react-router-dom';
 
 export const Send = observer(() => {
   const { state } = useLocation<{ type: TransactionSendType }>();
+
+  if (!state?.type) {
+    return <Redirect to="/wallet" />;
+  }
 
   return (
     <VerticalFlex>

@@ -16,6 +16,7 @@ import {
   AssetBalanceRawX,
 } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
 import { Signal } from 'micro-signals';
+import { ERC20 } from './types';
 
 configure({
   enforceActions: 'never',
@@ -56,6 +57,7 @@ class WalletStore {
    * when it is set
    */
   mnemonicSetSignal = new Signal<string>();
+  newTokenAddedSignal = new Signal<ERC20>();
 
   constructor() {
     makeAutoObservable(this, {
@@ -80,6 +82,10 @@ class WalletStore {
       ],
       'WalletStore'
     );
+
+    this.newTokenAddedSignal.add((newToken) => {
+      this.customERC20Contracts.push(newToken.address);
+    });
   }
 
   importHD(mnemonic: string) {
@@ -203,25 +209,25 @@ class WalletStore {
   }
 
   async updateCustomERC20s() {
-    for (const each of this.customERC20Contracts) {
-      await this.wallet!.getBalanceERC20(each);
-    }
+    // for (const each of this.customERC20Contracts) {
+    //   await this.wallet!.getBalanceERC20(each);
+    // }
   }
 
   async addERC20Contract(address: string) {
-    try {
-      await this.wallet!.getBalanceERC20(address);
-      if (!isInArray(address, this.customERC20Contracts)) {
-        this.customERC20Contracts.push(address);
-      }
-    } catch (error) {
-      console.log('incorrect ERC20 address', error);
-    }
+    // try {
+    //   await this.wallet!.getBalanceERC20(address);
+    //   if (!isInArray(address, this.customERC20Contracts)) {
+    //     this.customERC20Contracts.push(address);
+    //   }
+    // } catch (error) {
+    //   console.log('incorrect ERC20 address', error);
+    // }
   }
 
   async getERC20ContractData(address: string) {
-    let data = await Assets.getContractData(address);
-    return data;
+    // let data = await Assets.getContractData(address);
+    // return data;
   }
 
   get ERC20Tokens() {

@@ -1,12 +1,8 @@
-export interface ERC20 {
-  name: string;
-  symbol: string;
-  denomination: number;
-  balance: string;
-  balanceParsed: string;
-  address: string;
-  imgUrl: string;
-}
+import { ERC20Balance } from '../../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
+
+export type ERC20 = {
+  logoURI?: string;
+} & ERC20Balance;
 
 export enum TransactionSendType {
   ERC20 = 'ERC20',

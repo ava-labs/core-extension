@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { observer } from "mobx-react-lite";
-import { Utils } from "@avalabs/avalanche-wallet-sdk";
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { observer } from 'mobx-react-lite';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
-import { useStore } from "@src/store/store";
+import { useStore } from '@src/store/store';
 
 export interface AddTokenProps {}
 
@@ -17,9 +17,9 @@ interface TokenListToken {
 }
 
 export const AddToken = observer((props: AddTokenProps) => {
-  const [contract, setContract] = useState("");
-  const [name, setName] = useState("");
-  const [symbol, setSymbol] = useState("");
+  const [contract, setContract] = useState('');
+  const [name, setName] = useState('');
+  const [symbol, setSymbol] = useState('');
   const [decimals, setDecimals] = useState(0);
   const [valid, setValid] = useState(false);
 
@@ -33,22 +33,22 @@ export const AddToken = observer((props: AddTokenProps) => {
     setContract(value);
   };
 
-  useEffect(() => {
-    (async () => {
-      const isValid = typeof Utils.isValidAddress(contract) === "boolean";
+  // useEffect(() => {
+  //   (async () => {
+  //     const isValid = typeof Utils.isValidAddress(contract) === "boolean";
 
-      if (isValid) {
-        const contractData = await walletStore.getERC20ContractData(contract);
-        const { name, symbol, decimals } = contractData;
-        setName(name);
-        setSymbol(symbol);
-        setDecimals(decimals);
-        setValid(true);
-      } else {
-        setValid(false);
-      }
-    })();
-  }, [contract]);
+  //     if (isValid) {
+  //       const contractData = await walletStore.getERC20ContractData(contract);
+  //       const { name, symbol, decimals } = contractData;
+  //       setName(name);
+  //       setSymbol(symbol);
+  //       setDecimals(decimals);
+  //       setValid(true);
+  //     } else {
+  //       setValid(false);
+  //     }
+  //   })();
+  // }, [contract]);
 
   const handleSubmit = async () => {
     await walletStore.addERC20Contract(contract);
