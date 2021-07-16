@@ -1,4 +1,7 @@
-import { useStore } from '@src/store/store';
+import {
+  isFujiNetwork,
+  SELECTEDNETWORK,
+} from '@src/store/network/networkStore';
 import { ERC20 } from '@src/store/wallet/types';
 import { useEffect, useState } from 'react';
 import { WalletType } from '../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
@@ -67,17 +70,23 @@ async function combineTokensAndBalances(
  *
  * @returns ERC20 token list with balances
  */
-export function useGetErc20Tokens() {
+export function useGetErc20Tokens(
+  wallet?: WalletType,
+  network?: SELECTEDNETWORK
+) {
   const [tokens, setTokens] = useState<ERC20[]>();
-  const { walletStore, networkStore } = useStore();
 
   useEffect(() => {
     async function getTokensAndBalances() {
-      const tokenIndex = await (networkStore.isFujiNetwork
+      console.log('!wallet || !network: ', !!wallet, !!network);
+      if (!wallet || !network) {
+        return;
+      }
+      const tokenIndex = await (isFujiNetwork(network)
         ? FUJI_LIST
         : MAINNET_LIST);
       const tokensWithBalances = await combineTokensAndBalances(
-        walletStore.wallet,
+        wallet,
         tokenIndex
       );
       tokensWithBalances && setTokens(tokensWithBalances);
@@ -90,14 +99,14 @@ export function useGetErc20Tokens() {
      * We want to watch for changes to the C chain balance and
      * for custom tokens added. In either case we want to update the tokens in the UI
      */
-    walletStore.wallet?.on('balanceChangedC', getTokensAndBalances);
-    walletStore.newTokenAddedSignal.add(getTokensAndBalances);
+    wallet?.on('balanceChangedC', getTokensAndBalances);
+    // newTokenAddedSignal.add(getTokensAndBalances);
 
     return () => {
-      walletStore.wallet?.off('balanceChangedC', getTokensAndBalances);
-      walletStore.newTokenAddedSignal.remove(getTokensAndBalances);
+      wallet?.off('balanceChangedC', getTokensAndBalances);
+      // newTokenAddedSignal.remove(getTokensAndBalances);
     };
-  }, [networkStore.network, walletStore.wallet]);
+  }, [network, wallet]);
 
   return tokens;
 }

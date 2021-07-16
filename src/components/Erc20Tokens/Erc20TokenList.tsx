@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import { truncateAddress } from '@src/utils/addressUtils';
 import { Link } from 'react-router-dom';
 import { TransactionSendType } from '@src/store/wallet/types';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 const Erc20TokenImg = styled.img`
   height: 20px;
@@ -18,7 +19,7 @@ const Erc20TokenImg = styled.img`
 `;
 
 export function Erc20TokenList() {
-  const tokens = useGetErc20Tokens();
+  const { tokens } = useWalletContext();
   return (
     <VerticalFlex width={'100%'} align={'center'} margin={'10px 0'}>
       {tokens?.map((token) => (

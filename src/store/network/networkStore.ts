@@ -9,16 +9,16 @@ export enum SELECTEDNETWORK {
   FUJI = 'testnet',
   MAINNET = 'mainnet',
 }
+
+export function isFujiNetwork(network: SELECTEDNETWORK) {
+  return network === SELECTEDNETWORK.FUJI;
+}
 class NetworkStore {
   network = SELECTEDNETWORK.FUJI;
 
   constructor() {
     makeAutoObservable(this);
     persistStore(this, ['network'], 'NetworkStore');
-  }
-
-  get isFujiNetwork() {
-    return this.network === SELECTEDNETWORK.FUJI;
   }
 
   changeToFujiNetwork() {
@@ -30,7 +30,7 @@ class NetworkStore {
 
   changeNetwork(network: SELECTEDNETWORK) {
     this.network = network;
-    Network.setNetwork(this.isFujiNetwork ? testnet : mainnet);
+    Network.setNetwork(isFujiNetwork(network) ? testnet : mainnet);
   }
 }
 
