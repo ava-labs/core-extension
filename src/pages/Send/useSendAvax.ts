@@ -11,16 +11,13 @@ interface UniversalTxReceipt {
 }
 
 export function useSendAvax() {
-  const { walletStore, networkStore } = useStore();
-  const { balanceAvax } = useBalance(walletStore.wallet, networkStore.network);
+  const { walletStore } = useStore();
   const [amount, setAmount] = useState<BN | undefined>();
   const [address, setAddress] = useState('');
   const wallet = walletStore.wallet;
   const [canSubmit, setCanSubmit] = useState(false);
   const [error, setError] = useState('');
   const [txId, setTxId] = useState('');
-
-  const [fee, setFee] = useState<BN>(new BN(0));
 
   const [targetChain, setTargetChain] = useState('C');
 

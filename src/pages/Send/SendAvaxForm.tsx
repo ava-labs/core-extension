@@ -33,7 +33,7 @@ function Component() {
           {balances.balanceAvaxTotal.toLocaleString()} AVAX
         </Typography>
         <Typography>
-          ${balances.getAvaxBalanceUSD(prices.avaxUSD).toLocaleString(2)} USD
+          ${balances.getAvaxBalanceUSD(prices.avaxUSD)} USD
         </Typography>
       </VerticalFlex>
       <Typography>To</Typography>

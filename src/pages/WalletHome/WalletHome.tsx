@@ -28,7 +28,7 @@ export const WalletHome = observer(() => {
     })();
   }, [walletStore.wallet]);
 
-  if (loading || balances.refreshingBalances) {
+  if (loading || balances.isLoading) {
     return <LoadingIcon />;
   }
 
@@ -36,11 +36,9 @@ export const WalletHome = observer(() => {
     <VerticalFlex width={'100%'} align={'center'}>
       <br />
       <VerticalFlex>
+        <Typography>{balances.getAvaxBalanceTotal()} AVAX</Typography>
         <Typography>
-          {balances.balanceAvaxTotal.toLocaleString()} AVAX
-        </Typography>
-        <Typography>
-          ${balances.getAvaxBalanceUSD(prices.avaxUSD).toLocaleString(2)} AVAX
+          ${balances.getAvaxBalanceUSD(prices.avaxUSD)} AVAX
         </Typography>
       </VerticalFlex>
       {/* <div className="fiat">$12.34</div> */}

@@ -28,7 +28,7 @@ export function WalletContextProvider({ children }: { children: any }) {
     setNetwork(res.newValue as SELECTEDNETWORK);
   });
 
-  const balances = useBalance(wallet, network);
+  const balances = useBalance(wallet);
   const prices = usePrices();
   const tokens = useGetErc20Tokens(wallet, network);
   const addresses = useAddresses(wallet, network);
