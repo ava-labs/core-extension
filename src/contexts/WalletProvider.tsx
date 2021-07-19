@@ -29,7 +29,7 @@ export function WalletContextProvider({ children }: { children: any }) {
   const balances = useBalance(wallet, network);
   const prices = usePrices();
   const tokens = useGetErc20Tokens(wallet, network);
-  console.log('tokens: ', tokens, network);
+
   return (
     <WalletContext.Provider value={{ balances, prices, tokens, wallet }}>
       {children}

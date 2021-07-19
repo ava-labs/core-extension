@@ -6,12 +6,16 @@ import { SendAvaxForm } from '@src/pages/Send/SendAvaxForm';
 import { SendAntForm } from '@src/pages/Send/SendAntForm';
 import { SendERC20Form } from '@src/pages/Send/SendERC20Form';
 import { useLocation, Redirect } from 'react-router-dom';
-import { ERC20 } from '@src/store/wallet/types';
-
-type ERC20WithType = ERC20 & { type: TransactionSendType };
 
 export const Send = observer(() => {
-  const { state } = useLocation<ERC20WithType>();
+  /**
+   * using any until we do some type checking and error
+   * handling at this level. The proper types here are:
+   * {type: string} ||
+   * {type: string} & BalanceX ||
+   * {type: string} & ERC20
+   */
+  const { state } = useLocation<any>();
 
   if (!state?.type) {
     return <Redirect to="/wallet" />;
@@ -22,7 +26,7 @@ export const Send = observer(() => {
       {
         {
           [TransactionSendType.AVAX]: <SendAvaxForm />,
-          [TransactionSendType.ANT]: <SendAntForm />,
+          [TransactionSendType.ANT]: <SendAntForm token={state} />,
           [TransactionSendType.ERC20]: <SendERC20Form token={state} />,
         }[state.type]
       }
