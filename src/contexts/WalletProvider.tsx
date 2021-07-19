@@ -3,6 +3,7 @@ import { useBalance } from '@src/hooks/useBalance';
 import { useStore } from '@src/store/store';
 import { usePrices } from '@src/hooks/usePrices';
 import { useGetErc20Tokens } from '@src/hooks/useGetErc20Tokens';
+import { useAddresses } from '@src/hooks/useAddresses';
 import { WalletType } from '../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
 import { SELECTEDNETWORK } from '@src/store/network/networkStore';
 import { observe } from 'mobx';
@@ -12,6 +13,7 @@ const WalletContext = createContext<{
   balances: ReturnType<typeof useBalance>;
   prices: ReturnType<typeof usePrices>;
   tokens: ReturnType<typeof useGetErc20Tokens>;
+  addresses: ReturnType<typeof useAddresses>;
 }>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
@@ -29,9 +31,12 @@ export function WalletContextProvider({ children }: { children: any }) {
   const balances = useBalance(wallet, network);
   const prices = usePrices();
   const tokens = useGetErc20Tokens(wallet, network);
+  const addresses = useAddresses(wallet, network);
 
   return (
-    <WalletContext.Provider value={{ balances, prices, tokens, wallet }}>
+    <WalletContext.Provider
+      value={{ balances, prices, tokens, wallet, addresses }}
+    >
       {children}
     </WalletContext.Provider>
   );

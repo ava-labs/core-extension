@@ -78,7 +78,6 @@ export function useGetErc20Tokens(
 
   useEffect(() => {
     async function getTokensAndBalances() {
-      console.log('!wallet || !network: ', !!wallet, !!network);
       if (!wallet || !network) {
         return;
       }

@@ -1,127 +1,86 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { QRCode } from 'react-qr-svg';
 import { Link } from 'react-router-dom';
-
-import { useStore } from '@src/store/store';
-
-import { Layout } from '@src/components/Layout';
-import { FullWidthButton } from '@src/styles/styles';
+import {
+  VerticalFlex,
+  Typography,
+  PrimaryButton,
+  HorizontalFlex,
+  SecondaryButton,
+  LoadingIcon,
+} from '@avalabs/react-components';
 
 import { truncateAddress } from '@src/utils/addressUtils';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export const Deposit = () => {
+  const { addresses } = useWalletContext();
   const [isCopied, setIsCopied] = useState(false);
   const [chain, setChain] = useState('C');
 
-  const { walletStore } = useStore();
-
   const getAddress = () => {
     if (chain === 'C') {
-      return walletStore.addrC;
+      return addresses.addressC;
     } else if (chain === 'X') {
-      return walletStore.addrX;
+      return addresses.addressX;
     } else if (chain === 'P') {
-      return walletStore.addrP;
+      return addresses.addressP;
     }
-    return walletStore.addrC;
+    return addresses.addressC;
   };
 
   const truncatedAddress = truncateAddress(getAddress());
+
+  if (!addresses || !addresses.addressC) {
+    return <LoadingIcon />;
+  }
+
   return (
-    <Layout>
-      <Wrapper>
-        <QR>
-          <h1>Select Chain to 'Receive' your coin</h1>
-          <div className="selector">
-            <span
-              className={chain === 'X' ? 'active' : ''}
-              onClick={() => setChain('X')}
-            >
-              X-Chain
-            </span>
-            <span
-              className={chain === 'P' ? 'active' : ''}
-              onClick={() => setChain('P')}
-            >
-              P-Chain
-            </span>
-            <span
-              className={chain === 'C' ? 'active' : ''}
-              onClick={() => setChain('C')}
-            >
-              C-Chain
-            </span>
-          </div>
+    <VerticalFlex width={'100%'} align={'center'}>
+      <br />
+      <Typography>Select Chain to 'Receive' your coin</Typography>
+      <br />
+      <HorizontalFlex>
+        <PrimaryButton disabled={chain === 'X'} onClick={() => setChain('X')}>
+          X-Chain
+        </PrimaryButton>
+        <PrimaryButton disabled={chain === 'P'} onClick={() => setChain('P')}>
+          P-Chain
+        </PrimaryButton>
+        <PrimaryButton disabled={chain === 'C'} onClick={() => setChain('C')}>
+          C-Chain
+        </PrimaryButton>
+      </HorizontalFlex>
+      <br />
+      <br />
 
-          <div className="qr">
-            <QRCode value={getAddress()} style={{ width: '100px' }} />
-          </div>
+      <VerticalFlex align={'center'}>
+        <QRCode value={getAddress()} style={{ width: '100px' }} />
+        <br />
+        <Typography>{truncatedAddress}</Typography>
+        <br />
 
-          <div className="address">
-            {truncatedAddress}
-            <button
-              onClick={() => {
-                setIsCopied(true);
-                navigator.clipboard.writeText(getAddress());
-              }}
-            >
-              {isCopied ? 'Copied!' : 'Copy'}
-            </button>
-          </div>
-          <div className="disclaimer">
-            This address can only be used to receive AVAX on the {chain} Chain.
-          </div>
+        <SecondaryButton
+          onClick={() => {
+            setIsCopied(true);
+            navigator.clipboard.writeText(getAddress());
+          }}
+        >
+          {isCopied ? 'Copied!' : 'Copy'}
+        </SecondaryButton>
+      </VerticalFlex>
+      <br />
+      <VerticalFlex align={'center'}>
+        <Typography>Disclaimer</Typography>
+        <Typography>
+          This address can only be used to receive AVAX on the {chain} Chain.
+        </Typography>
+      </VerticalFlex>
+      <br />
 
-          <Link to="/wallet">
-            <FullWidthButton>Close</FullWidthButton>
-          </Link>
-        </QR>
-      </Wrapper>
-    </Layout>
+      <Link to="/wallet">
+        <PrimaryButton>Close</PrimaryButton>
+      </Link>
+    </VerticalFlex>
   );
 };
-
-export const Wrapper = styled.div`
-  padding: 1rem;
-`;
-
-export const QR = styled.div`
-  .selector {
-    display: inline-flex;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-    margin-bottom: 1rem;
-    span {
-      width: 75px;
-      height: 26px;
-      align-items: center;
-      display: flex;
-      justify-content: center;
-      font-size: 11px;
-      letter-spacing: -2%;
-      margin: auto 0.4rem;
-    }
-    .active {
-      background: #2d333a;
-      border-radius: 50px;
-    }
-  }
-  h1 {
-    text-align: center;
-    font-size: 1.6rem;
-    margin: 1rem;
-  }
-  .qr {
-    text-align: center;
-  }
-  .address {
-    font-size: 1.2rem;
-    padding: 1rem;
-    margin: auto 2rem auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-`;
