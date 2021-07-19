@@ -2,14 +2,9 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useHistory } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-
 import { useStore } from '@src/store/store';
-
-import { Layout } from '@src/components/Layout';
-import { ContentLayout } from '@src/styles/styles';
-
-import { Spinner } from '@src/components/misc/Spinner';
 import { UnapprovedMessage } from '@src/store/transaction/types';
+import { VerticalFlex } from '@avalabs/react-components';
 import {
   personalSign,
   signTypedData_v4,
@@ -135,31 +130,29 @@ export const SignMessage = observer(() => {
   }
 
   return (
-    <Layout>
-      <ContentLayout>
-        <div className="content">
-          <Wrapper>
-            {errorMsg && errorMsg}
+    <VerticalFlex>
+      <div className="content">
+        <Wrapper>
+          {errorMsg && errorMsg}
 
-            <SendDiv>
-              {result ? (
-                <code> Signed Message: {result}</code>
-              ) : (
-                <code>{renderType}</code>
-              )}
-            </SendDiv>
-          </Wrapper>
-        </div>
-        <div className="footer half-width">
-          <Link to="/wallet" onClick={removeUnapprovedMsg}>
-            <button>Cancel</button>
-          </Link>
-          <a onClick={signTransaction}>
-            <button>Sign</button>
-          </a>
-        </div>
-      </ContentLayout>
-    </Layout>
+          <SendDiv>
+            {result ? (
+              <code> Signed Message: {result}</code>
+            ) : (
+              <code>{renderType}</code>
+            )}
+          </SendDiv>
+        </Wrapper>
+      </div>
+      <div className="footer half-width">
+        <Link to="/wallet" onClick={removeUnapprovedMsg}>
+          <button>Cancel</button>
+        </Link>
+        <a onClick={signTransaction}>
+          <button>Sign</button>
+        </a>
+      </div>
+    </VerticalFlex>
   );
 });
 

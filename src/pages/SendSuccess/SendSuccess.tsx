@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-
 import { useStore } from '@src/store/store';
-
-import { Layout } from '@src/components/Layout';
-import { ContentLayout } from '@src/styles/styles';
-
 import { truncateAddress } from '@src/utils/addressUtils';
+import { VerticalFlex } from '@avalabs/react-components';
 
 export const SendSuccess = () => {
   const [loading, setIsLoading] = useState(false);
@@ -18,39 +14,37 @@ export const SendSuccess = () => {
   const truncatedTxHash = truncateAddress(txHash);
 
   return (
-    <Layout>
-      <ContentLayout>
-        <div className="content">
-          <Wrapper>
-            <SendDiv>
-              {txHash ? (
-                <>
-                  <img src="/images/success.gif" alt="" />
-                  <div>
-                    See your transaction
-                    <a
-                      target="_blank"
-                      href={`https://testnet.avascan.info/blockchain/c/tx/${txHash}`}
-                    >
-                      {truncatedTxHash}
-                    </a>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h1>something went wrong</h1>
-                </>
-              )}
-            </SendDiv>
-          </Wrapper>
-        </div>
-        <div className="footer">
-          <Link to="/wallet">
-            <button>Home</button>
-          </Link>
-        </div>
-      </ContentLayout>
-    </Layout>
+    <VerticalFlex>
+      <div className="content">
+        <Wrapper>
+          <SendDiv>
+            {txHash ? (
+              <>
+                <img src="/images/success.gif" alt="" />
+                <div>
+                  See your transaction
+                  <a
+                    target="_blank"
+                    href={`https://testnet.avascan.info/blockchain/c/tx/${txHash}`}
+                  >
+                    {truncatedTxHash}
+                  </a>
+                </div>
+              </>
+            ) : (
+              <>
+                <h1>something went wrong</h1>
+              </>
+            )}
+          </SendDiv>
+        </Wrapper>
+      </div>
+      <div className="footer">
+        <Link to="/wallet">
+          <button>Home</button>
+        </Link>
+      </div>
+    </VerticalFlex>
   );
 };
 

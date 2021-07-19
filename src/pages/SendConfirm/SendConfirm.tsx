@@ -3,12 +3,9 @@ import styled from 'styled-components';
 import { Link, useLocation, useHistory } from 'react-router-dom';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { observer } from 'mobx-react-lite';
-
+import { VerticalFlex } from '@avalabs/react-components';
 import { useStore } from '@src/store/store';
 import { hexToNumber, fromWei } from '@src/utils/web3Utils';
-
-import { Layout } from '@src/components/Layout';
-import { ContentLayout } from '@src/styles/styles';
 
 import { truncateAddress } from '@src/utils/addressUtils';
 import { Spinner } from '@src/components/misc/Spinner';
@@ -98,39 +95,37 @@ export const SendConfirm = observer(() => {
   const truncatedAddress = truncateAddress(recipient);
 
   return (
-    <Layout>
-      <ContentLayout>
-        <div className="content">
-          <Wrapper>
-            <SendDiv>
-              <div className="token">
-                <img
-                  src={
-                    'https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818'
-                  }
-                  alt=""
-                />
-              </div>
-              <h1>
-                Send {amount} {symbol}
-              </h1>
+    <VerticalFlex>
+      <div className="content">
+        <Wrapper>
+          <SendDiv>
+            <div className="token">
+              <img
+                src={
+                  'https://assets.coingecko.com/coins/images/12559/large/coin-round-red.png?1604021818'
+                }
+                alt=""
+              />
+            </div>
+            <h1>
+              Send {amount} {symbol}
+            </h1>
 
-              <div>To: ({truncatedAddress})</div>
-            </SendDiv>
+            <div>To: ({truncatedAddress})</div>
+          </SendDiv>
 
-            {loading && <Spinner />}
-          </Wrapper>
-        </div>
-        <div className="footer half-width">
-          <Link to="/wallet">
-            <button>Cancel</button>
-          </Link>
-          <a onClick={sendTransaction}>
-            <button>Confirm</button>
-          </a>
-        </div>
-      </ContentLayout>
-    </Layout>
+          {loading && <Spinner />}
+        </Wrapper>
+      </div>
+      <div className="footer half-width">
+        <Link to="/wallet">
+          <button>Cancel</button>
+        </Link>
+        <a onClick={sendTransaction}>
+          <button>Confirm</button>
+        </a>
+      </div>
+    </VerticalFlex>
   );
 });
 
