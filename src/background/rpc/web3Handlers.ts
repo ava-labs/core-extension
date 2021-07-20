@@ -2,9 +2,11 @@ import engine, { JsonRpcRequest } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { store } from '@src/store/store';
 import storageListener from '../utils/storage';
-import { recoverPersonalSignature } from 'eth-sig-util';
 import { formatAndLog, LoggerColors } from '../utils/logging';
-import { CONNECT_METHOD } from '../permissionsController';
+import {
+  CONNECT_METHOD,
+  JSONRPCRequestWithDomain,
+} from '../permissionsController';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -65,6 +67,7 @@ const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
 
   async eth_getBalance(data: JsonRpcRequest<any>) {
+    console.log('get eth balance called');
     const { balanceC } = store.walletStore;
     return { ...data, result: balanceC };
   },
@@ -150,10 +153,17 @@ const web3CustomHandlers = {
    * @param data the rpc request
    * @returns
    */
-  async [CONNECT_METHOD](data: JsonRpcRequest<any>) {
+  async [CONNECT_METHOD](data: JSONRPCRequestWithDomain) {
+    if (store.permissionsStore.domainHasAccountsPermissions(data.domain)) {
+      return {
+        ...data,
+        result: store.walletStore.accounts,
+      };
+    }
+
     const window = await openExtensionNewWindow(
       `permissions`,
-      `domain=${data.params.domain}`
+      `domain=${data.domain}`
     );
     /**
      * If the user updates permissions and then closes the window then the permissions are written and this
@@ -161,11 +171,9 @@ const web3CustomHandlers = {
      * the consumer will be notified that the window closed prematurely
      */
     const hasPermissions = await storageListener
-      .filter(() =>
-        store.permissionsStore.domainPermissionsExist(data.params.domain)
-      )
+      .filter(() => store.permissionsStore.domainPermissionsExist(data.domain))
       .map(() =>
-        store.permissionsStore.domainHasAccountsPermissions(data.params.domain)
+        store.permissionsStore.domainHasAccountsPermissions(data.domain)
       )
       .promisify(
         window.removed.map(() => 'Window closed before permissions granted')
@@ -182,16 +190,18 @@ const web3CustomHandlers = {
    * @param data the rpc request
    * @returns an array of accounts the dapp has permissions for
    */
-  async eth_accounts(data: JsonRpcRequest<any>) {
+  async eth_accounts(data: JSONRPCRequestWithDomain) {
     return {
       ...data,
-      result: store.walletStore.accounts,
+      result: store.permissionsStore.domainHasAccountsPermissions(data.domain)
+        ? store.walletStore.accounts
+        : [],
     };
   },
-  async wallet_requestPermissions(data: JsonRpcRequest<any>) {
+  async wallet_requestPermissions(data: JSONRPCRequestWithDomain) {
     const window = await openExtensionNewWindow(
       `permissions`,
-      `domain=${data.params.domain}`
+      `domain=${data.domain}`
     );
 
     /**
@@ -199,21 +209,21 @@ const web3CustomHandlers = {
      * and/or adding more permissions.
      */
     await window.removed
-      .map(() => store.permissionsStore.permissions[data.params.domain])
+      .map(() => store.permissionsStore.permissions[data.domain])
       .promisify();
 
     return {
       ...data,
       result: store.permissionsStore.getPermissionsConvertedToMetaMaskStructure(
-        data.params.domain
+        data.domain
       ),
     };
   },
-  async wallet_getPermissions(data: JsonRpcRequest<any>) {
+  async wallet_getPermissions(data: JSONRPCRequestWithDomain) {
     return {
       ...data,
       result: store.permissionsStore.getPermissionsConvertedToMetaMaskStructure(
-        data.params.domain
+        data.domain
       ),
     };
   },

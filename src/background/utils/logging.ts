@@ -63,7 +63,14 @@ export default function logger(
 }
 
 export function requestParser(request: JsonRpcRequest<any>) {
+  function setKeyAndValue(key: string) {
+    if (key === 'params') {
+      return `${key}: ${JSON.stringify(request[key] || [])}`;
+    }
+    return `${key}: ${request[key]}`;
+  }
+
   return Object.keys(request).reduce((acc, key) => {
-    return acc ? `${acc}\n${key}: ${request[key]}` : `${key}: ${request[key]}`;
+    return acc ? `${acc}\n${setKeyAndValue(key)}` : setKeyAndValue(key);
   }, ``);
 }

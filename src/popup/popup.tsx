@@ -36,7 +36,7 @@ export const Popup = observer(() => {
      * This netwrok change is temp and shoud get cleaned up with
      * @link https://ava-labs.atlassian.net/browse/PM-207
      */
-    networkStore.changeToFujiNetwork();
+    // networkStore.changeToFujiNetwork();
     setTimeout(() => {
       walletStore.MnemonicWallet();
     }, 1500);

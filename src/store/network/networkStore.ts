@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { persistStore } from '@src/utils/mobx';
 import { Network, NetworkConstants } from '@avalabs/avalanche-wallet-sdk';
+import { getStoreFromStorage } from '@src/background/utils/storage';
 
 const testnet = NetworkConstants.TestnetConfig;
 const mainnet = NetworkConstants.MainnetConfig;
@@ -14,11 +15,19 @@ export function isFujiNetwork(network: SELECTEDNETWORK) {
   return network === SELECTEDNETWORK.FUJI;
 }
 class NetworkStore {
-  network = SELECTEDNETWORK.FUJI;
+  _network = SELECTEDNETWORK.FUJI;
+  get network() {
+    const transactionStore = getStoreFromStorage('NetworkStore');
+    const network = transactionStore._network;
+    return network || SELECTEDNETWORK.FUJI;
+  }
+  set network(network: SELECTEDNETWORK) {
+    this._network = network;
+  }
 
   constructor() {
     makeAutoObservable(this);
-    persistStore(this, ['network'], 'NetworkStore');
+    persistStore(this, ['_network'], 'NetworkStore');
   }
 
   changeToFujiNetwork() {

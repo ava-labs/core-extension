@@ -1,6 +1,5 @@
 import { JsonRpcRequest } from './rpc/jsonRpcEngine';
 import { Signal } from 'micro-signals';
-import { DomainMetadata } from './models';
 import { store } from '@src/store/store';
 import storageListener from './utils/storage';
 import { formatAndLog } from './utils/logging';
@@ -8,10 +7,17 @@ import { formatAndLog } from './utils/logging';
 export const DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata';
 export const CONNECT_METHOD = 'eth_requestAccounts';
 
-export enum MethodsRequiringPermissions {
-  eth_accounts = 'eth_accounts',
+/**
+ * Add the name of the requests that need permissions here, like so:
+ * eth_accounts = 'eth_accounts',
+ *
+ * This will flag the request, set it as pending until the permissions are verified. If the permissions
+ * are non-existent then the call remains in pending until permissions are given or the connection is lost.
+ */
+export enum MethodsRequiringPermissions {}
+export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
+  domain: string;
 }
-
 export class PermissionsController {
   private connectionDomainSignal = new Signal<string>();
 
@@ -109,7 +115,7 @@ export class PermissionsController {
     return rpcReuqest && rpcReuqest.method
       ? {
           ...rpcReuqest,
-          params: { ...(rpcReuqest.params || {}), domain },
+          domain,
         }
       : rpcReuqest;
   }
