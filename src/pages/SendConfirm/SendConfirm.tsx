@@ -8,7 +8,6 @@ import { useStore } from '@src/store/store';
 import { hexToNumber, fromWei } from '@src/utils/web3Utils';
 
 import { truncateAddress } from '@src/utils/addressUtils';
-import { Spinner } from '@src/components/misc/Spinner';
 
 interface routeProps {
   address: string;
@@ -113,8 +112,6 @@ export const SendConfirm = observer(() => {
 
             <div>To: ({truncatedAddress})</div>
           </SendDiv>
-
-          {loading && <Spinner />}
         </Wrapper>
       </div>
       <div className="footer half-width">
