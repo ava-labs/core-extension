@@ -5,11 +5,9 @@ import {
   WalletType,
 } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
 import { useBalanceAvax } from './useBalanceAvax';
+import { ActiveNetwork } from '@src/contexts/NetworkProvider';
 
-export function useBalance(
-  wallet?: WalletType
-  // networkConfig?: SELECTEDNETWORK
-) {
+export function useBalance(wallet?: WalletType, network?: ActiveNetwork) {
   const [balanceX, setBalanceX] = useState<WalletBalanceX>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,8 +77,11 @@ export function useBalance(
       wallet?.off('balanceChangedP', balanceChangeP);
       wallet?.off('addressChanged', onAddressChange);
     };
-  }, [wallet]);
+  }, [wallet, network]);
 
+  useEffect(() => {
+    updateAllBalances();
+  }, [network]);
   return {
     balanceX,
     balanceAvax,

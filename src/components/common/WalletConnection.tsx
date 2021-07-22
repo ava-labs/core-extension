@@ -11,9 +11,11 @@ import {
 import { useStore } from '@src/store/store';
 import { observer } from 'mobx-react-lite';
 import { truncateAddress } from '@src/utils/addressUtils';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 function component() {
-  const { walletStore, networkStore } = useStore();
+  const { walletStore } = useStore();
+  const { network, setNetwork, networks } = useNetworkContext();
   const [addressC, setAddressC] = useState(truncateAddress(walletStore.addrC));
   const [hasBeenCopied, setHasBeenCopied] = useState(false);
 
@@ -48,19 +50,21 @@ function component() {
               {hasBeenCopied ? 'copied' : 'copy'}
             </TextButton>
             <Typography margin="0 auto 0 5px">
-              {addressC} ({networkStore.network})
+              {addressC} ({network?.name})
             </Typography>
             <CaretIcon height="16px" />
           </HorizontalFlex>
         </Card>
       }
     >
-      <DropDownMenuItem onClick={() => networkStore.changeToFujiNetwork()}>
-        Testnet
-      </DropDownMenuItem>
-      <DropDownMenuItem onClick={() => networkStore.changeToMainNetwork()}>
-        Mainnet
-      </DropDownMenuItem>
+      {networks.map((network) => (
+        <DropDownMenuItem
+          key={network.name}
+          onClick={() => setNetwork(network)}
+        >
+          {network.name}
+        </DropDownMenuItem>
+      ))}
     </DropDownMenu>
   );
 }

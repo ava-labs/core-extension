@@ -3,7 +3,6 @@ import AssetsStore from '@src/store/assets/assetsStore';
 import ThemeStore from '@src/store/theme/themeStore';
 import ExtensionStore from '@src/store/extension/extensionStore';
 import OnboardStore from '@src/store/onboard/onboardStore';
-import NetworkStore from '@src/store/network/networkStore';
 import WalletStore from '@src/store/wallet/walletStore';
 import TransactionStore from '@src/store/transaction/transactionStore';
 import PermissionsStore from './permissions/permissionsStore';
@@ -13,7 +12,6 @@ export interface CombinedStores {
   themeStore: ThemeStore;
   extensionStore: ExtensionStore;
   onboardStore: OnboardStore;
-  networkStore: NetworkStore;
   walletStore: WalletStore;
   transactionStore: TransactionStore;
   permissionsStore: PermissionsStore;
@@ -24,7 +22,6 @@ export const store: CombinedStores = {
   themeStore: new ThemeStore(),
   extensionStore: new ExtensionStore(),
   onboardStore: new OnboardStore(),
-  networkStore: new NetworkStore(),
   walletStore: new WalletStore(),
   transactionStore: new TransactionStore(),
   permissionsStore: new PermissionsStore(),

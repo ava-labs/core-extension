@@ -1,10 +1,7 @@
-import {
-  isFujiNetwork,
-  SELECTEDNETWORK,
-} from '@src/store/network/networkStore';
 import { ERC20 } from '@src/store/wallet/types';
 import { useEffect, useState } from 'react';
-import { WalletType } from '../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
+import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { ActiveNetwork } from '@src/contexts/NetworkProvider';
 
 /**
  * Helper function to index contracts by address
@@ -72,7 +69,7 @@ async function combineTokensAndBalances(
  */
 export function useGetErc20Tokens(
   wallet?: WalletType,
-  network?: SELECTEDNETWORK
+  network?: ActiveNetwork
 ) {
   const [tokens, setTokens] = useState<ERC20[]>();
 
@@ -81,7 +78,7 @@ export function useGetErc20Tokens(
       if (!wallet || !network) {
         return;
       }
-      const tokenIndex = await (isFujiNetwork(network)
+      const tokenIndex = await (Network.isFujiNetwork(network.config)
         ? FUJI_LIST
         : MAINNET_LIST);
       const tokensWithBalances = await combineTokensAndBalances(

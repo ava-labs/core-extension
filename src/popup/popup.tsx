@@ -25,18 +25,14 @@ import { Footer } from '@src/components/common/Footer';
 import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { PermissionsPage } from '@src/pages/Permissions/Permissions';
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
+import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 
 export const Popup = observer(() => {
-  const { themeStore, networkStore, walletStore } = useStore();
+  const { themeStore, walletStore } = useStore();
   const theme = themeStore.isDarkMode ? darkTheme : lightTheme;
   // remove setTimeout later
   // when sdk is updated
   useEffect(() => {
-    /**
-     * This netwrok change is temp and shoud get cleaned up with
-     * @link https://ava-labs.atlassian.net/browse/PM-207
-     */
-    // networkStore.changeToFujiNetwork();
     setTimeout(() => {
       walletStore.MnemonicWallet();
     }, 1500);
@@ -45,75 +41,77 @@ export const Popup = observer(() => {
 
   return (
     <ThemeProvider theme={theme}>
-      <WalletContextProvider>
-        <VerticalFlex
-          height={'100%'}
-          style={{
-            minHeight: '500px',
-            minWidth: '500px',
-            backgroundColor: theme.colors.bg,
-          }}
-        >
-          <Header />
-          <HorizontalFlex flex={1} justify={'center'}>
-            <Switch>
-              <Route path="/welcome/create">
-                <CreateWalletFlow />
-              </Route>
+      <NetworkContextProvider>
+        <WalletContextProvider>
+          <VerticalFlex
+            height={'100%'}
+            style={{
+              minHeight: '500px',
+              minWidth: '500px',
+              backgroundColor: theme.colors.bg,
+            }}
+          >
+            <Header />
+            <HorizontalFlex flex={1} justify={'center'}>
+              <Switch>
+                <Route path="/welcome/create">
+                  <CreateWalletFlow />
+                </Route>
 
-              <Route path="/welcome">
-                <Welcome />
-              </Route>
+                <Route path="/welcome">
+                  <Welcome />
+                </Route>
 
-              <Route path="/import">
-                <Import />
-              </Route>
+                <Route path="/import">
+                  <Import />
+                </Route>
 
-              <Route path="/token/add">
-                <AddToken />
-              </Route>
+                <Route path="/token/add">
+                  <AddToken />
+                </Route>
 
-              <Route path="/wallet/overview">
-                <WalletOverview />
-              </Route>
+                <Route path="/wallet/overview">
+                  <WalletOverview />
+                </Route>
 
-              <Route path="/wallet">
-                <WalletHome />
-              </Route>
+                <Route path="/wallet">
+                  <WalletHome />
+                </Route>
 
-              <Route path="/deposit">
-                <Deposit />
-              </Route>
+                <Route path="/deposit">
+                  <Deposit />
+                </Route>
 
-              <Route path="/send/confirm">
-                <SendConfirm />
-              </Route>
+                <Route path="/send/confirm">
+                  <SendConfirm />
+                </Route>
 
-              <Route path="/send/success">
-                <SendSuccess />
-              </Route>
+                <Route path="/send/success">
+                  <SendSuccess />
+                </Route>
 
-              <Route path="/send">
-                <Send />
-              </Route>
+                <Route path="/send">
+                  <Send />
+                </Route>
 
-              <Route path="/sign">
-                <SignMessage />
-              </Route>
+                <Route path="/sign">
+                  <SignMessage />
+                </Route>
 
-              <Route path="/permissions">
-                <PermissionsPage />
-              </Route>
+                <Route path="/permissions">
+                  <PermissionsPage />
+                </Route>
 
-              <Route path="/">
-                <FirstTimeFlow />
-              </Route>
-            </Switch>
-          </HorizontalFlex>
-          <GlobalStyle />
-          <Footer />
-        </VerticalFlex>
-      </WalletContextProvider>
+                <Route path="/">
+                  <FirstTimeFlow />
+                </Route>
+              </Switch>
+            </HorizontalFlex>
+            <GlobalStyle />
+            <Footer />
+          </VerticalFlex>
+        </WalletContextProvider>
+      </NetworkContextProvider>
     </ThemeProvider>
   );
 });

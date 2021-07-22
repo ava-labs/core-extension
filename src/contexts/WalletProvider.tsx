@@ -5,8 +5,8 @@ import { usePrices } from '@src/hooks/usePrices';
 import { useGetErc20Tokens } from '@src/hooks/useGetErc20Tokens';
 import { useAddresses } from '@src/hooks/useAddresses';
 import { WalletType } from '../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
-import { SELECTEDNETWORK } from '@src/store/network/networkStore';
 import { observe } from 'mobx';
+import { useNetworkContext } from './NetworkProvider';
 
 const WalletContext = createContext<{
   wallet?: WalletType;
@@ -17,18 +17,15 @@ const WalletContext = createContext<{
 }>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
-  const { walletStore, networkStore } = useStore();
+  const { walletStore } = useStore();
   const [wallet, setWallet] = useState<WalletType | undefined>();
-  const [network, setNetwork] = useState<SELECTEDNETWORK>(networkStore.network);
+  const { network } = useNetworkContext();
 
   observe(walletStore, 'wallet', (res) =>
     setWallet(res.newValue as WalletType)
   );
-  observe(networkStore, 'network', (res) => {
-    setNetwork(res.newValue as SELECTEDNETWORK);
-  });
 
-  const balances = useBalance(wallet);
+  const balances = useBalance(wallet, network);
   const prices = usePrices();
   const tokens = useGetErc20Tokens(wallet, network);
   const addresses = useAddresses(wallet, network);

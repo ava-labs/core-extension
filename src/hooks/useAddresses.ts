@@ -1,8 +1,8 @@
-import { SELECTEDNETWORK } from '@src/store/network/networkStore';
 import { useEffect, useState } from 'react';
-import { WalletType } from '../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
+import { WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { ActiveNetwork } from '@src/contexts/NetworkProvider';
 
-export function useAddresses(wallet?: WalletType, network?: SELECTEDNETWORK) {
+export function useAddresses(wallet?: WalletType, network?: ActiveNetwork) {
   const [addressX, setAddressX] = useState('');
   const [addressP, setAddressP] = useState('');
   const [addressC, setAddressC] = useState('');

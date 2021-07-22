@@ -27,12 +27,14 @@ export function useBalanceAvax(wallet?: WalletType) {
   function updateAvaxBalance() {
     if (!wallet) return;
     let bal = wallet.getAvaxBalance();
+    console.log('updateAvaxBalance: ', bal);
     setBalanceAvax(bal);
   }
 
   async function updateBalanceStaked() {
     if (!wallet) return;
     let stake = await wallet.getStake();
+    console.log('updateBalanceStaked: ', stake);
     setBalanceStaked(stake);
   }
 
@@ -57,9 +59,11 @@ export function useBalanceAvax(wallet?: WalletType) {
   }, [balanceAvax, balanceStaked]);
 
   function getAvaxBalanceUSD(avaxUSD: number) {
+    console.log('getAvaxBalanceUSD');
     return Utils.bnToLocaleString(balanceAvaxTotal.mul(new BN(avaxUSD)), 9);
   }
   function getAvaxBalanceTotal() {
+    console.log('getAvaxBalanceTotal');
     return Utils.bnToLocaleString(balanceAvaxTotal, 9);
   }
 
