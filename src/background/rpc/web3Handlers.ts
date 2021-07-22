@@ -1,4 +1,4 @@
-import engine, { JsonRpcRequest } from './jsonRpcEngine';
+import { JsonRpcRequest, engine } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { store } from '@src/store/store';
 import storageListener from '../utils/storage';
@@ -246,15 +246,17 @@ export default {
       ? () => customHandler(data)
       : unauthenticatedRoutes.has(data.method) &&
           (() =>
-            engine.handle(data).then((result) => {
-              formatAndLog(
-                'Wallet Controller: (web 3 response)',
-                { ...data, result },
-                {
-                  color: LoggerColors.success,
-                }
-              );
-              return result;
-            }));
+            engine()
+              .then((e) => e.handle(data))
+              .then((result) => {
+                formatAndLog(
+                  'Wallet Controller: (web 3 response)',
+                  { ...data, result },
+                  {
+                    color: LoggerColors.success,
+                  }
+                );
+                return result;
+              }));
   },
 };
