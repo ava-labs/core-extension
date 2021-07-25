@@ -9,19 +9,23 @@ import {
 export const MAINNET_NETWORK = {
   config: NetworkConstants.MainnetConfig,
   name: 'Avalanche Mainnet C-Chain',
+  chainId: '0xa86a',
 };
 export const FUJI_NETWORK = {
   config: NetworkConstants.TestnetConfig,
   name: ' Avalanche FUJI C-Chain',
+  chainId: '0xa869',
 };
 export const LOCAL_NETWORK = {
   config: NetworkConstants.LocalnetConfig,
   name: 'Avalanche Local',
+  chainId: '43112',
 };
 
 export interface ActiveNetwork {
   config: Network.NetworkConfig;
   name: string;
+  chainId: string;
 }
 
 export const NETWORK_STORAGE_KEY = 'network';
@@ -73,5 +77,8 @@ export function useNetworkContext() {
 export function getNetworkChangedUpdates() {
   return storageEventListener<ActiveNetwork>()
     .filter((evt) => !!evt.changes[NETWORK_STORAGE_KEY])
-    .map((evt) => networks.get(evt.changes[NETWORK_STORAGE_KEY].newValue.name));
+    .map((evt) => {
+      const networkStore = evt.changes[NETWORK_STORAGE_KEY].newValue;
+      return networks.get(networkStore);
+    });
 }

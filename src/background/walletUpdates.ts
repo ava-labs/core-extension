@@ -1,3 +1,4 @@
+import { getNetworkChangedUpdates } from '@src/contexts/NetworkProvider';
 import { store } from '@src/store/store';
 import { Signal } from 'micro-signals';
 import { observe } from 'mobx';
@@ -32,8 +33,14 @@ observe(store.extensionStore, 'isUnlocked', (update) => {
   );
 });
 
-observe(store.walletStore, 'addrC', (update) => {
-  signal.dispatch(chainChangedUpdate(update.newValue as string));
+// observe(store.walletStore, 'addrC', (update) => {
+//   signal.dispatch(chainChangedUpdate(update.newValue as string));
+// });
+
+getNetworkChangedUpdates().add((val) => {
+  console.log('network update value: ', val, store);
+  val &&
+    signal.dispatch(chainChangedUpdate(store.walletStore.addrC, val.chainId));
 });
 
 export function createProviderUpdateStream() {

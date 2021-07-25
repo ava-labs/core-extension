@@ -1,6 +1,6 @@
 import log from 'loglevel';
 import { WindowPostMessageStream } from '@metamask/post-message-stream';
-import { initializeProvider } from '@metamask/providers/dist/initializeInpageProvider';
+import { initializeProvider } from './background/providers/initializeInpageProvider';
 import { CONTENT_SCRIPT, INPAGE_SCRIPT } from './common';
 
 /**

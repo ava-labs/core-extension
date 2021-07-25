@@ -23,12 +23,12 @@ export function unlockStateChangedUpdate(
   };
 }
 
-export function chainChangedUpdate(chainId: string) {
+export function chainChangedUpdate(chainId: string, networkVersion: string) {
   return {
     method: 'metamask_chainChanged',
     params: {
       chainId,
-      networkVersion: 'avax',
+      networkVersion,
     },
   };
 }
@@ -37,7 +37,6 @@ export function createTransformToJsonRPCResponse() {
   return new Transform({
     objectMode: true,
     transform(chunk, _encoding, cb) {
-      console.log('chunk: ', chunk);
       this.push({ name: INPAGE_PROVIDER, data: chunk });
       cb();
     },

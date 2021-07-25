@@ -11,7 +11,6 @@ export async function engine() {
       return network.config.rpcUrl.c;
     },
   });
-
   const engine = new JsonRpcEngine();
   engine.push(fetchMiddleware);
   return engine;
