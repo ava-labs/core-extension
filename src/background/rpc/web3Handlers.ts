@@ -67,7 +67,6 @@ const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {},
 
   async eth_getBalance(data: JsonRpcRequest<any>) {
-    console.log('get eth balance called');
     const { balanceC } = store.walletStore;
     return { ...data, result: balanceC };
   },

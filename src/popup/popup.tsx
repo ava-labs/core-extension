@@ -30,12 +30,9 @@ import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 export const Popup = observer(() => {
   const { themeStore, walletStore } = useStore();
   const theme = themeStore.isDarkMode ? darkTheme : lightTheme;
-  // remove setTimeout later
-  // when sdk is updated
+
   useEffect(() => {
-    setTimeout(() => {
-      walletStore.MnemonicWallet();
-    }, 1500);
+    walletStore.MnemonicWallet();
     browser.runtime.sendMessage({ popupMounted: true });
   }, []);
 

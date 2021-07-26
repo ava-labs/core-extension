@@ -17,13 +17,27 @@ import {
  * All of the below observes map to events inside of the metamask provider here
  * @link https://github.com/MetaMask/providers/blob/8400d5f65efc9486052ea6742962d6c29a5ed8ca/src/BaseProvider.ts#L189
  *
+ * These events are processed inside of middleware @link https://github.com/MetaMask/json-rpc-middleware-stream. Basically, the
+ * json-rpc-engine passes the event into the middleware, the middleware checks if the event has an id. If it does not then
+ * it grabs the "injected provider" and it dispatches an event on that provider. The provider then has a listener on itself that
+ * catches the events, maps them to certain allowed events, those mappings make certain checks and then if all of this checks out
+ * the injected provider fires off the right event for the dApp to listen on.
+ *
+ * For reference both the base provider and the InpageProvider have event mappers, those are local now
+ *
  */
 const signal = new Signal();
 
+/**
+ * Not sure this event works yet lets call this a placeholder
+ */
 observe(store.walletStore, 'accounts', (update) => {
   signal.dispatch(accountsChangedUpdate(update.newValue as string[]));
 });
 
+/**
+ * Not sure this event works yet lets call this a placeholder
+ */
 observe(store.extensionStore, 'isUnlocked', (update) => {
   signal.dispatch(
     unlockStateChangedUpdate(
@@ -37,8 +51,10 @@ observe(store.extensionStore, 'isUnlocked', (update) => {
 //   signal.dispatch(chainChangedUpdate(update.newValue as string));
 // });
 
+/**
+ * We going to need to add a merge here for signal events and fire this when address changes as well
+ */
 getNetworkChangedUpdates().add((val) => {
-  console.log('network update value: ', val, store);
   val &&
     signal.dispatch(chainChangedUpdate(store.walletStore.addrC, val.chainId));
 });
