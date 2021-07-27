@@ -7,6 +7,7 @@ import {
   CONNECT_METHOD,
   JSONRPCRequestWithDomain,
 } from '../permissionsController';
+import {} from '@avalabs/avalanche-wallet-sdk';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -64,7 +65,10 @@ const unauthenticatedRoutes = new Set([
 ]);
 
 const web3CustomHandlers = {
-  async eth_sendTransaction(data: JsonRpcRequest<any>) {},
+  async eth_sendTransaction(data: JsonRpcRequest<any>) {
+    const { wallet } = store.walletStore;
+    wallet?.sendCustomEvmTx;
+  },
 
   async eth_getBalance(data: JsonRpcRequest<any>) {
     const { balanceC } = store.walletStore;

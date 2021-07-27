@@ -26,6 +26,7 @@ import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { PermissionsPage } from '@src/pages/Permissions/Permissions';
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
+import { SendTransactionPage } from '@src/pages/SendTransaction/SendTransactionPage';
 
 export const Popup = observer(() => {
   const { themeStore, walletStore } = useStore();
@@ -85,6 +86,10 @@ export const Popup = observer(() => {
 
                 <Route path="/send/success">
                   <SendSuccess />
+                </Route>
+
+                <Route path="/send/transaction">
+                  <SendTransactionPage />
                 </Route>
 
                 <Route path="/send">

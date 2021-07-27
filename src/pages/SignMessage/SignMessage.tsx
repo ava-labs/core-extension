@@ -1,279 +1,75 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@src/store/store';
-import { UnapprovedMessage } from '@src/store/transaction/types';
-import { VerticalFlex } from '@avalabs/react-components';
 import {
-  personalSign,
-  signTypedData_v4,
-  signTypedData,
-  signTypedMessage,
-  signTypedDataLegacy,
-  TypedData,
-} from 'eth-sig-util';
+  HorizontalFlex,
+  LoadingIcon,
+  PrimaryButton,
+  SecondaryButton,
+  VerticalFlex,
+} from '@avalabs/react-components';
+import { useGetJsonRequestId } from './useGetRequestId';
+import { useGetTxMessage } from './useGetTxMessage';
+import { SignData } from './components/SignData';
+import { SignDataV4 } from './components/SignDataV4';
+import { SignDataV3 } from './components/SignDataV3';
+import { SignError } from './components/SignError';
+import { PersonalSign } from './components/PersonalSign';
+import { EthSign } from './components/EthSign';
+import { signTransaction } from './utils/signTx';
 
 export const SignMessage = observer(() => {
-  const [loading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<UnapprovedMessage>();
-  const [errorMsg, setErrorMsg] = useState('');
-  const [parsedMsg, setParsedMsg] = useState('');
-  const [result, setResult] = useState('');
+  const requestId = useGetJsonRequestId();
+  const [error, setError] = useState('');
+  const { transactionStore } = useStore();
+  const { message } = useGetTxMessage(requestId);
 
-  const { walletStore, transactionStore } = useStore();
-  const history = useHistory();
-
-  let jsonRPCId = history.location.search;
-  const isUnapprovedTransactionRequest = jsonRPCId !== '';
-  if (isUnapprovedTransactionRequest) {
-    jsonRPCId = jsonRPCId.replace('?id=', '');
+  if (!message) {
+    return <LoadingIcon />;
   }
 
-  useEffect(() => {
-    (async () => {
-      const message: UnapprovedMessage | undefined =
-        await transactionStore.getUnnaprovedMsgById(Number(jsonRPCId));
-
-      setMessage(message);
-
-      if (message !== undefined) {
-        console.log('message.msgParams', message);
-        if (
-          message.type === 'personal_sign' ||
-          message.type === 'eth_sign' ||
-          message.type === 'signTypedData' ||
-          message.type === 'signTypedData_v1'
-        ) {
-          setParsedMsg(message.msgParams.data);
-        } else if (message.type === 'signTypedData_v3') {
-          setParsedMsg(JSON.parse(message.msgParams.data));
-        } else if (message.type === 'signTypedData_v4') {
-          setParsedMsg(JSON.parse(message.msgParams.data));
-        }
-      }
-    })();
-  }, []);
-
-  const signTransaction = async () => {
-    const privateKey = await walletStore.getEthPrivateKey();
-
-    if (privateKey) {
-      const buffer = Buffer.from(privateKey, 'hex');
-
-      if (message !== undefined) {
-        try {
-          let signed;
-          if (message.type === 'personal_sign') {
-            signed = personalSign(buffer, message.msgParams);
-          } else if (message.type === 'eth_sign') {
-            signed = signTypedDataLegacy(buffer, { data: parsedMsg });
-          } else if (message.type === 'signTypedData_v4') {
-            let MsgParams = { data: parsedMsg };
-            signed = signTypedData_v4(buffer, MsgParams);
-          } else if (message.type === 'signTypedData_v3') {
-            let MsgParams = { data: parsedMsg };
-            signed = signTypedData(buffer, MsgParams);
-          } else if (
-            message.type === 'signTypedData' ||
-            message.type === 'signTypedData_v1'
-          ) {
-            let MsgParams = { data: parsedMsg };
-            signed = signTypedMessage(buffer, MsgParams, 'V1');
-          }
-
-          setResult(signed);
-          transactionStore.updateUnapprovedMsg({
-            status: 'signed',
-            id: jsonRPCId,
-            result: signed,
+  function signTxAndFinalize() {
+    message
+      ? signTransaction(message).then((result) => {
+          transactionStore.updateUnapprovedMsg(result).then(() => {
+            window.close();
           });
-        } catch (error) {
-          console.log('err', error);
-          setErrorMsg(error);
-        } finally {
-          window.close();
-        }
-      }
-    }
-  };
-
-  const removeUnapprovedMsg = () => {
-    transactionStore.removeUnapprovedMessage(jsonRPCId);
-  };
-
-  let renderType;
-
-  if (message !== undefined && parsedMsg !== undefined) {
-    switch (message.type) {
-      case 'personal_sign':
-        renderType = renderPersonalSign(parsedMsg);
-        break;
-      case 'eth_sign':
-        renderType = renderEthSign(parsedMsg);
-        break;
-      case 'signTypedData':
-        renderType = renderDataType(parsedMsg);
-        break;
-      case 'signTypedData_v1':
-        renderType = renderDataType(parsedMsg);
-        break;
-      case 'signTypedData_v3':
-        renderType = renderDataTypev3(parsedMsg);
-        break;
-      case 'signTypedData_v4':
-        renderType = renderDataTypev4(parsedMsg);
-        break;
-      default:
-        renderType = renderError();
-    }
+        })
+      : setError('Something is wrong with the message your attempting to sign');
   }
 
   return (
     <VerticalFlex>
-      <div className="content">
-        <Wrapper>
-          {errorMsg && errorMsg}
-
-          <SendDiv>
-            {result ? (
-              <code> Signed Message: {result}</code>
-            ) : (
-              <code>{renderType}</code>
-            )}
-          </SendDiv>
-        </Wrapper>
-      </div>
-      <div className="footer half-width">
-        <Link to="/wallet" onClick={removeUnapprovedMsg}>
-          <button>Cancel</button>
-        </Link>
-        <a onClick={signTransaction}>
-          <button>Sign</button>
-        </a>
-      </div>
+      <VerticalFlex>
+        {!error ? (
+          <code>
+            {
+              {
+                personal_sign: <PersonalSign message={message.params} />,
+                eth_sign: <EthSign data={message.data} />,
+                signTypedData: <SignData data={message.data} />,
+                signTypedData_v1: <SignData data={message.data} />,
+                signTypedData_v3: <SignDataV3 data={message.data} />,
+                signTypedData_v4: <SignDataV4 data={message.data} />,
+              }[message.type]
+            }
+          </code>
+        ) : (
+          <SignError />
+        )}
+      </VerticalFlex>
+      <HorizontalFlex>
+        <SecondaryButton
+          onClick={() => {
+            transactionStore.removeUnapprovedMessage(requestId);
+            globalThis.close();
+          }}
+        >
+          Cancel
+        </SecondaryButton>
+        <PrimaryButton onClick={() => signTxAndFinalize()}>Sign</PrimaryButton>
+      </HorizontalFlex>
     </VerticalFlex>
   );
 });
-
-const renderError = () => {
-  return <> Error, malformed request data</>;
-};
-
-const renderPersonalSign = (data: any) => {
-  return <>{data}</>;
-};
-
-const renderEthSign = (data: any) => {
-  console.log('render data', data);
-
-  return <>{data}</>;
-};
-
-const renderDataType = (data: any) => {
-  return (
-    <SignatureMessage>
-      {data &&
-        data.map((x, i) => {
-          const { type, name, value } = x;
-
-          return (
-            <div key={i}>
-              <span className="label">{name}: </span>
-              <span className="value">{`${value}`}</span>
-            </div>
-          );
-        })}
-    </SignatureMessage>
-  );
-};
-
-const renderDataTypev3 = (data: any) => {
-  return (
-    <SignatureMessage>
-      {data &&
-        Object.entries(data).map(([label, value], i) => {
-          const padLeft = typeof value !== 'object' || value === null;
-
-          if (label !== 'types') {
-            return (
-              <div className={padLeft ? 'group' : 'group leaf'} key={i}>
-                <span className="label">{label}: </span>
-                {typeof value === 'object' && value !== null ? (
-                  renderDataTypev3(value)
-                ) : (
-                  <span className="value">{`${value}`}</span>
-                )}
-              </div>
-            );
-          }
-        })}
-    </SignatureMessage>
-  );
-};
-
-const renderDataTypev4 = (data: any) => {
-  console.log('data', data, typeof data);
-
-  return (
-    <SignatureMessage>
-      {data &&
-        Object.entries(data).map(([label, value], i) => (
-          <div className="group" key={i}>
-            <span className="label">{label}: </span>
-            {typeof value === 'object' && value !== null ? (
-              renderDataTypev4(value)
-            ) : (
-              <span className="value">{`${value}`}</span>
-            )}
-          </div>
-        ))}
-    </SignatureMessage>
-  );
-};
-
-export const Wrapper = styled.div`
-  padding: 1rem;
-`;
-
-export const SignatureMessage = styled.div`
-  flex: 1 60%;
-  display: flex;
-  flex-direction: column;
-
-  span {
-    .label {
-      padding-bottom: 0.3rem;
-    }
-  }
-
-  .group {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .group.leaf {
-    padding-left: 0.4rem;
-  }
-`;
-
-export const SendDiv = styled.div`
-  margin: auto;
-  padding: 2rem;
-  text-align: center;
-
-  code {
-    word-break: break-word;
-    hyphens: auto;
-    overflow-wrap: break-word;
-  }
-  .label {
-    font-weight: bold;
-  }
-  input {
-    width: 100%;
-    margin: 1rem auto;
-  }
-  .token img {
-    max-width: 150px;
-  }
-`;
