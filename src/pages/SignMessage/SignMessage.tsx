@@ -18,11 +18,11 @@ import { SignError } from './components/SignError';
 import { PersonalSign } from './components/PersonalSign';
 import { EthSign } from './components/EthSign';
 import { signTransaction } from './utils/signTx';
+import { transactionService } from '@src/background/services';
 
 export const SignMessage = observer(() => {
   const requestId = useGetJsonRequestId();
   const [error, setError] = useState('');
-  const { transactionStore } = useStore();
   const { message } = useGetTxMessage(requestId);
 
   if (!message) {
@@ -32,9 +32,8 @@ export const SignMessage = observer(() => {
   function signTxAndFinalize() {
     message
       ? signTransaction(message).then((result) => {
-          transactionStore.updateUnapprovedMsg(result).then(() => {
-            window.close();
-          });
+          transactionService.updateTransaction(result);
+          window.close();
         })
       : setError('Something is wrong with the message your attempting to sign');
   }
@@ -62,7 +61,7 @@ export const SignMessage = observer(() => {
       <HorizontalFlex>
         <SecondaryButton
           onClick={() => {
-            transactionStore.removeUnapprovedMessage(requestId);
+            transactionService.removeById(requestId);
             globalThis.close();
           }}
         >

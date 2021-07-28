@@ -1,6 +1,7 @@
+import { messageService } from '@src/background/services';
+import { Message } from '@src/background/services/transactionsAndMessages/messages/models';
 import { useStore } from '@src/store/store';
 import { useEffect, useState } from 'react';
-import { UnapprovedMessage } from '@src/store/transaction/types';
 
 export interface ParsedMessageResult {
   type: string;
@@ -10,11 +11,11 @@ export interface ParsedMessageResult {
 }
 
 export function useGetTxMessage(requestId?: string) {
-  const { transactionStore, walletStore } = useStore();
+  const { walletStore } = useStore();
   const [parsedMsg, _setParsedMsg] = useState<ParsedMessageResult>();
 
   function setParsedMsg(
-    message: UnapprovedMessage,
+    message: Message,
     result: { data: string } | { params: any }
   ) {
     if (!requestId) {
@@ -30,8 +31,7 @@ export function useGetTxMessage(requestId?: string) {
 
   useEffect(() => {
     (async () => {
-      const message: UnapprovedMessage | undefined =
-        await transactionStore.getUnnaprovedMsgById(Number(requestId));
+      const message = messageService.getById(requestId);
 
       if (
         message &&

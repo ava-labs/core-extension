@@ -8,6 +8,8 @@ import {
   JSONRPCRequestWithDomain,
 } from '../permissionsController';
 import {} from '@avalabs/avalanche-wallet-sdk';
+import { messageService, personalSigRecovery } from '../services';
+import { MessageType } from '../services/transactionsAndMessages/messages/models';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -76,11 +78,11 @@ const web3CustomHandlers = {
   },
 
   async eth_signTypedData(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData');
+    await messageService.saveMessage(data, MessageType.SIGN_TYPED_DATA);
     const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
-      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .map(() => messageService.getById(data.id)?.result)
       .filter((result) => !!result)
       .promisify(window.removed.map(() => 'Window closed before signed'));
 
@@ -88,22 +90,22 @@ const web3CustomHandlers = {
   },
 
   async eth_signTypedData_v3(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v3');
+    await messageService.saveMessage(data, MessageType.SIGN_TYPED_DATA_V3);
     const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
-      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .map(() => messageService.getById(data.id)?.result)
       .filter((result) => !!result)
       .promisify(window.removed.map(() => 'Window closed before signed'));
 
     return { ...data, result };
   },
   async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, 'signTypedData_v4');
+    await messageService.saveMessage(data, MessageType.SIGN_TYPED_DATA_V4);
     const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
-      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .map(() => messageService.getById(data.id)?.result)
       .filter((result) => !!result)
       .promisify(window.removed.map(() => 'Window closed before signed'));
 
@@ -111,11 +113,11 @@ const web3CustomHandlers = {
   },
 
   async personal_sign(data: JsonRpcRequest<any>) {
-    await store.transactionStore.saveUnapprovedMsg(data, 'personal_sign');
+    await messageService.saveMessage(data, MessageType.PERSONAL_SIGN);
     const window = await openExtensionNewWindow(`sign?id=${data.id}`);
 
     const result = await storageListener
-      .map(() => store.transactionStore.getUnnaprovedMsgById(data.id)?.result)
+      .map(() => messageService.getById(data.id)?.result)
       .filter((result) => !!result)
       .promisify(window.removed.map(() => 'Window closed before signed'));
 
@@ -141,10 +143,7 @@ const web3CustomHandlers = {
     const msg = params[0];
     const signedResult = params[1];
 
-    const result = await store.transactionStore.personalSigRecovery(
-      msg,
-      signedResult
-    );
+    const result = await personalSigRecovery(msg, signedResult);
 
     return { ...data, result };
   },

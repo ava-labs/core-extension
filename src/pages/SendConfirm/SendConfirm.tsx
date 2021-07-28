@@ -8,6 +8,7 @@ import { useStore } from '@src/store/store';
 import { hexToNumber, fromWei } from '@src/utils/web3Utils';
 
 import { truncateAddress } from '@src/utils/addressUtils';
+import { transactionService } from '@src/background/services';
 
 interface routeProps {
   address: string;
@@ -27,7 +28,7 @@ export const SendConfirm = observer(() => {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState<number | string>(0);
 
-  const { walletStore, transactionStore } = useStore();
+  const { walletStore } = useStore();
   let { routeProps }: any | routeProps = useLocation();
   const history = useHistory();
 
@@ -39,9 +40,7 @@ export const SendConfirm = observer(() => {
 
   useEffect(() => {
     (async () => {
-      let txParams = await transactionStore.getUnnapprovedTxById(
-        Number(jsonRPCId)
-      );
+      let txParams = transactionService.getById(jsonRPCId);
 
       let amount: number | string, to: string;
       if (isUnapprovedTransactionRequest && txParams !== undefined) {
@@ -82,7 +81,7 @@ export const SendConfirm = observer(() => {
     try {
       await walletStore.sendTransaction(data);
       if (isUnapprovedTransactionRequest) {
-        await transactionStore.removeUnapprovedTransaction(jsonRPCId);
+        transactionService.removeById(jsonRPCId);
       }
       history.push('/send/success');
     } catch (error) {
