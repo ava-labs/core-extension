@@ -1,4 +1,4 @@
 import React from 'react';
-export function SendTransactionPage() {
+export function SignTransactionPage() {
   return <>Send that shit</>;
 }

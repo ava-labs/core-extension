@@ -1,5 +1,7 @@
 import { JsonRpcRequest } from '@src/background/rpc/jsonRpcEngine';
+import storageListener from '@src/background/utils/storage';
 import { txParams } from '@src/store/transaction/types';
+import { ReadableSignal } from 'micro-signals';
 import { TransactionsAndMessagesBase } from '../txAndMessagesBase';
 import { isTxParams, Transaction } from './models';
 
@@ -28,6 +30,12 @@ class TransactionsService extends TransactionsAndMessagesBase<Transaction> {
     } else {
       console.error('tx params malformed: ', txParams);
     }
+
+    return {
+      listenForUpdates: (cancel: ReadableSignal<any>) => {
+        return this.listenForTransactionUpdate(data.id as string, cancel);
+      },
+    };
   }
 
   updateTransaction({
@@ -49,6 +57,13 @@ class TransactionsService extends TransactionsAndMessagesBase<Transaction> {
     } else {
       console.error('attempting to update a tx that isnt in the set');
     }
+  }
+
+  listenForTransactionUpdate(id: string, cancled: ReadableSignal<any>) {
+    return storageListener
+      .map(() => this.getById(id)?.txHash)
+      .filter((result) => !!result)
+      .promisify(cancled);
   }
 }
 

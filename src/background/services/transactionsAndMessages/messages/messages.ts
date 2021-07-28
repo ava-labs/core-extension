@@ -1,4 +1,6 @@
 import { JsonRpcRequest } from '@src/background/rpc/jsonRpcEngine';
+import storageListener from '@src/background/utils/storage';
+import { ReadableSignal } from 'micro-signals';
 import { TransactionsAndMessagesBase } from '../txAndMessagesBase';
 import { Message, MessageType } from './models';
 
@@ -42,6 +44,12 @@ class MessagesService extends TransactionsAndMessagesBase<Message> {
       msgParams: this.paramsToMessageParams(data, signType),
       type: signType,
     });
+
+    return {
+      listenForUpdates: (cancel: ReadableSignal<any>) => {
+        return this.listenForMessageUpdate(data.id as string, cancel);
+      },
+    };
   }
 
   updateMessage({
@@ -63,6 +71,16 @@ class MessagesService extends TransactionsAndMessagesBase<Message> {
     } else {
       console.error('error when trying to update a pending message');
     }
+  }
+
+  listenForMessageUpdate(id: string, cancled: ReadableSignal<any>) {
+    return storageListener
+      .peek(() =>
+        console.log('storage update fired while a message was listening')
+      )
+      .map(() => this.getById(id)?.result)
+      .filter((result) => !!result)
+      .promisify(cancled);
   }
 }
 

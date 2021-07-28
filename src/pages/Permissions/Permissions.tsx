@@ -43,9 +43,10 @@ function atleastOneAccountHasPermissions(permissions: DappPermissions) {
 function component() {
   const params = new URLSearchParams(window.location.search);
   let domain = params.get('domain') as string;
+  debugger;
   const [permissions, updatePermissions] = useState(
     store.permissionsStore.permissions[domain] ??
-      accountsToPermissions(store.walletStore.accounts, domain)
+      accountsToPermissions(store.walletStore.accountsInternal, domain)
   );
 
   function onChangeUpdatePermissions(key: string) {

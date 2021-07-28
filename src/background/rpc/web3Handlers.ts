@@ -66,6 +66,16 @@ const unauthenticatedRoutes = new Set([
   'net_version',
 ]);
 
+async function signMessage(data: JsonRpcRequest<any>, type: MessageType) {
+  const { listenForUpdates } = messageService.saveMessage(data, type);
+  const window = await openExtensionNewWindow(`sign?id=${data.id}`);
+  const result = await listenForUpdates(
+    window.removed.map(() => 'Window closed before signed')
+  );
+
+  return { ...data, result };
+}
+
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {
     const { wallet } = store.walletStore;
@@ -78,50 +88,19 @@ const web3CustomHandlers = {
   },
 
   async eth_signTypedData(data: JsonRpcRequest<any>) {
-    await messageService.saveMessage(data, MessageType.SIGN_TYPED_DATA);
-    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
-
-    const result = await storageListener
-      .map(() => messageService.getById(data.id)?.result)
-      .filter((result) => !!result)
-      .promisify(window.removed.map(() => 'Window closed before signed'));
-
-    return { ...data, result };
+    return await signMessage(data, MessageType.SIGN_TYPED_DATA);
   },
 
   async eth_signTypedData_v3(data: JsonRpcRequest<any>) {
-    await messageService.saveMessage(data, MessageType.SIGN_TYPED_DATA_V3);
-    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
-
-    const result = await storageListener
-      .map(() => messageService.getById(data.id)?.result)
-      .filter((result) => !!result)
-      .promisify(window.removed.map(() => 'Window closed before signed'));
-
-    return { ...data, result };
+    return await signMessage(data, MessageType.SIGN_TYPED_DATA_V3);
   },
+
   async eth_signTypedData_v4(data: JsonRpcRequest<any>) {
-    await messageService.saveMessage(data, MessageType.SIGN_TYPED_DATA_V4);
-    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
-
-    const result = await storageListener
-      .map(() => messageService.getById(data.id)?.result)
-      .filter((result) => !!result)
-      .promisify(window.removed.map(() => 'Window closed before signed'));
-
-    return { ...data, result };
+    return await signMessage(data, MessageType.SIGN_TYPED_DATA_V4);
   },
 
   async personal_sign(data: JsonRpcRequest<any>) {
-    await messageService.saveMessage(data, MessageType.PERSONAL_SIGN);
-    const window = await openExtensionNewWindow(`sign?id=${data.id}`);
-
-    const result = await storageListener
-      .map(() => messageService.getById(data.id)?.result)
-      .filter((result) => !!result)
-      .promisify(window.removed.map(() => 'Window closed before signed'));
-
-    return { ...data, result };
+    return await signMessage(data, MessageType.PERSONAL_SIGN);
   },
 
   // deprecated

@@ -51,6 +51,13 @@ class WalletStore {
   get accounts() {
     return (store.extensionStore.isUnlocked ? [this.addrC] : []).map(normalize);
   }
+  /**
+   *
+   * @returns This is temporary until we fix wallet, this is used by permissions to ask for account permissions
+   */
+  get accountsInternal() {
+    return [this.addrC];
+  }
 
   /**
    * This is fired when mnemonic is set from anywhere so that we can create a wallet only if mnemonic exists or

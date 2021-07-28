@@ -1,4 +1,3 @@
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import {
   personalSign,
   signTypedData_v4,
@@ -6,15 +5,23 @@ import {
   signTypedMessage,
   signTypedDataLegacy,
 } from 'eth-sig-util';
-import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
+import { MnemonicWallet, WalletType } from '@avalabs/avalanche-wallet-sdk';
 
-export const signTransaction = async (message: {
-  type: string;
-  params?: any;
-  data?: string;
-  requestId: string;
-}) => {
-  const { wallet } = useWalletContext();
+export interface SignedMessageResult {
+  status: string;
+  id: string;
+  result: string;
+}
+
+export const signTransaction = async (
+  message: {
+    type: string;
+    params?: any;
+    data?: string;
+    requestId: string;
+  },
+  wallet: WalletType
+): Promise<SignedMessageResult> => {
   const privateKey = await (!!wallet && wallet.type !== 'ledger'
     ? (wallet as MnemonicWallet).getEvmPrivateKeyHex()
     : Promise.reject(

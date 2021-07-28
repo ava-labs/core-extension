@@ -16,8 +16,6 @@ import { WalletHome } from '@src/pages/WalletHome';
 import { WalletOverview } from '@src/pages/WalletOverview';
 import { Deposit } from '@src/pages/Deposit';
 import { Send } from '@src/pages/Send';
-import { SendConfirm } from '@src/pages/SendConfirm';
-import { SendSuccess } from '@src/pages/SendSuccess';
 import { SignMessage } from '@src/pages/SignMessage';
 import { AddToken } from '@src/components/AddToken';
 import { Header } from '@src/components/common/Header';
@@ -26,7 +24,7 @@ import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { PermissionsPage } from '@src/pages/Permissions/Permissions';
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
-import { SendTransactionPage } from '@src/pages/SendTransaction/SendTransactionPage';
+import { SignTransactionPage } from '@src/pages/SignTransaction/SignTransactionPage';
 
 export const Popup = observer(() => {
   const { themeStore, walletStore } = useStore();
@@ -80,16 +78,8 @@ export const Popup = observer(() => {
                   <Deposit />
                 </Route>
 
-                <Route path="/send/confirm">
-                  <SendConfirm />
-                </Route>
-
-                <Route path="/send/success">
-                  <SendSuccess />
-                </Route>
-
-                <Route path="/send/transaction">
-                  <SendTransactionPage />
+                <Route path="/sign/transaction">
+                  <SignTransactionPage />
                 </Route>
 
                 <Route path="/send">
