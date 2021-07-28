@@ -75,9 +75,6 @@ class MessagesService extends TransactionsAndMessagesBase<Message> {
 
   listenForMessageUpdate(id: string, cancled: ReadableSignal<any>) {
     return storageListener
-      .peek(() =>
-        console.log('storage update fired while a message was listening')
-      )
       .map(() => this.getById(id)?.result)
       .filter((result) => !!result)
       .promisify(cancled);

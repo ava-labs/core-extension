@@ -79,6 +79,9 @@ async function signMessage(data: JsonRpcRequest<any>, type: MessageType) {
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {
     const { wallet } = store.walletStore;
+    const window = await openExtensionNewWindow(
+      `sign/transaction?id=${data.id}`
+    );
     wallet?.sendCustomEvmTx;
   },
 
