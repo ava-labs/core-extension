@@ -8,8 +8,8 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { useGetJsonRequestId } from './useGetRequestId';
-import { useGetTxMessage } from './useGetTxMessage';
+import { useGetRequestId } from '../../hooks/useGetRequestId';
+import { useGetMessage } from './useGetMessage';
 import { SignData } from './components/SignData';
 import { SignDataV4 } from './components/SignDataV4';
 import { SignDataV3 } from './components/SignDataV3';
@@ -22,9 +22,9 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export const SignMessage = observer(() => {
   const { wallet } = useWalletContext();
-  const requestId = useGetJsonRequestId();
+  const requestId = useGetRequestId();
   const [error, setError] = useState('');
-  const { message } = useGetTxMessage(requestId);
+  const { message } = useGetMessage(requestId);
   const [signedResults, setSignedResults] = useState<SignedMessageResult>();
 
   if (!message) {

@@ -8,8 +8,14 @@ import {
   JSONRPCRequestWithDomain,
 } from '../permissionsController';
 import {} from '@avalabs/avalanche-wallet-sdk';
-import { messageService, personalSigRecovery } from '../services';
+import {
+  messageService,
+  personalSigRecovery,
+  transactionService,
+} from '../services';
 import { MessageType } from '../services/transactionsAndMessages/messages/models';
+import { txToCustomEvmTx } from '../services/transactionsAndMessages/transactions/utils/txToCustomEvmTx';
+import { TxStatus } from '../services/transactionsAndMessages/transactions/models';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -79,10 +85,41 @@ async function signMessage(data: JsonRpcRequest<any>, type: MessageType) {
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {
     const { wallet } = store.walletStore;
+    const { listenForTxPending } = transactionService.addTransaction(data);
+
     const window = await openExtensionNewWindow(
       `sign/transaction?id=${data.id}`
     );
-    wallet?.sendCustomEvmTx;
+
+    const pendingTx = await listenForTxPending(
+      window.removed.map(() => 'Window closed before approved')
+    );
+
+    return txToCustomEvmTx(pendingTx).then((params) => {
+      if (!wallet || !wallet.sendCustomEvmTx) {
+        throw new Error('wallet is undefined or sned tx method is malformed');
+      }
+
+      return wallet
+        .sendCustomEvmTx(
+          params.gas,
+          params.gasPrice,
+          params.data,
+          params.to,
+          params.value
+        )
+        .then((res) => {
+          transactionService.updateTransactionStatus({
+            status: TxStatus.SIGNED,
+            id: data.id,
+            result: res,
+          });
+          return res;
+        })
+        .catch((err) => {
+          console.log('error from tx: ', err);
+        });
+    });
   },
 
   async eth_getBalance(data: JsonRpcRequest<any>) {
