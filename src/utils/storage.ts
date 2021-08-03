@@ -30,6 +30,12 @@ export async function getFromStorage<T = any>(
   });
 }
 
+export async function removeFromStorage(key: string) {
+  return new Promise<void>((resolve) => {
+    storage.local.remove(key, () => resolve(undefined));
+  });
+}
+
 /**
  * Have to use any because chrome StorageChange event type is not public
  */

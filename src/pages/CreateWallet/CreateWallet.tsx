@@ -13,13 +13,22 @@ import {
   HorizontalFlex,
 } from '@avalabs/react-components';
 import { useOnboardState } from '@src/store/onboard/useOnboardState';
-import { useStore } from '@src/store/store';
+import { walletService } from '@src/background/services';
+import { useEffect } from 'react';
 
 function component() {
   const [isCopied, setIsCopied] = useState(false);
+  const [mnemonic, setMnemonic] = useState('');
 
   const { goToNextOnboardingStep } = useOnboardState(OnboardStepPhase.MNEMONIC);
-  const { walletStore } = useStore();
+
+  useEffect(() => {
+    walletService.wallet
+      .promisify()
+      .then(() => walletService.mnemonic)
+      .then(setMnemonic);
+  }, []);
+
   return (
     <VerticalFlex width={'100%'} align={'center'}>
       <Typography>Your new wallet phrase</Typography>
@@ -32,13 +41,13 @@ function component() {
             This is your Mnemonic phrase, this needs to be kept in a safe place.
           </Typography>
           <br />
-          <Mneumonic phrase={walletStore.mnemonic} />
+          <Mneumonic phrase={mnemonic} />
           <br />
           <HorizontalFlex>
             <SecondaryButton
               onClick={() => {
                 setIsCopied(true);
-                navigator.clipboard.writeText(walletStore.mnemonic);
+                navigator.clipboard.writeText(mnemonic);
               }}
             >
               {isCopied ? 'Phrase copied' : 'Copy Phrase'}

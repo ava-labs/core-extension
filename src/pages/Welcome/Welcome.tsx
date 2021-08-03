@@ -9,10 +9,11 @@ import {
 } from '@avalabs/react-components';
 import { useStore } from '@src/store/store';
 import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
+import { walletService } from '@src/background/services';
 
 export const Welcome = observer(() => {
   const { t } = useTranslation();
-  const { walletStore, onboardStore } = useStore();
+  const { onboardStore } = useStore();
   return (
     <VerticalFlex align={'center'} padding={'0 10px'}>
       <Typography>{t('home.desc')}</Typography>
@@ -20,7 +21,7 @@ export const Welcome = observer(() => {
         to="/welcome/create"
         onClick={() => {
           onboardStore.setPosition(OnboardStepPhase.MNEMONIC);
-          walletStore.createMnemonic();
+          walletService.createWithNewMnemonic();
         }}
       >
         <PrimaryButton>Create a new wallet</PrimaryButton>

@@ -2,16 +2,18 @@ import { JsonRpcRequest } from './jsonRpcEngine';
 import { store } from '@src/store/store';
 import { formatAndLog, LoggerColors } from '../utils/logging';
 import { DOMAIN_METADATA_METHOD } from '../permissionsController';
+import { getAccountsFromWallet, walletService } from '@src/background/services';
 
 export default {
   async metamask_getProviderState(data) {
+    const wallet = await walletService.wallet.promisify();
     return {
       ...data,
       result: {
         isUnlocked: store.extensionStore.isUnlocked,
-        chainId: store.walletStore.addrC,
+        chainId: wallet.getAddressC(),
         networkVersion: 'avax',
-        accounts: store.walletStore.accounts,
+        accounts: getAccountsFromWallet(wallet),
       },
     };
   },

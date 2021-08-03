@@ -11,7 +11,7 @@ import {
   SecondaryButton,
 } from '@avalabs/react-components';
 import { useHistory } from 'react-router-dom';
-
+import { walletService } from '@src/background/services';
 import { useStore } from '@src/store/store';
 import { resolve } from '@src/utils/promiseResolver';
 
@@ -23,7 +23,7 @@ export const Import = () => {
    */
   const [_errorMsg, setErrorMsg] = useState('');
   const history = useHistory();
-  const { walletStore, onboardStore } = useStore();
+  const { onboardStore } = useStore();
 
   const verifyRecoveryPhrase = (phrase: string) => {
     return !!(phrase && phrase.split(' ').length === 24);
@@ -54,7 +54,9 @@ export const Import = () => {
         <PrimaryButton
           disabled={!verifyRecoveryPhrase(recoveryPhrase)}
           onClick={async () => {
-            const [, err] = await resolve(walletStore.importHD(recoveryPhrase));
+            const [, err] = await resolve(
+              walletService.createFromMnemonic(recoveryPhrase)
+            );
             if (!err) {
               onboardStore.markOnboarded();
               history.push('/wallet');

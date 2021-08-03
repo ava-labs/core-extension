@@ -1,13 +1,12 @@
 import { getNetworkChangedUpdates } from '@src/contexts/NetworkProvider';
-import { store } from '@src/store/store';
 import { Signal } from 'micro-signals';
-import { observe } from 'mobx';
 import { PassThrough } from 'stream';
 import {
   accountsChangedUpdate,
   unlockStateChangedUpdate,
   chainChangedUpdate,
 } from './utils/providerUpdate';
+import { walletService } from '@src/background/services';
 
 /**
  * Using a signal here so that we bootstrap one observe for each store change. For every conection
@@ -31,21 +30,21 @@ const signal = new Signal();
 /**
  * Not sure this event works yet lets call this a placeholder
  */
-observe(store.walletStore, 'accounts', (update) => {
-  signal.dispatch(accountsChangedUpdate(update.newValue as string[]));
-});
+// observe(store.walletStore, 'accounts', (update) => {
+//   signal.dispatch(accountsChangedUpdate(update.newValue as string[]));
+// });
 
 /**
  * Not sure this event works yet lets call this a placeholder
  */
-observe(store.extensionStore, 'isUnlocked', (update) => {
-  signal.dispatch(
-    unlockStateChangedUpdate(
-      update.newValue as boolean,
-      store.walletStore.accounts
-    )
-  );
-});
+// observe(store.extensionStore, 'isUnlocked', (update) => {
+//   signal.dispatch(
+//     unlockStateChangedUpdate(
+//       update.newValue as boolean,
+//       store.walletStore.accounts
+//     )
+//   );
+// });
 
 // observe(store.walletStore, 'addrC', (update) => {
 //   signal.dispatch(chainChangedUpdate(update.newValue as string));
@@ -55,8 +54,10 @@ observe(store.extensionStore, 'isUnlocked', (update) => {
  * We going to need to add a merge here for signal events and fire this when address changes as well
  */
 getNetworkChangedUpdates().add((val) => {
-  val &&
-    signal.dispatch(chainChangedUpdate(store.walletStore.addrC, val.chainId));
+  walletService.wallet.promisify().then((wallet) => {
+    val &&
+      signal.dispatch(chainChangedUpdate(wallet.getAddressC(), val.chainId));
+  });
 });
 
 export function createProviderUpdateStream() {

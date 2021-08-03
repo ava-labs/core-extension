@@ -8,15 +8,15 @@ import {
   Typography,
   CaretIcon,
 } from '@avalabs/react-components';
-import { useStore } from '@src/store/store';
 import { observer } from 'mobx-react-lite';
 import { truncateAddress } from '@src/utils/addressUtils';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 function component() {
-  const { walletStore } = useStore();
+  const { wallet } = useWalletContext();
   const { network, setNetwork, networks } = useNetworkContext();
-  const [addressC, setAddressC] = useState(truncateAddress(walletStore.addrC));
+  const [addressC, setAddressC] = useState<string>();
   const [hasBeenCopied, setHasBeenCopied] = useState(false);
 
   useEffect(() => {
@@ -28,8 +28,8 @@ function component() {
   }, [hasBeenCopied]);
 
   useEffect(() => {
-    setAddressC(truncateAddress(walletStore.addrC));
-  }, [walletStore.addrC]);
+    wallet && setAddressC(truncateAddress(wallet.getAddressC()));
+  }, [wallet]);
 
   return (
     <DropDownMenu
@@ -43,7 +43,7 @@ function component() {
             <TextButton
               onClick={(evt) => {
                 evt.stopPropagation();
-                navigator.clipboard.writeText(walletStore.addrC);
+                navigator.clipboard.writeText(wallet?.getAddressC() ?? '');
                 setHasBeenCopied(true);
               }}
             >

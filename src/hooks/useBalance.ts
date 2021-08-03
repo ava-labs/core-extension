@@ -52,17 +52,16 @@ export function useBalance(wallet?: WalletType, network?: ActiveNetwork) {
     function balanceChangeC(val: any) {
       console.log('Balance change C');
       updateAvaxBalance();
-      // updateErc20Balances();
     }
 
     function balanceChangeP() {
+      console.log('Balance change P');
       updateAvaxBalance();
       updateBalanceStaked();
     }
 
     function onAddressChange() {
       console.log('Address change');
-
       updateBalanceX();
     }
 
@@ -81,7 +80,8 @@ export function useBalance(wallet?: WalletType, network?: ActiveNetwork) {
 
   useEffect(() => {
     updateAllBalances();
-  }, [network]);
+  }, [network, wallet]);
+
   return {
     balanceX,
     balanceAvax,

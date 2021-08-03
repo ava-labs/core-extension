@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { BN, AddressHelper, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { UniversalTx } from '@avalabs/avalanche-wallet-sdk/dist/helpers/universal_tx_helper';
 import { ChainIdType } from '../../../../avalanche-wallet-sdk-internal/dist/types';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 interface UniversalTxReceipt {
   export: string;
@@ -11,10 +12,9 @@ interface UniversalTxReceipt {
 }
 
 export function useSendAvax() {
-  const { walletStore } = useStore();
+  const { wallet } = useWalletContext();
   const [amount, setAmount] = useState<BN | undefined>();
   const [address, setAddress] = useState('');
-  const wallet = walletStore.wallet;
   const [canSubmit, setCanSubmit] = useState(false);
   const [error, setError] = useState('');
   const [txId, setTxId] = useState('');
@@ -51,12 +51,7 @@ export function useSendAvax() {
     }
 
     // Check if we can have enough balance on the destination chain
-    if (
-      !walletStore.wallet?.canHaveBalanceOnChain(
-        targetChain as ChainIdType,
-        amount
-      )
-    ) {
+    if (!wallet?.canHaveBalanceOnChain(targetChain as ChainIdType, amount)) {
       setError('Insufficient balance.');
       setCanSubmit(false);
       return false;

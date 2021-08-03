@@ -98,8 +98,8 @@ class WalletStore {
   importHD(mnemonic: string) {
     this.mnemonic = mnemonic;
     this.wallet = MnemonicWallet.fromMnemonic(mnemonic);
-    this.updateWallet();
-    return this.updateBalance();
+    // this.updateWallet();
+    // return this.updateBalance();
   }
 
   async refreshHD() {
@@ -121,85 +121,45 @@ class WalletStore {
     }
   }
 
-  async updateUtxos(): Promise<void> {
-    await this.wallet!.updateUtxosX();
-    await this.wallet!.updateUtxosP();
-  }
+  // async updateUtxos(): Promise<void> {
+  //   await this.wallet!.updateUtxosX();
+  //   await this.wallet!.updateUtxosP();
+  // }
 
-  async getPrice(): Promise<number> {
-    return await Utils.getAvaxPrice();
-  }
+  // async getPrice(): Promise<number> {
+  //   return await Utils.getAvaxPrice();
+  // }
 
-  updateWallet(): void {
-    if (!this.wallet) {
-      return;
-    }
-
-    this.addrX = this.wallet!.getAddressX();
-    this.addrP = this.wallet!.getAddressP();
-    this.addrC = this.wallet!.getAddressC();
-
-    this.addrInternalX = this.wallet!.getChangeAddressX();
-
-    if (this.wallet!.type === 'mnemonic') {
-      let wallet = this.wallet as MnemonicWallet;
-
-      this.hdIndexExternal = wallet.getExternalIndex();
-      this.hdIndexInternal = wallet.getInternalIndex();
-    }
-  }
-
-  async updateBalance(): Promise<void> {
-    await this.updateUtxos();
-    await this.updateCustomERC20s();
-
-    //  const { C, P, X } = await this.wallet!.getAvaxBalance();
-
-    this.balanceCRaw = await this.wallet!.updateAvaxBalanceC();
-    this.balanceC = await Utils.bnToAvaxC(this.balanceCRaw);
-    this.balanceP = await this.wallet!.getAvaxBalanceP();
-    // this.balanceX = await this.wallet!.getAvaxBalanceX();
-    this.stakeAmt = await this.wallet!.getStake();
-  }
-
-  async sendTransaction(data: any): Promise<string> {
-    const { to, amount, tokenContract } = data;
-
-    const gasPrice = Utils.numberToBN(225, 9);
-    const gasLimit = 221000;
-
-    try {
-      const txID = await this.wallet!.sendErc20(
-        to,
-        amount,
-        gasPrice,
-        gasLimit,
-        tokenContract
-      );
-      this.lastTransactionSent = txID;
-      return txID;
-    } catch (error) {
-      return error.message;
-    }
-  }
-
-  //
-  // async sendXtransaction() {
-  //   // x chain
-  //   let amount = Utils.numberToBN('0.000001', 9);
-
-  //   try {
-  //     const tx = await this.wallet!.sendAvaxX(
-  //       'X-fuji1dtz57htfgfsc8r8wwhrymf54nz2c0qmu3dmm4v',
-  //       amount
-  //     );
-  //     console.log('tx', tx);
-
-  //     let history = await this.wallet?.getHistory(5);
-  //     console.log('history', history);
-  //   } catch (error) {
-  //     console.log('error', error);
+  // updateWallet(): void {
+  //   if (!this.wallet) {
+  //     return;
   //   }
+
+  //   this.addrX = this.wallet!.getAddressX();
+  //   this.addrP = this.wallet!.getAddressP();
+  //   this.addrC = this.wallet!.getAddressC();
+
+  //   this.addrInternalX = this.wallet!.getChangeAddressX();
+
+  //   if (this.wallet!.type === 'mnemonic') {
+  //     let wallet = this.wallet as MnemonicWallet;
+
+  //     this.hdIndexExternal = wallet.getExternalIndex();
+  //     this.hdIndexInternal = wallet.getInternalIndex();
+  //   }
+  // }
+
+  // async updateBalance(): Promise<void> {
+  //   await this.updateUtxos();
+  //   // await this.updateCustomERC20s();
+
+  //   //  const { C, P, X } = await this.wallet!.getAvaxBalance();
+
+  //   this.balanceCRaw = await this.wallet!.updateAvaxBalanceC();
+  //   this.balanceC = await Utils.bnToAvaxC(this.balanceCRaw);
+  //   this.balanceP = await this.wallet!.getAvaxBalanceP();
+  //   // this.balanceX = await this.wallet!.getAvaxBalanceX();
+  //   this.stakeAmt = await this.wallet!.getStake();
   // }
 
   async MnemonicWallet() {
@@ -211,54 +171,24 @@ class WalletStore {
     await this.refreshHD();
   }
 
-  stakeAmountClean() {
-    return Utils.bnToAvaxX(this.stakeAmt);
-  }
+  // getGrandTotal(precision?: number): string {
+  //   const p = Utils.bnToBig(this.balanceP.unlocked, 9);
+  //   //  const x = Utils.bnToBig(this.balanceX.unlocked, 9);
+  //   const c = Utils.bnToBig(this.balanceCRaw, 18);
 
-  async updateCustomERC20s() {
-    // for (const each of this.customERC20Contracts) {
-    //   await this.wallet!.getBalanceERC20(each);
-    // }
-  }
+  //   //  const xu = Utils.bnToBig(this.balanceX.unlocked, 9);
+  //   const pl = Utils.bnToBig(this.balanceP.locked, 9);
+  //   const ps = Utils.bnToBig(this.balanceP.lockedStakeable, 9);
 
-  async addERC20Contract(address: string) {
-    // try {
-    //   await this.wallet!.getBalanceERC20(address);
-    //   if (!isInArray(address, this.customERC20Contracts)) {
-    //     this.customERC20Contracts.push(address);
-    //   }
-    // } catch (error) {
-    //   console.log('incorrect ERC20 address', error);
-    // }
-  }
+  //   //    let total = p.add(x).add(c).add(xu).add(pl).add(ps);
+  //   let total = p.add(c).add(pl).add(ps);
 
-  async getERC20ContractData(address: string) {
-    // let data = await Assets.getContractData(address);
-    // return data;
-  }
+  //   if (precision) {
+  //     return total.toFixed(precision).toLocaleString();
+  //   }
 
-  get ERC20Tokens() {
-    return this.balanceERC20;
-  }
-
-  getGrandTotal(precision?: number): string {
-    const p = Utils.bnToBig(this.balanceP.unlocked, 9);
-    //  const x = Utils.bnToBig(this.balanceX.unlocked, 9);
-    const c = Utils.bnToBig(this.balanceCRaw, 18);
-
-    //  const xu = Utils.bnToBig(this.balanceX.unlocked, 9);
-    const pl = Utils.bnToBig(this.balanceP.locked, 9);
-    const ps = Utils.bnToBig(this.balanceP.lockedStakeable, 9);
-
-    //    let total = p.add(x).add(c).add(xu).add(pl).add(ps);
-    let total = p.add(c).add(pl).add(ps);
-
-    if (precision) {
-      return total.toFixed(precision).toLocaleString();
-    }
-
-    return total.toLocaleString();
-  }
+  //   return total.toLocaleString();
+  // }
 }
 
 export default WalletStore;

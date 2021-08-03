@@ -7,9 +7,13 @@ import {
   Checkbox,
   SecondaryButton,
   PrimaryButton,
+  LoadingIcon,
 } from '@avalabs/react-components';
 import { store } from '@src/store/store';
 import { DappPermissions } from '@src/store/permissions';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { getAccountsFromWallet } from '@src/background/services';
+import { useEffect } from 'react';
 
 function accountsToPermissions(accounts: string[], domain: string) {
   return {
@@ -41,15 +45,30 @@ function atleastOneAccountHasPermissions(permissions: DappPermissions) {
 }
 
 function component() {
+  const { wallet } = useWalletContext();
   const params = new URLSearchParams(window.location.search);
   let domain = params.get('domain') as string;
-  debugger;
-  const [permissions, updatePermissions] = useState(
-    store.permissionsStore.permissions[domain] ??
-      accountsToPermissions(store.walletStore.accountsInternal, domain)
-  );
+
+  const [permissions, updatePermissions] = useState<
+    ReturnType<typeof accountsToPermissions> | undefined
+  >();
+
+  useEffect(() => {
+    if (wallet) {
+      updatePermissions(
+        store.permissionsStore.permissions[domain] ??
+          accountsToPermissions(getAccountsFromWallet(wallet), domain)
+      );
+    }
+  }, [wallet]);
+
+  if (!permissions) {
+    return <LoadingIcon />;
+  }
 
   function onChangeUpdatePermissions(key: string) {
+    if (!permissions) return;
+
     return (state: boolean) =>
       updatePermissions(updateAnAccount(permissions, { [key]: state }));
   }

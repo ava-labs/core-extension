@@ -23,7 +23,6 @@ export const AddToken = observer((props: AddTokenProps) => {
   const [decimals, setDecimals] = useState(0);
   const [valid, setValid] = useState(false);
 
-  const { walletStore } = useStore();
   const {} = props;
 
   const handleContractChange = async (
@@ -51,8 +50,8 @@ export const AddToken = observer((props: AddTokenProps) => {
   // }, [contract]);
 
   const handleSubmit = async () => {
-    await walletStore.addERC20Contract(contract);
-    await walletStore.updateBalance();
+    // await walletStore.addERC20Contract(contract);
+    // await walletStore.updateBalance();
   };
 
   return (

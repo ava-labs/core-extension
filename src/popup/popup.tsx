@@ -27,11 +27,11 @@ import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { SignTransactionPage } from '@src/pages/SignTransaction/SignTransactionPage';
 
 export const Popup = observer(() => {
-  const { themeStore, walletStore } = useStore();
+  const { themeStore } = useStore();
   const theme = themeStore.isDarkMode ? darkTheme : lightTheme;
 
   useEffect(() => {
-    walletStore.MnemonicWallet();
+    // walletStore.MnemonicWallet();
     browser.runtime.sendMessage({ popupMounted: true });
   }, []);
 

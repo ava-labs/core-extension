@@ -14,21 +14,20 @@ import { TransactionSendType } from '@src/store/wallet/types';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export const WalletHome = observer(() => {
-  const [loading, setIsLoading] = useState(true);
+  // const [loading, setIsLoading] = useState(true);
   const { balances, prices } = useWalletContext();
-  const { walletStore } = useStore();
 
-  useEffect(() => {
-    (async () => {
-      if (walletStore.wallet) {
-        walletStore.updateWallet();
-        await walletStore.updateBalance();
-        setIsLoading(false);
-      }
-    })();
-  }, [walletStore.wallet]);
+  // useEffect(() => {
+  //   (async () => {
+  //     if (walletStore.wallet) {
+  //       walletStore.updateWallet();
+  //       await walletStore.updateBalance();
+  //       setIsLoading(false);
+  //     }
+  //   })();
+  // }, [walletStore.wallet]);
 
-  if (loading || balances.isLoading) {
+  if (balances.isLoading) {
     return <LoadingIcon />;
   }
 

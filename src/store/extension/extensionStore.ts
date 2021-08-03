@@ -1,13 +1,9 @@
-import { action, makeAutoObservable, observable } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import extension from 'extensionizer';
 import { persistStore } from '@src/utils/mobx';
-import { store } from '@src/store/store';
 class ExtensionStore {
-  /**
-   * If they havent setup the menumonic then its considered locked
-   */
   get isUnlocked() {
-    return !!store.walletStore.mnemonic;
+    return true;
   }
   timer: any = null;
   timeoutMinutes: number = 0;

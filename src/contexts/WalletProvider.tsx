@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useBalance } from '@src/hooks/useBalance';
-import { useStore } from '@src/store/store';
 import { usePrices } from '@src/hooks/usePrices';
 import { useGetErc20Tokens } from '@src/hooks/useGetErc20Tokens';
 import { useAddresses } from '@src/hooks/useAddresses';
 import { WalletType } from '../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
-import { observe } from 'mobx';
 import { useNetworkContext } from './NetworkProvider';
+import { walletService } from '@src/background/services';
+import { useEffect } from 'react';
 
 const WalletContext = createContext<{
   wallet?: WalletType;
@@ -17,13 +17,13 @@ const WalletContext = createContext<{
 }>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
-  const { walletStore } = useStore();
   const [wallet, setWallet] = useState<WalletType | undefined>();
   const { network } = useNetworkContext();
 
-  observe(walletStore, 'wallet', (res) =>
-    setWallet(res.newValue as WalletType)
-  );
+  // listen for wallet creation
+  useEffect(() => {
+    walletService.wallet.add((wall) => setWallet(wall));
+  }, []);
 
   const balances = useBalance(wallet, network);
   const prices = usePrices();

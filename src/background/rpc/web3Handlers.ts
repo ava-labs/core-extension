@@ -1,6 +1,5 @@
 import { JsonRpcRequest, engine } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { store } from '@src/store/store';
 import storageListener from '../utils/storage';
 import { formatAndLog, LoggerColors } from '../utils/logging';
 import {
@@ -9,6 +8,7 @@ import {
 } from '../permissionsController';
 import {} from '@avalabs/avalanche-wallet-sdk';
 import {
+  getAccountsFromWallet,
   messageService,
   personalSigRecovery,
   transactionService,
@@ -16,7 +16,8 @@ import {
 import { MessageType } from '../services/transactionsAndMessages/messages/models';
 import { txToCustomEvmTx } from '../services/transactionsAndMessages/transactions/utils/txToCustomEvmTx';
 import { TxStatus } from '../services/transactionsAndMessages/transactions/models';
-
+import { walletService } from '@src/background/services';
+import { store } from '@src/store/store';
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -84,7 +85,8 @@ async function signMessage(data: JsonRpcRequest<any>, type: MessageType) {
 
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {
-    const { wallet } = store.walletStore;
+    const wallet = await walletService.wallet.promisify();
+
     const { listenForTxPending } = transactionService.addTransaction(data);
 
     const window = await openExtensionNewWindow(
@@ -123,8 +125,8 @@ const web3CustomHandlers = {
   },
 
   async eth_getBalance(data: JsonRpcRequest<any>) {
-    const { balanceC } = store.walletStore;
-    return { ...data, result: balanceC };
+    const wallet = await walletService.wallet.promisify();
+    return { ...data, result: wallet.getAddressC() };
   },
 
   async eth_signTypedData(data: JsonRpcRequest<any>) {
@@ -157,6 +159,7 @@ const web3CustomHandlers = {
   // },
 
   async personal_ecRecover(data: JsonRpcRequest<any>) {
+    const wallet = await walletService.wallet.promisify();
     const { params } = data;
 
     const msg = params[0];
@@ -175,10 +178,12 @@ const web3CustomHandlers = {
    * @returns
    */
   async [CONNECT_METHOD](data: JSONRPCRequestWithDomain) {
+    const wallet = await walletService.wallet.promisify();
+
     if (store.permissionsStore.domainHasAccountsPermissions(data.domain)) {
       return {
         ...data,
-        result: store.walletStore.accounts,
+        result: getAccountsFromWallet(wallet),
       };
     }
 
@@ -202,7 +207,7 @@ const web3CustomHandlers = {
 
     return {
       ...data,
-      result: hasPermissions ? store.walletStore.accounts : [],
+      result: hasPermissions ? getAccountsFromWallet(wallet) : [],
     };
   },
   /**
@@ -212,10 +217,11 @@ const web3CustomHandlers = {
    * @returns an array of accounts the dapp has permissions for
    */
   async eth_accounts(data: JSONRPCRequestWithDomain) {
+    const wallet = await walletService.wallet.promisify();
     return {
       ...data,
       result: store.permissionsStore.domainHasAccountsPermissions(data.domain)
-        ? store.walletStore.accounts
+        ? getAccountsFromWallet(wallet)
         : [],
     };
   },
