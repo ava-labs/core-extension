@@ -1,15 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { useStore } from '@src/store/store';
+import { onboardingService } from '@src/background/services';
+import { OnboardingState } from '@src/background/services/onboarding/models';
+import { LoadingIcon } from '@avalabs/react-components';
+import { useEffect } from 'react';
 
 export const FirstTimeFlow = () => {
-  const { onboardStore } = useStore();
+  const [onboardingState, setOnboardingState] =
+    useState<{ isInProgress: boolean; isOnboarded: boolean }>();
 
-  if (onboardStore.onboardIsInProgress()) {
+  useEffect(() => {
+    Promise.all([
+      onboardingService.onboardIsInProgress(),
+      onboardingService.onboarding
+        .promisify()
+        .then((onboarding) => onboarding.isOnBoarded),
+    ]).then(([isInProgress, isOnboarded]) => {
+      setOnboardingState({ isInProgress, isOnboarded });
+    });
+  }, []);
+
+  if (!onboardingState) {
+    return <LoadingIcon />;
+  }
+
+  if (onboardingState.isInProgress) {
     return <Redirect to="/welcome/create" />;
   }
 
-  if (!onboardStore.isOnboarded) {
+  if (!onboardingState.isOnboarded) {
     return <Redirect to="/welcome" />;
   }
 

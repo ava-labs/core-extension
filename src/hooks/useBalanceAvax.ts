@@ -25,17 +25,14 @@ export function useBalanceAvax(wallet?: WalletType) {
 
   // Gets the balance from the SDK into the the reactive state
   function updateAvaxBalance() {
-    console.log('called to update: ', !!wallet);
     if (!wallet) return;
     let bal = wallet.getAvaxBalance();
-    console.log('get avax balance: ', bal);
     setBalanceAvax(bal);
   }
 
   async function updateBalanceStaked() {
     if (!wallet) return;
     let stake = await wallet.getStake();
-    console.log('get avax staked: ', stake);
     setBalanceStaked(stake);
   }
 
@@ -56,7 +53,6 @@ export function useBalanceAvax(wallet?: WalletType) {
     let totC = Utils.avaxCtoX(cUnlocked);
 
     let totAvax = totX.add(totP).add(totC);
-    console.log('called this: ', totAvax);
     setBalanceAvaxTotal(totAvax);
   }, [balanceAvax, balanceStaked]);
 

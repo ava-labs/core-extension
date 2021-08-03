@@ -1,5 +1,6 @@
 import BN from 'bn.js';
 import { Transaction } from '../models';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 export async function txToCustomEvmTx(tx?: Transaction) {
   if (!tx) {
@@ -7,9 +8,9 @@ export async function txToCustomEvmTx(tx?: Transaction) {
   }
 
   const txParams = tx.txParams;
-  const { gas, gasPrice, to, from, data, value } = txParams;
+  const { gas, gasPrice: gasPriceFromTx, to, from, data, value } = txParams;
 
-  if (!gas || !gasPrice) {
+  if (!gas || !gasPriceFromTx) {
     throw new Error('Gas or gas estimate is malformed');
   }
 
@@ -21,12 +22,12 @@ export async function txToCustomEvmTx(tx?: Transaction) {
     throw new Error('value is missing or malformed');
   }
 
-  const gasBn = new BN(gas);
-  const gasPriceNum = Number(gasPrice);
+  const gasPrice = Utils.numberToBNAvaxX(gas);
+  const gasLimit = Number(gasPriceFromTx);
 
   return {
-    gas: gasBn,
-    gasPrice: gasPriceNum,
+    gasPrice: gasPrice,
+    gasLimit: gasLimit,
     to,
     from,
     data,

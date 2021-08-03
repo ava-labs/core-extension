@@ -104,8 +104,8 @@ const web3CustomHandlers = {
 
       return wallet
         .sendCustomEvmTx(
-          params.gas,
           params.gasPrice,
+          params.gasLimit,
           params.data,
           params.to,
           params.value

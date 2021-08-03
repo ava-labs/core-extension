@@ -7,20 +7,19 @@ import {
   Typography,
   PrimaryButton,
 } from '@avalabs/react-components';
-import { useStore } from '@src/store/store';
-import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
-import { walletService } from '@src/background/services';
+import { walletService, onboardingService } from '@src/background/services';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
 export const Welcome = observer(() => {
   const { t } = useTranslation();
-  const { onboardStore } = useStore();
+
   return (
     <VerticalFlex align={'center'} padding={'0 10px'}>
       <Typography>{t('home.desc')}</Typography>
       <Link
         to="/welcome/create"
         onClick={() => {
-          onboardStore.setPosition(OnboardStepPhase.MNEMONIC);
+          onboardingService.setPhase(OnboardingPhase.MNEMONIC);
           walletService.createWithNewMnemonic();
         }}
       >

@@ -11,7 +11,7 @@ import {
   SecondaryButton,
 } from '@avalabs/react-components';
 import { useHistory } from 'react-router-dom';
-import { walletService } from '@src/background/services';
+import { onboardingService, walletService } from '@src/background/services';
 import { useStore } from '@src/store/store';
 import { resolve } from '@src/utils/promiseResolver';
 
@@ -23,7 +23,6 @@ export const Import = () => {
    */
   const [_errorMsg, setErrorMsg] = useState('');
   const history = useHistory();
-  const { onboardStore } = useStore();
 
   const verifyRecoveryPhrase = (phrase: string) => {
     return !!(phrase && phrase.split(' ').length === 24);
@@ -58,7 +57,7 @@ export const Import = () => {
               walletService.createFromMnemonic(recoveryPhrase)
             );
             if (!err) {
-              onboardStore.markOnboarded();
+              onboardingService.markOnboarded();
               history.push('/wallet');
             } else {
               setErrorMsg(err.message);

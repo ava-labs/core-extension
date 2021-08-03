@@ -1,20 +1,21 @@
+import { onboardingService } from '@src/background/services';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { useStore } from '../store';
 import { OnboardStepPhase } from './onboardStore';
 
-export function useOnboardState(phase: OnboardStepPhase) {
-  const { onboardStore } = useStore();
-  const step = onboardStore.getStepForPhase(phase);
+export function useOnboardState(phase: OnboardingPhase) {
+  const step = onboardingService.getStepperForPhase(phase);
 
   if (!step) {
     throw new Error(`useOnboardState called with a non state ${phase}`);
   }
 
   const goToNext = () => {
-    step.next?.step && onboardStore.setPosition(step.next?.step);
+    step.next?.phase && onboardingService.setPhase(step.next?.phase);
   };
 
   const goBack = () => {
-    step.back?.step && onboardStore.setPosition(step.back?.step);
+    step.back?.phase && onboardingService.setPhase(step.back?.phase);
   };
 
   return {

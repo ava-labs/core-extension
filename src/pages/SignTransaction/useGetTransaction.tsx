@@ -1,14 +1,12 @@
 import { KnownContractABIs } from '@src/abi';
 import { transactionService } from '@src/background/services';
 import { truncateAddress } from '@src/utils/addressUtils';
-import { hexToNumber } from 'web3-utils';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import { useMemo } from 'react';
 import { useGetGasPrice } from '@src/hooks/useGas';
 
 function convertAmountToAvax(hex: string) {
-  const num = hexToNumber(hex);
-  return Utils.bnToLocaleString(Utils.numberToBN(num, 0), 18);
+  return Utils.bnToLocaleString(new BN(hex), 18);
 }
 
 export function useGetTransaction(requestId: string) {
@@ -36,7 +34,8 @@ export function useGetTransaction(requestId: string) {
       convertAmountToAvax(transaction?.txParams?.value);
 
     const estimate =
-      transaction?.txParams?.gas && hexToNumber(transaction?.txParams?.gas);
+      transaction?.txParams?.gas &&
+      new BN(transaction?.txParams?.gas).toNumber();
 
     const gasEstimate = new BN(estimate as number).mul(
       gasPrice ? new BN(gasPrice?.value) : new BN(0)
@@ -54,7 +53,8 @@ export function useGetTransaction(requestId: string) {
       amount,
       data,
       gasEstimate:
-        transaction?.txParams?.gas && hexToNumber(transaction?.txParams?.gas),
+        transaction?.txParams?.gas &&
+        new BN(transaction?.txParams?.gas).toNumber(),
       gasPrice: gasPrice?.value,
       gasAvax,
       total: Utils.bnToLocaleString(total, 18),

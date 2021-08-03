@@ -13,12 +13,12 @@ export function storageEventListener<T = any>() {
   return new Signal<StorageEvent<T>>().merge(storageEvents);
 }
 
-export async function saveToStorage(value: any) {
-  return new Promise((resolve, reject) => {
+export async function saveToStorage<T = any>(value: T) {
+  return new Promise<T>((resolve, reject) => {
     if (!value) {
       reject('trying to store an empty value');
     }
-    storage.local.set(value, () => resolve('value save to storage'));
+    storage.local.set(value, () => resolve(value));
   });
 }
 

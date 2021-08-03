@@ -15,12 +15,13 @@ import {
 import { useOnboardState } from '@src/store/onboard/useOnboardState';
 import { walletService } from '@src/background/services';
 import { useEffect } from 'react';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
 function component() {
   const [isCopied, setIsCopied] = useState(false);
   const [mnemonic, setMnemonic] = useState('');
 
-  const { goToNextOnboardingStep } = useOnboardState(OnboardStepPhase.MNEMONIC);
+  const { goToNextOnboardingStep } = useOnboardState(OnboardingPhase.MNEMONIC);
 
   useEffect(() => {
     walletService.wallet

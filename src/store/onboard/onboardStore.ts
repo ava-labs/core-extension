@@ -84,18 +84,6 @@ class OnboardStore {
       this.currentPosition !== OnboardStepPhase.FINALIZE
     );
   }
-
-  async clearStore() {
-    await clearPersist(this);
-  }
-
-  stopPersist() {
-    stopPersist(this);
-  }
-
-  startPersist() {
-    startPersist(this);
-  }
 }
 
 export default OnboardStore;

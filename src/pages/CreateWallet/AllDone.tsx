@@ -11,11 +11,12 @@ import {
 import { useOnboardState } from '@src/store/onboard/useOnboardState';
 import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
 import { useHistory } from 'react-router-dom';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
 export function AllDone() {
   const history = useHistory();
   const { goBackToPreviousOnboardingStep } = useOnboardState(
-    OnboardStepPhase.FINALIZE
+    OnboardingPhase.FINALIZE
   );
   return (
     <VerticalFlex width={'100%'} align={'center'}>

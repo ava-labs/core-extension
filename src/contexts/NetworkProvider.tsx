@@ -52,13 +52,18 @@ export function NetworkContextProvider({ children }: { children: any }) {
   const [network, _setNetwork] = useState<ActiveNetwork>(MAINNET_NETWORK);
 
   function setNetwork(net: ActiveNetwork) {
-    Network.setNetwork(net.config);
-    _setNetwork(net);
+    console.log('saving to storage');
     saveToStorage({ [NETWORK_STORAGE_KEY]: net.name });
   }
 
   useEffect(() => {
-    getNetworkFromStorage().then(setNetwork);
+    getNetworkChangedUpdates().add((net) => {
+      console.log('Network.activeNetwork: ', Network.activeNetwork);
+      if (net) {
+        Network.setNetwork(net.config);
+        _setNetwork(net);
+      }
+    });
   }, []);
 
   return (

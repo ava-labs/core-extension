@@ -4,3 +4,4 @@ import transactionService from './transactionsAndMessages/transactions/transacti
 export { messageService, transactionService };
 export * from './transactionsAndMessages/messages/utils/personalSigRecovery';
 export * from './wallet/wallet';
+export * from './onboarding/onboarding';

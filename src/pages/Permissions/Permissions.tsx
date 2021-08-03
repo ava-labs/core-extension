@@ -62,6 +62,11 @@ function component() {
     }
   }, [wallet]);
 
+  const acceptPermissionsDisabled = useMemo(
+    () => permissions && !atleastOneAccountHasPermissions(permissions),
+    [permissions]
+  );
+
   if (!permissions) {
     return <LoadingIcon />;
   }
@@ -73,10 +78,6 @@ function component() {
       updatePermissions(updateAnAccount(permissions, { [key]: state }));
   }
 
-  const acceptPermissionsDisabled = useMemo(
-    () => !atleastOneAccountHasPermissions(permissions),
-    [permissions]
-  );
   return (
     <VerticalFlex align={'center'} padding={'0 0 20px 0'}>
       <Typography size={14}>The dApp</Typography>

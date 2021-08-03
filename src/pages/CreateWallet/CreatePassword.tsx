@@ -8,9 +8,10 @@ import {
   HorizontalFlex,
   SecondaryButton,
 } from '@avalabs/react-components';
-import { useStore } from '@src/store/store';
 import { useOnboardState } from '@src/store/onboard/useOnboardState';
 import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
+import { onboardingService } from '@src/background/services';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
 function verifyPasswordsMatch(pass1?: string, pass2?: string) {
   return !!(pass1 && pass2 && pass1 === pass2);
@@ -23,9 +24,9 @@ export const CreatePassword = (props: any) => {
   const [passwordVal, setPasswordVal] = useState('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
   const [error, setError] = useState('');
-  const { onboardStore } = useStore();
+
   const { goToNextOnboardingStep, goBackToPreviousOnboardingStep } =
-    useOnboardState(OnboardStepPhase.PASSWORD);
+    useOnboardState(OnboardingPhase.PASSWORD);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -84,7 +85,7 @@ export const CreatePassword = (props: any) => {
         <PrimaryButton
           disabled={!canSubmit}
           onClick={() => {
-            onboardStore.setPassword(passwordVal);
+            onboardingService.setPassword(passwordVal);
             goToNextOnboardingStep && goToNextOnboardingStep();
           }}
         >
