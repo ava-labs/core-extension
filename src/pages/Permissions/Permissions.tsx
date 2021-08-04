@@ -116,3 +116,4 @@ function component() {
 }
 
 export const PermissionsPage = observer(component);
+export default PermissionsPage;

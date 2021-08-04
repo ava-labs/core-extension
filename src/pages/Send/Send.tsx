@@ -33,3 +33,5 @@ export const Send = observer(() => {
     </VerticalFlex>
   );
 });
+
+export default Send;

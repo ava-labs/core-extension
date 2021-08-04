@@ -100,3 +100,5 @@ export function SignTransactionPage() {
     </>
   );
 }
+
+export default SignTransactionPage;

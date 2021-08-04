@@ -87,3 +87,5 @@ export const SignMessage = observer(() => {
     </VerticalFlex>
   );
 });
+
+export default SignMessage;

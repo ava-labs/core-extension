@@ -1,9 +1,9 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 
-import { CreatePassword } from '@src/pages/CreateWallet/CreatePassword';
-import { AllDone } from '@src/pages/CreateWallet/AllDone';
-import { KeyboardShortcut } from '@src/pages/CreateWallet/KeyboardShortcut';
+import { CreatePassword } from '@src/pages/Onboarding/CreatePassword';
+import { AllDone } from '@src/pages/Onboarding/AllDone';
+import { KeyboardShortcut } from '@src/pages/Onboarding/KeyboardShortcut';
 import { CreateWallet } from './CreateWallet';
 import { useState } from 'react';
 import {
@@ -44,3 +44,5 @@ export const CreateWalletFlow = observer(() => {
       return <CreateWallet />;
   }
 });
+
+export default CreateWalletFlow;

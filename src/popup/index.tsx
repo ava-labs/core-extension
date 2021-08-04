@@ -1,16 +1,19 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { browser } from 'webextension-polyfill-ts';
-import { Popup as App } from './popup';
+const App = React.lazy(() => {
+  return import(/* webpackChunkName: 'App'  */ './popup');
+});
 import { HashRouter as Router } from 'react-router-dom';
 import { store, StoreContext } from '@src/store/store';
 import '@src/i18n';
+import { LoadingIcon } from '@avalabs/react-components';
 
 browser.tabs.query({ active: true, currentWindow: true }).then(() => {
   ReactDOM.render(
     <Router>
       <StoreContext.Provider value={store}>
-        <React.Suspense fallback="Loading...">
+        <React.Suspense fallback={<LoadingIcon />}>
           <App />
         </React.Suspense>
       </StoreContext.Provider>

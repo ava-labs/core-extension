@@ -1,38 +1,74 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import { browser } from 'webextension-polyfill-ts';
+import React, { useEffect, useState } from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
 import { GlobalStyle } from '@src/styles/styles';
-import { ThemeProvider, useTheme } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import { lightTheme, darkTheme } from '@src/styles/theme';
 
 import { useStore } from '@src/store/store';
-import { Welcome } from '@src/pages/Welcome';
-import { FirstTimeFlow } from '@src/pages/FirstTimeFlow';
-import { Import } from '@src/pages/Import';
-import { CreateWalletFlow } from '@src/pages/CreateWallet';
-import { WalletHome } from '@src/pages/WalletHome';
-import { WalletOverview } from '@src/pages/WalletOverview';
+import { Welcome } from '@src/pages/Onboarding/Welcome';
+import { Import } from '@src/pages/Onboarding/ImportWallet';
+// import { CreateWalletFlow } from '@src/pages/Onboarding/CreateWalletFlow';
+import { WalletHome } from '@src/pages/Wallet/WalletHome';
 import { Deposit } from '@src/pages/Deposit';
-import { Send } from '@src/pages/Send';
-import { SignMessage } from '@src/pages/SignMessage';
-import { AddToken } from '@src/components/AddToken';
+
 import { Header } from '@src/components/common/Header';
 import { Footer } from '@src/components/common/Footer';
-import { HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
-import { PermissionsPage } from '@src/pages/Permissions/Permissions';
+
+import {
+  HorizontalFlex,
+  LoadingIcon,
+  VerticalFlex,
+} from '@avalabs/react-components';
+
+const CreateWalletFlow = React.lazy(() => {
+  return import('../pages/Onboarding/CreateWalletFlow');
+});
+
+const WalletOverview = React.lazy(() => {
+  return import('../pages/Wallet/WalletOverview');
+});
+
+const AddToken = React.lazy(() => {
+  return import('../pages/AddToken/AddToken');
+});
+
+const SignMessage = React.lazy(() => {
+  return import('../pages/SignMessage/SignMessage');
+});
+
+const Send = React.lazy(() => {
+  return import('../pages/Send/Send');
+});
+
+const PermissionsPage = React.lazy(() => {
+  return import('../pages/Permissions/Permissions');
+});
+
+const SignTransactionPage = React.lazy(() => {
+  return import('../pages/SignTransaction/SignTransactionPage');
+});
+
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
-import { SignTransactionPage } from '@src/pages/SignTransaction/SignTransactionPage';
+import { onboardingService } from '@src/background/services';
 
 export const Popup = observer(() => {
   const { themeStore } = useStore();
   const theme = themeStore.isDarkMode ? darkTheme : lightTheme;
+  const [onboardingState, setOnboardingState] =
+    useState<{ isInProgress: boolean; isOnboarded: boolean }>();
 
   useEffect(() => {
-    // walletStore.MnemonicWallet();
-    browser.runtime.sendMessage({ popupMounted: true });
+    Promise.all([
+      onboardingService.onboardIsInProgress(),
+      onboardingService.onboarding
+        .promisify()
+        .then((onboarding) => onboarding.isOnBoarded),
+    ]).then(([isInProgress, isOnboarded]) => {
+      setOnboardingState({ isInProgress, isOnboarded });
+    });
   }, []);
 
   return (
@@ -51,7 +87,9 @@ export const Popup = observer(() => {
             <HorizontalFlex flex={1} justify={'center'}>
               <Switch>
                 <Route path="/welcome/create">
-                  <CreateWalletFlow />
+                  <React.Suspense fallback={<LoadingIcon />}>
+                    <CreateWalletFlow />
+                  </React.Suspense>
                 </Route>
 
                 <Route path="/welcome">
@@ -63,11 +101,15 @@ export const Popup = observer(() => {
                 </Route>
 
                 <Route path="/token/add">
-                  <AddToken />
+                  <React.Suspense fallback={<LoadingIcon />}>
+                    <AddToken />
+                  </React.Suspense>
                 </Route>
 
                 <Route path="/wallet/overview">
-                  <WalletOverview />
+                  <React.Suspense fallback={<LoadingIcon />}>
+                    <WalletOverview />
+                  </React.Suspense>
                 </Route>
 
                 <Route path="/wallet">
@@ -79,23 +121,56 @@ export const Popup = observer(() => {
                 </Route>
 
                 <Route path="/sign/transaction">
-                  <SignTransactionPage />
+                  <React.Suspense fallback={<LoadingIcon />}>
+                    <SignTransactionPage />
+                  </React.Suspense>
                 </Route>
 
                 <Route path="/send">
-                  <Send />
+                  <React.Suspense fallback={<LoadingIcon />}>
+                    <Send />
+                  </React.Suspense>
                 </Route>
 
                 <Route path="/sign">
-                  <SignMessage />
+                  <React.Suspense fallback={<LoadingIcon />}>
+                    <SignMessage />
+                  </React.Suspense>
                 </Route>
 
                 <Route path="/permissions">
-                  <PermissionsPage />
+                  <React.Suspense fallback={<LoadingIcon />}>
+                    <PermissionsPage />
+                  </React.Suspense>
                 </Route>
 
                 <Route path="/">
-                  <FirstTimeFlow />
+                  <>
+                    {
+                      {
+                        loading: <LoadingIcon />,
+                        inProgess: <Redirect to="/welcome/create" />,
+                        onboarded: <Redirect to="/welcome" />,
+                        wallet: <Redirect to="/wallet" />,
+                      }[
+                        (function () {
+                          if (!onboardingState) {
+                            return 'loading';
+                          }
+
+                          if (onboardingState.isInProgress) {
+                            return 'inProgress';
+                          }
+
+                          if (!onboardingState.isOnboarded) {
+                            return 'onboarded';
+                          }
+
+                          return 'wallet';
+                        })()
+                      ]
+                    }
+                  </>
                 </Route>
               </Switch>
             </HorizontalFlex>
@@ -107,3 +182,5 @@ export const Popup = observer(() => {
     </ThemeProvider>
   );
 });
+
+export default Popup;

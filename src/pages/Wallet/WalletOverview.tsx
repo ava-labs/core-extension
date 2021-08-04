@@ -113,3 +113,5 @@ export const WalletOverview = observer(() => {
     </VerticalFlex>
   );
 });
+
+export default WalletOverview;
