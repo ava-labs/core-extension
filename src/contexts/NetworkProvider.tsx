@@ -37,7 +37,7 @@ export const getNetworkFromStorage = () =>
     return networks.get(network) || MAINNET_NETWORK;
   });
 
-const networks = new Map<string, ActiveNetwork>([
+export const networks = new Map<string, ActiveNetwork>([
   [MAINNET_NETWORK.name, MAINNET_NETWORK],
   [FUJI_NETWORK.name, FUJI_NETWORK],
   [LOCAL_NETWORK.name, LOCAL_NETWORK],

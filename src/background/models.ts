@@ -12,3 +12,15 @@ export interface EthCall {
   data?: string;
   id: string | number | void;
 }
+
+export interface AddEthChainParams {
+  blockExplorerUrls: string[];
+  chainId: string;
+  chainName: string;
+  nativeCurrency: {
+    name: string;
+    decimals: number;
+    symbol: string;
+  };
+  rpcUrls: string[];
+}
