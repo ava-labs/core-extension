@@ -48,43 +48,55 @@ export function SignTransactionPage() {
   }, []);
 
   return (
-    <VerticalFlex>
-      <HorizontalFlex>
-        <Typography>from: {fromAddress}</Typography>
-        <Typography>to: {toAddress}</Typography>
-      </HorizontalFlex>
-      <VerticalFlex>
-        <Typography>amount: {amount}</Typography>
-        <Typography>gas (gwei): {gasPrice}</Typography>
-        <Typography>gas estimate: {gasEstimate}</Typography>
-        <Typography>gas (avax): {gasAvax}</Typography>
-        <Typography>total (avax): {total}</Typography>
-      </VerticalFlex>
-      <HorizontalFlex>
-        <SecondaryButton
-          onClick={() => {
-            transaction?.id &&
-              transactionService.updateTransactionStatus({
-                status: TxStatus.ERROR_USER_CANCELED,
-                id: transaction?.id,
-              });
-            window.close();
-          }}
-        >
-          Cancel
-        </SecondaryButton>
-        <PrimaryButton
-          onClick={() => {
-            transaction?.id &&
-              transactionService.updateTransactionStatus({
-                status: TxStatus.SUBMITTING,
-                id: transaction?.id,
-              });
-          }}
-        >
-          Approve
-        </PrimaryButton>
-      </HorizontalFlex>
-    </VerticalFlex>
+    <>
+      {!hash ? (
+        <VerticalFlex>
+          <HorizontalFlex>
+            <Typography>from: {fromAddress}</Typography>
+            <Typography>to: {toAddress}</Typography>
+          </HorizontalFlex>
+          <VerticalFlex>
+            <Typography>amount: {amount}</Typography>
+            <Typography>gas (gwei): {gasPrice}</Typography>
+            <Typography>gas estimate: {gasEstimate}</Typography>
+            <Typography>gas (avax): {gasAvax}</Typography>
+            <Typography>total (avax): {total}</Typography>
+          </VerticalFlex>
+          <HorizontalFlex>
+            <SecondaryButton
+              onClick={() => {
+                transaction?.id &&
+                  transactionService.updateTransactionStatus({
+                    status: TxStatus.ERROR_USER_CANCELED,
+                    id: transaction?.id,
+                  });
+                window.close();
+              }}
+            >
+              Cancel
+            </SecondaryButton>
+            <PrimaryButton
+              onClick={() => {
+                transaction?.id &&
+                  transactionService.updateTransactionStatus({
+                    status: TxStatus.SUBMITTING,
+                    id: transaction?.id,
+                  });
+              }}
+            >
+              Approve
+            </PrimaryButton>
+          </HorizontalFlex>
+        </VerticalFlex>
+      ) : (
+        <VerticalFlex>
+          <Typography>Tx Finished</Typography>
+          <Typography>{hash}</Typography>
+          <HorizontalFlex>
+            <PrimaryButton onClick={() => window.close()}>Close</PrimaryButton>
+          </HorizontalFlex>
+        </VerticalFlex>
+      )}
+    </>
   );
 }

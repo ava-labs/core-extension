@@ -9,7 +9,16 @@ import {
   connectionExists,
   removeConnection,
 } from './background/utils/portConnectionsManager';
+import { Network } from '@avalabs/avalanche-wallet-sdk';
 import { createTransformToJsonRPCResponse } from './background/utils/providerUpdate';
+import { getNetworkChangedUpdates } from './contexts/NetworkProvider';
+
+/**
+ * This keeps the background network insync with the other contexts
+ */
+getNetworkChangedUpdates().add((net) => {
+  net && Network.setNetwork(net.config);
+});
 
 browser.runtime.onConnect.addListener((connection) => {
   if (connectionExists(connection)) {

@@ -42,7 +42,6 @@ export function useBalance(wallet?: WalletType, network?: ActiveNetwork) {
 
   useEffect(() => {
     function balanceChangeX(val: any) {
-      console.log('Balance change X');
       updateBalanceX();
       // TODO: Move this to a handler for p chain?
       updateBalanceStaked();
@@ -50,18 +49,15 @@ export function useBalance(wallet?: WalletType, network?: ActiveNetwork) {
     }
 
     function balanceChangeC(val: any) {
-      console.log('Balance change C');
       updateAvaxBalance();
     }
 
     function balanceChangeP() {
-      console.log('Balance change P');
       updateAvaxBalance();
       updateBalanceStaked();
     }
 
     function onAddressChange() {
-      console.log('Address change');
       updateBalanceX();
     }
 

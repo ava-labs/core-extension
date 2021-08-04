@@ -6,7 +6,7 @@ import {
   CONNECT_METHOD,
   JSONRPCRequestWithDomain,
 } from '../permissionsController';
-import {} from '@avalabs/avalanche-wallet-sdk';
+import { Network } from '@avalabs/avalanche-wallet-sdk';
 import {
   getAccountsFromWallet,
   messageService,
@@ -18,6 +18,7 @@ import { txToCustomEvmTx } from '../services/transactionsAndMessages/transaction
 import { TxStatus } from '../services/transactionsAndMessages/transactions/models';
 import { walletService } from '@src/background/services';
 import { store } from '@src/store/store';
+
 /**
  * These are requests that are simply passthrough to the backend, they dont require
  * authentication or any special handling. We should be supporting all or most of
@@ -110,16 +111,13 @@ const web3CustomHandlers = {
           params.to,
           params.value
         )
-        .then((res) => {
+        .then((result) => {
           transactionService.updateTransactionStatus({
             status: TxStatus.SIGNED,
             id: data.id,
-            result: res,
+            result,
           });
-          return res;
-        })
-        .catch((err) => {
-          console.log('error from tx: ', err);
+          return { ...data, result };
         });
     });
   },

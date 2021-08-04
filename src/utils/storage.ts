@@ -18,7 +18,9 @@ export async function saveToStorage<T = any>(value: T) {
     if (!value) {
       reject('trying to store an empty value');
     }
-    storage.local.set(value, () => resolve(value));
+    storage.local.set(value, () => {
+      resolve(value);
+    });
   });
 }
 
@@ -37,7 +39,10 @@ export async function removeFromStorage(key: string) {
 }
 
 /**
- * Have to use any because chrome StorageChange event type is not public
+ * Have to use "any" because chrome StorageChange event type is not public
+ *
+ * Sidenote: storage does a deep diff on object values. If what it is writing to disc is same
+ * as what it already there then no event is fired.
  */
 storage.onChanged.addListener(function listener(changes: any, namespace) {
   storageEvents.dispatch({

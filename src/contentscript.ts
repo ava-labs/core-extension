@@ -108,15 +108,6 @@ const injectScript = (content: any) => {
     scriptTag.textContent = content;
     container.insertBefore(scriptTag, container.children[0]);
     container.removeChild(scriptTag);
-
-    var div = document.createElement('div');
-    div.style.position = 'fixed';
-    div.style.top = '0';
-    div.style.right = '0';
-    div.textContent = 'Injected!';
-    container.appendChild(div);
-
-    // container.removeChild(scriptTag);
   } catch (error) {
     console.error(' Provider injection failed.', error);
   }

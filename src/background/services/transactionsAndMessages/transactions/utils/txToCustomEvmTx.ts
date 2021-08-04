@@ -22,8 +22,8 @@ export async function txToCustomEvmTx(tx?: Transaction) {
     throw new Error('value is missing or malformed');
   }
 
-  const gasPrice = Utils.numberToBNAvaxX(gas);
-  const gasLimit = Number(gasPriceFromTx);
+  const gasPrice = Utils.numberToBNAvaxX(gasPriceFromTx);
+  const gasLimit = Number(gas);
 
   return {
     gasPrice: gasPrice,
