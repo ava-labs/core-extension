@@ -1,5 +1,6 @@
 const path = require('path');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -28,5 +29,18 @@ module.exports = {
     },
     symlinks: false,
   },
-  plugins: [new NodePolyfillPlugin()],
+  plugins: [
+    new NodePolyfillPlugin(),
+    new CopyPlugin({
+      patterns: [
+        { from: 'src/index.html', to: '../popup.html' },
+        { from: 'src/index.html', to: '../home.html' },
+        { from: 'src/manifest.json', to: '../manifest.json' },
+        { from: 'src/images', to: '../images' },
+      ],
+      options: {
+        concurrency: 100,
+      },
+    }),
+  ],
 };

@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AddressHelper, BN, Utils } from '@avalabs/avalanche-wallet-sdk';
-import {
-  AssetBalanceX,
-  WalletType,
-} from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
+import { AssetBalanceX, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { UniversalTx } from '@avalabs/avalanche-wallet-sdk/dist/helpers/universal_tx_helper';
 
 export function useSendAnt(wallet: WalletType, token: AssetBalanceX) {

@@ -5,7 +5,7 @@ import { useTheme } from 'styled-components';
 import { ToggleDarkMode } from './ToggleDarkMode';
 import { WalletConnection } from './WalletConnection';
 
-export function Header() {
+export function Header({ hasOnboarded }: { hasOnboarded: boolean }) {
   const theme = useTheme();
   return (
     <HorizontalFlex
@@ -21,7 +21,7 @@ export function Header() {
         <Logo />
         <Typography margin={'0 0 0 5px'}>Avvy</Typography>
       </HorizontalFlex>
-      <WalletConnection />
+      {hasOnboarded ? <WalletConnection /> : ''}
       <HorizontalFlex>
         <ToggleDarkMode />
       </HorizontalFlex>

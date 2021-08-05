@@ -8,15 +8,13 @@ import {
   Typography,
   CaretIcon,
 } from '@avalabs/react-components';
-import { observer } from 'mobx-react-lite';
 import { truncateAddress } from '@src/utils/addressUtils';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
-function component() {
-  const { wallet } = useWalletContext();
+export function WalletConnection() {
+  const { addresses } = useWalletContext();
   const { network, setNetwork, networks } = useNetworkContext();
-  const [addressC, setAddressC] = useState<string>();
   const [hasBeenCopied, setHasBeenCopied] = useState(false);
 
   useEffect(() => {
@@ -26,10 +24,6 @@ function component() {
       }, 2000);
     }
   }, [hasBeenCopied]);
-
-  useEffect(() => {
-    wallet && setAddressC(truncateAddress(wallet.getAddressC()));
-  }, [wallet]);
 
   return (
     <DropDownMenu
@@ -43,14 +37,14 @@ function component() {
             <TextButton
               onClick={(evt) => {
                 evt.stopPropagation();
-                navigator.clipboard.writeText(wallet?.getAddressC() ?? '');
+                navigator.clipboard.writeText(addresses.addrC ?? '');
                 setHasBeenCopied(true);
               }}
             >
               {hasBeenCopied ? 'copied' : 'copy'}
             </TextButton>
             <Typography margin="0 auto 0 5px">
-              {addressC} ({network?.name})
+              {truncateAddress(addresses.addrC)} ({network?.name})
             </Typography>
             <CaretIcon height="16px" />
           </HorizontalFlex>
@@ -68,5 +62,3 @@ function component() {
     </DropDownMenu>
   );
 }
-
-export const WalletConnection = observer(component);

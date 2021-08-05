@@ -7,11 +7,11 @@ import {
 } from '@avalabs/react-components';
 import React from 'react';
 import { useSendAvax } from './useSendAvax';
-import { observer } from 'mobx-react-lite';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SendTransactionsList } from './SendTransactionsList';
-function Component() {
-  const { balances, prices } = useWalletContext();
+
+export function SendAvaxForm() {
+  // const { balances, prices } = useWalletContext();
   const {
     send,
     targetChain,
@@ -29,12 +29,12 @@ function Component() {
   return (
     <VerticalFlex>
       <VerticalFlex>
-        <Typography>
+        {/* <Typography>
           {balances.balanceAvaxTotal.toLocaleString()} AVAX
         </Typography>
         <Typography>
           ${balances.getAvaxBalanceUSD(prices.avaxUSD)} USD
-        </Typography>
+        </Typography> */}
       </VerticalFlex>
       <Typography>To</Typography>
       <Input
@@ -76,5 +76,3 @@ function Component() {
     </VerticalFlex>
   );
 }
-
-export const SendAvaxForm = observer(Component);

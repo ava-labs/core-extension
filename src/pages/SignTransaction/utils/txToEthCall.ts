@@ -1,5 +1,5 @@
 import { EthCall } from '@src/background/models';
-import { Transaction } from '@src/background/services/transactionsAndMessages/transactions/models';
+import { Transaction } from '@src/background/services/transactions/models';
 
 export function txToEthCall(tx?: Transaction): EthCall | undefined {
   if (!tx) return undefined;

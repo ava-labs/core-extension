@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  Mneumonic,
+  Mnemonic,
   HorizontalSeparator,
   HorizontalFlex,
   SecondaryCard,
@@ -10,19 +10,15 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from '@avalabs/react-components';
-import { useHistory } from 'react-router-dom';
-import { onboardingService, walletService } from '@src/background/services';
-import { useStore } from '@src/store/store';
-import { resolve } from '@src/utils/promiseResolver';
+import { onboardingService } from '@src/background/services';
 
-export const Import = () => {
+export const Import = ({ onCancel }: { onCancel(): void }) => {
   const [recoveryPhrase, setRecoveryPhrase] = useState('');
   /**
    * Not putting in error handling yet, need more info on how to get this done properly
    * @link https://ava-labs.atlassian.net/browse/PM-200
    */
   const [_errorMsg, setErrorMsg] = useState('');
-  const history = useHistory();
 
   const verifyRecoveryPhrase = (phrase: string) => {
     return !!(phrase && phrase.split(' ').length === 24);
@@ -38,14 +34,14 @@ export const Import = () => {
       <br />
       <br />
       <SecondaryCard>
-        <Mneumonic phrase={recoveryPhrase} />
+        <Mnemonic phrase={recoveryPhrase} />
       </SecondaryCard>
       <br />
       <TextArea onChange={(e) => setRecoveryPhrase(e.currentTarget.value)} />
       <HorizontalFlex>
         <SecondaryButton
           onClick={() => {
-            history.goBack();
+            onCancel && onCancel();
           }}
         >
           Cancel
@@ -53,18 +49,10 @@ export const Import = () => {
         <PrimaryButton
           disabled={!verifyRecoveryPhrase(recoveryPhrase)}
           onClick={async () => {
-            const [, err] = await resolve(
-              walletService.createFromMnemonic(recoveryPhrase)
-            );
-            if (!err) {
-              onboardingService.markOnboarded();
-              history.push('/wallet');
-            } else {
-              setErrorMsg(err.message);
-            }
+            onboardingService.setMnemonic(recoveryPhrase);
           }}
         >
-          Connect
+          Next
         </PrimaryButton>
       </HorizontalFlex>
     </VerticalFlex>

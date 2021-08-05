@@ -14,26 +14,26 @@ import { truncateAddress } from '@src/utils/addressUtils';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export const Deposit = () => {
-  const { addresses } = useWalletContext();
+  // const { addresses } = useWalletContext();
   const [isCopied, setIsCopied] = useState(false);
   const [chain, setChain] = useState('C');
 
   const getAddress = () => {
-    if (chain === 'C') {
-      return addresses.addressC;
-    } else if (chain === 'X') {
-      return addresses.addressX;
-    } else if (chain === 'P') {
-      return addresses.addressP;
-    }
-    return addresses.addressC;
+    // if (chain === 'C') {
+    //   return addresses.addressC;
+    // } else if (chain === 'X') {
+    //   return addresses.addressX;
+    // } else if (chain === 'P') {
+    //   return addresses.addressP;
+    // }
+    // return addresses.addressC;
   };
 
-  const truncatedAddress = truncateAddress(getAddress());
+  // const truncatedAddress = truncateAddress(getAddress());
 
-  if (!addresses || !addresses.addressC) {
-    return <LoadingIcon />;
-  }
+  // if (!addresses || !addresses.addressC) {
+  //   return <LoadingIcon />;
+  // }
 
   return (
     <VerticalFlex width={'100%'} align={'center'}>
@@ -55,7 +55,7 @@ export const Deposit = () => {
       <br />
 
       <VerticalFlex align={'center'}>
-        <QRCode value={getAddress()} style={{ width: '100px' }} />
+        {/* <QRCode value={getAddress()} style={{ width: '100px' }} />
         <br />
         <Typography>{truncatedAddress}</Typography>
         <br />
@@ -67,7 +67,7 @@ export const Deposit = () => {
           }}
         >
           {isCopied ? 'Copied!' : 'Copy'}
-        </SecondaryButton>
+        </SecondaryButton> */}
       </VerticalFlex>
       <br />
       <VerticalFlex align={'center'}>

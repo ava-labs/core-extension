@@ -1,110 +1,91 @@
-import { getFromStorage, saveToStorage } from '@src/utils/storage';
-import { Signal, ValueCache } from 'micro-signals';
-import { OnboardingStepper, OnboardingPhase, OnboardingState } from './models';
+import { OnboardingPhase, OnboardingState } from './models';
+import {
+  Subject,
+  firstValueFrom,
+  from,
+  concat,
+  zip,
+  take,
+  tap,
+  Observable,
+} from 'rxjs';
+import {
+  onboardingPhase,
+  onboardingFlow,
+  setPassword,
+  setOnboardingPhase,
+  setMnemonic,
+  setFinalized,
+  mnemonic,
+  setMnemonicConfirmed,
+} from './onboardingFlows';
+import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
+import { onboardingFromStorage, removeOnboardingFromStorage } from './storage';
+import { formatAndLog } from '@src/background/utils/logging';
 
-/**
- * Creating a thin doubly linked list to contain the steps logic and
- * steps hierarchy. Dont change order of array or will change order of steps.
- */
-const steps = [
-  OnboardingPhase.MNEMONIC,
-  OnboardingPhase.PASSWORD,
-  OnboardingPhase.KEYBOARD_SHORTCUT,
-  OnboardingPhase.FINALIZE,
-].reduce((acc: OnboardingStepper[], phase) => {
-  const [lastStep] = acc.slice(-1);
-
-  const nextStep = {
-    phase,
-    ...(lastStep ? { back: lastStep } : {}),
-  };
-
-  if (lastStep) lastStep.next = nextStep;
-
-  return [...acc, nextStep];
-}, []);
-
-const ONBOARDING_STORAGE_KEY = 'onboarding';
-const ONBOARDING_DEFAULT_STATE: OnboardingState = {
-  password: '',
-  phase: OnboardingPhase.NOT_STARTED,
-  isOnBoarded: false,
-};
-
-const createWalletOnboardSteps = new Map<
-  OnboardingStepper['phase'],
-  OnboardingStepper
->(steps.map((nextStep) => [nextStep.phase, nextStep]));
-
-const _onboarding = new Signal<OnboardingState>();
-
+const _onboarding = new Subject<OnboardingState>();
 class OnboardingService {
-  onboarding = _onboarding.cache(new ValueCache()).readOnly();
+  onboarding = concat(onboardingFromStorage(), _onboarding).pipe(
+    tap((state) => {
+      formatAndLog('onboarding state', state);
+    })
+  );
+
+  phase = onboardingPhase;
+  mnemonic = mnemonic;
 
   constructor() {
-    getFromStorage(ONBOARDING_STORAGE_KEY).then((store) => {
-      if (store && store[ONBOARDING_STORAGE_KEY]) {
-        _onboarding.dispatch(store[ONBOARDING_STORAGE_KEY]);
-      } else {
-        _onboarding.dispatch(ONBOARDING_DEFAULT_STATE);
-      }
-    });
-  }
+    const watchForOnboaridngFinalized = onboardingFlow.pipe(
+      tap(([mnemonic, password]) => {
+        setMnemonicAndCreateWallet(mnemonic, password);
+        // walletService.createFromMnemonic(mnemonic);
+        // saveToStorage({ [ONBOARDING_STORAGE_KEY]: { isOnBoarded: false } });
+      })
+    );
 
-  private async update(newOnboardingState: OnboardingState) {
-    const saved = await saveToStorage<{ onboarding: OnboardingState }>({
-      onboarding: newOnboardingState,
+    /**
+     * read from onboarding state, if the flow has been completed then
+     * dont subscribe, otherwise subscribe and listen for wallet setup flow selection.
+     * We probably need to check that wallet is setup complete as well. If it is not
+     * and we have onboard as complete then we have bad state and need to redo the flow
+     */
+    firstValueFrom<OnboardingState>(this.onboarding).then((state) => {
+      return (
+        !state.isOnBoarded && firstValueFrom<any>(watchForOnboaridngFinalized)
+      );
     });
-    _onboarding.dispatch(newOnboardingState);
-    return saved;
   }
 
   async setPassword(password: string) {
-    const onboarding = await this.onboarding.promisify();
-    return this.update({
-      ...onboarding,
-      password,
-    });
+    setPassword(password);
+    setOnboardingPhase(OnboardingPhase.FINALIZE);
   }
 
-  async clearPassword() {
-    const onboarding = await this.onboarding.promisify();
-    return this.update({
-      ...onboarding,
-      password: '',
-    });
+  async setMnemonic(mnemonic: string) {
+    setMnemonic(mnemonic);
+    setOnboardingPhase(OnboardingPhase.PASSWORD);
   }
 
-  async setPhase(phase: OnboardingPhase) {
-    const onboarding = await this.onboarding.promisify();
-    return this.update({ ...onboarding, phase });
+  setImportWallet() {
+    setOnboardingPhase(OnboardingPhase.IMPORT_WALLET);
   }
 
-  getStepperForPhase(phase: OnboardingPhase) {
-    return createWalletOnboardSteps.get(phase);
+  setCreateWallet(mnemonic: string) {
+    setMnemonic(mnemonic);
+    setOnboardingPhase(OnboardingPhase.CREATE_WALLET);
   }
 
-  async getCurrentStep() {
-    const onboarding = await this.onboarding.promisify();
-    return createWalletOnboardSteps.get(onboarding.phase);
+  setMnemonicConfirmed() {
+    setMnemonicConfirmed(true);
+    setOnboardingPhase(OnboardingPhase.PASSWORD);
   }
 
-  async markOnboarded() {
-    const onboarding = await this.onboarding.promisify();
-    return this.update({
-      ...onboarding,
-      isOnBoarded: true,
-      phase: OnboardingPhase.FINALIZE,
-    });
+  async setFinalized() {
+    setFinalized(true);
   }
 
-  async onboardIsInProgress() {
-    const onboarding = await this.onboarding.promisify();
-    return (
-      !onboarding.isOnBoarded &&
-      onboarding.phase !== OnboardingPhase.NOT_STARTED &&
-      onboarding.phase !== OnboardingPhase.FINALIZE
-    );
+  async removeAll() {
+    return removeOnboardingFromStorage();
   }
 }
 

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { observer } from 'mobx-react-lite';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -20,8 +19,8 @@ import { SignedMessageResult, signTransaction } from './utils/signTx';
 import { messageService } from '@src/background/services';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
-export const SignMessage = observer(() => {
-  const { wallet } = useWalletContext();
+export function SignMessage() {
+  // const { wallet } = useWalletContext();
   const requestId = useGetRequestId();
   const [error, setError] = useState('');
   const { message } = useGetMessage(requestId);
@@ -43,14 +42,14 @@ export const SignMessage = observer(() => {
   }
 
   function signTxAndFinalize() {
-    message && wallet
-      ? signTransaction(message, wallet).then((result) => {
-          messageService.updateMessage(result);
-          setSignedResults(result);
-        })
-      : setError(
-          'Something is wrong with the message your attempting to sign, or wallet wasnt available'
-        );
+    // message && wallet
+    //   ? signTransaction(message, wallet).then((result) => {
+    //       messageService.updateMessage(result);
+    //       setSignedResults(result);
+    //     })
+    //   : setError(
+    //       'Something is wrong with the message your attempting to sign, or wallet wasnt available'
+    //     );
   }
 
   return (
@@ -86,6 +85,6 @@ export const SignMessage = observer(() => {
       </HorizontalFlex>
     </VerticalFlex>
   );
-});
+}
 
 export default SignMessage;

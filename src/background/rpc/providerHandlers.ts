@@ -1,20 +1,22 @@
 import { JsonRpcRequest } from './jsonRpcEngine';
 import { formatAndLog, LoggerColors } from '../utils/logging';
 import { DOMAIN_METADATA_METHOD } from '../permissionsController';
-import { getAccountsFromWallet, walletService } from '@src/background/services';
+import { wallet } from '@src/background/services';
 import { AddEthChainParams } from '../models';
-import { networks } from '@src/contexts/NetworkProvider';
+import { firstValueFrom } from 'rxjs';
+import { supportedNetworks } from '../services/network/models';
+import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
 
 export default {
   async metamask_getProviderState(data) {
-    const wallet = await walletService.wallet.promisify();
+    const walletResult = await firstValueFrom(wallet);
     return {
       ...data,
       result: {
         isUnlocked: true,
-        chainId: wallet.getAddressC(),
+        chainId: walletResult.getAddressC(),
         networkVersion: 'avax',
-        accounts: getAccountsFromWallet(wallet),
+        accounts: getAccountsFromWallet(walletResult),
       },
     };
   },
@@ -28,7 +30,7 @@ export default {
    */
   async wallet_addEthereumChain(data: JsonRpcRequest<AddEthChainParams[]>) {
     const params = data.params;
-    const supportedChainIds = Array.from(networks.values()).map(
+    const supportedChainIds = Array.from(supportedNetworks.values()).map(
       (network) => network.chainId
     );
     const chainsRequestedIsSupported = params?.every((chainRequested) =>

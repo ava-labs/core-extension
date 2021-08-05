@@ -1,1 +1,1 @@
-export * from './CreateWalletFlow';
+export * from './OnboardingFlow';

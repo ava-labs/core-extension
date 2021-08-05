@@ -1,30 +1,31 @@
 import { Tabs, Windows } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
-import { Signal } from 'micro-signals';
+import { Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import { NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT } from '@src/utils/constants';
 
 /**
  * Fired when a window is removed (closed).
  */
-const windowRemovedSignal = new Signal<number>();
+const windowRemovedSignal = new Subject<number>();
 
 /**
  * Fired when the currently focused window changes. Returns chrome.windows.WINDOW_ID_NONE if
  * all Chrome windows have lost focus. Note: On some Linux window managers, WINDOW_ID_NONE is
  * always sent immediately preceding a switch from one Chrome window to another.
  */
-const windowFocusChangedSignal = new Signal<number>();
+const windowFocusChangedSignal = new Subject<number>();
 
 /**
  * Pipe the two events blow into the matching signal. This way we dont create a bunch of listeners
  */
 extension.windows.onRemoved.addListener((windowId: number) => {
-  windowRemovedSignal.dispatch(windowId);
+  windowRemovedSignal.next(windowId);
 });
 
 extension.windows.onFocusChanged.addListener((windowId: number) => {
-  windowFocusChangedSignal.dispatch(windowId);
+  windowFocusChangedSignal.next(windowId);
 });
 
 /**
@@ -38,9 +39,11 @@ extension.windows.onFocusChanged.addListener((windowId: number) => {
 function createWindowInfoAndEvents(info: Windows.Window) {
   return {
     ...info,
-    removed: windowRemovedSignal.filter((windowId) => windowId === info.id),
-    focusChanged: windowRemovedSignal.filter(
-      (windowId) => windowId === info.id
+    removed: windowRemovedSignal.pipe(
+      filter((windowId) => windowId === info.id)
+    ),
+    focusChanged: windowRemovedSignal.pipe(
+      filter((windowId) => windowId === info.id)
     ),
   };
 }

@@ -14,28 +14,28 @@ import {
 } from '@avalabs/react-components';
 
 export function SendAntForm({ token }: { token: AssetBalanceX }) {
-  const { wallet } = useWalletContext();
+  // const { wallet } = useWalletContext();
 
-  if (!wallet) {
-    return <LoadingIcon />;
-  }
+  // if (!wallet) {
+  //   return <LoadingIcon />;
+  // }
 
-  const {
-    amount,
-    address,
-    submit,
-    reset,
-    error,
-    canSubmit,
-    sendFee,
-    txId,
-    setAddress,
-    setAmount,
-    extraTxs,
-  } = useSendAnt(wallet, token);
+  // const {
+  //   amount,
+  //   address,
+  //   submit,
+  //   reset,
+  //   error,
+  //   canSubmit,
+  //   sendFee,
+  //   txId,
+  //   setAddress,
+  //   setAmount,
+  //   extraTxs,
+  // } = useSendAnt(wallet, token);
   return (
     <VerticalFlex>
-      <Typography>To</Typography>
+      {/* <Typography>To</Typography>
       <Input
         value={address}
         onChange={(e) => setAddress(e.currentTarget.value)}
@@ -60,7 +60,7 @@ export function SendAntForm({ token }: { token: AssetBalanceX }) {
         <PrimaryButton onClick={submit} disabled={!canSubmit}>
           Confirm
         </PrimaryButton>
-      )}
+      )} */}
     </VerticalFlex>
   );
 }

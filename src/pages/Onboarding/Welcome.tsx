@@ -1,33 +1,34 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import {
   VerticalFlex,
   Typography,
   PrimaryButton,
 } from '@avalabs/react-components';
-import { walletService, onboardingService } from '@src/background/services';
-import { OnboardingPhase } from '@src/background/services/onboarding/models';
+import { onboardingService } from '@src/background/services';
+import { createNewMnemonic } from '@src/background/services/wallet/utils/createMnemonicPhrase';
 
-export const Welcome = observer(() => {
+export function Welcome() {
   const { t } = useTranslation();
 
   return (
     <VerticalFlex align={'center'} padding={'0 10px'}>
       <Typography>{t('home.desc')}</Typography>
-      <Link
-        to="/welcome/create"
+      <PrimaryButton
         onClick={() => {
-          onboardingService.setPhase(OnboardingPhase.MNEMONIC);
-          walletService.createWithNewMnemonic();
+          onboardingService.setCreateWallet(createNewMnemonic());
         }}
       >
-        <PrimaryButton>Create a new wallet</PrimaryButton>
-      </Link>
-      <Link to="/import">
-        <PrimaryButton>import existing wallet</PrimaryButton>
-      </Link>
+        Create a new wallet
+      </PrimaryButton>
+
+      <PrimaryButton
+        onClick={() => {
+          onboardingService.setImportWallet();
+        }}
+      >
+        import existing wallet
+      </PrimaryButton>
     </VerticalFlex>
   );
-});
+}

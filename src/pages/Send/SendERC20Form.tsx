@@ -10,25 +10,25 @@ import {
 import { ERC20 } from './models';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {
-  const { wallet, tokens } = useWalletContext();
-  const {
-    address,
-    setAddress,
-    amount,
-    setAmount,
-    gasPrice,
-    gasLimit,
-    txId,
-    clear,
-    send,
-    canSubmit,
-    error,
-    getFeeText,
-  } = useSendErc20Form(token, tokens, wallet);
+  // const { wallet, tokens } = useWalletContext();
+  // const {
+  //   address,
+  //   setAddress,
+  //   amount,
+  //   setAmount,
+  //   gasPrice,
+  //   gasLimit,
+  //   txId,
+  //   clear,
+  //   send,
+  //   canSubmit,
+  //   error,
+  //   getFeeText,
+  // } = useSendErc20Form(token, tokens, wallet);
 
   return (
     <VerticalFlex>
-      <Typography>To</Typography>
+      {/* <Typography>To</Typography>
       <Input
         value={address}
         onChange={(e) => setAddress(e.currentTarget.value)}
@@ -73,7 +73,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
         <button onClick={send} disabled={!canSubmit}>
           Confirm
         </button>
-      )}
+      )} */}
     </VerticalFlex>
   );
 }

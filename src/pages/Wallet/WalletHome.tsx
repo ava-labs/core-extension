@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
 import {
   VerticalFlex,
   LoadingIcon,
@@ -11,11 +10,12 @@ import {
 import { Erc20TokenList } from '@src/pages/Wallet/Erc20TokenList';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { TransactionSendType } from '../Send/models';
+import { getAvaxBalanceTotal, getAvaxBalanceUSD } from './utils/balanceHelpers';
 
-export const WalletHome = observer(() => {
-  const { balances, prices } = useWalletContext();
+export function WalletHome() {
+  const { balances, avaxPrice } = useWalletContext();
 
-  if (balances.isLoading) {
+  if (!balances || !avaxPrice) {
     return <LoadingIcon />;
   }
 
@@ -23,9 +23,11 @@ export const WalletHome = observer(() => {
     <VerticalFlex width={'100%'} align={'center'}>
       <br />
       <VerticalFlex>
-        <Typography>{balances.getAvaxBalanceTotal()} AVAX</Typography>
         <Typography>
-          ${balances.getAvaxBalanceUSD(prices.avaxUSD)} AVAX
+          {getAvaxBalanceTotal(balances.balanceAvaxTotal)} AVAX
+        </Typography>
+        <Typography>
+          ${getAvaxBalanceUSD(balances.balanceAvaxTotal, avaxPrice)} AVAX
         </Typography>
       </VerticalFlex>
       <br />
@@ -49,4 +51,4 @@ export const WalletHome = observer(() => {
       <Erc20TokenList />
     </VerticalFlex>
   );
-});
+}

@@ -5,18 +5,15 @@ const App = React.lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup');
 });
 import { HashRouter as Router } from 'react-router-dom';
-import { store, StoreContext } from '@src/store/store';
 import '@src/i18n';
 import { LoadingIcon } from '@avalabs/react-components';
 
 browser.tabs.query({ active: true }).then(() => {
   ReactDOM.render(
     <Router>
-      <StoreContext.Provider value={store}>
-        <React.Suspense fallback={<LoadingIcon />}>
-          <App />
-        </React.Suspense>
-      </StoreContext.Provider>
+      <React.Suspense fallback={<LoadingIcon />}>
+        <App />
+      </React.Suspense>
     </Router>,
     document.getElementById('popup')
   );

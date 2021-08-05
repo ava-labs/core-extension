@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  iAvaxBalance,
-  WalletType,
-} from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
+import { iAvaxBalance, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 
 export function useBalanceAvax(wallet?: WalletType) {

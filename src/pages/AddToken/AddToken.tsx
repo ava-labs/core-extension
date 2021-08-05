@@ -1,29 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { observer } from 'mobx-react-lite';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
-import { useStore } from '@src/store/store';
-
-export interface AddTokenProps {}
-
-interface TokenListToken {
-  address: string;
-  chainId: number;
-  name: string;
-  symbol: string;
-  decimals: number | string;
-  logoURI: string;
-}
-
-export const AddToken = observer((props: AddTokenProps) => {
+export function AddToken() {
   const [contract, setContract] = useState('');
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
   const [decimals, setDecimals] = useState(0);
   const [valid, setValid] = useState(false);
-
-  const {} = props;
 
   const handleContractChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -74,7 +57,7 @@ export const AddToken = observer((props: AddTokenProps) => {
       </button>
     </Container>
   );
-});
+}
 
 export const Container = styled.div`
   padding: 1rem;

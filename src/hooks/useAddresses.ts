@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { ActiveNetwork } from '@src/contexts/NetworkProvider';
 
-export function useAddresses(wallet?: WalletType, network?: ActiveNetwork) {
+export function useAddresses(wallet?: WalletType, network?: any) {
   const [addressX, setAddressX] = useState('');
   const [addressP, setAddressP] = useState('');
   const [addressC, setAddressC] = useState('');

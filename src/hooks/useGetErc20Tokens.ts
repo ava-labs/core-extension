@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { ActiveNetwork } from '@src/contexts/NetworkProvider';
 import { ERC20 } from '@src/pages/Send/models';
 
 /**
@@ -67,10 +66,7 @@ async function combineTokensAndBalances(
  *
  * @returns ERC20 token list with balances
  */
-export function useGetErc20Tokens(
-  wallet?: WalletType,
-  network?: ActiveNetwork
-) {
+export function useGetErc20Tokens(wallet?: WalletType, network?: any) {
   const [tokens, setTokens] = useState<ERC20[]>();
 
   useEffect(() => {

@@ -18,10 +18,10 @@ const Erc20TokenImg = styled.img`
 `;
 
 export function Erc20TokenList() {
-  const { tokens } = useWalletContext();
+  const { erc20Tokens } = useWalletContext();
   return (
     <VerticalFlex width={'100%'} align={'center'} margin={'10px 0'}>
-      {tokens?.map((token) => (
+      {erc20Tokens?.map((token) => (
         <VerticalFlex key={token.address} width={'400px'}>
           <HorizontalFlex width={'100%'} justify={'space-between'}>
             <Erc20TokenImg src={token.logoURI} />

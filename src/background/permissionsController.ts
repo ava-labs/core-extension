@@ -1,8 +1,9 @@
 import { JsonRpcRequest } from './rpc/jsonRpcEngine';
-import { Signal } from 'micro-signals';
-import { store } from '@src/store/store';
-import storageListener from './utils/storage';
+import storageListener from '../utils/storage/local-storage';
 import { formatAndLog } from './utils/logging';
+import { permissionsService } from './services';
+import { mergeMap, filter, tap, map, firstValueFrom, Subject } from 'rxjs';
+import { mergeWith } from 'rxjs/operators';
 
 export const DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata';
 export const CONNECT_METHOD = 'eth_requestAccounts';
@@ -19,11 +20,12 @@ export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
   domain: string;
 }
 export class PermissionsController {
-  private connectionDomainSignal = new Signal<string>();
+  private connectionDomainSignal = new Subject<string>();
 
-  private _destroy = new Signal<boolean>();
+  private _destroy = new Subject<boolean>();
+
   destroy() {
-    this._destroy.dispatch(true);
+    this._destroy.next(true);
   }
 
   private methodsRequiringPermissions = new Set<string>(
@@ -34,7 +36,7 @@ export class PermissionsController {
    * Assign this as a promise of the signal, the signal will resolve on the first push
    * and the promise will essentially act as a cache for the result
    */
-  getDomain = this.connectionDomainSignal.promisify();
+  getDomain = firstValueFrom(this.connectionDomainSignal);
 
   private async permissionGranted(rpcReuqest: JsonRpcRequest<any>) {
     /**
@@ -52,34 +54,37 @@ export class PermissionsController {
      *   d. Verify that the permissions exists for the given domain
      */
 
-    return this.getDomain.then((domain) => {
+    return this.getDomain.then(async (domain) => {
       formatAndLog('Permission request (pending)', rpcReuqest);
 
       const domainHasPermissions =
-        store.permissionsStore.domainHasAccountsPermissions(domain);
+        await permissionsService.domainHasAccountsPermissions(domain);
+
+      const destroyed$ = this._destroy.pipe(
+        tap((request) => {
+          formatAndLog(
+            'Permission request canceled (connection destroyed)',
+            request
+          );
+        }),
+        map(() => 'connection destroyed')
+      );
 
       return domainHasPermissions
         ? rpcReuqest
-        : storageListener
-            .filter(() => {
-              return store.permissionsStore.domainHasAccountsPermissions(
-                domain
-              );
-            })
-            .peek(() =>
-              formatAndLog('Permission request (granted)', rpcReuqest)
+        : firstValueFrom(
+            storageListener.pipe(
+              mergeMap(() =>
+                permissionsService.domainHasAccountsPermissions(domain)
+              ),
+              filter((domainHasPermissions) => !!domainHasPermissions),
+              tap(() =>
+                formatAndLog('Permission request (granted)', rpcReuqest)
+              ),
+              map(() => rpcReuqest),
+              mergeWith(destroyed$)
             )
-            .map(() => rpcReuqest)
-            .promisify(
-              this._destroy
-                .peek(() => {
-                  formatAndLog(
-                    'Permission request canceled (connection destroyed)',
-                    rpcReuqest
-                  );
-                })
-                .map(() => 'destroyed connection')
-            );
+          );
     });
   }
 
@@ -91,7 +96,7 @@ export class PermissionsController {
 
   watchForDomainAndDispatch(rpcReuqest: JsonRpcRequest<any>) {
     if (rpcReuqest && rpcReuqest.method === DOMAIN_METADATA_METHOD) {
-      this.connectionDomainSignal.dispatch(rpcReuqest.params.name);
+      this.connectionDomainSignal.next(rpcReuqest.params.name);
     }
 
     return this;

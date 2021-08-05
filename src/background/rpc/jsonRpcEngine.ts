@@ -1,6 +1,6 @@
 import { JsonRpcEngine } from 'json-rpc-engine';
 import { createFetchMiddleware } from 'eth-json-rpc-middleware';
-import { getNetworkFromStorage } from '@src/contexts/NetworkProvider';
+import { getNetworkFromStorage } from '../services/network/storage';
 
 export { JsonRpcRequest } from 'json-rpc-engine';
 

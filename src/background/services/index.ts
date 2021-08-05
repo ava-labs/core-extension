@@ -1,7 +1,7 @@
-import messageService from './transactionsAndMessages/messages/messages';
-import transactionService from './transactionsAndMessages/transactions/transactions';
-
-export { messageService, transactionService };
-export * from './transactionsAndMessages/messages/utils/personalSigRecovery';
+export * from './messages/messages';
+export * from './transactions/transactions';
+export * from './messages/utils/personalSigRecovery';
 export * from './wallet/wallet';
 export * from './onboarding/onboarding';
+export * from './theme/theme';
+export * from './permissions/permissions';

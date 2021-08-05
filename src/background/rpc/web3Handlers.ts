@@ -1,23 +1,22 @@
 import { JsonRpcRequest, engine } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import storageListener from '../utils/storage';
 import { formatAndLog, LoggerColors } from '../utils/logging';
 import {
   CONNECT_METHOD,
   JSONRPCRequestWithDomain,
 } from '../permissionsController';
-import { Network } from '@avalabs/avalanche-wallet-sdk';
 import {
-  getAccountsFromWallet,
   messageService,
+  permissionsService,
   personalSigRecovery,
   transactionService,
 } from '../services';
-import { MessageType } from '../services/transactionsAndMessages/messages/models';
-import { txToCustomEvmTx } from '../services/transactionsAndMessages/transactions/utils/txToCustomEvmTx';
-import { TxStatus } from '../services/transactionsAndMessages/transactions/models';
-import { walletService } from '@src/background/services';
-import { store } from '@src/store/store';
+import { MessageType } from '../services/messages/models';
+import { txToCustomEvmTx } from '../services/transactions/utils/txToCustomEvmTx';
+import { TxStatus } from '../services/transactions/models';
+import { wallet } from '@src/background/services';
+import { map, filter, mergeMap, firstValueFrom } from 'rxjs';
+import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -78,7 +77,7 @@ async function signMessage(data: JsonRpcRequest<any>, type: MessageType) {
   const { listenForUpdates } = messageService.saveMessage(data, type);
   const window = await openExtensionNewWindow(`sign?id=${data.id}`);
   const result = await listenForUpdates(
-    window.removed.map(() => 'Window closed before signed')
+    window.removed.pipe(map(() => 'Window closed before signed'))
   );
 
   return { ...data, result };
@@ -86,7 +85,7 @@ async function signMessage(data: JsonRpcRequest<any>, type: MessageType) {
 
 const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {
-    const wallet = await walletService.wallet.promisify();
+    const walletResult = await firstValueFrom(wallet);
 
     const { listenForTxPending } = transactionService.addTransaction(data);
 
@@ -95,15 +94,15 @@ const web3CustomHandlers = {
     );
 
     const pendingTx = await listenForTxPending(
-      window.removed.map(() => 'Window closed before approved')
+      window.removed.pipe(map(() => 'Window closed before approved'))
     );
 
     return txToCustomEvmTx(pendingTx).then((params) => {
-      if (!wallet || !wallet.sendCustomEvmTx) {
+      if (!walletResult || !walletResult.sendCustomEvmTx) {
         throw new Error('wallet is undefined or sned tx method is malformed');
       }
 
-      return wallet
+      return walletResult
         .sendCustomEvmTx(
           params.gasPrice,
           params.gasLimit,
@@ -123,8 +122,8 @@ const web3CustomHandlers = {
   },
 
   async eth_getBalance(data: JsonRpcRequest<any>) {
-    const wallet = await walletService.wallet.promisify();
-    return { ...data, result: wallet.getAddressC() };
+    const walletResult = await firstValueFrom(wallet);
+    return { ...data, result: walletResult.getAddressC() };
   },
 
   async eth_signTypedData(data: JsonRpcRequest<any>) {
@@ -157,7 +156,6 @@ const web3CustomHandlers = {
   // },
 
   async personal_ecRecover(data: JsonRpcRequest<any>) {
-    const wallet = await walletService.wallet.promisify();
     const { params } = data;
 
     const msg = params[0];
@@ -176,12 +174,12 @@ const web3CustomHandlers = {
    * @returns
    */
   async [CONNECT_METHOD](data: JSONRPCRequestWithDomain) {
-    const wallet = await walletService.wallet.promisify();
+    const walletResult = await firstValueFrom(wallet);
 
-    if (store.permissionsStore.domainHasAccountsPermissions(data.domain)) {
+    if (permissionsService.domainHasAccountsPermissions(data.domain)) {
       return {
         ...data,
-        result: getAccountsFromWallet(wallet),
+        result: getAccountsFromWallet(walletResult),
       };
     }
 
@@ -194,18 +192,22 @@ const web3CustomHandlers = {
      * promise is resolved. If not and the window is closed before then the promise will also be resolved and
      * the consumer will be notified that the window closed prematurely
      */
-    const hasPermissions = await storageListener
-      .filter(() => store.permissionsStore.domainPermissionsExist(data.domain))
-      .map(() =>
-        store.permissionsStore.domainHasAccountsPermissions(data.domain)
+    const hasPermissions = await firstValueFrom(
+      permissionsService.listenForPermissionChanges().pipe(
+        mergeMap(() => permissionsService.domainPermissionsExist(data.domain)),
+        filter((hasPermissionsValues) => hasPermissionsValues),
+        mergeMap(() =>
+          permissionsService.domainHasAccountsPermissions(data.domain)
+        )
+        // merge()
       )
-      .promisify(
-        window.removed.map(() => 'Window closed before permissions granted')
-      );
+    );
+
+    // window.removed.map(() => 'Window closed before permissions granted')
 
     return {
       ...data,
-      result: hasPermissions ? getAccountsFromWallet(wallet) : [],
+      result: hasPermissions ? getAccountsFromWallet(walletResult) : [],
     };
   },
   /**
@@ -215,11 +217,11 @@ const web3CustomHandlers = {
    * @returns an array of accounts the dapp has permissions for
    */
   async eth_accounts(data: JSONRPCRequestWithDomain) {
-    const wallet = await walletService.wallet.promisify();
+    const walletResult = await firstValueFrom(wallet);
     return {
       ...data,
-      result: store.permissionsStore.domainHasAccountsPermissions(data.domain)
-        ? getAccountsFromWallet(wallet)
+      result: permissionsService.domainHasAccountsPermissions(data.domain)
+        ? getAccountsFromWallet(walletResult)
         : [],
     };
   },
@@ -233,13 +235,15 @@ const web3CustomHandlers = {
      * At this point the user has previously given permissions and we are possibly editing them
      * and/or adding more permissions.
      */
-    await window.removed
-      .map(() => store.permissionsStore.permissions[data.domain])
-      .promisify();
+    await firstValueFrom(
+      window.removed.pipe(
+        map(() => permissionsService.permissions[data.domain])
+      )
+    );
 
     return {
       ...data,
-      result: store.permissionsStore.getPermissionsConvertedToMetaMaskStructure(
+      result: permissionsService.getPermissionsConvertedToMetaMaskStructure(
         data.domain
       ),
     };
@@ -247,7 +251,7 @@ const web3CustomHandlers = {
   async wallet_getPermissions(data: JSONRPCRequestWithDomain) {
     return {
       ...data,
-      result: store.permissionsStore.getPermissionsConvertedToMetaMaskStructure(
+      result: permissionsService.getPermissionsConvertedToMetaMaskStructure(
         data.domain
       ),
     };

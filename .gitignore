@@ -14,6 +14,7 @@ pids
 *.pid
 *.seed
 *.pid.lock
+.env
 
 
 
@@ -31,9 +32,7 @@ typings/
 .npm
 .npmrc
 
-/dist/js/popup.js
-/dist/js/inpage.js
+dist/
 builds/
 .DS_Store
-/dist/js/backgroundPage.js
 todo.*

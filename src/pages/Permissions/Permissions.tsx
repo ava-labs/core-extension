@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { observer } from 'mobx-react-lite';
 import {
   VerticalFlex,
   Typography,
@@ -9,11 +8,11 @@ import {
   PrimaryButton,
   LoadingIcon,
 } from '@avalabs/react-components';
-import { store } from '@src/store/store';
-import { DappPermissions } from '@src/store/permissions';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { getAccountsFromWallet } from '@src/background/services';
+import { getAccountsFromWallet } from '@src/background/services/wallet/utils/getAccountsFromWallet';
 import { useEffect } from 'react';
+import { DappPermissions } from '@src/background/services/permissions/models';
+import { permissionsService } from '@src/background/services';
 
 function accountsToPermissions(accounts: string[], domain: string) {
   return {
@@ -44,8 +43,8 @@ function atleastOneAccountHasPermissions(permissions: DappPermissions) {
   return (Object.values(permissions.accounts) || []).some((value) => value);
 }
 
-function component() {
-  const { wallet } = useWalletContext();
+export function PermissionsPage() {
+  // const { wallet } = useWalletContext();
   const params = new URLSearchParams(window.location.search);
   let domain = params.get('domain') as string;
 
@@ -53,14 +52,14 @@ function component() {
     ReturnType<typeof accountsToPermissions> | undefined
   >();
 
-  useEffect(() => {
-    if (wallet) {
-      updatePermissions(
-        store.permissionsStore.permissions[domain] ??
-          accountsToPermissions(getAccountsFromWallet(wallet), domain)
-      );
-    }
-  }, [wallet]);
+  // useEffect(() => {
+  //   if (wallet) {
+  //     updatePermissions(
+  //       permissionsService.permissions[domain] ??
+  //         accountsToPermissions(getAccountsFromWallet(wallet), domain)
+  //     );
+  //   }
+  // }, [wallet]);
 
   const acceptPermissionsDisabled = useMemo(
     () => permissions && !atleastOneAccountHasPermissions(permissions),
@@ -104,7 +103,7 @@ function component() {
         <PrimaryButton
           disabled={acceptPermissionsDisabled}
           onClick={() => {
-            store.permissionsStore.addPermissionsForDomain(permissions);
+            permissionsService.addPermissionsForDomain(permissions);
             window.close();
           }}
         >
@@ -115,5 +114,4 @@ function component() {
   );
 }
 
-export const PermissionsPage = observer(component);
 export default PermissionsPage;

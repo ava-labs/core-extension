@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
+import React from 'react';
 
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -12,21 +11,12 @@ import {
 } from '@avalabs/react-components';
 import { Link } from 'react-router-dom';
 import { UnlockingSchedule } from './UnlockingSchedule';
-import { UTXOSet } from 'avalanche/dist/apis/platformvm';
+import { getAvaxBalanceTotal } from './utils/balanceHelpers';
 
-export const WalletOverview = observer(() => {
-  const { balances, wallet } = useWalletContext();
-  const [utxoSet, setUtxoSet] = useState<UTXOSet>();
+export function WalletOverview() {
+  const { balances } = useWalletContext();
 
-  useEffect(() => {
-    /**
-     * We have type for UTXOSet coming from avalanche sdk and the wallet sdk
-     * so for now we will cast it
-     */
-    wallet && setUtxoSet(wallet.getUtxosP() as unknown as UTXOSet);
-  }, [balances.balanceAvaxTotal, wallet]);
-
-  if (!wallet || !balances.balanceAvax) {
+  if (!balances.balanceAvax) {
     return <LoadingIcon />;
   }
 
@@ -36,7 +26,9 @@ export const WalletOverview = observer(() => {
         <VerticalFlex>
           <h1>Total</h1>
           <p>
-            <Typography>{balances.getAvaxBalanceTotal()}</Typography>
+            <Typography>
+              {getAvaxBalanceTotal(balances.balanceAvaxTotal)}
+            </Typography>
           </p>
         </VerticalFlex>
       </HorizontalFlex>
@@ -97,21 +89,11 @@ export const WalletOverview = observer(() => {
       </VerticalFlex>
       <br />
       <br />
-      {utxoSet ? (
-        <VerticalFlex>
-          <h1>Unlocking Schedule </h1>
-          <UnlockingSchedule utxoSet={utxoSet} />
-        </VerticalFlex>
-      ) : (
-        ''
-      )}
-      <br />
-      <br />
       <Link to={'/wallet'}>
         <PrimaryButton>Back</PrimaryButton>
       </Link>
     </VerticalFlex>
   );
-});
+}
 
 export default WalletOverview;

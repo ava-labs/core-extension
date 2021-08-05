@@ -1,32 +1,28 @@
 import React from 'react';
-import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  Mneumonic,
+  Mnemonic,
   HorizontalSeparator,
   SecondaryCard,
   PrimaryButton,
   SecondaryButton,
   HorizontalFlex,
 } from '@avalabs/react-components';
-import { useOnboardState } from '@src/pages/Onboarding/useOnboardState';
-import { walletService } from '@src/background/services';
+import { onboardingService } from '@src/background/services';
 import { useEffect } from 'react';
-import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
-function component() {
+export function CreateWallet({ onCancel }: { onCancel(): void }) {
   const [isCopied, setIsCopied] = useState(false);
   const [mnemonic, setMnemonic] = useState('');
-
-  const { goToNextOnboardingStep } = useOnboardState(OnboardingPhase.MNEMONIC);
+  const [mnemonicConfirmed, setmnemonicConfirmed] = useState(false);
 
   useEffect(() => {
-    walletService.wallet
-      .promisify()
-      .then(() => walletService.mnemonic)
-      .then(setMnemonic);
+    const subscription = onboardingService.mnemonic.subscribe((mnemonic) => {
+      setMnemonic(mnemonic);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
@@ -41,9 +37,24 @@ function component() {
             This is your Mnemonic phrase, this needs to be kept in a safe place.
           </Typography>
           <br />
-          <Mneumonic phrase={mnemonic} />
+          {!isCopied ? (
+            <Mnemonic phrase={mnemonic} />
+          ) : (
+            <>
+              <Mnemonic
+                phrase={mnemonic}
+                confirmMnemonic={true}
+                onConfirmed={() => {
+                  setmnemonicConfirmed(true);
+                }}
+              />
+            </>
+          )}
           <br />
           <HorizontalFlex>
+            <SecondaryButton onClick={() => onCancel && onCancel()}>
+              Cancel
+            </SecondaryButton>
             <SecondaryButton
               onClick={() => {
                 setIsCopied(true);
@@ -53,8 +64,8 @@ function component() {
               {isCopied ? 'Phrase copied' : 'Copy Phrase'}
             </SecondaryButton>
             <PrimaryButton
-              disabled={!isCopied}
-              onClick={() => goToNextOnboardingStep && goToNextOnboardingStep()}
+              disabled={!mnemonicConfirmed}
+              onClick={() => onboardingService.setMnemonicConfirmed()}
             >
               Next
             </PrimaryButton>
@@ -64,5 +75,3 @@ function component() {
     </VerticalFlex>
   );
 }
-
-export const CreateWallet = observer(component);

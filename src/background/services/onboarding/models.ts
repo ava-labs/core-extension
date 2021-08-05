@@ -1,14 +1,11 @@
 export interface OnboardingState {
-  password?: string;
-  phase: OnboardingPhase;
   isOnBoarded: boolean;
 }
 
 export enum OnboardingPhase {
-  NOT_STARTED = 'not_started',
-  MNEMONIC = 'mnemonic',
+  CREATE_WALLET = 'create_wallet',
+  IMPORT_WALLET = 'import_wallet',
   PASSWORD = 'password',
-  KEYBOARD_SHORTCUT = 'keyboard_shortcut',
   FINALIZE = 'finalize',
 }
 

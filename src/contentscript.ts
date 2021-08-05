@@ -132,8 +132,10 @@ function setupStream() {
    * Establish a connection to the background page via Runtime.Port
    * api and then wrap that as a duplex stream
    */
-  const extensionPort = extension.runtime.connect({ name: CONTENT_SCRIPT });
-  const extensionStream = new PortStream(extensionPort);
+  const backgroundConnection = extension.runtime.connect({
+    name: CONTENT_SCRIPT,
+  });
+  const backgroundStream = new PortStream(backgroundConnection);
 
   /**
    * pump all pagstream events into the pageMux, pageMux is
@@ -153,7 +155,7 @@ function setupStream() {
    */
   pump(
     extensionMux,
-    extensionStream,
+    backgroundStream,
     extensionMux,
     logger('Provider call'),
     (err) => {

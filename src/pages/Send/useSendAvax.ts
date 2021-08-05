@@ -1,5 +1,3 @@
-import { useBalance } from '@src/hooks/useBalance';
-import { useStore } from '@src/store/store';
 import { useEffect, useState } from 'react';
 import { BN, AddressHelper, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { UniversalTx } from '@avalabs/avalanche-wallet-sdk/dist/helpers/universal_tx_helper';
@@ -12,7 +10,7 @@ interface UniversalTxReceipt {
 }
 
 export function useSendAvax() {
-  const { wallet } = useWalletContext();
+  // const { wallet } = useWalletContext();
   const [amount, setAmount] = useState<BN | undefined>();
   const [address, setAddress] = useState('');
   const [canSubmit, setCanSubmit] = useState(false);
@@ -51,11 +49,11 @@ export function useSendAvax() {
     }
 
     // Check if we can have enough balance on the destination chain
-    if (!wallet?.canHaveBalanceOnChain(targetChain as ChainIdType, amount)) {
-      setError('Insufficient balance.');
-      setCanSubmit(false);
-      return false;
-    }
+    // if (!wallet?.canHaveBalanceOnChain(targetChain as ChainIdType, amount)) {
+    //   setError('Insufficient balance.');
+    //   setCanSubmit(false);
+    //   return false;
+    // }
 
     setCanSubmit(true);
     setError('');
@@ -82,12 +80,12 @@ export function useSendAvax() {
         fee = new BN(225).mul(new BN(21000));
       }
 
-      let feeAmt = amount.add(fee);
-      let txArray = wallet?.getTransactionsForBalance(
-        targetChain as ChainIdType,
-        feeAmt
-      );
-      txArray && setTxs(txArray);
+      // let feeAmt = amount.add(fee);
+      // let txArray = wallet?.getTransactionsForBalance(
+      //   targetChain as ChainIdType,
+      //   feeAmt
+      // );
+      // txArray && setTxs(txArray);
     } catch (e) {
       console.log('Unable to complete transaction', e);
     }
@@ -97,30 +95,30 @@ export function useSendAvax() {
     let exportTx;
     let importTx;
 
-    if (!wallet) {
-      throw new Error('wallet undefined');
-    }
+    // if (!wallet) {
+    //   throw new Error('wallet undefined');
+    // }
 
-    switch (tx.action) {
-      case 'export_x_c':
-        exportTx = await wallet.exportXChain(tx.amount, 'C');
-        importTx = await wallet.importC();
-        break;
-      case 'export_x_p':
-        exportTx = await wallet.exportXChain(tx.amount, 'P');
-        importTx = await wallet.importP();
-        break;
-      case 'export_c_x':
-        exportTx = await wallet.exportCChain(tx.amount);
-        importTx = await wallet.importX('C');
-        break;
-      case 'export_p_x':
-        exportTx = await wallet.exportPChain(tx.amount);
-        importTx = await wallet.importX('P');
-        break;
-      default:
-        throw new Error('Method not supported.');
-    }
+    // switch (tx.action) {
+    //   case 'export_x_c':
+    //     exportTx = await wallet.exportXChain(tx.amount, 'C');
+    //     importTx = await wallet.importC();
+    //     break;
+    //   case 'export_x_p':
+    //     exportTx = await wallet.exportXChain(tx.amount, 'P');
+    //     importTx = await wallet.importP();
+    //     break;
+    //   case 'export_c_x':
+    //     exportTx = await wallet.exportCChain(tx.amount);
+    //     importTx = await wallet.importX('C');
+    //     break;
+    //   case 'export_p_x':
+    //     exportTx = await wallet.exportPChain(tx.amount);
+    //     importTx = await wallet.importX('P');
+    //     break;
+    //   default:
+    //     throw new Error('Method not supported.');
+    // }
 
     return {
       export: exportTx,
@@ -146,26 +144,26 @@ export function useSendAvax() {
       priorTxIds.push(exportImportId);
     }
 
-    if (!wallet) {
-      throw new Error('wallet undefined');
-    }
-    // Send the actual transaction
-    let finalTxId: string;
-    switch (targetChain) {
-      case 'X':
-        finalTxId = await wallet.sendAvaxX(address!, amount!);
-        setTxId(finalTxId);
-        break;
-      case 'C':
-        let gasLimit = 21000;
-        let gasPrice = Utils.numberToBN(225, 9);
+    // if (!wallet) {
+    //   throw new Error('wallet undefined');
+    // }
+    // // Send the actual transaction
+    // let finalTxId: string;
+    // switch (targetChain) {
+    //   case 'X':
+    //     finalTxId = await wallet.sendAvaxX(address!, amount!);
+    //     setTxId(finalTxId);
+    //     break;
+    //   case 'C':
+    //     let gasLimit = 21000;
+    //     let gasPrice = Utils.numberToBN(225, 9);
 
-        // Convert amount to decimals 18
-        let amtC = Utils.avaxXtoC(amount!);
-        finalTxId = await wallet.sendAvaxC(address!, amtC, gasPrice, gasLimit);
-        setTxId(finalTxId);
-        break;
-    }
+    //     // Convert amount to decimals 18
+    //     let amtC = Utils.avaxXtoC(amount!);
+    //     finalTxId = await wallet.sendAvaxC(address!, amtC, gasPrice, gasLimit);
+    //     setTxId(finalTxId);
+    //     break;
+    // }
   }
 
   return {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { observer } from 'mobx-react-lite';
 import { VerticalFlex } from '@avalabs/react-components';
 import { TransactionSendType } from './models';
 import { SendAvaxForm } from '@src/pages/Send/SendAvaxForm';
@@ -7,7 +6,7 @@ import { SendAntForm } from '@src/pages/Send/SendAntForm';
 import { SendERC20Form } from '@src/pages/Send/SendERC20Form';
 import { useLocation, Redirect } from 'react-router-dom';
 
-export const Send = observer(() => {
+export function Send() {
   /**
    * using any until we do some type checking and error
    * handling at this level. The proper types here are:
@@ -32,6 +31,6 @@ export const Send = observer(() => {
       }
     </VerticalFlex>
   );
-});
+}
 
 export default Send;

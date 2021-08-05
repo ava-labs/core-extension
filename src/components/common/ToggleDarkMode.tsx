@@ -1,18 +1,26 @@
-import React from 'react';
-import { observer } from 'mobx-react-lite';
+import React, { useEffect } from 'react';
 import { MoonIcon, SunshineIcon, TextButton } from '@avalabs/react-components';
-import { useStore } from '@src/store/store';
+import { themeService } from '@src/background/services';
+import { useState } from 'react';
 
-export const ToggleDarkMode = observer(() => {
-  const { themeStore } = useStore();
+export function ToggleDarkMode() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const listener = (config) => {
+      setIsDarkMode(config.isDarkMode);
+    };
+    const subscription = themeService.themeConfig.subscribe(listener);
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <TextButton
       onClick={() => {
-        themeStore.toggleDarkMode();
+        themeService.toggleDarkMode();
       }}
     >
-      {themeStore.isDarkMode ? <MoonIcon /> : <SunshineIcon />}
+      {isDarkMode ? <MoonIcon /> : <SunshineIcon />}
     </TextButton>
   );
-});
+}

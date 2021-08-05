@@ -1,5 +1,5 @@
 import { messageService } from '@src/background/services';
-import { Message } from '@src/background/services/transactionsAndMessages/messages/models';
+import { Message } from '@src/background/services/messages/models';
 import { useEffect, useState } from 'react';
 
 export interface ParsedMessageResult {

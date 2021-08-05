@@ -1,39 +1,53 @@
 import React, { createContext, useContext, useState } from 'react';
-import { useBalance } from '@src/hooks/useBalance';
-import { usePrices } from '@src/hooks/usePrices';
-import { useGetErc20Tokens } from '@src/hooks/useGetErc20Tokens';
-import { useAddresses } from '@src/hooks/useAddresses';
-import { WalletType } from '../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
-import { useNetworkContext } from './NetworkProvider';
-import { walletService } from '@src/background/services';
 import { useEffect } from 'react';
+import { useConnectionContext } from './ConnectionProvider';
+import { LoadingIcon } from '@avalabs/react-components';
+import { concat, filter, map } from 'rxjs';
+import {
+  WalletState,
+  walletUpdatedEventListener,
+} from '@src/background/services/wallet/handlers';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
 
-const WalletContext = createContext<{
-  wallet?: WalletType;
-  balances: ReturnType<typeof useBalance>;
-  prices: ReturnType<typeof usePrices>;
-  tokens: ReturnType<typeof useGetErc20Tokens>;
-  addresses: ReturnType<typeof useAddresses>;
-}>({} as any);
+const WalletContext = createContext<WalletState>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
-  const [wallet, setWallet] = useState<WalletType | undefined>();
-  const { network } = useNetworkContext();
+  const { request, events } = useConnectionContext();
+  const [walletState, setWalletState] = useState<WalletState>();
 
   // listen for wallet creation
   useEffect(() => {
-    walletService.wallet.add((wall) => setWallet(wall));
+    if (!request || !events) {
+      return;
+    }
+
+    concat(
+      request<WalletState>({ method: 'wallet_InitializeState' }),
+      events().pipe(
+        filter(walletUpdatedEventListener),
+        map((evt) => evt.value)
+      )
+    ).subscribe((state: any) => {
+      const { balanceAvaxTotal, ...values } = (state as WalletState).balances;
+      setWalletState({
+        ...state,
+        ...{
+          balances: {
+            ...values,
+            // have to convert back to BN since this was serialized over port connection
+            balanceAvaxTotal: new BN(balanceAvaxTotal),
+          },
+        },
+      });
+    });
   }, []);
 
-  const balances = useBalance(wallet, network);
-  const prices = usePrices();
-  const tokens = useGetErc20Tokens(wallet, network);
-  const addresses = useAddresses(wallet, network);
+  if (!walletState) {
+    return <LoadingIcon />;
+  }
 
   return (
-    <WalletContext.Provider
-      value={{ balances, prices, tokens, wallet, addresses }}
-    >
+    <WalletContext.Provider value={walletState}>
       {children}
     </WalletContext.Provider>
   );

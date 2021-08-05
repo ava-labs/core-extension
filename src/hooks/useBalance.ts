@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import {
-  WalletBalanceX,
-  WalletType,
-} from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
+import { WalletBalanceX, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { useBalanceAvax } from './useBalanceAvax';
-import { ActiveNetwork } from '@src/contexts/NetworkProvider';
 
-export function useBalance(wallet?: WalletType, network?: ActiveNetwork) {
+export function useBalance(wallet?: WalletType, network?: any) {
   const [balanceX, setBalanceX] = useState<WalletBalanceX>({});
   const [isLoading, setIsLoading] = useState(false);
 
