@@ -1,10 +1,9 @@
 import { JsonRpcRequest } from '@src/background/rpc/jsonRpcEngine';
 import { formatAndLog } from '@src/background/utils/logging';
 import storageListener from '@src/background/utils/storage';
-import { txParams } from '@src/store/transaction/types';
 import { ReadableSignal } from 'micro-signals';
 import { TransactionsAndMessagesBase } from '../txAndMessagesBase';
-import { isTxParams, Transaction, TxStatus } from './models';
+import { isTxParams, Transaction, TxStatus, txParams } from './models';
 
 class TransactionsService extends TransactionsAndMessagesBase<Transaction> {
   addTransaction(data: JsonRpcRequest<txParams[]>) {

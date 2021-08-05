@@ -32,3 +32,12 @@ export interface txParams {
 export function isTxParams(params: Partial<txParams>): params is txParams {
   return !!(params.to && params.from && params.value);
 }
+
+export interface txParams {
+  from: string;
+  to: string;
+  value: string;
+  data?: string;
+  gas?: string;
+  gasPrice?: string;
+}
