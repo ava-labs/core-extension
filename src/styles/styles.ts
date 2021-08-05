@@ -54,6 +54,7 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: Roboto;
     line-height: 1;
+    background-color: ${({ theme }) => theme.colors.bg};
   }
 
   a{

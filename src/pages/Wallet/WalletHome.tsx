@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '@src/store/store';
 import {
   VerticalFlex,
   LoadingIcon,
@@ -14,18 +13,7 @@ import { TransactionSendType } from '@src/store/wallet/types';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export const WalletHome = observer(() => {
-  // const [loading, setIsLoading] = useState(true);
   const { balances, prices } = useWalletContext();
-
-  // useEffect(() => {
-  //   (async () => {
-  //     if (walletStore.wallet) {
-  //       walletStore.updateWallet();
-  //       await walletStore.updateBalance();
-  //       setIsLoading(false);
-  //     }
-  //   })();
-  // }, [walletStore.wallet]);
 
   if (balances.isLoading) {
     return <LoadingIcon />;
@@ -40,8 +28,6 @@ export const WalletHome = observer(() => {
           ${balances.getAvaxBalanceUSD(prices.avaxUSD)} AVAX
         </Typography>
       </VerticalFlex>
-      {/* <div className="fiat">$12.34</div> */}
-      {/* <div className="change">+5.24%</div> */}
       <br />
       <br />
       <HorizontalFlex>
@@ -60,10 +46,6 @@ export const WalletHome = observer(() => {
           <PrimaryButton>Send</PrimaryButton>
         </Link>
       </HorizontalFlex>
-      {/**
-       * This erc20 stuff isnt fully fleshed out so leaving this for later
-       * @link https://ava-labs.atlassian.net/browse/PM-197
-       */}
       <Erc20TokenList />
     </VerticalFlex>
   );

@@ -9,7 +9,7 @@ import { store, StoreContext } from '@src/store/store';
 import '@src/i18n';
 import { LoadingIcon } from '@avalabs/react-components';
 
-browser.tabs.query({ active: true, currentWindow: true }).then(() => {
+browser.tabs.query({ active: true }).then(() => {
   ReactDOM.render(
     <Router>
       <StoreContext.Provider value={store}>

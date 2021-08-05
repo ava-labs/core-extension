@@ -71,18 +71,15 @@ export const Popup = observer(() => {
     });
   }, []);
 
+  if (!onboardingState) {
+    return <LoadingIcon />;
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <NetworkContextProvider>
         <WalletContextProvider>
-          <VerticalFlex
-            height={'100%'}
-            style={{
-              minHeight: '500px',
-              minWidth: '500px',
-              backgroundColor: theme.colors.bg,
-            }}
-          >
+          <VerticalFlex height={'100%'}>
             <Header />
             <HorizontalFlex flex={1} justify={'center'}>
               <Switch>
@@ -148,16 +145,11 @@ export const Popup = observer(() => {
                   <>
                     {
                       {
-                        loading: <LoadingIcon />,
                         inProgess: <Redirect to="/welcome/create" />,
                         onboarded: <Redirect to="/welcome" />,
                         wallet: <Redirect to="/wallet" />,
                       }[
                         (function () {
-                          if (!onboardingState) {
-                            return 'loading';
-                          }
-
                           if (onboardingState.isInProgress) {
                             return 'inProgress';
                           }
