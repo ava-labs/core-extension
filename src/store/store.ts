@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import AssetsStore from '@src/store/assets/assetsStore';
 import ThemeStore from '@src/store/theme/themeStore';
-import ExtensionStore from '@src/store/extension/extensionStore';
+// import ExtensionStore from '@src/store/extension/extensionStore';
 // import OnboardStore from '@src/store/onboard/onboardStore';
 // import WalletStore from '@src/store/wallet/walletStore';
 // import TransactionStore from '@src/store/transaction/transactionStore';
@@ -10,7 +10,7 @@ import PermissionsStore from './permissions/permissionsStore';
 export interface CombinedStores {
   asssetsStore: AssetsStore;
   themeStore: ThemeStore;
-  extensionStore: ExtensionStore;
+  // extensionStore: ExtensionStore;
   // onboardStore: OnboardStore;
   // walletStore: WalletStore;
   // transactionStore: TransactionStore;
@@ -20,7 +20,7 @@ export interface CombinedStores {
 export const store: CombinedStores = {
   asssetsStore: new AssetsStore(),
   themeStore: new ThemeStore(),
-  extensionStore: new ExtensionStore(),
+  // extensionStore: new ExtensionStore(),
   // onboardStore: new OnboardStore(),
   // walletStore: new WalletStore(),
   // transactionStore: new TransactionStore(),

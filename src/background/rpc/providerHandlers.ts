@@ -1,5 +1,4 @@
 import { JsonRpcRequest } from './jsonRpcEngine';
-import { store } from '@src/store/store';
 import { formatAndLog, LoggerColors } from '../utils/logging';
 import { DOMAIN_METADATA_METHOD } from '../permissionsController';
 import { getAccountsFromWallet, walletService } from '@src/background/services';
@@ -12,7 +11,7 @@ export default {
     return {
       ...data,
       result: {
-        isUnlocked: store.extensionStore.isUnlocked,
+        isUnlocked: true,
         chainId: wallet.getAddressC(),
         networkVersion: 'avax',
         accounts: getAccountsFromWallet(wallet),
