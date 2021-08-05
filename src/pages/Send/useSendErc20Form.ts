@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AddressHelper, BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { WalletType } from '@avalabs/avalanche-wallet-sdk/dist/Wallet/types';
-import { ERC20 } from '@src/store/wallet/types';
+import { ERC20 } from './models';
 
 export function useSendErc20Form(
   token: ERC20,

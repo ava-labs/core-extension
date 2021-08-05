@@ -9,8 +9,8 @@ import {
 import styled from 'styled-components';
 import { truncateAddress } from '@src/utils/addressUtils';
 import { Link } from 'react-router-dom';
-import { TransactionSendType } from '@src/store/wallet/types';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { TransactionSendType } from '../Send/models';
 
 const Erc20TokenImg = styled.img`
   height: 20px;

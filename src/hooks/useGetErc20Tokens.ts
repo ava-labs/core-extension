@@ -1,7 +1,7 @@
-import { ERC20 } from '@src/store/wallet/types';
 import { useEffect, useState } from 'react';
 import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { ActiveNetwork } from '@src/contexts/NetworkProvider';
+import { ERC20 } from '@src/pages/Send/models';
 
 /**
  * Helper function to index contracts by address

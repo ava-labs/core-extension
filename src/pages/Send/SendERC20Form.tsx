@@ -1,6 +1,5 @@
 import React from 'react';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { ERC20 } from '@src/store/wallet/types';
 import { useSendErc20Form } from './useSendErc20Form';
 import {
   Typography,
@@ -8,6 +7,7 @@ import {
   BNInput,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { ERC20 } from './models';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {
   const { wallet, tokens } = useWalletContext();

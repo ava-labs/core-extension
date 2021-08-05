@@ -9,8 +9,8 @@ import {
   PrimaryButton,
 } from '@avalabs/react-components';
 import { Erc20TokenList } from '@src/pages/Wallet/Erc20TokenList';
-import { TransactionSendType } from '@src/store/wallet/types';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { TransactionSendType } from '../Send/models';
 
 export const WalletHome = observer(() => {
   const { balances, prices } = useWalletContext();

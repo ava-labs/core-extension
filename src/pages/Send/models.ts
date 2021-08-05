@@ -1,4 +1,4 @@
-import { ERC20Balance } from '../../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
+import { ERC20Balance } from '@avalabs/avalanche-wallet-sdk';
 
 export type ERC20 = {
   logoURI?: string;
