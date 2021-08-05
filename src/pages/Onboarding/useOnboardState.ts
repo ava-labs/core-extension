@@ -1,7 +1,5 @@
 import { onboardingService } from '@src/background/services';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
-import { useStore } from '../store';
-import { OnboardStepPhase } from './onboardStore';
 
 export function useOnboardState(phase: OnboardingPhase) {
   const step = onboardingService.getStepperForPhase(phase);

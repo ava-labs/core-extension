@@ -8,8 +8,7 @@ import {
   HorizontalFlex,
   SecondaryCard,
 } from '@avalabs/react-components';
-import { useOnboardState } from '@src/store/onboard/useOnboardState';
-import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
+import { useOnboardState } from '@src/pages/Onboarding/useOnboardState';
 import { onboardingService } from '@src/background/services';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 

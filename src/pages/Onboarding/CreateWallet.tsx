@@ -1,5 +1,4 @@
 import React from 'react';
-import { OnboardStepPhase } from '@src/store/onboard/onboardStore';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import {
@@ -12,7 +11,7 @@ import {
   SecondaryButton,
   HorizontalFlex,
 } from '@avalabs/react-components';
-import { useOnboardState } from '@src/store/onboard/useOnboardState';
+import { useOnboardState } from '@src/pages/Onboarding/useOnboardState';
 import { walletService } from '@src/background/services';
 import { useEffect } from 'react';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
