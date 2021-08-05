@@ -1,5 +1,4 @@
 import React from 'react';
-import { useGetErc20Tokens } from '@src/hooks/useGetErc20Tokens';
 import {
   VerticalFlex,
   HorizontalFlex,

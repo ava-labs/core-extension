@@ -8,7 +8,7 @@ import {
   Typography,
   PrimaryButton,
 } from '@avalabs/react-components';
-import { Erc20TokenList } from '@src/components/Erc20Tokens/Erc20TokenList';
+import { Erc20TokenList } from '@src/pages/Wallet/Erc20TokenList';
 import { TransactionSendType } from '@src/store/wallet/types';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 

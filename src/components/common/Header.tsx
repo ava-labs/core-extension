@@ -2,7 +2,7 @@ import React from 'react';
 import { HorizontalFlex, Typography } from '@avalabs/react-components';
 import { Logo } from '../icons/Logo';
 import { useTheme } from 'styled-components';
-import { ToggleDarkMode } from '../ToggleDarkMode';
+import { ToggleDarkMode } from './ToggleDarkMode';
 import { WalletConnection } from './WalletConnection';
 
 export function Header() {
