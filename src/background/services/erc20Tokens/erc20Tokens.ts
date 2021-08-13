@@ -1,4 +1,4 @@
-import { fromEventPattern, mergeMap, mapTo, switchMap } from 'rxjs';
+import { fromEventPattern, mergeMap, mapTo, switchMap, of, concat } from 'rxjs';
 import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { combineTokensAndBalances, FUJI_LIST, MAINNET_LIST } from './utils';
 import { getNetworkFromStorage } from '../network/storage';
@@ -16,9 +16,12 @@ async function getTokensAndBalances(wallet: WalletType) {
 
 export const erc20TokenList = wallet.pipe(
   switchMap((wallet) => {
-    return fromEventPattern(
-      (handler) => wallet.on('balanceChangedC', handler),
-      (handler) => wallet.off('balanceChangedC', handler)
+    return concat(
+      of({}),
+      fromEventPattern(
+        (handler) => wallet.on('balanceChangedC', handler),
+        (handler) => wallet.off('balanceChangedC', handler)
+      )
     ).pipe(mapTo(wallet));
   }),
   switchMap((wallet) => getTokensAndBalances(wallet))

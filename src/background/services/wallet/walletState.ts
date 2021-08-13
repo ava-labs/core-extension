@@ -1,4 +1,4 @@
-import { combineLatest, map, shareReplay, switchMap } from 'rxjs';
+import { combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { erc20TokenList } from '../erc20Tokens/erc20Tokens';
 import { network } from '../network/handlers';
 import { addressUpdates } from './addresses';
@@ -20,6 +20,13 @@ function toStructure(name: any) {
   };
 }
 
+function toLogger(name: any) {
+  return (observer: any) => {
+    // return observer.pipe(tap((value) => console.log(name, value)));
+    return observer;
+  };
+}
+
 export const walletState = walletLocked.pipe(
   switchMap((state) => {
     return state.walletLocked
@@ -27,10 +34,22 @@ export const walletState = walletLocked.pipe(
       : combineLatest([wallet, network]).pipe(
           switchMap(() =>
             combineLatest([
-              addressUpdates.pipe(toStructure('addresses')),
-              erc20TokenList.pipe(toStructure('erc20Tokens')),
-              avaxPriceUpdates.pipe(toStructure('avaxPrice')),
-              balanceUpdates.pipe(toStructure('balances')),
+              addressUpdates.pipe(
+                toStructure('addresses'),
+                toLogger('addresses')
+              ),
+              erc20TokenList.pipe(
+                toStructure('erc20Tokens'),
+                toLogger('erc20Tokens')
+              ),
+              avaxPriceUpdates.pipe(
+                toStructure('avaxPrice'),
+                toLogger('avaxPrice')
+              ),
+              balanceUpdates.pipe(
+                toStructure('balances'),
+                toLogger('balances')
+              ),
             ])
           ),
           map(mapToWalletState)

@@ -19,7 +19,7 @@ export function saveMnemonicToStorage(mnemonic: string, password: string) {
 }
 
 export async function decryptMnemonicInStorage(password: string) {
-  const cipher = getMnemonicFromStorage();
+  const cipher = await getMnemonicFromStorage();
   const bytes = AES.decrypt(cipher, password);
   return bytes.toString(enc.Utf8);
 }

@@ -49,8 +49,7 @@ export async function unlockWalletState(request: ExtensionConnectionMessage) {
       error: err,
     };
   }
-  console.log(decryptedMnemonic);
-  mnemonicWalletUnlock.next(decryptedMnemonic);
+  mnemonicWalletUnlock.next({ mnemonic: decryptedMnemonic });
 
   return {
     ...request,
