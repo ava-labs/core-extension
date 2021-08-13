@@ -4,7 +4,7 @@ import { onboardingCurrentPhase, onboardingFlow } from './onboardingFlows';
 
 export const onboardingStateUpdates = from(onboardingFromStorage()).pipe(
   switchMap((state) => {
-    return state.isOnBoarded ? onboardingFlow : EMPTY;
+    return !state.isOnBoarded ? onboardingFlow : EMPTY;
   })
 );
 

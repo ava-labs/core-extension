@@ -1,12 +1,8 @@
-import { combineLatest, map } from 'rxjs';
-// import { onboardingService } from '../onboarding/onboarding';
-import { wallet } from './wallet';
+import { Subject } from 'rxjs';
 
-// export const walletLocked = combineLatest([
-//   wallet,
-//   onboardingService.onboarding,
-// ]).pipe(
-//   map(([wallet, onboardingState]) => {
-//     return !!wallet && onboardingState.isOnBoarded;
-//   })
-// );
+/**
+ * This is a runtime state and is determined at runtime, doesnt need to be written
+ */
+export const walletLocked = new Subject<{ walletLocked: boolean }>();
+
+export const mnemonicWalletUnlock = new Subject<{ mnemonic: string }>();

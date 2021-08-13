@@ -1,16 +1,40 @@
 import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
+import { formatAndLog } from '@src/background/utils/logging';
 import { Subject, from } from 'rxjs';
-import { mapTo, mergeMap, startWith } from 'rxjs/operators';
-import { saveMnemonicToStorage } from './storage';
+import { filter, map, mapTo, switchMap, tap } from 'rxjs/operators';
+import { onboardingFlow } from '../onboarding/onboardingFlows';
+import { onboardingFromStorage } from '../onboarding/storage';
+import { getMnemonicFromStorage, saveMnemonicToStorage } from './storage';
+import { mnemonicWalletUnlock, walletLocked } from './walletLocked';
 
 const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 
-export const mnemonic = _mnemonic.pipe(
-  mergeMap(({ mnemonic, password }) => {
+export const freshMnemonic = _mnemonic.pipe(
+  switchMap(({ mnemonic, password }) => {
     return from(saveMnemonicToStorage(mnemonic, password)).pipe(
+      tap(() => formatAndLog('mnemonic encrypted in storage', true)),
       mapTo(mnemonic)
     );
   })
+);
+
+/**
+ * If we are reading from storage then the extension has been restarted and
+ * we know the mnemonic has to be unencrypted so we have to lock the wallet until
+ * this is done
+ */
+const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
+  tap(() => walletLocked.next({ walletLocked: true })),
+  tap(() => formatAndLog('waiting on wallet unlock', true)),
+  switchMap(() => mnemonicWalletUnlock),
+  map((state) => state.mnemonic)
+);
+
+export const mnemonic = from(onboardingFromStorage()).pipe(
+  switchMap((state) => {
+    return state.isOnBoarded ? mnemonicFromStorage : freshMnemonic;
+  }),
+  tap(() => walletLocked.next({ walletLocked: false }))
 );
 
 export function createMnemonicWallet(mnemonic: string) {

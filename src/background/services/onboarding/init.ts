@@ -3,6 +3,7 @@ import {
   onboardingCurrentPhase,
   onboardingMnemonic,
   onboardingPassword,
+  onboardingFlow,
 } from './onboardingFlows';
 import { onboardingFromStorage } from './storage';
 
@@ -19,3 +20,5 @@ onboardingPassword.subscribe(() =>
 onboardingMnemonic.subscribe(() =>
   formatAndLog('onboarding mnemonic set', true)
 );
+
+onboardingFlow.subscribe(() => formatAndLog('onboarding flow complete', true));

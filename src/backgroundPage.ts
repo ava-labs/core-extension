@@ -10,9 +10,9 @@ import './background/services/onboarding/init';
  * If they just install then they need to onboard and we force them
  * fullscreen
  */
-// browser.runtime.onInstalled.addListener(() => {
-//   browser.tabs.create({ url: '/home.html' });
-// });
+browser.runtime.onInstalled.addListener(() => {
+  browser.tabs.create({ url: '/home.html' });
+});
 
 browser.runtime.onConnect.addListener((connection) => {
   console.log('connecting: ', connection);

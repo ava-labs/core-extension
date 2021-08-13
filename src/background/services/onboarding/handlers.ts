@@ -116,15 +116,6 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
 export async function setOnboardingFinalized(
   request: ExtensionConnectionMessage
 ) {
-  const params = request.params;
-
-  if (!params) {
-    return {
-      ...request,
-      error: new Error('params missing from request'),
-    };
-  }
-
   onboardingFinalized.next(true);
 
   return {
@@ -154,8 +145,7 @@ export function onboardingPhaseUpdatedEvent(): Observable<
     map((value) => ({
       name: ONBOARDING_PHASE_UPDATED_EVENT,
       value,
-    })),
-    take(1)
+    }))
   );
 }
 

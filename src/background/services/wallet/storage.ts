@@ -18,13 +18,10 @@ export function saveMnemonicToStorage(mnemonic: string, password: string) {
   return saveToStorage({ [WALLET_STORAGE_KEY]: { mnemonic: cipher } });
 }
 
-export function decryptMnemonic(cipher: string, password: string) {
+export async function decryptMnemonicInStorage(password: string) {
+  const cipher = getMnemonicFromStorage();
   const bytes = AES.decrypt(cipher, password);
-  try {
-    return bytes.toString(enc.Utf8);
-  } catch (err) {
-    return err;
-  }
+  return bytes.toString(enc.Utf8);
 }
 
 export async function removeWalletFromStorage() {

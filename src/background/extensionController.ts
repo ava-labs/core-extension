@@ -17,6 +17,7 @@ import {
 } from './services/onboarding/handlers';
 import {
   initializeWalletState,
+  unlockWalletState,
   walletUpdateEvents,
 } from './services/wallet/handlers';
 import { formatAndLog, LoggerColors } from './utils/logging';
@@ -55,6 +56,9 @@ export function extensionMessageHandler(connection: Runtime.Port) {
       wallet_InitializeState(request) {
         initializeWalletState(request).then(respondToRequest);
       },
+      wallet_unlockWalletState(request) {
+        unlockWalletState(request).then(respondToRequest);
+      },
     };
 
     formatAndLog('extension request recieved: ', message);
@@ -71,6 +75,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     onboardingPhaseUpdatedEvent()
   ).pipe(
     tap((evt) => {
+      formatAndLog('event to extension', evt, { color: LoggerColors.success });
       connection.postMessage(evt);
     })
   );

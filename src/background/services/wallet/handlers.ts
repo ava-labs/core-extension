@@ -2,21 +2,12 @@ import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
+import { resolve } from '@src/utils/promiseResolver';
 import { firstValueFrom, map } from 'rxjs';
-import { ERC20 } from '../erc20Tokens/models';
-import { WalletBalances } from './balances';
+import { WalletLockedState, WalletState } from './models';
+import { decryptMnemonicInStorage } from './storage';
+import { mnemonicWalletUnlock } from './walletLocked';
 import { walletState } from './walletState';
-
-export interface WalletState {
-  balances: WalletBalances;
-  addresses: {
-    addrX: string;
-    addrP: string;
-    addrC: string;
-  };
-  erc20Tokens: ERC20[];
-  avaxPrice: number;
-}
 
 export async function initializeWalletState(
   request: ExtensionConnectionMessage
@@ -26,6 +17,44 @@ export async function initializeWalletState(
   return {
     ...request,
     result,
+  };
+}
+
+export async function unlockWalletState(request: ExtensionConnectionMessage) {
+  const params = request.params;
+
+  if (!params) {
+    return {
+      ...request,
+      error: new Error('params missing from request'),
+    };
+  }
+
+  const password = params.pop();
+
+  if (!password) {
+    return {
+      ...request,
+      error: new Error('password missing for request'),
+    };
+  }
+
+  const [decryptedMnemonic, err] = await resolve(
+    decryptMnemonicInStorage(password)
+  );
+
+  if (err) {
+    return {
+      ...request,
+      error: err,
+    };
+  }
+  console.log(decryptedMnemonic);
+  mnemonicWalletUnlock.next(decryptedMnemonic);
+
+  return {
+    ...request,
+    result: true,
   };
 }
 
@@ -40,7 +69,7 @@ export const walletUpdateEvents = walletState.pipe(
 );
 
 export function walletUpdatedEventListener(
-  evt: ExtensionConnectionEvent<WalletState>
+  evt: ExtensionConnectionEvent<WalletState | WalletLockedState>
 ) {
   return evt.name === WALLET_UPDATE_EVENT;
 }

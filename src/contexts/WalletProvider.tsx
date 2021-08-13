@@ -2,18 +2,37 @@ import React, { createContext, useContext, useState } from 'react';
 import { useEffect } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
-import { concat, filter, map } from 'rxjs';
-import {
-  WalletState,
-  walletUpdatedEventListener,
-} from '@src/background/services/wallet/handlers';
+import { concat, filter, map, pipe } from 'rxjs';
+import { walletUpdatedEventListener } from '@src/background/services/wallet/handlers';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  isWalletLocked,
+  WalletLockedState,
+  WalletState,
+} from '@src/background/services/wallet/models';
+import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 
 const WalletContext = createContext<WalletState>({} as any);
 
+function recastWallletState(state: WalletState) {
+  const { balanceAvaxTotal, ...values } = (state as WalletState).balances;
+  return {
+    ...state,
+    ...{
+      balances: {
+        ...values,
+        // have to cast back to BN since this was serialized over port connection
+        balanceAvaxTotal: new BN(balanceAvaxTotal),
+      },
+    },
+  };
+}
+
 export function WalletContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const [walletState, setWalletState] = useState<WalletState>();
+  const [walletState, setWalletState] = useState<
+    WalletState | WalletLockedState
+  >();
 
   // listen for wallet creation
   useEffect(() => {
@@ -27,23 +46,26 @@ export function WalletContextProvider({ children }: { children: any }) {
         filter(walletUpdatedEventListener),
         map((evt) => evt.value)
       )
-    ).subscribe((state: any) => {
-      const { balanceAvaxTotal, ...values } = (state as WalletState).balances;
-      setWalletState({
-        ...state,
-        ...{
-          balances: {
-            ...values,
-            // have to convert back to BN since this was serialized over port connection
-            balanceAvaxTotal: new BN(balanceAvaxTotal),
-          },
-        },
-      });
-    });
+    ).subscribe((state: any) =>
+      setWalletState(
+        isWalletLocked(state) ? state : recastWallletState(state as WalletState)
+      )
+    );
   }, []);
+
+  function unlockWallet(password: string) {
+    return request!({
+      method: 'wallet_unlockWalletState',
+      params: [password],
+    });
+  }
 
   if (!walletState) {
     return <LoadingIcon />;
+  }
+
+  if (isWalletLocked(walletState)) {
+    return <WalletLocked unlockWallet={unlockWallet} />;
   }
 
   return (
