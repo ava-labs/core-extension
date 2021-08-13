@@ -8,6 +8,7 @@ import {
 } from './services/network/handlers';
 import {
   getIsOnBoarded,
+  onboardingPhaseUpdatedEvent,
   onboardingUpdatedEvent,
   setOnboardingFinalized,
   setWalletImportOrCreatePhase,
@@ -66,7 +67,8 @@ export function extensionEventsHandler(connection: Runtime.Port) {
   return merge(
     onboardingUpdatedEvent(),
     networkUpdateEvents(),
-    walletUpdateEvents
+    walletUpdateEvents,
+    onboardingPhaseUpdatedEvent()
   ).pipe(
     tap((evt) => {
       connection.postMessage(evt);

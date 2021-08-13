@@ -3,6 +3,8 @@ import {
   extensionEventsHandler,
   extensionMessageHandler,
 } from '../extensionController';
+import { OnboardingPhase } from '../services/onboarding/models';
+import { onboardingCurrentPhase } from '../services/onboarding/onboardingFlows';
 
 export function extensionConnection(connection: Runtime.Port) {
   console.log('attempting to connect extension');
@@ -16,6 +18,7 @@ export function extensionConnection(connection: Runtime.Port) {
     connection.onMessage.removeListener(onMessageHandler);
     connection.onDisconnect.removeListener(onDisconnectHandler);
     onEventsSubscription.unsubscribe();
+    onboardingCurrentPhase.next(OnboardingPhase.RESTART);
     console.log('extension disconnected and cleaned up');
   });
 }
