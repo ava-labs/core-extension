@@ -10,19 +10,18 @@ import {
   SecondaryButton,
   HorizontalFlex,
 } from '@avalabs/react-components';
-import { onboardingService } from '@src/background/services';
 import { useEffect } from 'react';
+import { createNewMnemonic } from '@src/background/services/wallet/utils/createMnemonicPhrase';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 export function CreateWallet({ onCancel }: { onCancel(): void }) {
+  const { setMnemonic } = useOnboardingContext();
   const [isCopied, setIsCopied] = useState(false);
-  const [mnemonic, setMnemonic] = useState('');
+  const [mnemonic, setMnemonicPhrase] = useState('');
   const [mnemonicConfirmed, setmnemonicConfirmed] = useState(false);
 
   useEffect(() => {
-    const subscription = onboardingService.mnemonic.subscribe((mnemonic) => {
-      setMnemonic(mnemonic);
-    });
-    return () => subscription.unsubscribe();
+    setMnemonicPhrase(createNewMnemonic());
   }, []);
 
   return (
@@ -65,7 +64,7 @@ export function CreateWallet({ onCancel }: { onCancel(): void }) {
             </SecondaryButton>
             <PrimaryButton
               disabled={!mnemonicConfirmed}
-              onClick={() => onboardingService.setMnemonicConfirmed()}
+              onClick={() => setMnemonic(mnemonic)}
             >
               Next
             </PrimaryButton>

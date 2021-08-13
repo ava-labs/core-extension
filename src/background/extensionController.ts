@@ -9,6 +9,10 @@ import {
 import {
   getIsOnBoarded,
   onboardingUpdatedEvent,
+  setOnboardingFinalized,
+  setWalletImportOrCreatePhase,
+  setWalletMnemonic,
+  setWalletPassword,
 } from './services/onboarding/handlers';
 import {
   initializeWalletState,
@@ -28,6 +32,18 @@ export function extensionMessageHandler(connection: Runtime.Port) {
     const handlers = {
       onboarding_getIsOnBoarded(request) {
         getIsOnBoarded(request).then(respondToRequest);
+      },
+      onboarding_setCurrentPhase(request) {
+        setWalletImportOrCreatePhase(request).then(respondToRequest);
+      },
+      onboarding_setWalletMnemonic(request) {
+        setWalletMnemonic(request).then(respondToRequest);
+      },
+      onboarding_setWalletPassword(request) {
+        setWalletPassword(request).then(respondToRequest);
+      },
+      onboarding_setOnboardingFinalized(request) {
+        setOnboardingFinalized(request).then(respondToRequest);
       },
       network_getSelectedNetwork(request) {
         getSelectedNetwork(request).then(respondToRequest);

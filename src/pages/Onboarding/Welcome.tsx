@@ -5,18 +5,20 @@ import {
   Typography,
   PrimaryButton,
 } from '@avalabs/react-components';
-import { onboardingService } from '@src/background/services';
 import { createNewMnemonic } from '@src/background/services/wallet/utils/createMnemonicPhrase';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
 export function Welcome() {
   const { t } = useTranslation();
+  const { setNextPhase } = useOnboardingContext();
 
   return (
     <VerticalFlex align={'center'} padding={'0 10px'}>
       <Typography>{t('home.desc')}</Typography>
       <PrimaryButton
         onClick={() => {
-          onboardingService.setCreateWallet(createNewMnemonic());
+          setNextPhase(OnboardingPhase.CREATE_WALLET);
         }}
       >
         Create a new wallet
@@ -24,7 +26,7 @@ export function Welcome() {
 
       <PrimaryButton
         onClick={() => {
-          onboardingService.setImportWallet();
+          setNextPhase(OnboardingPhase.IMPORT_WALLET);
         }}
       >
         import existing wallet

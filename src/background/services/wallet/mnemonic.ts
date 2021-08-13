@@ -1,16 +1,11 @@
 import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
-import { Subject, from, combineLatest } from 'rxjs';
+import { Subject, from } from 'rxjs';
 import { mapTo, mergeMap, startWith } from 'rxjs/operators';
 import { saveMnemonicToStorage } from './storage';
 
 const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 
 export const mnemonic = _mnemonic.pipe(
-  // this is a hack to make it work on the background while testing
-  startWith({
-    mnemonic: '',
-    password: 'test',
-  }),
   mergeMap(({ mnemonic, password }) => {
     return from(saveMnemonicToStorage(mnemonic, password)).pipe(
       mapTo(mnemonic)

@@ -8,12 +8,10 @@ import {
   HorizontalFlex,
   SecondaryCard,
 } from '@avalabs/react-components';
-import { useHistory } from 'react-router-dom';
-import { onboardingService } from '@src/background/services';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 export function AllDone({ onCancel }: { onCancel(): void }) {
-  const history = useHistory();
-
+  const { setFinalized } = useOnboardingContext();
   return (
     <VerticalFlex width={'100%'} align={'center'}>
       <Typography>Congratulations, youre all set up</Typography>
@@ -32,7 +30,7 @@ export function AllDone({ onCancel }: { onCancel(): void }) {
         <SecondaryButton onClick={() => onCancel && onCancel()}>
           Back
         </SecondaryButton>
-        <PrimaryButton onClick={() => onboardingService.setFinalized()}>
+        <PrimaryButton onClick={() => setFinalized()}>
           Take me to my wallet
         </PrimaryButton>
       </HorizontalFlex>

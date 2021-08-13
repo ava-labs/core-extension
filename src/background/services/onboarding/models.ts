@@ -7,6 +7,7 @@ export enum OnboardingPhase {
   IMPORT_WALLET = 'import_wallet',
   PASSWORD = 'password',
   FINALIZE = 'finalize',
+  RESTART = 'restart',
 }
 
 export interface OnboardingStepper {

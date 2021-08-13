@@ -10,9 +10,10 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from '@avalabs/react-components';
-import { onboardingService } from '@src/background/services';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 export const Import = ({ onCancel }: { onCancel(): void }) => {
+  const { setMnemonic } = useOnboardingContext();
   const [recoveryPhrase, setRecoveryPhrase] = useState('');
   /**
    * Not putting in error handling yet, need more info on how to get this done properly
@@ -49,7 +50,7 @@ export const Import = ({ onCancel }: { onCancel(): void }) => {
         <PrimaryButton
           disabled={!verifyRecoveryPhrase(recoveryPhrase)}
           onClick={async () => {
-            onboardingService.setMnemonic(recoveryPhrase);
+            setMnemonic(recoveryPhrase);
           }}
         >
           Next

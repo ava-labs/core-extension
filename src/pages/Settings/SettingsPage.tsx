@@ -5,10 +5,10 @@ import {
 } from '@avalabs/react-components';
 import {
   messageService,
-  onboardingService,
   permissionsService,
   transactionService,
 } from '@src/background/services';
+import { removeOnboardingFromStorage } from '@src/background/services/onboarding/storage';
 import { removeWalletFromStorage } from '@src/background/services/wallet/storage';
 import browser from 'extensionizer';
 import React from 'react';
@@ -23,7 +23,7 @@ export function SettingsPage() {
             messageService.removeAll(),
             removeWalletFromStorage(),
             permissionsService.removeAll(),
-            onboardingService.removeAll(),
+            removeOnboardingFromStorage(),
           ]).then(() => browser.runtime.reload())
         }
       >

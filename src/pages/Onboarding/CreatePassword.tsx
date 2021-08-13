@@ -8,7 +8,7 @@ import {
   HorizontalFlex,
   SecondaryButton,
 } from '@avalabs/react-components';
-import { onboardingService } from '@src/background/services';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 function verifyPasswordsMatch(pass1?: string, pass2?: string) {
   return !!(pass1 && pass2 && pass1 === pass2);
@@ -17,6 +17,7 @@ function verifyPasswordsMatch(pass1?: string, pass2?: string) {
 const PASSWORD_ERROR = 'Passwords do not match';
 
 export const CreatePassword = ({ onCancel }: { onCancel(): void }) => {
+  const { setPassword } = useOnboardingContext();
   const [canSubmit, setCanSubmit] = useState(false);
   const [passwordVal, setPasswordVal] = useState('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
@@ -75,7 +76,7 @@ export const CreatePassword = ({ onCancel }: { onCancel(): void }) => {
         <PrimaryButton
           disabled={!canSubmit}
           onClick={() => {
-            onboardingService.setPassword(passwordVal);
+            setPassword(passwordVal);
           }}
         >
           Save

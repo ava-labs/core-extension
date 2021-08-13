@@ -2,33 +2,19 @@ import React from 'react';
 import { CreatePassword } from '@src/pages/Onboarding/CreatePassword';
 import { AllDone } from '@src/pages/Onboarding/AllDone';
 import { CreateWallet } from './CreateWallet';
-import { useState } from 'react';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
-import { useEffect } from 'react';
-import { onboardingService } from '@src/background/services';
 import { Import } from './ImportWallet';
 import { Welcome } from './Welcome';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 export function OnboardingFlow() {
-  const [currentPhase, setCurrentPhase] = useState<OnboardingPhase>();
+  const { onboardingPhase, setNextPhase } = useOnboardingContext();
 
   function handleOnCancel() {
-    setCurrentPhase(undefined);
+    setNextPhase(OnboardingPhase.RESTART);
   }
 
-  useEffect(() => {
-    const subscription = onboardingService.phase.subscribe(
-      (phase: OnboardingPhase) => {
-        if (currentPhase !== phase) {
-          setCurrentPhase(phase);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  switch (currentPhase) {
+  switch (onboardingPhase) {
     case OnboardingPhase.CREATE_WALLET:
       return <CreateWallet onCancel={handleOnCancel} />;
     case OnboardingPhase.IMPORT_WALLET:
