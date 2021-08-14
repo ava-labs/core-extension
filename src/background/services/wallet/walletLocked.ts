@@ -6,14 +6,13 @@ import {
   filter,
   firstValueFrom,
   from,
+  interval,
   map,
   merge,
   of,
   pairwise,
-  shareReplay,
   Subject,
   switchMap,
-  tap,
 } from 'rxjs';
 import { onboardingFlow } from '../onboarding/onboardingFlows';
 import { onboardingFromStorage } from '../onboarding/storage';
@@ -21,7 +20,7 @@ import { getMnemonicFromStorage } from './storage';
 import { wallet } from './wallet';
 
 export const mnemonicWalletUnlock = new Subject<{ mnemonic: string }>();
-
+export const restartWalletLock = new Subject<boolean>();
 /**
  * locked means:
  * IsOnboarded is false OR
@@ -42,18 +41,15 @@ from(onboardingFromStorage())
         );
       }
 
+      // only getting this as a precaution
       const encryptedMnemonic = getMnemonicFromStorage();
-      formatAndLog(
-        `wallet locked (${
-          !!encryptedMnemonic ? `mnemonic is in storage` : `no mnemonic found`
-        })`,
-        !!encryptedMnemonic
-      );
+
       if (!encryptedMnemonic) {
         // this is a problem, state got out of sync somehow. We should be pushing this to
         // some kind of analytics platform
       }
 
+      // see if there is already a wallet instance if so that means its not locked
       const walletResult = await firstValueFrom(wallet);
 
       return merge(
@@ -79,3 +75,9 @@ from(onboardingFromStorage())
     formatAndLog('wallet locked state', state);
     walletLocked.next(state);
   });
+
+const HOURS_12 = 1000 * 60 * 60 * 12;
+
+merge(of({}), restartWalletLock)
+  .pipe(switchMap(() => interval(HOURS_12)))
+  .subscribe(() => wallet.next(undefined));
