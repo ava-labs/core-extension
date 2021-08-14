@@ -3,6 +3,7 @@ import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { combineTokensAndBalances, FUJI_LIST, MAINNET_LIST } from './utils';
 import { getNetworkFromStorage } from '../network/storage';
 import { wallet } from '../wallet/wallet';
+import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
 
 async function getTokensAndBalances(wallet: WalletType) {
   const network = await getNetworkFromStorage();
@@ -15,6 +16,7 @@ async function getTokensAndBalances(wallet: WalletType) {
 }
 
 export const erc20TokenList = wallet.pipe(
+  walletInitializedFilter(),
   switchMap((wallet) => {
     return concat(
       of({}),

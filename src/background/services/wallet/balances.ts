@@ -16,6 +16,7 @@ import {
   BN,
   Utils,
 } from '@avalabs/avalanche-wallet-sdk';
+import { walletInitializedFilter } from './utils/walletInitializedFilter';
 
 export interface WalletBalances {
   balanceX: WalletBalanceX;
@@ -45,6 +46,7 @@ function getAvaxBalanceTotal(balanceAvax: iAvaxBalance, balanceStaked: BN) {
 }
 
 export const balanceUpdates = wallet.pipe(
+  walletInitializedFilter(),
   tap((wallet) => {
     wallet.updateUtxosX();
     wallet.updateUtxosP();

@@ -57,7 +57,8 @@ const signal = new Subject();
 wallet.pipe(
   tap(async (wallet) => {
     const network = await getNetworkFromStorage();
-    signal.next(chainChangedUpdate(wallet.getAddressC(), network.chainId));
+    wallet &&
+      signal.next(chainChangedUpdate(wallet.getAddressC(), network.chainId));
   })
 );
 

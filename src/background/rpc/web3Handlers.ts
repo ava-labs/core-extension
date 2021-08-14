@@ -87,6 +87,13 @@ const web3CustomHandlers = {
   async eth_sendTransaction(data: JsonRpcRequest<any>) {
     const walletResult = await firstValueFrom(wallet);
 
+    if (!walletResult) {
+      return {
+        ...data,
+        error: 'wallet undefined',
+      };
+    }
+
     const { listenForTxPending } = transactionService.addTransaction(data);
 
     const window = await openExtensionNewWindow(
@@ -123,6 +130,14 @@ const web3CustomHandlers = {
 
   async eth_getBalance(data: JsonRpcRequest<any>) {
     const walletResult = await firstValueFrom(wallet);
+
+    if (!walletResult) {
+      return {
+        ...data,
+        error: 'wallet undefined',
+      };
+    }
+
     return { ...data, result: walletResult.getAddressC() };
   },
 
@@ -176,6 +191,13 @@ const web3CustomHandlers = {
   async [CONNECT_METHOD](data: JSONRPCRequestWithDomain) {
     const walletResult = await firstValueFrom(wallet);
 
+    if (!walletResult) {
+      return {
+        ...data,
+        error: 'wallet undefined',
+      };
+    }
+
     if (permissionsService.domainHasAccountsPermissions(data.domain)) {
       return {
         ...data,
@@ -218,6 +240,14 @@ const web3CustomHandlers = {
    */
   async eth_accounts(data: JSONRPCRequestWithDomain) {
     const walletResult = await firstValueFrom(wallet);
+
+    if (!walletResult) {
+      return {
+        ...data,
+        error: 'wallet undefined',
+      };
+    }
+
     return {
       ...data,
       result: permissionsService.domainHasAccountsPermissions(data.domain)

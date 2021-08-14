@@ -24,7 +24,6 @@ export const freshMnemonic = _mnemonic.pipe(
  * this is done
  */
 const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
-  tap(() => walletLocked.next({ walletLocked: true })),
   tap(() => formatAndLog('waiting on wallet unlock', true)),
   switchMap(() => mnemonicWalletUnlock),
   map((state) => state.mnemonic)
@@ -33,8 +32,7 @@ const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
 export const mnemonic = from(onboardingFromStorage()).pipe(
   switchMap((state) => {
     return state.isOnBoarded ? mnemonicFromStorage : freshMnemonic;
-  }),
-  tap(() => walletLocked.next({ walletLocked: false }))
+  })
 );
 
 export function createMnemonicWallet(mnemonic: string) {

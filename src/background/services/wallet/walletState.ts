@@ -1,10 +1,18 @@
-import { combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { formatAndLog } from '@src/background/utils/logging';
+import {
+  BehaviorSubject,
+  combineLatest,
+  map,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { erc20TokenList } from '../erc20Tokens/erc20Tokens';
 import { network } from '../network/handlers';
 import { addressUpdates } from './addresses';
 import { avaxPriceUpdates } from './avaxPrice';
 import { balanceUpdates } from './balances';
-import { WalletState } from './models';
+import { WalletLockedState, WalletState } from './models';
 import { wallet } from './wallet';
 import { walletLocked } from './walletLocked';
 
@@ -27,33 +35,41 @@ function toLogger(name: any) {
   };
 }
 
-export const walletState = walletLocked.pipe(
-  switchMap((state) => {
-    return state.walletLocked
-      ? Promise.resolve({ locked: true })
-      : combineLatest([wallet, network]).pipe(
-          switchMap(() =>
-            combineLatest([
-              addressUpdates.pipe(
-                toStructure('addresses'),
-                toLogger('addresses')
-              ),
-              erc20TokenList.pipe(
-                toStructure('erc20Tokens'),
-                toLogger('erc20Tokens')
-              ),
-              avaxPriceUpdates.pipe(
-                toStructure('avaxPrice'),
-                toLogger('avaxPrice')
-              ),
-              balanceUpdates.pipe(
-                toStructure('balances'),
-                toLogger('balances')
-              ),
-            ])
-          ),
-          map(mapToWalletState)
-        );
-  }),
-  shareReplay()
-);
+export const walletState = new BehaviorSubject<
+  WalletState | WalletLockedState | undefined
+>(undefined);
+
+walletLocked
+  .pipe(
+    switchMap((state) => {
+      return state && state.locked
+        ? Promise.resolve({ locked: true })
+        : combineLatest([wallet, network]).pipe(
+            switchMap(() =>
+              combineLatest([
+                addressUpdates.pipe(
+                  toStructure('addresses'),
+                  toLogger('addresses')
+                ),
+                erc20TokenList.pipe(
+                  toStructure('erc20Tokens'),
+                  toLogger('erc20Tokens')
+                ),
+                avaxPriceUpdates.pipe(
+                  toStructure('avaxPrice'),
+                  toLogger('avaxPrice')
+                ),
+                balanceUpdates.pipe(
+                  toStructure('balances'),
+                  toLogger('balances')
+                ),
+              ])
+            ),
+            map(mapToWalletState)
+          );
+    })
+  )
+  .subscribe((state) => {
+    formatAndLog('wallet state', state);
+    walletState.next(state);
+  });

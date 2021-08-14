@@ -3,7 +3,6 @@ import extension from 'extensionizer';
 import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from './common';
 import { providerConnection } from './background/connections/providerConnection';
 import { extensionConnection } from './background/connections/extensionConnection';
-import './background/services/wallet/init';
 import './background/services/onboarding/init';
 
 /**

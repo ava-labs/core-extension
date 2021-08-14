@@ -10,6 +10,14 @@ import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromW
 export default {
   async metamask_getProviderState(data) {
     const walletResult = await firstValueFrom(wallet);
+
+    if (!walletResult) {
+      return {
+        ...data,
+        error: 'wallet undefined',
+      };
+    }
+
     return {
       ...data,
       result: {
