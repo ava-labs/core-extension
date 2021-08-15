@@ -1,11 +1,11 @@
 import { JsonRpcRequest } from './jsonRpcEngine';
 import { formatAndLog, LoggerColors } from '../utils/logging';
 import { DOMAIN_METADATA_METHOD } from '../permissionsController';
-import { wallet } from '@src/background/services';
 import { AddEthChainParams } from '../models';
 import { firstValueFrom } from 'rxjs';
 import { supportedNetworks } from '../services/network/models';
 import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
+import { wallet } from '../services/wallet/wallet';
 
 export default {
   async metamask_getProviderState(data) {

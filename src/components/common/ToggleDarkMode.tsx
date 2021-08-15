@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { MoonIcon, SunshineIcon, TextButton } from '@avalabs/react-components';
-import { themeService } from '@src/background/services';
 import { useState } from 'react';
+import { themeService } from '@src/background/services/theme/theme';
 
 export function ToggleDarkMode() {
   const [isDarkMode, setIsDarkMode] = useState(false);

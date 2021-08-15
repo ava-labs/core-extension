@@ -63,7 +63,7 @@ export function WalletContextProvider({ children }: { children: any }) {
   if (!walletState) {
     return <LoadingIcon />;
   }
-
+  console.log('wallet state: ', walletState);
   if (isWalletLocked(walletState)) {
     return <WalletLocked unlockWallet={unlockWallet} />;
   }

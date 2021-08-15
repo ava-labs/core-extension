@@ -1,9 +1,9 @@
 import { KnownContractABIs } from '@src/abi';
-import { transactionService } from '@src/background/services';
 import { truncateAddress } from '@src/utils/addressUtils';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import { useMemo } from 'react';
 import { useGetGasPrice } from '@src/hooks/useGas';
+import { transactionService } from '@src/background/services/transactions/transactions';
 
 function convertAmountToAvax(hex: string) {
   return Utils.bnToLocaleString(new BN(hex), 18);

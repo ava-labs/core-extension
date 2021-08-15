@@ -75,7 +75,9 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     onboardingPhaseUpdatedEvent()
   ).pipe(
     tap((evt) => {
-      formatAndLog('event to extension', evt, { color: LoggerColors.success });
+      formatAndLog(`event to extension (${evt.name})`, evt, {
+        color: LoggerColors.success,
+      });
       connection.postMessage(evt);
     })
   );

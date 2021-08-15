@@ -16,8 +16,7 @@ import { SignError } from './components/SignError';
 import { PersonalSign } from './components/PersonalSign';
 import { EthSign } from './components/EthSign';
 import { SignedMessageResult, signTransaction } from './utils/signTx';
-import { messageService } from '@src/background/services';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { messageService } from '@src/background/services/messages/messages';
 
 export function SignMessage() {
   // const { wallet } = useWalletContext();

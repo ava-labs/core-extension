@@ -12,7 +12,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { getAccountsFromWallet } from '@src/background/services/wallet/utils/getAccountsFromWallet';
 import { useEffect } from 'react';
 import { DappPermissions } from '@src/background/services/permissions/models';
-import { permissionsService } from '@src/background/services';
+import { permissionsService } from '@src/background/services/permissions/permissions';
 
 function accountsToPermissions(accounts: string[], domain: string) {
   return {

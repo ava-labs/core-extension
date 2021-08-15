@@ -1,24 +1,17 @@
-import { formatAndLog } from '@src/background/utils/logging';
 import {
   BehaviorSubject,
-  concat,
   exhaustMap,
-  filter,
-  firstValueFrom,
   from,
   interval,
   map,
   merge,
   of,
-  pairwise,
+  skip,
   Subject,
   switchMap,
+  tap,
 } from 'rxjs';
-import {
-  onboardingFlow,
-  onboardingStatus,
-} from '../onboarding/onboardingFlows';
-import { getOnboardingFromStorage } from '../onboarding/storage';
+import { onboardingStatus } from '../onboarding/onboardingFlows';
 import { getMnemonicFromStorage } from './storage';
 import { wallet } from './wallet';
 
@@ -50,7 +43,10 @@ onboardingStatus
         // some kind of analytics platform
       }
 
-      return wallet.pipe(map(() => ({ locked: !wallet })));
+      return wallet.pipe(
+        skip(1),
+        map((res) => ({ locked: !res }))
+      );
     }),
     exhaustMap((value) => value)
   )

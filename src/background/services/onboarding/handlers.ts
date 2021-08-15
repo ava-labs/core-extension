@@ -132,12 +132,12 @@ export async function setOnboardingFinalized(
 const ONBOARDING_UPDATED_EVENT = 'onboarding_finalized';
 export function onboardingUpdatedEvent() {
   return combineLatest([onboardingStatus, wallet]).pipe(
-    map(([onboarded, wallet]) => ({
+    filter(
+      ([onboarded, wallet]) => !!(onboarded && onboarded.isOnBoarded && wallet)
+    ),
+    map(() => ({
       name: ONBOARDING_UPDATED_EVENT,
-      value:
-        onboarded && onboarded.isOnBoarded && !!wallet
-          ? { isOnBoarded: true }
-          : { isOnBoarded: false },
+      value: { isOnBoarded: true },
     }))
   );
 }

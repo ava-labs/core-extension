@@ -4,10 +4,10 @@ import {
   unlockStateChangedUpdate,
   chainChangedUpdate,
 } from './utils/providerUpdate';
-import { wallet } from '@src/background/services';
 import { tap, Subject, firstValueFrom, combineLatest } from 'rxjs';
 import { network } from './services/network/handlers';
 import { getNetworkFromStorage } from './services/network/storage';
+import { wallet } from './services/wallet/wallet';
 
 /**
  * Using a signal here so that we bootstrap one observe for each store change. For every conection

@@ -5,8 +5,8 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from '@avalabs/react-components';
-import { transactionService } from '@src/background/services';
 import { TxStatus } from '@src/background/services/transactions/models';
+import { transactionService } from '@src/background/services/transactions/transactions';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import React, { useState } from 'react';
 import { useEffect } from 'react';

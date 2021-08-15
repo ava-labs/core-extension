@@ -1,9 +1,9 @@
 import { JsonRpcRequest } from './rpc/jsonRpcEngine';
 import storageListener from '../utils/storage/local-storage';
 import { formatAndLog } from './utils/logging';
-import { permissionsService } from './services';
 import { mergeMap, filter, tap, map, firstValueFrom, Subject } from 'rxjs';
 import { mergeWith } from 'rxjs/operators';
+import { permissionsService } from './services/permissions/permissions';
 
 export const DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata';
 export const CONNECT_METHOD = 'eth_requestAccounts';

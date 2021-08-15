@@ -1,4 +1,4 @@
-import { messageService } from '@src/background/services';
+import { messageService } from '@src/background/services/messages/messages';
 import { Message } from '@src/background/services/messages/models';
 import { useEffect, useState } from 'react';
 

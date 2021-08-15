@@ -47,9 +47,9 @@ const SettingsPage = React.lazy(() => {
 
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
-import { themeService } from '@src/background/services';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
+import { themeService } from '@src/background/services/theme/theme';
 
 export function Popup() {
   const [theme, setTheme] = useState<any>();

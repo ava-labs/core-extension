@@ -5,18 +5,16 @@ import {
   CONNECT_METHOD,
   JSONRPCRequestWithDomain,
 } from '../permissionsController';
-import {
-  messageService,
-  permissionsService,
-  personalSigRecovery,
-  transactionService,
-} from '../services';
 import { MessageType } from '../services/messages/models';
 import { txToCustomEvmTx } from '../services/transactions/utils/txToCustomEvmTx';
 import { TxStatus } from '../services/transactions/models';
-import { wallet } from '@src/background/services';
 import { map, filter, mergeMap, firstValueFrom } from 'rxjs';
 import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
+import { wallet } from '../services/wallet/wallet';
+import { messageService } from '../services/messages/messages';
+import { transactionService } from '../services/transactions/transactions';
+import { personalSigRecovery } from '../services/messages/utils/personalSigRecovery';
+import { permissionsService } from '../services/permissions/permissions';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
