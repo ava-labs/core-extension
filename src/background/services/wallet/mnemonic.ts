@@ -4,7 +4,7 @@ import { Subject, from } from 'rxjs';
 import { map, mapTo, switchMap, tap } from 'rxjs/operators';
 import { getOnboardingFromStorage } from '../onboarding/storage';
 import { getMnemonicFromStorage, saveMnemonicToStorage } from './storage';
-import { mnemonicWalletUnlock, walletLocked } from './walletLocked';
+import { mnemonicWalletUnlock } from './mnemonicWalletUnlock';
 
 const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 

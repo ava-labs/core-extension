@@ -1,6 +1,6 @@
 import { formatAndLog } from '@src/background/utils/logging';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { WalletType } from '../../../../../avalanche-wallet-sdk-internal/dist';
 import { createMnemonicWallet, mnemonic } from './mnemonic';
 import { isMnemonicWallet } from './models';

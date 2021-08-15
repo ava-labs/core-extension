@@ -47,9 +47,11 @@ export function WalletContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
     ).subscribe((state: any) =>
-      setWalletState(
-        isWalletLocked(state) ? state : recastWallletState(state as WalletState)
-      )
+      isWalletLocked(state)
+        ? setWalletState(state)
+        : state &&
+          (state as WalletState).balances &&
+          setWalletState(recastWallletState(state as WalletState))
     );
   }, []);
 
