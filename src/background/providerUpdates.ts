@@ -6,7 +6,6 @@ import {
 } from './utils/providerUpdate';
 import { tap, Subject, firstValueFrom, combineLatest } from 'rxjs';
 import { network } from './services/network/handlers';
-import { getNetworkFromStorage } from './services/network/storage';
 import { wallet } from './services/wallet/wallet';
 
 /**

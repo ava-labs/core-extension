@@ -1,12 +1,5 @@
 import { formatAndLog, toLogger } from '@src/background/utils/logging';
-import {
-  BehaviorSubject,
-  combineLatest,
-  map,
-  shareReplay,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { erc20TokenList } from '../erc20Tokens/erc20Tokens';
 import { network } from '../network/handlers';
 import { addressUpdates } from './addresses';

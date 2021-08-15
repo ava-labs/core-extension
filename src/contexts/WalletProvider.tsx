@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
 import { concat, filter, map, pipe } from 'rxjs';
-import { walletUpdatedEventListener } from '@src/background/services/wallet/handlers';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import {
   isWalletLocked,
@@ -11,6 +10,7 @@ import {
   WalletState,
 } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
+import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
 
 const WalletContext = createContext<WalletState>({} as any);
 

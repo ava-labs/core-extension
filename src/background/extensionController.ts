@@ -1,11 +1,9 @@
 import { merge, tap } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
 import { ExtensionConnectionMessage } from './connections/models';
-import {
-  getSelectedNetwork,
-  networkUpdateEvents,
-  setSelectedNetwork,
-} from './services/network/handlers';
+import { networkUpdateEvents } from './services/network/events/networkUpdatedEvent';
+import { getSelectedNetwork } from './services/network/handlers/getSelectedNetwork';
+import { setSelectedNetwork } from './services/network/handlers/setSelectedNetwork';
 import {
   getIsOnBoarded,
   onboardingPhaseUpdatedEvent,
@@ -15,11 +13,9 @@ import {
   setWalletMnemonic,
   setWalletPassword,
 } from './services/onboarding/handlers';
-import {
-  initializeWalletState,
-  unlockWalletState,
-  walletUpdateEvents,
-} from './services/wallet/handlers';
+import { walletUpdateEvents } from './services/wallet/events/walletStateUpdates';
+import { initializeWalletState } from './services/wallet/handlers/initWalletState';
+import { unlockWalletState } from './services/wallet/handlers/unlockWalletState';
 import { formatAndLog, LoggerColors } from './utils/logging';
 
 export function extensionMessageHandler(connection: Runtime.Port) {
