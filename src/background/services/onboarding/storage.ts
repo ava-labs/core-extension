@@ -3,11 +3,10 @@ import {
   removeFromStorage,
   saveToStorage,
 } from '@src/utils/storage/chrome-storage';
-import { from, Observable } from 'rxjs';
 import { OnboardingState } from './models';
 
 export const ONBOARDING_STORAGE_KEY = 'onboarding';
-export async function onboardingFromStorage() {
+export async function getOnboardingFromStorage() {
   const store = await getFromStorage(ONBOARDING_STORAGE_KEY);
   return (
     store && store[ONBOARDING_STORAGE_KEY]

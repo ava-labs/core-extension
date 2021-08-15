@@ -14,8 +14,11 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import { onboardingFlow } from '../onboarding/onboardingFlows';
-import { onboardingFromStorage } from '../onboarding/storage';
+import {
+  onboardingFlow,
+  onboardingStatus,
+} from '../onboarding/onboardingFlows';
+import { getOnboardingFromStorage } from '../onboarding/storage';
 import { getMnemonicFromStorage } from './storage';
 import { wallet } from './wallet';
 
@@ -32,13 +35,11 @@ export const walletLocked = new BehaviorSubject<
   { locked: boolean } | undefined
 >(undefined);
 
-from(onboardingFromStorage())
+onboardingStatus
   .pipe(
     switchMap(async (state) => {
-      if (!state.isOnBoarded) {
-        return concat(of(state), onboardingFlow).pipe(
-          map(() => ({ locked: true }))
-        );
+      if (!state || !state.isOnBoarded) {
+        return from(Promise.resolve({ locked: true }));
       }
 
       // only getting this as a precaution
@@ -49,30 +50,11 @@ from(onboardingFromStorage())
         // some kind of analytics platform
       }
 
-      // see if there is already a wallet instance if so that means its not locked
-      const walletResult = await firstValueFrom(wallet);
-
-      return merge(
-        // immediately fir wallet state
-        of({ locked: !walletResult }),
-        // if this ever fires it means it was locked and we were waiting on user to unlock
-        mnemonicWalletUnlock.pipe(map(() => ({ locked: false }))),
-        // if this fires it means the wallet was initialized and now its not
-        // this will happen if the logout timer kicks the wallet instance out
-        wallet.pipe(
-          pairwise(),
-          filter(
-            ([oldWalletState, newWalletState]) =>
-              !!(oldWalletState && !newWalletState)
-          ),
-          map(() => ({ locked: true }))
-        )
-      );
+      return wallet.pipe(map(() => ({ locked: !wallet })));
     }),
-    exhaustMap((result) => result)
+    exhaustMap((value) => value)
   )
   .subscribe((state) => {
-    formatAndLog('wallet locked state', state);
     walletLocked.next(state);
   });
 

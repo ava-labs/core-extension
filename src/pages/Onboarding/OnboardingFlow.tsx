@@ -21,7 +21,7 @@ export function OnboardingFlow() {
       return <Import onCancel={handleOnCancel} />;
     case OnboardingPhase.PASSWORD:
       return <CreatePassword onCancel={handleOnCancel} />;
-    case OnboardingPhase.FINALIZE:
+    case OnboardingPhase.CONFIRM:
       return <AllDone onCancel={handleOnCancel} />;
     default:
       return <Welcome />;

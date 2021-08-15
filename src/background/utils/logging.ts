@@ -1,3 +1,4 @@
+import { Observable, tap } from 'rxjs';
 import { PassThrough } from 'stream';
 import { JsonRpcRequest } from '../rpc/jsonRpcEngine';
 export const repeat = (str, times) => new Array(times + 1).join(str);
@@ -73,4 +74,10 @@ export function requestParser(request: JsonRpcRequest<any>) {
   return Object.keys(request).reduce((acc, key) => {
     return acc ? `${acc}\n${setKeyAndValue(key)}` : setKeyAndValue(key);
   }, ``);
+}
+
+export function toLogger<T = any>(name: any, showLogs = true) {
+  return (observer: Observable<T>) => {
+    return observer.pipe(tap((value) => showLogs && formatAndLog(name, value)));
+  };
 }

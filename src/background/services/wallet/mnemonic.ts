@@ -1,9 +1,8 @@
 import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
 import { formatAndLog } from '@src/background/utils/logging';
 import { Subject, from } from 'rxjs';
-import { filter, map, mapTo, switchMap, tap } from 'rxjs/operators';
-import { onboardingFlow } from '../onboarding/onboardingFlows';
-import { onboardingFromStorage } from '../onboarding/storage';
+import { map, mapTo, switchMap, tap } from 'rxjs/operators';
+import { getOnboardingFromStorage } from '../onboarding/storage';
 import { getMnemonicFromStorage, saveMnemonicToStorage } from './storage';
 import { mnemonicWalletUnlock, walletLocked } from './walletLocked';
 
@@ -29,7 +28,7 @@ const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
   map((state) => state.mnemonic)
 );
 
-export const mnemonic = from(onboardingFromStorage()).pipe(
+export const mnemonic = from(getOnboardingFromStorage()).pipe(
   switchMap((state) => {
     return state.isOnBoarded ? mnemonicFromStorage : freshMnemonic;
   })

@@ -1,23 +1,28 @@
-import { map, Observable, take } from 'rxjs';
+import {
+  combineLatest,
+  filter,
+  map,
+  Observable,
+  OperatorFunction,
+  take,
+} from 'rxjs';
 import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
 } from '../../connections/models';
+import { wallet } from '../wallet/wallet';
 import { OnboardingPhase, OnboardingState } from './models';
 import {
   onboardingCurrentPhase,
   onboardingFinalized,
   onboardingMnemonic,
   onboardingPassword,
+  onboardingStatus,
 } from './onboardingFlows';
-import {
-  onboardingStateUpdates,
-  onboardingPhaseUpdates,
-} from './onboardingState';
-import { onboardingFromStorage } from './storage';
 
+import { getOnboardingFromStorage } from './storage';
 export async function getIsOnBoarded(request: ExtensionConnectionMessage) {
-  const result = await onboardingFromStorage();
+  const result = await getOnboardingFromStorage();
   return {
     ...request,
     result,
@@ -105,7 +110,7 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
   }
 
   onboardingPassword.next(password);
-  onboardingCurrentPhase.next(OnboardingPhase.FINALIZE);
+  onboardingCurrentPhase.next(OnboardingPhase.CONFIRM);
 
   return {
     ...request,
@@ -125,15 +130,15 @@ export async function setOnboardingFinalized(
 }
 
 const ONBOARDING_UPDATED_EVENT = 'onboarding_finalized';
-export function onboardingUpdatedEvent(): Observable<
-  ExtensionConnectionEvent<OnboardingState>
-> {
-  return onboardingStateUpdates.pipe(
-    map((value) => ({
+export function onboardingUpdatedEvent() {
+  return combineLatest([onboardingStatus, wallet]).pipe(
+    map(([onboarded, wallet]) => ({
       name: ONBOARDING_UPDATED_EVENT,
-      value,
-    })),
-    take(1)
+      value:
+        onboarded && onboarded.isOnBoarded && !!wallet
+          ? { isOnBoarded: true }
+          : { isOnBoarded: false },
+    }))
   );
 }
 
@@ -141,7 +146,11 @@ const ONBOARDING_PHASE_UPDATED_EVENT = 'onboarding_phase';
 export function onboardingPhaseUpdatedEvent(): Observable<
   ExtensionConnectionEvent<OnboardingPhase>
 > {
-  return onboardingPhaseUpdates.pipe(
+  return onboardingCurrentPhase.pipe(
+    filter((value) => value !== undefined) as OperatorFunction<
+      OnboardingPhase | undefined,
+      OnboardingPhase
+    >,
     map((value) => ({
       name: ONBOARDING_PHASE_UPDATED_EVENT,
       value,

@@ -1,4 +1,4 @@
-import { formatAndLog } from '@src/background/utils/logging';
+import { formatAndLog, toLogger } from '@src/background/utils/logging';
 import {
   BehaviorSubject,
   combineLatest,
@@ -28,16 +28,11 @@ function toStructure(name: any) {
   };
 }
 
-function toLogger(name: any) {
-  return (observer: any) => {
-    // return observer.pipe(tap((value) => console.log(name, value)));
-    return observer;
-  };
-}
-
 export const walletState = new BehaviorSubject<
   WalletState | WalletLockedState | undefined
 >(undefined);
+
+const showLogs = false;
 
 walletLocked
   .pipe(
@@ -49,19 +44,19 @@ walletLocked
               combineLatest([
                 addressUpdates.pipe(
                   toStructure('addresses'),
-                  toLogger('addresses')
+                  toLogger('addresses', showLogs)
                 ),
                 erc20TokenList.pipe(
                   toStructure('erc20Tokens'),
-                  toLogger('erc20Tokens')
+                  toLogger('erc20Tokens', showLogs)
                 ),
                 avaxPriceUpdates.pipe(
                   toStructure('avaxPrice'),
-                  toLogger('avaxPrice')
+                  toLogger('avaxPrice', showLogs)
                 ),
                 balanceUpdates.pipe(
                   toStructure('balances'),
-                  toLogger('balances')
+                  toLogger('balances', showLogs)
                 ),
               ])
             ),

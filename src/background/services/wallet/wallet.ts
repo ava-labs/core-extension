@@ -29,6 +29,6 @@ combineLatest([
     })
   )
   .subscribe((result) => {
-    formatAndLog('wallet initialized', wallet);
+    formatAndLog('wallet initialized', result);
     wallet.next(result);
   });
