@@ -1,7 +1,7 @@
 import { JsonRpcEngine } from 'json-rpc-engine';
 import { createFetchMiddleware } from 'eth-json-rpc-middleware';
 import { firstValueFrom } from 'rxjs';
-import { network } from '../services/network/handlers';
+import { network } from '../services/network/network';
 
 export { JsonRpcRequest } from 'json-rpc-engine';
 

@@ -1,8 +1,8 @@
 import { LoadingIcon } from '@avalabs/react-components';
 import {
-  onboardingUpdatedEventListener,
   onboardingPhaseUpdatedEventListener,
-} from '@src/background/services/onboarding/handlers';
+  onboardingUpdatedEventListener,
+} from '@src/background/services/onboarding/events/listeners';
 import {
   OnboardingPhase,
   OnboardingState,

@@ -5,7 +5,7 @@ import {
   chainChangedUpdate,
 } from './utils/providerUpdate';
 import { tap, Subject, firstValueFrom, combineLatest } from 'rxjs';
-import { network } from './services/network/handlers';
+import { network } from './services/network/network';
 import { wallet } from './services/wallet/wallet';
 
 /**

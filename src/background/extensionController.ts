@@ -4,15 +4,13 @@ import { ExtensionConnectionMessage } from './connections/models';
 import { networkUpdateEvents } from './services/network/events/networkUpdatedEvent';
 import { getSelectedNetwork } from './services/network/handlers/getSelectedNetwork';
 import { setSelectedNetwork } from './services/network/handlers/setSelectedNetwork';
-import {
-  getIsOnBoarded,
-  onboardingPhaseUpdatedEvent,
-  onboardingUpdatedEvent,
-  setOnboardingFinalized,
-  setWalletImportOrCreatePhase,
-  setWalletMnemonic,
-  setWalletPassword,
-} from './services/onboarding/handlers';
+import { onboardingPhaseUpdatedEvent } from './services/onboarding/events/onboardingPhaseEvent';
+import { onboardingUpdatedEvent } from './services/onboarding/events/onboardingUpdatedEvent';
+import { getIsOnBoarded } from './services/onboarding/handlers/getIsOnBoarded';
+import { setOnboardingFinalized } from './services/onboarding/handlers/setOnboardingFinalized';
+import { setWalletImportOrCreatePhase } from './services/onboarding/handlers/setWalletImportOrCreatePhase';
+import { setWalletMnemonic } from './services/onboarding/handlers/setWalletMnemonic';
+import { setWalletPassword } from './services/onboarding/handlers/setWalletPassword';
 import { walletUpdateEvents } from './services/wallet/events/walletStateUpdates';
 import { initializeWalletState } from './services/wallet/handlers/initWalletState';
 import { unlockWalletState } from './services/wallet/handlers/unlockWalletState';

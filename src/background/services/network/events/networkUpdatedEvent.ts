@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { network } from '../handlers';
+import { network } from '../network';
 import { NetworkEvents } from './models';
 
 export function networkUpdateEvents() {

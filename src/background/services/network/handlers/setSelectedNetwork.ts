@@ -1,6 +1,6 @@
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { network } from '../handlers';
+import { network } from '../network';
 import { supportedNetworks } from '../models';
 import { saveNetworkToStorage } from '../storage';
 

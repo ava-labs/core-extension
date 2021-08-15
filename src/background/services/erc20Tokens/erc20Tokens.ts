@@ -11,7 +11,7 @@ import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { combineTokensAndBalances, FUJI_LIST, MAINNET_LIST } from './utils';
 import { wallet } from '../wallet/wallet';
 import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
-import { network } from '../network/handlers';
+import { network } from '../network/network';
 
 async function getTokensAndBalances(wallet: WalletType) {
   const net = await firstValueFrom(network);
