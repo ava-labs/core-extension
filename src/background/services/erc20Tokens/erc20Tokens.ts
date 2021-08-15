@@ -1,14 +1,22 @@
-import { fromEventPattern, mergeMap, mapTo, switchMap, of, concat } from 'rxjs';
+import {
+  fromEventPattern,
+  mergeMap,
+  mapTo,
+  switchMap,
+  of,
+  concat,
+  firstValueFrom,
+} from 'rxjs';
 import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { combineTokensAndBalances, FUJI_LIST, MAINNET_LIST } from './utils';
-import { getNetworkFromStorage } from '../network/storage';
 import { wallet } from '../wallet/wallet';
 import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
+import { network } from '../network/handlers';
 
 async function getTokensAndBalances(wallet: WalletType) {
-  const network = await getNetworkFromStorage();
+  const net = await firstValueFrom(network);
 
-  const tokenIndex = await (Network.isFujiNetwork(network.config)
+  const tokenIndex = await (Network.isFujiNetwork(net.config)
     ? FUJI_LIST
     : MAINNET_LIST);
 

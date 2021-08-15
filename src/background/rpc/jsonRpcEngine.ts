@@ -1,14 +1,15 @@
 import { JsonRpcEngine } from 'json-rpc-engine';
 import { createFetchMiddleware } from 'eth-json-rpc-middleware';
-import { getNetworkFromStorage } from '../services/network/storage';
+import { firstValueFrom } from 'rxjs';
+import { network } from '../services/network/handlers';
 
 export { JsonRpcRequest } from 'json-rpc-engine';
 
 export async function engine() {
-  const network = await getNetworkFromStorage();
+  const net = await firstValueFrom(network);
   const fetchMiddleware = createFetchMiddleware({
     get rpcUrl() {
-      return network.config.rpcUrl.c;
+      return net.config.rpcUrl.c;
     },
   });
   const engine = new JsonRpcEngine();

@@ -2,22 +2,18 @@ import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
-import { ActiveNetwork, supportedNetworks } from './models';
+import { ActiveNetwork, MAINNET_NETWORK, supportedNetworks } from './models';
 import { getNetworkFromStorage, saveNetworkToStorage } from './storage';
 import { Network } from '@avalabs/avalanche-wallet-sdk';
 import { formatAndLog } from '@src/background/utils/logging';
-import { map, Subject, concat, from, tap, shareReplay } from 'rxjs';
+import { map, BehaviorSubject } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
 
-const networkUpdates = new Subject<ActiveNetwork>();
-export function listenForNetworkUpdates() {
-  return networkUpdates.asObservable();
-}
+export const network = new BehaviorSubject<ActiveNetwork>(MAINNET_NETWORK);
 
-export const network = concat(
-  from(getNetworkFromStorage()),
-  networkUpdates
-).pipe(shareReplay());
+getNetworkFromStorage().then(
+  (activeNetwork) => activeNetwork && network.next(activeNetwork)
+);
 
 export async function getSelectedNetwork(request: ExtensionConnectionMessage) {
   const result = await getNetworkFromStorage();
@@ -48,7 +44,7 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
     };
   }
 
-  networkUpdates.next(selectedNetwork);
+  network.next(selectedNetwork);
   const [_, err] = await resolve(saveNetworkToStorage(selectedNetwork));
 
   return {
@@ -59,7 +55,7 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
 
 const NETWORK_UPDATE_EVENT = 'network-updated';
 export function networkUpdateEvents() {
-  return networkUpdates.pipe(
+  return network.pipe(
     map((network) => {
       return {
         name: NETWORK_UPDATE_EVENT,
