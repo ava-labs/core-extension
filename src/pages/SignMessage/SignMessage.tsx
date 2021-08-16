@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -8,22 +8,18 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
-import { useGetMessage } from './useGetMessage';
 import { SignData } from './components/SignData';
 import { SignDataV4 } from './components/SignDataV4';
 import { SignDataV3 } from './components/SignDataV3';
 import { SignError } from './components/SignError';
 import { PersonalSign } from './components/PersonalSign';
 import { EthSign } from './components/EthSign';
-import { SignedMessageResult, signTransaction } from './utils/signTx';
-import { messageService } from '@src/background/services/messages/messages';
+import { useSignMessage } from './useSignMessage';
 
 export function SignMessage() {
-  // const { wallet } = useWalletContext();
   const requestId = useGetRequestId();
-  const [error, setError] = useState('');
-  const { message } = useGetMessage(requestId);
-  const [signedResults, setSignedResults] = useState<SignedMessageResult>();
+  const { message, error, signMessage, signedResults, cancelSign } =
+    useSignMessage(requestId);
 
   if (!message) {
     return <LoadingIcon />;
@@ -38,17 +34,6 @@ export function SignMessage() {
         <PrimaryButton onClick={() => globalThis.close()}>done</PrimaryButton>
       </VerticalFlex>
     );
-  }
-
-  function signTxAndFinalize() {
-    // message && wallet
-    //   ? signTransaction(message, wallet).then((result) => {
-    //       messageService.updateMessage(result);
-    //       setSignedResults(result);
-    //     })
-    //   : setError(
-    //       'Something is wrong with the message your attempting to sign, or wallet wasnt available'
-    //     );
   }
 
   return (
@@ -74,13 +59,12 @@ export function SignMessage() {
       <HorizontalFlex>
         <SecondaryButton
           onClick={() => {
-            messageService.removeById(requestId);
-            globalThis.close();
+            cancelSign();
           }}
         >
           Cancel
         </SecondaryButton>
-        <PrimaryButton onClick={() => signTxAndFinalize()}>Sign</PrimaryButton>
+        <PrimaryButton onClick={() => signMessage()}>Sign</PrimaryButton>
       </HorizontalFlex>
     </VerticalFlex>
   );

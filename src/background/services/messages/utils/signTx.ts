@@ -6,12 +6,7 @@ import {
   signTypedDataLegacy,
 } from 'eth-sig-util';
 import { MnemonicWallet, WalletType } from '@avalabs/avalanche-wallet-sdk';
-
-export interface SignedMessageResult {
-  status: string;
-  id: string;
-  result: string;
-}
+import { SignedMessageResult } from '../models';
 
 export const signTransaction = async (
   message: {

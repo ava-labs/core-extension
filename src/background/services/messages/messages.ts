@@ -1,88 +1,78 @@
 import { JsonRpcRequest } from '@src/background/rpc/jsonRpcEngine';
-import storageListener from '@src/utils/storage/local-storage';
-import { Subject, Observable, firstValueFrom } from 'rxjs';
-import { tap, map, filter, mergeWith } from 'rxjs/operators';
-import { IndexAndStoreBase } from '../indexAndStoreBase';
+import { toLogger } from '@src/background/utils/logging';
+import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { Message, MessageType } from './models';
+import { paramsToMessageParams } from './utils/messageParamsParser';
 
-class MessagesService extends IndexAndStoreBase<Message> {
-  private paramsToMessageParams(
-    data: JsonRpcRequest<any>,
-    signType: MessageType
-  ) {
-    const { params } = data;
-    switch (signType) {
-      case MessageType.PERSONAL_SIGN:
-        return {
-          data: params[0],
-          from: params[1],
-          password: params[2],
-        };
-      case MessageType.SIGN_TYPED_DATA:
-        return {
-          data: params[0],
-          from: params[1],
-        };
-      case MessageType.ETH_SIGN:
-        return {
-          data: params[0],
-          from: params[1],
-        };
-      default:
-        return {
-          from: params[0],
-          data: params[1],
-        };
-    }
-  }
+export const messages = new BehaviorSubject<Message[]>([]);
 
-  saveMessage(data: JsonRpcRequest<any>, signType: MessageType) {
-    const now = new Date().getTime();
-    this.save({
-      id: data.id,
-      time: now,
-      status: 'unsigned',
-      msgParams: this.paramsToMessageParams(data, signType),
-      type: signType,
-    });
+export const pendingMessages = new BehaviorSubject<{ [id: string]: Message }>(
+  {}
+);
 
-    return {
-      listenForUpdates: (cancel: Observable<any>) => {
-        return this.listenForMessageUpdate(data.id as string, cancel);
-      },
-    };
-  }
+export const addMessage = new Subject<{
+  data: JsonRpcRequest<any>;
+  signType: MessageType;
+}>();
 
-  updateMessage({
-    status,
-    id,
-    result,
-  }: {
-    status: string;
-    id: Message['id'];
-    result: any;
-  }) {
-    const pendingMessage = this.getById(id);
-    if (pendingMessage) {
-      this.update({
-        ...pendingMessage,
-        status,
-        result,
+export const updateMessage = new Subject<{
+  status: string;
+  id: Message['id'];
+  result: any;
+}>();
+
+addMessage
+  .pipe(
+    switchMap(async (newMessage) => {
+      return Promise.all([
+        firstValueFrom(pendingMessages),
+        Promise.resolve(newMessage),
+      ]);
+    }),
+    map(([currentPendingMessages, { data, signType }]) => {
+      const pendingMessage = {
+        id: data.id,
+        time: new Date().getTime(),
+        status: 'unsigned',
+        msgParams: paramsToMessageParams(data, signType),
+        type: signType,
+      };
+
+      pendingMessages.next({
+        ...currentPendingMessages,
+        [`${data.id}`]: pendingMessage,
       });
-    } else {
-      console.error('error when trying to update a pending message');
-    }
-  }
 
-  listenForMessageUpdate(id: string, cancled: Observable<any>) {
-    return firstValueFrom(
-      storageListener.pipe(
-        map(() => this.getById(id)?.result),
-        filter((result) => !!result),
-        mergeWith(cancled)
-      )
-    );
-  }
-}
+      return pendingMessage;
+    }),
+    toLogger('pending message added')
+  )
+  .subscribe();
 
-export const messageService = new MessagesService('pending-messages');
+updateMessage
+  .pipe(
+    switchMap(async (messageUpdate) => {
+      return Promise.all([
+        firstValueFrom(messages),
+        firstValueFrom(pendingMessages),
+        Promise.resolve(messageUpdate),
+      ]);
+    }),
+    map(([currentMessages, currentPendingMessages, { status, id, result }]) => {
+      const pendingMessage = currentPendingMessages[id as string];
+      if (pendingMessage) {
+        const updatedMessage = {
+          ...pendingMessage,
+          status,
+          result,
+        };
+
+        messages.next([...currentMessages, updatedMessage]);
+
+        return updatedMessage;
+      }
+    }),
+    toLogger('pending message updated')
+  )
+  .subscribe();

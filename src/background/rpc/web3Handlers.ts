@@ -8,13 +8,13 @@ import {
 import { MessageType } from '../services/messages/models';
 import { txToCustomEvmTx } from '../services/transactions/utils/txToCustomEvmTx';
 import { TxStatus } from '../services/transactions/models';
-import { map, filter, mergeMap, firstValueFrom } from 'rxjs';
+import { map, filter, mergeMap, firstValueFrom, merge } from 'rxjs';
 import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
 import { wallet } from '../services/wallet/wallet';
-import { messageService } from '../services/messages/messages';
 import { transactionService } from '../services/transactions/transactions';
 import { personalSigRecovery } from '../services/messages/utils/personalSigRecovery';
 import { permissionsService } from '../services/permissions/permissions';
+import { addMessage, pendingMessages } from '../services/messages/messages';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -71,14 +71,20 @@ const unauthenticatedRoutes = new Set([
   'net_version',
 ]);
 
-async function signMessage(data: JsonRpcRequest<any>, type: MessageType) {
-  const { listenForUpdates } = messageService.saveMessage(data, type);
+async function signMessage(data: JsonRpcRequest<any>, signType: MessageType) {
+  addMessage.next({ data, signType });
   const window = await openExtensionNewWindow(`sign?id=${data.id}`);
-  const result = await listenForUpdates(
-    window.removed.pipe(map(() => 'Window closed before signed'))
+  return await firstValueFrom(
+    merge(
+      pendingMessages.pipe(map((result) => ({ result }))),
+      window.removed.pipe(map(() => ({ error: 'Window closed before signed' })))
+    ).pipe(
+      map((value) => ({
+        ...data,
+        ...value,
+      }))
+    )
   );
-
-  return { ...data, result };
 }
 
 const web3CustomHandlers = {

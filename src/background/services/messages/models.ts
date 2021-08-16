@@ -15,3 +15,9 @@ export interface Message {
   type: MessageType;
   result?: string;
 }
+
+export interface SignedMessageResult {
+  status: string;
+  id: string;
+  result: string;
+}
