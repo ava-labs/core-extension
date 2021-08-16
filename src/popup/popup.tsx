@@ -1,14 +1,9 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-
-import { GlobalStyle } from '@src/styles/styles';
-
 import { WalletHome } from '@src/pages/Wallet/WalletHome';
 import { Deposit } from '@src/pages/Deposit';
-
 import { Header } from '@src/components/common/Header';
 import { Footer } from '@src/components/common/Footer';
-
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -117,7 +112,6 @@ export function Popup() {
                       </Route>
                     </Switch>
                   </HorizontalFlex>
-                  <GlobalStyle />
                   <Footer />
                 </VerticalFlex>
               </SettingsContextProvider>

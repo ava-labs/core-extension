@@ -1,7 +1,4 @@
-import styled, { createGlobalStyle } from 'styled-components';
-
-const black = '#4d4d4d';
-const blue = '#2d7cc2';
+import { createGlobalStyle } from 'styled-components';
 
 export const GlobalStyle = createGlobalStyle`
 
@@ -65,7 +62,6 @@ export const GlobalStyle = createGlobalStyle`
   }
   html{
     text-rendering: optimizeLegibility;
-    color: ${black};
   }
   
   body, html, #popup {
