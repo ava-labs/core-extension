@@ -8,6 +8,7 @@ import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
 import { concat, filter, from, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
+import { ExtensionRequest } from '@src/background/connections/models';
 
 const NetworkContext = createContext<{
   network?: ActiveNetwork;
@@ -31,7 +32,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     concat(
       from(
         request({
-          method: 'network_getSelectedNetwork',
+          method: ExtensionRequest.NETWORK_GET_SELECTED,
         })
       ),
       events().pipe(
@@ -53,7 +54,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         network,
         setNetwork: (network: ActiveNetwork) =>
           request({
-            method: 'network_setSelectedNetwork',
+            method: ExtensionRequest.NETWORK_SET_SELECTED,
             params: [network.name],
           }),
         networks: Array.from(supportedNetworks.values()),

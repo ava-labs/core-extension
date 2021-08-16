@@ -1,4 +1,8 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { network } from '../network';
 import { supportedNetworks } from '../models';
@@ -32,3 +36,8 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
     result: 'success',
   };
 }
+
+export const SetNetworkRequest: [ExtensionRequest, ConnectionRequestHandler] = [
+  ExtensionRequest.NETWORK_SET_SELECTED,
+  setSelectedNetwork,
+];

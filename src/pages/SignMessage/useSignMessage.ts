@@ -1,3 +1,4 @@
+import { ExtensionRequest } from '@src/background/connections/models';
 import {
   Message,
   SignedMessageResult,
@@ -14,21 +15,21 @@ export function useSignMessage(messageId: string) {
 
   useEffect(() => {
     request!({
-      method: 'wallet_getPendingMessage',
+      method: ExtensionRequest.MESSAGE_GET_PENDING,
       params: [messageId],
     }).then((mess) => setMessage(messageParser(mess)));
   }, []);
 
   function signMessage() {
     request!({
-      method: 'wallet_signMessage',
+      method: ExtensionRequest.MESSAGE_SIGN,
       params: [messageId],
     }).then((mess) => setSignedResults(mess.result));
   }
 
   function cancelSign() {
     request!({
-      method: 'wallet_cancelMessageSign',
+      method: ExtensionRequest.MESSAGE_CANCEL_PENDING,
       params: [messageId],
     }).then(() => globalThis.close());
   }

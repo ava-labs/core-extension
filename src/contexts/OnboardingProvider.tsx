@@ -1,4 +1,5 @@
 import { LoadingIcon } from '@avalabs/react-components';
+import { ExtensionRequest } from '@src/background/connections/models';
 import {
   onboardingPhaseUpdatedEventListener,
   onboardingUpdatedEventListener,
@@ -40,7 +41,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     concat(
       from(
         request<OnboardingState>({
-          method: 'onboarding_getIsOnBoarded',
+          method: ExtensionRequest.ONBOARDING_GET_STATE,
         })
       ),
       events().pipe(
@@ -73,28 +74,28 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   function setNextPhase(phase: OnboardingPhase) {
     return request!({
-      method: 'onboarding_setCurrentPhase',
+      method: ExtensionRequest.ONBOARDING_SET_PHASE,
       params: [phase],
     });
   }
 
   function setMnemonic(mnemonic: string) {
     return request!({
-      method: 'onboarding_setWalletMnemonic',
+      method: ExtensionRequest.ONBOARDING_SET_MNEMONIC,
       params: [mnemonic],
     });
   }
 
   function setPassword(password: string) {
     return request!({
-      method: 'onboarding_setWalletPassword',
+      method: ExtensionRequest.ONBOARDING_SET_PASSWORD,
       params: [password],
     });
   }
 
   function setFinalized() {
     return request!({
-      method: 'onboarding_setOnboardingFinalized',
+      method: ExtensionRequest.ONBOARDING_SET_FINALIZED,
     });
   }
 

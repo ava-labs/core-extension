@@ -18,6 +18,6 @@ export interface Message {
 
 export interface SignedMessageResult {
   status: string;
-  id: string;
+  id?: string;
   result: string;
 }

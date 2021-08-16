@@ -1,4 +1,8 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { OnboardingPhase } from '../models';
 import { onboardingCurrentPhase } from '../onboardingFlows';
 
@@ -35,3 +39,8 @@ export async function setWalletImportOrCreatePhase(
     result: true,
   };
 }
+
+export const SetOnboardingPhaseRequest: [
+  ExtensionRequest,
+  ConnectionRequestHandler
+] = [ExtensionRequest.ONBOARDING_SET_PHASE, setWalletImportOrCreatePhase];

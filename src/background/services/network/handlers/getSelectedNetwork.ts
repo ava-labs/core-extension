@@ -1,4 +1,8 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
 import { network } from '../network';
 
@@ -10,3 +14,8 @@ export async function getSelectedNetwork(request: ExtensionConnectionMessage) {
     result,
   };
 }
+
+export const GetNetworkRequest: [ExtensionRequest, ConnectionRequestHandler] = [
+  ExtensionRequest.NETWORK_GET_SELECTED,
+  getSelectedNetwork,
+];

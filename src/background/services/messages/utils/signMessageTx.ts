@@ -8,12 +8,13 @@ import {
 import { MnemonicWallet, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { SignedMessageResult } from '../models';
 
-export const signTransaction = async (
+export const signMessageTx = async (
   message: {
     type: string;
     params?: any;
     data?: string;
-    requestId: string;
+    requestId?: string;
+    id?: any;
   },
   wallet: WalletType
 ): Promise<SignedMessageResult> => {
@@ -50,7 +51,7 @@ export const signTransaction = async (
 
       return {
         status: 'signed',
-        id: message.requestId,
+        id: message.requestId || message.id,
         result: signed,
       };
     } else {

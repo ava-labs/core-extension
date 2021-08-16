@@ -1,4 +1,7 @@
-import { ExtensionConnectionMessageResponse } from '@src/background/connections/models';
+import {
+  ExtensionConnectionMessageResponse,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import React, { createContext, useContext } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 
@@ -10,7 +13,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
 
   function lockWallet() {
-    return request!({ method: 'settings_lockWallet' });
+    return request!({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
   }
 
   return (

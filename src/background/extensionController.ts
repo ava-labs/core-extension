@@ -1,21 +1,47 @@
 import { merge, tap } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
-import { ExtensionConnectionMessage } from './connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from './connections/models';
+import { CancelPendingMessageRequest } from './services/messages/handlers/cancelPendingMessage';
+import { GetPendingMessageRequest } from './services/messages/handlers/getPendingMessage';
+import { SignMessageRequest } from './services/messages/handlers/signMessage';
 import { networkUpdateEvents } from './services/network/events/networkUpdatedEvent';
-import { getSelectedNetwork } from './services/network/handlers/getSelectedNetwork';
-import { setSelectedNetwork } from './services/network/handlers/setSelectedNetwork';
+import { GetNetworkRequest } from './services/network/handlers/getSelectedNetwork';
+import { SetNetworkRequest } from './services/network/handlers/setSelectedNetwork';
 import { onboardingPhaseUpdatedEvent } from './services/onboarding/events/onboardingPhaseEvent';
 import { onboardingUpdatedEvent } from './services/onboarding/events/onboardingUpdatedEvent';
-import { getIsOnBoarded } from './services/onboarding/handlers/getIsOnBoarded';
-import { setOnboardingFinalized } from './services/onboarding/handlers/setOnboardingFinalized';
-import { setWalletImportOrCreatePhase } from './services/onboarding/handlers/setWalletImportOrCreatePhase';
-import { setWalletMnemonic } from './services/onboarding/handlers/setWalletMnemonic';
-import { setWalletPassword } from './services/onboarding/handlers/setWalletPassword';
-import { lockWalletFromSettings } from './services/settings/handlers/lockWallet';
+import { GetOnboardingStateRequest } from './services/onboarding/handlers/getIsOnBoarded';
+import { SetOnboardingFinalizedRequest } from './services/onboarding/handlers/setOnboardingFinalized';
+import { SetOnboardingPhaseRequest } from './services/onboarding/handlers/setWalletImportOrCreatePhase';
+import { SetOnboardingMnemonicRequest } from './services/onboarding/handlers/setWalletMnemonic';
+import { SetOnboardingPasswordRequest } from './services/onboarding/handlers/setWalletPassword';
+import { SettingsLockWalletStateRequest } from './services/settings/handlers/lockWallet';
 import { walletUpdateEvents } from './services/wallet/events/walletStateUpdates';
-import { initializeWalletState } from './services/wallet/handlers/initWalletState';
-import { unlockWalletState } from './services/wallet/handlers/unlockWalletState';
+import { GetWalletStateRequest } from './services/wallet/handlers/initWalletState';
+import { UnlockWalletStateRequest } from './services/wallet/handlers/unlockWalletState';
 import { formatAndLog, LoggerColors } from './utils/logging';
+
+const extensionRequestHandlerMap = new Map<
+  ExtensionRequest,
+  ConnectionRequestHandler
+>([
+  SignMessageRequest,
+  GetPendingMessageRequest,
+  CancelPendingMessageRequest,
+  GetOnboardingStateRequest,
+  SetOnboardingPhaseRequest,
+  SetOnboardingFinalizedRequest,
+  SetOnboardingMnemonicRequest,
+  SetOnboardingPasswordRequest,
+  GetNetworkRequest,
+  SetNetworkRequest,
+  GetWalletStateRequest,
+  UnlockWalletStateRequest,
+  SettingsLockWalletStateRequest,
+]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
   function respondToRequest(response) {
@@ -26,42 +52,20 @@ export function extensionMessageHandler(connection: Runtime.Port) {
   }
 
   return (message: ExtensionConnectionMessage) => {
-    const handlers = {
-      onboarding_getIsOnBoarded(request) {
-        getIsOnBoarded(request).then(respondToRequest);
-      },
-      onboarding_setCurrentPhase(request) {
-        setWalletImportOrCreatePhase(request).then(respondToRequest);
-      },
-      onboarding_setWalletMnemonic(request) {
-        setWalletMnemonic(request).then(respondToRequest);
-      },
-      onboarding_setWalletPassword(request) {
-        setWalletPassword(request).then(respondToRequest);
-      },
-      onboarding_setOnboardingFinalized(request) {
-        setOnboardingFinalized(request).then(respondToRequest);
-      },
-      network_getSelectedNetwork(request) {
-        getSelectedNetwork(request).then(respondToRequest);
-      },
-      network_setSelectedNetwork(request) {
-        setSelectedNetwork(request).then(respondToRequest);
-      },
-      wallet_InitializeState(request) {
-        initializeWalletState(request).then(respondToRequest);
-      },
-      wallet_unlockWalletState(request) {
-        unlockWalletState(request).then(respondToRequest);
-      },
-      settings_lockWallet(request) {
-        lockWalletFromSettings(request).then(respondToRequest);
-      },
-    };
-
     formatAndLog('extension request recieved: ', message);
 
-    handlers[message.method](message);
+    const handler = extensionRequestHandlerMap.get(
+      message.method as ExtensionRequest
+    );
+
+    if (!handler) {
+      return respondToRequest({
+        ...message,
+        error: new Error('no handler for this request found'),
+      });
+    }
+
+    handler(message).then(respondToRequest);
   };
 }
 

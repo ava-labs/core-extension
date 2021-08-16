@@ -1,4 +1,8 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { OnboardingPhase } from '../models';
 import { onboardingCurrentPhase, onboardingPassword } from '../onboardingFlows';
 
@@ -29,3 +33,8 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
     result: true,
   };
 }
+
+export const SetOnboardingPasswordRequest: [
+  ExtensionRequest,
+  ConnectionRequestHandler
+] = [ExtensionRequest.ONBOARDING_SET_PASSWORD, setWalletPassword];

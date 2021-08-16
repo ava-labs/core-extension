@@ -1,4 +1,8 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { decryptMnemonicInStorage } from '../storage';
 import { mnemonicWalletUnlock } from '../mnemonicWalletUnlock';
@@ -39,3 +43,8 @@ export async function unlockWalletState(request: ExtensionConnectionMessage) {
     result: true,
   };
 }
+
+export const UnlockWalletStateRequest: [
+  ExtensionRequest,
+  ConnectionRequestHandler
+] = [ExtensionRequest.WALLET_UNLOCK_STATE, unlockWalletState];

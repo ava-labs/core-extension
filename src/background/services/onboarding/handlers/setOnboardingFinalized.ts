@@ -1,4 +1,8 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { onboardingFinalized } from '../onboardingFlows';
 
 export async function setOnboardingFinalized(
@@ -11,3 +15,8 @@ export async function setOnboardingFinalized(
     result: true,
   };
 }
+
+export const SetOnboardingFinalizedRequest: [
+  ExtensionRequest,
+  ConnectionRequestHandler
+] = [ExtensionRequest.ONBOARDING_SET_FINALIZED, setOnboardingFinalized];

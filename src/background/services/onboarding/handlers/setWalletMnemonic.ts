@@ -1,4 +1,8 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { OnboardingPhase } from '../models';
 import { onboardingCurrentPhase, onboardingMnemonic } from '../onboardingFlows';
 
@@ -28,3 +32,8 @@ export async function setWalletMnemonic(request: ExtensionConnectionMessage) {
     result: true,
   };
 }
+
+export const SetOnboardingMnemonicRequest: [
+  ExtensionRequest,
+  ConnectionRequestHandler
+] = [ExtensionRequest.ONBOARDING_SET_MNEMONIC, setWalletMnemonic];

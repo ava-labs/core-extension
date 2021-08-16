@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { useEffect } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
-import { concat, filter, map, pipe } from 'rxjs';
+import { concat, filter, map } from 'rxjs';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import {
   isWalletLocked,
@@ -11,6 +11,7 @@ import {
 } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
+import { ExtensionRequest } from '@src/background/connections/models';
 
 const WalletContext = createContext<WalletState>({} as any);
 
@@ -41,7 +42,7 @@ export function WalletContextProvider({ children }: { children: any }) {
     }
 
     concat(
-      request<WalletState>({ method: 'wallet_InitializeState' }),
+      request<WalletState>({ method: ExtensionRequest.WALLET_STATE }),
       events().pipe(
         filter(walletUpdatedEventListener),
         map((evt) => evt.value)
@@ -57,7 +58,7 @@ export function WalletContextProvider({ children }: { children: any }) {
 
   function unlockWallet(password: string) {
     return request!({
-      method: 'wallet_unlockWalletState',
+      method: ExtensionRequest.WALLET_UNLOCK_STATE,
       params: [password],
     });
   }
