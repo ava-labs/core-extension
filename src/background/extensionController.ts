@@ -11,6 +11,7 @@ import { setOnboardingFinalized } from './services/onboarding/handlers/setOnboar
 import { setWalletImportOrCreatePhase } from './services/onboarding/handlers/setWalletImportOrCreatePhase';
 import { setWalletMnemonic } from './services/onboarding/handlers/setWalletMnemonic';
 import { setWalletPassword } from './services/onboarding/handlers/setWalletPassword';
+import { lockWalletFromSettings } from './services/settings/handlers/lockWallet';
 import { walletUpdateEvents } from './services/wallet/events/walletStateUpdates';
 import { initializeWalletState } from './services/wallet/handlers/initWalletState';
 import { unlockWalletState } from './services/wallet/handlers/unlockWalletState';
@@ -52,6 +53,9 @@ export function extensionMessageHandler(connection: Runtime.Port) {
       },
       wallet_unlockWalletState(request) {
         unlockWalletState(request).then(respondToRequest);
+      },
+      settings_lockWallet(request) {
+        lockWalletFromSettings(request).then(respondToRequest);
       },
     };
 

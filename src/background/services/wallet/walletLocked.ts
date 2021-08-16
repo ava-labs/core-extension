@@ -1,14 +1,10 @@
 import {
   BehaviorSubject,
   EMPTY,
-  exhaustMap,
   firstValueFrom,
-  from,
   interval,
-  map,
   merge,
   of,
-  skip,
   Subject,
   switchMap,
 } from 'rxjs';
@@ -17,6 +13,7 @@ import { getMnemonicFromStorage } from './storage';
 import { wallet } from './wallet';
 
 export const restartWalletLock = new Subject<boolean>();
+export const lockWallet = new Subject<boolean>();
 
 /**
  * locked means:
@@ -54,3 +51,5 @@ const HOURS_12 = 1000 * 60 * 60 * 12;
 merge(of({}), restartWalletLock)
   .pipe(switchMap(() => interval(HOURS_12)))
   .subscribe(() => wallet.next(undefined));
+
+lockWallet.subscribe(() => wallet.next(undefined));

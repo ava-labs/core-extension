@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import { GlobalStyle } from '@src/styles/styles';
-import { ThemeProvider } from 'styled-components';
-import { lightTheme, darkTheme } from '@src/styles/theme';
 
 import { WalletHome } from '@src/pages/Wallet/WalletHome';
 import { Deposit } from '@src/pages/Deposit';
@@ -49,94 +47,85 @@ import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
-import { themeService } from '@src/background/services/theme/theme';
+import { ThemeContextProvider } from '@src/contexts/ThemeProvider';
+import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 
 export function Popup() {
-  const [theme, setTheme] = useState<any>();
-
-  useEffect(() => {
-    themeService.themeConfig.subscribe((config) => {
-      setTheme(config.isDarkMode ? darkTheme : lightTheme);
-    });
-  }, []);
-
-  if (!theme) {
-    return <LoadingIcon />;
-  }
-
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeContextProvider>
       <ConnectionContextProvider>
         <OnboardingContextProvider>
           <NetworkContextProvider>
             <WalletContextProvider>
-              <VerticalFlex height={'100%'}>
-                <Header hasOnboarded={true} />
-                <HorizontalFlex flex={1} justify={'center'}>
-                  <Switch>
-                    <Route path="/token/add">
-                      <React.Suspense fallback={<LoadingIcon />}>
-                        <AddToken />
-                      </React.Suspense>
-                    </Route>
+              <SettingsContextProvider>
+                <VerticalFlex height={'100%'}>
+                  <Header hasOnboarded={true} />
+                  <HorizontalFlex flex={1} justify={'center'}>
+                    <Switch>
+                      <Route path="/token/add">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <AddToken />
+                        </React.Suspense>
+                      </Route>
 
-                    <Route path="/wallet/overview">
-                      <React.Suspense fallback={<LoadingIcon />}>
-                        <WalletOverview />
-                      </React.Suspense>
-                    </Route>
+                      <Route path="/wallet/overview">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <WalletOverview />
+                        </React.Suspense>
+                      </Route>
 
-                    <Route path="/wallet">
-                      <WalletHome />
-                    </Route>
+                      <Route path="/wallet">
+                        <WalletHome />
+                      </Route>
 
-                    <Route path="/deposit">
-                      <Deposit />
-                    </Route>
+                      <Route path="/deposit">
+                        <Deposit />
+                      </Route>
 
-                    <Route path="/sign/transaction">
-                      <React.Suspense fallback={<LoadingIcon />}>
-                        <SignTransactionPage />
-                      </React.Suspense>
-                    </Route>
+                      <Route path="/sign/transaction">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <SignTransactionPage />
+                        </React.Suspense>
+                      </Route>
 
-                    <Route path="/send">
-                      <React.Suspense fallback={<LoadingIcon />}>
-                        <Send />
-                      </React.Suspense>
-                    </Route>
+                      <Route path="/send">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <Send />
+                        </React.Suspense>
+                      </Route>
 
-                    <Route path="/sign">
-                      <React.Suspense fallback={<LoadingIcon />}>
-                        <SignMessage />
-                      </React.Suspense>
-                    </Route>
+                      <Route path="/sign">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <SignMessage />
+                        </React.Suspense>
+                      </Route>
 
-                    <Route path="/permissions">
-                      <React.Suspense fallback={<LoadingIcon />}>
-                        <PermissionsPage />
-                      </React.Suspense>
-                    </Route>
+                      <Route path="/permissions">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <PermissionsPage />
+                        </React.Suspense>
+                      </Route>
 
-                    <Route path="/settings">
-                      <React.Suspense fallback={<LoadingIcon />}>
-                        <SettingsPage />
-                      </React.Suspense>
-                    </Route>
+                      <Route path="/settings">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <SettingsPage />
+                        </React.Suspense>
+                      </Route>
 
-                    <Route path="/">
-                      <Redirect to="/wallet" />
-                    </Route>
-                  </Switch>
-                </HorizontalFlex>
-                <GlobalStyle />
-                <Footer />
-              </VerticalFlex>
+                      <Route path="/">
+                        <Redirect to="/wallet" />
+                      </Route>
+                    </Switch>
+                  </HorizontalFlex>
+                  <GlobalStyle />
+                  <Footer />
+                </VerticalFlex>
+              </SettingsContextProvider>
             </WalletContextProvider>
           </NetworkContextProvider>
         </OnboardingContextProvider>
       </ConnectionContextProvider>
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 }
 
