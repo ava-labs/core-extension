@@ -24,7 +24,7 @@ export function useSignMessage(messageId: string) {
     request!({
       method: ExtensionRequest.MESSAGE_SIGN,
       params: [messageId],
-    }).then((mess) => setSignedResults(mess.result));
+    }).then((mess) => setSignedResults(mess));
   }
 
   function cancelSign() {
