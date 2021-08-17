@@ -3,6 +3,7 @@ import extension from 'extensionizer';
 import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from './common';
 import { providerConnection } from './background/connections/providerConnection';
 import { extensionConnection } from './background/connections/extensionConnection';
+import { formatAndLog } from './background/utils/logging';
 
 /**
  * If they just install then they need to onboard and we force them
@@ -26,8 +27,10 @@ browser.runtime.onConnect.addListener((connection) => {
 
   if (connection.sender?.id === extension.runtime.id) {
     if (connection.name === CONTENT_SCRIPT) {
+      formatAndLog('connection to provider', true);
       providerConnection(connection);
     } else if (connection.name === EXTENSION_SCRIPT) {
+      formatAndLog('connection to extension', true);
       extensionConnection(connection);
     }
   }

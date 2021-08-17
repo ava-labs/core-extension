@@ -1,20 +1,23 @@
 import { JsonRpcRequest, engine } from './jsonRpcEngine';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { formatAndLog, LoggerColors } from '../utils/logging';
-import {
-  CONNECT_METHOD,
-  JSONRPCRequestWithDomain,
-} from '../permissionsController';
 import { MessageType } from '../services/messages/models';
 import { txToCustomEvmTx } from '../services/transactions/utils/txToCustomEvmTx';
 import { TxStatus } from '../services/transactions/models';
-import { map, filter, mergeMap, firstValueFrom, merge } from 'rxjs';
+import { map, firstValueFrom, merge, filter, tap } from 'rxjs';
 import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
 import { wallet } from '../services/wallet/wallet';
 import { transactionService } from '../services/transactions/transactions';
 import { personalSigRecovery } from '../services/messages/utils/personalSigRecovery';
-import { permissionsService } from '../services/permissions/permissions';
 import { addMessage, pendingMessages } from '../services/messages/messages';
+import { domainHasAccountsPermissions } from '../services/permissions/utils/domainHasAccountPermissions';
+import { permissions } from '../services/permissions/permissions';
+import { domainPermissionsExist } from '../services/permissions/utils/domainPermissionsExist';
+import { getPermissionsConvertedToMetaMaskStructure } from '../services/permissions/utils/getPermissionsConvertedToMetaMaskStructure';
+import {
+  JSONRPCRequestWithDomain,
+  ProviderRequest,
+} from '../connections/models';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -192,20 +195,17 @@ const web3CustomHandlers = {
    * @param data the rpc request
    * @returns
    */
-  async [CONNECT_METHOD](data: JSONRPCRequestWithDomain) {
-    const walletResult = await firstValueFrom(wallet);
+  async [ProviderRequest.CONNECT_METHOD](data: JSONRPCRequestWithDomain) {
+    const walletResult = await firstValueFrom(
+      wallet.pipe(filter((walletResult) => !!walletResult))
+    );
 
-    if (!walletResult) {
+    const currentPermissions = await firstValueFrom(permissions);
+
+    if (domainHasAccountsPermissions(data.domain, currentPermissions)) {
       return {
         ...data,
-        error: 'wallet undefined',
-      };
-    }
-
-    if (permissionsService.domainHasAccountsPermissions(data.domain)) {
-      return {
-        ...data,
-        result: getAccountsFromWallet(walletResult),
+        result: walletResult ? getAccountsFromWallet(walletResult) : [],
       };
     }
 
@@ -218,23 +218,38 @@ const web3CustomHandlers = {
      * promise is resolved. If not and the window is closed before then the promise will also be resolved and
      * the consumer will be notified that the window closed prematurely
      */
-    const hasPermissions = await firstValueFrom(
-      permissionsService.listenForPermissionChanges().pipe(
-        mergeMap(() => permissionsService.domainPermissionsExist(data.domain)),
-        filter((hasPermissionsValues) => hasPermissionsValues),
-        mergeMap(() =>
-          permissionsService.domainHasAccountsPermissions(data.domain)
-        )
-        // merge()
-      )
+    const permissionsSet = permissions.pipe(
+      tap((update) => {
+        console.log('permissions set in the listener', update);
+      }),
+      filter(
+        (currentPermissions) =>
+          domainPermissionsExist(data.domain, currentPermissions) &&
+          domainHasAccountsPermissions(data.domain, currentPermissions)
+      ),
+      tap(() => {
+        console.log('permissions accepted');
+      }),
+      map((hasPermissions) => ({
+        ...data,
+        result:
+          hasPermissions && walletResult
+            ? getAccountsFromWallet(walletResult)
+            : [],
+      }))
     );
 
-    // window.removed.map(() => 'Window closed before permissions granted')
+    const windowClosed = window.removed.pipe(
+      map(() => ({
+        ...data,
+        error: new Error('window removed before permissions set'),
+      })),
+      tap(() => {
+        console.log('window closed event fired');
+      })
+    );
 
-    return {
-      ...data,
-      result: hasPermissions ? getAccountsFromWallet(walletResult) : [],
-    };
+    return firstValueFrom(merge(permissionsSet, windowClosed));
   },
   /**
    * This is called right away by dapps to see if its already connected
@@ -251,10 +266,11 @@ const web3CustomHandlers = {
         error: 'wallet undefined',
       };
     }
+    const currentPermissions = await firstValueFrom(permissions);
 
     return {
       ...data,
-      result: permissionsService.domainHasAccountsPermissions(data.domain)
+      result: domainHasAccountsPermissions(data.domain, currentPermissions)
         ? getAccountsFromWallet(walletResult)
         : [],
     };
@@ -265,28 +281,32 @@ const web3CustomHandlers = {
       `domain=${data.domain}`
     );
 
+    const currentPermissions = await firstValueFrom(permissions);
+
     /**
      * At this point the user has previously given permissions and we are possibly editing them
      * and/or adding more permissions.
      */
     await firstValueFrom(
-      window.removed.pipe(
-        map(() => permissionsService.permissions[data.domain])
-      )
+      window.removed.pipe(map(() => currentPermissions[data.domain]))
     );
 
     return {
       ...data,
-      result: permissionsService.getPermissionsConvertedToMetaMaskStructure(
-        data.domain
+      result: getPermissionsConvertedToMetaMaskStructure(
+        data.domain,
+        currentPermissions
       ),
     };
   },
   async wallet_getPermissions(data: JSONRPCRequestWithDomain) {
+    const currentPermissions = await firstValueFrom(permissions);
+
     return {
       ...data,
-      result: permissionsService.getPermissionsConvertedToMetaMaskStructure(
-        data.domain
+      result: getPermissionsConvertedToMetaMaskStructure(
+        data.domain,
+        currentPermissions
       ),
     };
   },

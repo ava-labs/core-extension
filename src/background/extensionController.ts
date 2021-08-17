@@ -18,6 +18,9 @@ import { SetOnboardingFinalizedRequest } from './services/onboarding/handlers/se
 import { SetOnboardingPhaseRequest } from './services/onboarding/handlers/setWalletImportOrCreatePhase';
 import { SetOnboardingMnemonicRequest } from './services/onboarding/handlers/setWalletMnemonic';
 import { SetOnboardingPasswordRequest } from './services/onboarding/handlers/setWalletPassword';
+import { AddPermissionsForDomainRequest } from './services/permissions/handlers/addPermissionsForDomain';
+import { GetAccountsForPermissionsRequest } from './services/permissions/handlers/getAccountsForPermissions';
+import { GetPermissionsForDomainRequest } from './services/permissions/handlers/getPermissionsForDomain';
 import { SettingsLockWalletStateRequest } from './services/settings/handlers/lockWallet';
 import { walletUpdateEvents } from './services/wallet/events/walletStateUpdates';
 import { GetWalletStateRequest } from './services/wallet/handlers/initWalletState';
@@ -41,6 +44,9 @@ const extensionRequestHandlerMap = new Map<
   GetWalletStateRequest,
   UnlockWalletStateRequest,
   SettingsLockWalletStateRequest,
+  AddPermissionsForDomainRequest,
+  GetPermissionsForDomainRequest,
+  GetAccountsForPermissionsRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {

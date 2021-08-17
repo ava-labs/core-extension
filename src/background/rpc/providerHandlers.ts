@@ -1,11 +1,11 @@
 import { JsonRpcRequest } from './jsonRpcEngine';
 import { formatAndLog, LoggerColors } from '../utils/logging';
-import { DOMAIN_METADATA_METHOD } from '../permissionsController';
 import { AddEthChainParams } from '../models';
 import { firstValueFrom } from 'rxjs';
 import { supportedNetworks } from '../services/network/models';
 import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
 import { wallet } from '../services/wallet/wallet';
+import { ProviderRequest } from '../connections/models';
 
 export default {
   async metamask_getProviderState(data) {
@@ -14,7 +14,12 @@ export default {
     if (!walletResult) {
       return {
         ...data,
-        error: 'wallet undefined',
+        result: {
+          isUnlocked: true,
+          networkVersion: 'avax',
+          accounts: [],
+          chainId: '',
+        },
       };
     }
 
@@ -28,7 +33,7 @@ export default {
       },
     };
   },
-  async [DOMAIN_METADATA_METHOD](data) {
+  async [ProviderRequest.DOMAIN_METADATA_METHOD](data) {
     return { ...data, result: data.params };
   },
 

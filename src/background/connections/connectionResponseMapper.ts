@@ -29,7 +29,7 @@ export function connectionResponseHandler(
       eventHandler && eventHandler.next(message);
     } else if (isConnectionResponse(message)) {
       const responseHandler = responseMap.get(message.id);
-      responseHandler?.next(message.result);
+      responseHandler?.next(message);
       responseMap.delete(message.id);
     }
   };
@@ -44,7 +44,7 @@ export function requestEngine(
     connection.onMessage.removeListener(connectionResponseHandler);
     connection.onDisconnect.removeListener(onRequestEngineDisconnect);
   });
-  return (request: Omit<ExtensionConnectionMessage, 'id'>) => {
+  return async (request: Omit<ExtensionConnectionMessage, 'id'>) => {
     const requestWithId = {
       ...request,
       id: `${request.method}-${Math.floor(Math.random() * 10000000)}`,

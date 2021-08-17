@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -8,63 +8,17 @@ import {
   PrimaryButton,
   LoadingIcon,
 } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { getAccountsFromWallet } from '@src/background/services/wallet/utils/getAccountsFromWallet';
-import { useEffect } from 'react';
-import { DappPermissions } from '@src/background/services/permissions/models';
-import { permissionsService } from '@src/background/services/permissions/permissions';
-
-function accountsToPermissions(accounts: string[], domain: string) {
-  return {
-    domain,
-    accounts: accounts.reduce((acc, account) => {
-      return {
-        ...acc,
-        [account]: false,
-      };
-    }, {}),
-  };
-}
-
-function updateAnAccount(
-  permissions: ReturnType<typeof accountsToPermissions>,
-  account: { [key: string]: boolean }
-) {
-  return {
-    ...permissions,
-    accounts: {
-      ...permissions.accounts,
-      ...account,
-    },
-  };
-}
-
-function atleastOneAccountHasPermissions(permissions: DappPermissions) {
-  return (Object.values(permissions.accounts) || []).some((value) => value);
-}
+import { usePermissions } from './usePermissions';
 
 export function PermissionsPage() {
-  // const { wallet } = useWalletContext();
   const params = new URLSearchParams(window.location.search);
   let domain = params.get('domain') as string;
-
-  const [permissions, updatePermissions] = useState<
-    ReturnType<typeof accountsToPermissions> | undefined
-  >();
-
-  // useEffect(() => {
-  //   if (wallet) {
-  //     updatePermissions(
-  //       permissionsService.permissions[domain] ??
-  //         accountsToPermissions(getAccountsFromWallet(wallet), domain)
-  //     );
-  //   }
-  // }, [wallet]);
-
-  const acceptPermissionsDisabled = useMemo(
-    () => permissions && !atleastOneAccountHasPermissions(permissions),
-    [permissions]
-  );
+  const {
+    addPermissionsForDomain,
+    permissions,
+    acceptPermissionsDisabled,
+    updateAccountPermission,
+  } = usePermissions(domain);
 
   if (!permissions) {
     return <LoadingIcon />;
@@ -73,8 +27,7 @@ export function PermissionsPage() {
   function onChangeUpdatePermissions(key: string) {
     if (!permissions) return;
 
-    return (state: boolean) =>
-      updatePermissions(updateAnAccount(permissions, { [key]: state }));
+    return (state: boolean) => updateAccountPermission(key, state);
   }
 
   return (
@@ -103,8 +56,7 @@ export function PermissionsPage() {
         <PrimaryButton
           disabled={acceptPermissionsDisabled}
           onClick={() => {
-            permissionsService.addPermissionsForDomain(permissions);
-            window.close();
+            addPermissionsForDomain(permissions).then(() => window.close());
           }}
         >
           approve

@@ -1,7 +1,6 @@
 import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
 } from '@src/background/connections/models';
 import React, { createContext, useContext, useState } from 'react';
 import { useEffect } from 'react';
@@ -12,10 +11,21 @@ import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/background/connections/connectionResponseMapper';
 import { LoadingIcon } from '@avalabs/react-components';
 
+function request(connection: Runtime.Port, eventsHandler) {
+  return function requestHandler<T = any>(
+    message: Omit<ExtensionConnectionMessage, 'id'>
+  ) {
+    return requestEngine(
+      connection!,
+      eventsHandler
+    )(message).then<T>((results) =>
+      results.error ? Promise.reject(results.error) : results.result
+    );
+  };
+}
+
 const ConnectionContext = createContext<{
-  request?<T = any>(
-    msg: Omit<ExtensionConnectionMessage, 'id'>
-  ): Promise<ExtensionConnectionMessageResponse<T>>;
+  request: ReturnType<typeof request>;
   events?<V = any>(): Observable<ExtensionConnectionEvent<V>>;
   connection?: Runtime.Port;
 }>({} as any);
@@ -41,7 +51,7 @@ export function ConnectionContextProvider({ children }: { children: any }) {
     <ConnectionContext.Provider
       value={{
         connection,
-        request: requestEngine(connection, eventsHandler),
+        request: request(connection, eventsHandler),
         events: () => eventsHandler.asObservable(),
       }}
     >

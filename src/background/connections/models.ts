@@ -1,3 +1,5 @@
+import { JsonRpcRequest } from '../rpc/jsonRpcEngine';
+
 export interface ExtensionConnectionMessage {
   id: string;
   method: string;
@@ -53,4 +55,16 @@ export enum ExtensionRequest {
   MESSAGE_SIGN = 'message_signMessage',
   MESSAGE_GET_PENDING = 'message_getPendingMessage',
   MESSAGE_CANCEL_PENDING = 'message_cancelPendingMessage',
+  PERMISSIONS_ADD_DOMAIN = 'permissions_addDomain',
+  PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',
+  PERMISSIONS_GET_ACCOUNTS = 'permissions_getAccounts',
+}
+
+export enum ProviderRequest {
+  DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata',
+  CONNECT_METHOD = 'eth_requestAccounts',
+}
+
+export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
+  domain: string;
 }

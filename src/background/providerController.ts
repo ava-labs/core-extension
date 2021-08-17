@@ -3,7 +3,9 @@ import providerHandlers from './rpc/providerHandlers';
 import web3Handlers from './rpc/web3Handlers';
 import { JsonRpcRequest } from './rpc/jsonRpcEngine';
 import { resolve } from '../utils/promiseResolver';
-import { PermissionsController } from './permissionsController';
+import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
+import { ProviderRequest } from './connections/models';
+import { formatAndLog } from './utils/logging';
 
 /**
  * This is the core of the background logic. Every provider request comes in through the WalletControllerStream
@@ -43,31 +45,34 @@ export class ProviderController {
 }
 export function createWalletControllerStream() {
   const controller = new ProviderController();
-  const permissions = new PermissionsController();
+  const domain = new BehaviorSubject('');
+
+  const subscription = domain
+    .pipe(filter((domain) => !!domain))
+    .subscribe((domain) => {
+      formatAndLog('domain added to connection', domain);
+    });
 
   return new Duplex({
     objectMode: true,
     write(chunk, _encoding, cb) {
-      permissions
-        /**
-         * Since the domain comes from the provider we watch for that here. Soon as
-         * we get the rpc request we broadcas that out to all requests that require
-         * permissions, permissions are by domain and this is how we find out what domain
-         * they are coming from.
-         *
-         */
-        .watchForDomainAndDispatch(chunk.data)
-        .validateMethodPermissions(chunk.data)
-        /**
-         * At this map chunk stage it is VERY possible that the user pops a window and then
-         * orphans said window and thus orphans the promise. That promise would then be stuck in
-         * memory. We need to come up with a mechanism that when the connection is destroyed it
-         * cleans up any of its orphaned promises belonging to the corresponding connection. The promise
-         * does however listen for the window to close already, if it does then it will reject the promise
-         * and thuse closing the promise, this should be enough that the garbage collector will clean it up.
-         *
-         */
-        .then((data) => controller.mapChunkToHandler({ ...chunk, data }))
+      if (chunk.data.method === ProviderRequest.DOMAIN_METADATA_METHOD) {
+        domain.next(chunk.data.params.name);
+      }
+
+      firstValueFrom(domain.pipe(filter((domain) => !!domain)))
+        .then((domain) => {
+          return {
+            ...chunk,
+            data: {
+              ...chunk.data,
+              domain,
+            },
+          };
+        })
+        .then((rpcRequestWithDomain) =>
+          controller.mapChunkToHandler(rpcRequestWithDomain)
+        )
         .then((result) => {
           this.push(result);
         });
@@ -78,7 +83,7 @@ export function createWalletControllerStream() {
       return;
     },
     destroy() {
-      permissions.destroy();
+      subscription.unsubscribe();
     },
   });
 }
