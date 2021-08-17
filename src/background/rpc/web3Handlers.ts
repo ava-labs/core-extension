@@ -219,17 +219,11 @@ const web3CustomHandlers = {
      * the consumer will be notified that the window closed prematurely
      */
     const permissionsSet = permissions.pipe(
-      tap((update) => {
-        console.log('permissions set in the listener', update);
-      }),
       filter(
         (currentPermissions) =>
           domainPermissionsExist(data.domain, currentPermissions) &&
           domainHasAccountsPermissions(data.domain, currentPermissions)
       ),
-      tap(() => {
-        console.log('permissions accepted');
-      }),
       map((hasPermissions) => ({
         ...data,
         result:
@@ -243,10 +237,7 @@ const web3CustomHandlers = {
       map(() => ({
         ...data,
         error: new Error('window removed before permissions set'),
-      })),
-      tap(() => {
-        console.log('window closed event fired');
-      })
+      }))
     );
 
     return firstValueFrom(merge(permissionsSet, windowClosed));
