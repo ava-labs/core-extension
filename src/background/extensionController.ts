@@ -22,6 +22,10 @@ import { AddPermissionsForDomainRequest } from './services/permissions/handlers/
 import { GetAccountsForPermissionsRequest } from './services/permissions/handlers/getAccountsForPermissions';
 import { GetPermissionsForDomainRequest } from './services/permissions/handlers/getPermissionsForDomain';
 import { SettingsLockWalletStateRequest } from './services/settings/handlers/lockWallet';
+import { gasPriceTransactionUpdate } from './services/transactions/events/gasPriceTransactionUpdate';
+import { transactionFinalizedUpdate } from './services/transactions/events/transactionFinalizedUpdate';
+import { GetTransactionByIdRequest } from './services/transactions/handlers/getTransaction';
+import { UpdateTransactionByIdRequest } from './services/transactions/handlers/updateTransaction';
 import { walletUpdateEvents } from './services/wallet/events/walletStateUpdates';
 import { GetWalletStateRequest } from './services/wallet/handlers/initWalletState';
 import { UnlockWalletStateRequest } from './services/wallet/handlers/unlockWalletState';
@@ -47,6 +51,8 @@ const extensionRequestHandlerMap = new Map<
   AddPermissionsForDomainRequest,
   GetPermissionsForDomainRequest,
   GetAccountsForPermissionsRequest,
+  UpdateTransactionByIdRequest,
+  GetTransactionByIdRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
@@ -80,7 +86,9 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     onboardingUpdatedEvent(),
     networkUpdateEvents(),
     walletUpdateEvents,
-    onboardingPhaseUpdatedEvent()
+    onboardingPhaseUpdatedEvent(),
+    gasPriceTransactionUpdate(),
+    transactionFinalizedUpdate()
   ).pipe(
     tap((evt) => {
       formatAndLog(`event to extension (${evt.name})`, evt, {

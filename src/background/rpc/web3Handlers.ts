@@ -7,7 +7,6 @@ import { TxStatus } from '../services/transactions/models';
 import { map, firstValueFrom, merge, filter, tap } from 'rxjs';
 import { getAccountsFromWallet } from '../services/wallet/utils/getAccountsFromWallet';
 import { wallet } from '../services/wallet/wallet';
-import { transactionService } from '../services/transactions/transactions';
 import { personalSigRecovery } from '../services/messages/utils/personalSigRecovery';
 import { addMessage, pendingMessages } from '../services/messages/messages';
 import { domainHasAccountsPermissions } from '../services/permissions/utils/domainHasAccountPermissions';
@@ -18,6 +17,11 @@ import {
   JSONRPCRequestWithDomain,
   ProviderRequest,
 } from '../connections/models';
+import {
+  addTransaction,
+  pendingTransactions,
+  updateTransaction,
+} from '../services/transactions/transactions';
 
 /**
  * These are requests that are simply passthrough to the backend, they dont require
@@ -101,14 +105,21 @@ const web3CustomHandlers = {
       };
     }
 
-    const { listenForTxPending } = transactionService.addTransaction(data);
+    addTransaction.next(data);
 
     const window = await openExtensionNewWindow(
       `sign/transaction?id=${data.id}`
     );
 
-    const pendingTx = await listenForTxPending(
-      window.removed.pipe(map(() => 'Window closed before approved'))
+    const windowClosed = window.removed.pipe(
+      map(() => 'Window closed before approved')
+    );
+
+    const pendingTx = await firstValueFrom(
+      pendingTransactions.pipe(
+        map((currentPendingTXs) => currentPendingTXs[`${data.id}`]),
+        filter((pending) => !!pending)
+      )
     );
 
     return txToCustomEvmTx(pendingTx).then((params) => {
@@ -125,7 +136,7 @@ const web3CustomHandlers = {
           params.value
         )
         .then((result) => {
-          transactionService.updateTransactionStatus({
+          updateTransaction.next({
             status: TxStatus.SIGNED,
             id: data.id,
             result,

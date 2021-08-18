@@ -58,6 +58,8 @@ export enum ExtensionRequest {
   PERMISSIONS_ADD_DOMAIN = 'permissions_addDomain',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',
   PERMISSIONS_GET_ACCOUNTS = 'permissions_getAccounts',
+  TRANSACTIONS_GET = 'transactions_getTransaction',
+  TRANSACTIONS_UPDATE = 'transactions_updateTransaction',
 }
 
 export enum ProviderRequest {

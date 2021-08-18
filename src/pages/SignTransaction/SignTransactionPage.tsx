@@ -6,10 +6,8 @@ import {
   SecondaryButton,
 } from '@avalabs/react-components';
 import { TxStatus } from '@src/background/services/transactions/models';
-import { transactionService } from '@src/background/services/transactions/transactions';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React from 'react';
 import { useGetTransaction } from './useGetTransaction';
 
 export function SignTransactionPage() {
@@ -22,30 +20,10 @@ export function SignTransactionPage() {
     gasPrice,
     gasAvax,
     total,
-    txParams,
     transaction,
+    updateTransaction,
+    hash,
   } = useGetTransaction(requestId);
-  const [hash, setHash] = useState('');
-  /**
-   * Update the gas prices in storage
-   */
-  useEffect(() => {
-    if (txParams && gasPrice && gasEstimate) {
-      transactionService.updateTransactionParams(transaction?.id, {
-        ...txParams,
-        gas: gasEstimate.toString(),
-        gasPrice: gasPrice,
-      });
-    }
-  }, [gasPrice, gasEstimate]);
-
-  useEffect(() => {
-    transactionService
-      .listenForTransactionFinalized(transaction?.id as string)
-      .then((res) => {
-        if (res) setHash(res);
-      });
-  }, []);
 
   return (
     <>
@@ -66,7 +44,7 @@ export function SignTransactionPage() {
             <SecondaryButton
               onClick={() => {
                 transaction?.id &&
-                  transactionService.updateTransactionStatus({
+                  updateTransaction({
                     status: TxStatus.ERROR_USER_CANCELED,
                     id: transaction?.id,
                   });
@@ -78,7 +56,7 @@ export function SignTransactionPage() {
             <PrimaryButton
               onClick={() => {
                 transaction?.id &&
-                  transactionService.updateTransactionStatus({
+                  updateTransaction({
                     status: TxStatus.SUBMITTING,
                     id: transaction?.id,
                   });

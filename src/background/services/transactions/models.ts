@@ -20,19 +20,14 @@ export interface Transaction {
   txHash?: string;
 }
 
-export interface txParams {
-  from: string;
-  to: string;
-  value: string;
-  data?: string;
-  gas?: string;
-  gasPrice?: string;
-}
-
 export function isTxParams(params: Partial<txParams>): params is txParams {
   return !!(params.to && params.from && params.value);
 }
 
+export type PendingTransactions = {
+  [id: string]: Transaction;
+};
+
 export interface txParams {
   from: string;
   to: string;
@@ -40,4 +35,51 @@ export interface txParams {
   data?: string;
   gas?: string;
   gasPrice?: string;
+}
+/**
+ * This is updating the gasPrice and gasEstimate for a pending tx
+ */
+export interface txParamsUpdate {
+  id: any;
+  params: txParams;
+}
+/**
+ * This is updating the result with the txHash or the status
+ */
+export interface txStatusUpdate {
+  status: TxStatus;
+  id: Transaction['id'];
+  result?: string;
+}
+
+export function isTxParamsUpdate(
+  update: txParamsUpdate | txStatusUpdate
+): update is txParamsUpdate {
+  return update?.hasOwnProperty('id') && update.hasOwnProperty('params');
+}
+
+export function isTxStatusUpdate(
+  update: txParamsUpdate | txStatusUpdate
+): update is txStatusUpdate {
+  return (
+    update?.hasOwnProperty('id') &&
+    update.hasOwnProperty('status') &&
+    !update.hasOwnProperty('result') &&
+    (update as txStatusUpdate).status !== TxStatus.SIGNED &&
+    (update as txStatusUpdate).status !== TxStatus.ERROR &&
+    (update as txStatusUpdate).status !== TxStatus.ERROR_USER_CANCELED
+  );
+}
+
+export function isTxFinalizedUpdate(
+  update: txParamsUpdate | txStatusUpdate
+): update is txStatusUpdate {
+  return (
+    update?.hasOwnProperty('id') &&
+    update.hasOwnProperty('result') &&
+    update.hasOwnProperty('status') &&
+    (update as txStatusUpdate).status === TxStatus.SIGNED &&
+    (update as txStatusUpdate).status === TxStatus.ERROR &&
+    (update as txStatusUpdate).status === TxStatus.ERROR_USER_CANCELED
+  );
 }
