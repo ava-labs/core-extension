@@ -11,20 +11,21 @@ import {
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { hexToNumber } from '@src/utils/web3Utils';
 import { GasPrice } from './models';
-import { toLogger } from '@src/background/utils/logging';
 
 const SECONDS_30 = 1000 * 30;
 export const gasPrice = new BehaviorSubject<GasPrice | undefined>(undefined);
 
 function getGasPrice() {
-  return engine().then((e) =>
-    e.handle({
-      jsonrpc: '2.0',
-      method: 'eth_gasPrice',
-      params: [],
-      id: 71,
-    })
-  );
+  return engine()
+    .then((e) =>
+      e.handle({
+        jsonrpc: '2.0',
+        method: 'eth_gasPrice',
+        params: [],
+        id: 71,
+      })
+    )
+    .then((res: any) => res.result);
 }
 
 function parseGasPrice(res: any) {
@@ -53,5 +54,3 @@ interval(SECONDS_30)
     })
   )
   .subscribe();
-
-gasPrice.pipe(toLogger('gas price updated')).subscribe();
