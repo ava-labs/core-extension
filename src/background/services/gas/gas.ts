@@ -28,8 +28,7 @@ function getGasPrice() {
     .then((res: any) => res.result);
 }
 
-function parseGasPrice(res: any) {
-  const hex = res.result;
+function parseGasPrice(hex: string) {
   const bn = new BN(hexToNumber(hex));
   const value = Utils.bnToLocaleString(bn, 9);
   return {
