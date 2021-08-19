@@ -10,7 +10,7 @@ import {
   LoadingIcon,
 } from '@avalabs/react-components';
 
-import { truncateAddress } from '@src/utils/addressUtils';
+import { truncateAddress } from '@src/utils/truncateAddress';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export const Deposit = () => {

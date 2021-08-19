@@ -1,5 +1,5 @@
-import { JsonRpcRequest } from '@src/background/rpc/jsonRpcEngine';
-import { toLogger } from '@src/background/utils/logging';
+import { JsonRpcRequest } from '@src/utils/jsonRpcEngine';
+import { toLogger } from '@src/utils/logging';
 import {
   isTxParams,
   Transaction,

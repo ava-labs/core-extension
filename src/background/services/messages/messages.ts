@@ -1,5 +1,5 @@
-import { JsonRpcRequest } from '@src/background/rpc/jsonRpcEngine';
-import { toLogger } from '@src/background/utils/logging';
+import { JsonRpcRequest } from '@src/utils/jsonRpcEngine';
+import { toLogger } from '@src/utils/logging';
 import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Message, MessageType } from './models';

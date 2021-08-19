@@ -1,5 +1,3 @@
-// import { browser } from "webextension-polyfill-ts";
-// import avalancheWeb3 from "./avalancheWeb3/avalancheweb3";
 import { WindowPostMessageStream } from '@metamask/post-message-stream';
 import extension from 'extensionizer';
 import ObjectMultiplex from 'obj-multiplex';
@@ -11,10 +9,7 @@ import {
   INPAGE_PROVIDER as PROVIDER,
 } from './common';
 import { Duplex } from 'stream';
-import logger, {
-  LoggerColors,
-  requestParser,
-} from './background/utils/logging';
+import logger, { LoggerColors, requestParser } from './utils/logging';
 
 const inpage = require('raw-loader!/dist/js/inpage.js');
 

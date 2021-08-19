@@ -1,5 +1,5 @@
 import { KnownContractABIs } from '@src/abi';
-import { truncateAddress } from '@src/utils/addressUtils';
+import { truncateAddress } from '@src/utils/truncateAddress';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import { useMemo } from 'react';
 import { useState } from 'react';

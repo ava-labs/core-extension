@@ -3,7 +3,8 @@ import extension from 'extensionizer';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-import { NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT } from '@src/utils/constants';
+const NOTIFICATION_WIDTH = 500;
+const NOTIFICATION_HEIGHT = 500;
 
 /**
  * Fired when a window is removed (closed).

@@ -1,7 +1,7 @@
 import { ActiveNetwork, MAINNET_NETWORK, supportedNetworks } from './models';
 import { getNetworkFromStorage } from './storage';
 import { Network } from '@avalabs/avalanche-wallet-sdk';
-import { formatAndLog } from '@src/background/utils/logging';
+import { formatAndLog } from '@src/utils/logging';
 import { BehaviorSubject } from 'rxjs';
 
 export const network = new BehaviorSubject<ActiveNetwork>(MAINNET_NETWORK);

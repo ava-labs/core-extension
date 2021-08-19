@@ -7,7 +7,7 @@ import {
   SecondaryButton,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { truncateAddress } from '@src/utils/addressUtils';
+import { truncateAddress } from '@src/utils/truncateAddress';
 import { Link } from 'react-router-dom';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { TransactionSendType } from '../Send/models';

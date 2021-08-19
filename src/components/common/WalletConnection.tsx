@@ -8,7 +8,7 @@ import {
   Typography,
   CaretIcon,
 } from '@avalabs/react-components';
-import { truncateAddress } from '@src/utils/addressUtils';
+import { truncateAddress } from '@src/utils/truncateAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 

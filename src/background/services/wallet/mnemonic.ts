@@ -1,5 +1,5 @@
 import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
-import { formatAndLog } from '@src/background/utils/logging';
+import { formatAndLog } from '@src/utils/logging';
 import { Subject, from } from 'rxjs';
 import { map, mapTo, switchMap, tap } from 'rxjs/operators';
 import { getOnboardingFromStorage } from '../onboarding/storage';

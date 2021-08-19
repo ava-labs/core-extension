@@ -1,4 +1,4 @@
-import { formatAndLog } from '@src/background/utils/logging';
+import { formatAndLog } from '@src/utils/logging';
 import { Subject, tap, firstValueFrom, BehaviorSubject, switchMap } from 'rxjs';
 import { DappPermissions, Permissions } from './models';
 import { getPermissionsFromStorage, savePermissionsToStorage } from './storage';

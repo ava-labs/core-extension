@@ -1,4 +1,4 @@
-import { formatAndLog, toLogger } from '@src/background/utils/logging';
+import { formatAndLog, toLogger } from '@src/utils/logging';
 import { combineLatest, EMPTY, BehaviorSubject } from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';
 import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';

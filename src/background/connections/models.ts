@@ -1,4 +1,4 @@
-import { JsonRpcRequest } from '../rpc/jsonRpcEngine';
+import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 
 export interface ExtensionConnectionMessage {
   id: string;

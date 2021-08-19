@@ -1,9 +1,9 @@
 import { browser } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
 import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from './common';
-import { providerConnection } from './background/connections/providerConnection';
-import { extensionConnection } from './background/connections/extensionConnection';
-import { formatAndLog } from './background/utils/logging';
+import { providerConnection } from './background/connections/dAppConnection/providerConnection';
+import { extensionConnection } from './background/connections/extensionConnection/extensionConnection';
+import { formatAndLog } from './utils/logging';
 
 /**
  * If they just install then they need to onboard and we force them

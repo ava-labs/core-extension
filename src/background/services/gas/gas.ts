@@ -1,4 +1,4 @@
-import { engine } from '@src/background/rpc/jsonRpcEngine';
+import { engine } from '@src/utils/jsonRpcEngine';
 import {
   BehaviorSubject,
   filter,
@@ -9,7 +9,6 @@ import {
   tap,
 } from 'rxjs';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
-import { hexToNumber } from '@src/utils/web3Utils';
 import { GasPrice } from './models';
 
 const SECONDS_30 = 1000 * 30;
@@ -29,7 +28,7 @@ function getGasPrice() {
 }
 
 function parseGasPrice(hex: string) {
-  const bn = new BN(hexToNumber(hex));
+  const bn = new BN(hex);
   const value = Utils.bnToLocaleString(bn, 9);
   return {
     hex,

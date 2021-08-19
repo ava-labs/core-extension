@@ -1,4 +1,4 @@
-import { formatAndLog, toLogger } from '@src/background/utils/logging';
+import { formatAndLog, toLogger } from '@src/utils/logging';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { erc20TokenList } from '../erc20Tokens/erc20Tokens';
 import { network } from '../network/network';

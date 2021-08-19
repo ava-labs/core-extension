@@ -1,4 +1,4 @@
-import { JsonRpcRequest } from '@src/background/rpc/jsonRpcEngine';
+import { JsonRpcRequest } from '@src/utils/jsonRpcEngine';
 import { MessageType } from '../models';
 
 export function paramsToMessageParams(
