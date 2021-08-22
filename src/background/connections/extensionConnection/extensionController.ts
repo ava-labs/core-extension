@@ -29,13 +29,7 @@ import { UpdateTransactionByIdRequest } from '../../services/transactions/handle
 import { walletUpdateEvents } from '../../services/wallet/events/walletStateUpdates';
 import { GetWalletStateRequest } from '../../services/wallet/handlers/initWalletState';
 import { UnlockWalletStateRequest } from '../../services/wallet/handlers/unlockWalletState';
-import {
-  eventLog,
-  formatAndLog,
-  LoggerColors,
-  requestLog,
-  responseLog,
-} from '../../../utils/logging';
+import { eventLog, requestLog, responseLog } from '../../../utils/logging';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,

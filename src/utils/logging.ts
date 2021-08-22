@@ -1,7 +1,5 @@
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { Observable, tap } from 'rxjs';
-import { PassThrough } from 'stream';
-import { JsonRpcRequest } from './jsonRpcEngine';
 export const repeat = (str, times) => new Array(times + 1).join(str);
 
 export const padStart = (num, maxLength, char = ' ') =>
@@ -21,21 +19,16 @@ const style = (color, bold = true) => {
   return `color:${color};font-weight:${bold ? '600' : '300'};font-size:11px`;
 };
 
-export enum LoggerColors {
-  info = '#424242',
-  success = '#43a047',
-}
-
 export function formatAndLog(
   message: string,
   value: any,
   config?: {
-    color?: LoggerColors | string;
+    color?: string;
   }
 ) {
   console.groupCollapsed(
     '%c%s  %s',
-    style(config?.color ?? LoggerColors.info),
+    style(config?.color ?? '#cccccc'),
     now(),
     message
   );
@@ -66,8 +59,14 @@ export function connectionLog(message: string) {
   console.log('%c%s', style('#F2C53D'), `⚡️ connection: ${message}`);
 }
 
+export function disconnectLog(message: string) {
+  console.log('%c%s', style('#FA981D'), `🔌 disconnected: ${message}`);
+}
+
 export function responseLog(message: string, data?: any) {
-  formatAndLog(`🚀 ${message}`, data, { color: '#A6BF4B' });
+  data.result
+    ? formatAndLog(`🚀 ${message}`, data, { color: '#A6BF4B' })
+    : formatAndLog(`💥 ${message}`, data, { color: '#E3460E' });
 }
 
 export function requestLog(message: string, data?: any) {
