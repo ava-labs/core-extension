@@ -1,9 +1,15 @@
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 
-export interface ExtensionConnectionMessage {
+export interface ExtensionConnectionMessage<T = any> {
   id: string;
   method: string;
   params?: any[];
+  /**
+   * This gets added onto incoming requests at the permission
+   * level, its only present on requests from dApps
+   */
+  domain?: string;
+  data?: T;
 }
 
 export interface ExtensionConnectionMessageResponse<T = any>

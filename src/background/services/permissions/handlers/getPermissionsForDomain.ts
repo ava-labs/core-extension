@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { permissions } from '../permissions';
+import { permissions$ } from '../permissions';
 
 export async function getPermissionsForDomain(
   request: ExtensionConnectionMessage
@@ -26,7 +26,7 @@ export async function getPermissionsForDomain(
     };
   }
 
-  const currentPermissions = firstValueFrom(permissions);
+  const currentPermissions = firstValueFrom(permissions$);
   const domainPermissions = currentPermissions[domain];
 
   if (!domainPermissions) {

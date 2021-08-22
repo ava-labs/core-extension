@@ -1,3 +1,4 @@
+import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { Observable, tap } from 'rxjs';
 import { PassThrough } from 'stream';
 import { JsonRpcRequest } from './jsonRpcEngine';
@@ -29,7 +30,7 @@ export function formatAndLog(
   message: string,
   value: any,
   config?: {
-    color?: LoggerColors;
+    color?: LoggerColors | string;
   }
 ) {
   console.groupCollapsed(
@@ -42,28 +43,7 @@ export function formatAndLog(
   console.groupEnd();
 }
 
-export default function logger(
-  message: string,
-  config?: {
-    color?: LoggerColors;
-  }
-) {
-  const logger = new PassThrough({ objectMode: true });
-
-  logger.on('data', (value) => {
-    formatAndLog(message, value, config);
-  });
-  logger.on('end', (...args) => {
-    console.log(`${message}-end: `, args);
-  });
-  logger.on('close', () => {
-    console.log(`${message}-closed`);
-  });
-
-  return logger;
-}
-
-export function requestParser(request: JsonRpcRequest<any>) {
+export function requestParser(request: ExtensionConnectionMessage) {
   function setKeyAndValue(key: string) {
     if (key === 'params') {
       return `${key}: ${JSON.stringify(request[key] || [])}`;
@@ -80,4 +60,24 @@ export function toLogger<T = any>(name: any, showLogs = true) {
   return (observer: Observable<T>) => {
     return observer.pipe(tap((value) => showLogs && formatAndLog(name, value)));
   };
+}
+
+export function connectionLog(message: string) {
+  console.log('%c%s', style('#F2C53D'), `⚡️ connection: ${message}`);
+}
+
+export function responseLog(message: string, data?: any) {
+  formatAndLog(`🚀 ${message}`, data, { color: '#A6BF4B' });
+}
+
+export function requestLog(message: string, data?: any) {
+  formatAndLog(`📫 ${message}`, data, { color: '#424242' });
+}
+
+export function eventLog(message: string, data?: any) {
+  formatAndLog(`🎯 ${message}`, data, { color: '#598AFA' });
+}
+
+export function stateLog(data?: any) {
+  formatAndLog(`📚 Background State`, data, { color: '#E346C5' });
 }

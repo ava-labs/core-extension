@@ -1,12 +1,12 @@
 import { formatAndLog, toLogger } from '@src/utils/logging';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { erc20TokenList } from '../erc20Tokens/erc20Tokens';
-import { network } from '../network/network';
+import { network$ } from '../network/network';
 import { addressUpdates } from './addresses';
 import { avaxPriceUpdates } from './avaxPrice';
 import { balanceUpdates } from './balances';
 import { WalletLockedState, WalletState } from './models';
-import { wallet } from './wallet';
+import { wallet$ } from './wallet';
 import { walletLocked } from './walletLocked';
 
 function mapToWalletState(result): WalletState {
@@ -21,7 +21,7 @@ function toStructure(name: any) {
   };
 }
 
-export const walletState = new BehaviorSubject<
+export const walletState$ = new BehaviorSubject<
   WalletState | WalletLockedState | undefined
 >(undefined);
 
@@ -32,7 +32,7 @@ walletLocked
     switchMap((state) => {
       return state && state.locked
         ? Promise.resolve({ locked: true })
-        : combineLatest([wallet, network]).pipe(
+        : combineLatest([wallet$, network$]).pipe(
             switchMap(() =>
               combineLatest([
                 addressUpdates.pipe(
@@ -58,6 +58,5 @@ walletLocked
     })
   )
   .subscribe((state) => {
-    formatAndLog('wallet state', state);
-    walletState.next(state);
+    walletState$.next(state);
   });

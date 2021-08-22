@@ -5,7 +5,7 @@ import { WalletType } from '../../../../../avalanche-wallet-sdk-internal/dist';
 import { createMnemonicWallet, mnemonic } from './mnemonic';
 import { isMnemonicWallet } from './models';
 
-export const wallet = new BehaviorSubject<WalletType | undefined>(undefined);
+export const wallet$ = new BehaviorSubject<WalletType | undefined>(undefined);
 
 combineLatest([
   mnemonic.pipe(
@@ -29,6 +29,5 @@ combineLatest([
     })
   )
   .subscribe((result) => {
-    formatAndLog('wallet initialized', result);
-    wallet.next(result);
+    wallet$.next(result);
   });

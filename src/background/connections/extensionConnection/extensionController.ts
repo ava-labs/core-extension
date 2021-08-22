@@ -29,7 +29,13 @@ import { UpdateTransactionByIdRequest } from '../../services/transactions/handle
 import { walletUpdateEvents } from '../../services/wallet/events/walletStateUpdates';
 import { GetWalletStateRequest } from '../../services/wallet/handlers/initWalletState';
 import { UnlockWalletStateRequest } from '../../services/wallet/handlers/unlockWalletState';
-import { formatAndLog, LoggerColors } from '../../../utils/logging';
+import {
+  eventLog,
+  formatAndLog,
+  LoggerColors,
+  requestLog,
+  responseLog,
+} from '../../../utils/logging';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -57,14 +63,12 @@ const extensionRequestHandlerMap = new Map<
 
 export function extensionMessageHandler(connection: Runtime.Port) {
   function respondToRequest(response) {
-    formatAndLog('extension request reponse: ', response, {
-      color: LoggerColors.success,
-    });
+    responseLog(`extension reponse (${response.method})`, response);
     connection.postMessage(response);
   }
 
   return (message: ExtensionConnectionMessage) => {
-    formatAndLog('extension request recieved: ', message);
+    requestLog(`extension request (${message.method})`, message);
 
     const handler = extensionRequestHandlerMap.get(
       message.method as ExtensionRequest
@@ -91,9 +95,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     transactionFinalizedUpdate()
   ).pipe(
     tap((evt) => {
-      formatAndLog(`event to extension (${evt.name})`, evt, {
-        color: LoggerColors.success,
-      });
+      eventLog(`extension event (${evt.name})`, evt);
       connection.postMessage(evt);
     })
   );

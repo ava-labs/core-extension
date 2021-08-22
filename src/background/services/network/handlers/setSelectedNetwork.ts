@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { network } from '../network';
+import { network$ } from '../network';
 import { supportedNetworks } from '../models';
 import { saveNetworkToStorage } from '../storage';
 
@@ -28,7 +28,7 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
     };
   }
 
-  network.next(selectedNetwork);
+  network$.next(selectedNetwork);
   const [_, err] = await resolve(saveNetworkToStorage(selectedNetwork));
 
   return {

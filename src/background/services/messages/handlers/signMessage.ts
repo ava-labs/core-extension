@@ -5,7 +5,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '../../../connections/models';
-import { wallet } from '../../wallet/wallet';
+import { wallet$ } from '../../wallet/wallet';
 import { pendingMessages } from '../messages';
 import { messageParser } from '../utils/messageParser';
 import { signMessageTx } from '../utils/signMessageTx';
@@ -21,7 +21,7 @@ async function signMessage(request: ExtensionConnectionMessage) {
     };
   }
 
-  const walletResult = await firstValueFrom(wallet);
+  const walletResult = await firstValueFrom(wallet$);
 
   if (!walletResult) {
     return {

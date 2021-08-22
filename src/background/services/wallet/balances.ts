@@ -9,7 +9,7 @@ import {
   tap,
   throttleTime,
 } from 'rxjs';
-import { wallet } from './wallet';
+import { wallet$ } from './wallet';
 import {
   WalletBalanceX,
   iAvaxBalance,
@@ -45,7 +45,7 @@ function getAvaxBalanceTotal(balanceAvax: iAvaxBalance, balanceStaked: BN) {
   return totAvax;
 }
 
-export const balanceUpdates = wallet.pipe(
+export const balanceUpdates = wallet$.pipe(
   walletInitializedFilter(),
   tap((wallet) => {
     wallet.updateUtxosX();

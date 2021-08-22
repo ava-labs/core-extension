@@ -5,12 +5,12 @@ import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
 import { OnboardingPhase, OnboardingState } from './models';
 import { getOnboardingFromStorage, saveOnboardingToStorage } from './storage';
 
-export const onboardingStatus = new BehaviorSubject<
+export const onboardingStatus$ = new BehaviorSubject<
   OnboardingState | undefined
 >(undefined);
 
 getOnboardingFromStorage().then((onboarding) =>
-  onboardingStatus.next(onboarding)
+  onboardingStatus$.next(onboarding)
 );
 
 export const onboardingMnemonic = new BehaviorSubject<string>('');
@@ -69,7 +69,7 @@ export const onboardingFlow = onboardingCurrentPhase
     switchMap(async ([mnemonic, password]) => {
       setMnemonicAndCreateWallet(mnemonic, password);
       await saveOnboardingToStorage(true);
-      onboardingStatus.next({ isOnBoarded: true });
+      onboardingStatus$.next({ isOnBoarded: true });
     })
   )
   .subscribe(() => {

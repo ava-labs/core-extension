@@ -5,7 +5,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { Message, MessageType } from './models';
 import { paramsToMessageParams } from './utils/messageParamsParser';
 
-export const messages = new BehaviorSubject<Message[]>([]);
+export const messages$ = new BehaviorSubject<Message[]>([]);
 
 export const pendingMessages = new BehaviorSubject<{ [id: string]: Message }>(
   {}
@@ -54,7 +54,7 @@ updateMessage
   .pipe(
     switchMap(async (messageUpdate) => {
       return Promise.all([
-        firstValueFrom(messages),
+        firstValueFrom(messages$),
         firstValueFrom(pendingMessages),
         Promise.resolve(messageUpdate),
       ]);
@@ -68,7 +68,7 @@ updateMessage
           result,
         };
 
-        messages.next([...currentMessages, updatedMessage]);
+        messages$.next([...currentMessages, updatedMessage]);
 
         return updatedMessage;
       }

@@ -5,8 +5,8 @@ import {
   chainChangedUpdate,
 } from './providerUpdate';
 import { tap, Subject, firstValueFrom, combineLatest } from 'rxjs';
-import { network } from '../../services/network/network';
-import { wallet } from '../../services/wallet/wallet';
+import { network$ } from '../../services/network/network';
+import { wallet$ } from '../../services/wallet/wallet';
 
 /**
  * Using a signal here so that we bootstrap one observe for each store change. For every conection
@@ -53,9 +53,9 @@ const signal = new Subject();
 /**
  * We going to need to add a merge here for signal events and fire this when address changes as well
  */
-wallet.pipe(
+wallet$.pipe(
   tap(async (wallet) => {
-    const net = await firstValueFrom(network);
+    const net = await firstValueFrom(network$);
     wallet &&
       signal.next(chainChangedUpdate(wallet.getAddressC(), net.chainId));
   })

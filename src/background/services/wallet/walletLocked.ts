@@ -8,9 +8,9 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import { onboardingStatus } from '../onboarding/onboardingFlows';
+import { onboardingStatus$ } from '../onboarding/onboardingFlows';
 import { getMnemonicFromStorage } from './storage';
-import { wallet } from './wallet';
+import { wallet$ } from './wallet';
 
 export const restartWalletLock = new Subject<boolean>();
 export const lockWallet = new Subject<boolean>();
@@ -25,11 +25,11 @@ export const walletLocked = new BehaviorSubject<
   { locked: boolean } | undefined
 >(undefined);
 
-wallet
+wallet$
   .pipe(
     switchMap(async (wallet) => {
       const encryptedMnemonic = await getMnemonicFromStorage();
-      const onboardingState = await firstValueFrom(onboardingStatus);
+      const onboardingState = await firstValueFrom(onboardingStatus$);
 
       if (wallet) {
         return Promise.resolve({ locked: false });
@@ -50,6 +50,6 @@ const HOURS_12 = 1000 * 60 * 60 * 12;
 
 merge(of({}), restartWalletLock)
   .pipe(switchMap(() => interval(HOURS_12)))
-  .subscribe(() => wallet.next(undefined));
+  .subscribe(() => wallet$.next(undefined));
 
-lockWallet.subscribe(() => wallet.next(undefined));
+lockWallet.subscribe(() => wallet$.next(undefined));

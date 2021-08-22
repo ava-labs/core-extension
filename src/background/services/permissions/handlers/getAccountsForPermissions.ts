@@ -5,13 +5,13 @@ import {
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet } from '../../wallet/wallet';
-import { permissions } from '../permissions';
+import { wallet$ } from '../../wallet/wallet';
+import { permissions$ } from '../permissions';
 
 export async function getAccountsForPermissions(
   request: ExtensionConnectionMessage
 ) {
-  const walletResult = await firstValueFrom(wallet);
+  const walletResult = await firstValueFrom(wallet$);
 
   if (!walletResult) {
     return {

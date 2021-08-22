@@ -9,12 +9,12 @@ import {
 } from 'rxjs';
 import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { combineTokensAndBalances, FUJI_LIST, MAINNET_LIST } from './utils';
-import { wallet } from '../wallet/wallet';
+import { wallet$ } from '../wallet/wallet';
 import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
-import { network } from '../network/network';
+import { network$ } from '../network/network';
 
 async function getTokensAndBalances(wallet: WalletType) {
-  const net = await firstValueFrom(network);
+  const net = await firstValueFrom(network$);
 
   const tokenIndex = await (Network.isFujiNetwork(net.config)
     ? FUJI_LIST
@@ -23,7 +23,7 @@ async function getTokensAndBalances(wallet: WalletType) {
   return await combineTokensAndBalances(wallet, tokenIndex);
 }
 
-export const erc20TokenList = wallet.pipe(
+export const erc20TokenList = wallet$.pipe(
   walletInitializedFilter(),
   switchMap((wallet) => {
     return concat(

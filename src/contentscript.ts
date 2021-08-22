@@ -9,7 +9,6 @@ import {
   INPAGE_PROVIDER as PROVIDER,
 } from './common';
 import { Duplex } from 'stream';
-import logger, { LoggerColors, requestParser } from './utils/logging';
 
 const inpage = require('raw-loader!/dist/js/inpage.js');
 
@@ -136,27 +135,17 @@ function setupStream() {
    * pump all pagstream events into the pageMux, pageMux is
    * a multiplex stream
    */
-  pump(
-    pageMux,
-    pageStream,
-    pageMux,
-    logger('Background reponse', { color: LoggerColors.success }),
-    (err) => console.log('MetaMask Inpage Multiplex', err)
+  pump(pageMux, pageStream, pageMux, (err) =>
+    console.log('MetaMask Inpage Multiplex', err)
   );
 
   /**
    * pump all extensionStream events into the extensionMux, extensionMux is
    * a multiplex stream
    */
-  pump(
-    extensionMux,
-    backgroundStream,
-    extensionMux,
-    logger('Provider call'),
-    (err) => {
-      console.log('MetaMask Background Multiplex', err);
-    }
-  );
+  pump(extensionMux, backgroundStream, extensionMux, (err) => {
+    console.log('MetaMask Background Multiplex', err);
+  });
 
   /**
    * note from original engineer: forward communication across inpage-background for these channels only

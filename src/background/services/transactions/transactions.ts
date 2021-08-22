@@ -1,5 +1,4 @@
 import { JsonRpcRequest } from '@src/utils/jsonRpcEngine';
-import { toLogger } from '@src/utils/logging';
 import {
   isTxParams,
   Transaction,
@@ -24,9 +23,9 @@ import {
   saveTransactionsToStorage,
 } from './storage';
 
-export const transactions = new BehaviorSubject<Transaction[]>([]);
+export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
-getTransactionsFromStorage().then((txs) => txs && transactions.next(txs));
+getTransactionsFromStorage().then((txs) => txs && transactions$.next(txs));
 
 export const pendingTransactions = new BehaviorSubject<{
   [id: string]: Transaction;
@@ -77,7 +76,7 @@ updateTransaction
   .pipe(
     switchMap(async (newTx) => {
       return Promise.all([
-        firstValueFrom(transactions),
+        firstValueFrom(transactions$),
         firstValueFrom(pendingTransactions),
         Promise.resolve(newTx),
       ]);
@@ -96,7 +95,10 @@ updateTransaction
           ...updateTxStatus(update, tx),
         });
       } else if (isTxFinalizedUpdate(tx)) {
-        transactions.next([...currentTxs, updateTxStatusFinalized(update, tx)]);
+        transactions$.next([
+          ...currentTxs,
+          updateTxStatusFinalized(update, tx),
+        ]);
         const { [`${update.id}`]: _removed, ...txs } = currentPendingTxs;
         pendingTransactions.next(txs);
       }
@@ -104,9 +106,6 @@ updateTransaction
   )
   .subscribe();
 
-transactions
-  .pipe(
-    tap((results) => saveTransactionsToStorage(results)),
-    toLogger('transactions list updated')
-  )
+transactions$
+  .pipe(tap((results) => saveTransactionsToStorage(results)))
   .subscribe();

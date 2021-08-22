@@ -3,8 +3,7 @@ import extension from 'extensionizer';
 import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from './common';
 import { providerConnection } from './background/connections/dAppConnection/providerConnection';
 import { extensionConnection } from './background/connections/extensionConnection/extensionConnection';
-import { formatAndLog } from './utils/logging';
-
+import '@src/background/services/state';
 /**
  * If they just install then they need to onboard and we force them
  * fullscreen
@@ -14,8 +13,6 @@ browser.runtime.onInstalled.addListener(() => {
 });
 
 browser.runtime.onConnect.addListener((connection) => {
-  console.log('connecting: ', connection);
-
   /**
    * we only want connection from the parent app, that is frameId = 0
    *
@@ -27,10 +24,8 @@ browser.runtime.onConnect.addListener((connection) => {
 
   if (connection.sender?.id === extension.runtime.id) {
     if (connection.name === CONTENT_SCRIPT) {
-      formatAndLog('connection to provider', true);
       providerConnection(connection);
     } else if (connection.name === EXTENSION_SCRIPT) {
-      formatAndLog('connection to extension', true);
       extensionConnection(connection);
     }
   }

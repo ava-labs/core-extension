@@ -1,0 +1,17 @@
+export enum DAppProviderRequest {
+  DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata',
+  CONNECT_METHOD = 'eth_requestAccounts',
+  INIT_DAPP_STATE = 'metamask_getProviderState',
+  SET_DOMAIN = 'metamask_sendDomainMetadata',
+  ETH_ACCOUNTS = 'eth_accounts',
+  WALLET_PERMISSIONS = 'wallet_requestPermissions',
+  WALLET_GET_PERMISSIONS = 'wallet_getPermissions',
+  WALLET_ADD_CHAIN = 'wallet_addEthereumChain',
+  ETH_SEND_TX = 'eth_sendTransaction',
+  ETH_GET_BALANCE = 'eth_getBalance',
+  PERSONAL_EC_RECOVER = 'personal_ecRecover',
+  PERSONAL_SIGN = 'personal_sign',
+  ETH_SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
+  ETH_SIGN_TYPED_DATA_V3 = 'eth_signTypedData_v3',
+  ETH_SIGN_TYPED_DATA = 'eth_signTypedData',
+}

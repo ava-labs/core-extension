@@ -5,13 +5,13 @@ import {
 } from './extensionController';
 import { OnboardingPhase } from '../../services/onboarding/models';
 import { onboardingCurrentPhase } from '../../services/onboarding/onboardingFlows';
+import { connectionLog } from '@src/utils/logging';
 
 export function extensionConnection(connection: Runtime.Port) {
-  console.log('attempting to connect extension');
-
   const onMessageHandler = extensionMessageHandler(connection);
   const onEventsSubscription = extensionEventsHandler(connection).subscribe();
 
+  connectionLog('extension');
   connection.onMessage.addListener(onMessageHandler);
 
   connection.onDisconnect.addListener(function onDisconnectHandler() {
