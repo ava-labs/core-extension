@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { lightTheme, darkTheme } from '@src/styles/theme';
-import { GlobalStyle } from '@src/styles/styles';
+// import { GlobalStyle } from '@src/styles/styles';
 
 const ThemeContext = createContext<{
   darkMode?: boolean;
@@ -10,6 +10,8 @@ const ThemeContext = createContext<{
 
 export function ThemeContextProvider({ children }: { children: any }) {
   const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const theme = isDarkTheme ? darkTheme : lightTheme;
+  const { globalStyles: GlobalStyle } = theme;
   return (
     <ThemeContext.Provider
       value={{
@@ -19,10 +21,10 @@ export function ThemeContextProvider({ children }: { children: any }) {
         },
       }}
     >
-      <ThemeProvider theme={isDarkTheme ? darkTheme : lightTheme}>
+      <ThemeProvider theme={theme}>
         <>
           {children}
-          <GlobalStyle />
+          {GlobalStyle ? <GlobalStyle /> : ''}
         </>
       </ThemeProvider>
     </ThemeContext.Provider>
