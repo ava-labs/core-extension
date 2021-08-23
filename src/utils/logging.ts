@@ -64,9 +64,12 @@ export function disconnectLog(message: string) {
 }
 
 export function responseLog(message: string, data?: any) {
-  data.result
-    ? formatAndLog(`🚀 ${message}`, data, { color: '#A6BF4B' })
-    : formatAndLog(`💥 ${message}`, data, { color: '#E3460E' });
+  if (data.result) formatAndLog(`🚀 ${message}`, data, { color: '#A6BF4B' });
+  else if (data.error) {
+    formatAndLog(`💥 ${message}`, data, { color: '#E3460E' });
+  } else {
+    formatAndLog(`❓ ${message}`, data, { color: '#cccccc' });
+  }
 }
 
 export function requestLog(message: string, data?: any) {
