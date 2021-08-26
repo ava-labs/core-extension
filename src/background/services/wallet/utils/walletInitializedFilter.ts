@@ -1,5 +1,5 @@
 import { filter, Observable, OperatorFunction } from 'rxjs';
-import { WalletType } from '../../../../../../avalanche-wallet-sdk-internal/dist';
+import { WalletType } from '@avalabs/avalanche-wallet-sdk';
 
 export const walletInitializedFilter =
   () => (oberserver: Observable<WalletType | undefined>) =>

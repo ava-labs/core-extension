@@ -42,7 +42,7 @@ export function SendTransactionsList({ txs }: TransactionsListProps) {
           </Typography>
         </p>
         <p>
-          <Typography>{Utils.bnToAvaxX(tx.amount)} AVAX</Typography>
+          <Typography>{tx.amount && Utils.bnToAvaxX(tx.amount)} AVAX</Typography>
         </p>
         <p>
           <Typography>Fee 0.002 AVAX</Typography>

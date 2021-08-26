@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BN, AddressHelper, Utils } from '@avalabs/avalanche-wallet-sdk';
-import { UniversalTx } from '@avalabs/avalanche-wallet-sdk/dist/helpers/universal_tx_helper';
-import { ChainIdType } from '../../../../avalanche-wallet-sdk-internal/dist/types';
+import { BN, AddressHelper, Utils, UniversalHelper } from '@avalabs/avalanche-wallet-sdk';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 interface UniversalTxReceipt {
@@ -19,7 +17,7 @@ export function useSendAvax() {
 
   const [targetChain, setTargetChain] = useState('C');
 
-  const [txs, setTxs] = useState<UniversalTx[]>([]);
+  const [txs, setTxs] = useState<UniversalHelper.UniversalTx[]>([]);
   const [activeTxIndex, setActiveTxIndex] = useState(0);
 
   useEffect(() => {
@@ -91,7 +89,7 @@ export function useSendAvax() {
     }
   }, [canSubmit, targetChain, amount]);
 
-  async function runTransaction(tx: UniversalTx): Promise<UniversalTxReceipt> {
+  async function runTransaction(tx: UniversalHelper.UniversalTx): Promise<UniversalTxReceipt> {
     let exportTx;
     let importTx;
 
@@ -141,7 +139,7 @@ export function useSendAvax() {
       let tx = txs[0];
       setActiveTxIndex(activeTxIndex + 1);
       let exportImportId = await runTransaction(tx);
-      priorTxIds.push(exportImportId);
+      priorTxIds.push(exportImportId); 
     }
 
     // if (!wallet) {

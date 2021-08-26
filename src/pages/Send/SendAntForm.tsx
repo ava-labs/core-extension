@@ -1,7 +1,7 @@
 import { LoadingIcon } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import React from 'react';
-import { AssetBalanceX } from '../../../../avalanche-wallet-sdk-internal/dist/Wallet/types';
+import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { useSendAnt } from './useSendAnt';
 import {
   Typography,

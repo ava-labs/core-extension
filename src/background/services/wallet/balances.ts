@@ -82,7 +82,7 @@ export const balanceUpdates = wallet$.pipe(
       balanceX: wallet.getBalanceX(),
       balanceAvax,
       balanceStaked,
-      balanceAvaxTotal: getAvaxBalanceTotal(balanceAvax, balanceStaked),
+      balanceAvaxTotal: getAvaxBalanceTotal(balanceAvax, balanceStaked.staked),
     };
   })
 );
