@@ -32,7 +32,7 @@ typings/
 .npm
 .npmrc
 
-dist/
+dist/**/*
 builds/
 .DS_Store
 todo.*
