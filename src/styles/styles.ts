@@ -49,9 +49,7 @@ export const GlobalStyle = createGlobalStyle`
     border-spacing: 0;
   }
   body {
-    font-family: Roboto;
     line-height: 1;
-    background-color: ${({ theme }) => theme.colors.bg};
   }
 
   a{

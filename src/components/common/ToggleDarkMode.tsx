@@ -1,9 +1,8 @@
 import React from 'react';
-import { MoonIcon, SunshineIcon, TextButton } from '@avalabs/react-components';
-import { useExtensionTheme } from '@src/contexts/ThemeProvider';
+import { MoonIcon, SunshineIcon, TextButton, useThemeContext } from '@avalabs/react-components';
 
 export function ToggleDarkMode() {
-  const { toggleDarkTheme, darkMode } = useExtensionTheme();
+  const { toggleDarkTheme, darkMode } = useThemeContext();
 
   return (
     <TextButton

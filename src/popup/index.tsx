@@ -6,14 +6,16 @@ const App = React.lazy(() => {
 });
 import { HashRouter as Router } from 'react-router-dom';
 import '@src/i18n';
-import { LoadingIcon } from '@avalabs/react-components';
+import { LoadingIcon, ThemeContextProvider, walletThemeDark, walletThemeLight } from '@avalabs/react-components';
 
 browser.tabs.query({ active: true }).then(() => {
   ReactDOM.render(
     <Router>
-      <React.Suspense fallback={<LoadingIcon />}>
-        <App />
-      </React.Suspense>
+      <ThemeContextProvider lightTheme={walletThemeLight} darkTheme={walletThemeDark}>
+        <React.Suspense fallback={<LoadingIcon />}>
+          <App />
+        </React.Suspense>
+      </ThemeContextProvider>
     </Router>,
     document.getElementById('popup')
   );

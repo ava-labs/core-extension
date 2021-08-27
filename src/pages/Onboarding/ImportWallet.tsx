@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  Mnemonic,
   HorizontalSeparator,
   HorizontalFlex,
   SecondaryCard,
   TextArea,
   PrimaryButton,
   SecondaryButton,
+  Mnemonic,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
@@ -31,7 +31,7 @@ export const Import = ({ onCancel }: { onCancel(): void }) => {
       <HorizontalFlex>
         <Typography>Import your wallet</Typography>
       </HorizontalFlex>
-      <HorizontalSeparator />
+       <HorizontalSeparator />
       <br />
       <br />
       <SecondaryCard>

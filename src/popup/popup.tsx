@@ -7,6 +7,7 @@ import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,
   LoadingIcon,
+  ThemeContextProvider,
   VerticalFlex,
 } from '@avalabs/react-components';
 
@@ -42,12 +43,14 @@ import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
-import { ThemeContextProvider } from '@src/contexts/ThemeProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
+import { GlobalStyle } from '@src/styles/styles';
+
+
 
 export function Popup() {
   return (
-    <ThemeContextProvider>
+    <>
       <ConnectionContextProvider>
         <OnboardingContextProvider>
           <NetworkContextProvider>
@@ -119,7 +122,8 @@ export function Popup() {
           </NetworkContextProvider>
         </OnboardingContextProvider>
       </ConnectionContextProvider>
-    </ThemeContextProvider>
+      <GlobalStyle />
+    </>
   );
 }
 
