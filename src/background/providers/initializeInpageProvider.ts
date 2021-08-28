@@ -42,7 +42,6 @@ export function initializeProvider({
   shouldSetOnWindow = true,
   shouldShimWeb3 = false,
 }: InitializeProviderOptions): MetaMaskInpageProvider {
-  console.log('initialized inpage provider');
   let provider = new MetaMaskInpageProvider(connectionStream, {
     jsonRpcStreamName,
     logger,

@@ -81,5 +81,7 @@ export function eventLog(message: string, data?: any) {
 }
 
 export function stateLog(data?: any) {
-  formatAndLog(`📚 Background State`, data, { color: '#E346C5' });
+  data.walletState.locked
+    ? formatAndLog(`📚 Background State (Locked)`, data, { color: '#E346C5' })
+    : formatAndLog(`📚 Background State`, data, { color: '#E346C5' });
 }
