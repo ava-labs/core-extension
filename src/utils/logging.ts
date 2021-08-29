@@ -63,12 +63,13 @@ export function disconnectLog(message: string) {
   console.log('%c%s', style('#FA981D'), `🔌 disconnected: ${message}`);
 }
 
-export function responseLog(message: string, data?: any) {
-  if (data.result) formatAndLog(`🚀 ${message}`, data, { color: '#A6BF4B' });
-  else if (data.error) {
-    formatAndLog(`💥 ${message}`, data, { color: '#E3460E' });
+export function responseLog(message: string, value?: any) {
+  if (value.result || value.data.result) {
+    formatAndLog(`🚀 ${message}`, value, { color: '#A6BF4B' });
+  } else if (value.error || value.data.error) {
+    formatAndLog(`💥 ${message}`, value, { color: '#E3460E' });
   } else {
-    formatAndLog(`❓ ${message}`, data, { color: '#cccccc' });
+    formatAndLog(`❓ ${message}`, value, { color: '#cccccc' });
   }
 }
 

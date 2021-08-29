@@ -1,6 +1,11 @@
 import { PostMessageEvent } from '@metamask/post-message-stream';
 import { filter, fromEventPattern, map } from 'rxjs';
 
+export interface PostMessageData<T = any> {
+  data: T;
+  target: string;
+}
+
 export function windowPostMessage(config: {
   scope: string;
   target: string;
@@ -19,11 +24,11 @@ export function windowPostMessage(config: {
         evt.origin === targetOrigin && (evt.data as any).target === config.scope
       );
     }),
-    map((evt) => evt.data)
+    map((evt) => evt.data as unknown as PostMessageData)
   );
 
-  function dispatch(message) {
-    targetWindow.postMessage(message, targetOrigin);
+  function dispatch(data) {
+    targetWindow.postMessage({ data, target: config.target }, targetOrigin);
   }
 
   return { listen, dispatch };

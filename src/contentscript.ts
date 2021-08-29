@@ -1,14 +1,14 @@
-import { WindowPostMessageStream } from '@metamask/post-message-stream';
 import extension from 'extensionizer';
-import ObjectMultiplex from 'obj-multiplex';
-import PortStream from 'extension-port-stream';
-import pump from 'pump';
+
 import {
   CONTENT_SCRIPT,
   INPAGE_SCRIPT,
   INPAGE_PROVIDER as PROVIDER,
 } from './common';
-import { Duplex } from 'stream';
+import { windowPostMessage } from './utils/windowPostMessage';
+import { Runtime } from 'webextension-polyfill-ts';
+import { providerHandshake } from './utils/providerHandshake';
+import { requestLog, responseLog } from './utils/logging';
 
 const inpage = require('raw-loader!/dist/js/inpage.js');
 
@@ -108,65 +108,32 @@ const injectScript = (content: any) => {
 };
 
 function setupStream() {
-  const pageMux: Duplex = new ObjectMultiplex();
-  pageMux.setMaxListeners(25);
-
-  const extensionMux: Duplex = new ObjectMultiplex();
-  extensionMux.setMaxListeners(25);
-
   /**
-   * Wrap the postMessage api from inpage as a duplex stream
+   * This is traffic coming from within the dApp origin only and
+   * aimed at the content script itself
    */
-  const pageStream = new WindowPostMessageStream({
-    name: CONTENT_SCRIPT,
+  const { listen, dispatch } = windowPostMessage({
+    scope: CONTENT_SCRIPT,
     target: INPAGE_SCRIPT,
   });
 
   /**
-   * Establish a connection to the background page via Runtime.Port
-   * api and then wrap that as a duplex stream
+   * This is traffic coming from the background page out to the provider and from there
+   * to the dApp
    */
-  const backgroundConnection = extension.runtime.connect({
+  const backgroundConnection: Runtime.Port = extension.runtime.connect({
     name: CONTENT_SCRIPT,
   });
-  const backgroundStream = new PortStream(backgroundConnection);
 
-  /**
-   * pump all pagstream events into the pageMux, pageMux is
-   * a multiplex stream
-   */
-  pump(pageMux, pageStream, pageMux, (err) =>
-    console.log('MetaMask Inpage Multiplex', err)
-  );
-
-  /**
-   * pump all extensionStream events into the extensionMux, extensionMux is
-   * a multiplex stream
-   */
-  pump(extensionMux, backgroundStream, extensionMux, (err) => {
-    console.log('MetaMask Background Multiplex', err);
+  listen.pipe(providerHandshake(dispatch)).subscribe((val) => {
+    requestLog(`provider request (${val.data.data.method})`, val.data);
+    backgroundConnection.postMessage(val.data);
   });
 
-  /**
-   * note from original engineer: forward communication across inpage-background for these channels only
-   *
-   * Essentially this crosses the streams on a private substream pipe,
-   * this substream pipe is given a name. From what I can tell the provider
-   * uses the same name schema and name as above PROVIDER, this allows that provider
-   * to send messages through this private substream.
-   */
-  forwardTrafficBetweenMuxes(PROVIDER, pageMux, extensionMux);
-}
-
-function forwardTrafficBetweenMuxes(channelName, muxA, muxB) {
-  const channelA = muxA.createStream(channelName);
-  const channelB = muxB.createStream(channelName);
-  pump(channelA, channelB, channelA, (error) =>
-    console.debug(
-      `MetaMask: Muxed traffic for channel "${channelName}" failed.`,
-      error
-    )
-  );
+  backgroundConnection.onMessage.addListener((val) => {
+    responseLog(`background connection response (${val.data.method})`, val);
+    dispatch(val);
+  });
 }
 
 if (shouldInjectProvider()) {
