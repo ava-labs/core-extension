@@ -37,6 +37,7 @@ module.exports = {
         { from: 'src/index.html', to: '../home.html' },
         { from: 'src/manifest.json', to: '../manifest.json' },
         { from: 'src/images', to: '../images' },
+        { from: '*.woff2', to: '../', context: "node_modules/@avalabs/react-components/lib" },
       ],
       options: {
         concurrency: 100,
