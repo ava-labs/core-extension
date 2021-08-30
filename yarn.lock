@@ -31,10 +31,10 @@
     web3 "^1.3.5"
     web3-eth-contract "^1.3.6"
 
-"@avalabs/react-components@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.4.0.tgz#1efd7944237c806bd1397b83db972dc65fcd66af"
-  integrity sha512-bKcSDAunLc7qA69+fa5ZK/jml9CEHC3Q+imtpjN3XQmBWk5a3wMt9bi9Zg1HMefmGLIKrFIOZJxGtf+/sVz5gw==
+"@avalabs/react-components@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.5.0.tgz#12047b61e8a7ad5bd1b9d51d7d5ba76097194b55"
+  integrity sha512-mM28mfhprfkcuLquusqULePXhU9mTDD77rYFhJzpVgFB4coLKwVmo22bzHMd7mjwVzG6YC0BdXgkw7f9uyLczw==
   dependencies:
     body-parser "1.19.0"
     connect-history-api-fallback "1.6.0"
