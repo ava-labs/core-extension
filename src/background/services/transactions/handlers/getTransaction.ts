@@ -11,7 +11,7 @@ export async function getTransaction(request: ExtensionConnectionMessage) {
   if (!params) {
     return {
       ...request,
-      error: new Error('no params on request'),
+      error: 'no params on request',
     };
   }
 
@@ -20,7 +20,7 @@ export async function getTransaction(request: ExtensionConnectionMessage) {
   if (!txId) {
     return {
       ...request,
-      error: new Error('no tx id found in params'),
+      error: 'no tx id found in params',
     };
   }
 

@@ -15,7 +15,7 @@ export interface ExtensionConnectionMessage<T = any> {
 export interface ExtensionConnectionMessageResponse<T = any>
   extends ExtensionConnectionMessage {
   result?: T;
-  error?: Error;
+  error?: string;
 }
 
 export interface ExtensionConnectionEvent<V = any> {

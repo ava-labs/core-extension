@@ -15,7 +15,7 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
   if (!networkName) {
     return {
       ...request,
-      error: new Error('network name missing in params'),
+      error: 'network name missing in params',
     };
   }
 
@@ -24,7 +24,7 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
   if (!selectedNetwork) {
     return {
       ...request,
-      error: new Error('selected network not supported'),
+      error: 'selected network not supported',
     };
   }
 

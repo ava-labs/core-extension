@@ -23,7 +23,7 @@ import { Runtime } from 'webextension-polyfill-ts';
 import { engine } from '@src/utils/jsonRpcEngine';
 import { resolve } from '@src/utils/promiseResolver';
 import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
-import { formatAndLog, requestLog, responseLog } from '@src/utils/logging';
+import { requestLog, responseLog } from '@src/utils/logging';
 
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
@@ -68,18 +68,22 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
     );
 
     const promise: Promise<any> = handler
-      ? handler({ ...request.data, domain: domainCache })
-      : engine().then((e) => e.handle(data as any));
+      ? handler({ ...request.data, domain: domainCache }).then(
+          ({ error, result }) => {
+            return {
+              ...request,
+              data: {
+                ...data,
+                ...(error ? { error } : { result }),
+              },
+            };
+          }
+        )
+      : engine()
+          .then((e) => e.handle(data as any))
+          .catch((error) => ({ ...request, error }));
 
-    const [value, error] = await resolve(promise);
-
-    const response = {
-      ...request,
-      data: {
-        ...data,
-        ...(error ? { error } : { result: value.result }),
-      },
-    };
+    const response = await promise;
 
     responseLog(`Web3 response (${data.method})`, response);
 

@@ -12,7 +12,7 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
   if (!params) {
     return {
       ...request,
-      error: new Error('params missing from request'),
+      error: 'params missing from request',
     };
   }
 
@@ -21,7 +21,7 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
   if (!password) {
     return {
       ...request,
-      error: new Error('password missing for request'),
+      error: 'password missing for request',
     };
   }
 

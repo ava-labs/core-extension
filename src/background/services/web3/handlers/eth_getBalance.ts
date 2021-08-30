@@ -12,7 +12,7 @@ export async function eth_getBalance(data: ExtensionConnectionMessage) {
   if (!walletResult) {
     return {
       ...data,
-      error: new Error('wallet undefined'),
+      error: 'wallet undefined',
     };
   }
 

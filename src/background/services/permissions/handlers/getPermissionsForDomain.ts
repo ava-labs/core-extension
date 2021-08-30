@@ -13,7 +13,7 @@ export async function getPermissionsForDomain(
   if (!params) {
     return {
       ...request,
-      error: new Error('no params on request'),
+      error: 'no params on request',
     };
   }
 
@@ -22,7 +22,7 @@ export async function getPermissionsForDomain(
   if (!domain) {
     return {
       ...request,
-      error: new Error('no domain in params'),
+      error: 'no domain in params',
     };
   }
 

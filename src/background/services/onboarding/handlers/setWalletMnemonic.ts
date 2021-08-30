@@ -12,7 +12,7 @@ export async function setWalletMnemonic(request: ExtensionConnectionMessage) {
   if (!params) {
     return {
       ...request,
-      error: new Error('params missing from request'),
+      error: 'params missing from request',
     };
   }
 
@@ -21,7 +21,7 @@ export async function setWalletMnemonic(request: ExtensionConnectionMessage) {
   if (!mnemonic) {
     return {
       ...request,
-      error: new Error('mnemonic missing for request'),
+      error: 'mnemonic missing for request',
     };
   }
 

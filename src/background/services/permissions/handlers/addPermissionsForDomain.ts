@@ -12,7 +12,7 @@ export async function addDAppPermissionsForDomain(
   if (!params) {
     return {
       ...request,
-      error: new Error('no params on request'),
+      error: 'no params on request',
     };
   }
 
@@ -21,7 +21,7 @@ export async function addDAppPermissionsForDomain(
   if (!permissions) {
     return {
       ...request,
-      error: new Error('no permissions in params'),
+      error: 'no permissions in params',
     };
   }
 

@@ -6,7 +6,6 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { wallet$ } from '../../wallet/wallet';
-import { permissions$ } from '../permissions';
 
 export async function getAccountsForPermissions(
   request: ExtensionConnectionMessage
@@ -16,7 +15,7 @@ export async function getAccountsForPermissions(
   if (!walletResult) {
     return {
       ...request,
-      error: new Error('wallet locked or malformed'),
+      error: 'wallet locked or malformed',
     };
   }
 

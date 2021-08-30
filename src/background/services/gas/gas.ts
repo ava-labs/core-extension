@@ -11,8 +11,8 @@ import {
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from './models';
 
-const SECONDS_30 = 1000 * 30;
-export const gasPrice = new BehaviorSubject<GasPrice | undefined>(undefined);
+const SECONDS_30 = 1000 * 10;
+export const gasPrice$ = new BehaviorSubject<GasPrice | undefined>(undefined);
 
 function getGasPrice() {
   return engine()
@@ -39,7 +39,7 @@ function parseGasPrice(hex: string) {
 
 getGasPrice()
   .then(parseGasPrice)
-  .then((res) => gasPrice.next(res));
+  .then((res) => gasPrice$.next(res));
 
 interval(SECONDS_30)
   .pipe(
@@ -48,7 +48,7 @@ interval(SECONDS_30)
     filter(([oldPrice, newPrice]) => oldPrice !== newPrice),
     map(([_, newPrice]) => parseGasPrice(newPrice)),
     tap((res: any) => {
-      gasPrice.next(res);
+      gasPrice$.next(res);
     })
   )
   .subscribe();

@@ -14,7 +14,7 @@ export async function setWalletImportOrCreatePhase(
   if (!params) {
     return {
       ...request,
-      error: new Error('params missing from request'),
+      error: 'params missing from request',
     };
   }
 
@@ -28,7 +28,7 @@ export async function setWalletImportOrCreatePhase(
   if (!phase) {
     return {
       ...request,
-      error: new Error('phase incorrect for request'),
+      error: 'phase incorrect for request',
     };
   }
 

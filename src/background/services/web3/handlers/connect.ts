@@ -20,9 +20,14 @@ import { wallet$ } from '../../wallet/wallet';
  * @returns
  */
 export async function connect(data: ExtensionConnectionMessage) {
-  const walletResult = await firstValueFrom(
-    wallet$.pipe(filter((walletResult) => !!walletResult))
-  );
+  const walletResult = await firstValueFrom(wallet$);
+
+  if (!walletResult) {
+    return {
+      ...data,
+      error: 'wallet locked, undefined or malformed',
+    };
+  }
 
   const currentPermissions = await firstValueFrom(permissions$);
 
@@ -60,7 +65,7 @@ export async function connect(data: ExtensionConnectionMessage) {
   const windowClosed = window.removed.pipe(
     map(() => ({
       ...data,
-      error: new Error('window removed before permissions set'),
+      error: 'window removed before permissions set',
     }))
   );
 
