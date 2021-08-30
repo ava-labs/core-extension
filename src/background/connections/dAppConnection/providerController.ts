@@ -21,9 +21,9 @@ import { WalletGetPermissionsRequest } from '@src/background/services/web3/handl
 import { WalletPermissionsRequest } from '@src/background/services/web3/handlers/wallet_requestPermissions';
 import { Runtime } from 'webextension-polyfill-ts';
 import { engine } from '@src/utils/jsonRpcEngine';
-import { resolve } from '@src/utils/promiseResolver';
 import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
 import { requestLog, responseLog } from '@src/utils/logging';
+import { resolve } from '@src/utils/promiseResolver';
 
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
@@ -79,9 +79,17 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
             };
           }
         )
-      : engine()
-          .then((e) => e.handle(data as any))
-          .catch((error) => ({ ...request, error }));
+      : resolve(engine().then((e) => e.handle(data as any))).then(
+          ([result, error]) => {
+            return {
+              ...request,
+              data: {
+                ...data,
+                ...(error ? { error } : result),
+              },
+            };
+          }
+        );
 
     const response = await promise;
 

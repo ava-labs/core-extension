@@ -131,7 +131,7 @@ function setupStream() {
   });
 
   backgroundConnection.onMessage.addListener((val) => {
-    responseLog(`background connection response (${val.data.method})`, val);
+    responseLog(`background connection response (${val.data?.method})`, val);
     dispatch(val);
   });
 }

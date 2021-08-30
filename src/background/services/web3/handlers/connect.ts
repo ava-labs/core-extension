@@ -29,9 +29,9 @@ export async function connect(data: ExtensionConnectionMessage) {
     };
   }
 
-  const currentPermissions = await firstValueFrom(permissions$);
+  const permissions = await firstValueFrom(permissions$);
 
-  if (domainHasAccountsPermissions(data.domain!, currentPermissions)) {
+  if (domainHasAccountsPermissions(data.domain!, permissions)) {
     return {
       ...data,
       result: walletResult ? getAccountsFromWallet(walletResult) : [],
