@@ -184,7 +184,6 @@ export default class BaseProvider extends SafeEventEmitter {
 
     // handle JSON-RPC notifications
     this._jsonRpcConnection.events.on('notification', (payload) => {
-      debugger;
       const { method, params } = payload;
       if (method === 'metamask_accountsChanged') {
         this._handleAccountsChanged(params);
