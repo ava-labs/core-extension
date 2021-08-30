@@ -6,26 +6,45 @@ import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { Import } from './ImportWallet';
 import { Welcome } from './Welcome';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { Card, HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
+import { Logo } from '@src/components/icons/Logo';
 
 export function OnboardingFlow() {
   const { onboardingPhase, setNextPhase } = useOnboardingContext();
-
+ 
   function handleOnCancel() {
     setNextPhase(OnboardingPhase.RESTART);
   }
 
+  let content = <Welcome />
   switch (onboardingPhase) {
     case OnboardingPhase.CREATE_WALLET:
-      return <CreateWallet onCancel={handleOnCancel} />;
+      content = <CreateWallet onCancel={handleOnCancel} />;
+      break;
     case OnboardingPhase.IMPORT_WALLET:
-      return <Import onCancel={handleOnCancel} />;
+      content = <Import onCancel={handleOnCancel} />;
+      break;
     case OnboardingPhase.PASSWORD:
-      return <CreatePassword onCancel={handleOnCancel} />;
+      content = <CreatePassword onCancel={handleOnCancel} />;
+      break;
     case OnboardingPhase.CONFIRM:
-      return <AllDone onCancel={handleOnCancel} />;
-    default:
-      return <Welcome />;
+      content = <AllDone onCancel={handleOnCancel} />;
+      break;
   }
+
+  return (
+    <VerticalFlex align="center" style={{minHeight: `100%`}}>
+      <HorizontalFlex style={{maxWidth: `1200px`}} padding="24px 0" width="1200px" align="center">
+        <Logo />
+      </HorizontalFlex>
+      <VerticalFlex align="center" justify="center" grow="1">
+        <Card width="600px">
+          {content}
+        </Card>
+      </VerticalFlex>
+    </VerticalFlex>
+  )
+
 }
 
 export default OnboardingFlow;

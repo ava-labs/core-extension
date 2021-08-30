@@ -26,6 +26,10 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
       '@src': path.resolve(__dirname, 'src/'),
+      // prevent having 2 concurrent copies of react when linking a lib with react as dev dependency
+      react: path.resolve('./node_modules/react'),
+      'react-dom': path.resolve('./node_modules/react-dom'),
+      'styled-components': path.resolve('./node_modules/styled-components')
     },
     symlinks: false,
   },
