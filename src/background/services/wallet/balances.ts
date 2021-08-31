@@ -75,13 +75,13 @@ export const balanceUpdates = wallet$.pipe(
   mergeMap((wallet) => {
     return Promise.all([Promise.resolve(wallet), wallet.getStake()]);
   }),
-  map(([wallet, balanceStaked]) => {
+  map(([wallet, balanceStaked]): WalletBalances => {
     const balanceAvax = wallet.getAvaxBalance();
 
     return {
       balanceX: wallet.getBalanceX(),
       balanceAvax,
-      balanceStaked,
+      balanceStaked: balanceStaked.staked,
       balanceAvaxTotal: getAvaxBalanceTotal(balanceAvax, balanceStaked.staked),
     };
   })
