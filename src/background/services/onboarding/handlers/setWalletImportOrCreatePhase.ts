@@ -18,12 +18,7 @@ export async function setWalletImportOrCreatePhase(
     };
   }
 
-  const phase =
-    params[0] === OnboardingPhase.CREATE_WALLET
-      ? OnboardingPhase.CREATE_WALLET
-      : params[0] === OnboardingPhase.IMPORT_WALLET
-      ? OnboardingPhase.IMPORT_WALLET
-      : undefined;
+  const phase = Object.values(OnboardingPhase).includes(params[0]) ? params[0] : undefined;
 
   if (!phase) {
     return {

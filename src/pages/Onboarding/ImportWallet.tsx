@@ -35,7 +35,7 @@ export const Import = ({ onCancel }: { onCancel(): void }) => {
       <br />
       <br />
       <SecondaryCard>
-        <Mnemonic phrase={recoveryPhrase} />
+        {/* <Mnemonic phrase={recoveryPhrase} /> */}
       </SecondaryCard>
       <br />
       <TextArea onChange={(e) => setRecoveryPhrase(e.currentTarget.value)} />

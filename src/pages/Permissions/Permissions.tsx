@@ -46,7 +46,7 @@ export function PermissionsPage() {
             <Checkbox
               isChecked={permissions.accounts[key]}
               label={key}
-              onChange={onChangeUpdatePermissions(key)}
+              onChange={() => onChangeUpdatePermissions(key)}
             />
           </HorizontalFlex>
         ))}
