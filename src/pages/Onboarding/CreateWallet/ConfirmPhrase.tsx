@@ -22,8 +22,6 @@ interface ConfirmPhraseProps {
 export function ConfirmPhrase({ onCancel, onNext, mnemonic }: ConfirmPhraseProps) {
   const [termsConfirmed, setTermsConfirmed] = useState(false);
 
-
-
   return ( 
     <VerticalFlex width="100%" align='center' padding='22px 0 36px' justify="space-between">
       <VerticalFlex align='center'>

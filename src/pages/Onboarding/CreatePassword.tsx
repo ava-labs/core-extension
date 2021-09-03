@@ -4,9 +4,9 @@ import {
   Input,
   PrimaryButton,
   Typography,
-  HorizontalSeparator,
+  ProgressIndicator,
+  TextButton,
   HorizontalFlex,
-  SecondaryButton,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
@@ -18,70 +18,61 @@ const PASSWORD_ERROR = 'Passwords do not match';
 
 export const CreatePassword = ({ onCancel }: { onCancel(): void }) => {
   const { setPassword } = useOnboardingContext();
-  const [canSubmit, setCanSubmit] = useState(false);
   const [passwordVal, setPasswordVal] = useState('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
-  const [error, setError] = useState('');
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    const passwordsMatch = verifyPasswordsMatch(value, confirmPasswordVal);
-    setPasswordVal(value);
-    !passwordsMatch && setError(PASSWORD_ERROR);
-    setCanSubmit(passwordsMatch);
-  };
+  const fieldsFilled = passwordVal && confirmPasswordVal;
+  
+  let error;
+  if(fieldsFilled && !verifyPasswordsMatch(passwordVal, confirmPasswordVal)) {
+    error = PASSWORD_ERROR;
+  }
 
-  const handlePasswordConfirmChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { value } = e.target;
-    const passwordsMatch = verifyPasswordsMatch(passwordVal, value);
-    setConfirmPasswordVal(value);
-    passwordsMatch && setError(PASSWORD_ERROR);
-    setCanSubmit(passwordsMatch);
-  };
-
+  const canSubmit = !error && fieldsFilled;
+  
   return (
-    <VerticalFlex align={'center'} width={'100%'}>
-      <Typography>Create a Password</Typography>
-      <HorizontalSeparator />
-      <br />
-      <br />
-      <Typography size={14}>You will use this to unlock your wallet</Typography>
-      <br />
-      <Input
-        onChange={handlePasswordChange}
-        placeholder="Password"
-        type="password"
-        style={{ maxWidth: '300px' }}
-      />
-      <br />
-      <Input
-        onChange={handlePasswordConfirmChange}
-        placeholder="Confirm Password"
-        type="password"
-        style={{ maxWidth: '300px' }}
-      />
-      <br />
-
-      <HorizontalFlex style={{ minHeight: '30px' }}>
-        {error && passwordVal && confirmPasswordVal && (
-          <Typography size={14}>{error}</Typography>
-        )}
-      </HorizontalFlex>
-      <HorizontalFlex>
-        <SecondaryButton onClick={() => onCancel && onCancel()}>
-          Back
-        </SecondaryButton>
+    <VerticalFlex width="100%" align='center' padding='22px 0 36px' justify="space-between">
+      <VerticalFlex align='center'>
+        <ProgressIndicator steps={3} current={3} /> 
+        <Typography as="h1" size={24} weight="bold" margin="28px 0 8px">Create password</Typography>
+        <Typography align="center" margin="0 0 32px" height="24px">
+          Create a password to secure<br/>
+          your account
+        </Typography>    
+        <HorizontalFlex height="100px">
+          <Input
+            label="Password"
+            onChange={(e) => setPasswordVal(e.target.value)}
+            placeholder="Password"
+            type="password"
+            error={!!error}
+          />
+        </HorizontalFlex>
+        <HorizontalFlex height="100px">
+          <Input
+            label="Confirm Password"
+            onChange={(e) => setConfirmPasswordVal(e.target.value)}
+            placeholder="Confirm Password"
+            type="password"
+            error={!!error}
+            errorMessage={error}
+          />
+        </HorizontalFlex>
+      </VerticalFlex>
+      <VerticalFlex align='center'>
         <PrimaryButton
+          margin="24px 0"
           disabled={!canSubmit}
           onClick={() => {
             setPassword(passwordVal);
           }}
         >
-          Save
+          Save password
         </PrimaryButton>
-      </HorizontalFlex>
+        <TextButton onClick={() => onCancel && onCancel()}>
+          Back
+        </TextButton>
+      </VerticalFlex>
     </VerticalFlex>
   );
 };

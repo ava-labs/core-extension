@@ -22,7 +22,6 @@ const IllustrationPlaceholder = styled(VerticalFlex)`
   align-items: center;
 `;
 
-
 export function Welcome() {
   const { setNextPhase } = useOnboardingContext();
 
@@ -30,7 +29,6 @@ export function Welcome() {
     <VerticalFlex width="100%" align='center' padding='72px 0 22px' justify="space-between">
       <VerticalFlex align='center'>
         <Typography as="h1" size={24} weight="bold">Welcome!</Typography>
-
         <IllustrationPlaceholder>
           <Typography>Illustration</Typography>
         </IllustrationPlaceholder>

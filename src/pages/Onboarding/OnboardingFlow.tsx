@@ -13,7 +13,6 @@ export function OnboardingFlow() {
   const { onboardingPhase, setNextPhase } = useOnboardingContext();
  
   async function handleOnCancel() {
-    console.log('called')
     await setNextPhase(OnboardingPhase.RESTART);
   }
 
@@ -29,7 +28,7 @@ export function OnboardingFlow() {
       content = <CreatePassword onCancel={handleOnCancel} />;
       break;
     case OnboardingPhase.CONFIRM:
-      content = <AllDone onCancel={handleOnCancel} />;
+      content = <AllDone />;
       break;
   }
 
