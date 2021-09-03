@@ -7,7 +7,6 @@ import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,
   LoadingIcon,
-  ThemeContextProvider,
   VerticalFlex,
 } from '@avalabs/react-components';
 
