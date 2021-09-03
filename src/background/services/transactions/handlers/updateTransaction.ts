@@ -18,7 +18,7 @@ export async function updateTransactionById(
   if (!params) {
     return {
       ...request,
-      error: new Error('no params on request'),
+      error: 'no params on request',
     };
   }
 
@@ -27,7 +27,7 @@ export async function updateTransactionById(
   if (!update) {
     return {
       ...request,
-      error: new Error('no updates found in params'),
+      error: 'no updates found in params',
     };
   }
 
@@ -38,7 +38,7 @@ export async function updateTransactionById(
   ) {
     return {
       ...request,
-      error: new Error('malformed or unsupported update'),
+      error: 'malformed or unsupported update',
     };
   }
 

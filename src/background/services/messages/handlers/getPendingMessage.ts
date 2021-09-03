@@ -13,7 +13,7 @@ async function getPendingMessage(request: ExtensionConnectionMessage) {
   if (!messageId) {
     return {
       ...request,
-      error: new Error('no message id in params'),
+      error: 'no message id in params',
     };
   }
 
@@ -22,7 +22,7 @@ async function getPendingMessage(request: ExtensionConnectionMessage) {
   );
 
   if (!message) {
-    return { ...request, error: new Error('no message found with that id') };
+    return { ...request, error: 'no message found with that id' };
   }
   return { ...request, result: message };
 }

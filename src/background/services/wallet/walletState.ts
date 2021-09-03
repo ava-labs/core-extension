@@ -7,7 +7,7 @@ import { avaxPriceUpdates } from './avaxPrice';
 import { balanceUpdates } from './balances';
 import { WalletLockedState, WalletState } from './models';
 import { wallet$ } from './wallet';
-import { walletLocked } from './walletLocked';
+import { walletLocked$ } from './walletLocked';
 
 function mapToWalletState(result): WalletState {
   return result.reduce((acc, value) => {
@@ -27,7 +27,7 @@ export const walletState$ = new BehaviorSubject<
 
 const showLogs = false;
 
-walletLocked
+walletLocked$
   .pipe(
     switchMap((state) => {
       return state && state.locked

@@ -13,20 +13,20 @@ async function cancelPendingMessage(request: ExtensionConnectionMessage) {
   if (!messageId) {
     return {
       ...request,
-      error: new Error('no message id in params'),
+      error: 'no message id in params',
     };
   }
 
   const messages = await firstValueFrom(pendingMessages);
 
   if (!messages) {
-    return { ...request, error: new Error('no messages found') };
+    return { ...request, error: 'no messages found' };
   }
 
   const message = messages[messageId];
 
   if (!message) {
-    return { ...request, error: new Error('no message found with that id') };
+    return { ...request, error: 'no message found with that id' };
   }
 
   const { [messageId]: _removing, ...newPendingMessages } = messages;

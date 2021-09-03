@@ -21,7 +21,7 @@ export async function eth_accounts(data: ExtensionConnectionMessage) {
   if (!walletResult) {
     return {
       ...data,
-      error: new Error('wallet undefined'),
+      error: 'wallet locked, undefined or malformed',
     };
   }
   const currentPermissions = await firstValueFrom(permissions$);

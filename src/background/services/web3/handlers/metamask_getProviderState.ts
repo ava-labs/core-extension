@@ -1,20 +1,28 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ConnectionRequestHandler } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
+import { network$ } from '../../network/network';
+import { permissions$ } from '../../permissions/permissions';
+import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { wallet$ } from '../../wallet/wallet';
 
 export async function initDappState(data) {
   const walletResult = await firstValueFrom(wallet$);
+  const permissions = await firstValueFrom(permissions$);
+  const network = await firstValueFrom(network$);
 
-  if (!walletResult) {
+  if (
+    !walletResult ||
+    !domainHasAccountsPermissions(data.domain, permissions)
+  ) {
     return {
       ...data,
       result: {
-        isUnlocked: true,
+        isUnlocked: false,
         networkVersion: 'avax',
         accounts: [],
-        chainId: '',
+        chainId: network.chainId,
       },
     };
   }
@@ -23,7 +31,7 @@ export async function initDappState(data) {
     ...data,
     result: {
       isUnlocked: true,
-      chainId: walletResult.getAddressC(),
+      chainId: network.chainId,
       networkVersion: 'avax',
       accounts: getAccountsFromWallet(walletResult),
     },

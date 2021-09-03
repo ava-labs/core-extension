@@ -11,7 +11,7 @@ export async function personal_ecRecover(data: ExtensionConnectionMessage) {
   if (!params) {
     return {
       ...data,
-      error: new Error('no params in request'),
+      error: 'no params in request',
     };
   }
 

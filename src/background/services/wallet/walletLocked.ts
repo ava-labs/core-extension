@@ -12,8 +12,8 @@ import { onboardingStatus$ } from '../onboarding/onboardingFlows';
 import { getMnemonicFromStorage } from './storage';
 import { wallet$ } from './wallet';
 
-export const restartWalletLock = new Subject<boolean>();
-export const lockWallet = new Subject<boolean>();
+export const restartWalletLock$ = new Subject<boolean>();
+export const lockWallet$ = new Subject<boolean>();
 
 /**
  * locked means:
@@ -21,7 +21,7 @@ export const lockWallet = new Subject<boolean>();
  * 2. A mnemonic is in storage
  * 3. There is no wallet instance
  */
-export const walletLocked = new BehaviorSubject<
+export const walletLocked$ = new BehaviorSubject<
   { locked: boolean } | undefined
 >(undefined);
 
@@ -43,13 +43,13 @@ wallet$
     })
   )
   .subscribe((state) => {
-    state && walletLocked.next(state as any);
+    state && walletLocked$.next(state as any);
   });
 
 const HOURS_12 = 1000 * 60 * 60 * 12;
 
-merge(of({}), restartWalletLock)
+merge(of({}), restartWalletLock$)
   .pipe(switchMap(() => interval(HOURS_12)))
   .subscribe(() => wallet$.next(undefined));
 
-lockWallet.subscribe(() => wallet$.next(undefined));
+lockWallet$.subscribe(() => wallet$.next(undefined));

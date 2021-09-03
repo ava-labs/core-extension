@@ -17,7 +17,7 @@ import {
   updateTxStatus,
   updateTxStatusFinalized,
 } from './utils/updateTxStatus';
-import { gasPrice } from '../gas/gas';
+import { gasPrice$ } from '../gas/gas';
 import {
   getTransactionsFromStorage,
   saveTransactionsToStorage,
@@ -40,7 +40,7 @@ addTransaction
       return Promise.all([
         firstValueFrom(pendingTransactions),
         Promise.resolve(newTx),
-        firstValueFrom(gasPrice),
+        firstValueFrom(gasPrice$),
       ]);
     }),
     tap(([currentPendingTxs, data, gasPrice]) => {

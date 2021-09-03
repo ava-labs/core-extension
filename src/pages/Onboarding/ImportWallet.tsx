@@ -64,36 +64,5 @@ export const Import = ({ onCancel }: { onCancel(): void }) => {
           onClick={() => onCancel()}>Back</TextButton>
       </VerticalFlex>
     </VerticalFlex>
-    // <VerticalFlex width={'100%'} align={'center'}>
-    //   <br />
-    //   <HorizontalFlex>
-    //     <Typography>Import your wallet</Typography>
-    //   </HorizontalFlex>
-    //    <HorizontalSeparator />
-    //   <br />
-    //   <br />
-    //   <SecondaryCard>
-    //     {/* <Mnemonic phrase={recoveryPhrase} /> */}
-    //   </SecondaryCard>
-    //   <br />
-    //   <TextArea onChange={(e) => setRecoveryPhrase(e.currentTarget.value)} />
-    //   <HorizontalFlex>
-    //     <SecondaryButton
-    //       onClick={() => {
-    //         onCancel && onCancel();
-    //       }}
-    //     >
-    //       Cancel
-    //     </SecondaryButton>
-    //     <PrimaryButton
-    //       disabled={!verifyRecoveryPhrase(recoveryPhrase)}
-    //       onClick={async () => {
-    //         setMnemonic(recoveryPhrase);
-    //       }}
-    //     >
-    //       Next
-    //     </PrimaryButton>
-    //   </HorizontalFlex>
-    // </VerticalFlex>
   );
 };
