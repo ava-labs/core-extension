@@ -1,6 +1,5 @@
-import { map, filter, OperatorFunction } from 'rxjs';
-import { WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { wallet$ } from './wallet';
+import { map } from 'rxjs';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { walletInitializedFilter } from './utils/walletInitializedFilter';
 
 export const addressUpdates = wallet$.pipe(

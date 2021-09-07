@@ -2,7 +2,7 @@ import { combineLatest, map } from 'rxjs';
 import { network$ } from '../../network/network';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { walletInitializedFilter } from '../../wallet/utils/walletInitializedFilter';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { Web3Event } from './models';
 
 export function accountsChangedEvents() {

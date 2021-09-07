@@ -5,7 +5,7 @@ import {
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 
 export async function getAccountsForPermissions(
   request: ExtensionConnectionMessage

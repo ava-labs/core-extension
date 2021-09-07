@@ -12,7 +12,7 @@ import {
   updateTransaction,
 } from '../../transactions/transactions';
 import { txToCustomEvmTx } from '../../transactions/utils/txToCustomEvmTx';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 
 export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
   const walletResult = await firstValueFrom(wallet$);

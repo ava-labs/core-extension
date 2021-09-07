@@ -5,7 +5,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '../../../connections/models';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { pendingMessages } from '../messages';
 import { messageParser } from '../utils/messageParser';
 import { signMessageTx } from '../utils/signMessageTx';

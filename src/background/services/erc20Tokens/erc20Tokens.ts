@@ -9,7 +9,7 @@ import {
 } from 'rxjs';
 import { Network, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { combineTokensAndBalances, FUJI_LIST, MAINNET_LIST } from './utils';
-import { wallet$ } from '../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
 import { network$ } from '../network/network';
 

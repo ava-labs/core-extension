@@ -5,7 +5,7 @@ import { network$ } from '../../network/network';
 import { permissions$ } from '../../permissions/permissions';
 import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 
 export async function initDappState(data) {
   const walletResult = await firstValueFrom(wallet$);

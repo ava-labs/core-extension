@@ -1,5 +1,5 @@
 import { combineLatest, filter, map } from 'rxjs';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { onboardingStatus$ } from '../onboardingFlows';
 import { OnboardingEvents } from './models';
 

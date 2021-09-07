@@ -1,5 +1,4 @@
 import {
-  fromEvent,
   fromEventPattern,
   map,
   mapTo,
@@ -9,7 +8,7 @@ import {
   tap,
   throttleTime,
 } from 'rxjs';
-import { wallet$ } from './wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import {
   WalletBalanceX,
   iAvaxBalance,

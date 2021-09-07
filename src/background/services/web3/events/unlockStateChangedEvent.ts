@@ -1,6 +1,6 @@
 import { firstValueFrom, switchMap } from 'rxjs';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { walletLocked$ } from '../../wallet/walletLocked';
 import { Web3Event } from './models';
 

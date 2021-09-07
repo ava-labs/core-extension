@@ -10,7 +10,7 @@ import {
 } from 'rxjs';
 import { onboardingStatus$ } from '../onboarding/onboardingFlows';
 import { getMnemonicFromStorage } from './storage';
-import { wallet$ } from './wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 
 export const restartWalletLock$ = new Subject<boolean>();
 export const lockWallet$ = new Subject<boolean>();

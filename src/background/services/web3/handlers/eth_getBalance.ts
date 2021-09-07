@@ -4,7 +4,7 @@ import {
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 
 export async function eth_getBalance(data: ExtensionConnectionMessage) {
   const walletResult = await firstValueFrom(wallet$);

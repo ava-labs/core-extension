@@ -6,7 +6,7 @@ import { network$ } from './network/network';
 import { onboardingStatus$ } from './onboarding/onboardingFlows';
 import { permissions$ } from './permissions/permissions';
 import { transactions$ } from './transactions/transactions';
-import { wallet$ } from './wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { walletState$ } from './wallet/walletState';
 
 function mapToState(result): { [key: string]: any } {

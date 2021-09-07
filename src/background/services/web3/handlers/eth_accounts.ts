@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { permissions$ } from '../../permissions/permissions';
 import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 
 /**
  * This is called right away by dapps to see if its already connected

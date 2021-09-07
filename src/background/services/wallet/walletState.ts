@@ -6,7 +6,7 @@ import { addressUpdates } from './addresses';
 import { avaxPriceUpdates } from './avaxPrice';
 import { balanceUpdates } from './balances';
 import { WalletLockedState, WalletState } from './models';
-import { wallet$ } from './wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { walletLocked$ } from './walletLocked';
 
 function mapToWalletState(result): WalletState {

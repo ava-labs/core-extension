@@ -9,7 +9,7 @@ import { permissions$ } from '../../permissions/permissions';
 import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
 import { domainPermissionsExist } from '../../permissions/utils/domainPermissionsExist';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet$ } from '../../wallet/wallet';
+import { wallet$ } from '@avalabs/wallet-react-components';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
