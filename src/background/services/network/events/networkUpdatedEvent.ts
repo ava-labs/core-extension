@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { network$ } from '../network';
+import { network$ } from '@avalabs/wallet-react-components';
 import { NetworkEvents } from './models';
 
 export function networkUpdateEvents() {

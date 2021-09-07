@@ -1,5 +1,5 @@
 import { firstValueFrom, map, switchMap } from 'rxjs';
-import { network$ } from '../../network/network';
+import { network$ } from '@avalabs/wallet-react-components';
 import { walletInitializedFilter } from '../../wallet/utils/walletInitializedFilter';
 import { wallet$ } from '@avalabs/wallet-react-components';
 import { Web3Event } from './models';

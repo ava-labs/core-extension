@@ -2,7 +2,7 @@ import { filterFalseyValues } from '@src/utils/filterFalsyValues';
 import { stateLog } from '@src/utils/logging';
 import { combineLatest, map, throttleTime } from 'rxjs';
 import { messages$ } from './messages/messages';
-import { network$ } from './network/network';
+import { network$ } from '@avalabs/wallet-react-components';
 import { onboardingStatus$ } from './onboarding/onboardingFlows';
 import { permissions$ } from './permissions/permissions';
 import { transactions$ } from './transactions/transactions';

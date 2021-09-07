@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { network$ } from '../network';
+import { network$ } from '@avalabs/wallet-react-components';
 import { supportedNetworks } from '../models';
 import { saveNetworkToStorage } from '../storage';
 

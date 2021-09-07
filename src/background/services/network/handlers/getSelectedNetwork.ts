@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { network$ } from '../network';
+import { network$ } from '@avalabs/wallet-react-components';
 
 export async function getSelectedNetwork(request: ExtensionConnectionMessage) {
   const result = await firstValueFrom(network$);

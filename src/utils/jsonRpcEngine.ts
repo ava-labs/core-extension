@@ -1,7 +1,7 @@
 import { JsonRpcEngine } from 'json-rpc-engine';
 import { createFetchMiddleware } from 'eth-json-rpc-middleware';
 import { firstValueFrom } from 'rxjs';
-import { network$ } from '../background/services/network/network';
+import { network$ } from '@avalabs/wallet-react-components';
 
 export { JsonRpcRequest } from 'json-rpc-engine';
 

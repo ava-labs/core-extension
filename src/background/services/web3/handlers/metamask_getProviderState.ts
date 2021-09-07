@@ -1,7 +1,7 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ConnectionRequestHandler } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { network$ } from '../../network/network';
+import { network$ } from '@avalabs/wallet-react-components';
 import { permissions$ } from '../../permissions/permissions';
 import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
