@@ -43,7 +43,7 @@ export function SendAvaxForm() {
       />
       <Typography>Amount</Typography>
       <BNInput
-        value={amount}
+        value={amount as any}
         denomination={9}
         onChange={(bigAmount) => setAmount(bigAmount)}
       />
