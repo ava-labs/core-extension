@@ -3,8 +3,8 @@ import {
   MnemonicWallet,
   WalletType,
 } from '@avalabs/avalanche-wallet-sdk';
-import { ERC20 } from '../erc20Tokens/models';
-import { WalletBalances } from './balances';
+import { ERC20 } from '@avalabs/wallet-react-components';
+import { WalletBalances } from '@avalabs/wallet-react-components';
 
 export function isMnemonicWallet(wallet: WalletType): wallet is MnemonicWallet {
   return wallet.type === 'mnemonic';
