@@ -12,7 +12,7 @@ import { usePermissions } from './usePermissions';
 
 export function PermissionsPage() {
   const params = new URLSearchParams(window.location.search);
-  let domain = params.get('domain') as string;
+  const domain = params.get('domain') as string;
   const {
     addPermissionsForDomain,
     permissions,

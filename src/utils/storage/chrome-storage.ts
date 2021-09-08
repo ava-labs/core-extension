@@ -25,6 +25,7 @@ export async function saveToStorage<T = any>(value: T) {
 }
 
 export async function getFromStorage<T = any>(
+  // eslint-disable-next-line @typescript-eslint/ban-types
   key: string | Object | string[] | null
 ) {
   return new Promise<T>((resolve) => {

@@ -26,7 +26,7 @@ export function useSendErc20Form(
   useEffect(() => {
     if (!erc20Balances) return;
 
-    let bal = erc20Balances[token.address] || new BN(0);
+    const bal = erc20Balances[token.address] || new BN(0);
     setBalance(bal);
   }, [erc20Balances, token]);
 
@@ -42,7 +42,7 @@ export function useSendErc20Form(
   }, [amount, address]);
 
   function getFeeText() {
-    let bn = Utils.numberToBN(fee, 9);
+    const bn = Utils.numberToBN(fee, 9);
     return Utils.bnToAvaxC(bn);
   }
 
@@ -88,7 +88,7 @@ export function useSendErc20Form(
     // Only update after 1000ms of inactivity
 
     gasLimitTimeout = setTimeout(async () => {
-      let newGasLimit = await wallet!.estimateErc20Gas(
+      const newGasLimit = await wallet!.estimateErc20Gas(
         token.address,
         address,
         amount
@@ -104,12 +104,12 @@ export function useSendErc20Form(
       return;
     }
 
-    let to = address;
+    const to = address;
 
     if (!amount) return;
 
-    let gasPriceBN = Utils.numberToBN(gasPrice, 9);
-    let tx = await wallet.sendErc20(
+    const gasPriceBN = Utils.numberToBN(gasPrice, 9);
+    const tx = await wallet.sendErc20(
       to,
       amount,
       gasPriceBN,

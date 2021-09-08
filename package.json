@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "webpack -w --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js && yarn run zip",
+    "build:ci": "webpack --config webpack.prod.js",
     "test": "yarn cypress open",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",

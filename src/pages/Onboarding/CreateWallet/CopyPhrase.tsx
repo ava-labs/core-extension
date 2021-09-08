@@ -30,7 +30,9 @@ export function CopyPhrase({ onCancel, onNext, mnemonic }: CopyPhraseProps) {
         </Typography>    
         <Mnemonic phrase={mnemonic}
           confirmMnemonic={false}
-          onConfirmed={() => {}} />
+          onConfirmed={() => {
+            //noop, confirmation is next step
+          }} />
       </VerticalFlex>
       <VerticalFlex align='center'>
         <Checkbox 

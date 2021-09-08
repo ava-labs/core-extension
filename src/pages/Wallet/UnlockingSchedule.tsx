@@ -10,7 +10,7 @@ import {
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 
 function bnToDate(val: BN) {
-  let date = new Date(val.toNumber() * 1000);
+  const date = new Date(val.toNumber() * 1000);
   return date.toLocaleString();
 }
 

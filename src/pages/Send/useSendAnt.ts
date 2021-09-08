@@ -18,12 +18,12 @@ export function useSendAnt(wallet: WalletType, token: AssetBalanceX) {
 
   // Calculate internal transactions, move AVAX between chains
   useEffect(() => {
-    let txs = wallet.getTransactionsForBalance('X', sendFee);
+    const txs = wallet.getTransactionsForBalance('X', sendFee);
     setExtraTxs(txs);
   }, [sendFee]);
 
   useEffect(() => {
-    let fee = extraTxs.map((tx) => Utils.getTxFeeX());
+    const fee = extraTxs.map((tx) => Utils.getTxFeeX());
   }, [extraTxs]);
 
   function formCheck() {
@@ -76,7 +76,7 @@ export function useSendAnt(wallet: WalletType, token: AssetBalanceX) {
   }, [amount, address]);
 
   async function submit() {
-    let txID = await wallet.sendANT(token.meta.assetID, amount!, address);
+    const txID = await wallet.sendANT(token.meta.assetID, amount!, address);
     setTxId(txID);
   }
 

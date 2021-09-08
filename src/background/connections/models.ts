@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 
 export interface ExtensionConnectionMessage<T = any> {

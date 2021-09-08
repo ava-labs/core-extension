@@ -22,10 +22,12 @@ export function useSendAvax() {
 
   useEffect(() => {
     try {
-      let chain = AddressHelper.getAddressChain(address);
+      const chain = AddressHelper.getAddressChain(address);
       if (chain === 'P') return;
       setTargetChain(chain);
-    } catch (e) {}
+    } catch (e) {
+      console.error(e)
+    }
   }, [address]);
 
   function formCheck() {
@@ -134,11 +136,11 @@ export function useSendAvax() {
 
   async function send() {
     // First do the initial transaction to get balance on the correct chain
-    let priorTxIds: UniversalTxReceipt[] = [];
-    for (var i = 0; i < txs.length; i++) {
-      let tx = txs[0];
+    const priorTxIds: UniversalTxReceipt[] = [];
+    for (let i = 0; i < txs.length; i++) {
+      const tx = txs[0];
       setActiveTxIndex(activeTxIndex + 1);
-      let exportImportId = await runTransaction(tx);
+      const exportImportId = await runTransaction(tx);
       priorTxIds.push(exportImportId); 
     }
 

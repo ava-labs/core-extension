@@ -38,7 +38,7 @@ export const Deposit = () => {
   return (
     <VerticalFlex width={'100%'} align={'center'}>
       <br />
-      <Typography>Select Chain to 'Receive' your coin</Typography>
+      <Typography>Select Chain to &apos;Receive&apos; your coin</Typography>
       <br />
       <HorizontalFlex>
         <PrimaryButton disabled={chain === 'X'} onClick={() => setChain('X')}>
