@@ -13,12 +13,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 15.x
-      - name: Create .npmrc with NPM_TOKEN
-        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
       - name: Install dependencies
         run: yarn
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Lint
         run: yarn lint
       - name: Build extension
