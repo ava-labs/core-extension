@@ -15,6 +15,8 @@ jobs:
           node-version: 15.x
       - name: Install dependencies
         run: yarn
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Lint
         run: yarn lint
       - name: Build extension
