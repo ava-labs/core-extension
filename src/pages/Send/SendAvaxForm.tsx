@@ -7,34 +7,35 @@ import {
 } from '@avalabs/react-components';
 import React from 'react';
 import { useSendAvax } from './useSendAvax';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SendTransactionsList } from './SendTransactionsList';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { getAvaxBalanceUSD } from '../Wallet/utils/balanceHelpers';
 
 export function SendAvaxForm() {
-  // const { balances, prices } = useWalletContext();
+  const { balances, avaxPrice } = useWalletContext();
   const {
-    send,
     targetChain,
     txId,
     error,
     canSubmit,
-    clearForm,
-    txs,
     setAmount,
     setAddress,
     amount,
     address,
+    submit,
+    reset,
+    txs,
   } = useSendAvax();
 
   return (
     <VerticalFlex>
       <VerticalFlex>
-        {/* <Typography>
+        <Typography>
           {balances.balanceAvaxTotal.toLocaleString()} AVAX
         </Typography>
         <Typography>
-          ${balances.getAvaxBalanceUSD(prices.avaxUSD)} USD
-        </Typography> */}
+          ${getAvaxBalanceUSD(balances.balanceAvaxTotal, avaxPrice)} USD
+        </Typography>
       </VerticalFlex>
       <Typography>To</Typography>
       <Input
@@ -52,15 +53,15 @@ export function SendAvaxForm() {
         <>
           <Typography>{error}</Typography>
 
-          <PrimaryButton onClick={send} disabled={!canSubmit}>
+          <PrimaryButton onClick={submit} disabled={!canSubmit}>
             Confirm
           </PrimaryButton>
         </>
       ) : (
-        <PrimaryButton onClick={clearForm}>Start Again</PrimaryButton>
+        <PrimaryButton onClick={reset}>Start Again</PrimaryButton>
       )}
 
-      {txs.length ? (
+      {txs && txs.length ? (
         <VerticalFlex>
           <Typography>
             Additional transactions needed to complete this send transaction.

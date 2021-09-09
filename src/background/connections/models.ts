@@ -53,19 +53,37 @@ export enum ExtensionRequest {
   ONBOARDING_SET_MNEMONIC = 'onboarding_setWalletMnemonic',
   ONBOARDING_SET_PASSWORD = 'onboarding_setWalletPassword',
   ONBOARDING_SET_FINALIZED = 'onboarding_setOnboardingFinalized',
+
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
+
   WALLET_STATE = 'wallet_InitializeState',
   WALLET_UNLOCK_STATE = 'wallet_unlockWalletState',
+
   SETTINGS_LOCK_WALLET = 'settings_lockWallet',
+
   MESSAGE_SIGN = 'message_signMessage',
   MESSAGE_GET_PENDING = 'message_getPendingMessage',
   MESSAGE_CANCEL_PENDING = 'message_cancelPendingMessage',
+
   PERMISSIONS_ADD_DOMAIN = 'permissions_addDomain',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',
   PERMISSIONS_GET_ACCOUNTS = 'permissions_getAccounts',
+
   TRANSACTIONS_GET = 'transactions_getTransaction',
   TRANSACTIONS_UPDATE = 'transactions_updateTransaction',
+
+  SEND_AVAX_VALIDATE = 'send_validateSendAvaxState',
+  SEND_AVAX_RESET = 'send_resetSendAvaxState',
+  SEND_AVAX_SUBMIT = 'send_submitSendAvaxState',
+
+  SEND_ANT_VALIDATE = 'send_validateSendAntState',
+  SEND_ANT_RESET = 'send_resetSendAntState',
+  SEND_ANT_SUBMIT = 'send_submitSendAntState',
+
+  SEND_ERC20_VALIDATE = 'send_validateSendErc20State',
+  SEND_ERC20_RESET = 'send_resetSendErc20State',
+  SEND_ERC20_SUBMIT = 'send_submitSendErc20State',
 }
 
 export enum ProviderRequest {

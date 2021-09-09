@@ -1,5 +1,3 @@
-import { LoadingIcon } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import React from 'react';
 import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { useSendAnt } from './useSendAnt';
@@ -14,28 +12,21 @@ import {
 } from '@avalabs/react-components';
 
 export function SendAntForm({ token }: { token: AssetBalanceX }) {
-  // const { wallet } = useWalletContext();
+  const {
+    submit,
+    canSubmit,
+    setAddress,
+    address,
+    amount,
+    setAmount,
+    error,
+    reset,
+    txId,
+  } = useSendAnt(token);
 
-  // if (!wallet) {
-  //   return <LoadingIcon />;
-  // }
-
-  // const {
-  //   amount,
-  //   address,
-  //   submit,
-  //   reset,
-  //   error,
-  //   canSubmit,
-  //   sendFee,
-  //   txId,
-  //   setAddress,
-  //   setAmount,
-  //   extraTxs,
-  // } = useSendAnt(wallet, token);
   return (
     <VerticalFlex>
-      {/* <Typography>To</Typography>
+      <Typography>To</Typography>
       <Input
         value={address}
         onChange={(e) => setAddress(e.currentTarget.value)}
@@ -43,8 +34,8 @@ export function SendAntForm({ token }: { token: AssetBalanceX }) {
       <Typography>Amount</Typography>
       <BNInput
         denomination={token.meta.denomination}
-        onChange={(bnAmount) => setAmount(bnAmount)}
-        value={amount}
+        onChange={(bnAmount) => setAmount(bnAmount.toNumber())}
+        value={amount as any}
       ></BNInput>
       <HorizontalFlex>
         <Typography>{error}</Typography>
@@ -60,7 +51,7 @@ export function SendAntForm({ token }: { token: AssetBalanceX }) {
         <PrimaryButton onClick={submit} disabled={!canSubmit}>
           Confirm
         </PrimaryButton>
-      )} */}
+      )}
     </VerticalFlex>
   );
 }

@@ -30,6 +30,15 @@ import { walletUpdateEvents } from '../../services/wallet/events/walletStateUpda
 import { GetWalletStateRequest } from '../../services/wallet/handlers/initWalletState';
 import { UnlockWalletStateRequest } from '../../services/wallet/handlers/unlockWalletState';
 import { eventLog, requestLog, responseLog } from '../../../utils/logging';
+import { ValidateSendAvaxStateRequest } from '@src/background/services/sendAvax/handlers/validateSendAvaxState';
+import { ResetSendAvaxStateRequest } from '@src/background/services/sendAvax/handlers/resetSendAvaxState';
+import { SubmitSendAvaxStateRequest } from '@src/background/services/sendAvax/handlers/submitSendAvaxState';
+import { SubmitSendAntStateRequest } from '@src/background/services/sendAnt/handlers/submitSendAntState';
+import { ResetSendAntStateRequest } from '@src/background/services/sendAnt/handlers/resetSendAntState';
+import { ValidateSendAntStateRequest } from '@src/background/services/sendAnt/handlers/validateSendAntState';
+import { ResetSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/resetSendErc20State';
+import { ValidateSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/validateSendErc20State';
+import { SubmitSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/submitSendErc20State';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -38,21 +47,38 @@ const extensionRequestHandlerMap = new Map<
   SignMessageRequest,
   GetPendingMessageRequest,
   CancelPendingMessageRequest,
+
   GetOnboardingStateRequest,
   SetOnboardingPhaseRequest,
   SetOnboardingFinalizedRequest,
   SetOnboardingMnemonicRequest,
   SetOnboardingPasswordRequest,
+
   GetNetworkRequest,
   SetNetworkRequest,
+
   GetWalletStateRequest,
   UnlockWalletStateRequest,
   SettingsLockWalletStateRequest,
+
   AddPermissionsForDomainRequest,
   GetPermissionsForDomainRequest,
   GetAccountsForPermissionsRequest,
+
   UpdateTransactionByIdRequest,
   GetTransactionByIdRequest,
+
+  ValidateSendAvaxStateRequest,
+  ResetSendAvaxStateRequest,
+  SubmitSendAvaxStateRequest,
+
+  SubmitSendAntStateRequest,
+  ResetSendAntStateRequest,
+  ValidateSendAntStateRequest,
+
+  ResetSendErc20StateRequest,
+  ValidateSendErc20StateRequest,
+  SubmitSendErc20StateRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {

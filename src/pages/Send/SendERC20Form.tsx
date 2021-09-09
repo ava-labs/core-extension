@@ -1,6 +1,5 @@
 import React from 'react';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useSendErc20Form } from './useSendErc20Form';
+import { useSendErc20 } from './useSendErc20';
 import {
   Typography,
   Input,
@@ -10,32 +9,31 @@ import {
 import { ERC20 } from './models';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {
-  // const { wallet, tokens } = useWalletContext();
-  // const {
-  //   address,
-  //   setAddress,
-  //   amount,
-  //   setAmount,
-  //   gasPrice,
-  //   gasLimit,
-  //   txId,
-  //   clear,
-  //   send,
-  //   canSubmit,
-  //   error,
-  //   getFeeText,
-  // } = useSendErc20Form(token, tokens, wallet);
+  const {
+    address,
+    setAddress,
+    amount,
+    setAmount,
+    gasPrice,
+    gasLimit,
+    txId,
+    reset,
+    submit,
+    canSubmit,
+    error,
+    sendFeeDisplayValue,
+  } = useSendErc20(token);
 
   return (
     <VerticalFlex>
-      {/* <Typography>To</Typography>
+      <Typography>To</Typography>
       <Input
         value={address}
         onChange={(e) => setAddress(e.currentTarget.value)}
       ></Input>
       <Typography>Amount</Typography>
       <BNInput
-        value={amount}
+        value={amount as any}
         denomination={token.denomination}
         onChange={setAmount}
       ></BNInput>
@@ -49,7 +47,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
       </p>
       <Typography>Fee</Typography>
       <p>
-        <Typography>{getFeeText()} AVAX</Typography>
+        <Typography>{sendFeeDisplayValue} AVAX</Typography>
       </p>
       <p>
         <Typography>{error}</Typography>
@@ -66,14 +64,14 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
           <p>
             <Typography> {txId}</Typography>
           </p>
-          <button onClick={clear}>Clear</button>
+          <button onClick={reset}>Clear</button>
         </div>
       )}
       {!txId && (
-        <button onClick={send} disabled={!canSubmit}>
+        <button onClick={submit} disabled={!canSubmit}>
           Confirm
         </button>
-      )} */}
+      )}
     </VerticalFlex>
   );
 }
