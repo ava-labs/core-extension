@@ -44,8 +44,6 @@ import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 import { GlobalStyle } from '@src/styles/styles';
-import { useState } from 'react';
-import styled from 'styled-components';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);

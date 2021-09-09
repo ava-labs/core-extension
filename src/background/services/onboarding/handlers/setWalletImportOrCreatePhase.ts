@@ -18,7 +18,9 @@ export async function setWalletImportOrCreatePhase(
     };
   }
 
-  const phase = Object.values(OnboardingPhase).includes(params[0]) ? params[0] : undefined;
+  const phase = Object.values(OnboardingPhase).includes(params[0])
+    ? params[0]
+    : undefined;
 
   if (!phase) {
     return {

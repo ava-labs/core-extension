@@ -16,7 +16,17 @@ export function CreateWallet({ onCancel }: { onCancel(): void }) {
     setMnemonicPhrase(createNewMnemonic());
   }, []);
 
-  return isCopied ? 
-    <ConfirmPhrase onNext={() => setMnemonic(mnemonic)} onCancel={() => setIsCopied(false)} mnemonic={mnemonic} /> : 
-    <CopyPhrase onNext={() => setIsCopied(true)} onCancel={onCancel} mnemonic={mnemonic} />;
+  return isCopied ? (
+    <ConfirmPhrase
+      onNext={() => setMnemonic(mnemonic)}
+      onCancel={() => setIsCopied(false)}
+      mnemonic={mnemonic}
+    />
+  ) : (
+    <CopyPhrase
+      onNext={() => setIsCopied(true)}
+      onCancel={onCancel}
+      mnemonic={mnemonic}
+    />
+  );
 }

@@ -22,23 +22,31 @@ export const CreatePassword = ({ onCancel }: { onCancel(): void }) => {
   const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
 
   const fieldsFilled = passwordVal && confirmPasswordVal;
-  
+
   let error;
-  if(fieldsFilled && !verifyPasswordsMatch(passwordVal, confirmPasswordVal)) {
+  if (fieldsFilled && !verifyPasswordsMatch(passwordVal, confirmPasswordVal)) {
     error = PASSWORD_ERROR;
   }
 
   const canSubmit = !error && fieldsFilled;
-  
+
   return (
-    <VerticalFlex width="100%" align='center' padding='22px 0 36px' justify="space-between">
-      <VerticalFlex align='center'>
-        <ProgressIndicator steps={3} current={3} /> 
-        <Typography as="h1" size={24} weight="bold" margin="28px 0 8px">Create password</Typography>
+    <VerticalFlex
+      width="100%"
+      align="center"
+      padding="22px 0 36px"
+      justify="space-between"
+    >
+      <VerticalFlex align="center">
+        <ProgressIndicator steps={3} current={3} />
+        <Typography as="h1" size={24} weight="bold" margin="28px 0 8px">
+          Create password
+        </Typography>
         <Typography align="center" margin="0 0 32px" height="24px">
-          Create a password to secure<br/>
+          Create a password to secure
+          <br />
           your account
-        </Typography>    
+        </Typography>
         <HorizontalFlex height="100px">
           <Input
             label="Password"
@@ -59,7 +67,7 @@ export const CreatePassword = ({ onCancel }: { onCancel(): void }) => {
           />
         </HorizontalFlex>
       </VerticalFlex>
-      <VerticalFlex align='center'>
+      <VerticalFlex align="center">
         <PrimaryButton
           margin="24px 0"
           disabled={!canSubmit}
@@ -69,9 +77,7 @@ export const CreatePassword = ({ onCancel }: { onCancel(): void }) => {
         >
           Save password
         </PrimaryButton>
-        <TextButton onClick={() => onCancel && onCancel()}>
-          Back
-        </TextButton>
+        <TextButton onClick={() => onCancel && onCancel()}>Back</TextButton>
       </VerticalFlex>
     </VerticalFlex>
   );

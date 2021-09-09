@@ -18,7 +18,7 @@ export type ConsoleLike = Pick<
  * @returns  json-rpc-engine middleware function
  */
 export function createErrorMiddleware(
-  log: ConsoleLike,
+  log: ConsoleLike
 ): JsonRpcMiddleware<unknown, unknown> {
   return (req, res, next) => {
     // json-rpc-engine will terminate the request when it notices this error
@@ -45,7 +45,7 @@ export const getRpcPromiseCallback =
   (
     resolve: (value?: any) => void,
     reject: (error?: Error) => void,
-    unwrapResult = true,
+    unwrapResult = true
   ) =>
   (error: Error, response: PendingJsonRpcResponse<unknown>): void => {
     if (error || response.error) {
@@ -70,7 +70,7 @@ export function logStreamDisconnectWarning(
   log: ConsoleLike,
   remoteLabel: string,
   error: Error,
-  emitter: EventEmitter,
+  emitter: EventEmitter
 ): void {
   let warningMsg = `MetaMask: Lost connection to "${remoteLabel}".`;
   if (error?.stack) {
