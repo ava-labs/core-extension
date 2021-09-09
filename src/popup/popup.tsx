@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { WalletHome } from '@src/pages/Wallet/WalletHome';
 import { Deposit } from '@src/pages/Deposit';
-import { Header } from '@src/components/common/Header';
+import Header from '@src/components/common/Header/Header';
 import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,
@@ -44,10 +44,12 @@ import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 import { GlobalStyle } from '@src/styles/styles';
-
-
+import { useState } from 'react';
+import styled from 'styled-components';
 
 export function Popup() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
     <>
       <ConnectionContextProvider>
@@ -55,8 +57,8 @@ export function Popup() {
           <NetworkContextProvider>
             <WalletContextProvider>
               <SettingsContextProvider>
-                <VerticalFlex height={'100%'}>
-                  <Header hasOnboarded={true} />
+                <VerticalFlex height={'100%'} maxHeight={drawerOpen ? "100%" : 'auto'} overflow={drawerOpen ? 'hidden' : 'auto'}>
+                  <Header onDrawerStateChanged={setDrawerOpen} /> 
                   <HorizontalFlex flex={1} justify={'center'}>
                     <Switch>
                       <Route path="/token/add">
