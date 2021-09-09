@@ -10,6 +10,7 @@ import {
 import styled, { css, useTheme } from 'styled-components';
 import React, { useState } from 'react';
 import { MenuItem, menuItems } from './MenuItems';
+import { NavLink } from 'react-router-dom';
 
 const Link = styled(TextButton)`
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -207,6 +208,7 @@ function Menu() {
       } else {
         elements.push(
           <Link
+            as={NavLink}
             level={level}
             margin={margin}
             padding={padding}
