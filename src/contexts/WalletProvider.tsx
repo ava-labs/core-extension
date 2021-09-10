@@ -25,6 +25,10 @@ function recastWallletState(state: WalletState) {
         // have to cast back to BN since this was serialized over port connection
         balanceAvaxTotal: new BN(balanceAvaxTotal),
       },
+      erc20Tokens: state.erc20Tokens.map((token) => ({
+        ...token,
+        balance: new BN(token.balance),
+      })),
     },
   };
 }

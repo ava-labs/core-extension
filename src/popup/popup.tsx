@@ -6,6 +6,7 @@ import Header from '@src/components/common/Header/Header';
 import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,
+  HorizontalSeparator,
   LoadingIcon,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -60,8 +61,16 @@ export function Popup() {
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                 >
-                  <Header onDrawerStateChanged={setDrawerOpen} />
-                  <HorizontalFlex flex={1} justify={'center'}>
+                  <VerticalFlex>
+                    <Header onDrawerStateChanged={setDrawerOpen} />
+                    <HorizontalSeparator />
+                  </VerticalFlex>
+
+                  <HorizontalFlex
+                    flex={1}
+                    justify={'center'}
+                    margin={'50px 200px'}
+                  >
                     <Switch>
                       <Route path="/token/add">
                         <React.Suspense fallback={<LoadingIcon />}>
