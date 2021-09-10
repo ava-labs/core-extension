@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { TransactionSendType } from '../Send/models';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { FavStarIcon } from '@src/components/icons/FavStarIcon';
 
 const Erc20TokenImg = styled.img`
   height: 30px;
@@ -48,7 +49,9 @@ export function Erc20TokenList() {
                 {parseFloat(token.balanceParsed).toFixed(3)}
               </Typography>
             </HorizontalFlex>
-            <HorizontalFlex></HorizontalFlex>
+            <HorizontalFlex padding={'0 0 0 20px'}>
+              <FavStarIcon />
+            </HorizontalFlex>
             <HorizontalFlex></HorizontalFlex>
             <GridLineSeparator columns={4} />
           </GridContainerItems>
