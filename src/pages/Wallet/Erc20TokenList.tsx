@@ -1,20 +1,14 @@
 import React from 'react';
 import {
-  VerticalFlex,
   HorizontalFlex,
   Typography,
-  HorizontalSeparator,
-  SecondaryButton,
   GridContainer,
   GridContainerItems,
   GridLineSeparator,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { truncateAddress } from '@src/utils/truncateAddress';
-import { Link } from 'react-router-dom';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { TransactionSendType } from '../Send/models';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
 
 const Erc20TokenImg = styled.img`
@@ -58,29 +52,4 @@ export function Erc20TokenList() {
         ))}
     </GridContainer>
   );
-  // return (
-  //   <VerticalFlex width={'100%'} align={'center'} margin={'10px 0'}>
-  //     {erc20Tokens?.map((token) => (
-  //       <VerticalFlex key={token.address} width={'400px'}>
-  //         <HorizontalFlex width={'100%'} justify={'space-between'}>
-  //           <Erc20TokenImg src={token.logoURI} />
-  //           <Typography>{token.name}</Typography>
-  //           <Typography>{truncateAddress(token.address)}</Typography>
-  //           <Link
-  //             to={{
-  //               pathname: '/send',
-  //               state: { ...token, type: TransactionSendType.ERC20 },
-  //             }}
-  //           >
-  //             <SecondaryButton>Send</SecondaryButton>
-  //           </Link>
-  //           <Typography>
-  //             {token.balanceParsed ? Number(token.balanceParsed).toFixed(4) : 0}
-  //           </Typography>
-  //         </HorizontalFlex>
-  //         <HorizontalSeparator margin={'5px 0'} />
-  //       </VerticalFlex>
-  //     ))}
-  //   </VerticalFlex>
-  // );
 }
