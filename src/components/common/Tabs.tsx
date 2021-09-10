@@ -6,14 +6,20 @@ import {
 } from 'react-tabs';
 import styled from 'styled-components';
 
+/**
+ * The $ in front of the variable allows you to use boolean
+ * as a value, otherwise react freaks out
+ *
+ * @link https://styled-components.com/docs/api#transient-props
+ */
 export const Tab = styled(ReactTab)<{
-  showHighlight: boolean;
+  $highlight: boolean;
 }>`
   margin-right: 10px;
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
-  ${({ theme, showHighlight = true }) => {
-    return showHighlight
+  ${({ theme, $highlight = true }) => {
+    return $highlight
       ? `&[aria-selected='true'] {
             position: relative;
             &::after {
@@ -37,11 +43,11 @@ export const Tabs = styled(ReactTabs)`
   width: 100%;
 `;
 export const TabList = styled(ReactTabList)<{
-  showBorder: boolean;
+  $border: boolean;
 }>`
   display: flex;
-  ${({ showBorder = true, theme }) => {
-    return showBorder
+  ${({ $border = true, theme }) => {
+    return $border
       ? `
       border-bottom: solid 1px ${theme.colors.grey[300]};
       padding-bottom: 5px;

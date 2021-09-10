@@ -52,7 +52,6 @@ export function WalletHome() {
               </TabPanel>
             </Tabs>
           </Card>
-
           <br />
           <WalletHomeRecentTxs />
         </VerticalFlex>

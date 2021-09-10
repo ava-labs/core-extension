@@ -6,6 +6,7 @@ import {
 } from '@avalabs/react-components';
 import React from 'react';
 import { Erc20TokenList } from './Erc20TokenList';
+import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 
 export function WalletHomeAssets() {
   return (
@@ -15,13 +16,24 @@ export function WalletHomeAssets() {
           <Typography size={18}>Assets</Typography>
         </HorizontalFlex>
         <br />
-        <HorizontalFlex width={'100%'}>
-          <Typography size={14} margin={'0 10px 0 0'}>
-            Tokens
-          </Typography>
-          <Typography size={14}>Collectibles</Typography>
-        </HorizontalFlex>
-        <Erc20TokenList />
+        <Tabs>
+          <TabList $border={false}>
+            <Tab $highlight={false}>
+              <Typography color={'inherit'} size={14}>
+                Tokens
+              </Typography>
+            </Tab>
+            <Tab $highlight={false}>
+              <Typography color={'inherit'} size={14}>
+                Collectibles
+              </Typography>
+            </Tab>
+          </TabList>
+          <TabPanel>
+            <Erc20TokenList />
+          </TabPanel>
+          <TabPanel>Collectibles List</TabPanel>
+        </Tabs>
       </VerticalFlex>
     </Card>
   );
