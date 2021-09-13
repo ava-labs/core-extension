@@ -11,11 +11,15 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
 import { TokenImg } from '@src/components/common/TokenImage';
+import { useHistory, useLocation } from 'react-router-dom';
+import { TransactionSendType } from '../Send/models';
 
 const bnZero = new BN(0);
 
 export function Erc20TokenList() {
   const { erc20Tokens } = useWalletContext();
+  const { pathname } = useLocation();
+  const history = useHistory();
 
   return (
     <GridContainer columnGap={0} columns={4} rowGap={0}>
@@ -29,7 +33,18 @@ export function Erc20TokenList() {
       {erc20Tokens
         ?.filter((token) => token.balance.gt(bnZero))
         .map((token) => (
-          <GridContainerItems key={token.address}>
+          <GridContainerItems
+            key={token.address}
+            onClick={() =>
+              history.push({
+                pathname: pathname,
+                search: `?${new URLSearchParams({
+                  token: token.symbol,
+                  type: TransactionSendType.ERC20,
+                }).toString()}`,
+              })
+            }
+          >
             <HorizontalFlex width="100%">
               <TokenImg src={token.logoURI} />
             </HorizontalFlex>

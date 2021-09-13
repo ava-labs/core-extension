@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Card,
   DropDownMenu,
   DropDownMenuItem,
   HorizontalFlex,
@@ -13,6 +12,8 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { useEffect } from 'react';
 import { ERC20 } from '@avalabs/wallet-react-components';
+import { useHistory, useLocation } from 'react-router-dom';
+import { TransactionSendType } from '@src/pages/Send/models';
 
 const bnZero = new BN(0);
 
@@ -51,8 +52,10 @@ function Erc20TokenItem({ token }: { token: ERC20 }) {
 }
 
 export function WalletSendToken() {
-  const { erc20Tokens, balances } = useWalletContext();
-  const [tokensWBalances, setTokensWBalances] = useState<SendTokenItem[]>();
+  const { search, pathname } = useLocation();
+  const history = useHistory();
+  const { erc20Tokens } = useWalletContext();
+  const [tokensWBalances, setTokensWBalances] = useState<SendTokenItem[]>([]);
   const [selectedToken, setSelectedToken] = useState<SendTokenItem>(AVAX_TOKEN);
 
   useEffect(() => {
@@ -65,12 +68,19 @@ export function WalletSendToken() {
         };
       });
 
-    setTokensWBalances(erc20TokensWithBalances);
+    setTokensWBalances([...tokensWBalances, ...erc20TokensWithBalances]);
   }, [erc20Tokens]);
 
-  function tokenSelected(token: any) {
-    console.log(token);
-  }
+  useEffect(() => {
+    // need to update ts target version so support this feature, browser supports it
+    const { token } = (Object as any).fromEntries(
+      (new URLSearchParams(search) as any).entries()
+    );
+    const targetToken = [AVAX_TOKEN, ...tokensWBalances]?.find(
+      (availToken) => availToken.symbol === token
+    );
+    targetToken && setSelectedToken(targetToken);
+  }, [search, tokensWBalances]);
 
   return (
     <DropDownMenu
@@ -91,7 +101,17 @@ export function WalletSendToken() {
         </SecondaryCard>
       }
     >
-      <DropDownMenuItem onClick={() => setSelectedToken(AVAX_TOKEN)}>
+      <DropDownMenuItem
+        onClick={() =>
+          history.push({
+            pathname: pathname,
+            search: `?${new URLSearchParams({
+              token: AVAX_TOKEN.symbol,
+              type: TransactionSendType.AVAX,
+            }).toString()}`,
+          })
+        }
+      >
         <AvaxTokenItem />
       </DropDownMenuItem>
 
@@ -99,7 +119,15 @@ export function WalletSendToken() {
         return (
           <DropDownMenuItem
             key={token.name}
-            onClick={() => setSelectedToken(token)}
+            onClick={() =>
+              history.push({
+                pathname: pathname,
+                search: `?${new URLSearchParams({
+                  token: token.symbol,
+                  type: TransactionSendType.ERC20,
+                }).toString()}`,
+              })
+            }
           >
             <Erc20TokenItem token={token as ERC20} />
           </DropDownMenuItem>
