@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { WalletHome } from '@src/pages/Wallet/WalletHome';
-import { Deposit } from '@src/pages/Deposit';
 import Header from '@src/components/common/Header/Header';
 import { Footer } from '@src/components/common/Footer';
 import {
@@ -21,10 +20,6 @@ const AddToken = React.lazy(() => {
 
 const SignMessage = React.lazy(() => {
   return import('../pages/SignMessage/SignMessage');
-});
-
-const Send = React.lazy(() => {
-  return import('../pages/Send/SendFlow');
 });
 
 const PermissionsPage = React.lazy(() => {
@@ -88,19 +83,9 @@ export function Popup() {
                         <WalletHome />
                       </Route>
 
-                      <Route path="/deposit">
-                        <Deposit />
-                      </Route>
-
                       <Route path="/sign/transaction">
                         <React.Suspense fallback={<LoadingIcon />}>
                           <SignTransactionPage />
-                        </React.Suspense>
-                      </Route>
-
-                      <Route path="/send">
-                        <React.Suspense fallback={<LoadingIcon />}>
-                          <Send />
                         </React.Suspense>
                       </Route>
 

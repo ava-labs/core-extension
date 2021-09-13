@@ -4,7 +4,6 @@ import { TransactionSendType } from './models';
 import { SendAvaxForm } from '@src/pages/Send/SendAvaxForm';
 import { SendAntForm } from '@src/pages/Send/SendAntForm';
 import { SendERC20Form } from '@src/pages/Send/SendERC20Form';
-import { useLocation } from 'react-router-dom';
 import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { ERC20 } from '@avalabs/wallet-react-components';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
