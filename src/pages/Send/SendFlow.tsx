@@ -7,12 +7,9 @@ import { SendERC20Form } from '@src/pages/Send/SendERC20Form';
 import { useLocation } from 'react-router-dom';
 import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { ERC20 } from '@avalabs/wallet-react-components';
-
-const supportedSendTypes = [
-  TransactionSendType.AVAX,
-  TransactionSendType.ANT,
-  TransactionSendType.ERC20,
-];
+import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
 
 export interface SendState {
   type: TransactionSendType;
@@ -21,7 +18,9 @@ export interface SendState {
 }
 
 export function SendFlow() {
-  const { state } = useLocation<SendState>();
+  const sendType = useGetSendTypeFromParams();
+  const tokensWBalances = useTokensWithBalances();
+  const selectedToken = useTokenFromParams(tokensWBalances);
 
   return (
     <VerticalFlex>
@@ -29,16 +28,12 @@ export function SendFlow() {
         {
           [TransactionSendType.AVAX]: <SendAvaxForm />,
           [TransactionSendType.ANT]: (
-            <SendAntForm token={state?.balanceX as AssetBalanceX} />
+            <SendAntForm token={selectedToken as unknown as AssetBalanceX} />
           ),
           [TransactionSendType.ERC20]: (
-            <SendERC20Form token={state?.erc20 as ERC20} />
+            <SendERC20Form token={selectedToken as ERC20} />
           ),
-        }[
-          state?.type && supportedSendTypes.includes(state.type)
-            ? state.type
-            : TransactionSendType.AVAX
-        ]
+        }[sendType ?? TransactionSendType.AVAX]
       }
     </VerticalFlex>
   );

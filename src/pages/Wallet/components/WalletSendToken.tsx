@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   DropDownMenu,
   DropDownMenuItem,
@@ -8,28 +8,14 @@ import {
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { TokenImg } from '@src/components/common/TokenImage';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
-import { useEffect } from 'react';
 import { ERC20 } from '@avalabs/wallet-react-components';
 import { useHistory, useLocation } from 'react-router-dom';
 import { TransactionSendType } from '@src/pages/Send/models';
-
-const bnZero = new BN(0);
-
-const AVAX_TOKEN = {
-  name: 'Avalanche',
-  symbol: 'AVAX',
-  isAvax: true,
-};
-
-interface SendTokenItem {
-  name: string;
-  symbol: string;
-  logoURI?: string;
-  isErc20?: boolean;
-  isAvax?: boolean;
-}
+import {
+  AVAX_TOKEN,
+  useTokensWithBalances,
+} from '@src/hooks/useTokensWithBalances';
+import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 
 function AvaxTokenItem() {
   return (
@@ -54,33 +40,8 @@ function Erc20TokenItem({ token }: { token: ERC20 }) {
 export function WalletSendToken() {
   const { search, pathname } = useLocation();
   const history = useHistory();
-  const { erc20Tokens } = useWalletContext();
-  const [tokensWBalances, setTokensWBalances] = useState<SendTokenItem[]>([]);
-  const [selectedToken, setSelectedToken] = useState<SendTokenItem>(AVAX_TOKEN);
-
-  useEffect(() => {
-    const erc20TokensWithBalances = erc20Tokens
-      ?.filter((token) => token.balance.gt(bnZero))
-      .map((token) => {
-        return {
-          ...token,
-          isErc20: true,
-        };
-      });
-
-    setTokensWBalances([...tokensWBalances, ...erc20TokensWithBalances]);
-  }, [erc20Tokens]);
-
-  useEffect(() => {
-    // need to update ts target version so support this feature, browser supports it
-    const { token } = (Object as any).fromEntries(
-      (new URLSearchParams(search) as any).entries()
-    );
-    const targetToken = [AVAX_TOKEN, ...tokensWBalances]?.find(
-      (availToken) => availToken.symbol === token
-    );
-    targetToken && setSelectedToken(targetToken);
-  }, [search, tokensWBalances]);
+  const tokensWBalances = useTokensWithBalances();
+  const selectedToken = useTokenFromParams(tokensWBalances);
 
   return (
     <DropDownMenu
