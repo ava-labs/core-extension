@@ -28,7 +28,7 @@ export const Tab = styled(ReactTab)<{
               height: 1px;
               left: 0;
               right: 0;
-              bottom: -6px;
+              bottom: -11px;
               background-color: ${theme.colors.secondary};
             }
           }`
@@ -50,7 +50,7 @@ export const TabList = styled(ReactTabList)<{
     return $border
       ? `
       border-bottom: solid 1px ${theme.colors.grey[300]};
-      padding-bottom: 5px;
+      padding-bottom: 10px;
       margin-bottom: 5px;
       `
       : '';

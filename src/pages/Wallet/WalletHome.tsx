@@ -9,11 +9,11 @@ import {
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletHomeBalances } from './WalletHomeBalances';
 import { WalletHomeAssets } from './WalletHomeAssets';
-import { WalletHomeSend } from './WalletHomeSend';
 import { WalletHomeReceive } from './WalletHomeReceive';
 import { WalletHomeRecentTxs } from './WalletHomeRecentTxs';
 import { WalletHomeTopBar } from './WalletHomeTopBar';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
+import { WalletHomeSend } from './WalletHomeSend';
 
 export function WalletHome() {
   const { balances, avaxPrice } = useWalletContext();

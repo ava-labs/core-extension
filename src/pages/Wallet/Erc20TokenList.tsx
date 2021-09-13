@@ -10,12 +10,7 @@ import styled from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
-
-const Erc20TokenImg = styled.img`
-  height: 30px;
-  width: 30px;
-  border-radius: 50%;
-`;
+import { TokenImg } from '@src/components/common/TokenImage';
 
 const bnZero = new BN(0);
 
@@ -33,10 +28,10 @@ export function Erc20TokenList() {
       <GridLineSeparator columns={4} />
       {erc20Tokens
         ?.filter((token) => token.balance.gt(bnZero))
-        .map((token, idx) => (
+        .map((token) => (
           <GridContainerItems key={token.address}>
             <HorizontalFlex width="100%">
-              <Erc20TokenImg src={token.logoURI} />
+              <TokenImg src={token.logoURI} />
             </HorizontalFlex>
             <HorizontalFlex width="100%">
               <Typography>

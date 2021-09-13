@@ -24,7 +24,7 @@ const SignMessage = React.lazy(() => {
 });
 
 const Send = React.lazy(() => {
-  return import('../pages/Send/Send');
+  return import('../pages/Send/SendFlow');
 });
 
 const PermissionsPage = React.lazy(() => {

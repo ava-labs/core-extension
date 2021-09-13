@@ -1,10 +1,14 @@
-import { Typography, VerticalFlex } from '@avalabs/react-components';
+import { VerticalFlex } from '@avalabs/react-components';
 import React from 'react';
+import SendFlow from '../Send/SendFlow';
+import { WalletSendToken } from './components/WalletSendToken';
 
 export function WalletHomeSend() {
   return (
     <VerticalFlex>
-      <Typography>This is send</Typography>
+      <br />
+      <WalletSendToken />
+      <SendFlow />
     </VerticalFlex>
   );
 }
