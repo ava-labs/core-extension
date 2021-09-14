@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { WalletHome } from '@src/pages/Wallet/WalletHome';
+import { WalletPortfolio } from '@src/pages/Wallet/WalletPortfolio';
 import Header from '@src/components/common/Header/Header';
 import { Footer } from '@src/components/common/Footer';
 import {
@@ -9,10 +9,6 @@ import {
   LoadingIcon,
   VerticalFlex,
 } from '@avalabs/react-components';
-
-const WalletOverview = React.lazy(() => {
-  return import('../pages/Wallet/WalletOverview');
-});
 
 const AddToken = React.lazy(() => {
   return import('../pages/AddToken/AddToken');
@@ -40,6 +36,7 @@ import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 import { GlobalStyle } from '@src/styles/styles';
+import { Home } from '@src/pages/Home/Home';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -73,14 +70,8 @@ export function Popup() {
                         </React.Suspense>
                       </Route>
 
-                      <Route path="/wallet/overview">
-                        <React.Suspense fallback={<LoadingIcon />}>
-                          <WalletOverview />
-                        </React.Suspense>
-                      </Route>
-
-                      <Route path="/wallet">
-                        <WalletHome />
+                      <Route path="/home">
+                        <Home />
                       </Route>
 
                       <Route path="/sign/transaction">
@@ -108,7 +99,7 @@ export function Popup() {
                       </Route>
 
                       <Route path="/">
-                        <Redirect to="/wallet" />
+                        <Redirect to="/home" />
                       </Route>
                     </Switch>
                   </HorizontalFlex>
