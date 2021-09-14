@@ -5,6 +5,9 @@ import {
   Input,
   BNInput,
   VerticalFlex,
+  PrimaryButton,
+  HorizontalFlex,
+  SecondaryButton,
 } from '@avalabs/react-components';
 import { ERC20 } from './models';
 
@@ -26,52 +29,54 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
 
   return (
     <VerticalFlex>
-      <Typography>To</Typography>
-      <Input
-        value={address}
-        onChange={(e) => setAddress(e.currentTarget.value)}
-      ></Input>
-      <Typography>Amount</Typography>
-      <BNInput
-        value={amount as any}
-        denomination={token.denomination}
-        onChange={setAmount}
-      ></BNInput>
-      <Typography>Gas Price</Typography>
-      <p>
-        <Typography>{gasPrice} nAVAX</Typography>
-      </p>
-      <Typography>Gas Limit</Typography>
-      <p>
-        <Typography>{gasLimit}</Typography>
-      </p>
-      <Typography>Fee</Typography>
-      <p>
-        <Typography>{sendFeeDisplayValue} AVAX</Typography>
-      </p>
-      <p>
-        <Typography>{error}</Typography>
-      </p>
+      <br />
+      <br />
 
-      {txId && (
-        <div>
-          <h2>
-            <Typography>Success</Typography>
-          </h2>
-          <p>
-            <Typography>Transaction Id</Typography>
-          </p>
-          <p>
-            <Typography> {txId}</Typography>
-          </p>
-          <button onClick={reset}>Clear</button>
-        </div>
-      )}
-      {!txId && (
-        <button onClick={submit} disabled={!canSubmit}>
-          Confirm
-        </button>
-      )}
+      <VerticalFlex width={'100%'}>
+        <Typography margin={'0 0 5px 0'}>Amount</Typography>
+        <BNInput
+          value={amount as any}
+          denomination={token.denomination}
+          onChange={setAmount}
+        ></BNInput>
+      </VerticalFlex>
+      <br />
+
+      <VerticalFlex width={'100%'}>
+        <Typography margin={'0 0 5px 0'}>To</Typography>
+        <Input
+          value={address}
+          onChange={(e) => setAddress(e.currentTarget.value)}
+        ></Input>
+      </VerticalFlex>
+      <br />
+
+      <HorizontalFlex width={'100%'} justify={'space-between'}>
+        <VerticalFlex>
+          <Typography margin={'0 0 5px 0'}>Gas Price</Typography>
+          <Typography>{gasPrice} nAVAX</Typography>
+        </VerticalFlex>
+        <VerticalFlex>
+          <Typography margin={'0 0 5px 0'}>Gas Limit</Typography>
+          <Typography>{gasLimit}</Typography>
+        </VerticalFlex>
+      </HorizontalFlex>
+      <br />
+
+      <HorizontalFlex>
+        <Typography>Fee</Typography>
+        <Typography>{sendFeeDisplayValue} AVAX</Typography>
+      </HorizontalFlex>
+      <br />
+      <br />
+      <br />
+      <VerticalFlex width={'100%'} align={'center'}>
+        <SecondaryButton onClick={reset}>Reset</SecondaryButton>
+        <br />
+        <PrimaryButton disabled={!canSubmit} onClick={submit}>
+          Continue
+        </PrimaryButton>
+      </VerticalFlex>
     </VerticalFlex>
   );
 }

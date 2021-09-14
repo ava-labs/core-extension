@@ -6,12 +6,16 @@ import {
   BNInput,
   HorizontalFlex,
   SubTextTypography,
+  SecondaryButton,
 } from '@avalabs/react-components';
 import React from 'react';
 import { useSendAvax } from './useSendAvax';
 import { SendTransactionsList } from './SendTransactionsList';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { getAvaxBalanceUSD } from '../Wallet/utils/balanceHelpers';
+import { SendAvaxConfirm } from './SendAvaxConfirm';
+import { useState } from 'react';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
 
 export function SendAvaxForm() {
   const { balances, avaxPrice } = useWalletContext();
@@ -28,9 +32,10 @@ export function SendAvaxForm() {
     reset,
     txs,
   } = useSendAvax();
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   return (
-    <VerticalFlex width={'100%'} align={'center'}>
+    <VerticalFlex width={'100%'}>
       <br />
       <VerticalFlex>
         <Typography size={14} margin={'0 0 5px 0'}>
@@ -65,38 +70,29 @@ export function SendAvaxForm() {
           onChange={(e) => setAddress(e.currentTarget.value)}
         />
       </VerticalFlex>
-      {/* <Typography>{targetChain}</Typography> */}
       <br />
       <br />
       <br />
-      <br />
-
-      <PrimaryButton onClick={submit} disabled={!canSubmit}>
-        Continue
-      </PrimaryButton>
-      {/* {!txId ? (
-        <>
-          <Typography>{error}</Typography>
-
-          
-        </>
-      ) : (
-        <PrimaryButton onClick={reset}>Start Again</PrimaryButton>
-      )}
-
-      {txs && txs.length ? (
-        <VerticalFlex>
-          <Typography>
-            Additional transactions needed to complete this send transaction.
-            The wallet will do these transaction before sending the final
-            amount.
-          </Typography>
-
-          <SendTransactionsList txs={txs} />
-        </VerticalFlex>
-      ) : (
-        ''
-      )} */}
+      <SendAvaxConfirm
+        open={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        amount={amount as BN}
+        address={address as string}
+        fee={10}
+        extraTxs={txs as any}
+        amountUsd={'0'}
+        onConfirm={submit}
+      />
+      <VerticalFlex width={'100%'} align={'center'}>
+        <SecondaryButton onClick={reset}>Reset</SecondaryButton>
+        <br />
+        <PrimaryButton
+          onClick={() => setShowConfirmation(true)}
+          // disabled={!canSubmit}
+        >
+          Continue
+        </PrimaryButton>
+      </VerticalFlex>
     </VerticalFlex>
   );
 }

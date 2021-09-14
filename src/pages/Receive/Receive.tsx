@@ -9,14 +9,12 @@ import {
   HorizontalFlex,
 } from '@avalabs/react-components';
 
-import { truncateAddress } from '@src/utils/truncateAddress';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SlideSelector } from '@src/components/common/SlideSelector';
 import { useTheme } from 'styled-components';
 
 export const Receive = () => {
   const { addresses } = useWalletContext();
-  const [isCopied, setIsCopied] = useState(false);
   const [chain, setChain] = useState('C');
   const theme = useTheme();
 
@@ -54,11 +52,11 @@ export const Receive = () => {
       <VerticalFlex align={'center'}>
         <QRCode value={getAddress()} style={{ width: '100px' }} />
         <br />
+        <br />
 
         <SecondaryCard
           style={{ cursor: 'pointer' }}
           onClick={() => {
-            setIsCopied(true);
             navigator.clipboard.writeText(getAddress());
           }}
         >
