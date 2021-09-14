@@ -88,7 +88,7 @@ export function SendAvaxForm() {
         <br />
         <PrimaryButton
           onClick={() => setShowConfirmation(true)}
-          // disabled={!canSubmit}
+          disabled={!canSubmit}
         >
           Continue
         </PrimaryButton>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSendErc20 } from './useSendErc20';
 import {
   Typography,
@@ -10,6 +10,8 @@ import {
   SecondaryButton,
 } from '@avalabs/react-components';
 import { ERC20 } from './models';
+import { SendErc20Confirm } from './SendErc20Confirm';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {
   const {
@@ -26,6 +28,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
     error,
     sendFeeDisplayValue,
   } = useSendErc20(token);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   return (
     <VerticalFlex>
@@ -70,10 +73,20 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
       <br />
       <br />
       <br />
+      <SendErc20Confirm
+        open={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        amount={amount as BN}
+        address={address as string}
+        fee={10}
+        amountUsd={'0'}
+        onConfirm={submit}
+        token={token}
+      />
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton onClick={reset}>Reset</SecondaryButton>
         <br />
-        <PrimaryButton disabled={!canSubmit} onClick={submit}>
+        <PrimaryButton onClick={() => setShowConfirmation(true)}>
           Continue
         </PrimaryButton>
       </VerticalFlex>
