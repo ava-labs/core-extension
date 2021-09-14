@@ -1,8 +1,8 @@
 import React from 'react';
 import { HorizontalFlex, Typography } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 
 export interface SelectorItem {
   label: string;
@@ -38,22 +38,6 @@ const ItemContainer = styled(HorizontalFlex)<{ selected: boolean }>`
       : ''}
 `;
 
-function SlideSelectorItem({
-  label,
-  onClick,
-  selected,
-}: {
-  label: string;
-  onClick(): void;
-  selected: boolean;
-}) {
-  return (
-    <ItemContainer selected={selected} onClick={onClick}>
-      <Typography>{label}</Typography>
-    </ItemContainer>
-  );
-}
-
 export function SlideSelector({
   items,
   onChange,
@@ -63,22 +47,23 @@ export function SlideSelector({
 }) {
   const [selectedItem, setSelectedItem] = useState<any>();
 
-  useEffect(() => {
-    items && items.length && setSelectedItem(items[0]);
+  useMemo(() => {
+    !selectedItem && items && items.length && setSelectedItem(items[0]);
   }, [items]);
 
   return (
     <Container>
       {items.map((item) => (
-        <SlideSelectorItem
+        <ItemContainer
+          selected={item?.label === selectedItem?.label}
           key={item.label}
-          label={item.label}
-          selected={item === selectedItem}
           onClick={() => {
             setSelectedItem(item);
             onChange && onChange(item.value);
           }}
-        />
+        >
+          <Typography>{item.label}</Typography>
+        </ItemContainer>
       ))}
     </Container>
   );
