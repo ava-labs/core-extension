@@ -1,52 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
-  TextButton,
   DropDownMenu,
   DropDownMenuItem,
   Card,
   HorizontalFlex,
   Typography,
-  CaretIcon,
 } from '@avalabs/react-components';
-import { truncateAddress } from '@src/utils/truncateAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import styled from 'styled-components';
+
+const ConnectedDot = styled.div`
+  width: 12px;
+  height: 12px;
+  background-color: ${({ theme }) => theme.colors.green['500']};
+  border-radius: 50%;
+`;
 
 export function WalletConnection() {
-  const { addresses } = useWalletContext();
   const { network, setNetwork, networks } = useNetworkContext();
-  const [hasBeenCopied, setHasBeenCopied] = useState(false);
-
-  useEffect(() => {
-    if (hasBeenCopied) {
-      setTimeout(() => {
-        setHasBeenCopied(false);
-      }, 2000);
-    }
-  }, [hasBeenCopied]);
 
   return (
     <DropDownMenu
+      style={{ marginLeft: '30px' }}
       coords={{
         left: '0px',
-        top: '42px',
+        top: '61px',
+        right: '0px',
       }}
       icon={
-        <Card padding="10px" width="188px">
+        <Card padding="20px" width="210px">
+          <ConnectedDot />
           <HorizontalFlex align="center">
-            <TextButton
-              onClick={(evt) => {
-                evt.stopPropagation();
-                navigator.clipboard.writeText(addresses.addrC ?? '');
-                setHasBeenCopied(true);
-              }}
-            >
-              {hasBeenCopied ? 'copied' : 'copy'}
-            </TextButton>
-            <Typography margin="0 auto 0 5px">
-              {truncateAddress(addresses.addrC)} ({network?.name})
-            </Typography>
-            <CaretIcon height="16px" />
+            <Typography margin="0 auto 0 5px">{network?.name}</Typography>
           </HorizontalFlex>
         </Card>
       }
@@ -56,7 +41,7 @@ export function WalletConnection() {
           key={network.name}
           onClick={() => setNetwork(network)}
         >
-          {network.name}
+          <Typography>{network.name}</Typography>
         </DropDownMenuItem>
       ))}
     </DropDownMenu>

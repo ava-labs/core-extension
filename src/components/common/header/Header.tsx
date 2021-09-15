@@ -10,7 +10,7 @@ import {
 import React, { useState } from 'react';
 import Drawer from './Drawer';
 import { Logo } from '@src/components/icons/Logo';
-
+import { WalletConnection } from '@src/components/common/WalletConnection';
 interface HeaderProps {
   onDrawerStateChanged?: (open: boolean) => void;
 }
@@ -36,7 +36,7 @@ function Header({ onDrawerStateChanged }: HeaderProps) {
         <HorizontalFlex
           padding="24px 0"
           maxWidth="90%"
-          width="1200px"
+          width="1280px"
           justify="space-between"
           align="center"
         >
@@ -50,6 +50,7 @@ function Header({ onDrawerStateChanged }: HeaderProps) {
           ) : (
             <HorizontalFlex align={'center'} position="relative">
               <Menu />
+              <WalletConnection />
             </HorizontalFlex>
           )}
         </HorizontalFlex>

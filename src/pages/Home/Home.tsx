@@ -13,6 +13,7 @@ import { WalletHomeRecentTxs } from '../Wallet/WalletHomeRecentTxs';
 import { WalletPortfolio } from '../Wallet/WalletPortfolio';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
+import { AccountSelector } from '@src/components/common/AccountSelector';
 
 const TABS_BOTTOM_PADDING = 30;
 
@@ -29,7 +30,7 @@ function HomeSideBar() {
   }
 
   return (
-    <VerticalFlex flex={1} padding={`${TABS_BOTTOM_PADDING}px 0 0 0`}>
+    <VerticalFlex flex={1} margin={`${TABS_BOTTOM_PADDING}px 0 0 0`}>
       <Card>
         <Tabs defaultIndex={showSend ? 0 : 1}>
           <TabList>
@@ -58,20 +59,23 @@ function HomeSideBar() {
 export function Home() {
   return (
     <Tabs>
-      <TabList $border={false}>
-        <Tab $highlight={false}>
-          <Typography color={'inherit'}>Portfolio</Typography>
-        </Tab>
-        <Tab $highlight={false}>
-          <Typography color={'inherit'}>Buy</Typography>
-        </Tab>
-        <Tab $highlight={false}>
-          <Typography color={'inherit'}>Earn</Typography>
-        </Tab>
-        <Tab $highlight={false}>
-          <Typography color={'inherit'}>Studio</Typography>
-        </Tab>
-      </TabList>
+      <HorizontalFlex align={'center'} justify={'space-between'}>
+        <TabList $border={false}>
+          <Tab $highlight={false}>
+            <Typography color={'inherit'}>Portfolio</Typography>
+          </Tab>
+          <Tab $highlight={false}>
+            <Typography color={'inherit'}>Buy</Typography>
+          </Tab>
+          <Tab $highlight={false}>
+            <Typography color={'inherit'}>Earn</Typography>
+          </Tab>
+          <Tab $highlight={false}>
+            <Typography color={'inherit'}>Studio</Typography>
+          </Tab>
+        </TabList>
+        <AccountSelector />
+      </HorizontalFlex>
       <HorizontalFlex>
         <VerticalFlex flex={3} margin={`${TABS_BOTTOM_PADDING}px 10px 0 0`}>
           <TabPanel>

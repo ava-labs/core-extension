@@ -39,7 +39,7 @@ function Erc20TokenItem({ token }: { token: ERC20 }) {
 }
 
 export function WalletSendToken() {
-  const { search, pathname } = useLocation();
+  const { pathname } = useLocation();
   const history = useHistory();
   const tokensWBalances = useTokensWithBalances();
   const selectedToken = useTokenFromParams(tokensWBalances);
@@ -77,24 +77,26 @@ export function WalletSendToken() {
         <AvaxTokenItem />
       </DropDownMenuItem>
 
-      {tokensWBalances?.map((token) => {
-        return (
-          <DropDownMenuItem
-            key={token.name}
-            onClick={() =>
-              history.push({
-                pathname: pathname,
-                search: `?${new URLSearchParams({
-                  token: token.symbol,
-                  type: TransactionSendType.ERC20,
-                }).toString()}`,
-              })
-            }
-          >
-            {isERC20Token(token) ? <Erc20TokenItem token={token} /> : ''}
-          </DropDownMenuItem>
-        );
-      })}
+      {tokensWBalances
+        ?.filter((token) => isERC20Token(token))
+        .map((token) => {
+          return (
+            <DropDownMenuItem
+              key={token.name}
+              onClick={() =>
+                history.push({
+                  pathname: pathname,
+                  search: `?${new URLSearchParams({
+                    token: token.symbol,
+                    type: TransactionSendType.ERC20,
+                  }).toString()}`,
+                })
+              }
+            >
+              {isERC20Token(token) ? <Erc20TokenItem token={token} /> : ''}
+            </DropDownMenuItem>
+          );
+        })}
     </DropDownMenu>
   );
 }

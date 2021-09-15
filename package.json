@@ -62,7 +62,7 @@
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "0.9.4",
     "@avalabs/react-components": "^1.10.0",
-    "@avalabs/wallet-react-components": "0.1.6",
+    "@avalabs/wallet-react-components": "0.1.7",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
     "@pangolindex/exchange-contracts": "^1.0.1",
@@ -93,6 +93,7 @@
     "react-router-dom": "^5.2.0",
     "react-test-renderer": "^17.0.2",
     "react-tabs": "^3.2.2",
+    "react-modal": "^3.14.3",
     "rxjs": "^7.3.0",
     "store": "^2.0.12",
     "styled-components": "^5.2.3",
