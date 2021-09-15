@@ -14,7 +14,7 @@ export function useTokenFromParams(tokensWBalances: TokenWithBalance[]) {
     const targetToken = [AVAX_TOKEN, ...tokensWBalances]?.find(
       (availToken) => availToken.symbol === token
     );
-    targetToken && setSelectedToken(targetToken);
+    targetToken && setSelectedToken(targetToken as TokenWithBalance);
   }, [search, tokensWBalances]);
   return selectedToken || AVAX_TOKEN;
 }

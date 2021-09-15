@@ -13,6 +13,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { TransactionSendType } from '@src/pages/Send/models';
 import {
   AVAX_TOKEN,
+  isERC20Token,
   useTokensWithBalances,
 } from '@src/hooks/useTokensWithBalances';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
@@ -53,10 +54,10 @@ export function WalletSendToken() {
       icon={
         <SecondaryCard padding="10px" width="100%">
           <HorizontalFlex align={'center'} padding={'0 0 0 20px'}>
-            {selectedToken.isAvax ? (
-              <AvaxTokenItem />
+            {isERC20Token(selectedToken) ? (
+              <Erc20TokenItem token={selectedToken} />
             ) : (
-              <Erc20TokenItem token={selectedToken as ERC20} />
+              <AvaxTokenItem />
             )}
           </HorizontalFlex>
         </SecondaryCard>
@@ -90,7 +91,7 @@ export function WalletSendToken() {
               })
             }
           >
-            <Erc20TokenItem token={token as ERC20} />
+            {isERC20Token(token) ? <Erc20TokenItem token={token} /> : ''}
           </DropDownMenuItem>
         );
       })}

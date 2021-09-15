@@ -6,23 +6,24 @@ import {
   GridContainerItems,
   GridLineSeparator,
 } from '@avalabs/react-components';
-import styled from 'styled-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
 import { TokenImg } from '@src/components/common/TokenImage';
 import { useHistory, useLocation } from 'react-router-dom';
 import { TransactionSendType } from '../Send/models';
-
-const bnZero = new BN(0);
+import {
+  isAvaxToken,
+  isERC20Token,
+  useTokensWithBalances,
+} from '@src/hooks/useTokensWithBalances';
 
 export function Erc20TokenList() {
-  const { erc20Tokens } = useWalletContext();
+  const tokensWithBalances = useTokensWithBalances();
   const { pathname } = useLocation();
   const history = useHistory();
 
   return (
-    <GridContainer columnGap={0} columns={4} rowGap={0}>
+    <GridContainer columnGap={0} columns={4} rowGap={0} padding={'0 15px'}>
       <GridContainerItems>
         <Typography size={14}>Name</Typography>
         <Typography size={14}>Balance</Typography>
@@ -30,11 +31,11 @@ export function Erc20TokenList() {
         <Typography size={14}>24h. Change</Typography>
       </GridContainerItems>
       <GridLineSeparator columns={4} />
-      {erc20Tokens
-        ?.filter((token) => token.balance.gt(bnZero))
+      {tokensWithBalances
+        ?.filter((token) => !isAvaxToken(token))
         .map((token) => (
           <GridContainerItems
-            key={token.address}
+            key={isERC20Token(token) ? token.address : ''}
             onClick={() =>
               history.push({
                 pathname: pathname,
@@ -49,9 +50,7 @@ export function Erc20TokenList() {
               <TokenImg src={token.logoURI} />
             </HorizontalFlex>
             <HorizontalFlex width="100%">
-              <Typography>
-                {parseFloat(token.balanceParsed).toFixed(3)}
-              </Typography>
+              <Typography>{token.balanceDisplayValue}</Typography>
             </HorizontalFlex>
             <HorizontalFlex padding={'0 0 0 20px'}>
               <FavStarIcon />
