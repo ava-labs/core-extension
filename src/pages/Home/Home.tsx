@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { AccountSelector } from '@src/components/common/AccountSelector';
 
 const TABS_BOTTOM_PADDING = 30;
+const SIDEBAR_WIDTH = 391;
 
 function HomeSideBar() {
   const tokensWithBalances = useTokensWithBalances();
@@ -30,7 +31,11 @@ function HomeSideBar() {
   }
 
   return (
-    <VerticalFlex flex={1} margin={`${TABS_BOTTOM_PADDING}px 0 0 0`}>
+    <VerticalFlex
+      flex={1}
+      margin={`${TABS_BOTTOM_PADDING}px 0 0 0`}
+      style={{ width: `${SIDEBAR_WIDTH}px`, minWidth: `${SIDEBAR_WIDTH}px` }}
+    >
       <Card>
         <Tabs defaultIndex={showSend ? 0 : 1}>
           <TabList>

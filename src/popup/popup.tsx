@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { WalletPortfolio } from '@src/pages/Wallet/WalletPortfolio';
 import Header from '@src/components/common/Header/Header';
 import { Footer } from '@src/components/common/Footer';
 import {

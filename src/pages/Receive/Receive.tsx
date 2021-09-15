@@ -36,13 +36,24 @@ export const Receive = () => {
   return (
     <VerticalFlex width={'100%'} align={'center'}>
       <br />
-      <Typography>Select Chain to 'Receive' your coin</Typography>
+      <Typography size={14}>
+        This is your{' '}
+        <Typography color={theme.colors.secondary}>{chain} chain</Typography>{' '}
+        address to receive funds.
+      </Typography>
+      {chain === 'X' ? (
+        <Typography size={14}>
+          Your address will change after every deposit.
+        </Typography>
+      ) : (
+        ''
+      )}
       <br />
       <SlideSelector
         onChange={(value) => setChain(value)}
         items={[
-          { label: 'X Chain', value: 'X' },
           { label: 'C Chain', value: 'C' },
+          { label: 'X Chain', value: 'X' },
         ]}
       />
 
