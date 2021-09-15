@@ -38,37 +38,42 @@ export function WalletHomeBalances() {
         <VerticalFlex flex={2}>
           <SubTextTypography margin={'0 0 5px 0'}>Balance</SubTextTypography>
           <Typography size={36}>
-            ${avaxToken?.balanceUsdDisplayValue} USD
+            ~{avaxToken?.balanceUsdDisplayValue} USD
           </Typography>
         </VerticalFlex>
-
-        <VerticalFlex flex={1}>
-          <Typography size={14} margin={'0 0 10px 0'}>
-            Asset Allocation
-          </Typography>
-          <HorizontalFlex align={'center'}>
-            <GridContainer
-              columnGap={0}
-              columns={2}
-              rowGap={0}
-              padding={'0 0 0 0'}
-            >
-              <GridContainerItems>
-                {tokensWBalances.map((token) => (
-                  <HorizontalFlex key={token.symbol}>
-                    <BeadIcon color={token.color} height={'12px'} />
-                    <Typography margin={'0 0 0 5px'} size={14}>
-                      {token?.balanceDisplayValue} {token.symbol}
-                    </Typography>
-                  </HorizontalFlex>
-                ))}
-              </GridContainerItems>
-            </GridContainer>
+        {tokensWBalances?.length ? (
+          <HorizontalFlex flex={2}>
+            <VerticalFlex flex={1}>
+              <Typography size={14} margin={'0 0 10px 0'}>
+                Asset Allocation
+              </Typography>
+              <HorizontalFlex align={'center'}>
+                <GridContainer
+                  columnGap={0}
+                  columns={2}
+                  rowGap={0}
+                  padding={'0 0 0 0'}
+                >
+                  <GridContainerItems>
+                    {tokensWBalances.map((token) => (
+                      <HorizontalFlex key={token.symbol}>
+                        <BeadIcon color={token.color} height={'12px'} />
+                        <Typography margin={'0 0 0 5px'} size={14}>
+                          {token?.balanceDisplayValue} {token.symbol}
+                        </Typography>
+                      </HorizontalFlex>
+                    ))}
+                  </GridContainerItems>
+                </GridContainer>
+              </HorizontalFlex>
+            </VerticalFlex>
+            <HorizontalFlex flex={1} justify={'center'} align={'center'}>
+              <GraphRingIcon />
+            </HorizontalFlex>
           </HorizontalFlex>
-        </VerticalFlex>
-        <HorizontalFlex flex={1}>
-          <GraphRingIcon />
-        </HorizontalFlex>
+        ) : (
+          ''
+        )}
       </HorizontalFlex>
     </Card>
   );
