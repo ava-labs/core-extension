@@ -5,8 +5,8 @@ import {
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 
 export function sendAvaxValidateRequest(
-  amount: BN,
-  address: string
+  amount?: BN,
+  address?: string
 ): Omit<ExtensionConnectionMessage, 'id'> {
   return {
     method: ExtensionRequest.SEND_AVAX_VALIDATE,

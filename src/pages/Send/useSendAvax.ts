@@ -7,52 +7,55 @@ import { sendAvaxResetRequest } from '@src/background/services/sendAvax/utils/se
 import { sendAvaxSubmitRequest } from '@src/background/services/sendAvax/utils/sendAvaxSubmitRequest';
 
 export function useSendAvax() {
-  const [sendAvaxState, setSendAvaxState] = useState<SendAvaxState>();
+  const [sendAvaxState, setSendAvaxState] = useState<
+    SendAvaxState & { error: { message: string } }
+  >();
   const [txId, setTxId] = useState<string>();
   const { request } = useConnectionContext();
 
   function parseAndSetState(state: SendAvaxState) {
     const parsedState = {
       ...state,
-      amount: new BN(state.amount || 0),
+      amount:
+        state?.amount || sendAvaxState?.amount
+          ? new BN(state?.amount || sendAvaxState?.amount || 0)
+          : undefined,
+      error: state.error ? { message: state.error } : undefined,
     };
 
-    setSendAvaxState(parsedState);
+    setSendAvaxState(parsedState as any);
     return parsedState;
   }
 
   return {
     ...sendAvaxState,
     txId,
-    setAmount(amount: BN) {
-      return request(
-        sendAvaxValidateRequest(amount, sendAvaxState?.address as string)
-      )
-        .then((response) => response.result)
-        .then(parseAndSetState);
-    },
-    setAddress(address: string) {
-      return request(
-        sendAvaxValidateRequest(sendAvaxState?.amount as BN, address)
-      )
-        .then((response) => response.result)
-        .then(parseAndSetState);
+    setValues(amount?: BN, address?: string) {
+      return request(sendAvaxValidateRequest(amount, address))
+        .then(parseAndSetState)
+        .catch((error: string) => {
+          setSendAvaxState({
+            ...sendAvaxState,
+            error: { message: error },
+          } as any);
+        });
     },
     reset() {
-      return request(sendAvaxResetRequest())
-        .then((response) => response.result)
-        .then((state) => setSendAvaxState(state));
+      return request(sendAvaxResetRequest()).then((state) =>
+        parseAndSetState(state)
+      );
     },
     submit() {
-      request(
+      return request(
         sendAvaxSubmitRequest(
           sendAvaxState?.amount as BN,
           sendAvaxState?.targetChain as ChainIdType,
           sendAvaxState?.address as string
         )
-      )
-        .then((response) => response.result)
-        .then((hash) => setTxId(hash));
+      ).then((hash) => {
+        setTxId(hash);
+        return hash;
+      });
     },
   };
 }

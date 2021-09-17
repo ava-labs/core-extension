@@ -8,68 +8,134 @@ import {
   SubTextTypography,
   SecondaryButton,
 } from '@avalabs/react-components';
-import React from 'react';
+import React, { ChangeEvent, useMemo } from 'react';
 import { useSendAvax } from './useSendAvax';
-import { SendTransactionsList } from './SendTransactionsList';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { getAvaxBalanceUSD } from '../Wallet/utils/balanceHelpers';
 import { SendAvaxConfirm } from './SendAvaxConfirm';
 import { useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { useEffect, useRef, forwardRef } from 'react';
+import {
+  SendAvaxFormError,
+  VerifyPChainError,
+} from '@avalabs/wallet-react-components';
+import debounce from 'lodash.debounce';
+import {
+  getAvaxBalanceTotal,
+  getAvaxBalanceUSD,
+} from '../Wallet/utils/balanceHelpers';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function SendAvaxForm() {
-  const { balances, avaxPrice } = useWalletContext();
   const {
     targetChain,
     txId,
+    setValues,
     error,
     canSubmit,
-    setAmount,
-    setAddress,
     amount,
     address,
     submit,
     reset,
+    sendFee,
     txs,
   } = useSendAvax();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [addressInput, setAddressInput] = useState('');
+  const [amountInput, setAmountInput] = useState(new BN(0));
+  const [amountError, setAmountError] = useState({ error: false, message: '' });
+  const [addressError, setAddressError] = useState({
+    error: false,
+    message: '',
+  });
+  const { avaxPrice } = useWalletContext();
+
+  function resetForm() {
+    setAddressInput('');
+    setAmountInput(undefined as any);
+  }
+
+  useEffect(() => {
+    if (
+      error &&
+      [
+        SendAvaxFormError.INVALID_ADDRESS,
+        SendAvaxFormError.ADDRESS_REQUIRED,
+        SendAvaxFormError.P_CHAIN_ADDRESS,
+        VerifyPChainError.INVALID_ADDRESS,
+      ].includes(error.message as any)
+    ) {
+      setAddressError({ error: true, message: error.message });
+    } else if (
+      error &&
+      [
+        SendAvaxFormError.INSUFFICIENT_BALANCE,
+        SendAvaxFormError.AMOUNT_REQUIRED,
+      ].includes(error.message as any)
+    ) {
+      setAmountError({ error: true, message: error.message });
+    } else if (!error) {
+      setAddressError({ error: false, message: '' });
+      setAmountError({ error: false, message: '' });
+    }
+  }, [error]);
+
+  const setValuesDebounced = useMemo(
+    () =>
+      debounce((amount: BN, address: string) => {
+        if (amount && !amount.isZero() && address) {
+          setValues(amount, address);
+        }
+      }, 200),
+    []
+  );
+
+  useEffect(() => {
+    setValuesDebounced(amountInput, addressInput);
+  }, [amountInput, addressInput]);
 
   return (
     <VerticalFlex width={'100%'}>
       <br />
       <VerticalFlex>
-        <Typography size={14} margin={'0 0 5px 0'}>
-          Amount
-        </Typography>
         <BNInput
-          value={amount as any}
+          value={amountInput as any}
+          label={'Amount'}
+          error={amountError.error}
+          errorMessage={amountError.message}
           placeholder="Enter the amount"
           denomination={9}
-          onChange={(bigAmount) => setAmount(bigAmount)}
+          onChange={setAmountInput}
         />
-        <HorizontalFlex
-          width={'100%'}
-          justify={'space-between'}
-          align={'center'}
-          margin={'5px 0 0 0'}
-        >
-          <Typography size={14}>$0</Typography>
-          <SubTextTypography size={14}>
-            Transaction fee: 0.001 AVAX
-          </SubTextTypography>
-        </HorizontalFlex>
+        {!amountError.error ? (
+          <HorizontalFlex
+            width={'100%'}
+            justify={'space-between'}
+            align={'center'}
+            margin={'8px 0 0 0'}
+          >
+            <Typography size={14}>
+              ${getAvaxBalanceUSD(amount || new BN(0), avaxPrice)}
+            </Typography>
+            <SubTextTypography size={14}>
+              Transaction fee: {getAvaxBalanceTotal(sendFee || new BN(0))} AVAX
+            </SubTextTypography>
+          </HorizontalFlex>
+        ) : (
+          ''
+        )}
       </VerticalFlex>
       <br />
-      <VerticalFlex>
-        <Typography size={14} margin={'0 0 5px 0'}>
-          Address
-        </Typography>
-        <Input
-          value={address}
-          placeholder="Enter the address"
-          onChange={(e) => setAddress(e.currentTarget.value)}
-        />
-      </VerticalFlex>
+
+      <Input
+        label={'Address'}
+        value={addressInput as any}
+        error={addressError.error}
+        errorMessage={addressError.message}
+        placeholder="Enter the address"
+        onChange={(e) =>
+          setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
+        }
+      />
       <br />
       <br />
       <br />
@@ -81,10 +147,16 @@ export function SendAvaxForm() {
         fee={10}
         extraTxs={txs as any}
         amountUsd={'0'}
-        onConfirm={submit}
+        onConfirm={() => submit().then(() => resetForm())}
       />
       <VerticalFlex width={'100%'} align={'center'}>
-        <SecondaryButton onClick={reset}>Reset</SecondaryButton>
+        <SecondaryButton
+          onClick={() => {
+            reset().then(() => resetForm());
+          }}
+        >
+          Reset
+        </SecondaryButton>
         <br />
         <PrimaryButton
           onClick={() => setShowConfirmation(true)}

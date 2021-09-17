@@ -61,8 +61,8 @@
   },
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "0.9.4",
-    "@avalabs/react-components": "^1.10.0",
-    "@avalabs/wallet-react-components": "0.1.7",
+    "@avalabs/react-components": "^1.12.0",
+    "@avalabs/wallet-react-components": "0.1.10",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
     "@pangolindex/exchange-contracts": "^1.0.1",
@@ -81,6 +81,7 @@
     "i18next": "^20.2.1",
     "i18next-browser-languagedetector": "^6.1.0",
     "loglevel": "^1.7.1",
+    "lodash.debounce": "4.0.8",
     "node-polyfill-webpack-plugin": "^1.1.1",
     "obj-multiplex": "^1.0.0",
     "pump": "^3.0.0",
