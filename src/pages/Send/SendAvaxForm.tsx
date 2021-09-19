@@ -14,10 +14,7 @@ import { SendAvaxConfirm } from './SendAvaxConfirm';
 import { useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { useEffect, useRef, forwardRef } from 'react';
-import {
-  SendAvaxFormError,
-  VerifyPChainError,
-} from '@avalabs/wallet-react-components';
+import { useSendAvaxFormErrors } from '@avalabs/wallet-react-components';
 import debounce from 'lodash.debounce';
 import {
   getAvaxBalanceTotal,
@@ -42,42 +39,13 @@ export function SendAvaxForm() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
-  const [amountError, setAmountError] = useState({ error: false, message: '' });
-  const [addressError, setAddressError] = useState({
-    error: false,
-    message: '',
-  });
+  const { amountError, addressError } = useSendAvaxFormErrors(error);
   const { avaxPrice } = useWalletContext();
 
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
   }
-
-  useEffect(() => {
-    if (
-      error &&
-      [
-        SendAvaxFormError.INVALID_ADDRESS,
-        SendAvaxFormError.ADDRESS_REQUIRED,
-        SendAvaxFormError.P_CHAIN_ADDRESS,
-        VerifyPChainError.INVALID_ADDRESS,
-      ].includes(error.message as any)
-    ) {
-      setAddressError({ error: true, message: error.message });
-    } else if (
-      error &&
-      [
-        SendAvaxFormError.INSUFFICIENT_BALANCE,
-        SendAvaxFormError.AMOUNT_REQUIRED,
-      ].includes(error.message as any)
-    ) {
-      setAmountError({ error: true, message: error.message });
-    } else if (!error) {
-      setAddressError({ error: false, message: '' });
-      setAmountError({ error: false, message: '' });
-    }
-  }, [error]);
 
   const setValuesDebounced = useMemo(
     () =>

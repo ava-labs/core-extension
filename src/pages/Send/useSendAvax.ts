@@ -20,7 +20,6 @@ export function useSendAvax() {
         state?.amount || sendAvaxState?.amount
           ? new BN(state?.amount || sendAvaxState?.amount || 0)
           : undefined,
-      error: state.error ? { message: state.error } : undefined,
     };
 
     setSendAvaxState(parsedState as any);
