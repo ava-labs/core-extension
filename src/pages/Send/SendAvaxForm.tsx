@@ -8,12 +8,12 @@ import {
   SubTextTypography,
   SecondaryButton,
 } from '@avalabs/react-components';
-import React, { ChangeEvent, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useSendAvax } from './useSendAvax';
 import { SendAvaxConfirm } from './SendAvaxConfirm';
 import { useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
-import { useEffect, useRef, forwardRef } from 'react';
+import { useEffect } from 'react';
 import { useSendAvaxFormErrors } from '@avalabs/wallet-react-components';
 import debounce from 'lodash.debounce';
 import {
@@ -95,7 +95,7 @@ export function SendAvaxForm() {
       <br />
 
       <Input
-        label={'Address'}
+        label={'To'}
         value={addressInput as any}
         error={addressError.error}
         errorMessage={addressError.message}

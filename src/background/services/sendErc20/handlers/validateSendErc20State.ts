@@ -68,7 +68,7 @@ async function validateSendErc20State(request: ExtensionConnectionMessage) {
     checkAndValidateSendErc20(
       token,
       gasPrice$ as Observable<{ bn: BN }>,
-      of(amount) as Subject<BN>,
+      of(new BN(amount)) as Subject<BN>,
       of(address) as Subject<string>,
       of(balances) as Subject<typeof balances>,
       wallet$

@@ -9,6 +9,6 @@ export function sendErc20ResetRequest(
 ): Omit<ExtensionConnectionMessage, 'id'> {
   return {
     method: ExtensionRequest.SEND_ERC20_RESET,
-    params: [],
+    params: [token],
   };
 }

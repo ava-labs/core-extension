@@ -14,7 +14,7 @@ export function useSendErc20(token: ERC20) {
   function parseAndSetState(state: SendErc20State) {
     const parsedState = {
       ...state,
-      amount: new BN(state.amount || 0),
+      amount: new BN(state.amount || sendErc20State?.amount || 0),
     };
 
     setSendErc20State(parsedState);
@@ -25,27 +25,10 @@ export function useSendErc20(token: ERC20) {
     ...sendErc20State,
     txId,
     token,
-    setAmount(amount: BN) {
-      return request(
-        sendErc20ValidateRequest(
-          amount,
-          token,
-          sendErc20State?.address as string
-        )
-      )
-        .then((response) => response.result)
-        .then(parseAndSetState);
-    },
-    setAddress(address: string) {
-      return request(
-        sendErc20ValidateRequest(
-          sendErc20State?.amount as BN,
-          token,
-          address as string
-        )
-      )
-        .then((response) => response.result)
-        .then(parseAndSetState);
+    setValues(amount: BN, address: string) {
+      return request(sendErc20ValidateRequest(amount, token, address)).then(
+        parseAndSetState
+      );
     },
     reset() {
       return request(sendErc20ResetRequest(token)).then((response) =>

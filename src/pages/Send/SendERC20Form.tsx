@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSendErc20 } from './useSendErc20';
 import {
   Typography,
@@ -12,13 +12,14 @@ import {
 import { ERC20 } from './models';
 import { SendErc20Confirm } from './SendErc20Confirm';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
+import debounce from 'lodash.debounce';
+import { useErc20FormErrors } from '@avalabs/wallet-react-components';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {
   const {
     address,
-    setAddress,
+    setValues,
     amount,
-    setAmount,
     gasPrice,
     gasLimit,
     txId,
@@ -29,29 +30,54 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
     sendFeeDisplayValue,
   } = useSendErc20(token);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [addressInput, setAddressInput] = useState('');
+  const [amountInput, setAmountInput] = useState(new BN(0));
+  const { addressError, amountError } = useErc20FormErrors(error);
+  console.log(addressError, amountError);
+  function resetForm() {
+    setAddressInput('');
+    setAmountInput(undefined as any);
+  }
+
+  const setValuesDebounced = useMemo(
+    () =>
+      debounce((amount: BN, address: string) => {
+        if (amount && !amount.isZero() && address) {
+          setValues(amount, address);
+        }
+      }, 200),
+    []
+  );
+
+  useEffect(() => {
+    setValuesDebounced(amountInput, addressInput);
+  }, [amountInput, addressInput]);
 
   return (
     <VerticalFlex>
       <br />
       <br />
-
-      <VerticalFlex width={'100%'}>
-        <Typography margin={'0 0 5px 0'}>Amount</Typography>
-        <BNInput
-          value={amount as any}
-          denomination={token.denomination}
-          onChange={setAmount}
-        ></BNInput>
-      </VerticalFlex>
+      <BNInput
+        value={amountInput as any}
+        label={'Amount'}
+        error={amountError.error}
+        errorMessage={amountError.message}
+        placeholder="Enter the amount"
+        denomination={token.denomination}
+        onChange={setAmountInput}
+      />
       <br />
 
-      <VerticalFlex width={'100%'}>
-        <Typography margin={'0 0 5px 0'}>To</Typography>
-        <Input
-          value={address}
-          onChange={(e) => setAddress(e.currentTarget.value)}
-        ></Input>
-      </VerticalFlex>
+      <Input
+        label={'To'}
+        value={addressInput as any}
+        error={addressError.error}
+        errorMessage={addressError.message}
+        placeholder="Enter the address"
+        onChange={(e) =>
+          setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
+        }
+      />
       <br />
 
       <HorizontalFlex width={'100%'} justify={'space-between'}>
@@ -84,9 +110,18 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
         token={token}
       />
       <VerticalFlex width={'100%'} align={'center'}>
-        <SecondaryButton onClick={reset}>Reset</SecondaryButton>
+        <SecondaryButton
+          onClick={() => {
+            reset().then(() => resetForm());
+          }}
+        >
+          Reset
+        </SecondaryButton>
         <br />
-        <PrimaryButton onClick={() => setShowConfirmation(true)}>
+        <PrimaryButton
+          onClick={() => setShowConfirmation(true)}
+          disabled={!canSubmit}
+        >
           Continue
         </PrimaryButton>
       </VerticalFlex>
