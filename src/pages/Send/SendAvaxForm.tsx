@@ -84,9 +84,14 @@ export function SendAvaxForm() {
             <Typography size={14}>
               ${getAvaxBalanceUSD(amount || new BN(0), avaxPrice)}
             </Typography>
-            <SubTextTypography size={14}>
-              Transaction fee: {getAvaxBalanceTotal(sendFee || new BN(0))} AVAX
-            </SubTextTypography>
+            {targetChain === 'X' ? (
+              <SubTextTypography size={14}>
+                Transaction fee: {getAvaxBalanceTotal(sendFee || new BN(0))}{' '}
+                AVAX
+              </SubTextTypography>
+            ) : (
+              ''
+            )}
           </HorizontalFlex>
         ) : (
           ''
