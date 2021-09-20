@@ -33,7 +33,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
   const { addressError, amountError } = useErc20FormErrors(error);
-  console.log(addressError, amountError);
+
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
