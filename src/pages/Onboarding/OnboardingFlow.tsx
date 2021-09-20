@@ -11,12 +11,12 @@ import { Logo } from '@src/components/icons/Logo';
 
 export function OnboardingFlow() {
   const { onboardingPhase, setNextPhase } = useOnboardingContext();
- 
+
   async function handleOnCancel() {
     await setNextPhase(OnboardingPhase.RESTART);
   }
 
-  let content = <Welcome />
+  let content = <Welcome />;
   switch (onboardingPhase) {
     case OnboardingPhase.CREATE_WALLET:
       content = <CreateWallet onCancel={handleOnCancel} />;
@@ -33,8 +33,13 @@ export function OnboardingFlow() {
   }
 
   return (
-    <VerticalFlex align="center" style={{minHeight: `100%`}}>
-      <HorizontalFlex style={{maxWidth: `90%`}} padding="24px 0" width="1200px" align="center">
+    <VerticalFlex align="center" style={{ minHeight: `100%` }}>
+      <HorizontalFlex
+        style={{ maxWidth: `90%` }}
+        padding="24px 0"
+        width="1200px"
+        align="center"
+      >
         <Logo />
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
@@ -43,8 +48,7 @@ export function OnboardingFlow() {
         </Card>
       </VerticalFlex>
     </VerticalFlex>
-  )
-
+  );
 }
 
 export default OnboardingFlow;

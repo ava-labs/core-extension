@@ -26,23 +26,30 @@ export function Welcome() {
   const { setNextPhase } = useOnboardingContext();
 
   return (
-    <VerticalFlex width="100%" align='center' padding='72px 0 22px' justify="space-between">
-      <VerticalFlex align='center'>
-        <Typography as="h1" size={24} weight="bold">Welcome!</Typography>
+    <VerticalFlex
+      width="100%"
+      align="center"
+      padding="72px 0 22px"
+      justify="space-between"
+    >
+      <VerticalFlex align="center">
+        <Typography as="h1" size={24} weight="bold">
+          Welcome!
+        </Typography>
         <IllustrationPlaceholder>
           <Typography>Illustration</Typography>
         </IllustrationPlaceholder>
       </VerticalFlex>
-      <VerticalFlex align='center'>
+      <VerticalFlex align="center">
         <PrimaryButton
-          margin="24px 0" 
+          margin="24px 0"
           onClick={() => {
             setNextPhase(OnboardingPhase.CREATE_WALLET);
           }}
         >
           Create a new wallet
         </PrimaryButton>
-  
+
         <SecondaryButton
           onClick={() => {
             setNextPhase(OnboardingPhase.IMPORT_WALLET);

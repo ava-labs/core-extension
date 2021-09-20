@@ -7,7 +7,6 @@ module.exports = {
     backgroundPage: path.join(__dirname, 'src/backgroundPage.ts'),
     popup: path.join(__dirname, 'src/popup/index.tsx'),
     contentscript: path.join(__dirname, 'src/contentscript.ts'),
-    inpage: path.join(__dirname, 'src/inpage.js'),
   },
   output: {
     path: path.join(__dirname, 'dist/js'),
@@ -29,7 +28,7 @@ module.exports = {
       // prevent having 2 concurrent copies of react when linking a lib with react as dev dependency
       react: path.resolve('./node_modules/react'),
       'react-dom': path.resolve('./node_modules/react-dom'),
-      'styled-components': path.resolve('./node_modules/styled-components')
+      'styled-components': path.resolve('./node_modules/styled-components'),
     },
     symlinks: false,
   },
@@ -41,7 +40,6 @@ module.exports = {
         { from: 'src/index.html', to: '../home.html' },
         { from: 'src/manifest.json', to: '../manifest.json' },
         { from: 'src/images', to: '../images' },
-        { from: '*.woff2', to: '../', context: "node_modules/@avalabs/react-components/lib" },
       ],
       options: {
         concurrency: 100,

@@ -1,103 +1,78 @@
-import { useEffect, useState } from 'react';
-import { AddressHelper, BN, Utils } from '@avalabs/avalanche-wallet-sdk';
-import { AssetBalanceX, WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { UniversalTx } from '@avalabs/avalanche-wallet-sdk/dist/helpers/universal_tx_helper';
+import { useState } from 'react';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
+import { SendAntState } from '@avalabs/wallet-react-components';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { sendAntValidateRequest } from '@src/background/services/sendAnt/utils/sendAntValidateRequest';
+import { sendAntResetRequest } from '@src/background/services/sendAnt/utils/sendAntResetRequest';
+import { sendAntSubmitRequest } from '@src/background/services/sendAnt/utils/sendAntSubmitRequest';
 
-export function useSendAnt(wallet: WalletType, token: AssetBalanceX) {
-  const [amount, setAmount] = useState<BN | undefined>();
-  const [address, setAddress] = useState('');
-  const [error, setError] = useState('');
-  const [canSubmit, setCanSubmit] = useState(false);
+export function useSendAnt(token: AssetBalanceX) {
+  const [sendAntState, setSendAntState] = useState<SendAntState>();
+  const [txId, setTxId] = useState<string>();
+  const { request } = useConnectionContext();
 
-  // Might need to move AVAX
-  const [extraTxs, setExtraTxs] = useState<UniversalTx[]>([]);
-  const [sendFee, setSendFee] = useState(Utils.getTxFeeX());
-  const [extraFees, setExtraFees] = useState(Utils.getTxFeeX());
+  function parseAndSetState(state: SendAntState) {
+    const { amount } = state;
 
-  const [txId, setTxId] = useState('');
+    const parsedState = {
+      ...state,
+      amount: new BN(amount || 0),
+    };
 
-  // Calculate internal transactions, move AVAX between chains
-  useEffect(() => {
-    const txs = wallet.getTransactionsForBalance('X', sendFee);
-    setExtraTxs(txs);
-  }, [sendFee]);
+    setSendAntState(parsedState);
 
-  useEffect(() => {
-    const fee = extraTxs.map((tx) => Utils.getTxFeeX());
-  }, [extraTxs]);
-
-  function formCheck() {
-    if (typeof amount === 'undefined' || !address) {
-      setCanSubmit(false);
-      setError('');
-      return;
-    }
-
-    // Check if valid address
-    if (!AddressHelper.validateAddress(address)) {
-      setError('Invalid address.');
-      setCanSubmit(false);
-      return;
-    }
-
-    // Check if correct chain
-    if (AddressHelper.getAddressChain(address) !== 'X') {
-      setError('Address belongs to the wrong chain.');
-      setCanSubmit(false);
-      return;
-    }
-
-    // Not enough AVAX
-    if (!wallet.canHaveBalanceOnChain('X', sendFee)) {
-      setError('Insufficient AVAX balance to cover the fees.');
-      setCanSubmit(false);
-      return;
-    }
-
-    // Is balance greater than 0
-    if (amount.isZero()) {
-      setError('Amount must be greater than 0.');
-      setCanSubmit(false);
-      return;
-    }
-
-    if (amount.gt(token.unlocked)) {
-      setError('Insufficient balance for this transaction.');
-      setCanSubmit(false);
-      return;
-    }
-
-    setError('');
-    setCanSubmit(true);
-  }
-
-  useEffect(() => {
-    formCheck();
-  }, [amount, address]);
-
-  async function submit() {
-    const txID = await wallet.sendANT(token.meta.assetID, amount!, address);
-    setTxId(txID);
-  }
-
-  function reset() {
-    setAddress('');
-    setAmount(undefined);
-    setCanSubmit(false);
-    setTxId('');
+    return parsedState;
   }
 
   return {
-    amount,
-    address,
-    submit,
-    reset,
-    error,
-    canSubmit,
-    sendFee,
+    ...sendAntState,
+    token,
     txId,
-    setAddress,
-    setAmount,
-    extraTxs,
+    setAmount(amount: number) {
+      return request(
+        sendAntValidateRequest(
+          new BN(amount),
+          sendAntState?.address as string,
+          token
+        )
+      )
+        .then((response) => response.result)
+        .then(parseAndSetState);
+    },
+    setAddress(address: string) {
+      return request(
+        sendAntValidateRequest(
+          sendAntState?.amount ? new BN(sendAntState?.amount) : new BN(0),
+          address,
+          token
+        )
+      )
+        .then((response) => response.result)
+        .then(parseAndSetState);
+    },
+    reset() {
+      return request(sendAntResetRequest())
+        .then((response) => response.result)
+        .then((result) => {
+          setSendAntState(result);
+          return result;
+        });
+    },
+    submit() {
+      if (!sendAntState) {
+        return Promise.reject('send ant state undefined');
+      }
+
+      return request(
+        sendAntSubmitRequest(
+          new BN(sendAntState?.amount),
+          sendAntState?.address,
+          sendAntState?.token
+        )
+      )
+        .then((response) => response.result)
+        .then((result) => setTxId(result));
+    },
   };
 }

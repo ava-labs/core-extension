@@ -1,18 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { WalletHome } from '@src/pages/Wallet/WalletHome';
-import { Deposit } from '@src/pages/Deposit';
-import { Header } from '@src/components/common/Header';
+import Header from '@src/components/common/Header/Header';
 import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,
+  HorizontalSeparator,
   LoadingIcon,
   VerticalFlex,
 } from '@avalabs/react-components';
-
-const WalletOverview = React.lazy(() => {
-  return import('../pages/Wallet/WalletOverview');
-});
 
 const AddToken = React.lazy(() => {
   return import('../pages/AddToken/AddToken');
@@ -20,10 +15,6 @@ const AddToken = React.lazy(() => {
 
 const SignMessage = React.lazy(() => {
   return import('../pages/SignMessage/SignMessage');
-});
-
-const Send = React.lazy(() => {
-  return import('../pages/Send/Send');
 });
 
 const PermissionsPage = React.lazy(() => {
@@ -44,10 +35,11 @@ import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 import { GlobalStyle } from '@src/styles/styles';
-
-
+import { Home } from '@src/pages/Home/Home';
 
 export function Popup() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
     <>
       <ConnectionContextProvider>
@@ -55,9 +47,21 @@ export function Popup() {
           <NetworkContextProvider>
             <WalletContextProvider>
               <SettingsContextProvider>
-                <VerticalFlex height={'100%'}>
-                  <Header hasOnboarded={true} />
-                  <HorizontalFlex flex={1} justify={'center'}>
+                <VerticalFlex
+                  height={'100%'}
+                  maxHeight={drawerOpen ? '100%' : 'auto'}
+                  overflow={drawerOpen ? 'hidden' : 'auto'}
+                >
+                  <VerticalFlex>
+                    <Header onDrawerStateChanged={setDrawerOpen} />
+                    <HorizontalSeparator />
+                  </VerticalFlex>
+
+                  <HorizontalFlex
+                    flex={1}
+                    justify={'center'}
+                    margin={'50px 200px'}
+                  >
                     <Switch>
                       <Route path="/token/add">
                         <React.Suspense fallback={<LoadingIcon />}>
@@ -65,29 +69,13 @@ export function Popup() {
                         </React.Suspense>
                       </Route>
 
-                      <Route path="/wallet/overview">
-                        <React.Suspense fallback={<LoadingIcon />}>
-                          <WalletOverview />
-                        </React.Suspense>
-                      </Route>
-
-                      <Route path="/wallet">
-                        <WalletHome />
-                      </Route>
-
-                      <Route path="/deposit">
-                        <Deposit />
+                      <Route path="/home">
+                        <Home />
                       </Route>
 
                       <Route path="/sign/transaction">
                         <React.Suspense fallback={<LoadingIcon />}>
                           <SignTransactionPage />
-                        </React.Suspense>
-                      </Route>
-
-                      <Route path="/send">
-                        <React.Suspense fallback={<LoadingIcon />}>
-                          <Send />
                         </React.Suspense>
                       </Route>
 
@@ -110,7 +98,7 @@ export function Popup() {
                       </Route>
 
                       <Route path="/">
-                        <Redirect to="/wallet" />
+                        <Redirect to="/home" />
                       </Route>
                     </Switch>
                   </HorizontalFlex>
