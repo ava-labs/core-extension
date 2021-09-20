@@ -8,12 +8,12 @@ export interface ActiveNetwork {
 
 export const MAINNET_NETWORK = {
   config: NetworkConstants.MainnetConfig,
-  name: 'Avalanche Mainnet C-Chain',
+  name: 'Avalanche Mainnet',
   chainId: '0xa86a',
 };
 export const FUJI_NETWORK = {
   config: NetworkConstants.TestnetConfig,
-  name: ' Avalanche FUJI C-Chain',
+  name: ' Avalanche FUJI',
   chainId: '0xa869',
 };
 export const LOCAL_NETWORK = {
