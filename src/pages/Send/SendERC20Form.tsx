@@ -14,6 +14,7 @@ import { SendErc20Confirm } from './SendErc20Confirm';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import debounce from 'lodash.debounce';
 import { useErc20FormErrors } from '@avalabs/wallet-react-components';
+import { GasPrice } from '@src/background/services/gas/models';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {
   const {
@@ -83,7 +84,9 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
       <HorizontalFlex width={'100%'} justify={'space-between'}>
         <VerticalFlex>
           <Typography margin={'0 0 5px 0'}>Gas Price</Typography>
-          <Typography>{gasPrice} nAVAX</Typography>
+          <Typography>
+            {(gasPrice as unknown as GasPrice)?.value} nAVAX
+          </Typography>
         </VerticalFlex>
         <VerticalFlex>
           <Typography margin={'0 0 5px 0'}>Gas Limit</Typography>
