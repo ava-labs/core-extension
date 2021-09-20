@@ -8,6 +8,8 @@ import {
   PrimaryButton,
   HorizontalFlex,
   SecondaryButton,
+  Card,
+  HorizontalSeparator,
 } from '@avalabs/react-components';
 import { ERC20 } from './models';
 import { SendErc20Confirm } from './SendErc20Confirm';
@@ -80,25 +82,42 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
         }
       />
       <br />
+      <Card>
+        <VerticalFlex width={'100%'}>
+          <HorizontalFlex
+            width={'100%'}
+            justify={'space-between'}
+            align={'center'}
+          >
+            <Typography margin={'0 0 5px 0'}>Gas Price</Typography>
+            <Typography>
+              {(gasPrice as unknown as GasPrice)?.value || 0} nAVAX
+            </Typography>
+          </HorizontalFlex>
+          <HorizontalSeparator margin={'10px 0'} />
+          <HorizontalFlex
+            width={'100%'}
+            justify={'space-between'}
+            align={'center'}
+          >
+            <Typography margin={'0 0 5px 0'}>Gas Limit</Typography>
+            <Typography>{gasLimit || 0}</Typography>
+          </HorizontalFlex>
 
-      <HorizontalFlex width={'100%'} justify={'space-between'}>
-        <VerticalFlex>
-          <Typography margin={'0 0 5px 0'}>Gas Price</Typography>
-          <Typography>
-            {(gasPrice as unknown as GasPrice)?.value} nAVAX
-          </Typography>
+          <HorizontalSeparator margin={'10px 0'} />
+
+          <HorizontalFlex
+            width={'100%'}
+            justify={'space-between'}
+            align={'center'}
+          >
+            <Typography>Fee</Typography>
+            <Typography>{sendFeeDisplayValue || 0} AVAX</Typography>
+          </HorizontalFlex>
         </VerticalFlex>
-        <VerticalFlex>
-          <Typography margin={'0 0 5px 0'}>Gas Limit</Typography>
-          <Typography>{gasLimit}</Typography>
-        </VerticalFlex>
-      </HorizontalFlex>
+      </Card>
       <br />
 
-      <HorizontalFlex>
-        <Typography>Fee</Typography>
-        <Typography>{sendFeeDisplayValue} AVAX</Typography>
-      </HorizontalFlex>
       <br />
       <br />
       <br />
