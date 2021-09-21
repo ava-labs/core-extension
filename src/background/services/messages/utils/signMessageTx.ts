@@ -36,16 +36,16 @@ export const signMessageTx = async (
       } else if (message.type === 'eth_sign' && message.data) {
         signed = signTypedDataLegacy(buffer, { data: message.data });
       } else if (message.type === 'signTypedData_v4' && message.data) {
-        let MsgParams = { data: message.data };
+        const MsgParams = { data: message.data };
         signed = signTypedData_v4(buffer, MsgParams);
       } else if (message.type === 'signTypedData_v3' && message.data) {
-        let MsgParams = { data: message.data };
+        const MsgParams = { data: message.data };
         signed = signTypedData(buffer, MsgParams);
       } else if (
         message.type === 'signTypedData' ||
         (message.type === 'signTypedData_v1' && message.data)
       ) {
-        let MsgParams = { data: message.data as string };
+        const MsgParams = { data: message.data as string };
         signed = signTypedMessage(buffer, MsgParams, 'V1');
       }
 

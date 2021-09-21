@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import Header from '@src/components/common/Header/Header';
+import Header from '@src/components/common/header/Header';
 import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,

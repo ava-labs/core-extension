@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { AddressHelper, BN, Utils } from '@avalabs/avalanche-wallet-sdk';
-import { AssetBalanceX, WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { UniversalTx } from '@avalabs/avalanche-wallet-sdk/dist/helpers/universal_tx_helper';
+import { useState } from 'react';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { SendAntState } from '@avalabs/wallet-react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendAntValidateRequest } from '@src/background/services/sendAnt/utils/sendAntValidateRequest';
