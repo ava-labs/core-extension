@@ -8,30 +8,19 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils, GasHelper } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from './models';
 
 const SECONDS_30 = 1000 * 10;
 export const gasPrice$ = new BehaviorSubject<GasPrice | undefined>(undefined);
 
-function getGasPrice() {
-  return engine()
-    .then((e) =>
-      e.handle({
-        jsonrpc: '2.0',
-        method: 'eth_gasPrice',
-        params: [],
-        id: 71,
-      })
-    )
-    .then((res: any) => res.result);
+function getGasPrice(): Promise<BN> {
+  return GasHelper.getAdjustedGasPrice();
 }
 
-function parseGasPrice(hex: string) {
-  const bn = new BN(hex);
+function parseGasPrice(bn: BN) {
   const value = Utils.bnToLocaleString(bn, 9);
   return {
-    hex,
     bn,
     value,
   };
@@ -45,7 +34,9 @@ interval(SECONDS_30)
   .pipe(
     switchMap(() => getGasPrice()),
     pairwise(),
-    filter(([oldPrice, newPrice]) => oldPrice !== newPrice),
+    filter(
+      ([oldPrice, newPrice]) => oldPrice.toString() !== newPrice.toString()
+    ),
     map(([_, newPrice]) => parseGasPrice(newPrice)),
     tap((res: any) => {
       gasPrice$.next(res);
