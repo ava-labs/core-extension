@@ -14,6 +14,8 @@ const ConnectedDot = styled.div`
   height: 12px;
   background-color: ${({ theme }) => theme.colors.green['500']};
   border-radius: 50%;
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 export function WalletConnection() {
@@ -21,17 +23,25 @@ export function WalletConnection() {
 
   return (
     <DropDownMenu
-      style={{ marginLeft: '30px' }}
+      style={{ marginLeft: '42px' }}
       coords={{
         left: '0px',
         top: '61px',
         right: '0px',
       }}
       icon={
-        <Card padding="20px" width="210px">
-          <ConnectedDot />
-          <HorizontalFlex align="center">
-            <Typography margin="0 auto 0 5px">{network?.name}</Typography>
+        <Card padding="8px" width="180px">
+          <HorizontalFlex align="center" overflow="hidden">
+            <ConnectedDot />
+            <Typography
+              margin="0 0 0 8px"
+              height="24px"
+              wrap="nowrap"
+              overflow="hidden"
+              textOverflow="ellipsis"
+            >
+              {network?.name}
+            </Typography>
           </HorizontalFlex>
         </Card>
       }
