@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
   PENDING = 'pending',

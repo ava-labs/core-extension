@@ -6,11 +6,11 @@ import {
 } from 'avalanche/dist/apis/platformvm';
 export function useUnlockingSchedule(utxoSet: UTXOSet) {
   return useMemo(() => {
-    let utxos = utxoSet.getAllUTXOs();
+    const utxos = utxoSet.getAllUTXOs();
     return (
       utxos
         .filter((utxo) => {
-          let typeID = utxo.getOutput().getTypeID();
+          const typeID = utxo.getOutput().getTypeID();
           return typeID === PlatformVMConstants.STAKEABLELOCKOUTID;
         })
 
@@ -18,8 +18,8 @@ export function useUnlockingSchedule(utxoSet: UTXOSet) {
 
         // Order by unlock date, ascending
         .sort((a, b) => {
-          let timeA = a.getStakeableLocktime();
-          let timeB = b.getStakeableLocktime();
+          const timeA = a.getStakeableLocktime();
+          const timeB = b.getStakeableLocktime();
 
           return timeA.sub(timeB).toNumber();
         })

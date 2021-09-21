@@ -85,6 +85,7 @@ export const openWindow = (options: Windows.CreateCreateDataType) => {
 };
 
 export const getTabs = () => {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   return extension.tabs.query((tabs: Tabs.Tab) => {});
 };
 

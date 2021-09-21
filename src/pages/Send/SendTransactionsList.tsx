@@ -33,7 +33,7 @@ function getReadableActionType(action: UniversalTxActionType) {
 }
 
 export function SendTransactionsList({ txs }: TransactionsListProps) {
-  let rows = txs.map((tx, index) => {
+  const rows = txs.map((tx, index) => {
     return (
       <TransactionRow key={index}>
         <p>

@@ -1,1 +1,3 @@
-export const noop = () => {};
+export const noop = () => {
+  // noop for testing puposes
+};
