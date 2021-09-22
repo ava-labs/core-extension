@@ -10,7 +10,7 @@ import {
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SlideSelector } from '@src/components/common/SlideSelector';
 import styled, { useTheme } from 'styled-components';
-import { StyledQRCode } from '@src/components/common/StyledQRCode';
+import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
 
 const AddressBlock = styled(Card)`
   background: ${({ theme }) => theme.colors.grey[800]};
@@ -25,7 +25,7 @@ const AddressBlock = styled(Card)`
   }
 `;
 
-const QRCode = styled(StyledQRCode)`
+const StyledQRCodeWithLogo = styled(QRCodeWithLogo)`
   margin: 32px 0 0 0;
 `;
 
@@ -74,7 +74,10 @@ export const Receive = () => {
           { label: 'X Chain', value: 'X' },
         ]}
       />
-      <QRCode value={getAddress()} />
+      <StyledQRCodeWithLogo
+        value={getAddress()}
+        logoText={chain === 'C' ? 'C-Chain' : 'X-Chain'}
+      />
       <AddressBlock
         onClick={() => {
           navigator.clipboard.writeText(getAddress());
