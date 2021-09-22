@@ -15,7 +15,7 @@ import styled from 'styled-components';
 export const Tab = styled(ReactTab)<{
   $highlight: boolean;
 }>`
-  margin-right: 10px;
+  margin-right: 40px;
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
   ${({ theme, $highlight = true }) => {
@@ -37,6 +37,10 @@ export const Tab = styled(ReactTab)<{
 
   &:not([aria-selected='true']) {
     color: ${({ theme }) => theme.colors.textAccent};
+
+    &:hover {
+      color: ${({ theme }) => theme.colors.text};
+    }
   }
 `;
 export const Tabs = styled(ReactTabs)`
