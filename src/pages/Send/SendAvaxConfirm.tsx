@@ -14,7 +14,6 @@ import {
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { DestinationChainTx } from '@avalabs/wallet-react-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 
 export function SendAvaxConfirm({
   open,
@@ -29,11 +28,11 @@ export function SendAvaxConfirm({
   open: boolean;
   onClose(): void;
   onConfirm(): void;
-  amount: BN;
+  amount: string;
   amountUsd: string;
   extraTxs: DestinationChainTx[];
   address: string;
-  fee: number;
+  fee: string;
 }) {
   return (
     <Modal isOpen={open}>
@@ -53,7 +52,7 @@ export function SendAvaxConfirm({
           <SubTextTypography margin={'10px 0 0 0'}>
             Payment amount
           </SubTextTypography>
-          <Typography>{amount} AVAX</Typography>
+          <Typography>{amount || 0} AVAX</Typography>
           <SubTextTypography>${amountUsd} USD</SubTextTypography>
         </VerticalFlex>
         <br />

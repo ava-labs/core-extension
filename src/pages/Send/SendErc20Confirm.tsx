@@ -11,7 +11,7 @@ import {
   SecondaryCard,
   IconButton,
 } from '@avalabs/react-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { TokenImg } from '@src/components/common/TokenImage';
 import { ERC20 } from '@avalabs/wallet-react-components';
 
@@ -28,10 +28,10 @@ export function SendErc20Confirm({
   open: boolean;
   onClose(): void;
   onConfirm(): void;
-  amount: BN;
+  amount: string;
   amountUsd: string;
   address: string;
-  fee: number;
+  fee: string;
   token: ERC20;
 }) {
   return (
@@ -53,7 +53,7 @@ export function SendErc20Confirm({
             Payment amount
           </SubTextTypography>
           <Typography>
-            {amount} {token.symbol}
+            {amount || 0} {token.symbol}
           </Typography>
           <SubTextTypography>${amountUsd} USD</SubTextTypography>
         </VerticalFlex>

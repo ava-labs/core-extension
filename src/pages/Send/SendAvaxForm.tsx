@@ -41,6 +41,7 @@ export function SendAvaxForm() {
   const [amountInput, setAmountInput] = useState(new BN(0));
   const { amountError, addressError } = useSendAvaxFormErrors(error);
   const { avaxPrice } = useWalletContext();
+  const [amountDisplayValue, setAmountDisplayValue] = useState('');
 
   function resetForm() {
     setAddressInput('');
@@ -72,7 +73,10 @@ export function SendAvaxForm() {
           errorMessage={amountError.message}
           placeholder="Enter the amount"
           denomination={9}
-          onChange={setAmountInput}
+          onChange={(val) => {
+            setAmountInput(val.bn);
+            setAmountDisplayValue(val.amount);
+          }}
         />
         {!amountError.error ? (
           <HorizontalFlex
@@ -115,9 +119,11 @@ export function SendAvaxForm() {
       <SendAvaxConfirm
         open={showConfirmation}
         onClose={() => setShowConfirmation(false)}
-        amount={amount as BN}
+        amount={amountDisplayValue as string}
         address={address as string}
-        fee={10}
+        fee={
+          targetChain === 'X' ? getAvaxBalanceTotal(sendFee || new BN(0)) : ''
+        }
         extraTxs={txs as any}
         amountUsd={'0'}
         onConfirm={() => submit().then(() => resetForm())}

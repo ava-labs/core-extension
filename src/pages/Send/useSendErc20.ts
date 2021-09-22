@@ -15,6 +15,7 @@ export function useSendErc20(token: ERC20) {
     const parsedState = {
       ...state,
       amount: new BN(state.amount || sendErc20State?.amount || 0),
+      sendFee: new BN(state.sendFee || 0),
     };
 
     setSendErc20State(parsedState);

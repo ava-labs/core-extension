@@ -18,6 +18,7 @@ export function useSendAnt(token: AssetBalanceX) {
     const parsedState = {
       ...state,
       amount: new BN(amount || 0),
+      sendFee: new BN(state.sendFee || 0),
     };
 
     setSendAntState(parsedState);

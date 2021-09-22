@@ -34,7 +34,7 @@ export function SendAntForm({ token }: { token: AssetBalanceX }) {
       <Typography>Amount</Typography>
       <BNInput
         denomination={token.meta.denomination}
-        onChange={(bnAmount) => setAmount(bnAmount.toNumber())}
+        onChange={(bnAmount) => setAmount(bnAmount.bn.toNumber())}
         value={amount as any}
       ></BNInput>
       <HorizontalFlex>
