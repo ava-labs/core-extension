@@ -1,7 +1,7 @@
 import React from 'react';
 import { HorizontalFlex, Typography } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useMemo } from 'react';
 
 export interface SelectorItem {
@@ -11,30 +11,28 @@ export interface SelectorItem {
 
 const Container = styled(HorizontalFlex)`
   height: 40px;
-  background-color: ${({ theme }) => theme.colors.grey[700]};
-  align: center;
-  width: 170px;
+  background-color: ${({ theme }) => theme.colors.grey[800]};
+  align-items: center;
   border-radius: 20px;
 `;
 
 const ItemContainer = styled(HorizontalFlex)<{ selected: boolean }>`
   height: 100%;
-  flex: 1;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+  border-radius: 20px;
+  padding: 0 12px;
+  color: ${({ theme }) => theme.colors.grey[600]};
 
   ${({ theme, selected }) =>
     selected
       ? `
-    background-color: ${theme.colors.secondary};
-    &:first-child {
-        border-radius: 20px;
-    };
-    &:last-child {
-        border-radius: 20px;
-    };
-  `
+        background-color: ${theme.colors.primary[400]};
+        color: ${theme.colors.text};
+      `
       : ''}
 `;
 
@@ -62,7 +60,9 @@ export function SlideSelector({
             onChange && onChange(item.value);
           }}
         >
-          <Typography>{item.label}</Typography>
+          <Typography wrap="nowrap" color={'inherit'}>
+            {item.label}
+          </Typography>
         </ItemContainer>
       ))}
     </Container>

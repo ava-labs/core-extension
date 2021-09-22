@@ -71,22 +71,22 @@ export function Home() {
     <Tabs>
       <HorizontalFlex align={'center'} justify={'space-between'}>
         <TabList $border={false}>
-          <Tab $highlight={false}>
+          <Tab $highlight={false} margin="0 40px 0 0">
             <Typography weight={600} color={'inherit'}>
               Portfolio
             </Typography>
           </Tab>
-          <Tab $highlight={false}>
+          <Tab $highlight={false} margin="0 40px 0 0">
             <Typography weight={600} color={'inherit'}>
               Buy
             </Typography>
           </Tab>
-          <Tab $highlight={false}>
+          <Tab $highlight={false} margin="0 40px 0 0">
             <Typography weight={600} color={'inherit'}>
               Earn
             </Typography>
           </Tab>
-          <Tab $highlight={false}>
+          <Tab $highlight={false} margin="0 40px 0 0">
             <Typography weight={600} color={'inherit'}>
               Studio
             </Typography>

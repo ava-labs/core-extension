@@ -93,7 +93,7 @@ export function useTokensWithBalances() {
             ...AVAX_TOKEN,
             balance: balances.balanceAvaxTotal,
             isAvax: true,
-            color: theme.colors.secondary as string,
+            color: theme.colors.primary[400] as string,
             balanceDisplayValue: parseFloat(
               getAvaxBalanceTotal(balances.balanceAvaxTotal)
             ).toFixed(3),

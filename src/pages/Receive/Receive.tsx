@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
-import { QRCode } from 'react-qr-svg';
 import {
   VerticalFlex,
   Typography,
   CopyIcon,
-  SecondaryCard,
   LoadingIcon,
-  HorizontalFlex,
+  Card,
 } from '@avalabs/react-components';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SlideSelector } from '@src/components/common/SlideSelector';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
+import { StyledQRCode } from '@src/components/common/StyledQRCode';
+
+const AddressBlock = styled(Card)`
+  background: ${({ theme }) => theme.colors.grey[800]};
+  cursor: pointer;
+  margin: 48px 0 0 0;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+
+  & > ${Typography} {
+    word-break: break-all;
+  }
+`;
+
+const QRCode = styled(StyledQRCode)`
+  margin: 32px 0 0 0;
+`;
 
 export const Receive = () => {
   const { addresses } = useWalletContext();
@@ -35,20 +51,22 @@ export const Receive = () => {
 
   return (
     <VerticalFlex width={'100%'} align={'center'}>
-      <br />
-      <Typography size={14}>
-        This is your{' '}
-        <Typography color={theme.colors.secondary}>{chain} chain</Typography>{' '}
-        address to receive funds.
-      </Typography>
-      {chain === 'X' ? (
-        <Typography size={14}>
-          Your address will change after every deposit.
+      <VerticalFlex height="48px" margin="32px 0" align="center">
+        <Typography height="24px">
+          This is your{' '}
+          <Typography color={theme.colors.primary[400]}>
+            {chain} chain
+          </Typography>{' '}
+          address to receive funds
         </Typography>
-      ) : (
-        ''
-      )}
-      <br />
+        {chain === 'X' ? (
+          <Typography height="24px">
+            Your address will change after every deposit
+          </Typography>
+        ) : (
+          ''
+        )}
+      </VerticalFlex>
       <SlideSelector
         onChange={(value) => setChain(value)}
         items={[
@@ -56,30 +74,17 @@ export const Receive = () => {
           { label: 'X Chain', value: 'X' },
         ]}
       />
-
-      <br />
-      <br />
-
-      <VerticalFlex align={'center'}>
-        <QRCode value={getAddress()} style={{ width: '100px' }} />
-        <br />
-        <br />
-
-        <SecondaryCard
-          style={{ cursor: 'pointer' }}
-          onClick={() => {
-            navigator.clipboard.writeText(getAddress());
-          }}
-        >
-          <HorizontalFlex justify={'space-between'} align={'center'}>
-            <Typography style={{ maxWidth: '80%', wordBreak: 'break-word' }}>
-              {getAddress()}
-            </Typography>
-            <CopyIcon color={theme.colors.white} />
-          </HorizontalFlex>
-        </SecondaryCard>
-      </VerticalFlex>
-      <br />
+      <QRCode value={getAddress()} />
+      <AddressBlock
+        onClick={() => {
+          navigator.clipboard.writeText(getAddress());
+        }}
+      >
+        <Typography width="255px" height="24px">
+          {getAddress()}
+        </Typography>
+        <CopyIcon size="16px" color={theme.colors.white} />
+      </AddressBlock>
     </VerticalFlex>
   );
 };
