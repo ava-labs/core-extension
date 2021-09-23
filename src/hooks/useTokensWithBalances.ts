@@ -1,6 +1,6 @@
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useMemo, useState } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { AssetBalanceX, BN } from '@avalabs/avalanche-wallet-sdk';
 import { useTheme } from 'styled-components';
 import {
   getAvaxBalanceTotal,
@@ -25,6 +25,7 @@ export interface TokenWithBalance extends ERC20 {
   logoURI?: string;
   isErc20?: boolean;
   isAvax?: boolean;
+  isAnt?: boolean;
   balanceDisplayValue: string;
   balanceUsdDisplayValue: string;
   color: string;
@@ -42,6 +43,12 @@ export function isAvaxToken(
   token: TokenWithBalance
 ): token is typeof AVAX_TOKEN & TokenWithBalance {
   return !!token.isAvax;
+}
+
+export function isAntToken(
+  token: TokenWithBalance
+): token is AssetBalanceX['meta'] & TokenWithBalance {
+  return !!token.isAnt;
 }
 
 export function useTokensWithBalances() {
@@ -83,12 +90,29 @@ export function useTokensWithBalances() {
         token.color = tokenColors[idx] ?? '';
       });
 
-    // const antTokensWithBalances = Object.keys(balances.balanceX).reduce(
-    //   (acc, key) => {
-    //     const { locked, unlocked, meta } = balances.balanceX[key];
-    //   },
-    //   []
-    // );
+    const antTokensWithBalances = Object.keys(balances.balanceX).reduce(
+      (acc: any[], key) => {
+        const { locked, unlocked, meta } = balances.balanceX[key];
+        /**
+         * We rep AVAX down below as its own item
+         */
+        if (meta.symbol === AVAX_TOKEN.symbol) {
+          return acc;
+        }
+
+        const totalBalance = locked.add(unlocked);
+
+        return [
+          ...acc,
+          {
+            ...meta,
+            balance: totalBalance,
+            balanceDisplayValue: getAvaxBalanceTotal(totalBalance),
+          },
+        ];
+      },
+      []
+    );
 
     /**
      * creating a object to represent the avax token, if a balance for this token is
@@ -111,6 +135,11 @@ export function useTokensWithBalances() {
         ]
       : [];
 
-    return [...avaxToken, ...erc20TokensWithBalances];
-  }, [erc20Tokens, balances.balanceAvaxTotal.toString(), avaxPrice]);
+    return [...avaxToken, ...erc20TokensWithBalances, ...antTokensWithBalances];
+  }, [
+    erc20Tokens,
+    balances.balanceAvaxTotal.toString(),
+    avaxPrice,
+    balances.balanceX,
+  ]);
 }

@@ -6,7 +6,7 @@ import {
   GridContainerItems,
   GridLineSeparator,
 } from '@avalabs/react-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
 import { TokenImg } from '@src/components/common/TokenImage';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -16,11 +16,13 @@ import {
   isERC20Token,
   useTokensWithBalances,
 } from '@src/hooks/useTokensWithBalances';
+import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 
 export function Erc20TokenList() {
   const tokensWithBalances = useTokensWithBalances();
   const { pathname } = useLocation();
   const history = useHistory();
+  const AVAX_TOKEN = tokensWithBalances.find((token) => isAvaxToken(token));
 
   return (
     <GridContainer columnGap={0} columns={4} rowGap={0} padding={'0 15px'}>
@@ -31,11 +33,34 @@ export function Erc20TokenList() {
         <Typography size={14}>24h. Change</Typography>
       </GridContainerItems>
       <GridLineSeparator columns={4} />
+      {AVAX_TOKEN ? (
+        <GridContainerItems>
+          <HorizontalFlex width="100%">
+            <AvaxTokenIcon />
+            <Typography margin={'0 8px'}>{AVAX_TOKEN.name}</Typography>
+            <Typography>({AVAX_TOKEN.symbol})</Typography>
+          </HorizontalFlex>
+          <HorizontalFlex width="100%">
+            <Typography>{AVAX_TOKEN.balanceDisplayValue}</Typography>
+          </HorizontalFlex>
+          <HorizontalFlex padding={'0 0 0 20px'}>
+            <FavStarIcon />
+          </HorizontalFlex>
+          <HorizontalFlex></HorizontalFlex>
+          <GridLineSeparator columns={4} />
+        </GridContainerItems>
+      ) : (
+        ''
+      )}
       {tokensWithBalances
         ?.filter((token) => !isAvaxToken(token))
         .map((token) => (
           <GridContainerItems
-            key={isERC20Token(token) ? token.address : ''}
+            key={
+              isERC20Token(token)
+                ? token.address
+                : (token as AssetBalanceX['meta']).symbol
+            }
             onClick={() =>
               history.push({
                 pathname: pathname,
@@ -48,6 +73,8 @@ export function Erc20TokenList() {
           >
             <HorizontalFlex width="100%">
               <TokenImg src={token.logoURI} />
+              <Typography margin={'0 8px'}>{token.name}</Typography>
+              <Typography>({token.symbol})</Typography>
             </HorizontalFlex>
             <HorizontalFlex width="100%">
               <Typography>{token.balanceDisplayValue}</Typography>

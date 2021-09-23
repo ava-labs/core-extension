@@ -33,6 +33,7 @@ function recastWalletState(state: WalletState) {
         balanceX: Object.keys(state.balances.balanceX).reduce((acc, key) => {
           const { locked, unlocked } = state.balances.balanceX[key];
           return {
+            ...acc,
             [key]: {
               ...state.balances.balanceX[key],
               locked: new BN(locked, 'hex'),
