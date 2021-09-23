@@ -83,6 +83,13 @@ export function useTokensWithBalances() {
         token.color = tokenColors[idx] ?? '';
       });
 
+    // const antTokensWithBalances = Object.keys(balances.balanceX).reduce(
+    //   (acc, key) => {
+    //     const { locked, unlocked, meta } = balances.balanceX[key];
+    //   },
+    //   []
+    // );
+
     /**
      * creating a object to represent the avax token, if a balance for this token is
      * greater than 0

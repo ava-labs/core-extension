@@ -26,7 +26,7 @@ export function useSendErc20(token: ERC20) {
     ...sendErc20State,
     txId,
     token,
-    setValues(amount: BN, address: string) {
+    setValues(amount: string, address: string) {
       return request(sendErc20ValidateRequest(amount, token, address)).then(
         parseAndSetState
       );

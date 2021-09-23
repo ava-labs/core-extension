@@ -52,7 +52,7 @@ export function SendAvaxForm() {
     () =>
       debounce((amount: BN, address: string) => {
         if (amount && !amount.isZero() && address) {
-          setValues(amount, address);
+          setValues(amountDisplayValue, address);
         }
       }, 200),
     []
