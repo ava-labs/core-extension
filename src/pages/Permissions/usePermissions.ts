@@ -44,12 +44,12 @@ export function usePermissions(domain: string) {
 
   useEffect(() => {
     Promise.all([
-      request!({
+      request({
         method: ExtensionRequest.PERMISSIONS_GET_PERMISSIONS,
         params: [domain],
       }),
 
-      request!({
+      request({
         method: ExtensionRequest.PERMISSIONS_GET_ACCOUNTS,
       }).then((result) => {
         return accountsToPermissions(result, domain);
@@ -60,7 +60,7 @@ export function usePermissions(domain: string) {
   }, []);
 
   function addPermissionsForDomain(permissions: DappPermissions) {
-    return request!({
+    return request({
       method: ExtensionRequest.PERMISSIONS_ADD_DOMAIN,
       params: [permissions],
     });
@@ -68,6 +68,7 @@ export function usePermissions(domain: string) {
 
   function updateAccountPermission(account: string, hasPermission: boolean) {
     if (!permissions) return;
+
     updatePermissions(
       updateAnAccount(permissions, { [account]: hasPermission })
     );
