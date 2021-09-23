@@ -15,19 +15,56 @@ import { ExtensionRequest } from '@src/background/connections/models';
 
 const WalletContext = createContext<WalletState>({} as any);
 
-function recastWallletState(state: WalletState) {
+function recastWalletState(state: WalletState) {
   const { balanceAvaxTotal, ...values } = (state as WalletState).balances;
+
   return {
     ...state,
     ...{
       balances: {
         ...values,
-        // have to cast back to BN since this was serialized over port connection
-        balanceAvaxTotal: new BN(balanceAvaxTotal),
+        /**
+         * have to cast back to BN since this was serialized over port connection, so ALL BNs have to be
+         * recast to BN from hex
+         *
+         * @link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
+         *  */
+        balanceAvaxTotal: new BN(balanceAvaxTotal, 'hex'),
+        balanceX: Object.keys(state.balances.balanceX).reduce((acc, key) => {
+          const { locked, unlocked } = state.balances.balanceX[key];
+          return {
+            [key]: {
+              ...state.balances.balanceX[key],
+              locked: new BN(locked, 'hex'),
+              unlocked: new BN(unlocked, 'hex'),
+            },
+          };
+        }, {}),
+        balanceAvax: {
+          C: new BN(state.balances.balanceAvax.C, 'hex'),
+          X: {
+            ...state.balances.balanceAvax.X,
+            locked: new BN(state.balances.balanceAvax.X.locked, 'hex'),
+            unlocked: new BN(state.balances.balanceAvax.X.unlocked, 'hex'),
+          },
+          P: {
+            ...state.balances.balanceAvax.P,
+            unlocked: new BN(state.balances.balanceAvax.P.unlocked, 'hex'),
+            locked: new BN(state.balances.balanceAvax.P.locked, 'hex'),
+            lockedStakeable: new BN(
+              state.balances.balanceAvax.P.lockedStakeable,
+              'hex'
+            ),
+          },
+        },
+        balanceStaked: {
+          ...state.balances.balanceStaked,
+          staked: new BN(state.balances.balanceStaked.staked, 'hex'),
+        },
       },
       erc20Tokens: state.erc20Tokens.map((token) => ({
         ...token,
-        balance: new BN(token.balance),
+        balance: new BN(token.balance, 'hex'),
       })),
     },
   };
@@ -56,7 +93,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         ? setWalletState(state)
         : state &&
           (state as WalletState).balances &&
-          setWalletState(recastWallletState(state as WalletState))
+          setWalletState(recastWalletState(state as WalletState))
     );
   }, []);
 
