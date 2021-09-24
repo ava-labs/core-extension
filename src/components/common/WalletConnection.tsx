@@ -6,6 +6,7 @@ import {
   Typography,
   VerticalFlex,
   CheckmarkIcon,
+  DropDownMenuItem,
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
@@ -24,18 +25,6 @@ const ConnectedDot = styled.div<{
   border-radius: 50%;
   flex-grow: 0;
   flex-shrink: 0;
-`;
-
-const CardWithBorder = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.colors.grey[800]};
-`;
-
-const Row = styled(HorizontalFlex)`
-  cursor: pointer;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.grey[800]};
-  }
 `;
 
 export function WalletConnection() {
@@ -82,31 +71,28 @@ export function WalletConnection() {
         </Card>
       }
     >
-      <CardWithBorder width="260px" padding="12px 0">
-        <VerticalFlex grow="1">
-          <Typography margin="12px 24px" size={18} weight={700}>
-            Networks
-          </Typography>
-          {networks.map((n) => (
-            <Row
-              key={n.name}
-              onClick={() => setNetwork(n)}
-              padding="12px 24px"
-              align="center"
-              justify="space-between"
-              width="100%"
-            >
-              <HorizontalFlex align="center">
-                <ConnectedDot color={getNetworkColor(n.name)} />
-                <Typography height="24px">{n.name}</Typography>
-              </HorizontalFlex>
-              {network?.name === n.name && (
-                <CheckmarkIcon size="16px" color={theme.colors.primary[400]} />
-              )}
-            </Row>
-          ))}
-        </VerticalFlex>
-      </CardWithBorder>
+      <VerticalFlex width="260px" padding="12px 0">
+        <Typography margin="12px 24px" size={18} weight={700}>
+          Networks
+        </Typography>
+        {networks.map((n) => (
+          <DropDownMenuItem
+            key={n.name}
+            onClick={() => setNetwork(n)}
+            align="center"
+            justify="space-between"
+            width="100%"
+          >
+            <HorizontalFlex align="center">
+              <ConnectedDot color={getNetworkColor(n.name)} />
+              <Typography height="24px">{n.name}</Typography>
+            </HorizontalFlex>
+            {network?.name === n.name && (
+              <CheckmarkIcon size="16px" color={theme.colors.primary[400]} />
+            )}
+          </DropDownMenuItem>
+        ))}
+      </VerticalFlex>
     </DropDownMenu>
   );
 }
