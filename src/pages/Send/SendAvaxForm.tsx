@@ -38,7 +38,10 @@ export function SendAvaxForm() {
   } = useSendAvax();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
-  const [amountInput, setAmountInput] = useState(new BN(0));
+  const [amountInput, setAmountInput] = useState({
+    bn: new BN(0),
+    amount: '0',
+  });
   const { amountError, addressError } = useSendAvaxFormErrors(error);
   const { avaxPrice } = useWalletContext();
 
