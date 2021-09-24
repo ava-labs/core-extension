@@ -14,7 +14,7 @@ import { WalletPortfolio } from '../Wallet/WalletPortfolio';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
 import { AccountSelector } from '@src/components/common/AccountSelector';
-import { SettingsMenu } from '@src/components/common/SettingsMenu';
+import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 
 const TABS_BOTTOM_PADDING = 16;
 const SIDEBAR_WIDTH = 391;
