@@ -12,12 +12,14 @@ import { TokenImg } from '@src/components/common/TokenImage';
 import { useHistory, useLocation } from 'react-router-dom';
 import { TransactionSendType } from '../Send/models';
 import {
+  AntWithBalance,
   isAntToken,
   isAvaxToken,
   isERC20Token,
   useTokensWithBalances,
 } from '@src/hooks/useTokensWithBalances';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
+import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 
 export function TokenListItem({
   name,
@@ -50,8 +52,7 @@ export function TokenListItem({
 
 export function TokenList() {
   const tokensWithBalances = useTokensWithBalances();
-  const { pathname } = useLocation();
-  const history = useHistory();
+  const setTokenInParams = useSetTokenInParams();
   const AVAX_TOKEN = tokensWithBalances.find((token) => isAvaxToken(token));
 
   return (
@@ -67,13 +68,7 @@ export function TokenList() {
       {AVAX_TOKEN ? (
         <GridContainerItems
           onClick={() =>
-            history.push({
-              pathname: pathname,
-              search: `?${new URLSearchParams({
-                token: AVAX_TOKEN.symbol,
-                type: TransactionSendType.AVAX,
-              }).toString()}`,
-            })
+            setTokenInParams(AVAX_TOKEN.symbol, TransactionSendType.AVAX)
           }
         >
           <TokenListItem
@@ -93,19 +88,9 @@ export function TokenList() {
         ?.filter((token) => !isAvaxToken(token) && !isAntToken(token))
         .map((token) => (
           <GridContainerItems
-            key={
-              isERC20Token(token)
-                ? token.address
-                : (token as AssetBalanceX['meta']).symbol
-            }
+            key={isERC20Token(token) ? token.address : (token as any).symbol}
             onClick={() =>
-              history.push({
-                pathname: pathname,
-                search: `?${new URLSearchParams({
-                  token: token.symbol,
-                  type: TransactionSendType.ERC20,
-                }).toString()}`,
-              })
+              setTokenInParams(token.symbol, TransactionSendType.ERC20)
             }
           >
             <TokenListItem
@@ -126,16 +111,10 @@ export function TokenList() {
             key={
               isERC20Token(token)
                 ? token.address
-                : (token as AssetBalanceX['meta']).symbol
+                : (token as AntWithBalance).symbol
             }
             onClick={() =>
-              history.push({
-                pathname: pathname,
-                search: `?${new URLSearchParams({
-                  token: token.symbol,
-                  type: TransactionSendType.ANT,
-                }).toString()}`,
-              })
+              setTokenInParams(token.symbol, TransactionSendType.ANT)
             }
           >
             <TokenListItem

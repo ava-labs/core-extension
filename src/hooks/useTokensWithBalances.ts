@@ -12,6 +12,7 @@ export const AVAX_TOKEN = {
   name: 'Avalanche',
   symbol: 'AVAX',
   isAvax: true,
+  balance: new BN(0),
 };
 
 /**
@@ -19,7 +20,7 @@ export const AVAX_TOKEN = {
  * normalized as well and we provide a few type guards to filter and type back tot he expected type
  * for the respected entity.
  */
-export interface TokenWithBalance extends ERC20 {
+export interface TokenWithBalance {
   name: string;
   symbol: string;
   logoURI?: string;
@@ -31,23 +32,23 @@ export interface TokenWithBalance extends ERC20 {
   color: string;
 }
 
+export type ERC20WithBalance = TokenWithBalance & ERC20;
+export type AntWithBalance = TokenWithBalance & AssetBalanceX['meta'];
+export type AvaxWithBalance = TokenWithBalance & typeof AVAX_TOKEN;
+
 const bnZero = new BN(0);
 
 export function isERC20Token(
   token: TokenWithBalance | any
-): token is ERC20 & TokenWithBalance {
+): token is ERC20WithBalance {
   return !!token.isErc20;
 }
 
-export function isAvaxToken(
-  token: TokenWithBalance
-): token is typeof AVAX_TOKEN & TokenWithBalance {
+export function isAvaxToken(token: TokenWithBalance): token is AvaxWithBalance {
   return !!token.isAvax;
 }
 
-export function isAntToken(
-  token: TokenWithBalance
-): token is AssetBalanceX['meta'] & TokenWithBalance {
+export function isAntToken(token: TokenWithBalance): token is AvaxWithBalance {
   return !!token.isAnt;
 }
 
@@ -67,7 +68,7 @@ export function useTokensWithBalances() {
   ];
 
   return useMemo<TokenWithBalance[]>(() => {
-    const erc20TokensWithBalances = erc20Tokens
+    const erc20TokensWithBalances: ERC20WithBalance[] = erc20Tokens
       ?.filter((token) => token.balance.gt(bnZero))
       .map((token) => {
         return {
@@ -90,36 +91,35 @@ export function useTokensWithBalances() {
         token.color = tokenColors[idx] ?? '';
       });
 
-    const antTokensWithBalances = Object.keys(balances.balanceX).reduce(
-      (acc: any[], key) => {
-        const { locked, unlocked, meta } = balances.balanceX[key];
-        /**
-         * We rep AVAX down below as its own item
-         */
-        if (meta.symbol === AVAX_TOKEN.symbol) {
-          return acc;
-        }
+    const antTokensWithBalances: AntWithBalance[] = Object.keys(
+      balances.balanceX
+    ).reduce((acc: any[], key) => {
+      const { locked, unlocked, meta } = balances.balanceX[key];
+      /**
+       * We rep AVAX down below as its own item
+       */
+      if (meta.symbol === AVAX_TOKEN.symbol) {
+        return acc;
+      }
 
-        const totalBalance = locked.add(unlocked);
+      const totalBalance = locked.add(unlocked);
 
-        return [
-          ...acc,
-          {
-            ...meta,
-            balance: totalBalance,
-            balanceDisplayValue: getAvaxBalanceTotal(totalBalance),
-            isAnt: true,
-          },
-        ];
-      },
-      []
-    );
+      return [
+        ...acc,
+        {
+          ...meta,
+          balance: totalBalance,
+          balanceDisplayValue: getAvaxBalanceTotal(totalBalance),
+          isAnt: true,
+        },
+      ];
+    }, []);
 
     /**
      * creating a object to represent the avax token, if a balance for this token is
      * greater than 0
      */
-    const avaxToken: any = balances.balanceAvaxTotal.gt(bnZero)
+    const avaxToken: AvaxWithBalance[] = balances.balanceAvaxTotal.gt(bnZero)
       ? [
           {
             ...AVAX_TOKEN,

@@ -7,7 +7,11 @@ import { SendERC20Form } from '@src/pages/Send/SendERC20Form';
 import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { ERC20 } from '@avalabs/wallet-react-components';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import {
+  AntWithBalance,
+  ERC20WithBalance,
+  useTokensWithBalances,
+} from '@src/hooks/useTokensWithBalances';
 import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
 
 export interface SendState {
@@ -27,10 +31,10 @@ export function SendFlow() {
         {
           [TransactionSendType.AVAX]: <SendAvaxForm />,
           [TransactionSendType.ANT]: (
-            <SendAntForm token={selectedToken as unknown as AssetBalanceX} />
+            <SendAntForm token={selectedToken as AntWithBalance} />
           ),
           [TransactionSendType.ERC20]: (
-            <SendERC20Form token={selectedToken as ERC20} />
+            <SendERC20Form token={selectedToken as ERC20WithBalance} />
           ),
         }[sendType ?? TransactionSendType.AVAX]
       }

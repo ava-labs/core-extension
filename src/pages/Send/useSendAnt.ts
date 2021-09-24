@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
-import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { SendAntState } from '@avalabs/wallet-react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendAntValidateRequest } from '@src/background/services/sendAnt/utils/sendAntValidateRequest';
 import { sendAntResetRequest } from '@src/background/services/sendAnt/utils/sendAntResetRequest';
 import { sendAntSubmitRequest } from '@src/background/services/sendAnt/utils/sendAntSubmitRequest';
+import { AntWithBalance } from '@src/hooks/useTokensWithBalances';
 
-export function useSendAnt(token: AssetBalanceX) {
+export function useSendAnt(token: AntWithBalance) {
   const [sendAntState, setSendAntState] = useState<SendAntState>();
   const [txId, setTxId] = useState<string>();
   const { request } = useConnectionContext();
@@ -30,25 +30,8 @@ export function useSendAnt(token: AssetBalanceX) {
     ...sendAntState,
     token,
     txId,
-    setAmount(amount: number) {
-      return request(
-        sendAntValidateRequest(
-          new BN(amount),
-          sendAntState?.address as string,
-          token
-        )
-      )
-        .then((response) => response.result)
-        .then(parseAndSetState);
-    },
-    setAddress(address: string) {
-      return request(
-        sendAntValidateRequest(
-          sendAntState?.amount ? new BN(sendAntState?.amount) : new BN(0),
-          address,
-          token
-        )
-      )
+    setValues(amount: string, address: string) {
+      return request(sendAntValidateRequest(new BN(amount), address, token))
         .then((response) => response.result)
         .then(parseAndSetState);
     },
