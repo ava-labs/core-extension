@@ -108,6 +108,7 @@ export function useTokensWithBalances() {
             ...meta,
             balance: totalBalance,
             balanceDisplayValue: getAvaxBalanceTotal(totalBalance),
+            isAnt: true,
           },
         ];
       },
