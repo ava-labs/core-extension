@@ -11,11 +11,10 @@ import {
   Card,
   HorizontalSeparator,
 } from '@avalabs/react-components';
-import { ERC20 } from './models';
 import { SendErc20Confirm } from './SendErc20Confirm';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import debounce from 'lodash.debounce';
-import { useErc20FormErrors } from '@avalabs/wallet-react-components';
+import { useErc20FormErrors, ERC20 } from '@avalabs/wallet-react-components';
 import { GasPrice } from '@src/background/services/gas/models';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {

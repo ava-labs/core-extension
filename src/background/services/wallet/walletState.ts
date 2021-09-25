@@ -1,7 +1,10 @@
 import { BehaviorSubject, switchMap } from 'rxjs';
-import { WalletLockedState, WalletState } from './models';
+import { WalletLockedState } from './models';
 import { walletLocked$ } from './walletLocked';
-import { walletState$ as walletStateSDK$ } from '@avalabs/wallet-react-components';
+import {
+  walletState$ as walletStateSDK$,
+  WalletState,
+} from '@avalabs/wallet-react-components';
 
 export const walletState$ = new BehaviorSubject<
   WalletState | WalletLockedState | undefined

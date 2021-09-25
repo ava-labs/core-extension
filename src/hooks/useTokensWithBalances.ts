@@ -1,5 +1,5 @@
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { AssetBalanceX, BN } from '@avalabs/avalanche-wallet-sdk';
 import { useTheme } from 'styled-components';
 import {
@@ -53,94 +53,13 @@ export function isAntToken(token: TokenWithBalance): token is AvaxWithBalance {
 }
 
 export function useTokensWithBalances() {
-  const { erc20Tokens, balances, avaxPrice } = useWalletContext();
-
-  const theme = useTheme();
-
-  const tokenColors = [
-    theme.colors.pink['500'],
-    theme.colors.green['500'],
-    theme.colors.orange['500'],
-    theme.colors.turquoise['500'],
-    '#9C27B0', // purple 500
-    '#2196F3', // blue 500
-    '#EEFF41', // lime A200
-  ];
+  const { erc20Tokens, avaxPrice, antTokens, avaxToken } = useWalletContext();
 
   return useMemo<TokenWithBalance[]>(() => {
-    const erc20TokensWithBalances: ERC20WithBalance[] = erc20Tokens
-      ?.filter((token) => token.balance.gt(bnZero))
-      .map((token) => {
-        return {
-          ...token,
-          isErc20: true,
-          color: '',
-          balanceDisplayValue: parseFloat(token.balanceParsed).toFixed(3),
-          balanceUsdDisplayValue: '',
-        };
-      });
-
-    /**
-     * sorting by balance and then mutating so that it has its color to show in the portfolio
-     * dashboard balances. Not ideal to mutate but clean enough implementation for now
-     */
-
-    erc20TokensWithBalances
-      .sort((a, b) => (a.balance.gt(b.balance) ? 1 : 0))
-      .forEach((token, idx) => {
-        token.color = tokenColors[idx] ?? '';
-      });
-
-    const antTokensWithBalances: AntWithBalance[] = Object.keys(
-      balances.balanceX
-    ).reduce((acc: any[], key) => {
-      const { locked, unlocked, meta } = balances.balanceX[key];
-      /**
-       * We rep AVAX down below as its own item
-       */
-      if (meta.symbol === AVAX_TOKEN.symbol) {
-        return acc;
-      }
-
-      const totalBalance = locked.add(unlocked);
-
-      return [
-        ...acc,
-        {
-          ...meta,
-          balance: totalBalance,
-          balanceDisplayValue: getAvaxBalanceTotal(totalBalance),
-          isAnt: true,
-        },
-      ];
-    }, []);
-
-    /**
-     * creating a object to represent the avax token, if a balance for this token is
-     * greater than 0
-     */
-    const avaxToken: AvaxWithBalance[] = balances.balanceAvaxTotal.gt(bnZero)
-      ? [
-          {
-            ...AVAX_TOKEN,
-            balance: balances.balanceAvaxTotal,
-            isAvax: true,
-            color: theme.colors.secondary as string,
-            balanceDisplayValue: parseFloat(
-              getAvaxBalanceTotal(balances.balanceAvaxTotal)
-            ).toFixed(3),
-            balanceUsdDisplayValue: parseFloat(
-              getAvaxBalanceUSD(balances.balanceAvaxTotal, avaxPrice)
-            ).toFixed(3),
-          },
-        ]
-      : [];
-
-    return [...avaxToken, ...erc20TokensWithBalances, ...antTokensWithBalances];
-  }, [
-    erc20Tokens,
-    balances.balanceAvaxTotal.toString(),
-    avaxPrice,
-    balances.balanceX,
-  ]);
+    return [
+      avaxToken,
+      ...erc20Tokens.filter((token) => token.balance.gt(bnZero)),
+      ...antTokens,
+    ];
+  }, [erc20Tokens, avaxToken, avaxPrice, antTokens]);
 }

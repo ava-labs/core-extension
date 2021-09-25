@@ -7,11 +7,11 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
 import {
   isWalletLocked,
   WalletLockedState,
-  WalletState,
 } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
 import { ExtensionRequest } from '@src/background/connections/models';
+import { WalletState } from '@avalabs/wallet-react-components';
 
 const WalletContext = createContext<WalletState>({} as any);
 
@@ -64,6 +64,10 @@ function recastWalletState(state: WalletState) {
         },
       },
       erc20Tokens: state.erc20Tokens.map((token) => ({
+        ...token,
+        balance: new BN(token.balance, 'hex'),
+      })),
+      antTokens: state.antTokens.map((token) => ({
         ...token,
         balance: new BN(token.balance, 'hex'),
       })),
