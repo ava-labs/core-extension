@@ -18,6 +18,7 @@ import {
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { WalletTokenListItem } from './components/WalletTokenListItem';
 
 export function TokenListItem({
   name,
@@ -32,11 +33,9 @@ export function TokenListItem({
 }) {
   return (
     <>
-      <HorizontalFlex width="100%">
+      <WalletTokenListItem name={name} symbol={symbol}>
         {children}
-        <Typography margin={'0 8px'}>{name}</Typography>
-        <Typography>({symbol})</Typography>
-      </HorizontalFlex>
+      </WalletTokenListItem>
       <HorizontalFlex width="100%">
         <Typography>{balanceDisplayValue}</Typography>
       </HorizontalFlex>

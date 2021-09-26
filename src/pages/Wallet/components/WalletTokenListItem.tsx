@@ -11,7 +11,7 @@ export function WalletTokenListItem({
   children: any;
 }) {
   return (
-    <HorizontalFlex width="100%">
+    <HorizontalFlex width="100%" align={'center'}>
       {children}
       <Typography margin={'0 8px'}>{name}</Typography>
       <Typography>({symbol})</Typography>
