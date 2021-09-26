@@ -6,20 +6,18 @@ import {
   GridContainerItems,
   GridLineSeparator,
 } from '@avalabs/react-components';
-import { AssetBalanceX } from '@avalabs/avalanche-wallet-sdk';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
 import { TokenImg } from '@src/components/common/TokenImage';
-import { useHistory, useLocation } from 'react-router-dom';
 import { TransactionSendType } from '../Send/models';
 import {
   AntWithBalance,
   isAntToken,
   isAvaxToken,
   isERC20Token,
-  useTokensWithBalances,
-} from '@src/hooks/useTokensWithBalances';
+} from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 export function TokenListItem({
   name,

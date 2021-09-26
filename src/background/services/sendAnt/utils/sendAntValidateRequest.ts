@@ -3,7 +3,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { AntWithBalance } from '@src/hooks/useTokensWithBalances';
+import { AntWithBalance } from '@avalabs/wallet-react-components';
 
 export function sendAntValidateRequest(
   amount: BN,

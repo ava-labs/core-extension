@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AVAX_TOKEN, TokenWithBalance } from './useTokensWithBalances';
+import { AVAX_TOKEN, TokenWithBalance } from '@avalabs/wallet-react-components';
 
 export function useTokenFromParams(tokensWBalances: TokenWithBalance[]) {
   const { search } = useLocation();

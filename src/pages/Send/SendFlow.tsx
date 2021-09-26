@@ -10,9 +10,9 @@ import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import {
   AntWithBalance,
   ERC20WithBalance,
-  useTokensWithBalances,
-} from '@src/hooks/useTokensWithBalances';
+} from '@avalabs/wallet-react-components';
 import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 export interface SendState {
   type: TransactionSendType;

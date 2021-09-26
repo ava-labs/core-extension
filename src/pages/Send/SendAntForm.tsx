@@ -2,15 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { useSendAnt } from './useSendAnt';
 import {
-  Typography,
   Input,
   BNInput,
   VerticalFlex,
-  HorizontalFlex,
   PrimaryButton,
   SecondaryButton,
 } from '@avalabs/react-components';
-import { AntWithBalance } from '@src/hooks/useTokensWithBalances';
+import { AntWithBalance } from '@avalabs/wallet-react-components';
 import debounce from 'lodash.debounce';
 import { useSendAntFormErrors } from '@avalabs/wallet-react-components';
 

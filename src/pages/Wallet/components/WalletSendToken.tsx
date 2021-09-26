@@ -12,11 +12,11 @@ import {
   AVAX_TOKEN,
   isAntToken,
   isERC20Token,
-  useTokensWithBalances,
-} from '@src/hooks/useTokensWithBalances';
+} from '@avalabs/wallet-react-components';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { WalletTokenListItem } from './WalletTokenListItem';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 export function WalletSendToken() {
   const setTokenInParams = useSetTokenInParams();
