@@ -31,17 +31,15 @@ export function useSendAnt(token: AntWithBalance) {
     token,
     txId,
     setValues(amount: string, address: string) {
-      return request(sendAntValidateRequest(new BN(amount), address, token))
-        .then((response) => response.result)
-        .then(parseAndSetState);
+      return request(
+        sendAntValidateRequest(new BN(amount), address, token)
+      ).then(parseAndSetState);
     },
     reset() {
-      return request(sendAntResetRequest())
-        .then((response) => response.result)
-        .then((result) => {
-          setSendAntState(result);
-          return result;
-        });
+      return request(sendAntResetRequest()).then((result) => {
+        setSendAntState(result);
+        return result;
+      });
     },
     submit() {
       if (!sendAntState) {
