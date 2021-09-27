@@ -50,16 +50,16 @@ export function SendAvaxForm() {
 
   const setValuesDebounced = useMemo(
     () =>
-      debounce((amount: BN, address: string) => {
-        if (amount && !amount.isZero() && address) {
-          setValues(amountDisplayValue, address);
+      debounce((amount: string, address: string) => {
+        if (amount && address) {
+          setValues(amount, address);
         }
       }, 200),
     []
   );
 
   useEffect(() => {
-    setValuesDebounced(amountInput, addressInput);
+    setValuesDebounced(amountDisplayValue, addressInput);
   }, [amountInput, addressInput]);
 
   return (
@@ -126,7 +126,9 @@ export function SendAvaxForm() {
         }
         extraTxs={txs as any}
         amountUsd={'0'}
-        onConfirm={() => submit().then(() => resetForm())}
+        onConfirm={() =>
+          submit(amountDisplayValue as string).then(() => resetForm())
+        }
       />
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton

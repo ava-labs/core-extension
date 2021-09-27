@@ -13,6 +13,7 @@ import { firstValueFrom, Observable, of, Subject } from 'rxjs';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { walletState$ } from '../../wallet/walletState';
 import { isWalletLocked } from '../../wallet/models';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 async function validateSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address] = request.params || [];
@@ -68,7 +69,7 @@ async function validateSendErc20State(request: ExtensionConnectionMessage) {
     checkAndValidateSendErc20(
       token,
       gasPrice$ as Observable<{ bn: BN }>,
-      of(new BN(amount)) as Subject<BN>,
+      of(Utils.stringToBN(amount, 18)) as Subject<BN>,
       of(address) as Subject<string>,
       of(balances) as Subject<typeof balances>,
       wallet$

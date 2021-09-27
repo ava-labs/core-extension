@@ -14,7 +14,7 @@ import { useSendAntFormErrors } from '@avalabs/wallet-react-components';
 import { SendAntConfirm } from './sendAntConfirm';
 
 export function SendAntForm({ token }: { token: AntWithBalance }) {
-  const { submit, canSubmit, address, amount, setValues, error, reset, txId } =
+  const { submit, canSubmit, address, setValues, error, reset, txId } =
     useSendAnt(token);
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
@@ -29,16 +29,17 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
 
   const setValuesDebounced = useMemo(
     () =>
-      debounce((amount: BN, address: string) => {
-        if (amount && !amount.isZero() && address) {
-          setValues(amountDisplayValue, address);
+      debounce((amount: string, address: string) => {
+        console.log('amount: ', amount);
+        if (amount && address) {
+          setValues(amount, address);
         }
       }, 200),
     []
   );
 
   useEffect(() => {
-    setValuesDebounced(amountInput, addressInput);
+    setValuesDebounced(amountDisplayValue, addressInput);
   }, [amountInput, addressInput]);
 
   return (
@@ -70,7 +71,9 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
         fee={'0'}
         extraTxs={[] as any}
         amountUsd={'0'}
-        onConfirm={() => submit().then(() => resetForm())}
+        onConfirm={() =>
+          submit(amountDisplayValue as string).then(() => resetForm())
+        }
       />
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton

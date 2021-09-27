@@ -36,10 +36,10 @@ export function useSendErc20(token: ERC20) {
         setSendErc20State(response.result)
       );
     },
-    submit() {
+    submit(amount: string) {
       return request(
         sendErc20SubmitRequest(
-          sendErc20State?.amount as BN,
+          amount,
           token,
           sendErc20State?.address as string,
           sendErc20State?.gasLimit as number

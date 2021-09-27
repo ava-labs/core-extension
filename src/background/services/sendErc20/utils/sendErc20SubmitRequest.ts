@@ -2,11 +2,10 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { ERC20 } from '@avalabs/wallet-react-components';
 
 export function sendErc20SubmitRequest(
-  amount: BN,
+  amount: string,
   token: ERC20,
   address: string,
   gasLimit: number

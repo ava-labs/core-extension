@@ -6,7 +6,7 @@ import {
 import { AntWithBalance } from '@avalabs/wallet-react-components';
 
 export function sendAntValidateRequest(
-  amount: BN,
+  amount: string,
   address: string,
   token: AntWithBalance
 ): Omit<ExtensionConnectionMessage, 'id'> {

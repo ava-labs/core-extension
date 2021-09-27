@@ -31,9 +31,9 @@ export function useSendAnt(token: AntWithBalance) {
     token,
     txId,
     setValues(amount: string, address: string) {
-      return request(
-        sendAntValidateRequest(new BN(amount), address, token)
-      ).then(parseAndSetState);
+      return request(sendAntValidateRequest(amount, address, token)).then(
+        parseAndSetState
+      );
     },
     reset() {
       return request(sendAntResetRequest()).then((result) => {
@@ -41,17 +41,13 @@ export function useSendAnt(token: AntWithBalance) {
         return result;
       });
     },
-    submit() {
+    submit(amount: string) {
       if (!sendAntState) {
         return Promise.reject('send ant state undefined');
       }
 
       return request(
-        sendAntSubmitRequest(
-          new BN(sendAntState?.amount),
-          sendAntState?.address,
-          sendAntState?.token
-        )
+        sendAntSubmitRequest(amount, sendAntState?.address, sendAntState?.token)
       )
         .then((response) => response.result)
         .then((result) => setTxId(result));

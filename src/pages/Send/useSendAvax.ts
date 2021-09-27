@@ -45,10 +45,10 @@ export function useSendAvax() {
         parseAndSetState(state)
       );
     },
-    submit() {
+    submit(amount: string) {
       return request(
         sendAvaxSubmitRequest(
-          sendAvaxState?.amount as BN,
+          amount,
           sendAvaxState?.targetChain as ChainIdType,
           sendAvaxState?.address as string
         )

@@ -45,16 +45,16 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
 
   const setValuesDebounced = useMemo(
     () =>
-      debounce((amount: BN, address: string) => {
-        if (amount && !amount.isZero() && address) {
-          setValues(amountDisplayValue, address);
+      debounce((amount: string, address: string) => {
+        if (amount && address) {
+          setValues(amount, address);
         }
       }, 200),
     []
   );
 
   useEffect(() => {
-    setValuesDebounced(amountInput, addressInput);
+    setValuesDebounced(amountDisplayValue, addressInput);
   }, [amountInput, addressInput]);
 
   return (
@@ -132,7 +132,9 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
         address={address as string}
         fee={`${sendFeeDisplayValue || 0}`}
         amountUsd={'0'}
-        onConfirm={submit}
+        onConfirm={() =>
+          submit(amountDisplayValue as string).then(() => resetForm())
+        }
         token={token}
       />
       <VerticalFlex width={'100%'} align={'center'}>
