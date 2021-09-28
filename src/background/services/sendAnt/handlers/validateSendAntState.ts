@@ -4,11 +4,13 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import {
+  AntWithBalance,
   sendAntCheckFormAndCalculateFees,
   wallet$,
+  walletState$,
 } from '@avalabs/wallet-react-components';
 import { firstValueFrom, of, Subject } from 'rxjs';
-import { AssetBalanceX, BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 
 async function validateSendAntState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
@@ -35,11 +37,21 @@ async function validateSendAntState(request: ExtensionConnectionMessage) {
     };
   }
 
+  const walletState = await firstValueFrom(walletState$);
+
   const result = await firstValueFrom(
     sendAntCheckFormAndCalculateFees(
-      of(new BN(amount)) as Subject<BN>,
+      of(Utils.stringToBN(amount, 9)) as Subject<BN>,
       of(address) as Subject<string>,
-      of(token) as Subject<AssetBalanceX>,
+      of(
+        /**
+         * Need to get the original token here because the passed in token is serialized. The BN
+         * is turned into a hex. We could either convert back to BN or get original.
+         */
+        walletState?.antTokens.find(
+          (antToken) => (token as AntWithBalance).assetID === antToken.assetID
+        )
+      ) as Subject<AntWithBalance>,
       wallet$
     )
   );

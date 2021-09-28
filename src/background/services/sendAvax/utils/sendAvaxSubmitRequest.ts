@@ -2,10 +2,10 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { BN, ChainIdType } from '@avalabs/avalanche-wallet-sdk';
+import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
 
 export function sendAvaxSubmitRequest(
-  amount: BN,
+  amount: string,
   destChain: ChainIdType,
   address: string
 ): Omit<ExtensionConnectionMessage, 'id'> {

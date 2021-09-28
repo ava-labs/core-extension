@@ -30,7 +30,7 @@ export function useSendAvax() {
   return {
     ...sendAvaxState,
     txId,
-    setValues(amount?: BN, address?: string) {
+    setValues(amount?: string, address?: string) {
       return request(sendAvaxValidateRequest(amount, address))
         .then(parseAndSetState)
         .catch((error: string) => {
@@ -45,10 +45,10 @@ export function useSendAvax() {
         parseAndSetState(state)
       );
     },
-    submit() {
+    submit(amount: string) {
       return request(
         sendAvaxSubmitRequest(
-          sendAvaxState?.amount as BN,
+          amount,
           sendAvaxState?.targetChain as ChainIdType,
           sendAvaxState?.address as string
         )

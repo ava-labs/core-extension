@@ -1,4 +1,3 @@
-import { engine } from '@src/utils/jsonRpcEngine';
 import {
   BehaviorSubject,
   filter,

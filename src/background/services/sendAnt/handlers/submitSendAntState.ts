@@ -5,6 +5,7 @@ import {
 } from '@src/background/connections/models';
 import { sendAntSubmit, wallet$ } from '@avalabs/wallet-react-components';
 import { firstValueFrom } from 'rxjs';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 async function submitSendAntState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
@@ -40,7 +41,12 @@ async function submitSendAntState(request: ExtensionConnectionMessage) {
     };
   }
 
-  const result = await sendAntSubmit(wallet, token, amount, address);
+  const result = await sendAntSubmit(
+    wallet,
+    token,
+    Utils.stringToBN(amount, 9),
+    address
+  );
   return { ...request, result };
 }
 

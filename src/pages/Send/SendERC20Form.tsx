@@ -11,11 +11,10 @@ import {
   Card,
   HorizontalSeparator,
 } from '@avalabs/react-components';
-import { ERC20 } from './models';
 import { SendErc20Confirm } from './SendErc20Confirm';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import debounce from 'lodash.debounce';
-import { useErc20FormErrors } from '@avalabs/wallet-react-components';
+import { useErc20FormErrors, ERC20 } from '@avalabs/wallet-react-components';
 import { GasPrice } from '@src/background/services/gas/models';
 
 export function SendERC20Form({ token }: { token: ERC20 }) {
@@ -30,6 +29,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
     submit,
     canSubmit,
     error,
+    sendFee,
     sendFeeDisplayValue,
   } = useSendErc20(token);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -39,6 +39,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
     amount: '0',
   });
   const { addressError, amountError } = useErc20FormErrors(error);
+  const [amountDisplayValue, setAmountDisplayValue] = useState('');
 
   function resetForm() {
     setAddressInput('');
@@ -47,8 +48,8 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
 
   const setValuesDebounced = useMemo(
     () =>
-      debounce((amount: BN, address: string) => {
-        if (amount && !amount.isZero() && address) {
+      debounce((amount: string, address: string) => {
+        if (amount && address) {
           setValues(amount, address);
         }
       }, 200),
@@ -56,7 +57,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
   );
 
   useEffect(() => {
-    setValuesDebounced(amountInput, addressInput);
+    setValuesDebounced(amountDisplayValue, addressInput);
   }, [amountInput, addressInput]);
 
   return (
@@ -70,7 +71,10 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
         errorMessage={amountError.message}
         placeholder="Enter the amount"
         denomination={token.denomination}
-        onChange={setAmountInput}
+        onChange={(val) => {
+          setAmountInput(val.bn);
+          setAmountDisplayValue(val.amount);
+        }}
       />
       <br />
 
@@ -127,11 +131,13 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
       <SendErc20Confirm
         open={showConfirmation}
         onClose={() => setShowConfirmation(false)}
-        amount={amount as BN}
+        amount={amountDisplayValue}
         address={address as string}
-        fee={10}
+        fee={`${sendFeeDisplayValue || 0}`}
         amountUsd={'0'}
-        onConfirm={submit}
+        onConfirm={() =>
+          submit(amountDisplayValue as string).then(() => resetForm())
+        }
         token={token}
       />
       <VerticalFlex width={'100%'} align={'center'}>

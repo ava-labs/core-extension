@@ -44,6 +44,7 @@ export function SendAvaxForm() {
   });
   const { amountError, addressError } = useSendAvaxFormErrors(error);
   const { avaxPrice } = useWalletContext();
+  const [amountDisplayValue, setAmountDisplayValue] = useState('');
 
   function resetForm() {
     setAddressInput('');
@@ -52,8 +53,8 @@ export function SendAvaxForm() {
 
   const setValuesDebounced = useMemo(
     () =>
-      debounce((amount: BN, address: string) => {
-        if (amount && !amount.isZero() && address) {
+      debounce((amount: string, address: string) => {
+        if (amount && address) {
           setValues(amount, address);
         }
       }, 200),
@@ -61,7 +62,7 @@ export function SendAvaxForm() {
   );
 
   useEffect(() => {
-    setValuesDebounced(amountInput, addressInput);
+    setValuesDebounced(amountDisplayValue, addressInput);
   }, [amountInput, addressInput]);
 
   return (
@@ -75,7 +76,10 @@ export function SendAvaxForm() {
           errorMessage={amountError.message}
           placeholder="Enter the amount"
           denomination={9}
-          onChange={setAmountInput}
+          onChange={(val) => {
+            setAmountInput(val.bn);
+            setAmountDisplayValue(val.amount);
+          }}
         />
         {!amountError.error ? (
           <HorizontalFlex
@@ -118,12 +122,16 @@ export function SendAvaxForm() {
       <SendAvaxConfirm
         open={showConfirmation}
         onClose={() => setShowConfirmation(false)}
-        amount={amount as BN}
+        amount={amountDisplayValue as string}
         address={address as string}
-        fee={10}
+        fee={
+          targetChain === 'X' ? getAvaxBalanceTotal(sendFee || new BN(0)) : ''
+        }
         extraTxs={txs as any}
         amountUsd={'0'}
-        onConfirm={() => submit().then(() => resetForm())}
+        onConfirm={() =>
+          submit(amountDisplayValue as string).then(() => resetForm())
+        }
       />
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton

@@ -12,7 +12,7 @@ export const savePermissionsToStorage = (permissions: Permissions) =>
 
 export const getPermissionsFromStorage = () =>
   getFromStorage<{ permissions: Permissions }>(PERMISSION_STORAGE_KEY).then(
-    (storage) => storage.permissions
+    (storage) => storage.permissions || {}
   );
 
 export function removeAllPermissionsFromStorage() {

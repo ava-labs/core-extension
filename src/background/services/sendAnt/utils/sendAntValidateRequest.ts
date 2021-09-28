@@ -1,13 +1,14 @@
-import { AssetBalanceX, BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
 import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
+import { AntWithBalance } from '@avalabs/wallet-react-components';
 
 export function sendAntValidateRequest(
-  amount: BN,
+  amount: string,
   address: string,
-  token: AssetBalanceX
+  token: AntWithBalance
 ): Omit<ExtensionConnectionMessage, 'id'> {
   return {
     method: ExtensionRequest.SEND_ANT_VALIDATE,

@@ -10,12 +10,12 @@ import {
   IconDirection,
   SecondaryCard,
   TextButton,
-  PrimaryIconButton,
+  IconButton,
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { DestinationChainTx } from '@avalabs/wallet-react-components';
 
-export function SendAvaxConfirm({
+export function SendAntConfirm({
   open,
   onClose,
   onConfirm,
@@ -38,9 +38,9 @@ export function SendAvaxConfirm({
     <Modal isOpen={open}>
       <VerticalFlex>
         <HorizontalFlex align={'center'}>
-          <PrimaryIconButton onClick={() => onClose && onClose()}>
+          <IconButton onClick={() => onClose && onClose()}>
             <CaretIcon direction={IconDirection.LEFT} />
-          </PrimaryIconButton>
+          </IconButton>
           <Typography as={'h1'} size={24} weight={700} margin={'0 0 0 60px'}>
             Confirm transaction
           </Typography>

@@ -6,6 +6,7 @@ import {
 import { sendErc20Submit, wallet$ } from '@avalabs/wallet-react-components';
 import { firstValueFrom } from 'rxjs';
 import { gasPrice$ } from '../../gas/gas';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 async function submitSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address, gasLimit] = request.params || [];
@@ -59,7 +60,7 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
   const result = await sendErc20Submit(
     token,
     wallet,
-    amount,
+    Utils.stringToBN(amount, 18),
     address,
     gasPrice.bn.toNumber(),
     gasLimit

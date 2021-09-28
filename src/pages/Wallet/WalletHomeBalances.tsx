@@ -10,11 +10,11 @@ import {
 } from '@avalabs/react-components';
 import { BeadIcon } from '@src/components/icons/BeadIcon';
 import { GraphRingIcon } from '@src/components/icons/GraphRingIcon';
-import {
-  isAvaxToken,
-  useTokensWithBalances,
-} from '@src/hooks/useTokensWithBalances';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useMemo } from 'react';
+import { useTheme } from 'styled-components';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
 
 /**
  * In order to display the graph, allocation and total balance. We will need to
@@ -26,10 +26,27 @@ import { useMemo } from 'react';
  * If I am wrong correct me -Danny
  */
 export function WalletHomeBalances() {
+  const { avaxToken } = useWalletContext();
   const tokensWBalances = useTokensWithBalances();
+  const theme = useTheme();
 
-  const avaxToken = useMemo(() => {
-    return tokensWBalances.find((token) => isAvaxToken(token));
+  const tokenColors = [
+    theme.colors.pink['500'],
+    theme.colors.green['500'],
+    theme.colors.orange['500'],
+    theme.colors.turquoise['500'],
+    '#2196F3', // blue 500
+  ];
+
+  const top5Tokens = useMemo(() => {
+    return tokensWBalances
+      .sort((tokenA: any, tokenB: any) =>
+        (tokenA.balance as BN).gt(tokenB.balance as BN) ? 1 : -1
+      )
+      .slice(0, 5)
+      .map((token, idx) => {
+        return { ...token, color: tokenColors[idx] };
+      });
   }, [tokensWBalances]);
 
   return (
@@ -55,7 +72,7 @@ export function WalletHomeBalances() {
                   padding={'0 0 0 0'}
                 >
                   <GridContainerItems>
-                    {tokensWBalances.map((token) => (
+                    {top5Tokens.map((token) => (
                       <HorizontalFlex key={token.symbol}>
                         <BeadIcon color={token.color} height={'12px'} />
                         <Typography margin={'0 0 0 5px'} size={14}>

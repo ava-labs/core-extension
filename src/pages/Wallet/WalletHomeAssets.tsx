@@ -5,7 +5,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import React from 'react';
-import { Erc20TokenList } from './Erc20TokenList';
+import { TokenList } from './TokenList';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 
 export function WalletHomeAssets() {
@@ -30,7 +30,7 @@ export function WalletHomeAssets() {
             </Tab>
           </TabList>
           <TabPanel>
-            <Erc20TokenList />
+            <TokenList />
           </TabPanel>
           <TabPanel>Collectibles List</TabPanel>
         </Tabs>
