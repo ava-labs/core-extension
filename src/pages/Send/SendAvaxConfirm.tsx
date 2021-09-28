@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '@src/components/common/Modal';
 import {
   CaretIcon,
@@ -14,6 +14,8 @@ import {
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { DestinationChainTx } from '@avalabs/wallet-react-components';
+import { SendInProgress } from './SendInProgress';
+import { SendConfirmation } from './SendConfirmation';
 
 export function SendAvaxConfirm({
   open,
@@ -24,6 +26,7 @@ export function SendAvaxConfirm({
   extraTxs,
   address,
   fee,
+  txId,
 }: {
   open: boolean;
   onClose(): void;
@@ -33,7 +36,35 @@ export function SendAvaxConfirm({
   extraTxs: DestinationChainTx[];
   address: string;
   fee: string;
+  txId?: string;
 }) {
+  const [showTxInProgress, setShowTxInProgress] = useState(false);
+  const [showTxConfirmed, setShowTxConfirmed] = useState(false);
+
+  useEffect(() => {
+    if (txId) {
+      setShowTxInProgress(false);
+      setShowTxConfirmed(true);
+    }
+  }, [txId]);
+
+  if (showTxInProgress) {
+    return <SendInProgress isOpen={true} />;
+  }
+
+  if (showTxConfirmed && txId) {
+    return (
+      <SendConfirmation
+        onClose={() => {
+          onClose();
+          setShowTxConfirmed(false);
+        }}
+        isOpen={true}
+        txId={txId}
+      />
+    );
+  }
+
   return (
     <Modal isOpen={open}>
       <VerticalFlex>
@@ -75,14 +106,19 @@ export function SendAvaxConfirm({
               <SubTextTypography margin={'0 0 10px 0'}>
                 Transaction fee
               </SubTextTypography>
-              <Typography>{fee} AVAX</Typography>
+              <Typography>{fee || 0} AVAX</Typography>
             </VerticalFlex>
-            {extraTxs ? <TextButton>View Details</TextButton> : ''}
+            {extraTxs?.length ? <TextButton>View Details</TextButton> : ''}
           </HorizontalFlex>
         </SecondaryCard>
         <br />
         <HorizontalFlex width={'100%'} justify={'center'}>
-          <PrimaryButton onClick={() => onConfirm && onConfirm()}>
+          <PrimaryButton
+            onClick={() => {
+              setShowTxInProgress(true);
+              onConfirm && onConfirm();
+            }}
+          >
             Confirm
           </PrimaryButton>
         </HorizontalFlex>

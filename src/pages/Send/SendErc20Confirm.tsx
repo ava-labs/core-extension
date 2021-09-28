@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '@src/components/common/Modal';
 import {
   CaretIcon,
@@ -11,9 +11,10 @@ import {
   SecondaryCard,
   PrimaryIconButton,
 } from '@avalabs/react-components';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { TokenImg } from '@src/components/common/TokenImage';
 import { ERC20 } from '@avalabs/wallet-react-components';
+import { SendInProgress } from './SendInProgress';
+import { SendConfirmation } from './SendConfirmation';
 
 export function SendErc20Confirm({
   open,
@@ -24,6 +25,7 @@ export function SendErc20Confirm({
   address,
   fee,
   token,
+  txId,
 }: {
   open: boolean;
   onClose(): void;
@@ -33,7 +35,35 @@ export function SendErc20Confirm({
   address: string;
   fee: string;
   token: ERC20;
+  txId?: string;
 }) {
+  const [showTxInProgress, setShowTxInProgress] = useState(false);
+  const [showTxConfirmed, setShowTxConfirmed] = useState(false);
+
+  useEffect(() => {
+    if (txId) {
+      setShowTxInProgress(false);
+      setShowTxConfirmed(true);
+    }
+  }, [txId]);
+
+  if (showTxInProgress) {
+    return <SendInProgress isOpen={true} />;
+  }
+
+  if (showTxConfirmed && txId) {
+    return (
+      <SendConfirmation
+        onClose={() => {
+          onClose();
+          setShowTxConfirmed(false);
+        }}
+        isOpen={true}
+        txId={txId}
+      />
+    );
+  }
+
   return (
     <Modal isOpen={open}>
       <VerticalFlex>
@@ -83,7 +113,12 @@ export function SendErc20Confirm({
         </SecondaryCard>
         <br />
         <HorizontalFlex width={'100%'} justify={'center'}>
-          <PrimaryButton onClick={() => onConfirm && onConfirm()}>
+          <PrimaryButton
+            onClick={() => {
+              setShowTxInProgress(true);
+              onConfirm && onConfirm();
+            }}
+          >
             Confirm
           </PrimaryButton>
         </HorizontalFlex>

@@ -77,7 +77,7 @@ export function SendAntConfirm({
               </SubTextTypography>
               <Typography>{fee} AVAX</Typography>
             </VerticalFlex>
-            {extraTxs ? <TextButton>View Details</TextButton> : ''}
+            {extraTxs?.length ? <TextButton>View Details</TextButton> : ''}
           </HorizontalFlex>
         </SecondaryCard>
         <br />

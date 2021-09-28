@@ -62,7 +62,7 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
     wallet,
     Utils.stringToBN(amount, 18),
     address,
-    gasPrice.bn.toNumber(),
+    gasPrice.bn as any,
     gasLimit
   );
 
