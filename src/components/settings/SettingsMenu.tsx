@@ -26,7 +26,7 @@ export function SettingsMenu() {
     <DropDownMenu
       coords={{
         right: '0px',
-        top: '52px',
+        top: '60px',
       }}
       icon={
         <PrimaryIconButton>
