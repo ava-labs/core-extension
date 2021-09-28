@@ -15,6 +15,7 @@ export function Footer() {
 
   return (
     <HorizontalFlex
+      width="100%"
       justify={'space-between'}
       align={'center'}
       padding={'10px'}
