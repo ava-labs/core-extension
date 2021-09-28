@@ -51,16 +51,19 @@ export function Popup() {
                   height={'100%'}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
+                  align="center"
                 >
-                  <VerticalFlex>
+                  <VerticalFlex width="100%">
                     <Header onDrawerStateChanged={setDrawerOpen} />
-                    <HorizontalSeparator />
+                    <HorizontalSeparator margin="0" />
                   </VerticalFlex>
 
                   <HorizontalFlex
                     flex={1}
                     justify={'center'}
-                    margin={'50px 200px'}
+                    margin="16px 0"
+                    maxWidth="90%"
+                    width="1280px"
                   >
                     <Switch>
                       <Route path="/token/add">

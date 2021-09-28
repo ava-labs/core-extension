@@ -14,8 +14,9 @@ import { WalletPortfolio } from '../Wallet/WalletPortfolio';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
 import { AccountSelector } from '@src/components/common/AccountSelector';
+import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 
-const TABS_BOTTOM_PADDING = 30;
+const TABS_BOTTOM_PADDING = 16;
 const SIDEBAR_WIDTH = 391;
 
 function HomeSideBar() {
@@ -40,10 +41,14 @@ function HomeSideBar() {
         <Tabs defaultIndex={showSend ? 0 : 1}>
           <TabList>
             <Tab disabled={!showSend}>
-              <Typography color={'inherit'}>Send</Typography>
+              <Typography weight={600} color={'inherit'}>
+                Send
+              </Typography>
             </Tab>
             <Tab>
-              <Typography color={'inherit'}>Receive</Typography>
+              <Typography weight={600} color={'inherit'}>
+                Receive
+              </Typography>
             </Tab>
           </TabList>
 
@@ -66,20 +71,31 @@ export function Home() {
     <Tabs>
       <HorizontalFlex align={'center'} justify={'space-between'}>
         <TabList $border={false}>
-          <Tab $highlight={false}>
-            <Typography color={'inherit'}>Portfolio</Typography>
+          <Tab $highlight={false} margin="0 40px 0 0">
+            <Typography weight={600} color={'inherit'}>
+              Portfolio
+            </Typography>
           </Tab>
-          <Tab $highlight={false}>
-            <Typography color={'inherit'}>Buy</Typography>
+          <Tab $highlight={false} margin="0 40px 0 0">
+            <Typography weight={600} color={'inherit'}>
+              Buy
+            </Typography>
           </Tab>
-          <Tab $highlight={false}>
-            <Typography color={'inherit'}>Earn</Typography>
+          <Tab $highlight={false} margin="0 40px 0 0">
+            <Typography weight={600} color={'inherit'}>
+              Earn
+            </Typography>
           </Tab>
-          <Tab $highlight={false}>
-            <Typography color={'inherit'}>Studio</Typography>
+          <Tab $highlight={false} margin="0 40px 0 0">
+            <Typography weight={600} color={'inherit'}>
+              Studio
+            </Typography>
           </Tab>
         </TabList>
-        <AccountSelector />
+        <HorizontalFlex align={'center'}>
+          <AccountSelector />
+          <SettingsMenu />
+        </HorizontalFlex>
       </HorizontalFlex>
       <HorizontalFlex>
         <VerticalFlex flex={3} margin={`${TABS_BOTTOM_PADDING}px 10px 0 0`}>

@@ -1,6 +1,6 @@
 export const truncateAddress = (address: string): string => {
-  const firstChunk = address.substring(0, 8);
-  const lastChunk = address.substr(-4);
+  const firstChunk = address.substring(0, 6);
+  const lastChunk = address.substr(-3);
 
-  return `${firstChunk}...${lastChunk}`;
+  return `${firstChunk}..${lastChunk}`;
 };

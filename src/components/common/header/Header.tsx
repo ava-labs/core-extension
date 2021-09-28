@@ -1,10 +1,11 @@
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import Menu from './Menu';
 import {
   HamburgerIcon,
   HorizontalFlex,
   TextButton,
   useIsSmallScreen,
+  useThemeContext,
   VerticalFlex,
 } from '@avalabs/react-components';
 import React, { useState } from 'react';

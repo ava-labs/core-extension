@@ -9,7 +9,7 @@ import {
   PrimaryButton,
   IconDirection,
   SecondaryCard,
-  IconButton,
+  PrimaryIconButton,
 } from '@avalabs/react-components';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { TokenImg } from '@src/components/common/TokenImage';
@@ -38,9 +38,9 @@ export function SendErc20Confirm({
     <Modal isOpen={open}>
       <VerticalFlex>
         <HorizontalFlex align={'center'}>
-          <IconButton onClick={() => onClose && onClose()}>
+          <PrimaryIconButton onClick={() => onClose && onClose()}>
             <CaretIcon direction={IconDirection.LEFT} />
-          </IconButton>
+          </PrimaryIconButton>
           <Typography as={'h1'} size={24} weight={700} margin={'0 0 0 60px'}>
             Confirm transaction
           </Typography>

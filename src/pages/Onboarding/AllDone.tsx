@@ -2,12 +2,10 @@ import React from 'react';
 import {
   VerticalFlex,
   Typography,
-  HorizontalSeparator,
   PrimaryButton,
   SecondaryButton,
   HorizontalFlex,
-  SecondaryCard,
-  IconButton,
+  SecondaryIconButton,
   TwitterIcon,
   DiscordIcon,
   TelegramIcon,
@@ -60,7 +58,7 @@ export function AllDone() {
           Explore Avalanche Ecosystem
         </SecondaryButton>
         <HorizontalFlex margin="43px 0 0">
-          <IconButton
+          <SecondaryIconButton
             margin="0 23px"
             as="a"
             href="https://twitter.com/avalancheavax"
@@ -68,8 +66,8 @@ export function AllDone() {
             target="_blank"
           >
             <TwitterIcon />
-          </IconButton>
-          <IconButton
+          </SecondaryIconButton>
+          <SecondaryIconButton
             margin="0 23px"
             as="a"
             href="https://chat.avalabs.org/"
@@ -77,8 +75,8 @@ export function AllDone() {
             target="_blank"
           >
             <DiscordIcon />
-          </IconButton>
-          <IconButton
+          </SecondaryIconButton>
+          <SecondaryIconButton
             margin="0 23px"
             as="a"
             href="https://t.me/avalancheavax"
@@ -86,8 +84,8 @@ export function AllDone() {
             target="_blank"
           >
             <TelegramIcon />
-          </IconButton>
-          <IconButton
+          </SecondaryIconButton>
+          <SecondaryIconButton
             margin="0 23px"
             as="a"
             href="https://github.com/ava-labs"
@@ -95,7 +93,7 @@ export function AllDone() {
             target="_blank"
           >
             <GithubIcon />
-          </IconButton>
+          </SecondaryIconButton>
         </HorizontalFlex>
       </VerticalFlex>
     </VerticalFlex>

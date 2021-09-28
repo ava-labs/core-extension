@@ -47,6 +47,7 @@ const DropDownContent = styled(Card)`
   padding: 0;
   flex-direction: column;
   width: fit-content;
+  z-index: 1;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     background: none;
