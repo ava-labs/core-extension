@@ -5,6 +5,7 @@ import {
   HorizontalFlex,
   TextButton,
   useIsSmallScreen,
+  useThemeContext,
   VerticalFlex,
 } from '@avalabs/react-components';
 import React, { useState } from 'react';
