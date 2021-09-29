@@ -1,7 +1,10 @@
 const zip = require('bestzip');
 const pjson = require('./package.json');
+const fs = require('fs');
 
 const { version } = pjson;
+
+fs.mkdirSync('builds');
 
 zip({
   cwd: 'dist',
