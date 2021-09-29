@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Header from '@src/components/common/header/Header';
-import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,
   HorizontalSeparator,
@@ -105,7 +104,6 @@ export function Popup() {
                       </Route>
                     </Switch>
                   </HorizontalFlex>
-                  <Footer />
                 </VerticalFlex>
               </SettingsContextProvider>
             </WalletContextProvider>
