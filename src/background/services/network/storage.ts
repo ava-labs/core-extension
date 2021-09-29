@@ -2,7 +2,7 @@ import {
   getFromStorage,
   saveToStorage,
 } from '@src/utils/storage/chrome-storage';
-import { ActiveNetwork, MAINNET_NETWORK, supportedNetworks } from './models';
+import { ActiveNetwork, supportedNetworks } from './models';
 
 export const NETWORK_STORAGE_KEY = 'network';
 

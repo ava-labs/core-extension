@@ -132,6 +132,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
         address={address as string}
         fee={`${sendFeeDisplayValue || 0}`}
         amountUsd={'0'}
+        txId={txId}
         onConfirm={() =>
           submit(amountDisplayValue as string).then(() => resetForm())
         }

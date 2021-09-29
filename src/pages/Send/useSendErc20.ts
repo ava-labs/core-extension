@@ -33,7 +33,7 @@ export function useSendErc20(token: ERC20) {
     },
     reset() {
       return request(sendErc20ResetRequest(token)).then((response) =>
-        setSendErc20State(response.result)
+        setSendErc20State(response)
       );
     },
     submit(amount: string) {
@@ -44,7 +44,7 @@ export function useSendErc20(token: ERC20) {
           sendErc20State?.address as string,
           sendErc20State?.gasLimit as number
         )
-      ).then((response) => setTxId(response.result));
+      ).then((result) => setTxId(result));
     },
   };
 }

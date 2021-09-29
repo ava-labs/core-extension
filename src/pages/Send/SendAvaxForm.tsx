@@ -16,11 +16,17 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { useEffect } from 'react';
 import { useSendAvaxFormErrors } from '@avalabs/wallet-react-components';
 import debounce from 'lodash.debounce';
-import {
-  getAvaxBalanceTotal,
-  getAvaxBalanceUSD,
-} from '../Wallet/utils/balanceHelpers';
+import { getAvaxBalanceTotal } from '../Wallet/utils/balanceHelpers';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+
+  // These options are needed to round to whole numbers if that's what you want.
+  //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+  //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+});
 
 export function SendAvaxForm() {
   const {
@@ -29,7 +35,6 @@ export function SendAvaxForm() {
     setValues,
     error,
     canSubmit,
-    amount,
     address,
     submit,
     reset,
@@ -46,6 +51,7 @@ export function SendAvaxForm() {
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
+    setAmountDisplayValue('');
   }
 
   const setValuesDebounced = useMemo(
@@ -86,7 +92,9 @@ export function SendAvaxForm() {
             margin={'8px 0 0 0'}
           >
             <Typography size={14}>
-              ${getAvaxBalanceUSD(amount || new BN(0), avaxPrice)}
+              {currencyFormatter.format(
+                Number(amountDisplayValue || 0) * avaxPrice
+              )}
             </Typography>
             {targetChain === 'X' ? (
               <SubTextTypography size={14}>
@@ -121,11 +129,14 @@ export function SendAvaxForm() {
         onClose={() => setShowConfirmation(false)}
         amount={amountDisplayValue as string}
         address={address as string}
+        txId={txId}
         fee={
           targetChain === 'X' ? getAvaxBalanceTotal(sendFee || new BN(0)) : ''
         }
         extraTxs={txs as any}
-        amountUsd={'0'}
+        amountUsd={currencyFormatter.format(
+          Number(amountDisplayValue || 0) * avaxPrice
+        )}
         onConfirm={() =>
           submit(amountDisplayValue as string).then(() => resetForm())
         }
