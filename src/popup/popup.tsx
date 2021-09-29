@@ -105,7 +105,6 @@ export function Popup() {
                       </Route>
                     </Switch>
                   </HorizontalFlex>
-                  <Footer />
                 </VerticalFlex>
               </SettingsContextProvider>
             </WalletContextProvider>
