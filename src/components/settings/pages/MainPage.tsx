@@ -16,7 +16,7 @@ import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPageProps, SettingsPages } from '../models';
 
-export function MainPage({ navigateTo, goBack }: SettingsPageProps) {
+export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
   const { lockWallet } = useSettingsContext();
 
@@ -40,7 +40,11 @@ export function MainPage({ navigateTo, goBack }: SettingsPageProps) {
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
-      <DropDownMenuItem justify="space-between" align="center">
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
+      >
         <Typography>Security &amp; Privacy</Typography>
         <CaretIcon
           color={theme.colors.textAccent}
@@ -67,7 +71,9 @@ export function MainPage({ navigateTo, goBack }: SettingsPageProps) {
       <DropDownMenuItem justify="space-between">
         <Typography>Hide tokens without balance</Typography>
       </DropDownMenuItem>
-      <HorizontalSeparator margin="12px 0" />
+
+      <HorizontalSeparator margin="32px 0 12px" />
+
       <DropDownMenuItem justify="space-between" onClick={() => lockWallet()}>
         <Typography>Lock wallet</Typography>
         <LockIcon color={theme.colors.textAccent} />
