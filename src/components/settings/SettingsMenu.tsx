@@ -21,6 +21,7 @@ const OuterContainer = styled(VerticalFlex)`
 
 const AnimatedContainer = styled(VerticalFlex)`
   height: 100%;
+  max-height: 100%;
 
   &.slideRight-enter {
     opacity: 0;

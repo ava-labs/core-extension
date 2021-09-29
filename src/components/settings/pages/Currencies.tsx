@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   CaretIcon,
   CheckmarkIcon,
@@ -12,6 +12,7 @@ import {
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
+import Scrollbars from 'react-custom-scrollbars';
 
 // TODO: replace it with the supported currency list and wite it up to the backend
 const currencies = [
@@ -41,7 +42,7 @@ export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Currencies'}
       />
-      <VerticalFlex width="100%" grow="1">
+      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         {currencies.map((c) => (
           <DropDownMenuItem
             key={c.symbol}
@@ -57,7 +58,7 @@ export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
             )}
           </DropDownMenuItem>
         ))}
-      </VerticalFlex>
+      </Scrollbars>
     </VerticalFlex>
   );
 }
