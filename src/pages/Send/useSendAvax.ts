@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { SendAvaxState } from '@avalabs/wallet-react-components';
+import {
+  SendAvaxState,
+  SendSubmitResponse,
+} from '@avalabs/wallet-react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendAvaxValidateRequest } from '@src/background/services/sendAvax/utils/sendAvaxValidateRequest';
 import { BN, ChainIdType } from '@avalabs/avalanche-wallet-sdk';
@@ -52,9 +55,9 @@ export function useSendAvax() {
           sendAvaxState?.targetChain as ChainIdType,
           sendAvaxState?.address as string
         )
-      ).then((hash) => {
-        setTxId(hash);
-        return hash;
+      ).then(({ txId }: SendSubmitResponse) => {
+        setTxId(txId);
+        return txId;
       });
     },
   };

@@ -6,11 +6,11 @@ import {
 import { sendAvaxSubmit, wallet$ } from '@avalabs/wallet-react-components';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { gasPrice$ } from '../../gas/gas';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 async function submitSendAvaxState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
-  const [amount, destinationChain, address] = params;
+  const [amount, destinationChain, address, memo] = params;
 
   if (!amount) {
     return {
@@ -33,12 +33,13 @@ async function submitSendAvaxState(request: ExtensionConnectionMessage) {
     };
   }
 
-  const result = await firstValueFrom(
+  const result = await lastValueFrom(
     sendAvaxSubmit(
       Utils.stringToBN(amount, 9),
       destinationChain,
       address,
       firstValueFrom(gasPrice$) as Promise<{ bn: BN }>,
+      memo,
       firstValueFrom(wallet$)
     )
   );

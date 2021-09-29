@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useSendAnt } from './useSendAnt';
 import {
   Input,
@@ -14,7 +14,7 @@ import { useSendAntFormErrors } from '@avalabs/wallet-react-components';
 import { SendAntConfirm } from './sendAntConfirm';
 
 export function SendAntForm({ token }: { token: AntWithBalance }) {
-  const { submit, canSubmit, address, setValues, error, reset, txId } =
+  const { submit, canSubmit, address, setValues, error, reset, sendFee, txId } =
     useSendAnt(token);
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
@@ -25,12 +25,12 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
+    setAmountDisplayValue('');
   }
 
   const setValuesDebounced = useMemo(
     () =>
       debounce((amount: string, address: string) => {
-        console.log('amount: ', amount);
         if (amount && address) {
           setValues(amount, address);
         }
@@ -68,9 +68,10 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
         onClose={() => setShowConfirmation(false)}
         amount={amountDisplayValue as string}
         address={address as string}
-        fee={'0'}
+        fee={Utils.bnToAvaxX(sendFee || new BN(0))}
         extraTxs={[] as any}
         amountUsd={'0'}
+        txId={txId}
         onConfirm={() =>
           submit(amountDisplayValue as string).then(() => resetForm())
         }

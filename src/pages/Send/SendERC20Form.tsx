@@ -41,6 +41,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
+    setAmountDisplayValue('');
   }
 
   const setValuesDebounced = useMemo(

@@ -7,10 +7,11 @@ import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
 export function sendAvaxSubmitRequest(
   amount: string,
   destChain: ChainIdType,
-  address: string
+  address: string,
+  memo?: string
 ): Omit<ExtensionConnectionMessage, 'id'> {
   return {
     method: ExtensionRequest.SEND_AVAX_SUBMIT,
-    params: [amount, destChain, address],
+    params: [amount, destChain, address, memo],
   };
 }
