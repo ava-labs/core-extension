@@ -52,6 +52,7 @@ export function SendAvaxForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
     setAmountDisplayValue('');
+    reset();
   }
 
   const setValuesDebounced = useMemo(
@@ -144,7 +145,7 @@ export function SendAvaxForm() {
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton
           onClick={() => {
-            reset().then(() => resetForm());
+            resetForm();
           }}
         >
           Reset

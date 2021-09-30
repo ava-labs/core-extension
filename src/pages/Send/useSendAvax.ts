@@ -6,7 +6,6 @@ import {
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendAvaxValidateRequest } from '@src/background/services/sendAvax/utils/sendAvaxValidateRequest';
 import { BN, ChainIdType } from '@avalabs/avalanche-wallet-sdk';
-import { sendAvaxResetRequest } from '@src/background/services/sendAvax/utils/sendAvaxResetRequest';
 import { sendAvaxSubmitRequest } from '@src/background/services/sendAvax/utils/sendAvaxSubmitRequest';
 
 export function useSendAvax() {
@@ -44,9 +43,7 @@ export function useSendAvax() {
         });
     },
     reset() {
-      return request(sendAvaxResetRequest()).then((state) =>
-        parseAndSetState(state)
-      );
+      setSendAvaxState(undefined);
     },
     submit(amount: string) {
       return request(

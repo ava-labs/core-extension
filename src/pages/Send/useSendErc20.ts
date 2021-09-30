@@ -6,7 +6,6 @@ import {
 } from '@avalabs/wallet-react-components';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { sendErc20ValidateRequest } from '@src/background/services/sendErc20/utils/sendErc20ValidateRequest';
-import { sendErc20ResetRequest } from '@src/background/services/sendErc20/utils/sendErc20ResetRequest';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendErc20SubmitRequest } from '@src/background/services/sendErc20/utils/sendErc20SubmitRequest';
 
@@ -36,9 +35,7 @@ export function useSendErc20(token: ERC20) {
       );
     },
     reset() {
-      return request(sendErc20ResetRequest(token)).then((response) =>
-        setSendErc20State(response)
-      );
+      setSendErc20State(undefined);
     },
     submit(amount: string) {
       return request(

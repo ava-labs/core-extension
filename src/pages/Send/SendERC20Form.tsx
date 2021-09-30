@@ -21,7 +21,6 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
   const {
     address,
     setValues,
-    amount,
     gasPrice,
     gasLimit,
     txId,
@@ -29,7 +28,6 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
     submit,
     canSubmit,
     error,
-    sendFee,
     sendFeeDisplayValue,
   } = useSendErc20(token);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -39,6 +37,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
 
   function resetForm() {
+    reset();
     setAddressInput('');
     setAmountInput(undefined as any);
     setAmountDisplayValue('');
@@ -142,7 +141,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton
           onClick={() => {
-            reset().then(() => resetForm());
+            resetForm();
           }}
         >
           Reset

@@ -39,10 +39,7 @@ export function useSendAnt(token: AntWithBalance) {
       );
     },
     reset() {
-      return request(sendAntResetRequest()).then((result) => {
-        setSendAntState(result);
-        return result;
-      });
+      setSendAntState(undefined);
     },
     submit(amount: string) {
       if (!sendAntState) {
