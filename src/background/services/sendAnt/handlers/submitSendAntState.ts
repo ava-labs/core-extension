@@ -3,7 +3,11 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { sendAntSubmit, wallet$ } from '@avalabs/wallet-react-components';
+import {
+  AntWithBalance,
+  sendAntSubmit,
+  wallet$,
+} from '@avalabs/wallet-react-components';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
 
@@ -45,7 +49,7 @@ async function submitSendAntState(request: ExtensionConnectionMessage) {
     sendAntSubmit(
       Promise.resolve<WalletType>(wallet),
       token,
-      Utils.stringToBN(amount, 9),
+      Utils.stringToBN(amount, (token as AntWithBalance).denomination),
       address
     )
   );

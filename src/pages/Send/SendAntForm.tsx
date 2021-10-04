@@ -26,6 +26,7 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
     setAddressInput('');
     setAmountInput(undefined as any);
     setAmountDisplayValue('');
+    reset();
   }
 
   const setValuesDebounced = useMemo(
@@ -79,7 +80,7 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton
           onClick={() => {
-            reset().then(() => resetForm());
+            resetForm();
           }}
         >
           Reset
