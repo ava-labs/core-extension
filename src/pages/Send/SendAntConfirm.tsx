@@ -16,7 +16,7 @@ import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { DestinationChainTx } from '@avalabs/wallet-react-components';
 import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
-import { SendConsolidationDetails } from './sendConsolidationDetails';
+import { SendConsolidationDetails } from './SendConsolidationDetails';
 
 export function SendAntConfirm({
   open,

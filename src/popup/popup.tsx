@@ -3,7 +3,6 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import Header from '@src/components/common/header/Header';
 import {
   HorizontalFlex,
-  HorizontalSeparator,
   LoadingIcon,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -54,7 +53,6 @@ export function Popup() {
                 >
                   <VerticalFlex width="100%">
                     <Header onDrawerStateChanged={setDrawerOpen} />
-                    <HorizontalSeparator margin="0" />
                   </VerticalFlex>
 
                   <HorizontalFlex
