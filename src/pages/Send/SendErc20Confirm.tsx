@@ -16,7 +16,7 @@ import { TokenImg } from '@src/components/common/TokenImage';
 import { DestinationChainTx, ERC20 } from '@avalabs/wallet-react-components';
 import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
-import { SendConsolidationDetails } from './sendConsolidationDetails';
+import { SendConsolidationDetails } from './SendConsolidationDetails';
 
 export function SendErc20Confirm({
   open,
