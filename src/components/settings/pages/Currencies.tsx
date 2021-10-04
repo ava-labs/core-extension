@@ -1,11 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  CaretIcon,
   CheckmarkIcon,
   DropDownMenuItem,
-  HorizontalFlex,
-  IconDirection,
-  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
