@@ -29,6 +29,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
     canSubmit,
     error,
     sendFeeDisplayValue,
+    txs,
   } = useSendErc20(token);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
@@ -133,6 +134,7 @@ export function SendERC20Form({ token }: { token: ERC20 }) {
         fee={`${sendFeeDisplayValue || 0}`}
         amountUsd={'0'}
         txId={txId}
+        extraTxs={txs || []}
         onConfirm={() =>
           submit(amountDisplayValue as string).then(() => resetForm())
         }

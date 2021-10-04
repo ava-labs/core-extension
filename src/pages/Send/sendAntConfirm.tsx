@@ -16,6 +16,7 @@ import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { DestinationChainTx } from '@avalabs/wallet-react-components';
 import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
+import { SendConsolidationDetails } from './sendConsolidationDetails';
 
 export function SendAntConfirm({
   open,
@@ -40,6 +41,7 @@ export function SendAntConfirm({
 }) {
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState(false);
+  const [showTxDetails, setShowTxDetails] = useState(false);
 
   useEffect(() => {
     if (txId) {
@@ -107,9 +109,22 @@ export function SendAntConfirm({
               </SubTextTypography>
               <Typography>{fee} AVAX</Typography>
             </VerticalFlex>
-            {extraTxs?.length ? <TextButton>View Details</TextButton> : ''}
+            {extraTxs?.length ? (
+              <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
+                View Details
+              </TextButton>
+            ) : (
+              ''
+            )}
           </HorizontalFlex>
         </SecondaryCard>
+        {showTxDetails ? (
+          <SecondaryCard>
+            <SendConsolidationDetails txs={extraTxs} />
+          </SecondaryCard>
+        ) : (
+          ''
+        )}
         <br />
         <HorizontalFlex width={'100%'} justify={'center'}>
           <PrimaryButton

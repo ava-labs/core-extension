@@ -19,15 +19,7 @@ export function WalletLocked({
   return (
     <VerticalFlex align={'center'} justify={'center'} width={'100%'}>
       <Typography>Wallet Locked</Typography>
-      <Typography>Put in your password fool</Typography>
-      <iframe
-        src="https://gfycat.com/ifr/ConcernedThunderousFish"
-        frameBorder="0"
-        scrolling="no"
-        width="640"
-        height="524"
-      ></iframe>
-      <br />
+      <Typography>Put in your password</Typography>
       <br />
       <Input
         onChange={(e) => setPassword(e.currentTarget.value)}
@@ -41,7 +33,10 @@ export function WalletLocked({
         <PrimaryButton
           disabled={!password}
           onClick={() =>
-            password && unlockWallet(password).catch((err) => setError(err))
+            password &&
+            unlockWallet(password).catch(() => {
+              setError('Password incorrect');
+            })
           }
         >
           Unlock
