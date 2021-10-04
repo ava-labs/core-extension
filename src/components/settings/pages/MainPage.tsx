@@ -18,7 +18,8 @@ import { SettingsPageProps, SettingsPages } from '../models';
 
 export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
-  const { lockWallet } = useSettingsContext();
+  const { lockWallet, toggleShowTokensWithoutBalanceSetting } =
+    useSettingsContext();
 
   return (
     <VerticalFlex width="375px" padding="12px 0">
@@ -68,7 +69,10 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
-      <DropDownMenuItem justify="space-between">
+      <DropDownMenuItem
+        justify="space-between"
+        onClick={() => toggleShowTokensWithoutBalanceSetting()}
+      >
         <Typography>Hide tokens without balance</Typography>
       </DropDownMenuItem>
 

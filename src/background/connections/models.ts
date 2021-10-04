@@ -85,6 +85,10 @@ export enum ExtensionRequest {
   SEND_ERC20_VALIDATE = 'send_validateSendErc20State',
   SEND_ERC20_RESET = 'send_resetSendErc20State',
   SEND_ERC20_SUBMIT = 'send_submitSendErc20State',
+
+  SETTINGS_GET = 'settings_get',
+  SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
+  SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
 }
 
 export enum ProviderRequest {

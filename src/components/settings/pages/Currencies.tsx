@@ -9,6 +9,7 @@ import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 // TODO: replace it with the supported currency list and wite it up to the backend
 const currencies = [
@@ -28,6 +29,7 @@ const currencies = [
 ];
 
 export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
+  const { updateCurrencySetting } = useSettingsContext();
   const theme = useTheme();
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
 
@@ -44,7 +46,10 @@ export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
             key={c.symbol}
             justify="space-between"
             align="center"
-            onClick={() => setSelectedCurrency(c.symbol)}
+            onClick={() => {
+              setSelectedCurrency(c.symbol);
+              updateCurrencySetting(c.symbol);
+            }}
           >
             <Typography>
               {c.name} ({c.symbol})

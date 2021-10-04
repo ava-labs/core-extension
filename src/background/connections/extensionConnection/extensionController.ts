@@ -39,6 +39,10 @@ import { ValidateSendAntStateRequest } from '@src/background/services/sendAnt/ha
 import { ResetSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/resetSendErc20State';
 import { ValidateSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/validateSendErc20State';
 import { SubmitSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/submitSendErc20State';
+import { GetSettingsStateRequest } from '@src/background/services/settings/handlers/getSettings';
+import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
+import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
+import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -79,6 +83,10 @@ const extensionRequestHandlerMap = new Map<
   ResetSendErc20StateRequest,
   ValidateSendErc20StateRequest,
   SubmitSendErc20StateRequest,
+
+  GetSettingsStateRequest,
+  SettingsUpdateCurrencySelectionRequest,
+  SettingsUpdateShowTokensWithBalanceRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
@@ -112,7 +120,8 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     walletUpdateEvents,
     onboardingPhaseUpdatedEvent(),
     gasPriceTransactionUpdate(),
-    transactionFinalizedUpdate()
+    transactionFinalizedUpdate(),
+    settingsUpdatedEvent()
   ).pipe(
     tap((evt) => {
       eventLog(`extension event (${evt.name})`, evt);
