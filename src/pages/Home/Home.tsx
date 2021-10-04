@@ -13,7 +13,7 @@ import { WalletHomeRecentTxs } from '../Wallet/WalletHomeRecentTxs';
 import { WalletPortfolio } from '../Wallet/WalletPortfolio';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
-import { AccountSelector } from '@src/components/common/AccountSelector';
+import { AccountSelector } from '@src/components/common/account/AccountSelector';
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 
 const TABS_BOTTOM_PADDING = 16;

@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  DropDownMenu,
+  SecondaryDropDownMenu,
   Card,
   HorizontalFlex,
   Typography,
   VerticalFlex,
   CheckmarkIcon,
-  DropDownMenuItem,
+  SecondaryDropDownMenuItem,
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
@@ -43,7 +43,7 @@ export function WalletConnection() {
   };
 
   return (
-    <DropDownMenu
+    <SecondaryDropDownMenu
       style={{ marginLeft: '42px' }}
       coords={{
         top: '48px',
@@ -76,7 +76,7 @@ export function WalletConnection() {
           Networks
         </Typography>
         {networks.map((n) => (
-          <DropDownMenuItem
+          <SecondaryDropDownMenuItem
             key={n.name}
             onClick={() => setNetwork(n)}
             align="center"
@@ -90,9 +90,9 @@ export function WalletConnection() {
             {network?.name === n.name && (
               <CheckmarkIcon size="16px" color={theme.colors.primary[400]} />
             )}
-          </DropDownMenuItem>
+          </SecondaryDropDownMenuItem>
         ))}
       </VerticalFlex>
-    </DropDownMenu>
+    </SecondaryDropDownMenu>
   );
 }
