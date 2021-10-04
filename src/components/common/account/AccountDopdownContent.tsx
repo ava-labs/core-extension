@@ -4,7 +4,6 @@ import {
   DropDownMenuItem,
   HorizontalFlex,
   HorizontalSeparator,
-  PencilIcon,
   PrimaryAddress,
   SecondaryAddress,
   TextButton,
@@ -14,6 +13,7 @@ import {
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
+import { EditableAccountName } from './EditableAccountName';
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   margin: 0 0 8px 0;
@@ -24,6 +24,10 @@ const AddressContainer = styled(VerticalFlex)<{ selected: boolean }>`
   margin: ${({ selected }) => (selected ? '16px 0 0 0' : '0px')};
   max-height: ${({ selected }) => (selected ? '90px' : '0px')};
   transition: max-height 300ms, margin 300ms;
+`;
+
+const StyledCheckmarkIcon = styled(CheckmarkIcon)`
+  flex-shrink: 0;
 `;
 
 export function AccountDropdownContent() {
@@ -61,8 +65,8 @@ export function AccountDropdownContent() {
     },
   ];
 
-  const editAddress = () => {
-    return '0';
+  const selectAccount = (index: number) => {
+    setSelectedAccount(index);
   };
 
   return (
@@ -87,7 +91,7 @@ export function AccountDropdownContent() {
             key={i}
             selected={selectedAccount === i}
             padding="16px 32px"
-            onClick={() => setSelectedAccount(i)}
+            onClick={() => selectAccount(i)}
             ref={selectedAccount === i ? selectedAccountRef : undefined}
           >
             <VerticalFlex width="100%">
@@ -96,18 +100,15 @@ export function AccountDropdownContent() {
                 justify="space-between"
                 align="center"
               >
-                <HorizontalFlex align="center">
-                  <Typography weight={600} height="24px" margin="0 16px 0 0">
-                    {account.name}
-                  </Typography>
-                  {selectedAccount === i && (
-                    <TextButton onClick={editAddress}>
-                      <PencilIcon color={theme.colors.text} />
-                    </TextButton>
-                  )}
-                </HorizontalFlex>
+                <EditableAccountName
+                  name={account.name}
+                  enabled={selectedAccount === i}
+                  onSave={(name) =>
+                    console.log('TODO: handle save new name:', name)
+                  }
+                />
                 {selectedAccount === i && (
-                  <CheckmarkIcon
+                  <StyledCheckmarkIcon
                     size="16px"
                     color={theme.colors.primary[400]}
                   />
