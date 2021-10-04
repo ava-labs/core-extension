@@ -11,11 +11,20 @@ import {
 import { AntWithBalance } from '@avalabs/wallet-react-components';
 import debounce from 'lodash.debounce';
 import { useSendAntFormErrors } from '@avalabs/wallet-react-components';
-import { SendAntConfirm } from './sendAntConfirm';
+import { SendAntConfirm } from './SendAntConfirm';
 
 export function SendAntForm({ token }: { token: AntWithBalance }) {
-  const { submit, canSubmit, address, setValues, error, reset, sendFee, txId } =
-    useSendAnt(token);
+  const {
+    submit,
+    canSubmit,
+    address,
+    setValues,
+    error,
+    reset,
+    sendFee,
+    txId,
+    txs,
+  } = useSendAnt(token);
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
@@ -70,7 +79,7 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
         amount={amountDisplayValue as string}
         address={address as string}
         fee={Utils.bnToAvaxX(sendFee || new BN(0))}
-        extraTxs={[] as any}
+        extraTxs={txs || []}
         amountUsd={'0'}
         txId={txId}
         onConfirm={() =>
