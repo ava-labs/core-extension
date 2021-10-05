@@ -19,7 +19,8 @@ import { SettingsPageProps, SettingsPages } from '../models';
 
 export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
-  const { lockWallet } = useSettingsContext();
+  const { lockWallet, toggleShowTokensWithoutBalanceSetting } =
+    useSettingsContext();
   const { showDialog, clearDialog } = useDialog();
 
   const onLogoutClick = () => {
@@ -86,7 +87,10 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
-      <DropDownMenuItem justify="space-between">
+      <DropDownMenuItem
+        justify="space-between"
+        onClick={() => toggleShowTokensWithoutBalanceSetting()}
+      >
         <Typography>Hide tokens without balance</Typography>
       </DropDownMenuItem>
 
