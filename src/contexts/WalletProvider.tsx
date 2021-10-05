@@ -15,6 +15,7 @@ import {
 } from '@src/background/connections/models';
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
+import { useWalletHistory, WalletHistory } from './hooks/useWalletHIstory';
 
 type WalletStateAndMethods = WalletState & {
   changeWalletPassword(
@@ -24,6 +25,7 @@ type WalletStateAndMethods = WalletState & {
   getUnencryptedMnemonic(
     password: string
   ): Promise<ExtensionConnectionMessageResponse<any>>;
+  walletHistory?: WalletHistory;
 };
 const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
@@ -32,6 +34,7 @@ export function WalletContextProvider({ children }: { children: any }) {
   const [walletState, setWalletState] = useState<
     WalletState | WalletLockedState
   >();
+  const walletHistory = useWalletHistory([50]);
 
   function setWalletStateAndCast(state: WalletState | WalletLockedState) {
     return isWalletLocked(state)
@@ -90,7 +93,12 @@ export function WalletContextProvider({ children }: { children: any }) {
 
   return (
     <WalletContext.Provider
-      value={{ ...walletState, changeWalletPassword, getUnencryptedMnemonic }}
+      value={{
+        ...walletState,
+        changeWalletPassword,
+        getUnencryptedMnemonic,
+        walletHistory,
+      }}
     >
       {children}
     </WalletContext.Provider>
