@@ -43,6 +43,8 @@ import { GetSettingsStateRequest } from '@src/background/services/settings/handl
 import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
 import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
+import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/handlers/changeWalletPassword';
+import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -63,7 +65,8 @@ const extensionRequestHandlerMap = new Map<
 
   GetWalletStateRequest,
   UnlockWalletStateRequest,
-  SettingsLockWalletStateRequest,
+  ChangeWalletPasswordRequest,
+  GetUnencryptedMnemonicRequest,
 
   AddPermissionsForDomainRequest,
   GetPermissionsForDomainRequest,
@@ -87,6 +90,7 @@ const extensionRequestHandlerMap = new Map<
   GetSettingsStateRequest,
   SettingsUpdateCurrencySelectionRequest,
   SettingsUpdateShowTokensWithBalanceRequest,
+  SettingsLockWalletStateRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {

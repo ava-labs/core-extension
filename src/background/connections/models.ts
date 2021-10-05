@@ -60,6 +60,8 @@ export enum ExtensionRequest {
 
   WALLET_STATE = 'wallet_InitializeState',
   WALLET_UNLOCK_STATE = 'wallet_unlockWalletState',
+  WALLET_CHANGE_PASSWORD = 'wallet_changePassword',
+  WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
 
   SETTINGS_LOCK_WALLET = 'settings_lockWallet',
 
