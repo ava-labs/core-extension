@@ -4,10 +4,13 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
+import { filter, firstValueFrom } from 'rxjs';
+import { walletLocked$ } from '../walletLocked';
 
 export async function getWalletHistory(request: ExtensionConnectionMessage) {
   const [limit = 50] = request.params || [];
+
+  await firstValueFrom(walletLocked$.pipe(filter((state) => !state?.locked)));
 
   const wallet = await firstValueFrom(wallet$);
 
