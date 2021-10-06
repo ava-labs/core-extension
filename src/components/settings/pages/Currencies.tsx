@@ -55,7 +55,7 @@ export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
               {c.name} ({c.symbol})
             </Typography>
             {selectedCurrency === c.symbol && (
-              <CheckmarkIcon size="16px" color={theme.colors.primary[400]} />
+              <CheckmarkIcon size="16px" color={theme.colors.primary1} />
             )}
           </DropDownMenuItem>
         ))}

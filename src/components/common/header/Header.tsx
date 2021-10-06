@@ -45,7 +45,7 @@ function Header({ onDrawerStateChanged }: HeaderProps) {
           {isSmallScreen ? (
             <HorizontalFlex>
               <TextButton onClick={() => openDrawer()} margin="0 0 0 23px">
-                <HamburgerIcon color={theme.colors.text} height="27px" />
+                <HamburgerIcon color={theme.colors.text1} height="27px" />
               </TextButton>
             </HorizontalFlex>
           ) : (

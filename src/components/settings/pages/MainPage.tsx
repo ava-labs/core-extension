@@ -54,7 +54,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
       >
         <Typography>Currency</Typography>
         <CaretIcon
-          color={theme.colors.textAccent}
+          color={theme.colors.icon2}
           height="12px"
           direction={IconDirection.RIGHT}
         />
@@ -66,7 +66,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
       >
         <Typography>Security &amp; Privacy</Typography>
         <CaretIcon
-          color={theme.colors.textAccent}
+          color={theme.colors.icon2}
           height="12px"
           direction={IconDirection.RIGHT}
         />
@@ -74,7 +74,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
       <DropDownMenuItem justify="space-between" align="center">
         <Typography>Legal</Typography>
         <CaretIcon
-          color={theme.colors.textAccent}
+          color={theme.colors.icon2}
           height="12px"
           direction={IconDirection.RIGHT}
         />
@@ -82,7 +82,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
       <DropDownMenuItem justify="space-between" align="center">
         <Typography>Advanced</Typography>
         <CaretIcon
-          color={theme.colors.textAccent}
+          color={theme.colors.icon2}
           height="12px"
           direction={IconDirection.RIGHT}
         />
@@ -98,11 +98,11 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
 
       <DropDownMenuItem justify="space-between" onClick={() => lockWallet()}>
         <Typography>Lock wallet</Typography>
-        <LockIcon color={theme.colors.textAccent} />
+        <LockIcon color={theme.colors.icon1} />
       </DropDownMenuItem>
       <DropDownMenuItem justify="space-between">
         <Typography>Version</Typography>
-        <Typography color={theme.colors.textAccent}>0.0.0</Typography>
+        <Typography color={theme.colors.text2}>0.0.0</Typography>
       </DropDownMenuItem>
       <DropDownMenuItem justify="space-between" onClick={() => onLogoutClick()}>
         <TextButton>Sign out</TextButton>

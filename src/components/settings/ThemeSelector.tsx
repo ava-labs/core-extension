@@ -14,9 +14,9 @@ export function ThemeSelector() {
   return (
     <TextButton onClick={() => toggleDarkTheme()}>
       {darkMode ? (
-        <SunshineIcon color={theme.colors.text} />
+        <SunshineIcon color={theme.colors.text1} />
       ) : (
-        <MoonIcon color={theme.colors.text} />
+        <MoonIcon color={theme.colors.text1} />
       )}
     </TextButton>
   );

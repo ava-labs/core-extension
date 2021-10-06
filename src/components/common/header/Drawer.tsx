@@ -16,7 +16,7 @@ interface DrawerProps {
 }
 
 const Container = styled(VerticalFlex)`
-  background-color: ${({ theme }) => theme.colors.bg};
+  background-color: ${({ theme }) => theme.colors.bg1};
   position: fixed;
   left: -100%;
   top: 0;
@@ -46,7 +46,7 @@ function Drawer({ open, onCloseClicked }: DrawerProps) {
       <HorizontalFlex justify="space-between" margin="0 0 40px">
         <Logo />
         <TextButton onClick={() => onCloseClicked()}>
-          <CloseIcon fill={theme.colors.text} size={21} />
+          <CloseIcon fill={theme.colors.text1} size={21} />
         </TextButton>
       </HorizontalFlex>
       <Menu />

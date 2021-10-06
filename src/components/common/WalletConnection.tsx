@@ -34,11 +34,11 @@ export function WalletConnection() {
   const getNetworkColor = (networkName?: string) => {
     switch (networkName) {
       case MAINNET_NETWORK.name:
-        return theme.colors.secondary[400];
+        return theme.palette.secondary[400];
       case FUJI_NETWORK.name:
-        return theme.colors.orange[400];
+        return theme.palette.orange[400];
       default:
-        return theme.colors.grey[400];
+        return theme.palette.grey[400];
     }
   };
 
@@ -88,7 +88,7 @@ export function WalletConnection() {
               <Typography height="24px">{n.name}</Typography>
             </HorizontalFlex>
             {network?.name === n.name && (
-              <CheckmarkIcon size="16px" color={theme.colors.primary[400]} />
+              <CheckmarkIcon size="16px" color={theme.colors.primary1} />
             )}
           </SecondaryDropDownMenuItem>
         ))}

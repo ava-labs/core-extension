@@ -18,7 +18,7 @@ const IllustrationPlaceholder = styled(VerticalFlex)`
   width: 240px;
   height: 240px;
   border-radius: 50%;
-  background: ${({ theme }) => theme.colors?.grey[800]};
+  background: ${({ theme }) => theme.palette.grey[800]};
   justify-content: center;
   align-items: center;
 `;
