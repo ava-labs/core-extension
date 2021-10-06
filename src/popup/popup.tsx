@@ -5,6 +5,7 @@ import {
   HorizontalFlex,
   LoadingIcon,
   VerticalFlex,
+  DialogContextProvider,
 } from '@avalabs/react-components';
 
 const AddToken = React.lazy(() => {
@@ -32,14 +33,13 @@ import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
-import { GlobalStyle } from '@src/styles/styles';
 import { Home } from '@src/pages/Home/Home';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <>
+    <DialogContextProvider>
       <ConnectionContextProvider>
         <OnboardingContextProvider>
           <NetworkContextProvider>
@@ -108,8 +108,7 @@ export function Popup() {
           </NetworkContextProvider>
         </OnboardingContextProvider>
       </ConnectionContextProvider>
-      <GlobalStyle />
-    </>
+    </DialogContextProvider>
   );
 }
 

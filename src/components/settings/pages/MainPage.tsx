@@ -8,6 +8,7 @@ import {
   LockIcon,
   TextButton,
   Typography,
+  useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
@@ -20,6 +21,23 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
   const { lockWallet, toggleShowTokensWithoutBalanceSetting } =
     useSettingsContext();
+  const { showDialog, clearDialog } = useDialog();
+
+  const onLogoutClick = () => {
+    showDialog({
+      title: 'Have you recorded your recovery phrase?',
+      body: 'Without it you will not be able to sign back in to your account.',
+      confirmText: 'Yes',
+      onConfirm: () => {
+        clearDialog();
+        resetExtensionState();
+      },
+      cancelText: 'No',
+      onCancel: () => {
+        clearDialog();
+      },
+    });
+  };
 
   return (
     <VerticalFlex width="375px" padding="12px 0">
@@ -86,10 +104,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
         <Typography>Version</Typography>
         <Typography color={theme.colors.textAccent}>0.0.0</Typography>
       </DropDownMenuItem>
-      <DropDownMenuItem
-        justify="space-between"
-        onClick={() => resetExtensionState()}
-      >
+      <DropDownMenuItem justify="space-between" onClick={() => onLogoutClick()}>
         <TextButton>Sign out</TextButton>
       </DropDownMenuItem>
     </VerticalFlex>
