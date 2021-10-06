@@ -16,7 +16,7 @@ interface DrawerProps {
 }
 
 const Container = styled(VerticalFlex)`
-  background-color: ${({ theme }) => theme.colors.bg};
+  background-color: ${({ theme }) => theme.colors.bg1};
   position: fixed;
   left: -100%;
   top: 0;
