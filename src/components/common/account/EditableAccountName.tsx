@@ -75,7 +75,7 @@ export function EditableAccountName({
         <>
           <AccountName>{accountName}</AccountName>
           {enabled && (
-            <PencilIcon color={theme.colors.text} onClick={editAddress} />
+            <PencilIcon color={theme.colors.text1} onClick={editAddress} />
           )}
         </>
       )}

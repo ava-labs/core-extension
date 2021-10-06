@@ -20,8 +20,8 @@ export function QRCodeWithLogo({
   const theme = useTheme();
   return (
     <VerticalFlex
-      padding="10px"
-      background={theme.colors.grey[800]}
+      padding="12px"
+      background={theme.colors.bg1}
       radius="4px"
       className={className}
       align="center"
@@ -29,10 +29,11 @@ export function QRCodeWithLogo({
     >
       <QRCode
         renderAs="svg"
-        fgColor={theme.colors.text}
-        bgColor={theme.colors.grey[800]}
+        fgColor={theme.colors.icon1}
+        bgColor={theme.colors.bg1}
         value={value}
         level="H"
+        size={200}
       />
       {logoText && <StyledQRCodeLogo text={logoText} />}
     </VerticalFlex>

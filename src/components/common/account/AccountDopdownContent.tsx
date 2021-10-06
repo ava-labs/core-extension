@@ -110,7 +110,7 @@ export function AccountDropdownContent() {
                 {selectedAccount === i && (
                   <StyledCheckmarkIcon
                     size="16px"
-                    color={theme.colors.primary[400]}
+                    color={theme.colors.primary1}
                   />
                 )}
               </HorizontalFlex>

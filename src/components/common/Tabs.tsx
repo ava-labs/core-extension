@@ -16,8 +16,8 @@ export const Tab = styled(ReactTab)<{
   $highlight: boolean;
   margin?: string;
 }>`
-  margin: ${({ margin }) => margin ?? '0 16px 0 0'};
-  color: ${({ theme }) => theme.colors.text};
+  margin: ${({ margin }) => margin ?? '0px 16px 8px 0'};
+  color: ${({ theme }) => theme.colors.text1};
   cursor: pointer;
   ${({ theme, $highlight = true }) => {
     return $highlight
@@ -29,18 +29,18 @@ export const Tab = styled(ReactTab)<{
               height: 2px;
               left: 0;
               right: 0;
-              bottom: -11px;
-              background-color: ${theme.colors.primary[500]};
+              bottom: -8px;
+              background-color: ${theme.colors.primary1};
             }
           }`
       : '';
   }}
 
   &:not([aria-selected='true']) {
-    color: ${({ theme }) => theme.colors.textAccent};
+    color: ${({ theme }) => theme.colors.text2};
 
     &:hover {
-      color: ${({ theme }) => theme.colors.text};
+      color: ${({ theme }) => theme.colors.text1};
     }
   }
 `;

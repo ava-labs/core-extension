@@ -33,8 +33,7 @@ export function WalletHomeSend() {
   }, []);
 
   return (
-    <VerticalFlex>
-      <br />
+    <VerticalFlex padding="16px 0 0 0">
       <WalletSendToken />
       <SendFlow />
     </VerticalFlex>

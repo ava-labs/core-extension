@@ -37,7 +37,7 @@ export function Modal({
           left: 'auto',
           right: 'auto',
           bottom: 'auto',
-          background: theme.colors.grey[900],
+          background: theme.colors.bg2,
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
           borderRadius: '4px',

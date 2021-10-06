@@ -92,7 +92,7 @@ export function SettingsMenu() {
       }}
       icon={
         <PrimaryIconButton>
-          <HamburgerIcon color={theme.colors.text} />
+          <HamburgerIcon color={theme.colors.text1} />
         </PrimaryIconButton>
       }
     >

@@ -35,11 +35,12 @@ function HomeSideBar() {
     <VerticalFlex
       flex={1}
       margin={`${TABS_BOTTOM_PADDING}px 0 0 0`}
-      style={{ width: `${SIDEBAR_WIDTH}px`, minWidth: `${SIDEBAR_WIDTH}px` }}
+      width={`${SIDEBAR_WIDTH}px`}
+      style={{ minWidth: `${SIDEBAR_WIDTH}px` }}
     >
-      <Card>
+      <Card margin="0 0 16px">
         <Tabs defaultIndex={showSend ? 0 : 1}>
-          <TabList>
+          <TabList $border={false}>
             <Tab disabled={!showSend}>
               <Typography weight={600} color={'inherit'}>
                 Send
@@ -60,7 +61,6 @@ function HomeSideBar() {
           </TabPanel>
         </Tabs>
       </Card>
-      <br />
       <WalletHomeRecentTxs />
     </VerticalFlex>
   );
@@ -98,7 +98,7 @@ export function Home() {
         </HorizontalFlex>
       </HorizontalFlex>
       <HorizontalFlex>
-        <VerticalFlex flex={3} margin={`${TABS_BOTTOM_PADDING}px 10px 0 0`}>
+        <VerticalFlex flex={3} margin={`${TABS_BOTTOM_PADDING}px 16px 0 0`}>
           <TabPanel>
             <WalletPortfolio />
           </TabPanel>

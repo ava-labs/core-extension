@@ -36,7 +36,7 @@ export function AccountSelector() {
             <AccountName>Account</AccountName>
             <CaretIcon
               direction={IconDirection.DOWN}
-              color={theme.colors.text}
+              color={theme.colors.text1}
               height="12px"
             />
           </HorizontalFlex>

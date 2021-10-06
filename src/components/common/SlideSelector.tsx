@@ -11,7 +11,7 @@ export interface SelectorItem {
 
 const Container = styled(HorizontalFlex)`
   height: 40px;
-  background-color: ${({ theme }) => theme.colors.grey[800]};
+  background-color: ${({ theme }) => theme.colors.bg3};
   align-items: center;
   border-radius: 20px;
 `;
@@ -25,13 +25,13 @@ const ItemContainer = styled(HorizontalFlex)<{ selected: boolean }>`
   transition: background-color 0.3s ease;
   border-radius: 20px;
   padding: 0 12px;
-  color: ${({ theme }) => theme.colors.grey[600]};
+  color: ${({ theme }) => theme.colors.text2};
 
   ${({ theme, selected }) =>
     selected
       ? `
-        background-color: ${theme.colors.primary[400]};
-        color: ${theme.colors.text};
+        background-color: ${theme.colors.primary1};
+        color: ${theme.colors.text3};
       `
       : ''}
 `;

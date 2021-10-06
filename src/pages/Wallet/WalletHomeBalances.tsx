@@ -31,10 +31,10 @@ export function WalletHomeBalances() {
   const theme = useTheme();
 
   const tokenColors = [
-    theme.colors.pink['500'],
-    theme.colors.green['500'],
-    theme.colors.orange['500'],
-    theme.colors.turquoise['500'],
+    theme.palette.pink['500'],
+    theme.palette.green['500'],
+    theme.palette.orange['500'],
+    theme.palette.turquoise['500'],
     '#2196F3', // blue 500
   ];
 

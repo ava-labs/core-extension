@@ -27,7 +27,7 @@ const Link = styled(TextButton)`
           props.level === 1
             ? theme.dropdown.secondary.itemBgHover
             : 'transparent'};
-        text-shadow: 0px 0px 0.5px ${({ theme }) => theme.colors.text};
+        text-shadow: 0px 0px 0.5px ${({ theme }) => theme.colors.text1};
       }
 
       ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -98,7 +98,7 @@ const DropDown = styled.div<{
           }
 
           & > ${DropDownText} {
-            background: ${({ theme }) => theme.colors.grey[800]};
+            background: ${({ theme }) => theme.colors.bg2};
           }
 
           & ${StyledCaretIcon} {
@@ -116,7 +116,7 @@ const DropDown = styled.div<{
             transform: rotate(-180deg);
           }
           &:hover > ${Typography} {
-            text-shadow: 0px 0px 1px ${({ theme }) => theme.colors.text};
+            text-shadow: 0px 0px 1px ${({ theme }) => theme.colors.text1};
           }
         `};
 `;
@@ -196,7 +196,7 @@ function Menu() {
               </Typography>
               <StyledCaretIcon
                 height={isSmallScreen ? '24px' : '14px'}
-                color={theme.colors.text}
+                color={theme.colors.text1}
               />
             </DropDownText>
             <DropDownContent>
