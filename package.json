@@ -63,9 +63,9 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
-    "@avalabs/avalanche-wallet-sdk": "^0.9.7",
-    "@avalabs/wallet-react-components": "1.4.10",
+    "@avalabs/avalanche-wallet-sdk": "^0.9.10",
     "@avalabs/react-components": "^1.19.0",
+    "@avalabs/wallet-react-components": "1.4.10",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
     "@pangolindex/exchange-contracts": "^1.0.1",
@@ -76,6 +76,7 @@
     "bn.js": "^5.1.0",
     "copy-webpack-plugin": "^9.0.1",
     "crypto-js": "^4.1.1",
+    "date-fns": "^2.25.0",
     "eth-json-rpc-middleware": "7.0.1",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.0.10",
