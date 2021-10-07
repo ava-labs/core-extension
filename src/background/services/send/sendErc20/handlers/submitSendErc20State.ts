@@ -4,9 +4,10 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { sendErc20Submit, wallet$ } from '@avalabs/wallet-react-components';
-import { firstValueFrom, lastValueFrom, of } from 'rxjs';
-import { gasPrice$ } from '../../gas/gas';
+import { firstValueFrom, lastValueFrom, of, tap } from 'rxjs';
+import { gasPrice$ } from '../../../gas/gas';
 import { Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 
 async function submitSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address, gasLimit] = request.params || [];
@@ -65,7 +66,7 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
       address,
       Promise.resolve(gasPrice),
       of(gasLimit)
-    )
+    ).pipe(tap((value) => sendTxDetails$.next(value)))
   );
 
   return {

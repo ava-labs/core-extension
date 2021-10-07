@@ -17,6 +17,7 @@ import { DestinationChainTx } from '@avalabs/wallet-react-components';
 import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
 import { SendConsolidationDetails } from './SendConsolidationDetails';
+import { useGetSendTxDetails } from './hooks/useGetSendTxDetails';
 
 export function SendAvaxConfirm({
   open,
@@ -39,10 +40,12 @@ export function SendAvaxConfirm({
   fee: string;
   txId?: string;
 }) {
+  const details = useGetSendTxDetails();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState(false);
   const [showTxDetails, setShowTxDetails] = useState(false);
 
+  console.log('details: ', details);
   useEffect(() => {
     if (txId) {
       setShowTxInProgress(false);

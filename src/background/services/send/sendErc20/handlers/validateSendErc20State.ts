@@ -8,11 +8,11 @@ import {
   ERC20,
   wallet$,
 } from '@avalabs/wallet-react-components';
-import { gasPrice$ } from '../../gas/gas';
+import { gasPrice$ } from '../../../gas/gas';
 import { firstValueFrom, Observable, of, Subject } from 'rxjs';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
-import { walletState$ } from '../../wallet/walletState';
-import { isWalletLocked } from '../../wallet/models';
+import { walletState$ } from '../../../wallet/walletState';
+import { isWalletLocked } from '../../../wallet/models';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 async function validateSendErc20State(request: ExtensionConnectionMessage) {

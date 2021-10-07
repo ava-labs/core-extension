@@ -4,9 +4,9 @@ import {
   SendSubmitResponse,
 } from '@avalabs/wallet-react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { sendAvaxValidateRequest } from '@src/background/services/sendAvax/utils/sendAvaxValidateRequest';
+import { sendAvaxValidateRequest } from '@src/background/services/send/sendAvax/utils/sendAvaxValidateRequest';
 import { BN, ChainIdType } from '@avalabs/avalanche-wallet-sdk';
-import { sendAvaxSubmitRequest } from '@src/background/services/sendAvax/utils/sendAvaxSubmitRequest';
+import { sendAvaxSubmitRequest } from '@src/background/services/send/sendAvax/utils/sendAvaxSubmitRequest';
 
 export function useSendAvax() {
   const [sendAvaxState, setSendAvaxState] = useState<
