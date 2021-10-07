@@ -20,6 +20,7 @@ export function QRCodeWithLogo({
   const theme = useTheme();
   return (
     <VerticalFlex
+      position="relative"
       padding="12px"
       background={theme.colors.bg1}
       radius="4px"
