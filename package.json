@@ -23,6 +23,9 @@
     "@babel/preset-typescript": "^7.13.0",
     "@cypress/react": "^5.3.4",
     "@cypress/webpack-dev-server": "^1.1.4",
+    "@semantic-release/commit-analyzer": "^9.0.1",
+    "@semantic-release/git": "^10.0.0",
+    "@semantic-release/github": "^8.0.1",
     "@types/bn.js": "^5.1.0",
     "@types/chrome": "^0.0.145",
     "@types/jest": "^26.0.22",
@@ -53,6 +56,7 @@
     "prettier": "2.3.2",
     "react-docgen-typescript-loader": "^3.7.2",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
+    "semantic-release": "^18.0.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.5",
     "ts-loader": "^9.0.2",
@@ -117,7 +121,54 @@
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
+  "release": {
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "angular",
+          "releaseRules": [
+            {
+              "type": "feat",
+              "release": "minor"
+            },
+            {
+              "type": "*",
+              "release": "patch"
+            }
+          ],
+          "parserOpts": {
+            "noteKeywords": [
+              "BREAKING CHANGE",
+              "BREAKING CHANGES"
+            ]
+          }
+        }
+      ],
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "builds/avalanche-wallet-extension.zip",
+              "name": "Avalanche-wallet-extension-${nextRelease.gitTag}.zip",
+              "label": "Wallet Extension (${nextRelease.gitTag})"
+            }
+          ]
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ]
+    ]
+  },
   "volta": {
-    "node": "15.14.0"
+    "node": "16.10.0"
   }
 }
