@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "^0.9.10",
-    "@avalabs/react-components": "^1.21.1",
+    "@avalabs/react-components": "^1.21.2",
     "@avalabs/wallet-react-components": "1.4.10",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",

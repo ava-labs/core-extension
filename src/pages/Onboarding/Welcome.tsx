@@ -1,13 +1,12 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   VerticalFlex,
   Typography,
   PrimaryButton,
   SecondaryButton,
   TextButton,
+  ComponentSize,
 } from '@avalabs/react-components';
-import { createNewMnemonic } from '@src/background/services/wallet/utils/createMnemonicPhrase';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import styled from 'styled-components';
@@ -16,7 +15,7 @@ const IllustrationPlaceholder = styled(VerticalFlex)`
   width: 240px;
   height: 240px;
   border-radius: 50%;
-  margin: 77px 0 0;
+  margin: 77px 0;
   background: ${({ theme }) => theme.palette?.grey[800]};
   justify-content: center;
   align-items: center;
@@ -42,29 +41,29 @@ export function Welcome() {
       </VerticalFlex>
       <VerticalFlex align="center">
         <PrimaryButton
-          margin="24px 0"
+          size={ComponentSize.LARGE}
           onClick={() => {
             setNextPhase(OnboardingPhase.CREATE_WALLET);
           }}
         >
-          Create a new wallet
+          <Typography size={14} weight={600}>
+            Create a new wallet
+          </Typography>
         </PrimaryButton>
 
         <SecondaryButton
+          margin="24px 0"
+          size={ComponentSize.LARGE}
           onClick={() => {
             setNextPhase(OnboardingPhase.IMPORT_WALLET);
           }}
         >
-          I already have a wallet
+          <Typography size={14} weight={600}>
+            I already have a wallet
+          </Typography>
         </SecondaryButton>
 
-        <TextButton
-          as="a"
-          margin="24px 0"
-          onClick={() => {
-            setNextPhase(OnboardingPhase.IMPORT_WALLET);
-          }}
-        >
+        <TextButton as="a" margin="24px 0">
           Terms
         </TextButton>
       </VerticalFlex>

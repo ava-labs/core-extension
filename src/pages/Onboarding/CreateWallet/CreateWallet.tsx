@@ -10,7 +10,6 @@ export function CreateWallet({ onCancel }: { onCancel(): void }) {
   const { setMnemonic } = useOnboardingContext();
   const [isCopied, setIsCopied] = useState(false);
   const [mnemonic, setMnemonicPhrase] = useState('');
-  const [termsConfirmed, setTermsConfirmed] = useState(false);
 
   useEffect(() => {
     setMnemonicPhrase(createNewMnemonic());
