@@ -4,12 +4,14 @@ const fs = require('fs');
 
 const { version } = pjson;
 
-fs.mkdirSync('builds');
+if (!fs.existsSync('builds')) {
+  fs.mkdirSync('builds');
+}
 
 zip({
   cwd: 'dist',
   source: '*',
-  destination: `../builds/ava-v${version}.zip`,
+  destination: `../builds/avalanche-wallet-extension.zip`,
 })
   .then(() => {
     console.log(`version ${version} successfully created in /builds`);
