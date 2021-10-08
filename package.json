@@ -171,7 +171,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "npm zip"
+          "prepareCmd": "yarn zip"
         }
       ],
       [
