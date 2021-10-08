@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - release
-      - feat/update-manifest-version
 jobs:
   release:
     name: Release
@@ -28,4 +27,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn run semantic-release --dry-run
+        run: yarn run semantic-release

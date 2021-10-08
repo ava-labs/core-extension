@@ -120,8 +120,7 @@
   },
   "release": {
     "branches": [
-      "release",
-      "feat/update-manifest-version"
+      "release"
     ],
     "plugins": [
       [
