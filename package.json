@@ -183,7 +183,11 @@
               "name": "Avalanche-wallet-extension-${nextRelease.gitTag}.zip",
               "label": "Wallet Extension (${nextRelease.gitTag})"
             }
-          ]
+          ],
+          "failTitle": false,
+          "successComment": false,
+          "failComment": false,
+          "labels": false
         }
       ],
       [
