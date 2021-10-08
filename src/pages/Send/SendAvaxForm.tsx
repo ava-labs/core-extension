@@ -6,7 +6,8 @@ import {
   BNInput,
   HorizontalFlex,
   SubTextTypography,
-  SecondaryButton,
+  ComponentSize,
+  TextButton,
 } from '@avalabs/react-components';
 import React, { useMemo } from 'react';
 import { useSendAvax } from './useSendAvax';
@@ -70,9 +71,8 @@ export function SendAvaxForm() {
   }, [amountInput, addressInput]);
 
   return (
-    <VerticalFlex width={'100%'}>
-      <br />
-      <VerticalFlex>
+    <VerticalFlex width={'100%'} align="center">
+      <VerticalFlex margin="24px 0">
         <BNInput
           value={amountInput as any}
           label={'Amount'}
@@ -110,9 +110,9 @@ export function SendAvaxForm() {
           ''
         )}
       </VerticalFlex>
-      <br />
 
       <Input
+        margin="0 0 24px 0"
         label={'To'}
         value={addressInput as any}
         error={addressError.error}
@@ -122,9 +122,6 @@ export function SendAvaxForm() {
           setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
         }
       />
-      <br />
-      <br />
-      <br />
       <SendAvaxConfirm
         open={showConfirmation}
         onClose={() => setShowConfirmation(false)}
@@ -142,22 +139,21 @@ export function SendAvaxForm() {
           submit(amountDisplayValue as string).then(() => resetForm())
         }
       />
-      <VerticalFlex width={'100%'} align={'center'}>
-        <SecondaryButton
-          onClick={() => {
-            resetForm();
-          }}
-        >
-          Reset
-        </SecondaryButton>
-        <br />
-        <PrimaryButton
-          onClick={() => setShowConfirmation(true)}
-          disabled={!canSubmit}
-        >
-          Continue
-        </PrimaryButton>
-      </VerticalFlex>
+      <PrimaryButton
+        size={ComponentSize.LARGE}
+        onClick={() => setShowConfirmation(true)}
+        disabled={!canSubmit}
+        margin="0 0 24px"
+      >
+        Continue
+      </PrimaryButton>
+      <TextButton
+        onClick={() => {
+          resetForm();
+        }}
+      >
+        Cancel
+      </TextButton>
     </VerticalFlex>
   );
 }
