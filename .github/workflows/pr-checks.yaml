@@ -22,4 +22,4 @@ jobs:
       - name: Lint
         run: yarn lint
       - name: Build extension
-        run: yarn build:ci
+        run: yarn build
