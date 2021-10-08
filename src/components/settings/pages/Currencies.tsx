@@ -1,11 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  CaretIcon,
   CheckmarkIcon,
   DropDownMenuItem,
-  HorizontalFlex,
-  IconDirection,
-  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -13,6 +9,7 @@ import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 // TODO: replace it with the supported currency list and wite it up to the backend
 const currencies = [
@@ -32,6 +29,7 @@ const currencies = [
 ];
 
 export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
+  const { updateCurrencySetting } = useSettingsContext();
   const theme = useTheme();
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
 
@@ -48,13 +46,16 @@ export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
             key={c.symbol}
             justify="space-between"
             align="center"
-            onClick={() => setSelectedCurrency(c.symbol)}
+            onClick={() => {
+              setSelectedCurrency(c.symbol);
+              updateCurrencySetting(c.symbol);
+            }}
           >
             <Typography>
               {c.name} ({c.symbol})
             </Typography>
             {selectedCurrency === c.symbol && (
-              <CheckmarkIcon size="16px" color={theme.colors.primary[400]} />
+              <CheckmarkIcon size="16px" color={theme.colors.primary1} />
             )}
           </DropDownMenuItem>
         ))}

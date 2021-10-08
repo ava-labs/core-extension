@@ -10,11 +10,13 @@ import {
   IconDirection,
   SecondaryCard,
   PrimaryIconButton,
+  TextButton,
 } from '@avalabs/react-components';
 import { TokenImg } from '@src/components/common/TokenImage';
-import { ERC20 } from '@avalabs/wallet-react-components';
+import { DestinationChainTx, ERC20 } from '@avalabs/wallet-react-components';
 import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
+import { SendConsolidationDetails } from './SendConsolidationDetails';
 
 export function SendErc20Confirm({
   open,
@@ -26,6 +28,7 @@ export function SendErc20Confirm({
   fee,
   token,
   txId,
+  extraTxs,
 }: {
   open: boolean;
   onClose(): void;
@@ -36,9 +39,11 @@ export function SendErc20Confirm({
   fee: string;
   token: ERC20;
   txId?: string;
+  extraTxs: DestinationChainTx[];
 }) {
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState(false);
+  const [showTxDetails, setShowTxDetails] = useState(false);
 
   useEffect(() => {
     if (txId) {
@@ -109,8 +114,22 @@ export function SendErc20Confirm({
               </SubTextTypography>
               <Typography>{fee} AVAX</Typography>
             </VerticalFlex>
+            {extraTxs?.length ? (
+              <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
+                View Details
+              </TextButton>
+            ) : (
+              ''
+            )}
           </HorizontalFlex>
         </SecondaryCard>
+        {showTxDetails ? (
+          <SecondaryCard>
+            <SendConsolidationDetails txs={extraTxs} />
+          </SecondaryCard>
+        ) : (
+          ''
+        )}
         <br />
         <HorizontalFlex width={'100%'} justify={'center'}>
           <PrimaryButton

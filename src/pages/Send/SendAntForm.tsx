@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useSendAnt } from './useSendAnt';
 import {
   Input,
@@ -11,11 +11,20 @@ import {
 import { AntWithBalance } from '@avalabs/wallet-react-components';
 import debounce from 'lodash.debounce';
 import { useSendAntFormErrors } from '@avalabs/wallet-react-components';
-import { SendAntConfirm } from './sendAntConfirm';
+import { SendAntConfirm } from './SendAntConfirm';
 
 export function SendAntForm({ token }: { token: AntWithBalance }) {
-  const { submit, canSubmit, address, setValues, error, reset, txId } =
-    useSendAnt(token);
+  const {
+    submit,
+    canSubmit,
+    address,
+    setValues,
+    error,
+    reset,
+    sendFee,
+    txId,
+    txs,
+  } = useSendAnt(token);
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
@@ -25,12 +34,13 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
+    setAmountDisplayValue('');
+    reset();
   }
 
   const setValuesDebounced = useMemo(
     () =>
       debounce((amount: string, address: string) => {
-        console.log('amount: ', amount);
         if (amount && address) {
           setValues(amount, address);
         }
@@ -68,9 +78,10 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
         onClose={() => setShowConfirmation(false)}
         amount={amountDisplayValue as string}
         address={address as string}
-        fee={'0'}
-        extraTxs={[] as any}
+        fee={Utils.bnToAvaxX(sendFee || new BN(0))}
+        extraTxs={txs || []}
         amountUsd={'0'}
+        txId={txId}
         onConfirm={() =>
           submit(amountDisplayValue as string).then(() => resetForm())
         }
@@ -78,7 +89,7 @@ export function SendAntForm({ token }: { token: AntWithBalance }) {
       <VerticalFlex width={'100%'} align={'center'}>
         <SecondaryButton
           onClick={() => {
-            reset().then(() => resetForm());
+            resetForm();
           }}
         >
           Reset

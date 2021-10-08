@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Header from '@src/components/common/header/Header';
-import { Footer } from '@src/components/common/Footer';
 import {
   HorizontalFlex,
-  HorizontalSeparator,
   LoadingIcon,
   VerticalFlex,
+  DialogContextProvider,
 } from '@avalabs/react-components';
 
 const AddToken = React.lazy(() => {
@@ -34,14 +33,13 @@ import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
-import { GlobalStyle } from '@src/styles/styles';
 import { Home } from '@src/pages/Home/Home';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <>
+    <DialogContextProvider>
       <ConnectionContextProvider>
         <OnboardingContextProvider>
           <NetworkContextProvider>
@@ -55,7 +53,6 @@ export function Popup() {
                 >
                   <VerticalFlex width="100%">
                     <Header onDrawerStateChanged={setDrawerOpen} />
-                    <HorizontalSeparator margin="0" />
                   </VerticalFlex>
 
                   <HorizontalFlex
@@ -105,15 +102,13 @@ export function Popup() {
                       </Route>
                     </Switch>
                   </HorizontalFlex>
-                  <Footer />
                 </VerticalFlex>
               </SettingsContextProvider>
             </WalletContextProvider>
           </NetworkContextProvider>
         </OnboardingContextProvider>
       </ConnectionContextProvider>
-      <GlobalStyle />
-    </>
+    </DialogContextProvider>
   );
 }
 

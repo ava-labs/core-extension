@@ -2,16 +2,10 @@ import React, { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  HorizontalSeparator,
-  HorizontalFlex,
-  SecondaryCard,
   TextArea,
   PrimaryButton,
-  SecondaryButton,
-  Mnemonic,
   RecoveryPhraseIcon,
   TextButton,
-  Input,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTheme } from 'styled-components';
@@ -48,7 +42,7 @@ export const Import = ({ onCancel }: { onCancel(): void }) => {
       justify="space-between"
     >
       <VerticalFlex align="center">
-        <RecoveryPhraseIcon color={theme.colors.text} />
+        <RecoveryPhraseIcon color={theme.colors.text1} />
         <Typography as="h1" size={24} weight="bold" margin="28px 0 8px">
           Secret Recovery Phrase
         </Typography>

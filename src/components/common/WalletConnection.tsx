@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  DropDownMenu,
+  SecondaryDropDownMenu,
   Card,
   HorizontalFlex,
   Typography,
   VerticalFlex,
   CheckmarkIcon,
-  DropDownMenuItem,
+  SecondaryDropDownMenuItem,
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
@@ -34,16 +34,16 @@ export function WalletConnection() {
   const getNetworkColor = (networkName?: string) => {
     switch (networkName) {
       case MAINNET_NETWORK.name:
-        return theme.colors.secondary[400];
+        return theme.palette.secondary[400];
       case FUJI_NETWORK.name:
-        return theme.colors.orange[400];
+        return theme.palette.orange[400];
       default:
-        return theme.colors.grey[400];
+        return theme.palette.grey[400];
     }
   };
 
   return (
-    <DropDownMenu
+    <SecondaryDropDownMenu
       style={{ marginLeft: '42px' }}
       coords={{
         top: '48px',
@@ -76,7 +76,7 @@ export function WalletConnection() {
           Networks
         </Typography>
         {networks.map((n) => (
-          <DropDownMenuItem
+          <SecondaryDropDownMenuItem
             key={n.name}
             onClick={() => setNetwork(n)}
             align="center"
@@ -88,11 +88,11 @@ export function WalletConnection() {
               <Typography height="24px">{n.name}</Typography>
             </HorizontalFlex>
             {network?.name === n.name && (
-              <CheckmarkIcon size="16px" color={theme.colors.primary[400]} />
+              <CheckmarkIcon size="16px" color={theme.colors.primary1} />
             )}
-          </DropDownMenuItem>
+          </SecondaryDropDownMenuItem>
         ))}
       </VerticalFlex>
-    </DropDownMenu>
+    </SecondaryDropDownMenu>
   );
 }

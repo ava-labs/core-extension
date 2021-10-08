@@ -13,7 +13,7 @@ import { WalletHomeRecentTxs } from '../Wallet/WalletHomeRecentTxs';
 import { WalletPortfolio } from '../Wallet/WalletPortfolio';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
-import { AccountSelector } from '@src/components/common/AccountSelector';
+import { AccountSelector } from '@src/components/common/account/AccountSelector';
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 
 const TABS_BOTTOM_PADDING = 16;
@@ -35,11 +35,12 @@ function HomeSideBar() {
     <VerticalFlex
       flex={1}
       margin={`${TABS_BOTTOM_PADDING}px 0 0 0`}
-      style={{ width: `${SIDEBAR_WIDTH}px`, minWidth: `${SIDEBAR_WIDTH}px` }}
+      width={`${SIDEBAR_WIDTH}px`}
+      style={{ minWidth: `${SIDEBAR_WIDTH}px` }}
     >
-      <Card>
+      <Card margin="0 0 16px">
         <Tabs defaultIndex={showSend ? 0 : 1}>
-          <TabList>
+          <TabList $border={false}>
             <Tab disabled={!showSend}>
               <Typography weight={600} color={'inherit'}>
                 Send
@@ -60,7 +61,6 @@ function HomeSideBar() {
           </TabPanel>
         </Tabs>
       </Card>
-      <br />
       <WalletHomeRecentTxs />
     </VerticalFlex>
   );
@@ -72,22 +72,22 @@ export function Home() {
       <HorizontalFlex align={'center'} justify={'space-between'}>
         <TabList $border={false}>
           <Tab $highlight={false} margin="0 40px 0 0">
-            <Typography weight={600} color={'inherit'}>
+            <Typography weight={700} size={18} color={'inherit'}>
               Portfolio
             </Typography>
           </Tab>
           <Tab $highlight={false} margin="0 40px 0 0">
-            <Typography weight={600} color={'inherit'}>
+            <Typography weight={700} size={18} color={'inherit'}>
               Buy
             </Typography>
           </Tab>
           <Tab $highlight={false} margin="0 40px 0 0">
-            <Typography weight={600} color={'inherit'}>
+            <Typography weight={700} size={18} color={'inherit'}>
               Earn
             </Typography>
           </Tab>
           <Tab $highlight={false} margin="0 40px 0 0">
-            <Typography weight={600} color={'inherit'}>
+            <Typography weight={700} size={18} color={'inherit'}>
               Studio
             </Typography>
           </Tab>
@@ -98,7 +98,7 @@ export function Home() {
         </HorizontalFlex>
       </HorizontalFlex>
       <HorizontalFlex>
-        <VerticalFlex flex={3} margin={`${TABS_BOTTOM_PADDING}px 10px 0 0`}>
+        <VerticalFlex flex={3} margin={`${TABS_BOTTOM_PADDING}px 16px 0 0`}>
           <TabPanel>
             <WalletPortfolio />
           </TabPanel>

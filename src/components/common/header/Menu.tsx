@@ -1,11 +1,10 @@
 import {
   HorizontalFlex,
-  VerticalFlex,
   TextButton,
   Typography,
   useIsSmallScreen,
   CaretIcon,
-  Card,
+  VerticalFlex,
 } from '@avalabs/react-components';
 import styled, { css, useTheme } from 'styled-components';
 import React, { useState } from 'react';
@@ -25,13 +24,17 @@ const Link = styled(TextButton)`
 
       &:hover {
         background-color: ${({ theme }) =>
-          props.level === 1 ? theme.colors.grey[800] : 'transparent'};
-        text-shadow: 0px 0px 1px ${({ theme }) => theme.colors.text};
+          props.level === 1
+            ? theme.dropdown.secondary.itemBgHover
+            : 'transparent'};
+        text-shadow: 0px 0px 0.5px ${({ theme }) => theme.colors.text1};
       }
 
       ${({ theme }) => theme.mediaWidth.upToSmall`
         background: ${
-          props.highlighted ? theme.colors.grey[800] : 'transparent'
+          props.highlighted
+            ? theme.dropdown.secondary.itemBgHover
+            : 'transparent'
         };
         padding: ${props.level === 0 ? '16px 8px' : '8px'};
         justify-content: flex-start;
@@ -39,7 +42,7 @@ const Link = styled(TextButton)`
     `};
 `;
 
-const DropDownContent = styled(Card)`
+const DropDownContent = styled(VerticalFlex)`
   display: none;
   position: absolute;
   align-items: flex-start;
@@ -47,7 +50,10 @@ const DropDownContent = styled(Card)`
   padding: 0;
   flex-direction: column;
   width: fit-content;
-  z-index: 1;
+  z-index: 2;
+  background: ${({ theme }) => theme.dropdown.secondary.bg};
+  border: ${({ theme }) => theme.dropdown.secondary.border};
+  border-radius: ${({ theme }) => theme.borderRadius};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     background: none;
@@ -92,7 +98,7 @@ const DropDown = styled.div<{
           }
 
           & > ${DropDownText} {
-            background: ${({ theme }) => theme.colors.grey[800]};
+            background: ${({ theme }) => theme.colors.bg2};
           }
 
           & ${StyledCaretIcon} {
@@ -100,6 +106,9 @@ const DropDown = styled.div<{
           }
         `
       : css`
+          ${Link} {
+            min-height: 48px;
+          }
           &:hover > ${DropDownContent} {
             display: flex;
           }
@@ -107,7 +116,7 @@ const DropDown = styled.div<{
             transform: rotate(-180deg);
           }
           &:hover > ${Typography} {
-            text-shadow: 0px 0px 1px ${({ theme }) => theme.colors.text};
+            text-shadow: 0px 0px 1px ${({ theme }) => theme.colors.text1};
           }
         `};
 `;
@@ -116,7 +125,7 @@ const DropDownText = styled(Typography)`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 5px 0 5px 40px;
+  padding: 12px 0 12px 40px;
   cursor: pointer;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -147,20 +156,9 @@ function Menu() {
     const elements: JSX.Element[] = [];
 
     const margin = level === 0 ? '5px 0 5px 40px' : '0';
-    const paddingDefault = level === 0 ? '0' : '12px 32px';
-    const paddingFirst = level === 0 ? '0' : '24px 32px 12px';
-    const paddingLast = level === 0 ? '0' : '12px 32px 24px';
+    const padding = level === 0 ? '0' : '12px 32px';
 
     for (let i = 0; i < menuItems.length; i++) {
-      let padding;
-      if (i === 0) {
-        padding = paddingFirst;
-      } else if (i === menuItems.length - 1) {
-        padding = paddingLast;
-      } else {
-        padding = paddingDefault;
-      }
-
       const item = menuItems[i];
       if (item.href) {
         elements.push(
@@ -176,7 +174,7 @@ function Menu() {
             key={i}
           >
             <Typography
-              size={18}
+              size={16}
               weight={item.highlighted ? 600 : 400}
               wrap="nowrap"
             >
@@ -193,12 +191,12 @@ function Menu() {
             isMobile={isSmallScreen}
           >
             <DropDownText>
-              <Typography size={18} margin="0 5px 0 0">
+              <Typography size={16} margin="0 5px 0 0">
                 {item.name}
               </Typography>
               <StyledCaretIcon
                 height={isSmallScreen ? '24px' : '14px'}
-                color={theme.colors.text}
+                color={theme.colors.text1}
               />
             </DropDownText>
             <DropDownContent>

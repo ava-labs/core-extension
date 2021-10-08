@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  DropDownColorVariant,
   DropDownMenu,
   HamburgerIcon,
   PrimaryIconButton,
@@ -87,14 +86,13 @@ export function SettingsMenu() {
 
   return (
     <DropDownMenu
-      variant={DropDownColorVariant.DARK}
       coords={{
         right: '0px',
         top: '60px',
       }}
       icon={
         <PrimaryIconButton>
-          <HamburgerIcon color={theme.colors.text} />
+          <HamburgerIcon color={theme.colors.text1} />
         </PrimaryIconButton>
       }
     >

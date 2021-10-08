@@ -13,9 +13,9 @@ import styled, { useTheme } from 'styled-components';
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
 
 const AddressBlock = styled(Card)`
-  background: ${({ theme }) => theme.colors.grey[800]};
+  background: ${({ theme }) => theme.colors.bg3};
   cursor: pointer;
-  margin: 48px 0 0 0;
+  margin: 24px 0 0 0;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
@@ -51,12 +51,10 @@ export const Receive = () => {
 
   return (
     <VerticalFlex width={'100%'} align={'center'}>
-      <VerticalFlex height="48px" margin="32px 0" align="center">
+      <VerticalFlex height="48px" margin="24px 0" align="center">
         <Typography height="24px">
           This is your{' '}
-          <Typography color={theme.colors.primary[400]}>
-            {chain} chain
-          </Typography>{' '}
+          <Typography color={theme.colors.primary1}>{chain} chain</Typography>{' '}
           address to receive funds
         </Typography>
         {chain === 'X' ? (
@@ -86,7 +84,7 @@ export const Receive = () => {
         <Typography width="255px" height="24px">
           {getAddress()}
         </Typography>
-        <CopyIcon size="16px" color={theme.colors.white} />
+        <CopyIcon size="16px" color={theme.colors.primary1} />
       </AddressBlock>
     </VerticalFlex>
   );

@@ -2,84 +2,47 @@ import React, { createContext, useContext, useState } from 'react';
 import { useEffect } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
-import { concat, filter, map } from 'rxjs';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { filter, map } from 'rxjs';
 import {
   isWalletLocked,
   WalletLockedState,
 } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
-import { ExtensionRequest } from '@src/background/connections/models';
+import {
+  ExtensionConnectionMessageResponse,
+  ExtensionRequest,
+} from '@src/background/connections/models';
 import { WalletState } from '@avalabs/wallet-react-components';
+import { recastWalletState } from './utils/castWalletState';
+import { useWalletHistory, WalletHistory } from './hooks/useWalletHIstory';
 
-const WalletContext = createContext<WalletState>({} as any);
-
-function recastWalletState(state: WalletState) {
-  const { balanceAvaxTotal, ...values } = (state as WalletState).balances;
-
-  return {
-    ...state,
-    ...{
-      balances: {
-        ...values,
-        /**
-         * have to cast back to BN since this was serialized over port connection, so ALL BNs have to be
-         * recast to BN from hex
-         *
-         * @link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Chrome_incompatibilities#data_cloning_algorithm
-         *  */
-        balanceAvaxTotal: new BN(balanceAvaxTotal, 'hex'),
-        balanceX: Object.keys(state.balances.balanceX).reduce((acc, key) => {
-          const { locked, unlocked } = state.balances.balanceX[key];
-          return {
-            ...acc,
-            [key]: {
-              ...state.balances.balanceX[key],
-              locked: new BN(locked, 'hex'),
-              unlocked: new BN(unlocked, 'hex'),
-            },
-          };
-        }, {}),
-        balanceAvax: {
-          C: new BN(state.balances.balanceAvax.C, 'hex'),
-          X: {
-            ...state.balances.balanceAvax.X,
-            locked: new BN(state.balances.balanceAvax.X.locked, 'hex'),
-            unlocked: new BN(state.balances.balanceAvax.X.unlocked, 'hex'),
-          },
-          P: {
-            ...state.balances.balanceAvax.P,
-            unlocked: new BN(state.balances.balanceAvax.P.unlocked, 'hex'),
-            locked: new BN(state.balances.balanceAvax.P.locked, 'hex'),
-            lockedStakeable: new BN(
-              state.balances.balanceAvax.P.lockedStakeable,
-              'hex'
-            ),
-          },
-        },
-        balanceStaked: {
-          ...state.balances.balanceStaked,
-          staked: new BN(state.balances.balanceStaked.staked, 'hex'),
-        },
-      },
-      erc20Tokens: state.erc20Tokens.map((token) => ({
-        ...token,
-        balance: new BN(token.balance, 'hex'),
-      })),
-      antTokens: state.antTokens.map((token) => ({
-        ...token,
-        balance: new BN(token.balance, 'hex'),
-      })),
-    },
-  };
-}
+type WalletStateAndMethods = WalletState & {
+  changeWalletPassword(
+    newPassword: string,
+    oldPassword: string
+  ): Promise<ExtensionConnectionMessageResponse<any>>;
+  getUnencryptedMnemonic(
+    password: string
+  ): Promise<ExtensionConnectionMessageResponse<any>>;
+  walletHistory?: WalletHistory;
+};
+const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [walletState, setWalletState] = useState<
     WalletState | WalletLockedState
   >();
+  const walletHistory = useWalletHistory([50]);
+
+  function setWalletStateAndCast(state: WalletState | WalletLockedState) {
+    return isWalletLocked(state)
+      ? setWalletState(state)
+      : state &&
+          (state as WalletState).balances &&
+          setWalletState(recastWalletState(state as WalletState));
+  }
 
   // listen for wallet creation
   useEffect(() => {
@@ -87,24 +50,35 @@ export function WalletContextProvider({ children }: { children: any }) {
       return;
     }
 
-    concat(
-      request<WalletState>({ method: ExtensionRequest.WALLET_STATE }),
-      events().pipe(
+    request<WalletState>({ method: ExtensionRequest.WALLET_STATE }).then(
+      setWalletStateAndCast
+    );
+
+    events()
+      .pipe(
         filter(walletUpdatedEventListener),
         map((evt) => evt.value)
       )
-    ).subscribe((state: any) =>
-      isWalletLocked(state)
-        ? setWalletState(state)
-        : state &&
-          (state as WalletState).balances &&
-          setWalletState(recastWalletState(state as WalletState))
-    );
+      .subscribe(setWalletStateAndCast);
   }, []);
 
   function unlockWallet(password: string) {
     return request!({
       method: ExtensionRequest.WALLET_UNLOCK_STATE,
+      params: [password],
+    });
+  }
+
+  function changeWalletPassword(newPassword: string, oldPassword: string) {
+    return request!({
+      method: ExtensionRequest.WALLET_CHANGE_PASSWORD,
+      params: [newPassword, oldPassword],
+    });
+  }
+
+  function getUnencryptedMnemonic(password: string) {
+    return request!({
+      method: ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,
       params: [password],
     });
   }
@@ -118,7 +92,14 @@ export function WalletContextProvider({ children }: { children: any }) {
   }
 
   return (
-    <WalletContext.Provider value={walletState}>
+    <WalletContext.Provider
+      value={{
+        ...walletState,
+        changeWalletPassword,
+        getUnencryptedMnemonic,
+        walletHistory,
+      }}
+    >
       {children}
     </WalletContext.Provider>
   );

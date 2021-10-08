@@ -27,7 +27,7 @@ export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
       >
         <Typography>Change password</Typography>
         <CaretIcon
-          color={theme.colors.textAccent}
+          color={theme.colors.icon2}
           height="12px"
           direction={IconDirection.RIGHT}
         />
@@ -39,7 +39,7 @@ export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
       >
         <Typography>Show recovery phrase</Typography>
         <CaretIcon
-          color={theme.colors.textAccent}
+          color={theme.colors.icon2}
           height="12px"
           direction={IconDirection.RIGHT}
         />

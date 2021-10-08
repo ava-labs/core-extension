@@ -25,7 +25,7 @@ export function SettingsHeader({
         <CaretIcon
           height="20px"
           direction={IconDirection.LEFT}
-          color={theme.colors.text}
+          color={theme.colors.text1}
         />
       </TextButton>
       <Typography size={18} weight={700} height="24px">

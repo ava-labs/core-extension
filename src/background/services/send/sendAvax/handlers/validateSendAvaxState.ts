@@ -7,7 +7,7 @@ import {
   sendAvaxCheckFormAndCalculateFees,
   wallet$,
 } from '@avalabs/wallet-react-components';
-import { gasPrice$ } from '../../gas/gas';
+import { gasPrice$ } from '../../../gas/gas';
 import { firstValueFrom, Observable, of, Subject } from 'rxjs';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 

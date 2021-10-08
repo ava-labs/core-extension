@@ -3,9 +3,14 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { sendAntSubmit, wallet$ } from '@avalabs/wallet-react-components';
-import { firstValueFrom } from 'rxjs';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import {
+  AntWithBalance,
+  sendAntSubmit,
+  wallet$,
+} from '@avalabs/wallet-react-components';
+import { firstValueFrom, lastValueFrom, tap } from 'rxjs';
+import { Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 
 async function submitSendAntState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
@@ -41,11 +46,13 @@ async function submitSendAntState(request: ExtensionConnectionMessage) {
     };
   }
 
-  const result = await sendAntSubmit(
-    wallet,
-    token,
-    Utils.stringToBN(amount, 9),
-    address
+  const result = await lastValueFrom(
+    sendAntSubmit(
+      Promise.resolve<WalletType>(wallet),
+      token,
+      Utils.stringToBN(amount, (token as AntWithBalance).denomination),
+      address
+    ).pipe(tap((value) => sendTxDetails$.next(value)))
   );
   return { ...request, result };
 }

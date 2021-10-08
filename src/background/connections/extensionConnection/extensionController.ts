@@ -30,15 +30,23 @@ import { walletUpdateEvents } from '../../services/wallet/events/walletStateUpda
 import { GetWalletStateRequest } from '../../services/wallet/handlers/initWalletState';
 import { UnlockWalletStateRequest } from '../../services/wallet/handlers/unlockWalletState';
 import { eventLog, requestLog, responseLog } from '../../../utils/logging';
-import { ValidateSendAvaxStateRequest } from '@src/background/services/sendAvax/handlers/validateSendAvaxState';
-import { ResetSendAvaxStateRequest } from '@src/background/services/sendAvax/handlers/resetSendAvaxState';
-import { SubmitSendAvaxStateRequest } from '@src/background/services/sendAvax/handlers/submitSendAvaxState';
-import { SubmitSendAntStateRequest } from '@src/background/services/sendAnt/handlers/submitSendAntState';
-import { ResetSendAntStateRequest } from '@src/background/services/sendAnt/handlers/resetSendAntState';
-import { ValidateSendAntStateRequest } from '@src/background/services/sendAnt/handlers/validateSendAntState';
-import { ResetSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/resetSendErc20State';
-import { ValidateSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/validateSendErc20State';
-import { SubmitSendErc20StateRequest } from '@src/background/services/sendErc20/handlers/submitSendErc20State';
+import { ValidateSendAvaxStateRequest } from '@src/background/services/send/sendAvax/handlers/validateSendAvaxState';
+import { ResetSendAvaxStateRequest } from '@src/background/services/send/sendAvax/handlers/resetSendAvaxState';
+import { SubmitSendAvaxStateRequest } from '@src/background/services/send/sendAvax/handlers/submitSendAvaxState';
+import { SubmitSendAntStateRequest } from '@src/background/services/send/sendAnt/handlers/submitSendAntState';
+import { ResetSendAntStateRequest } from '@src/background/services/send/sendAnt/handlers/resetSendAntState';
+import { ValidateSendAntStateRequest } from '@src/background/services/send/sendAnt/handlers/validateSendAntState';
+import { ResetSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/resetSendErc20State';
+import { ValidateSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/validateSendErc20State';
+import { SubmitSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/submitSendErc20State';
+import { GetSettingsStateRequest } from '@src/background/services/settings/handlers/getSettings';
+import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
+import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
+import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
+import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/handlers/changeWalletPassword';
+import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
+import { GetWalletHistoryRequest } from '@src/background/services/wallet/handlers/getTxHistory';
+import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -59,7 +67,9 @@ const extensionRequestHandlerMap = new Map<
 
   GetWalletStateRequest,
   UnlockWalletStateRequest,
-  SettingsLockWalletStateRequest,
+  ChangeWalletPasswordRequest,
+  GetUnencryptedMnemonicRequest,
+  GetWalletHistoryRequest,
 
   AddPermissionsForDomainRequest,
   GetPermissionsForDomainRequest,
@@ -79,6 +89,11 @@ const extensionRequestHandlerMap = new Map<
   ResetSendErc20StateRequest,
   ValidateSendErc20StateRequest,
   SubmitSendErc20StateRequest,
+
+  GetSettingsStateRequest,
+  SettingsUpdateCurrencySelectionRequest,
+  SettingsUpdateShowTokensWithBalanceRequest,
+  SettingsLockWalletStateRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
@@ -112,7 +127,9 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     walletUpdateEvents,
     onboardingPhaseUpdatedEvent(),
     gasPriceTransactionUpdate(),
-    transactionFinalizedUpdate()
+    transactionFinalizedUpdate(),
+    settingsUpdatedEvent(),
+    sendTxDetailsEvent()
   ).pipe(
     tap((evt) => {
       eventLog(`extension event (${evt.name})`, evt);

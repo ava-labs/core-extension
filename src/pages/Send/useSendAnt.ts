@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
-import { SendAntState } from '@avalabs/wallet-react-components';
+import {
+  SendAntState,
+  SendSubmitResponse,
+} from '@avalabs/wallet-react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { sendAntValidateRequest } from '@src/background/services/sendAnt/utils/sendAntValidateRequest';
-import { sendAntResetRequest } from '@src/background/services/sendAnt/utils/sendAntResetRequest';
-import { sendAntSubmitRequest } from '@src/background/services/sendAnt/utils/sendAntSubmitRequest';
+import { sendAntValidateRequest } from '@src/background/services/send/sendAnt/utils/sendAntValidateRequest';
+import { sendAntResetRequest } from '@src/background/services/send/sendAnt/utils/sendAntResetRequest';
+import { sendAntSubmitRequest } from '@src/background/services/send/sendAnt/utils/sendAntSubmitRequest';
 import { AntWithBalance } from '@avalabs/wallet-react-components';
 
 export function useSendAnt(token: AntWithBalance) {
@@ -36,10 +39,7 @@ export function useSendAnt(token: AntWithBalance) {
       );
     },
     reset() {
-      return request(sendAntResetRequest()).then((result) => {
-        setSendAntState(result);
-        return result;
-      });
+      setSendAntState(undefined);
     },
     submit(amount: string) {
       if (!sendAntState) {
@@ -48,9 +48,7 @@ export function useSendAnt(token: AntWithBalance) {
 
       return request(
         sendAntSubmitRequest(amount, sendAntState?.address, sendAntState?.token)
-      )
-        .then((response) => response.result)
-        .then((result) => setTxId(result));
+      ).then(({ txId }: SendSubmitResponse) => setTxId(txId));
     },
   };
 }
