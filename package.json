@@ -122,6 +122,9 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "release": {
+    "branches": [
+      "release"
+    ],
     "plugins": [
       [
         "@semantic-release/commit-analyzer",
