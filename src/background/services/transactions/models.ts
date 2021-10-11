@@ -1,3 +1,6 @@
+import { ContractCall } from '@src/abi/contractParsers/models';
+import { GasPrice } from '../gas/models';
+
 /* eslint-disable no-prototype-builtins */
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
@@ -9,6 +12,18 @@ export enum TxStatus {
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
+
+export interface TransactionDisplayValues {
+  fromAddress: string;
+  toAddress: string;
+  total: string;
+  gasPrice: GasPrice;
+  contractType: ContractCall;
+  gasLimit?: number;
+  fee?: string;
+  feeUSD?: number;
+  [key: string]: any;
+}
 export interface Transaction {
   id: number | string | void;
   time: number;
@@ -19,10 +34,11 @@ export interface Transaction {
   type: string;
   transactionCategory: string;
   txHash?: string;
+  displayValues: TransactionDisplayValues;
 }
 
 export function isTxParams(params: Partial<txParams>): params is txParams {
-  return !!(params.to && params.from && params.value);
+  return !!(params.to && params.from && (params.value || params.gas));
 }
 
 export type PendingTransactions = {

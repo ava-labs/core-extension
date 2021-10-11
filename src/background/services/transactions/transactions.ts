@@ -22,6 +22,9 @@ import {
   getTransactionsFromStorage,
   saveTransactionsToStorage,
 } from './storage';
+import { KnownContractABIs } from '@src/abi';
+import { network$, walletState$ } from '@avalabs/wallet-react-components';
+import { contractParserMap } from '@src/abi/contractParsers/contractParserMap';
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -41,28 +44,42 @@ addTransaction
         firstValueFrom(pendingTransactions),
         Promise.resolve(newTx),
         firstValueFrom(gasPrice$),
+        firstValueFrom(network$),
+        firstValueFrom(walletState$),
       ]);
     }),
-    tap(([currentPendingTxs, data, gasPrice]) => {
-      const { params } = data;
+    tap(([currentPendingTxs, tx, gasPrice, network, walletState]) => {
+      const { params } = tx;
       const now = new Date().getTime();
       const txParams = (params || [])[0];
+
+      const knownContract =
+        KnownContractABIs.get(txParams.to.toLocaleLowerCase()) ??
+        KnownContractABIs.get('erc20');
+
+      const decodedData = knownContract?.parser(
+        knownContract?.decoder(txParams.data)
+      );
+
+      const parser = contractParserMap.get(decodedData.contractCall);
 
       if (txParams && isTxParams(txParams)) {
         pendingTransactions.next({
           ...currentPendingTxs,
-          [`${data.id}`]: {
-            id: data.id,
+          [`${tx.id}`]: {
+            id: tx.id,
             time: now,
             status: TxStatus.PENDING,
-            /**
-             * TODO:
-             * both the network id and the chain id can come from the current selected network.
-             * in the useNetwork hook there is a read network from storage.
-             */
-            metamaskNetworkId: '1',
-            chainId: '0xa869',
-            txParams: { ...txParams, gasPrice: gasPrice?.value },
+            metamaskNetworkId: network.config.networkID.toString(),
+            chainId: network.chainId,
+            txParams,
+            displayValues: parser
+              ? parser(txParams, decodedData, {
+                  gasPrice,
+                  erc20Tokens: walletState?.erc20Tokens,
+                  avaxPrice: walletState?.avaxPrice,
+                })
+              : (undefined as any),
             type: 'standard',
             transactionCategory: 'transfer',
           },

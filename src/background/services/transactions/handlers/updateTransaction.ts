@@ -30,7 +30,7 @@ export async function updateTransactionById(
       error: 'no updates found in params',
     };
   }
-
+  debugger;
   if (
     !isTxStatusUpdate(update) ||
     !isTxFinalizedUpdate(update) ||

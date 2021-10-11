@@ -21,7 +21,7 @@ const PermissionsPage = React.lazy(() => {
 });
 
 const SignTransactionPage = React.lazy(() => {
-  return import('../pages/SignTransaction/SignTransactionPage');
+  return import('../pages/SignTransaction/SignTransactionFlow');
 });
 
 const SettingsPage = React.lazy(() => {
