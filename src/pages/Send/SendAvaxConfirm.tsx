@@ -8,9 +8,10 @@ import {
   VerticalFlex,
   PrimaryButton,
   IconDirection,
+  Card,
   SecondaryCard,
   TextButton,
-  PrimaryIconButton,
+  ComponentSize,
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { DestinationChainTx } from '@avalabs/wallet-react-components';
@@ -18,6 +19,25 @@ import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
 import { SendConsolidationDetails } from './SendConsolidationDetails';
 import { useGetSendTxDetails } from './hooks/useGetSendTxDetails';
+import styled, { useTheme } from 'styled-components';
+import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
+
+interface SendAvaxConfirmProps {
+  open: boolean;
+  onClose(): void;
+  onConfirm(): void;
+  amount: string;
+  amountUsd: string;
+  extraTxs: DestinationChainTx[];
+  address: string;
+  fee: string;
+  txId?: string;
+  chain?: ChainIdType;
+}
+
+const DataCard = styled(Card)`
+  background-color: ${({ theme }) => theme.colors.bg3};
+`;
 
 export function SendAvaxConfirm({
   open,
@@ -29,23 +49,14 @@ export function SendAvaxConfirm({
   address,
   fee,
   txId,
-}: {
-  open: boolean;
-  onClose(): void;
-  onConfirm(): void;
-  amount: string;
-  amountUsd: string;
-  extraTxs: DestinationChainTx[];
-  address: string;
-  fee: string;
-  txId?: string;
-}) {
+  chain,
+}: SendAvaxConfirmProps) {
+  const theme = useTheme();
   const details = useGetSendTxDetails();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState(false);
   const [showTxDetails, setShowTxDetails] = useState(false);
 
-  console.log('details: ', details);
   useEffect(() => {
     if (txId) {
       setShowTxInProgress(false);
@@ -66,52 +77,63 @@ export function SendAvaxConfirm({
         }}
         isOpen={true}
         txId={txId}
+        chain={chain}
       />
     );
   }
 
   return (
     <Modal isOpen={open}>
-      <VerticalFlex>
-        <HorizontalFlex align={'center'}>
-          <PrimaryIconButton onClick={() => onClose && onClose()}>
-            <CaretIcon direction={IconDirection.LEFT} />
-          </PrimaryIconButton>
-          <Typography as={'h1'} size={24} weight={700} margin={'0 0 0 60px'}>
-            Confirm transaction
-          </Typography>
+      <VerticalFlex padding="36px" height="100%">
+        <HorizontalFlex align={'center'} justify="center" width="100%">
+          <TextButton onClick={() => onClose && onClose()}>
+            <CaretIcon
+              color={theme.colors.text1}
+              direction={IconDirection.LEFT}
+            />
+          </TextButton>
+          <HorizontalFlex
+            grow="1"
+            align="center"
+            justify="center"
+            padding="0 24px 0 0"
+          >
+            <Typography as={'h1'} size={24} weight={700}>
+              Confirm transaction
+            </Typography>
+          </HorizontalFlex>
         </HorizontalFlex>
-        <br />
-        <br />
-        <VerticalFlex align={'center'} style={{ lineHeight: '24px' }}>
+        <VerticalFlex margin="32px 0 0 0" align={'center'}>
           <AvaxTokenIcon />
-          <SubTextTypography margin={'10px 0 0 0'}>
+          <SubTextTypography margin={'8px 0 0 0'} height="24px">
             Payment amount
           </SubTextTypography>
-          <Typography>{amount || 0} AVAX</Typography>
-          <SubTextTypography>${amountUsd} USD</SubTextTypography>
+          <Typography margin={'8px 0'} size={24} weight={700} height="29px">
+            {amount || 0} AVAX
+          </Typography>
+          <SubTextTypography size={16} weight={600} height="24px">
+            {amountUsd} USD
+          </SubTextTypography>
         </VerticalFlex>
-        <br />
-        <SecondaryCard>
+        <DataCard margin="24px 0" padding="16px">
           <VerticalFlex>
-            <SubTextTypography margin={'0 0 10px 0'}>Send to</SubTextTypography>
-            <Typography style={{ wordBreak: 'break-word' }}>
+            <SubTextTypography margin={'0 0 8px 0'}>Send to</SubTextTypography>
+            <Typography height="17px" size={14} wordBreak="break-word">
               {address}
             </Typography>
           </VerticalFlex>
-        </SecondaryCard>
-        <br />
-        <SecondaryCard>
+        </DataCard>
+        <DataCard padding="16px">
           <HorizontalFlex
             justify={'space-between'}
             align={'center'}
             width={'100%'}
           >
             <VerticalFlex>
-              <SubTextTypography margin={'0 0 10px 0'}>
+              <SubTextTypography margin={'0 0 8px 0'}>
                 Transaction fee
               </SubTextTypography>
-              <Typography>{fee || 0} AVAX</Typography>
+              <Typography size={14}>{fee || 0} AVAX</Typography>
             </VerticalFlex>
             {extraTxs?.length ? (
               <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
@@ -121,7 +143,7 @@ export function SendAvaxConfirm({
               ''
             )}
           </HorizontalFlex>
-        </SecondaryCard>
+        </DataCard>
         {showTxDetails ? (
           <SecondaryCard>
             <SendConsolidationDetails txs={extraTxs} />
@@ -129,9 +151,14 @@ export function SendAvaxConfirm({
         ) : (
           ''
         )}
-        <br />
-        <HorizontalFlex width={'100%'} justify={'center'}>
+        <HorizontalFlex
+          width={'100%'}
+          grow="1"
+          justify={'center'}
+          align="flex-end"
+        >
           <PrimaryButton
+            size={ComponentSize.LARGE}
             onClick={() => {
               setShowTxInProgress(true);
               onConfirm && onConfirm();

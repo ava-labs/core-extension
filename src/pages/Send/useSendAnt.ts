@@ -6,7 +6,6 @@ import {
 } from '@avalabs/wallet-react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendAntValidateRequest } from '@src/background/services/send/sendAnt/utils/sendAntValidateRequest';
-import { sendAntResetRequest } from '@src/background/services/send/sendAnt/utils/sendAntResetRequest';
 import { sendAntSubmitRequest } from '@src/background/services/send/sendAnt/utils/sendAntSubmitRequest';
 import { AntWithBalance } from '@avalabs/wallet-react-components';
 

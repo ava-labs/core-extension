@@ -14,32 +14,12 @@ import {
 import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
-export interface SendState {
-  type: TransactionSendType;
-  balanceX?: AssetBalanceX;
-  erc20?: ERC20;
-}
-
 export function SendFlow() {
   const sendType = useGetSendTypeFromParams();
   const tokensWBalances = useTokensWithBalances();
   const selectedToken = useTokenFromParams(tokensWBalances);
 
-  return (
-    <VerticalFlex>
-      {
-        {
-          [TransactionSendType.AVAX]: <SendAvaxForm />,
-          [TransactionSendType.ANT]: (
-            <SendAntForm token={selectedToken as AntWithBalance} />
-          ),
-          [TransactionSendType.ERC20]: (
-            <SendERC20Form token={selectedToken as ERC20WithBalance} />
-          ),
-        }[sendType ?? TransactionSendType.AVAX]
-      }
-    </VerticalFlex>
-  );
+  return <SendAvaxForm />;
 }
 
 export default SendFlow;

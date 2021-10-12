@@ -8,17 +8,21 @@ import {
   SubTextTypography,
   ComponentSize,
   TextButton,
+  TextArea,
 } from '@avalabs/react-components';
 import React, { useMemo } from 'react';
 import { useSendAvax } from './useSendAvax';
 import { SendAvaxConfirm } from './SendAvaxConfirm';
 import { useState } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN } from 'bn.js';
 import { useEffect } from 'react';
 import { useSendAvaxFormErrors } from '@avalabs/wallet-react-components';
-import debounce from 'lodash.debounce';
 import { getAvaxBalanceTotal } from '../Wallet/utils/balanceHelpers';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
+import { debounceTime, Subject } from 'rxjs';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -30,6 +34,9 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 });
 
 export function SendAvaxForm() {
+  const sendType = useGetSendTypeFromParams();
+  const tokensWBalances = useTokensWithBalances();
+  const selectedToken = useTokenFromParams(tokensWBalances);
   const {
     targetChain,
     txId,
@@ -46,7 +53,7 @@ export function SendAvaxForm() {
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
   const { amountError, addressError } = useSendAvaxFormErrors(error);
-  const { avaxPrice } = useWalletContext();
+  const { avaxPrice, avaxToken } = useWalletContext();
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
 
   function resetForm() {
@@ -56,104 +63,117 @@ export function SendAvaxForm() {
     reset();
   }
 
-  const setValuesDebounced = useMemo(
-    () =>
-      debounce((amount: string, address: string) => {
-        if (amount && address) {
-          setValues(amount, address);
-        }
-      }, 200),
-    []
-  );
+  const setValuesDebouncedSubject = useMemo(() => {
+    const subject = new Subject<{ amount?: string; address?: string }>();
+    subject.pipe(debounceTime(200)).subscribe(({ amount, address }) => {
+      setValues(amount, address);
+    });
+
+    return subject;
+  }, []);
+
+  const maxAmount = sendFee
+    ? avaxToken.balance.sub(sendFee)
+    : avaxToken.balance;
+  const hasAmountInput = !!amountDisplayValue;
 
   useEffect(() => {
-    setValuesDebounced(amountDisplayValue, addressInput);
+    setValuesDebouncedSubject.next({
+      amount: amountDisplayValue,
+      address: addressInput,
+    });
   }, [amountInput, addressInput]);
 
   return (
-    <VerticalFlex width={'100%'} align="center">
-      <VerticalFlex margin="24px 0">
-        <BNInput
-          value={amountInput as any}
-          label={'Amount'}
-          error={amountError.error}
-          errorMessage={amountError.message}
-          placeholder="Enter the amount"
-          denomination={9}
-          onChange={(val) => {
-            setAmountInput(val.bn);
-            setAmountDisplayValue(val.amount);
-          }}
+    <>
+      <VerticalFlex align="center" width="100%">
+        <TextArea
+          size={ComponentSize.SMALL}
+          margin="24px 0 0 0"
+          label={'To'}
+          value={addressInput}
+          error={addressError.error}
+          errorMessage={addressError.message}
+          placeholder="Enter the address"
+          onChange={(e) =>
+            setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
+          }
         />
-        {!amountError.error ? (
-          <HorizontalFlex
-            width={'100%'}
-            justify={'space-between'}
-            align={'center'}
-            margin={'8px 0 0 0'}
-          >
-            <Typography size={14}>
-              {currencyFormatter.format(
-                Number(amountDisplayValue || 0) * avaxPrice
+        <VerticalFlex margin="24px 0">
+          <BNInput
+            value={amountInput}
+            label={'Amount'}
+            error={amountError.error}
+            errorMessage={hasAmountInput ? amountError.message : ''}
+            placeholder="Enter the amount"
+            denomination={9}
+            max={maxAmount}
+            onChange={(val) => {
+              setAmountInput(val.bn);
+              setAmountDisplayValue(val.amount);
+            }}
+          />
+          {!hasAmountInput || !amountError.error ? (
+            <HorizontalFlex
+              width={'100%'}
+              justify={'space-between'}
+              align={'center'}
+              margin={'8px 0 0 0'}
+            >
+              <Typography size={14}>
+                {currencyFormatter.format(
+                  Number(amountDisplayValue || 0) * avaxPrice
+                )}
+              </Typography>
+              {sendFee ? (
+                <SubTextTypography size={14}>
+                  Transaction fee: ~{getAvaxBalanceTotal(sendFee || new BN(0))}{' '}
+                  AVAX
+                </SubTextTypography>
+              ) : (
+                ''
               )}
-            </Typography>
-            {targetChain === 'X' ? (
-              <SubTextTypography size={14}>
-                Transaction fee: {getAvaxBalanceTotal(sendFee || new BN(0))}{' '}
-                AVAX
-              </SubTextTypography>
-            ) : (
-              ''
-            )}
-          </HorizontalFlex>
-        ) : (
-          ''
-        )}
+            </HorizontalFlex>
+          ) : (
+            ''
+          )}
+        </VerticalFlex>
+        <SendAvaxConfirm
+          open={showConfirmation}
+          onClose={() => setShowConfirmation(false)}
+          amount={amountDisplayValue as string}
+          address={address as string}
+          txId={txId}
+          chain={targetChain}
+          fee={sendFee ? getAvaxBalanceTotal(sendFee || new BN(0)) : ''}
+          extraTxs={txs as any}
+          amountUsd={currencyFormatter.format(
+            Number(amountDisplayValue || 0) * avaxPrice
+          )}
+          onConfirm={() =>
+            submit(amountDisplayValue as string).then(() => resetForm())
+          }
+        />
       </VerticalFlex>
-
-      <Input
-        margin="0 0 24px 0"
-        label={'To'}
-        value={addressInput as any}
-        error={addressError.error}
-        errorMessage={addressError.message}
-        placeholder="Enter the address"
-        onChange={(e) =>
-          setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
-        }
-      />
-      <SendAvaxConfirm
-        open={showConfirmation}
-        onClose={() => setShowConfirmation(false)}
-        amount={amountDisplayValue as string}
-        address={address as string}
-        txId={txId}
-        fee={
-          targetChain === 'X' ? getAvaxBalanceTotal(sendFee || new BN(0)) : ''
-        }
-        extraTxs={txs as any}
-        amountUsd={currencyFormatter.format(
-          Number(amountDisplayValue || 0) * avaxPrice
-        )}
-        onConfirm={() =>
-          submit(amountDisplayValue as string).then(() => resetForm())
-        }
-      />
-      <PrimaryButton
-        size={ComponentSize.LARGE}
-        onClick={() => setShowConfirmation(true)}
-        disabled={!canSubmit}
-        margin="0 0 24px"
-      >
-        Continue
-      </PrimaryButton>
-      <TextButton
-        onClick={() => {
-          resetForm();
-        }}
-      >
-        Cancel
-      </TextButton>
-    </VerticalFlex>
+      <VerticalFlex align="center" justify="flex-end" width="100%" grow="1">
+        <PrimaryButton
+          size={ComponentSize.LARGE}
+          onClick={() => setShowConfirmation(true)}
+          disabled={!canSubmit}
+          margin="0 0 24px"
+        >
+          <Typography size={14} color="inherit">
+            Continue
+          </Typography>
+        </PrimaryButton>
+        <TextButton
+          onClick={() => {
+            resetForm();
+          }}
+        >
+          Cancel
+        </TextButton>
+      </VerticalFlex>
+    </>
   );
 }

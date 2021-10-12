@@ -55,7 +55,7 @@ export function WalletHomeSend() {
   }, []);
 
   return (
-    <VerticalFlex padding="16px 0 0 0">
+    <VerticalFlex padding="16px 0 0 0" height="496px" grow="1">
       <TokenSearch
         onSelect={(item) => onSelect(item as TokenWithBalance)}
         items={tokensWBalances}

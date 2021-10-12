@@ -14,24 +14,24 @@ import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 async function validateSendAvaxState(request: ExtensionConnectionMessage) {
   const [amount, address] = request.params || [];
 
-  if (!amount) {
-    return {
-      ...request,
-      error: 'no amount in params',
-    };
-  }
+  // if (!amount) {
+  //   return {
+  //     ...request,
+  //     error: 'no amount in params',
+  //   };
+  // }
 
-  if (!address) {
-    return {
-      ...request,
-      error: 'no address in params',
-    };
-  }
+  // if (!address) {
+  //   return {
+  //     ...request,
+  //     error: 'no address in params',
+  //   };
+  // }
 
   const state = await firstValueFrom(
     sendAvaxCheckFormAndCalculateFees(
       gasPrice$ as Observable<{ bn: BN }>,
-      of(Utils.stringToBN(amount, 9)) as Subject<BN>,
+      of(Utils.stringToBN(amount || '0', 9)) as Subject<BN>,
       of(address) as Subject<string>,
       wallet$
     )

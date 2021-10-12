@@ -29,6 +29,7 @@ module.exports = {
       react: path.resolve('./node_modules/react'),
       'react-dom': path.resolve('./node_modules/react-dom'),
       'styled-components': path.resolve('./node_modules/styled-components'),
+      '@types/bn.js': path.resolve('./node_modules/@types/bn.js'),
     },
     symlinks: false,
   },
