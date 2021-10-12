@@ -39,7 +39,6 @@ export function useGetTransaction(requestId: string) {
 
   return useMemo(() => {
     function updateTransaction(update) {
-      debugger;
       return request({
         method: ExtensionRequest.TRANSACTIONS_UPDATE,
         params: [update],

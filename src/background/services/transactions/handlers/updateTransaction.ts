@@ -30,12 +30,14 @@ export async function updateTransactionById(
       error: 'no updates found in params',
     };
   }
-  debugger;
-  if (
-    !isTxStatusUpdate(update) ||
-    !isTxFinalizedUpdate(update) ||
-    !isTxParamsUpdate(update)
-  ) {
+
+  const isKnownTxType = [
+    isTxStatusUpdate(update),
+    isTxFinalizedUpdate(update),
+    isTxParamsUpdate(update),
+  ].some((isKnown) => isKnown);
+
+  if (!isKnownTxType) {
     return {
       ...request,
       error: 'malformed or unsupported update',

@@ -82,9 +82,7 @@ export function isTxStatusUpdate(
     update?.hasOwnProperty('id') &&
     update.hasOwnProperty('status') &&
     !update.hasOwnProperty('result') &&
-    (update as txStatusUpdate).status !== TxStatus.SIGNED &&
-    (update as txStatusUpdate).status !== TxStatus.ERROR &&
-    (update as txStatusUpdate).status !== TxStatus.ERROR_USER_CANCELED
+    (update as txStatusUpdate).status !== TxStatus.SIGNED
   );
 }
 
@@ -92,11 +90,11 @@ export function isTxFinalizedUpdate(
   update: txParamsUpdate | txStatusUpdate
 ): update is txStatusUpdate {
   return (
-    update?.hasOwnProperty('id') &&
-    update.hasOwnProperty('result') &&
-    update.hasOwnProperty('status') &&
-    (update as txStatusUpdate).status === TxStatus.SIGNED &&
-    (update as txStatusUpdate).status === TxStatus.ERROR &&
+    (update?.hasOwnProperty('id') &&
+      update.hasOwnProperty('result') &&
+      update.hasOwnProperty('status') &&
+      (update as txStatusUpdate).status === TxStatus.SIGNED) ||
+    (update as txStatusUpdate).status === TxStatus.ERROR ||
     (update as txStatusUpdate).status === TxStatus.ERROR_USER_CANCELED
   );
 }
