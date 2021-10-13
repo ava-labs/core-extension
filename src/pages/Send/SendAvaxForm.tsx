@@ -16,7 +16,10 @@ import { SendAvaxConfirm } from './SendAvaxConfirm';
 import { useState } from 'react';
 import { BN } from 'bn.js';
 import { useEffect } from 'react';
-import { useSendAvaxFormErrors } from '@avalabs/wallet-react-components';
+import {
+  SendAvaxFormError,
+  useSendAvaxFormErrors,
+} from '@avalabs/wallet-react-components';
 import { getAvaxBalanceTotal } from '../Wallet/utils/balanceHelpers';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
@@ -38,6 +41,7 @@ export function SendAvaxForm() {
   const tokensWBalances = useTokensWithBalances();
   const selectedToken = useTokenFromParams(tokensWBalances);
   const {
+    maxAmount,
     targetChain,
     txId,
     setValues,
@@ -53,9 +57,9 @@ export function SendAvaxForm() {
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
   const { amountError, addressError } = useSendAvaxFormErrors(error);
-  const { avaxPrice, avaxToken } = useWalletContext();
+  const { avaxPrice } = useWalletContext();
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
-
+  console.log(maxAmount);
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
@@ -72,10 +76,9 @@ export function SendAvaxForm() {
     return subject;
   }, []);
 
-  const maxAmount = sendFee
-    ? avaxToken.balance.sub(sendFee)
-    : avaxToken.balance;
-  const hasAmountInput = !!amountDisplayValue;
+  const showAmountErrorMessage =
+    amountError.message &&
+    amountError.message !== SendAvaxFormError.AMOUNT_REQUIRED;
 
   useEffect(() => {
     setValuesDebouncedSubject.next({
@@ -104,16 +107,17 @@ export function SendAvaxForm() {
             value={amountInput}
             label={'Amount'}
             error={amountError.error}
-            errorMessage={hasAmountInput ? amountError.message : ''}
+            errorMessage={showAmountErrorMessage ? amountError.message : ''}
             placeholder="Enter the amount"
             denomination={9}
-            max={maxAmount}
+            // TODO fix this once BNs have correct type from the backend
+            max={maxAmount && new BN(maxAmount as any, 16)}
             onChange={(val) => {
               setAmountInput(val.bn);
               setAmountDisplayValue(val.amount);
             }}
           />
-          {!hasAmountInput || !amountError.error ? (
+          {!showAmountErrorMessage || !amountError.error ? (
             <HorizontalFlex
               width={'100%'}
               justify={'space-between'}
