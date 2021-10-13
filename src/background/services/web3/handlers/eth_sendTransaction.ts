@@ -47,12 +47,14 @@ export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
       if (!walletResult || !walletResult.sendCustomEvmTx) {
         throw new Error('wallet is undefined or sned tx method is malformed');
       }
+
       return walletResult
         .sendCustomEvmTx(
           params.gasPrice,
           params.gasLimit,
           params.data,
-          params.to
+          params.to,
+          params.value
         )
         .then((result) => {
           updateTransaction.next({

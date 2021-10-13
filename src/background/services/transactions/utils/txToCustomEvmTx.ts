@@ -10,7 +10,7 @@ export async function txToCustomEvmTx(tx?: Transaction) {
   const gasPrice = await firstValueFrom(gasPrice$);
 
   const txParams = tx.txParams;
-  const { gas, to, from, data } = txParams;
+  const { gas, to, from, data, value } = txParams;
 
   if (!gas || !gasPrice) {
     throw new Error('Gas or gas estimate is malformed');
@@ -28,5 +28,6 @@ export async function txToCustomEvmTx(tx?: Transaction) {
     to,
     from,
     data,
+    value,
   };
 }
