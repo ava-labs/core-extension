@@ -9,7 +9,6 @@ import {
   PrimaryButton,
   IconDirection,
   Card,
-  SecondaryCard,
   TextButton,
   ComponentSize,
 } from '@avalabs/react-components';
@@ -18,7 +17,6 @@ import { DestinationChainTx } from '@avalabs/wallet-react-components';
 import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
 import { SendConsolidationDetails } from './SendConsolidationDetails';
-import { useGetSendTxDetails } from './hooks/useGetSendTxDetails';
 import styled, { useTheme } from 'styled-components';
 import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
 
@@ -52,10 +50,17 @@ export function SendAvaxConfirm({
   chain,
 }: SendAvaxConfirmProps) {
   const theme = useTheme();
-  const details = useGetSendTxDetails();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState(false);
   const [showTxDetails, setShowTxDetails] = useState(false);
+
+  const onBackClick = () => {
+    if (showTxDetails) {
+      setShowTxDetails(false);
+    } else {
+      onClose && onClose();
+    }
+  };
 
   useEffect(() => {
     if (txId) {
@@ -86,7 +91,7 @@ export function SendAvaxConfirm({
     <Modal isOpen={open}>
       <VerticalFlex padding="36px" height="100%">
         <HorizontalFlex align={'center'} justify="center" width="100%">
-          <TextButton onClick={() => onClose && onClose()}>
+          <TextButton onClick={() => onBackClick()}>
             <CaretIcon
               color={theme.colors.text1}
               direction={IconDirection.LEFT}
@@ -99,7 +104,7 @@ export function SendAvaxConfirm({
             padding="0 24px 0 0"
           >
             <Typography as={'h1'} size={24} weight={700}>
-              Confirm transaction
+              {showTxDetails ? 'Additional fees' : 'Confirm transaction'}
             </Typography>
           </HorizontalFlex>
         </HorizontalFlex>
@@ -115,48 +120,45 @@ export function SendAvaxConfirm({
             {amountUsd} USD
           </SubTextTypography>
         </VerticalFlex>
-        <DataCard margin="24px 0" padding="16px">
-          <VerticalFlex>
-            <SubTextTypography margin={'0 0 8px 0'}>Send to</SubTextTypography>
-            <Typography height="17px" size={14} wordBreak="break-word">
-              {address}
-            </Typography>
-          </VerticalFlex>
-        </DataCard>
-        <DataCard padding="16px">
-          <HorizontalFlex
-            justify={'space-between'}
-            align={'center'}
-            width={'100%'}
-          >
-            <VerticalFlex>
-              <SubTextTypography margin={'0 0 8px 0'}>
-                Transaction fee
-              </SubTextTypography>
-              <Typography size={14}>{fee || 0} AVAX</Typography>
-            </VerticalFlex>
-            {extraTxs?.length ? (
-              <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
-                View Details
-              </TextButton>
-            ) : (
-              ''
-            )}
-          </HorizontalFlex>
-        </DataCard>
+
         {showTxDetails ? (
-          <SecondaryCard>
+          <DataCard margin="24px 0" height="300px" padding="24px 0">
             <SendConsolidationDetails txs={extraTxs} />
-          </SecondaryCard>
+          </DataCard>
         ) : (
-          ''
+          <>
+            <DataCard margin="24px 0" padding="16px">
+              <VerticalFlex>
+                <SubTextTypography margin={'0 0 8px 0'}>
+                  Send to
+                </SubTextTypography>
+                <Typography height="17px" size={14} wordBreak="break-all">
+                  {address}
+                </Typography>
+              </VerticalFlex>
+            </DataCard>
+            <DataCard padding="16px">
+              <HorizontalFlex
+                justify={'space-between'}
+                align={'center'}
+                width={'100%'}
+              >
+                <VerticalFlex>
+                  <SubTextTypography margin={'0 0 8px 0'}>
+                    Transaction fee
+                  </SubTextTypography>
+                  <Typography size={14}>{fee || 0} AVAX</Typography>
+                </VerticalFlex>
+                {extraTxs?.length && (
+                  <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
+                    View Details
+                  </TextButton>
+                )}
+              </HorizontalFlex>
+            </DataCard>
+          </>
         )}
-        <HorizontalFlex
-          width={'100%'}
-          grow="1"
-          justify={'center'}
-          align="flex-end"
-        >
+        <HorizontalFlex width="100%" grow="1" justify="center" align="flex-end">
           <PrimaryButton
             size={ComponentSize.LARGE}
             onClick={() => {

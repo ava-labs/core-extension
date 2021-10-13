@@ -27,6 +27,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { debounceTime, Subject } from 'rxjs';
 import { TransactionFeeTooltip } from './TransactionFeeTooltip';
+import styled from 'styled-components';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -36,6 +37,10 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
   //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
+
+const AddressInput = styled(TextArea)`
+  word-break: break-all;
+`;
 
 export function SendAvaxForm() {
   const sendType = useGetSendTypeFromParams();
@@ -93,7 +98,7 @@ export function SendAvaxForm() {
   return (
     <>
       <VerticalFlex align="center" width="100%">
-        <TextArea
+        <AddressInput
           size={ComponentSize.SMALL}
           margin="24px 0 0 0"
           label={'To'}
