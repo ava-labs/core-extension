@@ -22,9 +22,10 @@ import {
   getTransactionsFromStorage,
   saveTransactionsToStorage,
 } from './storage';
-import { KnownContractABIs } from '@src/abi';
+import { KnownContractABIs } from '@src/contracts';
 import { network$, walletState$ } from '@avalabs/wallet-react-components';
-import { contractParserMap } from '@src/abi/contractParsers/contractParserMap';
+import { contractParserMap } from '@src/contracts/contractParsers/contractParserMap';
+import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -78,7 +79,8 @@ addTransaction
                   gasPrice,
                   erc20Tokens: walletState?.erc20Tokens,
                   avaxPrice: walletState?.avaxPrice,
-                })
+                  avaxToken: walletState?.avaxToken,
+                } as DisplayValueParserProps)
               : (undefined as any),
             type: 'standard',
             transactionCategory: 'transfer',
@@ -116,6 +118,7 @@ updateTransaction
           ...currentTxs,
           updateTxStatusFinalized(update, tx),
         ]);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [`${update.id}`]: _removed, ...txs } = currentPendingTxs;
         pendingTransactions.next(txs);
       }

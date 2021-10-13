@@ -1,14 +1,22 @@
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
-import { GasPrice } from '@src/background/services/gas/models';
 import { txParams } from '@src/background/services/transactions/models';
 import {
   ContractCall,
   ContractParser,
+  DisplayValueParserProps,
   erc20PathToken,
-  SwapExactTokensForTokenData,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
+
+export interface SwapExactTokensForTokenData {
+  amountIn: string;
+  amountOutMin: string;
+  contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
+  deadline: string;
+  path: string[];
+  to: string;
+}
 
 export function swapExactTokensForTokenHandler(
   /**
@@ -20,11 +28,7 @@ export function swapExactTokensForTokenHandler(
    * execute
    */
   data: SwapExactTokensForTokenData,
-  props: {
-    gasPrice: GasPrice;
-    erc20Tokens: ERC20WithBalance[];
-    avaxPrice: number;
-  }
+  props: DisplayValueParserProps
 ): SwapExactTokensForTokenDisplayValues {
   const erc20sIndexedByAddress = props.erc20Tokens.reduce(
     (acc, token) => ({ ...acc, [token.address]: token }),
@@ -68,34 +72,26 @@ export function swapExactTokensForTokenHandler(
     return pathToken;
   });
 
-  const bnFee = props.gasPrice.bn.mul(new BN(parseInt(request.gas as string)));
-  const fee = Utils.bigToLocaleString(Utils.bnToBig(bnFee, 18), 4);
-
   const result = {
-    /**
-     * Contract this is being sent to
-     */
-    toAddress: request.to,
-    /**
-     * The wallet this is being sent from
-     */
-    fromAddress: request.from,
-    /**
-     * The smart contract paths
-     */
     path,
-    contractType: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKEN,
-    gasPrice: props.gasPrice,
-    gasLimit: parseInt(request.gas as string),
-    total: props.gasPrice.bn.add(new BN(5)).toString(),
-    fee,
-    feeUSD: parseFloat((parseFloat(fee) * props.avaxPrice).toFixed(4)),
+    contractType: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS,
+    ...parseBasicDisplayValues(request, props),
   };
 
   return result;
 }
 
 export const SwapExactTokensForTokenParser: ContractParser = [
-  ContractCall.SWAP_EXACT_TOKENS_FOR_TOKEN,
+  ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS,
+  swapExactTokensForTokenHandler,
+];
+
+/**
+ * This is for swaps from a token into a stable coin, same logic
+ * its just telling the contract that the latter token needs to be
+ * exact amount
+ */
+export const SwapTokensForExactTokensParser: ContractParser = [
+  ContractCall.SWAP_TOKENS_FOR_EXACT_TOKENS,
   swapExactTokensForTokenHandler,
 ];

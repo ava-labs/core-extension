@@ -1,4 +1,4 @@
-import { ContractCall } from '@src/abi/contractParsers/models';
+import { ContractCall } from '@src/contracts/contractParsers/models';
 import { GasPrice } from '../gas/models';
 
 /* eslint-disable no-prototype-builtins */
@@ -16,7 +16,6 @@ export enum TxStatus {
 export interface TransactionDisplayValues {
   fromAddress: string;
   toAddress: string;
-  total: string;
   gasPrice: GasPrice;
   contractType: ContractCall;
   gasLimit?: number;
@@ -48,7 +47,7 @@ export type PendingTransactions = {
 export interface txParams {
   from: string;
   to: string;
-  value: string;
+  value?: string;
   data?: string;
   gas?: string;
   gasPrice?: string;
