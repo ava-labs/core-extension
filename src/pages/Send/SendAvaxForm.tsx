@@ -26,6 +26,7 @@ import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { debounceTime, Subject } from 'rxjs';
+import { TransactionFeeTooltip } from './TransactionFeeTooltip';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -52,6 +53,8 @@ export function SendAvaxForm() {
     reset,
     sendFee,
     txs,
+    gasLimit,
+    gasPrice,
   } = useSendAvax();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
@@ -59,7 +62,7 @@ export function SendAvaxForm() {
   const { amountError, addressError } = useSendAvaxFormErrors(error);
   const { avaxPrice } = useWalletContext();
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
-  console.log(maxAmount);
+
   function resetForm() {
     setAddressInput('');
     setAmountInput(undefined as any);
@@ -124,19 +127,23 @@ export function SendAvaxForm() {
               align={'center'}
               margin={'8px 0 0 0'}
             >
-              <Typography size={14}>
+              <Typography size={14} height="16px">
                 {currencyFormatter.format(
                   Number(amountDisplayValue || 0) * avaxPrice
                 )}
               </Typography>
-              {sendFee ? (
-                <SubTextTypography size={14}>
-                  Transaction fee: ~{getAvaxBalanceTotal(sendFee || new BN(0))}{' '}
-                  AVAX
-                </SubTextTypography>
-              ) : (
-                ''
-              )}
+              <HorizontalFlex align="center">
+                {sendFee && (
+                  <SubTextTypography size={12} height="16px" margin="0 8px 0 0">
+                    Transaction fee: ~
+                    {getAvaxBalanceTotal(sendFee || new BN(0))} AVAX
+                  </SubTextTypography>
+                )}
+                <TransactionFeeTooltip
+                  gasPrice={gasPrice}
+                  gasLimit={gasLimit}
+                />
+              </HorizontalFlex>
             </HorizontalFlex>
           ) : (
             ''
