@@ -2,10 +2,11 @@ import { Tabs, Windows } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 const NOTIFICATION_WIDTH = 500;
 const NOTIFICATION_HEIGHT = 500;
-
+const contextToOpenIn = ContextContainer.CONFIRM;
 /**
  * Fired when a window is removed (closed).
  */
@@ -90,7 +91,7 @@ export const getTabs = () => {
 };
 
 export const openExtensionInBrowser = (route = null, queryString = null) => {
-  let extensionURL = extension.runtime.getURL('popup.html');
+  let extensionURL = extension.runtime.getURL(contextToOpenIn);
 
   if (queryString) {
     extensionURL += `?${queryString}`;
@@ -107,7 +108,7 @@ export const openExtensionNewWindow = (
   route?: string,
   queryString?: string
 ) => {
-  let extensionURL = extension.runtime.getURL('popup.html');
+  let extensionURL = extension.runtime.getURL(contextToOpenIn);
 
   if (queryString) {
     extensionURL += `?${queryString}`;

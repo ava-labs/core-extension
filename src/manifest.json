@@ -54,6 +54,7 @@
     "phishing.html",
     "popup.html",
     "home.html",
+    "confirm.html",
     "inpage.js"
   ],
   "externally_connectable": {

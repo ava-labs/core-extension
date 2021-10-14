@@ -8,7 +8,10 @@ import {
   OnboardingPhase,
   OnboardingState,
 } from '@src/background/services/onboarding/models';
-import { useIsPopup } from '@src/hooks/useIsPopup';
+import {
+  useIsSpecificContextContainer,
+  ContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { concat, filter, from, map } from 'rxjs';
 import { browser } from 'webextension-polyfill-ts';
@@ -29,7 +32,7 @@ const OnboardingContext = createContext<{
 
 export function OnboardingContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const isPopup = useIsPopup();
+  const isPopup = useIsSpecificContextContainer(ContextContainer.POPUP);
   const [onboardingState, setOnboardingState] = useState<OnboardingState>();
   const [onboardingPhase, setOnboardingPhase] = useState<OnboardingPhase>();
 

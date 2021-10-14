@@ -34,9 +34,14 @@ import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 import { Home } from '@src/pages/Home/Home';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
 
   return (
     <DialogContextProvider>
@@ -52,7 +57,11 @@ export function Popup() {
                   align="center"
                 >
                   <VerticalFlex width="100%">
-                    <Header onDrawerStateChanged={setDrawerOpen} />
+                    {!isConfirm ? (
+                      <Header onDrawerStateChanged={setDrawerOpen} />
+                    ) : (
+                      ''
+                    )}
                   </VerticalFlex>
 
                   <HorizontalFlex
