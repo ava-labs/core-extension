@@ -26,6 +26,7 @@ import { KnownContractABIs } from '@src/contracts';
 import { network$, walletState$ } from '@avalabs/wallet-react-components';
 import { contractParserMap } from '@src/contracts/contractParsers/contractParserMap';
 import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
+import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -58,13 +59,28 @@ addTransaction
         KnownContractABIs.get(txParams.to.toLocaleLowerCase()) ??
         KnownContractABIs.get('erc20');
 
-      const decodedData = knownContract?.parser(
-        knownContract?.decoder(txParams.data)
-      );
+      let decodedData: any;
+      try {
+        decodedData = knownContract?.parser(
+          knownContract?.decoder(txParams.data)
+        );
+      } catch (_err) {
+        console.log(
+          'error happened when attempting to decode date',
+          txParams.data
+        );
+      }
 
-      const parser = contractParserMap.get(decodedData.contractCall);
+      const parser = contractParserMap.get(decodedData?.contractCall);
 
       if (txParams && isTxParams(txParams)) {
+        const displayValueProps = {
+          gasPrice,
+          erc20Tokens: walletState?.erc20Tokens,
+          avaxPrice: walletState?.avaxPrice,
+          avaxToken: walletState?.avaxToken,
+        } as DisplayValueParserProps;
+
         pendingTransactions.next({
           ...currentPendingTxs,
           [`${tx.id}`]: {
@@ -75,13 +91,8 @@ addTransaction
             chainId: network.chainId,
             txParams,
             displayValues: parser
-              ? parser(txParams, decodedData, {
-                  gasPrice,
-                  erc20Tokens: walletState?.erc20Tokens,
-                  avaxPrice: walletState?.avaxPrice,
-                  avaxToken: walletState?.avaxToken,
-                } as DisplayValueParserProps)
-              : (undefined as any),
+              ? parser(txParams, decodedData, displayValueProps)
+              : (parseBasicDisplayValues(txParams, displayValueProps) as any),
             type: 'standard',
             transactionCategory: 'transfer',
           },

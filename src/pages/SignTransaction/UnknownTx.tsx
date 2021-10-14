@@ -3,7 +3,7 @@ import React from 'react';
 
 export function UnknownTx() {
   return (
-    <VerticalFlex>
+    <VerticalFlex align={'center'}>
       <Typography>Unknown Tx Type</Typography>
     </VerticalFlex>
   );
