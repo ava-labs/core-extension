@@ -25,6 +25,11 @@ import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { resolve } from '@src/utils/promiseResolver';
 
+/**
+ * dApps call these function over and over
+ */
+const SUPER_NOISY_REQUESTS = ['eth_chainId', 'eth_blockNumber', 'eth_call'];
+
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
   ConnectionRequestHandler
@@ -57,7 +62,9 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
       data.method as DAppProviderRequest
     );
 
-    requestLog(`Web3 request (${data.method})`, data);
+    if (!SUPER_NOISY_REQUESTS.includes(data.method)) {
+      requestLog(`Web3 request (${data.method})`, data);
+    }
 
     if (data.method === DAppProviderRequest.DOMAIN_METADATA_METHOD) {
       domain.next((data?.params as any).name);
@@ -92,8 +99,9 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
         );
 
     const response = await promise;
-
-    responseLog(`Web3 response (${data.method})`, response);
+    if (!SUPER_NOISY_REQUESTS.includes(data.method)) {
+      responseLog(`Web3 response (${data.method})`, response);
+    }
 
     connection.postMessage(response);
   };

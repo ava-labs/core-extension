@@ -104,11 +104,11 @@ addTransaction
 
 updateTransaction
   .pipe(
-    switchMap(async (newTx) => {
+    switchMap(async (update) => {
       return Promise.all([
         firstValueFrom(transactions$),
         firstValueFrom(pendingTransactions),
-        Promise.resolve(newTx),
+        Promise.resolve(update),
       ]);
     }),
     tap(([currentTxs, currentPendingTxs, update]) => {
@@ -119,12 +119,12 @@ updateTransaction
           ...currentPendingTxs,
           ...updatePendingTxParams(update, tx),
         });
-      } else if (isTxStatusUpdate(tx)) {
+      } else if (isTxStatusUpdate(tx) && update.status !== TxStatus.SIGNED) {
         pendingTransactions.next({
           ...currentPendingTxs,
           ...updateTxStatus(update, tx),
         });
-      } else if (isTxFinalizedUpdate(tx)) {
+      } else if (isTxFinalizedUpdate({ ...tx, ...update })) {
         transactions$.next([
           ...currentTxs,
           updateTxStatusFinalized(update, tx),

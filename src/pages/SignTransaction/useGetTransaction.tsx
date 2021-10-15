@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Transaction } from '@src/background/services/transactions/models';
 import { useEffect } from 'react';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { filter, merge, map, tap } from 'rxjs';
+import { filter, merge, map, tap, take } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/models';
 import { gasPriceTransactionUpdateListener } from '@src/background/services/transactions/events/gasPriceTransactionUpdateListener';
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
@@ -25,16 +25,25 @@ export function useGetTransaction(requestId: string) {
       // )
     ).subscribe((tx) => setTransaction({ ...transaction, ...tx }));
 
-    subscription.add(
-      events!()
-        .pipe(
-          transactionFinalizedUpdateListener(requestId),
-          tap((tx) => setHash(tx.txHash ?? ''))
-        )
-        .subscribe((tx) => setTransaction({ ...transaction, ...tx }))
-    );
+    const finalizedSubscription = events!()
+      .pipe(
+        filter(transactionFinalizedUpdateListener),
+        map(({ value }) => {
+          return value.find((tx) => tx.id === Number(requestId));
+        }),
+        filter((tx) => !!tx),
+        take(1)
+      )
+      .subscribe({
+        next(tx) {
+          setHash(tx?.txHash || '');
+        },
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.add(finalizedSubscription);
+      subscription.unsubscribe();
+    };
   }, []);
 
   return useMemo(() => {
@@ -52,5 +61,5 @@ export function useGetTransaction(requestId: string) {
       updateTransaction,
       hash,
     };
-  }, [requestId, transaction]);
+  }, [requestId, transaction, hash]);
 }

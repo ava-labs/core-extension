@@ -17,6 +17,11 @@ export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
   return (
     <VerticalFlex>
       <br />
+      <HorizontalFlex width={'100%'} justify={'center'}>
+        <Typography>Swap</Typography>
+      </HorizontalFlex>
+      <br />
+      <br />
       <VerticalFlex>
         <HorizontalFlex
           align={'center'}

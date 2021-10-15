@@ -10,8 +10,14 @@ import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 
 export interface SwapExactTokensForTokenData {
+  amountInMin: string;
   amountIn: string;
+  amountInMax: string;
+
   amountOutMin: string;
+  amountOut: string;
+  amountOutMax: string;
+
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
   path: string[];
@@ -41,7 +47,7 @@ export function swapExactTokensForTokenHandler(
     const pathToken = erc20sIndexedByAddress[address] ?? { address };
 
     if (pathToken.address === firstTokenInPath && pathToken.denomination) {
-      const bn = new BN(data.amountIn);
+      const bn = new BN(data.amountIn || data.amountInMax || data.amountInMax);
 
       return {
         ...pathToken,
@@ -56,7 +62,9 @@ export function swapExactTokensForTokenHandler(
     }
 
     if (pathToken.address === lastTokenInPath && pathToken.denomination) {
-      const bn = new BN(data.amountOutMin);
+      const bn = new BN(
+        data.amountOutMin || data.amountOut || data.amountOutMax
+      );
 
       return {
         ...pathToken,
