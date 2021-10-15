@@ -22,6 +22,11 @@ import {
   getTransactionsFromStorage,
   saveTransactionsToStorage,
 } from './storage';
+import { KnownContractABIs } from '@src/contracts';
+import { network$, walletState$ } from '@avalabs/wallet-react-components';
+import { contractParserMap } from '@src/contracts/contractParsers/contractParserMap';
+import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
+import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -41,28 +46,53 @@ addTransaction
         firstValueFrom(pendingTransactions),
         Promise.resolve(newTx),
         firstValueFrom(gasPrice$),
+        firstValueFrom(network$),
+        firstValueFrom(walletState$),
       ]);
     }),
-    tap(([currentPendingTxs, data, gasPrice]) => {
-      const { params } = data;
+    tap(([currentPendingTxs, tx, gasPrice, network, walletState]) => {
+      const { params } = tx;
       const now = new Date().getTime();
       const txParams = (params || [])[0];
 
+      const knownContract =
+        KnownContractABIs.get(txParams.to.toLocaleLowerCase()) ??
+        KnownContractABIs.get('erc20');
+
+      let decodedData: any;
+      try {
+        decodedData = knownContract?.parser(
+          knownContract?.decoder(txParams.data)
+        );
+      } catch (_err) {
+        console.log(
+          'error happened when attempting to decode date',
+          txParams.data
+        );
+      }
+
+      const parser = contractParserMap.get(decodedData?.contractCall);
+
       if (txParams && isTxParams(txParams)) {
+        const displayValueProps = {
+          gasPrice,
+          erc20Tokens: walletState?.erc20Tokens,
+          avaxPrice: walletState?.avaxPrice,
+          avaxToken: walletState?.avaxToken,
+        } as DisplayValueParserProps;
+
         pendingTransactions.next({
           ...currentPendingTxs,
-          [`${data.id}`]: {
-            id: data.id,
+          [`${tx.id}`]: {
+            id: tx.id,
             time: now,
             status: TxStatus.PENDING,
-            /**
-             * TODO:
-             * both the network id and the chain id can come from the current selected network.
-             * in the useNetwork hook there is a read network from storage.
-             */
-            metamaskNetworkId: '1',
-            chainId: '0xa869',
-            txParams: { ...txParams, gasPrice: gasPrice?.value },
+            metamaskNetworkId: network.config.networkID.toString(),
+            chainId: network.chainId,
+            txParams,
+            displayValues: parser
+              ? parser(txParams, decodedData, displayValueProps)
+              : (parseBasicDisplayValues(txParams, displayValueProps) as any),
             type: 'standard',
             transactionCategory: 'transfer',
           },
@@ -74,11 +104,11 @@ addTransaction
 
 updateTransaction
   .pipe(
-    switchMap(async (newTx) => {
+    switchMap(async (update) => {
       return Promise.all([
         firstValueFrom(transactions$),
         firstValueFrom(pendingTransactions),
-        Promise.resolve(newTx),
+        Promise.resolve(update),
       ]);
     }),
     tap(([currentTxs, currentPendingTxs, update]) => {
@@ -89,16 +119,17 @@ updateTransaction
           ...currentPendingTxs,
           ...updatePendingTxParams(update, tx),
         });
-      } else if (isTxStatusUpdate(tx)) {
+      } else if (isTxStatusUpdate(tx) && update.status !== TxStatus.SIGNED) {
         pendingTransactions.next({
           ...currentPendingTxs,
           ...updateTxStatus(update, tx),
         });
-      } else if (isTxFinalizedUpdate(tx)) {
+      } else if (isTxFinalizedUpdate({ ...tx, ...update })) {
         transactions$.next([
           ...currentTxs,
           updateTxStatusFinalized(update, tx),
         ]);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [`${update.id}`]: _removed, ...txs } = currentPendingTxs;
         pendingTransactions.next(txs);
       }

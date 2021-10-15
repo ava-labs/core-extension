@@ -66,7 +66,7 @@
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "^0.9.10",
     "@avalabs/react-components": "^1.21.1",
-    "@avalabs/wallet-react-components": "1.4.10",
+    "@avalabs/wallet-react-components": "1.6.0",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
     "@pangolindex/exchange-contracts": "^1.0.1",
@@ -183,7 +183,11 @@
               "name": "Avalanche-wallet-extension-${nextRelease.gitTag}.zip",
               "label": "Wallet Extension (${nextRelease.gitTag})"
             }
-          ]
+          ],
+          "failTitle": false,
+          "successComment": false,
+          "failComment": false,
+          "labels": false
         }
       ],
       [
