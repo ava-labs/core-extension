@@ -24,5 +24,7 @@ export function parseBasicDisplayValues(
     gasLimit: parseInt(request.gas as string),
     fee,
     feeUSD: parseFloat((parseFloat(fee) * props.avaxPrice).toFixed(4)),
+    domain: props.domain,
+    icon: props.icon,
   };
 }

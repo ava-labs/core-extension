@@ -27,6 +27,7 @@ import { network$, walletState$ } from '@avalabs/wallet-react-components';
 import { contractParserMap } from '@src/contracts/contractParsers/contractParserMap';
 import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
+import { ExtensionConnectionMessage } from '@src/background/connections/models';
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -51,7 +52,7 @@ addTransaction
       ]);
     }),
     tap(([currentPendingTxs, tx, gasPrice, network, walletState]) => {
-      const { params } = tx;
+      const { params, domain, icon } = tx as ExtensionConnectionMessage;
       const now = new Date().getTime();
       const txParams = (params || [])[0];
 
@@ -79,6 +80,8 @@ addTransaction
           erc20Tokens: walletState?.erc20Tokens,
           avaxPrice: walletState?.avaxPrice,
           avaxToken: walletState?.avaxToken,
+          domain,
+          icon,
         } as DisplayValueParserProps;
 
         pendingTransactions.next({

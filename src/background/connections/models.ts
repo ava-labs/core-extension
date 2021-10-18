@@ -6,10 +6,12 @@ export interface ExtensionConnectionMessage<T = any> {
   method: string;
   params?: any[];
   /**
-   * This gets added onto incoming requests at the permission
-   * level, its only present on requests from dApps
+   * Domain and icon get added onto incoming requests at the permission
+   * level, its only present on requests from dApps. Look in
+   * dAppConnection -> providerController to see injection point
    */
   domain?: string;
+  icon?: string;
   data?: T;
 }
 

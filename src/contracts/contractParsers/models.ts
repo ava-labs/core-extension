@@ -51,4 +51,6 @@ export interface DisplayValueParserProps {
   erc20Tokens: ERC20WithBalance[];
   avaxToken: AvaxWithBalance;
   avaxPrice: number;
+  domain: string;
+  icon: string;
 }

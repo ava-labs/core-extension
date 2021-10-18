@@ -25,6 +25,7 @@ import { AddLiquidityTx } from './AddLiquidityTx';
 import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { TokenImg } from '@src/components/common/TokenImage';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -51,6 +52,10 @@ export function SignTransactionPage() {
 
   return (
     <VerticalFlex>
+      <HorizontalFlex>
+        <TokenImg src={displayData.icon} />
+        <Typography>{displayData.domain}</Typography>
+      </HorizontalFlex>
       {
         {
           [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
