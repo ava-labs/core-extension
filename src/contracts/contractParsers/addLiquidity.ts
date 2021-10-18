@@ -41,20 +41,32 @@ export function addLiquidityHandler(
   const tokenA = erc20sIndexedByAddress[data.tokenA];
   const tokenB = erc20sIndexedByAddress[data.tokenB];
 
+  const firstTokenAmountDepositedDisplayValue = Utils.bigToLocaleString(
+    Utils.bnToBig(new BN(data.amountADesired), tokenA.denomination),
+    4
+  );
+  const tokenA_AmountUSDValue =
+    (
+      Number(tokenA.priceUSD) * Number(firstTokenAmountDepositedDisplayValue)
+    ).toFixed(2) ?? '';
   const firstToken: LiquidityPoolToken = {
     ...tokenA,
-    amountDepositedDisplayValue: Utils.bigToLocaleString(
-      Utils.bnToBig(new BN(data.amountADesired), tokenA.denomination),
-      4
-    ),
+    amountDepositedDisplayValue: firstTokenAmountDepositedDisplayValue,
+    amountUSDValue: tokenA_AmountUSDValue,
   };
 
+  const secondTokenAmountDepositedDisplayValue = Utils.bigToLocaleString(
+    Utils.bnToBig(new BN(data.amountBDesired), tokenB.denomination),
+    4
+  );
+  const tokenB_AmountUSDValue =
+    (
+      Number(tokenB.priceUSD) * Number(secondTokenAmountDepositedDisplayValue)
+    ).toFixed(2) ?? '';
   const secondToken: LiquidityPoolToken = {
     ...tokenB,
-    amountDepositedDisplayValue: Utils.bigToLocaleString(
-      Utils.bnToBig(new BN(data.amountBDesired), tokenB.denomination),
-      4
-    ),
+    amountDepositedDisplayValue: secondTokenAmountDepositedDisplayValue,
+    amountUSDValue: tokenB_AmountUSDValue,
   };
 
   const result = {

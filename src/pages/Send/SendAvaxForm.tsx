@@ -19,15 +19,6 @@ import debounce from 'lodash.debounce';
 import { getAvaxBalanceTotal } from '../Wallet/utils/balanceHelpers';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-
-  // These options are needed to round to whole numbers if that's what you want.
-  //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-  //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-});
-
 export function SendAvaxForm() {
   const {
     targetChain,
@@ -45,7 +36,7 @@ export function SendAvaxForm() {
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
   const { amountError, addressError } = useSendAvaxFormErrors(error);
-  const { avaxPrice } = useWalletContext();
+  const { avaxPrice, currencyFormatter } = useWalletContext();
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
 
   function resetForm() {
@@ -93,9 +84,7 @@ export function SendAvaxForm() {
             margin={'8px 0 0 0'}
           >
             <Typography size={14}>
-              {currencyFormatter.format(
-                Number(amountDisplayValue || 0) * avaxPrice
-              )}
+              {currencyFormatter(Number(amountDisplayValue || 0) * avaxPrice)}
             </Typography>
             {targetChain === 'X' ? (
               <SubTextTypography size={14}>
@@ -135,7 +124,7 @@ export function SendAvaxForm() {
           targetChain === 'X' ? getAvaxBalanceTotal(sendFee || new BN(0)) : ''
         }
         extraTxs={txs as any}
-        amountUsd={currencyFormatter.format(
+        amountUsd={currencyFormatter(
           Number(amountDisplayValue || 0) * avaxPrice
         )}
         onConfirm={() =>

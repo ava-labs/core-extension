@@ -24,12 +24,14 @@ import { useGetTransaction } from './useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
   const { updateTransaction, id, contractType, hash, ...params } =
     useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
+  const { currencyFormatter } = useWalletContext();
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 
@@ -73,7 +75,9 @@ export function SignTransactionPage() {
         <Typography>Fee</Typography>
         <br />
         <Typography> {displayData.fee} (AVAX)</Typography>
-        <SubTextTypography>${displayData.feeUSD}</SubTextTypography>
+        <SubTextTypography>
+          {currencyFormatter(Number(displayData.feeUSD))}
+        </SubTextTypography>
       </VerticalFlex>
       <br />
       <br />

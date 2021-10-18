@@ -8,6 +8,7 @@ import {
 } from './models';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
+import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 
 export interface SwapExactTokensForTokenData {
   amountInMin: string;
@@ -44,37 +45,47 @@ export function swapExactTokensForTokenHandler(
   const firstTokenInPath = data.path[0];
   const lastTokenInPath = data.path[data.path.length - 1];
   const path: erc20PathToken[] = data.path.map((address) => {
-    const pathToken = erc20sIndexedByAddress[address] ?? { address };
+    const pathToken: ERC20WithBalance = erc20sIndexedByAddress[address] ?? {
+      address,
+    };
 
     if (pathToken.address === firstTokenInPath && pathToken.denomination) {
-      const bn = new BN(data.amountIn || data.amountInMax || data.amountInMax);
+      const amount = data.amountIn || data.amountInMax || data.amountInMax;
+      const bn = new BN(amount);
+      const amountValue = Utils.bigToLocaleString(
+        Utils.bnToBig(bn, pathToken.denomination),
+        4
+      );
+      const amountUSDValue =
+        (Number(pathToken.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
 
       return {
         ...pathToken,
         amountIn: {
           bn,
-          value: Utils.bigToLocaleString(
-            Utils.bnToBig(bn, pathToken.denomination),
-            4
-          ),
+          value: amountValue,
         },
+        amountUSDValue,
       };
     }
 
     if (pathToken.address === lastTokenInPath && pathToken.denomination) {
-      const bn = new BN(
-        data.amountOutMin || data.amountOut || data.amountOutMax
+      const amount = data.amountOutMin || data.amountOut || data.amountOutMax;
+      const bn = new BN(amount);
+      const amountValue = Utils.bigToLocaleString(
+        Utils.bnToBig(bn, pathToken.denomination),
+        4
       );
+      const amountUSDValue =
+        (Number(pathToken.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
 
       return {
         ...pathToken,
         amountOut: {
           bn,
-          value: Utils.bigToLocaleString(
-            Utils.bnToBig(bn, pathToken.denomination),
-            4
-          ),
+          value: amountValue,
         },
+        amountUSDValue,
       };
     }
     return pathToken;

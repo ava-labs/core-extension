@@ -37,21 +37,30 @@ export function addLiquidityAvaxHandler(
   );
 
   const token = erc20sIndexedByAddress[data.token];
+  const firstTokenDeposited = Utils.bigToLocaleString(
+    Utils.bnToBig(new BN(data.amountAVAXMin), 18),
+    4
+  );
+  const firstToken_AmountUSDValue =
+    (Number(props.avaxPrice) * Number(firstTokenDeposited)).toFixed(2) ?? '';
 
   const firstToken: LiquidityPoolToken = {
     ...props.avaxToken,
-    amountDepositedDisplayValue: Utils.bigToLocaleString(
-      Utils.bnToBig(new BN(data.amountAVAXMin), 18),
-      4
-    ),
+    amountDepositedDisplayValue: firstTokenDeposited,
+    amountUSDValue: firstToken_AmountUSDValue,
   };
+
+  const secondTokenDeposited = Utils.bigToLocaleString(
+    Utils.bnToBig(new BN(data.amountTokenDesired), token.denomination),
+    4
+  );
+  const secondToken_AmountUSDValue =
+    (Number(token.priceUSD) * Number(secondTokenDeposited)).toFixed(2) ?? '';
 
   const secondToken: LiquidityPoolToken = {
     ...token,
-    amountDepositedDisplayValue: Utils.bigToLocaleString(
-      Utils.bnToBig(new BN(data.amountTokenDesired), token.denomination),
-      4
-    ),
+    amountDepositedDisplayValue: secondTokenDeposited,
+    amountUSDValue: secondToken_AmountUSDValue,
   };
   const result = {
     poolTokens: [firstToken, secondToken],
