@@ -7,6 +7,7 @@ import {
   ProgressIndicator,
   TextButton,
   HorizontalFlex,
+  ComponentSize,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
@@ -69,13 +70,16 @@ export const CreatePassword = ({ onCancel }: { onCancel(): void }) => {
       </VerticalFlex>
       <VerticalFlex align="center">
         <PrimaryButton
+          size={ComponentSize.LARGE}
           margin="24px 0"
           disabled={!canSubmit}
           onClick={() => {
             setPassword(passwordVal);
           }}
         >
-          Save password
+          <Typography size={14} weight={600} color="inherit">
+            Save password
+          </Typography>
         </PrimaryButton>
         <TextButton onClick={() => onCancel && onCancel()}>Back</TextButton>
       </VerticalFlex>

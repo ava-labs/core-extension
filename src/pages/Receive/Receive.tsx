@@ -50,7 +50,7 @@ export const Receive = () => {
   }
 
   return (
-    <VerticalFlex width={'100%'} align={'center'}>
+    <VerticalFlex width={'100%'} height="496px" align={'center'}>
       <VerticalFlex height="48px" margin="24px 0" align="center">
         <Typography height="24px">
           This is your{' '}

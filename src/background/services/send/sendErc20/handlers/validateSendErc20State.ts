@@ -6,10 +6,11 @@ import {
 import {
   checkAndValidateSendErc20,
   ERC20,
+  ERC20WithBalance,
   wallet$,
 } from '@avalabs/wallet-react-components';
 import { gasPrice$ } from '../../../gas/gas';
-import { firstValueFrom, Observable, of, Subject } from 'rxjs';
+import { firstValueFrom, Observable, of, startWith, Subject } from 'rxjs';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { walletState$ } from '../../../wallet/walletState';
 import { isWalletLocked } from '../../../wallet/models';
@@ -17,27 +18,6 @@ import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 async function validateSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address] = request.params || [];
-
-  if (!amount) {
-    return {
-      ...request,
-      error: 'no amount in params',
-    };
-  }
-
-  if (!address) {
-    return {
-      ...request,
-      error: 'no address in params',
-    };
-  }
-
-  if (!token) {
-    return {
-      ...request,
-      error: 'no token in params',
-    };
-  }
 
   const walletState = await firstValueFrom(walletState$);
 
@@ -49,7 +29,7 @@ async function validateSendErc20State(request: ExtensionConnectionMessage) {
   }
 
   const balances = walletState?.erc20Tokens.reduce(
-    (acc: { [key: string]: ERC20 }, token) => {
+    (acc: { [key: string]: ERC20WithBalance }, token) => {
       return {
         ...acc,
         [token.address]: token,
@@ -69,8 +49,13 @@ async function validateSendErc20State(request: ExtensionConnectionMessage) {
     checkAndValidateSendErc20(
       token,
       gasPrice$ as Observable<{ bn: BN }>,
-      of(Utils.stringToBN(amount, 18)) as Subject<BN>,
-      of(address) as Subject<string>,
+      of(
+        Utils.stringToBN(
+          amount || 0,
+          (token as ERC20WithBalance).denomination || 18
+        )
+      ).pipe(startWith(new BN(0))) as Subject<BN>,
+      of(address).pipe(startWith('')) as Subject<string>,
       of(balances) as Subject<typeof balances>,
       wallet$
     )

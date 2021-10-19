@@ -6,6 +6,7 @@ import {
   PrimaryButton,
   RecoveryPhraseIcon,
   TextButton,
+  ComponentSize,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTheme } from 'styled-components';
@@ -60,13 +61,16 @@ export const Import = ({ onCancel }: { onCancel(): void }) => {
       </VerticalFlex>
       <VerticalFlex align="center">
         <PrimaryButton
+          size={ComponentSize.LARGE}
           margin="24px 0"
           disabled={nextButtonDisabled}
           onClick={async () => {
             setMnemonic(recoveryPhrase);
           }}
         >
-          Enter
+          <Typography size={14} weight={600} color="inherit">
+            Enter
+          </Typography>
         </PrimaryButton>
         <TextButton onClick={() => onCancel()}>Back</TextButton>
       </VerticalFlex>
