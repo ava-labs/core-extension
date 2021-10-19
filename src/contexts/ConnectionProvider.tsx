@@ -4,7 +4,7 @@ import {
 } from '@src/background/connections/models';
 import React, { createContext, useContext, useState } from 'react';
 import { useEffect } from 'react';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
 import { EXTENSION_SCRIPT } from '@src/common';

@@ -1,3 +1,6 @@
+import { ContractCall } from '@src/contracts/contractParsers/models';
+import { GasPrice } from '../gas/models';
+
 /* eslint-disable no-prototype-builtins */
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
@@ -9,6 +12,18 @@ export enum TxStatus {
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
+
+export interface TransactionDisplayValues {
+  fromAddress: string;
+  toAddress: string;
+  gasPrice: GasPrice;
+  contractType: ContractCall;
+  gasLimit?: number;
+  fee?: string;
+  feeUSD?: number;
+  domain: string;
+  [key: string]: any;
+}
 export interface Transaction {
   id: number | string | void;
   time: number;
@@ -19,10 +34,11 @@ export interface Transaction {
   type: string;
   transactionCategory: string;
   txHash?: string;
+  displayValues: TransactionDisplayValues;
 }
 
 export function isTxParams(params: Partial<txParams>): params is txParams {
-  return !!(params.to && params.from && params.value);
+  return !!(params.to && params.from && (params.value || params.gas));
 }
 
 export type PendingTransactions = {
@@ -32,7 +48,7 @@ export type PendingTransactions = {
 export interface txParams {
   from: string;
   to: string;
-  value: string;
+  value?: string;
   data?: string;
   gas?: string;
   gasPrice?: string;
@@ -66,9 +82,7 @@ export function isTxStatusUpdate(
     update?.hasOwnProperty('id') &&
     update.hasOwnProperty('status') &&
     !update.hasOwnProperty('result') &&
-    (update as txStatusUpdate).status !== TxStatus.SIGNED &&
-    (update as txStatusUpdate).status !== TxStatus.ERROR &&
-    (update as txStatusUpdate).status !== TxStatus.ERROR_USER_CANCELED
+    (update as txStatusUpdate).status !== TxStatus.SIGNED
   );
 }
 
@@ -76,11 +90,11 @@ export function isTxFinalizedUpdate(
   update: txParamsUpdate | txStatusUpdate
 ): update is txStatusUpdate {
   return (
-    update?.hasOwnProperty('id') &&
-    update.hasOwnProperty('result') &&
-    update.hasOwnProperty('status') &&
-    (update as txStatusUpdate).status === TxStatus.SIGNED &&
-    (update as txStatusUpdate).status === TxStatus.ERROR &&
+    (update?.hasOwnProperty('id') &&
+      update.hasOwnProperty('result') &&
+      update.hasOwnProperty('status') &&
+      (update as txStatusUpdate).status === TxStatus.SIGNED) ||
+    (update as txStatusUpdate).status === TxStatus.ERROR ||
     (update as txStatusUpdate).status === TxStatus.ERROR_USER_CANCELED
   );
 }

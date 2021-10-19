@@ -25,6 +25,11 @@ import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { resolve } from '@src/utils/promiseResolver';
 
+/**
+ * dApps call these function over and over
+ */
+const SUPER_NOISY_REQUESTS = ['eth_chainId', 'eth_blockNumber', 'eth_call'];
+
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
   ConnectionRequestHandler
@@ -49,7 +54,9 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
   /**
    * Domain is per connection so this needs to remain an closure to the connection
    */
-  const domain = new BehaviorSubject('');
+  const domain = new BehaviorSubject<{ domain: string; icon?: string }>({
+    domain: 'unknown',
+  });
   return async (request: ExtensionConnectionMessage) => {
     const { data } = request;
 
@@ -57,10 +64,14 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
       data.method as DAppProviderRequest
     );
 
-    requestLog(`Web3 request (${data.method})`, data);
+    if (!SUPER_NOISY_REQUESTS.includes(data.method)) {
+      requestLog(`Web3 request (${data.method})`, data);
+    }
 
     if (data.method === DAppProviderRequest.DOMAIN_METADATA_METHOD) {
-      domain.next((data?.params as any).name);
+      const domainName = (data?.params as any).name;
+      const domainIcon = (data?.params as any).icon;
+      domain.next({ domain: domainName, icon: domainIcon });
     }
 
     const domainCache = await firstValueFrom(
@@ -68,7 +79,7 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
     );
 
     const promise: Promise<any> = handler
-      ? handler({ ...request.data, domain: domainCache }).then(
+      ? handler({ ...request.data, ...domainCache }).then(
           ({ error, result }) => {
             return {
               ...request,
@@ -92,8 +103,9 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
         );
 
     const response = await promise;
-
-    responseLog(`Web3 response (${data.method})`, response);
+    if (!SUPER_NOISY_REQUESTS.includes(data.method)) {
+      responseLog(`Web3 response (${data.method})`, response);
+    }
 
     connection.postMessage(response);
   };

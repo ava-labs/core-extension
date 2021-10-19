@@ -4,7 +4,11 @@ import { TransactionEvent } from './models';
 
 export function transactionFinalizedUpdate() {
   return transactions$.pipe(
-    filter((values) => !!(values && values.length)),
-    map((value) => ({ name: TransactionEvent.TRANSACTION_FINALIZED, value }))
+    filter((values) => {
+      return !!(values && values.length);
+    }),
+    map((value) => {
+      return { name: TransactionEvent.TRANSACTION_FINALIZED, value };
+    })
   );
 }

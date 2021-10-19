@@ -24,15 +24,6 @@ import { useSend } from './hooks/useSend';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-
-  // These options are needed to round to whole numbers if that's what you want.
-  //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-  //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-});
-
 const AddressInput = styled(TextArea)`
   word-break: break-all;
 `;
@@ -42,7 +33,7 @@ export function SendForm() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
   const [amountInput, setAmountInput] = useState(new BN(0));
-  const { avaxPrice } = useWalletContext();
+  const { avaxPrice, currencyFormatter } = useWalletContext();
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
   const tokensWBalances = useTokensWithBalances();
   const selectedToken = useTokenFromParams(tokensWBalances);
@@ -125,9 +116,7 @@ export function SendForm() {
               margin={'8px 0 0 0'}
             >
               <Typography size={14} height="16px">
-                {currencyFormatter.format(
-                  Number(amountDisplayValue || 0) * avaxPrice
-                )}
+                {currencyFormatter(Number(amountDisplayValue || 0) * avaxPrice)}
               </Typography>
               <HorizontalFlex align="center">
                 {sendState?.sendFee && (
@@ -161,7 +150,7 @@ export function SendForm() {
               : ''
           }
           extraTxs={sendState?.txs as any}
-          amountUsd={currencyFormatter.format(
+          amountUsd={currencyFormatter(
             Number(amountDisplayValue || 0) * avaxPrice
           )}
           onConfirm={() =>
