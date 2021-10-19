@@ -255,7 +255,18 @@ export default class BaseProvider extends SafeEventEmitter {
 
     return new Promise<T>((resolve, reject) => {
       this._rpcRequest(
-        { method, params },
+        {
+          method,
+          params,
+          meta: {
+            coords: {
+              viewportWidth: window.visualViewport.width,
+              viewPortHeight: window.visualViewport.height,
+              screenX: window.screenX,
+              screenY: window.screenY,
+            },
+          },
+        } as any,
         getRpcPromiseCallback(resolve, reject)
       );
     });

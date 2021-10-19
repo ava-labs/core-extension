@@ -3,6 +3,7 @@ import extension from 'extensionizer';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
+import { ExtensionMessageMetaData } from '@src/background/connections/models';
 
 const NOTIFICATION_WIDTH = 500;
 const NOTIFICATION_HEIGHT = 500;
@@ -106,7 +107,8 @@ export const openExtensionInBrowser = (route = null, queryString = null) => {
 
 export const openExtensionNewWindow = (
   route?: string,
-  queryString?: string
+  queryString?: string,
+  coords?: ExtensionMessageMetaData['coords']
 ) => {
   let extensionURL = extension.runtime.getURL(contextToOpenIn);
 
@@ -119,12 +121,11 @@ export const openExtensionNewWindow = (
   }
 
   let left = 0;
-  let top = 0;
 
-  const { width, height } = window.screen;
-
-  top = Math.max(height, 0);
-  left = Math.max(width + (width - NOTIFICATION_WIDTH), 0);
+  left =
+    (coords?.viewportWidth as number) +
+    (coords?.screenX as number) -
+    NOTIFICATION_WIDTH;
 
   return openWindow({
     url: extensionURL,
@@ -132,8 +133,8 @@ export const openExtensionNewWindow = (
     type: 'popup',
     height: NOTIFICATION_HEIGHT,
     width: NOTIFICATION_WIDTH,
-    left,
-    top,
+    left: parseInt(`${left}`),
+    top: coords?.screenY ?? 0,
   });
 };
 

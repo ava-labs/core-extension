@@ -2,7 +2,7 @@ const path = require('path');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   entry: {
     inpage: path.join(__dirname, 'src/inpage.js'),
   },

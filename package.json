@@ -5,7 +5,7 @@
   "scripts": {
     "build:inpage": "webpack --config webpack.inpage.js",
     "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
-    "build": "yarn run build:inpage && webpack --config webpack.prod.js",
+    "build": "yarn run build:inpage -- --mode=production && webpack --config webpack.prod.js",
     "test": "yarn cypress open",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
