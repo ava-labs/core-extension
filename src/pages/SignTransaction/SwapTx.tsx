@@ -6,7 +6,10 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { SwapExactTokensForTokenDisplayValues } from '@src/contracts/contractParsers/models';
+import {
+  erc20PathToken,
+  SwapExactTokensForTokenDisplayValues,
+} from '@src/contracts/contractParsers/models';
 import { TokenImg } from '@src/components/common/TokenImage';
 import React from 'react';
 import { isAvaxToken } from '@avalabs/wallet-react-components';
@@ -35,7 +38,7 @@ export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
             {isAvaxToken(sentToken) ? (
               <AvaxTokenIcon />
             ) : (
-              <TokenImg src={sentToken.logoURI} />
+              <TokenImg src={(sentToken as erc20PathToken).logoURI} />
             )}
 
             <Typography margin={'0 5px'}>
@@ -67,7 +70,7 @@ export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
             {isAvaxToken(receivingToken) ? (
               <AvaxTokenIcon />
             ) : (
-              <TokenImg src={receivingToken.logoURI} />
+              <TokenImg src={(receivingToken as erc20PathToken).logoURI} />
             )}
             <Typography margin={'0 5px'}>
               {receivingToken.name} ({receivingToken.symbol})

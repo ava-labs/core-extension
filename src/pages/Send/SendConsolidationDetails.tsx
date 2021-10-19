@@ -1,12 +1,12 @@
 import {
   VerticalFlex,
-  Card,
   HorizontalFlex,
   Typography,
 } from '@avalabs/react-components';
 import { DestinationChainTx } from '@avalabs/wallet-react-components';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import React from 'react';
+import Scrollbars from 'react-custom-scrollbars';
 
 function stepParser(tx: DestinationChainTx) {
   const [direction, from, to] = tx.action.split('_');
@@ -30,8 +30,8 @@ export function SendConsolidationDetails({
   txs: DestinationChainTx[];
 }) {
   return (
-    <Card>
-      <VerticalFlex width={'100%'}>
+    <VerticalFlex width={'100%'}>
+      <Scrollbars>
         {txs
           .map(stepParser)
           .map(
@@ -42,27 +42,33 @@ export function SendConsolidationDetails({
               return (
                 <HorizontalFlex
                   key={idx}
-                  width={'100%'}
-                  justify={'space-between'}
-                  align={'center'}
-                  margin={'0 0 20px 0'}
+                  width="100%"
+                  justify="space-between"
+                  align="center"
+                  padding="0 24px"
+                  margin="0 0 24px"
                 >
                   <VerticalFlex>
-                    <Typography>
+                    <Typography
+                      transform="capitalize"
+                      color="text2"
+                      size={14}
+                      height="17px"
+                    >
                       {direction} {amountDisplayValue} AVAX
                     </Typography>
-                    <Typography>
-                      from {from} to {to}
+                    <Typography color="text2" size={14} height="17px">
+                      from {from.toUpperCase()} to {to.toUpperCase()}
                     </Typography>
                   </VerticalFlex>
                   <HorizontalFlex>
-                    <Typography>{sendFeeDisplayValue}</Typography>
+                    <Typography>{sendFeeDisplayValue} AVAX</Typography>
                   </HorizontalFlex>
                 </HorizontalFlex>
               );
             }
           )}
-      </VerticalFlex>
-    </Card>
+      </Scrollbars>
+    </VerticalFlex>
   );
 }

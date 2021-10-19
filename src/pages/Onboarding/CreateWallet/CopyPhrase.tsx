@@ -8,6 +8,7 @@ import {
   ProgressIndicator,
   TextButton,
   Checkbox,
+  ComponentSize,
 } from '@avalabs/react-components';
 
 interface CopyPhraseProps {
@@ -50,11 +51,14 @@ export function CopyPhrase({ onCancel, onNext, mnemonic }: CopyPhraseProps) {
           onChange={setTermsConfirmed}
         />
         <PrimaryButton
+          size={ComponentSize.LARGE}
           margin="24px 0"
           disabled={!termsConfirmed}
           onClick={() => onNext()}
         >
-          I wrote it down
+          <Typography size={14} weight={600} color="inherit">
+            I wrote it down
+          </Typography>
         </PrimaryButton>
         <TextButton onClick={() => onCancel()}>Back</TextButton>
       </VerticalFlex>

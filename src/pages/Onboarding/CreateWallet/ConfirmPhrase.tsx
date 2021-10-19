@@ -7,11 +7,8 @@ import {
   PrimaryButton,
   ProgressIndicator,
   TextButton,
-  Checkbox,
+  ComponentSize,
 } from '@avalabs/react-components';
-import { useEffect } from 'react';
-import { createNewMnemonic } from '@src/background/services/wallet/utils/createMnemonicPhrase';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 interface ConfirmPhraseProps {
   mnemonic: string;
@@ -51,11 +48,14 @@ export function ConfirmPhrase({
       </VerticalFlex>
       <VerticalFlex align="center">
         <PrimaryButton
+          size={ComponentSize.LARGE}
           margin="24px 0"
           disabled={!termsConfirmed}
           onClick={() => onNext()}
         >
-          Confirm
+          <Typography size={14} weight={600} color="inherit">
+            Confirm
+          </Typography>
         </PrimaryButton>
         <TextButton onClick={() => onCancel()}>Back</TextButton>
       </VerticalFlex>
