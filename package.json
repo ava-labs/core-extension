@@ -74,7 +74,7 @@
     "@types/react-transition-group": "^4.4.3",
     "abi-decoder": "^2.4.0",
     "bip39": "^3.0.4",
-    "bn.js": "^5.1.0",
+    "bn.js": "5.1.0",
     "copy-webpack-plugin": "^9.0.1",
     "crypto-js": "^4.1.1",
     "date-fns": "^2.25.0",

@@ -9,40 +9,23 @@ import {
   wallet$,
   walletState$,
 } from '@avalabs/wallet-react-components';
-import { firstValueFrom, of, Subject } from 'rxjs';
+import { firstValueFrom, of, startWith, Subject, tap } from 'rxjs';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 
 async function validateSendAntState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
   const [amount, address, token] = params;
-
-  if (!amount) {
-    return {
-      ...request,
-      error: 'no amount in params',
-    };
-  }
-
-  if (!token) {
-    return {
-      ...request,
-      error: 'no token in params',
-    };
-  }
-
-  if (!address) {
-    return {
-      ...request,
-      error: 'no address in params',
-    };
-  }
-
   const walletState = await firstValueFrom(walletState$);
 
   const result = await firstValueFrom(
     sendAntCheckFormAndCalculateFees(
-      of(Utils.stringToBN(amount, 9)) as Subject<BN>,
-      of(address) as Subject<string>,
+      of(
+        Utils.stringToBN(
+          amount || 0,
+          (token as AntWithBalance).denomination || 9
+        )
+      ).pipe(startWith(new BN(0))) as Subject<BN>,
+      of(address).pipe(startWith('')) as Subject<string>,
       of(
         /**
          * Need to get the original token here because the passed in token is serialized. The BN
@@ -51,11 +34,10 @@ async function validateSendAntState(request: ExtensionConnectionMessage) {
         walletState?.antTokens.find(
           (antToken) => (token as AntWithBalance).assetID === antToken.assetID
         )
-      ) as Subject<AntWithBalance>,
+      ).pipe(tap(console.log)) as Subject<AntWithBalance>,
       wallet$
     )
   );
-
   return { ...request, result };
 }
 

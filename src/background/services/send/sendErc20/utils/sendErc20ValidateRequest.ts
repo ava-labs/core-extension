@@ -5,9 +5,9 @@ import {
 import { ERC20 } from '@avalabs/wallet-react-components';
 
 export function sendErc20ValidateRequest(
-  amount: string,
-  token: ERC20,
-  address: string
+  amount?: string,
+  token?: ERC20,
+  address?: string
 ): Omit<ExtensionConnectionMessage, 'id'> {
   return {
     method: ExtensionRequest.SEND_ERC20_VALIDATE,

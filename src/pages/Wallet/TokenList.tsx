@@ -28,7 +28,7 @@ export function TokenListItem({
 }: {
   name: string;
   symbol: string;
-  balanceDisplayValue: string;
+  balanceDisplayValue?: string;
   children: any;
 }) {
   return (

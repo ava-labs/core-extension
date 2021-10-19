@@ -20,7 +20,7 @@ import { SendConsolidationDetails } from './SendConsolidationDetails';
 import styled, { useTheme } from 'styled-components';
 import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
 
-interface SendAvaxConfirmProps {
+interface SendConfirmProps {
   open: boolean;
   onClose(): void;
   onConfirm(): void;
@@ -37,7 +37,7 @@ const DataCard = styled(Card)`
   background-color: ${({ theme }) => theme.colors.bg3};
 `;
 
-export function SendAvaxConfirm({
+export function SendConfirm({
   open,
   onClose,
   onConfirm,
@@ -48,7 +48,7 @@ export function SendAvaxConfirm({
   fee,
   txId,
   chain,
-}: SendAvaxConfirmProps) {
+}: SendConfirmProps) {
   const theme = useTheme();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState(false);
@@ -149,11 +149,11 @@ export function SendAvaxConfirm({
                   </SubTextTypography>
                   <Typography size={14}>{fee || 0} AVAX</Typography>
                 </VerticalFlex>
-                {extraTxs?.length && (
+                {extraTxs?.length ? (
                   <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
                     View Details
                   </TextButton>
-                )}
+                ) : null}
               </HorizontalFlex>
             </DataCard>
           </>
