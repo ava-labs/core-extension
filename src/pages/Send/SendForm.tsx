@@ -184,7 +184,10 @@ export function SendForm() {
           chain={sendState?.targetChain}
           fee={
             sendState?.sendFee
-              ? getAvaxBalanceTotal(sendState?.sendFee || new BN(0))
+              ? Utils.bnToLocaleString(
+                  sendState?.sendFee || new BN(0),
+                  isERC20Token(selectedToken) ? 18 : 9
+                )
               : ''
           }
           extraTxs={sendState?.txs as any}
