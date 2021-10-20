@@ -13,7 +13,11 @@ async function signMessage(
   signType: MessageType
 ) {
   addMessage.next({ data, signType } as any);
-  const window = await openExtensionNewWindow(`sign?id=${data.id}`);
+  const window = await openExtensionNewWindow(
+    `sign?id=${data.id}`,
+    '',
+    data.meta?.coords
+  );
   return await firstValueFrom(
     merge(
       pendingMessages.pipe(map((result) => ({ result }))),
