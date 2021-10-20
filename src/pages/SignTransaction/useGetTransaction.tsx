@@ -17,27 +17,19 @@ export function useGetTransaction(requestId: string) {
   const { avaxPrice } = useWalletContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [hash, setHash] = useState('');
+  const [showCustomFees, setShowCustomFees] = useState(false);
 
-  const setTxWithNewFees = (gasPrice: GasPrice) => {
-    if (transaction) {
-      const feeDisplayValues = calculateGasAndFees(
-        {
-          ...gasPrice,
-          bn: new BN(gasPrice.bn, 'hex'),
-        } as any,
-        transaction?.txParams.gas as string,
-        avaxPrice
-      );
+  function setCustomFee(gasLimit: string, gasPrice: GasPrice) {
+    const feeDisplayValues = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
 
-      setTransaction({
-        ...transaction,
-        displayValues: {
-          ...transaction?.displayValues,
-          ...feeDisplayValues,
-        },
-      } as any);
-    }
-  };
+    setTransaction({
+      ...transaction,
+      displayValues: {
+        ...transaction?.displayValues,
+        ...feeDisplayValues,
+      },
+    } as any);
+  }
 
   useEffect(() => {
     request({
@@ -52,7 +44,14 @@ export function useGetTransaction(requestId: string) {
     const subscription = events!()
       .pipe(filter(gasPriceTransactionUpdateListener))
       .subscribe(function (evt) {
-        setTxWithNewFees(evt.value);
+        const gasPrice = {
+          ...evt.value,
+          bn: new BN(evt.value.bn, 'hex'),
+        } as any;
+        setCustomFee(
+          transaction?.displayValues.gasLimit?.toString() as string,
+          gasPrice
+        );
       });
 
     const finalizedSubscription = events!()
@@ -90,6 +89,9 @@ export function useGetTransaction(requestId: string) {
       txParams: transaction?.txParams,
       updateTransaction,
       hash,
+      showCustomFees,
+      setShowCustomFees,
+      setCustomFee,
     };
-  }, [requestId, transaction, hash]);
+  }, [requestId, transaction, hash, showCustomFees]);
 }

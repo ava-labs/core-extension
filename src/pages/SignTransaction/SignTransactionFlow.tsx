@@ -5,6 +5,7 @@ import {
   SecondaryButton,
   Typography,
   SubTextTypography,
+  TextButton,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
@@ -26,11 +27,20 @@ import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { TokenImg } from '@src/components/common/TokenImage';
+import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
-  const { updateTransaction, id, contractType, hash, ...params } =
-    useGetTransaction(requestId);
+  const {
+    updateTransaction,
+    id,
+    contractType,
+    hash,
+    setCustomFee,
+    showCustomFees,
+    setShowCustomFees,
+    ...params
+  } = useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const { currencyFormatter } = useWalletContext();
 
@@ -46,6 +56,20 @@ export function SignTransactionPage() {
         isOpen={true}
         txId={hash}
         onClose={() => window.close()}
+      />
+    );
+  }
+
+  if (showCustomFees) {
+    return (
+      <CustomGasLimitAndFees
+        limit={displayData.gasLimit?.toString() as string}
+        gasPrice={displayData.gasPrice}
+        onCancel={() => setShowCustomFees(false)}
+        onSave={(gas, gasLimit) => {
+          setShowCustomFees(false);
+          setCustomFee(gasLimit, gas);
+        }}
       />
     );
   }
@@ -77,7 +101,10 @@ export function SignTransactionPage() {
       <br />
       <br />
       <VerticalFlex width={'100%'} align={'center'}>
-        <Typography>Fee</Typography>
+        <HorizontalFlex>
+          <Typography>Fee</Typography>
+          <TextButton onClick={() => setShowCustomFees(true)}>edit</TextButton>
+        </HorizontalFlex>
         <br />
         <Typography> {displayData.fee} (AVAX)</Typography>
         <SubTextTypography>
