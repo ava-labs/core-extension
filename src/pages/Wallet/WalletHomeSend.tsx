@@ -59,7 +59,7 @@ export function WalletHomeSend() {
       <TokenSearch
         onSelect={(item) => onSelect(item as TokenWithBalance)}
         items={tokensWBalances}
-        defaultValue={selectedToken.symbol}
+        value={selectedToken}
         placeholder="Search"
       />
       <SendForm />

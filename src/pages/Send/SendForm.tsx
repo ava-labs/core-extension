@@ -15,6 +15,7 @@ import { useState } from 'react';
 import BN from 'bn.js';
 import { useEffect } from 'react';
 import {
+  isERC20Token,
   SendAntFormError,
   SendAvaxFormError,
 } from '@avalabs/wallet-react-components';
@@ -26,6 +27,7 @@ import styled from 'styled-components';
 import { useSend } from './hooks/useSend';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -153,7 +155,11 @@ export function SendForm() {
                 {sendState?.sendFee && (
                   <SubTextTypography size={12} height="16px" margin="0 8px 0 0">
                     Transaction fee: ~
-                    {getAvaxBalanceTotal(sendState?.sendFee || new BN(0))} AVAX
+                    {Utils.bnToLocaleString(
+                      sendState?.sendFee || new BN(0),
+                      isERC20Token(selectedToken) ? 18 : 9
+                    )}{' '}
+                    AVAX
                   </SubTextTypography>
                 )}
                 {sendState?.targetChain === 'C' && (
@@ -172,6 +178,7 @@ export function SendForm() {
           open={showConfirmation}
           onClose={() => setShowConfirmation(false)}
           amount={amountDisplayValue as string}
+          token={selectedToken}
           address={sendState?.address as string}
           txId={sendState?.txId}
           chain={sendState?.targetChain}
