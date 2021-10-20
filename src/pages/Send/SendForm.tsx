@@ -12,9 +12,12 @@ import {
 import React, { useMemo } from 'react';
 import { SendConfirm } from './SendConfirm';
 import { useState } from 'react';
-import { BN } from 'bn.js';
+import BN from 'bn.js';
 import { useEffect } from 'react';
-import { SendAvaxFormError } from '@avalabs/wallet-react-components';
+import {
+  SendAntFormError,
+  SendAvaxFormError,
+} from '@avalabs/wallet-react-components';
 import { getAvaxBalanceTotal } from '../Wallet/utils/balanceHelpers';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { debounceTime, Subject } from 'rxjs';
@@ -32,48 +35,77 @@ export function SendForm() {
   const sendState = useSend();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
-  const [amountInput, setAmountInput] = useState(new BN(0));
+  const [amountInput, setAmountInput] = useState<BN>();
   const { avaxPrice, currencyFormatter } = useWalletContext();
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
   const tokensWBalances = useTokensWithBalances();
   const selectedToken = useTokenFromParams(tokensWBalances);
 
-  function resetForm() {
+  const resetForm = () => {
     setAddressInput('');
-    setAmountInput(undefined as any);
+    setAmountInput(undefined);
     setAmountDisplayValue('');
-    sendState?.reset();
-  }
+
+    updateSendState({ reset: true });
+  };
 
   const setValuesDebouncedSubject = useMemo(() => {
-    return new Subject<{ amount?: string; address?: string }>();
+    return new Subject<{
+      amount?: string;
+      address?: string;
+      reset?: boolean;
+    }>();
   }, []);
+
+  const updateSendState = (updates: {
+    amount?: string;
+    address?: string;
+    reset?: boolean;
+  }) => {
+    const params = {
+      amount: amountDisplayValue,
+      address: addressInput,
+      ...updates,
+    };
+    setValuesDebouncedSubject.next(params);
+  };
+
+  const onAddressChanged = (address: string) => {
+    setAddressInput(address);
+    updateSendState({ address });
+  };
+
+  const onAmountChanged = (val: { bn: BN; amount: string }) => {
+    setAmountInput(val.bn);
+    setAmountDisplayValue(val.amount);
+    updateSendState({ amount: val.amount });
+  };
 
   const showAmountErrorMessage =
     sendState?.errors.amountError.message &&
-    sendState?.errors.amountError.message !== SendAvaxFormError.AMOUNT_REQUIRED;
-
-  useEffect(() => {
-    setValuesDebouncedSubject.next({
-      amount: amountDisplayValue,
-      address: addressInput,
-    });
-  }, [amountInput, addressInput]);
+    (
+      [
+        SendAntFormError.AMOUNT_REQUIRED,
+        SendAvaxFormError.AMOUNT_REQUIRED,
+      ] as string[]
+    ).includes(sendState.errors.amountError.message);
 
   useEffect(() => {
     resetForm();
     const subscription = setValuesDebouncedSubject
       .pipe(debounceTime(100))
-      .subscribe(({ amount, address }) => {
-        sendState?.setValues(amount, address);
+      .subscribe(({ amount, address, reset }) => {
+        if (reset) {
+          sendState?.reset();
+        } else {
+          sendState?.setValues(amount, address);
+        }
       });
 
     return () => {
       subscription.unsubscribe();
     };
   }, [selectedToken]);
-
-  console.log(selectedToken.denomination);
 
   return (
     <>
@@ -87,7 +119,7 @@ export function SendForm() {
           errorMessage={sendState?.errors.addressError.message}
           placeholder="Enter the address"
           onChange={(e) =>
-            setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
+            onAddressChanged((e.nativeEvent.target as HTMLInputElement).value)
           }
         />
         <VerticalFlex margin="24px 0">
@@ -104,8 +136,7 @@ export function SendForm() {
             denomination={selectedToken.denomination || 9}
             max={sendState?.maxAmount}
             onChange={(val) => {
-              setAmountInput(val.bn);
-              setAmountDisplayValue(val.amount);
+              onAmountChanged(val);
             }}
           />
           {!showAmountErrorMessage || !sendState?.errors.amountError.error ? (

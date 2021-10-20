@@ -47,10 +47,10 @@
     use-media "^1.4.0"
     web-vitals "^1.0.1"
 
-"@avalabs/wallet-react-components@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.7.0.tgz#79b5c39bdb261a66af5ca94d81f1c666b49fe0ba"
-  integrity sha512-C1rGEiQAWT/UlUNGuzhCHnWioIgFqCiWOUvuW/mstCwa3rllt3vL9dXV8Ik4ByBN4GyiMMthAaTDlN7PaxmnMA==
+"@avalabs/wallet-react-components@1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.7.1.tgz#c6789d242f64230e21d73bbea07acbb38405e5d6"
+  integrity sha512-gJ1HlgqOyuo+5a6haECnAFNT1nMG/mwZo0dp1a1i8PbximeyM+vxzvV5/CQ9ynAFJwV5OY8otD3fDTtrgx+SWA==
   dependencies:
     "@testing-library/jest-dom" "^5.14.1"
     "@testing-library/react" "^11.2.7"

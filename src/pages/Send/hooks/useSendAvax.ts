@@ -15,7 +15,6 @@ export function useSendAvax(): SendStateWithActions {
   const { request } = useConnectionContext();
 
   function parseAndSetState(state: SendState) {
-    console.log('parseAndSetState', state);
     const parsedState: SendState = {
       ...state,
       amount:
