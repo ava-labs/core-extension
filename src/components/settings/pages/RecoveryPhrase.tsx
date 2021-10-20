@@ -9,18 +9,32 @@ import {
 } from '@avalabs/react-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
   const [passwordValue, setPasswordValue] = useState('');
   const [showSeedPhrase, setShowSeedPhrase] = useState(false);
+  const [seedValue, setSeedValue] = useState('');
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const { getUnencryptedMnemonic } = useWalletContext();
 
   const handleShowSeedPhrase = () => {
-    // check password against user password
-    // if match -> show seed phrase
-    if (passwordValue === 'test') {
-      setShowSeedPhrase(true);
-    }
-    // else show error?
+    getUnencryptedMnemonic(passwordValue)
+      .then((res) => {
+        if (res) {
+          setSeedValue(res);
+          setShowSeedPhrase(true);
+        } else {
+          setShowError(true);
+          setErrorMessage('Something is strange in the world');
+        }
+      })
+      .catch((err) => {
+        setErrorMessage(err);
+        setShowError(true);
+      });
   };
 
   return (
@@ -34,15 +48,20 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
         <>
           <Input
             label="Password"
-            onChange={(e) => setPasswordValue(e.target.value)}
+            error={showError}
+            errorMessage={errorMessage}
+            onChange={(e) => {
+              setPasswordValue(e.target.value);
+              setShowError(false);
+              setErrorMessage('');
+            }}
             value={passwordValue}
             placeholder="password"
             type="password"
           />
           <PrimaryButton
             size={ComponentSize.LARGE}
-            onClick={() => handleShowSeedPhrase()}
-            // disabled={!sendState?.canSubmit}
+            onClick={handleShowSeedPhrase}
             margin="0 0 24px"
           >
             <Typography size={14} color="inherit">
@@ -51,9 +70,7 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
           </PrimaryButton>
         </>
       )}
-      {showSeedPhrase && (
-        <TextArea value={'Seed phrase will go here'} disabled></TextArea>
-      )}
+      {showSeedPhrase && <TextArea value={seedValue} disabled></TextArea>}
     </VerticalFlex>
   );
 }
