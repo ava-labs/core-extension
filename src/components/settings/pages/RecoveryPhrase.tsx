@@ -13,26 +13,30 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
   const [passwordValue, setPasswordValue] = useState('');
-  const [showSeedPhrase, setShowSeedPhrase] = useState(false);
-  const [seedValue, setSeedValue] = useState('');
+  const [showRecoveryPhrase, setShowRecoveryPhrase] = useState(false);
+  const [recoveryValue, setRecoveryValue] = useState('');
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const { getUnencryptedMnemonic } = useWalletContext();
 
-  const handleShowSeedPhrase = () => {
+  const handleShowRecoveryPhrase = () => {
     getUnencryptedMnemonic(passwordValue)
       .then((res) => {
         if (res) {
-          setSeedValue(res);
-          setShowSeedPhrase(true);
+          setRecoveryValue(res);
+          setShowRecoveryPhrase(true);
         } else {
           setShowError(true);
-          setErrorMessage('Something is strange in the world');
+          setErrorMessage('Password does not seem right');
         }
       })
       .catch((err) => {
-        setErrorMessage(err);
+        if (typeof err === 'string') {
+          setErrorMessage(err);
+        } else {
+          setErrorMessage('Something is strange in the world');
+        }
         setShowError(true);
       });
   };
@@ -44,33 +48,40 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Show recovery phrase'}
       />
-      {!showSeedPhrase && (
+      {!showRecoveryPhrase && (
         <>
-          <Input
-            label="Password"
-            error={showError}
-            errorMessage={errorMessage}
-            onChange={(e) => {
-              setPasswordValue(e.target.value);
-              setShowError(false);
-              setErrorMessage('');
-            }}
-            value={passwordValue}
-            placeholder="password"
-            type="password"
-          />
-          <PrimaryButton
-            size={ComponentSize.LARGE}
-            onClick={handleShowSeedPhrase}
-            margin="0 0 24px"
-          >
-            <Typography size={14} color="inherit">
-              Show
-            </Typography>
-          </PrimaryButton>
+          <VerticalFlex width="100%" align="center" padding="12px 0">
+            <Input
+              error={showError}
+              errorMessage={errorMessage}
+              onChange={(e) => {
+                setPasswordValue(e.target.value);
+                setShowError(false);
+                setErrorMessage('');
+              }}
+              value={passwordValue}
+              placeholder="password"
+              type="password"
+            />
+          </VerticalFlex>
+          <VerticalFlex width="100%" align="center" padding="12px 0">
+            <PrimaryButton
+              size={ComponentSize.LARGE}
+              onClick={handleShowRecoveryPhrase}
+              margin="0 0 24px"
+            >
+              <Typography size={14} color="inherit">
+                Show
+              </Typography>
+            </PrimaryButton>
+          </VerticalFlex>
         </>
       )}
-      {showSeedPhrase && <TextArea value={seedValue} disabled></TextArea>}
+      {showRecoveryPhrase && (
+        <VerticalFlex width="100%" align="center" padding="12px 0">
+          <TextArea value={recoveryValue} disabled></TextArea>
+        </VerticalFlex>
+      )}
     </VerticalFlex>
   );
 }
