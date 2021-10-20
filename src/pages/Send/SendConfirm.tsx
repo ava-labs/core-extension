@@ -13,18 +13,24 @@ import {
   ComponentSize,
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import { DestinationChainTx } from '@avalabs/wallet-react-components';
+import {
+  DestinationChainTx,
+  isAvaxToken,
+  TokenWithBalance,
+} from '@avalabs/wallet-react-components';
 import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
 import { SendConsolidationDetails } from './SendConsolidationDetails';
 import styled, { useTheme } from 'styled-components';
 import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
+import { TokenImg } from '@src/components/common/TokenImage';
 
 interface SendConfirmProps {
   open: boolean;
   onClose(): void;
   onConfirm(): void;
   amount: string;
+  token: TokenWithBalance;
   amountUsd: string;
   extraTxs: DestinationChainTx[];
   address: string;
@@ -42,6 +48,7 @@ export function SendConfirm({
   onClose,
   onConfirm,
   amount,
+  token,
   amountUsd,
   extraTxs,
   address,
@@ -109,12 +116,16 @@ export function SendConfirm({
           </HorizontalFlex>
         </HorizontalFlex>
         <VerticalFlex margin="32px 0 0 0" align={'center'}>
-          <AvaxTokenIcon />
+          {isAvaxToken(token) ? (
+            <AvaxTokenIcon />
+          ) : (
+            <TokenImg src={(token as TokenWithBalance).logoURI} />
+          )}
           <SubTextTypography margin={'8px 0 0 0'} height="24px">
             Payment amount
           </SubTextTypography>
           <Typography margin={'8px 0'} size={24} weight={700} height="29px">
-            {amount || 0} AVAX
+            {amount || 0} {token.symbol}
           </Typography>
           <SubTextTypography size={16} weight={600} height="24px">
             {amountUsd} USD
