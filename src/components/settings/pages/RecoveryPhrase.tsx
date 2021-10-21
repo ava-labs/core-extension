@@ -6,6 +6,7 @@ import {
   Typography,
   ComponentSize,
   TextArea,
+  HorizontalFlex,
 } from '@avalabs/react-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
@@ -23,20 +24,11 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
   const handleShowRecoveryPhrase = () => {
     getUnencryptedMnemonic(passwordValue)
       .then((res) => {
-        if (res) {
-          setRecoveryValue(res);
-          setShowRecoveryPhrase(true);
-        } else {
-          setShowError(true);
-          setErrorMessage('Password does not seem right');
-        }
+        setRecoveryValue(res);
+        setShowRecoveryPhrase(true);
       })
       .catch((err) => {
-        if (typeof err === 'string') {
-          setErrorMessage(err);
-        } else {
-          setErrorMessage('Something is strange in the world');
-        }
+        setErrorMessage(err);
         setShowError(true);
       });
   };
@@ -49,9 +41,10 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
         title={'Show recovery phrase'}
       />
       {!showRecoveryPhrase && (
-        <>
-          <VerticalFlex width="100%" align="center" padding="12px 0">
+        <VerticalFlex width="100%" align="center" padding="24px 0">
+          <HorizontalFlex height="100px">
             <Input
+              label="Password"
               error={showError}
               errorMessage={errorMessage}
               onChange={(e) => {
@@ -63,8 +56,8 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
               placeholder="password"
               type="password"
             />
-          </VerticalFlex>
-          <VerticalFlex width="100%" align="center" padding="12px 0">
+          </HorizontalFlex>
+          <HorizontalFlex>
             <PrimaryButton
               size={ComponentSize.LARGE}
               onClick={handleShowRecoveryPhrase}
@@ -74,8 +67,8 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
                 Show
               </Typography>
             </PrimaryButton>
-          </VerticalFlex>
-        </>
+          </HorizontalFlex>
+        </VerticalFlex>
       )}
       {showRecoveryPhrase && (
         <VerticalFlex width="100%" align="center" padding="12px 0">
