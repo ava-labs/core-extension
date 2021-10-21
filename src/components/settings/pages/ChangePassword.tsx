@@ -9,16 +9,42 @@ import {
 } from '@avalabs/react-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+
+function verifyPasswordsMatch(pass1?: string, pass2?: string) {
+  return !!(pass1 === pass2);
+}
+
+const PASSWORD_ERROR = 'Passwords do not match';
 
 export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const { changeWalletPassword } = useWalletContext();
+
+  const fieldsFilled = oldPassword && newPassword && confirmPassword;
+
+  let error;
+  if (fieldsFilled && !verifyPasswordsMatch(newPassword, confirmPassword)) {
+    error = PASSWORD_ERROR;
+  }
+
+  const canSubmit = !error && fieldsFilled;
+
   const handleChangePassword = () => {
     // do the magic
+    // check new password & confrim match
     // sucess -> show success?
     // error -> show error?
+    changeWalletPassword(oldPassword, newPassword)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -47,6 +73,7 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
             value={newPassword}
             placeholder="new password"
             type="password"
+            error={!!error}
           />
         </HorizontalFlex>
         <HorizontalFlex height="100px">
@@ -57,6 +84,8 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
             value={confirmPassword}
             placeholder="confirm password"
             type="password"
+            error={!!error}
+            errorMessage={error}
           />
         </HorizontalFlex>
       </VerticalFlex>
@@ -65,6 +94,7 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
           size={ComponentSize.LARGE}
           onClick={handleChangePassword}
           margin="0 0 24px"
+          disabled={!canSubmit}
         >
           <Typography size={14} color="inherit">
             Change Password
