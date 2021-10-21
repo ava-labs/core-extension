@@ -5,7 +5,6 @@ import {
   HorizontalFlex,
   TextButton,
   useIsSmallScreen,
-  useThemeContext,
   VerticalFlex,
 } from '@avalabs/react-components';
 import React, { useState } from 'react';
@@ -14,6 +13,7 @@ import { Logo } from '@src/components/icons/Logo';
 import { WalletConnection } from '@src/components/common/WalletConnection';
 interface HeaderProps {
   onDrawerStateChanged?: (open: boolean) => void;
+  width: string;
 }
 
 function Header({ onDrawerStateChanged }: HeaderProps) {

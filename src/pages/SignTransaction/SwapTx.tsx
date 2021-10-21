@@ -1,5 +1,5 @@
 import {
-  Arrow,
+  ArrowIcon,
   HorizontalFlex,
   IconDirection,
   SubTextTypography,
@@ -58,7 +58,7 @@ export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
           justify={'flex-end'}
           padding={'0 15px 0 0'}
         >
-          <Arrow color={'white'} direction={IconDirection.DOWN} />
+          <ArrowIcon color={'white'} direction={IconDirection.DOWN} />
         </HorizontalFlex>
 
         <HorizontalFlex
