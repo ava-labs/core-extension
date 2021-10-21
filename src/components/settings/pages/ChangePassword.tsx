@@ -33,20 +33,6 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
 
   const canSubmit = !error && fieldsFilled;
 
-  const handleChangePassword = () => {
-    // do the magic
-    // check new password & confrim match
-    // sucess -> show success?
-    // error -> show error?
-    changeWalletPassword(oldPassword, newPassword)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   return (
     <VerticalFlex width="375px" padding="12px 0">
       <SettingsHeader
@@ -92,7 +78,7 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
       <VerticalFlex align="center">
         <PrimaryButton
           size={ComponentSize.LARGE}
-          onClick={handleChangePassword}
+          onClick={() => changeWalletPassword(newPassword, oldPassword)}
           margin="0 0 24px"
           disabled={!canSubmit}
         >
