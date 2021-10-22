@@ -4,8 +4,33 @@ import {
   removeFromStorage,
   saveToStorage,
 } from '@src/utils/storage/chrome-storage';
-import { AES, enc } from 'crypto-js';
 const WALLET_STORAGE_KEY = 'wallet';
+const WALLET_DERIVE_KEY_SALT = 'wallet_salt';
+
+async function deriveKey(password: string) {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    Buffer.from(password),
+    {
+      name: 'PBKDF2',
+    },
+    false,
+    ['deriveKey']
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      hash: { name: 'SHA-256' },
+      iterations: 100000,
+      salt: Buffer.from(WALLET_DERIVE_KEY_SALT),
+    },
+    key,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
 
 export function getMnemonicFromStorage() {
   return getFromStorage(WALLET_STORAGE_KEY).then(
@@ -14,25 +39,51 @@ export function getMnemonicFromStorage() {
   );
 }
 
-export function saveMnemonicToStorage(mnemonic: string, password: string) {
-  const cipher = AES.encrypt(mnemonic, password).toString();
-  return saveToStorage({ [WALLET_STORAGE_KEY]: { mnemonic: cipher } });
+function getIVFromStorage() {
+  return getFromStorage(WALLET_STORAGE_KEY).then(
+    (store) =>
+      store && store[WALLET_STORAGE_KEY] && store[WALLET_STORAGE_KEY].iv
+  );
+}
+
+export async function saveMnemonicToStorage(
+  mnemonic: string,
+  password: string
+) {
+  const key = await deriveKey(password);
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  const cipher: ArrayBuffer = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    new TextEncoder().encode(mnemonic)
+  );
+  return saveToStorage({
+    [WALLET_STORAGE_KEY]: {
+      mnemonic: Array.from(new Uint8Array(cipher)),
+      iv: Array.from(iv),
+    },
+  });
 }
 
 export async function decryptMnemonicInStorage(password: string) {
   try {
-    /**
-     * For some reason errors are diff depending on the length of the password
-     * how many times its been ran. Not quite sure but we put in EXTRA protection
-     * just in case.
-     */
-    const [cipher, err] = await resolve(getMnemonicFromStorage());
-    if (err) return Promise.reject(err);
-    if (!cipher) return Promise.reject(new Error('password incorrect'));
-    const bytes = AES.decrypt(cipher, password);
-    return bytes.toString(enc.Utf8);
+    const key = await deriveKey(password);
+    const [cipher, errCipher] = await resolve(getMnemonicFromStorage());
+    const [iv, errIV] = await resolve(getIVFromStorage());
+
+    if (errCipher || errIV) return Promise.reject(errCipher ?? errIV);
+    if (!cipher || !iv) return Promise.reject(new Error('mnemonic not found'));
+
+    const bytes: ArrayBuffer = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: Uint8Array.from(iv) },
+      key,
+      Uint8Array.from(cipher)
+    );
+
+    return new TextDecoder().decode(bytes);
   } catch (err) {
-    return Promise.reject(err);
+    console.error(err);
+    return Promise.reject(new Error('password incorrect'));
   }
 }
 
