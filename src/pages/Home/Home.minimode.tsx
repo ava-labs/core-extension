@@ -4,8 +4,8 @@ import {
   HorizontalFlex,
   HouseIcon,
   LightningIcon,
-  PrimaryIconButton,
   SwapArrowsIcon,
+  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -30,8 +30,22 @@ export function HomeMiniMode() {
         <WalletPortfolio />
       </VerticalFlex>
 
-      <HorizontalFlex justify={'space-between'}>
-        <PrimaryIconButton>
+      <HorizontalFlex
+        justify={'space-between'}
+        flex={1}
+        align={'flex-end'}
+        margin={'0 0 10px 0'}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '40px',
+          right: '40px',
+          backgroundColor: `${theme.colors.bg1}`,
+          height: '65px',
+          padding: '0 15px',
+        }}
+      >
+        <TextButton style={{ width: '40px' }}>
           <VerticalFlex>
             <HouseIcon height={'26px'} color={setColorWhenActive('/home')} />
             <br />
@@ -39,39 +53,54 @@ export function HomeMiniMode() {
               Portfolio
             </Typography>
           </VerticalFlex>
-        </PrimaryIconButton>
+        </TextButton>
 
-        <PrimaryIconButton>
+        <TextButton style={{ width: '40px' }}>
           <VerticalFlex>
-            <ChecklistIcon height={'26px'} color={'#CCC'} />
+            <ChecklistIcon
+              height={'26px'}
+              color={setColorWhenActive('/watchlist')}
+            />
             <br />
-            Watchlist
+            <Typography color={setColorWhenActive('/watchlist')}>
+              Watchlist
+            </Typography>
           </VerticalFlex>
-        </PrimaryIconButton>
+        </TextButton>
 
-        <PrimaryIconButton>
+        <TextButton style={{ width: '40px' }}>
           <VerticalFlex>
-            <LightningIcon height={'26px'} color={'#CCC'} />
+            <LightningIcon
+              height={'26px'}
+              color={setColorWhenActive('/activity')}
+            />
             <br />
-            Activity
+            <Typography color={setColorWhenActive('/activity')}>
+              Activity
+            </Typography>
           </VerticalFlex>
-        </PrimaryIconButton>
+        </TextButton>
 
-        <PrimaryIconButton>
+        <TextButton style={{ width: '40px' }}>
           <VerticalFlex>
-            <SwapArrowsIcon height={'26px'} color={'#CCC'} />
+            <SwapArrowsIcon
+              height={'26px'}
+              color={setColorWhenActive('/swap')}
+            />
             <br />
-            Swap
+            <Typography color={setColorWhenActive('/swap')}>Swap</Typography>
           </VerticalFlex>
-        </PrimaryIconButton>
+        </TextButton>
 
-        <PrimaryIconButton>
+        <TextButton style={{ width: '40px' }}>
           <VerticalFlex>
-            <BridgeIcon height={'26px'} color={'#CCC'} />
+            <BridgeIcon height={'26px'} color={setColorWhenActive('/bridge')} />
             <br />
-            Bridge
+            <Typography color={setColorWhenActive('/bridge')}>
+              Bridge
+            </Typography>
           </VerticalFlex>
-        </PrimaryIconButton>
+        </TextButton>
       </HorizontalFlex>
     </VerticalFlex>
   );

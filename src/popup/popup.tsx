@@ -28,6 +28,10 @@ const SettingsPage = React.lazy(() => {
   return import('../pages/Settings/SettingsPage');
 });
 
+const TokenFlowPage = React.lazy(() => {
+  return import('../pages/Wallet/TokenFlow.minimode');
+});
+
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
@@ -73,7 +77,7 @@ export function Popup() {
                     flex={1}
                     justify={'center'}
                     margin="16px 0"
-                    maxWidth="90%"
+                    maxWidth={isMiniMode ? '100%' : '90%'}
                     width={appWidth}
                   >
                     <Switch>
@@ -110,6 +114,16 @@ export function Popup() {
                           <SettingsPage />
                         </React.Suspense>
                       </Route>
+
+                      {isMiniMode ? (
+                        <Route path="/token">
+                          <React.Suspense fallback={<LoadingIcon />}>
+                            <TokenFlowPage />
+                          </React.Suspense>
+                        </Route>
+                      ) : (
+                        ''
+                      )}
 
                       <Route path="/">
                         <Redirect to="/home" />
