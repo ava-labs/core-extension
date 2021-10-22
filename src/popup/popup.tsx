@@ -76,7 +76,7 @@ export function Popup() {
                   <HorizontalFlex
                     flex={1}
                     justify={'center'}
-                    margin="16px 0"
+                    margin={isMiniMode ? '' : '16px 0'}
                     maxWidth={isMiniMode ? '100%' : '90%'}
                     width={appWidth}
                   >

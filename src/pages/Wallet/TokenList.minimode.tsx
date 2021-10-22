@@ -76,7 +76,7 @@ export function TokenListMiniMode() {
         height: '350px',
         width: '100%',
         overflow: 'auto',
-        padding: '16px',
+        padding: '16px 16px 100px 16px',
       }}
     >
       {AVAX_TOKEN ? (
