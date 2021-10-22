@@ -42,6 +42,7 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
+import { GlobalStyles } from '@src/styles';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -56,6 +57,7 @@ export function Popup() {
           <NetworkContextProvider>
             <WalletContextProvider>
               <SettingsContextProvider>
+                <GlobalStyles />
                 <VerticalFlex
                   style={isMiniMode ? { height: '500px', width: '500px' } : {}}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
