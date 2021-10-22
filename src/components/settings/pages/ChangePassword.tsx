@@ -21,6 +21,7 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [serverResponse, setServerResponse] = useState('');
 
   const { changeWalletPassword } = useWalletContext();
 
@@ -32,6 +33,27 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
   }
 
   const canSubmit = !error && fieldsFilled;
+
+  const resetInputFields = () => {
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
+  const handleChangePassword = () => {
+    changeWalletPassword(newPassword, oldPassword)
+      .then((res) => {
+        resetInputFields();
+        setServerResponse(
+          res
+            ? 'Your password has been changed succesfully.'
+            : 'Something went wrong'
+        );
+      })
+      .catch((err) => {
+        setServerResponse(err);
+      });
+  };
 
   return (
     <VerticalFlex width="375px" padding="12px 0">
@@ -78,7 +100,7 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
       <VerticalFlex align="center">
         <PrimaryButton
           size={ComponentSize.LARGE}
-          onClick={() => changeWalletPassword(newPassword, oldPassword)}
+          onClick={handleChangePassword}
           margin="0 0 24px"
           disabled={!canSubmit}
         >
@@ -86,6 +108,7 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
             Change Password
           </Typography>
         </PrimaryButton>
+        {serverResponse && <Typography size={14}>{serverResponse}</Typography>}
       </VerticalFlex>
     </VerticalFlex>
   );
