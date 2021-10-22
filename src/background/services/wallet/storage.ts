@@ -59,13 +59,18 @@ export async function saveMnemonicToStorage(
 ) {
   const key = await deriveKey(password);
   // generate initialization vektor for AES-GCM, used to randomize the encryption
+  // this value is needed for the decription but it doesn't have to be encrypted itself
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+  // use authenticated encryption to check data integrity at decryption
   const cipher: ArrayBuffer = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
     new TextEncoder().encode(mnemonic)
   );
 
+  // store the Uint8Arrays of the cipher and iv
+  // Uint8Array cannot be saved to the storage, needs to be converted to a regular array first
   return saveToStorage({
     [WALLET_STORAGE_KEY]: {
       mnemonic: Array.from(new Uint8Array(cipher)),
@@ -76,19 +81,23 @@ export async function saveMnemonicToStorage(
 
 export async function decryptMnemonicInStorage(password: string) {
   try {
+    // get decription key, cipher and the initialization vector
     const key = await deriveKey(password);
     const [cipher, errCipher] = await resolve(getMnemonicFromStorage());
     const [iv, errIV] = await resolve(getIVFromStorage());
 
+    // any one of the pieces is missing, the mnemonic is not decryptable
     if (errCipher || errIV) return Promise.reject(errCipher ?? errIV);
     if (!cipher || !iv) return Promise.reject(new Error('mnemonic not found'));
 
+    // throws error when using the wrong key
     const bytes: ArrayBuffer = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv: Uint8Array.from(iv) },
       key,
       Uint8Array.from(cipher)
     );
 
+    // return decoded text from arraybuffer
     return new TextDecoder().decode(bytes);
   } catch (err) {
     console.error(err);
