@@ -19,7 +19,6 @@ import {
   SendAntFormError,
   SendAvaxFormError,
 } from '@avalabs/wallet-react-components';
-import { getAvaxBalanceTotal } from '../Wallet/utils/balanceHelpers';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { debounceTime, Subject } from 'rxjs';
 import { TransactionFeeTooltip } from './TransactionFeeTooltip';
