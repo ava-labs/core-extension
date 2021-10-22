@@ -7,17 +7,24 @@ import {
 const WALLET_STORAGE_KEY = 'wallet';
 const WALLET_DERIVE_KEY_SALT = 'wallet_salt';
 
+/**
+ * Derives a CryptoKey from the password based
+ * Using derivation to make brute-force attacks harder
+ */
 async function deriveKey(password: string) {
+  // import password and create a PBKDF2 key
   const key = await crypto.subtle.importKey(
     'raw',
     Buffer.from(password),
     {
       name: 'PBKDF2',
     },
-    false,
-    ['deriveKey']
+    false, // key is not extractable
+    ['deriveKey'] // this key can only be used for deriving new keys
   );
 
+  // derive AES-GCM key from the PBKDF2 using 100k iterations
+  // the key can only be used for decryption and encryption
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
@@ -51,12 +58,14 @@ export async function saveMnemonicToStorage(
   password: string
 ) {
   const key = await deriveKey(password);
+  // generate initialization vektor for AES-GCM, used to randomize the encryption
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
   const cipher: ArrayBuffer = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
     new TextEncoder().encode(mnemonic)
   );
+
   return saveToStorage({
     [WALLET_STORAGE_KEY]: {
       mnemonic: Array.from(new Uint8Array(cipher)),
