@@ -57,7 +57,7 @@ export function Popup() {
             <WalletContextProvider>
               <SettingsContextProvider>
                 <VerticalFlex
-                  height={'100%'}
+                  style={isMiniMode ? { height: '500px', width: '500px' } : {}}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                   align="center"

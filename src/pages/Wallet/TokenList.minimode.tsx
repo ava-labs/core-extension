@@ -71,7 +71,14 @@ export function TokenListMiniMode() {
   const setTokenInParams = useSetTokenInParams();
 
   return (
-    <VerticalFlex style={{ height: '450px', width: '100%', overflow: 'auto' }}>
+    <VerticalFlex
+      style={{
+        height: '350px',
+        width: '100%',
+        overflow: 'auto',
+        padding: '16px',
+      }}
+    >
       {AVAX_TOKEN ? (
         <TokenListItem
           onClick={() =>
