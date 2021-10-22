@@ -10,6 +10,7 @@ import {
   DiscordIcon,
   TelegramIcon,
   GithubIcon,
+  ComponentSize,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import styled from 'styled-components';
@@ -46,16 +47,25 @@ export function AllDone() {
           <br />
           your wallet!
         </Typography>
-        <PrimaryButton margin="24px 0" onClick={() => setFinalized()}>
-          Enter wallet extension
+        <PrimaryButton
+          size={ComponentSize.LARGE}
+          margin="24px 0"
+          onClick={() => setFinalized()}
+        >
+          <Typography size={14} weight={600} color="inherit">
+            Enter wallet extension
+          </Typography>
         </PrimaryButton>
         <SecondaryButton
+          size={ComponentSize.LARGE}
           as="a"
           target="_blank"
           href="https://ecosystem.avax.network"
           onClick={() => setFinalized()}
         >
-          Explore Avalanche Ecosystem
+          <Typography size={14} weight={600} color="inherit">
+            Explore Avalanche Ecosystem
+          </Typography>
         </SecondaryButton>
         <HorizontalFlex margin="43px 0 0">
           <SecondaryIconButton

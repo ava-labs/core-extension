@@ -15,6 +15,10 @@ import { useMemo } from 'react';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 /**
  * In order to display the graph, allocation and total balance. We will need to
@@ -25,8 +29,9 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
  *
  * If I am wrong correct me -Danny
  */
-export function WalletHomeBalances() {
-  const { avaxToken } = useWalletContext();
+export function WalletBalances() {
+  const { avaxToken, currencyFormatter } = useWalletContext();
+  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const tokensWBalances = useTokensWithBalances();
   const theme = useTheme();
 
@@ -37,6 +42,10 @@ export function WalletHomeBalances() {
     theme.palette.turquoise['500'],
     '#2196F3', // blue 500
   ];
+
+  const balanceTotalUSD =
+    (avaxToken?.balanceUSD || 0) +
+    tokensWBalances.reduce((acc, token) => (acc += token?.balanceUSD || 0), 0);
 
   const top5Tokens = useMemo(() => {
     return tokensWBalances
@@ -49,13 +58,24 @@ export function WalletHomeBalances() {
       });
   }, [tokensWBalances]);
 
+  if (isMiniMode) {
+    return (
+      <HorizontalFlex justify={'center'} align={'center'} width={'100%'}>
+        <Typography size={36}>
+          ~{currencyFormatter(balanceTotalUSD)}
+          <Typography margin={'0 0 0 8px'}>USD</Typography>
+        </Typography>
+      </HorizontalFlex>
+    );
+  }
+
   return (
     <Card>
       <HorizontalFlex justify={'space-between'} align={'center'} width={'100%'}>
         <VerticalFlex flex={2}>
           <SubTextTypography margin={'0 0 5px 0'}>Balance</SubTextTypography>
           <Typography size={36}>
-            ~{avaxToken?.balanceUsdDisplayValue} USD
+            ~{currencyFormatter(balanceTotalUSD)} USD
           </Typography>
         </VerticalFlex>
         {tokensWBalances?.length ? (

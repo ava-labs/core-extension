@@ -9,7 +9,15 @@ import '@src/background/services/state';
  * fullscreen
  */
 browser.runtime.onInstalled.addListener(() => {
-  browser.tabs.create({ url: '/home.html' });
+  /**
+   * When we start finishing home view we can undo this
+   * while our focus is on mobile we need to enforce a
+   * mobile first view
+   *
+   * [TODO]: put home view back
+   */
+  browser.tabs.create({ url: '/popup.html' });
+  // browser.tabs.create({ url: '/home.html' });
 });
 
 browser.runtime.onConnect.addListener((connection) => {

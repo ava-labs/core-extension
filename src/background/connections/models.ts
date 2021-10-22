@@ -1,15 +1,31 @@
 /* eslint-disable no-prototype-builtins */
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 
+export interface ExtensionMessageMetaData {
+  coords?: {
+    /**
+     * These are added in the inpage file. Before forwarding the
+     * request it attaches the window height and width so we can
+     * pass this info to confirm popups and place them on the screen correctly
+     */
+    viewPortHeight: number;
+    viewportWidth: number;
+    screenX: number;
+    screenY: number;
+  };
+}
 export interface ExtensionConnectionMessage<T = any> {
   id: string;
   method: string;
   params?: any[];
   /**
-   * This gets added onto incoming requests at the permission
-   * level, its only present on requests from dApps
+   * Domain and icon get added onto incoming requests at the permission
+   * level, its only present on requests from dApps. Look in
+   * dAppConnection -> providerController to see injection point
    */
   domain?: string;
+  icon?: string;
+  meta?: ExtensionMessageMetaData;
   data?: T;
 }
 

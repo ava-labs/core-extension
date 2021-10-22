@@ -16,6 +16,7 @@ import {
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
 import { useWalletHistory, WalletHistory } from './hooks/useWalletHIstory';
+import { useSettingsContext } from './SettingsProvider';
 
 type WalletStateAndMethods = WalletState & {
   changeWalletPassword(
@@ -26,14 +27,29 @@ type WalletStateAndMethods = WalletState & {
     password: string
   ): Promise<ExtensionConnectionMessageResponse<any>>;
   walletHistory?: WalletHistory;
+  currencyFormatter(value: number): string;
 };
 const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
+function createFormatter(currency: string) {
+  /**
+   * For performance reasons we want to instantiate this as little as possible
+   */
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency ?? 'USD',
+  });
+
+  return formatter.format.bind(formatter);
+}
+
 export function WalletContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
+  const settings = useSettingsContext();
   const [walletState, setWalletState] = useState<
     WalletState | WalletLockedState
   >();
+
   const walletHistory = useWalletHistory([50]);
 
   function setWalletStateAndCast(state: WalletState | WalletLockedState) {
@@ -98,6 +114,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         changeWalletPassword,
         getUnencryptedMnemonic,
         walletHistory,
+        currencyFormatter: createFormatter(settings.currency),
       }}
     >
       {children}

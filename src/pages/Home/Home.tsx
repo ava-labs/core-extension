@@ -8,13 +8,13 @@ import {
 } from '@avalabs/react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { WalletHomeSend } from '../Wallet/WalletHomeSend';
-import { WalletHomeReceive } from '../Wallet/WalletHomeReceive';
 import { WalletHomeRecentTxs } from '../Wallet/WalletHomeRecentTxs';
 import { WalletPortfolio } from '../Wallet/WalletPortfolio';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
 import { AccountSelector } from '@src/components/common/account/AccountSelector';
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
+import { Receive } from '../Receive/Receive';
 
 const TABS_BOTTOM_PADDING = 16;
 const SIDEBAR_WIDTH = 391;
@@ -57,7 +57,7 @@ function HomeSideBar() {
             <WalletHomeSend />
           </TabPanel>
           <TabPanel>
-            <WalletHomeReceive />
+            <Receive />
           </TabPanel>
         </Tabs>
       </Card>

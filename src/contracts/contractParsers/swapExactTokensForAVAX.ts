@@ -38,25 +38,36 @@ export function swapExactTokensForAvax(
 
   const firstTokenInPath = erc20sIndexedByAddress[data.path[0]];
   const lastTokenAmountBN = new BN(data.amountIn || data.amountOutMin);
+  const amountValue = Utils.bigToLocaleString(
+    Utils.bnToBig(lastTokenAmountBN, firstTokenInPath.denomination),
+    4
+  );
+  const amountUSDValue =
+    (Number(firstTokenInPath.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
+
   const tokenSwapped = {
     ...firstTokenInPath,
     amountIn: {
       bn: lastTokenAmountBN,
-      value: Utils.bigToLocaleString(
-        Utils.bnToBig(lastTokenAmountBN, firstTokenInPath.denomination),
-        4
-      ),
+      value: amountValue,
     },
+    amountUSDValue,
   };
 
   const avaxAmountInBN = new BN(data.amountOutMin);
+  const amountAvaxValue = Utils.bigToLocaleString(
+    Utils.bnToBig(avaxAmountInBN, 18),
+    4
+  );
 
   const avaxToken = {
     ...props.avaxToken,
     amountOut: {
       bn: avaxAmountInBN,
-      value: Utils.bigToLocaleString(Utils.bnToBig(avaxAmountInBN, 18), 4),
+      value: amountAvaxValue,
     },
+    amountUSDValue:
+      (Number(props.avaxPrice) * Number(amountAvaxValue)).toFixed(2) ?? '',
   };
 
   const result = {

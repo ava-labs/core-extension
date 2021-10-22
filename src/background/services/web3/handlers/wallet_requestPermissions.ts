@@ -13,7 +13,8 @@ export async function wallet_requestPermissions(
 ) {
   const window = await openExtensionNewWindow(
     `permissions`,
-    `domain=${data.domain}`
+    `domain=${data.domain}`,
+    data.meta?.coords
   );
 
   const currentPermissions = await firstValueFrom(permissions$);

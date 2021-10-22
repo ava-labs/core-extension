@@ -33,7 +33,7 @@ export async function changeWalletPassword(
   if (err) {
     return {
       ...request,
-      error: err,
+      error: err.toString(),
     };
   }
 

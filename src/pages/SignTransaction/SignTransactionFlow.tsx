@@ -5,6 +5,7 @@ import {
   SecondaryButton,
   Typography,
   SubTextTypography,
+  TextButton,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
@@ -24,12 +25,24 @@ import { useGetTransaction } from './useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { TokenImg } from '@src/components/common/TokenImage';
+import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
-  const { updateTransaction, id, contractType, hash, ...params } =
-    useGetTransaction(requestId);
+  const {
+    updateTransaction,
+    id,
+    contractType,
+    hash,
+    setCustomFee,
+    showCustomFees,
+    setShowCustomFees,
+    ...params
+  } = useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
+  const { currencyFormatter } = useWalletContext();
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 
@@ -47,8 +60,26 @@ export function SignTransactionPage() {
     );
   }
 
+  if (showCustomFees) {
+    return (
+      <CustomGasLimitAndFees
+        limit={displayData.gasLimit?.toString() as string}
+        gasPrice={displayData.gasPrice}
+        onCancel={() => setShowCustomFees(false)}
+        onSave={(gas, gasLimit) => {
+          setShowCustomFees(false);
+          setCustomFee(gasLimit, gas);
+        }}
+      />
+    );
+  }
+
   return (
     <VerticalFlex>
+      <HorizontalFlex>
+        <TokenImg src={displayData.icon} />
+        <Typography>{displayData.domain}</Typography>
+      </HorizontalFlex>
       {
         {
           [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
@@ -70,10 +101,15 @@ export function SignTransactionPage() {
       <br />
       <br />
       <VerticalFlex width={'100%'} align={'center'}>
-        <Typography>Fee</Typography>
+        <HorizontalFlex>
+          <Typography>Fee</Typography>
+          <TextButton onClick={() => setShowCustomFees(true)}>edit</TextButton>
+        </HorizontalFlex>
         <br />
         <Typography> {displayData.fee} (AVAX)</Typography>
-        <SubTextTypography>${displayData.feeUSD}</SubTextTypography>
+        <SubTextTypography>
+          {currencyFormatter(Number(displayData.feeUSD))}
+        </SubTextTypography>
       </VerticalFlex>
       <br />
       <br />

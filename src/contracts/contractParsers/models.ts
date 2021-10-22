@@ -31,6 +31,7 @@ export type BNWithDisplay = { bn: BN; value: string };
 export type erc20PathToken = (ERC20WithBalance | AvaxWithBalance) & {
   amountIn?: BNWithDisplay;
   amountOut?: BNWithDisplay;
+  amountUSDValue?: string;
 };
 export interface SwapExactTokensForTokenDisplayValues
   extends TransactionDisplayValues {
@@ -39,6 +40,7 @@ export interface SwapExactTokensForTokenDisplayValues
 
 export type LiquidityPoolToken = (ERC20WithBalance | AvaxWithBalance) & {
   amountDepositedDisplayValue: string;
+  amountUSDValue?: string;
 };
 export interface AddLiquidityDisplayData extends TransactionDisplayValues {
   poolTokens: LiquidityPoolToken[];
@@ -49,4 +51,6 @@ export interface DisplayValueParserProps {
   erc20Tokens: ERC20WithBalance[];
   avaxToken: AvaxWithBalance;
   avaxPrice: number;
+  domain: string;
+  icon: string;
 }

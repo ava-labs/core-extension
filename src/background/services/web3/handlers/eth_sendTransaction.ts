@@ -26,7 +26,11 @@ export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
 
   addTransaction.next(data as any);
 
-  const window = await openExtensionNewWindow(`sign/transaction?id=${data.id}`);
+  const window = await openExtensionNewWindow(
+    `sign/transaction?id=${data.id}`,
+    '',
+    data.meta?.coords
+  );
 
   const windowClosed$ = window.removed.pipe(
     map(() => ({

@@ -1,10 +1,10 @@
 import React from 'react';
 
-export function AvaxTokenIcon() {
+export function AvaxTokenIcon({ height = '30px' }: { height?: string }) {
   return (
     <svg
-      width="30"
-      height="30"
+      width={height}
+      height={height}
       viewBox="0 0 30 30"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

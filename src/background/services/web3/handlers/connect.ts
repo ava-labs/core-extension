@@ -40,7 +40,8 @@ export async function connect(data: ExtensionConnectionMessage) {
 
   const window = await openExtensionNewWindow(
     `permissions`,
-    `domain=${data.domain}`
+    `domain=${data.domain}`,
+    data.meta?.coords
   );
   /**
    * If the user updates permissions and then closes the window then the permissions are written and this

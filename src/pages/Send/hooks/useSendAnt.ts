@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, ChainIdType } from '@avalabs/avalanche-wallet-sdk';
 import {
   SendAntState,
   SendSubmitResponse,
 } from '@avalabs/wallet-react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendAntValidateRequest } from '@src/background/services/send/sendAnt/utils/sendAntValidateRequest';
-import { sendAntResetRequest } from '@src/background/services/send/sendAnt/utils/sendAntResetRequest';
 import { sendAntSubmitRequest } from '@src/background/services/send/sendAnt/utils/sendAntSubmitRequest';
 import { AntWithBalance } from '@avalabs/wallet-react-components';
+import { SendStateWithActions } from '../models';
 
-export function useSendAnt(token: AntWithBalance) {
+export function useSendAnt(
+  token?: AntWithBalance
+): (SendStateWithActions & SendAntState) | null {
   const [sendAntState, setSendAntState] = useState<SendAntState>();
   const [txId, setTxId] = useState<string>();
   const { request } = useConnectionContext();
@@ -20,8 +22,9 @@ export function useSendAnt(token: AntWithBalance) {
 
     const parsedState = {
       ...state,
-      amount: new BN(amount || 0),
-      sendFee: new BN(state.sendFee || 0),
+      amount: new BN(amount || 0, 'hex'),
+      sendFee: new BN(state.sendFee || 0, 'hex'),
+      maxAmount: state.maxAmount && new BN(state.maxAmount, 'hex'),
     };
 
     setSendAntState(parsedState);
@@ -29,11 +32,16 @@ export function useSendAnt(token: AntWithBalance) {
     return parsedState;
   }
 
+  if (!token) {
+    return null;
+  }
+
   return {
     ...sendAntState,
+    targetChain: 'X' as ChainIdType,
     token,
     txId,
-    setValues(amount: string, address: string) {
+    setValues(amount?: string, address?: string) {
       return request(sendAntValidateRequest(amount, address, token)).then(
         parseAndSetState
       );
@@ -46,7 +54,7 @@ export function useSendAnt(token: AntWithBalance) {
         return Promise.reject('send ant state undefined');
       }
 
-      return request(
+      return request<SendSubmitResponse>(
         sendAntSubmitRequest(amount, sendAntState?.address, sendAntState?.token)
       ).then(({ txId }: SendSubmitResponse) => setTxId(txId));
     },

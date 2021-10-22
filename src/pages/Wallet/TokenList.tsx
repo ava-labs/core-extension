@@ -5,6 +5,8 @@ import {
   GridContainer,
   GridContainerItems,
   GridLineSeparator,
+  VerticalFlex,
+  SubTextTypography,
 } from '@avalabs/react-components';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
 import { TokenImg } from '@src/components/common/TokenImage';
@@ -19,26 +21,37 @@ import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { WalletTokenListItem } from './components/WalletTokenListItem';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function TokenListItem({
   name,
   symbol,
   balanceDisplayValue,
   children,
+  balanceUSD,
 }: {
   name: string;
   symbol: string;
-  balanceDisplayValue: string;
+  balanceDisplayValue?: string;
   children: any;
+  balanceUSD?: string;
 }) {
+  const { currencyFormatter } = useWalletContext();
   return (
     <>
       <WalletTokenListItem name={name} symbol={symbol}>
         {children}
       </WalletTokenListItem>
-      <HorizontalFlex width="100%">
+      <VerticalFlex width="100%">
         <Typography>{balanceDisplayValue}</Typography>
-      </HorizontalFlex>
+        {balanceUSD ? (
+          <SubTextTypography>
+            {currencyFormatter(Number(balanceUSD))}
+          </SubTextTypography>
+        ) : (
+          ''
+        )}
+      </VerticalFlex>
       <HorizontalFlex padding={'0 0 0 20px'}>
         <FavStarIcon />
       </HorizontalFlex>
@@ -72,6 +85,7 @@ export function TokenList() {
             name={AVAX_TOKEN.name}
             symbol={AVAX_TOKEN.symbol}
             balanceDisplayValue={AVAX_TOKEN.balanceDisplayValue}
+            balanceUSD={AVAX_TOKEN.balanceUSD?.toString()}
           >
             <AvaxTokenIcon />
           </TokenListItem>
@@ -94,6 +108,7 @@ export function TokenList() {
               name={token.name}
               symbol={token.symbol}
               balanceDisplayValue={token.balanceDisplayValue}
+              balanceUSD={token.balanceUSD?.toString()}
             >
               <TokenImg src={token.logoURI} />
             </TokenListItem>
@@ -118,6 +133,7 @@ export function TokenList() {
               name={token.name}
               symbol={token.symbol}
               balanceDisplayValue={token.balanceDisplayValue}
+              balanceUSD={token.balanceUSD?.toString()}
             >
               <TokenImg src={token.logoURI} />
             </TokenListItem>

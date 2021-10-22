@@ -21,6 +21,7 @@ export interface TransactionDisplayValues {
   gasLimit?: number;
   fee?: string;
   feeUSD?: number;
+  domain: string;
   [key: string]: any;
 }
 export interface Transaction {

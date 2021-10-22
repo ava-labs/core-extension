@@ -5,7 +5,7 @@
   "scripts": {
     "build:inpage": "webpack --config webpack.inpage.js",
     "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
-    "build": "yarn run build:inpage && webpack --config webpack.prod.js",
+    "build": "yarn run build:inpage -- --mode=production && webpack --config webpack.prod.js",
     "test": "yarn cypress open",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
@@ -65,8 +65,8 @@
   },
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "^0.9.10",
-    "@avalabs/react-components": "^1.21.1",
-    "@avalabs/wallet-react-components": "1.6.0",
+    "@avalabs/react-components": "1.25.1",
+    "@avalabs/wallet-react-components": "1.7.2",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
     "@pangolindex/exchange-contracts": "^1.0.1",
@@ -74,7 +74,7 @@
     "@types/react-transition-group": "^4.4.3",
     "abi-decoder": "^2.4.0",
     "bip39": "^3.0.4",
-    "bn.js": "^5.1.0",
+    "bn.js": "5.1.0",
     "copy-webpack-plugin": "^9.0.1",
     "crypto-js": "^4.1.1",
     "date-fns": "^2.25.0",

@@ -25,7 +25,7 @@ export async function getUnencryptedMnemonic(
   if (err) {
     return {
       ...request,
-      error: err,
+      error: err.toString(),
     };
   }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Header from '@src/components/common/header/Header';
 import {
@@ -28,12 +28,16 @@ const SettingsPage = React.lazy(() => {
   return import('../pages/Settings/SettingsPage');
 });
 
+const TokenFlowPage = React.lazy(() => {
+  return import('../pages/Wallet/TokenFlow.minimode');
+});
+
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
-import { Home } from '@src/pages/Home/Home';
+import { HomeFlow } from '@src/pages/Home/HomeFlow';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
@@ -42,6 +46,8 @@ import {
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
+  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const appWidth = useMemo(() => (isMiniMode ? '100%' : '1280px'), []);
 
   return (
     <DialogContextProvider>
@@ -51,14 +57,17 @@ export function Popup() {
             <WalletContextProvider>
               <SettingsContextProvider>
                 <VerticalFlex
-                  height={'100%'}
+                  style={isMiniMode ? { height: '500px', width: '500px' } : {}}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                   align="center"
                 >
                   <VerticalFlex width="100%">
                     {!isConfirm ? (
-                      <Header onDrawerStateChanged={setDrawerOpen} />
+                      <Header
+                        onDrawerStateChanged={setDrawerOpen}
+                        width={appWidth}
+                      />
                     ) : (
                       ''
                     )}
@@ -68,8 +77,8 @@ export function Popup() {
                     flex={1}
                     justify={'center'}
                     margin="16px 0"
-                    maxWidth="90%"
-                    width="1280px"
+                    maxWidth={isMiniMode ? '100%' : '90%'}
+                    width={appWidth}
                   >
                     <Switch>
                       <Route path="/token/add">
@@ -79,7 +88,7 @@ export function Popup() {
                       </Route>
 
                       <Route path="/home">
-                        <Home />
+                        <HomeFlow />
                       </Route>
 
                       <Route path="/sign/transaction">
@@ -105,6 +114,16 @@ export function Popup() {
                           <SettingsPage />
                         </React.Suspense>
                       </Route>
+
+                      {isMiniMode ? (
+                        <Route path="/token">
+                          <React.Suspense fallback={<LoadingIcon />}>
+                            <TokenFlowPage />
+                          </React.Suspense>
+                        </Route>
+                      ) : (
+                        ''
+                      )}
 
                       <Route path="/">
                         <Redirect to="/home" />
