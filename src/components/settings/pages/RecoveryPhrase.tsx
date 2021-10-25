@@ -14,7 +14,6 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
   const [passwordValue, setPasswordValue] = useState('');
-  const [showRecoveryPhrase, setShowRecoveryPhrase] = useState(false);
   const [recoveryValue, setRecoveryValue] = useState('');
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -25,7 +24,6 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
     getUnencryptedMnemonic(passwordValue)
       .then((res) => {
         setRecoveryValue(res);
-        setShowRecoveryPhrase(true);
       })
       .catch((err) => {
         setErrorMessage(err);
@@ -40,7 +38,7 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Show recovery phrase'}
       />
-      {!showRecoveryPhrase && (
+      {!recoveryValue && (
         <VerticalFlex width="100%" align="center" padding="24px 0">
           <HorizontalFlex height="100px">
             <Input
@@ -70,7 +68,7 @@ export function RecoveryPhrase({ goBack, navigateTo }: SettingsPageProps) {
           </HorizontalFlex>
         </VerticalFlex>
       )}
-      {showRecoveryPhrase && (
+      {recoveryValue && (
         <VerticalFlex width="100%" align="center" padding="12px 0">
           <TextArea value={recoveryValue} disabled></TextArea>
         </VerticalFlex>
