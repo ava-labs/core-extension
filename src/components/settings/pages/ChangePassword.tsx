@@ -24,15 +24,11 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [serverResponse, setServerResponse] = useState('');
-  const [dirty, setDirty] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   useEffect(() => {
-    setDirty(!!newPassword || !!oldPassword || !!confirmPassword);
+    setServerError('');
   }, [oldPassword, newPassword, confirmPassword]);
-
-  useEffect(() => {
-    serverResponse && dirty && setServerResponse('');
-  }, [serverResponse, dirty]);
 
   const { changeWalletPassword } = useWalletContext();
 
@@ -55,12 +51,10 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
     changeWalletPassword(newPassword, oldPassword)
       .then((res) => {
         resetInputFields();
-        setDirty(false);
         setServerResponse(res ? SERVER_SUCCESS : SERVER_ERROR);
       })
       .catch((err) => {
-        setDirty(false);
-        setServerResponse(err);
+        setServerError(err);
       });
   };
 
@@ -71,54 +65,64 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Change Password'}
       />
-      <VerticalFlex align="center" padding="12px 0">
-        <HorizontalFlex height="100px">
-          <Input
-            onChange={(e) => {
-              setOldPassword(e.target.value);
-            }}
-            value={oldPassword}
-            placeholder="old password"
-            type="password"
-          />
-        </HorizontalFlex>
-        <HorizontalFlex height="100px">
-          <Input
-            onChange={(e) => {
-              setNewPassword(e.target.value);
-            }}
-            value={newPassword}
-            placeholder="new password"
-            type="password"
-            error={!!error}
-          />
-        </HorizontalFlex>
-        <HorizontalFlex height="100px">
-          <Input
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-            }}
-            value={confirmPassword}
-            placeholder="confirm password"
-            type="password"
-            error={!!error}
-            errorMessage={error}
-          />
-        </HorizontalFlex>
-      </VerticalFlex>
-      <VerticalFlex align="center">
-        <PrimaryButton
-          size={ComponentSize.LARGE}
-          onClick={handleChangePassword}
-          margin="0 0 24px"
-          disabled={!canSubmit}
-        >
-          <Typography size={14} color="inherit">
-            Change Password
-          </Typography>
-        </PrimaryButton>
-        {serverResponse && <Typography size={14}>{serverResponse}</Typography>}
-      </VerticalFlex>
+      {!serverResponse && (
+        <>
+          <VerticalFlex align="center" padding="12px 0">
+            <HorizontalFlex height="100px">
+              <Input
+                onChange={(e) => {
+                  setOldPassword(e.target.value);
+                }}
+                value={oldPassword}
+                placeholder="old password"
+                type="password"
+                error={!!serverError}
+                errorMessage={serverError}
+              />
+            </HorizontalFlex>
+            <HorizontalFlex height="100px">
+              <Input
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                }}
+                value={newPassword}
+                placeholder="new password"
+                type="password"
+                error={!!error}
+              />
+            </HorizontalFlex>
+            <HorizontalFlex height="100px">
+              <Input
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                }}
+                value={confirmPassword}
+                placeholder="confirm password"
+                type="password"
+                error={!!error}
+                errorMessage={error}
+              />
+            </HorizontalFlex>
+          </VerticalFlex>
+          <VerticalFlex align="center">
+            <PrimaryButton
+              size={ComponentSize.LARGE}
+              onClick={handleChangePassword}
+              margin="0 0 24px"
+              disabled={!canSubmit}
+            >
+              <Typography size={14} color="inherit">
+                Change Password
+              </Typography>
+            </PrimaryButton>
+          </VerticalFlex>
+        </>
+      )}
+      {serverResponse && (
+        <VerticalFlex width="100%" align="center" padding="24px">
+          <Typography height="24px">{serverResponse}</Typography>
+        </VerticalFlex>
+      )}
     </VerticalFlex>
   );
 }
