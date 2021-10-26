@@ -61,7 +61,7 @@ export function Popup() {
               <SettingsContextProvider>
                 <GlobalStyles />
                 <VerticalFlex
-                  style={isMiniMode ? { height: '632px', width: '375px' } : {}}
+                  style={isMiniMode ? { height: '600px', width: '375px' } : {}}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                   align="center"

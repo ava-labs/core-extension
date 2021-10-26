@@ -79,7 +79,7 @@ export function HomeMiniMode() {
           </VerticalFlex>
         </TextButton>
 
-        <TextButton style={{ width: '40px' }}>
+        {/* <TextButton style={{ width: '40px' }}>
           <VerticalFlex>
             <SwapArrowsIcon
               height={'26px'}
@@ -98,7 +98,7 @@ export function HomeMiniMode() {
               Bridge
             </Typography>
           </VerticalFlex>
-        </TextButton>
+        </TextButton> */}
       </HorizontalFlex>
     </VerticalFlex>
   );
