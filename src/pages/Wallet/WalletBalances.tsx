@@ -1,10 +1,12 @@
 import React from 'react';
 import {
+  ArrowIcon,
   Card,
   GridContainer,
   GridContainerItems,
   HorizontalFlex,
   SubTextTypography,
+  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -19,21 +21,57 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
+import styled from 'styled-components';
+import { transparentize } from 'polished';
+import { useHistory } from 'react-router';
 
-/**
- * In order to display the graph, allocation and total balance. We will need to
- * have the usd price for ERC20 tokens. Otherwise we will cant normalize the sums
- * being as one allocation might be PNG, one a random token and one AVAX we cant
- * simply sum the amount of each token and then show allocation. These tokens vary
- * with decimals/precision.
- *
- * If I am wrong correct me -Danny
- */
+const IconCircle = styled(HorizontalFlex)`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: ${({ theme }) => transparentize(0.8, theme.palette.white)};
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    background-color: ${({ theme }) =>
+      transparentize(0.9, theme.palette.white)};
+  }
+`;
+function SendReceiveButton({
+  label,
+  angle,
+  onClick,
+}: {
+  label: string;
+  angle: number;
+  onClick(): void;
+}) {
+  const theme = useTheme();
+  return (
+    <TextButton margin={'0 0 0 10px'} onClick={() => onClick && onClick()}>
+      <VerticalFlex>
+        <IconCircle>
+          <ArrowIcon
+            height={'40px'}
+            color={theme.palette.white}
+            style={{
+              transform: `rotate(${angle}deg)`,
+            }}
+          />
+        </IconCircle>
+        <Typography>{label}</Typography>
+      </VerticalFlex>
+    </TextButton>
+  );
+}
+
 export function WalletBalances() {
   const { avaxToken, currencyFormatter } = useWalletContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const tokensWBalances = useTokensWithBalances();
   const theme = useTheme();
+  const history = useHistory();
 
   const tokenColors = [
     theme.palette.pink['500'],
@@ -60,12 +98,30 @@ export function WalletBalances() {
 
   if (isMiniMode) {
     return (
-      <HorizontalFlex justify={'center'} align={'center'} width={'100%'}>
-        <Typography size={36}>
-          ~{currencyFormatter(balanceTotalUSD)}
-          <Typography margin={'0 0 0 8px'}>USD</Typography>
-        </Typography>
-      </HorizontalFlex>
+      <VerticalFlex>
+        <HorizontalFlex justify={'center'} align={'center'} width={'100%'}>
+          <Typography size={36}>
+            ~{currencyFormatter(balanceTotalUSD)}
+            <Typography margin={'0 0 0 8px'}>USD</Typography>
+          </Typography>
+        </HorizontalFlex>
+        <br />
+        <br />
+        <br />
+        <HorizontalFlex width={'100%'} justify={'center'} align={'center'}>
+          <SendReceiveButton
+            label={'Send'}
+            angle={320}
+            onClick={() => history.push('/send')}
+          />
+          <SendReceiveButton
+            label={'Receive'}
+            angle={140}
+            onClick={() => history.push('/receive')}
+          />
+        </HorizontalFlex>
+        <br />
+      </VerticalFlex>
     );
   }
 

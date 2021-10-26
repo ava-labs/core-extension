@@ -1,7 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
 
 export const GlobalStyles = createGlobalStyle`
-    body::-webkit-scrollbar {
+    *::-webkit-scrollbar {
         display: none;
       }
       -ms-overflow-style: none;  /* IE and Edge */

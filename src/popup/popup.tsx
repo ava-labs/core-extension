@@ -43,6 +43,8 @@ import {
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { GlobalStyles } from '@src/styles';
+import { Receive } from '@src/pages/Receive/Receive';
+import { WalletHomeSend } from '@src/pages/Wallet/WalletHomeSend';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -59,7 +61,7 @@ export function Popup() {
               <SettingsContextProvider>
                 <GlobalStyles />
                 <VerticalFlex
-                  style={isMiniMode ? { height: '500px', width: '500px' } : {}}
+                  style={isMiniMode ? { height: '632px', width: '375px' } : {}}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                   align="center"
@@ -117,15 +119,23 @@ export function Popup() {
                         </React.Suspense>
                       </Route>
 
-                      {isMiniMode ? (
-                        <Route path="/token">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <TokenFlowPage />
-                          </React.Suspense>
-                        </Route>
-                      ) : (
-                        ''
-                      )}
+                      <Route path="/token">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <TokenFlowPage />
+                        </React.Suspense>
+                      </Route>
+
+                      <Route path="/receive">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <Receive />
+                        </React.Suspense>
+                      </Route>
+
+                      <Route path="/send">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <WalletHomeSend />
+                        </React.Suspense>
+                      </Route>
 
                       <Route path="/">
                         <Redirect to="/home" />
