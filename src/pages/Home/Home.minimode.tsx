@@ -43,7 +43,10 @@ export function HomeMiniMode() {
           padding: '19px 48px',
         }}
       >
-        <TextButton style={{ width: '40px' }}>
+        <TextButton
+          style={{ width: '40px' }}
+          onClick={() => history.push('/home')}
+        >
           <VerticalFlex>
             <HouseIcon height={'26px'} color={setColorWhenActive('/home')} />
             <br />
@@ -53,7 +56,10 @@ export function HomeMiniMode() {
           </VerticalFlex>
         </TextButton>
 
-        <TextButton style={{ width: '40px' }}>
+        <TextButton
+          style={{ width: '40px' }}
+          onClick={() => history.push('/watchlist')}
+        >
           <VerticalFlex>
             <ChecklistIcon
               height={'26px'}
@@ -66,7 +72,10 @@ export function HomeMiniMode() {
           </VerticalFlex>
         </TextButton>
 
-        <TextButton style={{ width: '40px' }}>
+        <TextButton
+          style={{ width: '40px' }}
+          onClick={() => history.push('/activity')}
+        >
           <VerticalFlex>
             <LightningIcon
               height={'26px'}

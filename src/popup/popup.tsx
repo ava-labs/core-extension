@@ -32,6 +32,10 @@ const TokenFlowPage = React.lazy(() => {
   return import('../pages/Wallet/TokenFlow.minimode');
 });
 
+const ActivityFlow = React.lazy(() => {
+  return import('../pages/Activity/ActivityFlow');
+});
+
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
@@ -134,6 +138,12 @@ export function Popup() {
                       <Route path="/send">
                         <React.Suspense fallback={<LoadingIcon />}>
                           <WalletHomeSend />
+                        </React.Suspense>
+                      </Route>
+
+                      <Route path="/activity">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <ActivityFlow />
                         </React.Suspense>
                       </Route>
 
