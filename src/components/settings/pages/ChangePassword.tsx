@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Input,
   VerticalFlex,
@@ -16,12 +16,23 @@ function verifyPasswordsMatch(pass1?: string, pass2?: string) {
 }
 
 const PASSWORD_ERROR = 'Passwords do not match';
+const SERVER_SUCCESS = 'Your password has been changed succesfully.';
+const SERVER_ERROR = 'Something went wrong.';
 
 export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [serverResponse, setServerResponse] = useState('');
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    setDirty(!!newPassword || !!oldPassword || !!confirmPassword);
+  }, [oldPassword, newPassword, confirmPassword]);
+
+  useEffect(() => {
+    serverResponse && dirty && setServerResponse('');
+  }, [serverResponse, dirty]);
 
   const { changeWalletPassword } = useWalletContext();
 
@@ -44,13 +55,11 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
     changeWalletPassword(newPassword, oldPassword)
       .then((res) => {
         resetInputFields();
-        setServerResponse(
-          res
-            ? 'Your password has been changed succesfully.'
-            : 'Something went wrong'
-        );
+        setDirty(false);
+        setServerResponse(res ? SERVER_SUCCESS : SERVER_ERROR);
       })
       .catch((err) => {
+        setDirty(false);
         setServerResponse(err);
       });
   };
