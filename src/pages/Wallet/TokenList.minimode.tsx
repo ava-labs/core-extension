@@ -19,6 +19,7 @@ import { WalletTokenListItemMiniMode } from './components/WalletTokenListItem.mi
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TransactionSendType } from '../Send/models';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
+import { SendReceiveToggle } from './components/SendRecieveToggle.minimode';
 
 function TokenListItem({
   name,
@@ -73,72 +74,86 @@ export function TokenListMiniMode() {
   const setTokenInParams = useSetTokenInParams();
 
   return (
-    <VerticalFlex
-      style={{
-        height: '350px',
-        width: '100%',
-        overflow: 'auto',
-        padding: '0px 16px 100px 16px',
-      }}
-    >
-      {AVAX_TOKEN ? (
-        <TokenListItem
-          margin={'0px 0px 0px 0px'}
-          onClick={() =>
-            setTokenInParams(
-              AVAX_TOKEN.symbol,
-              TransactionSendType.AVAX,
-              'token'
-            )
-          }
-          name={AVAX_TOKEN.name}
-          symbol={AVAX_TOKEN.symbol}
-          balanceDisplayValue={AVAX_TOKEN.balanceDisplayValue}
-          balanceUSD={AVAX_TOKEN.balanceUSD?.toString()}
-        >
-          <AvaxTokenIcon />
-        </TokenListItem>
-      ) : (
-        ''
-      )}
+    <VerticalFlex>
+      <br />
+      <br />
+      <br />
+      <SendReceiveToggle onSearch={(term) => console.log(term)} />
+      <br />
+      <br />
+      <br />
 
-      {tokensWithBalances
-        ?.filter((token) => !isAvaxToken(token) && !isAntToken(token))
-        .map((token) => (
+      <VerticalFlex
+        style={{
+          height: '325px',
+          width: '100%',
+          overflow: 'auto',
+          padding: '0px 16px 100px 16px',
+        }}
+      >
+        {AVAX_TOKEN ? (
           <TokenListItem
+            margin={'0px 0px 0px 0px'}
             onClick={() =>
-              setTokenInParams(token.symbol, TransactionSendType.ERC20, 'token')
+              setTokenInParams(
+                AVAX_TOKEN.symbol,
+                TransactionSendType.AVAX,
+                'token'
+              )
             }
-            key={isERC20Token(token) ? token.address : (token as any).symbol}
-            name={token.name}
-            symbol={token.symbol}
-            balanceDisplayValue={token.balanceDisplayValue}
-            balanceUSD={token.balanceUSD?.toString()}
+            name={AVAX_TOKEN.name}
+            symbol={AVAX_TOKEN.symbol}
+            balanceDisplayValue={AVAX_TOKEN.balanceDisplayValue}
+            balanceUSD={AVAX_TOKEN.balanceUSD?.toString()}
           >
-            <TokenImg src={token.logoURI} />
+            <AvaxTokenIcon />
           </TokenListItem>
-        ))}
+        ) : (
+          ''
+        )}
 
-      {tokensWithBalances
-        ?.filter((token) => !isAvaxToken(token) && !isERC20Token(token))
-        .map((token) => (
-          <TokenListItem
-            key={
-              isERC20Token(token)
-                ? token.address
-                : (token as AntWithBalance).symbol
-            }
-            onClick={() =>
-              setTokenInParams(token.symbol, TransactionSendType.ANT, 'token')
-            }
-            name={token.name}
-            symbol={token.symbol}
-            balanceDisplayValue={token.balanceDisplayValue}
-            balanceUSD={token.balanceUSD?.toString()}
-          >
-            <TokenImg src={token.logoURI} />
-          </TokenListItem>
-        ))}
+        {tokensWithBalances
+          ?.filter((token) => !isAvaxToken(token) && !isAntToken(token))
+          .map((token) => (
+            <TokenListItem
+              onClick={() =>
+                setTokenInParams(
+                  token.symbol,
+                  TransactionSendType.ERC20,
+                  'token'
+                )
+              }
+              key={isERC20Token(token) ? token.address : (token as any).symbol}
+              name={token.name}
+              symbol={token.symbol}
+              balanceDisplayValue={token.balanceDisplayValue}
+              balanceUSD={token.balanceUSD?.toString()}
+            >
+              <TokenImg src={token.logoURI} />
+            </TokenListItem>
+          ))}
+
+        {tokensWithBalances
+          ?.filter((token) => !isAvaxToken(token) && !isERC20Token(token))
+          .map((token) => (
+            <TokenListItem
+              key={
+                isERC20Token(token)
+                  ? token.address
+                  : (token as AntWithBalance).symbol
+              }
+              onClick={() =>
+                setTokenInParams(token.symbol, TransactionSendType.ANT, 'token')
+              }
+              name={token.name}
+              symbol={token.symbol}
+              balanceDisplayValue={token.balanceDisplayValue}
+              balanceUSD={token.balanceUSD?.toString()}
+            >
+              <TokenImg src={token.logoURI} />
+            </TokenListItem>
+          ))}
+      </VerticalFlex>
     </VerticalFlex>
   );
 }
