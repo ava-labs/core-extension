@@ -25,7 +25,6 @@ const IllustrationPlaceholder = styled(VerticalFlex)`
 `;
 
 export function AllDone() {
-  const { setFinalized } = useOnboardingContext();
   return (
     <VerticalFlex
       width="100%"
@@ -47,7 +46,7 @@ export function AllDone() {
           <br />
           your wallet!
         </Typography>
-        <PrimaryButton
+        {/* <PrimaryButton
           size={ComponentSize.LARGE}
           margin="24px 0"
           onClick={() => setFinalized()}
@@ -55,13 +54,13 @@ export function AllDone() {
           <Typography size={14} weight={600} color="inherit">
             Enter wallet extension
           </Typography>
-        </PrimaryButton>
+        </PrimaryButton> */}
+      </VerticalFlex>
+      <VerticalFlex align="center">
         <SecondaryButton
           size={ComponentSize.LARGE}
           as="a"
-          target="_blank"
           href="https://ecosystem.avax.network"
-          onClick={() => setFinalized()}
         >
           <Typography size={14} weight={600} color="inherit">
             Explore Avalanche Ecosystem

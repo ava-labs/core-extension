@@ -6,107 +6,143 @@ import {
   HorizontalSeparator,
   IconDirection,
   LockIcon,
-  TextButton,
+  SecondaryButton,
   Typography,
-  useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
-import { ThemeSelector } from '../ThemeSelector';
-import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPageProps, SettingsPages } from '../models';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
-  const { lockWallet, toggleShowTokensWithoutBalanceSetting } =
+  const { network } = useNetworkContext();
+  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const { lockWallet, toggleShowTokensWithoutBalanceSetting, currency } =
     useSettingsContext();
-  const { showDialog, clearDialog } = useDialog();
-
-  const onLogoutClick = () => {
-    showDialog({
-      title: 'Have you recorded your recovery phrase?',
-      body: 'Without it you will not be able to sign back in to your account.',
-      confirmText: 'Yes',
-      onConfirm: () => {
-        clearDialog();
-        resetExtensionState();
-      },
-      cancelText: 'No',
-      onCancel: () => {
-        clearDialog();
-      },
-    });
-  };
 
   return (
-    <VerticalFlex width="375px" padding="12px 0">
-      <HorizontalFlex grow="1" justify="space-between" padding="12px 24px">
-        <Typography size={18} weight={700} height="24px">
-          Settings
-        </Typography>
-        <ThemeSelector />
-      </HorizontalFlex>
+    <VerticalFlex
+      width={isMiniMode ? '319px' : '375px'}
+      height="100%"
+      padding={isMiniMode ? '0' : '12px 0'}
+      background={theme.colors.bg2}
+    >
+      <Typography size={24} weight={700} height="24px" margin="40px 16px 12px">
+        Settings
+      </Typography>
       <DropDownMenuItem
         justify="space-between"
         align="center"
+        padding="12px 16px"
+        onClick={() => navigateTo(SettingsPages.NETWORK)}
+      >
+        <Typography weight={600} height="24px">
+          Network
+        </Typography>
+        <HorizontalFlex align="center">
+          <Typography size={14} margin="0 6px" color={theme.colors.text2}>
+            {network?.name?.replace('Avalanche', '')}
+          </Typography>
+          <CaretIcon
+            color={theme.colors.icon1}
+            height="14px"
+            direction={IconDirection.RIGHT}
+          />
+        </HorizontalFlex>
+      </DropDownMenuItem>
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="12px 16px"
         onClick={() => navigateTo(SettingsPages.CURRENCIES)}
       >
-        <Typography>Currency</Typography>
+        <Typography weight={600} height="24px">
+          Currency
+        </Typography>
+        <HorizontalFlex align="center">
+          <Typography size={14} margin="0 6px" color={theme.colors.text2}>
+            {currency}
+          </Typography>
+          <CaretIcon
+            color={theme.colors.icon1}
+            height="14px"
+            direction={IconDirection.RIGHT}
+          />
+        </HorizontalFlex>
+      </DropDownMenuItem>
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="12px 16px"
+        onClick={() => navigateTo(SettingsPages.ADVANCED)}
+      >
+        <Typography weight={600} height="24px">
+          Advanced
+        </Typography>
         <CaretIcon
-          color={theme.colors.icon2}
-          height="12px"
+          color={theme.colors.icon1}
+          height="14px"
+          direction={IconDirection.RIGHT}
+        />
+      </DropDownMenuItem>
+      <DropDownMenuItem
+        justify="space-between"
+        padding="12px 16px"
+        onClick={() => toggleShowTokensWithoutBalanceSetting()}
+      >
+        <Typography weight={600} height="24px">
+          Hide tokens without balance
+        </Typography>
+      </DropDownMenuItem>
+
+      <HorizontalFlex width="100%" margin="12px 0" padding="0 16px">
+        <HorizontalSeparator />
+      </HorizontalFlex>
+
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="12px 16px"
+        onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
+      >
+        <Typography weight={600} height="24px">
+          Security &amp; Privacy
+        </Typography>
+        <CaretIcon
+          color={theme.colors.icon1}
+          height="14px"
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
       <DropDownMenuItem
         justify="space-between"
         align="center"
-        onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
+        padding="12px 16px"
       >
-        <Typography>Security &amp; Privacy</Typography>
-        <CaretIcon
-          color={theme.colors.icon2}
-          height="12px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
-      <DropDownMenuItem justify="space-between" align="center">
-        <Typography>Legal</Typography>
-        <CaretIcon
-          color={theme.colors.icon2}
-          height="12px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
-      <DropDownMenuItem justify="space-between" align="center">
-        <Typography>Advanced</Typography>
-        <CaretIcon
-          color={theme.colors.icon2}
-          height="12px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
-      <DropDownMenuItem
-        justify="space-between"
-        onClick={() => toggleShowTokensWithoutBalanceSetting()}
-      >
-        <Typography>Hide tokens without balance</Typography>
+        <Typography weight={600} height="24px">
+          Legal
+        </Typography>
       </DropDownMenuItem>
 
-      <HorizontalSeparator margin="32px 0 12px" />
-
-      <DropDownMenuItem justify="space-between" onClick={() => lockWallet()}>
-        <Typography>Lock wallet</Typography>
-        <LockIcon color={theme.colors.icon1} />
-      </DropDownMenuItem>
-      <DropDownMenuItem justify="space-between">
-        <Typography>Version</Typography>
-        <Typography color={theme.colors.text2}>0.0.0</Typography>
-      </DropDownMenuItem>
-      <DropDownMenuItem justify="space-between" onClick={() => onLogoutClick()}>
-        <TextButton>Sign out</TextButton>
-      </DropDownMenuItem>
+      <VerticalFlex
+        grow="1"
+        justify="flex-end"
+        align="center"
+        padding="0 16px 75px"
+      >
+        <SecondaryButton onClick={() => lockWallet()}>
+          <LockIcon color={theme.colors.icon1} height="20px" />
+          <Typography margin="0 0 0 6px" weight={600}>
+            Lock wallet
+          </Typography>
+        </SecondaryButton>
+      </VerticalFlex>
     </VerticalFlex>
   );
 }

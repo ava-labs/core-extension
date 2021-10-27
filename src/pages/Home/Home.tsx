@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { AccountSelector } from '@src/components/common/account/AccountSelector';
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { Receive } from '../Receive/Receive';
+import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
 
 const TABS_BOTTOM_PADDING = 16;
 const SIDEBAR_WIDTH = 391;
@@ -94,7 +95,7 @@ export function Home() {
         </TabList>
         <HorizontalFlex align={'center'}>
           <AccountSelector />
-          <SettingsMenu />
+          <SettingsMenuFlow />
         </HorizontalFlex>
       </HorizontalFlex>
       <HorizontalFlex>

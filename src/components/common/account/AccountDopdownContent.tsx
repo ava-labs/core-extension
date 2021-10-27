@@ -109,7 +109,7 @@ export function AccountDropdownContent() {
                 />
                 {selectedAccount === i && (
                   <StyledCheckmarkIcon
-                    size="16px"
+                    height="16px"
                     color={theme.colors.primary1}
                   />
                 )}

@@ -9,10 +9,7 @@ import {
 } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
-import {
-  ExtensionConnectionMessageResponse,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/models';
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
 import { useWalletHistory, WalletHistory } from './hooks/useWalletHIstory';
@@ -22,10 +19,8 @@ type WalletStateAndMethods = WalletState & {
   changeWalletPassword(
     newPassword: string,
     oldPassword: string
-  ): Promise<ExtensionConnectionMessageResponse<any>>;
-  getUnencryptedMnemonic(
-    password: string
-  ): Promise<ExtensionConnectionMessageResponse<any>>;
+  ): Promise<boolean>;
+  getUnencryptedMnemonic(password: string): Promise<string>;
   walletHistory?: WalletHistory;
   currencyFormatter(value: number): string;
 };

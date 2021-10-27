@@ -88,7 +88,7 @@ export function WalletConnection() {
               <Typography height="24px">{n.name}</Typography>
             </HorizontalFlex>
             {network?.name === n.name && (
-              <CheckmarkIcon size="16px" color={theme.colors.primary1} />
+              <CheckmarkIcon height="16px" color={theme.colors.primary1} />
             )}
           </SecondaryDropDownMenuItem>
         ))}

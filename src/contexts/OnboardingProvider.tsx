@@ -32,7 +32,7 @@ const OnboardingContext = createContext<{
 
 export function OnboardingContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const isPopup = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const isHome = useIsSpecificContextContainer(ContextContainer.HOME);
   const [onboardingState, setOnboardingState] = useState<OnboardingState>();
   const [onboardingPhase, setOnboardingPhase] = useState<OnboardingPhase>();
 
@@ -71,7 +71,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
    * If they are on the popup.html file then force onboarding to a tab. These files are created
    * in the webpack config and we decipher the environment by the .html file.
    */
-  if (isPopup && !onboardingState.isOnBoarded) {
+  if (!isHome && !onboardingState.isOnBoarded) {
     browser.tabs.create({ url: '/home.html' });
   }
 
@@ -113,7 +113,11 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setFinalized,
       }}
     >
-      {!onboardingState.isOnBoarded ? (
+      {/* 
+        Always show the onbording in full screen since the full screen mode is not supported. 
+        Change this to !onboardingState.isOnBoarded to re-activate full screen mode
+      */}
+      {isHome ? (
         <React.Suspense fallback={<LoadingIcon />}>
           <OnboardingFlow />
         </React.Suspense>

@@ -4,20 +4,13 @@ import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from './common';
 import { providerConnection } from './background/connections/dAppConnection/providerConnection';
 import { extensionConnection } from './background/connections/extensionConnection/extensionConnection';
 import '@src/background/services/state';
+import { ContextContainer } from './hooks/useIsSpecificContextContainer';
 /**
  * If they just install then they need to onboard and we force them
  * fullscreen
  */
 browser.runtime.onInstalled.addListener(() => {
-  /**
-   * When we start finishing home view we can undo this
-   * while our focus is on mobile we need to enforce a
-   * mobile first view
-   *
-   * [TODO]: put home view back
-   */
-  browser.tabs.create({ url: '/popup.html' });
-  // browser.tabs.create({ url: '/home.html' });
+  browser.tabs.create({ url: ContextContainer.HOME });
 });
 
 browser.runtime.onConnect.addListener((connection) => {
