@@ -9,34 +9,9 @@ import {
   ArrowIcon,
   CaretIcon,
   IconDirection,
-  SearchIcon,
   SearchInput,
 } from '@avalabs/react-components';
 import { useHistory } from 'react-router';
-
-const InputField = styled.input`
-  font-size: 16px;
-  height: 40px;
-  padding: 8px 44px;
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  border-radius: 100px;
-  border: none;
-  color: ${({ theme }) => theme.inputs.color};
-  font-family: ${({ theme }) => theme.fontFamily};
-  background: ${({ theme }) => theme.inputs.bg};
-
-  ::placeholder {
-    color: ${({ theme }) => theme.inputs.colorPlaceholder};
-    opacity: 1; /* Firefox */
-    font-weight: 400;
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
 
 const IconCircle = styled(HorizontalFlex)`
   width: 64px;
@@ -50,11 +25,6 @@ const IconCircle = styled(HorizontalFlex)`
     background-color: ${({ theme }) =>
       transparentize(0.9, theme.palette.white)};
   }
-`;
-
-const StyledSearchIcon = styled(SearchIcon)`
-  position: absolute;
-  margin: 0 0 0 16px;
 `;
 
 function SendReceiveButton({
