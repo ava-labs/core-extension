@@ -34,18 +34,19 @@ export function HomeMiniMode() {
         justify={'space-between'}
         flex={1}
         align={'flex-end'}
-        margin={'0 0 10px 0'}
         style={{
           position: 'fixed',
-          bottom: '20px',
-          left: '40px',
-          right: '40px',
+          bottom: '0px',
+          width: '100%',
           backgroundColor: `${theme.colors.bg1}`,
-          height: '65px',
-          padding: '0 15px',
+          height: '80px',
+          padding: '19px 48px',
         }}
       >
-        <TextButton style={{ width: '40px' }}>
+        <TextButton
+          style={{ width: '40px' }}
+          onClick={() => history.push('/home')}
+        >
           <VerticalFlex>
             <HouseIcon height={'26px'} color={setColorWhenActive('/home')} />
             <br />
@@ -55,7 +56,10 @@ export function HomeMiniMode() {
           </VerticalFlex>
         </TextButton>
 
-        <TextButton style={{ width: '40px' }}>
+        <TextButton
+          style={{ width: '40px' }}
+          onClick={() => history.push('/watchlist')}
+        >
           <VerticalFlex>
             <ChecklistIcon
               height={'26px'}
@@ -68,7 +72,10 @@ export function HomeMiniMode() {
           </VerticalFlex>
         </TextButton>
 
-        <TextButton style={{ width: '40px' }}>
+        <TextButton
+          style={{ width: '40px' }}
+          onClick={() => history.push('/activity')}
+        >
           <VerticalFlex>
             <LightningIcon
               height={'26px'}
@@ -81,7 +88,7 @@ export function HomeMiniMode() {
           </VerticalFlex>
         </TextButton>
 
-        <TextButton style={{ width: '40px' }}>
+        {/* <TextButton style={{ width: '40px' }}>
           <VerticalFlex>
             <SwapArrowsIcon
               height={'26px'}
@@ -100,7 +107,7 @@ export function HomeMiniMode() {
               Bridge
             </Typography>
           </VerticalFlex>
-        </TextButton>
+        </TextButton> */}
       </HorizontalFlex>
     </VerticalFlex>
   );

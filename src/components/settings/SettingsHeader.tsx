@@ -20,15 +20,15 @@ export function SettingsHeader({
   const theme = useTheme();
 
   return (
-    <HorizontalFlex grow="1" padding="12px 24px">
-      <TextButton onClick={goBack} margin="0 8px 0 0">
+    <HorizontalFlex padding="40px 16px 12px" align="center">
+      <TextButton onClick={goBack} margin="0 24px 0 0">
         <CaretIcon
           height="20px"
           direction={IconDirection.LEFT}
           color={theme.colors.text1}
         />
       </TextButton>
-      <Typography size={18} weight={700} height="24px">
+      <Typography size={24} weight={700} height="29px">
         {title}
       </Typography>
     </HorizontalFlex>

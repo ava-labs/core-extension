@@ -10,6 +10,11 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 // TODO: replace it with the supported currency list and wite it up to the backend
 const currencies = [
@@ -28,31 +33,29 @@ const currencies = [
   { name: 'Indian Rupee', symbol: 'INR' },
 ];
 
-export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
+export function Network({ goBack, navigateTo }: SettingsPageProps) {
   const theme = useTheme();
-  const { updateCurrencySetting, currency } = useSettingsContext();
+  const { network, setNetwork, networks } = useNetworkContext();
 
   return (
     <VerticalFlex width="375px" background={theme.colors.bg2} height="100%">
       <SettingsHeader
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Currencies'}
+        title={'Network'}
       />
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        {currencies.map((c) => (
+        {networks.map((n) => (
           <DropDownMenuItem
-            key={c.symbol}
+            key={n.name}
             justify="space-between"
             align="center"
             onClick={() => {
-              updateCurrencySetting(c.symbol);
+              setNetwork(n);
             }}
           >
-            <Typography>
-              {c.name} ({c.symbol})
-            </Typography>
-            {currency === c.symbol && (
+            <Typography>{n.name}</Typography>
+            {network?.name === n.name && (
               <CheckmarkIcon height="16px" color={theme.colors.icon1} />
             )}
           </DropDownMenuItem>

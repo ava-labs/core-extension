@@ -84,7 +84,7 @@ export const Receive = () => {
         <Typography width="255px" height="24px">
           {getAddress()}
         </Typography>
-        <CopyIcon size="16px" color={theme.colors.primary1} />
+        <CopyIcon height="16px" color={theme.colors.primary1} />
       </AddressBlock>
     </VerticalFlex>
   );

@@ -27,6 +27,7 @@ function TokenListItem({
   children,
   balanceUSD,
   onClick,
+  margin,
 }: {
   name: string;
   symbol: string;
@@ -34,12 +35,13 @@ function TokenListItem({
   children: any;
   balanceUSD?: string;
   onClick(): void;
+  margin?: string;
 }) {
   const { currencyFormatter } = useWalletContext();
   const { currency } = useSettingsContext();
   return (
     <Card
-      margin={'8px 0 0 0'}
+      margin={margin ?? '8px 0 0 0'}
       onClick={() => onClick && onClick()}
       style={{ cursor: 'pointer' }}
     >
@@ -76,11 +78,12 @@ export function TokenListMiniMode() {
         height: '350px',
         width: '100%',
         overflow: 'auto',
-        padding: '16px',
+        padding: '0px 16px 100px 16px',
       }}
     >
       {AVAX_TOKEN ? (
         <TokenListItem
+          margin={'0px 0px 0px 0px'}
           onClick={() =>
             setTokenInParams(
               AVAX_TOKEN.symbol,

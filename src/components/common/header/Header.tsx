@@ -11,10 +11,7 @@ import React, { useState } from 'react';
 import Drawer from './Drawer';
 import { Logo } from '@src/components/icons/Logo';
 import { WalletConnection } from '@src/components/common/WalletConnection';
-interface HeaderProps {
-  onDrawerStateChanged?: (open: boolean) => void;
-  width: string;
-}
+import { HeaderProps } from './HeaderFlow';
 
 function Header({ onDrawerStateChanged }: HeaderProps) {
   const isSmallScreen = useIsSmallScreen();

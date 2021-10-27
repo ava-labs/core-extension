@@ -2,23 +2,49 @@ import React from 'react';
 import {
   CaretIcon,
   DropDownMenuItem,
+  HorizontalFlex,
+  HorizontalSeparator,
   IconDirection,
   Typography,
+  useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
+import { resetExtensionState } from '@src/utils/resetExtensionState';
 
 export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
   const theme = useTheme();
+  const { showDialog, clearDialog } = useDialog();
+
+  const onLogoutClick = () => {
+    showDialog({
+      title: 'Have you recorded your recovery phrase?',
+      body: 'Without it you will not be able to sign back in to your account.',
+      confirmText: 'Yes',
+      onConfirm: () => {
+        clearDialog();
+        resetExtensionState();
+      },
+      cancelText: 'No',
+      onCancel: () => {
+        clearDialog();
+      },
+    });
+  };
 
   return (
-    <VerticalFlex width="375px" padding="12px 0">
+    <VerticalFlex
+      width="375px"
+      background={theme.colors.bg2}
+      height="100%"
+      justify="flex-start"
+    >
       <SettingsHeader
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Secuirty & Privacy'}
+        title={'Security & Privacy'}
       />
       <DropDownMenuItem
         justify="space-between"
@@ -27,8 +53,8 @@ export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
       >
         <Typography>Change password</Typography>
         <CaretIcon
-          color={theme.colors.icon2}
-          height="12px"
+          color={theme.colors.icon1}
+          height="14px"
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
@@ -39,10 +65,23 @@ export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
       >
         <Typography>Show recovery phrase</Typography>
         <CaretIcon
-          color={theme.colors.icon2}
-          height="12px"
+          color={theme.colors.icon1}
+          height="14px"
           direction={IconDirection.RIGHT}
         />
+      </DropDownMenuItem>
+
+      <HorizontalFlex width="100%" margin="12px 0" padding="0 16px">
+        <HorizontalSeparator />
+      </HorizontalFlex>
+
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="12px 16px"
+        onClick={() => onLogoutClick()}
+      >
+        <Typography color={theme.colors.error}>Sign out</Typography>
       </DropDownMenuItem>
     </VerticalFlex>
   );

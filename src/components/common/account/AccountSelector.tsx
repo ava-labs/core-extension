@@ -3,16 +3,20 @@ import {
   DropDownMenu,
   HorizontalFlex,
   IconDirection,
-  PrimaryIconButton,
+  TextButton,
   Typography,
 } from '@avalabs/react-components';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 import React from 'react';
 import styled, { useTheme } from 'styled-components';
 import { AccountDropdownContent } from './AccountDopdownContent';
 
 const AccountName = styled(Typography)`
   max-width: 165px;
-  margin: 0 16px 0 0;
+  margin: 0 8px 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -23,6 +27,7 @@ const AccountName = styled(Typography)`
 
 export function AccountSelector() {
   const theme = useTheme();
+  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
 
   return (
     <DropDownMenu
@@ -31,7 +36,7 @@ export function AccountSelector() {
         top: '60px',
       }}
       icon={
-        <PrimaryIconButton margin="0 32px 0 0">
+        <TextButton margin={isMiniMode ? '0' : '0 32px 0 0'}>
           <HorizontalFlex align={'center'} padding="0 16px">
             <AccountName>Account</AccountName>
             <CaretIcon
@@ -40,7 +45,7 @@ export function AccountSelector() {
               height="12px"
             />
           </HorizontalFlex>
-        </PrimaryIconButton>
+        </TextButton>
       }
     >
       <AccountDropdownContent />

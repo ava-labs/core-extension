@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import Header from '@src/components/common/header/Header';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -32,6 +31,10 @@ const TokenFlowPage = React.lazy(() => {
   return import('../pages/Wallet/TokenFlow.minimode');
 });
 
+const ActivityFlow = React.lazy(() => {
+  return import('../pages/Activity/ActivityFlow');
+});
+
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
@@ -42,6 +45,10 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
+import { GlobalStyles } from '@src/styles';
+import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
+import { Receive } from '@src/pages/Receive/Receive';
+import { WalletHomeSend } from '@src/pages/Wallet/WalletHomeSend';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -56,18 +63,17 @@ export function Popup() {
           <NetworkContextProvider>
             <WalletContextProvider>
               <SettingsContextProvider>
+                <GlobalStyles />
                 <VerticalFlex
-                  style={isMiniMode ? { height: '500px', width: '500px' } : {}}
+                  height={isMiniMode ? '600px' : ''}
+                  width={isMiniMode ? '375px' : ''}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                   align="center"
                 >
                   <VerticalFlex width="100%">
                     {!isConfirm ? (
-                      <Header
-                        onDrawerStateChanged={setDrawerOpen}
-                        width={appWidth}
-                      />
+                      <HeaderFlow onDrawerStateChanged={setDrawerOpen} />
                     ) : (
                       ''
                     )}
@@ -76,7 +82,7 @@ export function Popup() {
                   <HorizontalFlex
                     flex={1}
                     justify={'center'}
-                    margin="16px 0"
+                    margin={isMiniMode ? '' : '16px 0'}
                     maxWidth={isMiniMode ? '100%' : '90%'}
                     width={appWidth}
                   >
@@ -115,15 +121,29 @@ export function Popup() {
                         </React.Suspense>
                       </Route>
 
-                      {isMiniMode ? (
-                        <Route path="/token">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <TokenFlowPage />
-                          </React.Suspense>
-                        </Route>
-                      ) : (
-                        ''
-                      )}
+                      <Route path="/token">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <TokenFlowPage />
+                        </React.Suspense>
+                      </Route>
+
+                      <Route path="/receive">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <Receive />
+                        </React.Suspense>
+                      </Route>
+
+                      <Route path="/send">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <WalletHomeSend />
+                        </React.Suspense>
+                      </Route>
+
+                      <Route path="/activity">
+                        <React.Suspense fallback={<LoadingIcon />}>
+                          <ActivityFlow />
+                        </React.Suspense>
+                      </Route>
 
                       <Route path="/">
                         <Redirect to="/home" />

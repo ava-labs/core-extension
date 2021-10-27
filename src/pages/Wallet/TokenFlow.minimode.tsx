@@ -49,7 +49,11 @@ export function TokenFlowMiniMode() {
         width={'100%'}
         height={'110%'}
         margin={'0 0 -40px 0'}
-        style={{ borderRadius: '30px' }}
+        style={{
+          borderRadius: '30px',
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+        }}
       >
         <VerticalFlex width={'100%'}>
           <HorizontalFlex width={'100%'} justify={'center'}>
