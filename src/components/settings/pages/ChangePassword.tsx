@@ -10,16 +10,19 @@ import {
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-
-function verifyPasswordsMatch(pass1?: string, pass2?: string) {
-  return !!(pass1 === pass2);
-}
+import { useTheme } from 'styled-components';
 
 const PASSWORD_ERROR = 'Passwords do not match';
 const SERVER_SUCCESS = 'Your password has been changed succesfully.';
 const SERVER_ERROR = 'Something went wrong.';
 
+function verifyPasswordsMatch(pass1?: string, pass2?: string) {
+  return !!(pass1 === pass2);
+}
+
 export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
+  const theme = useTheme();
+
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -59,22 +62,23 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
   };
 
   return (
-    <VerticalFlex width="375px" padding="12px 0">
+    <VerticalFlex width="375px" background={theme.colors.bg2} height="100%">
       <SettingsHeader
         goBack={goBack}
         navigateTo={navigateTo}
         title={'Change Password'}
       />
-      {!serverResponse && (
+      {!serverResponse ? (
         <>
-          <VerticalFlex align="center" padding="12px 0">
+          <VerticalFlex align="center" padding="16px 0">
             <HorizontalFlex height="100px">
               <Input
                 onChange={(e) => {
                   setOldPassword(e.target.value);
                 }}
                 value={oldPassword}
-                placeholder="old password"
+                label="Old Password"
+                placeholder="Old password"
                 type="password"
                 error={!!serverError}
                 errorMessage={serverError}
@@ -86,7 +90,8 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
                   setNewPassword(e.target.value);
                 }}
                 value={newPassword}
-                placeholder="new password"
+                label="Create New Password"
+                placeholder="New Password"
                 type="password"
                 error={!!error}
               />
@@ -96,31 +101,40 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                 }}
+                label="Confirm New Password"
                 value={confirmPassword}
-                placeholder="confirm password"
+                placeholder="Confirm Password"
                 type="password"
                 error={!!error}
                 errorMessage={error}
               />
             </HorizontalFlex>
+            <Typography size={12} height="15px" padding="0 16px" align="center">
+              Avoid using a password that you use with other websites or that
+              might be easy for someone to guess.
+            </Typography>
           </VerticalFlex>
-          <VerticalFlex align="center">
+          <VerticalFlex
+            align="center"
+            grow="1"
+            justify="flex-end"
+            margin="16px 0"
+          >
             <PrimaryButton
               size={ComponentSize.LARGE}
               onClick={handleChangePassword}
               margin="0 0 24px"
               disabled={!canSubmit}
             >
-              <Typography size={14} color="inherit">
-                Change Password
-              </Typography>
+              Save
             </PrimaryButton>
           </VerticalFlex>
         </>
-      )}
-      {serverResponse && (
-        <VerticalFlex width="100%" align="center" padding="24px">
-          <Typography height="24px">{serverResponse}</Typography>
+      ) : (
+        <VerticalFlex width="100%" align="center" grow="1" padding="24px">
+          <Typography height="24px" align="center">
+            {serverResponse}
+          </Typography>
         </VerticalFlex>
       )}
     </VerticalFlex>

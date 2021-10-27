@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import Header from '@src/components/common/header/Header';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -47,6 +46,7 @@ import {
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { GlobalStyles } from '@src/styles';
+import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
 import { Receive } from '@src/pages/Receive/Receive';
 import { WalletHomeSend } from '@src/pages/Wallet/WalletHomeSend';
 
@@ -65,17 +65,15 @@ export function Popup() {
               <SettingsContextProvider>
                 <GlobalStyles />
                 <VerticalFlex
-                  style={isMiniMode ? { height: '600px', width: '375px' } : {}}
+                  height={isMiniMode ? '600px' : ''}
+                  width={isMiniMode ? '375px' : ''}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                   align="center"
                 >
                   <VerticalFlex width="100%">
                     {!isConfirm ? (
-                      <Header
-                        onDrawerStateChanged={setDrawerOpen}
-                        width={appWidth}
-                      />
+                      <HeaderFlow onDrawerStateChanged={setDrawerOpen} />
                     ) : (
                       ''
                     )}
