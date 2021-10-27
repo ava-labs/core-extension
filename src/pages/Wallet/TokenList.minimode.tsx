@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   HorizontalFlex,
   Card,
@@ -11,6 +11,7 @@ import {
   isAntToken,
   isAvaxToken,
   isERC20Token,
+  TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -71,15 +72,35 @@ function TokenListItem({
 export function TokenListMiniMode() {
   const tokensWithBalances = useTokensWithBalances();
   const AVAX_TOKEN = tokensWithBalances.find((token) => isAvaxToken(token));
+  const [searchQuery, setSearchQuery] = useState<string>();
   const setTokenInParams = useSetTokenInParams();
+  const { tokens, showAvax } = useMemo(() => {
+    const tokens = searchQuery
+      ? tokensWithBalances.filter(
+          (i) =>
+            i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            i.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : tokensWithBalances;
+
+    const showAvax =
+      searchQuery &&
+      ((AVAX_TOKEN as TokenWithBalance).name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+        (AVAX_TOKEN as TokenWithBalance).symbol
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()));
+
+    return { tokens, showAvax };
+  }, [tokensWithBalances, searchQuery]);
 
   return (
     <VerticalFlex>
       <br />
       <br />
       <br />
-      <SendReceiveToggle onSearch={(term) => console.log(term)} />
-      <br />
+      <SendReceiveToggle onSearch={(term) => setSearchQuery(term)} />
       <br />
       <br />
 
@@ -91,7 +112,7 @@ export function TokenListMiniMode() {
           padding: '0px 16px 100px 16px',
         }}
       >
-        {AVAX_TOKEN ? (
+        {AVAX_TOKEN && (!searchQuery || showAvax) ? (
           <TokenListItem
             margin={'0px 0px 0px 0px'}
             onClick={() =>
@@ -112,7 +133,7 @@ export function TokenListMiniMode() {
           ''
         )}
 
-        {tokensWithBalances
+        {tokens
           ?.filter((token) => !isAvaxToken(token) && !isAntToken(token))
           .map((token) => (
             <TokenListItem
@@ -133,7 +154,7 @@ export function TokenListMiniMode() {
             </TokenListItem>
           ))}
 
-        {tokensWithBalances
+        {tokens
           ?.filter((token) => !isAvaxToken(token) && !isERC20Token(token))
           .map((token) => (
             <TokenListItem

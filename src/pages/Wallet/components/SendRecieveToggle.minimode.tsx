@@ -10,6 +10,7 @@ import {
   CaretIcon,
   IconDirection,
   SearchIcon,
+  SearchInput,
 } from '@avalabs/react-components';
 import { useHistory } from 'react-router';
 
@@ -98,7 +99,10 @@ export function SendReceiveToggle({
       <VerticalFlex width={'100%'} align={'center'}>
         <HorizontalFlex width={'100%'} justify={'center'}>
           <TextButton
-            onClick={() => setShowSend(false)}
+            onClick={() => {
+              setShowSend(false);
+              onSearch && onSearch('');
+            }}
             style={{ position: 'fixed', left: '10px' }}
           >
             <CaretIcon
@@ -106,21 +110,13 @@ export function SendReceiveToggle({
               direction={IconDirection.LEFT}
             />
           </TextButton>
-          <Typography>Send</Typography>
+          <Typography as="h1" size={29} weight={600} margin={'0 0 10px 0'}>
+            Send
+          </Typography>
         </HorizontalFlex>
         <Typography>Choose asset to continue</Typography>
         <br />
-        <HorizontalFlex
-          position="relative"
-          align="center"
-          justify="space-between"
-        >
-          <StyledSearchIcon size={16} color={theme.inputs.colorPlaceholder} />
-          <InputField
-            onChange={(e) => onSearch(e.target.value)}
-            autoFocus={true}
-          />
-        </HorizontalFlex>
+        <SearchInput onSearch={(query) => onSearch(query)} autoFocus={true} />
       </VerticalFlex>
     );
   }
