@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  AvaxTokenIcon,
   CaretIcon,
   DropDownMenuItem,
   HorizontalFlex,
@@ -19,6 +20,7 @@ import {
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { AvalanceLogo } from './AvalanceLogo';
 
 export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
@@ -38,9 +40,9 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
       padding={isMiniMode ? '0' : '12px 0'}
       background={theme.colors.bg2}
     >
-      <Typography size={24} weight={700} height="24px" margin="40px 16px 12px">
-        Settings
-      </Typography>
+      <HorizontalFlex margin="24px 16px 12px">
+        <AvalanceLogo />
+      </HorizontalFlex>
       <DropDownMenuItem
         justify="space-between"
         align="center"
@@ -141,7 +143,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
         align="center"
         padding="0 16px 75px"
       >
-        <SecondaryButton onClick={() => lockWallet()}>
+        <SecondaryButton width="100%" onClick={() => lockWallet()}>
           <LockIcon color={theme.colors.icon1} height="20px" />
           <Typography margin="0 0 0 6px" weight={600}>
             Lock wallet

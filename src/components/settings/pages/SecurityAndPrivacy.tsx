@@ -23,6 +23,7 @@ export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
       title: 'Have you recorded your recovery phrase?',
       body: 'Without it you will not be able to sign back in to your account.',
       confirmText: 'Yes',
+      width: '343px',
       onConfirm: () => {
         clearDialog();
         resetExtensionState();
