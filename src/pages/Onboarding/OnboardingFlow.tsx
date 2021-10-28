@@ -36,10 +36,13 @@ export function OnboardingFlow() {
     case OnboardingPhase.PASSWORD:
       content = <CreatePassword onCancel={handleOnCancel} />;
       break;
+    case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:
       content = <AllDone />;
       break;
   }
+
+  console.log(onboardingPhase);
 
   return (
     <VerticalFlex align="center" style={{ minHeight: `100%` }}>

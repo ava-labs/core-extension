@@ -47,7 +47,7 @@ import {
 } from '@src/hooks/useIsSpecificContextContainer';
 import { GlobalStyles } from '@src/styles';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
-import { Receive } from '@src/pages/Receive/Receive';
+import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
 import { WalletHomeSend } from '@src/pages/Wallet/WalletHomeSend';
 
 export function Popup() {
@@ -129,7 +129,7 @@ export function Popup() {
 
                       <Route path="/receive">
                         <React.Suspense fallback={<LoadingIcon />}>
-                          <Receive />
+                          <ReceiveFlow />
                         </React.Suspense>
                       </Route>
 

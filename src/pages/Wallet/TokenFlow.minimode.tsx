@@ -6,7 +6,6 @@ import {
   CloseIcon,
   SubTextTypography,
   LoadingIcon,
-  PrimaryIconButton,
   TextButton,
 } from '@avalabs/react-components';
 import {

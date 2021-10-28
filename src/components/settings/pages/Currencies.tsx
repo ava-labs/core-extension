@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   CheckmarkIcon,
   DropDownMenuItem,
+  SearchInput,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -31,6 +32,14 @@ const currencies = [
 export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
   const theme = useTheme();
   const { updateCurrencySetting, currency } = useSettingsContext();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredCurrencies = currencies.filter(
+    (c) =>
+      !searchTerm ||
+      c.symbol.toLowerCase().includes(searchTerm) ||
+      c.name.toLowerCase().includes(searchTerm)
+  );
 
   return (
     <VerticalFlex width="375px" background={theme.colors.bg2} height="100%">
@@ -39,8 +48,15 @@ export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Currencies'}
       />
+      <VerticalFlex padding="16px">
+        <SearchInput
+          placeholder="Search"
+          onSearch={setSearchTerm}
+          autoFocus={true}
+        />
+      </VerticalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        {currencies.map((c) => (
+        {filteredCurrencies.map((c) => (
           <DropDownMenuItem
             key={c.symbol}
             justify="space-between"

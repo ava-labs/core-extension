@@ -7,6 +7,7 @@ import {
   IconDirection,
   LockIcon,
   SecondaryButton,
+  Toggle,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -23,8 +24,12 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
   const { network } = useNetworkContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
-  const { lockWallet, toggleShowTokensWithoutBalanceSetting, currency } =
-    useSettingsContext();
+  const {
+    showTokensWithoutBalances,
+    lockWallet,
+    toggleShowTokensWithoutBalanceSetting,
+    currency,
+  } = useSettingsContext();
 
   return (
     <VerticalFlex
@@ -91,14 +96,14 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
-      <DropDownMenuItem
-        justify="space-between"
-        padding="12px 16px"
-        onClick={() => toggleShowTokensWithoutBalanceSetting()}
-      >
+      <DropDownMenuItem justify="space-between" padding="12px 16px">
         <Typography weight={600} height="24px">
           Hide tokens without balance
         </Typography>
+        <Toggle
+          isChecked={!showTokensWithoutBalances}
+          onChange={() => toggleShowTokensWithoutBalanceSetting()}
+        />
       </DropDownMenuItem>
 
       <HorizontalFlex width="100%" margin="12px 0" padding="0 16px">
