@@ -108,6 +108,10 @@ export enum ExtensionRequest {
   SETTINGS_GET = 'settings_get',
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
+
+  FAVORITES_CREATE = 'favorites_create',
+  FAVORITES_REMOVE = 'favorites_remove',
+  FAVORITES_GET = 'favorites_get',
 }
 
 export enum ProviderRequest {

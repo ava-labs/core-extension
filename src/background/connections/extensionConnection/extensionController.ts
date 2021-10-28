@@ -47,6 +47,9 @@ import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/han
 import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { GetWalletHistoryRequest } from '@src/background/services/wallet/handlers/getTxHistory';
 import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
+import { CreateFavoriteRequest } from '@src/background/services/favorites/handlers/createFavorite';
+import { GetFavoritesRequest } from '@src/background/services/favorites/handlers/getFavorites';
+import { RemoveFavoriteRequest } from '@src/background/services/favorites/handlers/removeFavorite';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -94,6 +97,10 @@ const extensionRequestHandlerMap = new Map<
   SettingsUpdateCurrencySelectionRequest,
   SettingsUpdateShowTokensWithBalanceRequest,
   SettingsLockWalletStateRequest,
+
+  CreateFavoriteRequest,
+  GetFavoritesRequest,
+  RemoveFavoriteRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {

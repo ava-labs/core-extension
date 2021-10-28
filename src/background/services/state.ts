@@ -9,6 +9,7 @@ import { wallet$ } from '@avalabs/wallet-react-components';
 import { walletState$ } from './wallet/walletState';
 import { currentNetwork$ } from './network/network';
 import { settings$ } from './settings/settings';
+import { favorites$ } from './favorites/favorites';
 
 function mapToState(result): { [key: string]: any } {
   return result.reduce((acc, value) => {
@@ -31,6 +32,7 @@ combineLatest([
   messages$.pipe(toStructure('messages')),
   walletState$.pipe(filterFalseyValues(), toStructure('walletState')),
   settings$.pipe(toStructure('settingsState')),
+  favorites$.pipe(toStructure('favoritesState')),
 ])
   .pipe(throttleTime(500), map(mapToState))
   .subscribe((state) => stateLog(state));
