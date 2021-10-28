@@ -1,10 +1,11 @@
 import { BehaviorSubject } from 'rxjs';
-import { SettingsState } from './models';
+import { SettingsState, ThemeVariant } from './models';
 import { getSettingsFromStorage } from './storage';
 
 export const defaultSettingsState: SettingsState = {
   currency: 'USD',
   showTokensWithoutBalances: false,
+  theme: ThemeVariant.DARK,
 };
 
 export const settings$ = new BehaviorSubject<SettingsState>(

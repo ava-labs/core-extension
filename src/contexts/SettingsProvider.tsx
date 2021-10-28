@@ -1,9 +1,13 @@
+import { useThemeContext } from '@avalabs/react-components';
 import {
   ExtensionConnectionMessageResponse,
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
-import { SettingsState } from '@src/background/services/settings/models';
+import {
+  SettingsState,
+  ThemeVariant,
+} from '@src/background/services/settings/models';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
@@ -16,12 +20,14 @@ type SettingsFromProvider = SettingsState & {
   toggleShowTokensWithoutBalanceSetting(): Promise<
     ExtensionConnectionMessageResponse<any>
   >;
+  updateTheme(theme: ThemeVariant): Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
 export function SettingsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
+  const { darkMode, toggleDarkTheme } = useThemeContext();
   const [settings, setSettings] = useState<SettingsState>();
 
   useEffect(() => {
@@ -33,6 +39,14 @@ export function SettingsContextProvider({ children }: { children: any }) {
       method: ExtensionRequest.SETTINGS_GET,
     }).then((res) => {
       setSettings(res);
+
+      // set theme to the saved value
+      if (
+        (darkMode && res.theme === ThemeVariant.LIGHT) ||
+        (!darkMode && res.theme === ThemeVariant.DARK)
+      ) {
+        toggleDarkTheme();
+      }
     });
 
     const subscription = events()
@@ -62,6 +76,13 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  function updateTheme(theme: ThemeVariant) {
+    return request!({
+      method: ExtensionRequest.SETTINGS_UPDATE_THEME,
+      params: [theme],
+    });
+  }
+
   return (
     <SettingsContext.Provider
       value={
@@ -70,6 +91,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
+          updateTheme,
         } as SettingsFromProvider
       }
     >

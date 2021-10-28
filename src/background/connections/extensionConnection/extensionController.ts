@@ -50,6 +50,7 @@ import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxD
 import { CreateFavoriteRequest } from '@src/background/services/favorites/handlers/createFavorite';
 import { GetFavoritesRequest } from '@src/background/services/favorites/handlers/getFavorites';
 import { RemoveFavoriteRequest } from '@src/background/services/favorites/handlers/removeFavorite';
+import { SettingsUpdateThemeRequest } from '@src/background/services/settings/handlers/updateTheme';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -97,6 +98,7 @@ const extensionRequestHandlerMap = new Map<
   SettingsUpdateCurrencySelectionRequest,
   SettingsUpdateShowTokensWithBalanceRequest,
   SettingsLockWalletStateRequest,
+  SettingsUpdateThemeRequest,
 
   CreateFavoriteRequest,
   GetFavoritesRequest,
