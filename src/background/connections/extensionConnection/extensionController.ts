@@ -47,6 +47,7 @@ import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/han
 import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { GetWalletHistoryRequest } from '@src/background/services/wallet/handlers/getTxHistory';
 import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
+import { SettingsUpdateThemeRequest } from '@src/background/services/settings/handlers/updateTheme';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -94,6 +95,7 @@ const extensionRequestHandlerMap = new Map<
   SettingsUpdateCurrencySelectionRequest,
   SettingsUpdateShowTokensWithBalanceRequest,
   SettingsLockWalletStateRequest,
+  SettingsUpdateThemeRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {

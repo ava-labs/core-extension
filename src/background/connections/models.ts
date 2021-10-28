@@ -108,6 +108,7 @@ export enum ExtensionRequest {
   SETTINGS_GET = 'settings_get',
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
+  SETTINGS_UPDATE_THEME = 'settings_update_theme',
 }
 
 export enum ProviderRequest {
