@@ -54,7 +54,16 @@ export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
-  const appWidth = useMemo(() => (isMiniMode ? '100%' : '1280px'), []);
+  const appWidth = useMemo(
+    () => (isMiniMode || isConfirm ? '100%' : '1280px'),
+    []
+  );
+
+  const getAppHeight = () => {
+    if (isMiniMode) return '600px';
+    if (isConfirm) return '632px';
+    else return '';
+  };
 
   return (
     <DialogContextProvider>
@@ -65,11 +74,12 @@ export function Popup() {
               <SettingsContextProvider>
                 <GlobalStyles />
                 <VerticalFlex
-                  height={isMiniMode ? '600px' : ''}
-                  width={isMiniMode ? '375px' : ''}
+                  height={getAppHeight()}
+                  width={isMiniMode || isConfirm ? '375px' : ''}
                   maxHeight={drawerOpen ? '100%' : 'auto'}
                   overflow={drawerOpen ? 'hidden' : 'auto'}
                   align="center"
+                  margin="auto"
                 >
                   <VerticalFlex width="100%">
                     {!isConfirm ? (
@@ -82,8 +92,8 @@ export function Popup() {
                   <HorizontalFlex
                     flex={1}
                     justify={'center'}
-                    margin={isMiniMode ? '' : '16px 0'}
-                    maxWidth={isMiniMode ? '100%' : '90%'}
+                    margin={isMiniMode || isConfirm ? '' : '16px 0'}
+                    maxWidth={isMiniMode || isConfirm ? '100%' : '90%'}
                     width={appWidth}
                   >
                     <Switch>

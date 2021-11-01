@@ -5,8 +5,8 @@ import { filter } from 'rxjs/operators';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { ExtensionMessageMetaData } from '@src/background/connections/models';
 
-const NOTIFICATION_WIDTH = 500;
-const NOTIFICATION_HEIGHT = 500;
+const NOTIFICATION_WIDTH = 375;
+const NOTIFICATION_HEIGHT = 665;
 const contextToOpenIn = ContextContainer.CONFIRM;
 /**
  * Fired when a window is removed (closed).
