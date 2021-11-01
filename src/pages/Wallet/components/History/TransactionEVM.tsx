@@ -16,10 +16,11 @@ import {
 function TransactionEVMDetails({ item }: { item: TransactionEVM }) {
   const { currencyFormatter } = useWalletContext();
   return (
-    <VerticalFlex>
+    <VerticalFlex align={'flex-end'}>
       {/* We dont know the type of token atm */}
-      <Typography>
-        {item.isSender ? '-' : '+'} {item.amountDisplayValue}
+      <Typography margin={'0 0 4px 0'}>
+        {item.isSender ? '-' : '+'}
+        {parseFloat(item.amountDisplayValue).toFixed(4)}
       </Typography>
       {/* putting in 0.00 till we get placeholder */}
       <SubTextTypography>~{currencyFormatter(0.0)}</SubTextTypography>

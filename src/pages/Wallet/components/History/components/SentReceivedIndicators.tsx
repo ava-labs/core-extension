@@ -4,8 +4,8 @@ import { ArrowIcon, HorizontalFlex } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 
 const IconCircle = styled(HorizontalFlex)`
-  width: 64px;
-  height: 64px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: ${({ theme }) => transparentize(0.8, theme.palette.white)};
   justify-content: center;
@@ -17,7 +17,7 @@ export function HistorySentIndicator() {
   return (
     <IconCircle>
       <ArrowIcon
-        height={'40px'}
+        height={'30px'}
         color={theme.palette.red['500']}
         style={{
           transform: `rotate(320deg)`,
@@ -32,7 +32,7 @@ export function HistoryReceivedIndicator() {
   return (
     <IconCircle>
       <ArrowIcon
-        height={'40px'}
+        height={'30px'}
         color={theme.palette.green['500']}
         style={{
           transform: `rotate(140deg)`,

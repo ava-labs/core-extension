@@ -51,11 +51,11 @@ function TokenListItem({
         <WalletTokenListItemMiniMode
           name={name}
           symbol={symbol}
-          balance={balanceDisplayValue}
+          balance={parseFloat(balanceDisplayValue?.toString() || '').toFixed(4)}
         >
           {children}
         </WalletTokenListItemMiniMode>
-        <HorizontalFlex width="100%" justify={'flex-end'} align={'center'}>
+        <HorizontalFlex width="40%" justify={'flex-end'} align={'center'}>
           {balanceUSD ? (
             <Typography>
               {currencyFormatter(Number(balanceUSD))} {currency}
@@ -125,7 +125,7 @@ export function TokenListMiniMode() {
             name={AVAX_TOKEN.name}
             symbol={AVAX_TOKEN.symbol}
             balanceDisplayValue={AVAX_TOKEN.balanceDisplayValue}
-            balanceUSD={AVAX_TOKEN.balanceUSD?.toString()}
+            balanceUSD={AVAX_TOKEN.balanceUsdDisplayValue?.toString()}
           >
             <AvaxTokenIcon />
           </TokenListItem>

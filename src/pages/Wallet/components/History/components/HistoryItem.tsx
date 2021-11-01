@@ -27,7 +27,7 @@ export function HistoryItem({
       margin={'0 0 0 8px'}
     >
       <VerticalFlex>
-        <Typography size={22} weight={600} margin={'0 0 4px 0'}>
+        <Typography size={18} weight={400} margin={'0 0 4px 0'}>
           {label}
         </Typography>
         {item.isSender ? (
@@ -40,9 +40,10 @@ export function HistoryItem({
           </SubTextTypography>
         )}
       </VerticalFlex>
-
-      {children}
-      <HistoryItemLink item={item} />
+      <HorizontalFlex>
+        {children}
+        <HistoryItemLink item={item} />
+      </HorizontalFlex>
     </HorizontalFlex>
   );
 }
@@ -51,7 +52,10 @@ export function HistoryItemLink({ item }: { item: { explorerLink: string } }) {
   const theme = useTheme();
 
   return (
-    <TextButton onClick={() => window.open(item.explorerLink, '_blank')}>
+    <TextButton
+      onClick={() => window.open(item.explorerLink, '_blank')}
+      margin={'0 0 0 8px'}
+    >
       <PopoutLinkIcon color={theme.palette.grey['600']} />
     </TextButton>
   );
