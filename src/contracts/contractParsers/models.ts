@@ -3,6 +3,7 @@ import {
   AvaxWithBalance,
   ERC20WithBalance,
 } from '@avalabs/wallet-react-components';
+import { DomainMetadata } from '@src/background/models';
 import { GasPrice } from '@src/background/services/gas/models';
 import {
   TransactionDisplayValues,
@@ -51,6 +52,5 @@ export interface DisplayValueParserProps {
   erc20Tokens: ERC20WithBalance[];
   avaxToken: AvaxWithBalance;
   avaxPrice: number;
-  domain: string;
-  icon: string;
+  site: DomainMetadata;
 }

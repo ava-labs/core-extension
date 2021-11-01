@@ -39,6 +39,7 @@ export default async function sendSiteMetadata(
  */
 async function getSiteMetadata() {
   return {
+    domain: window.location.hostname,
     name: getSiteName(window),
     icon: await getSiteIcon(window),
   };

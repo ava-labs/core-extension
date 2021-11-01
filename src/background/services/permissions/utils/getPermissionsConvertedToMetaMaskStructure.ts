@@ -9,9 +9,13 @@ import { domainHasAccountsPermissions } from './domainHasAccountPermissions';
  * @returns
  */
 export function getPermissionsConvertedToMetaMaskStructure(
-  domain: string,
-  permissions: Permissions
+  domain?: string,
+  permissions?: Permissions
 ) {
+  if (!domain || !permissions) {
+    return [];
+  }
+
   const hasAccountsPermission = domainHasAccountsPermissions(
     domain,
     permissions

@@ -77,8 +77,8 @@ export function SignTransactionPage() {
   return (
     <VerticalFlex>
       <HorizontalFlex>
-        <TokenImg src={displayData.icon} />
-        <Typography>{displayData.domain}</Typography>
+        <TokenImg src={displayData.site.icon} />
+        <Typography>{displayData.site.domain}</Typography>
       </HorizontalFlex>
       {
         {

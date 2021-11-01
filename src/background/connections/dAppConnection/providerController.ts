@@ -24,6 +24,7 @@ import { engine } from '@src/utils/jsonRpcEngine';
 import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { resolve } from '@src/utils/promiseResolver';
+import { DomainMetadata } from '@src/background/models';
 
 /**
  * dApps call these function over and over
@@ -54,7 +55,7 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
   /**
    * Domain is per connection so this needs to remain an closure to the connection
    */
-  const domain = new BehaviorSubject<{ domain: string; icon?: string }>({
+  const domain = new BehaviorSubject<DomainMetadata>({
     domain: 'unknown',
   });
   return async (request: ExtensionConnectionMessage) => {
@@ -69,9 +70,7 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
     }
 
     if (data.method === DAppProviderRequest.DOMAIN_METADATA_METHOD) {
-      const domainName = (data?.params as any).name;
-      const domainIcon = (data?.params as any).icon;
-      domain.next({ domain: domainName, icon: domainIcon });
+      domain.next({ ...(data?.params as DomainMetadata) });
     }
 
     const domainCache = await firstValueFrom(
@@ -79,7 +78,7 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
     );
 
     const promise: Promise<any> = handler
-      ? handler({ ...request.data, ...domainCache }).then(
+      ? handler({ ...request.data, site: domainCache }).then(
           ({ error, result }) => {
             return {
               ...request,

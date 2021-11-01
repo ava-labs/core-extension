@@ -10,8 +10,8 @@ import { Permissions } from '../models';
  * @returns boolean
  */
 export function domainPermissionsExist(
-  domain: string,
-  permissions: Permissions
+  domain?: string,
+  permissions?: Permissions
 ) {
-  return !!permissions[domain];
+  return !!(domain && permissions?.[domain]);
 }

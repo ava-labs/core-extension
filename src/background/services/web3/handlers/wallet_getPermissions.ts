@@ -13,7 +13,7 @@ export async function wallet_getPermissions(data: ExtensionConnectionMessage) {
   return {
     ...data,
     result: getPermissionsConvertedToMetaMaskStructure(
-      data.domain!,
+      data.site?.domain,
       currentPermissions
     ),
   };

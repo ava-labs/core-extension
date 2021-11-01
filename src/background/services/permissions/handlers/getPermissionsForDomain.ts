@@ -26,7 +26,7 @@ export async function getPermissionsForDomain(
     };
   }
 
-  const currentPermissions = firstValueFrom(permissions$);
+  const currentPermissions = await firstValueFrom(permissions$);
   const domainPermissions = currentPermissions[domain];
 
   if (!domainPermissions) {

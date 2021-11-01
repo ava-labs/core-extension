@@ -1,5 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
+import { DomainMetadata } from '../models';
 
 export interface ExtensionMessageMetaData {
   coords?: {
@@ -23,8 +24,7 @@ export interface ExtensionConnectionMessage<T = any> {
    * level, its only present on requests from dApps. Look in
    * dAppConnection -> providerController to see injection point
    */
-  domain?: string;
-  icon?: string;
+  site?: DomainMetadata;
   meta?: ExtensionMessageMetaData;
   data?: T;
 }

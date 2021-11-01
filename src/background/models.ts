@@ -1,6 +1,12 @@
-export interface DomainMetadata {
+export interface DomainMetadataRequest {
   method: 'metamask_sendDomainMetadata';
-  params: { name: string; icon: string };
+  params: DomainMetadata;
+}
+
+export interface DomainMetadata {
+  domain: string;
+  name?: string;
+  icon?: string;
 }
 
 export interface EthCall {

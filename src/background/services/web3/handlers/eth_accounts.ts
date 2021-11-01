@@ -28,7 +28,7 @@ export async function eth_accounts(data: ExtensionConnectionMessage) {
 
   return {
     ...data,
-    result: domainHasAccountsPermissions(data.domain!, currentPermissions)
+    result: domainHasAccountsPermissions(data.site?.domain, currentPermissions)
       ? getAccountsFromWallet(walletResult)
       : [],
   };
