@@ -1,30 +1,24 @@
 import {
-  CloseIcon,
   HorizontalFlex,
-  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import React from 'react';
-import { useHistory } from 'react-router';
-import { useTheme } from 'styled-components';
+import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
 
 export function ActivityMiniMode() {
-  const history = useHistory();
-  const theme = useTheme();
-
   return (
-    <VerticalFlex>
-      <HorizontalFlex>
-        <TextButton>
-          <CloseIcon
-            height={'27px'}
-            fill={theme.palette.white}
-            onClick={() => history.goBack()}
-          />
-        </TextButton>
+    <VerticalFlex width={'100%'} padding={'0 20px'} align={'center'}>
+      <HorizontalFlex width={'100%'}>
+        <Typography size={29} weight={600} as="h1">
+          Activity
+        </Typography>
       </HorizontalFlex>
-      <Typography>This is activity</Typography>
+      <br />
+      <br />
+      <WalletRecentTxs />
+      <BottomNav />
     </VerticalFlex>
   );
 }

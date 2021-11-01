@@ -2,7 +2,11 @@ import { Subject, from, merge } from 'rxjs';
 import { map, mapTo, switchMap } from 'rxjs/operators';
 import { getMnemonicFromStorage, saveMnemonicToStorage } from './storage';
 import { mnemonicWalletUnlock } from './mnemonicWalletUnlock';
-import { mnemonic$ } from '@avalabs/wallet-react-components';
+import {
+  activateAccount,
+  addAccount,
+  mnemonic$,
+} from '@avalabs/wallet-react-components';
 
 const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 
@@ -27,9 +31,11 @@ const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
 /**
  * When a value emits, push it to the mnemonic subject in the SDK and that will kick off the wallet
  */
-merge(mnemonicFromStorage, freshMnemonic).subscribe((mnemonic) =>
-  mnemonic$.next(mnemonic)
-);
+merge(mnemonicFromStorage, freshMnemonic).subscribe((mnemonic) => {
+  mnemonic$.next(mnemonic);
+  addAccount();
+  activateAccount(0);
+});
 
 export function setMnemonicAndCreateWallet(mnem: string, password: string) {
   _mnemonic.next({ mnemonic: mnem, password });

@@ -9,7 +9,7 @@ export async function engine() {
   const net = await firstValueFrom(network$);
   const fetchMiddleware = createFetchMiddleware({
     get rpcUrl() {
-      return net.config.rpcUrl.c;
+      return net?.config.rpcUrl.c ?? '';
     },
   });
   const engine = new JsonRpcEngine();

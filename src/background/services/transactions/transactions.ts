@@ -83,14 +83,20 @@ addTransaction
           site,
         } as DisplayValueParserProps;
 
+        const networkMetaData = network
+          ? {
+              metamaskNetworkId: network.config.networkID.toString(),
+              chainId: network.chainId,
+            }
+          : { metamaskNetworkId: '', chainId: '' };
+
         pendingTransactions.next({
           ...currentPendingTxs,
           [`${tx.id}`]: {
             id: tx.id,
             time: now,
             status: TxStatus.PENDING,
-            metamaskNetworkId: network.config.networkID.toString(),
-            chainId: network.chainId,
+            ...networkMetaData,
             txParams,
             displayValues: parser
               ? parser(txParams, decodedData, displayValueProps)

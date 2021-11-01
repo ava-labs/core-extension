@@ -45,7 +45,6 @@ import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/handlers/changeWalletPassword';
 import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
-import { GetWalletHistoryRequest } from '@src/background/services/wallet/handlers/getTxHistory';
 import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
 import { CreateFavoriteRequest } from '@src/background/services/favorites/handlers/createFavorite';
 import { GetFavoritesRequest } from '@src/background/services/favorites/handlers/getFavorites';
@@ -73,7 +72,6 @@ const extensionRequestHandlerMap = new Map<
   UnlockWalletStateRequest,
   ChangeWalletPasswordRequest,
   GetUnencryptedMnemonicRequest,
-  GetWalletHistoryRequest,
 
   AddPermissionsForDomainRequest,
   GetPermissionsForDomainRequest,

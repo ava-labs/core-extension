@@ -64,9 +64,9 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
-    "@avalabs/avalanche-wallet-sdk": "^0.9.10",
+    "@avalabs/avalanche-wallet-sdk": "0.10.1",
+    "@avalabs/wallet-react-components": "1.8.0",
     "@avalabs/react-components": "1.32.0",
-    "@avalabs/wallet-react-components": "1.7.2",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
     "@pangolindex/exchange-contracts": "^1.0.1",

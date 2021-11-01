@@ -5,9 +5,12 @@ import { messages$ } from './messages/messages';
 import { onboardingStatus$ } from './onboarding/onboardingFlows';
 import { permissions$ } from './permissions/permissions';
 import { transactions$ } from './transactions/transactions';
-import { wallet$ } from '@avalabs/wallet-react-components';
+import {
+  network$,
+  recentTxHistory$,
+  wallet$,
+} from '@avalabs/wallet-react-components';
 import { walletState$ } from './wallet/walletState';
-import { currentNetwork$ } from './network/network';
 import { settings$ } from './settings/settings';
 import { favorites$ } from './favorites/favorites';
 
@@ -28,10 +31,11 @@ combineLatest([
   transactions$.pipe(toStructure('transactions')),
   permissions$.pipe(toStructure('permissions')),
   onboardingStatus$.pipe(filterFalseyValues(), toStructure('onboardingStatus')),
-  currentNetwork$.pipe(toStructure('network')),
+  network$.pipe(toStructure('network')),
   messages$.pipe(toStructure('messages')),
   walletState$.pipe(filterFalseyValues(), toStructure('walletState')),
   settings$.pipe(toStructure('settingsState')),
+  recentTxHistory$.pipe(toStructure('recentTxHistory')),
   favorites$.pipe(toStructure('favoritesState')),
 ])
   .pipe(throttleTime(500), map(mapToState))
