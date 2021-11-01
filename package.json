@@ -1,6 +1,6 @@
 {
   "name": "avalanche-extension",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "UNLICENSED",
   "scripts": {
     "build:inpage": "webpack --config webpack.inpage.js",
