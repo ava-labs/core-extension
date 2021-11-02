@@ -55,7 +55,7 @@ function TokenListItem({
         >
           {children}
         </WalletTokenListItemMiniMode>
-        <HorizontalFlex width="40%" justify={'flex-end'} align={'center'}>
+        <HorizontalFlex width="50%" justify={'flex-end'} align={'center'}>
           {balanceUSD ? (
             <Typography>
               {currencyFormatter(Number(balanceUSD))} {currency}
