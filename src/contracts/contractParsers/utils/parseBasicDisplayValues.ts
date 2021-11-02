@@ -20,7 +20,6 @@ export function parseBasicDisplayValues(
       request.gas as string,
       props.avaxPrice
     ),
-    domain: props.domain,
-    icon: props.icon,
+    site: props.site,
   };
 }

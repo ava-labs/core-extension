@@ -1,10 +1,20 @@
+import { useThemeContext } from '@avalabs/react-components';
 import {
   ExtensionConnectionMessageResponse,
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
-import { SettingsState } from '@src/background/services/settings/models';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import {
+  SettingsState,
+  ThemeVariant,
+} from '@src/background/services/settings/models';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 
@@ -16,12 +26,15 @@ type SettingsFromProvider = SettingsState & {
   toggleShowTokensWithoutBalanceSetting(): Promise<
     ExtensionConnectionMessageResponse<any>
   >;
+  updateTheme(theme: ThemeVariant): Promise<boolean>;
+  currencyFormatter(value: number): string;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
 export function SettingsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
+  const { darkMode, toggleDarkTheme } = useThemeContext();
   const [settings, setSettings] = useState<SettingsState>();
 
   useEffect(() => {
@@ -33,6 +46,14 @@ export function SettingsContextProvider({ children }: { children: any }) {
       method: ExtensionRequest.SETTINGS_GET,
     }).then((res) => {
       setSettings(res);
+
+      // set theme to the saved value
+      if (
+        (darkMode && res.theme === ThemeVariant.LIGHT) ||
+        (!darkMode && res.theme === ThemeVariant.DARK)
+      ) {
+        toggleDarkTheme();
+      }
     });
 
     const subscription = events()
@@ -43,6 +64,18 @@ export function SettingsContextProvider({ children }: { children: any }) {
       .subscribe((val) => setSettings(val));
     return () => subscription.unsubscribe();
   }, []);
+
+  const currencyFormatter = useMemo(() => {
+    /**
+     * For performance reasons we want to instantiate this as little as possible
+     */
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: settings?.currency ?? 'USD',
+    });
+
+    return formatter.format.bind(formatter);
+  }, [settings?.currency]);
 
   function lockWallet() {
     return request!({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
@@ -62,6 +95,13 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  function updateTheme(theme: ThemeVariant) {
+    return request!({
+      method: ExtensionRequest.SETTINGS_UPDATE_THEME,
+      params: [theme],
+    });
+  }
+
   return (
     <SettingsContext.Provider
       value={
@@ -70,6 +110,8 @@ export function SettingsContextProvider({ children }: { children: any }) {
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
+          updateTheme,
+          currencyFormatter,
         } as SettingsFromProvider
       }
     >

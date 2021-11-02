@@ -21,7 +21,7 @@ import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { WalletTokenListItem } from './components/WalletTokenListItem';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 export function TokenListItem({
   name,
@@ -36,7 +36,7 @@ export function TokenListItem({
   children: any;
   balanceUSD?: string;
 }) {
-  const { currencyFormatter } = useWalletContext();
+  const { currencyFormatter } = useSettingsContext();
   return (
     <>
       <WalletTokenListItem name={name} symbol={symbol}>

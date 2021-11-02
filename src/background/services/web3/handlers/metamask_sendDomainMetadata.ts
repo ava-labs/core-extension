@@ -11,4 +11,4 @@ export async function setDomainMetadata(data: ExtensionConnectionMessage) {
 export const SetDomainMetadataRequest: [
   DAppProviderRequest,
   ConnectionRequestHandler
-] = [DAppProviderRequest.SET_DOMAIN, setDomainMetadata];
+] = [DAppProviderRequest.DOMAIN_METADATA_METHOD, setDomainMetadata];

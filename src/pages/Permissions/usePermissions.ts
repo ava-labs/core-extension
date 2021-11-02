@@ -32,7 +32,7 @@ function atleastOneAccountHasPermissions(permissions: DappPermissions) {
   return (Object.values(permissions.accounts) || []).some((value) => value);
 }
 
-export function usePermissions(domain: string) {
+export function usePermissions(domain?: string) {
   const { request } = useConnectionContext();
   const [permissions, updatePermissions] = useState<
     ReturnType<typeof accountsToPermissions> | undefined
@@ -43,21 +43,28 @@ export function usePermissions(domain: string) {
   );
 
   useEffect(() => {
+    if (!domain) {
+      updatePermissions(undefined);
+      return;
+    }
+
     Promise.all([
       request({
         method: ExtensionRequest.PERMISSIONS_GET_PERMISSIONS,
         params: [domain],
       }),
 
+      // gets every account to map the permissions to in a second step
       request({
         method: ExtensionRequest.PERMISSIONS_GET_ACCOUNTS,
       }).then((result) => {
         return accountsToPermissions(result, domain);
       }),
     ]).then(([existing, newBasedonAccounts]) => {
+      // update permissions on the previously constructed account list
       updatePermissions(existing || newBasedonAccounts);
     });
-  }, []);
+  }, [domain]);
 
   function addPermissionsForDomain(permissions: DappPermissions) {
     return request({

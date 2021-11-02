@@ -25,9 +25,9 @@ import { useGetTransaction } from './useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { TokenImg } from '@src/components/common/TokenImage';
 import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -42,7 +42,7 @@ export function SignTransactionPage() {
     ...params
   } = useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const { currencyFormatter } = useWalletContext();
+  const { currencyFormatter } = useSettingsContext();
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 
@@ -77,8 +77,8 @@ export function SignTransactionPage() {
   return (
     <VerticalFlex>
       <HorizontalFlex>
-        <TokenImg src={displayData.icon} />
-        <Typography>{displayData.domain}</Typography>
+        <TokenImg src={displayData.site.icon} />
+        <Typography>{displayData.site.domain}</Typography>
       </HorizontalFlex>
       {
         {

@@ -1,3 +1,4 @@
+import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
 import { GasPrice } from '../gas/models';
 
@@ -21,7 +22,7 @@ export interface TransactionDisplayValues {
   gasLimit?: number;
   fee?: string;
   feeUSD?: number;
-  domain: string;
+  site: DomainMetadata;
   [key: string]: any;
 }
 export interface Transaction {

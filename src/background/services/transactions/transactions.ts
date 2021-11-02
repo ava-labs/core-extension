@@ -52,7 +52,7 @@ addTransaction
       ]);
     }),
     tap(([currentPendingTxs, tx, gasPrice, network, walletState]) => {
-      const { params, domain, icon } = tx as ExtensionConnectionMessage;
+      const { params, site } = tx as ExtensionConnectionMessage;
       const now = new Date().getTime();
       const txParams = (params || [])[0];
 
@@ -80,9 +80,15 @@ addTransaction
           erc20Tokens: walletState?.erc20Tokens,
           avaxPrice: walletState?.avaxPrice,
           avaxToken: walletState?.avaxToken,
-          domain,
-          icon,
+          site,
         } as DisplayValueParserProps;
+
+        const networkMetaData = network
+          ? {
+              metamaskNetworkId: network.config.networkID.toString(),
+              chainId: network.chainId,
+            }
+          : { metamaskNetworkId: '', chainId: '' };
 
         pendingTransactions.next({
           ...currentPendingTxs,
@@ -90,8 +96,7 @@ addTransaction
             id: tx.id,
             time: now,
             status: TxStatus.PENDING,
-            metamaskNetworkId: network.config.networkID.toString(),
-            chainId: network.chainId,
+            ...networkMetaData,
             txParams,
             displayValues: parser
               ? parser(txParams, decodedData, displayValueProps)

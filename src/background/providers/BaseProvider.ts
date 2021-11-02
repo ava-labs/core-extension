@@ -72,6 +72,24 @@ export interface JsonRpcConnection {
   stream: Duplex;
 }
 
+/**
+ * Using this to get the screen metadata of the dApp. This way
+ * we can use that to make an accurate placement of our confirmation screen
+ * @returns
+ */
+function getWindowMetaData() {
+  return {
+    meta: {
+      coords: {
+        viewportWidth: window.visualViewport.width,
+        viewPortHeight: window.visualViewport.height,
+        screenX: window.screenX,
+        screenY: window.screenY,
+      },
+    },
+  };
+}
+
 export default class BaseProvider extends SafeEventEmitter {
   protected readonly _log: ConsoleLike;
 
@@ -258,15 +276,7 @@ export default class BaseProvider extends SafeEventEmitter {
         {
           method,
           params,
-          meta: {
-            coords: {
-              viewportWidth: window.visualViewport.width,
-              viewPortHeight: window.visualViewport.height,
-              screenX: window.screenX,
-              screenY: window.screenY,
-            },
-          },
-        } as any,
+        },
         getRpcPromiseCallback(resolve, reject)
       );
     });
@@ -328,6 +338,11 @@ export default class BaseProvider extends SafeEventEmitter {
         payload.jsonrpc = '2.0';
       }
 
+      payload = {
+        ...payload,
+        ...getWindowMetaData(),
+      } as UnvalidatedJsonRpcRequest;
+
       if (
         payload.method === 'eth_accounts' ||
         payload.method === 'eth_requestAccounts'
@@ -336,14 +351,20 @@ export default class BaseProvider extends SafeEventEmitter {
         cb = (err: Error, res: JsonRpcSuccess<string[]>) => {
           this._handleAccountsChanged(
             res.result || [],
-            payload.method === 'eth_accounts'
+            (payload as UnvalidatedJsonRpcRequest).method === 'eth_accounts'
           );
           callback(err, res);
         };
       }
       return this._rpcEngine.handle(payload as JsonRpcRequest<unknown>, cb);
     }
-    return this._rpcEngine.handle(payload as JsonRpcRequest<unknown>[], cb);
+    return this._rpcEngine.handle(
+      payload.map((pay) => ({
+        ...pay,
+        ...getWindowMetaData(),
+      })) as JsonRpcRequest<unknown>[],
+      cb
+    );
   }
 
   /**

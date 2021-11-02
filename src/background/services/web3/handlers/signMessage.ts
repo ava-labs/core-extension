@@ -12,6 +12,15 @@ async function signMessage(
   data: ExtensionConnectionMessage,
   signType: MessageType
 ) {
+  /**
+   * For now we are not supporting sign message since we dont have designs, nor
+   * do we have a good idea of usage on this feature
+   */
+  return {
+    data,
+    error: `requests for ${signType} not supported at this time`,
+  };
+
   addMessage.next({ data, signType } as any);
   const window = await openExtensionNewWindow(
     `sign?id=${data.id}`,

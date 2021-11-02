@@ -34,7 +34,7 @@ async function validateSendAntState(request: ExtensionConnectionMessage) {
         walletState?.antTokens.find(
           (antToken) => (token as AntWithBalance).assetID === antToken.assetID
         )
-      ).pipe(tap(console.log)) as Subject<AntWithBalance>,
+      ) as Subject<AntWithBalance>,
       wallet$
     )
   );

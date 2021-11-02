@@ -12,7 +12,7 @@ export function chainChangedEvents() {
     ),
     map(([wallet, net]) => {
       return {
-        chainId: net.chainId,
+        chainId: net?.chainId,
         networkVersion: wallet.getAddressC(),
       };
     }),

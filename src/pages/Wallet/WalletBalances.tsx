@@ -19,20 +19,13 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
-/**
- * In order to display the graph, allocation and total balance. We will need to
- * have the usd price for ERC20 tokens. Otherwise we will cant normalize the sums
- * being as one allocation might be PNG, one a random token and one AVAX we cant
- * simply sum the amount of each token and then show allocation. These tokens vary
- * with decimals/precision.
- *
- * If I am wrong correct me -Danny
- */
 export function WalletBalances() {
-  const { avaxToken, currencyFormatter } = useWalletContext();
+  const { avaxToken } = useWalletContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const tokensWBalances = useTokensWithBalances();
+  const { currency, currencyFormatter } = useSettingsContext();
   const theme = useTheme();
 
   const tokenColors = [
@@ -63,7 +56,7 @@ export function WalletBalances() {
       <HorizontalFlex justify={'center'} align={'center'} width={'100%'}>
         <Typography size={36}>
           ~{currencyFormatter(balanceTotalUSD)}
-          <Typography margin={'0 0 0 8px'}>USD</Typography>
+          <Typography margin={'0 0 0 8px'}>{currency}</Typography>
         </Typography>
       </HorizontalFlex>
     );
@@ -75,7 +68,7 @@ export function WalletBalances() {
         <VerticalFlex flex={2}>
           <SubTextTypography margin={'0 0 5px 0'}>Balance</SubTextTypography>
           <Typography size={36}>
-            ~{currencyFormatter(balanceTotalUSD)} USD
+            ~{currencyFormatter(balanceTotalUSD)} {currency}
           </Typography>
         </VerticalFlex>
         {tokensWBalances?.length ? (

@@ -45,8 +45,16 @@ import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/handlers/changeWalletPassword';
 import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
-import { GetWalletHistoryRequest } from '@src/background/services/wallet/handlers/getTxHistory';
 import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
+import { accountsUpdateEvents } from '@src/background/services/accounts/events/accountsUpdatedEvent';
+import { CreateFavoriteRequest } from '@src/background/services/favorites/handlers/createFavorite';
+import { GetFavoritesRequest } from '@src/background/services/favorites/handlers/getFavorites';
+import { RemoveFavoriteRequest } from '@src/background/services/favorites/handlers/removeFavorite';
+import { SettingsUpdateThemeRequest } from '@src/background/services/settings/handlers/updateTheme';
+import { GetAccountsRequest } from '@src/background/services/accounts/handlers/getAccounts';
+import { SelectAccountRequest } from '@src/background/services/accounts/handlers/selectAccount';
+import { RenameAccountRequest } from '@src/background/services/accounts/handlers/renameAccount';
+import { AddAccountRequest } from '@src/background/services/accounts/handlers/addAccount';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -65,11 +73,15 @@ const extensionRequestHandlerMap = new Map<
   GetNetworkRequest,
   SetNetworkRequest,
 
+  GetAccountsRequest,
+  SelectAccountRequest,
+  RenameAccountRequest,
+  AddAccountRequest,
+
   GetWalletStateRequest,
   UnlockWalletStateRequest,
   ChangeWalletPasswordRequest,
   GetUnencryptedMnemonicRequest,
-  GetWalletHistoryRequest,
 
   AddPermissionsForDomainRequest,
   GetPermissionsForDomainRequest,
@@ -94,6 +106,11 @@ const extensionRequestHandlerMap = new Map<
   SettingsUpdateCurrencySelectionRequest,
   SettingsUpdateShowTokensWithBalanceRequest,
   SettingsLockWalletStateRequest,
+  SettingsUpdateThemeRequest,
+
+  CreateFavoriteRequest,
+  GetFavoritesRequest,
+  RemoveFavoriteRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
@@ -124,6 +141,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
   return merge(
     onboardingUpdatedEvent(),
     networkUpdateEvents(),
+    accountsUpdateEvents(),
     walletUpdateEvents,
     onboardingPhaseUpdatedEvent(),
     gasPriceTransactionUpdate(),

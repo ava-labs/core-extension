@@ -1,3 +1,4 @@
+import { removeAllAccountsFromStorage } from '@src/background/services/accounts/storage';
 import { removeOnboardingFromStorage } from '@src/background/services/onboarding/storage';
 import { removeAllPermissionsFromStorage } from '@src/background/services/permissions/storage';
 import { removeAllTranscationsFromStorage } from '@src/background/services/transactions/storage';
@@ -10,5 +11,6 @@ export function resetExtensionState() {
     removeWalletFromStorage(),
     removeAllPermissionsFromStorage(),
     removeOnboardingFromStorage(),
+    removeAllAccountsFromStorage(),
   ]).then(() => browser.runtime.reload());
 }

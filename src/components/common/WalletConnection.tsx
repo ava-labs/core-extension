@@ -11,10 +11,10 @@ import {
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
 import {
+  LOCAL_NETWORK,
   MAINNET_NETWORK,
   FUJI_NETWORK,
-} from '@src/background/services/network/models';
-
+} from '@avalabs/wallet-react-components';
 const ConnectedDot = styled.div<{
   color: string;
 }>`
@@ -75,23 +75,28 @@ export function WalletConnection() {
         <Typography margin="12px 24px" size={18} weight={700}>
           Networks
         </Typography>
-        {networks.map((n) => (
-          <SecondaryDropDownMenuItem
-            key={n.name}
-            onClick={() => setNetwork(n)}
-            align="center"
-            justify="space-between"
-            width="100%"
-          >
-            <HorizontalFlex align="center">
-              <ConnectedDot color={getNetworkColor(n.name)} />
-              <Typography height="24px">{n.name}</Typography>
-            </HorizontalFlex>
-            {network?.name === n.name && (
-              <CheckmarkIcon size="16px" color={theme.colors.primary1} />
-            )}
-          </SecondaryDropDownMenuItem>
-        ))}
+        {/* Filtering local network until we support this in the background */}
+        {networks
+          .filter((net) => {
+            return net.chainId !== LOCAL_NETWORK.chainId;
+          })
+          .map((n) => (
+            <SecondaryDropDownMenuItem
+              key={n.name}
+              onClick={() => setNetwork(n)}
+              align="center"
+              justify="space-between"
+              width="100%"
+            >
+              <HorizontalFlex align="center">
+                <ConnectedDot color={getNetworkColor(n.name)} />
+                <Typography height="24px">{n.name}</Typography>
+              </HorizontalFlex>
+              {network?.name === n.name && (
+                <CheckmarkIcon height="16px" color={theme.colors.primary1} />
+              )}
+            </SecondaryDropDownMenuItem>
+          ))}
       </VerticalFlex>
     </SecondaryDropDownMenu>
   );

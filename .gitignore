@@ -32,6 +32,10 @@ typings/
 .npm
 .npmrc
 
+# IDE files
+.idea
+.idea/*
+
 dist
 builds
 .DS_Store

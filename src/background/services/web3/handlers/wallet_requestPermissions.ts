@@ -13,7 +13,7 @@ export async function wallet_requestPermissions(
 ) {
   const window = await openExtensionNewWindow(
     `permissions`,
-    `domain=${data.domain}`,
+    `domain=${data.site?.domain}`,
     data.meta?.coords
   );
 
@@ -24,13 +24,13 @@ export async function wallet_requestPermissions(
    * and/or adding more permissions.
    */
   await firstValueFrom(
-    window.removed.pipe(map(() => currentPermissions[data.domain!]))
+    window.removed.pipe(map(() => currentPermissions[data.site?.domain || '']))
   );
 
   return {
     ...data,
     result: getPermissionsConvertedToMetaMaskStructure(
-      data.domain!,
+      data.site?.domain,
       currentPermissions
     ),
   };

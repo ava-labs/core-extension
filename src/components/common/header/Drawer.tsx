@@ -23,8 +23,9 @@ const Container = styled(VerticalFlex)`
   height: 100vh;
   width: 100%;
   transition: left 0.2s ease-out;
-  padding: 27px 5% 112px;
+  padding: 27px 5% 27px;
   overflow: hidden;
+  z-index: 1;
 
   ${(props: { expanded: boolean }) =>
     props.expanded &&
@@ -46,7 +47,7 @@ function Drawer({ open, onCloseClicked }: DrawerProps) {
       <HorizontalFlex justify="space-between" margin="0 0 40px">
         <Logo />
         <TextButton onClick={() => onCloseClicked()}>
-          <CloseIcon fill={theme.colors.text1} size={21} />
+          <CloseIcon fill={theme.colors.text1} height="21px" />
         </TextButton>
       </HorizontalFlex>
       <Menu />

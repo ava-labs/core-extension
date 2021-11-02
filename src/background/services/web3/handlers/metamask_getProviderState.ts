@@ -22,7 +22,7 @@ export async function initDappState(data) {
         isUnlocked: false,
         networkVersion: 'avax',
         accounts: [],
-        chainId: network.chainId,
+        chainId: network?.chainId,
       },
     };
   }
@@ -31,7 +31,7 @@ export async function initDappState(data) {
     ...data,
     result: {
       isUnlocked: true,
-      chainId: network.chainId,
+      chainId: network?.chainId,
       networkVersion: 'avax',
       accounts: getAccountsFromWallet(walletResult),
     },

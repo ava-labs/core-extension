@@ -2,7 +2,6 @@ export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata',
   CONNECT_METHOD = 'eth_requestAccounts',
   INIT_DAPP_STATE = 'metamask_getProviderState',
-  SET_DOMAIN = 'metamask_sendDomainMetadata',
   ETH_ACCOUNTS = 'eth_accounts',
   WALLET_PERMISSIONS = 'wallet_requestPermissions',
   WALLET_GET_PERMISSIONS = 'wallet_getPermissions',

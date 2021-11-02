@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 import { useEffect } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
@@ -9,48 +9,28 @@ import {
 } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
-import {
-  ExtensionConnectionMessageResponse,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/models';
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
-import { useWalletHistory, WalletHistory } from './hooks/useWalletHIstory';
 import { useSettingsContext } from './SettingsProvider';
+import { chunkHistoryByDate } from './utils/chunkWalletHistory';
 
 type WalletStateAndMethods = WalletState & {
   changeWalletPassword(
     newPassword: string,
     oldPassword: string
-  ): Promise<ExtensionConnectionMessageResponse<any>>;
-  getUnencryptedMnemonic(
-    password: string
-  ): Promise<ExtensionConnectionMessageResponse<any>>;
-  walletHistory?: WalletHistory;
-  currencyFormatter(value: number): string;
+  ): Promise<boolean>;
+  getUnencryptedMnemonic(password: string): Promise<string>;
+  chunkedHistoryByDate: ReturnType<typeof chunkHistoryByDate>;
 };
 const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
-function createFormatter(currency: string) {
-  /**
-   * For performance reasons we want to instantiate this as little as possible
-   */
-  const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency ?? 'USD',
-  });
-
-  return formatter.format.bind(formatter);
-}
-
 export function WalletContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const settings = useSettingsContext();
+  const { currency } = useSettingsContext();
   const [walletState, setWalletState] = useState<
     WalletState | WalletLockedState
   >();
-
-  const walletHistory = useWalletHistory([50]);
 
   function setWalletStateAndCast(state: WalletState | WalletLockedState) {
     return isWalletLocked(state)
@@ -77,6 +57,19 @@ export function WalletContextProvider({ children }: { children: any }) {
       )
       .subscribe(setWalletStateAndCast);
   }, []);
+
+  const chunkedHistoryByDate = useMemo(() => {
+    return chunkHistoryByDate(
+      (walletState as WalletState)?.recentTxHistory || []
+    );
+  }, [
+    (walletState as WalletState)?.recentTxHistory?.length,
+    /**
+     * Watching hours, when the hour changes we rechunk and show new dates
+     * this is an edge case we shouldnt run into often
+     */
+    new Date().getHours(),
+  ]);
 
   function unlockWallet(password: string) {
     return request!({
@@ -113,8 +106,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         ...walletState,
         changeWalletPassword,
         getUnencryptedMnemonic,
-        walletHistory,
-        currencyFormatter: createFormatter(settings.currency),
+        chunkedHistoryByDate,
       }}
     >
       {children}

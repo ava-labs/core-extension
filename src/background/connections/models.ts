@@ -1,5 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
+import { DomainMetadata } from '../models';
 
 export interface ExtensionMessageMetaData {
   coords?: {
@@ -23,8 +24,7 @@ export interface ExtensionConnectionMessage<T = any> {
    * level, its only present on requests from dApps. Look in
    * dAppConnection -> providerController to see injection point
    */
-  domain?: string;
-  icon?: string;
+  site?: DomainMetadata;
   meta?: ExtensionMessageMetaData;
   data?: T;
 }
@@ -74,6 +74,11 @@ export enum ExtensionRequest {
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
 
+  ACCOUNT_GET_ACCOUNTS = 'account_get',
+  ACCOUNT_SELECT = 'account_select',
+  ACCOUNT_RENAME = 'account_rename',
+  ACCOUNT_ADD = 'account_add',
+
   WALLET_STATE = 'wallet_InitializeState',
   WALLET_UNLOCK_STATE = 'wallet_unlockWalletState',
   WALLET_CHANGE_PASSWORD = 'wallet_changePassword',
@@ -108,6 +113,11 @@ export enum ExtensionRequest {
   SETTINGS_GET = 'settings_get',
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
+  SETTINGS_UPDATE_THEME = 'settings_update_theme',
+
+  FAVORITES_CREATE = 'favorites_create',
+  FAVORITES_REMOVE = 'favorites_remove',
+  FAVORITES_GET = 'favorites_get',
 }
 
 export enum ProviderRequest {

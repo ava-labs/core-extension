@@ -14,10 +14,10 @@ import { TokenImg } from '@src/components/common/TokenImage';
 import React from 'react';
 import { isAvaxToken } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
-  const { currencyFormatter } = useWalletContext();
+  const { currencyFormatter } = useSettingsContext();
   const [sentToken] = path;
   const receivingToken = path[path.length - 1];
   return (

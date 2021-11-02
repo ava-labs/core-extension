@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CreatePassword } from '@src/pages/Onboarding/CreatePassword';
 import { AllDone } from '@src/pages/Onboarding/AllDone';
 import { CreateWallet } from './CreateWallet/CreateWallet';
@@ -10,13 +10,22 @@ import { Card, HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { Logo } from '@src/components/icons/Logo';
 
 export function OnboardingFlow() {
-  const { onboardingPhase, setNextPhase } = useOnboardingContext();
+  const { onboardingPhase, onboardingState, setNextPhase, setFinalized } =
+    useOnboardingContext();
 
   async function handleOnCancel() {
     await setNextPhase(OnboardingPhase.RESTART);
   }
+  useEffect(() => {
+    if (
+      onboardingPhase === OnboardingPhase.CONFIRM &&
+      !onboardingState.isOnBoarded
+    ) {
+      setFinalized();
+    }
+  }, [onboardingPhase, onboardingState.isOnBoarded, setFinalized]);
 
-  let content = <Welcome />;
+  let content = onboardingState.isOnBoarded ? <AllDone /> : <Welcome />;
   switch (onboardingPhase) {
     case OnboardingPhase.CREATE_WALLET:
       content = <CreateWallet onCancel={handleOnCancel} />;
@@ -27,6 +36,7 @@ export function OnboardingFlow() {
     case OnboardingPhase.PASSWORD:
       content = <CreatePassword onCancel={handleOnCancel} />;
       break;
+    case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:
       content = <AllDone />;
       break;

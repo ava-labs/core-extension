@@ -6,7 +6,6 @@ import {
   CloseIcon,
   SubTextTypography,
   LoadingIcon,
-  PrimaryIconButton,
   TextButton,
 } from '@avalabs/react-components';
 import {
@@ -17,7 +16,6 @@ import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { TokenImg } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import React, { useEffect, useState } from 'react';
@@ -28,8 +26,7 @@ import { SendForm } from '../Send/SendForm';
 
 export function TokenFlowMiniMode() {
   const history = useHistory();
-  const { currencyFormatter } = useWalletContext();
-  const { currency } = useSettingsContext();
+  const { currency, currencyFormatter } = useSettingsContext();
   const theme = useTheme();
   const token = useTokenFromParams();
   const tokensWithBalances = useTokensWithBalances();
@@ -49,7 +46,11 @@ export function TokenFlowMiniMode() {
         width={'100%'}
         height={'110%'}
         margin={'0 0 -40px 0'}
-        style={{ borderRadius: '30px' }}
+        style={{
+          borderRadius: '30px',
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+        }}
       >
         <VerticalFlex width={'100%'}>
           <HorizontalFlex width={'100%'} justify={'center'}>
@@ -70,12 +71,15 @@ export function TokenFlowMiniMode() {
                 {token.balanceDisplayValue} {token.symbol}
               </Typography>
               <SubTextTypography>
-                {currencyFormatter(Number(token.balanceUSD))} {currency}
+                {currencyFormatter(
+                  Number(token.balanceUsdDisplayValue ?? token.balanceUSD)
+                )}{' '}
+                {currency}
               </SubTextTypography>
             </VerticalFlex>
             <VerticalFlex>
               <TextButton onClick={() => history.goBack()}>
-                <CloseIcon fill={theme.palette.white} />
+                <CloseIcon color={theme.palette.white} />
               </TextButton>
             </VerticalFlex>
           </HorizontalFlex>
@@ -93,9 +97,9 @@ export function TokenFlowMiniMode() {
                   </Typography>
                 </Tab>
                 <Tab>
-                  <Typography weight={600} color={'inherit'}>
+                  {/* <Typography weight={600} color={'inherit'}>
                     Activity
-                  </Typography>
+                  </Typography> */}
                 </Tab>
               </TabList>
 
@@ -105,7 +109,7 @@ export function TokenFlowMiniMode() {
               <TabPanel>
                 <Receive />
               </TabPanel>
-              <TabPanel>activities</TabPanel>
+              {/* <TabPanel>activities</TabPanel> */}
             </Tabs>
           </VerticalFlex>
         </VerticalFlex>

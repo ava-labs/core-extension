@@ -8,13 +8,13 @@ import {
 } from '@avalabs/react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { WalletHomeSend } from '../Wallet/WalletHomeSend';
-import { WalletHomeRecentTxs } from '../Wallet/WalletHomeRecentTxs';
+import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
 import { WalletPortfolio } from '../Wallet/WalletPortfolio';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
-import { AccountSelector } from '@src/components/common/account/AccountSelector';
-import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { Receive } from '../Receive/Receive';
+import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
+import { AccountSelectorFlow } from '@src/components/common/account/AccountSelectorFlow';
 
 const TABS_BOTTOM_PADDING = 16;
 const SIDEBAR_WIDTH = 391;
@@ -61,7 +61,7 @@ function HomeSideBar() {
           </TabPanel>
         </Tabs>
       </Card>
-      <WalletHomeRecentTxs />
+      <WalletRecentTxs />
     </VerticalFlex>
   );
 }
@@ -93,8 +93,8 @@ export function Home() {
           </Tab>
         </TabList>
         <HorizontalFlex align={'center'}>
-          <AccountSelector />
-          <SettingsMenu />
+          <AccountSelectorFlow />
+          <SettingsMenuFlow />
         </HorizontalFlex>
       </HorizontalFlex>
       <HorizontalFlex>
