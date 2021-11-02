@@ -11,6 +11,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import React, { useEffect, useState } from 'react';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 export function CustomGasLimitAndFees({
   limit,
   gasPrice,
@@ -22,7 +23,8 @@ export function CustomGasLimitAndFees({
   onSave(gasPrice: GasPrice, gasLimit: string): void;
   onCancel(): void;
 }) {
-  const { avaxPrice, currencyFormatter } = useWalletContext();
+  const { avaxPrice } = useWalletContext();
+  const { currencyFormatter } = useSettingsContext();
   const [customGasPrice, setCustomGasPrice] = useState<string>('');
   const [customTipFee, setCustomTipFee] = useState<string>('');
   const [customGasLimit, setCustomGasLimit] = useState<string>('');

@@ -15,7 +15,6 @@ import {
 } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletTokenListItemMiniMode } from './components/WalletTokenListItem.minimode';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TransactionSendType } from '../Send/models';
@@ -39,8 +38,7 @@ function TokenListItem({
   onClick(): void;
   margin?: string;
 }) {
-  const { currencyFormatter } = useWalletContext();
-  const { currency } = useSettingsContext();
+  const { currency, currencyFormatter } = useSettingsContext();
   return (
     <Card
       margin={margin ?? '8px 0 0 0'}

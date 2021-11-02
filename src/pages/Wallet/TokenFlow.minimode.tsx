@@ -16,7 +16,6 @@ import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { TokenImg } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import React, { useEffect, useState } from 'react';
@@ -27,8 +26,7 @@ import { SendForm } from '../Send/SendForm';
 
 export function TokenFlowMiniMode() {
   const history = useHistory();
-  const { currencyFormatter } = useWalletContext();
-  const { currency } = useSettingsContext();
+  const { currency, currencyFormatter } = useSettingsContext();
   const theme = useTheme();
   const token = useTokenFromParams();
   const tokensWithBalances = useTokensWithBalances();

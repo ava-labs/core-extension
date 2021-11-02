@@ -8,7 +8,13 @@ import {
   SettingsState,
   ThemeVariant,
 } from '@src/background/services/settings/models';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 
@@ -21,6 +27,7 @@ type SettingsFromProvider = SettingsState & {
     ExtensionConnectionMessageResponse<any>
   >;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
+  currencyFormatter(value: number): string;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -58,6 +65,18 @@ export function SettingsContextProvider({ children }: { children: any }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  const currencyFormatter = useMemo(() => {
+    /**
+     * For performance reasons we want to instantiate this as little as possible
+     */
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: settings?.currency ?? 'USD',
+    });
+    console.log('made it to currency: ', settings?.currency ?? 'USD');
+    return formatter.format.bind(formatter);
+  }, [settings?.currency]);
+
   function lockWallet() {
     return request!({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
   }
@@ -92,6 +111,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
           updateTheme,
+          currencyFormatter,
         } as SettingsFromProvider
       }
     >

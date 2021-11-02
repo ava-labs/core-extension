@@ -5,7 +5,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { TransactionEVM } from '@avalabs/wallet-react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import React from 'react';
 import { HistoryItem } from './components/HistoryItem';
 import {
@@ -14,7 +14,7 @@ import {
 } from './components/SentReceivedIndicators';
 
 function TransactionEVMDetails({ item }: { item: TransactionEVM }) {
-  const { currencyFormatter } = useWalletContext();
+  const { currencyFormatter } = useSettingsContext();
   return (
     <VerticalFlex align={'flex-end'}>
       {/* We dont know the type of token atm */}

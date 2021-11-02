@@ -19,11 +19,13 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 export function WalletBalances() {
-  const { avaxToken, currencyFormatter } = useWalletContext();
+  const { avaxToken } = useWalletContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const tokensWBalances = useTokensWithBalances();
+  const { currency, currencyFormatter } = useSettingsContext();
   const theme = useTheme();
 
   const tokenColors = [
@@ -54,7 +56,7 @@ export function WalletBalances() {
       <HorizontalFlex justify={'center'} align={'center'} width={'100%'}>
         <Typography size={36}>
           ~{currencyFormatter(balanceTotalUSD)}
-          <Typography margin={'0 0 0 8px'}>USD</Typography>
+          <Typography margin={'0 0 0 8px'}>{currency}</Typography>
         </Typography>
       </HorizontalFlex>
     );
@@ -66,7 +68,7 @@ export function WalletBalances() {
         <VerticalFlex flex={2}>
           <SubTextTypography margin={'0 0 5px 0'}>Balance</SubTextTypography>
           <Typography size={36}>
-            ~{currencyFormatter(balanceTotalUSD)} USD
+            ~{currencyFormatter(balanceTotalUSD)} {currency}
           </Typography>
         </VerticalFlex>
         {tokensWBalances?.length ? (

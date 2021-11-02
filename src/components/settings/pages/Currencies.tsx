@@ -11,23 +11,7 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-
-// TODO: replace it with the supported currency list and wite it up to the backend
-const currencies = [
-  { name: 'United States Dollar', symbol: 'USD' },
-  { name: 'Euro', symbol: 'EUR' },
-  { name: 'Australian Dollar', symbol: 'AUD' },
-  { name: 'Canadian Dollar', symbol: 'CAD' },
-  { name: 'Swiss Franc', symbol: 'CHF' },
-  { name: 'Chilean Peso', symbol: 'CLP' },
-  { name: 'Chech Koruna', symbol: 'CZK' },
-  { name: 'Danish Krone', symbol: 'DKK' },
-  { name: 'British Pound Sterling', symbol: 'GBP' },
-  { name: 'Hong Kong Dollar', symbol: 'HKD' },
-  { name: 'Hungarian Forint', symbol: 'HUF' },
-  { name: 'Israeli New Shekel', symbol: 'ILS' },
-  { name: 'Indian Rupee', symbol: 'INR' },
-];
+import { currencies } from '@avalabs/wallet-react-components';
 
 export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
   const theme = useTheme();
