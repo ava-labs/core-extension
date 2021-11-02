@@ -42,7 +42,9 @@ export function HistoryItem({
       </VerticalFlex>
       <HorizontalFlex>
         {children}
-        <HistoryItemLink item={item} />
+        <VerticalFlex>
+          <HistoryItemLink item={item} />
+        </VerticalFlex>
       </HorizontalFlex>
     </HorizontalFlex>
   );
@@ -56,7 +58,7 @@ export function HistoryItemLink({ item }: { item: { explorerLink: string } }) {
       onClick={() => window.open(item.explorerLink, '_blank')}
       margin={'0 0 0 8px'}
     >
-      <PopoutLinkIcon color={theme.palette.grey['600']} />
+      <PopoutLinkIcon height="12px" color={theme.palette.grey['600']} />
     </TextButton>
   );
 }

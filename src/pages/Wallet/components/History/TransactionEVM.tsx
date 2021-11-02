@@ -34,7 +34,10 @@ export function TransactionEVM({ item }: { item: TransactionEVM }) {
       {item.isSender ? <HistorySentIndicator /> : <HistoryReceivedIndicator />}
 
       {item.input ? (
-        <HistoryItem label={'Contract Call'} item={item} />
+        <HistoryItem label={'Contract Call'} item={item}>
+          {/* this is a hack to get the popout link to align with the name */}
+          <HorizontalFlex width={'10px'} height={'30px'}></HorizontalFlex>
+        </HistoryItem>
       ) : (
         <HistoryItem label={'Avalanche'} item={item}>
           <TransactionEVMDetails item={item} />

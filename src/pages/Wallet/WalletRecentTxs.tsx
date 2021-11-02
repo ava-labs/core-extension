@@ -26,25 +26,25 @@ export function WalletRecentTxs() {
             {recentTxHistory?.map((item) => {
               if (isTransactionBase(item)) {
                 return (
-                  <Card key={item.id} padding={'8px'} margin={'0 0 8px 0'}>
+                  <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
                     <TransactionBase item={item}></TransactionBase>
                   </Card>
                 );
               } else if (isTransactionEVM(item)) {
                 return (
-                  <Card key={item.id} padding={'8px'} margin={'0 0 8px 0'}>
+                  <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
                     <TransactionEVM item={item}></TransactionEVM>
                   </Card>
                 );
               } else if (isTransactionStaking(item)) {
                 return (
-                  <Card key={item.id} padding={'8px'} margin={'0 0 8px 0'}>
+                  <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
                     <TransactionStaking item={item}></TransactionStaking>
                   </Card>
                 );
               } else if (isTransactionImportExport(item)) {
                 return (
-                  <Card key={item.id} padding={'8px'} margin={'0 0 8px 0'}>
+                  <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
                     <TransactionImportExport
                       item={item}
                     ></TransactionImportExport>
@@ -52,7 +52,7 @@ export function WalletRecentTxs() {
                 );
               } else {
                 return (
-                  <Card key={item.id} padding={'8px'} margin={'0 0 8px 0'}>
+                  <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
                     <Typography>Unsupported Transaction Type</Typography>
                   </Card>
                 );

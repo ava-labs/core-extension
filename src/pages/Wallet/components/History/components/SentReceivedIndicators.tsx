@@ -7,7 +7,7 @@ const IconCircle = styled(HorizontalFlex)`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: ${({ theme }) => transparentize(0.8, theme.palette.white)};
+  background-color: ${({ theme }) => transparentize(0.9, theme.colors.text2)};
   justify-content: center;
   align-items: center;
 `;
@@ -18,7 +18,7 @@ export function HistorySentIndicator() {
     <IconCircle>
       <ArrowIcon
         height={'30px'}
-        color={theme.palette.red['500']}
+        color={theme.colors.primary1}
         style={{
           transform: `rotate(320deg)`,
         }}
@@ -33,7 +33,7 @@ export function HistoryReceivedIndicator() {
     <IconCircle>
       <ArrowIcon
         height={'30px'}
-        color={theme.palette.green['500']}
+        color={theme.colors.success}
         style={{
           transform: `rotate(140deg)`,
         }}
