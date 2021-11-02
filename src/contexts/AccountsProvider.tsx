@@ -31,7 +31,6 @@ export function AccountsContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
     ).subscribe((result) => {
-      console.log('Account provider updated', result);
       setAccounts(result);
     });
 

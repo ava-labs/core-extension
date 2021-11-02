@@ -42,8 +42,6 @@ export function OnboardingFlow() {
       break;
   }
 
-  console.log(onboardingPhase);
-
   return (
     <VerticalFlex align="center" style={{ minHeight: `100%` }}>
       <HorizontalFlex
