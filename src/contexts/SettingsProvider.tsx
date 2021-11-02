@@ -73,7 +73,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
       style: 'currency',
       currency: settings?.currency ?? 'USD',
     });
-    console.log('made it to currency: ', settings?.currency ?? 'USD');
+
     return formatter.format.bind(formatter);
   }, [settings?.currency]);
 
