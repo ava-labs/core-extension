@@ -15,7 +15,7 @@ import {
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-
+import { LOCAL_NETWORK } from '@avalabs/wallet-react-components';
 // TODO: replace it with the supported currency list and wite it up to the backend
 const currencies = [
   { name: 'United States Dollar', symbol: 'USD' },
@@ -45,21 +45,26 @@ export function Network({ goBack, navigateTo }: SettingsPageProps) {
         title={'Network'}
       />
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        {networks.map((n) => (
-          <DropDownMenuItem
-            key={n.name}
-            justify="space-between"
-            align="center"
-            onClick={() => {
-              setNetwork(n);
-            }}
-          >
-            <Typography>{n.name}</Typography>
-            {network?.name === n.name && (
-              <CheckmarkIcon height="16px" color={theme.colors.icon1} />
-            )}
-          </DropDownMenuItem>
-        ))}
+        {/* Filtering local network until we support this in the background */}
+        {networks
+          .filter((net) => {
+            return net.chainId !== LOCAL_NETWORK.chainId;
+          })
+          .map((n) => (
+            <DropDownMenuItem
+              key={n.name}
+              justify="space-between"
+              align="center"
+              onClick={() => {
+                setNetwork(n);
+              }}
+            >
+              <Typography>{n.name}</Typography>
+              {network?.name === n.name && (
+                <CheckmarkIcon height="16px" color={theme.colors.icon1} />
+              )}
+            </DropDownMenuItem>
+          ))}
       </Scrollbars>
     </VerticalFlex>
   );
