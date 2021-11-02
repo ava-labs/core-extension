@@ -71,7 +71,10 @@ export function TokenFlowMiniMode() {
                 {token.balanceDisplayValue} {token.symbol}
               </Typography>
               <SubTextTypography>
-                {currencyFormatter(Number(token.balanceUSD))} {currency}
+                {currencyFormatter(
+                  Number(token.balanceUsdDisplayValue ?? token.balanceUSD)
+                )}{' '}
+                {currency}
               </SubTextTypography>
             </VerticalFlex>
             <VerticalFlex>

@@ -110,11 +110,15 @@ export const ReceiveMiniMode = () => {
         justify={'center'}
         style={{ position: 'fixed', bottom: '20px' }}
       >
-        <TextButton onClick={() => setChain('X')}>
-          <Typography color={theme.colors.primary1}>
-            Looking for X chain?
-          </Typography>
-        </TextButton>
+        {chain === 'C' ? (
+          <TextButton onClick={() => setChain('X')}>
+            <Typography color={theme.colors.primary1}>
+              Looking for X chain?
+            </Typography>
+          </TextButton>
+        ) : (
+          ''
+        )}
       </HorizontalFlex>
     </VerticalFlex>
   );

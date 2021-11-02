@@ -1,11 +1,9 @@
 import {
   HorizontalFlex,
-  SubTextTypography,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { TransactionEVM } from '@avalabs/wallet-react-components';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import React from 'react';
 import { HistoryItem } from './components/HistoryItem';
 import {
@@ -14,7 +12,6 @@ import {
 } from './components/SentReceivedIndicators';
 
 function TransactionEVMDetails({ item }: { item: TransactionEVM }) {
-  const { currencyFormatter } = useSettingsContext();
   return (
     <VerticalFlex align={'flex-end'}>
       {/* We dont know the type of token atm */}
@@ -22,8 +19,9 @@ function TransactionEVMDetails({ item }: { item: TransactionEVM }) {
         {item.isSender ? '-' : '+'}
         {parseFloat(item.amountDisplayValue).toFixed(4)}
       </Typography>
-      {/* putting in 0.00 till we get placeholder */}
-      <SubTextTypography>~{currencyFormatter(0.0)}</SubTextTypography>
+      {/* putting a placeholder element here for now until we get price */}
+      {/* <SubTextTypography>~{currencyFormatter(0.0)}</SubTextTypography> */}
+      <HorizontalFlex height="14px" width="50px" />
     </VerticalFlex>
   );
 }
