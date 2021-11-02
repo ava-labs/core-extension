@@ -78,7 +78,7 @@ export function TokenFlowMiniMode() {
             </VerticalFlex>
             <VerticalFlex>
               <TextButton onClick={() => history.goBack()}>
-                <CloseIcon fill={theme.palette.white} />
+                <CloseIcon color={theme.palette.white} />
               </TextButton>
             </VerticalFlex>
           </HorizontalFlex>
@@ -96,9 +96,9 @@ export function TokenFlowMiniMode() {
                   </Typography>
                 </Tab>
                 <Tab>
-                  <Typography weight={600} color={'inherit'}>
+                  {/* <Typography weight={600} color={'inherit'}>
                     Activity
-                  </Typography>
+                  </Typography> */}
                 </Tab>
               </TabList>
 
@@ -108,7 +108,7 @@ export function TokenFlowMiniMode() {
               <TabPanel>
                 <Receive />
               </TabPanel>
-              <TabPanel>activities</TabPanel>
+              {/* <TabPanel>activities</TabPanel> */}
             </Tabs>
           </VerticalFlex>
         </VerticalFlex>

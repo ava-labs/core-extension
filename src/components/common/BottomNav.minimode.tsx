@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   BridgeIcon,
-  ChecklistIcon,
   SwapArrowsIcon,
   HorizontalFlex,
   HouseIcon,
@@ -17,7 +16,9 @@ export function BottomNav() {
   const history = useHistory();
   const theme = useTheme();
 
-  function setColorWhenActive(url: string) {
+  function setColorWhenActive(url: string, isDisabled = false) {
+    if (isDisabled) return theme.palette.grey['600'];
+
     return history.location.pathname === url
       ? theme.colors.primary1
       : theme.palette.grey['300'];
@@ -79,19 +80,29 @@ export function BottomNav() {
         </VerticalFlex>
       </TextButton>
 
-      <TextButton style={{ width: '40px' }}>
+      <TextButton style={{ width: '40px' }} title="coming soon" disabled={true}>
         <VerticalFlex>
-          <SwapArrowsIcon height={'26px'} color={setColorWhenActive('/swap')} />
+          <SwapArrowsIcon
+            height={'26px'}
+            color={setColorWhenActive('/swap', true)}
+          />
           <br />
-          <Typography color={setColorWhenActive('/swap')}>Swap</Typography>
+          <Typography color={setColorWhenActive('/swap', true)}>
+            Swap
+          </Typography>
         </VerticalFlex>
       </TextButton>
 
-      <TextButton style={{ width: '40px' }}>
+      <TextButton style={{ width: '40px' }} title="coming soon" disabled={true}>
         <VerticalFlex>
-          <BridgeIcon height={'26px'} color={setColorWhenActive('/bridge')} />
+          <BridgeIcon
+            height={'26px'}
+            color={setColorWhenActive('/bridge', true)}
+          />
           <br />
-          <Typography color={setColorWhenActive('/bridge')}>Bridge</Typography>
+          <Typography color={setColorWhenActive('/bridge', true)}>
+            Bridge
+          </Typography>
         </VerticalFlex>
       </TextButton>
     </HorizontalFlex>
