@@ -74,6 +74,11 @@ export enum ExtensionRequest {
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
 
+  ACCOUNT_GET_ACCOUNTS = 'account_get',
+  ACCOUNT_SELECT = 'account_select',
+  ACCOUNT_RENAME = 'account_rename',
+  ACCOUNT_ADD = 'account_add',
+
   WALLET_STATE = 'wallet_InitializeState',
   WALLET_UNLOCK_STATE = 'wallet_unlockWalletState',
   WALLET_CHANGE_PASSWORD = 'wallet_changePassword',

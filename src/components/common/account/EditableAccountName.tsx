@@ -18,9 +18,10 @@ const AccountName = styled(Typography)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 24px;
-  font-weight: 600;
-  margin: 0 16px 0 0;
+  font-size: 18px;
+  line-height: 22px;
+  font-weight: 700;
+  margin: 0 8px 0 0;
 `;
 
 const TransparentInputBase = styled(AccountName)`
@@ -28,7 +29,7 @@ const TransparentInputBase = styled(AccountName)`
   background: transparent;
   flex-grow: 1;
   width: 200px;
-  height: 24px;
+  height: 22px;
 `;
 
 export function EditableAccountName({
@@ -75,7 +76,11 @@ export function EditableAccountName({
         <>
           <AccountName>{accountName}</AccountName>
           {enabled && (
-            <PencilIcon color={theme.colors.text1} onClick={editAddress} />
+            <PencilIcon
+              height="16px"
+              color={theme.colors.text1}
+              onClick={editAddress}
+            />
           )}
         </>
       )}

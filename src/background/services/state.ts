@@ -13,6 +13,7 @@ import {
 import { walletState$ } from './wallet/walletState';
 import { settings$ } from './settings/settings';
 import { favorites$ } from './favorites/favorites';
+import { accounts$ } from './accounts/accounts';
 
 function mapToState(result): { [key: string]: any } {
   return result.reduce((acc, value) => {
@@ -36,6 +37,7 @@ combineLatest([
   walletState$.pipe(filterFalseyValues(), toStructure('walletState')),
   settings$.pipe(toStructure('settingsState')),
   recentTxHistory$.pipe(toStructure('recentTxHistory')),
+  accounts$.pipe(toStructure('accounts')),
   favorites$.pipe(toStructure('favoritesState')),
 ])
   .pipe(throttleTime(500), map(mapToState))

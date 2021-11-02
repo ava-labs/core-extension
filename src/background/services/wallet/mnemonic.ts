@@ -2,11 +2,8 @@ import { Subject, from, merge } from 'rxjs';
 import { map, mapTo, switchMap } from 'rxjs/operators';
 import { getMnemonicFromStorage, saveMnemonicToStorage } from './storage';
 import { mnemonicWalletUnlock } from './mnemonicWalletUnlock';
-import {
-  activateAccount,
-  addAccount,
-  mnemonic$,
-} from '@avalabs/wallet-react-components';
+import { mnemonic$ } from '@avalabs/wallet-react-components';
+import { initAccounts } from '../accounts/accounts';
 
 const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 
@@ -33,8 +30,7 @@ const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
  */
 merge(mnemonicFromStorage, freshMnemonic).subscribe((mnemonic) => {
   mnemonic$.next(mnemonic);
-  addAccount();
-  activateAccount(0);
+  initAccounts();
 });
 
 export function setMnemonicAndCreateWallet(mnem: string, password: string) {

@@ -8,11 +8,11 @@ import {
 } from '@avalabs/react-components';
 import React from 'react';
 import { HeaderProps } from './HeaderFlow';
-import { AccountSelector } from '../account/AccountSelector';
 import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
 import { usePermissions } from '@src/pages/Permissions/usePermissions';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { AccountSelectorFlow } from '../account/AccountSelectorFlow';
 
 function HeaderMiniMode({ onDrawerStateChanged }: HeaderProps) {
   const theme = useTheme();
@@ -41,7 +41,7 @@ function HeaderMiniMode({ onDrawerStateChanged }: HeaderProps) {
             </Typography>
           )}
         </ConnectionIndicator>
-        <AccountSelector />
+        <AccountSelectorFlow />
       </HorizontalFlex>
       <TextButton disabled={true}>
         <ConfigureIcon color={theme.colors.disabled} />

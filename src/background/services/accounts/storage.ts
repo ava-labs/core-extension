@@ -3,16 +3,17 @@ import {
   removeFromStorage,
   saveToStorage,
 } from '@src/utils/storage/chrome-storage';
+import { Account } from './models';
 
 interface AccountState {
-  [key: string]: string;
+  accounts: Account[];
 }
 const ACCOUNTS_STORAGE_KEY = 'accounts';
 
-export const saveAccountsToStorage = (accounts: AccountState) =>
-  saveToStorage({ [ACCOUNTS_STORAGE_KEY]: accounts });
+export const saveAccountsToStorage = (accounts: Account[]) =>
+  saveToStorage({ [ACCOUNTS_STORAGE_KEY]: { accounts } });
 
-export const getAccountsFromStorage = () =>
+export const getAccountsFromStorage = (): Promise<AccountState | undefined> =>
   getFromStorage<{ accounts: AccountState }>(ACCOUNTS_STORAGE_KEY).then(
     (storage) => storage.accounts
   );

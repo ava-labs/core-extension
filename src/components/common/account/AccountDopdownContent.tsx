@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  Card,
   CheckmarkIcon,
+  CloseIcon,
   DropDownMenuItem,
   HorizontalFlex,
   HorizontalSeparator,
   PrimaryAddress,
-  SecondaryAddress,
+  SecondaryButton,
   TextButton,
   Typography,
   VerticalFlex,
@@ -14,6 +16,15 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { EditableAccountName } from './EditableAccountName';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
+
+interface AccountDropdownContentProps {
+  onClose?: () => void;
+}
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   margin: 0 0 8px 0;
@@ -21,7 +32,7 @@ const StyledPrimaryAddress = styled(PrimaryAddress)`
 
 const AddressContainer = styled(VerticalFlex)<{ selected: boolean }>`
   overflow: hidden;
-  margin: ${({ selected }) => (selected ? '16px 0 0 0' : '0px')};
+  margin: ${({ selected }) => (selected ? '16px 0 8px 0' : '0px')};
   max-height: ${({ selected }) => (selected ? '90px' : '0px')};
   transition: max-height 300ms, margin 300ms;
 `;
@@ -30,58 +41,52 @@ const StyledCheckmarkIcon = styled(CheckmarkIcon)`
   flex-shrink: 0;
 `;
 
-export function AccountDropdownContent() {
+export function AccountDropdownContent({
+  onClose,
+}: AccountDropdownContentProps) {
+  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const { accounts, selectAccount, addAccount, renameAccount } =
+    useAccountsContext();
   const theme = useTheme();
   const { addresses } = useWalletContext();
-  const [selectedAccount, setSelectedAccount] = useState(0);
   const scrollbarsRef = useRef<Scrollbars>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!scrollbarsRef || !selectedAccountRef || !selectedAccount) {
+    if (!scrollbarsRef || !selectedAccountRef || !accounts) {
       return;
     }
     if (selectedAccountRef.current?.offsetTop) {
       scrollbarsRef.current?.scrollTop(selectedAccountRef.current.offsetTop);
     }
-  }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
-
-  const accounts = [
-    {
-      name: 'Account 1',
-      addresses,
-    },
-    {
-      name: 'Account 2',
-      addresses,
-    },
-    {
-      name: 'Account 3',
-      addresses,
-    },
-    {
-      name: 'Account 4',
-      addresses,
-    },
-  ];
-
-  const selectAccount = (index: number) => {
-    setSelectedAccount(index);
-  };
+  }, [accounts, selectedAccountRef, scrollbarsRef]);
 
   return (
-    <VerticalFlex
-      maxHeight="504px"
-      height="400px"
-      width="375px"
-      padding="12px 0"
+    <Card
+      direction="column"
+      height={isMiniMode ? '100%' : '400px'}
+      width={isMiniMode ? '100%' : '375px'}
+      padding="16px 0"
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      <Typography size={18} weight={700} padding="12px 24px" height="24px">
-        My Accounts
-      </Typography>
+      <HorizontalFlex
+        justify="space-between"
+        align="flex-start"
+        width="100%"
+        margin="0 0 8px"
+        padding="0 16px"
+      >
+        <Typography size={24} weight={700} height="29px" margin="8px 0">
+          My Accounts
+        </Typography>
+        {isMiniMode && (
+          <TextButton onClick={() => onClose?.()}>
+            <CloseIcon height="18px" color={theme.colors.icon1} />
+          </TextButton>
+        )}
+      </HorizontalFlex>
       <Scrollbars
         style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
         ref={scrollbarsRef}
@@ -89,12 +94,13 @@ export function AccountDropdownContent() {
         {accounts.map((account, i) => (
           <DropDownMenuItem
             key={i}
-            selected={selectedAccount === i}
-            padding="16px 32px"
-            onClick={() => selectAccount(i)}
-            ref={selectedAccount === i ? selectedAccountRef : undefined}
+            padding="0 16px"
+            direction="column"
+            onClick={() => selectAccount(account.index)}
+            ref={account.active ? selectedAccountRef : undefined}
           >
-            <VerticalFlex width="100%">
+            {i > 0 && account.active && <HorizontalSeparator margin="0" />}
+            <VerticalFlex width="100%" padding="16px 0">
               <HorizontalFlex
                 width="100%"
                 justify="space-between"
@@ -102,34 +108,40 @@ export function AccountDropdownContent() {
               >
                 <EditableAccountName
                   name={account.name}
-                  enabled={selectedAccount === i}
-                  onSave={(name) =>
-                    console.log('TODO: handle save new name:', name)
-                  }
+                  enabled={account.active}
+                  onSave={(name) => {
+                    renameAccount(account.index, name);
+                  }}
                 />
-                {selectedAccount === i && (
+                {account.active && (
                   <StyledCheckmarkIcon
                     height="16px"
-                    color={theme.colors.primary1}
+                    color={theme.colors.icon1}
                   />
                 )}
               </HorizontalFlex>
-              <AddressContainer selected={selectedAccount === i}>
+              <AddressContainer selected={account.active}>
                 <StyledPrimaryAddress
                   name="C chain"
-                  address={account.addresses.addrC}
+                  address={addresses.addrC}
                 />
-                <SecondaryAddress
+                <StyledPrimaryAddress
                   name="X chain"
-                  address={account.addresses.addrX}
+                  address={addresses.addrX}
                 />
               </AddressContainer>
             </VerticalFlex>
+            {i < accounts.length - 1 && account.active && (
+              <HorizontalSeparator margin="0" />
+            )}
           </DropDownMenuItem>
         ))}
       </Scrollbars>
-      <HorizontalSeparator margin="0" />
-      <TextButton margin="24px 24px 12px">+ Add Account</TextButton>
-    </VerticalFlex>
+      <HorizontalFlex padding="16px 16px 8px">
+        <SecondaryButton width="100%" onClick={() => addAccount()}>
+          + Add Account
+        </SecondaryButton>
+      </HorizontalFlex>
+    </Card>
   );
 }
