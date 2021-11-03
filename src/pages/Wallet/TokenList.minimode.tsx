@@ -5,7 +5,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { TokenImg } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenImage';
 import {
   AntWithBalance,
   isAntToken,
@@ -148,7 +148,7 @@ export function TokenListMiniMode() {
               balanceDisplayValue={token.balanceDisplayValue}
               balanceUSD={token.balanceUSD?.toString()}
             >
-              <TokenImg src={token.logoURI} />
+              <TokenIcon src={token.logoURI} />
             </TokenListItem>
           ))}
 
@@ -169,7 +169,7 @@ export function TokenListMiniMode() {
               balanceDisplayValue={token.balanceDisplayValue}
               balanceUSD={token.balanceUSD?.toString()}
             >
-              <TokenImg src={token.logoURI} />
+              <TokenIcon src={token.logoURI} />
             </TokenListItem>
           ))}
       </VerticalFlex>

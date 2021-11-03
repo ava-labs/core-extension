@@ -9,7 +9,7 @@ import {
   SubTextTypography,
 } from '@avalabs/react-components';
 import { FavStarIcon } from '@src/components/icons/FavStarIcon';
-import { TokenImg } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenImage';
 import { TransactionSendType } from '../Send/models';
 import {
   AntWithBalance,
@@ -110,7 +110,7 @@ export function TokenList() {
               balanceDisplayValue={token.balanceDisplayValue}
               balanceUSD={token.balanceUSD?.toString()}
             >
-              <TokenImg src={token.logoURI} />
+              <TokenIcon src={token.logoURI} />
             </TokenListItem>
             <GridLineSeparator columns={4} />
           </GridContainerItems>
@@ -135,7 +135,7 @@ export function TokenList() {
               balanceDisplayValue={token.balanceDisplayValue}
               balanceUSD={token.balanceUSD?.toString()}
             >
-              <TokenImg src={token.logoURI} />
+              <TokenIcon src={token.logoURI} />
             </TokenListItem>
             <GridLineSeparator columns={4} />
           </GridContainerItems>

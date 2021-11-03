@@ -23,7 +23,7 @@ import { SendConfirmation } from './SendConfirmation';
 import { SendConsolidationDetails } from './SendConsolidationDetails';
 import styled, { useTheme } from 'styled-components';
 import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
-import { TokenImg } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenImage';
 
 interface SendConfirmProps {
   open: boolean;
@@ -119,7 +119,7 @@ export function SendConfirm({
           {isAvaxToken(token) ? (
             <AvaxTokenIcon />
           ) : (
-            <TokenImg src={(token as TokenWithBalance).logoURI} />
+            <TokenIcon src={(token as TokenWithBalance).logoURI} />
           )}
           <SubTextTypography margin={'8px 0 0 0'} height="24px">
             Payment amount

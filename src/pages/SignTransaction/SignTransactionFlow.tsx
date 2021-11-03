@@ -25,7 +25,7 @@ import { useGetTransaction } from './useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
-import { TokenImg } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenImage';
 import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
@@ -77,7 +77,7 @@ export function SignTransactionPage() {
   return (
     <VerticalFlex>
       <HorizontalFlex>
-        <TokenImg src={displayData.site.icon} />
+        <TokenIcon src={displayData.site.icon} />
         <Typography>{displayData.site.domain}</Typography>
       </HorizontalFlex>
       {
