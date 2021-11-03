@@ -4,13 +4,13 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { network$ } from '@avalabs/wallet-react-components';
+import { networkUpdates$ } from '@avalabs/wallet-react-components';
 import { supportedNetworks } from '../models';
 import { saveNetworkToStorage } from '../storage';
 
 export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
   const { params } = request;
-  const networkName = params?.pop();
+  const [networkName] = params || [];
 
   if (!networkName) {
     return {
@@ -27,8 +27,7 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
       error: 'selected network not supported',
     };
   }
-
-  network$.next(selectedNetwork);
+  networkUpdates$.next(selectedNetwork);
   const [_, err] = await resolve(saveNetworkToStorage(selectedNetwork));
 
   return {
