@@ -21,6 +21,8 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
@@ -48,6 +50,8 @@ export function AccountDropdownContent({
   const { accounts, selectAccount, addAccount, renameAccount } =
     useAccountsContext();
   const theme = useTheme();
+  const { currency, currencyFormatter } = useSettingsContext();
+  const balanceTotalUSD = useBalanceTotalInCurrency();
   const { addresses } = useWalletContext();
   const scrollbarsRef = useRef<Scrollbars>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
@@ -106,13 +110,25 @@ export function AccountDropdownContent({
                 justify="space-between"
                 align="center"
               >
-                <EditableAccountName
-                  name={account.name}
-                  enabled={account.active}
-                  onSave={(name) => {
-                    renameAccount(account.index, name);
-                  }}
-                />
+                <VerticalFlex>
+                  <EditableAccountName
+                    name={account.name}
+                    enabled={account.active}
+                    onSave={(name) => {
+                      renameAccount(account.index, name);
+                    }}
+                  />
+                  {account.active && (
+                    <Typography
+                      size={14}
+                      height="17px"
+                      margin="8px 0 0"
+                      color={theme.colors.text2}
+                    >
+                      ~{currencyFormatter(balanceTotalUSD)} {currency}
+                    </Typography>
+                  )}
+                </VerticalFlex>
                 {account.active && (
                   <StyledCheckmarkIcon
                     height="16px"

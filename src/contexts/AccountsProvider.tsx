@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { concat, filter, from, map } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/models';
@@ -7,6 +13,7 @@ import { Account } from '@src/background/services/accounts/models';
 
 const AccountsContext = createContext<{
   accounts: Account[];
+  activeAccount?: Account;
   selectAccount(index: number): void;
   renameAccount(index: number, name: string): void;
   addAccount(): void;
@@ -39,10 +46,15 @@ export function AccountsContextProvider({ children }: { children: any }) {
     };
   }, [request]);
 
+  const activeAccount = useMemo(() => {
+    return accounts.find((a) => a.active);
+  }, [accounts]);
+
   return (
     <AccountsContext.Provider
       value={{
         accounts,
+        activeAccount,
         selectAccount: (index: number) =>
           request({
             method: ExtensionRequest.ACCOUNT_SELECT,

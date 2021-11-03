@@ -19,7 +19,6 @@ function HeaderMiniMode({ onDrawerStateChanged }: HeaderProps) {
   const domain = useCurrentDomain();
   const { permissions } = usePermissions(domain);
   const { addresses } = useWalletContext();
-  // TODO: Use current account from account context ones multiple account support is added
   const isConnected = permissions && permissions.accounts[addresses.addrC];
 
   return (

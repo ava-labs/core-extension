@@ -5,6 +5,7 @@ import {
   TextButton,
   Typography,
 } from '@avalabs/react-components';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
@@ -29,12 +30,13 @@ const AccountName = styled(Typography)`
 
 export function AccountSelectorButton({ onClick }: AccountSelectorButtonProps) {
   const theme = useTheme();
+  const { activeAccount } = useAccountsContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
 
   return (
     <TextButton margin={isMiniMode ? '0' : '0 32px 0 0'} onClick={onClick}>
       <HorizontalFlex align={'center'} padding="0 16px">
-        <AccountName>Account</AccountName>
+        <AccountName>{activeAccount?.name}</AccountName>
         <CaretIcon
           direction={IconDirection.DOWN}
           color={theme.colors.text1}

@@ -13,19 +13,19 @@ import { GraphRingIcon } from '@src/components/icons/GraphRingIcon';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useMemo } from 'react';
 import { useTheme } from 'styled-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 
 export function WalletBalances() {
-  const { avaxToken } = useWalletContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const tokensWBalances = useTokensWithBalances();
   const { currency, currencyFormatter } = useSettingsContext();
+  const balanceTotalUSD = useBalanceTotalInCurrency();
   const theme = useTheme();
 
   const tokenColors = [
@@ -35,10 +35,6 @@ export function WalletBalances() {
     theme.palette.turquoise['500'],
     '#2196F3', // blue 500
   ];
-
-  const balanceTotalUSD =
-    (avaxToken?.balanceUSD || 0) +
-    tokensWBalances.reduce((acc, token) => (acc += token?.balanceUSD || 0), 0);
 
   const top5Tokens = useMemo(() => {
     return tokensWBalances
