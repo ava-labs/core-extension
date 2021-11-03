@@ -17,6 +17,7 @@ import {
 import { usePermissions } from './usePermissions';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -47,7 +48,10 @@ export function PermissionsPage() {
     updateAccountPermission,
   } = usePermissions(domain);
   const theme = useTheme();
-  const [selectedAccount, setSelectedAccount] = useState('');
+  const { accounts, activeAccount } = useAccountsContext();
+  const [selectedAccount, setSelectedAccount] = useState<number>(
+    activeAccount?.index || 0
+  );
   const scrollbarsRef = useRef<Scrollbars>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
@@ -60,43 +64,15 @@ export function PermissionsPage() {
     }
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
+  console.log(permissions);
+
   if (!permissions) {
     return <LoadingIcon />;
   }
 
-  /**
-   * TODO:
-   *
-   * This dummyData needs to be updated with the correct account data.
-   * Once the account logic is in we can update this and also where the
-   * Dropdown component is consuming the data
-   *
-   * ALSO
-   * The icon and site URL are not yet visable. Those both need to be update.
-   */
-
-  const dummyData = {
-    ...permissions,
-    accounts: {
-      ...permissions.accounts,
-      dummy1: false,
-      dummy2: false,
-      dummy3: false,
-      dummy4: false,
-      dummy5: false,
-      dummy6: false,
-      dummy7: false,
-      dummy8: false,
-      dummy9: false,
-      dummy10: false,
-      dummy11: false,
-      dummy12: false,
-    },
-  };
-
-  const selectAccount = (key: string) => {
-    setSelectedAccount(key);
-    updateAccountPermission(key, true);
+  const selectAccount = (index: number) => {
+    setSelectedAccount(index);
+    updateAccountPermission(index, true);
   };
 
   return (
@@ -135,7 +111,7 @@ export function PermissionsPage() {
                 justify="space-between"
                 align={'center'}
               >
-                <AccountName>{selectedAccount}</AccountName>
+                <AccountName>{accounts[selectedAccount]?.name}</AccountName>
                 <CaretIcon
                   direction={IconDirection.DOWN}
                   color={theme.colors.text1}
@@ -150,13 +126,17 @@ export function PermissionsPage() {
               style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
               ref={scrollbarsRef}
             >
-              {Object.keys(dummyData.accounts).map((key) => (
+              {accounts.map((account) => (
                 <SecondaryDropDownMenuItem
                   width="100%"
-                  key={key}
-                  onClick={() => selectAccount(key) as any}
-                  selected={key === selectedAccount}
-                  ref={selectedAccount === key ? selectedAccountRef : undefined}
+                  key={account.index}
+                  onClick={() => selectAccount(account.index) as any}
+                  selected={account.index === selectedAccount}
+                  ref={
+                    selectedAccount === account.index
+                      ? selectedAccountRef
+                      : undefined
+                  }
                 >
                   <VerticalFlex padding="0px" width="100%">
                     <HorizontalFlex
@@ -164,8 +144,8 @@ export function PermissionsPage() {
                       justify="space-between"
                       align="center"
                     >
-                      <AccountName>{key}</AccountName>
-                      {selectedAccount === key && (
+                      <AccountName>{account.name}</AccountName>
+                      {selectedAccount === account.index && (
                         <CheckmarkIcon
                           height="16px"
                           color={theme.colors.text1}
