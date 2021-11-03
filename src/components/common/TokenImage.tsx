@@ -2,9 +2,9 @@ import { HorizontalFlex, LoadingIcon } from '@avalabs/react-components';
 import { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
 import React from 'react';
-import { transparentize } from 'polished';
 
 const TOKEN_IMAGE_BORDER_RADIUS = '50%';
+const TOKEN_IMAGE_DFEAULT_SIZE = '32px';
 
 export function TokenIcon({
   src,
@@ -51,8 +51,8 @@ export function TokenIcon({
         align={'center'}
         radius={TOKEN_IMAGE_BORDER_RADIUS}
         background={`${theme.colors.disabled}CC`}
-        width={width}
-        height={height}
+        width={width || TOKEN_IMAGE_DFEAULT_SIZE}
+        height={height || TOKEN_IMAGE_DFEAULT_SIZE}
       >
         <LoadingIcon height={'5px'} />
       </HorizontalFlex>
@@ -64,8 +64,8 @@ export function TokenIcon({
       <HorizontalFlex
         as="img"
         src={src}
-        width={width}
-        height={height}
+        width={width || TOKEN_IMAGE_DFEAULT_SIZE}
+        height={height || TOKEN_IMAGE_DFEAULT_SIZE}
         radius={TOKEN_IMAGE_BORDER_RADIUS}
       />
     );
@@ -78,8 +78,8 @@ export function TokenIcon({
         <HorizontalFlex
           radius={TOKEN_IMAGE_BORDER_RADIUS}
           background={`${theme.colors.disabled}CC`}
-          width={width}
-          height={height}
+          width={width || TOKEN_IMAGE_DFEAULT_SIZE}
+          height={height || TOKEN_IMAGE_DFEAULT_SIZE}
         />
       )
     );
