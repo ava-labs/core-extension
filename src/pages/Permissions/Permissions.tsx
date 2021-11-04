@@ -64,8 +64,6 @@ export function PermissionsPage() {
     }
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
-  console.log(permissions);
-
   if (!permissions) {
     return <LoadingIcon />;
   }
