@@ -49,7 +49,7 @@ function TokenListItem({
         <WalletTokenListItemMiniMode
           name={name}
           symbol={symbol}
-          balance={parseFloat(balanceDisplayValue?.toString() || '').toFixed(4)}
+          balance={balanceDisplayValue}
         >
           {children}
         </WalletTokenListItemMiniMode>

@@ -53,6 +53,7 @@ export function TokenIcon({
         background={`${theme.colors.disabled}CC`}
         width={width || TOKEN_IMAGE_DFEAULT_SIZE}
         height={height || TOKEN_IMAGE_DFEAULT_SIZE}
+        style={{ flexShrink: 0 }}
       >
         <LoadingIcon height={'5px'} />
       </HorizontalFlex>
@@ -67,6 +68,7 @@ export function TokenIcon({
         width={width || TOKEN_IMAGE_DFEAULT_SIZE}
         height={height || TOKEN_IMAGE_DFEAULT_SIZE}
         radius={TOKEN_IMAGE_BORDER_RADIUS}
+        style={{ flexShrink: 0 }}
       />
     );
   }
@@ -80,6 +82,7 @@ export function TokenIcon({
           background={`${theme.colors.disabled}CC`}
           width={width || TOKEN_IMAGE_DFEAULT_SIZE}
           height={height || TOKEN_IMAGE_DFEAULT_SIZE}
+          style={{ flexShrink: 0 }}
         />
       )
     );
