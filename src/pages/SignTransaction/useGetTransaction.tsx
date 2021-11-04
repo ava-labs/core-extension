@@ -86,7 +86,7 @@ export function useGetTransaction(requestId: string) {
     return {
       ...transaction?.displayValues,
       id: transaction?.id,
-      txParams: transaction?.txParams,
+      ...(transaction?.txParams ? { txParams: transaction?.txParams } : {}),
       updateTransaction,
       hash,
       showCustomFees,
