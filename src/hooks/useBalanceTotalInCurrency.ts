@@ -6,7 +6,7 @@ export function useBalanceTotalInCurrency() {
   const tokensWBalances = useTokensWithBalances();
 
   return (
-    (avaxToken?.balanceUSD || 0) +
+    ((Number(avaxToken?.balanceUsdDisplayValue) || 0) as number) +
     tokensWBalances.reduce((acc, token) => (acc += token?.balanceUSD || 0), 0)
   );
 }
