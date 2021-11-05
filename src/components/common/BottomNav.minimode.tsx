@@ -17,90 +17,83 @@ export function BottomNav() {
   const theme = useTheme();
 
   function setColorWhenActive(url: string, isDisabled = false) {
-    if (isDisabled) return theme.palette.grey['600'];
+    if (isDisabled) return theme.colors.disabled;
 
     return history.location.pathname === url
       ? theme.colors.primary1
-      : theme.palette.grey['300'];
+      : theme.colors.icon2;
   }
+
   return (
     <HorizontalFlex
-      justify={'space-between'}
+      background={theme.colors.bg4}
+      position="fixed"
+      height="65px"
+      width="100%"
+      justify="space-between"
       flex={1}
-      align={'flex-end'}
+      align="center"
+      padding="0 34px"
       style={{
-        position: 'fixed',
         bottom: '0px',
-        width: '100%',
-        backgroundColor: `${theme.colors.bg1}`,
-        height: '80px',
-        padding: '19px 48px',
       }}
     >
-      <TextButton
-        style={{ width: '40px' }}
-        onClick={() => history.push('/home')}
-      >
-        <VerticalFlex>
+      <TextButton onClick={() => history.push('/home')}>
+        <VerticalFlex width="50px" align="center">
           <HouseIcon height={'26px'} color={setColorWhenActive('/home')} />
-          <br />
-          <Typography color={setColorWhenActive('/home')}>Portfolio</Typography>
+          <Typography
+            size={12}
+            margin="8px 0 0"
+            color={setColorWhenActive('/home')}
+          >
+            Portfolio
+          </Typography>
         </VerticalFlex>
       </TextButton>
 
-      {/* <TextButton
-      style={{ width: '40px' }}
-      onClick={() => history.push('/watchlist')}
-    >
-      <VerticalFlex>
-        <ChecklistIcon
-          height={'26px'}
-          color={setColorWhenActive('/watchlist')}
-        />
-        <br />
-        <Typography color={setColorWhenActive('/watchlist')}>
-          Watchlist
-        </Typography>
-      </VerticalFlex>
-    </TextButton> */}
-
-      <TextButton
-        style={{ width: '40px' }}
-        onClick={() => history.push('/activity')}
-      >
-        <VerticalFlex>
+      <TextButton onClick={() => history.push('/activity')}>
+        <VerticalFlex width="50px" align="center">
           <LightningIcon
             height={'26px'}
             color={setColorWhenActive('/activity')}
           />
-          <br />
-          <Typography color={setColorWhenActive('/activity')}>
+          <Typography
+            size={12}
+            margin="8px 0 0"
+            color={setColorWhenActive('/activity')}
+          >
             Activity
           </Typography>
         </VerticalFlex>
       </TextButton>
 
-      <TextButton style={{ width: '40px' }} title="coming soon" disabled={true}>
-        <VerticalFlex>
+      <TextButton title="coming soon" disabled={true}>
+        <VerticalFlex width="50px" align="center">
           <SwapArrowsIcon
             height={'26px'}
             color={setColorWhenActive('/swap', true)}
           />
-          <br />
-          <Typography color={setColorWhenActive('/swap', true)}>
+          <Typography
+            size={12}
+            margin="8px 0 0"
+            color={setColorWhenActive('/swap', true)}
+          >
             Swap
           </Typography>
         </VerticalFlex>
       </TextButton>
 
-      <TextButton style={{ width: '40px' }} title="coming soon" disabled={true}>
-        <VerticalFlex>
+      <TextButton title="coming soon" disabled={true}>
+        <VerticalFlex width="50px" align="center">
           <BridgeIcon
             height={'26px'}
             color={setColorWhenActive('/bridge', true)}
           />
-          <br />
-          <Typography color={setColorWhenActive('/bridge', true)}>
+          <Typography
+            size={12}
+            margin="8px 0 0"
+            color={setColorWhenActive('/bridge', true)}
+          >
             Bridge
           </Typography>
         </VerticalFlex>

@@ -12,8 +12,8 @@ import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import React, { useEffect } from 'react';
 import { filter, map } from 'rxjs';
-import { TransactionSendType } from '../Send/models';
-import { SendForm } from '../Send/SendForm';
+import { TransactionSendType } from './models';
+import { SendForm } from './SendForm';
 
 export function WalletHomeSend() {
   const { events } = useConnectionContext();

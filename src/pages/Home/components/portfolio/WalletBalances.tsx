@@ -14,15 +14,10 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useMemo } from 'react';
 import { useTheme } from 'styled-components';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
-import {
-  ContextContainer,
-  useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 
 export function WalletBalances() {
-  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const tokensWBalances = useTokensWithBalances();
   const { currency, currencyFormatter } = useSettingsContext();
   const balanceTotalUSD = useBalanceTotalInCurrency();
@@ -46,17 +41,6 @@ export function WalletBalances() {
         return { ...token, color: tokenColors[idx] };
       });
   }, [tokensWBalances]);
-
-  if (isMiniMode) {
-    return (
-      <HorizontalFlex justify={'center'} align={'center'} width={'100%'}>
-        <Typography size={36}>
-          ~{currencyFormatter(balanceTotalUSD)}
-          <Typography margin={'0 0 0 8px'}>{currency}</Typography>
-        </Typography>
-      </HorizontalFlex>
-    );
-  }
 
   return (
     <Card>

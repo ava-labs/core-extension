@@ -1,6 +1,6 @@
 import React from 'react';
 import { UTXOSet } from 'avalanche/dist/apis/platformvm';
-import { useUnlockingSchedule } from './useUnlockingSchedule';
+import { useUnlockingSchedule } from '../../hooks/useUnlockingSchedule';
 import {
   GridContainer,
   GridContainerItems,

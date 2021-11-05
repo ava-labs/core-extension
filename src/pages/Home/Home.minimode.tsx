@@ -1,15 +1,14 @@
 import { VerticalFlex } from '@avalabs/react-components';
 import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import React from 'react';
-import { WalletPortfolio } from '../Wallet/WalletPortfolio';
+import { PortfolioFlow } from './components/portfolio/PortfolioFlow';
 
 export function HomeMiniMode() {
   return (
     <VerticalFlex width={'100%'}>
       <VerticalFlex flex={1}>
-        <WalletPortfolio />
+        <PortfolioFlow />
       </VerticalFlex>
-
       <BottomNav />
     </VerticalFlex>
   );

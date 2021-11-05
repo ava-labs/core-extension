@@ -1,70 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   VerticalFlex,
   HorizontalFlex,
   Typography,
-  Card,
-  LoadingIcon,
 } from '@avalabs/react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
-import { WalletHomeSend } from '../Wallet/WalletHomeSend';
-import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
-import { WalletPortfolio } from '../Wallet/WalletPortfolio';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useEffect } from 'react';
-import { Receive } from '../Receive/Receive';
+import { PortfolioFlow } from './components/portfolio/PortfolioFlow';
 import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
 import { AccountSelectorFlow } from '@src/components/common/account/AccountSelectorFlow';
+import { HomeSideBar } from './components/HomeSideBar';
 
 const TABS_BOTTOM_PADDING = 16;
-const SIDEBAR_WIDTH = 391;
-
-function HomeSideBar() {
-  const tokensWithBalances = useTokensWithBalances();
-  const [showSend, setShowSend] = useState<boolean>();
-
-  useEffect(() => {
-    setShowSend(!!tokensWithBalances.length);
-  }, [tokensWithBalances]);
-
-  if (showSend === undefined) {
-    return <LoadingIcon />;
-  }
-
-  return (
-    <VerticalFlex
-      flex={1}
-      margin={`${TABS_BOTTOM_PADDING}px 0 0 0`}
-      width={`${SIDEBAR_WIDTH}px`}
-      style={{ minWidth: `${SIDEBAR_WIDTH}px` }}
-    >
-      <Card margin="0 0 16px">
-        <Tabs defaultIndex={showSend ? 0 : 1}>
-          <TabList $border={false}>
-            <Tab disabled={!showSend}>
-              <Typography weight={600} color={'inherit'}>
-                Send
-              </Typography>
-            </Tab>
-            <Tab>
-              <Typography weight={600} color={'inherit'}>
-                Receive
-              </Typography>
-            </Tab>
-          </TabList>
-
-          <TabPanel>
-            <WalletHomeSend />
-          </TabPanel>
-          <TabPanel>
-            <Receive />
-          </TabPanel>
-        </Tabs>
-      </Card>
-      <WalletRecentTxs />
-    </VerticalFlex>
-  );
-}
 
 export function Home() {
   return (
@@ -100,13 +46,13 @@ export function Home() {
       <HorizontalFlex>
         <VerticalFlex flex={3} margin={`${TABS_BOTTOM_PADDING}px 16px 0 0`}>
           <TabPanel>
-            <WalletPortfolio />
+            <PortfolioFlow />
           </TabPanel>
           <TabPanel></TabPanel>
           <TabPanel></TabPanel>
           <TabPanel></TabPanel>
         </VerticalFlex>
-        <HomeSideBar />
+        <HomeSideBar margin={`${TABS_BOTTOM_PADDING}px 0 0 0`} />
       </HorizontalFlex>
     </Tabs>
   );
