@@ -1,5 +1,9 @@
 import React, { useMemo } from 'react';
-import { VerticalFlex } from '@avalabs/react-components';
+import {
+  SubTextTypography,
+  Typography,
+  VerticalFlex,
+} from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
   AntWithBalance,
@@ -14,6 +18,7 @@ import { TransactionSendType } from '../../../Send/models';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { TokenListItemMiniMode } from './TokenListItem.minimode';
 import Scrollbars from 'react-custom-scrollbars';
+import { IllustrationPlaceholder } from '@src/components/common/IllustrationPlaceholder';
 
 interface TokenListMiniModeProps {
   searchQuery?: string;
@@ -43,6 +48,24 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
 
     return { tokens, showAvax };
   }, [tokensWithBalances, searchQuery]);
+
+  if (!tokens.length && !showAvax) {
+    return (
+      <VerticalFlex
+        grow="1"
+        align="center"
+        justify="center"
+        padding="0px 16px 73px"
+      >
+        <IllustrationPlaceholder size={120}>
+          <Typography>Illustration</Typography>
+        </IllustrationPlaceholder>
+        <SubTextTypography margin="16px 0 0 0">
+          No results found
+        </SubTextTypography>
+      </VerticalFlex>
+    );
+  }
 
   return (
     <VerticalFlex grow="1">
