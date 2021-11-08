@@ -1,24 +1,23 @@
 import {
   HorizontalFlex,
-  PopoutLinkIcon,
   SubTextTypography,
-  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import React from 'react';
-import { useTheme } from 'styled-components';
+import React, { PropsWithChildren } from 'react';
+import { HistoryItemLink } from './HistoryItemLink';
+
+interface HistoryItemProps {
+  item: { to?: string; from?: string; isSender: boolean; explorerLink: string };
+  label: string;
+}
 
 export function HistoryItem({
   item,
   label,
   children,
-}: {
-  item: { to?: string; from?: string; isSender: boolean; explorerLink: string };
-  label: string;
-  children?: any;
-}) {
+}: PropsWithChildren<HistoryItemProps>) {
   return (
     <HorizontalFlex
       flex={1}
@@ -27,38 +26,19 @@ export function HistoryItem({
       margin={'0 0 0 8px'}
     >
       <VerticalFlex>
-        <Typography size={18} weight={400} margin={'0 0 4px 0'}>
+        <Typography size={16} weight={600} height="24px">
           {label}
         </Typography>
-        {item.isSender ? (
-          <SubTextTypography>
-            To: {truncateAddress(item.to ?? '')}
-          </SubTextTypography>
-        ) : (
-          <SubTextTypography>
-            From: {truncateAddress(item.from ?? '')}
-          </SubTextTypography>
-        )}
+        <SubTextTypography size={12} height="15px">
+          {item.isSender
+            ? `To: ${truncateAddress(item.to ?? '')}`
+            : `From: ${truncateAddress(item.from ?? '')}`}
+        </SubTextTypography>
       </VerticalFlex>
-      <HorizontalFlex>
+      <HorizontalFlex align="center">
         {children}
-        <VerticalFlex>
-          <HistoryItemLink item={item} />
-        </VerticalFlex>
+        <HistoryItemLink explorerLink={item.explorerLink} />
       </HorizontalFlex>
     </HorizontalFlex>
-  );
-}
-
-export function HistoryItemLink({ item }: { item: { explorerLink: string } }) {
-  const theme = useTheme();
-
-  return (
-    <TextButton
-      onClick={() => window.open(item.explorerLink, '_blank')}
-      margin={'0 0 0 8px'}
-    >
-      <PopoutLinkIcon height="12px" color={theme.palette.grey['600']} />
-    </TextButton>
   );
 }

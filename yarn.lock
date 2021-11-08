@@ -31,10 +31,10 @@
     web3 "^1.3.5"
     web3-eth-contract "^1.3.6"
 
-"@avalabs/react-components@1.35.0":
-  version "1.35.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.35.0.tgz#7e89155291da874fe39bac2f16c1337759b7915a"
-  integrity sha512-JyXP4s+CJ9vBUWgYftYR1JhEHdJxketMisEraNpS7AvoH1OoP2Uw+8bS6CiXkatEU7nK81V+ZOBhgBQ28c+vqg==
+"@avalabs/react-components@1.36.0":
+  version "1.36.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.36.0.tgz#f79abfdce617dd1049c66510d281bf18360ab591"
+  integrity sha512-X9C6sa0YG8f1YhnYNNSaJH6nggCsQJORTNVI9+2o+wd/7ocKHJEXWF+BvJQrdMeuchema4Gg9ImLF/QMLeoqUw==
   dependencies:
     big.js "^6.1.1"
     body-parser "1.19.0"

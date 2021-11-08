@@ -12,7 +12,6 @@ import { walletUpdatedEventListener } from '@src/background/services/wallet/even
 import { ExtensionRequest } from '@src/background/connections/models';
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
-import { useSettingsContext } from './SettingsProvider';
 import { chunkHistoryByDate } from './utils/chunkWalletHistory';
 
 type WalletStateAndMethods = WalletState & {
@@ -27,7 +26,6 @@ const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { currency } = useSettingsContext();
   const [walletState, setWalletState] = useState<
     WalletState | WalletLockedState
   >();

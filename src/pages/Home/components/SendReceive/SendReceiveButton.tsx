@@ -39,7 +39,6 @@ export function SendReceiveButton({
       <VerticalFlex>
         <IconCircle>
           <ArrowIcon
-            height={'40px'}
             color={theme.colors.icon1}
             style={{
               transform: `rotate(${angle}deg)`,
