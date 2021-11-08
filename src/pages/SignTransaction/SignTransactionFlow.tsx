@@ -6,6 +6,7 @@ import {
   Typography,
   SubTextTypography,
   TextButton,
+  LoadingIcon,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
@@ -25,9 +26,10 @@ import { useGetTransaction } from './useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
-import { TokenImg } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenImage';
 import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useTheme } from 'styled-components';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -43,8 +45,22 @@ export function SignTransactionPage() {
   } = useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const { currencyFormatter } = useSettingsContext();
+  const theme = useTheme();
 
   const displayData: TransactionDisplayValues = { ...params } as any;
+
+  if (!Object.keys(displayData).length) {
+    return (
+      <HorizontalFlex
+        width={'100%'}
+        height={'100%'}
+        justify={'center'}
+        align={'center'}
+      >
+        <LoadingIcon color={theme.colors.text1} />
+      </HorizontalFlex>
+    );
+  }
 
   if (showTxInProgress) {
     return <SendInProgress isOpen={true} />;
@@ -77,7 +93,7 @@ export function SignTransactionPage() {
   return (
     <VerticalFlex>
       <HorizontalFlex>
-        <TokenImg src={displayData.site.icon} />
+        <TokenIcon src={displayData.site.icon} />
         <Typography>{displayData.site.domain}</Typography>
       </HorizontalFlex>
       {

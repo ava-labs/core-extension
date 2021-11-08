@@ -1,7 +1,7 @@
 export interface DappPermissions {
   domain: string;
   accounts: {
-    [account: string]: boolean;
+    [account: number]: boolean;
   };
 }
 

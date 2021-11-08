@@ -13,7 +13,7 @@ import {
   isAvaxToken,
 } from '@avalabs/wallet-react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
-import { TokenImg } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
@@ -58,7 +58,7 @@ export function TokenFlowMiniMode() {
               {isAvaxToken(token) ? (
                 <AvaxTokenIcon height={'40px'} />
               ) : (
-                <TokenImg
+                <TokenIcon
                   height={'40px'}
                   width={'40px'}
                   src={(token as ERC20WithBalance).logoURI}

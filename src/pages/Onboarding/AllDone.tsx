@@ -2,7 +2,6 @@ import React from 'react';
 import {
   VerticalFlex,
   Typography,
-  PrimaryButton,
   SecondaryButton,
   HorizontalFlex,
   SecondaryIconButton,
@@ -12,17 +11,7 @@ import {
   GithubIcon,
   ComponentSize,
 } from '@avalabs/react-components';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import styled from 'styled-components';
-
-const IllustrationPlaceholder = styled(VerticalFlex)`
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.palette.grey[800]};
-  justify-content: center;
-  align-items: center;
-`;
+import { IllustrationPlaceholder } from '@src/components/common/IllustrationPlaceholder';
 
 export function AllDone() {
   return (

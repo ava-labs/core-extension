@@ -5,7 +5,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { isAvaxToken } from '@avalabs/wallet-react-components';
-import { TokenImg } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import {
@@ -33,7 +33,7 @@ export function AddLiquidityTx({ poolTokens }: AddLiquidityDisplayData) {
               {isAvaxToken(token) ? (
                 <AvaxTokenIcon />
               ) : (
-                <TokenImg src={(token as erc20PathToken).logoURI} />
+                <TokenIcon src={(token as erc20PathToken).logoURI} />
               )}
             </HorizontalFlex>
             <VerticalFlex>

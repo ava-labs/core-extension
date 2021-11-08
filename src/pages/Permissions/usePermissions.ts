@@ -1,15 +1,16 @@
 import { ExtensionRequest } from '@src/background/connections/models';
+import { Account } from '@src/background/services/accounts/models';
 import { DappPermissions } from '@src/background/services/permissions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useMemo, useState } from 'react';
 
-function accountsToPermissions(accounts: string[], domain: string) {
+function accountsToPermissions(accounts: Account[], domain: string) {
   return {
     domain,
     accounts: accounts.reduce((acc, account) => {
       return {
         ...acc,
-        [account]: false,
+        [account.index]: false,
       };
     }, {}),
   };
@@ -17,7 +18,7 @@ function accountsToPermissions(accounts: string[], domain: string) {
 
 function updateAnAccount(
   permissions: ReturnType<typeof accountsToPermissions>,
-  account: { [key: string]: boolean }
+  account: { [index: number]: boolean }
 ) {
   return {
     ...permissions,
@@ -57,7 +58,7 @@ export function usePermissions(domain?: string) {
       // gets every account to map the permissions to in a second step
       request({
         method: ExtensionRequest.PERMISSIONS_GET_ACCOUNTS,
-      }).then((result) => {
+      }).then((result: Account[]) => {
         return accountsToPermissions(result, domain);
       }),
     ]).then(([existing, newBasedonAccounts]) => {
@@ -73,11 +74,14 @@ export function usePermissions(domain?: string) {
     });
   }
 
-  function updateAccountPermission(account: string, hasPermission: boolean) {
+  function updateAccountPermission(
+    accountIndex: number,
+    hasPermission: boolean
+  ) {
     if (!permissions) return;
 
     updatePermissions(
-      updateAnAccount(permissions, { [account]: hasPermission })
+      updateAnAccount(permissions, { [accountIndex]: hasPermission })
     );
   }
 

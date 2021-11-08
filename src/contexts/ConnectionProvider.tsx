@@ -18,9 +18,9 @@ function request(connection: Runtime.Port, eventsHandler) {
     return requestEngine(
       connection!,
       eventsHandler
-    )(message).then<T>((results) =>
-      results.error ? Promise.reject(results.error) : results.result
-    );
+    )(message).then<T>((results) => {
+      return results.error ? Promise.reject(results.error) : results.result;
+    });
   };
 }
 

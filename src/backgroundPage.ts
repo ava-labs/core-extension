@@ -9,8 +9,10 @@ import { ContextContainer } from './hooks/useIsSpecificContextContainer';
  * If they just install then they need to onboard and we force them
  * fullscreen
  */
-browser.runtime.onInstalled.addListener(() => {
-  browser.tabs.create({ url: ContextContainer.HOME });
+browser.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    browser.tabs.create({ url: ContextContainer.HOME });
+  }
 });
 
 browser.runtime.onConnect.addListener((connection) => {

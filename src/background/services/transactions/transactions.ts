@@ -53,6 +53,7 @@ addTransaction
     }),
     tap(([currentPendingTxs, tx, gasPrice, network, walletState]) => {
       const { params, site } = tx as ExtensionConnectionMessage;
+
       const now = new Date().getTime();
       const txParams = (params || [])[0];
 
