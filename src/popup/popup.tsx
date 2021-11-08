@@ -50,21 +50,17 @@ import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
 import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
 import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
+import { useAppDimensions } from '@src/hooks/useAppDimensions';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm ? '100%' : '1280px'),
     []
   );
-
-  const getAppHeight = () => {
-    if (isMiniMode) return '600px';
-    if (isConfirm) return '632px';
-    else return '';
-  };
 
   return (
     <DialogContextProvider>
@@ -76,8 +72,8 @@ export function Popup() {
                 <SettingsContextProvider>
                   <GlobalStyles />
                   <VerticalFlex
-                    height={getAppHeight()}
-                    width={isMiniMode || isConfirm ? '375px' : ''}
+                    height={dimensions.height}
+                    width={dimensions.width}
                     maxHeight={drawerOpen ? '100%' : 'auto'}
                     overflow={drawerOpen ? 'hidden' : 'auto'}
                     align="center"
