@@ -64,7 +64,7 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
       sendErc20Submit(
         token,
         Promise.resolve<WalletType>(wallet),
-        Utils.stringToBN(amount, 60),
+        Utils.stringToBN(amount, token.denomination),
         address,
         Promise.resolve(gasPrice),
         of(gasLimit)
