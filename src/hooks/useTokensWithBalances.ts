@@ -12,7 +12,10 @@ export function useTokensWithBalances() {
 
   return useMemo<TokenWithBalance[]>(() => {
     return [
-      avaxToken,
+      {
+        ...avaxToken,
+        priceUSD: avaxPrice,
+      },
       ...erc20Tokens.filter((token) =>
         showTokensWithoutBalances ? true : token.balance.gt(bnZero)
       ),

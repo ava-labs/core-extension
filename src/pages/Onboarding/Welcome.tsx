@@ -9,17 +9,7 @@ import {
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
-import styled from 'styled-components';
-
-const IllustrationPlaceholder = styled(VerticalFlex)`
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  margin: 77px 0;
-  background: ${({ theme }) => theme.palette?.grey[800]};
-  justify-content: center;
-  align-items: center;
-`;
+import { LoginIllustration } from '@src/components/common/LoginIllustation';
 
 export function Welcome() {
   const { setNextPhase } = useOnboardingContext();
@@ -31,13 +21,13 @@ export function Welcome() {
       padding="72px 0 22px"
       justify="space-between"
     >
-      <VerticalFlex align="center">
+      <VerticalFlex align="center" grow="1">
         <Typography as="h1" size={24} weight="bold">
           Welcome!
         </Typography>
-        <IllustrationPlaceholder>
-          <Typography>Illustration</Typography>
-        </IllustrationPlaceholder>
+        <VerticalFlex justify="center" grow="1">
+          <LoginIllustration size={182} variant="secondary" />
+        </VerticalFlex>
       </VerticalFlex>
       <VerticalFlex align="center">
         <PrimaryButton

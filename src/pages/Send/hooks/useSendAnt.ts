@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BN, ChainIdType } from '@avalabs/avalanche-wallet-sdk';
+import { BN, ChainIdType, Utils } from '@avalabs/avalanche-wallet-sdk';
 import {
   SendAntState,
   SendSubmitResponse,
@@ -49,13 +49,18 @@ export function useSendAnt(
     reset() {
       setSendAntState(undefined);
     },
-    submit(amount: string) {
+    submit() {
       if (!sendAntState) {
         return Promise.reject('send ant state undefined');
       }
 
+      const amount = Utils.bnToBig(
+        sendAntState?.amount || new BN(0),
+        token.denomination
+      ).toString();
+
       return request<SendSubmitResponse>(
-        sendAntSubmitRequest(amount, sendAntState?.address, sendAntState?.token)
+        sendAntSubmitRequest(amount, sendAntState?.address, token)
       ).then(({ txId }: SendSubmitResponse) => setTxId(txId));
     },
   };

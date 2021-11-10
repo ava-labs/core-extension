@@ -44,8 +44,13 @@ export const Tab = styled(ReactTab)<{
     }
   }
 `;
-export const Tabs = styled(ReactTabs)`
+export const Tabs = styled(ReactTabs)<{
+  grow: string;
+}>`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  ${({ grow }) => `flex-grow: ${grow};`}
 `;
 export const TabList = styled(ReactTabList)<{
   $border: boolean;
@@ -61,4 +66,10 @@ export const TabList = styled(ReactTabList)<{
       : '';
   }}
 `;
-export const TabPanel = styled(ReactTabPanel)``;
+export const TabPanel = styled(ReactTabPanel)<{
+  grow: string;
+}>`
+  display: flex;
+  flex-direction: column;
+  ${({ grow }) => `flex-grow: ${grow};`}
+`;

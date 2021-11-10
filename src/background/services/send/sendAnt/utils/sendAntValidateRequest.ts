@@ -1,4 +1,3 @@
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import {
   ExtensionConnectionMessage,
   ExtensionRequest,

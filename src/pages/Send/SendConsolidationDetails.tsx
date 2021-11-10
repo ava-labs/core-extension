@@ -30,7 +30,7 @@ export function SendConsolidationDetails({
   txs: DestinationChainTx[];
 }) {
   return (
-    <VerticalFlex width={'100%'}>
+    <VerticalFlex width={'100%'} height="100%">
       <Scrollbars>
         {txs
           .map(stepParser)
@@ -45,8 +45,8 @@ export function SendConsolidationDetails({
                   width="100%"
                   justify="space-between"
                   align="center"
-                  padding="0 24px"
-                  margin="0 0 24px"
+                  padding="0 8px"
+                  margin="0 0 32px"
                 >
                   <VerticalFlex>
                     <Typography
