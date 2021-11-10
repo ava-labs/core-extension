@@ -1,7 +1,7 @@
 import { VerticalFlex } from '@avalabs/react-components';
 import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import React from 'react';
-import { PortfolioFlow } from './components/portfolio/PortfolioFlow';
+import { PortfolioFlow } from './components/Portfolio/PortfolioFlow';
 
 export function HomeMiniMode() {
   return (

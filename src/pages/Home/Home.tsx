@@ -5,7 +5,7 @@ import {
   Typography,
 } from '@avalabs/react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
-import { PortfolioFlow } from './components/portfolio/PortfolioFlow';
+import { PortfolioFlow } from './components/Portfolio/PortfolioFlow';
 import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
 import { AccountSelectorFlow } from '@src/components/common/account/AccountSelectorFlow';
 import { HomeSideBar } from './components/HomeSideBar';

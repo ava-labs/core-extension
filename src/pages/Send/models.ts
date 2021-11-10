@@ -10,5 +10,5 @@ export interface SendStateWithActions extends SendState {
   txId?: string;
   setValues: (amount?: string, address?: string) => void;
   reset: () => void;
-  submit: (amount: string) => Promise<string | undefined | void>;
+  submit: () => Promise<string | undefined | void>;
 }

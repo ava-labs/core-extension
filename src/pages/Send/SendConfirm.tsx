@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Modal } from '@src/components/common/Modal';
 import {
   CaretIcon,
   HorizontalFlex,
@@ -14,29 +13,24 @@ import {
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import {
-  DestinationChainTx,
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import { SendInProgress } from './SendInProgress';
 import { SendConfirmation } from './SendConfirmation';
 import { SendConsolidationDetails } from './SendConsolidationDetails';
 import styled, { useTheme } from 'styled-components';
-import { ChainIdType } from '@avalabs/avalanche-wallet-sdk';
 import { TokenIcon } from '@src/components/common/TokenImage';
+import { useSend } from './hooks/useSend';
+import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 
 interface SendConfirmProps {
-  open: boolean;
   onClose(): void;
   onConfirm(): void;
-  amount: string;
+  sendState: ReturnType<typeof useSend>;
   token: TokenWithBalance;
-  amountUsd: string;
-  extraTxs: DestinationChainTx[];
-  address: string;
   fee: string;
-  txId?: string;
-  chain?: ChainIdType;
 }
 
 const DataCard = styled(Card)`
@@ -44,19 +38,14 @@ const DataCard = styled(Card)`
 `;
 
 export function SendConfirm({
-  open,
   onClose,
   onConfirm,
-  amount,
+  sendState,
   token,
-  amountUsd,
-  extraTxs,
-  address,
   fee,
-  txId,
-  chain,
 }: SendConfirmProps) {
   const theme = useTheme();
+  const { currencyFormatter } = useSettingsContext();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState(false);
   const [showTxDetails, setShowTxDetails] = useState(false);
@@ -65,122 +54,142 @@ export function SendConfirm({
     if (showTxDetails) {
       setShowTxDetails(false);
     } else {
-      onClose && onClose();
+      onClose();
     }
   };
 
   useEffect(() => {
-    if (txId) {
+    if (sendState?.txId) {
       setShowTxInProgress(false);
       setShowTxConfirmed(true);
     }
-  }, [txId]);
+  }, [sendState?.txId]);
 
-  if (showTxInProgress) {
-    return <SendInProgress isOpen={true} />;
-  }
-
-  if (showTxConfirmed && txId) {
+  if (showTxConfirmed && sendState?.txId) {
     return (
       <SendConfirmation
         onClose={() => {
           onClose();
           setShowTxConfirmed(false);
         }}
-        isOpen={true}
-        txId={txId}
-        chain={chain}
+        txId={sendState?.txId}
+        chain={sendState?.targetChain}
       />
     );
   }
 
-  return (
-    <Modal isOpen={open}>
-      <VerticalFlex padding="36px" height="100%">
-        <HorizontalFlex align={'center'} justify="center" width="100%">
-          <TextButton onClick={() => onBackClick()}>
-            <CaretIcon
-              color={theme.colors.text1}
-              direction={IconDirection.LEFT}
-            />
-          </TextButton>
-          <HorizontalFlex
-            grow="1"
-            align="center"
-            justify="center"
-            padding="0 24px 0 0"
-          >
-            <Typography as={'h1'} size={24} weight={700}>
-              {showTxDetails ? 'Additional fees' : 'Confirm transaction'}
-            </Typography>
-          </HorizontalFlex>
-        </HorizontalFlex>
-        <VerticalFlex margin="32px 0 0 0" align={'center'}>
-          {isAvaxToken(token) ? (
-            <AvaxTokenIcon />
-          ) : (
-            <TokenIcon src={(token as TokenWithBalance).logoURI} />
-          )}
-          <SubTextTypography margin={'8px 0 0 0'} height="24px">
-            Payment amount
-          </SubTextTypography>
-          <Typography margin={'8px 0'} size={24} weight={700} height="29px">
-            {amount || 0} {token.symbol}
-          </Typography>
-          <SubTextTypography size={16} weight={600} height="24px">
-            {amountUsd} USD
-          </SubTextTypography>
-        </VerticalFlex>
+  const amount = Utils.bnToLocaleString(
+    sendState?.amount || new BN(0),
+    token.denomination
+  );
 
-        {showTxDetails ? (
-          <DataCard margin="24px 0" height="300px" padding="24px 0">
-            <SendConsolidationDetails txs={extraTxs} />
-          </DataCard>
-        ) : (
-          <>
-            <DataCard margin="24px 0" padding="16px">
-              <VerticalFlex>
-                <SubTextTypography margin={'0 0 8px 0'}>
-                  Send to
-                </SubTextTypography>
-                <Typography height="17px" size={14} wordBreak="break-all">
-                  {address}
-                </Typography>
-              </VerticalFlex>
-            </DataCard>
-            <DataCard padding="16px">
-              <HorizontalFlex
-                justify={'space-between'}
-                align={'center'}
-                width={'100%'}
-              >
-                <VerticalFlex>
-                  <SubTextTypography margin={'0 0 8px 0'}>
-                    Transaction fee
-                  </SubTextTypography>
-                  <Typography size={14}>{fee || 0} AVAX</Typography>
-                </VerticalFlex>
-                {extraTxs?.length ? (
-                  <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
-                    View Details
-                  </TextButton>
-                ) : null}
-              </HorizontalFlex>
-            </DataCard>
-          </>
-        )}
-        <HorizontalFlex width="100%" grow="1" justify="center" align="flex-end">
+  const amountInCurrency = currencyFormatter(
+    Number(amount || 0) * (token?.priceUSD ?? 0)
+  );
+
+  return (
+    <>
+      {showTxInProgress && <LoadingOverlay />}
+      <HorizontalFlex align={'center'} justify="center" width="100%">
+        <TextButton onClick={() => onBackClick()}>
+          <CaretIcon
+            color={theme.colors.text1}
+            direction={IconDirection.LEFT}
+          />
+        </TextButton>
+        <HorizontalFlex
+          grow="1"
+          align="center"
+          justify="center"
+          padding="0 24px 0 0"
+        >
+          <Typography as={'h1'} size={18} height="22px" weight={700}>
+            {showTxDetails ? 'Additional Fees' : 'Confirm Transaction'}
+          </Typography>
+        </HorizontalFlex>
+      </HorizontalFlex>
+
+      {showTxDetails ? (
+        <VerticalFlex margin="40px 0 0" grow="1">
+          <SendConsolidationDetails txs={sendState?.txs || []} />
           <PrimaryButton
             size={ComponentSize.LARGE}
             onClick={() => {
-              setShowTxInProgress(true);
-              onConfirm && onConfirm();
+              onBackClick();
             }}
           >
-            Confirm
+            Got it
           </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </Modal>
+        </VerticalFlex>
+      ) : (
+        <>
+          <VerticalFlex margin="24px 0 0 0" align={'center'}>
+            {isAvaxToken(token) ? (
+              <AvaxTokenIcon height="31px" />
+            ) : (
+              <TokenIcon
+                src={(token as TokenWithBalance).logoURI}
+                height="31px"
+                width="31px"
+              />
+            )}
+            <SubTextTypography margin={'8px 0 0 0'} height="17px" size={14}>
+              Payment amount
+            </SubTextTypography>
+            <Typography margin={'8px 0'} size={24} weight={700} height="29px">
+              {amount} {token.symbol}
+            </Typography>
+            <SubTextTypography weight={600} height="24px">
+              {token?.priceUSD ? `~${amountInCurrency} USD` : ''}
+            </SubTextTypography>
+          </VerticalFlex>
+          <DataCard margin="24px 0 16px" padding="16px">
+            <VerticalFlex>
+              <SubTextTypography margin={'0 0 8px 0'} height="17px">
+                Send to
+              </SubTextTypography>
+              <Typography height="24px" wordBreak="break-all">
+                {sendState?.address}
+              </Typography>
+            </VerticalFlex>
+          </DataCard>
+          <DataCard padding="16px">
+            <HorizontalFlex
+              justify={'space-between'}
+              align={'center'}
+              width={'100%'}
+            >
+              <VerticalFlex>
+                <SubTextTypography margin={'0 0 8px 0'} height="17px">
+                  Transaction fee
+                </SubTextTypography>
+                <Typography height="24px">{fee || 0} AVAX</Typography>
+              </VerticalFlex>
+              {sendState?.txs?.length ? (
+                <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
+                  View Details
+                </TextButton>
+              ) : null}
+            </HorizontalFlex>
+          </DataCard>
+          <HorizontalFlex
+            width="100%"
+            grow="1"
+            justify="center"
+            align="flex-end"
+          >
+            <PrimaryButton
+              size={ComponentSize.LARGE}
+              onClick={() => {
+                setShowTxInProgress(true);
+                onConfirm();
+              }}
+            >
+              Confirm
+            </PrimaryButton>
+          </HorizontalFlex>
+        </>
+      )}
+    </>
   );
 }

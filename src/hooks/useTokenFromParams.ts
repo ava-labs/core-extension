@@ -7,13 +7,13 @@ export function useTokenFromParams(tokensWBalances?: TokenWithBalance[]) {
   const { avaxToken, erc20Tokens, antTokens } = useWalletContext();
   const { search } = useLocation();
   const [selectedToken, setSelectedToken] = useState<TokenWithBalance>();
-  const tokens = tokensWBalances ?? [...erc20Tokens, ...antTokens];
+  const tokens = tokensWBalances ?? [avaxToken, ...erc20Tokens, ...antTokens];
   useEffect(() => {
     // need to update ts target version so support this feature, browser supports it
     const { token } = (Object as any).fromEntries(
       (new URLSearchParams(search) as any).entries()
     );
-    const targetToken = [avaxToken, ...tokens]?.find(
+    const targetToken = tokens?.find(
       (availToken) => availToken.symbol === token
     );
     targetToken && setSelectedToken(targetToken as TokenWithBalance);

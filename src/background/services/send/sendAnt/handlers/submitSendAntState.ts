@@ -11,6 +11,7 @@ import {
 import { firstValueFrom, lastValueFrom, tap } from 'rxjs';
 import { Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
+import { resolve } from '@src/utils/promiseResolver';
 
 async function submitSendAntState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
@@ -46,15 +47,22 @@ async function submitSendAntState(request: ExtensionConnectionMessage) {
     };
   }
 
-  const result = await lastValueFrom(
-    sendAntSubmit(
-      Promise.resolve<WalletType>(wallet),
-      token,
-      Utils.stringToBN(amount, (token as AntWithBalance).denomination),
-      address
-    ).pipe(tap((value) => sendTxDetails$.next(value)))
-  );
-  return { ...request, result };
+  return await resolve(
+    lastValueFrom(
+      sendAntSubmit(
+        Promise.resolve<WalletType>(wallet),
+        token,
+        Utils.stringToBN(amount, (token as AntWithBalance).denomination),
+        address
+      ).pipe(tap((value) => sendTxDetails$.next(value)))
+    )
+  ).then(([result, error]) => {
+    return {
+      ...request,
+      result: result || undefined,
+      error: error ? error?.message || error.toString() : undefined,
+    };
+  });
 }
 
 export const SubmitSendAntStateRequest: [

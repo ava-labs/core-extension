@@ -8,6 +8,7 @@ import { firstValueFrom, lastValueFrom, of, tap } from 'rxjs';
 import { gasPrice$ } from '../../../gas/gas';
 import { Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
+import { resolve } from '@src/utils/promiseResolver';
 
 async function submitSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address, gasLimit] = request.params || [];
@@ -58,21 +59,24 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
     };
   }
 
-  const result = await lastValueFrom(
-    sendErc20Submit(
-      token,
-      Promise.resolve<WalletType>(wallet),
-      Utils.stringToBN(amount, 18),
-      address,
-      Promise.resolve(gasPrice),
-      of(gasLimit)
-    ).pipe(tap((value) => sendTxDetails$.next(value)))
-  );
-
-  return {
-    ...request,
-    result,
-  };
+  return await resolve(
+    lastValueFrom(
+      sendErc20Submit(
+        token,
+        Promise.resolve<WalletType>(wallet),
+        Utils.stringToBN(amount, 60),
+        address,
+        Promise.resolve(gasPrice),
+        of(gasLimit)
+      ).pipe(tap((value) => sendTxDetails$.next(value)))
+    )
+  ).then(([result, error]) => {
+    return {
+      ...request,
+      result: result || undefined,
+      error: error ? error?.message || error.toString() : undefined,
+    };
+  });
 }
 
 export const SubmitSendErc20StateRequest: [
