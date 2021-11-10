@@ -103,7 +103,7 @@ export function SignTransactionPage() {
               {...(displayData as SwapExactTokensForTokenDisplayValues)}
             />
           ),
-          [ContractCall.APPROVE]: <ApproveTx />,
+          [ContractCall.APPROVE]: <ApproveTx {...displayData} />,
           [ContractCall.ADD_LIQUIDITY]: (
             <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
           ),
