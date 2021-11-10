@@ -7,6 +7,7 @@ import {
   useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { LoginIllustration } from '@src/components/common/LoginIllustation';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
 import React, { useState } from 'react';
@@ -59,9 +60,7 @@ export function WalletLocked({
         Welcome Back!
       </Typography>
       <VerticalFlex grow="1" justify="center" align="center">
-        <IllustrationPlaceholder>
-          <Typography>Illustration</Typography>
-        </IllustrationPlaceholder>
+        <LoginIllustration size={146} />
       </VerticalFlex>
       <VerticalFlex align="center" height="105px">
         <Input
