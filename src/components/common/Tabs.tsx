@@ -66,10 +66,15 @@ export const TabList = styled(ReactTabList)<{
       : '';
   }}
 `;
+
 export const TabPanel = styled(ReactTabPanel)<{
+  // only applied when the tab is selected to prevent the hidden tab to take up space
   grow: string;
 }>`
   display: flex;
   flex-direction: column;
-  ${({ grow }) => `flex-grow: ${grow};`}
+
+  &.react-tabs__tab-panel--selected {
+    ${({ grow }) => `flex-grow: ${grow};`}
+  }
 `;

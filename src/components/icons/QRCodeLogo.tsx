@@ -21,9 +21,11 @@ function CircularText({ text }: { text: string }) {
 
 export function QRCodeLogo({
   text,
+  size = 91,
   className,
 }: {
   text: string;
+  size: number;
   className?: string;
 }) {
   const theme = useTheme();
@@ -33,16 +35,16 @@ export function QRCodeLogo({
       position="relative"
       radius="50%"
       background={theme.colors.bg3}
-      width="100px"
-      height="100px"
+      width={`${size}px`}
+      height={`${size}px`}
       padding="4px"
       align="center"
       justify="center"
     >
       <svg
         style={{ position: 'absolute' }}
-        width="60"
-        height="60"
+        width={Math.floor(size * 0.6)}
+        height={Math.floor(size * 0.6)}
         viewBox="0 0 41 41"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
