@@ -4,9 +4,15 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { OnboardingPhase } from '../models';
-import { onboardingCurrentPhase, onboardingPassword } from '../onboardingFlows';
+import {
+  onboardingCurrentPhase$,
+  onboardingPassword$,
+  onboardingAccountName$,
+} from '../onboardingFlows';
 
-export async function setWalletPassword(request: ExtensionConnectionMessage) {
+export async function setWalletPasswordAndName(
+  request: ExtensionConnectionMessage
+) {
   const params = request.params;
 
   if (!params) {
@@ -15,8 +21,7 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
       error: 'params missing from request',
     };
   }
-
-  const password = params.pop();
+  const [password, accountName, isImportFlow] = params;
 
   if (!password) {
     return {
@@ -25,8 +30,11 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
     };
   }
 
-  onboardingPassword.next(password);
-  onboardingCurrentPhase.next(OnboardingPhase.CONFIRM);
+  onboardingPassword$.next(password);
+  onboardingAccountName$.next(accountName || 'Account 1');
+  onboardingCurrentPhase$.next(
+    isImportFlow ? OnboardingPhase.IMPORT_WALLET : OnboardingPhase.CREATE_WALLET
+  );
 
   return {
     ...request,
@@ -37,4 +45,7 @@ export async function setWalletPassword(request: ExtensionConnectionMessage) {
 export const SetOnboardingPasswordRequest: [
   ExtensionRequest,
   ConnectionRequestHandler
-] = [ExtensionRequest.ONBOARDING_SET_PASSWORD, setWalletPassword];
+] = [
+  ExtensionRequest.ONBOARDING_SET_PASSWORD_AND_NAME,
+  setWalletPasswordAndName,
+];

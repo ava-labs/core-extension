@@ -4,7 +4,10 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { OnboardingPhase } from '../models';
-import { onboardingCurrentPhase, onboardingMnemonic } from '../onboardingFlows';
+import {
+  onboardingCurrentPhase$,
+  onboardingMnemonic$,
+} from '../onboardingFlows';
 
 export async function setWalletMnemonic(request: ExtensionConnectionMessage) {
   const params = request.params;
@@ -25,8 +28,8 @@ export async function setWalletMnemonic(request: ExtensionConnectionMessage) {
     };
   }
 
-  onboardingMnemonic.next(mnemonic);
-  onboardingCurrentPhase.next(OnboardingPhase.PASSWORD);
+  onboardingMnemonic$.next(mnemonic);
+  onboardingCurrentPhase$.next(OnboardingPhase.FINALIZE);
   return {
     ...request,
     result: true,

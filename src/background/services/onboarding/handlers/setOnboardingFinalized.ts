@@ -3,12 +3,12 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { onboardingFinalized } from '../onboardingFlows';
+import { onboardingFinalized$ } from '../onboardingFlows';
 
 export async function setOnboardingFinalized(
   request: ExtensionConnectionMessage
 ) {
-  onboardingFinalized.next(true);
+  onboardingFinalized$.next(true);
 
   return {
     ...request,

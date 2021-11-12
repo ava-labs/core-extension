@@ -7,12 +7,21 @@ import {
   RecoveryPhraseIcon,
   TextButton,
   ComponentSize,
+  HorizontalFlex,
+  CaretIcon,
+  IconDirection,
+  CloseIcon,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTheme } from 'styled-components';
 import * as bip39 from 'bip39';
 
-export const Import = ({ onCancel }: { onCancel(): void }) => {
+interface ImportProps {
+  onCancel(): void;
+  onBack(): void;
+}
+
+export const Import = ({ onCancel, onBack }: ImportProps) => {
   const theme = useTheme();
   const { setMnemonic } = useOnboardingContext();
   const [recoveryPhrase, setRecoveryPhrase] = useState('');
@@ -36,43 +45,46 @@ export const Import = ({ onCancel }: { onCancel(): void }) => {
     !(recoveryPhrase && recoveryPhrase.split(' ').length === 24) || !!error;
 
   return (
-    <VerticalFlex
-      width="100%"
-      align="center"
-      padding="62px 0 36px"
-      justify="space-between"
-    >
-      <VerticalFlex align="center">
-        <RecoveryPhraseIcon color={theme.colors.text1} />
-        <Typography as="h1" size={24} weight="bold" margin="28px 0 8px">
+    <VerticalFlex width="100%" align="center" padding="16px 0">
+      <HorizontalFlex width="100%" justify="space-between" align="center">
+        <TextButton onClick={onBack}>
+          <CaretIcon
+            direction={IconDirection.LEFT}
+            height="18px"
+            color={theme.colors.icon1}
+          />
+        </TextButton>
+        <Typography as="h1" size={24} weight={700} height="29px">
           Secret Recovery Phrase
         </Typography>
-        <Typography align="center" margin="0 0 46px" height="24px">
+        <TextButton onClick={onCancel}>
+          <CloseIcon height="18px" color={theme.colors.icon1} />
+        </TextButton>
+      </HorizontalFlex>
+      <VerticalFlex align="center" grow="1">
+        <Typography align="center" margin="8px 0 0" height="24px">
           Access an existing wallet with your
           <br />
-          Security Recovery Phrase.
+          secret recovery phrase.
         </Typography>
         <TextArea
           margin="40px 0 0 0"
           error={!!error}
           errorMessage={error}
+          placeholder="Type your recovery phrase"
           onChange={onPhraseChanged}
         ></TextArea>
       </VerticalFlex>
-      <VerticalFlex align="center">
+      <VerticalFlex align="center" margin="0 0 40px">
         <PrimaryButton
           size={ComponentSize.LARGE}
-          margin="24px 0"
           disabled={nextButtonDisabled}
           onClick={async () => {
             setMnemonic(recoveryPhrase);
           }}
         >
-          <Typography size={14} weight={600} color="inherit">
-            Enter
-          </Typography>
+          Enter
         </PrimaryButton>
-        <TextButton onClick={() => onCancel()}>Back</TextButton>
       </VerticalFlex>
     </VerticalFlex>
   );
