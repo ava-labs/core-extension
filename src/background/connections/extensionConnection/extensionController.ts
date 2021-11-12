@@ -55,6 +55,8 @@ import { GetAccountsRequest } from '@src/background/services/accounts/handlers/g
 import { SelectAccountRequest } from '@src/background/services/accounts/handlers/selectAccount';
 import { RenameAccountRequest } from '@src/background/services/accounts/handlers/renameAccount';
 import { AddAccountRequest } from '@src/background/services/accounts/handlers/addAccount';
+import { GetSwapRateRequest } from '@src/background/services/swap/handlers/getSwapRate';
+import { PerformSwapRequest } from '@src/background/services/swap/handlers/performSwap';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -111,6 +113,9 @@ const extensionRequestHandlerMap = new Map<
   CreateFavoriteRequest,
   GetFavoritesRequest,
   RemoveFavoriteRequest,
+
+  GetSwapRateRequest,
+  PerformSwapRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {

@@ -9,6 +9,7 @@ import {
 } from '@avalabs/react-components';
 import {
   ERC20WithBalance,
+  isAntToken,
   isAvaxToken,
 } from '@avalabs/wallet-react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
@@ -21,6 +22,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useTheme } from 'styled-components';
 import { Receive } from '../Receive/Receive';
+import { ReceiveMiniMode } from '../Receive/Receive.minimode';
 import { SendFlow } from '../Send/SendFlow';
 
 export function TokenFlowMiniMode() {
@@ -96,8 +98,15 @@ export function TokenFlowMiniMode() {
           <TabPanel grow="1">
             <SendFlow />
           </TabPanel>
-          <TabPanel>
-            <Receive />
+          <TabPanel grow="1">
+            <VerticalFlex grow="1" padding="32px 0 0 0">
+              <ReceiveMiniMode
+                embedded={true}
+                limitToChain={
+                  isAvaxToken(token) ? undefined : isAntToken(token) ? 'X' : 'C'
+                }
+              />
+            </VerticalFlex>
           </TabPanel>
           {/* <TabPanel>activities</TabPanel> */}
         </Tabs>

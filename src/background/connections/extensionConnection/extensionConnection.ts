@@ -4,7 +4,7 @@ import {
   extensionMessageHandler,
 } from './extensionController';
 import { OnboardingPhase } from '../../services/onboarding/models';
-import { onboardingCurrentPhase } from '../../services/onboarding/onboardingFlows';
+import { onboardingCurrentPhase$ } from '../../services/onboarding/onboardingFlows';
 import { connectionLog, disconnectLog } from '@src/utils/logging';
 
 export function extensionConnection(connection: Runtime.Port) {
@@ -18,7 +18,7 @@ export function extensionConnection(connection: Runtime.Port) {
     connection.onMessage.removeListener(onMessageHandler);
     connection.onDisconnect.removeListener(onDisconnectHandler);
     onEventsSubscription.unsubscribe();
-    onboardingCurrentPhase.next(OnboardingPhase.RESTART);
+    onboardingCurrentPhase$.next(OnboardingPhase.RESTART);
     disconnectLog('extension');
   });
 }

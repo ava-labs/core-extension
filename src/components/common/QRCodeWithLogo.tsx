@@ -10,20 +10,22 @@ const StyledQRCodeLogo = styled(QRCodeLogo)`
 
 export function QRCodeWithLogo({
   value,
+  size = 182,
   className,
   logoText,
 }: {
   value: string;
   className?: string;
   logoText?: string;
+  size?: number;
 }) {
   const theme = useTheme();
   return (
     <VerticalFlex
       position="relative"
-      padding="12px"
+      padding={`${Math.ceil(size * 0.06)}px`}
       background={theme.colors.bg1}
-      radius="4px"
+      radius={theme.borderRadius}
       className={className}
       align="center"
       justify="center"
@@ -34,9 +36,9 @@ export function QRCodeWithLogo({
         bgColor={theme.colors.bg1}
         value={value}
         level="H"
-        size={200}
+        size={size}
       />
-      {logoText && <StyledQRCodeLogo text={logoText} />}
+      {logoText && <StyledQRCodeLogo text={logoText} size={size / 2} />}
     </VerticalFlex>
   );
 }

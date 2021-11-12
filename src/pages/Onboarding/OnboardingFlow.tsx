@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CreatePassword } from '@src/pages/Onboarding/CreatePassword';
-import { AllDone } from '@src/pages/Onboarding/AllDone';
 import { CreateWallet } from './CreateWallet/CreateWallet';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { Import } from './ImportWallet';
@@ -8,37 +7,67 @@ import { Welcome } from './Welcome';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { Card, HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { Logo } from '@src/components/icons/Logo';
+import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+
+const ECOSYSTEM_URL = 'https://ecosystem.avax.network';
 
 export function OnboardingFlow() {
   const { onboardingPhase, onboardingState, setNextPhase, setFinalized } =
     useOnboardingContext();
+  const [isImportFlow, setIsImportFlow] = useState<boolean>(false);
 
   async function handleOnCancel() {
     await setNextPhase(OnboardingPhase.RESTART);
   }
   useEffect(() => {
     if (
-      onboardingPhase === OnboardingPhase.CONFIRM &&
+      onboardingPhase === OnboardingPhase.FINALIZE &&
       !onboardingState.isOnBoarded
     ) {
       setFinalized();
+      window.location.href = ECOSYSTEM_URL;
     }
   }, [onboardingPhase, onboardingState.isOnBoarded, setFinalized]);
 
-  let content = onboardingState.isOnBoarded ? <AllDone /> : <Welcome />;
+  useEffect(() => {
+    if (onboardingState.isOnBoarded) {
+      window.location.href = ECOSYSTEM_URL;
+    }
+  }, []);
+
+  let content = (
+    <Welcome
+      onNext={(isImport) => {
+        setIsImportFlow(isImport);
+        setNextPhase(OnboardingPhase.PASSWORD);
+      }}
+    />
+  );
+
   switch (onboardingPhase) {
     case OnboardingPhase.CREATE_WALLET:
-      content = <CreateWallet onCancel={handleOnCancel} />;
+      content = (
+        <CreateWallet
+          onCancel={handleOnCancel}
+          onBack={() => setNextPhase(OnboardingPhase.PASSWORD)}
+        />
+      );
       break;
     case OnboardingPhase.IMPORT_WALLET:
-      content = <Import onCancel={handleOnCancel} />;
+      content = <Import onCancel={handleOnCancel} onBack={handleOnCancel} />;
       break;
     case OnboardingPhase.PASSWORD:
-      content = <CreatePassword onCancel={handleOnCancel} />;
+      content = (
+        <CreatePassword
+          onCancel={handleOnCancel}
+          onBack={handleOnCancel}
+          isImportFlow={isImportFlow}
+        />
+      );
       break;
     case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:
-      content = <AllDone />;
+      content = <LoadingOverlay />;
       break;
   }
 

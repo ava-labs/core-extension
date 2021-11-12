@@ -9,13 +9,13 @@ import { saveAccountsToStorage } from '../storage';
 import { firstValueFrom } from 'rxjs';
 import { accounts$ } from '../accounts';
 
-export async function addAccount() {
+export async function addAccount(accountName?: string) {
   const accounts = await firstValueFrom(accounts$);
 
   const newAccount = addAccountSDK();
   accounts.push({
     index: newAccount.index,
-    name: `Account ${newAccount.index + 1}`,
+    name: accountName || `Account ${newAccount.index + 1}`,
     active: false,
   });
 

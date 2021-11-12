@@ -7,54 +7,48 @@ import {
   TextButton,
   ComponentSize,
 } from '@avalabs/react-components';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { LoginIllustration } from '@src/components/common/LoginIllustation';
 
-export function Welcome() {
-  const { setNextPhase } = useOnboardingContext();
+interface WelcomeProps {
+  onNext: (isImportFlow: boolean) => void;
+}
 
+export function Welcome({ onNext }: WelcomeProps) {
   return (
     <VerticalFlex
       width="100%"
       align="center"
-      padding="72px 0 22px"
+      padding="16px 0"
       justify="space-between"
     >
-      <VerticalFlex align="center" grow="1">
-        <Typography as="h1" size={24} weight="bold">
-          Welcome!
-        </Typography>
-        <VerticalFlex justify="center" grow="1">
-          <LoginIllustration size={182} variant="secondary" />
-        </VerticalFlex>
+      <Typography as="h1" size={24} height="29px" weight={700}>
+        Welcome to Avalanche!
+      </Typography>
+      <VerticalFlex justify="center" grow="1">
+        <LoginIllustration size={182} variant="secondary" />
       </VerticalFlex>
       <VerticalFlex align="center">
         <PrimaryButton
           size={ComponentSize.LARGE}
           onClick={() => {
-            setNextPhase(OnboardingPhase.CREATE_WALLET);
+            onNext(false);
           }}
         >
-          <Typography size={14} weight={600}>
-            Create a new wallet
-          </Typography>
+          Create new wallet
         </PrimaryButton>
 
         <SecondaryButton
-          margin="24px 0"
+          margin="16px 0"
           size={ComponentSize.LARGE}
           onClick={() => {
-            setNextPhase(OnboardingPhase.IMPORT_WALLET);
+            onNext(true);
           }}
         >
-          <Typography size={14} weight={600}>
-            I already have a wallet
-          </Typography>
+          Access existing wallet
         </SecondaryButton>
 
-        <TextButton as="a" margin="24px 0">
-          Terms
+        <TextButton as="a" margin="18px 0 0">
+          Terms and Conditions
         </TextButton>
       </VerticalFlex>
     </VerticalFlex>

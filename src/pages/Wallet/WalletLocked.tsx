@@ -70,6 +70,7 @@ export function WalletLocked({
           placeholder="Password"
           error={!!error}
           errorMessage={error}
+          autoFocus
         />
       </VerticalFlex>
       <PrimaryButton
