@@ -119,6 +119,9 @@ export enum ExtensionRequest {
   FAVORITES_CREATE = 'favorites_create',
   FAVORITES_REMOVE = 'favorites_remove',
   FAVORITES_GET = 'favorites_get',
+
+  SWAP_GET_RATE = 'swap_get_rate',
+  SWAP_PERFORM = 'swap_perform',
 }
 
 export enum ProviderRequest {

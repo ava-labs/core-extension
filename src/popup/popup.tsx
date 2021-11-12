@@ -35,6 +35,10 @@ const ActivityFlow = React.lazy(() => {
   return import('../pages/Activity/ActivityFlow');
 });
 
+const Swap = React.lazy(() => {
+  return import('../pages/Swap/Swap');
+});
+
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
@@ -50,6 +54,7 @@ import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
 import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
 import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
+import { SwapContextProvider } from '@src/contexts/SwapProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 
 export function Popup() {
@@ -70,123 +75,131 @@ export function Popup() {
             <AccountsContextProvider>
               <WalletContextProvider>
                 <SettingsContextProvider>
-                  <GlobalStyles />
-                  <VerticalFlex
-                    height={dimensions.height}
-                    width={dimensions.width}
-                    maxHeight={drawerOpen ? '100%' : 'auto'}
-                    overflow={drawerOpen ? 'hidden' : 'auto'}
-                    align="center"
-                    margin="auto"
-                  >
-                    <VerticalFlex width="100%">
-                      {!isConfirm ? (
-                        <HeaderFlow onDrawerStateChanged={setDrawerOpen} />
-                      ) : (
-                        ''
-                      )}
-                    </VerticalFlex>
-
-                    <HorizontalFlex
-                      flex={1}
-                      justify={'center'}
-                      margin={isMiniMode ? '' : '16px 0'}
-                      maxWidth={isMiniMode ? '100%' : '90%'}
-                      width={appWidth}
+                  <SwapContextProvider>
+                    <GlobalStyles />
+                    <VerticalFlex
+                      height={dimensions.height}
+                      width={dimensions.width}
+                      maxHeight={drawerOpen ? '100%' : 'auto'}
+                      overflow={drawerOpen ? 'hidden' : 'auto'}
+                      align="center"
+                      margin="auto"
                     >
-                      <Switch>
-                        <Route path="/token/add">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <AddToken />
-                          </React.Suspense>
-                        </Route>
+                      <VerticalFlex width="100%">
+                        {!isConfirm ? (
+                          <HeaderFlow onDrawerStateChanged={setDrawerOpen} />
+                        ) : (
+                          ''
+                        )}
+                      </VerticalFlex>
 
-                        <Route path="/home">
-                          <HomeFlow />
-                        </Route>
+                      <HorizontalFlex
+                        flex={1}
+                        justify={'center'}
+                        margin={isMiniMode ? '' : '16px 0'}
+                        maxWidth={isMiniMode ? '100%' : '90%'}
+                        width={appWidth}
+                      >
+                        <Switch>
+                          <Route path="/token/add">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <AddToken />
+                            </React.Suspense>
+                          </Route>
 
-                        <Route path="/sign/transaction">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <SignTransactionPage />
-                          </React.Suspense>
-                        </Route>
+                          <Route path="/home">
+                            <HomeFlow />
+                          </Route>
 
-                        <Route path="/sign">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <SignMessage />
-                          </React.Suspense>
-                        </Route>
+                          <Route path="/sign/transaction">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <SignTransactionPage />
+                            </React.Suspense>
+                          </Route>
 
-                        <Route path="/permissions">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <PermissionsPage />
-                          </React.Suspense>
-                        </Route>
+                          <Route path="/sign">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <SignMessage />
+                            </React.Suspense>
+                          </Route>
 
-                        <Route path="/settings">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <SettingsPage />
-                          </React.Suspense>
-                        </Route>
+                          <Route path="/permissions">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <PermissionsPage />
+                            </React.Suspense>
+                          </Route>
 
-                        <Route path="/token">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <TokenFlowPage />
-                          </React.Suspense>
-                        </Route>
+                          <Route path="/settings">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <SettingsPage />
+                            </React.Suspense>
+                          </Route>
 
-                        <Route path="/receive">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <ReceiveFlow />
-                          </React.Suspense>
-                        </Route>
-
-                        <Route path="/send">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <WalletHomeSend />
-                          </React.Suspense>
-                        </Route>
-
-                        <Route path="/activity">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <ActivityFlow />
-                          </React.Suspense>
-                        </Route>
-
-                        <Route path="/sign">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <SignMessage />
-                          </React.Suspense>
-                        </Route>
-
-                        <Route path="/permissions">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <PermissionsPage />
-                          </React.Suspense>
-                        </Route>
-
-                        <Route path="/settings">
-                          <React.Suspense fallback={<LoadingIcon />}>
-                            <SettingsPage />
-                          </React.Suspense>
-                        </Route>
-
-                        {isMiniMode ? (
                           <Route path="/token">
                             <React.Suspense fallback={<LoadingIcon />}>
                               <TokenFlowPage />
                             </React.Suspense>
                           </Route>
-                        ) : (
-                          ''
-                        )}
 
-                        <Route path="/">
-                          <Redirect to="/home" />
-                        </Route>
-                      </Switch>
-                    </HorizontalFlex>
-                  </VerticalFlex>
+                          <Route path="/receive">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <ReceiveFlow />
+                            </React.Suspense>
+                          </Route>
+
+                          <Route path="/send">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <WalletHomeSend />
+                            </React.Suspense>
+                          </Route>
+
+                          <Route path="/activity">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <ActivityFlow />
+                            </React.Suspense>
+                          </Route>
+
+                          <Route path="/sign">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <SignMessage />
+                            </React.Suspense>
+                          </Route>
+
+                          <Route path="/permissions">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <PermissionsPage />
+                            </React.Suspense>
+                          </Route>
+
+                          <Route path="/settings">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <SettingsPage />
+                            </React.Suspense>
+                          </Route>
+
+                          <Route path="/swap">
+                            <React.Suspense fallback={<LoadingIcon />}>
+                              <Swap />
+                            </React.Suspense>
+                          </Route>
+
+                          {isMiniMode ? (
+                            <Route path="/token">
+                              <React.Suspense fallback={<LoadingIcon />}>
+                                <TokenFlowPage />
+                              </React.Suspense>
+                            </Route>
+                          ) : (
+                            ''
+                          )}
+
+                          <Route path="/">
+                            <Redirect to="/home" />
+                          </Route>
+                        </Switch>
+                      </HorizontalFlex>
+                    </VerticalFlex>
+                  </SwapContextProvider>
                 </SettingsContextProvider>
               </WalletContextProvider>
             </AccountsContextProvider>

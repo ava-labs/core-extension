@@ -67,23 +67,24 @@ export function BottomNav() {
         </VerticalFlex>
       </TextButton>
 
-      <TextButton title="coming soon" disabled={true}>
+      <TextButton onClick={() => history.push('/swap')}>
         <VerticalFlex width="50px" align="center">
-          <SwapArrowsIcon
-            height={'26px'}
-            color={setColorWhenActive('/swap', true)}
-          />
+          <SwapArrowsIcon height={'26px'} color={setColorWhenActive('/swap')} />
           <Typography
             size={12}
             margin="8px 0 0"
-            color={setColorWhenActive('/swap', true)}
+            color={setColorWhenActive('/swap')}
           >
             Swap
           </Typography>
         </VerticalFlex>
       </TextButton>
 
-      <TextButton title="coming soon" disabled={true}>
+      <TextButton
+        title="coming soon"
+        disabled={true}
+        onClick={() => history.push('/bridge')}
+      >
         <VerticalFlex width="50px" align="center">
           <BridgeIcon
             height={'26px'}
