@@ -32,6 +32,7 @@ export function ApproveTx({
   feeUSD,
   txParams,
   setShowCustomFees,
+  setShowCustomSpendLimit,
   ...rest
 }: ApproveTransactionData) {
   const { currencyFormatter, currency } = useSettingsContext();
@@ -97,7 +98,7 @@ export function ApproveTx({
           </Typography>
         </HorizontalFlex>
         <HorizontalFlex>
-          <TextButton onClick={() => setShowCustomFees(true)}>
+          <TextButton onClick={() => setShowCustomSpendLimit(true)}>
             <Typography size={12} color={theme.colors.primary1} weight={600}>
               Edit
             </Typography>
@@ -135,6 +136,7 @@ export function ApproveTx({
       <Typography align="center" height="24px">
         Allow {site?.domain} to spend your {tokenToBeApproved.name}
       </Typography>
+
       {/* Tabs */}
       <VerticalFlex margin="32px 0 0 0" width="100%">
         <Tabs defaultIndex={0}>

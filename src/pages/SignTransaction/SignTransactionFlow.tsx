@@ -26,6 +26,7 @@ import { AddLiquidityTx } from './AddLiquidityTx';
 import { SendInProgress } from '../Send/SendInProgress';
 import { SendConfirmation } from '../Send/SendConfirmation';
 import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
+import { CustomSpendLimit } from './CustomSpendLimit';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTheme } from 'styled-components';
 
@@ -44,6 +45,8 @@ export function SignTransactionPage() {
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const { network } = useNetworkContext();
   const theme = useTheme();
+
+  const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 
@@ -88,6 +91,10 @@ export function SignTransactionPage() {
     );
   }
 
+  if (showCustomSpendLimit) {
+    return <CustomSpendLimit onCancel={() => setShowCustomSpendLimit(false)} />;
+  }
+
   return (
     <VerticalFlex width="100%" align="center">
       <HorizontalFlex>
@@ -107,6 +114,7 @@ export function SignTransactionPage() {
             <ApproveTx
               {...(displayData as ApproveTransactionData)}
               setShowCustomFees={setShowCustomFees}
+              setShowCustomSpendLimit={setShowCustomSpendLimit}
             />
           ),
           [ContractCall.ADD_LIQUIDITY]: (
