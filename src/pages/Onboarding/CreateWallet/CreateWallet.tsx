@@ -6,7 +6,13 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { ConfirmPhrase } from './ConfirmPhrase';
 import { CopyPhrase } from './CopyPhrase';
 
-export function CreateWallet({ onCancel }: { onCancel(): void }) {
+export function CreateWallet({
+  onCancel,
+  onBack,
+}: {
+  onCancel(): void;
+  onBack(): void;
+}) {
   const { setMnemonic } = useOnboardingContext();
   const [isCopied, setIsCopied] = useState(false);
   const [mnemonic, setMnemonicPhrase] = useState('');
@@ -17,8 +23,9 @@ export function CreateWallet({ onCancel }: { onCancel(): void }) {
 
   return isCopied ? (
     <ConfirmPhrase
+      onBack={() => setIsCopied(false)}
       onNext={() => setMnemonic(mnemonic)}
-      onCancel={() => setIsCopied(false)}
+      onCancel={onCancel}
       mnemonic={mnemonic}
     />
   ) : (
@@ -26,6 +33,7 @@ export function CreateWallet({ onCancel }: { onCancel(): void }) {
       onNext={() => setIsCopied(true)}
       onCancel={onCancel}
       mnemonic={mnemonic}
+      onBack={onBack}
     />
   );
 }

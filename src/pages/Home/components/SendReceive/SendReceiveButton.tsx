@@ -1,6 +1,5 @@
 import {
   ArrowIcon,
-  HorizontalFlex,
   SecondaryCard,
   TextButton,
   Typography,

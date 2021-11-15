@@ -21,6 +21,12 @@ const StyledTooltip = styled(Tooltip)`
   display: flex;
 `;
 
+const Container = styled(SecondaryCard)`
+  width: 343px;
+  padding: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.stroke1};
+`;
+
 export function TransactionFeeTooltip({
   gasLimit,
   gasPrice,
@@ -32,7 +38,7 @@ export function TransactionFeeTooltip({
   }
 
   const Content = (
-    <SecondaryCard width="343px" padding="16px">
+    <Container>
       <VerticalFlex width="100%">
         <HorizontalFlex width="100%" justify="space-between" margin="0 0 8px 0">
           <Typography size={12}>Gas Limit</Typography>
@@ -45,7 +51,7 @@ export function TransactionFeeTooltip({
           </Typography>
         </HorizontalFlex>
       </VerticalFlex>
-    </SecondaryCard>
+    </Container>
   );
 
   return (

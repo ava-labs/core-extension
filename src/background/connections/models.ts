@@ -68,7 +68,8 @@ export enum ExtensionRequest {
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SET_PHASE = 'onboarding_setCurrentPhase',
   ONBOARDING_SET_MNEMONIC = 'onboarding_setWalletMnemonic',
-  ONBOARDING_SET_PASSWORD = 'onboarding_setWalletPassword',
+  ONBOARDING_SET_PASSWORD_AND_NAME = 'onboarding_setWalletPasswordAndName',
+  ONBOARDING_SET_ACCOUNT_NAME = 'onboarding_setAccountName',
   ONBOARDING_SET_FINALIZED = 'onboarding_setOnboardingFinalized',
 
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
@@ -118,6 +119,9 @@ export enum ExtensionRequest {
   FAVORITES_CREATE = 'favorites_create',
   FAVORITES_REMOVE = 'favorites_remove',
   FAVORITES_GET = 'favorites_get',
+
+  SWAP_GET_RATE = 'swap_get_rate',
+  SWAP_PERFORM = 'swap_perform',
 }
 
 export enum ProviderRequest {

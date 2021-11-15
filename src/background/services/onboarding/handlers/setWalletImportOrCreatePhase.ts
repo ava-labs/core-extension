@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { OnboardingPhase } from '../models';
-import { onboardingCurrentPhase } from '../onboardingFlows';
+import { onboardingCurrentPhase$ } from '../onboardingFlows';
 
 export async function setWalletImportOrCreatePhase(
   request: ExtensionConnectionMessage
@@ -29,7 +29,7 @@ export async function setWalletImportOrCreatePhase(
     };
   }
 
-  onboardingCurrentPhase.next(phase);
+  onboardingCurrentPhase$.next(phase);
 
   return {
     ...request,

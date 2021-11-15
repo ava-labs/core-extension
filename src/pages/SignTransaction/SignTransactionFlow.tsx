@@ -25,14 +25,14 @@ import { SwapTx } from './SwapTx';
 import { UnknownTx } from './UnknownTx';
 import { useGetTransaction } from './useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
-import { SendInProgress } from '../Send/SendInProgress';
-import { SendConfirmation } from '../Send/SendConfirmation';
+import { TransactionInProgress } from './TransactionInProgress';
 import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTheme } from 'styled-components';
+import { TransactionConfirmation } from './TransactionConfirmation';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -67,16 +67,12 @@ export function SignTransactionPage() {
   }
 
   if (showTxInProgress) {
-    return <SendInProgress isOpen={true} />;
+    return <TransactionInProgress isOpen={true} />;
   }
 
   if (hash) {
     return (
-      <SendConfirmation
-        isOpen={true}
-        txId={hash}
-        onClose={() => window.close()}
-      />
+      <TransactionConfirmation txId={hash} onClose={() => window.close()} />
     );
   }
 

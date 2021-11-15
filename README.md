@@ -1,6 +1,6 @@
 # extension-avalanche
-avalanche wallet browser extension
 
+avalanche wallet browser extension
 
 ## Development
 
@@ -8,9 +8,8 @@ avalanche wallet browser extension
 
 ### Chrome Dev
 
-you will have to go to chrome://extensions/ and enable Developer mode.
-click `Load unpacked` and select the `extension-avalanche/dist` directory.
-Click the avalanche icon in the toolbar
+- Go to chrome://extensions/ and enable Developer mode.
+- At the top left of the above url click `Load unpacked` and select the extension folder.
 
 ### Firefox Dev
 
@@ -21,5 +20,3 @@ point to either the `dist/manifest.json` or the zip file from running the build 
 ## Build
 
 - `yarn build` will run everything through webpack and create a zip file in the /builds directory
-
-

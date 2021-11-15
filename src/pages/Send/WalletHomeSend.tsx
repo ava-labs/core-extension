@@ -13,7 +13,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import React, { useEffect } from 'react';
 import { filter, map } from 'rxjs';
 import { TransactionSendType } from './models';
-import { SendForm } from './SendForm';
+import { SendFlow } from './SendFlow';
 
 export function WalletHomeSend() {
   const { events } = useConnectionContext();
@@ -62,7 +62,7 @@ export function WalletHomeSend() {
         value={selectedToken}
         placeholder="Search"
       />
-      <SendForm />
+      <SendFlow />
     </VerticalFlex>
   );
 }

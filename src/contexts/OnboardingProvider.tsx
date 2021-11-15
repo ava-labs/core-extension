@@ -24,9 +24,13 @@ const OnboardingFlow = React.lazy(() => {
 const OnboardingContext = createContext<{
   onboardingState: OnboardingState;
   onboardingPhase?: OnboardingPhase;
-  setNextPhase(phase: OnboardingPhase): Promise<any>;
-  setMnemonic(mnemonic: string): Promise<any>;
-  setPassword(password: string): Promise<any>;
+  setNextPhase(phase: OnboardingPhase): Promise<void>;
+  setMnemonic(mnemonic: string): Promise<void>;
+  setPasswordAndName(
+    password: string,
+    accountName: string,
+    isImportFlow: boolean
+  ): Promise<void>;
   setFinalized(): Promise<any>;
 }>({} as any);
 
@@ -89,10 +93,14 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     });
   }
 
-  function setPassword(password: string) {
+  function setPasswordAndName(
+    password: string,
+    accountName: string,
+    isImportFlow: boolean
+  ) {
     return request!({
-      method: ExtensionRequest.ONBOARDING_SET_PASSWORD,
-      params: [password],
+      method: ExtensionRequest.ONBOARDING_SET_PASSWORD_AND_NAME,
+      params: [password, accountName, isImportFlow],
     });
   }
 
@@ -109,7 +117,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         onboardingPhase,
         setNextPhase,
         setMnemonic,
-        setPassword,
+        setPasswordAndName,
         setFinalized,
       }}
     >

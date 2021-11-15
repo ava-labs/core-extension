@@ -4,7 +4,7 @@ import {
   ERC20,
   SendSubmitResponse,
 } from '@avalabs/wallet-react-components';
-import { BN, ChainIdType } from '@avalabs/avalanche-wallet-sdk';
+import { BN, ChainIdType, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { sendErc20ValidateRequest } from '@src/background/services/send/sendErc20/utils/sendErc20ValidateRequest';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendErc20SubmitRequest } from '@src/background/services/send/sendErc20/utils/sendErc20SubmitRequest';
@@ -47,7 +47,12 @@ export function useSendErc20(
     reset() {
       setSendErc20State(undefined);
     },
-    submit(amount: string) {
+    submit() {
+      const amount = Utils.bnToBig(
+        sendErc20State?.amount || new BN(0),
+        token.denomination
+      ).toString();
+
       return request(
         sendErc20SubmitRequest(
           amount,

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Modal } from '@src/components/common/Modal';
 import {
   LoadingIcon,
   SubTextTypography,
@@ -7,6 +6,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
+import { Modal } from '@src/components/common/Modal';
 
 const IllustrationPlaceholder = styled(VerticalFlex)`
   width: 212px;
@@ -17,7 +17,7 @@ const IllustrationPlaceholder = styled(VerticalFlex)`
   align-items: center;
 `;
 
-export function SendInProgress({ isOpen }: { isOpen: boolean }) {
+export function TransactionInProgress({ isOpen }: { isOpen: boolean }) {
   const theme = useTheme();
   return (
     <Modal isOpen={isOpen}>
