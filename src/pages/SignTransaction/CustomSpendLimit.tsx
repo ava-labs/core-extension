@@ -1,6 +1,6 @@
 import {
   HorizontalFlex,
-  Input,
+  BNInput,
   PrimaryButton,
   TextButton,
   Typography,
@@ -9,70 +9,29 @@ import {
   IconDirection,
   SubTextTypography,
   Card,
+  //   Radio,
 } from '@avalabs/react-components';
-import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import React, { useEffect, useState } from 'react';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import React, { useState } from 'react';
 import { useTheme } from 'styled-components';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { VerifyPChainError } from '@avalabs/wallet-react-components';
+import { truncateAddress } from '@src/utils/truncateAddress';
 
-export function CustomSpendLimit({
-  // limit,
-  // gasPrice,
-  // onSave,
-  onCancel,
-}) {
+export function CustomSpendLimit({ onCancel, onSpendLimitChanged, token }) {
   // }: {
-  //   limit: string;
-  //   gasPrice: GasPrice;
-  //   onSave(gasPrice: GasPrice, gasLimit: string): void;
+  //   token: ERC20TOken;
+  //   onSpendLimitChanged(spendLimit: string): void;
   //   onCancel(): void;
   // }) {
-  const { avaxPrice } = useWalletContext();
-  const { currencyFormatter } = useSettingsContext();
-  const [customGasPrice, setCustomGasPrice] = useState<string>('');
-  const [customTipFee, setCustomTipFee] = useState<string>('');
-  const [customGasLimit, setCustomGasLimit] = useState<string>('');
-  const [newFees, setNewFees] =
-    useState<ReturnType<typeof calculateGasAndFees>>();
+  const { avaxToken, addresses } = useWalletContext();
+  const [customSpendLimit, setCustomSpendLimit] = useState<string>('');
   const theme = useTheme();
 
-  // useEffect(() => {
-  //   if (customGasPrice && customGasLimit) {
-  //     const gas = {
-  //       bn: Utils.stringToBN(customGasPrice, 9),
-  //       value: customGasPrice,
-  //     };
-
-  //     setNewFees(calculateGasAndFees(gas, customGasLimit, avaxPrice));
-  //   }
-  // }, [customGasPrice, customTipFee, customGasLimit]);
-
-  // useEffect(() => {
-  //   if (!customGasLimit) {
-  //     setCustomGasLimit(limit);
-  //   }
-
-  //   if (!customGasPrice || Number(customGasPrice) < Number(gasPrice.value)) {
-  //     setCustomGasPrice(gasPrice.value);
-  //   }
-  // }, [limit, gasPrice]);
-
   function handleOnSave() {
-    console.log('do something savey');
-
-    //   const gas = {
-    //     bn: Utils.stringToBN(customGasPrice, 9),
-    //     value: customGasPrice,
-    //   };
-    //   onSave && onSave(gas, customGasLimit);
+    onSpendLimitChanged(customSpendLimit);
   }
 
   return (
-    <VerticalFlex margin="24px 0 0 0">
+    <VerticalFlex width="100%" margin="24px 0 0 0">
       {/* Header */}
       <HorizontalFlex align="center">
         <TextButton onClick={() => onCancel && onCancel()} margin="0 108px 0 0">
@@ -96,10 +55,10 @@ export function CustomSpendLimit({
         <Card padding="8px 16px" margin="0 0 34px 0">
           <VerticalFlex>
             <Typography height="24px" padding="0 0 8px 0">
-              {'Account here'}
+              {truncateAddress(addresses.addrC)}
             </Typography>
             <Typography weight={700} height="22px" padding="0 0 4px 0">
-              {'Balance here'}
+              {avaxToken.balanceDisplayValue}
             </Typography>
           </VerticalFlex>
         </Card>
@@ -113,7 +72,34 @@ export function CustomSpendLimit({
           and spend.
         </SubTextTypography>
 
-        {/* Checkbox */}
+        {/* Radio */}
+        <VerticalFlex>
+          <HorizontalFlex>
+            <input
+              type="radio"
+              value={'unlimited'}
+              name="unlimitedGroup"
+              id="unlimited"
+            />
+            <Typography>Unlimited</Typography>
+          </HorizontalFlex>
+          <HorizontalFlex>
+            <input
+              type="radio"
+              value={'custom'}
+              name="unlimitedGroup"
+              id="custom"
+            />
+            <VerticalFlex width="100%">
+              <Typography>Custom Spend Limit</Typography>
+              <BNInput
+                onChange={(value) => setCustomSpendLimit(value.amount)}
+                denomination={token.denomination}
+                placeholder="Maximum Limit"
+              />
+            </VerticalFlex>
+          </HorizontalFlex>
+        </VerticalFlex>
       </VerticalFlex>
 
       <HorizontalFlex flex={1} align="flex-end" width="100%">

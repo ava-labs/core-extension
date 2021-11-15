@@ -92,7 +92,20 @@ export function SignTransactionPage() {
   }
 
   if (showCustomSpendLimit) {
-    return <CustomSpendLimit onCancel={() => setShowCustomSpendLimit(false)} />;
+    return (
+      <CustomSpendLimit
+        token={displayData.tokenToBeApproved}
+        onCancel={() => setShowCustomSpendLimit(false)}
+        onSpendLimitChanged={(spendLimit: string) => {
+          id &&
+            updateTransaction({
+              status: TxStatus.PENDING,
+              id: id,
+              params: [{ spendLimit }],
+            });
+        }}
+      />
+    );
   }
 
   return (
