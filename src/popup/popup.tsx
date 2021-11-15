@@ -52,6 +52,7 @@ import {
 import { GlobalStyles } from '@src/styles';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
+import { Toaster } from '@src/components/common/Toaster';
 import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
 import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
@@ -77,6 +78,8 @@ export function Popup() {
                 <WalletContextProvider>
                   <SwapContextProvider>
                     <GlobalStyles />
+                    <Toaster />
+
                     <VerticalFlex
                       height={dimensions.height}
                       width={dimensions.width}

@@ -9,6 +9,7 @@ import {
   IconDirection,
   CaretIcon,
 } from '@avalabs/react-components';
+import toast from 'react-hot-toast';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled, { useTheme } from 'styled-components';
@@ -128,6 +129,7 @@ export const ReceiveMiniMode = ({
       <AddressBlock
         onClick={() => {
           navigator.clipboard.writeText(getAddress());
+          toast.success('Copied!');
         }}
       >
         <Typography height="24px">

@@ -6,6 +6,7 @@ import {
   LoadingIcon,
   Card,
 } from '@avalabs/react-components';
+import toast from 'react-hot-toast';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SlideSelector } from '@src/components/common/SlideSelector';
@@ -79,6 +80,7 @@ export const Receive = () => {
       <AddressBlock
         onClick={() => {
           navigator.clipboard.writeText(getAddress());
+          toast.success('Copied!');
         }}
       >
         <Typography width="255px" height="24px">
