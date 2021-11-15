@@ -2,6 +2,7 @@ import React from 'react';
 import {
   AvaxTokenIcon,
   CaretIcon,
+  ConnectionIndicator,
   DropDownMenuItem,
   HorizontalFlex,
   HorizontalSeparator,
@@ -21,9 +22,11 @@ import {
 } from '@src/hooks/useIsSpecificContextContainer';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { AvalanceLogo } from './AvalanceLogo';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function MainPage({ navigateTo }: SettingsPageProps) {
   const theme = useTheme();
+  const { isWalletReady } = useWalletContext();
   const { network } = useNetworkContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const {
@@ -53,7 +56,12 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
           Network
         </Typography>
         <HorizontalFlex align="center">
-          <Typography size={14} margin="0 6px" color={theme.colors.text2}>
+          <ConnectionIndicator
+            disableTooltip={true}
+            size={8}
+            connected={isWalletReady}
+          />
+          <Typography size={14} margin="0 8px" color={theme.colors.text2}>
             {network?.name?.replace('Avalanche', '')}
           </Typography>
           <CaretIcon
@@ -73,7 +81,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
           Currency
         </Typography>
         <HorizontalFlex align="center">
-          <Typography size={14} margin="0 6px" color={theme.colors.text2}>
+          <Typography size={14} margin="0 8px" color={theme.colors.text2}>
             {currency}
           </Typography>
           <CaretIcon
