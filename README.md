@@ -2,6 +2,24 @@
 
 avalanche wallet browser extension
 
+## Prerequesites
+
+### Install Yarn
+
+```sh
+npm install --global yarn
+```
+
+### Login to your NPM profile via the CLI
+
+This is so you can install `@avalabs` packages from the NPM registry:
+
+```sh
+npx npm-cli-login -u YOUR_NPM_USERNAME -p YOUR_NPM_PASSWORD -e YOUR_NPM_EMAIL
+```
+
+You can also [set up an access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) if you prefer.
+
 ## Development
 
 - `yarn dev` watches for changes.
