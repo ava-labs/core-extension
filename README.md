@@ -4,11 +4,8 @@ avalanche wallet browser extension
 
 ## Prerequesites
 
-### Install Yarn
-
-```sh
-npm install --global yarn
-```
+- [Install Node](https://nodejs.org/en/download/) (version 16 or upper)
+- [Install Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
 
 ### Login to your NPM profile via the CLI
 
