@@ -8,11 +8,9 @@ export function Toaster() {
   return (
     <ReactHotToaster
       toastOptions={{
-        className: '',
         style: {
           background: theme.colors.text1,
           padding: '12px 24px',
-          color: '#713200',
           borderRadius: '24px',
           height: '48px',
           fontSize: '16px',
