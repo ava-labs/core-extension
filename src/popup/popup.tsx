@@ -70,11 +70,11 @@ export function Popup() {
   return (
     <DialogContextProvider>
       <ConnectionContextProvider>
-        <OnboardingContextProvider>
-          <NetworkContextProvider>
-            <AccountsContextProvider>
-              <WalletContextProvider>
-                <SettingsContextProvider>
+        <SettingsContextProvider>
+          <OnboardingContextProvider>
+            <NetworkContextProvider>
+              <AccountsContextProvider>
+                <WalletContextProvider>
                   <SwapContextProvider>
                     <GlobalStyles />
                     <VerticalFlex
@@ -200,11 +200,11 @@ export function Popup() {
                       </HorizontalFlex>
                     </VerticalFlex>
                   </SwapContextProvider>
-                </SettingsContextProvider>
-              </WalletContextProvider>
-            </AccountsContextProvider>
-          </NetworkContextProvider>
-        </OnboardingContextProvider>
+                </WalletContextProvider>
+              </AccountsContextProvider>
+            </NetworkContextProvider>
+          </OnboardingContextProvider>
+        </SettingsContextProvider>
       </ConnectionContextProvider>
     </DialogContextProvider>
   );
