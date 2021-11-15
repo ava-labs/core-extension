@@ -47,6 +47,10 @@ export interface AddLiquidityDisplayData extends TransactionDisplayValues {
   poolTokens: LiquidityPoolToken[];
 }
 
+export interface ApproveTransactionData extends TransactionDisplayValues {
+  tokenToBeApproved: ERC20WithBalance | AvaxWithBalance;
+}
+
 export interface DisplayValueParserProps {
   gasPrice: GasPrice;
   erc20Tokens: ERC20WithBalance[];

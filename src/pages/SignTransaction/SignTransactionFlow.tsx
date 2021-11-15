@@ -1,18 +1,16 @@
 import {
-  Card,
   HorizontalFlex,
   VerticalFlex,
   PrimaryButton,
   SecondaryButton,
-  Typography,
   SubTextTypography,
-  TextButton,
   LoadingIcon,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
   ContractCall,
   SwapExactTokensForTokenDisplayValues,
+  ApproveTransactionData,
 } from '@src/contracts/contractParsers/models';
 import {
   TransactionDisplayValues,
@@ -27,10 +25,8 @@ import { useGetTransaction } from './useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { TransactionInProgress } from './TransactionInProgress';
 import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
+import { CustomSpendLimit } from './CustomSpendLimit';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
-import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTheme } from 'styled-components';
 import { TransactionConfirmation } from './TransactionConfirmation';
 
@@ -47,9 +43,10 @@ export function SignTransactionPage() {
     ...params
   } = useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const { currencyFormatter, currency } = useSettingsContext();
   const { network } = useNetworkContext();
   const theme = useTheme();
+
+  const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 
@@ -90,49 +87,22 @@ export function SignTransactionPage() {
     );
   }
 
-  const showSummary = () => (
-    <HorizontalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
-      <VerticalFlex>
-        <Typography padding="0 0 4px 0" height="24px" weight={600}>
-          Network Fee
-        </Typography>
-        <TextButton onClick={() => setShowCustomFees(true)}>
-          <Typography size={12} color={theme.colors.primary1} weight={600}>
-            Edit
-          </Typography>
-        </TextButton>
-      </VerticalFlex>
-
-      <VerticalFlex align="flex-end">
-        <Typography padding="0 0 4px 0" weight={600} height="24px">
-          {displayData.fee}
-          <Typography
-            padding="0 0 0 4px"
-            weight={600}
-            color={theme.colors.text2}
-          >
-            AVAX
-          </Typography>
-        </Typography>
-        <SubTextTypography size={12}>
-          ~{currencyFormatter(Number(displayData.feeUSD))} {currency}
-        </SubTextTypography>
-      </VerticalFlex>
-    </HorizontalFlex>
-  );
-
-  const showTxData = (byteStr) => (
-    <VerticalFlex margin="16px 0 0 0" width={'100%'}>
-      <Typography margin="0 0 8px 0" height="24px">
-        Hex Data: {getHexStringToBytes(byteStr)} Bytes
-      </Typography>
-      <Card padding="16px">
-        <Typography size={14} overflow="scroll">
-          {byteStr}
-        </Typography>
-      </Card>
-    </VerticalFlex>
-  );
+  if (showCustomSpendLimit) {
+    return (
+      <CustomSpendLimit
+        token={displayData.tokenToBeApproved}
+        onCancel={() => setShowCustomSpendLimit(false)}
+        onSpendLimitChanged={(spendLimit: string) => {
+          id &&
+            updateTransaction({
+              status: TxStatus.PENDING,
+              id: id,
+              params: [{ spendLimit }],
+            });
+        }}
+      />
+    );
+  }
 
   return (
     <VerticalFlex width="100%" align="center">
@@ -146,9 +116,16 @@ export function SignTransactionPage() {
           [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
             <SwapTx
               {...(displayData as SwapExactTokensForTokenDisplayValues)}
+              setShowCustomFees={setShowCustomFees}
             />
           ),
-          [ContractCall.APPROVE]: <ApproveTx {...displayData} />,
+          [ContractCall.APPROVE]: (
+            <ApproveTx
+              {...(displayData as ApproveTransactionData)}
+              setShowCustomFees={setShowCustomFees}
+              setShowCustomSpendLimit={setShowCustomSpendLimit}
+            />
+          ),
           [ContractCall.ADD_LIQUIDITY]: (
             <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
           ),
@@ -158,23 +135,6 @@ export function SignTransactionPage() {
           ['unknown']: <UnknownTx />,
         }[contractType || 'unknown']
       }
-
-      {/* Tabs */}
-      <VerticalFlex margin="32px 0 0 0" width="100%">
-        <Tabs defaultIndex={0}>
-          <TabList $border={false}>
-            <Tab margin="0 32px 8px 0">
-              <Typography>Summary</Typography>
-            </Tab>
-            <Tab>
-              <Typography>Data</Typography>
-            </Tab>
-          </TabList>
-
-          <TabPanel>{showSummary()}</TabPanel>
-          <TabPanel>{showTxData(displayData.txParams?.data)}</TabPanel>
-        </Tabs>
-      </VerticalFlex>
 
       {/* Action Buttons */}
       <HorizontalFlex
