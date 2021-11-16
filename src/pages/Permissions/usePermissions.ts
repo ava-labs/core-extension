@@ -68,7 +68,6 @@ export function usePermissions(domain?: string) {
   }, [domain]);
 
   function addPermissionsForDomain(permissions: DappPermissions) {
-    debugger;
     return request({
       method: ExtensionRequest.PERMISSIONS_ADD_DOMAIN,
       params: [permissions],
