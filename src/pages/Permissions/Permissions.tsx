@@ -18,6 +18,7 @@ import { usePermissions } from './usePermissions';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { Account } from '@src/background/services/accounts/models';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -68,9 +69,9 @@ export function PermissionsPage() {
     return <LoadingIcon />;
   }
 
-  const selectAccount = (index: number) => {
-    setSelectedAccount(index);
-    updateAccountPermission(index, true);
+  const selectAccount = (account: Account) => {
+    setSelectedAccount(account.index);
+    updateAccountPermission(account.addressC, true);
   };
 
   return (
@@ -128,7 +129,7 @@ export function PermissionsPage() {
                 <SecondaryDropDownMenuItem
                   width="100%"
                   key={account.index}
-                  onClick={() => selectAccount(account.index) as any}
+                  onClick={() => selectAccount(account) as any}
                   selected={account.index === selectedAccount}
                   ref={
                     selectedAccount === account.index

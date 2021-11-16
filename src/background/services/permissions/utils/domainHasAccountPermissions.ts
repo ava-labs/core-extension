@@ -8,6 +8,7 @@ import { Permissions } from '../models';
  * @returns boolean
  */
 export function domainHasAccountsPermissions(
+  address: string,
   domain?: string,
   permissions?: Permissions
 ) {
@@ -16,6 +17,7 @@ export function domainHasAccountsPermissions(
     permissions?.[domain] &&
     permissions[domain].accounts &&
     Object.values(permissions[domain].accounts).length &&
-    Object.values(permissions[domain].accounts).some((value) => value)
+    Object.values(permissions[domain].accounts).some((value) => value) &&
+    !!permissions[domain].accounts[address]
   );
 }
