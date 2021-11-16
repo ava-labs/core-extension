@@ -38,8 +38,6 @@ export function ApproveTx({
   const { currencyFormatter, currency } = useSettingsContext();
   const theme = useTheme();
 
-  console.log(rest);
-
   const showSummary = () => (
     <VerticalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
       <HorizontalFlex justify="space-between">
