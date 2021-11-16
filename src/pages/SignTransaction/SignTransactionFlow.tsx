@@ -90,6 +90,7 @@ export function SignTransactionPage() {
   if (showCustomSpendLimit) {
     return (
       <CustomSpendLimit
+        limit={'big number here'}
         token={displayData.tokenToBeApproved}
         onCancel={() => setShowCustomSpendLimit(false)}
         onSpendLimitChanged={(spendLimit: string) => {

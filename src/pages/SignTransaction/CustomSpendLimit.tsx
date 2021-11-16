@@ -9,25 +9,58 @@ import {
   IconDirection,
   SubTextTypography,
   Card,
-  //   Radio,
+  Radio,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from 'styled-components';
-import { truncateAddress } from '@src/utils/truncateAddress';
+import { ERC20WithBalance } from '@avalabs/wallet-react-components';
+import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
-export function CustomSpendLimit({ onCancel, onSpendLimitChanged, token }) {
-  // }: {
-  //   token: ERC20TOken;
-  //   onSpendLimitChanged(spendLimit: string): void;
-  //   onCancel(): void;
-  // }) {
+enum Limit {
+  UNLIMITED = 'UNLIMITED',
+  CUSTOM = 'CUSTOM',
+}
+
+export function CustomSpendLimit({
+  onCancel,
+  onSpendLimitChanged,
+  token,
+  limit,
+}: {
+  limit: string;
+  token: ERC20WithBalance;
+  onSpendLimitChanged(spendLimit: string): void;
+  onCancel(): void;
+}) {
   const { avaxToken, addresses } = useWalletContext();
+  const { activeAccount } = useAccountsContext();
   const [customSpendLimit, setCustomSpendLimit] = useState<string>('');
+  const [checked, setChecked] = useState<Limit>(Limit.UNLIMITED);
   const theme = useTheme();
 
+  console.log(addresses);
+
+  useEffect(() => {
+    if (!customSpendLimit || checked === Limit.UNLIMITED) {
+      setCustomSpendLimit(limit);
+    }
+  }, [limit, checked]);
+
+  function handleOnChange(e: any) {
+    setChecked(e.target.value);
+  }
+
   function handleOnSave() {
-    onSpendLimitChanged(customSpendLimit);
+    if (checked === Limit.UNLIMITED) {
+      // set customSpendLimit to BIG NUMBER
+      setCustomSpendLimit('reallybignumber');
+    }
+
+    console.log(customSpendLimit);
+
+    // onSpendLimitChanged(customSpendLimit);
   }
 
   return (
@@ -55,10 +88,10 @@ export function CustomSpendLimit({ onCancel, onSpendLimitChanged, token }) {
         <Card padding="8px 16px" margin="0 0 34px 0">
           <VerticalFlex>
             <Typography height="24px" padding="0 0 8px 0">
-              {truncateAddress(addresses.addrC)}
+              {activeAccount?.name}
             </Typography>
             <Typography weight={700} height="22px" padding="0 0 4px 0">
-              {avaxToken.balanceDisplayValue}
+              {avaxToken.balanceDisplayValue} AVAX
             </Typography>
           </VerticalFlex>
         </Card>
@@ -73,32 +106,34 @@ export function CustomSpendLimit({ onCancel, onSpendLimitChanged, token }) {
         </SubTextTypography>
 
         {/* Radio */}
-        <VerticalFlex>
-          <HorizontalFlex>
-            <input
-              type="radio"
-              value={'unlimited'}
+        <VerticalFlex margin="24px 0 0 0">
+          <HorizontalFlex align="center" margin="0 0 40px 0">
+            <Radio
+              onSelectChange={handleOnChange}
+              value={Limit.UNLIMITED}
               name="unlimitedGroup"
               id="unlimited"
+              checked={checked === Limit.UNLIMITED}
             />
-            <Typography>Unlimited</Typography>
+            <Typography margin="0 0 0 24px">Unlimited</Typography>
           </HorizontalFlex>
-          <HorizontalFlex>
-            <input
-              type="radio"
-              value={'custom'}
+          <HorizontalFlex align="center" margin="0 0 16px 0">
+            <Radio
+              onSelectChange={handleOnChange}
+              value={Limit.CUSTOM}
               name="unlimitedGroup"
               id="custom"
+              checked={checked === Limit.CUSTOM}
             />
-            <VerticalFlex width="100%">
-              <Typography>Custom Spend Limit</Typography>
-              <BNInput
-                onChange={(value) => setCustomSpendLimit(value.amount)}
-                denomination={token.denomination}
-                placeholder="Maximum Limit"
-              />
-            </VerticalFlex>
+            <Typography margin="0 0 0 24px">Custom Spend Limit</Typography>
           </HorizontalFlex>
+          <VerticalFlex width="100%">
+            <BNInput
+              onChange={(value) => setCustomSpendLimit(value.amount)}
+              denomination={token.denomination}
+              placeholder="Maximum Limit"
+            />
+          </VerticalFlex>
         </VerticalFlex>
       </VerticalFlex>
 
