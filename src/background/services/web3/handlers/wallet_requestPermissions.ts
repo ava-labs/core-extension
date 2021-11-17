@@ -1,3 +1,4 @@
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import {
   ConnectionRequestHandler,
@@ -18,6 +19,7 @@ export async function wallet_requestPermissions(
   );
 
   const currentPermissions = await firstValueFrom(permissions$);
+  const walletResult = await firstValueFrom(wallet$);
 
   /**
    * At this point the user has previously given permissions and we are possibly editing them
@@ -30,6 +32,7 @@ export async function wallet_requestPermissions(
   return {
     ...data,
     result: getPermissionsConvertedToMetaMaskStructure(
+      walletResult?.getAddressC() as string,
       data.site?.domain,
       currentPermissions
     ),

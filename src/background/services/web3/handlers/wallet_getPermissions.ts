@@ -1,3 +1,4 @@
+import { wallet$ } from '@avalabs/wallet-react-components';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import {
   ConnectionRequestHandler,
@@ -9,10 +10,12 @@ import { getPermissionsConvertedToMetaMaskStructure } from '../../permissions/ut
 
 export async function wallet_getPermissions(data: ExtensionConnectionMessage) {
   const currentPermissions = await firstValueFrom(permissions$);
+  const walletResult = await firstValueFrom(wallet$);
 
   return {
     ...data,
     result: getPermissionsConvertedToMetaMaskStructure(
+      walletResult?.getAddressC(),
       data.site?.domain,
       currentPermissions
     ),
