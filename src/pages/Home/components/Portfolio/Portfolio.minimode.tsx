@@ -1,4 +1,5 @@
 import { VerticalFlex } from '@avalabs/react-components';
+import { ShowIf } from '@src/components/common/Conditional';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { SendReceiveToggle } from '../SendReceive/SendRecieveToggle';
@@ -59,7 +60,9 @@ export function PortfolioMiniMode() {
           </BalanceWithButtons>
         </Flipper>
       </FlipContainer>
-      <TokenListMiniMode searchQuery={searchQuery} />
+      <ShowIf condition={!showSearch || (showSearch && !!searchQuery)}>
+        <TokenListMiniMode searchQuery={searchQuery} />
+      </ShowIf>
     </>
   );
 }

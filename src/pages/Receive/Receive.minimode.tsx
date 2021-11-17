@@ -71,7 +71,7 @@ export const ReceiveMiniMode = ({
       width={'100%'}
       grow="1"
       align={'center'}
-      padding={embedded ? '' : '16px'}
+      padding={embedded ? '' : '16px 8px'}
     >
       {!embedded && (
         <HorizontalFlex
@@ -130,22 +130,23 @@ export const ReceiveMiniMode = ({
           navigator.clipboard.writeText(getAddress());
         }}
       >
-        <Typography height="24px">
+        <Typography height="24px" weight={600}>
           {truncateAddress(getAddress(), 18)}
         </Typography>
         <CopyIcon height="16px" color={theme.colors.icon1} />
       </AddressBlock>
 
       <HorizontalFlex
-        height="24px"
         align="center"
         justify="center"
-        margin={embedded ? '32px 0 16px' : '48px 0 16px'}
+        margin={embedded ? '32px 0 16px' : '42px 0 0'}
       >
         {!limitToChain &&
           (chain === 'C' ? (
             <TextButton onClick={() => setChain('X')}>
-              <Typography color="inherit">Looking for X chain?</Typography>
+              <Typography color="inherit" margin="12px 16px">
+                Looking for X chain?
+              </Typography>
             </TextButton>
           ) : (
             <TextButton onClick={() => setChain('C')}>

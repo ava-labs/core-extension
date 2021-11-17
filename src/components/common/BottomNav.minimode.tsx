@@ -43,7 +43,7 @@ export function BottomNav() {
           <HouseIcon height={'26px'} color={setColorWhenActive('/home')} />
           <Typography
             size={12}
-            margin="8px 0 0"
+            margin="5px 0 0"
             color={setColorWhenActive('/home')}
           >
             Portfolio
@@ -59,7 +59,7 @@ export function BottomNav() {
           />
           <Typography
             size={12}
-            margin="8px 0 0"
+            margin="5px 0 0"
             color={setColorWhenActive('/activity')}
           >
             Activity
@@ -72,7 +72,7 @@ export function BottomNav() {
           <SwapArrowsIcon height={'26px'} color={setColorWhenActive('/swap')} />
           <Typography
             size={12}
-            margin="8px 0 0"
+            margin="5px 0 0"
             color={setColorWhenActive('/swap')}
           >
             Swap
@@ -92,7 +92,7 @@ export function BottomNav() {
           />
           <Typography
             size={12}
-            margin="8px 0 0"
+            margin="5px 0 0"
             color={setColorWhenActive('/bridge', true)}
           >
             Bridge
