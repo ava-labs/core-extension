@@ -86,7 +86,7 @@ export function PermissionsPage() {
       <SiteAvatar margin="16px" justify="center" align="center">
         <GlobeIcon height="48px" width="48px" color={theme.colors.text1} />
       </SiteAvatar>
-      <Typography as="h2" weight="bold" size={18}>
+      <Typography as="h2" weight="bold" size={18} height="22px">
         {permissions.domain}
       </Typography>
       <Typography
@@ -94,6 +94,7 @@ export function PermissionsPage() {
         size={12}
         weight={400}
         color={theme.colors.text2}
+        height="15px"
       >
         this should be a url
       </Typography>
