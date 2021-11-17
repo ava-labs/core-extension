@@ -15,7 +15,7 @@ export async function wallet_getPermissions(data: ExtensionConnectionMessage) {
   return {
     ...data,
     result: getPermissionsConvertedToMetaMaskStructure(
-      walletResult?.getAddressC() as string,
+      walletResult?.getAddressC(),
       data.site?.domain,
       currentPermissions
     ),

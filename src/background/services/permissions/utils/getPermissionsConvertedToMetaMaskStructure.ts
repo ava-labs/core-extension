@@ -9,7 +9,7 @@ import { domainHasAccountsPermissions } from './domainHasAccountPermissions';
  * @returns
  */
 export function getPermissionsConvertedToMetaMaskStructure(
-  addressC: string,
+  addressC?: string,
   domain?: string,
   permissions?: Permissions
 ) {
