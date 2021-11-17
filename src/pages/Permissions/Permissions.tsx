@@ -161,6 +161,13 @@ export function PermissionsPage() {
                           color={theme.colors.text1}
                         />
                       )}
+                      {selectedAccount !== account.index &&
+                        permissions.accounts[account.addressC] && (
+                          <CheckmarkIcon
+                            height="16px"
+                            color={theme.palette.green[500]}
+                          />
+                        )}
                     </HorizontalFlex>
                   </VerticalFlex>
                 </SecondaryDropDownMenuItem>
