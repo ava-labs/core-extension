@@ -45,6 +45,7 @@ const FlipContainer = styled(VerticalFlex)<{
 export function PortfolioMiniMode() {
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showSearch, setShowSearch] = useState<boolean>(false);
+  const showTokenList = !showSearch || (showSearch && !!searchQuery);
 
   return (
     <>
@@ -60,7 +61,7 @@ export function PortfolioMiniMode() {
           </BalanceWithButtons>
         </Flipper>
       </FlipContainer>
-      <TokenListMiniMode searchQuery={searchQuery} />
+      {showTokenList && <TokenListMiniMode searchQuery={searchQuery} />}
     </>
   );
 }

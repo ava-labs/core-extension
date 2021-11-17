@@ -98,7 +98,7 @@ export function PermissionsPage() {
           <GlobeIcon height="48px" width="48px" color={theme.colors.text1} />
         </TokenIcon>
       </SiteAvatar>
-      <Typography as="h2" weight="bold" size={18}>
+      <Typography as="h2" weight="bold" size={18} height="22px">
         {domainName}
       </Typography>
       <Typography
@@ -106,6 +106,7 @@ export function PermissionsPage() {
         size={12}
         weight={400}
         color={theme.colors.text2}
+        height="15px"
       >
         {domain}
       </Typography>
@@ -186,7 +187,7 @@ export function PermissionsPage() {
           Only connect to sites that you trust
         </Typography>
         <HorizontalFlex justify="space-between">
-          <SecondaryButton onClick={() => window.close()}>
+          <SecondaryButton onClick={() => window.close()} width="141px">
             Reject
           </SecondaryButton>
           <PrimaryButton
@@ -194,6 +195,7 @@ export function PermissionsPage() {
             onClick={() => {
               addPermissionsForDomain(permissions).then(() => window.close());
             }}
+            width="141px"
           >
             Approve
           </PrimaryButton>
