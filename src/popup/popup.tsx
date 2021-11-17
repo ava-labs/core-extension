@@ -5,6 +5,7 @@ import {
   LoadingIcon,
   VerticalFlex,
   DialogContextProvider,
+  Toaster,
 } from '@avalabs/react-components';
 
 const AddToken = React.lazy(() => {
@@ -77,6 +78,8 @@ export function Popup() {
                 <WalletContextProvider>
                   <SwapContextProvider>
                     <GlobalStyles />
+                    <Toaster />
+
                     <VerticalFlex
                       height={dimensions.height}
                       width={dimensions.width}

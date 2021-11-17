@@ -1,7 +1,7 @@
 import { VerticalFlex } from '@avalabs/react-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { SendReceiveToggle } from '../SendReceive/SendRecieveToggle';
+import { SendReceiveToggle } from '../SendReceive/SendReceiveToggle';
 import { TokenListMiniMode } from './TokenList.minimode';
 import { TokenSearch } from './TokenSearch';
 import { WalletBalancesMiniMode } from './WalletBalances.minimode';
@@ -44,11 +44,12 @@ const FlipContainer = styled(VerticalFlex)<{
 
 export function PortfolioMiniMode() {
   const [searchQuery, setSearchQuery] = useState<string>();
-  const [showSearch, setShowSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState<boolean>(false);
   const showTokenList = !showSearch || (showSearch && !!searchQuery);
+
   return (
     <>
-      <FlipContainer height="180px" showSearch={showSearch}>
+      <FlipContainer height="186px" showSearch={showSearch}>
         <Flipper>
           <TokenSearchWithAnimation
             onBack={() => setShowSearch(false)}
