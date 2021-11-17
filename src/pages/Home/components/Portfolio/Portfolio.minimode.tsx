@@ -1,5 +1,4 @@
 import { VerticalFlex } from '@avalabs/react-components';
-import { ShowIf } from '@src/components/common/Conditional';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { SendReceiveToggle } from '../SendReceive/SendRecieveToggle';
