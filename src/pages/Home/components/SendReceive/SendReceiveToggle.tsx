@@ -15,7 +15,7 @@ export function SendReceiveToggle({ onShowSend }: SendReceiveToggleProps) {
       width={'100%'}
       justify={'center'}
       align={'center'}
-      margin="8px 0 24px"
+      margin="8px 0 16px"
     >
       <SendReceiveButton
         label={'Send'}
