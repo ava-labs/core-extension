@@ -46,7 +46,7 @@ export async function connect(data: ExtensionConnectionMessage) {
 
   const window = await openExtensionNewWindow(
     `permissions`,
-    `domain=${data.site?.domain}`,
+    `domainName=${data.site?.name}&domainUrl=${data.site?.domain}&domainIcon=${data.site?.icon}`,
     data.meta?.coords
   );
   /**
