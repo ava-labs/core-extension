@@ -5,8 +5,8 @@ import {
   CopyIcon,
   LoadingIcon,
   Card,
+  toast,
 } from '@avalabs/react-components';
-import toast from 'react-hot-toast';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SlideSelector } from '@src/components/common/SlideSelector';

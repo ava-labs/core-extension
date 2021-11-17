@@ -8,8 +8,8 @@ import {
   TextButton,
   IconDirection,
   CaretIcon,
+  toast,
 } from '@avalabs/react-components';
-import toast from 'react-hot-toast';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled, { useTheme } from 'styled-components';
