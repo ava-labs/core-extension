@@ -167,7 +167,7 @@ export function PermissionsPage() {
           Only connect to sites that you trust
         </Typography>
         <HorizontalFlex justify="space-between">
-          <SecondaryButton onClick={() => window.close()}>
+          <SecondaryButton onClick={() => window.close()} width="141px">
             Reject
           </SecondaryButton>
           <PrimaryButton
@@ -175,6 +175,7 @@ export function PermissionsPage() {
             onClick={() => {
               addPermissionsForDomain(permissions).then(() => window.close());
             }}
+            width="141px"
           >
             Approve
           </PrimaryButton>
