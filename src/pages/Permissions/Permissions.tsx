@@ -18,6 +18,8 @@ import { usePermissions } from './usePermissions';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { Account } from '@src/background/services/accounts/models';
+import { TokenIcon } from '@src/components/common/TokenImage';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -40,7 +42,9 @@ const AccountName = styled(Typography)`
 
 export function PermissionsPage() {
   const params = new URLSearchParams(window.location.search);
-  const domain = params.get('domain') as string;
+  const domain = params.get('domainUrl') as string;
+  const domainName = params.get('domainName') as string;
+  const domainIcon = params.get('domainIcon') as string;
   const {
     addPermissionsForDomain,
     permissions,
@@ -68,9 +72,15 @@ export function PermissionsPage() {
     return <LoadingIcon />;
   }
 
-  const selectAccount = (index: number) => {
-    setSelectedAccount(index);
-    updateAccountPermission(index, true);
+  const selectAccount = (account: Account) => {
+    /**
+     * If permissions are already true for a address then we dont need to
+     * update again, also this isnt a toggle so we will ignore further requests
+     */
+    if (!permissions.accounts[account.addressC]) {
+      setSelectedAccount(account.index);
+      updateAccountPermission(account.addressC, true);
+    }
   };
 
   return (
@@ -84,10 +94,12 @@ export function PermissionsPage() {
         Connect Wallet to Site?
       </Typography>
       <SiteAvatar margin="16px" justify="center" align="center">
-        <GlobeIcon height="48px" width="48px" color={theme.colors.text1} />
+        <TokenIcon height="48px" width="48px" src={domainIcon}>
+          <GlobeIcon height="48px" width="48px" color={theme.colors.text1} />
+        </TokenIcon>
       </SiteAvatar>
       <Typography as="h2" weight="bold" size={18}>
-        {permissions.domain}
+        {domainName}
       </Typography>
       <Typography
         margin="2px"
@@ -95,7 +107,7 @@ export function PermissionsPage() {
         weight={400}
         color={theme.colors.text2}
       >
-        this should be a url
+        {domain}
       </Typography>
       <VerticalFlex margin="24px 0 16px 0" flex={1} width="100%">
         <Typography size={12} margin="8px 0">
@@ -119,7 +131,7 @@ export function PermissionsPage() {
             </Card>
           }
         >
-          <VerticalFlex width="341px" height="168px">
+          <VerticalFlex width="305.5px" height="168px">
             <Scrollbars
               style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
               ref={scrollbarsRef}
@@ -128,7 +140,7 @@ export function PermissionsPage() {
                 <SecondaryDropDownMenuItem
                   width="100%"
                   key={account.index}
-                  onClick={() => selectAccount(account.index) as any}
+                  onClick={() => selectAccount(account) as any}
                   selected={account.index === selectedAccount}
                   ref={
                     selectedAccount === account.index
@@ -149,6 +161,13 @@ export function PermissionsPage() {
                           color={theme.colors.text1}
                         />
                       )}
+                      {selectedAccount !== account.index &&
+                        permissions.accounts[account.addressC] && (
+                          <CheckmarkIcon
+                            height="16px"
+                            color={theme.palette.green[500]}
+                          />
+                        )}
                     </HorizontalFlex>
                   </VerticalFlex>
                 </SecondaryDropDownMenuItem>

@@ -3,15 +3,26 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
+import { filter, firstValueFrom } from 'rxjs';
 import { accounts$ } from '../accounts';
+import { accounts$ as sdkAccount$ } from '@avalabs/wallet-react-components';
 
 export async function getAccounts(request: ExtensionConnectionMessage) {
-  const result = await firstValueFrom(accounts$);
+  const accounts = await firstValueFrom(accounts$);
+  const sdkAccounts = await firstValueFrom(
+    sdkAccount$.pipe(filter((acs) => !!(acs.length === accounts.length)))
+  );
+
+  const addressesIndexed = sdkAccounts.reduce((acc, { wallet, index }) => {
+    return { ...acc, [index]: wallet.getAddressC() };
+  }, {});
 
   return {
     ...request,
-    result,
+    result: accounts.map((acc) => ({
+      ...acc,
+      addressC: addressesIndexed[acc.index],
+    })),
   };
 }
 

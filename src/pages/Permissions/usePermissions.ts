@@ -10,7 +10,7 @@ function accountsToPermissions(accounts: Account[], domain: string) {
     accounts: accounts.reduce((acc, account) => {
       return {
         ...acc,
-        [account.index]: false,
+        [account.addressC]: false,
       };
     }, {}),
   };
@@ -18,7 +18,7 @@ function accountsToPermissions(accounts: Account[], domain: string) {
 
 function updateAnAccount(
   permissions: ReturnType<typeof accountsToPermissions>,
-  account: { [index: number]: boolean }
+  account: { [address: string]: boolean }
 ) {
   return {
     ...permissions,
@@ -75,13 +75,13 @@ export function usePermissions(domain?: string) {
   }
 
   function updateAccountPermission(
-    accountIndex: number,
+    addressC: string, // wallet c address
     hasPermission: boolean
   ) {
     if (!permissions) return;
 
     updatePermissions(
-      updateAnAccount(permissions, { [accountIndex]: hasPermission })
+      updateAnAccount(permissions, { [addressC]: hasPermission })
     );
   }
 
