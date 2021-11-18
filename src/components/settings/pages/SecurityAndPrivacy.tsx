@@ -87,7 +87,7 @@ export function SecurityAndPrivacy({
         padding="12px 16px"
         onClick={() => onLogoutClick()}
       >
-        <Typography color={theme.colors.error}>Sign out</Typography>
+        <Typography color={theme.colors.primary1}>Sign out</Typography>
       </DropDownMenuItem>
     </VerticalFlex>
   );
