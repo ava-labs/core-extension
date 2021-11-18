@@ -14,7 +14,11 @@ export async function initDappState(data) {
 
   if (
     !walletResult ||
-    !domainHasAccountsPermissions(data.domain, permissions)
+    !domainHasAccountsPermissions(
+      walletResult.getAddressC(),
+      data.domain,
+      permissions
+    )
   ) {
     return {
       ...data,

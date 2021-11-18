@@ -35,7 +35,7 @@ export function AccountSelectorButton({ onClick }: AccountSelectorButtonProps) {
 
   return (
     <TextButton margin={isMiniMode ? '0' : '0 32px 0 0'} onClick={onClick}>
-      <HorizontalFlex align={'center'} padding="0 16px">
+      <HorizontalFlex align={'center'} padding="0 16px 0 8px">
         <AccountName>{activeAccount?.name}</AccountName>
         <CaretIcon
           direction={IconDirection.DOWN}
