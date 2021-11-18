@@ -14,7 +14,6 @@ import { GasPrice } from '@src/background/services/gas/models';
 import Web3 from 'web3';
 import ERC20_ABI from '../../contracts/erc20.abi.json';
 import { CustomSpendLimitBN, Limit, SpendLimitType } from './CustomSpendLimit';
-import { TxStatus } from '@src/background/services/transactions/models';
 
 export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
@@ -58,7 +57,6 @@ export function useGetTransaction(requestId: string) {
     let limitAmount = '';
 
     setCustonSpendLimit(customSpendData);
-
     // Sets the string to be displayed in AmountTx
     const spendAmountToDisplay =
       customSpendData.checked === Limit.UNLIMITED
@@ -75,7 +73,7 @@ export function useGetTransaction(requestId: string) {
     }
 
     if (customSpendData.checked === Limit.CUSTOM) {
-      limitAmount = customSpendData.spendLimitBN.amount;
+      limitAmount = customSpendData.spendLimitBN.amount; // this is wrong
     }
 
     // create hex string for approval amount
@@ -90,14 +88,15 @@ export function useGetTransaction(requestId: string) {
 
     // call approve
 
-    // request({
-    //   method: ExtensionRequest.TRANSACTIONS_UPDATE,
-    //   params: [{
-    //     status: TxStatus.PENDING,
-    //     id: transaction?.id,
-    //     params: [{ hashedCustomSpend }],
-    //   }],
-    // });
+    request({
+      method: ExtensionRequest.TRANSACTIONS_UPDATE,
+      params: [
+        {
+          id: transaction?.id,
+          params: { data: hashedCustomSpend },
+        },
+      ],
+    });
 
     console.log(hashedCustomSpend);
   }
