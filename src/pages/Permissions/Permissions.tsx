@@ -166,7 +166,7 @@ export function PermissionsPage() {
                         permissions.accounts[account.addressC] && (
                           <CheckmarkIcon
                             height="16px"
-                            color={theme.palette.green[500]}
+                            color={theme.colors.success}
                           />
                         )}
                     </HorizontalFlex>

@@ -80,9 +80,14 @@ export function usePermissions(domain?: string) {
   ) {
     if (!permissions) return;
 
-    updatePermissions(
-      updateAnAccount(permissions, { [addressC]: hasPermission })
-    );
+    const newPermissions = updateAnAccount(permissions, {
+      [addressC]: hasPermission,
+    });
+    request({
+      method: ExtensionRequest.PERMISSIONS_ADD_DOMAIN,
+      params: [newPermissions],
+    }),
+      updatePermissions(newPermissions);
   }
 
   return {
