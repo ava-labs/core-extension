@@ -33,6 +33,7 @@ export function ApproveTx({
   txParams,
   setShowCustomFees,
   setShowCustomSpendLimit,
+  displaySpendLimit,
   ...rest
 }: ApproveTransactionData) {
   const { currencyFormatter, currency } = useSettingsContext();
@@ -76,13 +77,13 @@ export function ApproveTx({
             Approval amount
           </Typography>
           <Typography padding="0 0 4px 0" weight={600} height="24px">
-            Unlimited
+            {displaySpendLimit}
             <Typography
               padding="0 0 0 4px"
               weight={600}
               color={theme.colors.text2}
             >
-              AVAX
+              {tokenToBeApproved.symbol}
             </Typography>
           </Typography>
         </HorizontalFlex>
