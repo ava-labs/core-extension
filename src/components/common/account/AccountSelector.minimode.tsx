@@ -14,7 +14,7 @@ export function AccountSelectorMiniMode() {
         }}
       />
       {open && (
-        <Overlay padding="16px">
+        <Overlay padding="24px 16px" isBackgroundFilled>
           <AccountDropdownContent
             onClose={() => {
               setOpen(false);
