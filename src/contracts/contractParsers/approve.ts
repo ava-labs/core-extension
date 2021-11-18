@@ -31,6 +31,10 @@ export function approveTxHandler(
   const result = {
     tokenToBeApproved,
     contractType: ContractCall.APPROVE,
+    approveData: {
+      limit: _data.amount,
+      spender: _data.spender,
+    },
     ...parseBasicDisplayValues(request, props),
   };
 
