@@ -1,4 +1,4 @@
-import { Overlay } from '@avalabs/react-components';
+import { SecondaryOverlay } from '@avalabs/react-components';
 import React, { useState } from 'react';
 import { AccountDropdownContent } from './AccountDopdownContent';
 import { AccountSelectorButton } from './AccountSelectorButton';
@@ -14,13 +14,13 @@ export function AccountSelectorMiniMode() {
         }}
       />
       {open && (
-        <Overlay padding="16px">
+        <SecondaryOverlay padding="24px 16px">
           <AccountDropdownContent
             onClose={() => {
               setOpen(false);
             }}
           />
-        </Overlay>
+        </SecondaryOverlay>
       )}
     </>
   );

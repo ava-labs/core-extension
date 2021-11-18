@@ -12,13 +12,14 @@ import Scrollbars from 'react-custom-scrollbars';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { LOCAL_NETWORK } from '@avalabs/wallet-react-components';
 
-export function Network({ goBack, navigateTo }: SettingsPageProps) {
+export function Network({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { network, setNetwork, networks } = useNetworkContext();
 
   return (
-    <VerticalFlex width="375px" background={theme.colors.bg2} height="100%">
+    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
       <SettingsHeader
+        width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={'Network'}

@@ -40,7 +40,7 @@ export function BottomNav() {
     >
       <TextButton onClick={() => history.push('/home')}>
         <VerticalFlex width="50px" align="center">
-          <HouseIcon height={'26px'} color={setColorWhenActive('/home')} />
+          <HouseIcon height={'32px'} color={setColorWhenActive('/home')} />
           <Typography
             size={12}
             margin="5px 0 0"
@@ -54,7 +54,7 @@ export function BottomNav() {
       <TextButton onClick={() => history.push('/activity')}>
         <VerticalFlex width="50px" align="center">
           <LightningIcon
-            height={'26px'}
+            height={'32px'}
             color={setColorWhenActive('/activity')}
           />
           <Typography
@@ -69,7 +69,7 @@ export function BottomNav() {
 
       <TextButton onClick={() => history.push('/swap')}>
         <VerticalFlex width="50px" align="center">
-          <SwapArrowsIcon height={'26px'} color={setColorWhenActive('/swap')} />
+          <SwapArrowsIcon height={'32px'} color={setColorWhenActive('/swap')} />
           <Typography
             size={12}
             margin="5px 0 0"
@@ -87,7 +87,7 @@ export function BottomNav() {
       >
         <VerticalFlex width="50px" align="center">
           <BridgeIcon
-            height={'26px'}
+            height={'32px'}
             color={setColorWhenActive('/bridge', true)}
           />
           <Typography

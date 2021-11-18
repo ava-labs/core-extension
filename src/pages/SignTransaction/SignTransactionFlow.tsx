@@ -5,6 +5,8 @@ import {
   SecondaryButton,
   SubTextTypography,
   LoadingIcon,
+  ConnectionIndicator,
+  SecondaryCard,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
@@ -30,9 +32,11 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTheme } from 'styled-components';
 import { TransactionConfirmation } from './TransactionConfirmation';
 import { SpendLimitType } from './CustomSpendLimit';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
+  const { isWalletReady } = useWalletContext();
   const {
     updateTransaction,
     id,
@@ -109,8 +113,15 @@ export function SignTransactionPage() {
 
   return (
     <VerticalFlex width="100%" align="center">
-      <HorizontalFlex>
-        <SubTextTypography size={12}>{network?.name} C-Chain</SubTextTypography>
+      <HorizontalFlex align="center">
+        <ConnectionIndicator
+          disableTooltip={true}
+          size={8}
+          connected={isWalletReady}
+        />
+        <SubTextTypography margin={'0 0 0 5px'} size={12}>
+          {network?.name} C-Chain
+        </SubTextTypography>
       </HorizontalFlex>
 
       {/* Actions  */}
@@ -136,7 +147,9 @@ export function SignTransactionPage() {
           [ContractCall.ADD_LIQUIDITY_AVAX]: (
             <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
           ),
-          ['unknown']: <UnknownTx />,
+          ['unknown']: (
+            <UnknownTx {...(displayData as TransactionDisplayValues)} />
+          ),
         }[contractType || 'unknown']
       }
 

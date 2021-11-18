@@ -13,7 +13,7 @@ import Scrollbars from 'react-custom-scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { currencies } from '@avalabs/wallet-react-components';
 
-export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
+export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { updateCurrencySetting, currency } = useSettingsContext();
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,8 +26,9 @@ export function Currencies({ goBack, navigateTo }: SettingsPageProps) {
   );
 
   return (
-    <VerticalFlex width="375px" background={theme.colors.bg2} height="100%">
+    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
       <SettingsHeader
+        width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={'Currencies'}

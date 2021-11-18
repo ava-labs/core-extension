@@ -40,9 +40,12 @@ export function requestEngine(
   connection: Runtime.Port,
   eventHandler?: Subject<ExtensionConnectionEvent>
 ) {
-  connection.onMessage.addListener(connectionResponseHandler(eventHandler));
+  const connectionResponseHandlerInstance =
+    connectionResponseHandler(eventHandler);
+  connection.onMessage.addListener(connectionResponseHandlerInstance);
+
   connection.onDisconnect.addListener(function onRequestEngineDisconnect() {
-    connection.onMessage.removeListener(connectionResponseHandler);
+    connection.onMessage.removeListener(connectionResponseHandlerInstance);
     connection.onDisconnect.removeListener(onRequestEngineDisconnect);
   });
   return async (request: Omit<ExtensionConnectionMessage, 'id'>) => {

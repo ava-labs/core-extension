@@ -49,7 +49,7 @@ export function PortfolioMiniMode() {
 
   return (
     <>
-      <FlipContainer height="186px" showSearch={showSearch}>
+      <FlipContainer height="188px" showSearch={showSearch}>
         <Flipper>
           <TokenSearchWithAnimation
             onBack={() => setShowSearch(false)}

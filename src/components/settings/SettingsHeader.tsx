@@ -16,11 +16,12 @@ interface SettingsHeaderProps {
 export function SettingsHeader({
   goBack,
   title,
+  width,
 }: SettingsHeaderProps & SettingsPageProps) {
   const theme = useTheme();
 
   return (
-    <HorizontalFlex padding="40px 16px 12px" align="center">
+    <HorizontalFlex width={width} padding="40px 16px 12px" align="center">
       <TextButton onClick={goBack} margin="0 24px 0 0">
         <CaretIcon
           height="20px"

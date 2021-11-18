@@ -31,10 +31,10 @@
     web3 "^1.3.5"
     web3-eth-contract "^1.3.6"
 
-"@avalabs/react-components@1.43.0":
-  version "1.43.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.43.0.tgz#472929f39cf9efe19c0f7a5a7388a1a6501d236a"
-  integrity sha512-KMW7sKiCDbinCNM0eI66RUP0GDa0dHRnZWxAKd7QInGtNPOW0aXPEcJMRy9uhUhjPO7ssnl3o3NIisSbprjSqw==
+"@avalabs/react-components@1.44.0":
+  version "1.44.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.44.0.tgz#8ba2222d3b44bbe52148d71851a8859f07e45ba6"
+  integrity sha512-wVVILeamiRd2HZbaZ+AR/N+ISoqR9xRBL0nmWT8OUJltBB9UknwhW7/xBXWmyouRNz9D+DIx/eWQm2LR7IbbEg==
   dependencies:
     big.js "^6.1.1"
     body-parser "1.19.0"
@@ -48,10 +48,10 @@
     use-media "^1.4.0"
     web-vitals "^1.0.1"
 
-"@avalabs/wallet-react-components@1.12.0":
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.12.0.tgz#2667ea88d086eb76d30f7ebaa64bd428917fe4ae"
-  integrity sha512-McrztTT0PAShS4ZguoES0F+d/pPgT96IknMXTsYYYvU8vhmLskRv+RX01ZGtaNj+OgNkAAiR1wLem9q6Vs+X7g==
+"@avalabs/wallet-react-components@1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.14.0.tgz#f128468f6b570b5bc623d82a3aa6d006dcb36de3"
+  integrity sha512-lVXnUo03HaIhgwD8NSK5prcVX2weSqdy8DAacVdk4Dcyav6fLgYygVSt7DRqxHSR1DP+UpFctA7g2yJ/0Tk9AQ==
   dependencies:
     "@testing-library/jest-dom" "^5.14.1"
     "@testing-library/react" "^11.2.7"

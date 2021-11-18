@@ -8,7 +8,11 @@ export function chainChangedEvents() {
   return wallet$.pipe(
     walletInitializedFilter(),
     switchMap((wallet) =>
-      Promise.all([Promise.resolve(wallet), firstValueFrom(network$)])
+      network$.pipe(
+        switchMap(() =>
+          Promise.all([Promise.resolve(wallet), firstValueFrom(network$)])
+        )
+      )
     ),
     map(([wallet, net]) => {
       return {
