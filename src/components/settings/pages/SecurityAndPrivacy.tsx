@@ -14,7 +14,11 @@ import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
 
-export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
+export function SecurityAndPrivacy({
+  goBack,
+  navigateTo,
+  width,
+}: SettingsPageProps) {
   const theme = useTheme();
   const { showDialog, clearDialog } = useDialog();
 
@@ -37,12 +41,13 @@ export function SecurityAndPrivacy({ goBack, navigateTo }: SettingsPageProps) {
 
   return (
     <VerticalFlex
-      width="375px"
+      width={width}
       background={theme.colors.bg2}
       height="100%"
       justify="flex-start"
     >
       <SettingsHeader
+        width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={'Security & Privacy'}

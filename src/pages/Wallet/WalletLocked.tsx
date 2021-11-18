@@ -11,16 +11,6 @@ import { LoginIllustration } from '@src/components/common/LoginIllustation';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
 import React, { useState } from 'react';
-import styled from 'styled-components';
-
-const IllustrationPlaceholder = styled(VerticalFlex)`
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.palette.grey[800]};
-  justify-content: center;
-  align-items: center;
-`;
 
 export function WalletLocked({
   unlockWallet,

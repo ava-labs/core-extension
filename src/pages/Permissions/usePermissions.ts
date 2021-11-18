@@ -2,7 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/models';
 import { Account } from '@src/background/services/accounts/models';
 import { DappPermissions } from '@src/background/services/permissions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function accountsToPermissions(accounts: Account[], domain: string) {
   return {
@@ -29,19 +29,11 @@ function updateAnAccount(
   };
 }
 
-function atleastOneAccountHasPermissions(permissions: DappPermissions) {
-  return (Object.values(permissions.accounts) || []).some((value) => value);
-}
-
 export function usePermissions(domain?: string) {
   const { request } = useConnectionContext();
   const [permissions, updatePermissions] = useState<
     ReturnType<typeof accountsToPermissions> | undefined
   >();
-  const acceptPermissionsDisabled = useMemo(
-    () => permissions && !atleastOneAccountHasPermissions(permissions),
-    [permissions]
-  );
 
   useEffect(() => {
     if (!domain) {
@@ -74,21 +66,21 @@ export function usePermissions(domain?: string) {
     });
   }
 
-  function updateAccountPermission(
+  async function updateAccountPermission(
     addressC: string, // wallet c address
     hasPermission: boolean
   ) {
     if (!permissions) return;
 
-    updatePermissions(
-      updateAnAccount(permissions, { [addressC]: hasPermission })
-    );
+    const newPermissions = updateAnAccount(permissions, {
+      [addressC]: hasPermission,
+    });
+    await addPermissionsForDomain(newPermissions);
+    updatePermissions(newPermissions);
   }
 
   return {
-    addPermissionsForDomain,
     permissions,
-    acceptPermissionsDisabled,
     updateAccountPermission,
   };
 }

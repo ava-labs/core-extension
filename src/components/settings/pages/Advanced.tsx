@@ -14,7 +14,7 @@ import Scrollbars from 'react-custom-scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ThemeVariant } from '@src/background/services/settings/models';
 
-export function Advanced({ goBack, navigateTo }: SettingsPageProps) {
+export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { darkMode, toggleDarkTheme } = useThemeContext();
   const { updateTheme } = useSettingsContext();
@@ -25,8 +25,9 @@ export function Advanced({ goBack, navigateTo }: SettingsPageProps) {
   };
 
   return (
-    <VerticalFlex width="375px" background={theme.colors.bg2} height="100%">
+    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
       <SettingsHeader
+        width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={'Advanced'}

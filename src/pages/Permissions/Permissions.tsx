@@ -45,16 +45,11 @@ export function PermissionsPage() {
   const domain = params.get('domainUrl') as string;
   const domainName = params.get('domainName') as string;
   const domainIcon = params.get('domainIcon') as string;
-  const {
-    addPermissionsForDomain,
-    permissions,
-    acceptPermissionsDisabled,
-    updateAccountPermission,
-  } = usePermissions(domain);
+  const { permissions, updateAccountPermission } = usePermissions(domain);
   const theme = useTheme();
   const { accounts, activeAccount } = useAccountsContext();
-  const [selectedAccount, setSelectedAccount] = useState<number>(
-    activeAccount?.index || 0
+  const [selectedAccount, setSelectedAccount] = useState<Account>(
+    activeAccount || accounts[0]
   );
   const scrollbarsRef = useRef<Scrollbars>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
@@ -78,8 +73,7 @@ export function PermissionsPage() {
      * update again, also this isnt a toggle so we will ignore further requests
      */
     if (!permissions.accounts[account.addressC]) {
-      setSelectedAccount(account.index);
-      updateAccountPermission(account.addressC, true);
+      setSelectedAccount(account);
     }
   };
 
@@ -122,7 +116,7 @@ export function PermissionsPage() {
                 justify="space-between"
                 align={'center'}
               >
-                <AccountName>{accounts[selectedAccount]?.name}</AccountName>
+                <AccountName>{selectedAccount?.name}</AccountName>
                 <CaretIcon
                   direction={IconDirection.DOWN}
                   color={theme.colors.text1}
@@ -142,9 +136,9 @@ export function PermissionsPage() {
                   width="100%"
                   key={account.index}
                   onClick={() => selectAccount(account) as any}
-                  selected={account.index === selectedAccount}
+                  selected={account.index === selectedAccount.index}
                   ref={
-                    selectedAccount === account.index
+                    selectedAccount.index === account.index
                       ? selectedAccountRef
                       : undefined
                   }
@@ -156,17 +150,17 @@ export function PermissionsPage() {
                       align="center"
                     >
                       <AccountName>{account.name}</AccountName>
-                      {selectedAccount === account.index && (
+                      {selectedAccount.index === account.index && (
                         <CheckmarkIcon
                           height="16px"
                           color={theme.colors.text1}
                         />
                       )}
-                      {selectedAccount !== account.index &&
+                      {selectedAccount.index !== account.index &&
                         permissions.accounts[account.addressC] && (
                           <CheckmarkIcon
                             height="16px"
-                            color={theme.palette.green[500]}
+                            color={theme.colors.success}
                           />
                         )}
                     </HorizontalFlex>
@@ -191,9 +185,10 @@ export function PermissionsPage() {
             Reject
           </SecondaryButton>
           <PrimaryButton
-            disabled={acceptPermissionsDisabled}
             onClick={() => {
-              addPermissionsForDomain(permissions).then(() => window.close());
+              updateAccountPermission(selectedAccount.addressC, true).then(() =>
+                window.close()
+              );
             }}
             width="141px"
           >

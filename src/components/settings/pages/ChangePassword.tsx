@@ -20,7 +20,11 @@ function verifyPasswordsMatch(pass1?: string, pass2?: string) {
   return !!(pass1 === pass2);
 }
 
-export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
+export function ChangePassword({
+  goBack,
+  navigateTo,
+  width,
+}: SettingsPageProps) {
   const theme = useTheme();
 
   const [oldPassword, setOldPassword] = useState('');
@@ -62,16 +66,17 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
   };
 
   return (
-    <VerticalFlex width="375px" background={theme.colors.bg2} height="100%">
+    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
       <SettingsHeader
+        width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={'Change Password'}
       />
       {!serverResponse ? (
         <>
-          <VerticalFlex align="center" padding="16px 0">
-            <HorizontalFlex height="100px">
+          <VerticalFlex align="center" padding="16px">
+            <HorizontalFlex height="100px" width="100%">
               <Input
                 onChange={(e) => {
                   setOldPassword(e.target.value);
@@ -82,9 +87,10 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
                 type="password"
                 error={!!serverError}
                 errorMessage={serverError}
+                width="100%"
               />
             </HorizontalFlex>
-            <HorizontalFlex height="100px">
+            <HorizontalFlex height="100px" width="100%">
               <Input
                 onChange={(e) => {
                   setNewPassword(e.target.value);
@@ -94,9 +100,10 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
                 placeholder="New Password"
                 type="password"
                 error={!!error}
+                width="100%"
               />
             </HorizontalFlex>
-            <HorizontalFlex height="100px">
+            <HorizontalFlex height="100px" width="100%">
               <Input
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
@@ -107,6 +114,7 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
                 type="password"
                 error={!!error}
                 errorMessage={error}
+                width="100%"
               />
             </HorizontalFlex>
             <Typography size={12} height="15px" padding="0 16px" align="center">
@@ -118,9 +126,10 @@ export function ChangePassword({ goBack, navigateTo }: SettingsPageProps) {
             align="center"
             grow="1"
             justify="flex-end"
-            margin="16px 0"
+            margin="16px"
           >
             <PrimaryButton
+              width="100%"
               size={ComponentSize.LARGE}
               onClick={handleChangePassword}
               margin="0 0 24px"
