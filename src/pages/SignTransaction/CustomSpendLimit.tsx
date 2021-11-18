@@ -12,55 +12,56 @@ import {
   Radio,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
 
-enum Limit {
+export enum Limit {
   UNLIMITED = 'UNLIMITED',
   CUSTOM = 'CUSTOM',
 }
 
+export interface CustomSpendLimitBN {
+  bn: BN;
+  amount: string;
+}
+
+export interface SpendLimitType {
+  checked: Limit;
+  spendLimitBN: CustomSpendLimitBN;
+}
+
 export function CustomSpendLimit({
+  spendLimit,
+  token,
   onCancel,
   onSpendLimitChanged,
-  token,
-  limit,
+  onRadioChange,
 }: {
-  limit: string;
   token: ERC20WithBalance;
-  onSpendLimitChanged(spendLimit: string): void;
+  onSpendLimitChanged(limitData: SpendLimitType): void;
   onCancel(): void;
+  spendLimit: SpendLimitType;
+  onRadioChange(e: any): void;
 }) {
-  const { avaxToken, addresses } = useWalletContext();
+  const { avaxToken } = useWalletContext();
   const { activeAccount } = useAccountsContext();
-  const [customSpendLimit, setCustomSpendLimit] = useState<string>('');
-  const [checked, setChecked] = useState<Limit>(Limit.UNLIMITED);
+  const [customSpendLimit, setCustomSpendLimit] = useState<CustomSpendLimitBN>(
+    spendLimit.spendLimitBN || ({} as CustomSpendLimitBN)
+  ); // same as the type in the BNInput
   const theme = useTheme();
 
-  console.log(addresses);
-
-  useEffect(() => {
-    if (!customSpendLimit || checked === Limit.UNLIMITED) {
-      setCustomSpendLimit(limit);
-    }
-  }, [limit, checked]);
-
-  function handleOnChange(e: any) {
-    setChecked(e.target.value);
-  }
-
   function handleOnSave() {
-    if (checked === Limit.UNLIMITED) {
-      // set customSpendLimit to BIG NUMBER
-      setCustomSpendLimit('reallybignumber');
-    }
+    let customSpendData: SpendLimitType = {} as SpendLimitType;
 
-    console.log(customSpendLimit);
+    customSpendData = {
+      ...spendLimit,
+      spendLimitBN: customSpendLimit,
+    };
 
-    // onSpendLimitChanged(customSpendLimit);
+    onSpendLimitChanged(customSpendData);
   }
 
   return (
@@ -109,29 +110,34 @@ export function CustomSpendLimit({
         <VerticalFlex margin="24px 0 0 0">
           <HorizontalFlex align="center" margin="0 0 40px 0">
             <Radio
-              onSelectChange={handleOnChange}
+              onChange={onRadioChange}
               value={Limit.UNLIMITED}
               name="unlimitedGroup"
               id="unlimited"
-              checked={checked === Limit.UNLIMITED}
+              checked={spendLimit.checked === Limit.UNLIMITED}
             />
-            <Typography margin="0 0 0 24px">Unlimited</Typography>
+            <Typography margin="0 0 0 24px" weight={600}>
+              Unlimited
+            </Typography>
           </HorizontalFlex>
           <HorizontalFlex align="center" margin="0 0 16px 0">
             <Radio
-              onSelectChange={handleOnChange}
+              onChange={onRadioChange}
               value={Limit.CUSTOM}
               name="unlimitedGroup"
               id="custom"
-              checked={checked === Limit.CUSTOM}
+              checked={spendLimit.checked === Limit.CUSTOM}
             />
-            <Typography margin="0 0 0 24px">Custom Spend Limit</Typography>
+            <Typography margin="0 0 0 24px" weight={600}>
+              Custom Spend Limit
+            </Typography>
           </HorizontalFlex>
           <VerticalFlex width="100%">
             <BNInput
-              onChange={(value) => setCustomSpendLimit(value.amount)}
+              onChange={(value) => setCustomSpendLimit(value)}
               denomination={token.denomination}
               placeholder="Maximum Limit"
+              value={customSpendLimit.bn}
             />
           </VerticalFlex>
         </VerticalFlex>

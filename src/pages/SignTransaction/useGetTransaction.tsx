@@ -11,6 +11,10 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
+import Web3 from 'web3';
+import ERC20_ABI from '../../contracts/erc20.abi.json';
+import { CustomSpendLimitBN, Limit, SpendLimitType } from './CustomSpendLimit';
+import { TxStatus } from '@src/background/services/transactions/models';
 
 export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
@@ -18,6 +22,14 @@ export function useGetTransaction(requestId: string) {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [hash, setHash] = useState('');
   const [showCustomFees, setShowCustomFees] = useState(false);
+
+  const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
+
+  const [displaySpendLimit, setDisplaySpendLimit] =
+    useState<string>('Unlimited');
+  const [customSpendLimit, setCustonSpendLimit] = useState<SpendLimitType>({
+    checked: Limit.UNLIMITED,
+  } as SpendLimitType);
 
   function setCustomFee(gasLimit: string, gasPrice: GasPrice) {
     const feeDisplayValues = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
@@ -29,6 +41,65 @@ export function useGetTransaction(requestId: string) {
         ...feeDisplayValues,
       },
     } as any);
+  }
+
+  function onRadioChange(e: any) {
+    setCustonSpendLimit({
+      ...customSpendLimit,
+      checked: e.target.value,
+    });
+  }
+
+  function setCustomSpendLimit(customSpendData: SpendLimitType) {
+    const srcToken: string =
+      transaction?.displayValues.tokenToBeApproved.address;
+    const spenderAddress: string =
+      transaction?.displayValues.approveData.spender;
+    let limitAmount = '';
+
+    setCustonSpendLimit(customSpendData);
+
+    // Sets the string to be displayed in AmountTx
+    const spendAmountToDisplay =
+      customSpendData.checked === Limit.UNLIMITED
+        ? 'Unlimited'
+        : customSpendData.spendLimitBN.amount;
+    setDisplaySpendLimit(spendAmountToDisplay);
+
+    if (customSpendData.checked === Limit.UNLIMITED) {
+      setCustonSpendLimit({
+        ...customSpendData,
+        spendLimitBN: {} as CustomSpendLimitBN,
+      });
+      limitAmount = transaction?.displayValues.approveData.limit;
+    }
+
+    if (customSpendData.checked === Limit.CUSTOM) {
+      limitAmount = customSpendData.spendLimitBN.amount;
+    }
+
+    // create hex string for approval amount
+    const web3 = new Web3(Web3.givenProvider);
+    const contract = new web3.eth.Contract(ERC20_ABI as any, srcToken);
+
+    // spenderAddress comes from transaction
+    // limit amount is a string
+    const hashedCustomSpend =
+      limitAmount &&
+      contract.methods.approve(spenderAddress, limitAmount).encodeABI();
+
+    // call approve
+
+    // request({
+    //   method: ExtensionRequest.TRANSACTIONS_UPDATE,
+    //   params: [{
+    //     status: TxStatus.PENDING,
+    //     id: transaction?.id,
+    //     params: [{ hashedCustomSpend }],
+    //   }],
+    // });
+
+    console.log(hashedCustomSpend);
   }
 
   useEffect(() => {
@@ -92,6 +163,20 @@ export function useGetTransaction(requestId: string) {
       showCustomFees,
       setShowCustomFees,
       setCustomFee,
+      showCustomSpendLimit,
+      setShowCustomSpendLimit,
+      setCustomSpendLimit,
+      setDisplaySpendLimit,
+      displaySpendLimit,
+      customSpendLimit,
+      onRadioChange,
     };
-  }, [requestId, transaction, hash, showCustomFees]);
+  }, [
+    requestId,
+    transaction,
+    hash,
+    showCustomFees,
+    showCustomSpendLimit,
+    customSpendLimit,
+  ]);
 }

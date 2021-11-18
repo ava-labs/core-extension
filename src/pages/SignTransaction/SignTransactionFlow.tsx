@@ -29,6 +29,7 @@ import { CustomSpendLimit } from './CustomSpendLimit';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTheme } from 'styled-components';
 import { TransactionConfirmation } from './TransactionConfirmation';
+import { SpendLimitType } from './CustomSpendLimit';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -40,13 +41,17 @@ export function SignTransactionPage() {
     setCustomFee,
     showCustomFees,
     setShowCustomFees,
+    showCustomSpendLimit,
+    setShowCustomSpendLimit,
+    setCustomSpendLimit,
+    displaySpendLimit,
+    customSpendLimit,
+    onRadioChange,
     ...params
   } = useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const { network } = useNetworkContext();
   const theme = useTheme();
-
-  const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 
@@ -90,16 +95,13 @@ export function SignTransactionPage() {
   if (showCustomSpendLimit) {
     return (
       <CustomSpendLimit
-        limit={'big number here'}
+        spendLimit={customSpendLimit}
         token={displayData.tokenToBeApproved}
+        onRadioChange={onRadioChange}
         onCancel={() => setShowCustomSpendLimit(false)}
-        onSpendLimitChanged={(spendLimit: string) => {
-          id &&
-            updateTransaction({
-              status: TxStatus.PENDING,
-              id: id,
-              params: [{ spendLimit }],
-            });
+        onSpendLimitChanged={(customSpendData: SpendLimitType) => {
+          setCustomSpendLimit(customSpendData);
+          setShowCustomSpendLimit(false);
         }}
       />
     );
@@ -125,6 +127,7 @@ export function SignTransactionPage() {
               {...(displayData as ApproveTransactionData)}
               setShowCustomFees={setShowCustomFees}
               setShowCustomSpendLimit={setShowCustomSpendLimit}
+              displaySpendLimit={displaySpendLimit}
             />
           ),
           [ContractCall.ADD_LIQUIDITY]: (
