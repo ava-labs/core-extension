@@ -24,7 +24,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { AvalanceLogo } from './AvalanceLogo';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
-export function MainPage({ navigateTo }: SettingsPageProps) {
+export function MainPage({ navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { isWalletReady } = useWalletContext();
   const { network } = useNetworkContext();
@@ -38,7 +38,7 @@ export function MainPage({ navigateTo }: SettingsPageProps) {
 
   return (
     <VerticalFlex
-      width={isMiniMode ? '319px' : '375px'}
+      width={width}
       height="100%"
       padding={isMiniMode ? '0' : '12px 0'}
       background={theme.colors.bg2}

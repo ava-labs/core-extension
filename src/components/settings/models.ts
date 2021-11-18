@@ -9,6 +9,7 @@ export enum SettingsPages {
 }
 
 export interface SettingsPageProps {
+  width: string;
   navigateTo: (page: SettingsPages) => void;
   goBack: () => void;
 }
