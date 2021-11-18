@@ -5,6 +5,7 @@ import {
   CopyIcon,
   LoadingIcon,
   Card,
+  toast,
 } from '@avalabs/react-components';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -79,6 +80,7 @@ export const Receive = () => {
       <AddressBlock
         onClick={() => {
           navigator.clipboard.writeText(getAddress());
+          toast.success('Copied!');
         }}
       >
         <Typography width="255px" height="24px">

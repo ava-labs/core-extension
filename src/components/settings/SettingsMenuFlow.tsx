@@ -63,6 +63,7 @@ const AnimatedContainer = styled(VerticalFlex)`
 
 export interface SettingsMenuProps {
   currentPage: SettingsPages;
+  onClose: () => void;
 }
 
 const dynamicChildFactory = (classNames) => (child) =>
@@ -91,37 +92,46 @@ export function SettingsMenuFlow() {
     setNavStack([...navStack, page]);
   };
 
+  const resetNavigation = () => {
+    setNavStack([SettingsPages.MAIN_PAGE]);
+  };
+
   let pageElement: JSX.Element | null = null;
+
+  const pageProps = {
+    navigateTo,
+    goBack,
+    width: isMiniMode ? '319px' : '375px',
+  };
+
   switch (currentPage) {
     case SettingsPages.CURRENCIES:
-      pageElement = <Currencies navigateTo={navigateTo} goBack={goBack} />;
+      pageElement = <Currencies {...pageProps} />;
       break;
     case SettingsPages.SECURITY_AND_PRIVACY:
-      pageElement = (
-        <SecurityAndPrivacy navigateTo={navigateTo} goBack={goBack} />
-      );
+      pageElement = <SecurityAndPrivacy {...pageProps} />;
       break;
     case SettingsPages.CHANGE_PASSWORD:
-      pageElement = <ChangePassword navigateTo={navigateTo} goBack={goBack} />;
+      pageElement = <ChangePassword {...pageProps} />;
       break;
     case SettingsPages.RECOVERY_PHRASE:
-      pageElement = <RecoveryPhrase navigateTo={navigateTo} goBack={goBack} />;
+      pageElement = <RecoveryPhrase {...pageProps} />;
       break;
     case SettingsPages.NETWORK:
-      pageElement = <Network navigateTo={navigateTo} goBack={goBack} />;
+      pageElement = <Network {...pageProps} />;
       break;
     case SettingsPages.ADVANCED:
-      pageElement = <Advanced navigateTo={navigateTo} goBack={goBack} />;
+      pageElement = <Advanced {...pageProps} />;
       break;
     default:
-      pageElement = <MainPage navigateTo={navigateTo} goBack={goBack} />;
+      pageElement = <MainPage {...pageProps} />;
   }
 
   const SettingsElement = isMiniMode ? SettingsMenuMiniMode : SettingsMenu;
   const animationClass = isBackAnimation ? 'slideBack' : 'slideNext';
 
   return (
-    <SettingsElement currentPage={currentPage}>
+    <SettingsElement currentPage={currentPage} onClose={resetNavigation}>
       <TransitionGroup childFactory={dynamicChildFactory(animationClass)}>
         <CSSTransition
           in={true}

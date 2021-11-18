@@ -17,6 +17,7 @@ export async function addAccount(accountName?: string) {
     index: newAccount.index,
     name: accountName || `Account ${newAccount.index + 1}`,
     active: false,
+    addressC: newAccount.wallet.getAddressC() as string,
   });
 
   accounts$.next(accounts);

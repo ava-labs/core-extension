@@ -1,4 +1,4 @@
-import { combineLatest, map } from 'rxjs';
+import { combineLatest, map, tap } from 'rxjs';
 import { network$ } from '@avalabs/wallet-react-components';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { walletInitializedFilter } from '../../wallet/utils/walletInitializedFilter';
@@ -12,12 +12,9 @@ export function accountsChangedEvents() {
   ]).pipe(
     map(([wallet]) => {
       return {
-        accounts: getAccountsFromWallet(wallet),
+        params: getAccountsFromWallet(wallet),
+        method: Web3Event.ACCOUNTS_CHANGED,
       };
-    }),
-    map((params) => ({
-      method: Web3Event.ACCOUNTS_CHANGED,
-      params,
-    }))
+    })
   );
 }

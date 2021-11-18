@@ -31,7 +31,13 @@ export async function connect(data: ExtensionConnectionMessage) {
 
   const permissions = await firstValueFrom(permissions$);
 
-  if (domainHasAccountsPermissions(data.site?.domain, permissions)) {
+  if (
+    domainHasAccountsPermissions(
+      walletResult.getAddressC(),
+      data.site?.domain,
+      permissions
+    )
+  ) {
     return {
       ...data,
       result: walletResult ? getAccountsFromWallet(walletResult) : [],
@@ -40,7 +46,7 @@ export async function connect(data: ExtensionConnectionMessage) {
 
   const window = await openExtensionNewWindow(
     `permissions`,
-    `domain=${data.site?.domain}`,
+    `domainName=${data.site?.name}&domainUrl=${data.site?.domain}&domainIcon=${data.site?.icon}`,
     data.meta?.coords
   );
   /**
@@ -52,7 +58,11 @@ export async function connect(data: ExtensionConnectionMessage) {
     filter(
       (currentPermissions) =>
         domainPermissionsExist(data.site?.domain, currentPermissions) &&
-        domainHasAccountsPermissions(data.site?.domain, currentPermissions)
+        domainHasAccountsPermissions(
+          walletResult.getAddressC(),
+          data.site?.domain,
+          currentPermissions
+        )
     ),
     map((hasPermissions) => ({
       ...data,

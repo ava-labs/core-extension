@@ -1,5 +1,10 @@
 import React, { PropsWithChildren, useState } from 'react';
-import { HamburgerIcon, Overlay, TextButton } from '@avalabs/react-components';
+import {
+  HamburgerIcon,
+  Overlay,
+  TextButton,
+  VerticalFlex,
+} from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsMenuProps } from './SettingsMenuFlow';
 import { CSSTransition } from 'react-transition-group';
@@ -27,6 +32,7 @@ const OuterContainer = styled(Overlay)`
 export function SettingsMenuMiniMode({
   currentPage,
   children,
+  onClose,
 }: PropsWithChildren<SettingsMenuProps>) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -40,12 +46,23 @@ export function SettingsMenuMiniMode({
         addEndListener={(node, done) =>
           node.addEventListener('transitionend', done, false)
         }
+        onExited={() => {
+          // only reset navigation once the drawer is closed
+          onClose();
+        }}
         in={open}
         classNames="slideIn"
         unmountOnExit
       >
         <OuterContainer onClick={() => setOpen(false)}>
-          {children}
+          <VerticalFlex
+            width="319px"
+            overflow="hidden"
+            height="100%"
+            position="relative"
+          >
+            {children}
+          </VerticalFlex>
         </OuterContainer>
       </CSSTransition>
     </>

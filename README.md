@@ -2,15 +2,29 @@
 
 avalanche wallet browser extension
 
+## Prerequesites
+
+- [Install Node](https://nodejs.org/en/download/) (version 16 or upper)
+- [Install Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+
+### Login to your NPM profile via the CLI
+
+This is so you can install `@avalabs` packages from the NPM registry:
+
+```sh
+npx npm-cli-login -u YOUR_NPM_USERNAME -p YOUR_NPM_PASSWORD -e YOUR_NPM_EMAIL
+```
+
+You can also [set up an access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) if you prefer.
+
 ## Development
 
 - `yarn dev` watches for changes.
 
 ### Chrome Dev
 
-you will have to go to chrome://extensions/ and enable Developer mode.
-click `Load unpacked` and select the `extension-avalanche/dist` directory.
-Click the avalanche icon in the toolbar
+- Go to chrome://extensions/ and enable Developer mode.
+- At the top left of the above url click `Load unpacked` and select the extension folder.
 
 ### Firefox Dev
 

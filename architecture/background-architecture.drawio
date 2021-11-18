@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="aZ6EJbNiV0EWviCFpwhp" name="Page-1">
-        <mxGraphModel dx="3799" dy="1731" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#114B5F" math="0" shadow="0">
+        <mxGraphModel dx="2167" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#114B5F" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -64,7 +64,7 @@
                 <mxCell id="16" value="&lt;h1&gt;Background (web-worker)&lt;/h1&gt;&lt;p&gt;This is the brain of the wallet. Here all requests from the extension UI itself and from the dApp are routed. This houses the rpc layers for making requests to the chain, the chain info being shown in the dropdown, all user settings and the list goes on. Basically this is almost the entire app.&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="520" y="300" width="350" height="140" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" target="11" edge="1" source="18">
+                <mxCell id="17" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="18" target="11" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="420" y="590" as="sourcePoint"/>
                         <mxPoint x="320" y="530" as="targetPoint"/>
@@ -77,7 +77,7 @@
                 <mxCell id="18" value="Traffic Controller" style="rhombus;whiteSpace=wrap;html=1;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="620" y="560" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="21" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" target="18" edge="1" source="26">
+                <mxCell id="21" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="26" target="18" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="420" y="870" as="sourcePoint"/>
                         <mxPoint x="460" y="640" as="targetPoint"/>
@@ -99,19 +99,19 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="53" value="&lt;h1&gt;Extension Tab&lt;/h1&gt;&lt;p&gt;If the extension is popped out into its own tab, its in a window that has a direct port to background&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="53" value="&lt;h1&gt;Extension Tab&lt;/h1&gt;&lt;p&gt;If the extension is popped out into its own tab, its in a window that has a direct port to background&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="-420" y="360" width="190" height="120" as="geometry"/>
                 </mxCell>
-                <mxCell id="54" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;direction=west;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="54" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;direction=west;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="-220" y="540" width="20" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="55" value="extension pop up" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="55" value="extension pop up" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="-180" y="530" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="56" value="&lt;h1&gt;Extension Popups&lt;/h1&gt;&lt;p&gt;when a dapp makes a request a pop out window is created with a direct connection to the port&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="56" value="&lt;h1&gt;Extension Popups&lt;/h1&gt;&lt;p&gt;when a dapp makes a request a pop out window is created with a direct connection to the port&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="-460" y="510" width="220" height="120" as="geometry"/>
                 </mxCell>
-                <mxCell id="57" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;" edge="1" parent="1" source="2">
+                <mxCell id="57" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" source="2" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="130" y="520" as="sourcePoint"/>
                         <mxPoint x="-100" y="570" as="targetPoint"/>
@@ -121,16 +121,16 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="58" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;direction=west;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="58" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;direction=west;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="-220" y="700" width="20" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="59" value="extension pop out" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="59" value="extension pop out" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="-180" y="690" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="60" value="&lt;h1&gt;Extension Pop out&lt;/h1&gt;&lt;p&gt;When the extension in the chrome browser is clicked the popout connects via a port as well&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="60" value="&lt;h1&gt;Extension Pop out&lt;/h1&gt;&lt;p&gt;When the extension in the chrome browser is clicked the popout connects via a port as well&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="-460" y="670" width="220" height="120" as="geometry"/>
                 </mxCell>
-                <mxCell id="61" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.669;exitY=1.067;exitDx=0;exitDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitPerimeter=0;" edge="1" parent="1" source="2">
+                <mxCell id="61" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.669;exitY=1.067;exitDx=0;exitDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitPerimeter=0;" parent="1" source="2" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="190" y="560" as="sourcePoint"/>
                         <mxPoint x="-100" y="730" as="targetPoint"/>
@@ -140,64 +140,64 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="62" value="React App" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" vertex="1" parent="1">
+                <mxCell id="62" value="React App" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="20" y="540" width="120" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="63" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.167;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#0050ef;strokeColor=#001DBC;" edge="1" parent="1" source="62" target="51">
+                <mxCell id="63" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.167;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#0050ef;strokeColor=#001DBC;" parent="1" source="62" target="51" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="170" y="500" as="sourcePoint"/>
                         <mxPoint x="220" y="450" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="64" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fillColor=#0050ef;strokeColor=#001DBC;" edge="1" parent="1" source="62">
+                <mxCell id="64" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fillColor=#0050ef;strokeColor=#001DBC;" parent="1" source="62" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="20.039999999999964" y="660" as="sourcePoint"/>
                         <mxPoint x="-100" y="580" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="65" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.145;exitY=1.014;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#0050ef;strokeColor=#001DBC;" edge="1" parent="1" source="62">
+                <mxCell id="65" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.145;exitY=1.014;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#0050ef;strokeColor=#001DBC;" parent="1" source="62" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint y="700" as="sourcePoint"/>
                         <mxPoint x="-100" y="720" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="66" value="dApp/Provider Connections" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" vertex="1" parent="1">
+                <mxCell id="66" value="dApp/Provider Connections" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
                     <mxGeometry x="890" y="550" width="100" height="100" as="geometry"/>
                 </mxCell>
-                <mxCell id="67" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1">
+                <mxCell id="67" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=#114B5F;strokeColor=#028090;fontColor=#E4FDE1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="700" y="598.5699999999999" as="sourcePoint"/>
                         <mxPoint x="890" y="598.5699999999999" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="68" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;rounded=0;glass=0;" vertex="1" parent="1">
+                <mxCell id="68" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;rounded=0;glass=0;" parent="1" vertex="1">
                     <mxGeometry x="485" y="680" width="350" height="350" as="geometry"/>
                 </mxCell>
-                <mxCell id="69" value="&lt;h1&gt;Services&lt;/h1&gt;&lt;p&gt;These services line in the web worker and are only accessible to background api controllers. They stay live and die with the extension lifecycle&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;" vertex="1" parent="1">
+                <mxCell id="69" value="&lt;h1&gt;Services&lt;/h1&gt;&lt;p&gt;These services line in the web worker and are only accessible to background api controllers. They stay live and die with the extension lifecycle&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;" parent="1" vertex="1">
                     <mxGeometry x="490" y="680" width="340" height="120" as="geometry"/>
                 </mxCell>
-                <mxCell id="70" value="Wallet" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" vertex="1" parent="1">
+                <mxCell id="70" value="Wallet" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="500" y="780" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="71" value="Network" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" vertex="1" parent="1">
+                <mxCell id="71" value="Network" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="610" y="780" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="72" value="Permissions&lt;span style=&quot;color: rgba(0 , 0 , 0 , 0) ; font-family: monospace ; font-size: 0px&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22Network%22%20style%3D%22ellipse%3BwhiteSpace%3Dwrap%3Bhtml%3D1%3Baspect%3Dfixed%3Brounded%3D0%3Bglass%3D0%3Balign%3Dcenter%3BfillColor%3D%236a00ff%3BstrokeColor%3D%233700CC%3BfontColor%3D%23ffffff%3B%22%20vertex%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20x%3D%22630%22%20y%3D%22660%22%20width%3D%2280%22%20height%3D%2280%22%20as%3D%22geometry%22%2F%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" vertex="1" parent="1">
+                <mxCell id="72" value="Permissions&lt;span style=&quot;color: rgba(0 , 0 , 0 , 0) ; font-family: monospace ; font-size: 0px&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22Network%22%20style%3D%22ellipse%3BwhiteSpace%3Dwrap%3Bhtml%3D1%3Baspect%3Dfixed%3Brounded%3D0%3Bglass%3D0%3Balign%3Dcenter%3BfillColor%3D%236a00ff%3BstrokeColor%3D%233700CC%3BfontColor%3D%23ffffff%3B%22%20vertex%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20x%3D%22630%22%20y%3D%22660%22%20width%3D%2280%22%20height%3D%2280%22%20as%3D%22geometry%22%2F%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="710" y="780" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="73" value="Onboarding" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" vertex="1" parent="1">
+                <mxCell id="73" value="Onboarding" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="500" y="890" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="74" value="Messages" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" vertex="1" parent="1">
+                <mxCell id="74" value="Messages" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="610" y="890" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="75" value="Transactions" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" vertex="1" parent="1">
+                <mxCell id="75" value="Transactions" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="710" y="890" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="77" value="Request Handler" style="rhombus;whiteSpace=wrap;html=1;rounded=0;glass=0;align=center;" vertex="1" parent="1">
+                <mxCell id="77" value="Request Handler" style="rhombus;whiteSpace=wrap;html=1;rounded=0;glass=0;align=center;" parent="1" vertex="1">
                     <mxGeometry x="140" y="900" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="80" value="" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="26" target="77">
+                <mxCell id="80" value="" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="26" target="77" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="790" y="850" as="sourcePoint"/>
                         <mxPoint x="840" y="800" as="targetPoint"/>
@@ -208,7 +208,7 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="81" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="77" target="68">
+                <mxCell id="81" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="77" target="68" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="320" y="855" as="sourcePoint"/>
                         <mxPoint x="390" y="840" as="targetPoint"/>
@@ -217,13 +217,13 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="82" value="&lt;h1&gt;Request from extension&lt;/h1&gt;&lt;p&gt;When a request comes in from an extension we provide a limited handler surface. If there is a match we connect to the proper entity and respond or return an error&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;" vertex="1" parent="1">
+                <mxCell id="82" value="&lt;h1&gt;Request from extension&lt;/h1&gt;&lt;p&gt;When a request comes in from an extension we provide a limited handler surface. If there is a match we connect to the proper entity and respond or return an error&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;" parent="1" vertex="1">
                     <mxGeometry x="220" y="790" width="240" height="120" as="geometry"/>
                 </mxCell>
-                <mxCell id="83" value="Request Handler" style="rhombus;whiteSpace=wrap;html=1;rounded=0;glass=0;align=center;" vertex="1" parent="1">
+                <mxCell id="83" value="Request Handler" style="rhombus;whiteSpace=wrap;html=1;rounded=0;glass=0;align=center;" parent="1" vertex="1">
                     <mxGeometry x="1165" y="900" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="84" value="" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" target="83">
+                <mxCell id="84" value="" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" target="83" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="940" y="650" as="sourcePoint"/>
                         <mxPoint x="740" y="899.9999999999995" as="targetPoint"/>
@@ -233,14 +233,20 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="85" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="68" target="83">
+                <mxCell id="85" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" parent="1" source="68" target="83" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="950" y="910" as="sourcePoint"/>
                         <mxPoint x="1000" y="860" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="86" value="&lt;h1&gt;Request from dApp&lt;/h1&gt;&lt;p&gt;When a request comes in from an dApp we provide we check it its a blockchain reuqest directly and if so we let it through. Otherwise we check if its a method request that requires a services, such as confirmation of swap&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;" vertex="1" parent="1">
+                <mxCell id="86" value="&lt;h1&gt;Request from dApp&lt;/h1&gt;&lt;p&gt;When a request comes in from an dApp we provide we check it its a blockchain reuqest directly and if so we let it through. Otherwise we check if its a method request that requires a services, such as confirmation of swap&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;" parent="1" vertex="1">
                     <mxGeometry x="900" y="790" width="240" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="87" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fillColor=#1ba1e2;strokeColor=#028090;" edge="1" parent="1" source="8">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="-200" y="300" as="sourcePoint"/>
+                        <mxPoint x="-150" y="230" as="targetPoint"/>
+                    </mxGeometry>
                 </mxCell>
             </root>
         </mxGraphModel>

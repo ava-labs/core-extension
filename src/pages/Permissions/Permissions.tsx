@@ -18,6 +18,8 @@ import { usePermissions } from './usePermissions';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { Account } from '@src/background/services/accounts/models';
+import { TokenIcon } from '@src/components/common/TokenImage';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -40,17 +42,14 @@ const AccountName = styled(Typography)`
 
 export function PermissionsPage() {
   const params = new URLSearchParams(window.location.search);
-  const domain = params.get('domain') as string;
-  const {
-    addPermissionsForDomain,
-    permissions,
-    acceptPermissionsDisabled,
-    updateAccountPermission,
-  } = usePermissions(domain);
+  const domain = params.get('domainUrl') as string;
+  const domainName = params.get('domainName') as string;
+  const domainIcon = params.get('domainIcon') as string;
+  const { permissions, updateAccountPermission } = usePermissions(domain);
   const theme = useTheme();
   const { accounts, activeAccount } = useAccountsContext();
-  const [selectedAccount, setSelectedAccount] = useState<number>(
-    activeAccount?.index || 0
+  const [selectedAccount, setSelectedAccount] = useState<Account>(
+    activeAccount || accounts[0]
   );
   const scrollbarsRef = useRef<Scrollbars>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
@@ -68,9 +67,14 @@ export function PermissionsPage() {
     return <LoadingIcon />;
   }
 
-  const selectAccount = (index: number) => {
-    setSelectedAccount(index);
-    updateAccountPermission(index, true);
+  const selectAccount = (account: Account) => {
+    /**
+     * If permissions are already true for a address then we dont need to
+     * update again, also this isnt a toggle so we will ignore further requests
+     */
+    if (!permissions.accounts[account.addressC]) {
+      setSelectedAccount(account);
+    }
   };
 
   return (
@@ -84,18 +88,21 @@ export function PermissionsPage() {
         Connect Wallet to Site?
       </Typography>
       <SiteAvatar margin="16px" justify="center" align="center">
-        <GlobeIcon height="48px" width="48px" color={theme.colors.text1} />
+        <TokenIcon height="48px" width="48px" src={domainIcon}>
+          <GlobeIcon height="48px" width="48px" color={theme.colors.text1} />
+        </TokenIcon>
       </SiteAvatar>
-      <Typography as="h2" weight="bold" size={18}>
-        {permissions.domain}
+      <Typography as="h2" weight="bold" size={18} height="22px">
+        {domainName}
       </Typography>
       <Typography
         margin="2px"
         size={12}
         weight={400}
         color={theme.colors.text2}
+        height="15px"
       >
-        this should be a url
+        {domain}
       </Typography>
       <VerticalFlex margin="24px 0 16px 0" flex={1} width="100%">
         <Typography size={12} margin="8px 0">
@@ -109,7 +116,7 @@ export function PermissionsPage() {
                 justify="space-between"
                 align={'center'}
               >
-                <AccountName>{accounts[selectedAccount]?.name}</AccountName>
+                <AccountName>{selectedAccount?.name}</AccountName>
                 <CaretIcon
                   direction={IconDirection.DOWN}
                   color={theme.colors.text1}
@@ -119,7 +126,7 @@ export function PermissionsPage() {
             </Card>
           }
         >
-          <VerticalFlex width="341px" height="168px">
+          <VerticalFlex width="305.5px" height="168px">
             <Scrollbars
               style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
               ref={scrollbarsRef}
@@ -128,10 +135,10 @@ export function PermissionsPage() {
                 <SecondaryDropDownMenuItem
                   width="100%"
                   key={account.index}
-                  onClick={() => selectAccount(account.index) as any}
-                  selected={account.index === selectedAccount}
+                  onClick={() => selectAccount(account) as any}
+                  selected={account.index === selectedAccount.index}
                   ref={
-                    selectedAccount === account.index
+                    selectedAccount.index === account.index
                       ? selectedAccountRef
                       : undefined
                   }
@@ -143,12 +150,19 @@ export function PermissionsPage() {
                       align="center"
                     >
                       <AccountName>{account.name}</AccountName>
-                      {selectedAccount === account.index && (
+                      {selectedAccount.index === account.index && (
                         <CheckmarkIcon
                           height="16px"
                           color={theme.colors.text1}
                         />
                       )}
+                      {selectedAccount.index !== account.index &&
+                        permissions.accounts[account.addressC] && (
+                          <CheckmarkIcon
+                            height="16px"
+                            color={theme.colors.success}
+                          />
+                        )}
                     </HorizontalFlex>
                   </VerticalFlex>
                 </SecondaryDropDownMenuItem>
@@ -167,14 +181,16 @@ export function PermissionsPage() {
           Only connect to sites that you trust
         </Typography>
         <HorizontalFlex justify="space-between">
-          <SecondaryButton onClick={() => window.close()}>
+          <SecondaryButton onClick={() => window.close()} width="141px">
             Reject
           </SecondaryButton>
           <PrimaryButton
-            disabled={acceptPermissionsDisabled}
             onClick={() => {
-              addPermissionsForDomain(permissions).then(() => window.close());
+              updateAccountPermission(selectedAccount.addressC, true).then(() =>
+                window.close()
+              );
             }}
+            width="141px"
           >
             Approve
           </PrimaryButton>

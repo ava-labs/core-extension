@@ -10,7 +10,7 @@ import {
 } from 'rxjs';
 import { onboardingStatus$ } from '../onboarding/onboardingFlows';
 import { getMnemonicFromStorage } from './storage';
-import { wallet$ } from '@avalabs/wallet-react-components';
+import { clearMnemonic, wallet$ } from '@avalabs/wallet-react-components';
 
 export const restartWalletLock$ = new Subject<boolean>();
 export const lockWallet$ = new Subject<boolean>();
@@ -52,4 +52,7 @@ merge(of({}), restartWalletLock$)
   .pipe(switchMap(() => interval(HOURS_12)))
   .subscribe(() => wallet$.next(undefined));
 
-lockWallet$.subscribe(() => wallet$.next(undefined));
+lockWallet$.subscribe(() => {
+  clearMnemonic();
+  wallet$.next(undefined);
+});

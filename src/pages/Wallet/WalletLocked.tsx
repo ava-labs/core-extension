@@ -11,16 +11,6 @@ import { LoginIllustration } from '@src/components/common/LoginIllustation';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
 import React, { useState } from 'react';
-import styled from 'styled-components';
-
-const IllustrationPlaceholder = styled(VerticalFlex)`
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.palette.grey[800]};
-  justify-content: center;
-  align-items: center;
-`;
 
 export function WalletLocked({
   unlockWallet,
@@ -28,8 +18,9 @@ export function WalletLocked({
   unlockWallet(password: string): Promise<any>;
 }) {
   const dimensions = useAppDimensions();
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [loggingIn, setLoggingIn] = useState<boolean>(false);
   const { showDialog, clearDialog } = useDialog();
 
   const onImportClick = () => {
@@ -49,6 +40,18 @@ export function WalletLocked({
     });
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoggingIn(true);
+
+    password &&
+      unlockWallet(password)
+        .catch(() => {
+          setError('Invalid password');
+        })
+        .finally(() => setLoggingIn(false));
+  };
+
   return (
     <VerticalFlex
       padding="32px 16px"
@@ -62,6 +65,7 @@ export function WalletLocked({
       <VerticalFlex grow="1" justify="center" align="center">
         <LoginIllustration size={146} />
       </VerticalFlex>
+
       <VerticalFlex align="center" height="105px">
         <Input
           type="password"
@@ -70,6 +74,12 @@ export function WalletLocked({
           placeholder="Password"
           error={!!error}
           errorMessage={error}
+          onKeyPress={(e) => {
+            // When we click the enter key within the password input
+            if (e.key === 'Enter') {
+              handleSubmit(e);
+            }
+          }}
           autoFocus
         />
       </VerticalFlex>
@@ -77,16 +87,12 @@ export function WalletLocked({
         size={ComponentSize.LARGE}
         width="100%"
         margin="0 0 24px 0"
-        disabled={!password}
-        onClick={() =>
-          password &&
-          unlockWallet(password).catch(() => {
-            setError('Invalid password');
-          })
-        }
+        disabled={!password || loggingIn}
+        onClick={handleSubmit}
       >
         Login
       </PrimaryButton>
+
       <TextButton onClick={() => onImportClick()}>
         or login with your recovery phrase
       </TextButton>

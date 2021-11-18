@@ -1,3 +1,4 @@
+import { clearMnemonic } from '@avalabs/wallet-react-components';
 import { resolve } from '@src/utils/promiseResolver';
 import {
   getFromStorage,
@@ -106,5 +107,6 @@ export async function decryptMnemonicInStorage(password: string) {
 }
 
 export async function removeWalletFromStorage() {
+  clearMnemonic();
   return removeFromStorage(WALLET_STORAGE_KEY);
 }

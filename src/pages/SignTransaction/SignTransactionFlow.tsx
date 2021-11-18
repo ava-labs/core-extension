@@ -1,5 +1,4 @@
 import {
-  Card,
   HorizontalFlex,
   VerticalFlex,
   PrimaryButton,
@@ -8,6 +7,8 @@ import {
   SubTextTypography,
   TextButton,
   LoadingIcon,
+  ConnectionIndicator,
+  SecondaryCard,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
@@ -33,9 +34,11 @@ import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTheme } from 'styled-components';
 import { TransactionConfirmation } from './TransactionConfirmation';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
+  const { isWalletReady } = useWalletContext();
   const {
     updateTransaction,
     id,
@@ -91,34 +94,40 @@ export function SignTransactionPage() {
   }
 
   const showSummary = () => (
-    <HorizontalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
-      <VerticalFlex>
-        <Typography padding="0 0 4px 0" height="24px" weight={600}>
-          Network Fee
-        </Typography>
-        <TextButton onClick={() => setShowCustomFees(true)}>
-          <Typography size={12} color={theme.colors.primary1} weight={600}>
-            Edit
+    <VerticalFlex>
+      <HorizontalFlex
+        margin="16px 0 0 0"
+        width={'100%'}
+        justify="space-between"
+      >
+        <VerticalFlex>
+          <Typography padding="0 0 4px 0" height="24px" weight={600}>
+            Network Fee
           </Typography>
-        </TextButton>
-      </VerticalFlex>
+          <TextButton onClick={() => setShowCustomFees(true)}>
+            <Typography size={12} color={theme.colors.primary1} weight={600}>
+              Edit
+            </Typography>
+          </TextButton>
+        </VerticalFlex>
 
-      <VerticalFlex align="flex-end">
-        <Typography padding="0 0 4px 0" weight={600} height="24px">
-          {displayData.fee}
-          <Typography
-            padding="0 0 0 4px"
-            weight={600}
-            color={theme.colors.text2}
-          >
-            AVAX
+        <VerticalFlex align="flex-end">
+          <Typography padding="0 0 4px 0" weight={600} height="24px">
+            {displayData.fee}
+            <Typography
+              padding="0 0 0 4px"
+              weight={600}
+              color={theme.colors.text2}
+            >
+              AVAX
+            </Typography>
           </Typography>
-        </Typography>
-        <SubTextTypography size={12}>
-          ~{currencyFormatter(Number(displayData.feeUSD))} {currency}
-        </SubTextTypography>
-      </VerticalFlex>
-    </HorizontalFlex>
+          <SubTextTypography size={12}>
+            ~{currencyFormatter(Number(displayData.feeUSD))} {currency}
+          </SubTextTypography>
+        </VerticalFlex>
+      </HorizontalFlex>
+    </VerticalFlex>
   );
 
   const showTxData = (byteStr) => (
@@ -126,18 +135,25 @@ export function SignTransactionPage() {
       <Typography margin="0 0 8px 0" height="24px">
         Hex Data: {getHexStringToBytes(byteStr)} Bytes
       </Typography>
-      <Card padding="16px">
+      <SecondaryCard padding="16px">
         <Typography size={14} overflow="scroll">
           {byteStr}
         </Typography>
-      </Card>
+      </SecondaryCard>
     </VerticalFlex>
   );
 
   return (
     <VerticalFlex width="100%" align="center">
-      <HorizontalFlex>
-        <SubTextTypography size={12}>{network?.name} C-Chain</SubTextTypography>
+      <HorizontalFlex align="center">
+        <ConnectionIndicator
+          disableTooltip={true}
+          size={8}
+          connected={isWalletReady}
+        />
+        <SubTextTypography margin={'0 0 0 5px'} size={12}>
+          {network?.name} C-Chain
+        </SubTextTypography>
       </HorizontalFlex>
 
       {/* Actions  */}
@@ -155,7 +171,9 @@ export function SignTransactionPage() {
           [ContractCall.ADD_LIQUIDITY_AVAX]: (
             <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
           ),
-          ['unknown']: <UnknownTx />,
+          ['unknown']: (
+            <UnknownTx {...(displayData as TransactionDisplayValues)} />
+          ),
         }[contractType || 'unknown']
       }
 
