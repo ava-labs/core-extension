@@ -50,6 +50,7 @@ export function SignTransactionPage() {
     displaySpendLimit,
     customSpendLimit,
     onRadioChange,
+    isRevokeApproval,
     ...params
   } = useGetTransaction(requestId);
   const [showTxInProgress, setShowTxInProgress] = useState(false);
@@ -140,6 +141,7 @@ export function SignTransactionPage() {
               setShowCustomFees={setShowCustomFees}
               setShowCustomSpendLimit={setShowCustomSpendLimit}
               displaySpendLimit={displaySpendLimit}
+              isRevokeApproval={isRevokeApproval}
             />
           ),
           [ContractCall.ADD_LIQUIDITY]: (

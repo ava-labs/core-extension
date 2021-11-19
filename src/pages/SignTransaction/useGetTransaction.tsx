@@ -27,6 +27,7 @@ export function useGetTransaction(requestId: string) {
   const [customSpendLimit, setCustonSpendLimit] = useState<SpendLimitType>({
     checked: Limit.UNLIMITED,
   } as SpendLimitType);
+  const [isRevokeApproval, setIsRevokeApproval] = useState(false);
 
   function setCustomFee(gasLimit: string, gasPrice: GasPrice) {
     const feeDisplayValues = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
@@ -133,6 +134,12 @@ export function useGetTransaction(requestId: string) {
         },
       });
 
+    // Handle transaction Approval for REVOKING spend limit
+    if (transaction?.displayValues.approveData.limit === '0') {
+      setDisplaySpendLimit('0');
+      setIsRevokeApproval(true);
+    }
+
     return () => {
       subscription.unsubscribe();
       finalizedSubscription.unsubscribe();
@@ -155,6 +162,7 @@ export function useGetTransaction(requestId: string) {
       displaySpendLimit,
       customSpendLimit,
       onRadioChange,
+      isRevokeApproval,
     };
   }, [
     requestId,
@@ -164,5 +172,6 @@ export function useGetTransaction(requestId: string) {
     showCustomSpendLimit,
     customSpendLimit,
     updateTransaction,
+    displaySpendLimit,
   ]);
 }

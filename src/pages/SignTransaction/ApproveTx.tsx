@@ -34,6 +34,7 @@ export function ApproveTx({
   setShowCustomFees,
   setShowCustomSpendLimit,
   displaySpendLimit,
+  isRevokeApproval,
   ...rest
 }: ApproveTransactionData) {
   const { currencyFormatter, currency } = useSettingsContext();
@@ -96,13 +97,15 @@ export function ApproveTx({
             {truncateAddress(rest.toAddress)}
           </Typography>
         </HorizontalFlex>
-        <HorizontalFlex>
-          <TextButton onClick={() => setShowCustomSpendLimit(true)}>
-            <Typography size={12} color={theme.colors.primary1} weight={600}>
-              Edit
-            </Typography>
-          </TextButton>
-        </HorizontalFlex>
+        {!isRevokeApproval && (
+          <HorizontalFlex>
+            <TextButton onClick={() => setShowCustomSpendLimit(true)}>
+              <Typography size={12} color={theme.colors.primary1} weight={600}>
+                Edit
+              </Typography>
+            </TextButton>
+          </HorizontalFlex>
+        )}
       </VerticalFlex>
     </VerticalFlex>
   );
