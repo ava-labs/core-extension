@@ -1,4 +1,9 @@
-import { HorizontalFlex, LoadingIcon } from '@avalabs/react-components';
+import {
+  HorizontalFlex,
+  LoadingIcon,
+  Typography,
+  VerticalFlex,
+} from '@avalabs/react-components';
 import { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
 import React from 'react';
@@ -6,16 +11,28 @@ import React from 'react';
 const TOKEN_IMAGE_BORDER_RADIUS = '50%';
 const TOKEN_IMAGE_DFEAULT_SIZE = '32px';
 
+const getTokenIconInitials = (name: string) => {
+  const names = name?.split(' ');
+  const initials =
+    names.length > 1
+      ? names[0].substring(0, 1) + names[names.length - 1].substring(0, 1)
+      : names[0].substring(0, 1);
+
+  return initials;
+};
+
 export function TokenIcon({
   src,
   children,
   width,
   height,
+  name,
 }: {
   src?: string;
   children?: any;
   width?: string;
   height?: string;
+  name?: string;
 }) {
   const theme = useTheme();
   const [state, setState] = useState<{ success?: boolean; error?: boolean }>();
@@ -74,6 +91,7 @@ export function TokenIcon({
   }
 
   if (state.error) {
+    const logoText = name ? getTokenIconInitials(name) : '';
     return (
       /** Children here is so that a custom fallback element can be used */
       children ?? (
@@ -83,7 +101,13 @@ export function TokenIcon({
           width={width || TOKEN_IMAGE_DFEAULT_SIZE}
           height={height || TOKEN_IMAGE_DFEAULT_SIZE}
           style={{ flexShrink: 0 }}
-        />
+          justify="center"
+          align="center"
+        >
+          <Typography align="center" size={12}>
+            {logoText}
+          </Typography>
+        </HorizontalFlex>
       )
     );
   }

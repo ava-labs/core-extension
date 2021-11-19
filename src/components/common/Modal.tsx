@@ -42,7 +42,7 @@ export function Modal({
           WebkitOverflowScrolling: 'touch',
           borderRadius: '4px',
           outline: 'none',
-          padding: '20px',
+          padding: '0',
           width: 450,
           height: 650,
         },

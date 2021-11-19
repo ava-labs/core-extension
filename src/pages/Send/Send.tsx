@@ -66,7 +66,7 @@ export function Send() {
         </PrimaryButton>
       </VerticalFlex>
       <Modal isOpen={showConfirmation}>
-        <VerticalFlex padding="36px" height="100%">
+        <VerticalFlex padding="56px 36px" height="100%">
           <SendConfirm
             onClose={() => setShowConfirmation(false)}
             sendState={sendState}

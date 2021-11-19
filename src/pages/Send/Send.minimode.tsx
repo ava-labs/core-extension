@@ -21,7 +21,8 @@ const ConfirmContainer = styled(VerticalFlex)`
   top: 0;
   left: 0;
   height: 100%;
-  background: ${({ theme }) => theme.colors.bg1};
+  width: 100%;
+  background: ${({ theme }) => theme.colors.bg4};
 `;
 
 export function SendMiniMode() {

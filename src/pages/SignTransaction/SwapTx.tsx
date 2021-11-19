@@ -15,19 +15,25 @@ import {
 } from '@src/contracts/contractParsers/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import React from 'react';
-import { isAvaxToken } from '@avalabs/wallet-react-components';
+import {
+  isAvaxToken,
+  TokenWithBalance,
+} from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
+import { AddressPaths } from './components/AddressPaths';
 
 export function SwapTx({
   path,
   fee,
   feeUSD,
-  txParams,
+  toAddress,
+  fromAddress,
   setShowCustomFees,
+  txParams,
 }: SwapExactTokensForTokenDisplayValues) {
   const { currencyFormatter, currency } = useSettingsContext();
   const [sentToken] = path;
@@ -91,8 +97,9 @@ export function SwapTx({
       </HorizontalFlex>
 
       <VerticalFlex>
+        <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
         {/* Top Token */}
-        <SecondaryCard padding="16px">
+        <SecondaryCard padding="16px" margin="16px 0 0 0">
           <HorizontalFlex
             align={'center'}
             justify={'space-between'}
@@ -103,8 +110,10 @@ export function SwapTx({
                 <AvaxTokenIcon height="40px" />
               ) : (
                 <TokenIcon
+                  height="40px"
                   width="40px"
                   src={(sentToken as erc20PathToken).logoURI}
+                  name={(sentToken as TokenWithBalance).name}
                 />
               )}
               <VerticalFlex
@@ -156,6 +165,7 @@ export function SwapTx({
                   height="40px"
                   width="40px"
                   src={(receivingToken as erc20PathToken).logoURI}
+                  name={(sentToken as TokenWithBalance).name}
                 />
               )}
               <VerticalFlex

@@ -90,7 +90,12 @@ export function SendConfirm({
   return (
     <>
       {showTxInProgress && <LoadingOverlay />}
-      <HorizontalFlex align={'center'} justify="center" width="100%">
+      <HorizontalFlex
+        align={'center'}
+        justify="center"
+        width="100%"
+        padding="16px"
+      >
         <TextButton onClick={() => onBackClick()}>
           <CaretIcon
             color={theme.colors.text1}
@@ -110,7 +115,7 @@ export function SendConfirm({
       </HorizontalFlex>
 
       {showTxDetails ? (
-        <VerticalFlex margin="40px 0 0" grow="1">
+        <VerticalFlex margin="40px 0 0" grow="1" padding="16px">
           <SendConsolidationDetails txs={sendState?.txs || []} />
           <PrimaryButton
             size={ComponentSize.LARGE}
@@ -122,7 +127,7 @@ export function SendConfirm({
           </PrimaryButton>
         </VerticalFlex>
       ) : (
-        <>
+        <VerticalFlex padding="0 16px 16px" height="100%" align="center">
           <VerticalFlex margin="24px 0 0 0" align={'center'}>
             {isAvaxToken(token) ? (
               <AvaxTokenIcon height="31px" />
@@ -131,6 +136,7 @@ export function SendConfirm({
                 src={(token as TokenWithBalance).logoURI}
                 height="31px"
                 width="31px"
+                name={(token as TokenWithBalance).name}
               />
             )}
             <SubTextTypography margin={'8px 0 0 0'} height="17px" size={14}>
@@ -188,7 +194,7 @@ export function SendConfirm({
               Confirm
             </PrimaryButton>
           </HorizontalFlex>
-        </>
+        </VerticalFlex>
       )}
     </>
   );
