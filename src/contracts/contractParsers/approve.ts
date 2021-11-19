@@ -21,8 +21,20 @@ export function approveTxHandler(
   _data: any,
   props: DisplayValueParserProps
 ): TransactionDisplayValues {
+  const erc20sIndexedByAddress = props.erc20Tokens.reduce(
+    (acc, token) => ({ ...acc, [token.address]: token }),
+    {}
+  );
+
+  const tokenToBeApproved = erc20sIndexedByAddress[request.to];
+
   const result = {
+    tokenToBeApproved,
     contractType: ContractCall.APPROVE,
+    approveData: {
+      limit: _data.amount,
+      spender: _data.spender,
+    },
     ...parseBasicDisplayValues(request, props),
   };
 

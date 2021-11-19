@@ -11,7 +11,7 @@ import {
   TxStatus,
 } from '../models';
 import {
-  pendingTransactions,
+  pendingTransactions$,
   transactions$,
   updateTransaction,
 } from '../transactions';
@@ -51,7 +51,7 @@ export async function updateTransactionById(
 
   updateTransaction.next(update);
 
-  const currentPendingTransactions = await firstValueFrom(pendingTransactions);
+  const currentPendingTransactions = await firstValueFrom(pendingTransactions$);
   const pendingTx = currentPendingTransactions[update.id];
 
   if (update.status === TxStatus.SUBMITTING) {
