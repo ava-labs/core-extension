@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useState } from 'react';
 import { Transaction } from '@src/background/services/transactions/models';
 import { useEffect } from 'react';
@@ -21,9 +21,7 @@ export function useGetTransaction(requestId: string) {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [hash, setHash] = useState('');
   const [showCustomFees, setShowCustomFees] = useState(false);
-
   const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
-
   const [displaySpendLimit, setDisplaySpendLimit] =
     useState<string>('Unlimited');
   const [customSpendLimit, setCustonSpendLimit] = useState<SpendLimitType>({
@@ -73,33 +71,29 @@ export function useGetTransaction(requestId: string) {
     }
 
     if (customSpendData.checked === Limit.CUSTOM) {
-      limitAmount = customSpendData.spendLimitBN.amount; // this is wrong
+      limitAmount = customSpendData.spendLimitBN.bn.toString();
     }
 
     // create hex string for approval amount
     const web3 = new Web3(Web3.givenProvider);
     const contract = new web3.eth.Contract(ERC20_ABI as any, srcToken);
 
-    // spenderAddress comes from transaction
-    // limit amount is a string
     const hashedCustomSpend =
       limitAmount &&
       contract.methods.approve(spenderAddress, limitAmount).encodeABI();
 
-    // call approve
-
-    request({
-      method: ExtensionRequest.TRANSACTIONS_UPDATE,
-      params: [
-        {
-          id: transaction?.id,
-          params: { data: hashedCustomSpend },
-        },
-      ],
+    updateTransaction({
+      id: transaction?.id,
+      params: { data: hashedCustomSpend },
     });
-
-    console.log(hashedCustomSpend);
   }
+
+  const updateTransaction = useCallback((update) => {
+    return request({
+      method: ExtensionRequest.TRANSACTIONS_UPDATE,
+      params: [update],
+    });
+  }, []);
 
   useEffect(() => {
     request({
@@ -146,13 +140,6 @@ export function useGetTransaction(requestId: string) {
   }, [transaction]);
 
   return useMemo(() => {
-    function updateTransaction(update) {
-      return request({
-        method: ExtensionRequest.TRANSACTIONS_UPDATE,
-        params: [update],
-      });
-    }
-
     return {
       ...transaction?.displayValues,
       id: transaction?.id,
@@ -165,7 +152,6 @@ export function useGetTransaction(requestId: string) {
       showCustomSpendLimit,
       setShowCustomSpendLimit,
       setCustomSpendLimit,
-      setDisplaySpendLimit,
       displaySpendLimit,
       customSpendLimit,
       onRadioChange,
@@ -177,5 +163,6 @@ export function useGetTransaction(requestId: string) {
     showCustomFees,
     showCustomSpendLimit,
     customSpendLimit,
+    updateTransaction,
   ]);
 }
