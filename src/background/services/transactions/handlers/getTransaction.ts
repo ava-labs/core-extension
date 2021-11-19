@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { pendingTransactions } from '../transactions';
+import { pendingTransactions$ } from '../transactions';
 
 export async function getTransaction(request: ExtensionConnectionMessage) {
   const params = request.params;
@@ -24,7 +24,7 @@ export async function getTransaction(request: ExtensionConnectionMessage) {
     };
   }
 
-  const currentPendingTransactions = await firstValueFrom(pendingTransactions);
+  const currentPendingTransactions = await firstValueFrom(pendingTransactions$);
 
   const tx = currentPendingTransactions[txId];
 

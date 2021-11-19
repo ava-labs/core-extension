@@ -67,7 +67,11 @@ export function BottomNav() {
         </VerticalFlex>
       </TextButton>
 
-      <TextButton onClick={() => history.push('/swap')}>
+      <TextButton
+        title="coming soon"
+        disabled={true}
+        onClick={() => history.push('/swap')}
+      >
         <VerticalFlex width="50px" align="center">
           <SwapArrowsIcon height={'32px'} color={setColorWhenActive('/swap')} />
           <Typography

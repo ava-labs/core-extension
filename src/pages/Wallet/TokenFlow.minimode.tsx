@@ -11,6 +11,7 @@ import {
   ERC20WithBalance,
   isAntToken,
   isAvaxToken,
+  TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { TokenIcon } from '@src/components/common/TokenImage';
@@ -21,7 +22,6 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useTheme } from 'styled-components';
-import { Receive } from '../Receive/Receive';
 import { ReceiveMiniMode } from '../Receive/Receive.minimode';
 import { SendFlow } from '../Send/SendFlow';
 
@@ -30,6 +30,7 @@ export function TokenFlowMiniMode() {
   const { currency, currencyFormatter } = useSettingsContext();
   const theme = useTheme();
   const token = useTokenFromParams();
+  console.log('token: ', token);
   const tokensWithBalances = useTokensWithBalances();
   const [showSend, setShowSend] = useState<boolean>();
 
@@ -44,7 +45,7 @@ export function TokenFlowMiniMode() {
   const balanceCurrencyValue = token.balanceUsdDisplayValue ?? token.balanceUSD;
 
   return (
-    <VerticalFlex width={'100%'} margin="16px" position="relative">
+    <VerticalFlex width={'100%'} padding="16px" position="relative">
       <HorizontalFlex width={'100%'} justify={'center'}>
         <VerticalFlex justify={'center'}>
           {isAvaxToken(token) ? (
@@ -54,6 +55,7 @@ export function TokenFlowMiniMode() {
               height={'40px'}
               width={'40px'}
               src={(token as ERC20WithBalance).logoURI}
+              name={(token as TokenWithBalance).name}
             />
           )}
         </VerticalFlex>

@@ -11,8 +11,8 @@ import {
   SecondaryDropDownMenuItem,
   CaretIcon,
   IconDirection,
-  Card,
   GlobeIcon,
+  SecondaryCard,
 } from '@avalabs/react-components';
 import { usePermissions } from './usePermissions';
 import styled, { useTheme } from 'styled-components';
@@ -110,7 +110,7 @@ export function PermissionsPage() {
         </Typography>
         <SecondaryDropDownMenu
           icon={
-            <Card padding="16px" width="100%">
+            <SecondaryCard padding="16px" width="100%">
               <HorizontalFlex
                 width="100%"
                 justify="space-between"
@@ -123,7 +123,7 @@ export function PermissionsPage() {
                   height="12px"
                 />
               </HorizontalFlex>
-            </Card>
+            </SecondaryCard>
           }
         >
           <VerticalFlex width="305.5px" height="168px">

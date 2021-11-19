@@ -1,9 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-  SubTextTypography,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+import { VerticalFlex } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
   AntWithBalance,
@@ -18,7 +14,7 @@ import { TransactionSendType } from '../../../Send/models';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { TokenListItemMiniMode } from './TokenListItem.minimode';
 import Scrollbars from 'react-custom-scrollbars';
-import { IllustrationPlaceholder } from '@src/components/common/IllustrationPlaceholder';
+import { NoTokenFound } from './NoTokenFound';
 
 interface TokenListMiniModeProps {
   searchQuery?: string;
@@ -50,25 +46,11 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
   }, [tokensWithBalances, searchQuery]);
 
   if (!tokens.length && !showAvax) {
-    return (
-      <VerticalFlex
-        grow="1"
-        align="center"
-        justify="center"
-        padding="0px 16px 73px"
-      >
-        <IllustrationPlaceholder size={120}>
-          <Typography>Illustration</Typography>
-        </IllustrationPlaceholder>
-        <SubTextTypography margin="16px 0 0 0">
-          No results found
-        </SubTextTypography>
-      </VerticalFlex>
-    );
+    return <NoTokenFound />;
   }
 
   return (
-    <VerticalFlex grow="1">
+    <VerticalFlex grow="1" padding={searchQuery ? '43px 0 0 0' : '0'}>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0px 16px 73px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (
@@ -91,26 +73,33 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
 
           {tokens
             ?.filter((token) => !isAvaxToken(token) && !isAntToken(token))
-            .map((token) => (
-              <TokenListItemMiniMode
-                onClick={() =>
-                  setTokenInParams(
-                    token.symbol,
-                    TransactionSendType.ERC20,
-                    'token'
-                  )
-                }
-                key={
-                  isERC20Token(token) ? token.address : (token as any).symbol
-                }
-                name={token.name}
-                symbol={token.symbol}
-                balanceDisplayValue={token.balanceDisplayValue}
-                balanceUSD={token.balanceUSD?.toString()}
-              >
-                <TokenIcon width="32px" height="32px" src={token.logoURI} />
-              </TokenListItemMiniMode>
-            ))}
+            .map((token) => {
+              return (
+                <TokenListItemMiniMode
+                  onClick={() =>
+                    setTokenInParams(
+                      token.symbol,
+                      TransactionSendType.ERC20,
+                      'token'
+                    )
+                  }
+                  key={
+                    isERC20Token(token) ? token.address : (token as any).symbol
+                  }
+                  name={token.name}
+                  symbol={token.symbol}
+                  balanceDisplayValue={token.balanceDisplayValue}
+                  balanceUSD={token.balanceUSD?.toString()}
+                >
+                  <TokenIcon
+                    width="32px"
+                    height="32px"
+                    src={token.logoURI}
+                    name={token.name}
+                  />
+                </TokenListItemMiniMode>
+              );
+            })}
 
           {tokens
             ?.filter((token) => !isAvaxToken(token) && !isERC20Token(token))
@@ -133,7 +122,12 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
                 balanceDisplayValue={token.balanceDisplayValue}
                 balanceUSD={token.balanceUSD?.toString()}
               >
-                <TokenIcon width="32px" height="32px" src={token.logoURI} />
+                <TokenIcon
+                  width="32px"
+                  height="32px"
+                  src={token.logoURI}
+                  name={token.name}
+                />
               </TokenListItemMiniMode>
             ))}
         </VerticalFlex>

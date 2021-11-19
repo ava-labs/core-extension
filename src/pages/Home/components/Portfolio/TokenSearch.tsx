@@ -11,6 +11,7 @@ import React from 'react';
 import styled, { useTheme } from 'styled-components';
 
 interface TokenSearchProps {
+  query: string;
   onBack: () => void;
   onSearch: (string) => void;
   className?: string;
@@ -21,13 +22,18 @@ const StyledTextButton = styled(TextButton)`
   left: 0;
 `;
 
-export function TokenSearch({ onBack, onSearch, className }: TokenSearchProps) {
+export function TokenSearch({
+  query,
+  onBack,
+  onSearch,
+  className,
+}: TokenSearchProps) {
   const theme = useTheme();
 
   return (
     <VerticalFlex
       width={'100%'}
-      padding="12px 16px 32px"
+      padding="12px 16px 16px"
       align={'center'}
       className={className}
     >
@@ -39,7 +45,6 @@ export function TokenSearch({ onBack, onSearch, className }: TokenSearchProps) {
       >
         <StyledTextButton
           onClick={() => {
-            onSearch('');
             onBack();
           }}
         >
@@ -56,6 +61,7 @@ export function TokenSearch({ onBack, onSearch, className }: TokenSearchProps) {
         Choose asset to continue
       </Typography>
       <SearchInput
+        searchTerm={query}
         placeholder="Search"
         width="343px"
         onSearch={(query) => onSearch(query)}

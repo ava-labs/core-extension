@@ -8,7 +8,7 @@ import { defer, filter, firstValueFrom, map, merge } from 'rxjs';
 import { TxStatus } from '../../transactions/models';
 import {
   addTransaction,
-  pendingTransactions,
+  pendingTransactions$,
   updateTransaction,
 } from '../../transactions/transactions';
 import { txToCustomEvmTx } from '../../transactions/utils/txToCustomEvmTx';
@@ -41,7 +41,7 @@ export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
 
   const signTx$ = defer(async () => {
     const pendingTx = await firstValueFrom(
-      pendingTransactions.pipe(
+      pendingTransactions$.pipe(
         map((currentPendingTXs) => currentPendingTXs[`${data.id}`]),
         filter((pending) => !!pending && pending.status === TxStatus.SUBMITTING)
       )
@@ -67,7 +67,8 @@ export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
             result,
           });
           return { ...data, result };
-        });
+        })
+        .catch((err) => ({ ...data, error: err }));
     });
   });
 

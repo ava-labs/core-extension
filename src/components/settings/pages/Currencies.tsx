@@ -31,7 +31,7 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Currencies'}
+        title={'Currency'}
       />
       <VerticalFlex padding="16px">
         <SearchInput

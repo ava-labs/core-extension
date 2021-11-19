@@ -68,7 +68,7 @@ export function TokenList() {
               balanceDisplayValue={token.balanceDisplayValue}
               balanceUSD={token.balanceUSD?.toString()}
             >
-              <TokenIcon src={token.logoURI} />
+              <TokenIcon src={token.logoURI} name={token.name} />
             </TokenListItem>
             <GridLineSeparator columns={4} />
           </GridContainerItems>
@@ -93,7 +93,7 @@ export function TokenList() {
               balanceDisplayValue={token.balanceDisplayValue}
               balanceUSD={token.balanceUSD?.toString()}
             >
-              <TokenIcon src={token.logoURI} />
+              <TokenIcon src={token.logoURI} name={token.name} />
             </TokenListItem>
             <GridLineSeparator columns={4} />
           </GridContainerItems>
