@@ -16,6 +16,7 @@ import { useTheme } from 'styled-components';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { DomainMetadata } from '@src/background/models';
 
 export enum Limit {
   UNLIMITED = 'UNLIMITED',
@@ -38,12 +39,14 @@ export function CustomSpendLimit({
   onCancel,
   onSpendLimitChanged,
   onRadioChange,
+  site,
 }: {
   token: ERC20WithBalance;
   onSpendLimitChanged(limitData: SpendLimitType): void;
   onCancel(): void;
   spendLimit: SpendLimitType;
   onRadioChange(e: any): void;
+  site: DomainMetadata;
 }) {
   const { activeAccount } = useAccountsContext();
   const [customSpendLimit, setCustomSpendLimit] = useState<CustomSpendLimitBN>(
@@ -52,14 +55,10 @@ export function CustomSpendLimit({
   const theme = useTheme();
 
   function handleOnSave() {
-    let customSpendData: SpendLimitType = {} as SpendLimitType;
-
-    customSpendData = {
+    onSpendLimitChanged({
       ...spendLimit,
       spendLimitBN: customSpendLimit,
-    };
-
-    onSpendLimitChanged(customSpendData);
+    });
   }
 
   return (
@@ -100,8 +99,7 @@ export function CustomSpendLimit({
           Spending limit
         </Typography>
         <SubTextTypography size={14} height="17px">
-          Set a limit that you will allow {'connected dApp here'} to withdraw
-          and spend.
+          Set a limit that you will allow {site.domain} to withdraw and spend.
         </SubTextTypography>
 
         {/* Radio */}

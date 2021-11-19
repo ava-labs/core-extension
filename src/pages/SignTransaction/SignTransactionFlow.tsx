@@ -98,6 +98,7 @@ export function SignTransactionPage() {
   if (showCustomSpendLimit) {
     return (
       <CustomSpendLimit
+        site={displayData.site}
         spendLimit={customSpendLimit}
         token={displayData.tokenToBeApproved}
         onRadioChange={onRadioChange}
