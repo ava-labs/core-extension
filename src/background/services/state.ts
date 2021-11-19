@@ -4,7 +4,10 @@ import { combineLatest, map, throttleTime } from 'rxjs';
 import { messages$ } from './messages/messages';
 import { onboardingStatus$ } from './onboarding/onboardingFlows';
 import { permissions$ } from './permissions/permissions';
-import { transactions$ } from './transactions/transactions';
+import {
+  pendingTransactions$,
+  transactions$,
+} from './transactions/transactions';
 import {
   network$,
   recentTxHistory$,
@@ -31,6 +34,7 @@ function toStructure(name: any) {
 combineLatest([
   wallet$.pipe(toStructure('wallet')),
   transactions$.pipe(toStructure('transactions')),
+  pendingTransactions$.pipe(toStructure('transactionsPending')),
   permissions$.pipe(toStructure('permissions')),
   onboardingStatus$.pipe(filterFalseyValues(), toStructure('onboardingStatus')),
   network$.pipe(toStructure('network')),

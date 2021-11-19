@@ -40,7 +40,7 @@ export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
 getTransactionsFromStorage().then((txs) => txs && transactions$.next(txs));
 
-export const pendingTransactions = new BehaviorSubject<{
+export const pendingTransactions$ = new BehaviorSubject<{
   [id: string]: Transaction;
 }>({});
 
@@ -51,7 +51,7 @@ addTransaction
   .pipe(
     switchMap(async (newTx) => {
       return Promise.all([
-        firstValueFrom(pendingTransactions),
+        firstValueFrom(pendingTransactions$),
         Promise.resolve(newTx),
         firstValueFrom(gasPrice$),
         firstValueFrom(network$),
@@ -103,10 +103,9 @@ addTransaction
           /**
            * Some requests, revoke approval, dont have gasLimit on it so we make sure its there
            */
-          const gasLimit: any = await wallet.estimateErc20Gas(
+          const gasLimit: any = await wallet.estimateGas(
             txParams.to,
-            txParams.from,
-            new BN(0)
+            txParams.data as string
           );
 
           const txParamsWithGasLimit = { gas: `${gasLimit}`, ...txParams };
@@ -124,14 +123,14 @@ addTransaction
               }
             : { metamaskNetworkId: '', chainId: '' };
 
-          pendingTransactions.next({
+          pendingTransactions$.next({
             ...currentPendingTxs,
             [`${tx.id}`]: {
               id: tx.id,
               time: now,
               status: TxStatus.PENDING,
               ...networkMetaData,
-              txParams,
+              txParams: txParamsWithGasLimit,
               displayValues,
               type: 'standard',
               transactionCategory: 'transfer',
@@ -148,7 +147,7 @@ updateTransaction
     switchMap(async (update) => {
       return Promise.all([
         firstValueFrom(transactions$),
-        firstValueFrom(pendingTransactions),
+        firstValueFrom(pendingTransactions$),
         Promise.resolve(update),
       ]);
     }),
@@ -156,12 +155,12 @@ updateTransaction
       const tx = currentPendingTxs[update.id];
 
       if (isTxParamsUpdate(update)) {
-        pendingTransactions.next({
+        pendingTransactions$.next({
           ...currentPendingTxs,
           ...updatePendingTxParams(update, tx),
         });
       } else if (isTxStatusUpdate(tx) && update.status !== TxStatus.SIGNED) {
-        pendingTransactions.next({
+        pendingTransactions$.next({
           ...currentPendingTxs,
           ...updateTxStatus(update, tx),
         });
@@ -172,7 +171,7 @@ updateTransaction
         ]);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [`${update.id}`]: _removed, ...txs } = currentPendingTxs;
-        pendingTransactions.next(txs);
+        pendingTransactions$.next(txs);
       }
     })
   )
