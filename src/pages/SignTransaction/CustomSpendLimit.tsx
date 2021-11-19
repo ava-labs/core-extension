@@ -132,12 +132,13 @@ export function CustomSpendLimit({
               Custom Spend Limit
             </Typography>
           </HorizontalFlex>
-          <VerticalFlex width="100%">
+          <VerticalFlex width="100%" align="flex-end" padding="0 8px 0 0">
             <BNInput
               onChange={(value) => setCustomSpendLimit(value)}
               denomination={token.denomination}
               placeholder="Maximum Limit"
               value={customSpendLimit.bn}
+              width="283px"
             />
           </VerticalFlex>
         </VerticalFlex>
