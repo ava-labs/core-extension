@@ -11,7 +11,6 @@ import {
   Card,
   Radio,
 } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import React, { useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
@@ -46,11 +45,10 @@ export function CustomSpendLimit({
   spendLimit: SpendLimitType;
   onRadioChange(e: any): void;
 }) {
-  const { avaxToken } = useWalletContext();
   const { activeAccount } = useAccountsContext();
   const [customSpendLimit, setCustomSpendLimit] = useState<CustomSpendLimitBN>(
     spendLimit.spendLimitBN || ({} as CustomSpendLimitBN)
-  ); // same as the type in the BNInput
+  );
   const theme = useTheme();
 
   function handleOnSave() {
@@ -92,7 +90,7 @@ export function CustomSpendLimit({
               {activeAccount?.name}
             </Typography>
             <Typography weight={700} height="22px" padding="0 0 4px 0">
-              {avaxToken.balanceDisplayValue} AVAX
+              {token.balanceDisplayValue} {token.symbol}
             </Typography>
           </VerticalFlex>
         </Card>
