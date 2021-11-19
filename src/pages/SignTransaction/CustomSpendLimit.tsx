@@ -8,7 +8,7 @@ import {
   CaretIcon,
   IconDirection,
   SubTextTypography,
-  Card,
+  SecondaryCard,
   Radio,
 } from '@avalabs/react-components';
 import React, { useState } from 'react';
@@ -83,7 +83,7 @@ export function CustomSpendLimit({
         <Typography size={14} padding="0 0 8px 0">
           Balance
         </Typography>
-        <Card padding="8px 16px" margin="0 0 34px 0">
+        <SecondaryCard padding="8px 16px" margin="0 0 34px 0">
           <VerticalFlex>
             <Typography height="24px" padding="0 0 8px 0">
               {activeAccount?.name}
@@ -92,7 +92,7 @@ export function CustomSpendLimit({
               {token.balanceDisplayValue} {token.symbol}
             </Typography>
           </VerticalFlex>
-        </Card>
+        </SecondaryCard>
 
         {/* Spending Limit */}
         <Typography weight={600} height="24px" padding="0 0 4px 0">
