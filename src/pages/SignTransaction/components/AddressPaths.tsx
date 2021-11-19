@@ -13,6 +13,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import React, { useMemo } from 'react';
+import { useTheme } from 'styled-components';
 
 export function AddressPaths({
   fromAddress,
@@ -22,6 +23,7 @@ export function AddressPaths({
   toAddress: string;
 }) {
   const { accounts } = useAccountsContext();
+  const theme = useTheme();
 
   const account = useMemo(() => {
     return accounts.find((acc) => {
@@ -30,21 +32,25 @@ export function AddressPaths({
   }, [accounts]);
 
   return (
-    <SecondaryCard width="335px" padding={'8px 16px'}>
+    <SecondaryCard width="100%" padding={'8px 16px'}>
       <HorizontalFlex width="100%" justify="space-between" align="center">
-        <Typography>
+        <Typography size={12} height="15px">
           {account?.name ?? truncateAddress(fromAddress, 8)}
         </Typography>
-        <CaretIcon height="15px" direction={IconDirection.RIGHT} />
+        <CaretIcon
+          height="15px"
+          direction={IconDirection.RIGHT}
+          color={theme.colors.icon1}
+        />
         <TextButton
           onClick={() => openNewTab({ url: getAddressLink(toAddress) })}
         >
           <HorizontalFlex align="center">
             <AvaxTokenIcon height="15px" />
-            <Typography margin={'0 5px 0 5px'}>
+            <Typography size={12} height="15px" margin={'0 5px 0 5px'}>
               {truncateAddress(toAddress, 8)}
             </Typography>
-            <LinkIcon height={'15px'} />
+            <LinkIcon color={theme.colors.icon1} height={'12px'} />
           </HorizontalFlex>
         </TextButton>
       </HorizontalFlex>

@@ -16,8 +16,13 @@ import { isAvaxToken } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { AddressPaths } from './components/AddressPaths';
 
-export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
+export function SwapTx({
+  path,
+  toAddress,
+  fromAddress,
+}: SwapExactTokensForTokenDisplayValues) {
   const { currencyFormatter, currency } = useSettingsContext();
   const [sentToken] = path;
   const receivingToken = path[path.length - 1];
@@ -34,8 +39,9 @@ export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
       </HorizontalFlex>
 
       <VerticalFlex>
+        <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
         {/* Top Token */}
-        <SecondaryCard padding="16px">
+        <SecondaryCard padding="16px" margin="16px 0 0 0">
           <HorizontalFlex
             align={'center'}
             justify={'space-between'}
