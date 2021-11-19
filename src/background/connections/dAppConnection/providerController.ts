@@ -25,6 +25,7 @@ import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { resolve } from '@src/utils/promiseResolver';
 import { DomainMetadata } from '@src/background/models';
+import { WalletSwitchEthereumChain } from '@src/background/services/web3/handlers/wallet_switchEthereumChain';
 
 /**
  * dApps call these function over and over
@@ -49,6 +50,7 @@ const dappProviderRequestHandlerMap = new Map<
   WalletAddChainRequest,
   WalletGetPermissionsRequest,
   WalletPermissionsRequest,
+  WalletSwitchEthereumChain,
 ]);
 
 export function providerConnectionHandlers(connection: Runtime.Port) {
