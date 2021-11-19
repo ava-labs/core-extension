@@ -9,6 +9,7 @@ import {
   isTxParamsUpdate,
   isTxFinalizedUpdate,
   isTxStatusUpdate,
+  TransactionDisplayValues,
 } from './models';
 import { tap, switchMap } from 'rxjs/operators';
 import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
@@ -23,11 +24,17 @@ import {
   saveTransactionsToStorage,
 } from './storage';
 import { KnownContractABIs } from '@src/contracts';
-import { network$, walletState$ } from '@avalabs/wallet-react-components';
+import {
+  network$,
+  wallet$,
+  walletState$,
+} from '@avalabs/wallet-react-components';
 import { contractParserMap } from '@src/contracts/contractParsers/contractParserMap';
 import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
+import { BN } from 'bn.js';
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -49,65 +56,90 @@ addTransaction
         firstValueFrom(gasPrice$),
         firstValueFrom(network$),
         firstValueFrom(walletState$),
+        firstValueFrom(wallet$.pipe(walletInitializedFilter())),
       ]);
     }),
-    tap(([currentPendingTxs, tx, gasPrice, network, walletState]) => {
-      const { params, site } = tx as ExtensionConnectionMessage;
+    tap(
+      async ([
+        currentPendingTxs,
+        tx,
+        gasPrice,
+        network,
+        walletState,
+        wallet,
+      ]) => {
+        const { params, site } = tx as ExtensionConnectionMessage;
 
-      const now = new Date().getTime();
-      const txParams = (params || [])[0];
+        const now = new Date().getTime();
+        const txParams = (params || [])[0];
 
-      const knownContract =
-        KnownContractABIs.get(txParams.to.toLocaleLowerCase()) ??
-        KnownContractABIs.get('erc20');
+        const knownContract =
+          KnownContractABIs.get(txParams.to.toLocaleLowerCase()) ??
+          KnownContractABIs.get('erc20');
 
-      let decodedData: any;
-      try {
-        decodedData = knownContract?.parser(
-          knownContract?.decoder(txParams.data)
-        );
-      } catch (_err) {
-        console.log(
-          'error happened when attempting to decode date',
-          txParams.data
-        );
+        let decodedData: any;
+        try {
+          decodedData = knownContract?.parser(
+            knownContract?.decoder(txParams.data)
+          );
+        } catch (_err) {
+          console.log(
+            'error happened when attempting to decode date',
+            txParams.data
+          );
+        }
+
+        const parser = contractParserMap.get(decodedData?.contractCall);
+
+        if (txParams && isTxParams(txParams)) {
+          const displayValueProps = {
+            gasPrice,
+            erc20Tokens: walletState?.erc20Tokens,
+            avaxPrice: walletState?.avaxPrice,
+            avaxToken: walletState?.avaxToken,
+            site,
+          } as DisplayValueParserProps;
+
+          /**
+           * Some requests, revoke approval, dont have gasLimit on it so we make sure its there
+           */
+          const gasLimit: any = await wallet.estimateErc20Gas(
+            txParams.to,
+            txParams.from,
+            new BN(0)
+          );
+
+          const txParamsWithGasLimit = { gas: `${gasLimit}`, ...txParams };
+          const displayValues: TransactionDisplayValues = parser
+            ? parser(txParamsWithGasLimit, decodedData, displayValueProps)
+            : (parseBasicDisplayValues(
+                txParamsWithGasLimit,
+                displayValueProps
+              ) as any);
+
+          const networkMetaData = network
+            ? {
+                metamaskNetworkId: network.config.networkID.toString(),
+                chainId: network.chainId,
+              }
+            : { metamaskNetworkId: '', chainId: '' };
+
+          pendingTransactions.next({
+            ...currentPendingTxs,
+            [`${tx.id}`]: {
+              id: tx.id,
+              time: now,
+              status: TxStatus.PENDING,
+              ...networkMetaData,
+              txParams,
+              displayValues,
+              type: 'standard',
+              transactionCategory: 'transfer',
+            },
+          });
+        }
       }
-
-      const parser = contractParserMap.get(decodedData?.contractCall);
-
-      if (txParams && isTxParams(txParams)) {
-        const displayValueProps = {
-          gasPrice,
-          erc20Tokens: walletState?.erc20Tokens,
-          avaxPrice: walletState?.avaxPrice,
-          avaxToken: walletState?.avaxToken,
-          site,
-        } as DisplayValueParserProps;
-
-        const networkMetaData = network
-          ? {
-              metamaskNetworkId: network.config.networkID.toString(),
-              chainId: network.chainId,
-            }
-          : { metamaskNetworkId: '', chainId: '' };
-
-        pendingTransactions.next({
-          ...currentPendingTxs,
-          [`${tx.id}`]: {
-            id: tx.id,
-            time: now,
-            status: TxStatus.PENDING,
-            ...networkMetaData,
-            txParams,
-            displayValues: parser
-              ? parser(txParams, decodedData, displayValueProps)
-              : (parseBasicDisplayValues(txParams, displayValueProps) as any),
-            type: 'standard',
-            transactionCategory: 'transfer',
-          },
-        });
-      }
-    })
+    )
   )
   .subscribe();
 
