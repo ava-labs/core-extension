@@ -1,9 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-  SubTextTypography,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+import { VerticalFlex } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
   AntWithBalance,
@@ -18,7 +14,7 @@ import { TransactionSendType } from '../../../Send/models';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { TokenListItemMiniMode } from './TokenListItem.minimode';
 import Scrollbars from 'react-custom-scrollbars';
-import { IllustrationPlaceholder } from '@src/components/common/IllustrationPlaceholder';
+import { NoTokenFound } from './NoTokenFound';
 
 interface TokenListMiniModeProps {
   searchQuery?: string;
@@ -50,25 +46,11 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
   }, [tokensWithBalances, searchQuery]);
 
   if (!tokens.length && !showAvax) {
-    return (
-      <VerticalFlex
-        grow="1"
-        align="center"
-        justify="center"
-        padding="0px 16px 73px"
-      >
-        <IllustrationPlaceholder size={120}>
-          <Typography>Illustration</Typography>
-        </IllustrationPlaceholder>
-        <SubTextTypography margin="16px 0 0 0">
-          No results found
-        </SubTextTypography>
-      </VerticalFlex>
-    );
+    return <NoTokenFound />;
   }
 
   return (
-    <VerticalFlex grow="1">
+    <VerticalFlex grow="1" padding={searchQuery ? '43px 0 0 0' : '0'}>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0px 16px 73px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (

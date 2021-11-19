@@ -46,6 +46,7 @@ export function SwapTx({ path }: SwapExactTokensForTokenDisplayValues) {
                 <AvaxTokenIcon height="40px" />
               ) : (
                 <TokenIcon
+                  height="40px"
                   width="40px"
                   src={(sentToken as erc20PathToken).logoURI}
                 />

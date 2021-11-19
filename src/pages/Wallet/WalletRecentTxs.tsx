@@ -1,9 +1,4 @@
-import {
-  Card,
-  SubTextTypography,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import React, { Fragment } from 'react';
 import { TransactionEVM } from '@src/pages/Wallet/components/History/TransactionEVM';
@@ -15,6 +10,7 @@ import {
   isTransactionStaking,
 } from '@avalabs/wallet-react-components';
 import Scrollbars from 'react-custom-scrollbars';
+import { NoTransactions } from './components/NoTransactions';
 
 /**
  * Since we dont have designs some of the renderers have been commented out
@@ -27,16 +23,12 @@ export function WalletRecentTxs() {
   );
 
   if (days.length === 0) {
-    return (
-      <VerticalFlex grow="1" justify="center" align="center">
-        <SubTextTypography>You have no transactions!</SubTextTypography>
-      </VerticalFlex>
-    );
+    return <NoTransactions />;
   }
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <VerticalFlex>
+      <VerticalFlex padding="0 16px">
         {days.map((key) => {
           const recentTxHistory = chunkedHistoryByDate[key];
           return (

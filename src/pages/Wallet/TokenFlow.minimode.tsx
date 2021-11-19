@@ -21,7 +21,6 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useTheme } from 'styled-components';
-import { Receive } from '../Receive/Receive';
 import { ReceiveMiniMode } from '../Receive/Receive.minimode';
 import { SendFlow } from '../Send/SendFlow';
 
@@ -44,7 +43,7 @@ export function TokenFlowMiniMode() {
   const balanceCurrencyValue = token.balanceUsdDisplayValue ?? token.balanceUSD;
 
   return (
-    <VerticalFlex width={'100%'} margin="16px" position="relative">
+    <VerticalFlex width={'100%'} padding="16px" position="relative">
       <HorizontalFlex width={'100%'} justify={'center'}>
         <VerticalFlex justify={'center'}>
           {isAvaxToken(token) ? (
