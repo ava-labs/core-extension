@@ -6,7 +6,6 @@ import {
   SubTextTypography,
   LoadingIcon,
   ConnectionIndicator,
-  SecondaryCard,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
@@ -125,6 +124,7 @@ export function SignTransactionPage() {
       </HorizontalFlex>
 
       {/* Actions  */}
+
       {
         {
           [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
