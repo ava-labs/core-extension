@@ -6,7 +6,7 @@ const IconCircle = styled(HorizontalFlex)`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: ${({ theme }) => theme.colors.bg3};
+  background-color: ${({ theme }) => theme.colors.bg4};
   justify-content: center;
   align-items: center;
 `;

@@ -73,26 +73,33 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
 
           {tokens
             ?.filter((token) => !isAvaxToken(token) && !isAntToken(token))
-            .map((token) => (
-              <TokenListItemMiniMode
-                onClick={() =>
-                  setTokenInParams(
-                    token.symbol,
-                    TransactionSendType.ERC20,
-                    'token'
-                  )
-                }
-                key={
-                  isERC20Token(token) ? token.address : (token as any).symbol
-                }
-                name={token.name}
-                symbol={token.symbol}
-                balanceDisplayValue={token.balanceDisplayValue}
-                balanceUSD={token.balanceUSD?.toString()}
-              >
-                <TokenIcon width="32px" height="32px" src={token.logoURI} />
-              </TokenListItemMiniMode>
-            ))}
+            .map((token) => {
+              return (
+                <TokenListItemMiniMode
+                  onClick={() =>
+                    setTokenInParams(
+                      token.symbol,
+                      TransactionSendType.ERC20,
+                      'token'
+                    )
+                  }
+                  key={
+                    isERC20Token(token) ? token.address : (token as any).symbol
+                  }
+                  name={token.name}
+                  symbol={token.symbol}
+                  balanceDisplayValue={token.balanceDisplayValue}
+                  balanceUSD={token.balanceUSD?.toString()}
+                >
+                  <TokenIcon
+                    width="32px"
+                    height="32px"
+                    src={token.logoURI}
+                    name={token.name}
+                  />
+                </TokenListItemMiniMode>
+              );
+            })}
 
           {tokens
             ?.filter((token) => !isAvaxToken(token) && !isERC20Token(token))
@@ -115,7 +122,12 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
                 balanceDisplayValue={token.balanceDisplayValue}
                 balanceUSD={token.balanceUSD?.toString()}
               >
-                <TokenIcon width="32px" height="32px" src={token.logoURI} />
+                <TokenIcon
+                  width="32px"
+                  height="32px"
+                  src={token.logoURI}
+                  name={token.name}
+                />
               </TokenListItemMiniMode>
             ))}
         </VerticalFlex>

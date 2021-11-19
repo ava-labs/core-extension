@@ -12,7 +12,10 @@ import {
 } from '@src/contracts/contractParsers/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import React from 'react';
-import { isAvaxToken } from '@avalabs/wallet-react-components';
+import {
+  isAvaxToken,
+  TokenWithBalance,
+} from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -55,6 +58,7 @@ export function SwapTx({
                   height="40px"
                   width="40px"
                   src={(sentToken as erc20PathToken).logoURI}
+                  name={(sentToken as TokenWithBalance).name}
                 />
               )}
               <VerticalFlex
@@ -106,6 +110,7 @@ export function SwapTx({
                   height="40px"
                   width="40px"
                   src={(receivingToken as erc20PathToken).logoURI}
+                  name={(sentToken as TokenWithBalance).name}
                 />
               )}
               <VerticalFlex

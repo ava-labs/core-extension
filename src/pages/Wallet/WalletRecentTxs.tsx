@@ -1,4 +1,8 @@
-import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
+import {
+  SecondaryCard,
+  Typography,
+  VerticalFlex,
+} from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import React, { Fragment } from 'react';
 import { TransactionEVM } from '@src/pages/Wallet/components/History/TransactionEVM';
@@ -51,13 +55,13 @@ export function WalletRecentTxs() {
                   // );
                 } else if (isTransactionEVM(item)) {
                   return (
-                    <Card
+                    <SecondaryCard
                       key={item.id}
                       padding={'16px 8px'}
                       margin={'0 0 8px 0'}
                     >
                       <TransactionEVM item={item} />
-                    </Card>
+                    </SecondaryCard>
                   );
                 } else if (isTransactionStaking(item)) {
                   return <></>;

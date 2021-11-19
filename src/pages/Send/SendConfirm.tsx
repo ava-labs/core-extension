@@ -136,6 +136,7 @@ export function SendConfirm({
                 src={(token as TokenWithBalance).logoURI}
                 height="31px"
                 width="31px"
+                name={(token as TokenWithBalance).name}
               />
             )}
             <SubTextTypography margin={'8px 0 0 0'} height="17px" size={14}>

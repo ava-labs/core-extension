@@ -11,6 +11,7 @@ import {
   ERC20WithBalance,
   isAntToken,
   isAvaxToken,
+  TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { TokenIcon } from '@src/components/common/TokenImage';
@@ -29,6 +30,7 @@ export function TokenFlowMiniMode() {
   const { currency, currencyFormatter } = useSettingsContext();
   const theme = useTheme();
   const token = useTokenFromParams();
+  console.log('token: ', token);
   const tokensWithBalances = useTokensWithBalances();
   const [showSend, setShowSend] = useState<boolean>();
 
@@ -53,6 +55,7 @@ export function TokenFlowMiniMode() {
               height={'40px'}
               width={'40px'}
               src={(token as ERC20WithBalance).logoURI}
+              name={(token as TokenWithBalance).name}
             />
           )}
         </VerticalFlex>
