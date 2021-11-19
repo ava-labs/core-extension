@@ -103,12 +103,13 @@ addTransaction
           /**
            * Some requests, revoke approval, dont have gasLimit on it so we make sure its there
            */
-          const gasLimit: any = await wallet.estimateGas(
-            txParams.to,
-            txParams.data as string
-          );
+          const gasLimit: any = await (txParams.gas
+            ? Promise.resolve(false)
+            : wallet.estimateGas(txParams.to, txParams.data as string));
 
-          const txParamsWithGasLimit = { gas: `${gasLimit}`, ...txParams };
+          const txParamsWithGasLimit = gasLimit
+            ? { gas: `${gasLimit}`, ...txParams }
+            : txParams;
           const displayValues: TransactionDisplayValues = parser
             ? parser(txParamsWithGasLimit, decodedData, displayValueProps)
             : (parseBasicDisplayValues(
