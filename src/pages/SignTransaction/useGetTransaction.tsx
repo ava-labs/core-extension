@@ -135,7 +135,7 @@ export function useGetTransaction(requestId: string) {
       });
 
     // Handle transaction Approval for REVOKING spend limit
-    if (transaction?.displayValues.approveData.limit === '0') {
+    if (transaction?.displayValues?.approveData?.limit === '0') {
       setDisplaySpendLimit('0');
       setIsRevokeApproval(true);
     }
