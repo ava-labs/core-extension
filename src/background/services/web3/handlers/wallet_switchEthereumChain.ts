@@ -1,10 +1,10 @@
+import { network$ } from '@avalabs/wallet-react-components';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import {
   ConnectionRequestHandler,
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
-import { AddEthChainParams } from '@src/background/models';
-import { supportedNetworks } from '../../network/models';
+import { supportedNetworksByChainID } from './../../network/models';
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3326
@@ -14,23 +14,23 @@ export async function wallet_switchEthereumChain(
   data: ExtensionConnectionMessage
 ) {
   const params = data.params;
-  const supportedChainIds = Array.from(supportedNetworks.values()).map(
-    (network) => network.chainId
-  );
-  const chainsRequestedIsSupported = params?.every((chainRequested) =>
-    supportedChainIds.includes(chainRequested.chainId)
-  );
+
+  const targetChainID = params?.[0]?.chainId;
+  const targetNetwork = supportedNetworksByChainID.get(targetChainID);
+  if (!targetNetwork) {
+    return {
+      ...data,
+      error: {
+        code: 0,
+        message:
+          'One or more chains requested are not supported by this extension',
+      } as any,
+    };
+  }
+  network$.next(targetNetwork);
   return {
     ...data,
-    ...(chainsRequestedIsSupported
-      ? { result: null }
-      : {
-          error: {
-            code: 0,
-            message:
-              'One or more chains requested are not supported by this extension',
-          } as any,
-        }),
+    result: null,
   };
 }
 
