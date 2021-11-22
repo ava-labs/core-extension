@@ -45,3 +45,7 @@ point to either the `dist/manifest.json` or the zip file from running the build 
 5. select the folder or go into the folder and press select
 
 Thats it!
+
+## Release
+
+1. Merge main onto release branch
