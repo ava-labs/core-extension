@@ -24,7 +24,7 @@ You can also [set up an access token](https://docs.npmjs.com/creating-and-viewin
 ### Chrome Dev
 
 - Go to chrome://extensions/ and enable Developer mode.
-- At the top left of the above url click `Load unpacked` and select the extension folder.
+- At the top left of the above url click `Load unpacked` and select dist folder.
 
 ### Firefox Dev
 
