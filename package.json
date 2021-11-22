@@ -127,8 +127,8 @@
         "name": "release"
       },
       {
-        "name": "test-alpha",
-        "channel": "test-alpha",
+        "name": "main",
+        "channel": "main",
         "prerelease": "alpha"
       }
     ],
