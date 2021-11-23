@@ -79,11 +79,11 @@ export function SwapTx({
       <Typography margin="0 0 8px 0" height="24px">
         Hex Data: {getHexStringToBytes(byteStr)} Bytes
       </Typography>
-      <Card padding="16px">
+      <SecondaryCard padding="16px">
         <Typography size={14} overflow="scroll">
           {byteStr}
         </Typography>
-      </Card>
+      </SecondaryCard>
     </VerticalFlex>
   );
 
