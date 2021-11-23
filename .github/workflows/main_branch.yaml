@@ -6,17 +6,11 @@ on:
       - test-beta
 jobs:
   release:
-    name: build and release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: build and release
-        uses: ./.github/workflows/release.yaml
-      - name: rebase main
-        run: |
-          git checkout test-alpha
-          git rebase test-beta
-          git push origin head
+    uses: ava-labs/extension-avalanche/.github/workflows/release.yaml
+  rebase:
+    - name: rebase main
+      runs-on: ubuntu-latest
+      run: |
+        git checkout test-alpha
+        git rebase test-beta
+        git push origin head
