@@ -6,15 +6,15 @@ on:
       - test-beta
 jobs:
   release:
-    uses: ava-labs/extension-avalanche/.github/workflows/release.yaml@1.12
+    uses: ava-labs/extension-avalanche/.github/workflows/release.yaml@v1.12
   rebase:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - name: rebase main
-        runs-on: ubuntu-latest
         run: |
           git checkout test-alpha
           git rebase test-beta
