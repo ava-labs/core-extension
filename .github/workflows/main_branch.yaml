@@ -6,7 +6,7 @@ on:
       - test-beta
 jobs:
   release:
-    uses: ava-labs/extension-avalanche/.github/workflows/release.yaml
+    uses: ava-labs/extension-avalanche/.github/workflows/release.yaml@1.12
   rebase:
     - name: rebase main
       runs-on: ubuntu-latest
