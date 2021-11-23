@@ -1,0 +1,17 @@
+name: Push to release branch
+
+on:
+  push:
+    branches:
+      - release
+jobs:
+  release:
+    name: build and release
+    steps:
+      - name: build and release
+        uses: ava-labs/extension-avalanche/.github/workflows/release.yaml
+      - name: rebase main
+        run: |
+          git checkout test-alpha
+          git rebase test-beta
+          git push origin head

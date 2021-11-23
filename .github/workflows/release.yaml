@@ -1,9 +1,5 @@
 name: Release
-on:
-  push:
-    branches:
-      - release
-      - main
+on: workflow_call
 jobs:
   release:
     name: Release
