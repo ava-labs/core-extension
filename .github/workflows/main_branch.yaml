@@ -9,7 +9,7 @@ jobs:
     name: build and release
     steps:
       - name: build and release
-        uses: ava-labs/extension-avalanche/.github/workflows/release.yaml
+        uses: ./.github/workflows/release.yaml
       - name: rebase main
         run: |
           git checkout test-alpha
