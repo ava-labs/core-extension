@@ -9,6 +9,10 @@ jobs:
     name: build and release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: build and release
         uses: ./.github/workflows/release.yaml
       - name: rebase main
