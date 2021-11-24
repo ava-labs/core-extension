@@ -129,7 +129,7 @@
       {
         "name": "test-beta",
         "channel": "test-beta",
-        "prerelease": "alpha"
+        "prerelease": true
       }
     ],
     "plugins": [
