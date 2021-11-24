@@ -145,10 +145,16 @@ export function SignTransactionPage() {
             />
           ),
           [ContractCall.ADD_LIQUIDITY]: (
-            <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
+            <AddLiquidityTx
+              {...(displayData as AddLiquidityDisplayData)}
+              setShowCustomFees={setShowCustomFees}
+            />
           ),
           [ContractCall.ADD_LIQUIDITY_AVAX]: (
-            <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
+            <AddLiquidityTx
+              {...(displayData as AddLiquidityDisplayData)}
+              setShowCustomFees={setShowCustomFees}
+            />
           ),
           ['unknown']: (
             <UnknownTx {...(displayData as TransactionDisplayValues)} />
