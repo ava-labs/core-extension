@@ -145,7 +145,7 @@
             },
             {
               "type": "*",
-              "release": "patch"
+              "release": "prerelease"
             }
           ],
           "parserOpts": {
