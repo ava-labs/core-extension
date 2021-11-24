@@ -134,31 +134,6 @@
     ],
     "plugins": [
       [
-<<<<<<< Updated upstream
-        "@semantic-release/commit-analyzer",
-        {
-          "preset": "angular",
-          "releaseRules": [
-            {
-              "type": "feat",
-              "release": "minor"
-            },
-            {
-              "type": "*",
-              "release": "prerelease"
-            }
-          ],
-          "parserOpts": {
-            "noteKeywords": [
-              "BREAKING CHANGE",
-              "BREAKING CHANGES"
-            ]
-          }
-        }
-      ],
-      [
-=======
->>>>>>> Stashed changes
         "@google/semantic-release-replace-plugin",
         {
           "replacements": [
