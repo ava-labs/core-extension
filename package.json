@@ -134,6 +134,7 @@
     ],
     "plugins": [
       [
+<<<<<<< Updated upstream
         "@semantic-release/commit-analyzer",
         {
           "preset": "angular",
@@ -156,6 +157,8 @@
         }
       ],
       [
+=======
+>>>>>>> Stashed changes
         "@google/semantic-release-replace-plugin",
         {
           "replacements": [
