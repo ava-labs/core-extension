@@ -3,7 +3,7 @@ name: Push to release branch
 on:
   push:
     branches:
-      - test-alpha
+      - test-beta
 jobs:
   release:
     name: Release
@@ -30,3 +30,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_BRANCH: main
         run: yarn run semantic-release
+  rebase:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: rebase main
+        run: |
+          git checkout test-alpha && 
+          git rebase test-beta &&
+          git push origin test-alpha
