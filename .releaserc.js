@@ -87,6 +87,10 @@ module.exports = {
       name: 'release',
     },
     {
+      name: 'test-alpha',
+      prerelease: true,
+    },
+    {
       name: 'test-beta',
       prerelease: true,
     },

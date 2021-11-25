@@ -7,9 +7,9 @@ import {
   TextButton,
   HorizontalFlex,
   ComponentSize,
-  CaretIcon,
   CloseIcon,
   IconDirection,
+  CaretIcon,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTheme } from 'styled-components';

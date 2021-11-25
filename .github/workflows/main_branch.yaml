@@ -1,12 +1,11 @@
-name: Push to release branch
-
+name: Push to main branch
 on:
   push:
     branches:
       - test-alpha
 jobs:
   release:
-    name: Release
+    name: Release Main Branch
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

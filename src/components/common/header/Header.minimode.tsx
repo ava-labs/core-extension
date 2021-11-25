@@ -60,7 +60,7 @@ function HeaderMiniMode({ onDrawerStateChanged }: HeaderProps) {
         <AccountSelectorFlow />
       </HorizontalFlex>
       <TextButton disabled={true}>
-        <ConfigureIcon color={theme.colors.disabled} />
+        <ConfigureIcon />
       </TextButton>
     </HorizontalFlex>
   );
