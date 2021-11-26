@@ -40,6 +40,6 @@ jobs:
           fetch-depth: 0
       - name: rebase main
         run: |
-          git checkout test-alpha && 
-          git rebase test-beta &&
-          git push origin test-alpha
+          git checkout main && 
+          git rebase release &&
+          git push origin main
