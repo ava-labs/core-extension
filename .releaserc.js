@@ -124,7 +124,7 @@ module.exports = {
     },
     {
       name: 'main',
-      prerelease: true,
+      prerelease: 'alpha',
     },
   ],
   plugins,
