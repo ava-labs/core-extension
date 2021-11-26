@@ -7,22 +7,14 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import {
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
-import { TokenIcon } from '@src/components/common/TokenImage';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import {
-  AddLiquidityDisplayData,
-  erc20PathToken,
-} from '@src/contracts/contractParsers/models';
+import { AddLiquidityDisplayData } from '@src/contracts/contractParsers/models';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
 import React from 'react';
 import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
+import { TokenCard } from './components/TokenCard';
 
 export function AddLiquidityTx({
   poolTokens,
@@ -104,52 +96,13 @@ export function AddLiquidityTx({
       {/* Tokens */}
       {poolTokens.map((token, index) => (
         <>
-          <SecondaryCard
+          <TokenCard
             key={token.symbol}
-            padding="16px"
+            token={token}
             margin={`${!index && '16px 0 0 0'}`}
-          >
-            <HorizontalFlex
-              align={'center'}
-              justify={'space-between'}
-              width="100%"
-            >
-              <HorizontalFlex align={'center'} height="100%">
-                {isAvaxToken(token) ? (
-                  <AvaxTokenIcon height="40px" />
-                ) : (
-                  <TokenIcon
-                    src={(token as erc20PathToken).logoURI}
-                    name={(token as TokenWithBalance).name}
-                    height="40px"
-                    width="40px"
-                  />
-                )}
-                <VerticalFlex
-                  height="100%"
-                  padding="0 16px"
-                  justify="space-between"
-                >
-                  <Typography weight={600} margin={'0 0 4px 0'}>
-                    {token.amountDepositedDisplayValue}
-                  </Typography>
-                  <Typography size={14}>{token.symbol}</Typography>
-                </VerticalFlex>
-              </HorizontalFlex>
-              <VerticalFlex height="100%">
-                <Typography weight={600}>
-                  {currencyFormatter(Number(token.amountUSDValue))}
-                  <Typography
-                    margin="0 0 0 4px"
-                    weight={600}
-                    color={theme.colors.text2}
-                  >
-                    {currency}
-                  </Typography>
-                </Typography>
-              </VerticalFlex>
-            </HorizontalFlex>
-          </SecondaryCard>
+            displayValue={token.amountDepositedDisplayValue}
+            amount={token.amountUSDValue}
+          />
           {!index && plusIcon}
         </>
       ))}
