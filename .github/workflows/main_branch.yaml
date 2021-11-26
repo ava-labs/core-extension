@@ -2,7 +2,7 @@ name: Push to main branch
 on:
   push:
     branches:
-      - test-alpha
+      - main
 jobs:
   release:
     name: Release Main Branch

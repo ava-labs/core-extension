@@ -3,7 +3,7 @@ name: Push to release branch
 on:
   push:
     branches:
-      - test-beta
+      - release
 jobs:
   release:
     name: Release
