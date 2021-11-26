@@ -24,7 +24,7 @@ You can also [set up an access token](https://docs.npmjs.com/creating-and-viewin
 ### Chrome Dev
 
 - Go to chrome://extensions/ and enable Developer mode.
-- At the top left of the above url click `Load unpacked` and select the extension folder.
+- At the top left of the above url click `Load unpacked` and select dist folder.
 
 ### Firefox Dev
 
@@ -45,3 +45,7 @@ point to either the `dist/manifest.json` or the zip file from running the build 
 5. select the folder or go into the folder and press select
 
 Thats it!
+
+## Release
+
+1. Merge main onto release branch
