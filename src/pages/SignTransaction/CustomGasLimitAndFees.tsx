@@ -8,6 +8,7 @@ import {
   CaretIcon,
   IconDirection,
   SubTextTypography,
+  BNInput,
 } from '@avalabs/react-components';
 import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -16,6 +17,7 @@ import React, { useEffect, useState } from 'react';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+
 export function CustomGasLimitAndFees({
   limit,
   gasPrice,
@@ -29,41 +31,60 @@ export function CustomGasLimitAndFees({
 }) {
   const { avaxPrice } = useWalletContext();
   const { currencyFormatter } = useSettingsContext();
-  const [customGasPrice, setCustomGasPrice] = useState<string>('');
-  const [customTipFee, setCustomTipFee] = useState<string>('');
   const [customGasLimit, setCustomGasLimit] = useState<string>('');
+  const [customGasPrice, setCustomGasPrice] = useState<GasPrice>();
+
+  const [calculateGasAndFeesError, setCalculateGasAndFeesError] = useState('');
   const [newFees, setNewFees] =
     useState<ReturnType<typeof calculateGasAndFees>>();
   const theme = useTheme();
 
   useEffect(() => {
-    if (customGasPrice && customGasLimit) {
-      const gas = {
-        bn: Utils.stringToBN(customGasPrice, 9),
-        value: customGasPrice,
-      };
-
-      setNewFees(calculateGasAndFees(gas, customGasLimit, avaxPrice));
+    if (customGasPrice && Object.keys(customGasPrice).length) {
+      setNewFees(
+        calculateGasAndFees(customGasPrice, customGasLimit, avaxPrice)
+      );
     }
-  }, [customGasPrice, customTipFee, customGasLimit]);
+  }, [customGasPrice, avaxPrice, customGasLimit]);
 
   useEffect(() => {
     if (!customGasLimit) {
       setCustomGasLimit(limit);
     }
+  }, [limit, customGasLimit]);
 
-    if (!customGasPrice || Number(customGasPrice) < Number(gasPrice.value)) {
-      setCustomGasPrice(gasPrice.value);
+  useEffect(() => {
+    if (!customGasPrice || !Object.keys(customGasPrice).length) {
+      setCustomGasPrice({
+        bn: Utils.stringToBN(gasPrice.value, 9),
+        value: gasPrice.value,
+      });
     }
-  }, [limit, gasPrice]);
+  }, [gasPrice, customGasPrice]);
 
-  function handleOnSave() {
-    const gas = {
-      bn: Utils.stringToBN(customGasPrice, 9),
-      value: customGasPrice,
-    };
-    onSave && onSave(gas, customGasLimit);
+  function handleOnSave(): void {
+    if (customGasPrice && customGasLimit) {
+      onSave && onSave(customGasPrice, customGasLimit);
+    }
   }
+
+  const checkCustomGasLimit = (customGasLimit: string) => {
+    if (!customGasPrice) {
+      return;
+    }
+    try {
+      const calculatedGasAndFees = calculateGasAndFees(
+        customGasPrice,
+        customGasLimit,
+        avaxPrice
+      );
+      setNewFees(calculatedGasAndFees);
+      setCustomGasLimit(customGasLimit);
+      calculateGasAndFeesError && setCalculateGasAndFeesError('');
+    } catch (error) {
+      setCalculateGasAndFeesError('Gas Limit is too much');
+    }
+  };
 
   return (
     <VerticalFlex margin="24px 0 0 0">
@@ -80,7 +101,12 @@ export function CustomGasLimitAndFees({
         </Typography>
       </HorizontalFlex>
       <VerticalFlex padding="32px 0 0 0">
-        <Typography size={36} weight={700} padding="0 0 8px 0">
+        <Typography
+          size={36}
+          weight={700}
+          padding="0 0 8px 0"
+          wordBreak="break-word"
+        >
           {newFees?.fee}
           <Typography
             padding="0 0 0 4px"
@@ -98,23 +124,22 @@ export function CustomGasLimitAndFees({
         label={'Gas Limit'}
         type={'number'}
         value={customGasLimit}
-        onChange={(evt) => setCustomGasLimit(evt.currentTarget.value)}
+        onChange={(evt) => checkCustomGasLimit(evt.currentTarget.value)}
         margin="24px 0 0 0"
+        error={!!calculateGasAndFeesError}
+        errorMessage={calculateGasAndFeesError}
       />
-      {/* <br />
-      <br />
-      <Input
-        label={'Tip'}
-        type={'number'}
-        value={customTipFee}
-        onChange={(evt) => setCustomTipFee(evt.currentTarget.value)} */}
-      {/* /> */}
-      <Input
+      <BNInput
         label={'Gas Price'}
-        type={'number'}
-        value={customGasPrice}
-        onChange={(evt) => setCustomGasPrice(evt.currentTarget.value)}
+        value={customGasPrice?.bn}
+        onChange={(value) =>
+          setCustomGasPrice({
+            bn: value.bn,
+            value: value.amount,
+          })
+        }
         margin="24px 0 0 0"
+        denomination={9}
       />
 
       <HorizontalFlex flex={1} align="flex-end" width="100%">
