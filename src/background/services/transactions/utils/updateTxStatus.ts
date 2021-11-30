@@ -17,5 +17,6 @@ export function updateTxStatusFinalized(
     ...tx,
     status: update.status,
     ...(update.result ? { txHash: update.result } : {}),
+    ...(update.error ? { error: update.error } : {}),
   };
 }
