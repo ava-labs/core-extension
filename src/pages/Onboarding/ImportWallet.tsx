@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   VerticalFlex,
   Typography,
   TextArea,
   PrimaryButton,
-  RecoveryPhraseIcon,
   TextButton,
   ComponentSize,
   HorizontalFlex,
@@ -27,12 +26,16 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
   const [recoveryPhrase, setRecoveryPhrase] = useState('');
   const [error, setError] = useState('');
 
+  const isPhraseCorrectLength = (phrase) => {
+    return [12, 24].includes(phrase.split(' ').length);
+  };
+
   const onPhraseChanged = (e) => {
     const phrase = e.currentTarget.value;
     setRecoveryPhrase(phrase);
     if (
       phrase &&
-      phrase.split(' ').length === 24 &&
+      !isPhraseCorrectLength(phrase) &&
       !bip39.validateMnemonic(phrase)
     ) {
       setError('Invalid mnemonic phrase');
@@ -42,7 +45,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
   };
 
   const nextButtonDisabled =
-    !(recoveryPhrase && recoveryPhrase.split(' ').length === 24) || !!error;
+    !(recoveryPhrase && isPhraseCorrectLength(recoveryPhrase)) || !!error;
 
   return (
     <VerticalFlex width="100%" align="center" padding="16px 0">
