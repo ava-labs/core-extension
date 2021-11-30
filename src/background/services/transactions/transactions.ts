@@ -34,7 +34,6 @@ import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
-import { BN } from 'bn.js';
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -160,7 +159,12 @@ updateTransaction
           ...currentPendingTxs,
           ...updatePendingTxParams(update, tx),
         });
-      } else if (isTxStatusUpdate(tx) && update.status !== TxStatus.SIGNED) {
+      } else if (
+        isTxStatusUpdate(tx) &&
+        update.status !== TxStatus.SIGNED &&
+        update.status !== TxStatus.ERROR &&
+        update.status !== TxStatus.ERROR_USER_CANCELED
+      ) {
         pendingTransactions$.next({
           ...currentPendingTxs,
           ...updateTxStatus(update, tx),

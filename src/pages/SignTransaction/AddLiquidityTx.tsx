@@ -1,64 +1,65 @@
 import {
   HorizontalFlex,
-  SubTextTypography,
+  PlusIcon,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import {
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
-import { TokenIcon } from '@src/components/common/TokenImage';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import {
-  AddLiquidityDisplayData,
-  erc20PathToken,
-} from '@src/contracts/contractParsers/models';
+import { AddLiquidityDisplayData } from '@src/contracts/contractParsers/models';
 import React from 'react';
+import { useTheme } from 'styled-components';
+import { AddressPaths } from './components/AddressPaths';
+import { TokenCard } from './components/TokenCard';
+import { TransactionTabs } from './components/TransactionTabs';
 
-export function AddLiquidityTx({ poolTokens }: AddLiquidityDisplayData) {
-  const { currencyFormatter } = useSettingsContext();
+export function AddLiquidityTx({
+  poolTokens,
+  toAddress,
+  fromAddress,
+  setShowCustomFees,
+  fee,
+  feeUSD,
+  txParams,
+}: AddLiquidityDisplayData) {
+  const theme = useTheme();
+
+  const plusIcon = (
+    <HorizontalFlex width={'100%'} justify={'center'} margin="8px 0">
+      <PlusIcon color={theme.colors.icon1} height="16px" />
+    </HorizontalFlex>
+  );
+
   return (
-    <VerticalFlex width={'100%'} align={'center'}>
-      <Typography>Adding Liquidity to pool</Typography>
-      <br />
-      <br />
-      {poolTokens.map((token) => (
-        <HorizontalFlex
-          key={token.symbol}
-          align={'center'}
-          justify={'space-between'}
-          margin={'10px 0'}
-        >
-          <HorizontalFlex align={'center'}>
-            <HorizontalFlex margin={'0 8px 0 0'}>
-              {isAvaxToken(token) ? (
-                <AvaxTokenIcon />
-              ) : (
-                <TokenIcon
-                  src={(token as erc20PathToken).logoURI}
-                  name={(token as TokenWithBalance).name}
-                />
-              )}
-            </HorizontalFlex>
-            <VerticalFlex>
-              <Typography margin={'0 0 4px 0'}>
-                {token.name} {token.symbol}
-              </Typography>
-              <HorizontalFlex>
-                <SubTextTypography>Depositing:</SubTextTypography>
-                <VerticalFlex>
-                  <Typography>{token.amountDepositedDisplayValue}</Typography>
-                  <SubTextTypography>
-                    {currencyFormatter(Number(token.amountUSDValue))}
-                  </SubTextTypography>
-                </VerticalFlex>
-              </HorizontalFlex>
-            </VerticalFlex>
-          </HorizontalFlex>
-        </HorizontalFlex>
+    <VerticalFlex width={'100%'}>
+      {/* Header */}
+      <HorizontalFlex margin="8px 0 32px 0" width={'100%'} justify={'center'}>
+        <Typography as="h1" size={24} weight={700}>
+          Adding Liquidity to Pool
+        </Typography>
+      </HorizontalFlex>
+
+      {/* Account */}
+      <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
+
+      {/* Tokens */}
+      {poolTokens.map((token, index) => (
+        <React.Fragment key={token.symbol}>
+          <TokenCard
+            token={token}
+            margin={`${!index && '16px 0 0 0'}`}
+            displayValue={token.amountDepositedDisplayValue}
+            amount={token.amountUSDValue}
+          />
+          {!index && plusIcon}
+        </React.Fragment>
       ))}
+
+      {/* Tabs */}
+      <TransactionTabs
+        fee={fee}
+        feeUSD={feeUSD}
+        byteStr={txParams?.data}
+        setShowCustomFees={setShowCustomFees}
+      />
     </VerticalFlex>
   );
 }

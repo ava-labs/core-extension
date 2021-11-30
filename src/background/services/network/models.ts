@@ -27,3 +27,10 @@ export const supportedNetworks = new Map<string, ActiveNetwork>([
   [FUJI_NETWORK.name, FUJI_NETWORK],
   [LOCAL_NETWORK.name, LOCAL_NETWORK],
 ]);
+
+export const supportedNetworksByChainID = Array.from(
+  supportedNetworks.values()
+).reduce(
+  (agg, network) => agg.set(network.chainId, network),
+  new Map<string, ActiveNetwork>()
+);

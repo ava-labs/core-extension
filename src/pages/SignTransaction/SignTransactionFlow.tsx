@@ -29,7 +29,10 @@ import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTheme } from 'styled-components';
-import { TransactionConfirmation } from './TransactionConfirmation';
+import {
+  TransactionConfirmation,
+  TransactionFailure,
+} from './TransactionConfirmedOrFailed';
 import { SpendLimitType } from './CustomSpendLimit';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
@@ -56,6 +59,7 @@ export function SignTransactionPage() {
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const { network } = useNetworkContext();
   const theme = useTheme();
+  const [txFailedError, setTxFailedError] = useState<string>();
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 
@@ -74,6 +78,16 @@ export function SignTransactionPage() {
 
   if (showTxInProgress) {
     return <TransactionInProgress isOpen={true} />;
+  }
+
+  if (txFailedError) {
+    return (
+      <TransactionFailure
+        message={txFailedError as string}
+        txId={hash}
+        onClose={() => window.close()}
+      />
+    );
   }
 
   if (hash) {
@@ -145,10 +159,16 @@ export function SignTransactionPage() {
             />
           ),
           [ContractCall.ADD_LIQUIDITY]: (
-            <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
+            <AddLiquidityTx
+              {...(displayData as AddLiquidityDisplayData)}
+              setShowCustomFees={setShowCustomFees}
+            />
           ),
           [ContractCall.ADD_LIQUIDITY_AVAX]: (
-            <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
+            <AddLiquidityTx
+              {...(displayData as AddLiquidityDisplayData)}
+              setShowCustomFees={setShowCustomFees}
+            />
           ),
           ['unknown']: (
             <UnknownTx {...(displayData as TransactionDisplayValues)} />
@@ -182,9 +202,13 @@ export function SignTransactionPage() {
               updateTransaction({
                 status: TxStatus.SUBMITTING,
                 id: id,
-              }).then(() => {
-                setShowTxInProgress(false);
-              });
+              })
+                .catch((err) => {
+                  setTxFailedError(err);
+                })
+                .finally(() => {
+                  setShowTxInProgress(false);
+                });
           }}
         >
           Approve

@@ -3,11 +3,12 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { filter, firstValueFrom, map } from 'rxjs';
+import { filter, firstValueFrom, map, OperatorFunction } from 'rxjs';
 import {
   isTxFinalizedUpdate,
   isTxParamsUpdate,
   isTxStatusUpdate,
+  Transaction,
   TxStatus,
 } from '../models';
 import {
@@ -61,14 +62,20 @@ export async function updateTransactionById(
      */
     return await firstValueFrom(
       transactions$.pipe(
-        filter((txs) => {
-          return txs.some((tx) => tx.id === update.id);
+        map((txs) => {
+          return txs.find((tx) => tx.id === update.id);
         }),
+        filter((tx) => tx !== undefined) as OperatorFunction<any, Transaction>,
         map((tx) => {
-          return {
-            ...request,
-            result: tx,
-          };
+          return tx.txHash
+            ? {
+                ...request,
+                result: tx,
+              }
+            : {
+                ...request,
+                error: tx.error,
+              };
         })
       )
     );

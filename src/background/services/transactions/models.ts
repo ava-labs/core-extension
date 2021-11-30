@@ -36,6 +36,7 @@ export interface Transaction {
   transactionCategory: string;
   txHash?: string;
   displayValues: TransactionDisplayValues;
+  error?: string;
 }
 
 export function isTxParams(params: Partial<txParams>): params is txParams {
@@ -68,6 +69,7 @@ export interface txStatusUpdate {
   status: TxStatus;
   id: Transaction['id'];
   result?: string;
+  error?: string;
 }
 
 export function isTxParamsUpdate(
@@ -91,11 +93,11 @@ export function isTxFinalizedUpdate(
   update: txParamsUpdate | txStatusUpdate
 ): update is txStatusUpdate {
   return (
+    (update as txStatusUpdate).status === TxStatus.ERROR ||
+    (update as txStatusUpdate).status === TxStatus.ERROR_USER_CANCELED ||
     (update?.hasOwnProperty('id') &&
       update.hasOwnProperty('result') &&
       update.hasOwnProperty('status') &&
-      (update as txStatusUpdate).status === TxStatus.SIGNED) ||
-    (update as txStatusUpdate).status === TxStatus.ERROR ||
-    (update as txStatusUpdate).status === TxStatus.ERROR_USER_CANCELED
+      (update as txStatusUpdate).status === TxStatus.SIGNED)
   );
 }

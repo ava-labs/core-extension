@@ -1,11 +1,11 @@
-name: Release
+name: Push to main branch
 on:
   push:
     branches:
-      - release
+      - main
 jobs:
   release:
-    name: Release
+    name: Release Main Branch
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -27,4 +27,5 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCH: main
         run: yarn run semantic-release

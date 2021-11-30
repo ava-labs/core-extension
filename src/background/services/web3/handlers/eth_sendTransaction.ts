@@ -4,7 +4,7 @@ import {
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { defer, filter, firstValueFrom, map, merge } from 'rxjs';
+import { defer, filter, firstValueFrom, map, merge, tap } from 'rxjs';
 import { TxStatus } from '../../transactions/models';
 import {
   addTransaction,
@@ -36,7 +36,14 @@ export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
     map(() => ({
       ...data,
       error: 'Window closed before approved',
-    }))
+    })),
+    tap(() => {
+      updateTransaction.next({
+        status: TxStatus.ERROR_USER_CANCELED,
+        id: data.id,
+        error: 'Window closed before approved',
+      });
+    })
   );
 
   const signTx$ = defer(async () => {
@@ -49,7 +56,10 @@ export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
 
     return txToCustomEvmTx(pendingTx).then((params) => {
       if (!walletResult || !walletResult.sendCustomEvmTx) {
-        throw new Error('wallet is undefined or sned tx method is malformed');
+        return {
+          ...data,
+          error: 'wallet is undefined or send tx method is malformed',
+        };
       }
 
       return walletResult
@@ -68,7 +78,14 @@ export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
           });
           return { ...data, result };
         })
-        .catch((err) => ({ ...data, error: err }));
+        .catch((err) => {
+          updateTransaction.next({
+            status: TxStatus.ERROR,
+            id: data.id,
+            error: err?.message ?? err,
+          });
+          return { ...data, error: err };
+        });
     });
   });
 
