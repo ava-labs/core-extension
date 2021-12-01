@@ -12,8 +12,10 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
 import Web3 from 'web3';
-import ERC20_ABI from '../../contracts/erc20.abi.json';
-import { CustomSpendLimitBN, Limit, SpendLimitType } from './CustomSpendLimit';
+import ERC20_ABI from '../../../contracts/erc20.abi.json';
+import { Limit, SpendLimit } from '../CustomSpendLimit';
+
+const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
 export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
@@ -22,11 +24,12 @@ export function useGetTransaction(requestId: string) {
   const [hash, setHash] = useState('');
   const [showCustomFees, setShowCustomFees] = useState(false);
   const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
-  const [displaySpendLimit, setDisplaySpendLimit] =
-    useState<string>('Unlimited');
-  const [customSpendLimit, setCustonSpendLimit] = useState<SpendLimitType>({
-    checked: Limit.UNLIMITED,
-  } as SpendLimitType);
+  const [displaySpendLimit, setDisplaySpendLimit] = useState<string>(
+    UNLIMITED_SPEND_LIMIT_LABEL
+  );
+  const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
+    limitType: Limit.UNLIMITED,
+  });
   const [isRevokeApproval, setIsRevokeApproval] = useState(false);
 
   function setCustomFee(gasLimit: string, gasPrice: GasPrice) {
@@ -41,38 +44,31 @@ export function useGetTransaction(requestId: string) {
     } as any);
   }
 
-  function onRadioChange(e: any) {
-    setCustonSpendLimit({
-      ...customSpendLimit,
-      checked: e.target.value,
-    });
-  }
-
-  function setCustomSpendLimit(customSpendData: SpendLimitType) {
+  function setSpendLimit(customSpendData: SpendLimit) {
     const srcToken: string =
       transaction?.displayValues.tokenToBeApproved.address;
     const spenderAddress: string =
       transaction?.displayValues.approveData.spender;
     let limitAmount = '';
 
-    setCustonSpendLimit(customSpendData);
+    setCustomSpendLimit(customSpendData);
     // Sets the string to be displayed in AmountTx
     const spendAmountToDisplay =
-      customSpendData.checked === Limit.UNLIMITED
-        ? 'Unlimited'
-        : customSpendData.spendLimitBN.amount;
+      customSpendData.limitType === Limit.UNLIMITED || !customSpendData.value
+        ? UNLIMITED_SPEND_LIMIT_LABEL
+        : customSpendData.value.amount;
     setDisplaySpendLimit(spendAmountToDisplay);
 
-    if (customSpendData.checked === Limit.UNLIMITED) {
-      setCustonSpendLimit({
+    if (customSpendData.limitType === Limit.UNLIMITED) {
+      setCustomSpendLimit({
         ...customSpendData,
-        spendLimitBN: {} as CustomSpendLimitBN,
+        value: undefined,
       });
       limitAmount = transaction?.displayValues.approveData.limit;
     }
 
-    if (customSpendData.checked === Limit.CUSTOM) {
-      limitAmount = customSpendData.spendLimitBN.bn.toString();
+    if (customSpendData.limitType === Limit.CUSTOM && customSpendData.value) {
+      limitAmount = customSpendData.value.bn.toString();
     }
 
     // create hex string for approval amount
@@ -158,10 +154,9 @@ export function useGetTransaction(requestId: string) {
       setCustomFee,
       showCustomSpendLimit,
       setShowCustomSpendLimit,
-      setCustomSpendLimit,
+      setSpendLimit,
       displaySpendLimit,
       customSpendLimit,
-      onRadioChange,
       isRevokeApproval,
     };
   }, [

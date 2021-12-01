@@ -22,7 +22,7 @@ import React, { useState } from 'react';
 import { ApproveTx } from './ApproveTx';
 import { SwapTx } from './SwapTx';
 import { UnknownTx } from './UnknownTx';
-import { useGetTransaction } from './useGetTransaction';
+import { useGetTransaction } from './hooks/useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { TransactionInProgress } from './TransactionInProgress';
 import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
@@ -33,7 +33,6 @@ import {
   TransactionConfirmation,
   TransactionFailure,
 } from './TransactionConfirmedOrFailed';
-import { SpendLimitType } from './CustomSpendLimit';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function SignTransactionPage() {
@@ -49,10 +48,9 @@ export function SignTransactionPage() {
     setShowCustomFees,
     showCustomSpendLimit,
     setShowCustomSpendLimit,
-    setCustomSpendLimit,
+    setSpendLimit,
     displaySpendLimit,
     customSpendLimit,
-    onRadioChange,
     isRevokeApproval,
     ...params
   } = useGetTransaction(requestId);
@@ -116,12 +114,8 @@ export function SignTransactionPage() {
         site={displayData.site}
         spendLimit={customSpendLimit}
         token={displayData.tokenToBeApproved}
-        onRadioChange={onRadioChange}
-        onCancel={() => setShowCustomSpendLimit(false)}
-        onSpendLimitChanged={(customSpendData: SpendLimitType) => {
-          setCustomSpendLimit(customSpendData);
-          setShowCustomSpendLimit(false);
-        }}
+        onClose={() => setShowCustomSpendLimit(false)}
+        setSpendLimit={setSpendLimit}
       />
     );
   }
