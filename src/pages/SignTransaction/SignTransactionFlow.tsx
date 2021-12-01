@@ -165,7 +165,10 @@ export function SignTransactionPage() {
             />
           ),
           ['unknown']: (
-            <UnknownTx {...(displayData as TransactionDisplayValues)} />
+            <UnknownTx
+              {...(displayData as TransactionDisplayValues)}
+              setShowCustomFees={setShowCustomFees}
+            />
           ),
         }[contractType || 'unknown']
       }
