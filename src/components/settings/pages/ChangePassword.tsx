@@ -11,14 +11,13 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTheme } from 'styled-components';
+import {
+  PasswordStrength,
+  getPasswordErrorMessage,
+} from '@src/components/common/PasswordStrength';
 
-const PASSWORD_ERROR = 'Passwords do not match';
 const SERVER_SUCCESS = 'Your password has been changed succesfully.';
 const SERVER_ERROR = 'Something went wrong.';
-
-function verifyPasswordsMatch(pass1?: string, pass2?: string) {
-  return !!(pass1 === pass2);
-}
 
 export function ChangePassword({
   goBack,
@@ -29,6 +28,7 @@ export function ChangePassword({
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [newPasswordStrength, setNewPasswordStrength] = useState(0);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [serverResponse, setServerResponse] = useState('');
   const [serverError, setServerError] = useState('');
@@ -39,14 +39,16 @@ export function ChangePassword({
 
   const { changeWalletPassword } = useWalletContext();
 
-  const fieldsFilled = oldPassword && newPassword && confirmPassword;
+  const isFieldsFilled = !!(oldPassword && newPassword && confirmPassword);
 
-  let error;
-  if (fieldsFilled && !verifyPasswordsMatch(newPassword, confirmPassword)) {
-    error = PASSWORD_ERROR;
-  }
+  const error = getPasswordErrorMessage(
+    isFieldsFilled,
+    newPassword,
+    confirmPassword,
+    newPasswordStrength
+  );
 
-  const canSubmit = !error && fieldsFilled;
+  const canSubmit = !error && isFieldsFilled;
 
   const resetInputFields = () => {
     setOldPassword('');
@@ -90,7 +92,7 @@ export function ChangePassword({
                 width="100%"
               />
             </HorizontalFlex>
-            <HorizontalFlex height="100px" width="100%">
+            <VerticalFlex width="100%" padding="0 0 16px 0">
               <Input
                 onChange={(e) => {
                   setNewPassword(e.target.value);
@@ -102,7 +104,11 @@ export function ChangePassword({
                 error={!!error}
                 width="100%"
               />
-            </HorizontalFlex>
+              <PasswordStrength
+                password={newPassword}
+                setPasswordStrength={setNewPasswordStrength}
+              />
+            </VerticalFlex>
             <HorizontalFlex height="100px" width="100%">
               <Input
                 onChange={(e) => {

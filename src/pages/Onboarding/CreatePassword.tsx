@@ -13,17 +13,15 @@ import {
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTheme } from 'styled-components';
+import {
+  PasswordStrength,
+  getPasswordErrorMessage,
+} from '@src/components/common/PasswordStrength';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
   isImportFlow: boolean;
 }
-
-function verifyPasswordsMatch(pass1?: string, pass2?: string) {
-  return !!(pass1 && pass2 && pass1 === pass2);
-}
-
-const PASSWORD_ERROR = 'Passwords do not match';
 
 export const CreatePassword = ({
   onCancel,
@@ -33,17 +31,21 @@ export const CreatePassword = ({
   const theme = useTheme();
   const { setPasswordAndName } = useOnboardingContext();
   const [accountName, setAccountName] = useState('');
-  const [passwordVal, setPasswordVal] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
 
-  const fieldsFilled = passwordVal && confirmPasswordVal;
+  const isFieldsFilled = !!(password && confirmPasswordVal);
+  const considerStrength = !isImportFlow;
+  const error = getPasswordErrorMessage(
+    isFieldsFilled,
+    password,
+    confirmPasswordVal,
+    passwordStrength,
+    considerStrength
+  );
 
-  let error;
-  if (fieldsFilled && !verifyPasswordsMatch(passwordVal, confirmPasswordVal)) {
-    error = PASSWORD_ERROR;
-  }
-
-  const canSubmit = !error && fieldsFilled;
+  const canSubmit = !error && isFieldsFilled;
 
   return (
     <VerticalFlex width="100%" align="center" padding="16px 0">
@@ -76,15 +78,21 @@ export const CreatePassword = ({
             error={!!error}
           />
         </HorizontalFlex>
-        <HorizontalFlex height="100px">
+        <VerticalFlex height={isImportFlow ? '100px' : 'auto'}>
           <Input
             label="Password"
-            onChange={(e) => setPasswordVal(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             type="password"
             error={!!error}
           />
-        </HorizontalFlex>
+          {considerStrength && (
+            <PasswordStrength
+              password={password}
+              setPasswordStrength={setPasswordStrength}
+            />
+          )}
+        </VerticalFlex>
         <HorizontalFlex height="100px">
           <Input
             label="Confirm Password"
@@ -101,7 +109,7 @@ export const CreatePassword = ({
           size={ComponentSize.LARGE}
           disabled={!canSubmit}
           onClick={() => {
-            setPasswordAndName(passwordVal, accountName, isImportFlow);
+            setPasswordAndName(password, accountName, isImportFlow);
           }}
         >
           Save
