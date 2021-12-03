@@ -7,9 +7,8 @@ import {
   VerticalFlex,
   SecondaryCard,
 } from '@avalabs/react-components';
-import BN from 'bn.js';
 import styled, { useTheme } from 'styled-components';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: number;
