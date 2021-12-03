@@ -57,6 +57,7 @@ import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
 import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
+import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -116,7 +117,9 @@ export function Popup() {
 
                           <Route path="/sign/transaction">
                             <React.Suspense fallback={<LoadingIcon />}>
-                              <SignTransactionPage />
+                              <SignTxErrorBoundary>
+                                <SignTransactionPage />
+                              </SignTxErrorBoundary>
                             </React.Suspense>
                           </Route>
 
@@ -129,12 +132,6 @@ export function Popup() {
                           <Route path="/permissions">
                             <React.Suspense fallback={<LoadingIcon />}>
                               <PermissionsPage />
-                            </React.Suspense>
-                          </Route>
-
-                          <Route path="/settings">
-                            <React.Suspense fallback={<LoadingIcon />}>
-                              <SettingsPage />
                             </React.Suspense>
                           </Route>
 
@@ -162,18 +159,6 @@ export function Popup() {
                             </React.Suspense>
                           </Route>
 
-                          <Route path="/sign">
-                            <React.Suspense fallback={<LoadingIcon />}>
-                              <SignMessage />
-                            </React.Suspense>
-                          </Route>
-
-                          <Route path="/permissions">
-                            <React.Suspense fallback={<LoadingIcon />}>
-                              <PermissionsPage />
-                            </React.Suspense>
-                          </Route>
-
                           <Route path="/settings">
                             <React.Suspense fallback={<LoadingIcon />}>
                               <SettingsPage />
@@ -185,16 +170,6 @@ export function Popup() {
                               <Swap />
                             </React.Suspense>
                           </Route>
-
-                          {isMiniMode ? (
-                            <Route path="/token">
-                              <React.Suspense fallback={<LoadingIcon />}>
-                                <TokenFlowPage />
-                              </React.Suspense>
-                            </Route>
-                          ) : (
-                            ''
-                          )}
 
                           <Route path="/">
                             <Redirect to="/home" />
