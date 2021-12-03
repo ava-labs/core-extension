@@ -5,6 +5,13 @@ import { providerConnection } from './background/connections/dAppConnection/prov
 import { extensionConnection } from './background/connections/extensionConnection/extensionConnection';
 import '@src/background/services/state';
 import { ContextContainer } from './hooks/useIsSpecificContextContainer';
+import { activateServices } from '@avalabs/wallet-react-components';
+
+/**
+ * This activates all of the services in the wallet react components SDK
+ */
+activateServices();
+
 /**
  * If they just install then they need to onboard and we force them
  * fullscreen
