@@ -10,9 +10,11 @@ import { Runtime } from 'webextension-polyfill-ts';
 import { providerHandshake } from './utils/providerHandshake';
 import { requestLog, responseLog } from './utils/logging';
 
-const inpage = require('raw-loader!/dist/js/inpage.js');
+const inpage = require('raw-loader!/dist/js/inpage.mjs');
 
-const inpageSuffix = `//# sourceURL=${extension.runtime.getURL('inpage.js')}\n`;
+const inpageSuffix = `//# sourceURL=${extension.runtime.getURL(
+  'inpage.mjs'
+)}\n`;
 const inpageBundle = `${inpage.default}` + inpageSuffix;
 
 const shouldInjectProvider = () => {
