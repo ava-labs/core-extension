@@ -21,7 +21,7 @@ export async function setWalletPasswordAndName(
       error: 'params missing from request',
     };
   }
-  const [password, accountName, isImportFlow] = params;
+  const [password, accountName] = params;
 
   if (!password) {
     return {
@@ -32,9 +32,6 @@ export async function setWalletPasswordAndName(
 
   onboardingPassword$.next(password);
   onboardingAccountName$.next(accountName || 'Account 1');
-  onboardingCurrentPhase$.next(
-    isImportFlow ? OnboardingPhase.IMPORT_WALLET : OnboardingPhase.CREATE_WALLET
-  );
 
   return {
     ...request,

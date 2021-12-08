@@ -39,7 +39,9 @@ export function OnboardingFlow() {
     <Welcome
       onNext={(isImport) => {
         setIsImportFlow(isImport);
-        setNextPhase(OnboardingPhase.PASSWORD);
+        setNextPhase(
+          isImport ? OnboardingPhase.IMPORT_WALLET : OnboardingPhase.PASSWORD
+        );
       }}
     />
   );

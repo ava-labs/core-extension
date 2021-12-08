@@ -13,10 +13,7 @@ import {
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTheme } from 'styled-components';
-import {
-  PasswordStrength,
-  getPasswordErrorMessage,
-} from '@src/components/common/PasswordStrength';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -29,23 +26,20 @@ export const CreatePassword = ({
   isImportFlow,
 }: CreatePasswordProps) => {
   const theme = useTheme();
-  const { setPasswordAndName } = useOnboardingContext();
+  const { setPasswordAndName, setNextPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordStrength, setPasswordStrength] = useState(0);
   const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
-  const considerStrength = !isImportFlow;
-  const error = getPasswordErrorMessage(
-    isFieldsFilled,
-    password,
-    confirmPasswordVal,
-    passwordStrength,
-    considerStrength
+  const confirmationError = !!(
+    password &&
+    confirmPasswordVal &&
+    password !== confirmPasswordVal
   );
-
-  const canSubmit = !error && isFieldsFilled;
+  const passwordLengthError = password && password.length < 8;
+  const canSubmit =
+    !passwordLengthError && !confirmationError && isFieldsFilled;
 
   return (
     <VerticalFlex width="100%" align="center" padding="16px 0">
@@ -66,32 +60,35 @@ export const CreatePassword = ({
       </HorizontalFlex>
       <VerticalFlex align="center" grow="1">
         <Typography align="center" margin="8px 0 40px" height="24px">
-          Add a name and a secure password
+          For your security, please create a new
           <br />
-          to your new wallet.
+          name and password.
         </Typography>
         <HorizontalFlex height="100px">
           <Input
             label="Wallet Name"
             onChange={(e) => setAccountName(e.target.value)}
-            placeholder="Account 1"
-            error={!!error}
+            placeholder="Placeholder"
           />
         </HorizontalFlex>
-        <VerticalFlex height={isImportFlow ? '100px' : 'auto'}>
+        <VerticalFlex height={'120px'}>
           <Input
             label="Password"
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             type="password"
-            error={!!error}
+            error={!!passwordLengthError}
           />
-          {considerStrength && (
-            <PasswordStrength
-              password={password}
-              setPasswordStrength={setPasswordStrength}
-            />
-          )}
+          <Typography
+            margin="4px 0 0 0"
+            color={
+              passwordLengthError ? theme.colors.error : theme.colors.text2
+            }
+            size={14}
+            height="17px"
+          >
+            Must be at least 8 characters
+          </Typography>
         </VerticalFlex>
         <HorizontalFlex height="100px">
           <Input
@@ -99,8 +96,10 @@ export const CreatePassword = ({
             onChange={(e) => setConfirmPasswordVal(e.target.value)}
             placeholder="Password"
             type="password"
-            error={!!error}
-            errorMessage={error}
+            error={confirmationError}
+            errorMessage={
+              confirmationError ? 'Passwords do not match' : undefined
+            }
           />
         </HorizontalFlex>
       </VerticalFlex>
@@ -109,7 +108,13 @@ export const CreatePassword = ({
           size={ComponentSize.LARGE}
           disabled={!canSubmit}
           onClick={() => {
-            setPasswordAndName(password, accountName, isImportFlow);
+            setPasswordAndName(password, accountName).then(() =>
+              setNextPhase(
+                isImportFlow
+                  ? OnboardingPhase.FINALIZE
+                  : OnboardingPhase.CREATE_WALLET
+              )
+            );
           }}
         >
           Save

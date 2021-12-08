@@ -26,11 +26,7 @@ const OnboardingContext = createContext<{
   onboardingPhase?: OnboardingPhase;
   setNextPhase(phase: OnboardingPhase): Promise<void>;
   setMnemonic(mnemonic: string): Promise<void>;
-  setPasswordAndName(
-    password: string,
-    accountName: string,
-    isImportFlow: boolean
-  ): Promise<void>;
+  setPasswordAndName(password: string, accountName: string): Promise<void>;
   setFinalized(): Promise<any>;
 }>({} as any);
 
@@ -93,14 +89,10 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     });
   }
 
-  function setPasswordAndName(
-    password: string,
-    accountName: string,
-    isImportFlow: boolean
-  ) {
+  function setPasswordAndName(password: string, accountName: string) {
     return request!({
       method: ExtensionRequest.ONBOARDING_SET_PASSWORD_AND_NAME,
-      params: [password, accountName, isImportFlow],
+      params: [password, accountName],
     });
   }
 

@@ -29,7 +29,6 @@ export async function setWalletMnemonic(request: ExtensionConnectionMessage) {
   }
 
   onboardingMnemonic$.next(mnemonic);
-  onboardingCurrentPhase$.next(OnboardingPhase.FINALIZE);
   return {
     ...request,
     result: true,
