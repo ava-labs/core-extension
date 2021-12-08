@@ -11,6 +11,7 @@ import {
   TextButton,
   Typography,
   VerticalFlex,
+  LoadingSpinnerIcon,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled, { useTheme } from 'styled-components';
@@ -52,7 +53,7 @@ export function AccountDropdownContent({
   const theme = useTheme();
   const { currency, currencyFormatter } = useSettingsContext();
   const balanceTotalUSD = useBalanceTotalInCurrency();
-  const { addresses } = useWalletContext();
+  const { addresses, isBalanceLoading, isWalletReady } = useWalletContext();
   const scrollbarsRef = useRef<Scrollbars>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
@@ -118,7 +119,7 @@ export function AccountDropdownContent({
                       renameAccount(account.index, name);
                     }}
                   />
-                  {account.active && (
+                  {account.active && !isBalanceLoading && isWalletReady && (
                     <Typography
                       size={14}
                       height="17px"
@@ -136,16 +137,25 @@ export function AccountDropdownContent({
                   />
                 )}
               </HorizontalFlex>
-              <AddressContainer selected={account.active}>
-                <StyledPrimaryAddress
-                  name="C chain"
-                  address={addresses.addrC}
-                />
-                <StyledPrimaryAddress
-                  name="X chain"
-                  address={addresses.addrX}
-                />
-              </AddressContainer>
+              {account.active && (isBalanceLoading || !isWalletReady) ? (
+                <VerticalFlex padding="8px 0px" height="139px" justify="center">
+                  <LoadingSpinnerIcon
+                    color={theme.colors.primary1}
+                    height="26px"
+                  />
+                </VerticalFlex>
+              ) : (
+                <AddressContainer selected={account.active}>
+                  <StyledPrimaryAddress
+                    name="C chain"
+                    address={addresses.addrC}
+                  />
+                  <StyledPrimaryAddress
+                    name="X chain"
+                    address={addresses.addrX}
+                  />
+                </AddressContainer>
+              )}
             </VerticalFlex>
             {i < accounts.length - 1 && account.active && (
               <HorizontalSeparator margin="0" />

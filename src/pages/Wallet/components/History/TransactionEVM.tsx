@@ -3,7 +3,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { TransactionEVM } from '@avalabs/wallet-react-components';
+import { TransactionEVM as TransacionEVMInterface } from '@avalabs/wallet-react-components';
 import React from 'react';
 import { HistoryItem } from './components/HistoryItem';
 import {
@@ -11,7 +11,7 @@ import {
   HistoryReceivedIndicator,
 } from './components/SentReceivedIndicators';
 
-export function TransactionEVM({ item }: { item: TransactionEVM }) {
+export function TransactionEVM({ item }: { item: TransacionEVMInterface }) {
   return (
     <HorizontalFlex width={'100%'}>
       {item.isSender ? <HistorySentIndicator /> : <HistoryReceivedIndicator />}

@@ -47,7 +47,8 @@ export function ApproveTx({
         )}
       </SiteAvatar>
       <Typography align="center" height="24px">
-        Allow {site?.domain} to spend your {tokenToBeApproved.name}
+        Allow {site?.domain} to spend your{' '}
+        {tokenToBeApproved?.name || 'Unknown Token'}
       </Typography>
 
       {/* Tabs */}
@@ -70,7 +71,7 @@ export function ApproveTx({
                 weight={600}
                 color={theme.colors.text2}
               >
-                {tokenToBeApproved.symbol}
+                {tokenToBeApproved?.symbol || 'Unknown Symbol'}
               </Typography>
             </Typography>
           </HorizontalFlex>

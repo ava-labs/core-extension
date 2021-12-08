@@ -11,7 +11,7 @@ import {
   SecondaryCard,
   Radio,
 } from '@avalabs/react-components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -23,49 +23,43 @@ export enum Limit {
   CUSTOM = 'CUSTOM',
 }
 
-export interface CustomSpendLimitBN {
-  bn: BN;
-  amount: string;
-}
-
-export interface SpendLimitType {
-  checked: Limit;
-  spendLimitBN: CustomSpendLimitBN;
+export interface SpendLimit {
+  limitType: Limit;
+  value?: {
+    bn: BN;
+    amount: string;
+  };
 }
 
 export function CustomSpendLimit({
   spendLimit,
   token,
-  onCancel,
-  onSpendLimitChanged,
-  onRadioChange,
+  onClose,
+  setSpendLimit,
   site,
 }: {
   token: ERC20WithBalance;
-  onSpendLimitChanged(limitData: SpendLimitType): void;
-  onCancel(): void;
-  spendLimit: SpendLimitType;
-  onRadioChange(e: any): void;
+  setSpendLimit(limitData: SpendLimit): void;
+  onClose(): void;
+  spendLimit: SpendLimit;
   site: DomainMetadata;
 }) {
   const { activeAccount } = useAccountsContext();
-  const [customSpendLimit, setCustomSpendLimit] = useState<CustomSpendLimitBN>(
-    spendLimit.spendLimitBN || ({} as CustomSpendLimitBN)
-  );
+  const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
+    ...spendLimit,
+  });
   const theme = useTheme();
 
-  function handleOnSave() {
-    onSpendLimitChanged({
-      ...spendLimit,
-      spendLimitBN: customSpendLimit,
-    });
-  }
+  const handleOnSave = () => {
+    setSpendLimit(customSpendLimit);
+    onClose();
+  };
 
   return (
     <VerticalFlex width="100%" margin="24px 0 0 0">
       {/* Header */}
       <HorizontalFlex align="center">
-        <TextButton onClick={() => onCancel && onCancel()} margin="0 108px 0 0">
+        <TextButton onClick={() => onClose()} margin="0 108px 0 0">
           <CaretIcon
             height="20px"
             direction={IconDirection.LEFT}
@@ -106,11 +100,16 @@ export function CustomSpendLimit({
         <VerticalFlex margin="24px 0 0 0">
           <HorizontalFlex align="center" margin="0 0 40px 0">
             <Radio
-              onChange={onRadioChange}
+              onChange={() => {
+                setCustomSpendLimit({
+                  ...customSpendLimit,
+                  limitType: Limit.UNLIMITED,
+                });
+              }}
               value={Limit.UNLIMITED}
               name="unlimitedGroup"
               id="unlimited"
-              checked={spendLimit.checked === Limit.UNLIMITED}
+              checked={customSpendLimit.limitType === Limit.UNLIMITED}
             />
             <Typography margin="0 0 0 24px" weight={600}>
               Unlimited
@@ -118,11 +117,16 @@ export function CustomSpendLimit({
           </HorizontalFlex>
           <HorizontalFlex align="center" margin="0 0 16px 0">
             <Radio
-              onChange={onRadioChange}
+              onChange={() => {
+                setCustomSpendLimit({
+                  ...customSpendLimit,
+                  limitType: Limit.CUSTOM,
+                });
+              }}
               value={Limit.CUSTOM}
               name="unlimitedGroup"
               id="custom"
-              checked={spendLimit.checked === Limit.CUSTOM}
+              checked={customSpendLimit.limitType === Limit.CUSTOM}
             />
             <Typography margin="0 0 0 24px" weight={600}>
               Custom Spend Limit
@@ -130,10 +134,16 @@ export function CustomSpendLimit({
           </HorizontalFlex>
           <VerticalFlex width="100%" align="flex-end" padding="0 8px 0 0">
             <BNInput
-              onChange={(value) => setCustomSpendLimit(value)}
+              onChange={(value) => {
+                setCustomSpendLimit({
+                  ...customSpendLimit,
+                  value,
+                  limitType: Limit.CUSTOM,
+                });
+              }}
               denomination={token.denomination}
               placeholder="Maximum Limit"
-              value={customSpendLimit.bn}
+              value={customSpendLimit.value?.bn}
               width="283px"
             />
           </VerticalFlex>

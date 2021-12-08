@@ -43,7 +43,9 @@ const releaseReplaceSetting = [
       {
         files: ['dist/manifest.json'],
         from: '"version": ".*"',
-        to: '"version": "${nextRelease.version}"',
+        // Remove "-alpha" string from the version in the manifest.
+        // Chrome only supports numbers and dots in the version number.
+        to: `"version": "<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
         results: [
           {
             file: 'dist/manifest.json',

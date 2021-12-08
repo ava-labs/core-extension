@@ -14,6 +14,7 @@ import {
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTheme } from 'styled-components';
 import * as bip39 from 'bip39';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
 interface ImportProps {
   onCancel(): void;
@@ -22,7 +23,7 @@ interface ImportProps {
 
 export const Import = ({ onCancel, onBack }: ImportProps) => {
   const theme = useTheme();
-  const { setMnemonic } = useOnboardingContext();
+  const { setMnemonic, setNextPhase } = useOnboardingContext();
   const [recoveryPhrase, setRecoveryPhrase] = useState('');
   const [error, setError] = useState('');
 
@@ -83,10 +84,12 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           size={ComponentSize.LARGE}
           disabled={nextButtonDisabled}
           onClick={async () => {
-            setMnemonic(recoveryPhrase);
+            setMnemonic(recoveryPhrase).then(() =>
+              setNextPhase(OnboardingPhase.PASSWORD)
+            );
           }}
         >
-          Enter
+          Next
         </PrimaryButton>
       </VerticalFlex>
     </VerticalFlex>
