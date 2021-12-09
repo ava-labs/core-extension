@@ -31,7 +31,7 @@
     "default_title": "Avalanche Wallet",
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "unlimitedStorage", "activeTab", "notifications"],
+  "permissions": ["storage", "unlimitedStorage", "activeTab"],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
@@ -41,14 +41,10 @@
     }
   ],
   "web_accessible_resources": [
-    "phishing.html",
     "popup.html",
     "home.html",
     "confirm.html",
     "inpage.js"
   ],
-  "externally_connectable": {
-    "matches": ["https://google.com/*"],
-    "ids": ["*"]
-  }
+  "externally_connectable": {}
 }
