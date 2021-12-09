@@ -31,17 +31,7 @@
     "default_title": "Avalanche Wallet",
     "default_popup": "popup.html"
   },
-  "permissions": [
-    "storage",
-    "unlimitedStorage",
-    "clipboardWrite",
-    "activeTab",
-    "webRequest",
-    "notifications",
-    "http://localhost/",
-    "http://*/*",
-    "https://*/*"
-  ],
+  "permissions": ["storage", "unlimitedStorage", "activeTab", "notifications"],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
