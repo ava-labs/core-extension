@@ -9,7 +9,7 @@ import { Card, HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { Logo } from '@src/components/icons/Logo';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 
-const ECOSYSTEM_URL = 'https://ecosystem.avax.network';
+const ECOSYSTEM_URL = 'https://ecosystem.avax.network?wallet-installed';
 
 export function OnboardingFlow() {
   const { onboardingPhase, onboardingState, setNextPhase, setFinalized } =
