@@ -32,6 +32,9 @@ export function OnboardingFlow() {
   useEffect(() => {
     if (onboardingState.isOnBoarded) {
       window.location.href = ECOSYSTEM_URL;
+    } else if (onboardingState.reImportMnemonic) {
+      setIsImportFlow(true);
+      setNextPhase(OnboardingPhase.IMPORT_WALLET);
     }
   }, []);
 

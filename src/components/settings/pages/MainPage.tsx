@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  AvaxTokenIcon,
   CaretIcon,
   ConnectionIndicator,
   DropDownMenuItem,
@@ -151,7 +150,7 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
         align="center"
         padding="0 16px 75px"
       >
-        <SecondaryButton width="100%" onClick={() => lockWallet()}>
+        <SecondaryButton width="100%" onClick={lockWallet}>
           <LockIcon color={theme.colors.icon1} height="20px" />
           <Typography margin="0 0 0 6px" weight={600}>
             Lock wallet

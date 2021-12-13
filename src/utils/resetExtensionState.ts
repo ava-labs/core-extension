@@ -5,12 +5,13 @@ import { removeAllTranscationsFromStorage } from '@src/background/services/trans
 import { removeWalletFromStorage } from '@src/background/services/wallet/storage';
 import browser from 'extensionizer';
 
-export function resetExtensionState() {
+// openOnboarding true will open the onboarding flow after the extension was reset
+export function resetExtensionState(openOnboarding?: boolean) {
   return Promise.all([
     removeAllTranscationsFromStorage(),
     removeWalletFromStorage(),
     removeAllPermissionsFromStorage(),
-    removeOnboardingFromStorage(),
+    removeOnboardingFromStorage(openOnboarding),
     removeAllAccountsFromStorage(),
   ]).then(() => browser.runtime.reload());
 }
