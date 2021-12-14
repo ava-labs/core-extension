@@ -14,7 +14,7 @@ import { Account } from '@src/background/services/accounts/models';
 const AccountsContext = createContext<{
   accounts: Account[];
   activeAccount?: Account;
-  selectAccount(index: number): void;
+  selectAccount(index: number): Promise<any>;
   renameAccount(index: number, name: string): void;
   addAccount(): void;
 }>({} as any);

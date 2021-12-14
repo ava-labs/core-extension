@@ -19,8 +19,11 @@ import { Runtime } from 'webextension-polyfill-ts';
  *
  */
 export function providerEventsController(connection: Runtime.Port) {
+  const connectionDomain =
+    connection.sender?.url && new URL(connection.sender?.url || '').hostname;
+
   return merge(
-    accountsChangedEvents(),
+    accountsChangedEvents(connectionDomain),
     chainChangedEvents(),
     unlockStateChangedEvents()
   ).pipe(
