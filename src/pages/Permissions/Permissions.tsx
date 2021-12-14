@@ -47,7 +47,7 @@ export function PermissionsPage() {
   const domainIcon = params.get('domainIcon') as string;
   const { permissions, updateAccountPermission } = usePermissions(domain);
   const theme = useTheme();
-  const { accounts, activeAccount } = useAccountsContext();
+  const { accounts, activeAccount, selectAccount } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>(
     activeAccount || accounts[0]
   );
@@ -63,19 +63,15 @@ export function PermissionsPage() {
     }
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
+  const onApproveClicked = async () => {
+    await updateAccountPermission(selectedAccount.addressC, true);
+    await selectAccount(selectedAccount.index);
+    window.close();
+  };
+
   if (!permissions) {
     return <LoadingIcon />;
   }
-
-  const selectAccount = (account: Account) => {
-    /**
-     * If permissions are already true for a address then we dont need to
-     * update again, also this isnt a toggle so we will ignore further requests
-     */
-    if (!permissions.accounts[account.addressC]) {
-      setSelectedAccount(account);
-    }
-  };
 
   return (
     <VerticalFlex
@@ -135,7 +131,7 @@ export function PermissionsPage() {
                 <SecondaryDropDownMenuItem
                   width="100%"
                   key={account.index}
-                  onClick={() => selectAccount(account) as any}
+                  onClick={() => setSelectedAccount(account)}
                   selected={account.index === selectedAccount.index}
                   ref={
                     selectedAccount.index === account.index
@@ -184,14 +180,7 @@ export function PermissionsPage() {
           <SecondaryButton onClick={() => window.close()} width="141px">
             Reject
           </SecondaryButton>
-          <PrimaryButton
-            onClick={() => {
-              updateAccountPermission(selectedAccount.addressC, true).then(() =>
-                window.close()
-              );
-            }}
-            width="141px"
-          >
+          <PrimaryButton onClick={() => onApproveClicked()} width="141px">
             Approve
           </PrimaryButton>
         </HorizontalFlex>
