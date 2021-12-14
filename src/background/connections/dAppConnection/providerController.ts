@@ -58,7 +58,9 @@ export function providerConnectionHandlers(connection: Runtime.Port) {
    * Domain is per connection so this needs to remain an closure to the connection
    */
   const domain = new BehaviorSubject<DomainMetadata>({
-    domain: 'unknown',
+    domain: connection.sender?.url
+      ? new URL(connection.sender?.url || '').hostname
+      : 'unknown',
   });
   return async (request: ExtensionConnectionMessage) => {
     const { data } = request;
