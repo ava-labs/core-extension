@@ -5,7 +5,6 @@ const App = React.lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup');
 });
 import { HashRouter as Router } from 'react-router-dom';
-import '@src/i18n';
 import {
   LoadingIcon,
   ThemeContextProvider,
