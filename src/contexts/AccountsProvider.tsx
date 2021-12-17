@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,7 +15,7 @@ import { Account } from '@src/background/services/accounts/models';
 const AccountsContext = createContext<{
   accounts: Account[];
   activeAccount?: Account;
-  selectAccount(index: number): void;
+  selectAccount(index: number): Promise<any>;
   renameAccount(index: number, name: string): void;
   addAccount(): void;
 }>({} as any);
@@ -44,32 +45,47 @@ export function AccountsContextProvider({ children }: { children: any }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [request]);
+  }, [events, request]);
 
   const activeAccount = useMemo(() => {
     return accounts.find((a) => a.active);
   }, [accounts]);
+
+  const selectAccount = useCallback(
+    (index: number) =>
+      request({
+        method: ExtensionRequest.ACCOUNT_SELECT,
+        params: [index],
+      }),
+    [request]
+  );
+
+  const renameAccount = useCallback(
+    (index: number, name: string) =>
+      request({
+        method: ExtensionRequest.ACCOUNT_RENAME,
+        params: [index, name],
+      }),
+    [request]
+  );
+
+  const addAccount = useCallback(
+    () =>
+      request({
+        method: ExtensionRequest.ACCOUNT_ADD,
+        params: [],
+      }),
+    [request]
+  );
 
   return (
     <AccountsContext.Provider
       value={{
         accounts,
         activeAccount,
-        selectAccount: (index: number) =>
-          request({
-            method: ExtensionRequest.ACCOUNT_SELECT,
-            params: [index],
-          }),
-        renameAccount: (index: number, name: string) =>
-          request({
-            method: ExtensionRequest.ACCOUNT_RENAME,
-            params: [index, name],
-          }),
-        addAccount: () =>
-          request({
-            method: ExtensionRequest.ACCOUNT_ADD,
-            params: [],
-          }),
+        selectAccount,
+        renameAccount,
+        addAccount,
       }}
     >
       {children}

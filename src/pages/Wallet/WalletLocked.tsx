@@ -1,5 +1,6 @@
 import {
   ComponentSize,
+  HorizontalSeparator,
   Input,
   PrimaryButton,
   TextButton,
@@ -25,13 +26,13 @@ export function WalletLocked({
 
   const onImportClick = () => {
     showDialog({
-      title: 'Have you recorded your recovery phrase?',
-      body: 'Without it you will not be able to sign back in to your account.',
+      title: 'Have you written down your recovery phrase?',
+      body: 'Pressing yes will terminate this session, without your phrase you will not be able to access the current wallet',
       confirmText: 'Yes',
       width: '343px',
       onConfirm: () => {
         clearDialog();
-        resetExtensionState();
+        resetExtensionState(true);
       },
       cancelText: 'No',
       onCancel: () => {
@@ -54,7 +55,7 @@ export function WalletLocked({
 
   return (
     <VerticalFlex
-      padding="32px 16px"
+      padding="32px 16px 36px"
       align={'center'}
       justify={'center'}
       {...dimensions}
@@ -86,15 +87,14 @@ export function WalletLocked({
       <PrimaryButton
         size={ComponentSize.LARGE}
         width="100%"
-        margin="0 0 24px 0"
         disabled={!password || loggingIn}
         onClick={handleSubmit}
       >
         Login
       </PrimaryButton>
-
+      <HorizontalSeparator margin="24px 0" />
       <TextButton onClick={() => onImportClick()}>
-        or login with your recovery phrase
+        Import a wallet using recovery phrase
       </TextButton>
     </VerticalFlex>
   );

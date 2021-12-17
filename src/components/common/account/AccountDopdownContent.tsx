@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Card,
   CheckmarkIcon,
@@ -24,6 +24,7 @@ import {
 } from '@src/hooks/useIsSpecificContextContainer';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
+import { exhaustMap, from, Subject, tap } from 'rxjs';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
@@ -53,9 +54,34 @@ export function AccountDropdownContent({
   const theme = useTheme();
   const { currency, currencyFormatter } = useSettingsContext();
   const balanceTotalUSD = useBalanceTotalInCurrency();
-  const { addresses, isBalanceLoading, isWalletReady } = useWalletContext();
+  const { addresses } = useWalletContext();
   const scrollbarsRef = useRef<Scrollbars>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
+  const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
+    null
+  );
+
+  const selectAccountSubject$ = useMemo(() => {
+    return new Subject<number>();
+  }, []);
+
+  useEffect(() => {
+    const subscription = selectAccountSubject$
+      .pipe(
+        tap((index) => {
+          setAccountIndexLoading(index);
+        }),
+        exhaustMap((index) => from(selectAccount(index))),
+        tap(() => {
+          setAccountIndexLoading(null);
+        })
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [selectAccount, selectAccountSubject$]);
 
   useEffect(() => {
     if (!scrollbarsRef || !selectedAccountRef || !accounts) {
@@ -96,72 +122,88 @@ export function AccountDropdownContent({
         style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
         ref={scrollbarsRef}
       >
-        {accounts.map((account, i) => (
-          <DropDownMenuItem
-            key={i}
-            padding="0 16px"
-            direction="column"
-            onClick={() => selectAccount(account.index)}
-            ref={account.active ? selectedAccountRef : undefined}
-          >
-            {i > 0 && account.active && <HorizontalSeparator margin="0" />}
-            <VerticalFlex width="100%" padding="16px 0">
-              <HorizontalFlex
-                width="100%"
-                justify="space-between"
-                align="center"
-              >
-                <VerticalFlex>
-                  <EditableAccountName
-                    name={account.name}
-                    enabled={account.active}
-                    onSave={(name) => {
-                      renameAccount(account.index, name);
-                    }}
-                  />
-                  {account.active && !isBalanceLoading && isWalletReady && (
-                    <Typography
-                      size={14}
-                      height="17px"
-                      margin="8px 0 0"
-                      color={theme.colors.text2}
-                    >
-                      ~{currencyFormatter(balanceTotalUSD)} {currency}
-                    </Typography>
+        {accounts.map((account, i) => {
+          const isCardOpen =
+            accountIndexLoading === account.index ||
+            (!accountIndexLoading && account.active);
+          // sometimes it takes a couple seconds so get the `addresses` update from the background script
+          // so we have to keep the loading indicator up to prevent showing the previous account's addresses
+          const isAccountLoading =
+            accountIndexLoading === account.index ||
+            (account.active && account.addressC !== addresses.addrC);
+
+          return (
+            <DropDownMenuItem
+              key={i}
+              padding="0 16px"
+              direction="column"
+              onClick={() => selectAccountSubject$.next(account.index)}
+              ref={account.active ? selectedAccountRef : undefined}
+            >
+              {i > 0 && account.active && <HorizontalSeparator margin="0" />}
+              <VerticalFlex width="100%" padding="16px 0">
+                <HorizontalFlex
+                  width="100%"
+                  justify="space-between"
+                  align="center"
+                >
+                  <VerticalFlex>
+                    <EditableAccountName
+                      name={account.name}
+                      enabled={isCardOpen}
+                      onSave={(name) => {
+                        renameAccount(account.index, name);
+                      }}
+                    />
+                    {isCardOpen && (
+                      <Typography
+                        size={14}
+                        height="17px"
+                        margin="8px 0 0"
+                        color={theme.colors.text2}
+                      >
+                        {!isAccountLoading &&
+                          `~${currencyFormatter(balanceTotalUSD)} ${currency}`}
+                      </Typography>
+                    )}
+                  </VerticalFlex>
+                  {isCardOpen && (
+                    <StyledCheckmarkIcon
+                      height="16px"
+                      color={theme.colors.icon1}
+                    />
                   )}
-                </VerticalFlex>
-                {account.active && (
-                  <StyledCheckmarkIcon
-                    height="16px"
-                    color={theme.colors.icon1}
-                  />
+                </HorizontalFlex>
+                {isAccountLoading ? (
+                  <VerticalFlex
+                    padding="8px 0px"
+                    height="139px"
+                    justify="center"
+                  >
+                    <LoadingSpinnerIcon
+                      color={theme.colors.primary1}
+                      height="26px"
+                    />
+                  </VerticalFlex>
+                ) : (
+                  <AddressContainer selected={isCardOpen}>
+                    <StyledPrimaryAddress
+                      name="C chain"
+                      address={addresses.addrC}
+                    />
+                    <StyledPrimaryAddress
+                      name="X chain"
+                      address={addresses.addrX}
+                    />
+                  </AddressContainer>
                 )}
-              </HorizontalFlex>
-              {account.active && (isBalanceLoading || !isWalletReady) ? (
-                <VerticalFlex padding="8px 0px" height="139px" justify="center">
-                  <LoadingSpinnerIcon
-                    color={theme.colors.primary1}
-                    height="26px"
-                  />
-                </VerticalFlex>
-              ) : (
-                <AddressContainer selected={account.active}>
-                  <StyledPrimaryAddress
-                    name="C chain"
-                    address={addresses.addrC}
-                  />
-                  <StyledPrimaryAddress
-                    name="X chain"
-                    address={addresses.addrX}
-                  />
-                </AddressContainer>
+              </VerticalFlex>
+              {i < accounts.length - 1 && isCardOpen && (
+                <HorizontalSeparator margin="0" />
               )}
-            </VerticalFlex>
-            {i < accounts.length - 1 && account.active && (
-              <HorizontalSeparator margin="0" />
-            )}
-          </DropDownMenuItem>
-        ))}
+            </DropDownMenuItem>
+          );
+        })}
       </Scrollbars>
       <HorizontalFlex padding="16px 16px 8px">
         <SecondaryButton width="100%" onClick={() => addAccount()}>

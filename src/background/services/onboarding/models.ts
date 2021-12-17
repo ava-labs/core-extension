@@ -1,5 +1,6 @@
 export interface OnboardingState {
   isOnBoarded: boolean;
+  reImportMnemonic?: boolean;
 }
 
 export enum OnboardingPhase {

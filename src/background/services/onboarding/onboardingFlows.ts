@@ -1,18 +1,31 @@
+import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { formatAndLog, toLogger } from '@src/utils/logging';
 import { combineLatest, EMPTY, BehaviorSubject } from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';
+import { browser } from 'webextension-polyfill-ts';
 import { initialAccountName$ } from '../accounts/accounts';
 import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
 import { OnboardingPhase, OnboardingState } from './models';
-import { getOnboardingFromStorage, saveOnboardingToStorage } from './storage';
+import {
+  getOnboardingFromStorage,
+  saveOnboardingToStorage,
+  saveReImportStateToStorage,
+} from './storage';
 
 export const onboardingStatus$ = new BehaviorSubject<
   OnboardingState | undefined
 >(undefined);
 
-getOnboardingFromStorage().then((onboarding) =>
-  onboardingStatus$.next(onboarding)
-);
+getOnboardingFromStorage().then((onboarding) => {
+  if (onboarding.reImportMnemonic) {
+    // Reopen onboarding flow after the the user hit the "forgot password flow"
+    // Need to open the page here since the extension gets reset after
+    // wiping it's storage as the first step to ensure a clean state.
+    browser.tabs.create({ url: ContextContainer.HOME });
+    saveReImportStateToStorage(false);
+  }
+  onboardingStatus$.next(onboarding);
+});
 
 export const onboardingMnemonic$ = new BehaviorSubject<string>('');
 export const onboardingPassword$ = new BehaviorSubject<string>('');

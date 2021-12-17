@@ -1,24 +1,36 @@
 import {
   getFromStorage,
-  removeFromStorage,
   saveToStorage,
 } from '@src/utils/storage/chrome-storage';
 import { OnboardingState } from './models';
 
 export const ONBOARDING_STORAGE_KEY = 'onboarding';
+
+const defaultState = { isOnBoarded: false, reImportMnemonic: false };
+
 export async function getOnboardingFromStorage() {
   const store = await getFromStorage(ONBOARDING_STORAGE_KEY);
   return (
     store && store[ONBOARDING_STORAGE_KEY]
       ? store[ONBOARDING_STORAGE_KEY]
-      : { isOnBoarded: false }
+      : defaultState
   ) as OnboardingState;
 }
 
 export async function saveOnboardingToStorage(isOnBoarded: boolean) {
-  return saveToStorage({ [ONBOARDING_STORAGE_KEY]: { isOnBoarded } });
+  const state = await getOnboardingFromStorage();
+  await saveToStorage({ [ONBOARDING_STORAGE_KEY]: { ...state, isOnBoarded } });
 }
 
-export function removeOnboardingFromStorage() {
-  return removeFromStorage(ONBOARDING_STORAGE_KEY);
+export async function saveReImportStateToStorage(reImportMnemonic: boolean) {
+  const state = await getOnboardingFromStorage();
+  await saveToStorage({
+    [ONBOARDING_STORAGE_KEY]: { ...state, reImportMnemonic },
+  });
+}
+
+export function removeOnboardingFromStorage(reImportMnemonic?: boolean) {
+  return saveToStorage({
+    [ONBOARDING_STORAGE_KEY]: { ...defaultState, reImportMnemonic },
+  });
 }
