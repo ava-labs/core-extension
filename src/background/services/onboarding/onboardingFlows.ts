@@ -1,4 +1,5 @@
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
+import isDevelopment from '@src/utils/isDevelopment';
 import { formatAndLog, toLogger } from '@src/utils/logging';
 import { combineLatest, EMPTY, BehaviorSubject } from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';
@@ -43,7 +44,8 @@ function resetStates() {
   onboardingCurrentPhase$.next(undefined);
 }
 
-const showLogs = true;
+// Make sure logs are disabled for production releases to prevent logging sensitive information
+const showLogs = isDevelopment();
 /**
  * After they choose what type of wallet they want to setup
  * we cancel the last flow and start listening to the new one

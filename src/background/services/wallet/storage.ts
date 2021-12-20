@@ -6,7 +6,8 @@ import {
   saveToStorage,
 } from '@src/utils/storage/chrome-storage';
 const WALLET_STORAGE_KEY = 'wallet';
-const WALLET_DERIVE_KEY_SALT = 'wallet_salt';
+const WALLET_DERIVE_KEY_SALT =
+  'C&YM&IHy41!NtaLwUL3NDXZU1KyDkLG0OfWY9U!z1roixz8T*wxwG*YoM2XsYels2';
 
 /**
  * Derives a CryptoKey from the password based

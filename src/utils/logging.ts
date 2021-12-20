@@ -1,5 +1,6 @@
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { Observable, tap } from 'rxjs';
+import isDevelopment from './isDevelopment';
 export const repeat = (str, times) => new Array(times + 1).join(str);
 
 export const padStart = (num, maxLength, char = ' ') =>
@@ -82,6 +83,11 @@ export function eventLog(message: string, data?: any) {
 }
 
 export function stateLog(data?: any) {
+  // prevent logging sensitive information such as mnemonic or wallet object in production
+  if (!isDevelopment()) {
+    return;
+  }
+
   data.walletState.locked
     ? formatAndLog(`📚 Background State (Locked)`, data, { color: '#E346C5' })
     : formatAndLog(`📚 Background State`, data, { color: '#E346C5' });

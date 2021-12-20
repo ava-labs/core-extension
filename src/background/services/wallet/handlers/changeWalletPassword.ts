@@ -37,6 +37,13 @@ export async function changeWalletPassword(
     };
   }
 
+  if (oldPassword === newPassword) {
+    return {
+      ...request,
+      error: 'New password is the same as the old',
+    };
+  }
+
   await saveMnemonicToStorage(decryptedMnemonic, newPassword);
 
   restartWalletLock$.next(true);
