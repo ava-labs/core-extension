@@ -19,7 +19,7 @@ export function WalletHomeSend() {
   const { events } = useConnectionContext();
   const setTokenInParams = useSetTokenInParams();
   const tokensWBalances = useTokensWithBalances();
-  const selectedToken = useTokenFromParams(tokensWBalances);
+  const selectedToken = useTokenFromParams();
 
   const onSelect = (token: TokenWithBalance) => {
     if (isERC20Token(token)) {

@@ -30,7 +30,6 @@ export function TokenFlowMiniMode() {
   const { currency, currencyFormatter } = useSettingsContext();
   const theme = useTheme();
   const token = useTokenFromParams();
-  console.log('token: ', token);
   const tokensWithBalances = useTokensWithBalances();
   const [showSend, setShowSend] = useState<boolean>();
 
@@ -90,11 +89,6 @@ export function TokenFlowMiniMode() {
                 Receive
               </Typography>
             </Tab>
-            {/* <Tab>
-              <Typography weight={600} color={'inherit'}>
-                Activity
-              </Typography>
-            </Tab> */}
           </TabList>
 
           <TabPanel grow="1">
@@ -110,7 +104,6 @@ export function TokenFlowMiniMode() {
               />
             </VerticalFlex>
           </TabPanel>
-          {/* <TabPanel>activities</TabPanel> */}
         </Tabs>
       </VerticalFlex>
     </VerticalFlex>

@@ -18,7 +18,6 @@ import { useSend } from '../hooks/useSend';
 import { TransactionFeeTooltip } from './TransactionFeeTooltip';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { debounceTime, Subject } from 'rxjs';
 
@@ -32,8 +31,7 @@ const AddressInput = styled(TextArea)`
 
 export function SendForm({ sendState }: SendFormProps) {
   const { currencyFormatter } = useSettingsContext();
-  const tokensWBalances = useTokensWithBalances();
-  const selectedToken = useTokenFromParams(tokensWBalances);
+  const selectedToken = useTokenFromParams();
   const [amountInput, setAmountInput] = useState<BN>();
   const [addressInput, setAddressInput] = useState('');
   const [amountDisplayValue, setAmountDisplayValue] = useState('');
