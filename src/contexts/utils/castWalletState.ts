@@ -7,6 +7,10 @@ export function recastWalletState(state: WalletState) {
   return {
     ...state,
     ...{
+      recentTxHistory: state.recentTxHistory.map((tx) => ({
+        ...tx,
+        timestamp: new Date(tx.timestamp),
+      })),
       balances: {
         ...values,
         /**

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import { useEffect } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
@@ -12,7 +12,6 @@ import { walletUpdatedEventListener } from '@src/background/services/wallet/even
 import { ExtensionRequest } from '@src/background/connections/models';
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
-import { chunkHistoryByDate } from './utils/chunkWalletHistory';
 
 type WalletStateAndMethods = WalletState & {
   changeWalletPassword(
@@ -20,7 +19,6 @@ type WalletStateAndMethods = WalletState & {
     oldPassword: string
   ): Promise<boolean>;
   getUnencryptedMnemonic(password: string): Promise<string>;
-  chunkedHistoryByDate: ReturnType<typeof chunkHistoryByDate>;
 };
 const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
@@ -54,41 +52,37 @@ export function WalletContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe(setWalletStateAndCast);
-  }, []);
+  }, [events, request]);
 
-  const chunkedHistoryByDate = useMemo(() => {
-    return chunkHistoryByDate(
-      (walletState as WalletState)?.recentTxHistory || []
-    );
-  }, [
-    (walletState as WalletState)?.recentTxHistory?.length,
-    /**
-     * Watching hours, when the hour changes we rechunk and show new dates
-     * this is an edge case we shouldnt run into often
-     */
-    new Date().getHours(),
-  ]);
+  const unlockWallet = useCallback(
+    (password: string) => {
+      return request({
+        method: ExtensionRequest.WALLET_UNLOCK_STATE,
+        params: [password],
+      });
+    },
+    [request]
+  );
 
-  function unlockWallet(password: string) {
-    return request!({
-      method: ExtensionRequest.WALLET_UNLOCK_STATE,
-      params: [password],
-    });
-  }
+  const changeWalletPassword = useCallback(
+    (newPassword: string, oldPassword: string) => {
+      return request({
+        method: ExtensionRequest.WALLET_CHANGE_PASSWORD,
+        params: [newPassword, oldPassword],
+      });
+    },
+    [request]
+  );
 
-  function changeWalletPassword(newPassword: string, oldPassword: string) {
-    return request!({
-      method: ExtensionRequest.WALLET_CHANGE_PASSWORD,
-      params: [newPassword, oldPassword],
-    });
-  }
-
-  function getUnencryptedMnemonic(password: string) {
-    return request!({
-      method: ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,
-      params: [password],
-    });
-  }
+  const getUnencryptedMnemonic = useCallback(
+    (password: string) => {
+      return request({
+        method: ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,
+        params: [password],
+      });
+    },
+    [request]
+  );
 
   if (!walletState) {
     return <LoadingIcon />;
@@ -104,7 +98,6 @@ export function WalletContextProvider({ children }: { children: any }) {
         ...walletState,
         changeWalletPassword,
         getUnencryptedMnemonic,
-        chunkedHistoryByDate,
       }}
     >
       {children}
