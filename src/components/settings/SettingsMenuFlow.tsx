@@ -15,6 +15,7 @@ import {
 import { SettingsMenuMiniMode } from './SettingsMenu.minimode';
 import { SettingsMenu } from './SettingsMenu';
 import { Network } from './pages/Network';
+import { ContactList } from './pages/ContactList';
 import { Advanced } from './pages/Advanced';
 
 const AnimatedContainer = styled(VerticalFlex)`
@@ -107,6 +108,9 @@ export function SettingsMenuFlow() {
   switch (currentPage) {
     case SettingsPages.CURRENCIES:
       pageElement = <Currencies {...pageProps} />;
+      break;
+    case SettingsPages.CONTACT_LIST:
+      pageElement = <ContactList {...pageProps} />;
       break;
     case SettingsPages.SECURITY_AND_PRIVACY:
       pageElement = <SecurityAndPrivacy {...pageProps} />;
