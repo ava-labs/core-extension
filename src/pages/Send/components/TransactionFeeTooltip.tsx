@@ -54,7 +54,7 @@ export function TransactionFeeTooltip({
   );
 
   return (
-    <StyledTooltip content={Content} coords={{ top: '24px', right: '0px' }}>
+    <StyledTooltip content={Content}>
       <InfoIcon height="16px" color={theme.colors.text2} />
     </StyledTooltip>
   );
