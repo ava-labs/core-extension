@@ -8,9 +8,11 @@ import {
   TextButton,
   toast,
   TrashIcon,
+  Input,
   Typography,
   VerticalFlex,
   HorizontalFlex,
+  ComponentSize,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
@@ -27,7 +29,7 @@ const AddressBlock = styled(HorizontalFlex)`
   padding: 8px 12px;
   margin: 0px 12px;
   border: solid 1px ${({ theme }) => theme.colors.stroke1};
-  width: 100%;
+  //width: 100%;
 
   & > ${Typography} {
     word-break: break-all;
@@ -36,7 +38,8 @@ const AddressBlock = styled(HorizontalFlex)`
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { contacts } = useContactsContext();
+  const { contacts, deleteContact } = useContactsContext();
+  const [addressBeingEdited, setAddressBeingEdited] = useState<string>();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   console.log('---');
@@ -77,9 +80,6 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
             key={c.address}
             justify="space-between"
             align="center"
-            onClick={() => {
-              //updateCurrencySetting(c.symbol);
-            }}
           >
             <Typography>{c.name}</Typography>
 
@@ -89,7 +89,9 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
                 toast.success('Copied!');
               }}
             >
-              <Typography>{truncateAddress(c.address, 5)}</Typography>
+              <Typography margin="0px 8px 0px 0px">
+                {truncateAddress(c.address, 5)}
+              </Typography>
               <CopyIcon height="16px" color={theme.colors.icon1} />
             </AddressBlock>
 
@@ -98,7 +100,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
                 <PencilIcon height="16px" color={theme.colors.icon1} />
               </TextButton>
 
-              <TextButton onClick={undefined}>
+              <TextButton onClick={() => deleteContact(c.address)}>
                 <TrashIcon height="16px" color={theme.colors.icon1} />
               </TextButton>
             </HorizontalFlex>
