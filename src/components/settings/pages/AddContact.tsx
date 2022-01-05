@@ -11,11 +11,15 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
 import { Contact, useContactsContext } from '@src/contexts/ContactsProvider';
+import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 
 export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
   const [contact, setContact] = useState<Contact>({ name: '', address: '' });
   const theme = useTheme();
   const { addContact } = useContactsContext();
+  const isValidAddress =
+    AddressHelper.validateAddress(contact.address) &&
+    AddressHelper.getAddressChain(contact.address) === 'C';
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -51,6 +55,8 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             }}
             value={contact.address}
             label="0x Address"
+            error={!isValidAddress && contact.address.length > 0}
+            errorMessage="Not a valid 0x address"
             placeholder="0x Address"
             width="100%"
           />
@@ -67,7 +73,9 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             }}
             margin="0 0 24px"
             disabled={
-              contact.name?.length === 0 || contact.address?.length === 0
+              contact.name?.length === 0 ||
+              contact.address?.length === 0 ||
+              !isValidAddress
             }
           >
             Add Contact

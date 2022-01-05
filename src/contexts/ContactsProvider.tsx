@@ -24,7 +24,10 @@ type ContactsProvider = {
 const ContactsContext = createContext<ContactsProvider>({} as any);
 
 export function ContactsContextProvider({ children }) {
-  const [editedContact, setEditedContact] = useState<Contact>({});
+  const [editedContact, setEditedContact] = useState<Contact>({
+    name: '',
+    address: '',
+  });
   const [contacts, setContacts] = useState<Contact[]>([
     {
       name: 'Mike',
