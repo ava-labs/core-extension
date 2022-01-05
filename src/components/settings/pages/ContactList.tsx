@@ -65,9 +65,14 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Contact List'}
         action={
-          <TextButton margin="0 4px 0 0" onClick={undefined}>
-            <PlusIcon height="20px" color={theme.colors.text1} />
-          </TextButton>
+          <Tooltip content={<Typography size={14}>Add New Contact</Typography>}>
+            <TextButton
+              margin="0 4px 0 0"
+              onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}
+            >
+              <PlusIcon height="20px" color={theme.colors.text1} />
+            </TextButton>
+          </Tooltip>
         }
       />
       <VerticalFlex padding="16px">

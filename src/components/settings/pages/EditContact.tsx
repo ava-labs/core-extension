@@ -57,7 +57,6 @@ export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
             label="Name"
             placeholder="Name"
             type="text"
-            //error={!!error}
             width="100%"
           />
 

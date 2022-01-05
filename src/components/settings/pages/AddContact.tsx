@@ -1,39 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  CopyIcon,
   toast,
-  Typography,
   VerticalFlex,
-  HorizontalFlex,
   Input,
   PrimaryButton,
   ComponentSize,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
-
-const AddressBlock = styled(HorizontalFlex)`
-  border-radius: ${({ theme }) => theme.borderRadius};
-  cursor: pointer;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  margin: 6px 0px 0px 0px;
-  border: solid 1px ${({ theme }) => theme.colors.stroke1};
-  width: 100%;
-
-  & > ${Typography} {
-    word-break: break-all;
-  }
-`;
+import { Contact, useContactsContext } from '@src/contexts/ContactsProvider';
 
 export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
+  const [contact, setContact] = useState<Contact>({ name: '', address: '' });
   const theme = useTheme();
-  const { editedContact, setEditedContact, updateContact } =
-    useContactsContext();
+  const { addContact } = useContactsContext();
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -48,33 +30,30 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
           <Input
             autoFocus
             onChange={(e) => {
-              setEditedContact({
-                ...editedContact,
+              setContact({
+                ...contact,
                 name: e.target.value,
               });
             }}
-            value={editedContact.name}
+            value={contact.name}
             label="Name"
             placeholder="Name"
-            type="text"
-            //error={!!error}
             width="100%"
           />
 
-          <Typography color="text2" size={14} margin="16px 0px 0px 0px">
-            Address
-          </Typography>
-          <AddressBlock
-            onClick={() => {
-              navigator.clipboard.writeText(editedContact.address);
-              toast.success('Copied!');
+          <Input
+            margin="16px 0px 0px 0px"
+            onChange={(e) => {
+              setContact({
+                ...contact,
+                address: e.target.value,
+              });
             }}
-          >
-            <Typography margin="0px 8px 0px 0px">
-              {editedContact.address}
-            </Typography>
-            <CopyIcon color={theme.colors.icon1} />
-          </AddressBlock>
+            value={contact.address}
+            label="0x Address"
+            placeholder="0x Address"
+            width="100%"
+          />
         </VerticalFlex>
 
         <VerticalFlex align="center" grow="1" justify="flex-end" margin="16px">
@@ -82,14 +61,16 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             width="100%"
             size={ComponentSize.LARGE}
             onClick={() => {
-              updateContact();
-              toast.success('Contact updated!');
+              addContact(contact);
+              toast.success('Contact created!');
               goBack();
             }}
             margin="0 0 24px"
-            disabled={editedContact.name.length === 0}
+            disabled={
+              contact.name?.length === 0 || contact.address?.length === 0
+            }
           >
-            Update
+            Add Contact
           </PrimaryButton>
         </VerticalFlex>
       </Scrollbars>

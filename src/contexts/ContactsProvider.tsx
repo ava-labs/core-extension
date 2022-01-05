@@ -6,20 +6,26 @@ import React, {
   useState,
 } from 'react';
 
+export type Contact = {
+  name: string;
+  address: string;
+};
+
 type ContactsProvider = {
-  contacts: any;
-  setContacts: Dispatch<SetStateAction<any>>;
+  contacts: Contact[];
+  setContacts: Dispatch<SetStateAction<Contact[]>>;
   deleteContact: (contactAddress: string) => void;
-  editedContact: any;
-  setEditedContact: any;
-  updateContact: any;
+  editedContact: Contact;
+  setEditedContact: Dispatch<SetStateAction<Contact>>;
+  updateContact: () => void;
+  addContact: (contact: Contact) => void;
 };
 
 const ContactsContext = createContext<ContactsProvider>({} as any);
 
 export function ContactsContextProvider({ children }) {
-  const [editedContact, setEditedContact] = useState<any>();
-  const [contacts, setContacts] = useState<any>([
+  const [editedContact, setEditedContact] = useState<Contact>({});
+  const [contacts, setContacts] = useState<Contact[]>([
     {
       name: 'Mike',
       address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF67',
@@ -33,6 +39,10 @@ export function ContactsContextProvider({ children }) {
       address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF69',
     },
   ]);
+
+  function addContact(contact): void {
+    setContacts([...contacts, contact]);
+  }
 
   function updateContact(): void {
     const contactsCopy = [...contacts];
@@ -54,6 +64,7 @@ export function ContactsContextProvider({ children }) {
   return (
     <ContactsContext.Provider
       value={{
+        addContact,
         contacts,
         setContacts,
         deleteContact,
