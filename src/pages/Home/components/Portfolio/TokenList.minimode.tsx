@@ -43,14 +43,14 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
           .includes(searchQuery.toLowerCase()));
 
     return { tokens, showAvax };
-  }, [tokensWithBalances, searchQuery]);
+  }, [searchQuery, tokensWithBalances, AVAX_TOKEN]);
 
   if (!tokens.length && !showAvax) {
     return <NoTokenFound />;
   }
 
   return (
-    <VerticalFlex grow="1" padding={searchQuery ? '43px 0 0 0' : '0'}>
+    <VerticalFlex grow="1">
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0px 16px 73px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (
