@@ -42,7 +42,7 @@
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
     "bestzip": "^2.2.0",
-    "css-loader": "^5.2.4",
+    "css-loader": "^6.5.1",
     "cypress": "^7.1.0",
     "eslint": "^7.24.0",
     "eslint-config-prettier": "^8.2.0",
@@ -68,8 +68,8 @@
   },
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "0.11.3",
+    "@avalabs/react-components": "1.57.0",
     "@avalabs/wallet-react-components": "1.16.0",
-    "@avalabs/react-components": "1.53.2",
     "@babel/runtime": "^7.16.3",
     "@metamask/post-message-stream": "^4.0.0",
     "@metamask/providers": "^8.1.1",
