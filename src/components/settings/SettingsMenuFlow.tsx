@@ -15,6 +15,8 @@ import {
 import { SettingsMenuMiniMode } from './SettingsMenu.minimode';
 import { SettingsMenu } from './SettingsMenu';
 import { Network } from './pages/Network';
+import { EditContact } from './pages/EditContact';
+import { AddContact } from './pages/AddContact';
 import { ContactList } from './pages/ContactList';
 import { Advanced } from './pages/Advanced';
 
@@ -111,6 +113,12 @@ export function SettingsMenuFlow() {
       break;
     case SettingsPages.CONTACT_LIST:
       pageElement = <ContactList {...pageProps} />;
+      break;
+    case SettingsPages.ADD_CONTACT:
+      pageElement = <AddContact {...pageProps} />;
+      break;
+    case SettingsPages.EDIT_CONTACT:
+      pageElement = <EditContact {...pageProps} />;
       break;
     case SettingsPages.SECURITY_AND_PRIVACY:
       pageElement = <SecurityAndPrivacy {...pageProps} />;

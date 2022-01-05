@@ -8,14 +8,13 @@ import {
   TextButton,
   toast,
   TrashIcon,
-  Input,
   Typography,
   VerticalFlex,
   HorizontalFlex,
-  ComponentSize,
+  Tooltip,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import { SettingsPageProps } from '../models';
+import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
@@ -36,14 +35,18 @@ const AddressBlock = styled(HorizontalFlex)`
   }
 `;
 
+const MaxWidthTypography = styled(Typography)`
+  max-width: 68px;
+  overflow: hidden;
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { contacts, deleteContact } = useContactsContext();
-  const [addressBeingEdited, setAddressBeingEdited] = useState<string>();
+  const { contacts, deleteContact, setEditedContact } = useContactsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
-
-  console.log('---');
-  console.log(contacts);
 
   const filteredContacts = contacts
     .sort((a, b) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0)) // sort alphabetically
@@ -81,7 +84,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
             justify="space-between"
             align="center"
           >
-            <Typography>{c.name}</Typography>
+            <MaxWidthTypography title={c.name}>{c.name}</MaxWidthTypography>
 
             <AddressBlock
               onClick={() => {
@@ -89,20 +92,39 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
                 toast.success('Copied!');
               }}
             >
-              <Typography margin="0px 8px 0px 0px">
+              <Typography title={c.address} margin="0px 8px 0px 0px">
                 {truncateAddress(c.address, 5)}
               </Typography>
               <CopyIcon height="16px" color={theme.colors.icon1} />
             </AddressBlock>
 
             <HorizontalFlex>
-              <TextButton margin="0 8px 0 0" onClick={undefined}>
-                <PencilIcon height="16px" color={theme.colors.icon1} />
-              </TextButton>
+              <Tooltip
+                content={<Typography size={12}>Edit contact</Typography>}
+              >
+                <TextButton
+                  margin="0 8px 0 0"
+                  onClick={() => {
+                    setEditedContact(c);
+                    navigateTo(SettingsPages.EDIT_CONTACT);
+                  }}
+                >
+                  <PencilIcon height="16px" color={theme.colors.icon1} />
+                </TextButton>
+              </Tooltip>
 
-              <TextButton onClick={() => deleteContact(c.address)}>
-                <TrashIcon height="16px" color={theme.colors.icon1} />
-              </TextButton>
+              <Tooltip
+                content={<Typography size={12}>Remove contact</Typography>}
+              >
+                <TextButton
+                  onClick={() => {
+                    deleteContact(c.address);
+                    toast.success('Contact removed!');
+                  }}
+                >
+                  <TrashIcon height="16px" color={theme.colors.icon1} />
+                </TextButton>
+              </Tooltip>
             </HorizontalFlex>
           </DropDownMenuItem>
         ))}
