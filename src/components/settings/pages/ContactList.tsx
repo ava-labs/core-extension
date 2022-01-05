@@ -1,45 +1,55 @@
 import React, { useState } from 'react';
 import {
   PlusIcon,
-  CheckmarkIcon,
+  CopyIcon,
   PencilIcon,
   DropDownMenuItem,
   SearchInput,
   TextButton,
+  toast,
+  TrashIcon,
   Typography,
   VerticalFlex,
+  HorizontalFlex,
 } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { truncateAddress } from '@src/utils/truncateAddress';
+
+const AddressBlock = styled(HorizontalFlex)`
+  border-radius: ${({ theme }) => theme.borderRadius};
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin: 0px 12px;
+  border: solid 1px ${({ theme }) => theme.colors.stroke1};
+  width: 100%;
+
+  & > ${Typography} {
+    word-break: break-all;
+  }
+`;
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { updateCurrencySetting, currency } = useSettingsContext();
+  const { contacts } = useContactsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const filteredContacts = [
-    {
-      name: 'Mike',
-      address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF67',
-    },
-    {
-      name: 'Todd',
-      address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF67',
-    },
-    {
-      name: 'Julia',
-      address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF67',
-    },
-  ].filter(
-    (c) =>
-      !searchTerm ||
-      c.address.toLowerCase().includes(searchTerm) ||
-      c.name.toLowerCase().includes(searchTerm)
-  );
+  console.log('---');
+  console.log(contacts);
+
+  const filteredContacts = contacts
+    .sort((a, b) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0)) // sort alphabetically
+    .filter(
+      (c) =>
+        !searchTerm ||
+        c.address.toLowerCase().includes(searchTerm) ||
+        c.name.toLowerCase().includes(searchTerm)
+    );
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -73,12 +83,25 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
           >
             <Typography>{c.name}</Typography>
 
-            <Typography>{truncateAddress(c.address, 5)}</Typography>
+            <AddressBlock
+              onClick={() => {
+                navigator.clipboard.writeText(c.address);
+                toast.success('Copied!');
+              }}
+            >
+              <Typography>{truncateAddress(c.address, 5)}</Typography>
+              <CopyIcon height="16px" color={theme.colors.icon1} />
+            </AddressBlock>
 
-            <div>
-              <PencilIcon height="16px" color={theme.colors.icon1} />
-              <CheckmarkIcon height="16px" color={theme.colors.icon1} />
-            </div>
+            <HorizontalFlex>
+              <TextButton margin="0 8px 0 0" onClick={undefined}>
+                <PencilIcon height="16px" color={theme.colors.icon1} />
+              </TextButton>
+
+              <TextButton onClick={undefined}>
+                <TrashIcon height="16px" color={theme.colors.icon1} />
+              </TextButton>
+            </HorizontalFlex>
           </DropDownMenuItem>
         ))}
       </Scrollbars>
