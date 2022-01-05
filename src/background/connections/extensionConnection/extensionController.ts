@@ -57,6 +57,8 @@ import { RenameAccountRequest } from '@src/background/services/accounts/handlers
 import { AddAccountRequest } from '@src/background/services/accounts/handlers/addAccount';
 import { GetSwapRateRequest } from '@src/background/services/swap/handlers/getSwapRate';
 import { PerformSwapRequest } from '@src/background/services/swap/handlers/performSwap';
+import { gasPriceSwapUpdate } from '@src/background/services/swap/events/gasPriceSwapUpdate';
+import { GetGasRequest } from '@src/background/services/gas/handlers/getGas';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -116,6 +118,8 @@ const extensionRequestHandlerMap = new Map<
 
   GetSwapRateRequest,
   PerformSwapRequest,
+
+  GetGasRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
@@ -152,7 +156,8 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     gasPriceTransactionUpdate(),
     transactionFinalizedUpdate(),
     settingsUpdatedEvent(),
-    sendTxDetailsEvent()
+    sendTxDetailsEvent(),
+    gasPriceSwapUpdate()
   ).pipe(
     tap((evt) => {
       eventLog(`extension event (${evt.name})`, evt);

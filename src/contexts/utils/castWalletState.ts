@@ -49,6 +49,10 @@ export function recastWalletState(state: WalletState) {
           staked: new BN(state.balances.balanceStaked.staked, 'hex'),
         },
       },
+      avaxToken: {
+        ...state.avaxToken,
+        balance: new BN(state.avaxToken.balance, 'hex'),
+      },
       erc20Tokens: state.erc20Tokens.map((token) => ({
         ...token,
         balance: new BN(token.balance, 'hex'),
