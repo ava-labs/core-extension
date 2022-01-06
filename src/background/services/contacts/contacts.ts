@@ -15,10 +15,6 @@ export const contacts$ = new BehaviorSubject<ContactsState>(
   defaultContactsState
 );
 
-getContactsFromStorage()
-  .then((res) => {
-    console.log('--0-00-0');
-    console.log(res);
-    return res && contacts$.next(res);
-  })
-  .catch((e) => console.log(e));
+getContactsFromStorage().then((res) => {
+  return res && contacts$.next(res);
+});

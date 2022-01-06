@@ -13,9 +13,6 @@ export function ContactsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [contacts, setContacts] = useState<ContactsState>();
 
-  console.log('MMMM');
-  console.log(contacts);
-
   useEffect(() => {
     if (!events) {
       return;
@@ -23,22 +20,18 @@ export function ContactsContextProvider({ children }: { children: any }) {
 
     request({
       method: ExtensionRequest.CONTACTS_GET,
-    })
-      .then((res) => {
-        console.log('878787');
-        console.log(res);
-        setContacts(res);
-      })
-      .catch((e) => console.log(e));
+    }).then((res) => {
+      setContacts(res);
+    });
 
-    /*const subscription = events()
-    .pipe(
-      filter(contactsUpdatedEventListener),
-      map((evt) => evt.value)
+    const subscription = events()
+      .pipe(
+        filter(contactsUpdatedEventListener),
+        map((evt) => evt.value)
       )
-      .subscribe((val) => setContacts(val));*/
+      .subscribe((val) => setContacts(val));
 
-    //return () => subscription.unsubscribe();
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
