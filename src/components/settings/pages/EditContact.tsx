@@ -32,8 +32,7 @@ const AddressBlock = styled(HorizontalFlex)`
 
 export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { editedContact, setEditedContact, updateContact } =
-    useContactsContext();
+  //const { editedContact, setEditedContact, updateContact } = useContactsContext();
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -48,12 +47,12 @@ export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
           <Input
             autoFocus
             onChange={(e) => {
-              setEditedContact({
+              /*setEditedContact({
                 ...editedContact,
                 name: e.target.value,
-              });
+              });*/
             }}
-            value={editedContact.name}
+            //value={editedContact.name}
             label="Name"
             placeholder="Name"
             type="text"
@@ -65,12 +64,12 @@ export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
           </Typography>
           <AddressBlock
             onClick={() => {
-              navigator.clipboard.writeText(editedContact.address);
+              //navigator.clipboard.writeText(editedContact.address);
               toast.success('Copied!');
             }}
           >
             <Typography margin="0px 8px 0px 0px">
-              {editedContact.address}
+              {/*editedContact.address*/}
             </Typography>
             <CopyIcon color={theme.colors.icon1} />
           </AddressBlock>
@@ -81,12 +80,12 @@ export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
             width="100%"
             size={ComponentSize.LARGE}
             onClick={() => {
-              updateContact();
+              //updateContact();
               toast.success('Contact updated!');
               goBack();
             }}
             margin="0 0 24px"
-            disabled={editedContact.name.length === 0}
+            //disabled={editedContact.name.length === 0}
           >
             Update
           </PrimaryButton>

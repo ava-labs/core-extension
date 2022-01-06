@@ -1,80 +1,53 @@
-import React, {
-  createContext,
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useState,
-} from 'react';
+import { ExtensionRequest } from '@src/background/connections/models';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { filter, map } from 'rxjs';
+import { useConnectionContext } from './ConnectionProvider';
+import { ContactsState } from '@src/background/services/contacts/models';
+import { contactsUpdatedEventListener } from '@src/background/services/contacts/events/listeners';
 
-export type Contact = {
-  name: string;
-  address: string;
-};
+type ContactsFromProvider = ContactsState & {};
 
-type ContactsProvider = {
-  contacts: Contact[];
-  setContacts: Dispatch<SetStateAction<Contact[]>>;
-  deleteContact: (contactAddress: string) => void;
-  editedContact: Contact;
-  setEditedContact: Dispatch<SetStateAction<Contact>>;
-  updateContact: () => void;
-  addContact: (contact: Contact) => void;
-};
+const ContactsContext = createContext<ContactsFromProvider>({} as any);
 
-const ContactsContext = createContext<ContactsProvider>({} as any);
+export function ContactsContextProvider({ children }: { children: any }) {
+  const { request, events } = useConnectionContext();
+  const [contacts, setContacts] = useState<ContactsState>();
 
-export function ContactsContextProvider({ children }) {
-  const [editedContact, setEditedContact] = useState<Contact>({
-    name: '',
-    address: '',
-  });
-  const [contacts, setContacts] = useState<Contact[]>([
-    {
-      name: 'Mike',
-      address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF67',
-    },
-    {
-      name: 'Todd',
-      address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF68',
-    },
-    {
-      name: 'Julia',
-      address: '2HbiGU1sbxqGPwcCGpVk7dvnLA9pnQxFARpUAVHHTrntQJMF69',
-    },
-  ]);
+  console.log('MMMM');
+  console.log(contacts);
 
-  function addContact(contact): void {
-    setContacts([...contacts, contact]);
-  }
+  useEffect(() => {
+    if (!events) {
+      return;
+    }
 
-  function updateContact(): void {
-    const contactsCopy = [...contacts];
-    const contactToUpdateIndex = contacts.findIndex(
-      ({ address }) => address === editedContact.address
-    );
-    contactsCopy[contactToUpdateIndex] = editedContact; // replacing the edited contact
+    request({
+      method: ExtensionRequest.CONTACTS_GET,
+    })
+      .then((res) => {
+        console.log('878787');
+        console.log(res);
+        setContacts(res);
+      })
+      .catch((e) => console.log(e));
 
-    setContacts(contactsCopy);
-  }
+    /*const subscription = events()
+    .pipe(
+      filter(contactsUpdatedEventListener),
+      map((evt) => evt.value)
+      )
+      .subscribe((val) => setContacts(val));*/
 
-  function deleteContact(contactAddress: string): void {
-    const contactsUpdated = contacts.filter(
-      ({ address }) => address !== contactAddress
-    );
-    setContacts(contactsUpdated);
-  }
+    //return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <ContactsContext.Provider
-      value={{
-        addContact,
-        contacts,
-        setContacts,
-        deleteContact,
-        editedContact,
-        setEditedContact,
-        updateContact,
-      }}
+      value={
+        {
+          ...contacts,
+        } as ContactsFromProvider
+      }
     >
       {children}
     </ContactsContext.Provider>

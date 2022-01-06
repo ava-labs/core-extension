@@ -10,13 +10,14 @@ import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
-import { Contact, useContactsContext } from '@src/contexts/ContactsProvider';
+import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
+import { Contact } from '@src/background/services/contacts/models';
 
 export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
   const [contact, setContact] = useState<Contact>({ name: '', address: '' });
   const theme = useTheme();
-  const { addContact } = useContactsContext();
+  //const {  } = useContactsContext();
   const isValidAddress =
     AddressHelper.validateAddress(contact.address) &&
     AddressHelper.getAddressChain(contact.address) === 'C';
@@ -67,7 +68,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             width="100%"
             size={ComponentSize.LARGE}
             onClick={() => {
-              addContact(contact);
+              //addContact(contact);
               toast.success('Contact created!');
               goBack();
             }}

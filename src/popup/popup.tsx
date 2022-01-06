@@ -74,12 +74,12 @@ export function Popup() {
     <DialogContextProvider>
       <ConnectionContextProvider>
         <SettingsContextProvider>
-          <ContactsContextProvider>
-            <OnboardingContextProvider>
-              <NetworkContextProvider>
-                <AccountsContextProvider>
-                  <WalletContextProvider>
-                    <SwapContextProvider>
+          <OnboardingContextProvider>
+            <NetworkContextProvider>
+              <AccountsContextProvider>
+                <WalletContextProvider>
+                  <SwapContextProvider>
+                    <ContactsContextProvider>
                       <GlobalStyles />
                       <Toaster />
 
@@ -179,12 +179,12 @@ export function Popup() {
                           </Switch>
                         </HorizontalFlex>
                       </VerticalFlex>
-                    </SwapContextProvider>
-                  </WalletContextProvider>
-                </AccountsContextProvider>
-              </NetworkContextProvider>
-            </OnboardingContextProvider>
-          </ContactsContextProvider>
+                    </ContactsContextProvider>
+                  </SwapContextProvider>
+                </WalletContextProvider>
+              </AccountsContextProvider>
+            </NetworkContextProvider>
+          </OnboardingContextProvider>
         </SettingsContextProvider>
       </ConnectionContextProvider>
     </DialogContextProvider>

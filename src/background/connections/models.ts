@@ -116,6 +116,10 @@ export enum ExtensionRequest {
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
   SETTINGS_UPDATE_THEME = 'settings_update_theme',
 
+  CONTACTS_GET = 'contacts_get',
+  CONTACTS_CREATE = 'contacts_create',
+  CONTACTS_REMOVE = 'contacts_remove',
+
   FAVORITES_CREATE = 'favorites_create',
   FAVORITES_REMOVE = 'favorites_remove',
   FAVORITES_GET = 'favorites_get',

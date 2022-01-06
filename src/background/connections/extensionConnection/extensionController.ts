@@ -40,6 +40,7 @@ import { ResetSendErc20StateRequest } from '@src/background/services/send/sendEr
 import { ValidateSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/validateSendErc20State';
 import { SubmitSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/submitSendErc20State';
 import { GetSettingsStateRequest } from '@src/background/services/settings/handlers/getSettings';
+import { GetContactsStateRequest } from '@src/background/services/contacts/handlers/getContacts';
 import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
 import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
@@ -57,6 +58,7 @@ import { RenameAccountRequest } from '@src/background/services/accounts/handlers
 import { AddAccountRequest } from '@src/background/services/accounts/handlers/addAccount';
 import { GetSwapRateRequest } from '@src/background/services/swap/handlers/getSwapRate';
 import { PerformSwapRequest } from '@src/background/services/swap/handlers/performSwap';
+import { contactsUpdatedEvent } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -110,6 +112,8 @@ const extensionRequestHandlerMap = new Map<
   SettingsLockWalletStateRequest,
   SettingsUpdateThemeRequest,
 
+  GetContactsStateRequest,
+
   CreateFavoriteRequest,
   GetFavoritesRequest,
   RemoveFavoriteRequest,
@@ -152,6 +156,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     gasPriceTransactionUpdate(),
     transactionFinalizedUpdate(),
     settingsUpdatedEvent(),
+    contactsUpdatedEvent(),
     sendTxDetailsEvent()
   ).pipe(
     tap((evt) => {
