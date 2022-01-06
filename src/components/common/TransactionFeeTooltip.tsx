@@ -6,13 +6,18 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: number;
   gasPrice?: BN;
 }
+
+const StyledTooltip = styled(Tooltip)`
+  align-items: center;
+  display: flex;
+`;
 
 export function TransactionFeeTooltip({
   gasLimit,
@@ -25,7 +30,7 @@ export function TransactionFeeTooltip({
   }
 
   const Content = (
-    <VerticalFlex width="100%">
+    <VerticalFlex width="330px" padding="4px">
       <HorizontalFlex width="100%" justify="space-between" margin="0 0 8px 0">
         <Typography size={12}>Gas Limit</Typography>
         <Typography size={12}>{gasLimit}</Typography>
@@ -40,8 +45,8 @@ export function TransactionFeeTooltip({
   );
 
   return (
-    <Tooltip content={Content}>
+    <StyledTooltip content={Content}>
       <InfoIcon height="16px" color={theme.colors.text2} />
-    </Tooltip>
+    </StyledTooltip>
   );
 }

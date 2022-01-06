@@ -18,17 +18,21 @@ import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
+interface CustomGasLimitAndFeesProps {
+  limit: string;
+  gasPrice: GasPrice;
+  onSave(gasPrice: GasPrice, gasLimit: string): void;
+  onCancel(): void;
+  gasPriceEditDisabled?: boolean;
+}
+
 export function CustomGasLimitAndFees({
   limit,
   gasPrice,
   onSave,
   onCancel,
-}: {
-  limit: string;
-  gasPrice: GasPrice;
-  onSave(gasPrice: GasPrice, gasLimit: string): void;
-  onCancel(): void;
-}) {
+  gasPriceEditDisabled,
+}: CustomGasLimitAndFeesProps) {
   const { avaxPrice } = useWalletContext();
   const { currencyFormatter } = useSettingsContext();
   const [customGasLimit, setCustomGasLimit] = useState<string>('');
@@ -138,6 +142,7 @@ export function CustomGasLimitAndFees({
             value: value.amount,
           })
         }
+        disabled={gasPriceEditDisabled}
         margin="24px 0 0 0"
         denomination={9}
       />

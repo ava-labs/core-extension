@@ -126,6 +126,8 @@ export enum ExtensionRequest {
 
   SWAP_GET_RATE = 'swap_get_rate',
   SWAP_PERFORM = 'swap_perform',
+
+  GAS_GET = 'gas_get',
 }
 
 export enum ProviderRequest {

@@ -10,7 +10,7 @@ import {
 import { BN, Utils, GasHelper } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from './models';
 
-const SECONDS_30 = 1000 * 10;
+const SECONDS_30 = 1000 * 30;
 export const gasPrice$ = new BehaviorSubject<GasPrice | undefined>(undefined);
 
 function getGasPrice(): Promise<BN> {

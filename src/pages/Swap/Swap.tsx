@@ -1,66 +1,177 @@
 import {
   VerticalFlex,
-  TokenSearch,
   Typography,
   HorizontalFlex,
   PrimaryButton,
-  SecondaryButton,
-  BNInput,
-  LoadingIcon,
+  SwapCard,
+  SelectTokenModal,
+  SearchInput,
+  SwitchIcon,
+  ComponentSize,
+  Overlay,
+  PrimaryIconButton,
 } from '@avalabs/react-components';
-import { TokenWithBalance } from '@avalabs/wallet-react-components';
+import {
+  ERC20WithBalance,
+  isAvaxToken,
+  TokenWithBalance,
+} from '@avalabs/wallet-react-components';
 import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate } from 'paraswap-core';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { toPrecision } from '@src/utils/number';
-import { useTheme } from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
+import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
-import { truncateAddress } from '@src/utils/truncateAddress';
+import { TokenList } from './TokenList';
+import { TransactionDetails } from './TransactionDetails';
+import { ReviewOrder } from './ReviewOrder';
+import { CustomGasLimitAndFees } from '../SignTransaction/CustomGasLimitAndFees';
+import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
+import { SwapLoadingSpinnerIcon } from './SwapLoadingSpinnerIcon';
+import { getMaxValue, getTokenIcon, isAPIError } from './utils';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { SwapTxSuccess } from './SwapTxSucces';
+import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+
+export interface Token {
+  icon?: JSX.Element;
+  name?: string;
+}
+
+export interface SwapRate extends OptimalRate {
+  status?: number;
+  message?: string;
+}
+
+type ModalType = 'to' | 'from' | null;
+
+const CustomGasAndFeeOverlay = styled(Overlay)`
+  flex-direction: column;
+  background-color: ${({ theme }) => theme.colors.bg1};
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 8px 16px 24px;
+`;
+
+const CustomGasAndFeeContainer = styled(HorizontalFlex)`
+  flex: 1;
+  background-color: ${({ theme }) => theme.colors.bg1};
+  justify-content: center;
+`;
+
+const SwitchIconContainer = styled(PrimaryIconButton)`
+  background-color: ${({ theme }) => theme.swapCard.swapIconBg};
+  &[disabled] {
+    background-color: ${({ theme }) => theme.swapCard.swapIconBg};
+  }
+`;
 
 export function Swap() {
-  const { erc20Tokens, avaxToken } = useWalletContext();
-  const { getRate, swap } = useSwapContext();
-  const { currencyFormatter, currency } = useSettingsContext();
+  const { currencyFormatter } = useSettingsContext();
+  const { erc20Tokens, avaxToken, avaxPrice } = useWalletContext();
+  const { getRate, swap, gasPrice } = useSwapContext();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
-  const [selectedFromToken, setSelectedFromToken] =
-    useState<TokenWithBalance>();
-  const [selectedToToken, setSelectedToToken] = useState<TokenWithBalance>();
-  const [optimalRate, setOptimalRate] = useState<OptimalRate>();
-  const [loading, setLoading] = useState<boolean>(false);
+
+  const [modalOpen, setModalOpen] = useState<ModalType>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [swapError, setSwapError] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [txInProgress, setTxInProgress] = useState(false);
   const [txHash, setTxHash] =
     useState<{ swapTxHash: string; approveTxHash?: string }>();
-  const [txError, setTxError] = useState<string>();
-  const destAmount = useMemo(() => {
-    if (!selectedToToken || !optimalRate) return;
 
-    if (!optimalRate.destAmount) return;
+  const [canSwap, setCanSwap] = useState(false);
+  const [isReviewOrderOpen, setIsReviewOrderOpen] = useState(false);
+  const [selectedToToken, setSelectedToToken] = useState<TokenWithBalance>();
+  const [optimalRate, setOptimalRate] = useState<OptimalRate>();
 
-    const bn = Utils.stringToBN((optimalRate?.destAmount as string) || '0', 0);
+  const [selectedFromToken, setSelectedFromToken] =
+    useState<TokenWithBalance>();
 
-    if (bn.isZero() || bn.lt(new BN(0))) return;
+  const [gasLimit, setGasLimit] = useState('');
+  const [gasCost, setGasCost] = useState('');
+  const [destAmount, setDestAmount] = useState('');
 
-    return toPrecision(
-      Utils.bnToBig(bn, (selectedFromToken as any).decimals).toString()
-    );
-  }, [optimalRate?.destAmount]);
+  const [showCustomGasLimitAndFees, setShowCustomGasLimitAndFees] =
+    useState(false);
+  const [rateValueInput, setRateValueInput] = useState('');
+  const [fromTokenValue, setFromTokenValue] =
+    useState<{ bn: BN; amount: string }>();
+  const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
+  const [slippageTolerance, setSlippageTolerance] = useState<string>();
+
+  useEffect(() => {
+    setMaxFromValue(getMaxValue(selectedFromToken, gasLimit, gasPrice));
+  }, [selectedFromToken, gasPrice, gasLimit]);
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
-      amount?: string;
+      amount?: { bn: BN; amount: string };
       toTokenAddress?: string;
       fromTokenAddress?: string;
       toTokenDecimals?: number;
       fromTokenDecimals?: number;
     }>({});
   }, []);
+
+  const calculateTokenValueToInput = useCallback(
+    (
+      amount: { bn: BN; amount: string },
+      destination: string,
+      sourceToken?: TokenWithBalance,
+      destinationToken?: TokenWithBalance
+    ) => {
+      if (!sourceToken || !destinationToken) {
+        return;
+      }
+      setRateValueInput(destination);
+      setIsLoading(true);
+      setValuesDebouncedSubject.next({
+        ...setValuesDebouncedSubject.getValue(),
+        fromTokenAddress: isAvaxToken(sourceToken)
+          ? sourceToken.symbol
+          : (sourceToken as ERC20WithBalance).address,
+        toTokenAddress: isAvaxToken(destinationToken)
+          ? destinationToken.symbol
+          : (destinationToken as ERC20WithBalance).address,
+        fromTokenDecimals: sourceToken.denomination,
+        toTokenDecimals: destinationToken.denomination,
+        amount,
+      });
+      setIsLoading(false);
+    },
+    [setValuesDebouncedSubject]
+  );
+
+  useEffect(() => {
+    if (selectedFromToken && selectedToToken) {
+      const amount = {
+        amount: fromTokenValue?.amount || '0',
+        bn: Utils.stringToBN(
+          fromTokenValue?.amount || '0',
+          selectedFromToken.denomination || 18
+        ),
+      };
+      calculateTokenValueToInput(
+        amount,
+        'to',
+        selectedFromToken,
+        selectedToToken
+      );
+    }
+  }, [
+    selectedFromToken,
+    selectedToToken,
+    calculateTokenValueToInput,
+    fromTokenValue,
+  ]);
 
   useEffect(() => {
     const subscription = setValuesDebouncedSubject
@@ -80,22 +191,38 @@ export function Swap() {
             fromTokenDecimals &&
             toTokenDecimals
           ) {
-            setLoading(true);
+            setIsLoading(true);
             setOptimalRate(undefined);
+            const amountString = amount.bn.toString();
             getRate(
               fromTokenAddress,
-              toTokenAddress,
               fromTokenDecimals,
+              toTokenAddress,
               toTokenDecimals,
-              amount
-            ).then((rate) => {
-              /**
-               * This can be an error, the bacground tries 10x but if the
-               * server is still "busy" it sends the error
-               */
-              setOptimalRate(rate);
-              setLoading(false);
-            });
+              amountString
+            )
+              .then((result) => {
+                /**
+                 * This can be an error, the bacground tries 10x but if the
+                 * server is still "busy" it sends the error
+                 */
+                if (isAPIError(result.optimalRate)) {
+                  throw new Error(
+                    `paraswap error message while get rate: ${result.optimalRate.message}`
+                  );
+                } else {
+                  // Never modify the properies of the optimalRate since the swap API needs it unchanged
+                  setOptimalRate(result.optimalRate);
+                  setGasLimit(result.optimalRate?.gasCost);
+                  setDestAmount(result.destAmount ?? '');
+                }
+              })
+              .catch(() => {
+                setSwapError('Something went wrong, please try again');
+              })
+              .finally(() => {
+                setIsLoading(false);
+              });
           } else {
             setOptimalRate(undefined);
           }
@@ -105,224 +232,283 @@ export function Swap() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [getRate, setValuesDebouncedSubject]);
+
+  useEffect(() => {
+    if (!selectedFromToken || !selectedToToken || swapError) {
+      setCanSwap(false);
+      return;
+    } else {
+      setSwapError('');
+      setCanSwap(true);
+    }
+  }, [selectedToToken, selectedFromToken, tokensWBalances, swapError]);
+
+  useEffect(() => {
+    if (gasPrice && gasLimit) {
+      const newFees = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
+
+      setGasCost(newFees.fee);
+    }
+  }, [avaxPrice, gasCost, gasLimit, gasPrice]);
+
+  const swapTokens = () => {
+    if (!canSwap) {
+      return;
+    }
+    if (
+      !tokensWBalances.some(
+        (token) =>
+          token.name === selectedToToken?.name &&
+          token.symbol === selectedToToken?.symbol
+      )
+    ) {
+      setSwapError(
+        `You don't have any ${selectedToToken?.symbol} token for swap`
+      );
+      return;
+    }
+    const [to, from] = [selectedFromToken, selectedToToken];
+    setSelectedFromToken(from);
+    setSelectedToToken(to);
+  };
+
+  const getCurrencyValue = (token?: TokenWithBalance) => {
+    if (!token || !token.balanceUsdDisplayValue) {
+      return '';
+    }
+    return currencyFormatter(Number(token.balanceUsdDisplayValue));
+  };
 
   async function onHandleSwap() {
     setTxInProgress(true);
     const {
       amount,
-      toTokenAddress,
       fromTokenAddress,
+      toTokenAddress,
       toTokenDecimals,
       fromTokenDecimals,
     } = setValuesDebouncedSubject.getValue();
+    if (
+      !gasPrice ||
+      !optimalRate?.gasCost ||
+      !toTokenDecimals ||
+      !toTokenAddress ||
+      !fromTokenAddress ||
+      !fromTokenDecimals ||
+      !amount
+    ) {
+      return;
+    }
+    const slippage = slippageTolerance || '0';
     const [result, error] = await resolve(
       swap(
-        fromTokenAddress as string,
-        toTokenAddress as string,
-        toTokenDecimals as number,
-        fromTokenDecimals as number,
-        amount as string,
-        optimalRate as OptimalRate,
-        optimalRate?.destAmount,
-        optimalRate?.gasCost as string
+        fromTokenAddress,
+        toTokenAddress,
+        toTokenDecimals,
+        fromTokenDecimals,
+        amount.bn.toString(),
+        optimalRate,
+        optimalRate.destAmount,
+        gasLimit,
+        parseFloat(slippage)
       )
     );
     setTxInProgress(false);
-    txError ? setTxError(error) : setTxHash(result);
+    if (error) {
+      setSwapError('Something went wrong, please try again');
+      setIsReviewOrderOpen(false);
+
+      return;
+    }
+    setTxHash(result);
   }
 
-  function onHandleCancel() {
-    setSelectedFromToken(undefined);
-    setSelectedToToken(undefined);
-    setOptimalRate(undefined);
-    setLoading(false);
-    setTxInProgress(false);
-    setTxHash(undefined);
-    setTxError(undefined);
-    setValuesDebouncedSubject.next({});
-  }
+  const selectedFromTokenFormat = selectedFromToken
+    ? ({
+        name: selectedFromToken.symbol,
+        icon: getTokenIcon(selectedFromToken),
+      } as Token)
+    : null;
 
-  if (txInProgress) {
-    return (
-      <HorizontalFlex>
-        <LoadingIcon color={theme.palette.white} />
-      </HorizontalFlex>
-    );
-  }
-
-  if (txError) {
-    return (
-      <HorizontalFlex>
-        <Typography>{txError}</Typography>
-      </HorizontalFlex>
-    );
-  }
+  const selectedToTokenFormat = selectedToToken
+    ? ({
+        name: selectedToToken.symbol,
+        icon: getTokenIcon(selectedToToken),
+      } as Token)
+    : null;
 
   if (txHash) {
-    return (
-      <VerticalFlex width={'100%'} justify={'center'} align={'center'}>
-        {txHash.approveTxHash ? (
-          <>
-            <Typography>Approval Tx</Typography>
-            <Typography>{truncateAddress(txHash.approveTxHash)}</Typography>
-            <br />
-            <br />
-          </>
-        ) : (
-          ''
-        )}
-        <Typography>Swap Tx</Typography>
-        <Typography>{truncateAddress(txHash.swapTxHash)}</Typography>
-        <br />
-        <br />
-        <HorizontalFlex>
-          <PrimaryButton onClick={() => onHandleCancel()}>
-            That was fun lets do it again
-          </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
-    );
+    return <SwapTxSuccess swapTxHash={txHash.swapTxHash} />;
   }
 
   return (
-    <VerticalFlex>
-      <br />
-      <br />
-      <HorizontalFlex width="100%" justify="center">
-        <Typography size={18} weight={600}>
+    <>
+      <VerticalFlex margin="0 0 80px 0">
+        <Typography margin="16px 0" size={24} height="29px" weight="bold">
           Swap
         </Typography>
-      </HorizontalFlex>
-      <br />
-      <br />
-      <br />
-      <HorizontalFlex width="100%" justify="space-between">
-        <Typography>From</Typography>
-        <Typography>
-          Balance {selectedFromToken?.balanceDisplayValue}
-        </Typography>
-      </HorizontalFlex>
-      <br />
-      <TokenSearch
-        onSelect={(item) => {
-          setSelectedFromToken(item as TokenWithBalance);
-          const token: any = item;
-          setValuesDebouncedSubject.next({
-            ...setValuesDebouncedSubject.getValue(),
-            fromTokenAddress: token.address,
-            fromTokenDecimals: token.decimals,
-          });
-        }}
-        items={tokensWBalances}
-        value={selectedFromToken}
-        placeholder="Search"
-      />
-      <br />
-      <BNInput
-        denomination={selectedFromToken?.denomination as number}
-        onChange={(val) =>
-          setValuesDebouncedSubject.next({
-            ...setValuesDebouncedSubject.getValue(),
-            amount: Utils.stringToBN(
-              val.amount,
-              (selectedFromToken as any).decimals
-            ).toString(),
-          })
-        }
-      />
-      <br />
-      <br />
-      <HorizontalFlex width="100%" justify="space-between">
-        <Typography>To</Typography>
-        <Typography>Balance {selectedToToken?.balanceDisplayValue}</Typography>
-      </HorizontalFlex>
-      <br />
-      <TokenSearch
-        onSelect={(item) => {
-          setSelectedToToken(item as TokenWithBalance);
-          const token: any = item;
-          setValuesDebouncedSubject.next({
-            ...setValuesDebouncedSubject.getValue(),
-            toTokenAddress: token.address,
-            toTokenDecimals: token.decimals,
-          });
-        }}
-        items={[...erc20Tokens, avaxToken]}
-        value={selectedToToken}
-        placeholder="Search"
-      />
-      {optimalRate ? (
-        <>
-          <br />
-          <br />
-          <VerticalFlex>
-            <HorizontalFlex
-              width={'100%'}
-              justify={'space-between'}
-              align={'center'}
-              margin={'0 0 8px 0'}
-            >
-              <Typography>Estimated Cost</Typography>
-              <Typography>
-                {currencyFormatter(Number(optimalRate?.gasCostUSD) ?? '0.00')}{' '}
-                {currency}
-              </Typography>
-            </HorizontalFlex>
-            <HorizontalFlex
-              width={'100%'}
-              justify={'space-between'}
-              align={'center'}
-              margin={'0 0 8px 0'}
-            >
-              <Typography>Price Impact</Typography>
-              <Typography>{'need value'}</Typography>
-            </HorizontalFlex>
-            <HorizontalFlex
-              width={'100%'}
-              justify={'space-between'}
-              align={'center'}
-              margin={'0 0 8px 0'}
-            >
-              <Typography>Minimum Received</Typography>
-              <Typography>
-                {destAmount} {selectedToToken?.symbol}
-              </Typography>
-            </HorizontalFlex>
-            <HorizontalFlex
-              width={'100%'}
-              justify={'space-between'}
-              align={'center'}
-            >
-              <Typography>Avalanche Fee</Typography>
-              <Typography>
-                {'need value'} {avaxToken.symbol}
-              </Typography>
-            </HorizontalFlex>
-          </VerticalFlex>
-          <br />
-          <br />
-        </>
-      ) : loading ? (
-        <HorizontalFlex width={'100%'} justify={'center'}>
-          <LoadingIcon color={theme.palette.white} />
+        <SwapCard
+          denomination={selectedFromToken?.denomination}
+          title="From"
+          onSelectClick={() => {
+            setModalOpen('from');
+            setSearchQuery('');
+          }}
+          token={selectedFromTokenFormat}
+          balanceDisplayValue={selectedFromToken?.balanceDisplayValue}
+          currencyValue={getCurrencyValue(selectedFromToken)}
+          defaultValue={rateValueInput === 'from' ? destAmount : ''}
+          onChange={(value) => {
+            setFromTokenValue(value);
+            calculateTokenValueToInput(
+              value,
+              'to',
+              selectedFromToken,
+              selectedToToken
+            );
+          }}
+          isValueLoading={rateValueInput === 'from' && isLoading}
+          isInputDisabled={!selectedFromToken}
+          max={
+            rateValueInput === 'from' && isLoading ? undefined : maxFromValue
+          }
+          hideErrorMessage={true}
+          onError={(errorMessage) => setSwapError(errorMessage)}
+        />
+
+        <HorizontalFlex
+          justify={swapError ? 'space-between' : 'flex-end'}
+          margin="16px 0 0 0"
+        >
+          {swapError && (
+            <Typography size={12} color={theme.colors.error}>
+              {swapError}
+            </Typography>
+          )}
+          <SwitchIconContainer onClick={swapTokens} disabled={!canSwap}>
+            <SwitchIcon height="24px" color={theme.colors.text1} />
+          </SwitchIconContainer>
         </HorizontalFlex>
-      ) : (
-        ''
-      )}
-      <HorizontalFlex
-        flex={1}
-        align={'flex-end'}
-        padding={'0 0 90px 0'}
-        justify={'space-around'}
-      >
-        <SecondaryButton onClick={() => onHandleCancel()}>
-          Cancel
-        </SecondaryButton>
-        <PrimaryButton onClick={() => onHandleSwap()}>Swap</PrimaryButton>
-      </HorizontalFlex>
+
+        <SwapCard
+          title="To"
+          denomination={selectedToToken?.denomination}
+          onSelectClick={() => {
+            setModalOpen('to');
+          }}
+          token={selectedToTokenFormat}
+          defaultValue={rateValueInput === 'to' ? destAmount : ''}
+          onChange={(value) => {
+            calculateTokenValueToInput(
+              value,
+              'from',
+              selectedToToken,
+              selectedFromToken
+            );
+          }}
+          isValueLoading={rateValueInput === 'to' && isLoading}
+          isInputDisabled={!selectedToToken}
+        />
+
+        {isLoading && <SwapLoadingSpinnerIcon />}
+        {canSwap && optimalRate ? (
+          <>
+            <TransactionDetails
+              fromTokenSymbol={selectedFromToken?.symbol}
+              toTokenSymbol={selectedToToken?.symbol}
+              rate={
+                parseInt(destAmount, 10) / parseInt(optimalRate.srcAmount, 10)
+              }
+              fee={gasCost}
+              walletFee={optimalRate.partnerFee}
+              onEdit={() => setShowCustomGasLimitAndFees(true)}
+              gasLimit={parseInt(gasLimit, 10)}
+              gasPrice={gasPrice?.bn}
+              slippage={slippageTolerance}
+              setSlippage={(slippage) => setSlippageTolerance(slippage)}
+            />
+            <PrimaryButton
+              width="100%"
+              onClick={() => setIsReviewOrderOpen(true)}
+              size={ComponentSize.LARGE}
+            >
+              Review Order
+            </PrimaryButton>
+          </>
+        ) : null}
+      </VerticalFlex>
       <BottomNav />
-    </VerticalFlex>
+
+      <SelectTokenModal
+        open={!!modalOpen}
+        onClose={() => {
+          setModalOpen(null);
+          setSearchQuery('');
+        }}
+        title="Select Token"
+      >
+        <>
+          <HorizontalFlex padding="0 16px">
+            <SearchInput
+              searchTerm={searchQuery}
+              placeholder="Search"
+              width="343px"
+              onSearch={(term) => setSearchQuery(term)}
+              autoFocus={true}
+            />
+          </HorizontalFlex>
+          <TokenList
+            tokenList={
+              modalOpen === 'from'
+                ? tokensWBalances
+                : [...erc20Tokens, avaxToken]
+            }
+            searchQuery={searchQuery}
+            onClick={(token: TokenWithBalance) => {
+              if (modalOpen === 'from') {
+                setSelectedFromToken(token);
+                return;
+              }
+              setSelectedToToken(token);
+            }}
+            onClose={() => setModalOpen(null)}
+          />
+        </>
+      </SelectTokenModal>
+
+      {isReviewOrderOpen && optimalRate && (
+        <ReviewOrder
+          fromToken={selectedFromToken}
+          toToken={selectedToToken}
+          destAmount={destAmount}
+          onClose={() => setIsReviewOrderOpen(false)}
+          onConfirm={() => onHandleSwap()}
+          optimalRate={optimalRate}
+          fee={gasCost}
+          onEdit={() => setShowCustomGasLimitAndFees(true)}
+          slippage={slippageTolerance}
+        />
+      )}
+
+      {showCustomGasLimitAndFees && gasPrice && (
+        <CustomGasAndFeeOverlay>
+          <CustomGasAndFeeContainer>
+            <CustomGasLimitAndFees
+              limit={gasLimit.toString()}
+              gasPrice={gasPrice}
+              onCancel={() => setShowCustomGasLimitAndFees(false)}
+              onSave={(_, gasLimit) => {
+                setShowCustomGasLimitAndFees(false);
+                setGasLimit(gasLimit);
+              }}
+              gasPriceEditDisabled
+            />
+          </CustomGasAndFeeContainer>
+        </CustomGasAndFeeOverlay>
+      )}
+      {txInProgress && <LoadingOverlay />}
+    </>
   );
 }
 

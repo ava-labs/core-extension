@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useSend } from '../hooks/useSend';
-import { TransactionFeeTooltip } from './TransactionFeeTooltip';
+import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
