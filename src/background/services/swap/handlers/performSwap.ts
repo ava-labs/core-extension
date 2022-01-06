@@ -1,5 +1,5 @@
-import { WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { wallet$ } from '@avalabs/wallet-react-components';
+import { WalletType, BN, Big } from '@avalabs/avalanche-wallet-sdk';
+import { AVAX_TOKEN, wallet$ } from '@avalabs/wallet-react-components';
 import {
   ConnectionRequestHandler,
   ExtensionConnectionMessage,
@@ -7,15 +7,15 @@ import {
 } from '@src/background/connections/models';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { resolve } from '@src/utils/promiseResolver';
-import { APIError, ParaSwap } from 'paraswap';
+import { APIError, ParaSwap, ETHER_ADDRESS } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
 import { firstValueFrom } from 'rxjs';
 import Web3 from 'web3';
 import { gasPrice$ } from '../../gas/gas';
-import { GasPrice } from '../../gas/models';
 import { paraSwap$ } from '../swap';
 import ERC20_ABI from '../../../../contracts/erc20.abi.json';
 import { Allowance } from 'paraswap/build/types';
+import { avaxFrom9To18 } from '../utils/convertAvaxDenomination';
 
 const SERVER_BUSY_ERROR = 'Server too busy';
 
@@ -29,6 +29,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     priceRoute,
     destAmount,
     gasLimit,
+    slippage,
   ] = request.params || [];
 
   if (!srcToken) {
@@ -87,9 +88,15 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     };
   }
 
+  const srcTokenAddress =
+    srcToken === AVAX_TOKEN.symbol ? ETHER_ADDRESS : srcToken;
+  const destTokenAddress =
+    destToken === AVAX_TOKEN.symbol ? ETHER_ADDRESS : destToken;
   const [paraSwap, err] = await resolve(firstValueFrom(paraSwap$));
   const [wallet, walletError] = await resolve(firstValueFrom(wallet$));
-  const [gasPrice, gasPriceError] = await resolve(firstValueFrom(gasPrice$));
+  const [defaultGasPrice, defaultGasPriceError] = await resolve(
+    firstValueFrom(gasPrice$)
+  );
 
   if (err) {
     return {
@@ -107,10 +114,10 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     };
   }
 
-  if (gasPriceError) {
+  if (defaultGasPriceError) {
     return {
       ...request,
-      error: `Gas Error: ${gasPriceError}`,
+      error: `Gas Error: ${defaultGasPriceError}`,
     };
   }
 
@@ -125,54 +132,65 @@ export async function performSwap(request: ExtensionConnectionMessage) {
 
   const spender = await pSwap.getTokenTransferProxy();
 
-  const contract = new (pSwap.web3Provider as Web3).eth.Contract(
-    ERC20_ABI as any,
-    srcToken
-  );
+  let approveTxHash;
 
-  const [allowance, allowanceError] = await resolve(
-    pSwap.getAllowance(userAddress, srcToken)
-  );
+  // no need to approve AVAX
+  if (srcToken !== AVAX_TOKEN.symbol) {
+    const contract = new (pSwap.web3Provider as Web3).eth.Contract(
+      ERC20_ABI as any,
+      srcTokenAddress
+    );
 
-  if (
-    allowanceError ||
-    (!!(allowance as APIError).message &&
-      (allowance as APIError).message !== 'Not Found')
-  ) {
-    return {
-      ...request,
-      error: `Allowance Error: ${
-        allowanceError ?? (allowance as APIError).message
-      }`,
-    };
+    const [allowance, allowanceError] = await resolve(
+      pSwap.getAllowance(userAddress, srcTokenAddress)
+    );
+
+    if (
+      allowanceError ||
+      (!!(allowance as APIError).message &&
+        (allowance as APIError).message !== 'Not Found')
+    ) {
+      return {
+        ...request,
+        error: `Allowance Error: ${
+          allowanceError ?? (allowance as APIError).message
+        }`,
+      };
+    }
+
+    const [approveHash, approveError] = await resolve(
+      /**
+       * We may need to check if the allowance is enough to cover what is trying to be sent?
+       */
+      (allowance as Allowance).tokenAddress
+        ? (Promise.resolve([]) as any)
+        : (wallet as WalletType).sendCustomEvmTx(
+            defaultGasPrice.bn,
+            Number(gasLimit),
+            contract.methods.approve(spender, srcAmount).encodeABI(),
+            srcTokenAddress
+          )
+    );
+
+    if (approveError) {
+      return {
+        ...request,
+        error: `Approve Error: ${approveError}`,
+      };
+    }
+
+    approveTxHash = approveHash;
   }
 
-  const [approveTxHash, approveError] = await resolve(
-    /**
-     * We may need to check if the allowance is enough to cover what is trying to be sent?
-     */
-    (allowance as Allowance).tokenAddress
-      ? (Promise.resolve([]) as any)
-      : (wallet as WalletType).sendCustomEvmTx(
-          (gasPrice as GasPrice).bn,
-          Number(gasLimit),
-          contract.methods.approve(spender, srcAmount).encodeABI(),
-          srcToken
-        )
-  );
-
-  if (approveError) {
-    return {
-      ...request,
-      error: `Approve Error: ${approveError}`,
-    };
-  }
+  const minAmount = new Big(priceRoute.destAmount)
+    .times(1 - slippage / 100)
+    .toFixed(0);
 
   const txData = pSwap.buildTx(
-    srcToken,
-    destToken,
-    srcAmount,
-    destAmount,
+    srcTokenAddress,
+    destTokenAddress,
+    srcToken === AVAX_TOKEN.symbol ? avaxFrom9To18(srcAmount) : srcAmount,
+    minAmount,
     priceRoute,
     userAddress,
     partner,
@@ -180,8 +198,8 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     partnerFeeBps,
     receiver,
     buildOptions,
-    srcDecimals,
-    destDecimals,
+    AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals,
+    AVAX_TOKEN.symbol === destToken ? 18 : destDecimals,
     permit,
     deadline
   );
@@ -203,10 +221,13 @@ export async function performSwap(request: ExtensionConnectionMessage) {
 
   const [swapTxHash, txError] = await resolve(
     (wallet as WalletType).sendCustomEvmTx(
-      (gasPrice as GasPrice).bn,
+      defaultGasPrice.bn,
       Number(txBuildData.gas),
       txBuildData.data,
-      txBuildData.to
+      txBuildData.to,
+      srcToken === AVAX_TOKEN.symbol
+        ? `0x${new BN(avaxFrom9To18(srcAmount)).toString('hex')}`
+        : undefined // AVAX value needs to be sent with the transaction
     )
   );
 

@@ -7,6 +7,10 @@ export function recastWalletState(state: WalletState) {
   return {
     ...state,
     ...{
+      recentTxHistory: state.recentTxHistory.map((tx) => ({
+        ...tx,
+        timestamp: new Date(tx.timestamp),
+      })),
       balances: {
         ...values,
         /**
@@ -48,6 +52,10 @@ export function recastWalletState(state: WalletState) {
           ...state.balances.balanceStaked,
           staked: new BN(state.balances.balanceStaked.staked, 'hex'),
         },
+      },
+      avaxToken: {
+        ...state.avaxToken,
+        balance: new BN(state.avaxToken.balance, 'hex'),
       },
       erc20Tokens: state.erc20Tokens.map((token) => ({
         ...token,

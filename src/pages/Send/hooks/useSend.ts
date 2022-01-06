@@ -8,7 +8,6 @@ import {
 } from '@avalabs/wallet-react-components';
 import { useGetSendTypeFromParams } from '@src/hooks/useGetSendTypeFromParams';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { SendStateWithActions, TransactionSendType } from '../models';
 import { useSendAnt } from './useSendAnt';
 import { useSendAvax } from './useSendAvax';
@@ -18,8 +17,7 @@ export function useSend():
   | (SendStateWithActions & { errors: SendErrors })
   | null {
   const sendType = useGetSendTypeFromParams();
-  const tokensWBalances = useTokensWithBalances();
-  const selectedToken = useTokenFromParams(tokensWBalances);
+  const selectedToken = useTokenFromParams();
 
   const sendAvaxState = useSendAvax();
   const sendAvaxErrors = useSendAvaxFormErrors(sendAvaxState.error);

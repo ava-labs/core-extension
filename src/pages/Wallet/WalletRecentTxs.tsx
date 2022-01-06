@@ -4,90 +4,64 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import React, { Fragment } from 'react';
-import { TransactionEVM } from '@src/pages/Wallet/components/History/TransactionEVM';
+import React, { Fragment, useMemo } from 'react';
 
-import {
-  isTransactionBase,
-  isTransactionEVM,
-  isTransactionImportExport,
-  isTransactionStaking,
-} from '@avalabs/wallet-react-components';
+import { isTransactionEVM } from '@avalabs/wallet-react-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { NoTransactions } from './components/NoTransactions';
+import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
+import { TransactionEVM } from './components/History/TransactionEVM';
 
-/**
- * Since we dont have designs some of the renderers have been commented out
- */
 export function WalletRecentTxs() {
-  const { chunkedHistoryByDate } = useWalletContext();
+  const { recentTxHistory } = useWalletContext();
 
-  const days = Object.keys(chunkedHistoryByDate).filter((key) =>
-    chunkedHistoryByDate[key]?.some((item) => isTransactionEVM(item))
-  );
+  const transactions = useMemo(() => {
+    return recentTxHistory.filter((item) => isTransactionEVM(item));
+  }, [recentTxHistory]);
 
-  if (days.length === 0) {
+  const yesterday = endOfYesterday();
+  const today = endOfToday();
+
+  const getDayString = (date: Date) => {
+    const isToday = isSameDay(today, date);
+    const isYesterday = isSameDay(yesterday, date);
+    return isToday
+      ? 'Today'
+      : isYesterday
+      ? 'Yesterday'
+      : format(date, 'MMMM do');
+  };
+
+  if (transactions.length === 0) {
     return <NoTransactions />;
   }
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
       <VerticalFlex padding="0 16px">
-        {days.map((key) => {
-          const recentTxHistory = chunkedHistoryByDate[key];
+        {transactions.map((tx, index) => {
+          const isNewDay =
+            index === 0 ||
+            !isSameDay(tx.timestamp, transactions[index - 1].timestamp);
           return (
-            <Fragment key={key}>
-              <Typography
-                size={14}
-                height="17px"
-                weight={600}
-                margin="8px 0 16px"
+            <Fragment key={index}>
+              {isNewDay && (
+                <Typography
+                  size={14}
+                  height="17px"
+                  weight={600}
+                  margin="8px 0 16px"
+                >
+                  {getDayString(tx.timestamp)}
+                </Typography>
+              )}
+              <SecondaryCard
+                key={tx.id}
+                padding={'16px 8px'}
+                margin={'0 0 8px 0'}
               >
-                {key}
-              </Typography>
-              {recentTxHistory?.map((item) => {
-                if (isTransactionBase(item)) {
-                  return <></>;
-                  // return (
-                  //   <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
-                  //     <TransactionBase item={item}></TransactionBase>
-                  //   </Card>
-                  // );
-                } else if (isTransactionEVM(item)) {
-                  return (
-                    <SecondaryCard
-                      key={item.id}
-                      padding={'16px 8px'}
-                      margin={'0 0 8px 0'}
-                    >
-                      <TransactionEVM item={item} />
-                    </SecondaryCard>
-                  );
-                } else if (isTransactionStaking(item)) {
-                  return <></>;
-                  // return (
-                  //   <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
-                  //     <TransactionStaking item={item}></TransactionStaking>
-                  //   </Card>
-                  // );
-                } else if (isTransactionImportExport(item)) {
-                  return <></>;
-                  // return (
-                  //   <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
-                  //     <TransactionImportExport
-                  //       item={item}
-                  //     ></TransactionImportExport>
-                  //   </Card>
-                  // );
-                } else {
-                  return <></>;
-                  // return (
-                  //   <Card key={item.id} padding={'16px 8px'} margin={'0 0 8px 0'}>
-                  //     <Typography>Unsupported Transaction Type</Typography>
-                  //   </Card>
-                  // );
-                }
-              })}
+                {isTransactionEVM(tx) && <TransactionEVM item={tx} />}
+              </SecondaryCard>
             </Fragment>
           );
         })}

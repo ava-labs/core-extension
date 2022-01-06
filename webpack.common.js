@@ -30,6 +30,10 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   resolve: {
@@ -42,7 +46,9 @@ module.exports = {
       'styled-components': path.resolve('./node_modules/styled-components'),
       '@types/bn.js': path.resolve('./node_modules/@types/bn.js'),
       // use alias for bn.js to prevent bundling it >23 times per output file (saves ~1.5MB)
-      'bn.js': path.resolve('./node_modules/bn.js'),
+      'bn.js': path.resolve(
+        './node_modules/@avalabs/avalanche-wallet-sdk/node_modules/bn.js'
+      ),
     },
     symlinks: false,
   },

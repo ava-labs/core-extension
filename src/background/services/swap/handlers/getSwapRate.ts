@@ -1,5 +1,5 @@
 import { WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { wallet$ } from '@avalabs/wallet-react-components';
+import { AVAX_TOKEN, wallet$ } from '@avalabs/wallet-react-components';
 import {
   ConnectionRequestHandler,
   ExtensionConnectionMessage,
@@ -12,11 +12,12 @@ import { SwapSide } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
 import { firstValueFrom } from 'rxjs';
 import { paraSwap$ } from '../swap';
+import { avaxFrom18To9, avaxFrom9To18 } from '../utils/convertAvaxDenomination';
 
 const SERVER_BUSY_ERROR = 'Server too busy';
 
 export async function getSwapRate(request: ExtensionConnectionMessage) {
-  const [srcToken, destToken, srcDecimals, destDecimals, srcAmount] =
+  const [srcToken, srcDecimals, destToken, destDecimals, srcAmount] =
     request.params || [];
 
   if (!srcToken) {
@@ -71,31 +72,47 @@ export async function getSwapRate(request: ExtensionConnectionMessage) {
     };
   }
 
+  // Paraswap uses AVAX with denomination of 18 while the wallet uses denomination 9
+  // convert value to denomination of 18
+  let amount = srcAmount;
+  if (AVAX_TOKEN.symbol === srcToken) {
+    amount = avaxFrom9To18(srcAmount);
+  }
+
   const optimalRates = (paraSwap as ParaSwap).getRate(
     srcToken,
     destToken,
-    srcAmount,
+    amount,
     (wallet as WalletType).getAddressC(),
     SwapSide.SELL,
     {
       partner: 'Avalanche',
     },
-    srcDecimals,
-    destDecimals
+    AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals,
+    AVAX_TOKEN.symbol === destToken ? 18 : destDecimals
   );
 
   function checkForErrorsInResult(result: OptimalRate | APIError) {
     return (result as APIError).message === SERVER_BUSY_ERROR;
   }
 
-  const result = await incrementalPromiseResolve(
+  const result = await incrementalPromiseResolve<OptimalRate | APIError>(
     () => optimalRates,
     checkForErrorsInResult
   );
 
+  // if destination token is AVAX cut the last 9 digits to get it to denomination of 9
+  let destAmount = result.destAmount;
+  if (destToken === AVAX_TOKEN.symbol && result.destAmount) {
+    destAmount = avaxFrom18To9(result.destAmount);
+  }
+
   return {
     ...request,
-    result,
+    result: {
+      optimalRate: result,
+      destAmount,
+    },
   };
 }
 

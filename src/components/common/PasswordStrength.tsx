@@ -77,11 +77,11 @@ export function PasswordStrength({
           'Password strength: Good enough',
           'Password strength: Strong',
         ]}
-        shortScoreWord="Password must be at least 6 characters."
+        shortScoreWord="Password must be at least 8 characters."
         onChangeScore={(score) => {
           setPasswordStrength(score);
         }}
-        minLength={6}
+        minLength={8}
         barColors={barColors}
       />
     </Typography>

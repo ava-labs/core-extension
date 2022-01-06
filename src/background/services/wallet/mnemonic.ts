@@ -4,6 +4,7 @@ import { getMnemonicFromStorage, saveMnemonicToStorage } from './storage';
 import { mnemonicWalletUnlock } from './mnemonicWalletUnlock';
 import { mnemonic$ } from '@avalabs/wallet-react-components';
 import { initAccounts } from '../accounts/accounts';
+import { restartWalletLock$ } from './walletLocked';
 
 const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 
@@ -30,6 +31,7 @@ const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
  */
 merge(mnemonicFromStorage, freshMnemonic).subscribe((mnemonic) => {
   mnemonic$.next(mnemonic);
+  restartWalletLock$.next(true);
   initAccounts();
 });
 
