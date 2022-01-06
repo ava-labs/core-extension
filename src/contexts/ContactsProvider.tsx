@@ -1,5 +1,12 @@
 import { ExtensionRequest } from '@src/background/connections/models';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import {
@@ -7,11 +14,12 @@ import {
   ContactsState,
 } from '@src/background/services/contacts/models';
 import { contactsUpdatedEventListener } from '@src/background/services/contacts/events/listeners';
-import { getContacts } from '@src/background/services/contacts/handlers/getContacts';
 
 type ContactsFromProvider = ContactsState & {
   createContact(contact: Contact): Promise<any>;
   removeContact(contact: Contact): Promise<any>;
+  editedContact: Contact;
+  setEditedContact: Dispatch<SetStateAction<Contact>>;
 };
 
 const ContactsContext = createContext<ContactsFromProvider>({} as any);
@@ -19,6 +27,7 @@ const ContactsContext = createContext<ContactsFromProvider>({} as any);
 export function ContactsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [contacts, setContacts] = useState<ContactsState>();
+  const [editedContact, setEditedContact] = useState<Contact>();
 
   function getContacts() {
     return request({
@@ -69,7 +78,9 @@ export function ContactsContextProvider({ children }: { children: any }) {
         {
           ...contacts,
           createContact,
+          editedContact,
           removeContact,
+          setEditedContact,
         } as ContactsFromProvider
       }
     >

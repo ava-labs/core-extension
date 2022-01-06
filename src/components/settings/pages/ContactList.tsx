@@ -32,6 +32,7 @@ const AddressBlock = styled(HorizontalFlex)`
 
 const MaxWidthTypography = styled(Typography)`
   max-width: 68px;
+  height: 18px;
   overflow: hidden;
   display: block;
   white-space: nowrap;
@@ -40,7 +41,7 @@ const MaxWidthTypography = styled(Typography)`
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { contacts, removeContact } = useContactsContext();
+  const { contacts, setEditedContact, removeContact } = useContactsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredContacts = contacts
@@ -110,7 +111,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
                 <TextButton
                   margin="0 8px 0 0"
                   onClick={() => {
-                    //setEditedContact(c);
+                    setEditedContact(c);
                     navigateTo(SettingsPages.EDIT_CONTACT);
                   }}
                 >
