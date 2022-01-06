@@ -1,10 +1,11 @@
 import {
   BehaviorSubject,
   EMPTY,
+  filter,
   firstValueFrom,
   interval,
-  merge,
-  of,
+  map,
+  startWith,
   Subject,
   switchMap,
 } from 'rxjs';
@@ -47,10 +48,17 @@ wallet$
   });
 
 const HOURS_12 = 1000 * 60 * 60 * 12;
-
-merge(of({}), restartWalletLock$)
-  .pipe(switchMap(() => interval(HOURS_12)))
-  .subscribe(() => wallet$.next(undefined));
+// Since intervals get suspended when the computer is in sleep mode,
+// instead of starting a 12 hour interval, check every minute if it's time to lock
+restartWalletLock$
+  .pipe(
+    startWith({}),
+    map(() => Date.now() + HOURS_12), // get the timestamp when the wallet should lock itself
+    switchMap((timeToLock) =>
+      interval(1000 * 60).pipe(filter(() => Date.now() > timeToLock))
+    )
+  )
+  .subscribe(() => lockWallet$.next(true));
 
 lockWallet$.subscribe(() => {
   clearMnemonic();
