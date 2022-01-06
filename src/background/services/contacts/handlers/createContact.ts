@@ -13,7 +13,10 @@ export async function createContact(request: ExtensionConnectionMessage) {
 
   const contacts = await firstValueFrom(contacts$);
 
-  const newContacts = { contacts: [...contacts.contacts, contact] };
+  const newContacts = {
+    ...contacts,
+    contacts: [...contacts.contacts, contact],
+  };
 
   const [, err] = await resolve(saveContactsToStorage(newContacts));
 

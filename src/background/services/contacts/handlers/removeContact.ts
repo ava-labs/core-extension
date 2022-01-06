@@ -13,6 +13,7 @@ export async function removeContact(request: ExtensionConnectionMessage) {
 
   const contacts = await firstValueFrom(contacts$);
   const newContacts = {
+    ...contacts,
     contacts: contacts.contacts.filter((c) => c.address !== contact.address),
   };
 
