@@ -36,6 +36,7 @@ import { getMaxValue, getTokenIcon, isAPIError } from './utils';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SwapTxSuccess } from './SwapTxSucces';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 
 export interface Token {
   icon?: JSX.Element;
@@ -337,10 +338,6 @@ export function Swap() {
       } as Token)
     : null;
 
-  if (txInProgress) {
-    return <SwapLoadingSpinnerIcon />;
-  }
-
   if (txHash) {
     return <SwapTxSuccess swapTxHash={txHash.swapTxHash} />;
   }
@@ -510,6 +507,7 @@ export function Swap() {
           </CustomGasAndFeeContainer>
         </CustomGasAndFeeOverlay>
       )}
+      {txInProgress && <LoadingOverlay />}
     </>
   );
 }

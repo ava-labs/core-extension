@@ -65,7 +65,6 @@ export function ReviewOrder({
   onEdit,
   slippage,
 }: ReviewOrderProps) {
-  console.log('destAmount: ', destAmount);
   const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
 
