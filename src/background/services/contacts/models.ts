@@ -4,5 +4,5 @@ export interface Contact {
 }
 
 export interface ContactsState {
-  contacts: Contact[]; // TODO
+  contacts: Contact[];
 }
