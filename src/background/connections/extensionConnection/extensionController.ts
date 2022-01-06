@@ -41,6 +41,8 @@ import { ValidateSendErc20StateRequest } from '@src/background/services/send/sen
 import { SubmitSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/submitSendErc20State';
 import { GetSettingsStateRequest } from '@src/background/services/settings/handlers/getSettings';
 import { GetContactsStateRequest } from '@src/background/services/contacts/handlers/getContacts';
+import { CreateContactStateRequest } from '@src/background/services/contacts/handlers/createContact';
+import { RemoveContactStateRequest } from '@src/background/services/contacts/handlers/removeContact';
 import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
 import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
@@ -113,6 +115,8 @@ const extensionRequestHandlerMap = new Map<
   SettingsUpdateThemeRequest,
 
   GetContactsStateRequest,
+  CreateContactStateRequest,
+  RemoveContactStateRequest,
 
   CreateFavoriteRequest,
   GetFavoritesRequest,

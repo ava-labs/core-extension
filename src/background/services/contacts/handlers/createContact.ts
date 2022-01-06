@@ -1,0 +1,38 @@
+import {
+  ConnectionRequestHandler,
+  ExtensionConnectionMessage,
+  ExtensionRequest,
+} from '@src/background/connections/models';
+import { resolve } from '@src/utils/promiseResolver';
+import { firstValueFrom } from 'rxjs';
+import { contacts$ } from '../contacts';
+import { saveContactsToStorage } from '../storage';
+
+export async function createContact(request: ExtensionConnectionMessage) {
+  const [contact] = request.params || [];
+
+  const contacts = await firstValueFrom(contacts$);
+
+  const newContacts = { contacts: [...contacts.contacts, contact] };
+
+  const [, err] = await resolve(saveContactsToStorage(newContacts));
+
+  contacts$.next(newContacts);
+
+  if (err) {
+    return {
+      ...request,
+      error: err,
+    };
+  }
+
+  return {
+    ...request,
+    result: true,
+  };
+}
+
+export const CreateContactStateRequest: [
+  ExtensionRequest,
+  ConnectionRequestHandler
+] = [ExtensionRequest.CONTACTS_CREATE, createContact];

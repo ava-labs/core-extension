@@ -26,13 +26,8 @@ const AddressBlock = styled(HorizontalFlex)`
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  margin: 0px 12px;
+  margin: 0px 12px 0px 4px;
   border: solid 1px ${({ theme }) => theme.colors.stroke1};
-  //width: 100%;
-
-  & > ${Typography} {
-    word-break: break-all;
-  }
 `;
 
 const MaxWidthTypography = styled(Typography)`
@@ -45,7 +40,7 @@ const MaxWidthTypography = styled(Typography)`
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { contacts } = useContactsContext();
+  const { contacts, removeContact } = useContactsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredContacts = contacts
@@ -83,6 +78,11 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         />
       </VerticalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+        {filteredContacts.length === 0 && (
+          <Typography margin="16px" as="p" align="center" color="text2">
+            No contacts found
+          </Typography>
+        )}
         {filteredContacts.map((c) => (
           <DropDownMenuItem
             key={c.address}
@@ -123,7 +123,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
               >
                 <TextButton
                   onClick={() => {
-                    //deleteContact(c.address);
+                    removeContact(c);
                     toast.success('Contact removed!');
                   }}
                 >

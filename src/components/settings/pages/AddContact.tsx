@@ -17,7 +17,7 @@ import { Contact } from '@src/background/services/contacts/models';
 export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
   const [contact, setContact] = useState<Contact>({ name: '', address: '' });
   const theme = useTheme();
-  //const {  } = useContactsContext();
+  const { createContact } = useContactsContext();
   const isValidAddress =
     AddressHelper.validateAddress(contact.address) &&
     AddressHelper.getAddressChain(contact.address) === 'C';
@@ -68,7 +68,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             width="100%"
             size={ComponentSize.LARGE}
             onClick={() => {
-              //addContact(contact);
+              createContact(contact);
               toast.success('Contact created!');
               goBack();
             }}
