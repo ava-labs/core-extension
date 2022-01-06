@@ -56,7 +56,6 @@ export function ContactsContextProvider({ children }: { children: any }) {
   }, []);
 
   async function createContact(contact: Contact) {
-    console.log('CREATING...');
     await request({
       method: ExtensionRequest.CONTACTS_CREATE,
       params: [contact],
