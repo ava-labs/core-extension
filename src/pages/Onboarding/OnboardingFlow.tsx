@@ -87,7 +87,14 @@ export function OnboardingFlow() {
         <Logo />
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
-        <Card width="600px" height="744px">
+        <Card
+          style={{
+            width: '600px',
+            minHeight: '540px',
+            height: 'calc(100vh - 130px)',
+            maxHeight: '800px',
+          }}
+        >
           {content}
         </Card>
       </VerticalFlex>
