@@ -26,24 +26,25 @@ const ContactsContext = createContext<ContactsFromProvider>({} as any);
 
 export function ContactsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const [contacts, setContacts] = useState<ContactsState>();
-  const [editedContact, setEditedContact] = useState<Contact>();
-
-  function getContacts() {
-    return request({
-      method: ExtensionRequest.CONTACTS_GET,
-    }).then((res) => {
-      setContacts(res);
-      return res;
-    });
-  }
+  const [contacts, setContacts] = useState<ContactsState>({
+    contacts: [],
+  });
+  const [editedContact, setEditedContact] = useState<Contact>({
+    name: '',
+    address: '',
+  });
 
   useEffect(() => {
     if (!events) {
       return;
     }
 
-    getContacts();
+    request({
+      method: ExtensionRequest.CONTACTS_GET,
+    }).then((res) => {
+      setContacts(res);
+      return res;
+    });
 
     const subscription = events()
       .pipe(
@@ -60,7 +61,6 @@ export function ContactsContextProvider({ children }: { children: any }) {
       method: ExtensionRequest.CONTACTS_CREATE,
       params: [contact],
     });
-    return getContacts();
   }
 
   async function removeContact(contact: Contact) {
@@ -68,20 +68,17 @@ export function ContactsContextProvider({ children }: { children: any }) {
       method: ExtensionRequest.CONTACTS_REMOVE,
       params: [contact],
     });
-    return getContacts();
   }
 
   return (
     <ContactsContext.Provider
-      value={
-        {
-          ...contacts,
-          createContact,
-          editedContact,
-          removeContact,
-          setEditedContact,
-        } as ContactsFromProvider
-      }
+      value={{
+        ...contacts,
+        createContact,
+        editedContact,
+        removeContact,
+        setEditedContact,
+      }}
     >
       {children}
     </ContactsContext.Provider>
