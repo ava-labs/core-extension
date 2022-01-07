@@ -1,13 +1,12 @@
 import React from 'react';
 import {
-  CopyIcon,
   toast,
   Typography,
   VerticalFlex,
-  HorizontalFlex,
   Input,
   PrimaryButton,
   ComponentSize,
+  PrimaryAddress,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
@@ -15,19 +14,9 @@ import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 
-const AddressBlock = styled(HorizontalFlex)`
-  border-radius: ${({ theme }) => theme.borderRadius};
-  cursor: pointer;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  margin: 6px 0px 0px 0px;
-  border: solid 1px ${({ theme }) => theme.colors.stroke1};
+const PrimaryAddressWithMargin = styled(PrimaryAddress)`
+  margin-top: 8px;
   width: 100%;
-
-  & > ${Typography} {
-    word-break: break-all;
-  }
 `;
 
 export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
@@ -63,17 +52,10 @@ export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
           <Typography color="text2" size={14} margin="16px 0px 0px 0px">
             Address
           </Typography>
-          <AddressBlock
-            onClick={() => {
-              navigator.clipboard.writeText(editedContact.address);
-              toast.success('Copied!');
-            }}
-          >
-            <Typography margin="0px 8px 0px 0px">
-              {editedContact.address}
-            </Typography>
-            <CopyIcon color={theme.colors.icon1} />
-          </AddressBlock>
+          <PrimaryAddressWithMargin
+            isTruncated={false}
+            address={editedContact.address}
+          />
         </VerticalFlex>
 
         <VerticalFlex align="center" grow="1" justify="flex-end" margin="16px">

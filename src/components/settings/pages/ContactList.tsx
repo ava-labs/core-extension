@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   PlusIcon,
-  CopyIcon,
   PencilIcon,
   DropDownMenuItem,
   SearchInput,
@@ -12,31 +11,17 @@ import {
   VerticalFlex,
   HorizontalFlex,
   Tooltip,
+  PrimaryAddress,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { truncateAddress } from '@src/utils/truncateAddress';
 
-const AddressBlock = styled(HorizontalFlex)`
-  border-radius: ${({ theme }) => theme.borderRadius};
-  cursor: pointer;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  margin: 0px 12px 0px 4px;
-  border: solid 1px ${({ theme }) => theme.colors.stroke1};
-`;
-
-const MaxWidthTypography = styled(Typography)`
-  max-width: 68px;
-  height: 18px;
-  overflow: hidden;
-  display: block;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+const PrimaryAddressWithMargin = styled(PrimaryAddress)`
+  width: 100%;
+  margin-right: 10px;
 `;
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
@@ -71,7 +56,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
           </Tooltip>
         }
       />
-      <VerticalFlex padding="16px">
+      <VerticalFlex padding="16px 22px">
         <SearchInput
           placeholder="Search contacts"
           onSearch={setSearchTerm}
@@ -90,48 +75,44 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
             justify="space-between"
             align="center"
           >
-            <MaxWidthTypography title={c.name}>{c.name}</MaxWidthTypography>
+            <VerticalFlex width="100%">
+              <Typography margin="0 0 4px 0">{c.name}</Typography>
+              <HorizontalFlex justify="space-between">
+                <PrimaryAddressWithMargin
+                  //name={c.name}
+                  address={c.address}
+                />
 
-            <AddressBlock
-              onClick={() => {
-                navigator.clipboard.writeText(c.address);
-                toast.success('Copied!');
-              }}
-            >
-              <Typography title={c.address} margin="0px 8px 0px 0px">
-                {truncateAddress(c.address, 5)}
-              </Typography>
-              <CopyIcon height="16px" color={theme.colors.icon1} />
-            </AddressBlock>
+                <HorizontalFlex>
+                  <Tooltip
+                    content={<Typography size={12}>Edit contact</Typography>}
+                  >
+                    <TextButton
+                      margin="0 8px 0 0"
+                      onClick={() => {
+                        setEditedContact(c);
+                        navigateTo(SettingsPages.EDIT_CONTACT);
+                      }}
+                    >
+                      <PencilIcon height="16px" color={theme.colors.icon1} />
+                    </TextButton>
+                  </Tooltip>
 
-            <HorizontalFlex>
-              <Tooltip
-                content={<Typography size={12}>Edit contact</Typography>}
-              >
-                <TextButton
-                  margin="0 8px 0 0"
-                  onClick={() => {
-                    setEditedContact(c);
-                    navigateTo(SettingsPages.EDIT_CONTACT);
-                  }}
-                >
-                  <PencilIcon height="16px" color={theme.colors.icon1} />
-                </TextButton>
-              </Tooltip>
-
-              <Tooltip
-                content={<Typography size={12}>Remove contact</Typography>}
-              >
-                <TextButton
-                  onClick={() => {
-                    removeContact(c);
-                    toast.success('Contact removed!');
-                  }}
-                >
-                  <TrashIcon height="16px" color={theme.colors.icon1} />
-                </TextButton>
-              </Tooltip>
-            </HorizontalFlex>
+                  <Tooltip
+                    content={<Typography size={12}>Remove contact</Typography>}
+                  >
+                    <TextButton
+                      onClick={() => {
+                        removeContact(c);
+                        toast.success('Contact removed!');
+                      }}
+                    >
+                      <TrashIcon height="16px" color={theme.colors.icon1} />
+                    </TextButton>
+                  </Tooltip>
+                </HorizontalFlex>
+              </HorizontalFlex>
+            </VerticalFlex>
           </DropDownMenuItem>
         ))}
       </Scrollbars>
