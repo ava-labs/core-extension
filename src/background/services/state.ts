@@ -2,6 +2,7 @@ import { filterFalseyValues } from '@src/utils/filterFalsyValues';
 import { stateLog } from '@src/utils/logging';
 import { combineLatest, map, throttleTime } from 'rxjs';
 import { messages$ } from './messages/messages';
+import { contacts$ } from './contacts/contacts';
 import { onboardingStatus$ } from './onboarding/onboardingFlows';
 import { permissions$ } from './permissions/permissions';
 import {
@@ -41,6 +42,7 @@ combineLatest([
   messages$.pipe(toStructure('messages')),
   walletState$.pipe(filterFalseyValues(), toStructure('walletState')),
   settings$.pipe(toStructure('settingsState')),
+  contacts$.pipe(toStructure('contactsState')),
   recentTxHistory$.pipe(toStructure('recentTxHistory')),
   accounts$.pipe(toStructure('accounts')),
   favorites$.pipe(toStructure('favoritesState')),
