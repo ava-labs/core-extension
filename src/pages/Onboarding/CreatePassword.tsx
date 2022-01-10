@@ -69,6 +69,7 @@ export const CreatePassword = ({
             label="Wallet Name"
             onChange={(e) => setAccountName(e.target.value)}
             placeholder="Placeholder"
+            autoFocus
           />
         </HorizontalFlex>
         <VerticalFlex height={'120px'}>

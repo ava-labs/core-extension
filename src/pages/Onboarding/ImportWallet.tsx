@@ -72,6 +72,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           secret recovery phrase.
         </Typography>
         <TextArea
+          autoFocus
           margin="40px 0 0 0"
           error={!!error}
           errorMessage={error}
