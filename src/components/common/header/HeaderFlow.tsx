@@ -13,5 +13,5 @@ export interface HeaderProps {
 export function HeaderFlow(props: HeaderProps) {
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
 
-  return isMiniMode ? <HeaderMiniMode {...props} /> : <Header {...props} />;
+  return isMiniMode ? <HeaderMiniMode /> : <Header {...props} />;
 }

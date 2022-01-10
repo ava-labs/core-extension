@@ -46,6 +46,9 @@ import { RemoveContactStateRequest } from '@src/background/services/contacts/han
 import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
 import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
+import { SettingsUpdateTokensVisibility } from '@src/background/services/settings/handlers/updateTokensVisibility';
+import { SettingsAddCustomTokenRequest } from '@src/background/services/settings/handlers/addCustomToken';
+import { SettingsGetTokenDataRequest } from '@src/background/services/settings/handlers/getTokenDataByAddress';
 import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/handlers/changeWalletPassword';
 import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
@@ -113,8 +116,11 @@ const extensionRequestHandlerMap = new Map<
   GetSettingsStateRequest,
   SettingsUpdateCurrencySelectionRequest,
   SettingsUpdateShowTokensWithBalanceRequest,
+  SettingsUpdateTokensVisibility,
   SettingsLockWalletStateRequest,
   SettingsUpdateThemeRequest,
+  SettingsAddCustomTokenRequest,
+  SettingsGetTokenDataRequest,
 
   GetContactsStateRequest,
   CreateContactStateRequest,

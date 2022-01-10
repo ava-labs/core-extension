@@ -8,10 +8,6 @@ import {
   Toaster,
 } from '@avalabs/react-components';
 
-const AddToken = React.lazy(() => {
-  return import('../pages/AddToken/AddToken');
-});
-
 const SignMessage = React.lazy(() => {
   return import('../pages/SignMessage/SignMessage');
 });
@@ -26,6 +22,14 @@ const SignTransactionPage = React.lazy(() => {
 
 const SettingsPage = React.lazy(() => {
   return import('../pages/Settings/SettingsPage');
+});
+
+const ManageTokensPage = React.lazy(() => {
+  return import('../pages/ManageTokens/ManageTokensFlow');
+});
+
+const AddToken = React.lazy(() => {
+  return import('../pages/ManageTokens/AddToken');
 });
 
 const TokenFlowPage = React.lazy(() => {
@@ -67,7 +71,7 @@ export function Popup() {
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm ? '100%' : '1280px'),
-    []
+    [isMiniMode, isConfirm]
   );
 
   return (
@@ -170,6 +174,18 @@ export function Popup() {
                             <Route path="/swap">
                               <React.Suspense fallback={<LoadingIcon />}>
                                 <Swap />
+                              </React.Suspense>
+                            </Route>
+
+                            <Route path="/manage-tokens/add">
+                              <React.Suspense fallback={<LoadingIcon />}>
+                                <AddToken />
+                              </React.Suspense>
+                            </Route>
+
+                            <Route path="/manage-tokens">
+                              <React.Suspense fallback={<LoadingIcon />}>
+                                <ManageTokensPage />
                               </React.Suspense>
                             </Route>
 

@@ -1,5 +1,9 @@
 import { useThemeContext } from '@avalabs/react-components';
 import {
+  ERC20WithBalance,
+  TokenWithBalance,
+} from '@avalabs/wallet-react-components';
+import {
   ExtensionConnectionMessageResponse,
   ExtensionRequest,
 } from '@src/background/connections/models';
@@ -10,6 +14,7 @@ import {
 } from '@src/background/services/settings/models';
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -26,6 +31,10 @@ type SettingsFromProvider = SettingsState & {
   toggleShowTokensWithoutBalanceSetting(): Promise<
     ExtensionConnectionMessageResponse<any>
   >;
+  toggleTokenVisibility(
+    token: TokenWithBalance
+  ): Promise<ExtensionConnectionMessageResponse<any>>;
+  getTokenVisibility(token: TokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
   currencyFormatter(value: number): string;
 };
@@ -95,6 +104,32 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  function toggleTokenVisibility(token: TokenWithBalance) {
+    const key = (token as ERC20WithBalance).address;
+    const tokensVisibility = settings?.tokensVisibility ?? {};
+    return request!({
+      method: ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
+      params: [
+        {
+          ...tokensVisibility,
+          [key]:
+            tokensVisibility[key] !== undefined
+              ? !tokensVisibility[key]
+              : false,
+        },
+      ],
+    });
+  }
+
+  const getTokenVisibility = useCallback(
+    (token: TokenWithBalance) => {
+      const key = (token as ERC20WithBalance).address;
+      const tokensVisibility = settings?.tokensVisibility ?? {};
+      return tokensVisibility[key] || tokensVisibility[key] === undefined;
+    },
+    [settings?.tokensVisibility]
+  );
+
   function updateTheme(theme: ThemeVariant) {
     return request!({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
@@ -110,6 +145,8 @@ export function SettingsContextProvider({ children }: { children: any }) {
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
+          getTokenVisibility,
+          toggleTokenVisibility,
           updateTheme,
           currencyFormatter,
         } as SettingsFromProvider
