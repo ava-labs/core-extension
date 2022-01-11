@@ -9,14 +9,13 @@ import {
   LoadingIcon,
   ThemeContextProvider,
   walletThemeDark,
-  walletThemeLight,
 } from '@avalabs/react-components';
 
 browser.tabs.query({ active: true }).then(() => {
   ReactDOM.render(
     <Router>
       <ThemeContextProvider
-        lightTheme={walletThemeLight}
+        lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
         darkTheme={walletThemeDark}
       >
         <React.Suspense fallback={<LoadingIcon />}>
