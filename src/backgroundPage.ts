@@ -6,6 +6,8 @@ import { extensionConnection } from './background/connections/extensionConnectio
 import '@src/background/services/state';
 import { ContextContainer } from './hooks/useIsSpecificContextContainer';
 import { activateServices } from '@avalabs/wallet-react-components';
+import { lockWalletFromSettings } from './background/services/settings/handlers/lockWallet';
+import { ExtensionRequest } from './background/connections/models';
 
 /**
  * This activates all of the services in the wallet react components SDK
@@ -20,6 +22,22 @@ browser.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     browser.tabs.create({ url: ContextContainer.HOME });
   }
+});
+
+browser.contextMenus.removeAll().then(() => {
+  // Creating the "Lock wallet" extension menu item
+  browser.contextMenus.create({
+    type: 'normal',
+    id: 'lock-wallet',
+    title: '🔒 Lock wallet',
+    contexts: ['browser_action'],
+    onclick: (info, tab) => {
+      lockWalletFromSettings({
+        id: tab.id?.toString() || '',
+        method: ExtensionRequest.SETTINGS_LOCK_WALLET,
+      });
+    },
+  });
 });
 
 browser.runtime.onConnect.addListener((connection) => {
