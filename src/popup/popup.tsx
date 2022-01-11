@@ -1,5 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import {
+  Switch,
+  Route,
+  Redirect,
+  useLocation,
+  useHistory,
+} from 'react-router-dom';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -63,16 +69,39 @@ import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
+import { useEffect } from 'react';
 
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const localStorageHistoryKey = 'avalanche-extension-history';
+  const history = useHistory();
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm ? '100%' : '1280px'),
     [isMiniMode, isConfirm]
   );
+
+  useEffect(() => {
+    const historyFromLocalStorage = JSON.parse(
+      localStorage.getItem(localStorageHistoryKey) || '{}'
+    );
+
+    if (Object.keys(historyFromLocalStorage).length !== 0) {
+      history.push(historyFromLocalStorage.location.pathname); // go to last visited route
+    }
+
+    const unlisten = history.listen(() => {
+      console.log('here');
+      // Set history object in localStorage on each route change
+      localStorage.setItem(localStorageHistoryKey, JSON.stringify(history));
+    });
+
+    return unlisten;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <DialogContextProvider>
