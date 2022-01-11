@@ -93,7 +93,6 @@ export function Popup() {
     }
 
     const unlisten = history.listen(() => {
-      console.log('here');
       // Set history object in localStorage on each route change
       localStorage.setItem(localStorageHistoryKey, JSON.stringify(history));
     });
