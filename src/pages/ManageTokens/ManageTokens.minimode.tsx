@@ -28,7 +28,7 @@ export const ManageTokensMiniMode = () => {
 
   return (
     <>
-      <VerticalFlex flex={1}>
+      <VerticalFlex flex={1} padding={'0 0 65px'}>
         <PageTitleMiniMode showBack>Manage token list</PageTitleMiniMode>
         <PageContentMiniMode>
           <StyledSearchInput
