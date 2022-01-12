@@ -17,15 +17,13 @@ npx npm-cli-login -u YOUR_NPM_USERNAME -p YOUR_NPM_PASSWORD -e YOUR_NPM_EMAIL
 
 You can also [set up an access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) if you prefer.
 
-## Development
-
-`yarn dev` watches for changes.
-
 ## Build
 
 `yarn build` will run everything through webpack and create a `/dist` directory.
 
 ## Development
+
+`yarn dev` watches for changes.
 
 ### Chrome or Brave Development
 
