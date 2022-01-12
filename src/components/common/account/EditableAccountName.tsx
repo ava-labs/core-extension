@@ -4,7 +4,7 @@ import {
   TextButton,
   Typography,
 } from '@avalabs/react-components';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 interface EditableAccountNameProps {
@@ -38,8 +38,8 @@ export function EditableAccountName({
   onSave,
 }: EditableAccountNameProps) {
   const theme = useTheme();
-  const [accountName, setAccountName] = useState(name);
-  const [edit, setEdit] = useState(false);
+  const [accountName, setAccountName] = useState<string>(name);
+  const [edit, setEdit] = useState<boolean>(false);
 
   useEffect(() => {
     if (!enabled) {
@@ -47,14 +47,12 @@ export function EditableAccountName({
     }
   }, [enabled]);
 
-  const editAddress = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+  const editAddress = (e) => {
     e.stopPropagation();
     setEdit(true);
   };
 
-  const onSaveClicked = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+  const onSaveClicked = (e) => {
     e.stopPropagation();
     setEdit(false);
     onSave(accountName);

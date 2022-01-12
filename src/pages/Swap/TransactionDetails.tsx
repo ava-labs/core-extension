@@ -8,7 +8,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 
@@ -67,7 +67,7 @@ export function TransactionDetails({
   slippage,
   setSlippage,
 }: TransactionDetailsProps) {
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
   const theme = useTheme();
   return (
     <Container>

@@ -5,7 +5,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { AddLiquidityDisplayData } from '@src/contracts/contractParsers/models';
-import React from 'react';
+import { Fragment } from 'react';
 import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
 import { TokenCard } from './components/TokenCard';
@@ -42,7 +42,7 @@ export function AddLiquidityTx({
 
       {/* Tokens */}
       {poolTokens.map((token, index) => (
-        <React.Fragment key={token.symbol}>
+        <Fragment key={token.symbol}>
           <TokenCard
             token={token}
             margin={`${!index && '16px 0 0 0'}`}
@@ -50,7 +50,7 @@ export function AddLiquidityTx({
             amount={token.amountUSDValue}
           />
           {!index && plusIcon}
-        </React.Fragment>
+        </Fragment>
       ))}
 
       {/* Tabs */}

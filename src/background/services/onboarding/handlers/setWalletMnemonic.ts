@@ -3,11 +3,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { OnboardingPhase } from '../models';
-import {
-  onboardingCurrentPhase$,
-  onboardingMnemonic$,
-} from '../onboardingFlows';
+import { onboardingMnemonic$ } from '../onboardingFlows';
 
 export async function setWalletMnemonic(request: ExtensionConnectionMessage) {
   const params = request.params;

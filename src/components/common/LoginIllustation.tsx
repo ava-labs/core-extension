@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ThemeVariant } from '@src/background/services/settings/models';
 

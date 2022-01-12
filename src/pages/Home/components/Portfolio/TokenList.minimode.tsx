@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { VerticalFlex } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState } from 'react';
 import {
   VerticalFlex,
@@ -29,7 +28,7 @@ export function CopyPhrase({
   mnemonic,
 }: CopyPhraseProps) {
   const theme = useTheme();
-  const [termsConfirmed, setTermsConfirmed] = useState(false);
+  const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
 
   return (
     <VerticalFlex width="100%" align="center" padding="16px 0">

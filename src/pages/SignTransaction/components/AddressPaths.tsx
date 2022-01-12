@@ -1,6 +1,5 @@
 import {
   CaretIcon,
-  GridContainer,
   HorizontalFlex,
   IconDirection,
   LinkIcon,
@@ -13,7 +12,7 @@ import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTheme } from 'styled-components';
 
 export function AddressPaths({
@@ -30,6 +29,7 @@ export function AddressPaths({
     return accounts.find((acc) => {
       return acc.addressC.toLowerCase() === fromAddress.toLowerCase();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accounts]);
 
   return (

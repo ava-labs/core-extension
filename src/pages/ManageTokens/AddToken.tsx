@@ -15,7 +15,7 @@ import {
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
@@ -120,5 +120,3 @@ export function AddToken() {
     </>
   );
 }
-
-export default AddToken;

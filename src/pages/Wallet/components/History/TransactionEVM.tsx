@@ -4,7 +4,6 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { TransactionEVM as TransacionEVMInterface } from '@avalabs/wallet-react-components';
-import React from 'react';
 import { HistoryItem } from './components/HistoryItem';
 import {
   HistorySentIndicator,

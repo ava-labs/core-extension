@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function BeadIcon({
   height = '24px',
   color,

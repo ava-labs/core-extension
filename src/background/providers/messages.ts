@@ -1,4 +1,4 @@
-const messages = {
+export const messages = {
   errors: {
     disconnected: () =>
       'MetaMask: Disconnected from chain. Attempting to connect.',
@@ -36,4 +36,3 @@ const messages = {
     experimentalMethods: `MetaMask: 'ethereum._metamask' exposes non-standard, experimental methods. They may be removed or changed without warning.`,
   },
 };
-export default messages;

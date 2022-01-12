@@ -9,7 +9,7 @@ export interface StorageEvent<T = any> {
 const storage: typeof chrome.storage = extension.storage;
 
 const storageEvents = new Subject<StorageEvent>();
-export function storageEventListener<T = any>() {
+export function storageEventListener() {
   return storageEvents.asObservable();
 }
 

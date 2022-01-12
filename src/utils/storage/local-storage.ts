@@ -14,7 +14,6 @@ import { Subject } from 'rxjs';
  */
 const storageListener = new Subject<StorageEvent>();
 globalThis.addEventListener('storage', (evt) => storageListener.next(evt));
-export default storageListener.asObservable();
 
 /**
  * Not sure why but when you retrieve a store value that was put into localstorage

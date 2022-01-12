@@ -1,5 +1,5 @@
 import { ExtensionRequest } from '@src/background/connections/models';
-import React, {
+import {
   createContext,
   Dispatch,
   SetStateAction,

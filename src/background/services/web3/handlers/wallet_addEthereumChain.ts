@@ -3,7 +3,6 @@ import {
   ConnectionRequestHandler,
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
-import { AddEthChainParams } from '@src/background/models';
 import { supportedNetworks } from '../../network/models';
 
 /**

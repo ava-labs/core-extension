@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { TokenCard, VerticalFlex } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
-  AntWithBalance,
   isAntToken,
   isAvaxToken,
   isERC20Token,
@@ -48,6 +47,7 @@ export function TokenList({
           .includes(searchQuery.toLowerCase()));
 
     return { tokens, showAvax };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenList, searchQuery]);
 
   if (!tokens.length && !showAvax) {

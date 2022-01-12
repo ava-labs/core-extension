@@ -13,7 +13,7 @@ import {
 import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -37,8 +37,8 @@ export function CustomGasLimitAndFees({
   const { currencyFormatter } = useSettingsContext();
   const [customGasLimit, setCustomGasLimit] = useState<string>('');
   const [customGasPrice, setCustomGasPrice] = useState<GasPrice>();
-
-  const [calculateGasAndFeesError, setCalculateGasAndFeesError] = useState('');
+  const [calculateGasAndFeesError, setCalculateGasAndFeesError] =
+    useState<string>('');
   const [newFees, setNewFees] =
     useState<ReturnType<typeof calculateGasAndFees>>();
   const theme = useTheme();

@@ -1,4 +1,3 @@
-import React from 'react';
 /**
  * This is in support of of EIP-712
  * @link https://eips.ethereum.org/EIPS/eip-712
@@ -15,7 +14,7 @@ export function SignData({ data }: { data: any }) {
 
       {data &&
         data.map((x, i) => {
-          const { type, name, value } = x;
+          const { name, value } = x;
 
           return (
             <div key={i}>

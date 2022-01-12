@@ -78,7 +78,7 @@ export const openNewTab = (options: { url: string; selected?: boolean }) => {
 
 export const openWindow = (options: Windows.CreateCreateDataType) => {
   return new Promise<ReturnType<typeof createWindowInfoAndEvents>>(
-    (resolve, reject) => {
+    (resolve) => {
       extension.windows.create(options, (newWindow: Windows.Window) => {
         return resolve(createWindowInfoAndEvents(newWindow));
       });
@@ -88,7 +88,7 @@ export const openWindow = (options: Windows.CreateCreateDataType) => {
 
 export const getTabs = () => {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  return extension.tabs.query((tabs: Tabs.Tab) => {});
+  return extension.tabs.query(() => {});
 };
 
 export const openExtensionInBrowser = (route = null, queryString = null) => {
@@ -140,12 +140,4 @@ export const openExtensionNewWindow = (
 
 export const reload = () => {
   extension.runtime.reload();
-};
-
-export default {
-  openNewTab,
-  openWindow,
-  openExtensionInBrowser,
-  openExtensionNewWindow,
-  getTabs,
 };

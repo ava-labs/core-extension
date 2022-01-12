@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CreatePassword } from '@src/pages/Onboarding/CreatePassword';
 import { CreateWallet } from './CreateWallet/CreateWallet';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
@@ -99,5 +99,3 @@ export function OnboardingFlow() {
     </VerticalFlex>
   );
 }
-
-export default OnboardingFlow;

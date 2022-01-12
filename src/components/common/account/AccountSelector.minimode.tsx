@@ -1,10 +1,10 @@
 import { SecondaryOverlay } from '@avalabs/react-components';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AccountDropdownContent } from './AccountDopdownContent';
 import { AccountSelectorButton } from './AccountSelectorButton';
 
 export function AccountSelectorMiniMode() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <>

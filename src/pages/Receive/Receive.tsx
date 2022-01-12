@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -32,7 +32,7 @@ const StyledQRCodeWithLogo = styled(QRCodeWithLogo)`
 
 export const Receive = () => {
   const { addresses } = useWalletContext();
-  const [chain, setChain] = useState('C');
+  const [chain, setChain] = useState<string>('C');
   const theme = useTheme();
 
   const getAddress = () => {

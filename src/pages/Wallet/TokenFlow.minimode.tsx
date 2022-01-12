@@ -18,7 +18,7 @@ import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useTheme } from 'styled-components';
 import { ReceiveMiniMode } from '../Receive/Receive.minimode';
@@ -103,5 +103,3 @@ export function TokenFlowMiniMode() {
     </VerticalFlex>
   );
 }
-
-export default TokenFlowMiniMode;

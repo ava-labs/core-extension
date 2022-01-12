@@ -1,4 +1,3 @@
-import React from 'react';
 import { OptimalRate } from 'paraswap-core';
 import {
   CaretIcon,

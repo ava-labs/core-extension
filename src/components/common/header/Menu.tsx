@@ -7,7 +7,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled, { css, useTheme } from 'styled-components';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MenuItem, menuItems } from './MenuItems';
 import { NavLink } from 'react-router-dom';
 
@@ -137,10 +137,10 @@ const DropDownText = styled(Typography)`
   `};
 `;
 
-function Menu() {
+export function Menu() {
   const theme = useTheme();
   const isSmallScreen = useIsSmallScreen();
-  const [dropDownOpen, setDropDownOpen] = useState('');
+  const [dropDownOpen, setDropDownOpen] = useState<string>('');
 
   const toggleDropDown = (key: string) => {
     if (!isSmallScreen) return;
@@ -232,5 +232,3 @@ function Menu() {
     </HorizontalFlex>
   );
 }
-
-export default Menu;

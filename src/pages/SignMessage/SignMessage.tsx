@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -69,5 +68,3 @@ export function SignMessage() {
     </VerticalFlex>
   );
 }
-
-export default SignMessage;

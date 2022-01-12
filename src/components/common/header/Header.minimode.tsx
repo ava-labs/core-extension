@@ -8,7 +8,6 @@ import {
   TextButton,
   Typography,
 } from '@avalabs/react-components';
-import React from 'react';
 import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
 import { usePermissions } from '@src/pages/Permissions/usePermissions';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
@@ -17,7 +16,7 @@ import { AccountSelectorFlow } from '../account/AccountSelectorFlow';
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 
-function HeaderMiniMode() {
+export function HeaderMiniMode() {
   const theme = useTheme();
   const domain = useCurrentDomain();
   const { permissions, updateAccountPermission } = usePermissions(domain);
@@ -74,5 +73,3 @@ function HeaderMiniMode() {
     </HorizontalFlex>
   );
 }
-
-export default HeaderMiniMode;

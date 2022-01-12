@@ -1,8 +1,9 @@
-import React from 'react';
 import ReactModal from 'react-modal';
 import { useTheme } from 'styled-components';
 
-ReactModal.setAppElement(document.getElementById('popup'));
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+ReactModal.setAppElement(document.getElementById('popup')!);
+
 /**
  * @link http://reactcommunity.org/react-modal/
  */

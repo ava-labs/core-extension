@@ -4,7 +4,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import React, { Fragment, useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 
 import { isTransactionEVM } from '@avalabs/wallet-react-components';
 import Scrollbars from 'react-custom-scrollbars';

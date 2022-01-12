@@ -6,7 +6,6 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 

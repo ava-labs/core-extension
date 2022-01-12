@@ -1,11 +1,8 @@
-import React from 'react';
+import { lazy } from 'react';
 import { useTheme, DefaultTheme } from 'styled-components';
-
 import { Typography, useThemeContext } from '@avalabs/react-components';
 
-const PasswordStrengthBar = React.lazy(
-  () => import('react-password-strength-bar')
-);
+const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'));
 
 export const PASSWORD_STRENGTH_ERROR = 'The new password is too weak';
 export const PASSWORDS_MATCH_ERROR = 'Passwords do not match';

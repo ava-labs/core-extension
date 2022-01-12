@@ -12,14 +12,23 @@ import {
   useIsSpecificContextContainer,
   ContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  Suspense,
+  useEffect,
+  lazy,
+  useState,
+} from 'react';
 import { concat, filter, from, map } from 'rxjs';
 import { browser } from 'webextension-polyfill-ts';
 import { useConnectionContext } from './ConnectionProvider';
 
-const OnboardingFlow = React.lazy(() => {
-  return import('../pages/Onboarding/OnboardingFlow');
-});
+const OnboardingFlow = lazy(() =>
+  import('../pages/Onboarding/OnboardingFlow').then((m) => ({
+    default: m.OnboardingFlow,
+  }))
+);
 
 const OnboardingContext = createContext<{
   onboardingState: OnboardingState;
@@ -121,9 +130,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       */}
 
       {isHome ? (
-        <React.Suspense fallback={<LoadingIcon />}>
+        <Suspense fallback={<LoadingIcon />}>
           <OnboardingFlow />
-        </React.Suspense>
+        </Suspense>
       ) : (
         children
       )}

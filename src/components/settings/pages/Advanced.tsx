@@ -1,4 +1,3 @@
-import React from 'react';
 import { VerticalFlex } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';

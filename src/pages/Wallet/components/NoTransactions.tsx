@@ -3,7 +3,6 @@ import {
   useThemeContext,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React from 'react';
 import styled from 'styled-components';
 
 const ContainerWithBg = styled(VerticalFlex)<{ isDarkTheme: boolean }>`

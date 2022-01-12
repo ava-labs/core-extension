@@ -4,7 +4,6 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React from 'react';
 import { TokenList } from './TokenList';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { WalletBalances } from './WalletBalances';

@@ -10,7 +10,6 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import React from 'react';
 import styled, { useTheme } from 'styled-components';
 
 interface AccountSelectorButtonProps {

@@ -5,7 +5,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import { HistoryItemLink } from './HistoryItemLink';
 
 interface HistoryItemProps {

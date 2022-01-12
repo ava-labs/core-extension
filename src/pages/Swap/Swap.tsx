@@ -21,7 +21,7 @@ import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate } from 'paraswap-core';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
@@ -77,31 +77,25 @@ export function Swap() {
   const { getRate, swap, gasPrice } = useSwapContext();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
-
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [swapError, setSwapError] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [swapError, setSwapError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const [txInProgress, setTxInProgress] = useState(false);
+  const [txInProgress, setTxInProgress] = useState<boolean>(false);
   const [txHash, setTxHash] =
     useState<{ swapTxHash: string; approveTxHash?: string }>();
-
-  const [canSwap, setCanSwap] = useState(false);
-  const [isReviewOrderOpen, setIsReviewOrderOpen] = useState(false);
+  const [canSwap, setCanSwap] = useState<boolean>(false);
+  const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
   const [selectedToToken, setSelectedToToken] = useState<TokenWithBalance>();
   const [optimalRate, setOptimalRate] = useState<OptimalRate>();
-
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
-
-  const [gasLimit, setGasLimit] = useState('');
-  const [gasCost, setGasCost] = useState('');
-  const [destAmount, setDestAmount] = useState('');
-
+  const [gasLimit, setGasLimit] = useState<string>('');
+  const [gasCost, setGasCost] = useState<string>('');
+  const [destAmount, setDestAmount] = useState<string>('');
   const [showCustomGasLimitAndFees, setShowCustomGasLimitAndFees] =
-    useState(false);
-  const [rateValueInput, setRateValueInput] = useState('');
+    useState<boolean>(false);
+  const [rateValueInput, setRateValueInput] = useState<string>('');
   const [fromTokenValue, setFromTokenValue] =
     useState<{ bn: BN; amount: string }>();
   const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
@@ -511,5 +505,3 @@ export function Swap() {
     </>
   );
 }
-
-export default Swap;

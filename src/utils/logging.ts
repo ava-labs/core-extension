@@ -1,6 +1,6 @@
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { Observable, tap } from 'rxjs';
-import isDevelopment from './isDevelopment';
+import { isDevelopment } from './isDevelopment';
 export const repeat = (str, times) => new Array(times + 1).join(str);
 
 export const padStart = (num, maxLength, char = ' ') =>

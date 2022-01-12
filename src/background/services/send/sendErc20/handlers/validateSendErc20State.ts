@@ -5,7 +5,6 @@ import {
 } from '@src/background/connections/models';
 import {
   checkAndValidateSendErc20,
-  ERC20,
   ERC20WithBalance,
   wallet$,
 } from '@avalabs/wallet-react-components';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { LoadingSpinnerIcon, VerticalFlex } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import {

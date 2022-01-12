@@ -1,4 +1,3 @@
-import React from 'react';
 import { SendConfirm } from './SendConfirm';
 import { useState } from 'react';
 import { isERC20Token } from '@avalabs/wallet-react-components';
@@ -17,7 +16,7 @@ import { Modal } from '@src/components/common/Modal';
 export function Send() {
   const sendState = useSend();
   const { showDialog, clearDialog } = useDialog();
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const selectedToken = useTokenFromParams();
 
   const onError = (error: string) => {

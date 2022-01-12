@@ -12,12 +12,12 @@ import {
   SettingsState,
   ThemeVariant,
 } from '@src/background/services/settings/models';
-import React, {
+import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
+  useCallback,
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';

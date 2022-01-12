@@ -1,5 +1,10 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { useEffect } from 'react';
+import {
+  createContext,
+  useEffect,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
 import { filter, map } from 'rxjs';

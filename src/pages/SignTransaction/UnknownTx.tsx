@@ -1,6 +1,5 @@
 import { Typography, VerticalFlex } from '@avalabs/react-components';
 import { TransactionDisplayValues } from '@src/background/services/transactions/models';
-import React from 'react';
 import { AddressPaths } from './components/AddressPaths';
 import { TransactionTabs } from './components/TransactionTabs';
 

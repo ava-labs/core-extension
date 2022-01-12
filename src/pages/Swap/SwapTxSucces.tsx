@@ -3,7 +3,6 @@ import {
   TransactionToast,
   TransactionToastType,
 } from '@avalabs/react-components';
-import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 interface SwapTxSuccessProps {

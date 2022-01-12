@@ -1,11 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import {
-  Switch,
-  Route,
-  Redirect,
-  useLocation,
-  useHistory,
-} from 'react-router-dom';
+import { lazy, useMemo, Suspense, useEffect, useState } from 'react';
+import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -13,43 +7,6 @@ import {
   DialogContextProvider,
   Toaster,
 } from '@avalabs/react-components';
-
-const SignMessage = React.lazy(() => {
-  return import('../pages/SignMessage/SignMessage');
-});
-
-const PermissionsPage = React.lazy(() => {
-  return import('../pages/Permissions/Permissions');
-});
-
-const SignTransactionPage = React.lazy(() => {
-  return import('../pages/SignTransaction/SignTransactionFlow');
-});
-
-const SettingsPage = React.lazy(() => {
-  return import('../pages/Settings/SettingsPage');
-});
-
-const ManageTokensPage = React.lazy(() => {
-  return import('../pages/ManageTokens/ManageTokensFlow');
-});
-
-const AddToken = React.lazy(() => {
-  return import('../pages/ManageTokens/AddToken');
-});
-
-const TokenFlowPage = React.lazy(() => {
-  return import('../pages/Wallet/TokenFlow.minimode');
-});
-
-const ActivityFlow = React.lazy(() => {
-  return import('../pages/Activity/ActivityFlow');
-});
-
-const Swap = React.lazy(() => {
-  return import('../pages/Swap/Swap');
-});
-
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
@@ -69,10 +26,63 @@ import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
-import { useEffect } from 'react';
+
+const AddToken = lazy(() => {
+  return import('../pages/ManageTokens/AddToken').then((m) => ({
+    default: m.AddToken,
+  }));
+});
+
+const SignMessage = lazy(() => {
+  return import('../pages/SignMessage/SignMessage').then((m) => ({
+    default: m.SignMessage,
+  }));
+});
+
+const PermissionsPage = lazy(() => {
+  return import('../pages/Permissions/Permissions').then((m) => ({
+    default: m.PermissionsPage,
+  }));
+});
+
+const SignTransactionPage = lazy(() => {
+  return import('../pages/SignTransaction/SignTransactionFlow').then((m) => ({
+    default: m.SignTransactionPage,
+  }));
+});
+
+const SettingsPage = lazy(() => {
+  return import('../pages/Settings/SettingsPage').then((m) => ({
+    default: m.SettingsPage,
+  }));
+});
+
+const TokenFlowPage = lazy(() => {
+  return import('../pages/Wallet/TokenFlow.minimode').then((m) => ({
+    default: m.TokenFlowMiniMode,
+  }));
+});
+
+const ManageTokensPage = lazy(() => {
+  return import('../pages/ManageTokens/ManageTokensFlow').then((m) => ({
+    default: m.ManageTokensFlow,
+  }));
+});
+
+const ActivityFlow = lazy(() => {
+  return import('../pages/Activity/ActivityFlow').then((m) => ({
+    default: m.ActivityFlow,
+  }));
+});
+
+const Swap = lazy(() => {
+  return import('../pages/Swap/Swap').then((m) => ({
+    default: m.Swap,
+  }));
+});
 
 export function Popup() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
@@ -144,9 +154,9 @@ export function Popup() {
                         >
                           <Switch>
                             <Route path="/token/add">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <AddToken />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/home">
@@ -154,71 +164,71 @@ export function Popup() {
                             </Route>
 
                             <Route path="/sign/transaction">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <SignTxErrorBoundary>
                                   <SignTransactionPage />
                                 </SignTxErrorBoundary>
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/sign">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <SignMessage />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/permissions">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <PermissionsPage />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/token">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <TokenFlowPage />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/receive">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <ReceiveFlow />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/send">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <WalletHomeSend />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/activity">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <ActivityFlow />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/settings">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <SettingsPage />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/swap">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <Swap />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/manage-tokens/add">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <AddToken />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/manage-tokens">
-                              <React.Suspense fallback={<LoadingIcon />}>
+                              <Suspense fallback={<LoadingIcon />}>
                                 <ManageTokensPage />
-                              </React.Suspense>
+                              </Suspense>
                             </Route>
 
                             <Route path="/">
@@ -238,5 +248,3 @@ export function Popup() {
     </DialogContextProvider>
   );
 }
-
-export default Popup;

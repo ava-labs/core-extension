@@ -1,4 +1,3 @@
-import React from 'react';
 import { SendConfirm } from './SendConfirm';
 import { useState } from 'react';
 import { isERC20Token } from '@avalabs/wallet-react-components';
@@ -27,7 +26,7 @@ const ConfirmContainer = styled(VerticalFlex)`
 export function SendMiniMode() {
   const history = useHistory();
   const sendState = useSend();
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const selectedToken = useTokenFromParams();
   const { showDialog, clearDialog } = useDialog();
 

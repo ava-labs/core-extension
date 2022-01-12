@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v4
  * @param param0

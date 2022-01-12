@@ -12,7 +12,7 @@ import {
   SendAntFormError,
   SendAvaxFormError,
 } from '@avalabs/wallet-react-components';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useSend } from '../hooks/useSend';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
@@ -33,8 +33,8 @@ export function SendForm({ sendState }: SendFormProps) {
   const { currencyFormatter } = useSettingsContext();
   const selectedToken = useTokenFromParams();
   const [amountInput, setAmountInput] = useState<BN>();
-  const [addressInput, setAddressInput] = useState('');
-  const [amountDisplayValue, setAmountDisplayValue] = useState('');
+  const [addressInput, setAddressInput] = useState<string>('');
+  const [amountDisplayValue, setAmountDisplayValue] = useState<string>('');
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new Subject<{

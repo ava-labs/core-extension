@@ -3,9 +3,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { OnboardingPhase } from '../models';
 import {
-  onboardingCurrentPhase$,
   onboardingPassword$,
   onboardingAccountName$,
 } from '../onboardingFlows';

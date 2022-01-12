@@ -1,10 +1,6 @@
 import extension from 'extensionizer';
 
-import {
-  CONTENT_SCRIPT,
-  INPAGE_SCRIPT,
-  INPAGE_PROVIDER as PROVIDER,
-} from './common';
+import { CONTENT_SCRIPT, INPAGE_SCRIPT } from './common';
 import { windowPostMessage } from './utils/windowPostMessage';
 import { Runtime } from 'webextension-polyfill-ts';
 import { providerHandshake } from './utils/providerHandshake';

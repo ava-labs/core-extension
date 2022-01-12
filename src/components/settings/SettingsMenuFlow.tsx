@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { cloneElement, useState } from 'react';
 import { VerticalFlex } from '@avalabs/react-components';
 import styled from 'styled-components';
 import { MainPage } from './pages/MainPage';
@@ -70,7 +70,7 @@ export interface SettingsMenuProps {
 }
 
 const dynamicChildFactory = (classNames) => (child) =>
-  React.cloneElement(child, {
+  cloneElement(child, {
     classNames,
   });
 
@@ -79,7 +79,7 @@ export function SettingsMenuFlow() {
   const [navStack, setNavStack] = useState<SettingsPages[]>([
     SettingsPages.MAIN_PAGE,
   ]);
-  const [isBackAnimation, setIsBackAnimation] = useState(false);
+  const [isBackAnimation, setIsBackAnimation] = useState<boolean>(false);
   const currentPage = navStack[navStack.length - 1];
 
   const goBack = () => {

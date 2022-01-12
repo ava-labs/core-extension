@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
@@ -10,5 +9,3 @@ export const ManageTokensFlow = () => {
 
   return isMiniMode ? <ManageTokensMiniMode /> : null;
 };
-
-export default ManageTokensFlow;

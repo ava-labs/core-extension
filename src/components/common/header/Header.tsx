@@ -1,5 +1,5 @@
 import { useTheme } from 'styled-components';
-import Menu from './Menu';
+import { Menu } from './Menu';
 import {
   HamburgerIcon,
   HorizontalFlex,
@@ -7,15 +7,15 @@ import {
   useIsSmallScreen,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React, { useState } from 'react';
-import Drawer from './Drawer';
+import { useState } from 'react';
+import { Drawer } from './Drawer';
 import { Logo } from '@src/components/icons/Logo';
 import { WalletConnection } from '@src/components/common/WalletConnection';
 import { HeaderProps } from './HeaderFlow';
 
-function Header({ onDrawerStateChanged }: HeaderProps) {
+export function Header({ onDrawerStateChanged }: HeaderProps) {
   const isSmallScreen = useIsSmallScreen();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const theme = useTheme();
 
   const openDrawer = () => {
@@ -57,5 +57,3 @@ function Header({ onDrawerStateChanged }: HeaderProps) {
     </>
   );
 }
-
-export default Header;

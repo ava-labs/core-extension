@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CaretIcon,
   HorizontalFlex,
@@ -45,9 +45,9 @@ export function SendConfirm({
 }: SendConfirmProps) {
   const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
-  const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const [showTxConfirmed, setShowTxConfirmed] = useState(false);
-  const [showTxDetails, setShowTxDetails] = useState(false);
+  const [showTxInProgress, setShowTxInProgress] = useState<boolean>(false);
+  const [showTxConfirmed, setShowTxConfirmed] = useState<boolean>(false);
+  const [showTxDetails, setShowTxDetails] = useState<boolean>(false);
 
   const onBackClick = () => {
     if (showTxDetails) {

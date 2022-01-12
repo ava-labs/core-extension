@@ -1,6 +1,6 @@
 import { JsonRpcEngine } from 'json-rpc-engine';
 
-import messages from './messages';
+import { messages } from './messages';
 import { ConsoleLike, NOOP } from './utils';
 
 /**
@@ -9,7 +9,7 @@ import { ConsoleLike, NOOP } from './utils';
  * @param engine - The JSON RPC Engine to send metadata over.
  * @param log - The logging API to use.
  */
-export default async function sendSiteMetadata(
+export async function sendSiteMetadata(
   engine: JsonRpcEngine,
   log: ConsoleLike
 ): Promise<void> {

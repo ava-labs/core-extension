@@ -1,10 +1,11 @@
 import { Duplex } from 'stream';
 import { JsonRpcRequest, JsonRpcResponse } from 'json-rpc-engine';
 import { ethErrors } from 'eth-rpc-errors';
-import sendSiteMetadata from './siteMetadata';
-import messages from './messages';
+import { sendSiteMetadata } from './siteMetadata';
+import { messages } from './messages';
 import { EMITTED_NOTIFICATIONS, getRpcPromiseCallback, NOOP } from './utils';
-import BaseProvider, {
+import {
+  BaseProvider,
   BaseProviderOptions,
   UnvalidatedJsonRpcRequest,
 } from './BaseProvider';
@@ -40,7 +41,7 @@ interface SentWarningsState {
   };
 }
 
-export default class MetaMaskInpageProvider extends BaseProvider {
+export class MetaMaskInpageProvider extends BaseProvider {
   protected _sentWarnings: SentWarningsState = {
     // methods
     enable: false,

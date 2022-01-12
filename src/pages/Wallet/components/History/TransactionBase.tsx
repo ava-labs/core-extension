@@ -3,7 +3,6 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React from 'react';
 import { TransactionBase } from '@avalabs/wallet-react-components';
 
 export function TransactionBase({ item }: { item: TransactionBase }) {

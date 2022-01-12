@@ -1,6 +1,7 @@
 const path = require('path');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const { ProvidePlugin } = require('webpack');
 
 module.exports = {
   entry: {
@@ -65,6 +66,9 @@ module.exports = {
       options: {
         concurrency: 100,
       },
+    }),
+    new ProvidePlugin({
+      React: 'react',
     }),
   ],
 };

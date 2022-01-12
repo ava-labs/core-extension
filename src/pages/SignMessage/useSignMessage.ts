@@ -1,8 +1,5 @@
 import { ExtensionRequest } from '@src/background/connections/models';
-import {
-  Message,
-  SignedMessageResult,
-} from '@src/background/services/messages/models';
+import { SignedMessageResult } from '@src/background/services/messages/models';
 import { messageParser } from '@src/background/services/messages/utils/messageParser';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useState } from 'react';
@@ -11,7 +8,7 @@ export function useSignMessage(messageId: string) {
   const { request } = useConnectionContext();
   const [message, setMessage] = useState<ReturnType<typeof messageParser>>();
   const [signedResults, setSignedResults] = useState<SignedMessageResult>();
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     request!({
