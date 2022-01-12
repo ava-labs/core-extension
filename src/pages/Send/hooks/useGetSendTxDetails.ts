@@ -1,4 +1,3 @@
-import { SendSubmitResponse } from '@avalabs/wallet-react-components';
 import { sendTxUpdatedEventListener } from '@src/background/services/send/events/listeners';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useState } from 'react';
@@ -17,7 +16,7 @@ import { filter } from 'rxjs';
  */
 export function useGetSendTxDetails() {
   const { events } = useConnectionContext();
-  const [details, setDetails] = useState<SendSubmitResponse>();
+  const [details, setDetails] = useState();
 
   useEffect(() => {
     if (!events) {

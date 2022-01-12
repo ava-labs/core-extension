@@ -60,7 +60,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         filter(onboardingPhaseUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((phase) => setOnboardingPhase(phase));
+      .subscribe((phase) => {
+        setOnboardingPhase(phase);
+      });
   }, [request]);
 
   if (!onboardingState) {
@@ -117,6 +119,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         Always show the onbording in full screen since the full screen mode is not supported. 
         Change this to !onboardingState.isOnBoarded to re-activate full screen mode
       */}
+
       {isHome ? (
         <React.Suspense fallback={<LoadingIcon />}>
           <OnboardingFlow />

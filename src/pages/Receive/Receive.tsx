@@ -36,13 +36,6 @@ export const Receive = () => {
   const theme = useTheme();
 
   const getAddress = () => {
-    if (chain === 'C') {
-      return addresses.addrC;
-    } else if (chain === 'X') {
-      return addresses.addrX;
-    } else if (chain === 'P') {
-      return addresses.addrP;
-    }
     return addresses.addrC;
   };
 
@@ -58,25 +51,12 @@ export const Receive = () => {
           <Typography color={theme.colors.primary1}>{chain} chain</Typography>{' '}
           address to receive funds
         </Typography>
-        {chain === 'X' ? (
-          <Typography height="24px">
-            Your address will change after every deposit
-          </Typography>
-        ) : (
-          ''
-        )}
       </VerticalFlex>
       <SlideSelector
         onChange={(value) => setChain(value)}
-        items={[
-          { label: 'C Chain', value: 'C' },
-          { label: 'X Chain', value: 'X' },
-        ]}
+        items={[{ label: 'C Chain', value: 'C' }]}
       />
-      <StyledQRCodeWithLogo
-        value={getAddress()}
-        logoText={chain === 'C' ? 'C-Chain' : 'X-Chain'}
-      />
+      <StyledQRCodeWithLogo value={getAddress()} logoText={'C-Chain'} />
       <AddressBlock
         onClick={() => {
           navigator.clipboard.writeText(getAddress());

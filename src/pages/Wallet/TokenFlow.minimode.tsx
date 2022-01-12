@@ -9,7 +9,6 @@ import {
 } from '@avalabs/react-components';
 import {
   ERC20WithBalance,
-  isAntToken,
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
@@ -96,12 +95,7 @@ export function TokenFlowMiniMode() {
           </TabPanel>
           <TabPanel grow="1">
             <VerticalFlex grow="1" padding="32px 0 0 0">
-              <ReceiveMiniMode
-                embedded={true}
-                limitToChain={
-                  isAvaxToken(token) ? undefined : isAntToken(token) ? 'X' : 'C'
-                }
-              />
+              <ReceiveMiniMode embedded={true} limitToChain={'C'} />
             </VerticalFlex>
           </TabPanel>
         </Tabs>

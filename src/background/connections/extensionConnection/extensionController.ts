@@ -33,9 +33,6 @@ import { eventLog, requestLog, responseLog } from '../../../utils/logging';
 import { ValidateSendAvaxStateRequest } from '@src/background/services/send/sendAvax/handlers/validateSendAvaxState';
 import { ResetSendAvaxStateRequest } from '@src/background/services/send/sendAvax/handlers/resetSendAvaxState';
 import { SubmitSendAvaxStateRequest } from '@src/background/services/send/sendAvax/handlers/submitSendAvaxState';
-import { SubmitSendAntStateRequest } from '@src/background/services/send/sendAnt/handlers/submitSendAntState';
-import { ResetSendAntStateRequest } from '@src/background/services/send/sendAnt/handlers/resetSendAntState';
-import { ValidateSendAntStateRequest } from '@src/background/services/send/sendAnt/handlers/validateSendAntState';
 import { ResetSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/resetSendErc20State';
 import { ValidateSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/validateSendErc20State';
 import { SubmitSendErc20StateRequest } from '@src/background/services/send/sendErc20/handlers/submitSendErc20State';
@@ -104,10 +101,6 @@ const extensionRequestHandlerMap = new Map<
   ValidateSendAvaxStateRequest,
   ResetSendAvaxStateRequest,
   SubmitSendAvaxStateRequest,
-
-  SubmitSendAntStateRequest,
-  ResetSendAntStateRequest,
-  ValidateSendAntStateRequest,
 
   ResetSendErc20StateRequest,
   ValidateSendErc20StateRequest,

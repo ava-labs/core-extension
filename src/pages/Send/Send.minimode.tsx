@@ -82,10 +82,7 @@ export function SendMiniMode() {
             sendState={sendState}
             fee={
               sendState?.sendFee
-                ? Utils.bnToLocaleString(
-                    sendState?.sendFee || new BN(0),
-                    isERC20Token(selectedToken) ? 18 : 9
-                  )
+                ? Utils.bnToLocaleString(sendState?.sendFee || new BN(0), 18)
                 : ''
             }
             onConfirm={() => onConfirm()}

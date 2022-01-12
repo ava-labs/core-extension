@@ -191,10 +191,6 @@ export function AccountDropdownContent({
                       name="C chain"
                       address={addresses.addrC}
                     />
-                    <StyledPrimaryAddress
-                      name="X chain"
-                      address={addresses.addrX}
-                    />
                   </AddressContainer>
                 )}
               </VerticalFlex>

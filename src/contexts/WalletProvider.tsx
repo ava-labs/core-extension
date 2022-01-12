@@ -31,9 +31,7 @@ export function WalletContextProvider({ children }: { children: any }) {
   function setWalletStateAndCast(state: WalletState | WalletLockedState) {
     return isWalletLocked(state)
       ? setWalletState(state)
-      : state &&
-          (state as WalletState).balances &&
-          setWalletState(recastWalletState(state as WalletState));
+      : state && setWalletState(recastWalletState(state as WalletState));
   }
 
   // listen for wallet creation
@@ -42,9 +40,11 @@ export function WalletContextProvider({ children }: { children: any }) {
       return;
     }
 
-    request<WalletState>({ method: ExtensionRequest.WALLET_STATE }).then(
-      setWalletStateAndCast
-    );
+    request<WalletState>({ method: ExtensionRequest.WALLET_STATE })
+      .then((result) => {
+        return result;
+      })
+      .then(setWalletStateAndCast);
 
     events()
       .pipe(

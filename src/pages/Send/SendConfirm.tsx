@@ -17,7 +17,6 @@ import {
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { SendConfirmation } from './SendConfirmation';
-import { SendConsolidationDetails } from './SendConsolidationDetails';
 import styled, { useTheme } from 'styled-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useSend } from './hooks/useSend';
@@ -116,7 +115,6 @@ export function SendConfirm({
 
       {showTxDetails ? (
         <VerticalFlex margin="40px 0 0" grow="1" padding="16px">
-          <SendConsolidationDetails txs={sendState?.txs || []} />
           <PrimaryButton
             size={ComponentSize.LARGE}
             onClick={() => {
@@ -171,11 +169,6 @@ export function SendConfirm({
                 </SubTextTypography>
                 <Typography height="24px">{fee || 0} AVAX</Typography>
               </VerticalFlex>
-              {sendState?.txs?.length ? (
-                <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
-                  View Details
-                </TextButton>
-              ) : null}
             </HorizontalFlex>
           </DataCard>
           <HorizontalFlex

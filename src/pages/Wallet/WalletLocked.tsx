@@ -71,7 +71,7 @@ export function WalletLocked({
         <Input
           type="password"
           label="Password"
-          onChange={(e) => setPassword(e.currentTarget.value)}
+          onChange={(e) => setPassword(e.currentTarget.value.trim())}
           placeholder="Password"
           error={!!error}
           errorMessage={error}

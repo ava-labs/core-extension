@@ -124,7 +124,7 @@ export function SendForm({ sendState }: SendFormProps) {
             showAmountErrorMessage ? sendState?.errors.amountError.message : ''
           }
           placeholder="Enter the amount"
-          denomination={selectedToken.denomination || 9}
+          denomination={selectedToken.denomination || 18}
           max={sendState?.maxAmount}
           onChange={(val) => {
             onAmountChanged(val);
@@ -148,10 +148,7 @@ export function SendForm({ sendState }: SendFormProps) {
               {sendState?.sendFee && (
                 <SubTextTypography size={12} height="16px" margin="0 8px 0 0">
                   Transaction fee: ~
-                  {Utils.bnToLocaleString(
-                    sendState?.sendFee || new BN(0),
-                    isERC20Token(selectedToken) ? 18 : 9
-                  )}{' '}
+                  {Utils.bnToLocaleString(sendState?.sendFee || new BN(0), 18)}{' '}
                   AVAX
                 </SubTextTypography>
               )}

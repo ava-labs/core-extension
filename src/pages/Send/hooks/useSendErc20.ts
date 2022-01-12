@@ -1,9 +1,5 @@
 import { useState } from 'react';
-import {
-  SendErc20State,
-  ERC20,
-  SendSubmitResponse,
-} from '@avalabs/wallet-react-components';
+import { SendErc20State, ERC20 } from '@avalabs/wallet-react-components';
 import { BN, ChainIdType, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { sendErc20ValidateRequest } from '@src/background/services/send/sendErc20/utils/sendErc20ValidateRequest';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -60,7 +56,7 @@ export function useSendErc20(
           sendErc20State?.address as string,
           sendErc20State?.gasLimit as number
         )
-      ).then(({ txId }: SendSubmitResponse) => setTxId(txId));
+      ).then(({ txId }) => setTxId(txId));
     },
   };
 }
