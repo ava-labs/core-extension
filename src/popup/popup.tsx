@@ -84,6 +84,10 @@ export function Popup() {
   );
 
   useEffect(() => {
+    if (!isMiniMode) {
+      return;
+    }
+
     const historyFromLocalStorage = JSON.parse(
       localStorage.getItem(localStorageHistoryKey) || '{}'
     );
