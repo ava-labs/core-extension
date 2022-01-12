@@ -25,6 +25,8 @@ You can also [set up an access token](https://docs.npmjs.com/creating-and-viewin
 
 `yarn build` will run everything through webpack and create a `/dist` directory.
 
+## Development
+
 ### Chrome or Brave Development
 
 1. In Chrome or Brave, go to `chrome://extensions/`.
@@ -36,7 +38,7 @@ You can also [set up an access token](https://docs.npmjs.com/creating-and-viewin
 
 <img src="./docs/screenshots/screenshot2.png" />
 
-4. Click `Load unpacked` and go to the extension folder, make sure it is unzipped.
+4. Click `Load unpacked` and go to the extension folder.
 5. Select the `dist` folder and press `Select`.
 
 ### Firefox Development
