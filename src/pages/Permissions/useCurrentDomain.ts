@@ -29,7 +29,7 @@ export function useCurrentDomain() {
     return () => {
       browser.tabs.onActivated.removeListener(listener);
     };
-  }, []);
+  }, [updateDomain]);
 
   return domain;
 }

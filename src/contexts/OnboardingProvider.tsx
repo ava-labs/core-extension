@@ -72,6 +72,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       .subscribe((phase) => {
         setOnboardingPhase(phase);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request]);
 
   if (!onboardingState) {
@@ -87,28 +88,28 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   }
 
   function setNextPhase(phase: OnboardingPhase) {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_PHASE,
       params: [phase],
     });
   }
 
   function setMnemonic(mnemonic: string) {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_MNEMONIC,
       params: [mnemonic],
     });
   }
 
   function setPasswordAndName(password: string, accountName: string) {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_PASSWORD_AND_NAME,
       params: [password, accountName],
     });
   }
 
   function setFinalized() {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_FINALIZED,
     });
   }

@@ -3,7 +3,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { firstValueFrom, map } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { pendingMessages } from '../messages';
 
 async function cancelPendingMessage(request: ExtensionConnectionMessage) {
@@ -29,6 +29,7 @@ async function cancelPendingMessage(request: ExtensionConnectionMessage) {
     return { ...request, error: 'no message found with that id' };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { [messageId]: _removing, ...newPendingMessages } = messages;
 
   pendingMessages.next(newPendingMessages);

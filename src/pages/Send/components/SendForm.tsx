@@ -8,7 +8,6 @@ import {
   Typography,
 } from '@avalabs/react-components';
 import {
-  isERC20Token,
   SendAntFormError,
   SendAvaxFormError,
 } from '@avalabs/wallet-react-components';
@@ -59,6 +58,7 @@ export function SendForm({ sendState }: SendFormProps) {
     return () => {
       subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedToken]);
 
   const updateSendState = (updates: {

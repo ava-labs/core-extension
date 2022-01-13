@@ -1,4 +1,5 @@
 /* eslint-disable no-prototype-builtins */
+
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 import { DomainMetadata } from '../models';
 

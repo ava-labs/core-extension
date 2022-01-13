@@ -17,8 +17,8 @@ import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 
 export function HeaderMiniMode() {
-  const theme = useTheme();
   const domain = useCurrentDomain();
+  const theme = useTheme();
   const { permissions, updateAccountPermission } = usePermissions(domain);
   const { addresses } = useWalletContext();
   const isConnected = permissions && permissions.accounts[addresses.addrC];

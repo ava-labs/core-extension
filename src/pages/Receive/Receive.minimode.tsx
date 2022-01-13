@@ -48,7 +48,7 @@ export const ReceiveMiniMode = ({
   embedded = false,
 }: ReceiveMiniModeProps) => {
   const { addresses } = useWalletContext();
-  const [chain, setChain] = useState(limitToChain || 'C');
+  const [chain] = useState(limitToChain || 'C');
   const theme = useTheme();
   const history = useHistory();
 

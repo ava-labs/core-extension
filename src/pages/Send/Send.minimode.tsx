@@ -1,6 +1,5 @@
 import { SendConfirm } from './SendConfirm';
 import { useState } from 'react';
-import { isERC20Token } from '@avalabs/wallet-react-components';
 import { useSend } from './hooks/useSend';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';

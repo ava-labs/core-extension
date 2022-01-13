@@ -71,7 +71,9 @@ export function SettingsContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe((val) => setSettings(val));
+
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const currencyFormatter = useMemo(() => {
@@ -87,18 +89,18 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }, [settings?.currency]);
 
   function lockWallet() {
-    return request!({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
+    return request({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
   }
 
   function updateCurrencySetting(currency: string) {
-    return request!({
+    return request({
       method: ExtensionRequest.SETTINGS_UPDATE_CURRENCY,
       params: [currency],
     });
   }
 
   function toggleShowTokensWithoutBalanceSetting() {
-    return request!({
+    return request({
       method: ExtensionRequest.SETTINGS_UPDATE_SHOW_NO_BALANCE,
       params: [!settings?.showTokensWithoutBalances],
     });
@@ -107,7 +109,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   function toggleTokenVisibility(token: TokenWithBalance) {
     const key = (token as ERC20WithBalance).address;
     const tokensVisibility = settings?.tokensVisibility ?? {};
-    return request!({
+    return request({
       method: ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
       params: [
         {
@@ -131,7 +133,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   );
 
   function updateTheme(theme: ThemeVariant) {
-    return request!({
+    return request({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
       params: [theme],
     });

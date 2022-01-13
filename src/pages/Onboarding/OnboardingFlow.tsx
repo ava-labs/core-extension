@@ -36,6 +36,7 @@ export function OnboardingFlow() {
       setIsImportFlow(true);
       setNextPhase(OnboardingPhase.IMPORT_WALLET);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   let content = (

@@ -21,6 +21,7 @@ export async function addAccount(accountName?: string) {
   });
 
   accounts$.next(accounts);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, err] = await resolve(saveAccountsToStorage(accounts));
 
   return {

@@ -54,6 +54,7 @@ export function ContactsContextProvider({ children }: { children: any }) {
       .subscribe((val) => setContacts(val));
 
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function createContact(contact: Contact) {

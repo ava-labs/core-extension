@@ -89,6 +89,7 @@ export function useGetTransaction(requestId: string) {
       method: ExtensionRequest.TRANSACTIONS_UPDATE,
       params: [update],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -98,10 +99,11 @@ export function useGetTransaction(requestId: string) {
     }).then((tx) => {
       setTransaction(tx);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const subscription = events!()
+    const subscription = events?.()
       .pipe(filter(gasPriceTransactionUpdateListener))
       .subscribe(function (evt) {
         const gasPrice = {
@@ -114,7 +116,7 @@ export function useGetTransaction(requestId: string) {
         );
       });
 
-    const finalizedSubscription = events!()
+    const finalizedSubscription = events?.()
       .pipe(
         filter(transactionFinalizedUpdateListener),
         map(({ value }) => {
@@ -136,9 +138,10 @@ export function useGetTransaction(requestId: string) {
     }
 
     return () => {
-      subscription.unsubscribe();
-      finalizedSubscription.unsubscribe();
+      subscription?.unsubscribe();
+      finalizedSubscription?.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transaction]);
 
   return useMemo(() => {
@@ -158,6 +161,7 @@ export function useGetTransaction(requestId: string) {
       customSpendLimit,
       isRevokeApproval,
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestId,
     transaction,

@@ -27,7 +27,6 @@ export function TokenList({
 }: TokenListProps) {
   const AVAX_TOKEN = tokenList.find((token) => isAvaxToken(token));
   const { currency, currencyFormatter } = useSettingsContext();
-
   const { tokens, showAvax } = useMemo(() => {
     const tokens = searchQuery
       ? tokenList.filter(
@@ -47,8 +46,7 @@ export function TokenList({
           .includes(searchQuery.toLowerCase()));
 
     return { tokens, showAvax };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenList, searchQuery]);
+  }, [tokenList, searchQuery, AVAX_TOKEN]);
 
   if (!tokens.length && !showAvax) {
     return <NoTokenFound />;

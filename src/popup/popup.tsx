@@ -112,9 +112,8 @@ export function Popup() {
     });
 
     return unlisten;
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isMiniMode]);
 
   return (
     <DialogContextProvider>

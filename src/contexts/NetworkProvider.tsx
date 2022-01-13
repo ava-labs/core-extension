@@ -42,6 +42,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     ).subscribe((result) => {
       setNetwork(result as any);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request]);
 
   if (!request || !events) {
