@@ -1,27 +1,16 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { ConnectionRequestHandler } from '@src/background/connections/models';
+import { DappRequestHandler } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
 import { network$ } from '@avalabs/wallet-react-components';
-import { permissions$ } from '../../permissions/permissions';
-import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { wallet$ } from '@avalabs/wallet-react-components';
 
-export async function initDappState(data) {
-  const walletResult = await firstValueFrom(wallet$);
-  const permissions = await firstValueFrom(permissions$);
-  const network = await firstValueFrom(network$);
+class MetamaskGetProviderState implements DappRequestHandler {
+  handleUnauthenticated = async (request) => {
+    const network = await firstValueFrom(network$);
 
-  if (
-    !walletResult ||
-    !domainHasAccountsPermissions(
-      walletResult.getAddressC(),
-      data.domain,
-      permissions
-    )
-  ) {
     return {
-      ...data,
+      ...request,
       result: {
         isUnlocked: false,
         networkVersion: 'avax',
@@ -29,20 +18,25 @@ export async function initDappState(data) {
         chainId: network?.chainId,
       },
     };
-  }
+  };
 
-  return {
-    ...data,
-    result: {
-      isUnlocked: true,
-      chainId: network?.chainId,
-      networkVersion: 'avax',
-      accounts: getAccountsFromWallet(walletResult),
-    },
+  handleAuthenticated = async (request) => {
+    const network = await firstValueFrom(network$);
+    const walletResult = await firstValueFrom(wallet$);
+
+    return {
+      ...request,
+      result: {
+        isUnlocked: true,
+        chainId: network?.chainId,
+        networkVersion: 'avax',
+        accounts: walletResult ? getAccountsFromWallet(walletResult) : [],
+      },
+    };
   };
 }
 
-export const InitDappStateRequest: [
-  DAppProviderRequest,
-  ConnectionRequestHandler
-] = [DAppProviderRequest.INIT_DAPP_STATE, initDappState];
+export const InitDappStateRequest: [DAppProviderRequest, DappRequestHandler] = [
+  DAppProviderRequest.INIT_DAPP_STATE,
+  new MetamaskGetProviderState(),
+];

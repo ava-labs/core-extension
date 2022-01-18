@@ -1,8 +1,5 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-} from '@src/background/connections/models';
+import { DappRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { defer, filter, firstValueFrom, map, merge, tap } from 'rxjs';
 import { TxStatus } from '../../transactions/models';
@@ -14,85 +11,96 @@ import {
 import { txToCustomEvmTx } from '../../transactions/utils/txToCustomEvmTx';
 import { wallet$ } from '@avalabs/wallet-react-components';
 
-export async function eth_sendTransaction(data: ExtensionConnectionMessage) {
-  const walletResult = await firstValueFrom(wallet$);
-
-  if (!walletResult) {
+class EthSendTransactionHandler implements DappRequestHandler {
+  handleUnauthenticated = async (request) => {
     return {
-      ...data,
-      error: 'wallet undefined',
+      ...request,
+      error: 'account not connected',
     };
-  }
+  };
 
-  addTransaction.next(data as any);
+  handleAuthenticated = async (request) => {
+    const walletResult = await firstValueFrom(wallet$);
 
-  const window = await openExtensionNewWindow(
-    `sign/transaction?id=${data.id}`,
-    '',
-    data.meta?.coords
-  );
+    if (!walletResult) {
+      return {
+        ...request,
+        error: 'wallet undefined',
+      };
+    }
 
-  const windowClosed$ = window.removed.pipe(
-    map(() => ({
-      ...data,
-      error: 'Window closed before approved',
-    })),
-    tap(() => {
-      updateTransaction.next({
-        status: TxStatus.ERROR_USER_CANCELED,
-        id: data.id,
-        error: 'Window closed before approved',
-      });
-    })
-  );
+    addTransaction.next(request);
 
-  const signTx$ = defer(async () => {
-    const pendingTx = await firstValueFrom(
-      pendingTransactions$.pipe(
-        map((currentPendingTXs) => currentPendingTXs[`${data.id}`]),
-        filter((pending) => !!pending && pending.status === TxStatus.SUBMITTING)
-      )
+    const window = await openExtensionNewWindow(
+      `sign/transaction?id=${request.id}`,
+      '',
+      request.meta?.coords
     );
 
-    return txToCustomEvmTx(pendingTx).then((params) => {
-      if (!walletResult || !walletResult.sendCustomEvmTx) {
-        return {
-          ...data,
-          error: 'wallet is undefined or send tx method is malformed',
-        };
-      }
-
-      return walletResult
-        .sendCustomEvmTx(
-          params.gasPrice,
-          params.gasLimit,
-          params.data,
-          params.to,
-          params.value
-        )
-        .then((result) => {
-          updateTransaction.next({
-            status: TxStatus.SIGNED,
-            id: data.id,
-            result,
-          });
-          return { ...data, result };
-        })
-        .catch((err) => {
-          updateTransaction.next({
-            status: TxStatus.ERROR,
-            id: data.id,
-            error: err?.message ?? err,
-          });
-          return { ...data, error: err };
+    const windowClosed$ = window.removed.pipe(
+      map(() => ({
+        ...request,
+        error: 'Window closed before approved',
+      })),
+      tap(() => {
+        updateTransaction.next({
+          status: TxStatus.ERROR_USER_CANCELED,
+          id: request.id,
+          error: 'Window closed before approved',
         });
-    });
-  });
+      })
+    );
 
-  return firstValueFrom(merge(windowClosed$, signTx$));
+    const signTx$ = defer(async () => {
+      const pendingTx = await firstValueFrom(
+        pendingTransactions$.pipe(
+          map((currentPendingTXs) => currentPendingTXs[`${request.id}`]),
+          filter(
+            (pending) => !!pending && pending.status === TxStatus.SUBMITTING
+          )
+        )
+      );
+
+      return txToCustomEvmTx(pendingTx).then((params) => {
+        if (!walletResult || !walletResult.sendCustomEvmTx) {
+          return {
+            ...request,
+            error: 'wallet is undefined or send tx method is malformed',
+          };
+        }
+
+        return walletResult
+          .sendCustomEvmTx(
+            params.gasPrice,
+            params.gasLimit,
+            params.data,
+            params.to,
+            params.value
+          )
+          .then((result) => {
+            updateTransaction.next({
+              status: TxStatus.SIGNED,
+              id: request.id,
+              result,
+            });
+            return { ...request, result };
+          })
+          .catch((err) => {
+            updateTransaction.next({
+              status: TxStatus.ERROR,
+              id: request.id,
+              error: err?.message ?? err,
+            });
+            return { ...request, error: err };
+          });
+      });
+    });
+
+    return firstValueFrom(merge(windowClosed$, signTx$));
+  };
 }
 
 export const EthSendTransactionRequest: [
   DAppProviderRequest,
-  ConnectionRequestHandler
-] = [DAppProviderRequest.ETH_SEND_TX, eth_sendTransaction];
+  DappRequestHandler
+] = [DAppProviderRequest.ETH_SEND_TX, new EthSendTransactionHandler()];

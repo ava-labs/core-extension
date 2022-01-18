@@ -65,6 +65,15 @@ export type ConnectionRequestHandler<T = any> = (
   request: ExtensionConnectionMessage
 ) => Promise<ExtensionConnectionMessageResponse<T>>;
 
+export interface DappRequestHandler<T = any> {
+  handleAuthenticated: (
+    request: ExtensionConnectionMessage
+  ) => Promise<ExtensionConnectionMessageResponse<T>>;
+  handleUnauthenticated: (
+    request: ExtensionConnectionMessage
+  ) => Promise<ExtensionConnectionMessageResponse<T>>;
+}
+
 export enum ExtensionRequest {
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SET_PHASE = 'onboarding_setCurrentPhase',
@@ -132,11 +141,6 @@ export enum ExtensionRequest {
   SWAP_PERFORM = 'swap_perform',
 
   GAS_GET = 'gas_get',
-}
-
-export enum ProviderRequest {
-  DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata',
-  CONNECT_METHOD = 'eth_requestAccounts',
 }
 
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {

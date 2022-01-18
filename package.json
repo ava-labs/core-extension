@@ -13,9 +13,10 @@
     "zip": "node zipscript.js"
   },
   "dependencies": {
-    "@avalabs/avalanche-wallet-sdk": "0.11.3",
+    "@avalabs/avalanche-wallet-sdk": "0.13.1",
     "@avalabs/react-components": "1.61.2",
-    "@avalabs/wallet-react-components": "1.19.1",
+    "@avalabs/wallet-react-components": "1.20.1",
+    "@babel/runtime": "7.16.3",
     "@metamask/post-message-stream": "4.0.0",
     "@metamask/providers": "8.1.1",
     "abi-decoder": "2.4.0",
@@ -61,7 +62,7 @@
     "@semantic-release/github": "8.0.2",
     "@types/chrome": "0.0.175",
     "@types/jest": "26.0.22",
-    "@types/node": "17.0.8",
+    "@types/node": "16.10.0",
     "@types/qrcode.react": "1.0.2",
     "@types/react-custom-scrollbars": "4.0.10",
     "@types/react-dom": "17.0.11",

@@ -3,30 +3,30 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { TransactionEVM as TransacionEVMInterface } from '@avalabs/wallet-react-components';
+import { TransactionNormal as TransactionNormalInterface } from '@avalabs/wallet-react-components';
 import { HistoryItem } from './components/HistoryItem';
 import {
-  HistorySentIndicator,
   HistoryReceivedIndicator,
+  HistorySentIndicator,
 } from './components/SentReceivedIndicators';
 
-export function TransactionEVM({ item }: { item: TransacionEVMInterface }) {
+export function TransactionNormal({
+  item,
+}: {
+  item: TransactionNormalInterface;
+}) {
   return (
-    <HorizontalFlex width={'100%'}>
+    <HorizontalFlex width={'100%'} justify={'space-between'}>
       {item.isSender ? <HistorySentIndicator /> : <HistoryReceivedIndicator />}
-
-      {item.input ? (
+      {item.input !== '0x' ? (
         <HistoryItem label={'Contract Call'} item={item} />
       ) : (
         <HistoryItem label={'Avalanche'} item={item}>
-          <VerticalFlex align={'flex-end'} justify="center">
-            {/* We dont know the type of token atm */}
-            <Typography weight={600} height="24px">
+          <VerticalFlex>
+            <Typography>
               {item.isSender ? '-' : '+'}
               {item.amountDisplayValue} AVAX
             </Typography>
-            {/* putting a placeholder element here for now until we get price */}
-            {/* <SubTextTypography>~{currencyFormatter(0.0)}</SubTextTypography> */}
           </VerticalFlex>
         </HistoryItem>
       )}

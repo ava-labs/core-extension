@@ -1,29 +1,32 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-} from '@src/background/connections/models';
+import { DappRequestHandler } from '@src/background/connections/models';
 import { personalSigRecovery } from '../../messages/utils/personalSigRecovery';
 
-export async function personal_ecRecover(data: ExtensionConnectionMessage) {
-  const { params } = data;
+class PersonalEcRecoverHandler implements DappRequestHandler {
+  handleUnauthenticated = async (request) => {
+    const { params } = request;
 
-  if (!params) {
-    return {
-      ...data,
-      error: 'no params in request',
-    };
-  }
+    if (!params) {
+      return {
+        ...request,
+        error: 'no params in request',
+      };
+    }
 
-  const msg = params[0];
-  const signedResult = params[1];
+    const msg = params[0];
+    const signedResult = params[1];
 
-  const result = await personalSigRecovery(msg, signedResult);
+    const result = await personalSigRecovery(msg, signedResult);
 
-  return { ...data, result };
+    return { ...request, result };
+  };
+
+  handleAuthenticated = async (request) => {
+    return await this.handleUnauthenticated(request);
+  };
 }
 
 export const PersonalEcRecoverRequest: [
   DAppProviderRequest,
-  ConnectionRequestHandler
-] = [DAppProviderRequest.PERSONAL_EC_RECOVER, personal_ecRecover];
+  DappRequestHandler
+] = [DAppProviderRequest.PERSONAL_EC_RECOVER, new PersonalEcRecoverHandler()];
