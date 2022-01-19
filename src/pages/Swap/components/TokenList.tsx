@@ -10,7 +10,7 @@ import {
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import Scrollbars from 'react-custom-scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { NoTokenFound } from '../Home/components/Portfolio/NoTokenFound';
+import { NoTokenFound } from '../../Home/components/Portfolio/NoTokenFound';
 
 interface TokenListProps {
   searchQuery?: string;

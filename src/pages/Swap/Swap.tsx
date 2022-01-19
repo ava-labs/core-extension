@@ -26,15 +26,15 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
-import { TokenList } from './TokenList';
-import { TransactionDetails } from './TransactionDetails';
-import { ReviewOrder } from './ReviewOrder';
+import { TokenList } from './components/TokenList';
+import { TransactionDetails } from './components/TransactionDetails';
+import { ReviewOrder } from './components/ReviewOrder';
 import { CustomGasLimitAndFees } from '../SignTransaction/CustomGasLimitAndFees';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { SwapLoadingSpinnerIcon } from './SwapLoadingSpinnerIcon';
+import { SwapLoadingSpinnerIcon } from './components/SwapLoadingSpinnerIcon';
 import { getMaxValue, getTokenIcon, isAPIError } from './utils';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { SwapTxSuccess } from './SwapTxSucces';
+import { SwapTxSuccess } from './components/SwapTxSucces';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 
@@ -97,6 +97,8 @@ export function Swap() {
     useState<boolean>(false);
   const [rateValueInput, setRateValueInput] = useState<string>('');
   const [fromTokenValue, setFromTokenValue] =
+    useState<{ bn: BN; amount: string }>();
+  const [toTokenValue, setToTokenValue] =
     useState<{ bn: BN; amount: string }>();
   const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
   const [slippageTolerance, setSlippageTolerance] = useState<string>();
@@ -394,6 +396,7 @@ export function Swap() {
           token={selectedToTokenFormat}
           defaultValue={rateValueInput === 'to' ? destAmount : ''}
           onChange={(value) => {
+            setToTokenValue(value);
             calculateTokenValueToInput(
               value,
               'from',
@@ -406,6 +409,7 @@ export function Swap() {
         />
 
         {isLoading && <SwapLoadingSpinnerIcon />}
+
         {canSwap && optimalRate ? (
           <>
             <TransactionDetails
@@ -471,7 +475,7 @@ export function Swap() {
         </>
       </SelectTokenModal>
 
-      {isReviewOrderOpen && optimalRate && (
+      {isReviewOrderOpen && !swapError && (
         <ReviewOrder
           fromToken={selectedFromToken}
           toToken={selectedToToken}
@@ -482,6 +486,26 @@ export function Swap() {
           fee={gasCost}
           onEdit={() => setShowCustomGasLimitAndFees(true)}
           slippage={slippageTolerance}
+          onTimerExpire={() => {
+            if (fromTokenValue) {
+              const srcToken =
+                rateValueInput === 'to' ? selectedFromToken : selectedToToken;
+              const destToken =
+                rateValueInput === 'to' ? selectedToToken : selectedFromToken;
+              const amount =
+                rateValueInput === 'to'
+                  ? fromTokenValue
+                  : toTokenValue || { bn: new BN(0), amount: '0' };
+              calculateTokenValueToInput(
+                amount,
+                rateValueInput,
+                srcToken,
+                destToken
+              );
+            }
+          }}
+          isLoading={isLoading}
+          rateValueInput={rateValueInput}
         />
       )}
 
