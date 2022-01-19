@@ -1,65 +1,64 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   Card,
+  CaretIcon,
   CheckmarkIcon,
-  CloseIcon,
-  DropDownMenuItem,
   HorizontalFlex,
   HorizontalSeparator,
+  IconDirection,
+  PlusIcon,
   PrimaryAddress,
-  SecondaryButton,
   TextButton,
   Typography,
+  useDialog,
   VerticalFlex,
-  LoadingSpinnerIcon,
 } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { EditableAccountName } from './EditableAccountName';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import {
-  ContextContainer,
-  useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
-import { exhaustMap, from, Subject, tap } from 'rxjs';
+import { exhaustMap, from, Subject } from 'rxjs';
+import { QRCodeWithLogo } from '../QRCodeWithLogo';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
 }
 
-const StyledPrimaryAddress = styled(PrimaryAddress)`
-  margin: 0 0 8px 0;
-`;
-
-const AddressContainer = styled(VerticalFlex)<{ selected: boolean }>`
-  overflow: hidden;
-  margin: ${({ selected }) => (selected ? '16px 0 8px 0' : '0px')};
-  max-height: ${({ selected }) => (selected ? '90px' : '0px')};
-  transition: max-height 300ms, margin 300ms;
+const IconBox = styled(VerticalFlex)<{ $show?: boolean }>`
+  visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
+  margin: 0 0 0 8px;
 `;
 
 const StyledCheckmarkIcon = styled(CheckmarkIcon)`
   flex-shrink: 0;
 `;
 
+const SimpleAddress = styled(PrimaryAddress)`
+  width: 100%;
+`;
+
+const StyledQRCodeWithLogo = styled(QRCodeWithLogo)`
+  margin: 16px 0;
+`;
+
+const AccountRow = styled(VerticalFlex)`
+  cursor: pointer;
+  padding: 8px 15px 16px 0;
+  width: 100%;
+
+  &:hover {
+    background-color: ${({ theme }) => `${theme.colors.bg1}20`};
+  }
+`;
+
 export function AccountDropdownContent({
   onClose,
 }: AccountDropdownContentProps) {
-  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const { accounts, selectAccount, addAccount, renameAccount } =
     useAccountsContext();
   const theme = useTheme();
-  const { currency, currencyFormatter } = useSettingsContext();
-  const balanceTotalUSD = useBalanceTotalInCurrency();
-  const { addresses } = useWalletContext();
   const scrollbarsRef = useRef<Scrollbars>(null);
-  const selectedAccountRef = useRef<HTMLDivElement>(null);
-  const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
-    null
-  );
+  const { showDialog, clearDialog } = useDialog();
 
   const selectAccountSubject$ = useMemo(() => {
     return new Subject<number>();
@@ -67,15 +66,7 @@ export function AccountDropdownContent({
 
   useEffect(() => {
     const subscription = selectAccountSubject$
-      .pipe(
-        tap((index) => {
-          setAccountIndexLoading(index);
-        }),
-        exhaustMap((index) => from(selectAccount(index))),
-        tap(() => {
-          setAccountIndexLoading(null);
-        })
-      )
+      .pipe(exhaustMap((index) => from(selectAccount(index))))
       .subscribe();
 
     return () => {
@@ -83,22 +74,26 @@ export function AccountDropdownContent({
     };
   }, [selectAccount, selectAccountSubject$]);
 
-  useEffect(() => {
-    if (!scrollbarsRef || !selectedAccountRef || !accounts) {
-      return;
-    }
-    if (selectedAccountRef.current?.offsetTop) {
-      scrollbarsRef.current?.scrollTop(selectedAccountRef.current.offsetTop);
-    }
-  }, [accounts, selectedAccountRef, scrollbarsRef]);
+  const showQR = (e: React.MouseEvent, address: string) => {
+    e.stopPropagation();
+    showDialog({
+      title: 'C-Chain QR Code',
+      component: <StyledQRCodeWithLogo value={address} logoText="C-Chain" />,
+      confirmText: 'Close',
+      width: '343px',
+      onConfirm: () => {
+        clearDialog();
+      },
+    });
+  };
 
   return (
     <Card
       direction="column"
-      height={isMiniMode ? '100%' : '400px'}
-      width={isMiniMode ? '100%' : '375px'}
-      padding="16px 0"
-      onClick={(e) => {
+      height={'100%'}
+      width={'100%'}
+      padding="16px"
+      onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
       }}
     >
@@ -107,105 +102,79 @@ export function AccountDropdownContent({
         align="flex-start"
         width="100%"
         margin="0 0 8px"
-        padding="0 16px"
+        padding="16px 0"
       >
-        <Typography size={24} weight={700} height="29px" margin="8px 0">
-          My Accounts
+        <TextButton onClick={() => onClose?.()}>
+          <CaretIcon
+            height="20px"
+            direction={IconDirection.LEFT}
+            color={theme.colors.icon1}
+          />
+        </TextButton>
+        <Typography size={18} weight={500}>
+          Accounts
         </Typography>
-        {isMiniMode && (
-          <TextButton onClick={() => onClose?.()}>
-            <CloseIcon height="18px" color={theme.colors.icon1} />
-          </TextButton>
-        )}
+        <TextButton onClick={() => addAccount()}>
+          <PlusIcon height="20px" color={theme.colors.icon1} />
+        </TextButton>
       </HorizontalFlex>
+
       <Scrollbars
-        style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
+        style={{
+          flexGrow: 1,
+          maxHeight: 'unset',
+          height: '100%',
+          width: '100%',
+        }}
+        autoHide={true}
         ref={scrollbarsRef}
       >
-        {accounts.map((account, i) => {
-          const isCardOpen =
-            accountIndexLoading === account.index ||
-            (!accountIndexLoading && account.active);
-          // sometimes it takes a couple seconds so get the `addresses` update from the background script
-          // so we have to keep the loading indicator up to prevent showing the previous account's addresses
-          const isAccountLoading =
-            accountIndexLoading === account.index ||
-            (account.active && account.addressC !== addresses.addrC);
-
+        {accounts.map((account) => {
           return (
-            <DropDownMenuItem
-              key={i}
-              padding="0 16px"
-              direction="column"
-              onClick={() => selectAccountSubject$.next(account.index)}
-              ref={account.active ? selectedAccountRef : undefined}
-            >
-              {i > 0 && account.active && <HorizontalSeparator margin="0" />}
-              <VerticalFlex width="100%" padding="16px 0">
+            <>
+              <AccountRow
+                key={account.addressC}
+                onClick={() => selectAccountSubject$.next(account.index)}
+              >
                 <HorizontalFlex
                   width="100%"
+                  padding="8px"
                   justify="space-between"
                   align="center"
                 >
-                  <VerticalFlex>
-                    <EditableAccountName
-                      name={account.name}
-                      enabled={isCardOpen}
-                      onSave={(name) => {
-                        renameAccount(account.index, name);
-                      }}
-                    />
-                    {isCardOpen && (
-                      <Typography
-                        size={14}
-                        height="17px"
-                        margin="8px 0 0"
-                        color={theme.colors.text2}
-                      >
-                        {!isAccountLoading &&
-                          `~${currencyFormatter(balanceTotalUSD)} ${currency}`}
-                      </Typography>
-                    )}
-                  </VerticalFlex>
-                  {isCardOpen && (
+                  <EditableAccountName
+                    name={account.name}
+                    enabled={true}
+                    onSave={(name) => {
+                      renameAccount(account.index, name);
+                    }}
+                  />
+                </HorizontalFlex>
+                <HorizontalFlex align="center" padding="0 0 0 8px">
+                  <SimpleAddress
+                    address={account.addressC}
+                    withQR={true}
+                    onQRClicked={(e: React.MouseEvent) => {
+                      showQR(e, account.addressC);
+                    }}
+                    truncateLength={17}
+                  />
+                  <IconBox $show={account.active}>
                     <StyledCheckmarkIcon
                       height="16px"
                       color={theme.colors.icon1}
                     />
-                  )}
+                  </IconBox>
                 </HorizontalFlex>
-                {isAccountLoading ? (
-                  <VerticalFlex
-                    padding="8px 0px"
-                    height="139px"
-                    justify="center"
-                  >
-                    <LoadingSpinnerIcon
-                      color={theme.colors.primary1}
-                      height="26px"
-                    />
-                  </VerticalFlex>
-                ) : (
-                  <AddressContainer selected={isCardOpen}>
-                    <StyledPrimaryAddress
-                      name="C chain"
-                      address={addresses.addrC}
-                    />
-                  </AddressContainer>
-                )}
-              </VerticalFlex>
-              {i < accounts.length - 1 && isCardOpen && (
-                <HorizontalSeparator margin="0" />
-              )}
-            </DropDownMenuItem>
+              </AccountRow>
+              <HorizontalSeparator
+                key={`separator${account.addressC}`}
+                margin="0"
+              />
+            </>
           );
         })}
       </Scrollbars>
-      <HorizontalFlex padding="16px 16px 8px">
-        <SecondaryButton width="100%" onClick={() => addAccount()}>
-          + Add Account
-        </SecondaryButton>
-      </HorizontalFlex>
     </Card>
   );
 }

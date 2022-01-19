@@ -31,10 +31,10 @@
     web3-eth-contract "1.6.0"
     xss "^1.0.10"
 
-"@avalabs/react-components@1.61.2":
-  version "1.61.2"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.61.2.tgz#8fd21e5ceece9216622ee4ca6540954087eabf63"
-  integrity sha512-0n7nfRfvT9bROD6CwusqY/eWj5WLmNb0nCbQywb/uoD9vgOrxa/4mFzlrevt4HglhX8aGMz3nH9ZYSucMppxrg==
+"@avalabs/react-components@1.63.0":
+  version "1.63.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.63.0.tgz#73f217bef06cc68efe31527f9249f7f5df8e3733"
+  integrity sha512-FhBO28rThXObk+TlXW97AZZ2fxdPWqT2IrdNuv9ccFn3UiLzxTZahw0J4pU4j2+Mfvg4gZC0DwGfgqCaPboZdw==
   dependencies:
     "@tippyjs/react" "^4.2.6"
     big.js "^6.1.1"
@@ -47,6 +47,7 @@
     polished "^4.1.2"
     react-custom-scrollbars "^4.2.1"
     react-hot-toast "^2.1.1"
+    react-transition-group "^4.4.2"
     use-media "^1.4.0"
     web-vitals "^1.0.1"
 
@@ -15505,7 +15506,7 @@ react-timer-hook@^3.0.5:
   resolved "https://registry.yarnpkg.com/react-timer-hook/-/react-timer-hook-3.0.5.tgz#a8d930f99b180cd88da245965a26a17df3e7457b"
   integrity sha512-n+98SdmYvui2ne3KyWb3Ldu4k0NYQa3g/VzW6VEIfZJ8GAk/jJsIY700M8Nd2vNSTj05c7wKyQfJBqZ0x7zfiA==
 
-react-transition-group@4.4.2:
+react-transition-group@4.4.2, react-transition-group@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.4.2.tgz#8b59a56f09ced7b55cbd53c36768b922890d5470"
   integrity sha512-/RNYfRAMlZwDSr6z4zNKV6xu53/e2BuaBbGhbyYIXTrmgu/bGHzmqOs7mJSJBHy9Ud+ApHx3QjrkKSp1pxvlFg==

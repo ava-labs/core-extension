@@ -4,7 +4,7 @@ import {
   TextButton,
   Typography,
 } from '@avalabs/react-components';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 interface EditableAccountNameProps {
@@ -14,13 +14,13 @@ interface EditableAccountNameProps {
 }
 
 const AccountName = styled(Typography)`
-  max-width: 200px;
+  max-width: 245px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 22px;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 8px 0 0;
 `;
 
@@ -28,8 +28,12 @@ const TransparentInputBase = styled(AccountName)`
   border: none;
   background: transparent;
   flex-grow: 1;
-  width: 200px;
+  width: 100%;
   height: 22px;
+`;
+
+const StyledPencilIcon = styled(PencilIcon)`
+  cursor: pointer;
 `;
 
 export function EditableAccountName({
@@ -47,25 +51,32 @@ export function EditableAccountName({
     }
   }, [enabled]);
 
-  const editAddress = (e) => {
+  const editAddress = (e: React.MouseEvent) => {
     e.stopPropagation();
     setEdit(true);
   };
 
-  const onSaveClicked = (e) => {
+  const onSaveClicked = (e: React.MouseEvent) => {
     e.stopPropagation();
     setEdit(false);
     onSave(accountName);
   };
 
   return (
-    <HorizontalFlex align="center" margin="0 32px 0 0">
+    <HorizontalFlex
+      width={edit ? '100%' : 'auto'}
+      align="center"
+      justify="space-between"
+      padding="0 25px 0 0"
+    >
       {edit && enabled ? (
         <>
           <TransparentInputBase
             as="input"
             value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setAccountName(e.target.value);
+            }}
             autoFocus
           />
           <TextButton onClick={onSaveClicked}>Save</TextButton>
@@ -74,8 +85,8 @@ export function EditableAccountName({
         <>
           <AccountName>{accountName}</AccountName>
           {enabled && (
-            <PencilIcon
-              height="16px"
+            <StyledPencilIcon
+              height="16"
               color={theme.colors.text1}
               onClick={editAddress}
             />
