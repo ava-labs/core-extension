@@ -37,6 +37,7 @@ type SettingsFromProvider = SettingsState & {
   getTokenVisibility(token: TokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
   currencyFormatter(value: number): string;
+  toggleIsDefaultExtension(): Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -139,6 +140,17 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  /**
+   *
+   * @returns boolean state of isDefaultExtenion in settings state
+   */
+  function toggleIsDefaultExtension() {
+    return request({
+      method: ExtensionRequest.SETTINGS_SET_DEFAULT_EXTENSION,
+      params: [],
+    });
+  }
+
   return (
     <SettingsContext.Provider
       value={
@@ -151,6 +163,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           toggleTokenVisibility,
           updateTheme,
           currencyFormatter,
+          toggleIsDefaultExtension,
         } as SettingsFromProvider
       }
     >

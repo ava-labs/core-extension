@@ -63,6 +63,8 @@ import { PerformSwapRequest } from '@src/background/services/swap/handlers/perfo
 import { contactsUpdatedEvent } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { gasPriceSwapUpdate } from '@src/background/services/swap/events/gasPriceSwapUpdate';
 import { GetGasRequest } from '@src/background/services/gas/handlers/getGas';
+import { SettingsGetIsDefaultExtensionRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
+import { SettingsSetDefaultExtensionRequest } from '@src/background/services/settings/handlers/setAsDefaultExtension';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -114,6 +116,8 @@ const extensionRequestHandlerMap = new Map<
   SettingsUpdateThemeRequest,
   SettingsAddCustomTokenRequest,
   SettingsGetTokenDataRequest,
+  SettingsGetIsDefaultExtensionRequest,
+  SettingsSetDefaultExtensionRequest,
 
   GetContactsStateRequest,
   CreateContactStateRequest,

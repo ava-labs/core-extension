@@ -14,6 +14,7 @@ export const defaultSettingsState: SettingsState = {
   showTokensWithoutBalances: false,
   theme: ThemeVariant.DARK,
   tokensVisibility: {},
+  isDefaultExtension: false,
 };
 
 export const settings$ = new BehaviorSubject<SettingsState>(

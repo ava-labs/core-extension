@@ -19,4 +19,5 @@ export interface SettingsState {
   showTokensWithoutBalances: boolean;
   theme: ThemeVariant;
   tokensVisibility: TokensVisibility;
+  isDefaultExtension: boolean;
 }

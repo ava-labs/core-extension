@@ -69,6 +69,7 @@ export class MetaMaskInpageProvider extends BaseProvider {
    * Indicating that this provider is a MetaMask provider.
    */
   public readonly isMetaMask: true;
+  public readonly isAvalanche: true;
 
   /**
    * @param connectionStream - A Node.js duplex stream
@@ -94,6 +95,7 @@ export class MetaMaskInpageProvider extends BaseProvider {
 
     this.networkVersion = null;
     this.isMetaMask = true;
+    this.isAvalanche = true;
 
     this._sendSync = this._sendSync.bind(this);
     this.enable = this.enable.bind(this);

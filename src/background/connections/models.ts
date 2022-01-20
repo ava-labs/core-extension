@@ -128,6 +128,8 @@ export enum ExtensionRequest {
   SETTINGS_UPDATE_TOKENS_VISIBILITY = 'settings_update_tokens_visibility',
   SETTINGS_ADD_CUSTOM_TOKEN = 'settings_add_custom_token',
   SETTINGS_GET_TOKEN_DATA = 'settings_get_token_data',
+  SETTINGS_SET_DEFAULT_EXTENSION = 'settings_set_default_extension',
+  SETTINGS_GET_DEFAULT_EXTENSION = 'settings_get_default_extension',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',

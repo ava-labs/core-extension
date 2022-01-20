@@ -27,6 +27,7 @@ import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
 import { RequestHandlerMiddleware } from '../middlewares/RequestHandlerMiddleware';
 import { resolve } from '@src/utils/promiseResolver';
 import { responseLog } from '@src/utils/logging';
+import { SettingsGetIsDefaultExtensionDappRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
@@ -46,6 +47,7 @@ const dappProviderRequestHandlerMap = new Map<
   WalletGetPermissionsRequest,
   WalletPermissionsRequest,
   WalletSwitchEthereumChain,
+  SettingsGetIsDefaultExtensionDappRequest,
 ]);
 
 export function providerConnectionHandlers(connection: Runtime.Port) {
