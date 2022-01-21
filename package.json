@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "0.13.1",
-    "@avalabs/react-components": "1.63.0",
+    "@avalabs/react-components": "1.66.0",
     "@avalabs/wallet-react-components": "1.20.1",
     "@babel/runtime": "7.16.3",
     "@metamask/post-message-stream": "4.0.0",

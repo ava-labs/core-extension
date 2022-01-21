@@ -1,72 +1,51 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Card,
-  CaretIcon,
-  CheckmarkIcon,
+  CloseIcon,
   HorizontalFlex,
   HorizontalSeparator,
-  IconDirection,
-  PlusIcon,
-  PrimaryAddress,
+  PrimaryButton,
   TextButton,
   Typography,
-  useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
-import { EditableAccountName } from './EditableAccountName';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { exhaustMap, from, Subject } from 'rxjs';
-import { QRCodeWithLogo } from '../QRCodeWithLogo';
+import { exhaustMap, from, Subject, tap } from 'rxjs';
+import { AccountDropdownItem } from './AccountDropdownItem';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
 }
 
-const IconBox = styled(VerticalFlex)<{ $show?: boolean }>`
-  visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
-  margin: 0 0 0 8px;
-`;
-
-const StyledCheckmarkIcon = styled(CheckmarkIcon)`
-  flex-shrink: 0;
-`;
-
-const SimpleAddress = styled(PrimaryAddress)`
-  width: 100%;
-`;
-
-const StyledQRCodeWithLogo = styled(QRCodeWithLogo)`
-  margin: 16px 0;
-`;
-
-const AccountRow = styled(VerticalFlex)`
-  cursor: pointer;
-  padding: 8px 15px 16px 0;
-  width: 100%;
-
-  &:hover {
-    background-color: ${({ theme }) => `${theme.colors.bg1}20`};
-  }
-`;
-
 export function AccountDropdownContent({
   onClose,
 }: AccountDropdownContentProps) {
-  const { accounts, selectAccount, addAccount, renameAccount } =
-    useAccountsContext();
+  const { accounts, selectAccount, addAccount } = useAccountsContext();
+
   const theme = useTheme();
   const scrollbarsRef = useRef<Scrollbars>(null);
-  const { showDialog, clearDialog } = useDialog();
 
   const selectAccountSubject$ = useMemo(() => {
     return new Subject<number>();
   }, []);
+  const [editing, isEditing] = useState(false);
+  const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const subscription = selectAccountSubject$
-      .pipe(exhaustMap((index) => from(selectAccount(index))))
+      .pipe(
+        tap((index) => {
+          setAccountIndexLoading(index);
+        }),
+        exhaustMap((index) => from(selectAccount(index))),
+        tap(() => {
+          setAccountIndexLoading(null);
+        })
+      )
       .subscribe();
 
     return () => {
@@ -74,25 +53,12 @@ export function AccountDropdownContent({
     };
   }, [selectAccount, selectAccountSubject$]);
 
-  const showQR = (e: React.MouseEvent, address: string) => {
-    e.stopPropagation();
-    showDialog({
-      title: 'C-Chain QR Code',
-      component: <StyledQRCodeWithLogo value={address} logoText="C-Chain" />,
-      confirmText: 'Close',
-      width: '343px',
-      onConfirm: () => {
-        clearDialog();
-      },
-    });
-  };
-
   return (
     <Card
       direction="column"
       height={'100%'}
       width={'100%'}
-      padding="16px"
+      padding="16px 0"
       onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
       }}
@@ -102,20 +68,13 @@ export function AccountDropdownContent({
         align="flex-start"
         width="100%"
         margin="0 0 8px"
-        padding="16px 0"
+        padding="16px"
       >
-        <TextButton onClick={() => onClose?.()}>
-          <CaretIcon
-            height="20px"
-            direction={IconDirection.LEFT}
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography size={18} weight={500}>
+        <Typography size={24} weight={700} height="24px">
           Accounts
         </Typography>
-        <TextButton onClick={() => addAccount()}>
-          <PlusIcon height="20px" color={theme.colors.icon1} />
+        <TextButton onClick={() => onClose?.()}>
+          <CloseIcon color={theme.colors.icon1} />
         </TextButton>
       </HorizontalFlex>
 
@@ -125,55 +84,52 @@ export function AccountDropdownContent({
           maxHeight: 'unset',
           height: '100%',
           width: '100%',
+          padding: '0 15px 15px 0',
         }}
         autoHide={true}
         ref={scrollbarsRef}
       >
-        {accounts.map((account) => {
-          return (
-            <>
-              <AccountRow
+        <VerticalFlex paddingBottom="64px">
+          {accounts.map((account, i) => {
+            return (
+              <VerticalFlex
                 key={account.addressC}
-                onClick={() => selectAccountSubject$.next(account.index)}
+                onClick={() =>
+                  !editing && selectAccountSubject$.next(account.index)
+                }
+                width="100%"
               >
-                <HorizontalFlex
-                  width="100%"
-                  padding="8px"
-                  justify="space-between"
-                  align="center"
-                >
-                  <EditableAccountName
-                    name={account.name}
-                    enabled={true}
-                    onSave={(name) => {
-                      renameAccount(account.index, name);
-                    }}
+                <AccountDropdownItem
+                  editing={editing}
+                  account={account}
+                  onEdit={() => isEditing(true)}
+                  onSave={() => isEditing(false)}
+                  isLoadingIndex={accountIndexLoading}
+                />
+                {i < accounts.length - 1 && (
+                  <HorizontalSeparator
+                    color={`${theme.colors.bg3}80`}
+                    margin="0"
                   />
-                </HorizontalFlex>
-                <HorizontalFlex align="center" padding="0 0 0 8px">
-                  <SimpleAddress
-                    address={account.addressC}
-                    withQR={true}
-                    onQRClicked={(e: React.MouseEvent) => {
-                      showQR(e, account.addressC);
-                    }}
-                    truncateLength={17}
-                  />
-                  <IconBox $show={account.active}>
-                    <StyledCheckmarkIcon
-                      height="16px"
-                      color={theme.colors.icon1}
-                    />
-                  </IconBox>
-                </HorizontalFlex>
-              </AccountRow>
-              <HorizontalSeparator
-                key={`separator${account.addressC}`}
-                margin="0"
-              />
-            </>
-          );
-        })}
+                )}
+              </VerticalFlex>
+            );
+          })}
+        </VerticalFlex>
+        <HorizontalFlex
+          position="fixed"
+          justify="center"
+          padding="16px 17px"
+          margin="0 0 16px 0"
+          style={{
+            bottom: '0px',
+            background: `${theme.colors.bg2}`,
+          }}
+        >
+          <PrimaryButton width="309px" onClick={() => addAccount()}>
+            Add Account
+          </PrimaryButton>
+        </HorizontalFlex>
       </Scrollbars>
     </Card>
   );

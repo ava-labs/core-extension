@@ -31,10 +31,10 @@
     web3-eth-contract "1.6.0"
     xss "^1.0.10"
 
-"@avalabs/react-components@1.63.0":
-  version "1.63.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.63.0.tgz#73f217bef06cc68efe31527f9249f7f5df8e3733"
-  integrity sha512-FhBO28rThXObk+TlXW97AZZ2fxdPWqT2IrdNuv9ccFn3UiLzxTZahw0J4pU4j2+Mfvg4gZC0DwGfgqCaPboZdw==
+"@avalabs/react-components@1.66.0":
+  version "1.66.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.66.0.tgz#8557c25cb54155a2dcd5a99f98e9bfc5f6eb5dad"
+  integrity sha512-fTjhB7EuoD4JseHBXC5QnUIbWLF2UG6h3mfKojwvGsXjcEmvVmptgmPvWL5QQoMFZyRyuME3/Dc7QeUqa12jNQ==
   dependencies:
     "@tippyjs/react" "^4.2.6"
     big.js "^6.1.1"
