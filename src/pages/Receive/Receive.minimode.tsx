@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -14,11 +14,11 @@ import {
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled, { useTheme } from 'styled-components';
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
-import { useHistory } from 'react-router';
 import { truncateAddress } from '@src/utils/truncateAddress';
+import { useHistory } from 'react-router-dom';
 
 interface ReceiveMiniModeProps {
-  limitToChain?: 'C' | 'X';
+  limitToChain?: 'C';
   // indicates whether the page is used inside a tab or standalone
   // in embedded mode the title bar is hidden and the QR code size is reduced
   embedded?: boolean;
@@ -48,18 +48,11 @@ export const ReceiveMiniMode = ({
   embedded = false,
 }: ReceiveMiniModeProps) => {
   const { addresses } = useWalletContext();
-  const [chain, setChain] = useState(limitToChain || 'C');
+  const [chain] = useState(limitToChain || 'C');
   const theme = useTheme();
   const history = useHistory();
 
   const getAddress = () => {
-    if (chain === 'C') {
-      return addresses.addrC;
-    } else if (chain === 'X') {
-      return addresses.addrX;
-    } else if (chain === 'P') {
-      return addresses.addrP;
-    }
     return addresses.addrC;
   };
 
@@ -83,7 +76,7 @@ export const ReceiveMiniMode = ({
         >
           <StyledTextButton
             onClick={() => {
-              chain === 'X' ? setChain('C') : history.goBack();
+              history.goBack();
             }}
           >
             <CaretIcon
@@ -111,18 +104,13 @@ export const ReceiveMiniMode = ({
           </Typography>{' '}
           address to receive funds
         </Typography>
-        {chain === 'X' && (
-          <Typography height="17px" size={14}>
-            Your address will change after every deposit
-          </Typography>
-        )}
       </VerticalFlex>
 
       <VerticalFlex width={'100%'} grow="1" align="center" justify="center">
         <QRCodeWithLogo
           size={embedded ? 120 : 183}
           value={getAddress()}
-          logoText={chain === 'C' ? 'C-Chain' : 'X-Chain'}
+          logoText={'C-Chain'}
         />
       </VerticalFlex>
 
@@ -143,18 +131,9 @@ export const ReceiveMiniMode = ({
         justify="center"
         margin={embedded ? '32px 0 16px' : '42px 0 0'}
       >
-        {!limitToChain &&
-          (chain === 'C' ? (
-            <TextButton onClick={() => setChain('X')}>
-              <Typography color="inherit" margin="12px 16px">
-                Looking for X chain?
-              </Typography>
-            </TextButton>
-          ) : (
-            <TextButton onClick={() => setChain('C')}>
-              <Typography color="inherit">Back</Typography>
-            </TextButton>
-          ))}
+        <TextButton onClick={() => history.goBack()}>
+          <Typography color="inherit">Back</Typography>
+        </TextButton>
       </HorizontalFlex>
     </VerticalFlex>
   );

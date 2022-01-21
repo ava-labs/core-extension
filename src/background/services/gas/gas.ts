@@ -36,6 +36,7 @@ interval(SECONDS_30)
     filter(
       ([oldPrice, newPrice]) => oldPrice.toString() !== newPrice.toString()
     ),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     map(([_, newPrice]) => parseGasPrice(newPrice)),
     tap((res: any) => {
       gasPrice$.next(res);

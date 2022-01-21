@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CreatePassword } from '@src/pages/Onboarding/CreatePassword';
 import { CreateWallet } from './CreateWallet/CreateWallet';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
@@ -36,6 +36,7 @@ export function OnboardingFlow() {
       setIsImportFlow(true);
       setNextPhase(OnboardingPhase.IMPORT_WALLET);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   let content = (
@@ -87,12 +88,15 @@ export function OnboardingFlow() {
         <Logo />
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
-        <Card width="600px" height="744px">
+        <Card
+          width="600px"
+          minHeight="540px"
+          height="calc(100vh - 130px)"
+          maxHeight="800px"
+        >
           {content}
         </Card>
       </VerticalFlex>
     </VerticalFlex>
   );
 }
-
-export default OnboardingFlow;

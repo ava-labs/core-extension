@@ -3,7 +3,6 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import React from 'react';
 import { ActivityMiniMode } from './Activity.minimode';
 
 export function ActivityFlow() {
@@ -17,5 +16,3 @@ export function ActivityFlow() {
     </VerticalFlex>
   );
 }
-
-export default ActivityFlow;

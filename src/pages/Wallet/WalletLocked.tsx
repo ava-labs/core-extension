@@ -11,7 +11,7 @@ import {
 import { LoginIllustration } from '@src/components/common/LoginIllustation';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export function WalletLocked({
   unlockWallet,
@@ -71,7 +71,7 @@ export function WalletLocked({
         <Input
           type="password"
           label="Password"
-          onChange={(e) => setPassword(e.currentTarget.value)}
+          onChange={(e) => setPassword(e.currentTarget.value.trim())}
           placeholder="Password"
           error={!!error}
           errorMessage={error}

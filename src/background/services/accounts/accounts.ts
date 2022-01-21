@@ -2,6 +2,7 @@ import {
   accounts$ as sdkAccount$,
   addAccount as addAccountSDK,
 } from '@avalabs/wallet-react-components';
+import { resolve } from '@src/utils/promiseResolver';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { addAccount } from './handlers/addAccount';
 import { selectAccount } from './handlers/selectAccount';
@@ -25,8 +26,8 @@ export async function initAccounts() {
 
   // create first account after initialization
   if (accounts.length === 0) {
-    await addAccount(initialAccountName);
-    await selectAccount(0);
+    await resolve(addAccount(initialAccountName));
+    await resolve(selectAccount(0));
     return;
   }
 

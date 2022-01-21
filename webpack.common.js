@@ -1,6 +1,7 @@
 const path = require('path');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const { ProvidePlugin } = require('webpack');
 
 module.exports = {
   entry: {
@@ -44,7 +45,6 @@ module.exports = {
       react: path.resolve('./node_modules/react'),
       'react-dom': path.resolve('./node_modules/react-dom'),
       'styled-components': path.resolve('./node_modules/styled-components'),
-      '@types/bn.js': path.resolve('./node_modules/@types/bn.js'),
       // use alias for bn.js to prevent bundling it >23 times per output file (saves ~1.5MB)
       'bn.js': path.resolve(
         './node_modules/@avalabs/avalanche-wallet-sdk/node_modules/bn.js'
@@ -65,6 +65,9 @@ module.exports = {
       options: {
         concurrency: 100,
       },
+    }),
+    new ProvidePlugin({
+      React: 'react',
     }),
   ],
 };

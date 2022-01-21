@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   CaretIcon,
   ConnectionIndicator,
@@ -69,6 +68,21 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
             direction={IconDirection.RIGHT}
           />
         </HorizontalFlex>
+      </DropDownMenuItem>
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="12px 16px"
+        onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
+      >
+        <Typography weight={600} height="24px">
+          Contact List
+        </Typography>
+        <CaretIcon
+          color={theme.colors.icon1}
+          height="14px"
+          direction={IconDirection.RIGHT}
+        />
       </DropDownMenuItem>
       <DropDownMenuItem
         justify="space-between"

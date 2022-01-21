@@ -1,4 +1,3 @@
-import React from 'react';
 import { VerticalFlex } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import QRCode from 'qrcode.react';

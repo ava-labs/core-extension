@@ -1,5 +1,4 @@
 import { LoadingSpinnerIcon, Overlay } from '@avalabs/react-components';
-import React from 'react';
 import { useTheme } from 'styled-components';
 
 export function LoadingOverlay() {

@@ -17,7 +17,7 @@ async function validateSendAvaxState(request: ExtensionConnectionMessage) {
   const state = await firstValueFrom(
     sendAvaxCheckFormAndCalculateFees(
       gasPrice$ as Observable<{ bn: BN }>,
-      of(Utils.stringToBN(amount || '0', 9)).pipe(
+      of(Utils.stringToBN(amount || '0', 18)).pipe(
         startWith(new BN(0))
       ) as Subject<BN>,
       of(address).pipe(startWith('')) as Subject<string>,

@@ -1,8 +1,6 @@
 import {
   Card,
   HorizontalFlex,
-  PrimaryButton,
-  SecondaryButton,
   SubTextTypography,
   Typography,
   VerticalFlex,
@@ -10,7 +8,7 @@ import {
   TextButton,
   CopyIcon,
 } from '@avalabs/react-components';
-import React from 'react';
+import { Component } from 'react';
 import styled from 'styled-components';
 
 const Header = styled(Typography)`
@@ -20,7 +18,7 @@ const Header = styled(Typography)`
 /**
  * This catches all errors in the UI at the sign tx level. Essentially this is a catch all if the sign tx render boundary fails to catch the issue then this should do it
  */
-export class SignTxRenderErrorBoundary extends React.Component<
+export class SignTxRenderErrorBoundary extends Component<
   any,
   { hasError: boolean; error?: string; errorStack?: string }
 > {

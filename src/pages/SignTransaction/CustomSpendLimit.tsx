@@ -11,7 +11,7 @@ import {
   SecondaryCard,
   Radio,
 } from '@avalabs/react-components';
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';

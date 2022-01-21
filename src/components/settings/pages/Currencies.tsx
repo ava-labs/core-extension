@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   CheckmarkIcon,
   DropDownMenuItem,
@@ -16,7 +16,7 @@ import { currencies } from '@avalabs/wallet-react-components';
 export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { updateCurrencySetting, currency } = useSettingsContext();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredCurrencies = currencies.filter(
     (c) =>

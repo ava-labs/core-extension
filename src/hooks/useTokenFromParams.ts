@@ -5,11 +5,12 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from './useTokensWithBalances';
 
 export function useTokenFromParams() {
-  const { avaxToken, erc20Tokens, antTokens } = useWalletContext();
+  const { avaxToken, erc20Tokens } = useWalletContext();
   const { search } = useLocation();
   const [selectedToken, setSelectedToken] = useState<TokenWithBalance>();
   const tokensWBalances: TokenWithBalance[] = useTokensWithBalances();
-  const tokens = tokensWBalances ?? [avaxToken, ...erc20Tokens, ...antTokens];
+  const tokens = tokensWBalances ?? [avaxToken, ...erc20Tokens];
+
   useEffect(() => {
     // need to update ts target version so support this feature, browser supports it
     const { token } = (Object as any).fromEntries(
@@ -19,6 +20,7 @@ export function useTokenFromParams() {
       (availToken) => availToken.symbol === token
     );
     targetToken && setSelectedToken(targetToken as TokenWithBalance);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, tokensWBalances]);
 
   return selectedToken || avaxToken;

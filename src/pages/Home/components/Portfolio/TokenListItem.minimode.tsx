@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TokenCard } from '@avalabs/react-components';
 

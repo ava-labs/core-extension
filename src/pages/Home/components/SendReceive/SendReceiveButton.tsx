@@ -5,7 +5,6 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React from 'react';
 import styled, { useTheme } from 'styled-components';
 
 interface SendReceiveButtonProps {

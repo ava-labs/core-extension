@@ -18,7 +18,7 @@ import {
   TxStatus,
 } from '@src/background/services/transactions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ApproveTx } from './ApproveTx';
 import { SwapTx } from './SwapTx';
 import { UnknownTx } from './UnknownTx';
@@ -55,7 +55,7 @@ export function SignTransactionPage() {
     isRevokeApproval,
     ...params
   } = useGetTransaction(requestId);
-  const [showTxInProgress, setShowTxInProgress] = useState(false);
+  const [showTxInProgress, setShowTxInProgress] = useState<boolean>(false);
   const { network } = useNetworkContext();
   const theme = useTheme();
   const [txFailedError, setTxFailedError] = useState<string>();
@@ -216,5 +216,3 @@ export function SignTransactionPage() {
     </VerticalFlex>
   );
 }
-
-export default SignTransactionPage;

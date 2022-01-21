@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CaretIcon,
   HorizontalFlex,
@@ -17,7 +17,6 @@ import {
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { SendConfirmation } from './SendConfirmation';
-import { SendConsolidationDetails } from './SendConsolidationDetails';
 import styled, { useTheme } from 'styled-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useSend } from './hooks/useSend';
@@ -46,9 +45,9 @@ export function SendConfirm({
 }: SendConfirmProps) {
   const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
-  const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const [showTxConfirmed, setShowTxConfirmed] = useState(false);
-  const [showTxDetails, setShowTxDetails] = useState(false);
+  const [showTxInProgress, setShowTxInProgress] = useState<boolean>(false);
+  const [showTxConfirmed, setShowTxConfirmed] = useState<boolean>(false);
+  const [showTxDetails, setShowTxDetails] = useState<boolean>(false);
 
   const onBackClick = () => {
     if (showTxDetails) {
@@ -116,7 +115,6 @@ export function SendConfirm({
 
       {showTxDetails ? (
         <VerticalFlex margin="40px 0 0" grow="1" padding="16px">
-          <SendConsolidationDetails txs={sendState?.txs || []} />
           <PrimaryButton
             size={ComponentSize.LARGE}
             onClick={() => {
@@ -171,11 +169,6 @@ export function SendConfirm({
                 </SubTextTypography>
                 <Typography height="24px">{fee || 0} AVAX</Typography>
               </VerticalFlex>
-              {sendState?.txs?.length ? (
-                <TextButton onClick={() => setShowTxDetails(!showTxDetails)}>
-                  View Details
-                </TextButton>
-              ) : null}
             </HorizontalFlex>
           </DataCard>
           <HorizontalFlex

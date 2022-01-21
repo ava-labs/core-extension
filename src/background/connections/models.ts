@@ -1,4 +1,5 @@
 /* eslint-disable no-prototype-builtins */
+
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 import { DomainMetadata } from '../models';
 
@@ -64,6 +65,15 @@ export type ConnectionRequestHandler<T = any> = (
   request: ExtensionConnectionMessage
 ) => Promise<ExtensionConnectionMessageResponse<T>>;
 
+export interface DappRequestHandler<T = any> {
+  handleAuthenticated: (
+    request: ExtensionConnectionMessage
+  ) => Promise<ExtensionConnectionMessageResponse<T>>;
+  handleUnauthenticated: (
+    request: ExtensionConnectionMessage
+  ) => Promise<ExtensionConnectionMessageResponse<T>>;
+}
+
 export enum ExtensionRequest {
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SET_PHASE = 'onboarding_setCurrentPhase',
@@ -115,6 +125,15 @@ export enum ExtensionRequest {
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
   SETTINGS_UPDATE_THEME = 'settings_update_theme',
+  SETTINGS_UPDATE_TOKENS_VISIBILITY = 'settings_update_tokens_visibility',
+  SETTINGS_ADD_CUSTOM_TOKEN = 'settings_add_custom_token',
+  SETTINGS_GET_TOKEN_DATA = 'settings_get_token_data',
+  SETTINGS_SET_DEFAULT_EXTENSION = 'settings_set_default_extension',
+  SETTINGS_GET_DEFAULT_EXTENSION = 'settings_get_default_extension',
+
+  CONTACTS_GET = 'contacts_get',
+  CONTACTS_CREATE = 'contacts_create',
+  CONTACTS_REMOVE = 'contacts_remove',
 
   FAVORITES_CREATE = 'favorites_create',
   FAVORITES_REMOVE = 'favorites_remove',
@@ -124,11 +143,6 @@ export enum ExtensionRequest {
   SWAP_PERFORM = 'swap_perform',
 
   GAS_GET = 'gas_get',
-}
-
-export enum ProviderRequest {
-  DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata',
-  CONNECT_METHOD = 'eth_requestAccounts',
 }
 
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {

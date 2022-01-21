@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   HorizontalFlex,
   VerticalFlex,
@@ -8,7 +7,7 @@ import {
 } from '@avalabs/react-components';
 import { Logo } from '@src/components/icons/Logo';
 import styled, { css, useTheme } from 'styled-components';
-import Menu from './Menu';
+import { Menu } from './Menu';
 
 interface DrawerProps {
   open: boolean;
@@ -34,7 +33,7 @@ const Container = styled(VerticalFlex)`
     `};
 `;
 
-function Drawer({ open, onCloseClicked }: DrawerProps) {
+export function Drawer({ open, onCloseClicked }: DrawerProps) {
   const isSmallScreen = useIsSmallScreen();
   const theme = useTheme();
 
@@ -54,5 +53,3 @@ function Drawer({ open, onCloseClicked }: DrawerProps) {
     </Container>
   );
 }
-
-export default Drawer;

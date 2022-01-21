@@ -1,8 +1,5 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-} from '@src/background/connections/models';
+import { DappRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { filter, firstValueFrom, map, merge } from 'rxjs';
 import { permissions$ } from '../../permissions/permissions';
@@ -19,71 +16,77 @@ import { wallet$ } from '@avalabs/wallet-react-components';
  * @param data the rpc request
  * @returns
  */
-export async function connect(data: ExtensionConnectionMessage) {
-  const walletResult = await firstValueFrom(wallet$);
 
-  if (!walletResult) {
+class ConnectRequestHandler implements DappRequestHandler {
+  handleAuthenticated = async (request) => {
+    const walletResult = await firstValueFrom(wallet$);
+
+    if (!walletResult) {
+      return {
+        ...request,
+        error: 'wallet locked, undefined or malformed',
+      };
+    }
+
     return {
-      ...data,
-      error: 'wallet locked, undefined or malformed',
-    };
-  }
-
-  const permissions = await firstValueFrom(permissions$);
-
-  if (
-    domainHasAccountsPermissions(
-      walletResult.getAddressC(),
-      data.site?.domain,
-      permissions
-    )
-  ) {
-    return {
-      ...data,
+      ...request,
       result: walletResult ? getAccountsFromWallet(walletResult) : [],
     };
-  }
+  };
 
-  const window = await openExtensionNewWindow(
-    `permissions`,
-    `domainName=${data.site?.name}&domainUrl=${data.site?.domain}&domainIcon=${data.site?.icon}`,
-    data.meta?.coords
-  );
-  /**
-   * If the user updates permissions and then closes the window then the permissions are written and this
-   * promise is resolved. If not and the window is closed before then the promise will also be resolved and
-   * the consumer will be notified that the window closed prematurely
-   */
-  const permissionsSet = permissions$.pipe(
-    filter(
-      (currentPermissions) =>
-        domainPermissionsExist(data.site?.domain, currentPermissions) &&
-        domainHasAccountsPermissions(
-          walletResult.getAddressC(),
-          data.site?.domain,
-          currentPermissions
-        )
-    ),
-    map((hasPermissions) => ({
-      ...data,
-      result:
-        hasPermissions && walletResult
-          ? getAccountsFromWallet(walletResult)
-          : [],
-    }))
-  );
+  handleUnauthenticated = async (request) => {
+    const walletResult = await firstValueFrom(wallet$);
 
-  const windowClosed = window.removed.pipe(
-    map(() => ({
-      ...data,
-      error: 'window removed before permissions set',
-    }))
-  );
+    if (!walletResult) {
+      return {
+        ...request,
+        error: 'wallet locked, undefined or malformed',
+      };
+    }
 
-  return firstValueFrom(merge(permissionsSet, windowClosed));
+    const window = await openExtensionNewWindow(
+      `permissions`,
+      `domainName=${request.site?.name}&domainUrl=${request.site?.domain}&domainIcon=${request.site?.icon}`,
+      request.meta?.coords
+    );
+
+    /**
+     * If the user updates permissions and then closes the window then the permissions are written and this
+     * promise is resolved. If not and the window is closed before then the promise will also be resolved and
+     * the consumer will be notified that the window closed prematurely
+     */
+    const permissionsSet = permissions$.pipe(
+      filter(
+        (currentPermissions) =>
+          domainPermissionsExist(request.site?.domain, currentPermissions) &&
+          domainHasAccountsPermissions(
+            walletResult.getAddressC(),
+            request.site?.domain,
+            currentPermissions
+          )
+      ),
+      map((hasPermissions) => ({
+        ...request,
+        result:
+          hasPermissions && walletResult
+            ? getAccountsFromWallet(walletResult)
+            : [],
+      }))
+    );
+
+    // detect if users closes the window and take it as a rejection
+    const windowClosed = window.removed.pipe(
+      map(() => ({
+        ...request,
+        error: 'window removed before permissions set',
+      }))
+    );
+
+    return firstValueFrom(merge(permissionsSet, windowClosed));
+  };
 }
 
-export const ConnectRequest: [DAppProviderRequest, ConnectionRequestHandler] = [
+export const ConnectRequest: [DAppProviderRequest, DappRequestHandler] = [
   DAppProviderRequest.CONNECT_METHOD,
-  connect,
+  new ConnectRequestHandler(),
 ];

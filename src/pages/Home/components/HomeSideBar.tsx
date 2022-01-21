@@ -9,7 +9,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { Receive } from '@src/pages/Receive/Receive';
 import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
 import { WalletRecentTxs } from '@src/pages/Wallet/WalletRecentTxs';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface HomeSideBarProps {
   margin?: string;

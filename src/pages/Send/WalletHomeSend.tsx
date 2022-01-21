@@ -10,7 +10,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { filter, map } from 'rxjs';
 import { TransactionSendType } from './models';
 import { SendFlow } from './SendFlow';
@@ -52,6 +52,7 @@ export function WalletHomeSend() {
     return () => {
       eventsSub.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

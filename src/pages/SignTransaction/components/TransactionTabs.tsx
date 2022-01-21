@@ -7,7 +7,6 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import React from 'react';
 import { useTheme } from 'styled-components';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

@@ -7,7 +7,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 const bnZero = new BN(0);
 
 export function useTokensWithBalances() {
-  const { erc20Tokens, avaxPrice, antTokens, avaxToken } = useWalletContext();
+  const { erc20Tokens, avaxPrice, avaxToken } = useWalletContext();
   const { showTokensWithoutBalances } = useSettingsContext();
 
   return useMemo<TokenWithBalance[]>(() => {
@@ -19,7 +19,6 @@ export function useTokensWithBalances() {
       ...erc20Tokens.filter((token) =>
         showTokensWithoutBalances ? true : token.balance.gt(bnZero)
       ),
-      ...antTokens,
     ];
-  }, [erc20Tokens, avaxToken, avaxPrice, antTokens, showTokensWithoutBalances]);
+  }, [erc20Tokens, avaxToken, avaxPrice, showTokensWithoutBalances]);
 }

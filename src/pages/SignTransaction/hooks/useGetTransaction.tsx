@@ -1,7 +1,5 @@
-import { useCallback, useMemo } from 'react';
-import { useState } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import { Transaction } from '@src/background/services/transactions/models';
-import { useEffect } from 'react';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { filter, map, take } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/models';
@@ -21,16 +19,17 @@ export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
   const { avaxPrice } = useWalletContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [hash, setHash] = useState('');
-  const [showCustomFees, setShowCustomFees] = useState(false);
-  const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
+  const [hash, setHash] = useState<string>('');
+  const [showCustomFees, setShowCustomFees] = useState<boolean>(false);
+  const [showCustomSpendLimit, setShowCustomSpendLimit] =
+    useState<boolean>(false);
   const [displaySpendLimit, setDisplaySpendLimit] = useState<string>(
     UNLIMITED_SPEND_LIMIT_LABEL
   );
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
     limitType: Limit.UNLIMITED,
   });
-  const [isRevokeApproval, setIsRevokeApproval] = useState(false);
+  const [isRevokeApproval, setIsRevokeApproval] = useState<boolean>(false);
 
   function setCustomFee(gasLimit: string, gasPrice: GasPrice) {
     const feeDisplayValues = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
@@ -90,6 +89,7 @@ export function useGetTransaction(requestId: string) {
       method: ExtensionRequest.TRANSACTIONS_UPDATE,
       params: [update],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -99,10 +99,11 @@ export function useGetTransaction(requestId: string) {
     }).then((tx) => {
       setTransaction(tx);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const subscription = events!()
+    const subscription = events?.()
       .pipe(filter(gasPriceTransactionUpdateListener))
       .subscribe(function (evt) {
         const gasPrice = {
@@ -115,7 +116,7 @@ export function useGetTransaction(requestId: string) {
         );
       });
 
-    const finalizedSubscription = events!()
+    const finalizedSubscription = events?.()
       .pipe(
         filter(transactionFinalizedUpdateListener),
         map(({ value }) => {
@@ -137,9 +138,10 @@ export function useGetTransaction(requestId: string) {
     }
 
     return () => {
-      subscription.unsubscribe();
-      finalizedSubscription.unsubscribe();
+      subscription?.unsubscribe();
+      finalizedSubscription?.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transaction]);
 
   return useMemo(() => {
@@ -159,6 +161,7 @@ export function useGetTransaction(requestId: string) {
       customSpendLimit,
       isRevokeApproval,
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestId,
     transaction,

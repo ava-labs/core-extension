@@ -1,28 +1,17 @@
-import React from 'react';
 import {
   DropDownMenuItem,
-  MoonIcon,
-  SunshineIcon,
+  Toggle,
   Typography,
-  useThemeContext,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { ThemeVariant } from '@src/background/services/settings/models';
 
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { darkMode, toggleDarkTheme } = useThemeContext();
-  const { updateTheme } = useSettingsContext();
-
-  const changeTheme = () => {
-    updateTheme(darkMode ? ThemeVariant.LIGHT : ThemeVariant.DARK);
-    toggleDarkTheme();
-  };
+  const { isDefaultExtension, toggleIsDefaultExtension } = useSettingsContext();
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -32,21 +21,15 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Advanced'}
       />
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <DropDownMenuItem
-          justify="space-between"
-          align="center"
-          padding="12px 16px"
-          onClick={() => changeTheme()}
-        >
-          <Typography>Theme</Typography>
-          {darkMode ? (
-            <SunshineIcon color={theme.colors.text1} />
-          ) : (
-            <MoonIcon color={theme.colors.text1} />
-          )}
-        </DropDownMenuItem>
-      </Scrollbars>
+      <DropDownMenuItem justify="space-between" padding="12px 16px">
+        <Typography weight={600} height="24px">
+          Set as default wallet
+        </Typography>
+        <Toggle
+          isChecked={isDefaultExtension}
+          onChange={() => toggleIsDefaultExtension()}
+        />
+      </DropDownMenuItem>
     </VerticalFlex>
   );
 }

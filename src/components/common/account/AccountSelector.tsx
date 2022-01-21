@@ -1,5 +1,4 @@
 import { DropDownMenu } from '@avalabs/react-components';
-import React from 'react';
 import { AccountDropdownContent } from './AccountDopdownContent';
 import { AccountSelectorButton } from './AccountSelectorButton';
 

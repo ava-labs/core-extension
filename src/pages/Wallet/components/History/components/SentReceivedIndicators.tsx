@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowIcon, HorizontalFlex } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 

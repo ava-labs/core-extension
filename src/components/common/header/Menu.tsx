@@ -6,34 +6,35 @@ import {
   CaretIcon,
   VerticalFlex,
 } from '@avalabs/react-components';
-import styled, { css, useTheme } from 'styled-components';
-import React, { useState } from 'react';
+import styled, { useTheme } from 'styled-components';
+import { useState } from 'react';
 import { MenuItem, menuItems } from './MenuItems';
 import { NavLink } from 'react-router-dom';
 
-const Link = styled(TextButton)`
+const Link = styled(TextButton)<{ isHighlighted?: boolean; level?: number }>`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 8px 0;
     border-radius: ${theme.borderRadius};
   `};
 
-  ${(props: { highlighted?: boolean; level?: number }) =>
-    css`
+  ${(props) =>
+    `
       width: 100%;
       border-radius: 0;
 
       &:hover {
-        background-color: ${({ theme }) =>
+        background-color: ${
           props.level === 1
-            ? theme.dropdown.secondary.itemBgHover
-            : 'transparent'};
-        text-shadow: 0px 0px 0.5px ${({ theme }) => theme.colors.text1};
+            ? props.theme.dropdown.secondary.itemBgHover
+            : 'transparent'
+        };
+        text-shadow: 0px 0px 0.5px ${props.theme.colors.text1};
       }
 
-      ${({ theme }) => theme.mediaWidth.upToSmall`
+      ${props.theme.mediaWidth.upToSmall`
         background: ${
-          props.highlighted
-            ? theme.dropdown.secondary.itemBgHover
+          props.isHighlighted
+            ? props.theme.dropdown.secondary.itemBgHover
             : 'transparent'
         };
         padding: ${props.level === 0 ? '16px 8px' : '8px'};
@@ -68,12 +69,14 @@ const StyledCaretIcon = styled(CaretIcon)`
   transform: rotate(0);
   transition: transform 0.3s;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${(props) => `
+    ${props.theme.mediaWidth.upToSmall`
       transform: rotate(-90deg);
-    `};
+    `}
+  `};
 `;
 
-const DropDown = styled.div<{
+const DropDown = styled(HorizontalFlex)<{
   open?: boolean;
   isMobile: boolean;
 }>`
@@ -89,23 +92,23 @@ const DropDown = styled.div<{
     }
   `};
 
-  ${({ isMobile, open }) =>
-    isMobile
-      ? open &&
-        css`
+  ${(props) =>
+    props.isMobile
+      ? props.open &&
+        `
           & > ${DropDownContent} {
             display: flex;
           }
 
           & > ${DropDownText} {
-            background: ${({ theme }) => theme.colors.bg2};
+            background: ${props.theme.colors.bg2};
           }
 
           & ${StyledCaretIcon} {
             transform: rotate(0);
           }
         `
-      : css`
+      : `
           ${Link} {
             min-height: 48px;
           }
@@ -116,7 +119,7 @@ const DropDown = styled.div<{
             transform: rotate(-180deg);
           }
           &:hover > ${Typography} {
-            text-shadow: 0px 0px 1px ${({ theme }) => theme.colors.text1};
+            text-shadow: 0px 0px 1px ${props.theme.colors.text1};
           }
         `};
 `;
@@ -137,10 +140,10 @@ const DropDownText = styled(Typography)`
   `};
 `;
 
-function Menu() {
+export function Menu() {
   const theme = useTheme();
   const isSmallScreen = useIsSmallScreen();
-  const [dropDownOpen, setDropDownOpen] = useState('');
+  const [dropDownOpen, setDropDownOpen] = useState<string>('');
 
   const toggleDropDown = (key: string) => {
     if (!isSmallScreen) return;
@@ -164,7 +167,7 @@ function Menu() {
         elements.push(
           <Link
             level={level}
-            highlighted={item.highlighted}
+            isHighlighted={item.highlighted}
             as="a"
             margin={margin}
             padding={padding}
@@ -232,5 +235,3 @@ function Menu() {
     </HorizontalFlex>
   );
 }
-
-export default Menu;

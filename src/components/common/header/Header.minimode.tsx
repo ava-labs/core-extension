@@ -1,4 +1,3 @@
-import { useTheme } from 'styled-components';
 import {
   ComponentSize,
   ConfigureIcon,
@@ -9,20 +8,29 @@ import {
   TextButton,
   Typography,
 } from '@avalabs/react-components';
-import React from 'react';
-import { HeaderProps } from './HeaderFlow';
 import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
 import { usePermissions } from '@src/pages/Permissions/usePermissions';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AccountSelectorFlow } from '../account/AccountSelectorFlow';
+import { useHistory } from 'react-router-dom';
+import { useTheme } from 'styled-components';
 
-function HeaderMiniMode({ onDrawerStateChanged }: HeaderProps) {
-  const theme = useTheme();
+export function HeaderMiniMode() {
   const domain = useCurrentDomain();
+  const theme = useTheme();
   const { permissions, updateAccountPermission } = usePermissions(domain);
   const { addresses } = useWalletContext();
   const isConnected = permissions && permissions.accounts[addresses.addrC];
+  const history = useHistory();
+
+  const toggleManageTokensPage = () => {
+    if (history.location.pathname.startsWith('/manage-tokens')) {
+      history.push('/');
+      return;
+    }
+    history.push('/manage-tokens');
+  };
 
   return (
     <HorizontalFlex justify="space-between" align="center" padding="16px">
@@ -59,11 +67,9 @@ function HeaderMiniMode({ onDrawerStateChanged }: HeaderProps) {
         </ConnectionIndicator>
         <AccountSelectorFlow />
       </HorizontalFlex>
-      <TextButton disabled={true}>
-        <ConfigureIcon />
+      <TextButton onClick={toggleManageTokensPage}>
+        <ConfigureIcon color={theme.colors.text1} />
       </TextButton>
     </HorizontalFlex>
   );
 }
-
-export default HeaderMiniMode;

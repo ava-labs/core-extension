@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   VerticalFlex,
   Input,
@@ -27,9 +27,9 @@ export const CreatePassword = ({
 }: CreatePasswordProps) => {
   const theme = useTheme();
   const { setPasswordAndName, setNextPhase } = useOnboardingContext();
-  const [accountName, setAccountName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
+  const [accountName, setAccountName] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(
@@ -69,6 +69,7 @@ export const CreatePassword = ({
             label="Wallet Name"
             onChange={(e) => setAccountName(e.target.value)}
             placeholder="Placeholder"
+            autoFocus
           />
         </HorizontalFlex>
         <VerticalFlex height={'120px'}>

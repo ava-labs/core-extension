@@ -1,4 +1,3 @@
-import React from 'react';
 import { UTXOSet } from 'avalanche/dist/apis/platformvm';
 import { useUnlockingSchedule } from '../../hooks/useUnlockingSchedule';
 import {

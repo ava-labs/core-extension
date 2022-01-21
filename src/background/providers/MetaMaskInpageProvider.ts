@@ -1,10 +1,11 @@
 import { Duplex } from 'stream';
 import { JsonRpcRequest, JsonRpcResponse } from 'json-rpc-engine';
 import { ethErrors } from 'eth-rpc-errors';
-import sendSiteMetadata from './siteMetadata';
-import messages from './messages';
+import { sendSiteMetadata } from './siteMetadata';
+import { messages } from './messages';
 import { EMITTED_NOTIFICATIONS, getRpcPromiseCallback, NOOP } from './utils';
-import BaseProvider, {
+import {
+  BaseProvider,
   BaseProviderOptions,
   UnvalidatedJsonRpcRequest,
 } from './BaseProvider';
@@ -40,7 +41,7 @@ interface SentWarningsState {
   };
 }
 
-export default class MetaMaskInpageProvider extends BaseProvider {
+export class MetaMaskInpageProvider extends BaseProvider {
   protected _sentWarnings: SentWarningsState = {
     // methods
     enable: false,
@@ -68,6 +69,7 @@ export default class MetaMaskInpageProvider extends BaseProvider {
    * Indicating that this provider is a MetaMask provider.
    */
   public readonly isMetaMask: true;
+  public readonly isAvalanche: true;
 
   /**
    * @param connectionStream - A Node.js duplex stream
@@ -93,6 +95,7 @@ export default class MetaMaskInpageProvider extends BaseProvider {
 
     this.networkVersion = null;
     this.isMetaMask = true;
+    this.isAvalanche = true;
 
     this._sendSync = this._sendSync.bind(this);
     this.enable = this.enable.bind(this);

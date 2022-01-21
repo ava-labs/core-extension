@@ -4,20 +4,20 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import React, { Fragment, useMemo } from 'react';
+import { Fragment } from 'react';
 
-import { isTransactionEVM } from '@avalabs/wallet-react-components';
+import {
+  isTransactionERC20,
+  isTransactionNormal,
+} from '@avalabs/wallet-react-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
-import { TransactionEVM } from './components/History/TransactionEVM';
+import { TransactionERC20 } from './components/History/TransactionERC20';
+import { TransactionNormal } from './components/History/TransactionNormal';
 
 export function WalletRecentTxs() {
   const { recentTxHistory } = useWalletContext();
-
-  const transactions = useMemo(() => {
-    return recentTxHistory.filter((item) => isTransactionEVM(item));
-  }, [recentTxHistory]);
 
   const yesterday = endOfYesterday();
   const today = endOfToday();
@@ -32,17 +32,17 @@ export function WalletRecentTxs() {
       : format(date, 'MMMM do');
   };
 
-  if (transactions.length === 0) {
+  if (recentTxHistory.length === 0) {
     return <NoTransactions />;
   }
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
       <VerticalFlex padding="0 16px">
-        {transactions.map((tx, index) => {
+        {recentTxHistory.map((tx, index) => {
           const isNewDay =
             index === 0 ||
-            !isSameDay(tx.timestamp, transactions[index - 1].timestamp);
+            !isSameDay(tx.timestamp, recentTxHistory[index - 1].timestamp);
           return (
             <Fragment key={index}>
               {isNewDay && (
@@ -56,11 +56,12 @@ export function WalletRecentTxs() {
                 </Typography>
               )}
               <SecondaryCard
-                key={tx.id}
+                key={tx.hash}
                 padding={'16px 8px'}
                 margin={'0 0 8px 0'}
               >
-                {isTransactionEVM(tx) && <TransactionEVM item={tx} />}
+                {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}
+                {isTransactionNormal(tx) && <TransactionNormal item={tx} />}
               </SecondaryCard>
             </Fragment>
           );

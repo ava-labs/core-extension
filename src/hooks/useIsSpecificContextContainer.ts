@@ -9,5 +9,5 @@ export enum ContextContainer {
 export function useIsSpecificContextContainer(context: ContextContainer) {
   return useMemo(() => {
     return window.location.pathname.includes(context);
-  }, [window.location.pathname]);
+  }, [context]);
 }

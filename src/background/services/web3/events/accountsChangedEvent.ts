@@ -1,4 +1,4 @@
-import { combineLatest, map, withLatestFrom, zip } from 'rxjs';
+import { combineLatest, map, withLatestFrom } from 'rxjs';
 import { network$ } from '@avalabs/wallet-react-components';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { walletInitializedFilter } from '../../wallet/utils/walletInitializedFilter';

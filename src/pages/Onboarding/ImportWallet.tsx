@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -24,8 +24,8 @@ interface ImportProps {
 export const Import = ({ onCancel, onBack }: ImportProps) => {
   const theme = useTheme();
   const { setMnemonic, setNextPhase } = useOnboardingContext();
-  const [recoveryPhrase, setRecoveryPhrase] = useState('');
-  const [error, setError] = useState('');
+  const [recoveryPhrase, setRecoveryPhrase] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
   const isPhraseCorrectLength = (phrase) => {
     return [12, 24].includes(phrase.split(' ').length);
@@ -72,6 +72,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           secret recovery phrase.
         </Typography>
         <TextArea
+          autoFocus
           margin="40px 0 0 0"
           error={!!error}
           errorMessage={error}

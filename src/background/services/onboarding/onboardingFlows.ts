@@ -1,5 +1,5 @@
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
-import isDevelopment from '@src/utils/isDevelopment';
+import { isDevelopment } from '@src/utils/isDevelopment';
 import { formatAndLog, toLogger } from '@src/utils/logging';
 import { combineLatest, EMPTY, BehaviorSubject } from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';

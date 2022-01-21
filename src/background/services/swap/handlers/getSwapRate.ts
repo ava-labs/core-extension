@@ -12,7 +12,6 @@ import { SwapSide } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
 import { firstValueFrom } from 'rxjs';
 import { paraSwap$ } from '../swap';
-import { avaxFrom18To9, avaxFrom9To18 } from '../utils/convertAvaxDenomination';
 
 const SERVER_BUSY_ERROR = 'Server too busy';
 
@@ -72,17 +71,10 @@ export async function getSwapRate(request: ExtensionConnectionMessage) {
     };
   }
 
-  // Paraswap uses AVAX with denomination of 18 while the wallet uses denomination 9
-  // convert value to denomination of 18
-  let amount = srcAmount;
-  if (AVAX_TOKEN.symbol === srcToken) {
-    amount = avaxFrom9To18(srcAmount);
-  }
-
   const optimalRates = (paraSwap as ParaSwap).getRate(
     srcToken,
     destToken,
-    amount,
+    srcAmount,
     (wallet as WalletType).getAddressC(),
     SwapSide.SELL,
     {
@@ -101,11 +93,7 @@ export async function getSwapRate(request: ExtensionConnectionMessage) {
     checkForErrorsInResult
   );
 
-  // if destination token is AVAX cut the last 9 digits to get it to denomination of 9
-  let destAmount = result.destAmount;
-  if (destToken === AVAX_TOKEN.symbol && result.destAmount) {
-    destAmount = avaxFrom18To9(result.destAmount);
-  }
+  const destAmount = result.destAmount;
 
   return {
     ...request,

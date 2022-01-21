@@ -1,4 +1,3 @@
-import React from 'react';
 import { VerticalFlex, useThemeContext } from '@avalabs/react-components';
 import styled from 'styled-components';
 import { Modal } from '@src/components/common/Modal';

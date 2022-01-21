@@ -1,5 +1,5 @@
 import { VerticalFlex } from '@avalabs/react-components';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { SendReceiveToggle } from '../SendReceive/SendReceiveToggle';
 import { TokenListMiniMode } from './TokenList.minimode';

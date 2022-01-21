@@ -8,11 +8,10 @@ import {
   Typography,
 } from '@avalabs/react-components';
 import {
-  isERC20Token,
   SendAntFormError,
   SendAvaxFormError,
 } from '@avalabs/wallet-react-components';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useSend } from '../hooks/useSend';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
@@ -33,8 +32,8 @@ export function SendForm({ sendState }: SendFormProps) {
   const { currencyFormatter } = useSettingsContext();
   const selectedToken = useTokenFromParams();
   const [amountInput, setAmountInput] = useState<BN>();
-  const [addressInput, setAddressInput] = useState('');
-  const [amountDisplayValue, setAmountDisplayValue] = useState('');
+  const [addressInput, setAddressInput] = useState<string>('');
+  const [amountDisplayValue, setAmountDisplayValue] = useState<string>('');
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new Subject<{
@@ -59,6 +58,7 @@ export function SendForm({ sendState }: SendFormProps) {
     return () => {
       subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedToken]);
 
   const updateSendState = (updates: {
@@ -124,7 +124,7 @@ export function SendForm({ sendState }: SendFormProps) {
             showAmountErrorMessage ? sendState?.errors.amountError.message : ''
           }
           placeholder="Enter the amount"
-          denomination={selectedToken.denomination || 9}
+          denomination={selectedToken.denomination || 18}
           max={sendState?.maxAmount}
           onChange={(val) => {
             onAmountChanged(val);
@@ -148,10 +148,7 @@ export function SendForm({ sendState }: SendFormProps) {
               {sendState?.sendFee && (
                 <SubTextTypography size={12} height="16px" margin="0 8px 0 0">
                   Transaction fee: ~
-                  {Utils.bnToLocaleString(
-                    sendState?.sendFee || new BN(0),
-                    isERC20Token(selectedToken) ? 18 : 9
-                  )}{' '}
+                  {Utils.bnToLocaleString(sendState?.sendFee || new BN(0), 18)}{' '}
                   AVAX
                 </SubTextTypography>
               )}

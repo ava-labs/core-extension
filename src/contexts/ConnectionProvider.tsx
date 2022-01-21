@@ -2,9 +2,8 @@ import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
-import React, { createContext, useContext, useState } from 'react';
-import { useEffect } from 'react';
-import { Observable, Subject, tap } from 'rxjs';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { Observable, Subject } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
 import { EXTENSION_SCRIPT } from '@src/common';
@@ -16,7 +15,7 @@ function request(connection: Runtime.Port, eventsHandler) {
     message: Omit<ExtensionConnectionMessage, 'id'>
   ) {
     return requestEngine(
-      connection!,
+      connection,
       eventsHandler
     )(message).then<T>((results) => {
       return results.error ? Promise.reject(results.error) : results.result;

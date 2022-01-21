@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function AvaxTokenIcon({ height = '30px' }: { height?: string }) {
   return (
     <svg

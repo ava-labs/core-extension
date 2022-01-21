@@ -1,7 +1,5 @@
-import React from 'react';
 import { SendConfirm } from './SendConfirm';
 import { useState } from 'react';
-import { isERC20Token } from '@avalabs/wallet-react-components';
 import { useSend } from './hooks/useSend';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
@@ -17,7 +15,7 @@ import { Modal } from '@src/components/common/Modal';
 export function Send() {
   const sendState = useSend();
   const { showDialog, clearDialog } = useDialog();
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const selectedToken = useTokenFromParams();
 
   const onError = (error: string) => {
@@ -71,10 +69,7 @@ export function Send() {
             token={selectedToken}
             fee={
               sendState?.sendFee
-                ? Utils.bnToLocaleString(
-                    sendState?.sendFee || new BN(0),
-                    isERC20Token(selectedToken) ? 18 : 9
-                  )
+                ? Utils.bnToLocaleString(sendState?.sendFee || new BN(0), 18)
                 : ''
             }
             onConfirm={() => onConfirm()}

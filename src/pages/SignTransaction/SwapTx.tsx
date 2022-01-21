@@ -6,7 +6,6 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { SwapExactTokensForTokenDisplayValues } from '@src/contracts/contractParsers/models';
-import React from 'react';
 import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
 import { TokenCard } from './components/TokenCard';

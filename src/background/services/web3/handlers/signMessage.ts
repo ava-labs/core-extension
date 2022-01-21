@@ -1,87 +1,46 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-} from '@src/background/connections/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { firstValueFrom, map, merge } from 'rxjs';
-import { addMessage, pendingMessages } from '../../messages/messages';
+import { DappRequestHandler } from '@src/background/connections/models';
 import { MessageType } from '../../messages/models';
 
-async function signMessage(
-  data: ExtensionConnectionMessage,
-  signType: MessageType
-) {
-  /**
-   * For now we are not supporting sign message since we dont have designs, nor
-   * do we have a good idea of usage on this feature
-   */
-  return {
-    data,
-    error: `requests for ${signType} not supported at this time`,
+class PersonalSignHandler implements DappRequestHandler {
+  constructor(private signType: MessageType) {}
+
+  handleUnauthenticated = async (request) => {
+    /**
+     * For now we are not supporting sign message since we dont have designs, nor
+     * do we have a good idea of usage on this feature
+     */
+    return {
+      ...request,
+      error: `account not available`,
+    };
   };
 
-  addMessage.next({ data, signType } as any);
-  const window = await openExtensionNewWindow(
-    `sign?id=${data.id}`,
-    '',
-    data.meta?.coords
-  );
-  return await firstValueFrom(
-    merge(
-      pendingMessages.pipe(map((result) => ({ result }))),
-      window.removed.pipe(map(() => ({ error: 'Window closed before signed' })))
-    ).pipe(
-      map((value) => ({
-        ...data,
-        ...value,
-      }))
-    )
-  );
+  handleAuthenticated = async (request) => {
+    return {
+      ...request,
+      error: `requests for ${this.signType} not supported at this time`,
+    };
+  };
 }
-
-export const SignTypedDataRequest: [
-  DAppProviderRequest,
-  ConnectionRequestHandler
-] = [
+export const SignTypedDataRequest: [DAppProviderRequest, DappRequestHandler] = [
   DAppProviderRequest.ETH_SIGN_TYPED_DATA,
-  async function eth_signTypedData(
-    data: ExtensionConnectionMessage
-  ): Promise<any> {
-    return await signMessage(data, MessageType.SIGN_TYPED_DATA);
-  },
+  new PersonalSignHandler(MessageType.SIGN_TYPED_DATA),
 ];
 
-export const SignTypedDataV3Request: [
-  DAppProviderRequest,
-  ConnectionRequestHandler
-] = [
-  DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
-  async function eth_signTypedData_v3(
-    data: ExtensionConnectionMessage
-  ): Promise<any> {
-    return await signMessage(data, MessageType.SIGN_TYPED_DATA_V3);
-  },
-];
+export const SignTypedDataV3Request: [DAppProviderRequest, DappRequestHandler] =
+  [
+    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
+    new PersonalSignHandler(MessageType.SIGN_TYPED_DATA_V3),
+  ];
 
-export const SignTypedDataV4Request: [
-  DAppProviderRequest,
-  ConnectionRequestHandler
-] = [
-  DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
-  async function eth_signTypedData_v4(
-    data: ExtensionConnectionMessage
-  ): Promise<any> {
-    return await signMessage(data, MessageType.SIGN_TYPED_DATA_V4);
-  },
-];
+export const SignTypedDataV4Request: [DAppProviderRequest, DappRequestHandler] =
+  [
+    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
+    new PersonalSignHandler(MessageType.SIGN_TYPED_DATA_V4),
+  ];
 
-export const PersonalSignRequest: [
-  DAppProviderRequest,
-  ConnectionRequestHandler
-] = [
+export const PersonalSignRequest: [DAppProviderRequest, DappRequestHandler] = [
   DAppProviderRequest.PERSONAL_SIGN,
-  async function personal_sign(data: ExtensionConnectionMessage): Promise<any> {
-    return await signMessage(data, MessageType.PERSONAL_SIGN);
-  },
+  new PersonalSignHandler(MessageType.PERSONAL_SIGN),
 ];

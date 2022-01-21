@@ -1,4 +1,3 @@
-import React from 'react';
 import { HorizontalFlex, Typography } from '@avalabs/react-components';
 
 export function WalletTokenListItem({

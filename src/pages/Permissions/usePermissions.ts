@@ -57,6 +57,7 @@ export function usePermissions(domain?: string) {
       // update permissions on the previously constructed account list
       updatePermissions(existing || newBasedonAccounts);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domain]);
 
   function addPermissionsForDomain(permissions: DappPermissions) {

@@ -1,8 +1,6 @@
-import React from 'react';
 import { HorizontalFlex, Typography } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { useState } from 'react';
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 export interface SelectorItem {
   label: string;
@@ -47,6 +45,7 @@ export function SlideSelector({
 
   useMemo(() => {
     !selectedItem && items && items.length && setSelectedItem(items[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   return (

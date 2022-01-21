@@ -1,14 +1,20 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-} from '@src/background/connections/models';
+import { DappRequestHandler } from '@src/background/connections/models';
 
-export async function setDomainMetadata(data: ExtensionConnectionMessage) {
-  return { ...data, result: data.params };
+class MetamaskSendDomainMetadataHandler implements DappRequestHandler {
+  handleUnauthenticated = async (request) => {
+    return { ...request, result: request.params };
+  };
+
+  handleAuthenticated = async (request) => {
+    return this.handleUnauthenticated(request);
+  };
 }
 
 export const SetDomainMetadataRequest: [
   DAppProviderRequest,
-  ConnectionRequestHandler
-] = [DAppProviderRequest.DOMAIN_METADATA_METHOD, setDomainMetadata];
+  DappRequestHandler
+] = [
+  DAppProviderRequest.DOMAIN_METADATA_METHOD,
+  new MetamaskSendDomainMetadataHandler(),
+];

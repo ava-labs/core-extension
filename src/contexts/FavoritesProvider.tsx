@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/models';
@@ -31,6 +31,7 @@ export function FavoritesContextProvider({ children }: { children: any }) {
     }
 
     getFavorites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request]);
 
   if (!request || !events) {

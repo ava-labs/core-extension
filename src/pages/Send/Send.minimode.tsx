@@ -1,7 +1,5 @@
-import React from 'react';
 import { SendConfirm } from './SendConfirm';
 import { useState } from 'react';
-import { isERC20Token } from '@avalabs/wallet-react-components';
 import { useSend } from './hooks/useSend';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
@@ -27,7 +25,7 @@ const ConfirmContainer = styled(VerticalFlex)`
 export function SendMiniMode() {
   const history = useHistory();
   const sendState = useSend();
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const selectedToken = useTokenFromParams();
   const { showDialog, clearDialog } = useDialog();
 
@@ -82,10 +80,7 @@ export function SendMiniMode() {
             sendState={sendState}
             fee={
               sendState?.sendFee
-                ? Utils.bnToLocaleString(
-                    sendState?.sendFee || new BN(0),
-                    isERC20Token(selectedToken) ? 18 : 9
-                  )
+                ? Utils.bnToLocaleString(sendState?.sendFee || new BN(0), 18)
                 : ''
             }
             onConfirm={() => onConfirm()}

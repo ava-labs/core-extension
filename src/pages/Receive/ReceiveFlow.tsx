@@ -2,7 +2,6 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import React from 'react';
 import { Receive } from './Receive';
 import { ReceiveMiniMode } from './Receive.minimode';
 

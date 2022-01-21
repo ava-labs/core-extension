@@ -16,7 +16,7 @@ import dequal from 'fast-deep-equal';
 import { ethErrors, EthereumRpcError } from 'eth-rpc-errors';
 import { duplex as isDuplex } from 'is-stream';
 
-import messages from './messages';
+import { messages } from './messages';
 import {
   createErrorMiddleware,
   EMITTED_NOTIFICATIONS,
@@ -90,7 +90,7 @@ function getWindowMetaData() {
   };
 }
 
-export default class BaseProvider extends SafeEventEmitter {
+export class BaseProvider extends SafeEventEmitter {
   protected readonly _log: ConsoleLike;
 
   protected _state: BaseProviderState;

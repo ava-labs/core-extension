@@ -1,4 +1,4 @@
-import { firstValueFrom, map, switchMap, tap } from 'rxjs';
+import { map, switchMap } from 'rxjs';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { wallet$ } from '@avalabs/wallet-react-components';
 import { walletLocked$ } from '../../wallet/walletLocked';

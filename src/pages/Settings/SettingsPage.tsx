@@ -2,7 +2,6 @@ import { VerticalFlex, PrimaryButton } from '@avalabs/react-components';
 import { removeAllPermissionsFromStorage } from '@src/background/services/permissions/storage';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
-import React from 'react';
 
 export function SettingsPage() {
   const { lockWallet } = useSettingsContext();
@@ -24,5 +23,3 @@ export function SettingsPage() {
     </VerticalFlex>
   );
 }
-
-export default SettingsPage;

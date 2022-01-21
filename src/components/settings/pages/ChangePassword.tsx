@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Input,
   VerticalFlex,
@@ -25,13 +25,12 @@ export function ChangePassword({
   width,
 }: SettingsPageProps) {
   const theme = useTheme();
-
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newPasswordStrength, setNewPasswordStrength] = useState(0);
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [serverResponse, setServerResponse] = useState('');
-  const [serverError, setServerError] = useState('');
+  const [oldPassword, setOldPassword] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [newPasswordStrength, setNewPasswordStrength] = useState<number>(0);
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [serverResponse, setServerResponse] = useState<string>('');
+  const [serverError, setServerError] = useState<string>('');
 
   useEffect(() => {
     setServerError('');

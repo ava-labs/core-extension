@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Card,
   GridContainer,
@@ -23,15 +22,15 @@ export function WalletBalances() {
   const balanceTotalUSD = useBalanceTotalInCurrency();
   const theme = useTheme();
 
-  const tokenColors = [
-    theme.palette.pink['500'],
-    theme.palette.green['500'],
-    theme.palette.orange['500'],
-    theme.palette.turquoise['500'],
-    '#2196F3', // blue 500
-  ];
-
   const top5Tokens = useMemo(() => {
+    const tokenColors = [
+      theme.palette.pink['500'],
+      theme.palette.green['500'],
+      theme.palette.orange['500'],
+      theme.palette.turquoise['500'],
+      '#2196F3', // blue 500
+    ];
+
     return tokensWBalances
       .sort((tokenA: any, tokenB: any) =>
         (tokenA.balance as BN).gt(tokenB.balance as BN) ? 1 : -1
@@ -40,6 +39,7 @@ export function WalletBalances() {
       .map((token, idx) => {
         return { ...token, color: tokenColors[idx] };
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensWBalances]);
 
   return (

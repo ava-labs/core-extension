@@ -1,6 +1,6 @@
 # extension-avalanche
 
-avalanche wallet browser extension
+Avalanche Wallet Browser Extension.
 
 ## Prerequesites
 
@@ -17,35 +17,34 @@ npx npm-cli-login -u YOUR_NPM_USERNAME -p YOUR_NPM_PASSWORD -e YOUR_NPM_EMAIL
 
 You can also [set up an access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) if you prefer.
 
-## Development
-
-- `yarn dev` watches for changes.
-
-### Chrome Dev
-
-- Go to chrome://extensions/ and enable Developer mode.
-- At the top left of the above url click `Load unpacked` and select dist folder.
-
-### Firefox Dev
-
-go to `about:debugging#/runtime/this-firefox`
-then click `Load Temporary Add-on`
-point to either the `dist/manifest.json` or the zip file from running the build command.
-
 ## Build
 
-- `yarn build` will run everything through webpack and create a zip file in the /builds directory
+`yarn build` will run everything through webpack and create a `/dist` directory.
 
-## Extension Manual Install
+## Development
 
-1. got to chrome or brave `chrome://extensions/` url
-2. At the top right make sure you have `developer mode turned on
-3. After developer mode is turned on, at the top left should be `Load Unpacked`
-4. Click `Load Unpacked` and go to the extension folder, make sure it is unzipped
-5. select the folder or go into the folder and press select
+`yarn dev` watches for changes.
 
-Thats it!
+### Chrome or Brave Development
+
+1. In Chrome or Brave, go to `chrome://extensions/`.
+2. At the top right make sure you have `Developer mode` turned on:
+
+<img src="./docs/screenshots/screenshot1.png" />
+
+3. After `Developer mode` is turned on, at the top left should be `Load unpacked`:
+
+<img src="./docs/screenshots/screenshot2.png" />
+
+4. Click `Load unpacked` and go to the extension folder.
+5. Select the `dist` folder and press `Select`.
+
+### Firefox Development
+
+1. Go to `about:debugging#/runtime/this-firefox`.
+2. Click `Load Temporary Add-on`.
+3. Point to either the `dist/manifest.json` or the zip file from running the build command.
 
 ## Release
 
-1. Merge main onto release branch
+All you need to do is to merge your release branch onto `main`.

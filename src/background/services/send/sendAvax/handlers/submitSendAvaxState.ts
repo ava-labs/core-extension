@@ -6,13 +6,13 @@ import {
 import { sendAvaxSubmit, wallet$ } from '@avalabs/wallet-react-components';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { gasPrice$ } from '../../../gas/gas';
-import { firstValueFrom, lastValueFrom, tap } from 'rxjs';
+import { firstValueFrom, tap } from 'rxjs';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 import { resolve } from '@src/utils/promiseResolver';
 
 async function submitSendAvaxState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
-  const [amount, destinationChain, address, memo] = params;
+  const [amount, destinationChain, address] = params;
 
   if (!amount) {
     return {
@@ -36,14 +36,14 @@ async function submitSendAvaxState(request: ExtensionConnectionMessage) {
   }
 
   return await resolve(
-    lastValueFrom(
+    firstValueFrom(
       sendAvaxSubmit(
-        Utils.stringToBN(amount, 9),
-        destinationChain,
+        // we only support c chain so this needs ot be 18 decimals
+        Utils.stringToBN(amount, 18),
         address,
         firstValueFrom(gasPrice$) as Promise<{ bn: BN }>,
-        memo,
-        firstValueFrom(wallet$)
+        wallet$
+        // c chain only so we dont support memo,
       ).pipe(tap((value) => sendTxDetails$.next(value)))
     )
   ).then(([result, error]) => {

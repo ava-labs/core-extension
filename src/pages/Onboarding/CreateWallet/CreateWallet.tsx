@@ -1,6 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createNewMnemonic } from '@src/background/services/wallet/utils/createMnemonicPhrase';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { ConfirmPhrase } from './ConfirmPhrase';
@@ -15,8 +13,8 @@ export function CreateWallet({
   onBack(): void;
 }) {
   const { setMnemonic, setNextPhase } = useOnboardingContext();
-  const [isCopied, setIsCopied] = useState(false);
-  const [mnemonic, setMnemonicPhrase] = useState('');
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [mnemonic, setMnemonicPhrase] = useState<string>('');
 
   useEffect(() => {
     setMnemonicPhrase(createNewMnemonic());

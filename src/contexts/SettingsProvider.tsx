@@ -1,5 +1,9 @@
 import { useThemeContext } from '@avalabs/react-components';
 import {
+  ERC20WithBalance,
+  TokenWithBalance,
+} from '@avalabs/wallet-react-components';
+import {
   ExtensionConnectionMessageResponse,
   ExtensionRequest,
 } from '@src/background/connections/models';
@@ -8,11 +12,12 @@ import {
   SettingsState,
   ThemeVariant,
 } from '@src/background/services/settings/models';
-import React, {
+import {
   createContext,
   useContext,
   useEffect,
   useMemo,
+  useCallback,
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';
@@ -26,8 +31,13 @@ type SettingsFromProvider = SettingsState & {
   toggleShowTokensWithoutBalanceSetting(): Promise<
     ExtensionConnectionMessageResponse<any>
   >;
+  toggleTokenVisibility(
+    token: TokenWithBalance
+  ): Promise<ExtensionConnectionMessageResponse<any>>;
+  getTokenVisibility(token: TokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
   currencyFormatter(value: number): string;
+  toggleIsDefaultExtension(): Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -62,7 +72,9 @@ export function SettingsContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe((val) => setSettings(val));
+
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const currencyFormatter = useMemo(() => {
@@ -78,27 +90,64 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }, [settings?.currency]);
 
   function lockWallet() {
-    return request!({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
+    return request({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
   }
 
   function updateCurrencySetting(currency: string) {
-    return request!({
+    return request({
       method: ExtensionRequest.SETTINGS_UPDATE_CURRENCY,
       params: [currency],
     });
   }
 
   function toggleShowTokensWithoutBalanceSetting() {
-    return request!({
+    return request({
       method: ExtensionRequest.SETTINGS_UPDATE_SHOW_NO_BALANCE,
       params: [!settings?.showTokensWithoutBalances],
     });
   }
 
+  function toggleTokenVisibility(token: TokenWithBalance) {
+    const key = (token as ERC20WithBalance).address;
+    const tokensVisibility = settings?.tokensVisibility ?? {};
+    return request({
+      method: ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
+      params: [
+        {
+          ...tokensVisibility,
+          [key]:
+            tokensVisibility[key] !== undefined
+              ? !tokensVisibility[key]
+              : false,
+        },
+      ],
+    });
+  }
+
+  const getTokenVisibility = useCallback(
+    (token: TokenWithBalance) => {
+      const key = (token as ERC20WithBalance).address;
+      const tokensVisibility = settings?.tokensVisibility ?? {};
+      return tokensVisibility[key] || tokensVisibility[key] === undefined;
+    },
+    [settings?.tokensVisibility]
+  );
+
   function updateTheme(theme: ThemeVariant) {
-    return request!({
+    return request({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
       params: [theme],
+    });
+  }
+
+  /**
+   *
+   * @returns boolean state of isDefaultExtenion in settings state
+   */
+  function toggleIsDefaultExtension() {
+    return request({
+      method: ExtensionRequest.SETTINGS_SET_DEFAULT_EXTENSION,
+      params: [],
     });
   }
 
@@ -110,8 +159,11 @@ export function SettingsContextProvider({ children }: { children: any }) {
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
+          getTokenVisibility,
+          toggleTokenVisibility,
           updateTheme,
           currencyFormatter,
+          toggleIsDefaultExtension,
         } as SettingsFromProvider
       }
     >

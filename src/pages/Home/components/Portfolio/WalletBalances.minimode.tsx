@@ -1,4 +1,3 @@
-import React from 'react';
 import { HorizontalFlex, Typography } from '@avalabs/react-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';

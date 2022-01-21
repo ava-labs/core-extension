@@ -9,7 +9,7 @@ import { firstValueFrom } from 'rxjs';
 import { accounts$ } from '../accounts';
 
 export async function renameAccount(request: ExtensionConnectionMessage) {
-  const [index, name] = request?.params || [];
+  const [index, name] = request.params || [];
 
   if (index === undefined) {
     return {
@@ -37,6 +37,7 @@ export async function renameAccount(request: ExtensionConnectionMessage) {
   accounts[index].name = name;
 
   accounts$.next(accounts);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, err] = await resolve(saveAccountsToStorage(accounts));
 
   return {

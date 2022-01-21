@@ -15,7 +15,6 @@ import { gasPrice$ } from '../../gas/gas';
 import { paraSwap$ } from '../swap';
 import ERC20_ABI from '../../../../contracts/erc20.abi.json';
 import { Allowance } from 'paraswap/build/types';
-import { avaxFrom9To18 } from '../utils/convertAvaxDenomination';
 
 const SERVER_BUSY_ERROR = 'Server too busy';
 
@@ -189,7 +188,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
   const txData = pSwap.buildTx(
     srcTokenAddress,
     destTokenAddress,
-    srcToken === AVAX_TOKEN.symbol ? avaxFrom9To18(srcAmount) : srcAmount,
+    srcAmount,
     minAmount,
     priceRoute,
     userAddress,
@@ -226,7 +225,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
       txBuildData.data,
       txBuildData.to,
       srcToken === AVAX_TOKEN.symbol
-        ? `0x${new BN(avaxFrom9To18(srcAmount)).toString('hex')}`
+        ? `0x${new BN(srcAmount).toString('hex')}`
         : undefined // AVAX value needs to be sent with the transaction
     )
   );

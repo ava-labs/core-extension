@@ -1,4 +1,3 @@
-import React from 'react';
 import { HorizontalFlex } from '@avalabs/react-components';
 import { useHistory } from 'react-router';
 import { SendReceiveButton } from './SendReceiveButton';

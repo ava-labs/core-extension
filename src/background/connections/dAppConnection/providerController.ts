@@ -1,11 +1,7 @@
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-} from '../models';
+import { ExtensionConnectionMessage, DappRequestHandler } from '../models';
 import { ConnectRequest } from '@src/background/services/web3/handlers/connect';
 import { DAppProviderRequest } from './models';
 import { EthAccountsRequest } from '@src/background/services/web3/handlers/eth_accounts';
-import { EthGetBalanceRequest } from '@src/background/services/web3/handlers/eth_getBalance';
 import { EthSendTransactionRequest } from '@src/background/services/web3/handlers/eth_sendTransaction';
 import { InitDappStateRequest } from '@src/background/services/web3/handlers/metamask_getProviderState';
 import { SetDomainMetadataRequest } from '@src/background/services/web3/handlers/metamask_sendDomainMetadata';
@@ -20,25 +16,25 @@ import { WalletAddChainRequest } from '@src/background/services/web3/handlers/wa
 import { WalletGetPermissionsRequest } from '@src/background/services/web3/handlers/wallet_getPermissions';
 import { WalletPermissionsRequest } from '@src/background/services/web3/handlers/wallet_requestPermissions';
 import { Runtime } from 'webextension-polyfill-ts';
-import { engine } from '@src/utils/jsonRpcEngine';
-import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
-import { requestLog, responseLog } from '@src/utils/logging';
-import { resolve } from '@src/utils/promiseResolver';
-import { DomainMetadata } from '@src/background/models';
 import { WalletSwitchEthereumChain } from '@src/background/services/web3/handlers/wallet_switchEthereumChain';
-
-/**
- * dApps call these function over and over
- */
-const SUPER_NOISY_REQUESTS = ['eth_chainId', 'eth_blockNumber', 'eth_call'];
+import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
+import { SiteMetadataMiddleware } from '../middlewares/SiteMetadataMiddleware';
+import {
+  LoggerMiddleware,
+  SideToLog,
+} from '../middlewares/RequestLoggerMiddleware';
+import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
+import { RequestHandlerMiddleware } from '../middlewares/RequestHandlerMiddleware';
+import { resolve } from '@src/utils/promiseResolver';
+import { responseLog } from '@src/utils/logging';
+import { SettingsGetIsDefaultExtensionDappRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
-  ConnectionRequestHandler
+  DappRequestHandler
 >([
   ConnectRequest,
   EthAccountsRequest,
-  EthGetBalanceRequest,
   EthSendTransactionRequest,
   InitDappStateRequest,
   SetDomainMetadataRequest,
@@ -51,65 +47,40 @@ const dappProviderRequestHandlerMap = new Map<
   WalletGetPermissionsRequest,
   WalletPermissionsRequest,
   WalletSwitchEthereumChain,
+  SettingsGetIsDefaultExtensionDappRequest,
 ]);
 
 export function providerConnectionHandlers(connection: Runtime.Port) {
-  /**
-   * Domain is per connection so this needs to remain an closure to the connection
-   */
-  const domain = new BehaviorSubject<DomainMetadata>({
-    domain: connection.sender?.url
-      ? new URL(connection.sender?.url || '').hostname
-      : 'unknown',
-  });
+  const pipeline = RequestProcessorPipeline(
+    LoggerMiddleware(SideToLog.REQUEST),
+    SiteMetadataMiddleware(connection),
+    PermissionMiddleware(),
+    RequestHandlerMiddleware(dappProviderRequestHandlerMap),
+    LoggerMiddleware(SideToLog.RESPONSE)
+  );
+
   return async (request: ExtensionConnectionMessage) => {
-    const { data } = request;
-
-    const handler = dappProviderRequestHandlerMap.get(
-      data.method as DAppProviderRequest
+    const [context, error] = await resolve(
+      pipeline.execute({
+        // always start with authenticated false, middlewares take care of context updates
+        authenticated: false,
+        request: request,
+      })
     );
 
-    if (!SUPER_NOISY_REQUESTS.includes(data.method)) {
-      requestLog(`Web3 request (${data.method})`, data);
+    if (error) {
+      const response = {
+        ...request,
+        data: {
+          ...request.data,
+          ...{ error },
+        },
+      };
+      responseLog(`Web3 response (${request.data.method})`, response);
+      connection.postMessage(response);
+      return;
+    } else if (context) {
+      connection.postMessage(context.response);
     }
-
-    if (data.method === DAppProviderRequest.DOMAIN_METADATA_METHOD) {
-      domain.next({ ...(data?.params as DomainMetadata) });
-    }
-
-    const domainCache = await firstValueFrom(
-      domain.pipe(filter((val) => !!val))
-    );
-
-    const promise: Promise<any> = handler
-      ? handler({ ...request.data, site: domainCache }).then(
-          ({ error, result }) => {
-            return {
-              ...request,
-              data: {
-                ...data,
-                ...(error ? { error } : { result }),
-              },
-            };
-          }
-        )
-      : resolve(engine().then((e) => e.handle(data as any))).then(
-          ([result, error]) => {
-            return {
-              ...request,
-              data: {
-                ...data,
-                ...(error ? { error } : result),
-              },
-            };
-          }
-        );
-
-    const response = await promise;
-    if (!SUPER_NOISY_REQUESTS.includes(data.method)) {
-      responseLog(`Web3 response (${data.method})`, response);
-    }
-
-    connection.postMessage(response);
   };
 }

@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren, useState } from 'react';
 import {
   HamburgerIcon,
   Overlay,
@@ -30,12 +30,11 @@ const OuterContainer = styled(Overlay)`
 `;
 
 export function SettingsMenuMiniMode({
-  currentPage,
   children,
   onClose,
 }: PropsWithChildren<SettingsMenuProps>) {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <>

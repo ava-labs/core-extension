@@ -1,27 +1,29 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { lazy, Suspense } from 'react';
+import { render } from 'react-dom';
 import { browser } from 'webextension-polyfill-ts';
-const App = React.lazy(() => {
-  return import(/* webpackChunkName: 'App'  */ './popup');
-});
 import { HashRouter as Router } from 'react-router-dom';
 import {
   LoadingIcon,
   ThemeContextProvider,
   walletThemeDark,
-  walletThemeLight,
 } from '@avalabs/react-components';
 
+const App = lazy(() => {
+  return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
+    default: m.Popup,
+  }));
+});
+
 browser.tabs.query({ active: true }).then(() => {
-  ReactDOM.render(
+  render(
     <Router>
       <ThemeContextProvider
-        lightTheme={walletThemeLight}
+        lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
         darkTheme={walletThemeDark}
       >
-        <React.Suspense fallback={<LoadingIcon />}>
+        <Suspense fallback={<LoadingIcon />}>
           <App />
-        </React.Suspense>
+        </Suspense>
       </ThemeContextProvider>
     </Router>,
     document.getElementById('popup')

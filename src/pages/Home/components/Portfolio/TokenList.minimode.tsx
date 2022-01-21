@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { VerticalFlex } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
@@ -15,23 +15,28 @@ import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { TokenListItemMiniMode } from './TokenListItem.minimode';
 import Scrollbars from 'react-custom-scrollbars';
 import { NoTokenFound } from './NoTokenFound';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 interface TokenListMiniModeProps {
   searchQuery?: string;
 }
 
 export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
+  const { getTokenVisibility } = useSettingsContext();
   const tokensWithBalances = useTokensWithBalances();
   const AVAX_TOKEN = tokensWithBalances.find((token) => isAvaxToken(token));
   const setTokenInParams = useSetTokenInParams();
   const { tokens, showAvax } = useMemo(() => {
-    const tokens = searchQuery
-      ? tokensWithBalances.filter(
-          (i) =>
-            i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            i.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      : tokensWithBalances;
+    const tokens = (
+      searchQuery
+        ? tokensWithBalances.filter(
+            (token) =>
+              getTokenVisibility(token) &&
+              (token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                token.symbol.toLowerCase().includes(searchQuery.toLowerCase()))
+          )
+        : tokensWithBalances
+    ).filter((token) => getTokenVisibility(token));
 
     const showAvax =
       searchQuery &&
@@ -43,7 +48,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
           .includes(searchQuery.toLowerCase()));
 
     return { tokens, showAvax };
-  }, [searchQuery, tokensWithBalances, AVAX_TOKEN]);
+  }, [searchQuery, tokensWithBalances, AVAX_TOKEN, getTokenVisibility]);
 
   if (!tokens.length && !showAvax) {
     return <NoTokenFound />;

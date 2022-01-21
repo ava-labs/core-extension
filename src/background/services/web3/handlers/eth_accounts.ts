@@ -1,11 +1,6 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-} from '@src/background/connections/models';
+import { DappRequestHandler } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { permissions$ } from '../../permissions/permissions';
-import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { wallet$ } from '@avalabs/wallet-react-components';
 
@@ -15,30 +10,32 @@ import { wallet$ } from '@avalabs/wallet-react-components';
  * @param data the rpc request
  * @returns an array of accounts the dapp has permissions for
  */
-export async function eth_accounts(data: ExtensionConnectionMessage) {
-  const walletResult = await firstValueFrom(wallet$);
+class EthAccountsHandler implements DappRequestHandler {
+  handleAuthenticated = async (request) => {
+    const walletResult = await firstValueFrom(wallet$);
 
-  if (!walletResult) {
+    if (!walletResult) {
+      return {
+        ...request,
+        error: 'wallet locked, undefined or malformed',
+      };
+    }
+
     return {
-      ...data,
-      error: 'wallet locked, undefined or malformed',
+      ...request,
+      result: getAccountsFromWallet(walletResult),
     };
-  }
-  const currentPermissions = await firstValueFrom(permissions$);
+  };
 
-  return {
-    ...data,
-    result: domainHasAccountsPermissions(
-      walletResult.getAddressC(),
-      data.site?.domain,
-      currentPermissions
-    )
-      ? getAccountsFromWallet(walletResult)
-      : [],
+  handleUnauthenticated = async (request) => {
+    return {
+      ...request,
+      result: [],
+    };
   };
 }
 
-export const EthAccountsRequest: [
-  DAppProviderRequest,
-  ConnectionRequestHandler
-] = [DAppProviderRequest.ETH_ACCOUNTS, eth_accounts];
+export const EthAccountsRequest: [DAppProviderRequest, DappRequestHandler] = [
+  DAppProviderRequest.ETH_ACCOUNTS,
+  new EthAccountsHandler(),
+];

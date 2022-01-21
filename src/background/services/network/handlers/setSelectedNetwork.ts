@@ -28,6 +28,7 @@ export async function setSelectedNetwork(request: ExtensionConnectionMessage) {
     };
   }
   networkUpdates$.next(selectedNetwork);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, err] = await resolve(saveNetworkToStorage(selectedNetwork));
 
   return {

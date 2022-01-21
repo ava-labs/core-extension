@@ -1,5 +1,4 @@
 import { VerticalFlex } from '@avalabs/react-components';
-import React from 'react';
 import { useTheme } from 'styled-components';
 
 function CircularText({ text }: { text: string }) {

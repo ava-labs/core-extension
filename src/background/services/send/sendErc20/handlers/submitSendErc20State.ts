@@ -3,12 +3,18 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { sendErc20Submit, wallet$ } from '@avalabs/wallet-react-components';
-import { firstValueFrom, lastValueFrom, of, tap } from 'rxjs';
+import {
+  ERC20WithBalance,
+  sendErc20Submit,
+  wallet$,
+  walletState$,
+} from '@avalabs/wallet-react-components';
+import { firstValueFrom, of, tap } from 'rxjs';
 import { gasPrice$ } from '../../../gas/gas';
 import { Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 import { resolve } from '@src/utils/promiseResolver';
+import { isWalletLocked } from '@src/background/services/wallet/models';
 
 async function submitSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address, gasLimit] = request.params || [];
@@ -59,15 +65,35 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
     };
   }
 
+  const walletState = await firstValueFrom(walletState$);
+
+  if (walletState && isWalletLocked(walletState)) {
+    return {
+      ...request,
+      error: 'wallet locked',
+    };
+  }
+
+  const balances = walletState?.erc20Tokens.reduce(
+    (acc: { [key: string]: ERC20WithBalance }, token) => {
+      return {
+        ...acc,
+        [token.address]: token,
+      };
+    },
+    {}
+  );
+
   return await resolve(
-    lastValueFrom(
+    firstValueFrom(
       sendErc20Submit(
         token,
         Promise.resolve<WalletType>(wallet),
         Utils.stringToBN(amount, token.denomination),
         address,
         Promise.resolve(gasPrice),
-        of(gasLimit)
+        of(balances) as any,
+        gasLimit
       ).pipe(tap((value) => sendTxDetails$.next(value)))
     )
   ).then(([result, error]) => {

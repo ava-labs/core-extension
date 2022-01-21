@@ -12,14 +12,23 @@ import {
   useIsSpecificContextContainer,
   ContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  Suspense,
+  useEffect,
+  lazy,
+  useState,
+} from 'react';
 import { concat, filter, from, map } from 'rxjs';
 import { browser } from 'webextension-polyfill-ts';
 import { useConnectionContext } from './ConnectionProvider';
 
-const OnboardingFlow = React.lazy(() => {
-  return import('../pages/Onboarding/OnboardingFlow');
-});
+const OnboardingFlow = lazy(() =>
+  import('../pages/Onboarding/OnboardingFlow').then((m) => ({
+    default: m.OnboardingFlow,
+  }))
+);
 
 const OnboardingContext = createContext<{
   onboardingState: OnboardingState;
@@ -60,7 +69,10 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         filter(onboardingPhaseUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((phase) => setOnboardingPhase(phase));
+      .subscribe((phase) => {
+        setOnboardingPhase(phase);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request]);
 
   if (!onboardingState) {
@@ -76,28 +88,28 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   }
 
   function setNextPhase(phase: OnboardingPhase) {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_PHASE,
       params: [phase],
     });
   }
 
   function setMnemonic(mnemonic: string) {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_MNEMONIC,
       params: [mnemonic],
     });
   }
 
   function setPasswordAndName(password: string, accountName: string) {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_PASSWORD_AND_NAME,
       params: [password, accountName],
     });
   }
 
   function setFinalized() {
-    return request!({
+    return request({
       method: ExtensionRequest.ONBOARDING_SET_FINALIZED,
     });
   }
@@ -117,10 +129,11 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         Always show the onbording in full screen since the full screen mode is not supported. 
         Change this to !onboardingState.isOnBoarded to re-activate full screen mode
       */}
+
       {isHome ? (
-        <React.Suspense fallback={<LoadingIcon />}>
+        <Suspense fallback={<LoadingIcon />}>
           <OnboardingFlow />
-        </React.Suspense>
+        </Suspense>
       ) : (
         children
       )}

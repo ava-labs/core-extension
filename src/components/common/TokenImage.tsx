@@ -2,11 +2,9 @@ import {
   HorizontalFlex,
   LoadingIcon,
   Typography,
-  VerticalFlex,
 } from '@avalabs/react-components';
 import { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
-import React from 'react';
 
 const TOKEN_IMAGE_BORDER_RADIUS = '50%';
 const TOKEN_IMAGE_DFEAULT_SIZE = '32px';
@@ -59,6 +57,7 @@ export function TokenIcon({
       .catch(() => {
         setState({ error: true });
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!state) {

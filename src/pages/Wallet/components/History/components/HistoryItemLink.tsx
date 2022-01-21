@@ -1,5 +1,4 @@
 import { PopoutLinkIcon, TextButton } from '@avalabs/react-components';
-import React from 'react';
 import { useTheme } from 'styled-components';
 
 interface HistoryItemLinkProps {

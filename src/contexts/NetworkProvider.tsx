@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import {
   ActiveNetwork,
   MAINNET_NETWORK,
@@ -42,6 +42,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     ).subscribe((result) => {
       setNetwork(result as any);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request]);
 
   if (!request || !events) {

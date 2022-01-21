@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   VerticalFlex,
   Input,
@@ -20,9 +20,9 @@ export function RecoveryPhrase({
   width,
 }: SettingsPageProps) {
   const theme = useTheme();
-  const [passwordValue, setPasswordValue] = useState('');
-  const [recoveryValue, setRecoveryValue] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [passwordValue, setPasswordValue] = useState<string>('');
+  const [recoveryValue, setRecoveryValue] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const { getUnencryptedMnemonic } = useWalletContext();
 
