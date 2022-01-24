@@ -16,7 +16,7 @@ import {
 } from '@avalabs/react-components';
 import { usePermissions } from './usePermissions';
 import styled, { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenImage';

@@ -1,4 +1,5 @@
 export interface Contact {
+  id: string; // uuid
   name: string;
   address: string;
 }

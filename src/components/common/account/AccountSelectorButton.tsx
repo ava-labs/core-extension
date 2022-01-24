@@ -19,7 +19,6 @@ interface AccountSelectorButtonProps {
 const AccountName = styled(Typography)`
   max-width: 165px;
   margin: 0 8px 0 0;
-  overflow: hidden;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

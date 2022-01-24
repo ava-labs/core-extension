@@ -76,7 +76,7 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
       >
         <Typography weight={600} height="24px">
-          Contact List
+          Address book
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
