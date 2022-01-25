@@ -13,7 +13,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TransactionSendType } from '../../../Send/models';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { TokenListItemMiniMode } from './TokenListItem.minimode';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { NoTokenFound } from './NoTokenFound';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 

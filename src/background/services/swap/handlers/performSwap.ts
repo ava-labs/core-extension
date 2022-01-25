@@ -133,6 +133,18 @@ export async function performSwap(request: ExtensionConnectionMessage) {
 
   let approveTxHash;
 
+  const minAmount = new Big(priceRoute.destAmount)
+    .times(1 - slippage / 100)
+    .toFixed(0);
+
+  const maxAmount = new Big(srcAmount).times(1 + slippage / 100).toFixed(0);
+
+  //TODO: it may fail when we want to swap erc20 tokens -> investigate
+  const sourceAmount = priceRoute.side === 'SELL' ? srcAmount : maxAmount;
+
+  const destinationAmount =
+    priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
+
   // no need to approve AVAX
   if (srcToken !== AVAX_TOKEN.symbol) {
     const contract = new (pSwap.web3Provider as Web3).eth.Contract(
@@ -166,7 +178,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
         : (wallet as WalletType).sendCustomEvmTx(
             defaultGasPrice.bn,
             Number(gasLimit),
-            contract.methods.approve(spender, srcAmount).encodeABI(),
+            contract.methods.approve(spender, sourceAmount).encodeABI(),
             srcTokenAddress
           )
     );
@@ -181,15 +193,11 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     approveTxHash = approveHash;
   }
 
-  const minAmount = new Big(priceRoute.destAmount)
-    .times(1 - slippage / 100)
-    .toFixed(0);
-
   const txData = pSwap.buildTx(
     srcTokenAddress,
     destTokenAddress,
-    srcAmount,
-    minAmount,
+    sourceAmount,
+    destinationAmount,
     priceRoute,
     userAddress,
     partner,
@@ -225,7 +233,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
       txBuildData.data,
       txBuildData.to,
       srcToken === AVAX_TOKEN.symbol
-        ? `0x${new BN(srcAmount).toString('hex')}`
+        ? `0x${new BN(sourceAmount).toString('hex')}`
         : undefined // AVAX value needs to be sent with the transaction
     )
   );

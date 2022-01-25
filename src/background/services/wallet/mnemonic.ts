@@ -1,8 +1,8 @@
-import { Subject, from, merge } from 'rxjs';
+import { Subject, from, merge, filter } from 'rxjs';
 import { map, mapTo, switchMap } from 'rxjs/operators';
-import { getMnemonicFromStorage, saveMnemonicToStorage } from './storage';
-import { mnemonicWalletUnlock } from './mnemonicWalletUnlock';
-import { mnemonic$ } from '@avalabs/wallet-react-components';
+import { getMnemonicFromStorage, savePhraseOrKeyToStorage } from './storage';
+import { walletUnlock$ } from './walletUnlock';
+import { initWalletMnemonic } from '@avalabs/wallet-react-components';
 import { initAccounts } from '../accounts/accounts';
 import { restartWalletLock$ } from './walletLocked';
 
@@ -10,7 +10,7 @@ const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 
 export const freshMnemonic = _mnemonic.pipe(
   switchMap(({ mnemonic, password }) => {
-    return from(saveMnemonicToStorage(mnemonic, password)).pipe(
+    return from(savePhraseOrKeyToStorage(mnemonic, undefined, password)).pipe(
       mapTo(mnemonic)
     );
   })
@@ -22,15 +22,17 @@ export const freshMnemonic = _mnemonic.pipe(
  * this is done
  */
 const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
-  switchMap(() => mnemonicWalletUnlock),
-  map((state) => state.mnemonic)
+  // only listen to unlock events if we have a mnemonic stored
+  filter((res) => !!res),
+  switchMap(() => walletUnlock$),
+  map((state) => state.value)
 );
 
 /**
  * When a value emits, push it to the mnemonic subject in the SDK and that will kick off the wallet
  */
 merge(mnemonicFromStorage, freshMnemonic).subscribe((mnemonic) => {
-  mnemonic$.next(mnemonic);
+  initWalletMnemonic(mnemonic);
   restartWalletLock$.next(true);
   initAccounts();
 });

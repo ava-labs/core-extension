@@ -22,7 +22,8 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { useSend } from './hooks/useSend';
 import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { TxInProgress } from '@src/components/common/TxInProgress';
 
 interface SendConfirmProps {
   onClose(): void;
@@ -48,6 +49,7 @@ export function SendConfirm({
   const [showTxInProgress, setShowTxInProgress] = useState<boolean>(false);
   const [showTxConfirmed, setShowTxConfirmed] = useState<boolean>(false);
   const [showTxDetails, setShowTxDetails] = useState<boolean>(false);
+  useLedgerDisconnectedDialog();
 
   const onBackClick = () => {
     if (showTxDetails) {
@@ -88,7 +90,14 @@ export function SendConfirm({
 
   return (
     <>
-      {showTxInProgress && <LoadingOverlay />}
+      {showTxInProgress && (
+        <TxInProgress
+          address={sendState?.address}
+          amount={amount}
+          symbol={token.symbol}
+          fee={fee || '0'}
+        />
+      )}
       <HorizontalFlex
         align={'center'}
         justify="center"

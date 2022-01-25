@@ -4,8 +4,8 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { decryptMnemonicInStorage } from '../storage';
-import { mnemonicWalletUnlock } from '../mnemonicWalletUnlock';
+import { decryptPhraseOrKeyInStorage } from '../storage';
+import { walletUnlock$ } from '../walletUnlock';
 
 export async function unlockWalletState(request: ExtensionConnectionMessage) {
   const params = request.params;
@@ -26,9 +26,7 @@ export async function unlockWalletState(request: ExtensionConnectionMessage) {
     };
   }
 
-  const [decryptedMnemonic, err] = await resolve(
-    decryptMnemonicInStorage(password)
-  );
+  const [value, err] = await resolve(decryptPhraseOrKeyInStorage(password));
 
   if (err) {
     return {
@@ -36,7 +34,7 @@ export async function unlockWalletState(request: ExtensionConnectionMessage) {
       error: err,
     };
   }
-  mnemonicWalletUnlock.next({ mnemonic: decryptedMnemonic });
+  walletUnlock$.next({ value });
 
   return {
     ...request,

@@ -1,10 +1,11 @@
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { isDevelopment } from '@src/utils/isDevelopment';
 import { formatAndLog, toLogger } from '@src/utils/logging';
-import { combineLatest, EMPTY, BehaviorSubject } from 'rxjs';
+import { combineLatest, EMPTY, BehaviorSubject, merge, Observable } from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';
 import { browser } from 'webextension-polyfill-ts';
 import { initialAccountName$ } from '../accounts/accounts';
+import { setPublicKeyAndCreateWallet } from '../ledger/ledger';
 import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
 import { OnboardingPhase, OnboardingState } from './models';
 import {
@@ -32,6 +33,7 @@ export const onboardingMnemonic$ = new BehaviorSubject<string>('');
 export const onboardingPassword$ = new BehaviorSubject<string>('');
 export const onboardingAccountName$ = new BehaviorSubject<string>('');
 export const onboardingFinalized$ = new BehaviorSubject<boolean>(false);
+export const onboardingPublicKey$ = new BehaviorSubject<string>('');
 export const onboardingCurrentPhase$ = new BehaviorSubject<
   OnboardingPhase | undefined
 >(undefined);
@@ -42,6 +44,7 @@ function resetStates() {
   onboardingAccountName$.next('Account 1');
   onboardingFinalized$.next(false);
   onboardingCurrentPhase$.next(undefined);
+  onboardingPublicKey$.next('');
 }
 
 // Make sure logs are disabled for production releases to prevent logging sensitive information
@@ -56,6 +59,7 @@ export const onboardingFlow = onboardingCurrentPhase$
       (phase) =>
         phase === OnboardingPhase.CREATE_WALLET ||
         phase === OnboardingPhase.IMPORT_WALLET ||
+        phase === OnboardingPhase.LEDGER ||
         phase === OnboardingPhase.RESTART
     ),
     tap((phase) => {
@@ -65,9 +69,18 @@ export const onboardingFlow = onboardingCurrentPhase$
       return OnboardingPhase.RESTART === phase
         ? EMPTY
         : combineLatest([
-            onboardingMnemonic$.pipe(
-              toLogger<string>('mnemonic onboarding set', showLogs)
-            ),
+            merge(
+              onboardingMnemonic$.pipe(
+                filter((res) => !!res),
+                toLogger<string>('mnemonic onboarding set', showLogs),
+                map((mnemonic) => ({ mnemonic }))
+              ),
+              (onboardingPublicKey$ as any).pipe(
+                filter((res) => !!res),
+                toLogger<string>('public key onboarding set', showLogs),
+                map((pubKey) => ({ pubKey }))
+              )
+            ) as Observable<{ mnemonic?: string; pubKey?: string }>,
             onboardingPassword$.pipe(
               toLogger<string>('password onboarding set', showLogs)
             ),
@@ -84,11 +97,12 @@ export const onboardingFlow = onboardingCurrentPhase$
     }),
     filter((results) => results.every((val) => !!val)),
     take(1),
-    map(([mnemonic, password, accountName]) => {
-      return [mnemonic, password, accountName];
-    }),
-    switchMap(async ([mnemonic, password, accountName]) => {
-      setMnemonicAndCreateWallet(mnemonic, password);
+
+    switchMap(async ([secret, password, accountName]) => {
+      const { mnemonic, pubKey } = secret;
+      mnemonic
+        ? setMnemonicAndCreateWallet(mnemonic, password)
+        : pubKey && setPublicKeyAndCreateWallet(pubKey, password);
       await saveOnboardingToStorage(true);
       onboardingStatus$.next({ isOnBoarded: true });
       initialAccountName$.next(accountName);

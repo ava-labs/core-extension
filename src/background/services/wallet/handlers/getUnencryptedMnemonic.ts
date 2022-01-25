@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { decryptMnemonicInStorage } from '../storage';
+import { decryptPhraseOrKeyInStorage } from '../storage';
 
 export async function getUnencryptedMnemonic(
   request: ExtensionConnectionMessage
@@ -19,7 +19,7 @@ export async function getUnencryptedMnemonic(
   }
 
   const [decryptedMnemonic, err] = await resolve(
-    decryptMnemonicInStorage(password)
+    decryptPhraseOrKeyInStorage(password)
   );
 
   if (err) {

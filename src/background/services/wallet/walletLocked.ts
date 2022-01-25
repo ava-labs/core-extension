@@ -10,8 +10,9 @@ import {
   switchMap,
 } from 'rxjs';
 import { onboardingStatus$ } from '../onboarding/onboardingFlows';
-import { getMnemonicFromStorage } from './storage';
-import { clearMnemonic, wallet$ } from '@avalabs/wallet-react-components';
+import { getMnemonicFromStorage, getPublicKeyFromStorage } from './storage';
+import { clearWallet, wallet$ } from '@avalabs/wallet-react-components';
+import { resolve } from '@src/utils/promiseResolver';
 
 export const restartWalletLock$ = new Subject<boolean>();
 export const lockWallet$ = new Subject<boolean>();
@@ -29,14 +30,18 @@ export const walletLocked$ = new BehaviorSubject<
 wallet$
   .pipe(
     switchMap(async (wallet) => {
-      const encryptedMnemonic = await getMnemonicFromStorage();
+      const [encryptedMnemonic] = await resolve(getMnemonicFromStorage());
+      const [encryptedPubKey] = await resolve(getPublicKeyFromStorage());
       const onboardingState = await firstValueFrom(onboardingStatus$);
 
       if (wallet) {
         return Promise.resolve({ locked: false });
       }
 
-      if (onboardingState?.isOnBoarded && encryptedMnemonic) {
+      if (
+        onboardingState?.isOnBoarded &&
+        (encryptedMnemonic || encryptedPubKey)
+      ) {
         return Promise.resolve({ locked: true });
       }
 
@@ -61,6 +66,6 @@ restartWalletLock$
   .subscribe(() => lockWallet$.next(true));
 
 lockWallet$.subscribe(() => {
-  clearMnemonic();
+  clearWallet();
   wallet$.next(undefined);
 });

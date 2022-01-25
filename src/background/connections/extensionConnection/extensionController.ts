@@ -63,6 +63,10 @@ import { PerformSwapRequest } from '@src/background/services/swap/handlers/perfo
 import { contactsUpdatedEvent } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { gasPriceSwapUpdate } from '@src/background/services/swap/events/gasPriceSwapUpdate';
 import { GetGasRequest } from '@src/background/services/gas/handlers/getGas';
+import { HasLedgerTransportRequest } from '@src/background/services/ledger/handlers/hasLedgerTransport';
+import { hasLedgerTransportEvent } from '@src/background/services/ledger/events/hasLedgerTransportEvent';
+import { GetPublicKeyRequest } from '@src/background/services/ledger/handlers/getPublicKey';
+import { InitLedgerTransportRequest } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { SettingsGetIsDefaultExtensionRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { SettingsSetDefaultExtensionRequest } from '@src/background/services/settings/handlers/setAsDefaultExtension';
 
@@ -131,6 +135,10 @@ const extensionRequestHandlerMap = new Map<
   PerformSwapRequest,
 
   GetGasRequest,
+
+  InitLedgerTransportRequest,
+  HasLedgerTransportRequest,
+  GetPublicKeyRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
@@ -169,7 +177,8 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     settingsUpdatedEvent(),
     contactsUpdatedEvent(),
     sendTxDetailsEvent(),
-    gasPriceSwapUpdate()
+    gasPriceSwapUpdate(),
+    hasLedgerTransportEvent()
   ).pipe(
     tap((evt) => {
       eventLog(`extension event (${evt.name})`, evt);

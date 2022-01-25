@@ -10,7 +10,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { exhaustMap, from, Subject, tap } from 'rxjs';
 import { AccountDropdownItem } from './AccountDropdownItem';

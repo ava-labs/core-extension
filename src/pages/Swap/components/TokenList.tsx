@@ -8,7 +8,7 @@ import {
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { NoTokenFound } from '../../Home/components/Portfolio/NoTokenFound';
 

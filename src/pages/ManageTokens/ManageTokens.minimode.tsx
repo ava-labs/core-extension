@@ -13,7 +13,7 @@ import {
 import { ManageTokensList } from './ManageTokensList.minimode';
 import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import styled, { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useHistory } from 'react-router-dom';
 
 const StyledSearchInput = styled(SearchInput)`

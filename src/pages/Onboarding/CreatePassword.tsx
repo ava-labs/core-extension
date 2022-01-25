@@ -42,7 +42,7 @@ export const CreatePassword = ({
     !passwordLengthError && !confirmationError && isFieldsFilled;
 
   return (
-    <VerticalFlex width="100%" align="center" padding="16px 0">
+    <VerticalFlex width="100%" align="center">
       <HorizontalFlex width="100%" justify="space-between" align="center">
         <TextButton onClick={onBack}>
           <CaretIcon

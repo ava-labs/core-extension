@@ -1,32 +1,35 @@
 import { useState } from 'react';
 import {
   PlusIcon,
-  PencilIcon,
   DropDownMenuItem,
   SearchInput,
   TextButton,
-  toast,
-  TrashIcon,
   Typography,
   VerticalFlex,
+  SimpleAddress,
   HorizontalFlex,
   Tooltip,
-  PrimaryAddress,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 
-const PrimaryAddressWithMargin = styled(PrimaryAddress)`
-  width: 100%;
-  margin-right: 10px;
+const DropDownMenuItemWithBorder = styled(DropDownMenuItem)`
+  border-bottom: solid 1px ${({ theme }) => theme.colors.stroke1};
+`;
+
+const AccountName = styled(Typography)`
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 `;
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { contacts, setEditedContact, removeContact } = useContactsContext();
+  const { contacts, setEditedContact } = useContactsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredContacts = contacts
@@ -44,7 +47,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Contact List'}
+        title={'Address book'}
         action={
           <Tooltip content={<Typography size={14}>Add New Contact</Typography>}>
             <TextButton
@@ -70,50 +73,22 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
           </Typography>
         )}
         {filteredContacts.map((c) => (
-          <DropDownMenuItem
-            key={c.address}
+          <DropDownMenuItemWithBorder
+            key={c.id}
             justify="space-between"
             align="center"
+            onClick={() => {
+              setEditedContact(c);
+              navigateTo(SettingsPages.EDIT_CONTACT);
+            }}
           >
-            <VerticalFlex width="100%">
-              <Typography margin="0 0 4px 0">{c.name}</Typography>
-              <HorizontalFlex justify="space-between">
-                <PrimaryAddressWithMargin
-                  //name={c.name}
-                  address={c.address}
-                />
-
-                <HorizontalFlex>
-                  <Tooltip
-                    content={<Typography size={12}>Edit contact</Typography>}
-                  >
-                    <TextButton
-                      margin="0 8px 0 0"
-                      onClick={() => {
-                        setEditedContact(c);
-                        navigateTo(SettingsPages.EDIT_CONTACT);
-                      }}
-                    >
-                      <PencilIcon height="16px" color={theme.colors.icon1} />
-                    </TextButton>
-                  </Tooltip>
-
-                  <Tooltip
-                    content={<Typography size={12}>Remove contact</Typography>}
-                  >
-                    <TextButton
-                      onClick={() => {
-                        removeContact(c);
-                        toast.success('Contact removed!');
-                      }}
-                    >
-                      <TrashIcon height="16px" color={theme.colors.icon1} />
-                    </TextButton>
-                  </Tooltip>
-                </HorizontalFlex>
-              </HorizontalFlex>
-            </VerticalFlex>
-          </DropDownMenuItem>
+            <HorizontalFlex align="center" justify="space-between" width="100%">
+              <AccountName width="140px" title={c.name}>
+                {c.name}
+              </AccountName>
+              <SimpleAddress address={c.id} />
+            </HorizontalFlex>
+          </DropDownMenuItemWithBorder>
         ))}
       </Scrollbars>
     </VerticalFlex>

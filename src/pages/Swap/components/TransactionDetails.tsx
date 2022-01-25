@@ -11,6 +11,7 @@ import {
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
+import { SlippageToolTip } from './SlippageToolTip';
 
 interface TransactionDetailsProps {
   fromTokenSymbol?: string;
@@ -133,7 +134,10 @@ export function DetailsContent({
       {setSlippage ? (
         <DetailsRow>
           <VerticalFlex>
-            <Typography>Slippage tolerance</Typography>
+            <HorizontalFlex>
+              <Typography margin="0 16px 0 0">Slippage tolerance</Typography>
+              <SlippageToolTip />
+            </HorizontalFlex>
           </VerticalFlex>
           <VerticalFlex>
             <HorizontalFlex align="center">
@@ -158,7 +162,10 @@ export function DetailsContent({
       ) : (
         <DetailsRow>
           <VerticalFlex>
-            <Typography>Slippage tolerance</Typography>
+            <HorizontalFlex>
+              <Typography margin="0 16px 0 0">Slippage tolerance</Typography>
+              <SlippageToolTip />
+            </HorizontalFlex>
           </VerticalFlex>
           <VerticalFlex>
             <Typography>{slippage || 0}%</Typography>

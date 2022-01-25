@@ -14,7 +14,7 @@ export async function removeContact(request: ExtensionConnectionMessage) {
   const contacts = await firstValueFrom(contacts$);
   const newContacts = {
     ...contacts,
-    contacts: contacts.contacts.filter((c) => c.address !== contact.address),
+    contacts: contacts.contacts.filter((c) => c.id !== contact.id),
   };
 
   const [, err] = await resolve(saveContactsToStorage(newContacts));

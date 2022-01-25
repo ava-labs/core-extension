@@ -5,17 +5,34 @@ import {
   Input,
   PrimaryButton,
   ComponentSize,
+  TextArea,
 } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
 
+const FlexScrollbars = styled(Scrollbars)`
+  flex-grow: 1;
+  max-height: unset;
+  height: 100%;
+  width: 100%;
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
 export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
-  const [contact, setContact] = useState<Contact>({ name: '', address: '' });
+  const [contact, setContact] = useState<Contact>({
+    id: '',
+    name: '',
+    address: '',
+  });
   const theme = useTheme();
   const { createContact } = useContactsContext();
   const isValidAddress =
@@ -28,9 +45,9 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Edit Contact'}
+        title={'New contact'}
       />
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+      <FlexScrollbars>
         <VerticalFlex padding="16px">
           <Input
             autoFocus
@@ -46,7 +63,8 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             width="100%"
           />
 
-          <Input
+          <TextArea
+            size={ComponentSize.SMALL}
             margin="16px 0px 0px 0px"
             onChange={(e) => {
               setContact({
@@ -55,10 +73,14 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
               });
             }}
             value={contact.address}
-            label="0x Address"
+            label="Address"
             error={!isValidAddress && contact.address.length > 0}
-            errorMessage="Not a valid 0x address"
-            placeholder="0x Address"
+            errorMessage={
+              !isValidAddress && contact.address.length > 0
+                ? 'Not a valid 0x address'
+                : undefined
+            }
+            placeholder="Enter the address"
             width="100%"
           />
         </VerticalFlex>
@@ -66,7 +88,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         <VerticalFlex align="center" grow="1" justify="flex-end" margin="16px">
           <PrimaryButton
             width="100%"
-            size={ComponentSize.LARGE}
+            size={ComponentSize.MEDIUM}
             onClick={() => {
               createContact(contact);
               toast.success('Contact created!');
@@ -79,10 +101,10 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
               !isValidAddress
             }
           >
-            Add Contact
+            Save
           </PrimaryButton>
         </VerticalFlex>
-      </Scrollbars>
+      </FlexScrollbars>
     </VerticalFlex>
   );
 }

@@ -30,6 +30,7 @@ export function ContactsContextProvider({ children }: { children: any }) {
     contacts: [],
   });
   const [editedContact, setEditedContact] = useState<Contact>({
+    id: '',
     name: '',
     address: '',
   });
@@ -58,9 +59,13 @@ export function ContactsContextProvider({ children }: { children: any }) {
   }, []);
 
   async function createContact(contact: Contact) {
+    const contactCopy = {
+      ...contact,
+      id: window.crypto.randomUUID(),
+    };
     await request({
       method: ExtensionRequest.CONTACTS_CREATE,
-      params: [contact],
+      params: [contactCopy],
     });
   }
 

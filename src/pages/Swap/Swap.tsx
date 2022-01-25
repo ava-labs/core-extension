@@ -12,7 +12,6 @@ import {
   PrimaryIconButton,
 } from '@avalabs/react-components';
 import {
-  ERC20WithBalance,
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
@@ -20,7 +19,7 @@ import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { OptimalRate } from 'paraswap-core';
+import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
@@ -32,11 +31,16 @@ import { ReviewOrder } from './components/ReviewOrder';
 import { CustomGasLimitAndFees } from '../SignTransaction/CustomGasLimitAndFees';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { SwapLoadingSpinnerIcon } from './components/SwapLoadingSpinnerIcon';
-import { getMaxValue, getTokenIcon, isAPIError } from './utils';
+import {
+  getMaxValue,
+  getTokenAddress,
+  getTokenIcon,
+  isAPIError,
+} from './utils';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SwapTxSuccess } from './components/SwapTxSucces';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
-import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+import { TxInProgress } from '../../components/common/TxInProgress';
 
 export interface Token {
   icon?: JSX.Element;
@@ -75,6 +79,7 @@ export function Swap() {
   const { currencyFormatter } = useSettingsContext();
   const { erc20Tokens, avaxToken, avaxPrice } = useWalletContext();
   const { getRate, swap, gasPrice } = useSwapContext();
+
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
@@ -90,22 +95,28 @@ export function Swap() {
   const [optimalRate, setOptimalRate] = useState<OptimalRate>();
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
-  const [gasLimit, setGasLimit] = useState<string>('');
-  const [gasCost, setGasCost] = useState<string>('');
-  const [destAmount, setDestAmount] = useState<string>('');
+
+  const [gasLimit, setGasLimit] = useState('');
+
+  const [gasCost, setGasCost] = useState('');
+
+  const [destAmount, setDestAmount] = useState('');
+
   const [showCustomGasLimitAndFees, setShowCustomGasLimitAndFees] =
-    useState<boolean>(false);
-  const [rateValueInput, setRateValueInput] = useState<string>('');
+    useState(false);
+  const [destinationInputField, setDestinationInputField] = useState<
+    'from' | 'to' | ''
+  >('');
+
   const [fromTokenValue, setFromTokenValue] =
     useState<{ bn: BN; amount: string }>();
   const [toTokenValue, setToTokenValue] =
     useState<{ bn: BN; amount: string }>();
   const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
-  const [slippageTolerance, setSlippageTolerance] = useState<string>();
+  const [slippageTolerance, setSlippageTolerance] = useState('1');
 
-  useEffect(() => {
-    setMaxFromValue(getMaxValue(selectedFromToken, gasLimit, gasPrice));
-  }, [selectedFromToken, gasPrice, gasLimit]);
+  const [defaultFromValue, setFromDefaultValue] = useState('');
+  const [isCalculateAvaxMax, setIsCalculateAvaxMax] = useState(false);
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
@@ -120,53 +131,67 @@ export function Swap() {
   const calculateTokenValueToInput = useCallback(
     (
       amount: { bn: BN; amount: string },
-      destination: string,
+      destinationInput: 'from' | 'to' | '',
       sourceToken?: TokenWithBalance,
       destinationToken?: TokenWithBalance
     ) => {
       if (!sourceToken || !destinationToken) {
         return;
       }
-      setRateValueInput(destination);
+      setDestinationInputField(destinationInput);
       setIsLoading(true);
       setValuesDebouncedSubject.next({
         ...setValuesDebouncedSubject.getValue(),
-        fromTokenAddress: isAvaxToken(sourceToken)
-          ? sourceToken.symbol
-          : (sourceToken as ERC20WithBalance).address,
-        toTokenAddress: isAvaxToken(destinationToken)
-          ? destinationToken.symbol
-          : (destinationToken as ERC20WithBalance).address,
+        fromTokenAddress: getTokenAddress(sourceToken),
+        toTokenAddress: getTokenAddress(destinationToken),
         fromTokenDecimals: sourceToken.denomination,
         toTokenDecimals: destinationToken.denomination,
         amount,
       });
-      setIsLoading(false);
     },
     [setValuesDebouncedSubject]
   );
 
   useEffect(() => {
-    if (selectedFromToken && selectedToToken) {
-      const amount = {
-        amount: fromTokenValue?.amount || '0',
-        bn: Utils.stringToBN(
-          fromTokenValue?.amount || '0',
-          selectedFromToken.denomination || 18
-        ),
-      };
-      calculateTokenValueToInput(
-        amount,
-        'to',
-        selectedFromToken,
-        selectedToToken
-      );
+    if (
+      gasPrice &&
+      gasLimit &&
+      selectedFromToken &&
+      isAvaxToken(selectedFromToken)
+    ) {
+      const newFees = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
+
+      setGasCost(newFees.fee);
+      const max = getMaxValue(selectedFromToken, newFees.fee);
+
+      setMaxFromValue(max);
+      if (!max) {
+        return;
+      }
+      if (isCalculateAvaxMax) {
+        setFromDefaultValue(max?.toString());
+        calculateTokenValueToInput(
+          {
+            bn: max,
+            amount: max.toString(),
+          },
+          'to',
+          selectedFromToken,
+          selectedToToken
+        );
+      }
+      return;
     }
+    setMaxFromValue(selectedFromToken?.balance);
   }, [
+    avaxPrice,
+    calculateTokenValueToInput,
+    isCalculateAvaxMax,
+    gasCost,
+    gasLimit,
+    gasPrice,
     selectedFromToken,
     selectedToToken,
-    calculateTokenValueToInput,
-    fromTokenValue,
   ]);
 
   useEffect(() => {
@@ -187,15 +212,23 @@ export function Swap() {
             fromTokenDecimals &&
             toTokenDecimals
           ) {
+            const amountString = amount.bn.toString();
+            if (amountString === '0') {
+              setSwapError('Please enter an amount');
+              setIsLoading(false);
+              return;
+            }
+            const swapSide =
+              destinationInputField === 'to' ? SwapSide.SELL : SwapSide.BUY;
             setIsLoading(true);
             setOptimalRate(undefined);
-            const amountString = amount.bn.toString();
             getRate(
               fromTokenAddress,
               fromTokenDecimals,
               toTokenAddress,
               toTokenDecimals,
-              amountString
+              amountString,
+              swapSide
             )
               .then((result) => {
                 /**
@@ -210,14 +243,22 @@ export function Swap() {
                   // Never modify the properies of the optimalRate since the swap API needs it unchanged
                   setOptimalRate(result.optimalRate);
                   setGasLimit(result.optimalRate?.gasCost);
-                  setDestAmount(result.destAmount ?? '');
+                  const resultAmount =
+                    destinationInputField === 'to'
+                      ? result.optimalRate.destAmount
+                      : result.optimalRate.srcAmount;
+                  setDestAmount(resultAmount);
                 }
               })
               .catch(() => {
                 setSwapError('Something went wrong, please try again');
               })
               .finally(() => {
-                setIsLoading(false);
+                if (!isCalculateAvaxMax) {
+                  setIsLoading(false);
+                  return;
+                }
+                setIsCalculateAvaxMax(false);
               });
           } else {
             setOptimalRate(undefined);
@@ -228,9 +269,45 @@ export function Swap() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [getRate, setValuesDebouncedSubject]);
+  }, [
+    destinationInputField,
+    getRate,
+    setValuesDebouncedSubject,
+    isCalculateAvaxMax,
+  ]);
 
-  useEffect(() => {
+  const calculateSwapValue = ({
+    selectedFromToken,
+    selectedToToken,
+  }: {
+    selectedFromToken?: TokenWithBalance;
+    selectedToToken?: TokenWithBalance;
+  }) => {
+    if (!selectedFromToken || !selectedToToken) {
+      return;
+    }
+    const amount = {
+      amount: fromTokenValue?.amount || '0',
+      bn: Utils.stringToBN(
+        fromTokenValue?.amount || '0',
+        selectedFromToken.denomination || 18
+      ),
+    };
+    calculateTokenValueToInput(
+      amount,
+      'to',
+      selectedFromToken,
+      selectedToToken
+    );
+  };
+
+  const isSwapAllowed = ({
+    selectedFromToken,
+    selectedToToken,
+  }: {
+    selectedFromToken?: TokenWithBalance;
+    selectedToToken?: TokenWithBalance;
+  }) => {
     if (!selectedFromToken || !selectedToToken || swapError) {
       setCanSwap(false);
       return;
@@ -238,15 +315,7 @@ export function Swap() {
       setSwapError('');
       setCanSwap(true);
     }
-  }, [selectedToToken, selectedFromToken, tokensWBalances, swapError]);
-
-  useEffect(() => {
-    if (gasPrice && gasLimit) {
-      const newFees = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
-
-      setGasCost(newFees.fee);
-    }
-  }, [avaxPrice, gasCost, gasLimit, gasPrice]);
+  };
 
   const swapTokens = () => {
     if (!canSwap) {
@@ -267,6 +336,7 @@ export function Swap() {
     const [to, from] = [selectedFromToken, selectedToToken];
     setSelectedFromToken(from);
     setSelectedToToken(to);
+    calculateSwapValue({ selectedFromToken: from, selectedToToken: to });
   };
 
   const getCurrencyValue = (token?: TokenWithBalance) => {
@@ -303,7 +373,7 @@ export function Swap() {
         toTokenAddress,
         toTokenDecimals,
         fromTokenDecimals,
-        amount.bn.toString(),
+        optimalRate.srcAmount,
         optimalRate,
         optimalRate.destAmount,
         gasLimit,
@@ -354,8 +424,24 @@ export function Swap() {
           token={selectedFromTokenFormat}
           balanceDisplayValue={selectedFromToken?.balanceDisplayValue}
           currencyValue={getCurrencyValue(selectedFromToken)}
-          defaultValue={rateValueInput === 'from' ? destAmount : ''}
+          defaultValue={
+            defaultFromValue ||
+            (destinationInputField === 'from' ? destAmount : '')
+          }
           onChange={(value) => {
+            if (value.bn.toString() === '0') {
+              setSwapError('Please enter an amount');
+              return;
+            }
+            if (
+              maxFromValue &&
+              value.bn.eq(maxFromValue) &&
+              selectedFromToken &&
+              isAvaxToken(selectedFromToken)
+            ) {
+              setIsCalculateAvaxMax(true);
+            }
+            setSwapError('');
             setFromTokenValue(value);
             calculateTokenValueToInput(
               value,
@@ -364,13 +450,17 @@ export function Swap() {
               selectedToToken
             );
           }}
-          isValueLoading={rateValueInput === 'from' && isLoading}
+          isValueLoading={destinationInputField === 'from' && isLoading}
           isInputDisabled={!selectedFromToken}
           max={
-            rateValueInput === 'from' && isLoading ? undefined : maxFromValue
+            destinationInputField === 'from' && isLoading
+              ? undefined
+              : maxFromValue
           }
           hideErrorMessage={true}
-          onError={(errorMessage) => setSwapError(errorMessage)}
+          onError={(errorMessage) => {
+            setSwapError(errorMessage);
+          }}
         />
 
         <HorizontalFlex
@@ -382,7 +472,10 @@ export function Swap() {
               {swapError}
             </Typography>
           )}
-          <SwitchIconContainer onClick={swapTokens} disabled={!canSwap}>
+          <SwitchIconContainer
+            onClick={swapTokens}
+            disabled={!canSwap || !!swapError}
+          >
             <SwitchIcon height="24px" color={theme.colors.text1} />
           </SwitchIconContainer>
         </HorizontalFlex>
@@ -394,29 +487,31 @@ export function Swap() {
             setModalOpen('to');
           }}
           token={selectedToTokenFormat}
-          defaultValue={rateValueInput === 'to' ? destAmount : ''}
+          defaultValue={destinationInputField === 'to' ? destAmount : ''}
           onChange={(value) => {
             setToTokenValue(value);
             calculateTokenValueToInput(
               value,
               'from',
-              selectedToToken,
-              selectedFromToken
+              selectedFromToken,
+              selectedToToken
             );
+            isSwapAllowed({ selectedFromToken, selectedToToken });
           }}
-          isValueLoading={rateValueInput === 'to' && isLoading}
+          isValueLoading={destinationInputField === 'to' && isLoading}
           isInputDisabled={!selectedToToken}
         />
 
         {isLoading && <SwapLoadingSpinnerIcon />}
 
-        {canSwap && optimalRate ? (
+        {!swapError && !isLoading && canSwap && optimalRate ? (
           <>
             <TransactionDetails
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
               rate={
-                parseInt(destAmount, 10) / parseInt(optimalRate.srcAmount, 10)
+                parseInt(optimalRate?.destAmount || '0', 10) /
+                parseInt(optimalRate?.srcAmount || '0', 10)
               }
               fee={gasCost}
               walletFee={optimalRate.partnerFee}
@@ -466,9 +561,16 @@ export function Swap() {
             onClick={(token: TokenWithBalance) => {
               if (modalOpen === 'from') {
                 setSelectedFromToken(token);
+                calculateSwapValue({
+                  selectedFromToken: token,
+                  selectedToToken,
+                });
+                isSwapAllowed({ selectedFromToken: token, selectedToToken });
                 return;
               }
               setSelectedToToken(token);
+              calculateSwapValue({ selectedFromToken, selectedToToken: token });
+              isSwapAllowed({ selectedFromToken, selectedToToken: token });
             }}
             onClose={() => setModalOpen(null)}
           />
@@ -489,23 +591,27 @@ export function Swap() {
           onTimerExpire={() => {
             if (fromTokenValue) {
               const srcToken =
-                rateValueInput === 'to' ? selectedFromToken : selectedToToken;
+                destinationInputField === 'to'
+                  ? selectedFromToken
+                  : selectedToToken;
               const destToken =
-                rateValueInput === 'to' ? selectedToToken : selectedFromToken;
+                destinationInputField === 'to'
+                  ? selectedToToken
+                  : selectedFromToken;
               const amount =
-                rateValueInput === 'to'
+                destinationInputField === 'to'
                   ? fromTokenValue
                   : toTokenValue || { bn: new BN(0), amount: '0' };
               calculateTokenValueToInput(
                 amount,
-                rateValueInput,
+                destinationInputField,
                 srcToken,
                 destToken
               );
             }
           }}
           isLoading={isLoading}
-          rateValueInput={rateValueInput}
+          rateValueInput={destinationInputField}
         />
       )}
 
@@ -525,7 +631,13 @@ export function Swap() {
           </CustomGasAndFeeContainer>
         </CustomGasAndFeeOverlay>
       )}
-      {txInProgress && <LoadingOverlay />}
+      {txInProgress && (
+        <TxInProgress
+          fee={gasCost}
+          amount={fromTokenValue?.amount}
+          symbol={selectedFromToken?.symbol}
+        />
+      )}
     </>
   );
 }

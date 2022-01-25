@@ -10,4 +10,7 @@ export enum OnboardingPhase {
   CONFIRM = 'confirm',
   FINALIZE = 'finalize',
   RESTART = 'restart',
+  LEDGER = 'ledger',
+  EXISTING = 'existing',
+  LEDGER_TROUBLE = 'ledger_trouble',
 }
