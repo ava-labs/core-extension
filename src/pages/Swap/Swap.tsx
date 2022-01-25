@@ -40,7 +40,7 @@ import {
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SwapTxSuccess } from './components/SwapTxSucces';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
-import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+import { TxInProgress } from '../../components/common/TxInProgress';
 
 export interface Token {
   icon?: JSX.Element;
@@ -631,7 +631,13 @@ export function Swap() {
           </CustomGasAndFeeContainer>
         </CustomGasAndFeeOverlay>
       )}
-      {txInProgress && <LoadingOverlay />}
+      {txInProgress && (
+        <TxInProgress
+          fee={gasCost}
+          amount={fromTokenValue?.amount}
+          symbol={selectedFromToken?.symbol}
+        />
+      )}
     </>
   );
 }

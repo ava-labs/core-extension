@@ -19,6 +19,7 @@ import { EditContact } from './pages/EditContact';
 import { AddContact } from './pages/AddContact';
 import { ContactList } from './pages/ContactList';
 import { Advanced } from './pages/Advanced';
+import { Ledger } from './pages/Ledger';
 
 const AnimatedContainer = styled(VerticalFlex)`
   height: 100%;
@@ -134,6 +135,9 @@ export function SettingsMenuFlow() {
       break;
     case SettingsPages.ADVANCED:
       pageElement = <Advanced {...pageProps} />;
+      break;
+    case SettingsPages.LEDGER:
+      pageElement = <Ledger {...pageProps} />;
       break;
     default:
       pageElement = <MainPage {...pageProps} />;

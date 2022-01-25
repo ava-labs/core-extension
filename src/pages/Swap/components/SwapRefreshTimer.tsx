@@ -13,12 +13,6 @@ const TimerContainer = styled.div`
   border-radius: 100px;
 `;
 
-const StyledTooltip = styled(Tooltip)`
-  align-items: center;
-  display: flex;
-  padding: 11px 7px;
-`;
-
 interface SwapRefreshTimerProps {
   secondsTimer: number;
   onExpire: () => void;
@@ -64,9 +58,9 @@ export function SwapRefreshTimer({
         <Typography size={12} height="16px" margin=" 0 7px 0 0 " width="34px">
           {displayedMinutes}:{displayedSeconds}
         </Typography>
-        <StyledTooltip content={Content}>
+        <Tooltip content={Content}>
           <InfoIcon height="16px" color={theme.colors.text2} />
-        </StyledTooltip>
+        </Tooltip>
       </SecondaryCard>
     </TimerContainer>
   );

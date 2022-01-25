@@ -35,6 +35,7 @@ import {
 } from './TransactionConfirmedOrFailed';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundary';
+import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -59,8 +60,24 @@ export function SignTransactionPage() {
   const { network } = useNetworkContext();
   const theme = useTheme();
   const [txFailedError, setTxFailedError] = useState<string>();
+  useLedgerDisconnectedDialog();
 
   const displayData: TransactionDisplayValues = { ...params } as any;
+
+  const onApproveClick = () => {
+    setShowTxInProgress(true);
+    id &&
+      updateTransaction({
+        status: TxStatus.SUBMITTING,
+        id: id,
+      })
+        .catch((err) => {
+          setTxFailedError(err);
+        })
+        .finally(() => {
+          setShowTxInProgress(false);
+        });
+  };
 
   if (!Object.keys(displayData).length) {
     return (
@@ -73,10 +90,6 @@ export function SignTransactionPage() {
         <LoadingIcon color={theme.colors.icon1} />
       </HorizontalFlex>
     );
-  }
-
-  if (showTxInProgress) {
-    return <TransactionInProgress isOpen={true} />;
   }
 
   if (txFailedError) {
@@ -122,97 +135,83 @@ export function SignTransactionPage() {
   }
 
   return (
-    <VerticalFlex width="100%" align="center">
-      <HorizontalFlex align="center">
-        <ConnectionIndicator
-          disableTooltip={true}
-          size={8}
-          connected={isWalletReady}
-        />
-        <SubTextTypography margin={'0 0 0 5px'} size={12}>
-          {network?.name} C-Chain
-        </SubTextTypography>
-      </HorizontalFlex>
+    <>
+      {showTxInProgress && <TransactionInProgress displayData={displayData} />}
+      <VerticalFlex width="100%" align="center">
+        <HorizontalFlex align="center">
+          <ConnectionIndicator
+            disableTooltip={true}
+            size={8}
+            connected={isWalletReady}
+          />
+          <SubTextTypography margin={'0 0 0 5px'} size={12}>
+            {network?.name} C-Chain
+          </SubTextTypography>
+        </HorizontalFlex>
 
-      {/* Actions  */}
-      <SignTxRenderErrorBoundary>
-        {
+        {/* Actions  */}
+        <SignTxRenderErrorBoundary>
           {
-            [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
-              <SwapTx
-                {...(displayData as SwapExactTokensForTokenDisplayValues)}
-                setShowCustomFees={setShowCustomFees}
-              />
-            ),
-            [ContractCall.APPROVE]: (
-              <ApproveTx
-                {...(displayData as ApproveTransactionData)}
-                setShowCustomFees={setShowCustomFees}
-                setShowCustomSpendLimit={setShowCustomSpendLimit}
-                displaySpendLimit={displaySpendLimit}
-                isRevokeApproval={isRevokeApproval}
-              />
-            ),
-            [ContractCall.ADD_LIQUIDITY]: (
-              <AddLiquidityTx
-                {...(displayData as AddLiquidityDisplayData)}
-                setShowCustomFees={setShowCustomFees}
-              />
-            ),
-            [ContractCall.ADD_LIQUIDITY_AVAX]: (
-              <AddLiquidityTx
-                {...(displayData as AddLiquidityDisplayData)}
-                setShowCustomFees={setShowCustomFees}
-              />
-            ),
-            ['unknown']: (
-              <UnknownTx
-                {...(displayData as TransactionDisplayValues)}
-                setShowCustomFees={setShowCustomFees}
-              />
-            ),
-          }[contractType || 'unknown']
-        }
-      </SignTxRenderErrorBoundary>
+            {
+              [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
+                <SwapTx
+                  {...(displayData as SwapExactTokensForTokenDisplayValues)}
+                  setShowCustomFees={setShowCustomFees}
+                />
+              ),
+              [ContractCall.APPROVE]: (
+                <ApproveTx
+                  {...(displayData as ApproveTransactionData)}
+                  setShowCustomFees={setShowCustomFees}
+                  setShowCustomSpendLimit={setShowCustomSpendLimit}
+                  displaySpendLimit={displaySpendLimit}
+                  isRevokeApproval={isRevokeApproval}
+                />
+              ),
+              [ContractCall.ADD_LIQUIDITY]: (
+                <AddLiquidityTx
+                  {...(displayData as AddLiquidityDisplayData)}
+                  setShowCustomFees={setShowCustomFees}
+                />
+              ),
+              [ContractCall.ADD_LIQUIDITY_AVAX]: (
+                <AddLiquidityTx
+                  {...(displayData as AddLiquidityDisplayData)}
+                  setShowCustomFees={setShowCustomFees}
+                />
+              ),
+              ['unknown']: (
+                <UnknownTx
+                  {...(displayData as TransactionDisplayValues)}
+                  setShowCustomFees={setShowCustomFees}
+                />
+              ),
+            }[contractType || 'unknown']
+          }
+        </SignTxRenderErrorBoundary>
 
-      {/* Action Buttons */}
-      <HorizontalFlex
-        flex={1}
-        align="flex-end"
-        width={'100%'}
-        justify={'space-between'}
-      >
-        <SecondaryButton
-          onClick={() => {
-            id &&
-              updateTransaction({
-                status: TxStatus.ERROR_USER_CANCELED,
-                id: id,
-              });
-            window.close();
-          }}
+        {/* Action Buttons */}
+        <HorizontalFlex
+          flex={1}
+          align="flex-end"
+          width={'100%'}
+          justify={'space-between'}
         >
-          Reject
-        </SecondaryButton>
-        <PrimaryButton
-          onClick={() => {
-            setShowTxInProgress(true);
-            id &&
-              updateTransaction({
-                status: TxStatus.SUBMITTING,
-                id: id,
-              })
-                .catch((err) => {
-                  setTxFailedError(err);
-                })
-                .finally(() => {
-                  setShowTxInProgress(false);
+          <SecondaryButton
+            onClick={() => {
+              id &&
+                updateTransaction({
+                  status: TxStatus.ERROR_USER_CANCELED,
+                  id: id,
                 });
-          }}
-        >
-          Approve
-        </PrimaryButton>
-      </HorizontalFlex>
-    </VerticalFlex>
+              window.close();
+            }}
+          >
+            Reject
+          </SecondaryButton>
+          <PrimaryButton onClick={onApproveClick}>Approve</PrimaryButton>
+        </HorizontalFlex>
+      </VerticalFlex>
+    </>
   );
 }

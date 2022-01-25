@@ -8,6 +8,9 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { Card, HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { Logo } from '@src/components/icons/Logo';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+import { ChooseExistingType } from './ChooseExistingType';
+import { LedgerConnect } from './LedgerConnect';
+import { LedgerTrouble } from './LedgerTrouble';
 
 const ECOSYSTEM_URL = 'https://ecosystem.avax.network?wallet-installed';
 
@@ -15,6 +18,7 @@ export function OnboardingFlow() {
   const { onboardingPhase, onboardingState, setNextPhase, setFinalized } =
     useOnboardingContext();
   const [isImportFlow, setIsImportFlow] = useState<boolean>(false);
+  const [isLedgerFlow, setIsLedgerFlow] = useState<boolean>(false);
 
   async function handleOnCancel() {
     await setNextPhase(OnboardingPhase.RESTART);
@@ -41,10 +45,9 @@ export function OnboardingFlow() {
 
   let content = (
     <Welcome
-      onNext={(isImport) => {
-        setIsImportFlow(isImport);
+      onNext={(isExisting) => {
         setNextPhase(
-          isImport ? OnboardingPhase.IMPORT_WALLET : OnboardingPhase.PASSWORD
+          isExisting ? OnboardingPhase.EXISTING : OnboardingPhase.PASSWORD
         );
       }}
     />
@@ -59,6 +62,23 @@ export function OnboardingFlow() {
         />
       );
       break;
+    case OnboardingPhase.EXISTING:
+      content = (
+        <ChooseExistingType
+          onNext={(isRecovery) => {
+            setIsImportFlow(isRecovery);
+            setNextPhase(
+              isRecovery
+                ? OnboardingPhase.IMPORT_WALLET
+                : OnboardingPhase.LEDGER
+            );
+            setIsLedgerFlow(!isRecovery);
+          }}
+          onBack={() => setNextPhase(OnboardingPhase.RESTART)}
+          onCancel={handleOnCancel}
+        />
+      );
+      break;
     case OnboardingPhase.IMPORT_WALLET:
       content = <Import onCancel={handleOnCancel} onBack={handleOnCancel} />;
       break;
@@ -67,8 +87,24 @@ export function OnboardingFlow() {
         <CreatePassword
           onCancel={handleOnCancel}
           onBack={handleOnCancel}
-          isImportFlow={isImportFlow}
+          isImportFlow={isImportFlow || isLedgerFlow}
         />
+      );
+      break;
+    case OnboardingPhase.LEDGER:
+      content = (
+        <LedgerConnect
+          onCancel={handleOnCancel}
+          onBack={() => setNextPhase(OnboardingPhase.EXISTING)}
+          onNext={() => setNextPhase(OnboardingPhase.PASSWORD)}
+          onError={() => setNextPhase(OnboardingPhase.LEDGER_TROUBLE)}
+        />
+      );
+      break;
+    // Temporary - where does this get displayed?
+    case OnboardingPhase.LEDGER_TROUBLE:
+      content = (
+        <LedgerTrouble onBack={() => setNextPhase(OnboardingPhase.LEDGER)} />
       );
       break;
     case OnboardingPhase.FINALIZE:

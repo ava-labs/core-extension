@@ -25,7 +25,6 @@ export async function getPermissionsForDomain(
       error: 'no domain in params',
     };
   }
-
   const currentPermissions = await firstValueFrom(permissions$);
   const domainPermissions = currentPermissions[domain];
 

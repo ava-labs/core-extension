@@ -84,6 +84,7 @@ export function eventLog(message: string, data?: any) {
 
 export function stateLog(data?: any) {
   // prevent logging sensitive information such as mnemonic or wallet object in production
+
   if (!isDevelopment()) {
     return;
   }

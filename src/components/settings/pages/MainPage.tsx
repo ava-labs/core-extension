@@ -24,7 +24,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function MainPage({ navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { isWalletReady } = useWalletContext();
+  const { isWalletReady, walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const {
@@ -119,6 +119,23 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
+      {walletType === 'ledger' && (
+        <DropDownMenuItem
+          justify="space-between"
+          align="center"
+          padding="12px 16px"
+          onClick={() => navigateTo(SettingsPages.LEDGER)}
+        >
+          <Typography weight={600} height="24px">
+            Ledger
+          </Typography>
+          <CaretIcon
+            color={theme.colors.icon1}
+            height="14px"
+            direction={IconDirection.RIGHT}
+          />
+        </DropDownMenuItem>
+      )}
       <DropDownMenuItem justify="space-between" padding="12px 16px">
         <Typography weight={600} height="24px">
           Hide tokens without balance
@@ -162,7 +179,7 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
         grow="1"
         justify="flex-end"
         align="center"
-        padding="0 16px 75px"
+        padding="0 16px 40px"
       >
         <SecondaryButton width="100%" onClick={lockWallet}>
           <LockIcon color={theme.colors.icon1} height="20px" />

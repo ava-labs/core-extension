@@ -143,6 +143,10 @@ export enum ExtensionRequest {
   SWAP_PERFORM = 'swap_perform',
 
   GAS_GET = 'gas_get',
+
+  LEDGER_INIT_TRANSPORT = 'ledger_init_transport',
+  LEDGER_HAS_TRANSPORT = 'ledger_has_transport',
+  LEDGER_GET_PUBLIC = 'ledger_get_public',
 }
 
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {

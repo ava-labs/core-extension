@@ -4,13 +4,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
-
-const StyledTooltip = styled(Tooltip)`
-  align-items: center;
-  display: flex;
-  padding: 11px 7px;
-`;
+import { useTheme } from 'styled-components';
 
 export function SlippageToolTip() {
   const theme = useTheme();
@@ -25,8 +19,8 @@ export function SlippageToolTip() {
   );
 
   return (
-    <StyledTooltip content={Content}>
+    <Tooltip content={Content}>
       <InfoIcon height="16px" color={theme.colors.text2} />
-    </StyledTooltip>
+    </Tooltip>
   );
 }

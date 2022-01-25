@@ -4,7 +4,10 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { decryptMnemonicInStorage, saveMnemonicToStorage } from '../storage';
+import {
+  decryptPhraseOrKeyInStorage,
+  savePhraseOrKeyToStorage,
+} from '../storage';
 import { restartWalletLock$ } from '../walletLocked';
 
 export async function changeWalletPassword(
@@ -27,7 +30,7 @@ export async function changeWalletPassword(
   }
 
   const [decryptedMnemonic, err] = await resolve(
-    decryptMnemonicInStorage(oldPassword)
+    decryptPhraseOrKeyInStorage(oldPassword)
   );
 
   if (err) {
@@ -44,7 +47,7 @@ export async function changeWalletPassword(
     };
   }
 
-  await saveMnemonicToStorage(decryptedMnemonic, newPassword);
+  await savePhraseOrKeyToStorage(decryptedMnemonic, newPassword);
 
   restartWalletLock$.next(true);
 

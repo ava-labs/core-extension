@@ -12,6 +12,7 @@ import { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -20,6 +21,7 @@ export function SecurityAndPrivacy({
 }: SettingsPageProps) {
   const theme = useTheme();
   const { showDialog, clearDialog } = useDialog();
+  const { walletType } = useWalletContext();
 
   const onLogoutClick = () => {
     showDialog({
@@ -63,18 +65,20 @@ export function SecurityAndPrivacy({
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
-      <DropDownMenuItem
-        justify="space-between"
-        align="center"
-        onClick={() => navigateTo(SettingsPages.RECOVERY_PHRASE)}
-      >
-        <Typography>Show recovery phrase</Typography>
-        <CaretIcon
-          color={theme.colors.icon1}
-          height="14px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
+      {walletType === 'mnemonic' && (
+        <DropDownMenuItem
+          justify="space-between"
+          align="center"
+          onClick={() => navigateTo(SettingsPages.RECOVERY_PHRASE)}
+        >
+          <Typography>Show recovery phrase</Typography>
+          <CaretIcon
+            color={theme.colors.icon1}
+            height="14px"
+            direction={IconDirection.RIGHT}
+          />
+        </DropDownMenuItem>
+      )}
 
       <HorizontalFlex width="100%" margin="12px 0" padding="0 16px">
         <HorizontalSeparator />

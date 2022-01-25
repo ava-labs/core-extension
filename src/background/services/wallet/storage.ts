@@ -1,4 +1,4 @@
-import { clearMnemonic } from '@avalabs/wallet-react-components';
+import { clearWallet } from '@avalabs/wallet-react-components';
 import { resolve } from '@src/utils/promiseResolver';
 import {
   getFromStorage,
@@ -42,10 +42,21 @@ async function deriveKey(password: string) {
 }
 
 export function getMnemonicFromStorage() {
-  return getFromStorage(WALLET_STORAGE_KEY).then(
-    (store) =>
+  return getFromStorage(WALLET_STORAGE_KEY).then((store) => {
+    return (
       store && store[WALLET_STORAGE_KEY] && store[WALLET_STORAGE_KEY].mnemonic
-  );
+    );
+  });
+}
+/**
+ * @returns the public key of the ledger used
+ */
+export function getPublicKeyFromStorage() {
+  return getFromStorage(WALLET_STORAGE_KEY).then((store) => {
+    return (
+      store && store[WALLET_STORAGE_KEY] && store[WALLET_STORAGE_KEY].pubKey
+    );
+  });
 }
 
 function getIVFromStorage() {
@@ -55,9 +66,10 @@ function getIVFromStorage() {
   );
 }
 
-export async function saveMnemonicToStorage(
-  mnemonic: string,
-  password: string
+export async function savePhraseOrKeyToStorage(
+  password: string,
+  mnemonic?: string,
+  pubKey?: string
 ) {
   const key = await deriveKey(password);
   // generate initialization vektor for AES-GCM, used to randomize the encryption
@@ -68,35 +80,44 @@ export async function saveMnemonicToStorage(
   const cipher: ArrayBuffer = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
-    new TextEncoder().encode(mnemonic)
+    new TextEncoder().encode(mnemonic || pubKey)
   );
 
   // store the Uint8Arrays of the cipher and iv
   // Uint8Array cannot be saved to the storage, needs to be converted to a regular array first
   return saveToStorage({
     [WALLET_STORAGE_KEY]: {
-      mnemonic: Array.from(new Uint8Array(cipher)),
+      ...(mnemonic
+        ? { mnemonic: Array.from(new Uint8Array(cipher)) }
+        : { pubKey: Array.from(new Uint8Array(cipher)) }),
       iv: Array.from(iv),
     },
   });
 }
 
-export async function decryptMnemonicInStorage(password: string) {
+export async function decryptPhraseOrKeyInStorage(password: string) {
   try {
     // get decription key, cipher and the initialization vector
     const key = await deriveKey(password);
-    const [cipher, errCipher] = await resolve(getMnemonicFromStorage());
+    const [mnemonicCipher, errMnemonicCipher] = await resolve(
+      getMnemonicFromStorage()
+    );
+    const [publicKeyCipher, errPublicKeyCipher] = await resolve(
+      getPublicKeyFromStorage()
+    );
     const [iv, errIV] = await resolve(getIVFromStorage());
 
     // any one of the pieces is missing, the mnemonic is not decryptable
-    if (errCipher || errIV) return Promise.reject(errCipher ?? errIV);
-    if (!cipher || !iv) return Promise.reject(new Error('mnemonic not found'));
+    if ((errMnemonicCipher && errPublicKeyCipher) || errIV)
+      return Promise.reject(errMnemonicCipher || errPublicKeyCipher || errIV);
+    if ((!mnemonicCipher && !publicKeyCipher) || !iv)
+      return Promise.reject(new Error('mnemonic or public key not found'));
 
     // throws error when using the wrong key
     const bytes: ArrayBuffer = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv: Uint8Array.from(iv) },
       key,
-      Uint8Array.from(cipher)
+      Uint8Array.from(mnemonicCipher ?? publicKeyCipher)
     );
 
     // return decoded text from arraybuffer
@@ -108,6 +129,7 @@ export async function decryptMnemonicInStorage(password: string) {
 }
 
 export async function removeWalletFromStorage() {
-  clearMnemonic();
+  console.log('wallet being locked and cleared: removeStorage');
+  clearWallet();
   return removeFromStorage(WALLET_STORAGE_KEY);
 }

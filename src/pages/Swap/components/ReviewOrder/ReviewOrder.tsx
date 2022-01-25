@@ -13,6 +13,7 @@ import { TokenWithBalance } from '@avalabs/wallet-react-components';
 import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
 import { ReviewOrderContent } from './ReviewOrderContent';
+import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 
 export interface ReviewOrderProps {
   fromToken?: TokenWithBalance;
@@ -57,6 +58,7 @@ export function ReviewOrder({
   rateValueInput,
 }: ReviewOrderProps) {
   const theme = useTheme();
+  useLedgerDisconnectedDialog();
 
   return (
     <ReviewOrderOverlay>
