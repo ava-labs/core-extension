@@ -37,7 +37,7 @@ export function TransactionFeeTooltip({
       <HorizontalFlex width="100%" justify="space-between">
         <Typography size={12}>Gas Price</Typography>
         <Typography size={12}>
-          {Utils.bnToLocaleString(gasPrice, 8)} nAVAX
+          {Utils.bnToLocaleString(gasPrice, 9)} nAVAX
         </Typography>
       </HorizontalFlex>
     </VerticalFlex>

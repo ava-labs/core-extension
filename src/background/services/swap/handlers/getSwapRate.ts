@@ -16,7 +16,7 @@ import { paraSwap$ } from '../swap';
 const SERVER_BUSY_ERROR = 'Server too busy';
 
 export async function getSwapRate(request: ExtensionConnectionMessage) {
-  const [srcToken, srcDecimals, destToken, destDecimals, srcAmount] =
+  const [srcToken, srcDecimals, destToken, destDecimals, srcAmount, swapSide] =
     request.params || [];
 
   if (!srcToken) {
@@ -76,7 +76,7 @@ export async function getSwapRate(request: ExtensionConnectionMessage) {
     destToken,
     srcAmount,
     (wallet as WalletType).getAddressC(),
-    SwapSide.SELL,
+    (swapSide as SwapSide) || SwapSide.SELL,
     {
       partner: 'Avalanche',
     },

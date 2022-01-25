@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/models';
-import { OptimalRate } from 'paraswap-core';
+import { OptimalRate, SwapSide } from 'paraswap-core';
 import { GasPrice } from '@src/background/services/gas/models';
 import { filter } from 'rxjs';
 import { gasPriceSwapUpdateListener } from '@src/background/services/swap/events/gasPriceSwapUpdateListener';
@@ -20,7 +20,8 @@ const SwapContext = createContext<{
     srcDecimals: number,
     destTokenAddress: string,
     destDecimals: number,
-    amount?: string
+    amount?: string,
+    swapSide?: SwapSide
   ): Promise<{
     optimalRate: OptimalRate | APIError;
     destAmount: string | undefined;
@@ -75,7 +76,8 @@ export function SwapContextProvider({ children }: { children: any }) {
       srcDecimals: number,
       destTokenAddress: string,
       destDecimals: number,
-      amount?: string
+      amount?: string,
+      swapSide?: SwapSide
     ) => {
       return request({
         method: ExtensionRequest.SWAP_GET_RATE,
@@ -85,6 +87,7 @@ export function SwapContextProvider({ children }: { children: any }) {
           destTokenAddress,
           destDecimals,
           amount,
+          swapSide,
         ],
       });
     },
