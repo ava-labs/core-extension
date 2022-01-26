@@ -10,7 +10,7 @@ const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
 
 export const freshMnemonic = _mnemonic.pipe(
   switchMap(({ mnemonic, password }) => {
-    return from(savePhraseOrKeyToStorage(mnemonic, undefined, password)).pipe(
+    return from(savePhraseOrKeyToStorage({ password, mnemonic })).pipe(
       mapTo(mnemonic)
     );
   })

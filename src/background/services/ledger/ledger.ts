@@ -38,7 +38,7 @@ export const ledgerState$ = combineLatest([
 
 export const freshPubKey = _pubKey.pipe(
   switchMap(({ pubKey, password }) => {
-    return from(savePhraseOrKeyToStorage(password, undefined, pubKey)).pipe(
+    return from(savePhraseOrKeyToStorage({ password, pubKey })).pipe(
       mapTo(pubKey)
     );
   })

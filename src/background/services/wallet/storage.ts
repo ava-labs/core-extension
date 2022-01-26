@@ -66,11 +66,15 @@ function getIVFromStorage() {
   );
 }
 
-export async function savePhraseOrKeyToStorage(
-  password: string,
-  mnemonic?: string,
-  pubKey?: string
-) {
+export async function savePhraseOrKeyToStorage({
+  password,
+  mnemonic,
+  pubKey,
+}: {
+  password: string;
+  mnemonic?: string;
+  pubKey?: string;
+}) {
   const key = await deriveKey(password);
   // generate initialization vektor for AES-GCM, used to randomize the encryption
   // this value is needed for the decription but it doesn't have to be encrypted itself
