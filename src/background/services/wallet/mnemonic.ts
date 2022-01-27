@@ -21,8 +21,11 @@ export const freshMnemonic = _mnemonic.pipe(
  * we know the mnemonic has to be unencrypted so we have to lock the wallet until
  * this is done
  */
-const mnemonicFromStorage = from(getMnemonicFromStorage()).pipe(
-  // only listen to unlock events if we have a mnemonic stored
+const mnemonicFromStorage = merge(
+  from(getMnemonicFromStorage()),
+  freshMnemonic
+).pipe(
+  // only listen to unlock events if we have a mnemonic stored or a new mnemonic wallet is created with
   filter((res) => !!res),
   switchMap(() => walletUnlock$),
   map((state) => state.value)

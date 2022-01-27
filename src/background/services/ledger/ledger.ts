@@ -48,8 +48,11 @@ export const freshPubKey = _pubKey.pipe(
  * Listen for public key from storage, if this is truthy then we need to wait for the unlock,
  * otherwise we drop the waiting and move along
  */
-const pubKeyFromStorage = from(getPublicKeyFromStorage()).pipe(
-  // only listen to unlock events if we have a public key stored
+const pubKeyFromStorage = merge(
+  from(getPublicKeyFromStorage()),
+  freshPubKey
+).pipe(
+  // only listen to unlock events if we have a public key stored or after a new ledger wallet is created
   filter((res) => !!res),
   switchMap(() => walletUnlock$),
   map((state) => state.value)
