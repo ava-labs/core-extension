@@ -13,12 +13,12 @@ import { TransactionTabs } from './components/TransactionTabs';
 
 export function SwapTx({
   path,
-  fee,
-  feeUSD,
   toAddress,
   fromAddress,
-  setShowCustomFees,
   txParams,
+  gasPrice,
+  gasLimit,
+  onCustomFeeSet,
 }: SwapExactTokensForTokenDisplayValues) {
   const [sentToken] = path;
   const receivingToken = path[path.length - 1];
@@ -61,10 +61,10 @@ export function SwapTx({
 
         {/* Tabs */}
         <TransactionTabs
-          fee={fee}
-          feeUSD={feeUSD}
-          setShowCustomFees={setShowCustomFees}
           byteStr={txParams?.data}
+          gasPrice={gasPrice}
+          limit={gasLimit?.toString() as string}
+          onCustomFeeSet={onCustomFeeSet}
         />
       </VerticalFlex>
     </VerticalFlex>

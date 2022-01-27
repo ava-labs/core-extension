@@ -20,7 +20,6 @@ export function useGetTransaction(requestId: string) {
   const { avaxPrice } = useWalletContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [hash, setHash] = useState<string>('');
-  const [showCustomFees, setShowCustomFees] = useState<boolean>(false);
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
     useState<boolean>(false);
   const [displaySpendLimit, setDisplaySpendLimit] = useState<string>(
@@ -97,7 +96,19 @@ export function useGetTransaction(requestId: string) {
       method: ExtensionRequest.TRANSACTIONS_GET,
       params: [requestId],
     }).then((tx) => {
-      setTransaction(tx);
+      // the gasPrice.bn on the tx is a hex
+      // we convert it here to a BN
+      const updatedTx = {
+        ...tx,
+        displayValues: {
+          ...tx.displayValues,
+          gasPrice: {
+            ...tx.displayValues.gasPrice,
+            bn: new BN(tx.displayValues.gasPrice.bn, 'hex'),
+          },
+        },
+      };
+      setTransaction(updatedTx);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -151,8 +162,6 @@ export function useGetTransaction(requestId: string) {
       ...(transaction?.txParams ? { txParams: transaction?.txParams } : {}),
       updateTransaction,
       hash,
-      showCustomFees,
-      setShowCustomFees,
       setCustomFee,
       showCustomSpendLimit,
       setShowCustomSpendLimit,
@@ -166,8 +175,6 @@ export function useGetTransaction(requestId: string) {
     requestId,
     transaction,
     hash,
-    showCustomFees,
-    showCustomSpendLimit,
     customSpendLimit,
     updateTransaction,
     displaySpendLimit,

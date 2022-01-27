@@ -22,13 +22,13 @@ const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
 export function ApproveTx({
   site,
   tokenToBeApproved,
-  fee,
-  feeUSD,
   txParams,
-  setShowCustomFees,
   setShowCustomSpendLimit,
   displaySpendLimit,
   isRevokeApproval,
+  gasPrice,
+  gasLimit,
+  onCustomFeeSet,
   ...rest
 }: ApproveTransactionData) {
   const theme = useTheme();
@@ -52,10 +52,10 @@ export function ApproveTx({
 
       {/* Tabs */}
       <TransactionTabs
-        fee={fee}
-        feeUSD={feeUSD}
-        setShowCustomFees={setShowCustomFees}
         byteStr={txParams.data}
+        gasPrice={gasPrice}
+        limit={gasLimit?.toString() as string}
+        onCustomFeeSet={onCustomFeeSet}
       >
         <VerticalFlex>
           {/* Bottom Approval Amnt */}

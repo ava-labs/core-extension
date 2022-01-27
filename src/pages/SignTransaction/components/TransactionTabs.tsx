@@ -1,64 +1,39 @@
 import {
-  HorizontalFlex,
   HorizontalSeparator,
   SecondaryCard,
-  SubTextTypography,
-  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
+import { CustomFees } from '@src/components/common/CustomFees';
+import { GasPrice } from '@src/background/services/gas/models';
 
 interface TransactionTabsType {
   byteStr: string;
-  fee: string | undefined;
-  feeUSD: number | undefined;
-  setShowCustomFees: (arg0: boolean) => void;
   children?: JSX.Element;
+  gasPrice?: GasPrice;
+  limit?: string;
+  onCustomFeeSet?: () => void;
 }
 
 export function TransactionTabs({
   byteStr,
-  fee,
-  feeUSD,
-  setShowCustomFees,
   children,
+  gasPrice,
+  limit,
+  onCustomFeeSet,
 }: TransactionTabsType) {
-  const { currencyFormatter, currency } = useSettingsContext();
-  const theme = useTheme();
-
   // Summary Tab
   const showSummary = () => (
     <VerticalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
-      <HorizontalFlex justify="space-between">
-        <Typography padding="0 0 4px 0" height="24px" weight={600}>
-          Network Fee
-        </Typography>
-        <Typography padding="0 0 4px 0" weight={600} height="24px">
-          {fee}
-          <Typography
-            padding="0 0 0 4px"
-            weight={600}
-            color={theme.colors.text2}
-          >
-            AVAX
-          </Typography>
-        </Typography>
-      </HorizontalFlex>
-
-      <HorizontalFlex justify="space-between">
-        <TextButton onClick={() => setShowCustomFees(true)}>
-          <Typography size={12} color={theme.colors.primary1} weight={600}>
-            Edit
-          </Typography>
-        </TextButton>
-        <SubTextTypography size={12}>
-          ~{currencyFormatter(Number(feeUSD))} {currency}
-        </SubTextTypography>
-      </HorizontalFlex>
+      {gasPrice && limit && onCustomFeeSet && (
+        <CustomFees
+          gasPrice={gasPrice}
+          limit={limit}
+          onChange={onCustomFeeSet}
+        />
+      )}
 
       {children && (
         <>

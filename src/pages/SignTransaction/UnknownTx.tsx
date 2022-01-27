@@ -6,11 +6,11 @@ import { TransactionTabs } from './components/TransactionTabs';
 export function UnknownTx({
   fromAddress,
   toAddress,
-  fee,
-  feeUSD,
   txParams,
-  setShowCustomFees,
-}: TransactionDisplayValues & { setShowCustomFees: (show: boolean) => void }) {
+  gasPrice,
+  gasLimit,
+  onCustomFeeSet,
+}: TransactionDisplayValues) {
   return (
     <VerticalFlex align={'center'} width="100%">
       <Typography size={24} weight={700} margin={'8px 0 16px 0'}>
@@ -20,10 +20,10 @@ export function UnknownTx({
 
       {/* Tabs */}
       <TransactionTabs
-        fee={fee}
-        feeUSD={feeUSD}
-        setShowCustomFees={setShowCustomFees}
         byteStr={txParams?.data}
+        gasPrice={gasPrice}
+        limit={gasLimit?.toString() as string}
+        onCustomFeeSet={onCustomFeeSet}
       />
     </VerticalFlex>
   );

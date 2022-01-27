@@ -15,10 +15,10 @@ export function AddLiquidityTx({
   poolTokens,
   toAddress,
   fromAddress,
-  setShowCustomFees,
-  fee,
-  feeUSD,
   txParams,
+  gasPrice,
+  gasLimit,
+  onCustomFeeSet,
 }: AddLiquidityDisplayData) {
   const theme = useTheme();
 
@@ -55,10 +55,10 @@ export function AddLiquidityTx({
 
       {/* Tabs */}
       <TransactionTabs
-        fee={fee}
-        feeUSD={feeUSD}
         byteStr={txParams?.data}
-        setShowCustomFees={setShowCustomFees}
+        gasPrice={gasPrice}
+        limit={gasLimit?.toString() as string}
+        onCustomFeeSet={onCustomFeeSet}
       />
     </VerticalFlex>
   );
