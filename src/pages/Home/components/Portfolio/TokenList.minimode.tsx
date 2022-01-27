@@ -1,5 +1,10 @@
 import { useMemo } from 'react';
-import { VerticalFlex } from '@avalabs/react-components';
+import {
+  HorizontalFlex,
+  TextButton,
+  Typography,
+  VerticalFlex,
+} from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
   AntWithBalance,
@@ -16,6 +21,7 @@ import { TokenListItemMiniMode } from './TokenListItem.minimode';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { NoTokenFound } from './NoTokenFound';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useHistory } from 'react-router-dom';
 
 interface TokenListMiniModeProps {
   searchQuery?: string;
@@ -24,6 +30,7 @@ interface TokenListMiniModeProps {
 export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
   const { getTokenVisibility } = useSettingsContext();
   const tokensWithBalances = useTokensWithBalances();
+  const history = useHistory();
   const AVAX_TOKEN = tokensWithBalances.find((token) => isAvaxToken(token));
   const setTokenInParams = useSetTokenInParams();
   const { tokens, showAvax } = useMemo(() => {
@@ -50,12 +57,28 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
     return { tokens, showAvax };
   }, [searchQuery, tokensWithBalances, AVAX_TOKEN, getTokenVisibility]);
 
+  const toggleManageTokensPage = () => {
+    if (history.location.pathname.startsWith('/manage-tokens')) {
+      history.push('/');
+      return;
+    }
+    history.push('/manage-tokens');
+  };
+
   if (!tokens.length && !showAvax) {
     return <NoTokenFound />;
   }
 
   return (
     <VerticalFlex grow="1">
+      <HorizontalFlex
+        align="center"
+        justify="space-between"
+        margin="0 16px 16px 16px"
+      >
+        <Typography>Tokens</Typography>
+        <TextButton onClick={toggleManageTokensPage}>Manage</TextButton>
+      </HorizontalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0px 16px 73px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (

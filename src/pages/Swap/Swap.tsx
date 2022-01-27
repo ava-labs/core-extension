@@ -7,15 +7,17 @@ import {
   SelectTokenModal,
   SearchInput,
   SwitchIcon,
+  TextButton,
   ComponentSize,
   Overlay,
   PrimaryIconButton,
+  CaretIcon,
+  IconDirection,
 } from '@avalabs/react-components';
 import {
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -41,6 +43,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SwapTxSuccess } from './components/SwapTxSucces';
 import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { TxInProgress } from '../../components/common/TxInProgress';
+import { useHistory } from 'react-router-dom';
 
 export interface Token {
   icon?: JSX.Element;
@@ -75,11 +78,15 @@ const SwitchIconContainer = styled(PrimaryIconButton)`
   }
 `;
 
+const StyledTextButton = styled(TextButton)`
+  position: absolute;
+  left: 16px;
+`;
+
 export function Swap() {
   const { currencyFormatter } = useSettingsContext();
   const { erc20Tokens, avaxToken, avaxPrice } = useWalletContext();
   const { getRate, swap, gasPrice } = useSwapContext();
-
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
@@ -95,13 +102,10 @@ export function Swap() {
   const [optimalRate, setOptimalRate] = useState<OptimalRate>();
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
-
+  const history = useHistory();
   const [gasLimit, setGasLimit] = useState('');
-
   const [gasCost, setGasCost] = useState('');
-
   const [destAmount, setDestAmount] = useState('');
-
   const [showCustomGasLimitAndFees, setShowCustomGasLimitAndFees] =
     useState(false);
   const [destinationInputField, setDestinationInputField] = useState<
@@ -411,9 +415,26 @@ export function Swap() {
   return (
     <>
       <VerticalFlex margin="0 0 80px 0">
-        <Typography margin="16px 0" size={24} height="29px" weight="bold">
+        <Typography
+          margin="16px 0 24px 32px"
+          size={24}
+          height="29px"
+          weight="bold"
+        >
+          <StyledTextButton
+            onClick={() => {
+              history.push('/home');
+            }}
+          >
+            <CaretIcon
+              height="24px"
+              color={theme.colors.icon1}
+              direction={IconDirection.LEFT}
+            />
+          </StyledTextButton>
           Swap
         </Typography>
+
         <SwapCard
           denomination={selectedFromToken?.denomination}
           title="From"
@@ -531,7 +552,6 @@ export function Swap() {
           </>
         ) : null}
       </VerticalFlex>
-      <BottomNav />
 
       <SelectTokenModal
         open={!!modalOpen}

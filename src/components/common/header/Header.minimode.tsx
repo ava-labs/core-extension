@@ -1,9 +1,9 @@
 import {
   ComponentSize,
-  ConfigureIcon,
   ConnectionIndicator,
   HorizontalFlex,
   HorizontalSeparator,
+  QRCodeIcon,
   SecondaryButton,
   TextButton,
   Typography,
@@ -24,12 +24,12 @@ export function HeaderMiniMode() {
   const isConnected = permissions && permissions.accounts[addresses.addrC];
   const history = useHistory();
 
-  const toggleManageTokensPage = () => {
-    if (history.location.pathname.startsWith('/manage-tokens')) {
+  const toggleReceivePage = () => {
+    if (history.location.pathname.startsWith('/receive')) {
       history.push('/');
       return;
     }
-    history.push('/manage-tokens');
+    history.push('/receive');
   };
 
   return (
@@ -67,8 +67,9 @@ export function HeaderMiniMode() {
         </ConnectionIndicator>
         <AccountSelectorFlow />
       </HorizontalFlex>
-      <TextButton onClick={toggleManageTokensPage}>
-        <ConfigureIcon color={theme.colors.text1} />
+
+      <TextButton onClick={toggleReceivePage}>
+        <QRCodeIcon color={theme.colors.text1} />
       </TextButton>
     </HorizontalFlex>
   );

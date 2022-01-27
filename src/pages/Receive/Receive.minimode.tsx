@@ -40,7 +40,7 @@ const AddressBlock = styled(HorizontalFlex)`
 
 const StyledTextButton = styled(TextButton)`
   position: absolute;
-  left: 0;
+  left: 12px;
 `;
 
 export const ReceiveMiniMode = ({

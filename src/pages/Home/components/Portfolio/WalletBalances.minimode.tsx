@@ -16,7 +16,7 @@ export function WalletBalancesMiniMode() {
       <Typography size={36} weight={700}>
         {currencyFormatter(balanceTotalUSD)}
       </Typography>
-      <Typography weight={600} margin={'0 0 3px 5px'}>
+      <Typography weight={600} margin={'0 0 3px 5px'} color="text2">
         {currency}
       </Typography>
     </HorizontalFlex>
