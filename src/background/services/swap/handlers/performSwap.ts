@@ -28,6 +28,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     priceRoute,
     destAmount,
     gasLimit,
+    gasPrice,
     slippage,
   ] = request.params || [];
 
@@ -228,7 +229,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
 
   const [swapTxHash, txError] = await resolve(
     (wallet as WalletType).sendCustomEvmTx(
-      defaultGasPrice.bn,
+      gasPrice.bn ? new BN(gasPrice.bn, 'hex') : defaultGasPrice.bn,
       Number(txBuildData.gas),
       txBuildData.data,
       txBuildData.to,
