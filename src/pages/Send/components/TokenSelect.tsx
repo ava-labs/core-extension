@@ -1,0 +1,252 @@
+import { useRef, useState } from 'react';
+import styled, { useTheme } from 'styled-components';
+import { BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  VerticalFlex,
+  HorizontalFlex,
+  Typography,
+  TokenSelector,
+  BNInput,
+  SearchInput,
+  DropDownMenuItem,
+  HorizontalSeparator,
+  AvaxTokenIcon,
+} from '@avalabs/react-components';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { TokenIcon } from '@src/components/common/TokenImage';
+import {
+  isERC20Token,
+  TokenWithBalance,
+} from '@avalabs/wallet-react-components';
+import Scrollbars from 'react-custom-scrollbars';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
+
+const InputContainer = styled(HorizontalFlex)`
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 8px 16px 16px;
+  background: ${({ theme }) => theme.swapCard.inputContainerBg};
+  cursor: pointer;
+`;
+
+const SelectContainer = styled.div`
+  position: relative;
+`;
+
+const DropdownContents = styled(VerticalFlex)`
+  flex-grow: 1;
+  background: ${({ theme }) => theme.swapCard.inputContainerBg};
+`;
+
+const SearchInputContainer = styled.div`
+  padding-left: 12px;
+  padding-right: 12px;
+`;
+
+const StyledSearchInput = styled(SearchInput)`
+  margin-top: 16px;
+  margin-bottom: 8px;
+`;
+
+const StyledDropdownMenuItem = styled(DropDownMenuItem)`
+  padding-left: 12px;
+  padding-right: 12px;
+`;
+
+interface TokenSelectProps {
+  selectedToken?: TokenWithBalance | null;
+  onTokenChange(token: TokenWithBalance): void;
+  maxAmount?: BN;
+  inputAmount?: BN;
+  onInputAmountChange?({ amount: string, bn: BN }): void;
+  onSelectToggle?(): void;
+  isOpen: boolean;
+  error?: string;
+  margin: string;
+}
+
+export function TokenSelect({
+  selectedToken,
+  onTokenChange,
+  maxAmount,
+  inputAmount,
+  onInputAmountChange,
+  onSelectToggle,
+  isOpen,
+  error,
+  margin,
+}: TokenSelectProps) {
+  const theme = useTheme();
+  const tokensWBalances = useTokensWithBalances(false);
+  const { currencyFormatter, currency } = useSettingsContext();
+
+  const selectButtonRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [bnError, setBNError] = useState('');
+
+  // When setting to the max, pin the input value to the max value
+  const [isMaxAmount, setIsMaxAmount] = useState(false);
+  const [amountInCurrency, setAmountInCurrency] = useState<string>();
+  const handleAmountChange = ({ amount, bn }: { amount: string; bn: BN }) => {
+    setIsMaxAmount(bn.eq(maxAmount || selectedToken?.balance || new BN(0)));
+    setAmountInCurrency(
+      !bn.isZero() && selectedToken?.priceUSD
+        ? currencyFormatter(
+            Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
+          )
+        : undefined
+    );
+    onInputAmountChange && onInputAmountChange({ amount, bn });
+  };
+
+  return (
+    <VerticalFlex width="100%" style={{ margin, padding: '0 16px' }}>
+      <HorizontalFlex
+        justify="space-between"
+        align="flex-end"
+        margin="0 0 8px"
+        grow="1"
+      >
+        <Typography size={14} color={theme.inputs.colorHelper}>
+          Token
+        </Typography>
+        <Typography size={12} color={theme.colors.text2}>
+          {selectedToken?.balanceDisplayValue &&
+            selectedToken &&
+            `Balance: ${selectedToken.balanceDisplayValue} ${selectedToken.symbol}`}
+        </Typography>
+      </HorizontalFlex>
+      <SelectContainer>
+        <InputContainer
+          ref={selectButtonRef}
+          style={{ borderRadius: isOpen ? '8px 8px 0 0' : 8 }}
+          onClick={() => onSelectToggle && onSelectToggle()}
+        >
+          <TokenSelector
+            isOpen={isOpen}
+            token={
+              selectedToken
+                ? {
+                    name: selectedToken?.symbol,
+                    icon: selectedToken?.isAvax ? (
+                      <AvaxTokenIcon height="40px" />
+                    ) : (
+                      <TokenIcon
+                        width="40px"
+                        height="40px"
+                        src={selectedToken?.logoURI}
+                        name={selectedToken?.name}
+                      />
+                    ),
+                  }
+                : null
+            }
+          />
+          <BNInput
+            value={isMaxAmount ? maxAmount || inputAmount : inputAmount}
+            max={maxAmount || selectedToken?.balance}
+            denomination={selectedToken?.denomination || 9}
+            buttonContent={selectedToken?.balance.gt(new BN(0)) ? 'Max' : ''}
+            placeholder={'0.0'}
+            width="180px"
+            height="40px"
+            disabled={!selectedToken}
+            onChange={handleAmountChange}
+            onClick={(e) => e.stopPropagation()}
+            onError={(errorMessage) => setBNError(errorMessage)}
+            style={{ borderWidth: 0, backgroundColor: theme.colors.bg2 }}
+            hideErrorMessage
+          />
+        </InputContainer>
+        <HorizontalFlex justify="space-between" grow="1" margin="4px 0 0 0">
+          <Typography size={12} color={theme.colors.error}>
+            {bnError || error}
+          </Typography>
+          {amountInCurrency && (
+            <Typography size={12} color={theme.colors.text2}>
+              {amountInCurrency} {currency}
+            </Typography>
+          )}
+        </HorizontalFlex>
+
+        <ContainedDropdown anchorEl={selectButtonRef} isOpen={isOpen}>
+          <DropdownContents>
+            <HorizontalSeparator margin="0" />
+            <SearchInputContainer>
+              <StyledSearchInput
+                searchTerm={searchQuery}
+                placeholder="Search"
+                width="100%"
+                onSearch={(term) => setSearchQuery(term)}
+                autoFocus={true}
+              />
+            </SearchInputContainer>
+            <VerticalFlex style={{ flexGrow: 1 }}>
+              <Scrollbars>
+                {tokensWBalances
+                  .filter((token) =>
+                    searchQuery.length
+                      ? token.name
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase()) ||
+                        token.symbol
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase())
+                      : true
+                  )
+                  .map((token) => (
+                    <StyledDropdownMenuItem
+                      key={
+                        isERC20Token(token)
+                          ? token.address
+                          : (token as any).symbol
+                      }
+                      onClick={() => {
+                        onTokenChange(token);
+                        onSelectToggle && onSelectToggle();
+                      }}
+                    >
+                      <HorizontalFlex
+                        justify="space-between"
+                        align="center"
+                        grow="1"
+                      >
+                        <HorizontalFlex align="center">
+                          {token?.isAvax ? (
+                            <AvaxTokenIcon height="32px" />
+                          ) : (
+                            <TokenIcon
+                              height="32px"
+                              src={token.logoURI}
+                              name={token.name}
+                            />
+                          )}
+                          <Typography
+                            size={18}
+                            margin={'0 0 0 16px'}
+                            weight={700}
+                          >
+                            {token.name}
+                          </Typography>
+                        </HorizontalFlex>
+                        <Typography
+                          style={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                            color: theme.palette.grey[400],
+                          }}
+                        >
+                          {token.balanceDisplayValue} {token.symbol}
+                        </Typography>
+                      </HorizontalFlex>
+                    </StyledDropdownMenuItem>
+                  ))}
+              </Scrollbars>
+            </VerticalFlex>
+          </DropdownContents>
+        </ContainedDropdown>
+      </SelectContainer>
+    </VerticalFlex>
+  );
+}

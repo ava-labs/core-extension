@@ -15,7 +15,6 @@ import {
 } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { TransactionSendType } from '../../../Send/models';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { TokenListItemMiniMode } from './TokenListItem.minimode';
 import Scrollbars from 'react-custom-scrollbars-2';
@@ -89,13 +88,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
         <VerticalFlex padding="0px 16px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (
             <TokenListItemMiniMode
-              onClick={() =>
-                setTokenInParams(
-                  AVAX_TOKEN.symbol,
-                  TransactionSendType.AVAX,
-                  'token'
-                )
-              }
+              onClick={() => setTokenInParams(AVAX_TOKEN.symbol, '/token')}
               name={AVAX_TOKEN.name}
               symbol={AVAX_TOKEN.symbol}
               balanceDisplayValue={AVAX_TOKEN.balanceDisplayValue}
@@ -110,13 +103,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
             .map((token) => {
               return (
                 <TokenListItemMiniMode
-                  onClick={() =>
-                    setTokenInParams(
-                      token.symbol,
-                      TransactionSendType.ERC20,
-                      'token'
-                    )
-                  }
+                  onClick={() => setTokenInParams(token.symbol, '/token')}
                   key={
                     isERC20Token(token) ? token.address : (token as any).symbol
                   }
@@ -144,13 +131,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
                     ? token.address
                     : (token as AntWithBalance).symbol
                 }
-                onClick={() =>
-                  setTokenInParams(
-                    token.symbol,
-                    TransactionSendType.ANT,
-                    'token'
-                  )
-                }
+                onClick={() => setTokenInParams(token.symbol, '/token')}
                 name={token.name}
                 symbol={token.symbol}
                 balanceDisplayValue={token.balanceDisplayValue}

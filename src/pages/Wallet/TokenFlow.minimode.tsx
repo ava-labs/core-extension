@@ -6,23 +6,24 @@ import {
   SubTextTypography,
   LoadingIcon,
   TextButton,
+  SecondaryButton,
+  ComponentSize,
 } from '@avalabs/react-components';
 import {
   ERC20WithBalance,
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useTheme } from 'styled-components';
-import { ReceiveMiniMode } from '../Receive/Receive.minimode';
-import { SendFlow } from '../Send/SendFlow';
+import { ActivityMiniMode } from '../Activity/Activity.minimode';
 
 export function TokenFlowMiniMode() {
   const history = useHistory();
@@ -31,6 +32,7 @@ export function TokenFlowMiniMode() {
   const token = useTokenFromParams();
   const tokensWithBalances = useTokensWithBalances();
   const [showSend, setShowSend] = useState<boolean>();
+  const setTokenInParams = useSetTokenInParams();
 
   useEffect(() => {
     setShowSend(!!tokensWithBalances.length);
@@ -75,30 +77,23 @@ export function TokenFlowMiniMode() {
           </TextButton>
         </VerticalFlex>
       </HorizontalFlex>
-      <VerticalFlex flex={1} width={'100%'} margin={'32px 0 0 0'}>
-        <Tabs defaultIndex={showSend ? 0 : 1} grow="1">
-          <TabList $border={false}>
-            <Tab disabled={!showSend} margin="0px 32px 8px 0">
-              <Typography weight={600} color={'inherit'}>
-                Send
-              </Typography>
-            </Tab>
-            <Tab margin="0px 32px 8px 0">
-              <Typography weight={600} color={'inherit'}>
-                Receive
-              </Typography>
-            </Tab>
-          </TabList>
-
-          <TabPanel grow="1">
-            <SendFlow />
-          </TabPanel>
-          <TabPanel grow="1">
-            <VerticalFlex grow="1" padding="32px 0 0 0">
-              <ReceiveMiniMode embedded={true} limitToChain={'C'} />
-            </VerticalFlex>
-          </TabPanel>
-        </Tabs>
+      <HorizontalFlex justify="center" margin="24px 0">
+        <SecondaryButton
+          size={ComponentSize.MEDIUM}
+          onClick={() => history.push('/receive')}
+        >
+          Receive
+        </SecondaryButton>
+        <SecondaryButton
+          size={ComponentSize.MEDIUM}
+          margin="0 0 0 16px"
+          onClick={() => setTokenInParams(token.symbol, '/send')}
+        >
+          Send
+        </SecondaryButton>
+      </HorizontalFlex>
+      <VerticalFlex grow="1">
+        <ActivityMiniMode tokenSymbolFilter={token.symbol} isEmbedded />
       </VerticalFlex>
     </VerticalFlex>
   );

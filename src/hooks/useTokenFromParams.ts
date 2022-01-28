@@ -5,23 +5,27 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from './useTokensWithBalances';
 
 export function useTokenFromParams() {
-  const { avaxToken, erc20Tokens } = useWalletContext();
+  const { avaxToken } = useWalletContext();
   const { search } = useLocation();
-  const [selectedToken, setSelectedToken] = useState<TokenWithBalance>();
+  const [selectedToken, setSelectedToken] =
+    useState<TokenWithBalance>(avaxToken);
   const tokensWBalances: TokenWithBalance[] = useTokensWithBalances();
-  const tokens = tokensWBalances ?? [avaxToken, ...erc20Tokens];
 
   useEffect(() => {
     // need to update ts target version so support this feature, browser supports it
     const { token } = (Object as any).fromEntries(
       (new URLSearchParams(search) as any).entries()
     );
-    const targetToken = tokens?.find(
+    const targetToken = tokensWBalances?.find(
       (availToken) => availToken.symbol === token
     );
     targetToken && setSelectedToken(targetToken as TokenWithBalance);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, tokensWBalances]);
 
-  return selectedToken || avaxToken;
+    // We need to disable this because we don't want to use the `search` as a source of truth for
+    // selected token (for performance and convenience reasons), but including `tokensWithBalances`
+    // in the dependency array will cause extraneous updates of selectedToken.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  return selectedToken;
 }

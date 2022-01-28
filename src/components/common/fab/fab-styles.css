@@ -33,7 +33,7 @@
 
 .rtf.open .rtf--ab__c:first-child {
   /* multiply amount of elements by 60px */
-  transform: translateY(-120px) scale(1);
+  transform: translateY(-180px) scale(1);
   transition-delay: 0.03s;
 }
 
@@ -42,12 +42,12 @@
 }
 
 .rtf.open .rtf--ab__c:nth-child(2) {
-  transform: translateY(-120px) scale(1);
+  transform: translateY(-180px) scale(1);
   transition-delay: 0.09s;
 }
 
 .rtf.open .rtf--ab__c:nth-child(2).top {
-  transform: translateY(120px) scale(1);
+  transform: translateY(180px) scale(1);
 }
 
 .rtf.open .rtf--ab__c:nth-child(3) {

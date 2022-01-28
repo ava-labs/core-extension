@@ -1,13 +1,11 @@
 import {
-  SimpleAddress,
   HorizontalFlex,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { ActivityFlow } from '@src/pages/Activity/ActivityFlow';
 import { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { TokenListMiniMode } from './TokenList.minimode';
 import { WalletBalancesMiniMode } from './WalletBalances.minimode';
 

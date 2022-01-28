@@ -7,6 +7,7 @@ import {
   HorizontalFlex,
   TextButton,
   IconDirection,
+  ArrowIcon,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { Fab } from 'react-tiny-fab';
@@ -106,6 +107,19 @@ export function FAB() {
       >
         <Menu>
           {[
+            {
+              text: 'Send',
+              route: '/send',
+              icon: (
+                <ArrowIcon
+                  width="24px"
+                  color={theme.colors.bg1}
+                  style={{
+                    transform: `rotate(315deg)`,
+                  }}
+                />
+              ),
+            },
             {
               text: 'Receive',
               route: '/receive',

@@ -5,7 +5,6 @@ import {
   GridLineSeparator,
 } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import { TransactionSendType } from '../../../Send/models';
 import {
   AntWithBalance,
   isAntToken,
@@ -33,11 +32,7 @@ export function TokenList() {
       <GridLineSeparator columns={4} />
 
       {AVAX_TOKEN ? (
-        <GridContainerItems
-          onClick={() =>
-            setTokenInParams(AVAX_TOKEN.symbol, TransactionSendType.AVAX)
-          }
-        >
+        <GridContainerItems onClick={() => setTokenInParams(AVAX_TOKEN.symbol)}>
           <TokenListItem
             name={AVAX_TOKEN.name}
             symbol={AVAX_TOKEN.symbol}
@@ -57,9 +52,7 @@ export function TokenList() {
         .map((token) => (
           <GridContainerItems
             key={isERC20Token(token) ? token.address : (token as any).symbol}
-            onClick={() =>
-              setTokenInParams(token.symbol, TransactionSendType.ERC20)
-            }
+            onClick={() => setTokenInParams(token.symbol)}
           >
             <TokenListItem
               name={token.name}
@@ -82,9 +75,7 @@ export function TokenList() {
                 ? token.address
                 : (token as AntWithBalance).symbol
             }
-            onClick={() =>
-              setTokenInParams(token.symbol, TransactionSendType.ANT)
-            }
+            onClick={() => setTokenInParams(token.symbol)}
           >
             <TokenListItem
               name={token.name}

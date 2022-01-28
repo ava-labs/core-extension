@@ -102,7 +102,10 @@ export const ReceiveMiniMode = ({
           <Typography weight={600} height="17px">
             {chain} chain
           </Typography>{' '}
-          address to receive funds
+          address to receive funds.
+        </Typography>
+        <Typography height="17px" size={14}>
+          Your address will change after every deposit.
         </Typography>
       </VerticalFlex>
 
@@ -125,16 +128,6 @@ export const ReceiveMiniMode = ({
         </Typography>
         <CopyIcon height="16px" color={theme.colors.icon1} />
       </AddressBlock>
-
-      <HorizontalFlex
-        align="center"
-        justify="center"
-        margin={embedded ? '32px 0 16px' : '42px 0 0'}
-      >
-        <TextButton onClick={() => history.goBack()}>
-          <Typography color="inherit">Back</Typography>
-        </TextButton>
-      </HorizontalFlex>
     </VerticalFlex>
   );
 };
