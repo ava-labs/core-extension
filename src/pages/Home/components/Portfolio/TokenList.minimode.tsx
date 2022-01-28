@@ -74,13 +74,19 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
       <HorizontalFlex
         align="center"
         justify="space-between"
-        margin="0 16px 16px 16px"
+        margin="0 16px 8px 16px"
       >
-        <Typography>Tokens</Typography>
-        <TextButton onClick={toggleManageTokensPage}>Manage</TextButton>
+        <Typography size={14} weight={500} height="24px">
+          Tokens
+        </Typography>
+        <TextButton onClick={toggleManageTokensPage}>
+          <Typography color="inherit" size={12} weight={500}>
+            Manage
+          </Typography>
+        </TextButton>
       </HorizontalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <VerticalFlex padding="0px 16px 73px">
+        <VerticalFlex padding="0px 16px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (
             <TokenListItemMiniMode
               onClick={() =>

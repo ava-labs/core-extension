@@ -16,14 +16,14 @@ export function TransactionNormal({
   item: TransactionNormalInterface;
 }) {
   return (
-    <HorizontalFlex width={'100%'} justify={'space-between'}>
+    <HorizontalFlex width={'100%'} justify={'space-between'} align="center">
       {item.isSender ? <HistorySentIndicator /> : <HistoryReceivedIndicator />}
       {item.input !== '0x' ? (
         <HistoryItem label={'Contract Call'} item={item} />
       ) : (
         <HistoryItem label={'Avalanche'} item={item}>
           <VerticalFlex>
-            <Typography>
+            <Typography height="24px">
               {item.isSender ? '-' : '+'}
               {item.amountDisplayValue} AVAX
             </Typography>

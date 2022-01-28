@@ -57,7 +57,7 @@ export function WalletRecentTxs() {
               )}
               <SecondaryCard
                 key={tx.hash}
-                padding={'16px 8px'}
+                padding={'8px 8px'}
                 margin={'0 0 8px 0'}
               >
                 {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}
