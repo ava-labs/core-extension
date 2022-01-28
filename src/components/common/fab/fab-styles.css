@@ -11,7 +11,7 @@
 
 .rtf.open .rtf--mb > * {
   transform-origin: center center;
-  transform: rotate(315deg);
+  transform: rotate(135deg);
   transition: transform 0.2s ease-in-out;
 }
 
