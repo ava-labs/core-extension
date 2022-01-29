@@ -9,7 +9,7 @@ import styled, { useTheme } from 'styled-components';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 
 interface TransactionFeeTooltipProps {
-  gasLimit?: number;
+  gasLimit?: string | number;
   gasPrice?: BN;
 }
 

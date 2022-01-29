@@ -1,5 +1,11 @@
 import { lazy, useMemo, Suspense, useEffect, useState } from 'react';
-import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
+import {
+  Switch,
+  Route,
+  Redirect,
+  useHistory,
+  useLocation,
+} from 'react-router-dom';
 import {
   HorizontalFlex,
   LoadingIcon,
@@ -22,7 +28,6 @@ import { GlobalStyles } from '@src/styles';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
 import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
-import { WalletHomeSend } from '@src/pages/Send/WalletHomeSend';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
@@ -82,6 +87,12 @@ const Swap = lazy(() => {
   }));
 });
 
+const SendFlow = lazy(() => {
+  return import('../pages/Send/SendFlow').then((m) => ({
+    default: m.SendFlow,
+  }));
+});
+
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const dimensions = useAppDimensions();
@@ -89,6 +100,7 @@ export function Popup() {
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const localStorageHistoryKey = 'avalanche-extension-history';
   const history = useHistory();
+  const location = useLocation();
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm ? '100%' : '1280px'),
     [isMiniMode, isConfirm]
@@ -104,7 +116,7 @@ export function Popup() {
     );
 
     if (Object.keys(historyFromLocalStorage).length !== 0) {
-      history.push(historyFromLocalStorage.location.pathname); // go to last visited route
+      history.push(historyFromLocalStorage.location); // go to last visited route
     }
 
     const unlisten = history.listen(() => {
@@ -138,15 +150,15 @@ export function Popup() {
                           align="center"
                           margin="auto"
                         >
-                          <VerticalFlex width="100%">
-                            {!isConfirm ? (
-                              <HeaderFlow
-                                onDrawerStateChanged={setDrawerOpen}
-                              />
-                            ) : (
-                              ''
-                            )}
-                          </VerticalFlex>
+                          {!location.pathname.startsWith('/send') && (
+                            <VerticalFlex width="100%">
+                              {!isConfirm && (
+                                <HeaderFlow
+                                  onDrawerStateChanged={setDrawerOpen}
+                                />
+                              )}
+                            </VerticalFlex>
+                          )}
 
                           <HorizontalFlex
                             flex={1}
@@ -200,7 +212,7 @@ export function Popup() {
 
                               <Route path="/send">
                                 <Suspense fallback={<LoadingIcon />}>
-                                  <WalletHomeSend />
+                                  <SendFlow />
                                 </Suspense>
                               </Route>
 

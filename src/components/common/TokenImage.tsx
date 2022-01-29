@@ -25,12 +25,14 @@ export function TokenIcon({
   width,
   height,
   name,
+  ...rest
 }: {
   src?: string;
   children?: any;
   width?: string;
   height?: string;
   name?: string;
+  [x: string]: any;
 }) {
   const theme = useTheme();
   const [state, setState] = useState<{ success?: boolean; error?: boolean }>();
@@ -57,8 +59,7 @@ export function TokenIcon({
       .catch(() => {
         setState({ error: true });
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [name, src]);
 
   if (!state) {
     return (
@@ -70,6 +71,7 @@ export function TokenIcon({
         width={width || TOKEN_IMAGE_DFEAULT_SIZE}
         height={height || TOKEN_IMAGE_DFEAULT_SIZE}
         style={{ flexShrink: 0 }}
+        {...rest}
       >
         <LoadingIcon height={'5px'} />
       </HorizontalFlex>
@@ -85,6 +87,7 @@ export function TokenIcon({
         height={height || TOKEN_IMAGE_DFEAULT_SIZE}
         radius={TOKEN_IMAGE_BORDER_RADIUS}
         style={{ flexShrink: 0 }}
+        {...rest}
       />
     );
   }
@@ -102,6 +105,7 @@ export function TokenIcon({
           style={{ flexShrink: 0 }}
           justify="center"
           align="center"
+          {...rest}
         >
           <Typography align="center" size={12}>
             {logoText}

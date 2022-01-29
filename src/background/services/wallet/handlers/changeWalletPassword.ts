@@ -6,6 +6,7 @@ import {
 import { resolve } from '@src/utils/promiseResolver';
 import {
   decryptPhraseOrKeyInStorage,
+  getMnemonicFromStorage,
   savePhraseOrKeyToStorage,
 } from '../storage';
 import { restartWalletLock$ } from '../walletLocked';
@@ -29,7 +30,9 @@ export async function changeWalletPassword(
     };
   }
 
-  const [decryptedMnemonic, err] = await resolve(
+  const hasMnemonicInStorage = !!(await getMnemonicFromStorage());
+
+  const [decrypted, err] = await resolve(
     decryptPhraseOrKeyInStorage(oldPassword)
   );
 
@@ -47,7 +50,10 @@ export async function changeWalletPassword(
     };
   }
 
-  await savePhraseOrKeyToStorage(decryptedMnemonic, newPassword);
+  await savePhraseOrKeyToStorage({
+    password: newPassword,
+    [hasMnemonicInStorage ? `mnemonic` : `pubKey`]: decrypted,
+  });
 
   restartWalletLock$.next(true);
 

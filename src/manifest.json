@@ -1,10 +1,10 @@
 {
-  "name": "Avalanche Wallet",
-  "short_name": "Avalanche Wallet",
+  "name": "Core X",
+  "short_name": "Core X",
   "version": "0.0.3",
   "manifest_version": 2,
   "author": "AvaLabs",
-  "description": "Avalanche Browser Extension",
+  "description": "Core X Browser Extension",
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
@@ -28,7 +28,7 @@
       "16": "images/icon-16.png",
       "32": "images/icon-32.png"
     },
-    "default_title": "Avalanche Wallet",
+    "default_title": "Core X Browser Extension",
     "default_popup": "popup.html"
   },
   "permissions": ["storage", "unlimitedStorage", "activeTab", "contextMenus"],

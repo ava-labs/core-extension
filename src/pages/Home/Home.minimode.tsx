@@ -1,5 +1,5 @@
 import { VerticalFlex } from '@avalabs/react-components';
-import { BottomNav } from '@src/components/common/BottomNav.minimode';
+import { FAB } from '@src/components/common/fab/FAB.minimode';
 import { PortfolioFlow } from './components/Portfolio/PortfolioFlow';
 
 export function HomeMiniMode() {
@@ -8,7 +8,7 @@ export function HomeMiniMode() {
       <VerticalFlex flex={1}>
         <PortfolioFlow />
       </VerticalFlex>
-      <BottomNav />
+      <FAB />
     </VerticalFlex>
   );
 }

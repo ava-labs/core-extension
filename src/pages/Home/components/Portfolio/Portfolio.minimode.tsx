@@ -1,70 +1,80 @@
-import { VerticalFlex } from '@avalabs/react-components';
+import {
+  HorizontalFlex,
+  Typography,
+  VerticalFlex,
+} from '@avalabs/react-components';
+import { ActivityFlow } from '@src/pages/Activity/ActivityFlow';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { SendReceiveToggle } from '../SendReceive/SendReceiveToggle';
 import { TokenListMiniMode } from './TokenList.minimode';
-import { TokenSearch } from './TokenSearch';
 import { WalletBalancesMiniMode } from './WalletBalances.minimode';
 
-const BalanceWithButtons = styled(VerticalFlex)`
-  backface-visibility: hidden;
-  width: 100%;
-
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
+const Tabs = styled(HorizontalFlex)`
+  border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
 `;
 
-const TokenSearchWithAnimation = styled(TokenSearch)`
-  backface-visibility: hidden;
-
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: rotateY(180deg);
+const Tab = styled.button<{ selected?: boolean }>`
+  border: none;
+  background: transparent;
+  width: 50%;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-bottom: ${({ selected, theme }) =>
+    selected ? `2px solid ${theme.colors.text1}` : '2px solid transparent'}; ;
 `;
 
-const Flipper = styled(VerticalFlex)`
-  transition: 0.6s;
-  transform-style: preserve-3d;
+const TabLabel = styled(Typography)<{ selected: boolean }>`
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: ${({ selected }) => (selected ? '500' : '400')};
+  color: ${({ theme, selected }) =>
+    selected ? theme.colors.text1 : theme.colors.text2};
 
-  position: relative;
-`;
-
-const FlipContainer = styled(VerticalFlex)<{
-  showSearch: boolean;
-}>`
-  perspective: 1000;
-
-  ${Flipper} {
-    ${({ showSearch }) => showSearch && `transform: rotateY(180deg);`}
+  &:hover {
+    color: ${({ theme }) => theme.colors.text1};
   }
 `;
 
+enum PortfolioTabs {
+  ASSETS = 'ASSETS',
+  ACTIVITY = 'ACTIVITY',
+}
+
 export function PortfolioMiniMode() {
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showSearch, setShowSearch] = useState<boolean>(false);
+  const [selectedTab, setSelectedTab] = useState<PortfolioTabs>(
+    PortfolioTabs.ASSETS
+  );
 
   return (
     <>
-      <FlipContainer height={'188px'} showSearch={showSearch}>
-        <Flipper>
-          <TokenSearchWithAnimation
-            query={searchQuery}
-            onBack={() => {
-              setSearchQuery('');
-              setShowSearch(false);
-            }}
-            onSearch={(term) => setSearchQuery(term)}
-          />
-          <BalanceWithButtons>
-            <WalletBalancesMiniMode />
-            <SendReceiveToggle onShowSend={() => setShowSearch(true)} />
-          </BalanceWithButtons>
-        </Flipper>
-      </FlipContainer>
-      <TokenListMiniMode searchQuery={searchQuery} />
+      <VerticalFlex margin="0 0 16px">
+        <WalletBalancesMiniMode />
+        <Tabs
+          justify="center"
+          align="center"
+          marginTop="14px"
+          padding="0 16px 0 16px"
+        >
+          <Tab
+            selected={selectedTab === PortfolioTabs.ASSETS}
+            onClick={() => setSelectedTab(PortfolioTabs.ASSETS)}
+          >
+            <TabLabel selected={selectedTab === PortfolioTabs.ASSETS}>
+              Assets
+            </TabLabel>
+          </Tab>
+          <Tab
+            selected={selectedTab === PortfolioTabs.ACTIVITY}
+            onClick={() => setSelectedTab(PortfolioTabs.ACTIVITY)}
+          >
+            <TabLabel selected={selectedTab === PortfolioTabs.ACTIVITY}>
+              Activity
+            </TabLabel>
+          </Tab>
+        </Tabs>
+      </VerticalFlex>
+      {selectedTab === PortfolioTabs.ASSETS && <TokenListMiniMode />}
+      {selectedTab === PortfolioTabs.ACTIVITY && <ActivityFlow />}
     </>
   );
 }

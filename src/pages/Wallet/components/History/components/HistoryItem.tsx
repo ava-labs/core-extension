@@ -19,23 +19,18 @@ export function HistoryItem({
   children,
 }: PropsWithChildren<HistoryItemProps>) {
   return (
-    <HorizontalFlex
-      flex={1}
-      align={'center'}
-      justify={'space-between'}
-      margin={'0 0 0 8px'}
-    >
+    <HorizontalFlex flex={1} justify={'space-between'} margin={'0 0 0 16px'}>
       <VerticalFlex>
-        <Typography size={16} weight={600} height="24px">
+        <Typography size={16} weight={500} height="24px">
           {label}
         </Typography>
-        <SubTextTypography size={12} height="15px">
+        <SubTextTypography size={14} height="17px">
           {item.isSender
             ? `To: ${truncateAddress(item.to ?? '')}`
             : `From: ${truncateAddress(item.from ?? '')}`}
         </SubTextTypography>
       </VerticalFlex>
-      <HorizontalFlex align="center">
+      <HorizontalFlex align="flex-start">
         {children}
         <HistoryItemLink explorerLink={item.explorerLink} />
       </HorizontalFlex>

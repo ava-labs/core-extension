@@ -3,19 +3,30 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
 
-export function ActivityMiniMode() {
+type ActivityMiniModeProps = {
+  isEmbedded?: boolean;
+  tokenSymbolFilter?: string;
+};
+
+export function ActivityMiniMode({
+  isEmbedded = false,
+  tokenSymbolFilter,
+}: ActivityMiniModeProps) {
   return (
-    <VerticalFlex width={'100%'} padding={'0 0 65px'} align={'center'}>
-      <HorizontalFlex width={'100%'} margin="8px 0 24px" padding="0 16px">
-        <Typography size={24} height="29px" weight={700} as="h1">
-          Activity
-        </Typography>
-      </HorizontalFlex>
-      <WalletRecentTxs />
-      <BottomNav />
+    <VerticalFlex width={'100%'} align={'center'} style={{ flex: 1 }}>
+      {isEmbedded && (
+        <HorizontalFlex width="100%">
+          <Typography size={18} height="29px" weight={700} as="h1">
+            Activity
+          </Typography>
+        </HorizontalFlex>
+      )}
+      <WalletRecentTxs
+        tokenSymbolFilter={tokenSymbolFilter}
+        isEmbedded={isEmbedded}
+      />
     </VerticalFlex>
   );
 }

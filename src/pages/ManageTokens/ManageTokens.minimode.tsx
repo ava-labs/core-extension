@@ -11,7 +11,6 @@ import {
   PageTitleMiniMode,
 } from '@src/pages/ManageTokens/Page.minimode';
 import { ManageTokensList } from './ManageTokensList.minimode';
-import { BottomNav } from '@src/components/common/BottomNav.minimode';
 import styled, { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useHistory } from 'react-router-dom';
@@ -64,7 +63,6 @@ export const ManageTokensMiniMode = () => {
           </Scrollbars>
         </PageContentMiniMode>
       </VerticalFlex>
-      <BottomNav />
     </>
   );
 };

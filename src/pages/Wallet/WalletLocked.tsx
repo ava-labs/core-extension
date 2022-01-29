@@ -2,6 +2,7 @@ import {
   ComponentSize,
   HorizontalSeparator,
   Input,
+  LoadingSpinnerIcon,
   PrimaryButton,
   TextButton,
   Typography,
@@ -12,6 +13,11 @@ import { LoginIllustration } from '@src/components/common/LoginIllustation';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useState } from 'react';
+import styled, { useTheme } from 'styled-components';
+
+const StyledLoading = styled(LoadingSpinnerIcon)`
+  margin-right: 10px;
+`;
 
 export function WalletLocked({
   unlockWallet,
@@ -21,8 +27,10 @@ export function WalletLocked({
   const dimensions = useAppDimensions();
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
   const [loggingIn, setLoggingIn] = useState<boolean>(false);
   const { showDialog, clearDialog } = useDialog();
+  const theme = useTheme();
 
   const onImportClick = () => {
     showDialog({
@@ -44,13 +52,19 @@ export function WalletLocked({
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoggingIn(true);
+    setError('');
 
     password &&
       unlockWallet(password)
-        .catch(() => {
-          setError('Invalid password');
+        .then(() => {
+          // success!
+          setLoginSuccess(true);
         })
-        .finally(() => setLoggingIn(false));
+        .catch(() => {
+          // error!
+          setLoggingIn(false);
+          setError('Invalid password');
+        });
   };
 
   return (
@@ -87,9 +101,12 @@ export function WalletLocked({
       <PrimaryButton
         size={ComponentSize.LARGE}
         width="100%"
-        disabled={!password || loggingIn}
+        disabled={!password || loggingIn || loginSuccess}
         onClick={handleSubmit}
       >
+        {(loggingIn || loginSuccess) && (
+          <StyledLoading height="24px" color={theme.colors.stroke2} />
+        )}
         Login
       </PrimaryButton>
       <HorizontalSeparator margin="24px 0" />

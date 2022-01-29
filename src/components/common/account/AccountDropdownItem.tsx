@@ -1,10 +1,12 @@
 import {
   HorizontalFlex,
   LoadingSpinnerIcon,
+  PencilIcon,
   SimpleAddress,
   TextButton,
   Typography,
   VerticalFlex,
+  WordInput,
 } from '@avalabs/react-components';
 import { Account } from '@src/background/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -16,7 +18,7 @@ import styled, { useTheme } from 'styled-components';
 
 interface AccountDropdownItemProps {
   account: Account;
-  editing?: boolean;
+  editing: boolean;
   onEdit: () => void;
   onSave: () => void;
   isLoadingIndex: number | null;
@@ -27,51 +29,60 @@ const AccountName = styled(Typography)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 500;
   margin: 0;
 `;
 
-const TransparentInputBase = styled(AccountName)`
+const AccountNameInput = styled(WordInput)`
   border: none;
+  width: 150px;
   background-color: ${({ theme }) => `${theme.colors.bg1}`};
-  flex-grow: 1;
-  width: 100%;
-  height: 40px;
-  border-radius: 8px;
-  padding: 8px 16px;
+  height: 27px;
+  padding: 6px;
   color: ${({ theme }) => `${theme.colors.text2}`};
+
+  > input {
+    font-size: 12px;
+  }
+
+  &:focus-within {
+    border: none;
+  }
 `;
 
 const AccountItem = styled(HorizontalFlex)<{
   selected?: boolean;
-  editing?: boolean;
   edit?: boolean;
 }>`
   background-color: ${({ theme, selected }) =>
-    selected ? `${theme.colors.bg3}80` : 'auto'};
+    selected ? `${theme.colors.stroke2}4D` : 'auto'};
   width: 100%;
-  padding: 12px 31px 12px 16px;
+  height: ${({ edit }) => (edit ? '57px' : '48px')};
+  padding: 8px 16px;
   justify-content: space-between;
   cursor: pointer;
+  overflow: hidden;
   &:hover {
-    background-color: ${({ theme }) => `${theme.colors.bg3}40`};
+    opacity: 1;
   }
-  opacity: ${({ editing, edit }) => (editing && !edit ? 0.33 : 'initial')};
-`;
-
-const StyledEditButton = styled(TextButton)`
-  height: 24px;
+  opacity: ${({ selected }) => (!selected ? 0.6 : 1)};
+  transition: 0.2s ease-in-out;
 `;
 
 const StyledSaveButton = styled(TextButton)`
-  height: 24px;
-  margin: 8px 0 0 0;
+  color: ${({ theme }) => theme.colors.primary2};
+  margin: 0 0 0 8px;
+  size: 12px;
 `;
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
   margin: 4px 0 0 0;
+`;
+
+const StyledSimpleAddress = styled(SimpleAddress)`
+  flex-direction: row-reverse;
 `;
 
 export function AccountDropdownItem({
@@ -82,76 +93,91 @@ export function AccountDropdownItem({
   isLoadingIndex,
 }: AccountDropdownItemProps) {
   const [accountName, setAccountName] = useState<string>(account.name);
-  const [edit, setEdit] = useState<boolean>(false);
   const { currencyFormatter } = useSettingsContext();
   const balanceTotalUSD = useBalanceTotalInCurrency();
   const { renameAccount } = useAccountsContext();
   const { addresses } = useWalletContext();
   const theme = useTheme();
+  const inEditMode = account.active && editing;
 
   const editAddress = (e: React.MouseEvent) => {
     e.stopPropagation();
     onEdit();
-    setEdit(true);
   };
 
-  const onSaveClicked = (e: React.MouseEvent) => {
+  const onSaveClicked = (e: React.UIEvent) => {
     e.stopPropagation();
     if (accountName.trim().length === 0) {
       onSave();
-      setEdit(false);
       setAccountName(account.name);
     } else {
       onSave();
-      setEdit(false);
       renameAccount(account.index, accountName);
     }
   };
 
   return (
-    <AccountItem selected={account.active} editing={editing} edit={edit}>
+    <AccountItem selected={account.active} edit={inEditMode}>
       <VerticalFlex align="flex-start">
         <HorizontalFlex
-          width={edit ? '100%' : 'auto'}
+          width={inEditMode ? '100%' : 'auto'}
           align="center"
           justify="space-between"
+          marginBottom="2px"
         >
-          {edit ? (
+          {inEditMode ? (
             <>
-              <TransparentInputBase
-                as="input"
+              <AccountNameInput
                 value={accountName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setAccountName(e.target.value);
                 }}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    onSaveClicked(e);
+                  }
+                }}
                 autoFocus
               />
+              <StyledSaveButton onClick={onSaveClicked}>Save</StyledSaveButton>
             </>
           ) : (
             <>
               <AccountName>{accountName}</AccountName>
+              {account.active && (
+                <TextButton onClick={editAddress} margin="0 0 0 8px">
+                  <PencilIcon color={theme.colors.icon1} height="12px" />
+                </TextButton>
+              )}
             </>
           )}
         </HorizontalFlex>
-        {edit ? (
-          <StyledSaveButton onClick={onSaveClicked}>Save</StyledSaveButton>
-        ) : (
-          <StyledEditButton
-            onClick={editAddress}
-            disabled={editing ? true : false}
-          >
-            Edit
-          </StyledEditButton>
-        )}
+        <StyledSimpleAddress
+          address={account.addressC}
+          typographyProps={{
+            size: 12,
+            height: '15px',
+            color: theme.colors.text2,
+            margin: '0 8px 0 0',
+          }}
+          copyIconProps={{
+            height: '12px',
+            color: account.active ? theme.colors.icon1 : theme.colors.icon2,
+          }}
+        />
       </VerticalFlex>
       <VerticalFlex align="flex-end">
-        <SimpleAddress address={account.addressC} />
         {account.active &&
           (isLoadingIndex === account.index ||
           (account.active && account.addressC !== addresses.addrC) ? (
-            <StyledLoadingSpinnerIcon height="16" color={theme.colors.icon1} />
+            <StyledLoadingSpinnerIcon height="14" color={theme.colors.icon1} />
           ) : (
-            <Typography size={12} height="15px" margin="4px 0 0 0">
+            <Typography
+              color={theme.colors.text2}
+              size={12}
+              height="15px"
+              margin="4px 0 0 0"
+            >
               {currencyFormatter(balanceTotalUSD)}
             </Typography>
           ))}

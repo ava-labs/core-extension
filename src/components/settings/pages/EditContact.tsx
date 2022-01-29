@@ -150,7 +150,19 @@ export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
               Save
             </PrimaryButton>
           ) : (
-            <>{/* implement when ready */}</>
+            <TextButton
+              width="100%"
+              size={ComponentSize.MEDIUM}
+              onClick={async () => {
+                await removeContact(editedContact);
+                toast.success('Contact deleted!');
+                goBack();
+              }}
+              margin="0 0 24px"
+              disabled={editedContact.name.length === 0}
+            >
+              Delete contact
+            </TextButton>
           )}
         </VerticalFlex>
       </FlexScrollbars>

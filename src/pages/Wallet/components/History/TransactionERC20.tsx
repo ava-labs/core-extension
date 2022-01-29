@@ -16,12 +16,12 @@ export function TransactionERC20({
   item: TransactionERC20Interface;
 }) {
   return (
-    <HorizontalFlex width={'100%'}>
+    <HorizontalFlex width={'100%'} align="center">
       {item.isSender ? <HistorySentIndicator /> : <HistoryReceivedIndicator />}
       <HistoryItem label={item.tokenName} item={item}>
         <VerticalFlex align={'flex-end'} justify="center">
           {/* We dont know the type of token atm */}
-          <Typography weight={600} height="24px">
+          <Typography height="24px">
             {item.isSender ? '-' : '+'}
             {item.amountDisplayValue} {item.tokenSymbol}
           </Typography>

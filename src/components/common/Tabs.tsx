@@ -14,12 +14,13 @@ import styled from 'styled-components';
  */
 export const Tab = styled(ReactTab)<{
   $highlight: boolean;
+  underlineColor?: string;
   margin?: string;
 }>`
   margin: ${({ margin }) => margin ?? '0px 16px 8px 0'};
   color: ${({ theme }) => theme.colors.text1};
   cursor: pointer;
-  ${({ theme, $highlight = true }) => {
+  ${({ theme, underlineColor, $highlight = true }) => {
     return $highlight
       ? `&[aria-selected='true'] {
             position: relative;
@@ -30,7 +31,7 @@ export const Tab = styled(ReactTab)<{
               left: 0;
               right: 0;
               bottom: -8px;
-              background-color: ${theme.colors.primary1};
+              background-color: ${underlineColor || theme.colors.primary1};
             }
           }`
       : '';
@@ -44,18 +45,29 @@ export const Tab = styled(ReactTab)<{
     }
   }
 `;
+
 export const Tabs = styled(ReactTabs)<{
   grow: string;
+  height: string;
 }>`
   width: 100%;
   display: flex;
   flex-direction: column;
   ${({ grow }) => `flex-grow: ${grow};`}
+  ${({ height }) => `height: ${height};`}
 `;
+
 export const TabList = styled(ReactTabList)<{
   $border: boolean;
+  justify?: string;
 }>`
   display: flex;
+  ${({ justify }) =>
+    justify &&
+    `
+    justify-content: ${justify};
+  `}
+
   ${({ $border = true, theme }) => {
     return $border
       ? `

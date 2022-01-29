@@ -7,16 +7,11 @@ export function WalletBalancesMiniMode() {
   const balanceTotalUSD = useBalanceTotalInCurrency();
 
   return (
-    <HorizontalFlex
-      justify="center"
-      align="flex-end"
-      width="100%"
-      margin="16px 0"
-    >
-      <Typography size={36} weight={700}>
+    <HorizontalFlex justify="center" align="flex-end" width="100%">
+      <Typography size={32} height="44px" weight={500}>
         {currencyFormatter(balanceTotalUSD)}
       </Typography>
-      <Typography weight={600} margin={'0 0 3px 5px'}>
+      <Typography weight={500} margin={'0 0 10px 6px'} color="text2">
         {currency}
       </Typography>
     </HorizontalFlex>

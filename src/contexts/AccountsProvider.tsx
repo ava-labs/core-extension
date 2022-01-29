@@ -16,8 +16,8 @@ const AccountsContext = createContext<{
   accounts: Account[];
   activeAccount?: Account;
   selectAccount(index: number): Promise<any>;
-  renameAccount(index: number, name: string): void;
-  addAccount(): void;
+  renameAccount(index: number, name: string): Promise<any>;
+  addAccount(): Promise<any>;
 }>({} as any);
 
 export function AccountsContextProvider({ children }: { children: any }) {

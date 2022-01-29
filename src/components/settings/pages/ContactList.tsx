@@ -86,7 +86,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
               <AccountName width="140px" title={c.name}>
                 {c.name}
               </AccountName>
-              <SimpleAddress address={c.id} />
+              <SimpleAddress address={c.address} />
             </HorizontalFlex>
           </DropDownMenuItemWithBorder>
         ))}

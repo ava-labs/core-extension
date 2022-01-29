@@ -1,17 +1,27 @@
-import { DropDownMenu } from '@avalabs/react-components';
-import { AccountDropdownContent } from './AccountDopdownContent';
+import { SecondaryOverlay } from '@avalabs/react-components';
+import { useState } from 'react';
+import { AccountDropdownContent } from './AccountDropdownContent';
 import { AccountSelectorButton } from './AccountSelectorButton';
 
 export function AccountSelector() {
+  const [open, setOpen] = useState<boolean>(false);
+
   return (
-    <DropDownMenu
-      coords={{
-        right: '32px',
-        top: '60px',
-      }}
-      icon={<AccountSelectorButton />}
-    >
-      <AccountDropdownContent />
-    </DropDownMenu>
+    <>
+      <AccountSelectorButton
+        onClick={() => {
+          setOpen(true);
+        }}
+      />
+      {open && (
+        <SecondaryOverlay padding="24px 8px">
+          <AccountDropdownContent
+            onClose={() => {
+              setOpen(false);
+            }}
+          />
+        </SecondaryOverlay>
+      )}
+    </>
   );
 }

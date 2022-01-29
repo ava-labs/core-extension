@@ -4,7 +4,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
 
 import {
   isTransactionERC20,
@@ -16,7 +16,15 @@ import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { TransactionERC20 } from './components/History/TransactionERC20';
 import { TransactionNormal } from './components/History/TransactionNormal';
 
-export function WalletRecentTxs() {
+type WalletRecentTxsProps = {
+  isEmbedded?: boolean;
+  tokenSymbolFilter?: string;
+};
+
+export function WalletRecentTxs({
+  isEmbedded = false,
+  tokenSymbolFilter,
+}: WalletRecentTxsProps) {
   const { recentTxHistory } = useWalletContext();
 
   const yesterday = endOfYesterday();
@@ -32,14 +40,24 @@ export function WalletRecentTxs() {
       : format(date, 'MMMM do');
   };
 
-  if (recentTxHistory.length === 0) {
-    return <NoTransactions />;
+  const filteredTxHistory = useMemo(
+    () =>
+      recentTxHistory.filter((tx: any) =>
+        tokenSymbolFilter
+          ? tokenSymbolFilter === (tx?.tokenSymbol || 'AVAX')
+          : true
+      ),
+    [recentTxHistory, tokenSymbolFilter]
+  );
+
+  if (filteredTxHistory.length === 0) {
+    return <NoTransactions isEmbedded={isEmbedded} />;
   }
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <VerticalFlex padding="0 16px">
-        {recentTxHistory.map((tx, index) => {
+      <VerticalFlex padding={isEmbedded ? '0' : '0 16px'}>
+        {filteredTxHistory.map((tx, index) => {
           const isNewDay =
             index === 0 ||
             !isSameDay(tx.timestamp, recentTxHistory[index - 1].timestamp);
@@ -57,7 +75,7 @@ export function WalletRecentTxs() {
               )}
               <SecondaryCard
                 key={tx.hash}
-                padding={'16px 8px'}
+                padding={'8px 8px'}
                 margin={'0 0 8px 0'}
               >
                 {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}

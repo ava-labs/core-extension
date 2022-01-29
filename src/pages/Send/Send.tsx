@@ -13,10 +13,10 @@ import {
 import { Modal } from '@src/components/common/Modal';
 
 export function Send() {
-  const sendState = useSend();
+  const selectedToken = useTokenFromParams();
+  const sendState = useSend(selectedToken);
   const { showDialog, clearDialog } = useDialog();
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-  const selectedToken = useTokenFromParams();
 
   const onError = (error: string) => {
     showDialog({

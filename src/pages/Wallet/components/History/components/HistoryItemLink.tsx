@@ -11,7 +11,7 @@ export function HistoryItemLink({ explorerLink }: HistoryItemLinkProps) {
   return (
     <TextButton
       onClick={() => window.open(explorerLink, '_blank')}
-      margin={'0 0 0 8px'}
+      margin={'6px 0 0 8px'}
     >
       <PopoutLinkIcon height="12px" color={theme.colors.icon2} />
     </TextButton>

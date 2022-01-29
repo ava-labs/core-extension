@@ -25,7 +25,6 @@ import { UnknownTx } from './UnknownTx';
 import { useGetTransaction } from './hooks/useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { TransactionInProgress } from './TransactionInProgress';
-import { CustomGasLimitAndFees } from './CustomGasLimitAndFees';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTheme } from 'styled-components';
@@ -35,6 +34,7 @@ import {
 } from './TransactionConfirmedOrFailed';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundary';
+import { GasPrice } from '@src/background/services/gas/models';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 
 export function SignTransactionPage() {
@@ -46,8 +46,6 @@ export function SignTransactionPage() {
     contractType,
     hash,
     setCustomFee,
-    showCustomFees,
-    setShowCustomFees,
     showCustomSpendLimit,
     setShowCustomSpendLimit,
     setSpendLimit,
@@ -108,20 +106,6 @@ export function SignTransactionPage() {
     );
   }
 
-  if (showCustomFees) {
-    return (
-      <CustomGasLimitAndFees
-        limit={displayData.gasLimit?.toString() as string}
-        gasPrice={displayData.gasPrice}
-        onCancel={() => setShowCustomFees(false)}
-        onSave={(gas, gasLimit) => {
-          setShowCustomFees(false);
-          setCustomFee(gasLimit, gas);
-        }}
-      />
-    );
-  }
-
   if (showCustomSpendLimit) {
     return (
       <CustomSpendLimit
@@ -156,34 +140,44 @@ export function SignTransactionPage() {
               [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
                 <SwapTx
                   {...(displayData as SwapExactTokensForTokenDisplayValues)}
-                  setShowCustomFees={setShowCustomFees}
+                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
+                    setCustomFee(gasLimit, gas);
+                  }}
                 />
               ),
               [ContractCall.APPROVE]: (
                 <ApproveTx
                   {...(displayData as ApproveTransactionData)}
-                  setShowCustomFees={setShowCustomFees}
                   setShowCustomSpendLimit={setShowCustomSpendLimit}
                   displaySpendLimit={displaySpendLimit}
                   isRevokeApproval={isRevokeApproval}
+                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
+                    setCustomFee(gasLimit, gas);
+                  }}
                 />
               ),
               [ContractCall.ADD_LIQUIDITY]: (
                 <AddLiquidityTx
                   {...(displayData as AddLiquidityDisplayData)}
-                  setShowCustomFees={setShowCustomFees}
+                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
+                    setCustomFee(gasLimit, gas);
+                  }}
                 />
               ),
               [ContractCall.ADD_LIQUIDITY_AVAX]: (
                 <AddLiquidityTx
                   {...(displayData as AddLiquidityDisplayData)}
-                  setShowCustomFees={setShowCustomFees}
+                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
+                    setCustomFee(gasLimit, gas);
+                  }}
                 />
               ),
               ['unknown']: (
                 <UnknownTx
                   {...(displayData as TransactionDisplayValues)}
-                  setShowCustomFees={setShowCustomFees}
+                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
+                    setCustomFee(gasLimit, gas);
+                  }}
                 />
               ),
             }[contractType || 'unknown']

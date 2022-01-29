@@ -6,8 +6,8 @@ import {
 import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
 import { PortfolioFlow } from './components/Portfolio/PortfolioFlow';
 import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
-import { AccountSelectorFlow } from '@src/components/common/account/AccountSelectorFlow';
 import { HomeSideBar } from './components/HomeSideBar';
+import { AccountSelector } from '@src/components/common/account/AccountSelector';
 
 const TABS_BOTTOM_PADDING = 16;
 
@@ -38,7 +38,7 @@ export function Home() {
           </Tab>
         </TabList>
         <HorizontalFlex align={'center'}>
-          <AccountSelectorFlow />
+          <AccountSelector />
           <SettingsMenuFlow />
         </HorizontalFlex>
       </HorizontalFlex>

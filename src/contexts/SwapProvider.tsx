@@ -35,6 +35,7 @@ const SwapContext = createContext<{
     priceRoute: OptimalRate,
     destAmount,
     gasLimit: string,
+    gasPrice: GasPrice,
     slippage: number
   ): Promise<string>;
   gasPrice?: GasPrice;
@@ -104,6 +105,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       priceRoute: OptimalRate,
       destAmount,
       gasLimit: string,
+      gasPrice: GasPrice,
       slippage: number
     ) => {
       return request({
@@ -117,6 +119,7 @@ export function SwapContextProvider({ children }: { children: any }) {
           priceRoute,
           destAmount,
           gasLimit,
+          gasPrice,
           slippage,
         ],
       });

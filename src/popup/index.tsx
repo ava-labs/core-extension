@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { render } from 'react-dom';
 import { browser } from 'webextension-polyfill-ts';
+// MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
 import { HashRouter as Router } from 'react-router-dom';
 import {
   LoadingIcon,
