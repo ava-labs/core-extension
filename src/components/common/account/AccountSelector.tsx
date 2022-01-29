@@ -1,6 +1,6 @@
 import { SecondaryOverlay } from '@avalabs/react-components';
 import { useState } from 'react';
-import { AccountDropdownContent } from './AccountDopdownContent';
+import { AccountDropdownContent } from './AccountDropdownContent';
 import { AccountSelectorButton } from './AccountSelectorButton';
 
 export function AccountSelector() {
@@ -14,7 +14,7 @@ export function AccountSelector() {
         }}
       />
       {open && (
-        <SecondaryOverlay padding="24px 16px">
+        <SecondaryOverlay padding="24px 8px">
           <AccountDropdownContent
             onClose={() => {
               setOpen(false);

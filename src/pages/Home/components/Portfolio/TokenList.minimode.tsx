@@ -85,7 +85,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
         </TextButton>
       </HorizontalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <VerticalFlex padding="0px 16px">
+        <VerticalFlex padding="0px 16px 73px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (
             <TokenListItemMiniMode
               onClick={() => setTokenInParams(AVAX_TOKEN.symbol, '/token')}

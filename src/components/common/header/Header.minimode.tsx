@@ -80,7 +80,6 @@ export function HeaderMiniMode() {
           </HorizontalFlex>
         )}
       </VerticalFlex>
-
       <TextButton onClick={toggleReceivePage}>
         <QRCodeIcon color={theme.colors.text1} />
       </TextButton>

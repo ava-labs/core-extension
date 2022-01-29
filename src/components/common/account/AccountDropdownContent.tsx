@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CloseIcon,
@@ -12,7 +12,6 @@ import {
 import { useTheme } from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { exhaustMap, from, Subject, tap } from 'rxjs';
 import { AccountDropdownItem } from './AccountDropdownItem';
 
 interface AccountDropdownContentProps {
@@ -22,59 +21,63 @@ interface AccountDropdownContentProps {
 export function AccountDropdownContent({
   onClose,
 }: AccountDropdownContentProps) {
-  const { accounts, selectAccount, addAccount } = useAccountsContext();
+  const { accounts, activeAccount, selectAccount, addAccount } =
+    useAccountsContext();
 
   const theme = useTheme();
   const scrollbarsRef = useRef<Scrollbars>(null);
 
-  const selectAccountSubject$ = useMemo(() => {
-    return new Subject<number>();
-  }, []);
-  const [editing, isEditing] = useState(false);
+  const [editing, isEditing] = useState<boolean>(false);
   const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
     null
   );
 
-  useEffect(() => {
-    const subscription = selectAccountSubject$
-      .pipe(
-        tap((index) => {
-          setAccountIndexLoading(index);
-        }),
-        exhaustMap((index) => from(selectAccount(index))),
-        tap(() => {
-          setAccountIndexLoading(null);
-        })
-      )
-      .subscribe();
+  const addAccountAndFocus = async () => {
+    const nextIndex = accounts.length;
+    await addAccount();
+    await selectAccount(nextIndex);
+    isEditing(true);
+    scrollbarsRef.current?.scrollToBottom();
+  };
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [selectAccount, selectAccountSubject$]);
+  useEffect(() => {
+    if (activeAccount) {
+      scrollbarsRef.current?.scrollTop(50 * activeAccount.index);
+    }
+    // only scroll to the selected account on the first open
+    // new selects will always be in the view since the user had to click them
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onAccountClicked = async (index: number) => {
+    setAccountIndexLoading(index);
+    await selectAccount(index);
+    setAccountIndexLoading(null);
+    onClose?.();
+  };
 
   return (
     <Card
       direction="column"
       height={'100%'}
       width={'100%'}
-      padding="16px 0"
+      padding="0"
       onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
       }}
     >
       <HorizontalFlex
         justify="space-between"
-        align="flex-start"
+        align="center"
         width="100%"
-        margin="0 0 8px"
-        padding="16px"
+        margin="16px 0 8px"
+        padding="0 16px"
       >
-        <Typography size={24} weight={700} height="24px">
+        <Typography size={24} weight={700} height="29px">
           Accounts
         </Typography>
         <TextButton onClick={() => onClose?.()}>
-          <CloseIcon color={theme.colors.icon1} />
+          <CloseIcon height="18px" color={theme.colors.icon1} />
         </TextButton>
       </HorizontalFlex>
 
@@ -86,22 +89,20 @@ export function AccountDropdownContent({
           width: '100%',
           padding: '0 15px 15px 0',
         }}
-        autoHide={true}
+        autoHide={false}
         ref={scrollbarsRef}
       >
-        <VerticalFlex paddingBottom="64px">
+        <VerticalFlex padding="0 0 16px 0">
           {accounts.map((account, i) => {
             return (
               <VerticalFlex
                 key={account.addressC}
-                onClick={() =>
-                  !editing && selectAccountSubject$.next(account.index)
-                }
+                onClick={() => !editing && onAccountClicked(account.index)}
                 width="100%"
               >
                 <AccountDropdownItem
-                  editing={editing}
                   account={account}
+                  editing={editing}
                   onEdit={() => isEditing(true)}
                   onSave={() => isEditing(false)}
                   isLoadingIndex={accountIndexLoading}
@@ -109,28 +110,20 @@ export function AccountDropdownContent({
                 {i < accounts.length - 1 && (
                   <HorizontalSeparator
                     color={`${theme.colors.bg3}80`}
-                    margin="0"
+                    margin="0 16px"
+                    width={327}
                   />
                 )}
               </VerticalFlex>
             );
           })}
         </VerticalFlex>
-        <HorizontalFlex
-          position="fixed"
-          justify="center"
-          padding="16px 17px"
-          margin="0 0 16px 0"
-          style={{
-            bottom: '0px',
-            background: `${theme.colors.bg2}`,
-          }}
-        >
-          <PrimaryButton width="309px" onClick={() => addAccount()}>
-            Add Account
-          </PrimaryButton>
-        </HorizontalFlex>
       </Scrollbars>
+      <HorizontalFlex justify="center" padding="16px" width="100%">
+        <PrimaryButton width="100%" onClick={() => addAccountAndFocus()}>
+          Add Account
+        </PrimaryButton>
+      </HorizontalFlex>
     </Card>
   );
 }
