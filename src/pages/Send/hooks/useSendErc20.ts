@@ -5,6 +5,7 @@ import { sendErc20ValidateRequest } from '@src/background/services/send/sendErc2
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendErc20SubmitRequest } from '@src/background/services/send/sendErc20/utils/sendErc20SubmitRequest';
 import { SendStateWithActions } from '../models';
+import { GasPrice } from '@src/background/services/gas/models';
 
 export function useSendErc20(
   token?: ERC20
@@ -35,10 +36,15 @@ export function useSendErc20(
     targetChain: 'C' as ChainIdType,
     txId,
     token,
-    setValues(amount?: string, address?: string) {
-      return request(sendErc20ValidateRequest(amount, token, address)).then(
-        parseAndSetState
-      );
+    setValues(
+      amount?: string,
+      address?: string,
+      gasPrice?: GasPrice,
+      gasLimit?: number
+    ) {
+      return request(
+        sendErc20ValidateRequest(amount, token, address, gasPrice, gasLimit)
+      ).then(parseAndSetState);
     },
     reset() {
       setSendErc20State(undefined);
@@ -54,9 +60,13 @@ export function useSendErc20(
           amount,
           token,
           sendErc20State?.address as string,
-          sendErc20State?.gasLimit as number
+          sendErc20State?.gasLimit as number,
+          sendErc20State?.gasPrice as BN
         )
-      ).then(({ txId }) => setTxId(txId));
+      ).then(({ txId }) => {
+        setTxId(txId);
+        return txId;
+      });
     },
   };
 }

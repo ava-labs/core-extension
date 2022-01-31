@@ -26,6 +26,7 @@ import {
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
+import { GasPrice } from '@src/background/services/gas/models';
 
 export function SendMiniMode() {
   const tokenFromParams = useTokenFromParams();
@@ -66,6 +67,15 @@ export function SendMiniMode() {
     setAmountInput(bn);
     setAmountInputDisplay(amount);
     sendState?.setValues(amount, contactInput?.address);
+  };
+
+  const onGasChanged = (gasLimit: string, gasPrice: GasPrice) => {
+    sendState?.setValues(
+      amountInputDisplay,
+      contactInput?.address,
+      gasPrice,
+      Number(gasLimit)
+    );
   };
 
   const onError = (error: string) => {
@@ -123,6 +133,7 @@ export function SendMiniMode() {
         fallbackAmountDisplayValue={amountInputDisplay}
         cancelConfirm={() => setIsConfirming(false)}
         onSubmit={onSubmit}
+        onGasChanged={onGasChanged}
       />
     </>
   ) : (

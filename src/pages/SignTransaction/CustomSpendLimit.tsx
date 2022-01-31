@@ -15,7 +15,6 @@ import { useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { DomainMetadata } from '@src/background/models';
 
 export enum Limit {
@@ -26,7 +25,7 @@ export enum Limit {
 export interface SpendLimit {
   limitType: Limit;
   value?: {
-    bn: BN;
+    bn: any;
     amount: string;
   };
 }

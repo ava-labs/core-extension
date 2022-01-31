@@ -5,6 +5,7 @@ import { sendAvaxValidateRequest } from '@src/background/services/send/sendAvax/
 import { BN, ChainIdType, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { sendAvaxSubmitRequest } from '@src/background/services/send/sendAvax/utils/sendAvaxSubmitRequest';
 import { SendStateWithActions } from '../models';
+import { GasPrice } from '@src/background/services/gas/models';
 
 export function useSendAvax(): SendStateWithActions {
   const [sendAvaxState, setSendAvaxState] = useState<SendState>();
@@ -30,8 +31,15 @@ export function useSendAvax(): SendStateWithActions {
   return {
     ...sendAvaxState,
     txId,
-    setValues(amount?: string, address?: string) {
-      return request(sendAvaxValidateRequest(amount, address))
+    setValues(
+      amount?: string,
+      address?: string,
+      gasPrice?: GasPrice,
+      gasLimit?: number
+    ) {
+      return request(
+        sendAvaxValidateRequest(amount, address, gasPrice, gasLimit)
+      )
         .then(parseAndSetState)
         .catch((error: string) => {
           setSendAvaxState({
@@ -52,7 +60,9 @@ export function useSendAvax(): SendStateWithActions {
         sendAvaxSubmitRequest(
           amount,
           sendAvaxState?.targetChain as ChainIdType,
-          sendAvaxState?.address as string
+          sendAvaxState?.address as string,
+          sendAvaxState?.gasPrice as BN,
+          sendAvaxState?.gasLimit as number
         )
       ).then(({ txId }) => {
         setTxId(txId);

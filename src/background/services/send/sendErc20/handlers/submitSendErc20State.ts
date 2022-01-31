@@ -9,15 +9,16 @@ import {
   wallet$,
   walletState$,
 } from '@avalabs/wallet-react-components';
-import { firstValueFrom, of, tap } from 'rxjs';
+import { firstValueFrom, map, of, tap } from 'rxjs';
 import { gasPrice$ } from '../../../gas/gas';
-import { Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 import { resolve } from '@src/utils/promiseResolver';
 import { isWalletLocked } from '@src/background/services/wallet/models';
 
 async function submitSendErc20State(request: ExtensionConnectionMessage) {
-  const [token, amount, address, gasLimit] = request.params || [];
+  const [token, amount, address, gasLimit, customGasPrice] =
+    request.params || [];
 
   if (!amount) {
     return {
@@ -56,9 +57,15 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
     };
   }
 
-  const gasPrice = await firstValueFrom(gasPrice$);
+  const gasPrice = await firstValueFrom(
+    gasPrice$.pipe(
+      map((gas) =>
+        customGasPrice ? { bn: new BN(customGasPrice, 'hex') } : gas
+      )
+    )
+  );
 
-  if (!gasPrice) {
+  if (!gasPrice?.bn) {
     return {
       ...request,
       error: 'gas price malformed or undefined',

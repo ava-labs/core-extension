@@ -25,6 +25,9 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
+import { CustomFees } from '@src/components/common/CustomFees';
+import { GasPrice } from '@src/background/services/gas/models';
+import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 
 const SummaryAvaxTokenIcon = styled(AvaxTokenIcon)`
   position: absolute;
@@ -84,18 +87,6 @@ const SummaryCurrency = styled.span`
   font-weight: 400;
 `;
 
-const FeeAmount = styled.span`
-  font-size: 16px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.colors.text2};
-`;
-
-const FeeToken = styled.span`
-  font-size: 14px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.colors.text2};
-`;
-
 const ContactName = styled(Typography)`
   max-width: 260px;
   overflow: hidden;
@@ -120,6 +111,7 @@ type SendConfirmProps = {
   fallbackAmountDisplayValue?: string;
   cancelConfirm(): void;
   onSubmit(): void;
+  onGasChanged(gasLimit: string, gasPrice: GasPrice): void;
 };
 
 export const SendConfirmMiniMode = ({
@@ -129,6 +121,7 @@ export const SendConfirmMiniMode = ({
   fallbackAmountDisplayValue,
   cancelConfirm,
   onSubmit,
+  onGasChanged,
 }: SendConfirmProps) => {
   const theme = useTheme();
   const history = useHistory();
@@ -170,11 +163,6 @@ export const SendConfirmMiniMode = ({
         2
       ).replace(',', '')
     )
-  );
-
-  const sendFeeDisplay = Utils.bigToLocaleString(
-    Utils.bnToBig(sendState?.sendFee || new BN(0), 18),
-    4
   );
 
   if (!activeAccount) {
@@ -246,16 +234,28 @@ export const SendConfirmMiniMode = ({
             </VerticalFlex>
           </Card>
 
-          <HorizontalFlex justify="space-between" width="100%" margin="16px">
-            <Typography size={12} weight={400} color={theme.colors.text2}>
+          <HorizontalFlex margin="8px 0" width="100%" align="center">
+            <Typography
+              size={12}
+              weight={400}
+              color={theme.colors.text2}
+              margin="0 8px 0 0"
+            >
               Network Fee
             </Typography>
-            <VerticalFlex>
-              <Typography align="right">
-                <FeeAmount>{sendFeeDisplay}</FeeAmount>{' '}
-                <FeeToken>AVAX</FeeToken>
-              </Typography>
-            </VerticalFlex>
+            <TransactionFeeTooltip
+              gasPrice={sendState?.gasPrice}
+              gasLimit={sendState?.gasLimit}
+            />
+          </HorizontalFlex>
+          <HorizontalFlex width="100%">
+            <CustomFees
+              gasPrice={{
+                bn: sendState?.gasPrice || new BN(0),
+              }}
+              limit={`${sendState?.gasLimit}`}
+              onChange={onGasChanged}
+            />
           </HorizontalFlex>
 
           <HorizontalFlex justify="space-between" margin="8px 0" width="100%">

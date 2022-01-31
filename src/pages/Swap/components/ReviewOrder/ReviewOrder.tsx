@@ -178,7 +178,7 @@ export function ReviewOrder({
                   <Typography margin="0 16px 0 0">Network Fee</Typography>
                   <TransactionFeeTooltip
                     gasPrice={gasPrice?.bn}
-                    gasLimit={gasLimit}
+                    gasLimit={gasLimit as any}
                   />
                 </HorizontalFlex>
               </VerticalFlex>

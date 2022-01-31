@@ -442,9 +442,9 @@ export function Swap() {
                 setIsCalculateAvaxMax(true);
               }
               setSwapError('');
-              setFromTokenValue(value);
+              setFromTokenValue(value as any);
               calculateTokenValueToInput(
-                value,
+                value as any,
                 'to',
                 selectedFromToken,
                 selectedToToken
@@ -493,9 +493,9 @@ export function Swap() {
             token={selectedToTokenFormat}
             defaultValue={destinationInputField === 'to' ? destAmount : ''}
             onChange={(value) => {
-              setToTokenValue(value);
+              setToTokenValue(value as any);
               calculateTokenValueToInput(
-                value,
+                value as any,
                 'from',
                 selectedFromToken,
                 selectedToToken
@@ -521,7 +521,7 @@ export function Swap() {
                 setCustomGasPrice(price);
               }}
               gasLimit={gasLimit}
-              gasPrice={gasPrice}
+              gasPrice={gasPrice as any}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
             />

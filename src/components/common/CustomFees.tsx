@@ -73,7 +73,7 @@ export function CustomFees({
   gasPrice,
   limit,
   onChange,
-  gasPriceEditDisabled,
+  gasPriceEditDisabled = false,
 }: CustomGasFeesProps) {
   const { avaxPrice } = useWalletContext();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -93,7 +93,7 @@ export function CustomFees({
 
   const gasModifer = (amount: number): GasPrice => {
     // take current GasPrice (BN) and add amount .05 | .15 | custom
-    const bigGas = new Big(originalGas.value);
+    const bigGas = new Big(Utils.bnToLocaleString(originalGas.bn, 9));
     const newBigGas = bigGas.times(amount).plus(bigGas);
 
     const modifiedGasPrice = {
@@ -217,7 +217,7 @@ export function CustomFees({
               value={customGasPrice?.bn}
               onChange={(value) =>
                 handleGasChange({
-                  bn: value.bn,
+                  bn: value.bn as any,
                   value: value.amount,
                 })
               }
