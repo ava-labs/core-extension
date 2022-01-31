@@ -48,7 +48,8 @@ export function WalletBalances() {
         <VerticalFlex flex={2}>
           <SubTextTypography margin={'0 0 5px 0'}>Balance</SubTextTypography>
           <Typography size={36}>
-            ~{currencyFormatter(balanceTotalUSD)} {currency}
+            {balanceTotalUSD !== null &&
+              `~${currencyFormatter(balanceTotalUSD)} ${currency}`}
           </Typography>
         </VerticalFlex>
         {tokensWBalances?.length ? (
