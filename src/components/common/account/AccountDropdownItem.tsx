@@ -137,6 +137,9 @@ export function AccountDropdownItem({
                     onSaveClicked(e);
                   }
                 }}
+                onFocus={(e) => {
+                  e.target.select();
+                }}
                 autoFocus
               />
               <StyledSaveButton onClick={onSaveClicked}>Save</StyledSaveButton>
@@ -178,7 +181,7 @@ export function AccountDropdownItem({
               height="15px"
               margin="4px 0 0 0"
             >
-              {currencyFormatter(balanceTotalUSD)}
+              {balanceTotalUSD !== null && currencyFormatter(balanceTotalUSD)}
             </Typography>
           ))}
       </VerticalFlex>

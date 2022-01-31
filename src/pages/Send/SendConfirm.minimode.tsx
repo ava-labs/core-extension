@@ -28,26 +28,26 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 
 const SummaryAvaxTokenIcon = styled(AvaxTokenIcon)`
   position: absolute;
-  top: -20px;
+  top: -28px;
   margin-left: auto;
   margin-right: auto;
   left: 0;
   right: 0;
   text-align: center;
-  border: 6px solid;
+  border: 8px solid;
   border-color: ${({ theme }) => theme.colors.bg1};
   border-radius: 50%;
 `;
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
-  top: -20px;
+  top: -28px;
   margin-left: auto;
   margin-right: auto;
   left: 0;
   right: 0;
   text-align: center;
-  border: 6px solid;
+  border: 8px solid;
   border-color: ${({ theme }) => theme.colors.bg1};
   border-radius: 50%;
 `;
@@ -211,11 +211,11 @@ export const SendConfirmMiniMode = ({
               </VerticalFlex>
             </HorizontalFlex>
             {token?.isAvax ? (
-              <SummaryAvaxTokenIcon height="50px" />
+              <SummaryAvaxTokenIcon height="56px" />
             ) : (
               <SummaryTokenIcon
-                height="50px"
-                width="50px"
+                height="56px"
+                width="56px"
                 src={token.logoURI}
                 name={token.name}
               />

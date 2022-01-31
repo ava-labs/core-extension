@@ -23,46 +23,40 @@ const StyledSearchInput = styled(SearchInput)`
 export const ManageTokensMiniMode = () => {
   const theme = useTheme();
   const history = useHistory();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   return (
-    <>
-      <VerticalFlex flex={1} padding={'0 0 65px'}>
-        <PageTitleMiniMode showBack>Manage token list</PageTitleMiniMode>
-        <PageContentMiniMode>
-          <StyledSearchInput
-            searchTerm={searchQuery}
-            placeholder="Search"
-            width="100%"
-            onSearch={(term) => setSearchQuery(term)}
-            autoFocus={true}
-          />
-          <Scrollbars>
-            <TextButton
-              color={theme.colors.text1}
-              onClick={() => history.push('/manage-tokens/add')}
-              margin="16px 0 8px 0"
+    <VerticalFlex flex={1}>
+      <PageTitleMiniMode showBack>Manage token list</PageTitleMiniMode>
+      <PageContentMiniMode>
+        <StyledSearchInput
+          searchTerm={searchQuery}
+          placeholder="Search"
+          width="100%"
+          onSearch={(term) => setSearchQuery(term)}
+          autoFocus={true}
+        />
+        <Scrollbars>
+          <TextButton
+            color={theme.colors.text1}
+            onClick={() => history.push('/manage-tokens/add')}
+            margin="16px 0 8px 0"
+          >
+            <VerticalFlex
+              justify="center"
+              align="center"
+              width="32px"
+              height="32px"
             >
-              <VerticalFlex
-                justify="center"
-                align="center"
-                width="32px"
-                height="32px"
-              >
-                <PlusIcon
-                  color={theme.colors.text1}
-                  width="20px"
-                  height="20px"
-                />
-              </VerticalFlex>
-              <Typography margin="0 16px" size={14} weight={600}>
-                Add a custom token
-              </Typography>
-            </TextButton>
-            <ManageTokensList searchQuery={searchQuery} />
-          </Scrollbars>
-        </PageContentMiniMode>
-      </VerticalFlex>
-    </>
+              <PlusIcon color={theme.colors.text1} width="20px" height="20px" />
+            </VerticalFlex>
+            <Typography margin="0 16px" size={14} weight={600}>
+              Add a custom token
+            </Typography>
+          </TextButton>
+          <ManageTokensList searchQuery={searchQuery} />
+        </Scrollbars>
+      </PageContentMiniMode>
+    </VerticalFlex>
   );
 };

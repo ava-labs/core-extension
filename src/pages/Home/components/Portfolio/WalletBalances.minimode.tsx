@@ -7,13 +7,22 @@ export function WalletBalancesMiniMode() {
   const balanceTotalUSD = useBalanceTotalInCurrency();
 
   return (
-    <HorizontalFlex justify="center" align="flex-end" width="100%">
-      <Typography size={32} height="44px" weight={500}>
-        {currencyFormatter(balanceTotalUSD)}
-      </Typography>
-      <Typography weight={500} margin={'0 0 10px 6px'} color="text2">
-        {currency}
-      </Typography>
+    <HorizontalFlex
+      justify="center"
+      align="flex-end"
+      minHeight="44px"
+      width="100%"
+    >
+      {balanceTotalUSD !== null && (
+        <>
+          <Typography size={32} height="44px" weight={500}>
+            {currencyFormatter(balanceTotalUSD)}
+          </Typography>
+          <Typography weight={500} margin={'0 0 10px 6px'} color="text2">
+            {currency}
+          </Typography>
+        </>
+      )}
     </HorizontalFlex>
   );
 }
