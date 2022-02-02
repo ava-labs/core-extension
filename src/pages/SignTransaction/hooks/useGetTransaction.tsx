@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useEffect, useState } from 'react';
 import { Transaction } from '@src/background/services/transactions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { filter, map, take } from 'rxjs';
+import { filter, map, Subscription, take } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/models';
 import { gasPriceTransactionUpdateListener } from '@src/background/services/transactions/events/gasPriceTransactionUpdateListener';
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
@@ -19,6 +19,11 @@ export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
   const { avaxPrice } = useWalletContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice | null>(null);
+  const [customGas, setCustomGas] = useState<{
+    gasLimit: string;
+    gasPrice: GasPrice;
+  } | null>(null);
   const [hash, setHash] = useState<string>('');
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
     useState<boolean>(false);
@@ -30,66 +35,79 @@ export function useGetTransaction(requestId: string) {
   });
   const [isRevokeApproval, setIsRevokeApproval] = useState<boolean>(false);
 
-  function setCustomFee(gasLimit: string, gasPrice: GasPrice) {
-    const feeDisplayValues = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
-
-    setTransaction({
-      ...transaction,
-      displayValues: {
-        ...transaction?.displayValues,
-        ...feeDisplayValues,
-      },
-    } as any);
-  }
-
-  function setSpendLimit(customSpendData: SpendLimit) {
-    const srcToken: string =
-      transaction?.displayValues.tokenToBeApproved.address;
-    const spenderAddress: string =
-      transaction?.displayValues.approveData.spender;
-    let limitAmount = '';
-
-    setCustomSpendLimit(customSpendData);
-    // Sets the string to be displayed in AmountTx
-    const spendAmountToDisplay =
-      customSpendData.limitType === Limit.UNLIMITED || !customSpendData.value
-        ? UNLIMITED_SPEND_LIMIT_LABEL
-        : customSpendData.value.amount;
-    setDisplaySpendLimit(spendAmountToDisplay);
-
-    if (customSpendData.limitType === Limit.UNLIMITED) {
-      setCustomSpendLimit({
-        ...customSpendData,
-        value: undefined,
+  const updateTransaction = useCallback(
+    (update) => {
+      return request({
+        method: ExtensionRequest.TRANSACTIONS_UPDATE,
+        params: [update],
       });
-      limitAmount = transaction?.displayValues.approveData.limit;
-    }
+    },
+    [request]
+  );
 
-    if (customSpendData.limitType === Limit.CUSTOM && customSpendData.value) {
-      limitAmount = customSpendData.value.bn.toString();
-    }
+  const setCustomFee = useCallback(
+    (gasLimit: string, gasPrice: GasPrice) => {
+      setCustomGas({ gasLimit, gasPrice });
 
-    // create hex string for approval amount
-    const web3 = new Web3(Web3.givenProvider);
-    const contract = new web3.eth.Contract(ERC20_ABI as any, srcToken);
+      const feeDisplayValues = calculateGasAndFees(
+        gasPrice,
+        gasLimit,
+        avaxPrice
+      );
+      updateTransaction({
+        id: transaction?.id,
+        params: {
+          gas: feeDisplayValues.gasLimit.toString(),
+          gasPrice: feeDisplayValues.gasPrice.bn,
+        },
+      });
+    },
+    [avaxPrice, transaction?.id, updateTransaction]
+  );
 
-    const hashedCustomSpend =
-      limitAmount &&
-      contract.methods.approve(spenderAddress, limitAmount).encodeABI();
+  const setSpendLimit = useCallback(
+    (customSpendData: SpendLimit) => {
+      const srcToken: string =
+        transaction?.displayValues.tokenToBeApproved.address;
+      const spenderAddress: string =
+        transaction?.displayValues.approveData.spender;
+      let limitAmount = '';
 
-    updateTransaction({
-      id: transaction?.id,
-      params: { data: hashedCustomSpend },
-    });
-  }
+      setCustomSpendLimit(customSpendData);
+      // Sets the string to be displayed in AmountTx
+      const spendAmountToDisplay =
+        customSpendData.limitType === Limit.UNLIMITED || !customSpendData.value
+          ? UNLIMITED_SPEND_LIMIT_LABEL
+          : customSpendData.value.amount;
+      setDisplaySpendLimit(spendAmountToDisplay);
 
-  const updateTransaction = useCallback((update) => {
-    return request({
-      method: ExtensionRequest.TRANSACTIONS_UPDATE,
-      params: [update],
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      if (customSpendData.limitType === Limit.UNLIMITED) {
+        setCustomSpendLimit({
+          ...customSpendData,
+          value: undefined,
+        });
+        limitAmount = transaction?.displayValues.approveData.limit;
+      }
+
+      if (customSpendData.limitType === Limit.CUSTOM && customSpendData.value) {
+        limitAmount = customSpendData.value.bn.toString();
+      }
+
+      // create hex string for approval amount
+      const web3 = new Web3(Web3.givenProvider);
+      const contract = new web3.eth.Contract(ERC20_ABI as any, srcToken);
+
+      const hashedCustomSpend =
+        limitAmount &&
+        contract.methods.approve(spenderAddress, limitAmount).encodeABI();
+
+      updateTransaction({
+        id: transaction?.id,
+        params: { data: hashedCustomSpend },
+      });
+    },
+    [transaction, updateTransaction]
+  );
 
   useEffect(() => {
     request({
@@ -98,68 +116,80 @@ export function useGetTransaction(requestId: string) {
     }).then((tx) => {
       // the gasPrice.bn on the tx is a hex
       // we convert it here to a BN
-      const updatedTx = {
+      const gasPrice: GasPrice = {
+        ...tx.displayValues.gasPrice,
+        bn: new BN(tx.displayValues.gasPrice.bn, 'hex'),
+      };
+
+      setDefaultGasPrice(gasPrice);
+      setTransaction({
         ...tx,
         displayValues: {
           ...tx.displayValues,
-          gasPrice: {
-            ...tx.displayValues.gasPrice,
-            bn: new BN(tx.displayValues.gasPrice.bn, 'hex'),
-          },
+          gasPrice,
         },
-      };
-      setTransaction(updatedTx);
+      });
     });
+    const subscriptions = new Subscription();
+    subscriptions.add(
+      events?.()
+        .pipe(filter(gasPriceTransactionUpdateListener))
+        .subscribe(function (evt) {
+          const gasPrice = {
+            ...evt.value,
+            bn: new BN(evt.value.bn, 'hex'),
+          } as any;
+          setDefaultGasPrice(gasPrice);
+        })
+    );
+
+    subscriptions.add(
+      events?.()
+        .pipe(
+          filter(transactionFinalizedUpdateListener),
+          map(({ value }) => {
+            return value.find((tx) => tx.id === Number(requestId));
+          }),
+          filter((tx) => !!tx),
+          take(1)
+        )
+        .subscribe({
+          next(tx) {
+            setHash(tx?.txHash || '');
+          },
+        })
+    );
+
+    return () => {
+      subscriptions.unsubscribe();
+    };
+    // only call this once, we need to get the transaction and subscriptions only once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const subscription = events?.()
-      .pipe(filter(gasPriceTransactionUpdateListener))
-      .subscribe(function (evt) {
-        const gasPrice = {
-          ...evt.value,
-          bn: new BN(evt.value.bn, 'hex'),
-        } as any;
-        setCustomFee(
-          transaction?.displayValues.gasLimit?.toString() as string,
-          gasPrice
-        );
-      });
-
-    const finalizedSubscription = events?.()
-      .pipe(
-        filter(transactionFinalizedUpdateListener),
-        map(({ value }) => {
-          return value.find((tx) => tx.id === Number(requestId));
-        }),
-        filter((tx) => !!tx),
-        take(1)
-      )
-      .subscribe({
-        next(tx) {
-          setHash(tx?.txHash || '');
-        },
-      });
-
     // Handle transaction Approval for REVOKING spend limit
     if (transaction?.displayValues?.approveData?.limit === '0') {
       setDisplaySpendLimit('0');
       setIsRevokeApproval(true);
     }
-
-    return () => {
-      subscription?.unsubscribe();
-      finalizedSubscription?.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transaction]);
 
   return useMemo(() => {
+    const feeDisplayValues =
+      defaultGasPrice &&
+      transaction?.displayValues.gasLimit &&
+      calculateGasAndFees(
+        customGas?.gasPrice ?? defaultGasPrice,
+        customGas?.gasLimit ?? transaction.displayValues.gasLimit.toString(),
+        avaxPrice
+      );
+
     return {
       ...transaction?.displayValues,
       id: transaction?.id,
       ...(transaction?.txParams ? { txParams: transaction?.txParams } : {}),
+      ...feeDisplayValues,
       updateTransaction,
       hash,
       setCustomFee,
@@ -170,13 +200,18 @@ export function useGetTransaction(requestId: string) {
       customSpendLimit,
       isRevokeApproval,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    requestId,
+    defaultGasPrice,
     transaction,
-    hash,
-    customSpendLimit,
+    customGas,
+    avaxPrice,
     updateTransaction,
+    hash,
+    setCustomFee,
+    showCustomSpendLimit,
+    setSpendLimit,
     displaySpendLimit,
+    customSpendLimit,
+    isRevokeApproval,
   ]);
 }
