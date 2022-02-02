@@ -3,4 +3,5 @@ export interface Account {
   name: string;
   active: boolean;
   addressC: string;
+  balance?: any;
 }

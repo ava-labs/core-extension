@@ -12,7 +12,6 @@ import { Account } from '@src/background/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -94,7 +93,6 @@ export function AccountDropdownItem({
 }: AccountDropdownItemProps) {
   const [accountName, setAccountName] = useState<string>(account.name);
   const { currencyFormatter } = useSettingsContext();
-  const balanceTotalUSD = useBalanceTotalInCurrency();
   const { renameAccount } = useAccountsContext();
   const { addresses } = useWalletContext();
   const theme = useTheme();
@@ -170,20 +168,14 @@ export function AccountDropdownItem({
         />
       </VerticalFlex>
       <VerticalFlex align="flex-end">
-        {account.active &&
-          (isLoadingIndex === account.index ||
-          (account.active && account.addressC !== addresses.addrC) ? (
-            <StyledLoadingSpinnerIcon height="14" color={theme.colors.icon1} />
-          ) : (
-            <Typography
-              color={theme.colors.text2}
-              size={12}
-              height="15px"
-              margin="4px 0 0 0"
-            >
-              {balanceTotalUSD !== null && currencyFormatter(balanceTotalUSD)}
-            </Typography>
-          ))}
+        <Typography
+          color={theme.colors.text2}
+          size={12}
+          height="15px"
+          margin="4px 0 0 0"
+        >
+          {account.balance !== undefined && currencyFormatter(account.balance)}
+        </Typography>
       </VerticalFlex>
     </AccountItem>
   );
