@@ -7,10 +7,8 @@ import {
   SelectTokenModal,
   SearchInput,
   SwitchIcon,
-  TextButton,
   ComponentSize,
   PrimaryIconButton,
-  CaretIcon,
   IconDirection,
 } from '@avalabs/react-components';
 import {
@@ -44,6 +42,7 @@ import { TxInProgress } from '../../components/common/TxInProgress';
 import { useHistory } from 'react-router-dom';
 import { GasPrice } from '@src/background/services/gas/models';
 import Scrollbars from 'react-custom-scrollbars-2';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 export interface Token {
   icon?: JSX.Element;
@@ -62,11 +61,6 @@ const SwitchIconContainer = styled(PrimaryIconButton)`
   &[disabled] {
     background-color: ${({ theme }) => theme.swapCard.swapIconBg};
   }
-`;
-
-const StyledTextButton = styled(TextButton)`
-  position: absolute;
-  left: 16px;
 `;
 
 export function Swap() {
@@ -392,27 +386,11 @@ export function Swap() {
   }
 
   return (
-    <>
-      <VerticalFlex grow="1" margin="0 16px 16px">
-        <Typography
-          margin="16px 0 24px 32px"
-          size={24}
-          height="29px"
-          weight="bold"
-        >
-          <StyledTextButton
-            onClick={() => {
-              history.push('/home');
-            }}
-          >
-            <CaretIcon
-              height="24px"
-              color={theme.colors.icon1}
-              direction={IconDirection.LEFT}
-            />
-          </StyledTextButton>
-          Swap
-        </Typography>
+    <VerticalFlex width="100%">
+      <PageTitleMiniMode onBackClick={() => history.push('/home')}>
+        Swap
+      </PageTitleMiniMode>
+      <VerticalFlex grow="1" margin="16px 16px 16px">
         <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
           <SwapCard
             denomination={selectedFromToken?.denomination}
@@ -628,6 +606,6 @@ export function Swap() {
           symbol={selectedFromToken?.symbol}
         />
       )}
-    </>
+    </VerticalFlex>
   );
 }

@@ -12,6 +12,7 @@ export function WalletBalancesMiniMode() {
       align="flex-end"
       minHeight="44px"
       width="100%"
+      paddingTop="16px"
     >
       {balanceTotalUSD !== null && (
         <>

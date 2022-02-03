@@ -1,19 +1,21 @@
-import { HorizontalSeparator, VerticalFlex } from '@avalabs/react-components';
+import { VerticalFlex } from '@avalabs/react-components';
 import { AddressDropdownListItem } from './AddressDropdownListItem';
 import { Contact } from '@src/background/services/contacts/models';
 import Scrollbars from 'react-custom-scrollbars';
 
 type AddressDropdownListProps = {
   contacts: Contact[];
+  selectedContact?: Contact;
   onChange(contact: Contact): void;
 };
 
 export const AddressDropdownList = ({
   contacts,
+  selectedContact,
   onChange,
 }: AddressDropdownListProps) => {
   return (
-    <VerticalFlex grow="1">
+    <VerticalFlex grow="1" paddingTop="16px">
       <Scrollbars
         style={{
           flexGrow: 1,
@@ -25,11 +27,11 @@ export const AddressDropdownList = ({
           <AddressDropdownListItem
             key={`${contact.address}${i}`}
             contact={contact}
+            selectedContact={selectedContact}
             onChange={onChange}
           />
         ))}
       </Scrollbars>
-      <HorizontalSeparator margin="0" />
     </VerticalFlex>
   );
 };

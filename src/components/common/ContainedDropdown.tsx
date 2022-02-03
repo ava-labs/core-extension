@@ -1,6 +1,8 @@
 import { MutableRefObject, PropsWithChildren } from 'react';
 import styled from 'styled-components';
 
+const BOTTOM_PADDING = 16;
+
 // Dropdown is absolutely positioned, and fills the viewport beneath the select element
 const getDropdownHeight = (
   anchorEl: MutableRefObject<HTMLElement | null>
@@ -9,7 +11,8 @@ const getDropdownHeight = (
   return (
     window.visualViewport.height -
     anchorEl?.current?.getBoundingClientRect().top -
-    anchorEl?.current?.offsetHeight
+    anchorEl?.current?.offsetHeight -
+    BOTTOM_PADDING
   );
 };
 
@@ -51,6 +54,7 @@ export const ContainedDropdown = ({
         top,
         zIndex: 1,
         transition: 'height 0.15s ease, opacity 0.15s ease',
+        borderRadius: '0 0 8px 8px',
       }}
     >
       {children}

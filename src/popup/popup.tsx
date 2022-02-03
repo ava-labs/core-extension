@@ -150,15 +150,16 @@ export function Popup() {
                           align="center"
                           margin="auto"
                         >
-                          {!location.pathname.startsWith('/send') && (
-                            <VerticalFlex width="100%">
-                              {!isConfirm && (
-                                <HeaderFlow
-                                  onDrawerStateChanged={setDrawerOpen}
-                                />
-                              )}
-                            </VerticalFlex>
-                          )}
+                          {!location.pathname.startsWith('/tokens/manage') &&
+                            !location.pathname.startsWith('/send/confirm') && (
+                              <VerticalFlex width="100%">
+                                {!isConfirm && (
+                                  <HeaderFlow
+                                    onDrawerStateChanged={setDrawerOpen}
+                                  />
+                                )}
+                              </VerticalFlex>
+                            )}
 
                           <HorizontalFlex
                             flex={1}

@@ -12,10 +12,6 @@ import {
   TransactionToast,
 } from '@avalabs/react-components';
 import { SendFormMiniMode } from './components/SendForm.minimode';
-import {
-  PageContentMiniMode,
-  PageTitleMiniMode,
-} from './components/Page.minimode';
 import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendConfirmMiniMode } from './SendConfirm.minimode';
@@ -27,6 +23,7 @@ import {
 } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 export function SendMiniMode() {
   const tokenFromParams = useTokenFromParams();
@@ -141,6 +138,10 @@ export function SendMiniMode() {
       .finally(() => setShowTxInProgress(false));
   };
 
+  useEffect(() => {
+    history.replace(isConfirming ? '/send/confirm' : '/send');
+  }, [history, isConfirming]);
+
   return isConfirming ? (
     <>
       {showTxInProgress && (
@@ -164,10 +165,7 @@ export function SendMiniMode() {
   ) : (
     <VerticalFlex height="100%" width="100%">
       <PageTitleMiniMode>Send</PageTitleMiniMode>
-      <PageContentMiniMode>
-        <Typography margin="6px 0 0 0">
-          Select an address to continue
-        </Typography>
+      <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
         <SendFormMiniMode
           contactInput={contactInput}
           onContactChange={onContactChanged}
@@ -201,7 +199,7 @@ export function SendMiniMode() {
             </span>
           </Tooltip>
         </VerticalFlex>
-      </PageContentMiniMode>
+      </VerticalFlex>
     </VerticalFlex>
   );
 }

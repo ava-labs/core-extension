@@ -12,10 +12,6 @@ import {
   Tooltip,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import {
-  PageTitleMiniMode,
-  PageContentMiniMode,
-} from './components/Page.minimode';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendErrors, TokenWithBalance } from '@avalabs/wallet-react-components';
@@ -29,6 +25,10 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { CustomFees } from '@src/components/common/CustomFees';
 import { GasPrice } from '@src/background/services/gas/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
+import {
+  PageTitleMiniMode,
+  PageTitleVariant,
+} from '@src/components/common/PageTitle';
 
 const SummaryAvaxTokenIcon = styled(AvaxTokenIcon)`
   position: absolute;
@@ -174,10 +174,18 @@ export const SendConfirmMiniMode = ({
   return (
     <>
       <VerticalFlex height="100%" width="100%">
-        <PageTitleMiniMode onBackClick={cancelConfirm}>
+        <PageTitleMiniMode
+          onBackClick={cancelConfirm}
+          variant={PageTitleVariant.PRIMARY}
+        >
           Confirm Transaction
         </PageTitleMiniMode>
-        <PageContentMiniMode padding="0 16px 16px 16px">
+        <VerticalFlex
+          grow="1"
+          align="center"
+          width="100%"
+          padding="0 16px 16px 16px"
+        >
           <Card
             style={{ position: 'relative' }}
             margin="44px 0 0 0"
@@ -310,7 +318,7 @@ export const SendConfirmMiniMode = ({
               </Tooltip>
             </HorizontalFlex>
           </VerticalFlex>
-        </PageContentMiniMode>
+        </VerticalFlex>
       </VerticalFlex>
     </>
   );

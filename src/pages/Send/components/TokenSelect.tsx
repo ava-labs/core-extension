@@ -25,7 +25,7 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 const InputContainer = styled(HorizontalFlex)`
   justify-content: space-between;
   align-items: center;
-  padding: 16px 8px 16px 16px;
+  padding: 8px 16px;
   background: ${({ theme }) => theme.swapCard.inputContainerBg};
   cursor: pointer;
 `;
@@ -40,18 +40,17 @@ const DropdownContents = styled(VerticalFlex)`
 `;
 
 const SearchInputContainer = styled.div`
-  padding-left: 12px;
-  padding-right: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
 `;
 
 const StyledSearchInput = styled(SearchInput)`
   margin-top: 16px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 `;
 
 const StyledDropdownMenuItem = styled(DropDownMenuItem)`
-  padding-left: 12px;
-  padding-right: 12px;
+  padding: 8px 16px;
 `;
 
 interface TokenSelectProps {
@@ -148,11 +147,11 @@ export function TokenSelect({
                 ? {
                     name: selectedToken?.symbol,
                     icon: selectedToken?.isAvax ? (
-                      <AvaxTokenIcon height="40px" />
+                      <AvaxTokenIcon height="32px" />
                     ) : (
                       <TokenIcon
-                        width="40px"
-                        height="40px"
+                        width="32px"
+                        height="32px"
                         src={selectedToken?.logoURI}
                         name={selectedToken?.name}
                       />

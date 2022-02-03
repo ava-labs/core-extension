@@ -35,7 +35,11 @@ export function HeaderMiniMode() {
   };
 
   return (
-    <HorizontalFlex justify="space-between" align="flex-start" padding="16px">
+    <HorizontalFlex
+      justify="space-between"
+      align="flex-start"
+      padding="16px 16px 0 16px"
+    >
       <SettingsMenuFlow />
       <VerticalFlex>
         <HorizontalFlex align="center">
@@ -71,7 +75,7 @@ export function HeaderMiniMode() {
           <AccountSelector />
         </HorizontalFlex>
         {addresses.addrC && (
-          <HorizontalFlex justify="center" margin="0 0 0 0">
+          <HorizontalFlex justify="center">
             <SimpleAddress
               copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
               typographyProps={{ color: 'text2', size: 12 }}
