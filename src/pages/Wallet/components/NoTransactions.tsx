@@ -11,6 +11,7 @@ const ContainerWithBg = styled(VerticalFlex)<{ isDarkTheme: boolean }>`
     isDarkTheme
       ? `url(images/illustrations/no-transactions-dark.png)`
       : `url(images/illustrations/no-transactions-light.png)`};
+  background-repeat: no-repeat;
   width: 100%;
   flex-grow: 1;
   justify-content: flex-end;

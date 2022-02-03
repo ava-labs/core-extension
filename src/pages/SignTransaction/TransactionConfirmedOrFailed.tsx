@@ -11,6 +11,7 @@ const ContainerWithBg = styled(VerticalFlex)<{
   background: ${({ isDarkTheme, darkThemeImg, lightThemeImg }) =>
     isDarkTheme ? darkThemeImg : lightThemeImg};
   background-size: cover;
+  background-repeat: no-repeat;
   background-color: ${({ theme }) => theme.colors.bg4};
   width: 100%;
   height: 100%;

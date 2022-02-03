@@ -10,6 +10,7 @@ const ContainerWithBg = styled(VerticalFlex)<{ isDarkTheme: boolean }>`
     isDarkTheme
       ? `url(images/illustrations/no-token-found-dark.png)`
       : `url(images/illustrations/no-token-found-light.png)`};
+  background-repeat: no-repeat;
   width: 100%;
   flex-grow: 1;
   justify-content: flex-end;
