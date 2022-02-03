@@ -6,14 +6,16 @@ import { ContactInput } from './ContactInput';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendStateWithActions } from '../models';
 
+const FALLBACK_MAX = new BN(0);
+
 type SendFormMiniModeProps = {
   sendState: (SendStateWithActions & { errors: SendErrors }) | null;
-  selectedToken?: TokenWithBalance | null;
-  amountInput?: BN;
-  onAmountInputChange({ amount: string, bn: BN }): void;
   contactInput?: Contact;
   onContactChange(contact?: Contact): void;
+  selectedToken?: TokenWithBalance | null;
   onTokenChange(token: TokenWithBalance): void;
+  amountInput?: BN;
+  onAmountInputChange({ amount: string, bn: BN }): void;
 };
 
 export const SendFormMiniMode = ({
@@ -47,7 +49,9 @@ export const SendFormMiniMode = ({
         toggleContactsDropdown={toggleContactsDropdown}
       />
       <TokenSelect
-        maxAmount={sendState?.maxAmount}
+        maxAmount={
+          sendState?.maxAmount || selectedToken?.balance || FALLBACK_MAX
+        }
         selectedToken={selectedToken}
         onTokenChange={onTokenChange}
         inputAmount={amountInput}

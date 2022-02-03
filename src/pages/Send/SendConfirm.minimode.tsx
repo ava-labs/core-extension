@@ -9,6 +9,7 @@ import {
   SecondaryButton,
   AvaxTokenIcon,
   HorizontalSeparator,
+  Tooltip,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import {
@@ -238,6 +239,7 @@ export const SendConfirmMiniMode = ({
             <Typography
               size={12}
               weight={400}
+              height="16px"
               color={theme.colors.text2}
               margin="0 8px 0 0"
             >
@@ -289,13 +291,23 @@ export const SendConfirmMiniMode = ({
               >
                 Cancel
               </SecondaryButton>
-              <PrimaryButton
-                size={ComponentSize.MEDIUM}
-                margin="0 0 0 16px"
-                onClick={onSubmit}
+              <Tooltip
+                content={
+                  <Typography size={14}>{sendState?.error?.message}</Typography>
+                }
+                disabled={!sendState?.error?.error}
               >
-                Send now
-              </PrimaryButton>
+                <span>
+                  <PrimaryButton
+                    size={ComponentSize.MEDIUM}
+                    margin="0 0 0 16px"
+                    onClick={onSubmit}
+                    disabled={!sendState?.canSubmit}
+                  >
+                    Send now
+                  </PrimaryButton>
+                </span>
+              </Tooltip>
             </HorizontalFlex>
           </VerticalFlex>
         </PageContentMiniMode>

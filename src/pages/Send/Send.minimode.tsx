@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import {
   toast,
@@ -38,6 +38,7 @@ export function SendMiniMode() {
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
   const sendState = useSend(selectedToken);
+  const setSendState = sendState.setValues;
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const { showDialog, clearDialog } = useDialog();
@@ -55,27 +56,48 @@ export function SendMiniMode() {
     setContactInput(undefined);
     setAmountInput(undefined);
     setAmountInputDisplay(undefined);
-    sendState?.reset();
+    sendState.reset();
   };
 
   const onContactChanged = (contact: Contact) => {
     setContactInput(contact);
-    sendState?.setValues(amountInputDisplay, contact.address);
+    setSendState({
+      token: selectedToken,
+      amount: amountInputDisplay,
+      address: contact.address,
+    });
   };
 
-  const onAmountChanged = ({ amount, bn }: { amount: string; bn: BN }) => {
-    setAmountInput(bn);
-    setAmountInputDisplay(amount);
-    sendState?.setValues(amount, contactInput?.address);
+  const onTokenChanged = (token: TokenWithBalance) => {
+    setSelectedToken(token);
+    setSendState({
+      token,
+      amount: amountInputDisplay,
+      address: contactInput?.address,
+    });
   };
+
+  const onAmountChanged = useCallback(
+    ({ amount, bn }: { amount: string; bn: BN }) => {
+      setAmountInput(bn);
+      setAmountInputDisplay(amount);
+      setSendState({
+        token: selectedToken,
+        amount: amount,
+        address: contactInput?.address,
+      });
+    },
+    [contactInput?.address, selectedToken, setSendState]
+  );
 
   const onGasChanged = (gasLimit: string, gasPrice: GasPrice) => {
-    sendState?.setValues(
-      amountInputDisplay,
-      contactInput?.address,
+    setSendState({
+      token: selectedToken,
+      amount: amountInputDisplay,
+      address: contactInput?.address,
+      gasLimit: Number(gasLimit),
       gasPrice,
-      Number(gasLimit)
-    );
+    });
   };
 
   const onError = (error: string) => {
@@ -88,16 +110,19 @@ export function SendMiniMode() {
         clearDialog();
         setIsConfirming(false);
       },
-      cancelText: 'Back to Portfolio',
-      onCancel: () => clearDialog(),
+      cancelText: 'Back to Home',
+      onCancel: () => {
+        clearDialog();
+        history.push('/home');
+      },
     });
   };
 
   const onSubmit = () => {
     setShowTxInProgress(true);
-    if (!sendState?.canSubmit) return;
+    if (!sendState.canSubmit) return;
     sendState
-      ?.submit()
+      .submit()
       .then((txId) => {
         resetSendFlow();
         toast.custom(
@@ -116,14 +141,14 @@ export function SendMiniMode() {
       .finally(() => setShowTxInProgress(false));
   };
 
-  return isConfirming && sendState?.canSubmit ? (
+  return isConfirming ? (
     <>
       {showTxInProgress && (
         <TxInProgress
           address={sendState?.address}
           amount={amountInputDisplay}
           symbol={selectedToken.symbol}
-          fee={Utils.bnToLocaleString(sendState.sendFee || new BN(0), 18)}
+          fee={Utils.bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
         />
       )}
       <SendConfirmMiniMode
@@ -147,7 +172,7 @@ export function SendMiniMode() {
           contactInput={contactInput}
           onContactChange={onContactChanged}
           selectedToken={selectedToken}
-          onTokenChange={setSelectedToken}
+          onTokenChange={onTokenChanged}
           amountInput={amountInput}
           onAmountInputChange={onAmountChanged}
           sendState={sendState}
@@ -161,15 +186,15 @@ export function SendMiniMode() {
         >
           <Tooltip
             content={
-              <Typography size={14}>{sendState?.error?.message}</Typography>
+              <Typography size={14}>{sendState.error?.message}</Typography>
             }
-            disabled={!sendState?.error?.error}
+            disabled={!sendState.error?.error}
           >
             <span>
               <PrimaryButton
                 size={ComponentSize.LARGE}
                 onClick={() => setIsConfirming(true)}
-                disabled={!sendState?.canSubmit}
+                disabled={!sendState.canSubmit}
               >
                 Next
               </PrimaryButton>

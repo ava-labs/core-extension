@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
 import {
   VerticalFlex,
   HorizontalFlex,
@@ -57,7 +57,7 @@ const StyledDropdownMenuItem = styled(DropDownMenuItem)`
 interface TokenSelectProps {
   selectedToken?: TokenWithBalance | null;
   onTokenChange(token: TokenWithBalance): void;
-  maxAmount?: BN;
+  maxAmount: BN;
   inputAmount?: BN;
   onInputAmountChange?({ amount: string, bn: BN }): void;
   onSelectToggle?(): void;
@@ -85,20 +85,38 @@ export function TokenSelect({
   const [searchQuery, setSearchQuery] = useState('');
   const [bnError, setBNError] = useState('');
 
-  // When setting to the max, pin the input value to the max value
-  const [isMaxAmount, setIsMaxAmount] = useState(false);
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
-  const handleAmountChange = ({ amount, bn }: { amount: string; bn: BN }) => {
-    setIsMaxAmount(bn.eq(maxAmount || selectedToken?.balance || new BN(0)));
-    setAmountInCurrency(
-      !bn.isZero() && selectedToken?.priceUSD
-        ? currencyFormatter(
-            Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
-          )
-        : undefined
-    );
-    onInputAmountChange && onInputAmountChange({ amount, bn });
-  };
+  // Stringify maxAmount for referential equality in useEffect
+  const maxAmountString = Utils.bnToLocaleString(maxAmount, 18);
+  const [isMaxAmount, setIsMaxAmount] = useState(false);
+  const handleAmountChange = useCallback(
+    ({ amount, bn }: { amount: string; bn: BN }) => {
+      setIsMaxAmount(maxAmountString === amount);
+      setAmountInCurrency(
+        !bn.isZero() && selectedToken?.priceUSD
+          ? currencyFormatter(
+              Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
+            )
+          : undefined
+      );
+      onInputAmountChange && onInputAmountChange({ amount, bn });
+    },
+    [
+      currencyFormatter,
+      onInputAmountChange,
+      selectedToken?.priceUSD,
+      maxAmountString,
+    ]
+  );
+
+  // When setting to the max, pin the input value to the max value
+  useEffect(() => {
+    if (!isMaxAmount) return;
+    handleAmountChange({
+      amount: maxAmountString,
+      bn: Utils.numberToBN(maxAmountString, 18),
+    });
+  }, [maxAmountString, handleAmountChange, isMaxAmount]);
 
   return (
     <VerticalFlex width="100%" style={{ margin, padding: '0 16px' }}>
