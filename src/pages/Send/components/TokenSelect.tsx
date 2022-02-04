@@ -18,7 +18,7 @@ import {
   isERC20Token,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import Scrollbars from 'react-custom-scrollbars';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 

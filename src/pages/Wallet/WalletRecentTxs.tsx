@@ -10,7 +10,7 @@ import {
   isTransactionERC20,
   isTransactionNormal,
 } from '@avalabs/wallet-react-components';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { TransactionERC20 } from './components/History/TransactionERC20';

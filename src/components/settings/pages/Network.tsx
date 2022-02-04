@@ -7,7 +7,7 @@ import {
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { LOCAL_NETWORK } from '@avalabs/wallet-react-components';
 

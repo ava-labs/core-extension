@@ -10,9 +10,12 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars-2';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { AccountDropdownItem } from './AccountDropdownItem';
+import {
+  Scrollbars,
+  ScrollbarsRef,
+} from '@src/components/common/scrollbars/Scrollbars';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
@@ -25,7 +28,7 @@ export function AccountDropdownContent({
     useAccountsContext();
 
   const theme = useTheme();
-  const scrollbarsRef = useRef<Scrollbars>(null);
+  const scrollbarsRef = useRef<ScrollbarsRef>(null);
 
   const [editing, isEditing] = useState<boolean>(false);
   const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
@@ -87,7 +90,6 @@ export function AccountDropdownContent({
           maxHeight: 'unset',
           height: '100%',
           width: '100%',
-          padding: '0 15px 15px 0',
         }}
         autoHide={false}
         ref={scrollbarsRef}

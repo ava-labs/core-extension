@@ -41,7 +41,7 @@ import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { TxInProgress } from '../../components/common/TxInProgress';
 import { useHistory } from 'react-router-dom';
 import { GasPrice } from '@src/background/services/gas/models';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 export interface Token {

@@ -8,7 +8,7 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import {
   SUPPORTED_LEDGER_VERSION,
   useLedgerSupportContext,

@@ -56,10 +56,13 @@ const AccountItem = styled(HorizontalFlex)<{
   edit?: boolean;
 }>`
   background-color: ${({ theme, selected }) =>
-    selected ? `${theme.colors.stroke2}4D` : 'auto'};
+    selected ? theme.colors.stroke1 : 'auto'};
   width: 100%;
   height: ${({ edit }) => (edit ? '57px' : '48px')};
   padding: 8px 16px;
+  z-index: ${({ selected }) => (selected ? 2 : 'unset')};
+  margin-top: ${({ selected }) => (selected ? `-1px` : '0')};
+  margin-bottom: ${({ selected }) => (selected ? `-1px` : '0')};
   justify-content: space-between;
   cursor: pointer;
   overflow: hidden;

@@ -13,8 +13,8 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars-2';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 
 const DropDownMenuItemWithBorder = styled(DropDownMenuItem)`
   border-bottom: solid 1px ${({ theme }) => theme.colors.stroke1};
@@ -66,7 +66,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
           autoFocus={true}
         />
       </VerticalFlex>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+      <Scrollbars>
         {filteredContacts.length === 0 && (
           <Typography margin="16px" as="p" align="center" color="text2">
             No contacts found

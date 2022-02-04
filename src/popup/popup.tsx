@@ -24,7 +24,6 @@ import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import { GlobalStyles } from '@src/styles';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
 import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
@@ -141,7 +140,6 @@ export function Popup() {
                     <SwapContextProvider>
                       <ContactsContextProvider>
                         <PermissionContextProvider>
-                          <GlobalStyles />
                           <Toaster />
 
                           <VerticalFlex

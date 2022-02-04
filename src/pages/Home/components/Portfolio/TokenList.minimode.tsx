@@ -14,10 +14,10 @@ import {
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
 import { TokenListItemMiniMode } from './TokenListItem.minimode';
-import Scrollbars from 'react-custom-scrollbars-2';
 import { NoTokenFound } from './NoTokenFound';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
@@ -84,7 +84,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
           </Typography>
         </TextButton>
       </HorizontalFlex>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+      <Scrollbars>
         <VerticalFlex padding="0px 16px 73px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (
             <TokenListItemMiniMode

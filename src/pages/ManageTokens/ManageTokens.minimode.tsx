@@ -12,7 +12,7 @@ import {
 } from '@src/pages/ManageTokens/Page.minimode';
 import { ManageTokensList } from './ManageTokensList.minimode';
 import styled, { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 
 const StyledSearchInput = styled(SearchInput)`

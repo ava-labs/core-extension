@@ -12,7 +12,7 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { useState } from 'react';
 import { Contact } from '@src/background/services/contacts/models';

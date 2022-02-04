@@ -15,7 +15,10 @@ import {
   SecondaryCard,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars-2';
+import {
+  Scrollbars,
+  ScrollbarsRef,
+} from '@src/components/common/scrollbars/Scrollbars';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
@@ -51,7 +54,7 @@ export function PermissionsPage() {
   const [selectedAccount, setSelectedAccount] = useState<Account>(
     activeAccount || accounts[0]
   );
-  const scrollbarsRef = useRef<Scrollbars>(null);
+  const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
