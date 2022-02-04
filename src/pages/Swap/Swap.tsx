@@ -286,9 +286,6 @@ export function Swap() {
   };
 
   const swapTokens = () => {
-    if (!canSwap) {
-      return;
-    }
     if (
       !tokensWBalances.some(
         (token) =>
