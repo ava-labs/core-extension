@@ -91,7 +91,7 @@ export function TransactionDetails({
             </VerticalFlex>
             <VerticalFlex>
               <Typography>
-                1 {fromTokenSymbol} ~ {rate?.toFixed(4)} {toTokenSymbol}
+                1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
               </Typography>
             </VerticalFlex>
           </DetailsRow>

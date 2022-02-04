@@ -136,6 +136,15 @@ export function Swap() {
     [setValuesDebouncedSubject]
   );
 
+  const calculateRate = (optimalRate: OptimalRate) => {
+    const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
+    const destAmountNumber =
+      parseInt(destAmount, 10) / Math.pow(10, destDecimals);
+    const sourceAmountNumber =
+      parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
+    return destAmountNumber / sourceAmountNumber;
+  };
+
   useEffect(() => {
     if (
       gasPrice &&
@@ -486,10 +495,7 @@ export function Swap() {
             <TransactionDetails
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
-              rate={
-                parseInt(optimalRate?.destAmount || '0', 10) /
-                parseInt(optimalRate?.srcAmount || '0', 10)
-              }
+              rate={calculateRate(optimalRate)}
               walletFee={optimalRate.partnerFee}
               onGasChange={(limit, price) => {
                 setGasLimit(limit);
@@ -590,6 +596,7 @@ export function Swap() {
           }}
           isLoading={isLoading}
           rateValueInput={destinationInputField}
+          rate={calculateRate(optimalRate)}
         />
       )}
 

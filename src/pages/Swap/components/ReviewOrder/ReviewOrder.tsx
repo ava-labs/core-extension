@@ -37,6 +37,7 @@ export interface ReviewOrderProps {
   onTimerExpire: () => void;
   isLoading: boolean;
   rateValueInput: 'from' | 'to' | '';
+  rate: number;
 }
 
 const ReviewOrderOverlay = styled(Overlay)`
@@ -70,14 +71,11 @@ export function ReviewOrder({
   slippage,
   onTimerExpire,
   isLoading,
+  rate,
 }: ReviewOrderProps) {
   const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
   useLedgerDisconnectedDialog();
-
-  const rate =
-    parseInt(optimalRate?.destAmount || '0', 10) /
-    parseInt(optimalRate?.srcAmount || '0', 10);
 
   return (
     <ReviewOrderOverlay>
@@ -155,7 +153,7 @@ export function ReviewOrder({
               </VerticalFlex>
               <VerticalFlex>
                 <Typography>
-                  1 {fromToken?.symbol} ~ {rate?.toFixed(4)} {toToken?.symbol}
+                  1 {fromToken?.symbol} ≈ {rate?.toFixed(4)} {toToken?.symbol}
                 </Typography>
               </VerticalFlex>
             </DetailsRow>
