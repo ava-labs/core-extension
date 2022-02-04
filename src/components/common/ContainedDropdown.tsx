@@ -25,7 +25,6 @@ const Dropdown = styled.div`
   display: flex;
   flex-flow: column;
   position: absolute;
-  overflow-y: scroll;
   width: 100%;
   background: ${({ theme }) => theme.overlay.secondary.bg};
 `;
