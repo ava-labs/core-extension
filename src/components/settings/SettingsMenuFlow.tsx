@@ -19,6 +19,7 @@ import { EditContact } from './pages/EditContact';
 import { AddContact } from './pages/AddContact';
 import { ContactList } from './pages/ContactList';
 import { Advanced } from './pages/Advanced';
+import { ConnectedSites } from './pages/ConnectedSites';
 import { Ledger } from './pages/Ledger';
 
 const AnimatedContainer = styled(VerticalFlex)`
@@ -135,6 +136,9 @@ export function SettingsMenuFlow() {
       break;
     case SettingsPages.ADVANCED:
       pageElement = <Advanced {...pageProps} />;
+      break;
+    case SettingsPages.CONNECTED_SITES:
+      pageElement = <ConnectedSites {...pageProps} />;
       break;
     case SettingsPages.LEDGER:
       pageElement = <Ledger {...pageProps} />;

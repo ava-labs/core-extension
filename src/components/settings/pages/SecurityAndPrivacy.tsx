@@ -53,6 +53,20 @@ export function SecurityAndPrivacy({
         navigateTo={navigateTo}
         title={'Security & Privacy'}
       />
+
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        onClick={() => navigateTo(SettingsPages.CONNECTED_SITES)}
+      >
+        <Typography>Connected sites</Typography>
+        <CaretIcon
+          color={theme.colors.icon1}
+          height="14px"
+          direction={IconDirection.RIGHT}
+        />
+      </DropDownMenuItem>
+
       <DropDownMenuItem
         justify="space-between"
         align="center"
@@ -65,6 +79,7 @@ export function SecurityAndPrivacy({
           direction={IconDirection.RIGHT}
         />
       </DropDownMenuItem>
+
       {walletType === 'mnemonic' && (
         <DropDownMenuItem
           justify="space-between"

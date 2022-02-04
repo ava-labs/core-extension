@@ -11,19 +11,23 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
-import { usePermissions } from '@src/pages/Permissions/usePermissions';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
+import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
 
 export function HeaderMiniMode() {
   const domain = useCurrentDomain();
   const theme = useTheme();
-  const { permissions, updateAccountPermission } = usePermissions(domain);
+  const { updateAccountPermission, isDomainConnectedToAccount } =
+    usePermissionContext();
   const { addresses } = useWalletContext();
-  const isConnected = permissions && permissions.accounts[addresses.addrC];
+  const isConnected =
+    (isDomainConnectedToAccount &&
+      isDomainConnectedToAccount(domain, addresses.addrC)) ||
+    false;
   const history = useHistory();
 
   const toggleReceivePage = () => {
@@ -60,7 +64,11 @@ export function HeaderMiniMode() {
                   width="208px"
                   size={ComponentSize.SMALL}
                   onClick={() => {
-                    updateAccountPermission(addresses.addrC, false);
+                    updateAccountPermission({
+                      addressC: addresses.addrC,
+                      hasPermission: false,
+                      domain,
+                    });
                   }}
                 >
                   Disconnect
