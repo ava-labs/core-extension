@@ -36,6 +36,7 @@ export const PageTitleMiniMode = ({
       align="center"
       position="relative"
       height="53px"
+      width="100%"
       paddingTop={variant === PageTitleVariant.PRIMARY ? '16px' : undefined}
     >
       <BackButton

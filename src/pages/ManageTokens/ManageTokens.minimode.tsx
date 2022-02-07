@@ -6,14 +6,11 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import {
-  PageContentMiniMode,
-  PageTitleMiniMode,
-} from '@src/pages/ManageTokens/Page.minimode';
 import { ManageTokensList } from './ManageTokensList.minimode';
 import styled, { useTheme } from 'styled-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 const StyledSearchInput = styled(SearchInput)`
   margin-top: 12px;
@@ -27,8 +24,13 @@ export const ManageTokensMiniMode = () => {
 
   return (
     <VerticalFlex flex={1}>
-      <PageTitleMiniMode showBack>Manage token list</PageTitleMiniMode>
-      <PageContentMiniMode>
+      <PageTitleMiniMode>Manage token list</PageTitleMiniMode>
+      <VerticalFlex
+        grow="1"
+        align="center"
+        width="100%"
+        padding="0 16px 16px 16px"
+      >
         <StyledSearchInput
           searchTerm={searchQuery}
           placeholder="Search"
@@ -56,7 +58,7 @@ export const ManageTokensMiniMode = () => {
           </TextButton>
           <ManageTokensList searchQuery={searchQuery} />
         </Scrollbars>
-      </PageContentMiniMode>
+      </VerticalFlex>
     </VerticalFlex>
   );
 };

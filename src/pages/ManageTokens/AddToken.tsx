@@ -8,10 +8,6 @@ import {
   toast,
 } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/models';
-import {
-  PageContentMiniMode,
-  PageTitleMiniMode,
-} from '@src/pages/ManageTokens/Page.minimode';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -19,6 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -87,8 +84,13 @@ export function AddToken() {
   return (
     <>
       <VerticalFlex flex={1} align="center">
-        <PageTitleMiniMode showBack>Add custom token</PageTitleMiniMode>
-        <PageContentMiniMode>
+        <PageTitleMiniMode>Add custom token</PageTitleMiniMode>
+        <VerticalFlex
+          grow="1"
+          align="center"
+          width="100%"
+          padding="0 16px 16px 16px"
+        >
           <AddressInput
             size={ComponentSize.SMALL}
             margin="12px 0 10px 0"
@@ -115,7 +117,7 @@ export function AddToken() {
               Add token
             </PrimaryButton>
           </VerticalFlex>
-        </PageContentMiniMode>
+        </VerticalFlex>
       </VerticalFlex>
     </>
   );
