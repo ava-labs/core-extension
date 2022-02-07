@@ -37,6 +37,7 @@ const SelectContainer = styled.div`
 const DropdownContents = styled(VerticalFlex)`
   flex-grow: 1;
   background: ${({ theme }) => theme.swapCard.inputContainerBg};
+  border-radius: 0 0 8px 8px;
 `;
 
 const SearchInputContainer = styled.div`

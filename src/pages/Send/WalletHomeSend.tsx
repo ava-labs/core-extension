@@ -16,9 +16,7 @@ export function WalletHomeSend() {
   const selectedToken = useTokenFromParams();
 
   const onSelect = (token: TokenWithBalance) => {
-    token.isAvax
-      ? setTokenInParams(AVAX_TOKEN.symbol)
-      : setTokenInParams(token.symbol);
+    token.isAvax ? setTokenInParams(AVAX_TOKEN) : setTokenInParams(token);
   };
 
   useEffect(() => {
@@ -36,7 +34,7 @@ export function WalletHomeSend() {
         map((evt) => evt.value)
       )
       .subscribe(() => {
-        setTokenInParams(AVAX_TOKEN.symbol);
+        setTokenInParams(AVAX_TOKEN);
       });
 
     return () => {

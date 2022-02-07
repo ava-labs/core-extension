@@ -32,7 +32,7 @@ export function TokenList() {
       <GridLineSeparator columns={4} />
 
       {AVAX_TOKEN ? (
-        <GridContainerItems onClick={() => setTokenInParams(AVAX_TOKEN.symbol)}>
+        <GridContainerItems onClick={() => setTokenInParams(AVAX_TOKEN)}>
           <TokenListItem
             name={AVAX_TOKEN.name}
             symbol={AVAX_TOKEN.symbol}
@@ -52,7 +52,7 @@ export function TokenList() {
         .map((token) => (
           <GridContainerItems
             key={isERC20Token(token) ? token.address : (token as any).symbol}
-            onClick={() => setTokenInParams(token.symbol)}
+            onClick={() => setTokenInParams(token)}
           >
             <TokenListItem
               name={token.name}
@@ -75,7 +75,7 @@ export function TokenList() {
                 ? token.address
                 : (token as AntWithBalance).symbol
             }
-            onClick={() => setTokenInParams(token.symbol)}
+            onClick={() => setTokenInParams(token)}
           >
             <TokenListItem
               name={token.name}

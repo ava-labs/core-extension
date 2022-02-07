@@ -11,7 +11,6 @@ import {
   isAntToken,
   isAvaxToken,
   isERC20Token,
-  TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
@@ -21,6 +20,7 @@ import { TokenListItemMiniMode } from './TokenListItem.minimode';
 import { NoTokenFound } from './NoTokenFound';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 interface TokenListMiniModeProps {
   searchQuery?: string;
@@ -30,7 +30,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
   const { getTokenVisibility } = useSettingsContext();
   const tokensWithBalances = useTokensWithBalances();
   const history = useHistory();
-  const AVAX_TOKEN = tokensWithBalances.find((token) => isAvaxToken(token));
+  const { avaxToken } = useWalletContext();
   const setTokenInParams = useSetTokenInParams();
   const { tokens, showAvax } = useMemo(() => {
     const tokens = (
@@ -46,15 +46,11 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
 
     const showAvax =
       searchQuery &&
-      ((AVAX_TOKEN as TokenWithBalance).name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-        (AVAX_TOKEN as TokenWithBalance).symbol
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()));
+      (avaxToken.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        avaxToken.symbol.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return { tokens, showAvax };
-  }, [searchQuery, tokensWithBalances, AVAX_TOKEN, getTokenVisibility]);
+  }, [searchQuery, tokensWithBalances, avaxToken, getTokenVisibility]);
 
   const toggleManageTokensPage = () => {
     if (history.location.pathname.startsWith('/manage-tokens')) {
@@ -86,13 +82,13 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
       </HorizontalFlex>
       <Scrollbars>
         <VerticalFlex padding="0px 16px 73px">
-          {AVAX_TOKEN && (!searchQuery || showAvax) && (
+          {avaxToken && (!searchQuery || showAvax) && (
             <TokenListItemMiniMode
-              onClick={() => setTokenInParams(AVAX_TOKEN.symbol, '/token')}
-              name={AVAX_TOKEN.name}
-              symbol={AVAX_TOKEN.symbol}
-              balanceDisplayValue={AVAX_TOKEN.balanceDisplayValue}
-              balanceUSD={AVAX_TOKEN.balanceUsdDisplayValue?.toString()}
+              onClick={() => setTokenInParams(avaxToken, { path: '/token' })}
+              name={avaxToken.name}
+              symbol={avaxToken.symbol}
+              balanceDisplayValue={avaxToken.balanceDisplayValue}
+              balanceUSD={avaxToken.balanceUsdDisplayValue?.toString()}
             >
               <AvaxTokenIcon height="32px" />
             </TokenListItemMiniMode>
@@ -103,7 +99,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
             .map((token) => {
               return (
                 <TokenListItemMiniMode
-                  onClick={() => setTokenInParams(token.symbol, '/token')}
+                  onClick={() => setTokenInParams(token, { path: '/token' })}
                   key={
                     isERC20Token(token) ? token.address : (token as any).symbol
                   }
@@ -131,7 +127,7 @@ export function TokenListMiniMode({ searchQuery }: TokenListMiniModeProps) {
                     ? token.address
                     : (token as AntWithBalance).symbol
                 }
-                onClick={() => setTokenInParams(token.symbol, '/token')}
+                onClick={() => setTokenInParams(token, { path: '/token' })}
                 name={token.name}
                 symbol={token.symbol}
                 balanceDisplayValue={token.balanceDisplayValue}

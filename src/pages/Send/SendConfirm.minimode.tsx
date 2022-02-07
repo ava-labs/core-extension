@@ -110,7 +110,6 @@ type SendConfirmProps = {
   contact: Contact;
   token: TokenWithBalance;
   fallbackAmountDisplayValue?: string;
-  cancelConfirm(): void;
   onSubmit(): void;
   onGasChanged(gasLimit: string, gasPrice: GasPrice): void;
 };
@@ -120,7 +119,6 @@ export const SendConfirmMiniMode = ({
   contact,
   token,
   fallbackAmountDisplayValue,
-  cancelConfirm,
   onSubmit,
   onGasChanged,
 }: SendConfirmProps) => {
@@ -174,10 +172,7 @@ export const SendConfirmMiniMode = ({
   return (
     <>
       <VerticalFlex height="100%" width="100%">
-        <PageTitleMiniMode
-          onBackClick={cancelConfirm}
-          variant={PageTitleVariant.PRIMARY}
-        >
+        <PageTitleMiniMode variant={PageTitleVariant.PRIMARY}>
           Confirm Transaction
         </PageTitleMiniMode>
         <VerticalFlex
@@ -295,7 +290,7 @@ export const SendConfirmMiniMode = ({
             <HorizontalFlex justify="center">
               <SecondaryButton
                 size={ComponentSize.MEDIUM}
-                onClick={cancelConfirm}
+                onClick={() => history.goBack()}
               >
                 Cancel
               </SecondaryButton>

@@ -87,7 +87,7 @@ export function TokenFlowMiniMode() {
         <SecondaryButton
           size={ComponentSize.MEDIUM}
           margin="0 0 0 16px"
-          onClick={() => setTokenInParams(token.symbol, '/send')}
+          onClick={() => setTokenInParams(token, { path: '/send' })}
         >
           Send
         </SecondaryButton>
