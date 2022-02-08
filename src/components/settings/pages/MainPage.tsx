@@ -138,10 +138,10 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
       )}
       <DropDownMenuItem justify="space-between" padding="12px 16px">
         <Typography weight={600} height="24px">
-          Hide tokens without balance
+          Show tokens without balance
         </Typography>
         <Toggle
-          isChecked={!showTokensWithoutBalances}
+          isChecked={showTokensWithoutBalances}
           onChange={() => toggleShowTokensWithoutBalanceSetting()}
         />
       </DropDownMenuItem>
