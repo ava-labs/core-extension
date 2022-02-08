@@ -84,19 +84,19 @@ export function AddToken() {
   return (
     <>
       <VerticalFlex flex={1} align="center">
-        <PageTitleMiniMode>Add custom token</PageTitleMiniMode>
+        <PageTitleMiniMode>Add Custom Token</PageTitleMiniMode>
         <VerticalFlex
           grow="1"
           align="center"
           width="100%"
-          padding="0 16px 16px 16px"
+          padding="8px 16px 24px 16px"
         >
           <AddressInput
             size={ComponentSize.SMALL}
             margin="12px 0 10px 0"
-            label={'Address'}
+            label={'Custom Token Address'}
             value={addressInput}
-            placeholder="Enter the address"
+            placeholder="Enter an address"
             onChange={(e) =>
               setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
             }
@@ -114,7 +114,7 @@ export function AddToken() {
               onClick={addCustomToken}
               disabled={isLoading || !!error?.length || !tokenData}
             >
-              Add token
+              Add Token
             </PrimaryButton>
           </VerticalFlex>
         </VerticalFlex>

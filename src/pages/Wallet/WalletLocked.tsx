@@ -69,19 +69,19 @@ export function WalletLocked({
 
   return (
     <VerticalFlex
-      padding="32px 16px 36px"
+      padding="32px 16px 24px"
       align={'center'}
       justify={'center'}
       {...dimensions}
     >
-      <Typography size={24} height="29px" weight={700}>
+      <Typography size={18} height="22px" weight={600}>
         Welcome Back!
       </Typography>
       <VerticalFlex grow="1" justify="center" align="center">
-        <LoginIllustration size={146} />
+        <LoginIllustration size={144} />
       </VerticalFlex>
 
-      <VerticalFlex align="center" height="105px">
+      <VerticalFlex align="center" height="88px">
         <Input
           type="password"
           label="Password"
@@ -105,12 +105,12 @@ export function WalletLocked({
         onClick={handleSubmit}
       >
         {(loggingIn || loginSuccess) && (
-          <StyledLoading height="24px" color={theme.colors.stroke2} />
+          <StyledLoading height="16px" color={theme.colors.stroke2} />
         )}
         Login
       </PrimaryButton>
-      <HorizontalSeparator margin="24px 0" />
-      <TextButton onClick={() => onImportClick()}>
+      <HorizontalSeparator margin="24px 0 8px" />
+      <TextButton height="40px" onClick={() => onImportClick()}>
         Import a wallet using recovery phrase
       </TextButton>
     </VerticalFlex>

@@ -59,7 +59,7 @@ export const SendFormMiniMode = ({
         onSelectToggle={toggleTokenDropdown}
         isOpen={isTokenSelectOpen}
         error={sendState?.error?.message}
-        margin="32px 0"
+        margin="24px 0"
       />
     </>
   );

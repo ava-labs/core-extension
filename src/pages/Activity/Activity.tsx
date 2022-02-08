@@ -5,20 +5,20 @@ import {
 } from '@avalabs/react-components';
 import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
 
-type ActivityMiniModeProps = {
+type ActivityProps = {
   isEmbedded?: boolean;
   tokenSymbolFilter?: string;
 };
 
-export function ActivityMiniMode({
+export function Activity({
   isEmbedded = false,
   tokenSymbolFilter,
-}: ActivityMiniModeProps) {
+}: ActivityProps) {
   return (
     <VerticalFlex width={'100%'} align={'center'} style={{ flex: 1 }}>
       {isEmbedded && (
         <HorizontalFlex width="100%">
-          <Typography size={18} height="29px" weight={700} as="h1">
+          <Typography size={14} height="24px" as="h1">
             Activity
           </Typography>
         </HorizontalFlex>

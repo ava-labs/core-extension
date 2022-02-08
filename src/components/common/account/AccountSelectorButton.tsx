@@ -22,7 +22,7 @@ const AccountName = styled(Typography)`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 24px;
   font-weight: 600;
 `;

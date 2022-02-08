@@ -2,17 +2,16 @@ import {
   HorizontalFlex,
   Input,
   PrimaryButton,
-  TextButton,
   Typography,
   VerticalFlex,
-  CaretIcon,
-  IconDirection,
+  SubTextTypography,
+  ComponentSize,
 } from '@avalabs/react-components';
 import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useState } from 'react';
-import { useTheme } from 'styled-components';
+import { PageTitleMiniMode } from './PageTitle';
 
 interface CustomGasLimitProps {
   limit: string;
@@ -34,8 +33,6 @@ export function CustomGasLimit({
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
   >(calculateGasAndFees(gasPrice, limit, avaxPrice));
-  const theme = useTheme();
-
   function handleOnSave(): void {
     if (customGasLimit) {
       onSave(customGasLimit);
@@ -59,48 +56,39 @@ export function CustomGasLimit({
   };
 
   return (
-    <VerticalFlex margin="24px 0 0 0" height="100%">
-      <HorizontalFlex align="center">
-        <TextButton onClick={() => onCancel()} margin="0 84px 0 0">
-          <CaretIcon
-            height="20px"
-            direction={IconDirection.LEFT}
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography as="h1" size={24} weight={700} align="center">
-          Edit Gas Limit
-        </Typography>
-      </HorizontalFlex>
-      <VerticalFlex padding="32px 0 0 0">
+    <VerticalFlex padding="16px 0 24px 0" height="100%">
+      <PageTitleMiniMode onBackClick={onCancel}>
+        Edit Gas Limit
+      </PageTitleMiniMode>
+      <VerticalFlex padding="8px 16px 0">
         <Typography
-          size={36}
-          weight={700}
+          size={32}
+          height="44px"
           padding="0 0 8px 0"
           wordBreak="break-word"
         >
           {newFees.fee}
-          <Typography
-            padding="0 0 0 4px"
-            weight={600}
-            color={theme.colors.text2}
-          >
+          <SubTextTypography padding="0 0 0 4px" weight={500} height="24px">
             AVAX
-          </Typography>
+          </SubTextTypography>
         </Typography>
+        <Input
+          label={'Gas Limit'}
+          type={'number'}
+          value={customGasLimit}
+          onChange={(evt) => checkCustomGasLimit(evt.currentTarget.value)}
+          margin="16px 0 0 0"
+          error={!!calculateGasAndFeesError}
+          errorMessage={calculateGasAndFeesError}
+        />
       </VerticalFlex>
-      <Input
-        label={'Gas Limit'}
-        type={'number'}
-        value={customGasLimit}
-        onChange={(evt) => checkCustomGasLimit(evt.currentTarget.value)}
-        margin="24px 0 0 0"
-        error={!!calculateGasAndFeesError}
-        errorMessage={calculateGasAndFeesError}
-      />
 
-      <HorizontalFlex flex={1} align="flex-end" width="100%">
-        <PrimaryButton width="100%" onClick={handleOnSave}>
+      <HorizontalFlex flex={1} align="flex-end" padding="0 16px" width="100%">
+        <PrimaryButton
+          size={ComponentSize.LARGE}
+          width="100%"
+          onClick={handleOnSave}
+        >
           Save
         </PrimaryButton>
       </HorizontalFlex>

@@ -16,7 +16,7 @@ interface LedgerApprovalDialogProps {
 }
 
 const StyledCard = styled(SecondaryCard)`
-  margin: 24px 0 0 0;
+  margin: 16px 0 0 0;
   radius: 8px;
   padding: 16px;
   background-color: ${({ theme }) => `${theme.colors.bg3}80`};
@@ -37,7 +37,7 @@ export function LedgerApprovalDialog({
       radius={theme.borderRadius}
       background={theme.colors.bg2}
     >
-      <Typography weight={700} size={18}>
+      <Typography weight={600} size={18} height="22px">
         Approve on your Ledger
       </Typography>
       <StyledCard>

@@ -2,6 +2,7 @@ import {
   ConnectionIndicator,
   HorizontalFlex,
   HorizontalSeparator,
+  SecondaryDropDownMenuItem,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -15,10 +16,13 @@ import {
 } from '@src/contexts/LedgerSupportProvider';
 
 const StyledNumberList = styled(Typography)`
+  font-size: 14px;
   display: block;
   background-color: ${({ theme }) => theme.colors.bg3};
   height: 24px;
   width: 24px;
+  min-width: 24px;
+  line-height: 24px;
   border-radius: 50%;
   text-align: center;
   padding: 0 6px;
@@ -38,14 +42,17 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
         title={'Ledger'}
       />
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <HorizontalFlex
+        <SecondaryDropDownMenuItem
+          selected={hasLedgerTransport}
           justify="space-between"
           align="center"
-          padding="16px 16px"
-          marginTop="16px"
+          padding="10px 16px"
+          margin="16px 0 0"
           background={theme.colors.bg3}
         >
-          <Typography height="24px">Status</Typography>
+          <Typography size={14} height="17px">
+            Status
+          </Typography>
           <HorizontalFlex align="center">
             <ConnectionIndicator
               connected={hasLedgerTransport}
@@ -61,32 +68,37 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
               {hasLedgerTransport ? 'Connected' : 'Disconnected'}
             </Typography>
           </HorizontalFlex>
-        </HorizontalFlex>
+        </SecondaryDropDownMenuItem>
         {!hasLedgerTransport && (
-          <VerticalFlex width="100%" padding="16px 20px">
-            <Typography padding="0 0 24px 0" height="24px" weight={600}>
-              To connect:
+          <VerticalFlex width="100%" padding="0 16px">
+            <Typography
+              padding="10px 0"
+              margin="0 0 16px"
+              size={14}
+              height="17px"
+            >
+              To Connect:
             </Typography>
             <HorizontalFlex>
-              <StyledNumberList height="24px">1.</StyledNumberList>
-              <Typography height="24px" margin="0 0 24px 0">
+              <StyledNumberList>1.</StyledNumberList>
+              <Typography size={14} height="17px" margin="0 0 24px 0">
                 Connect the Ledger device to your computer.
               </Typography>
             </HorizontalFlex>
 
             <HorizontalFlex>
-              <StyledNumberList height="24px">2.</StyledNumberList>
-              <Typography height="24px" margin="0 0 24px 0">
+              <StyledNumberList>2.</StyledNumberList>
+              <Typography size={14} height="17px" margin="0 0 24px 0">
                 Enter your PIN and access your device.
               </Typography>
             </HorizontalFlex>
 
             <HorizontalFlex>
-              <StyledNumberList height="24px">3.</StyledNumberList>
-              <Typography height="24px">
+              <StyledNumberList>3.</StyledNumberList>
+              <Typography size={14} height="17px">
                 Ensure you have installed the{' '}
-                <b>Avalanche App v{SUPPORTED_LEDGER_VERSION}</b> (or above) and
-                open it on your device.
+                <strong>Avalanche App v{SUPPORTED_LEDGER_VERSION}</strong> (or
+                above) and open it on your device.
               </Typography>
             </HorizontalFlex>
 

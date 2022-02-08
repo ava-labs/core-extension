@@ -23,7 +23,7 @@ export function TransactionNormal({
       ) : (
         <HistoryItem label={'Avalanche'} item={item}>
           <VerticalFlex>
-            <Typography height="24px">
+            <Typography size={14} height="24px">
               {item.isSender ? '-' : '+'}
               {item.amountDisplayValue} AVAX
             </Typography>

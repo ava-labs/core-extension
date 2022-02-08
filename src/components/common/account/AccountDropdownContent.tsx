@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CloseIcon,
+  ComponentSize,
   HorizontalFlex,
   HorizontalSeparator,
   PrimaryButton,
@@ -76,7 +77,7 @@ export function AccountDropdownContent({
         margin="16px 0 8px"
         padding="0 16px"
       >
-        <Typography size={24} weight={700} height="29px">
+        <Typography size={20} weight={600} height="29px">
           Accounts
         </Typography>
         <TextButton onClick={() => onClose?.()}>
@@ -121,8 +122,17 @@ export function AccountDropdownContent({
           })}
         </VerticalFlex>
       </Scrollbars>
-      <HorizontalFlex justify="center" padding="16px" width="100%">
-        <PrimaryButton width="100%" onClick={() => addAccountAndFocus()}>
+      <HorizontalFlex
+        background={`${theme.colors.bg2}99`}
+        justify="center"
+        padding="12px 16px 24px"
+        width="100%"
+      >
+        <PrimaryButton
+          size={ComponentSize.LARGE}
+          width="100%"
+          onClick={() => addAccountAndFocus()}
+        >
           Add Account
         </PrimaryButton>
       </HorizontalFlex>

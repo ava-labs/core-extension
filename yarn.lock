@@ -31,10 +31,10 @@
     web3-eth-contract "1.6.0"
     xss "^1.0.10"
 
-"@avalabs/react-components@1.75.0":
-  version "1.75.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.75.0.tgz#88d8f7d4c21d42a740eb6f734d224cf31002a340"
-  integrity sha512-FfGcqpULBUfw7rRckBXqTiiflOsjCoDLqRTAn/Az0jf5kMKGa4/MTceudxpSY/joFheCxJoE6CK8TaYv28Qe2w==
+"@avalabs/react-components@1.78.0":
+  version "1.78.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.78.0.tgz#fd268bbc36a5151e554b6f92860ebee5f9b839ba"
+  integrity sha512-wYS90kax2Q7afAsQviL3t1q7vZGR19QWX3lvY8HmR4ILaHTzEj8erGXI3U7PTd4nPXWUxuHZj8CHzj/HqhhtZQ==
   dependencies:
     "@tippyjs/react" "^4.2.6"
     big.js "^6.1.1"
@@ -47,6 +47,7 @@
     polished "^4.1.2"
     react-custom-scrollbars "^4.2.1"
     react-hot-toast "^2.1.1"
+    react-loading-skeleton "^3.0.2"
     react-transition-group "^4.4.2"
     rsuite-table "^5.3.2"
     use-media "^1.4.0"
@@ -15500,6 +15501,11 @@ react-lifecycles-compat@^3.0.0:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-loading-skeleton@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/react-loading-skeleton/-/react-loading-skeleton-3.0.2.tgz#f1ba7344e03fb3363f2986e0f879d88249fc230f"
+  integrity sha512-rlALwuZEcjazUDeIy3+fEhm20Uk9Yd/zZGeITU034K2ts5/yEf7RuZaV2FyrPWypIII4LAsFEo9WDTPKp6G0fQ==
+
 react-modal@3.14.4:
   version "3.14.4"
   resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-3.14.4.tgz#2ca7e8e9a180955e5c9508c228b73167c1e6f6a3"
@@ -15647,11 +15653,6 @@ react-timer-hook@3.0.5:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/react-timer-hook/-/react-timer-hook-3.0.5.tgz#a8d930f99b180cd88da245965a26a17df3e7457b"
   integrity sha512-n+98SdmYvui2ne3KyWb3Ldu4k0NYQa3g/VzW6VEIfZJ8GAk/jJsIY700M8Nd2vNSTj05c7wKyQfJBqZ0x7zfiA==
-
-react-tiny-fab@4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/react-tiny-fab/-/react-tiny-fab-4.0.4.tgz#0b293b403893a6a4fe689493818d498f277d62bb"
-  integrity sha512-PxT6gEnIQR2vFfeIaa1Oq4PRX+cIEDbEfbS6PyevWCQngrKfqjMKPEcZOaaURaUclB9u3RilgjkaBUQFVlbWcg==
 
 react-transition-group@4.4.2, react-transition-group@^4.4.2:
   version "4.4.2"

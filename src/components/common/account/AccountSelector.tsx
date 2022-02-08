@@ -14,7 +14,7 @@ export function AccountSelector() {
         }}
       />
       {open && (
-        <SecondaryOverlay padding="24px 8px" onClick={() => setOpen(false)}>
+        <SecondaryOverlay padding="24px 16px" onClick={() => setOpen(false)}>
           <AccountDropdownContent
             onClose={() => {
               setOpen(false);

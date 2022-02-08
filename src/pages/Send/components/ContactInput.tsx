@@ -87,10 +87,10 @@ export const ContactInput = ({
           placeholder="Enter 0x Address"
           buttonContent={
             <HorizontalFlex align="center" paddingRight="24px">
-              <ContactsIcon style={{ marginRight: 12 }} />
+              <ContactsIcon height="20px" style={{ marginRight: 12 }} />
               <CaretIcon
                 color={theme.colors.icon1}
-                height="18px"
+                height="16px"
                 direction={
                   isContactsOpen ? IconDirection.UP : IconDirection.DOWN
                 }

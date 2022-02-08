@@ -3,9 +3,9 @@ import {
   toast,
   VerticalFlex,
   Input,
-  PrimaryButton,
   ComponentSize,
   TextArea,
+  TextButton,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
@@ -45,7 +45,18 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'New contact'}
+        title={'New Contact'}
+        action={
+          <TextButton
+            onClick={() => {
+              createContact(contact);
+              toast.success('Contact created!');
+              goBack();
+            }}
+          >
+            Save
+          </TextButton>
+        }
       />
       <FlexScrollbars>
         <VerticalFlex padding="16px">
@@ -59,13 +70,13 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             }}
             value={contact.name}
             label="Name"
-            placeholder="Name"
+            placeholder="Enter Address Name"
             width="100%"
           />
 
           <TextArea
             size={ComponentSize.SMALL}
-            margin="16px 0px 0px 0px"
+            margin="24px 0px 0px"
             onChange={(e) => {
               setContact({
                 ...contact,
@@ -83,26 +94,6 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             placeholder="Enter the address"
             width="100%"
           />
-        </VerticalFlex>
-
-        <VerticalFlex align="center" grow="1" justify="flex-end" margin="16px">
-          <PrimaryButton
-            width="100%"
-            size={ComponentSize.MEDIUM}
-            onClick={() => {
-              createContact(contact);
-              toast.success('Contact created!');
-              goBack();
-            }}
-            margin="0 0 24px"
-            disabled={
-              contact.name?.length === 0 ||
-              contact.address?.length === 0 ||
-              !isValidAddress
-            }
-          >
-            Save
-          </PrimaryButton>
         </VerticalFlex>
       </FlexScrollbars>
     </VerticalFlex>

@@ -19,14 +19,14 @@ import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
-import { HomeFlow } from '@src/pages/Home/HomeFlow';
+import { Home } from '@src/pages/Home/Home';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
-import { ReceiveFlow } from '@src/pages/Receive/ReceiveFlow';
+import { Receive } from '@src/pages/Receive/Receive';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
@@ -70,14 +70,8 @@ const TokenFlowPage = lazy(() => {
 });
 
 const ManageTokensPage = lazy(() => {
-  return import('../pages/ManageTokens/ManageTokensFlow').then((m) => ({
-    default: m.ManageTokensFlow,
-  }));
-});
-
-const ActivityFlow = lazy(() => {
-  return import('../pages/Activity/ActivityFlow').then((m) => ({
-    default: m.ActivityFlow,
+  return import('../pages/ManageTokens/ManageTokens').then((m) => ({
+    default: m.ManageTokens,
   }));
 });
 
@@ -178,7 +172,7 @@ export function Popup() {
                                 </Route>
 
                                 <Route path="/home">
-                                  <HomeFlow />
+                                  <Home />
                                 </Route>
 
                                 <Route path="/sign/transaction">
@@ -209,19 +203,13 @@ export function Popup() {
 
                                 <Route path="/receive">
                                   <Suspense fallback={<LoadingIcon />}>
-                                    <ReceiveFlow />
+                                    <Receive />
                                   </Suspense>
                                 </Route>
 
                                 <Route path="/send">
                                   <Suspense fallback={<LoadingIcon />}>
                                     <SendFlow />
-                                  </Suspense>
-                                </Route>
-
-                                <Route path="/activity">
-                                  <Suspense fallback={<LoadingIcon />}>
-                                    <ActivityFlow />
                                   </Suspense>
                                 </Route>
 

@@ -51,12 +51,12 @@ export function WalletRecentTxs({
   );
 
   if (filteredTxHistory.length === 0) {
-    return <NoTransactions isEmbedded={isEmbedded} />;
+    return <NoTransactions />;
   }
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <VerticalFlex padding={isEmbedded ? '0' : '0 16px'}>
+      <VerticalFlex padding={isEmbedded ? '0' : '4px 16px 68px'}>
         {filteredTxHistory.map((tx, index) => {
           const isNewDay =
             index === 0 ||
@@ -65,17 +65,17 @@ export function WalletRecentTxs({
             <Fragment key={index}>
               {isNewDay && (
                 <Typography
-                  size={14}
-                  height="17px"
-                  weight={600}
-                  margin="8px 0 16px"
+                  size={12}
+                  height="15px"
+                  weight={500}
+                  margin={index === 0 ? '8px 0 13px' : '8px 0'}
                 >
                   {getDayString(tx.timestamp)}
                 </Typography>
               )}
               <SecondaryCard
                 key={tx.hash}
-                padding={'8px 8px'}
+                padding={'8px 12px 8px 16px'}
                 margin={'0 0 8px 0'}
               >
                 {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}

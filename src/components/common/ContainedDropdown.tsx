@@ -27,7 +27,10 @@ const Dropdown = styled.div`
   position: absolute;
   overflow-y: hidden;
   width: 100%;
-  background: ${({ theme }) => theme.overlay.secondary.bg};
+  background: ${({ theme }) => theme.colors.bg1};
+  z-index: 1;
+  transition: height 0.15s ease, opacity 0.15s ease;
+  borderradius: 0 0 8px 8px;
 `;
 
 type ContainedDropdownProps = {
@@ -52,9 +55,6 @@ export const ContainedDropdown = ({
         height: isOpen ? height : 0,
         opacity: isOpen ? 1 : 0,
         top,
-        zIndex: 1,
-        transition: 'height 0.15s ease, opacity 0.15s ease',
-        borderRadius: '0 0 8px 8px',
       }}
     >
       {children}

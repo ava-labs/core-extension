@@ -1,6 +1,5 @@
 import {
   HorizontalFlex,
-  LoadingSpinnerIcon,
   PencilIcon,
   SimpleAddress,
   TextButton,
@@ -11,7 +10,6 @@ import {
 import { Account } from '@src/background/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -28,8 +26,8 @@ const AccountName = styled(Typography)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
-  line-height: 15px;
+  font-size: 14px;
+  line-height: 17px;
   font-weight: 500;
   margin: 0;
 `;
@@ -79,10 +77,6 @@ const StyledSaveButton = styled(TextButton)`
   size: 12px;
 `;
 
-const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
-  margin: 4px 0 0 0;
-`;
-
 const StyledSimpleAddress = styled(SimpleAddress)`
   flex-direction: row-reverse;
 `;
@@ -92,12 +86,10 @@ export function AccountDropdownItem({
   editing,
   onEdit,
   onSave,
-  isLoadingIndex,
 }: AccountDropdownItemProps) {
   const [accountName, setAccountName] = useState<string>(account.name);
   const { currencyFormatter } = useSettingsContext();
   const { renameAccount } = useAccountsContext();
-  const { addresses } = useWalletContext();
   const theme = useTheme();
   const inEditMode = account.active && editing;
 

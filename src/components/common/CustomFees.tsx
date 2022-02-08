@@ -36,8 +36,14 @@ const FeeButton = styled(SecondaryButton)`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.text2};
   background-color: ${({ theme }) => `${theme.colors.bg3}80`};
+  border-radius: 8px;
+  height: 40px;
+  max-height: 40px;
+  font-weight: 500;
+
   &.focus {
     font-size: 14px;
+    font-weight: 600;
     color: ${({ theme }) => theme.colors.bg2};
     background-color: ${({ theme }) => theme.colors.text1};
   }
@@ -48,7 +54,6 @@ const CustomGasLimitOverlay = styled(Overlay)`
   background-color: ${({ theme }) => theme.colors.bg1};
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 8px 16px 24px;
 `;
 
 const CustomBNInput = styled(BNInput)`
@@ -56,6 +61,7 @@ const CustomBNInput = styled(BNInput)`
 
   > div > input {
     font-size: 14px;
+    font-weight: 600;
     height: 40px;
     padding: 4px 8px;
     textalign: center;
@@ -160,7 +166,7 @@ export function CustomFees({
           margin="0 0 16px 0"
         >
           <HorizontalFlex align="center">
-            <Typography height="24px" weight={600} margin="0 8px 0 0">
+            <Typography size={14} height="17px" weight={600} margin="0 8px 0 0">
               {newFees.fee} AVAX
             </Typography>
             <Typography height="15px" size={12}>

@@ -24,7 +24,7 @@ const TabText = styled(Typography)<{
   font-size: 14px;
   ${({ $selected, theme }) => `
 		color: ${$selected ? theme.colors.text1 : theme.colors.text2};
-		font-weight: ${$selected ? 600 : 400};
+		font-weight: ${$selected ? 500 : 400};
 	`}
 `;
 

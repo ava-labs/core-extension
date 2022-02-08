@@ -1,11 +1,5 @@
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import {
-  HorizontalFlex,
-  SubTextTypography,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { FavStarIcon } from '@src/components/icons/FavStarIcon';
+import { TokenCard } from '@avalabs/react-components';
 
 interface TokenListItemProps {
   name: string;
@@ -13,6 +7,7 @@ interface TokenListItemProps {
   balanceDisplayValue?: string;
   children: any;
   balanceUSD?: string;
+  onClick(): void;
 }
 
 export function TokenListItem({
@@ -21,29 +16,20 @@ export function TokenListItem({
   balanceDisplayValue,
   children,
   balanceUSD,
+  onClick,
 }: TokenListItemProps) {
-  const { currencyFormatter } = useSettingsContext();
+  const { currency, currencyFormatter } = useSettingsContext();
   return (
-    <>
-      <HorizontalFlex width="100%" align={'center'}>
-        {children}
-        <Typography margin={'0 8px'}>{name}</Typography>
-        <Typography>({symbol})</Typography>
-      </HorizontalFlex>
-      <VerticalFlex width="100%">
-        <Typography>{balanceDisplayValue}</Typography>
-        {balanceUSD ? (
-          <SubTextTypography>
-            {currencyFormatter(Number(balanceUSD))}
-          </SubTextTypography>
-        ) : (
-          ''
-        )}
-      </VerticalFlex>
-      <HorizontalFlex padding={'0 0 0 20px'}>
-        <FavStarIcon />
-      </HorizontalFlex>
-      <HorizontalFlex></HorizontalFlex>
-    </>
+    <TokenCard
+      name={name}
+      symbol={symbol}
+      onClick={onClick}
+      currency={currency}
+      balanceDisplayValue={balanceDisplayValue}
+      balanceUSD={balanceUSD}
+      currencyFormatter={currencyFormatter}
+    >
+      {children}
+    </TokenCard>
   );
 }

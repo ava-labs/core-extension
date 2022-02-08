@@ -8,19 +8,15 @@ import {
   PrimaryAddress,
   TextButton,
   HorizontalFlex,
+  useDialog,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { useState } from 'react';
 import { Contact } from '@src/background/services/contacts/models';
-
-const PrimaryAddressWithMargin = styled(PrimaryAddress)`
-  margin-top: 8px;
-  width: 100%;
-`;
+import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 
 const Avatar = styled.div`
   display: flex;
@@ -33,26 +29,25 @@ const Avatar = styled.div`
   background-color: ${({ theme }) => theme.colors.bg3};
 `;
 
-const FlexScrollbars = styled(Scrollbars)`
-  flex-grow: 1;
-  max-height: unset;
-  height: 100%;
-  width: 100%;
-
-  & > div {
-    display: flex;
-    flex-direction: column;
-  }
-`;
-
 const AccountName = styled(Typography)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
 
-export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
+const StyledPrimaryAddress = styled(PrimaryAddress)`
+  width: 100%;
+`;
+
+export function EditContact({
+  goBack,
+  navigateTo,
+  width,
+  onClose,
+}: SettingsPageProps) {
+  const { showDialog, clearDialog } = useDialog();
   const theme = useTheme();
+  const setSendDataInParams = useSetSendDataInParams();
   const [inEditMode, setInEditMode] = useState<boolean>(false);
   const { editedContact, setEditedContact, createContact, removeContact } =
     useContactsContext();
@@ -64,108 +59,136 @@ export function EditContact({ goBack, navigateTo, width }: SettingsPageProps) {
     setEditedContact(editedContactCopy);
   };
 
+  const onDeleteAccount = () => {
+    showDialog({
+      title: 'Delete Contact?',
+      body: 'Are you sure you want to delete this contact?',
+      confirmText: 'Delete',
+      width: '343px',
+      onConfirm: async () => {
+        clearDialog();
+        await removeContact(editedContact);
+        toast.success('Contact deleted!');
+        goBack();
+      },
+      cancelText: 'Cancel',
+      onCancel: () => {
+        clearDialog();
+      },
+    });
+  };
+
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
       <SettingsHeader
         width={width}
-        goBack={goBack}
+        goBack={() => {
+          if (inEditMode) {
+            resetEditedContact();
+            setInEditMode(!inEditMode);
+          } else {
+            goBack();
+          }
+        }}
         navigateTo={navigateTo}
         title={''}
         action={
           <TextButton
-            onClick={() => {
-              if (inEditMode) resetEditedContact();
-
-              setInEditMode(!inEditMode);
-            }}
-          >
-            {inEditMode ? 'Cancel' : 'Edit'}
-          </TextButton>
-        }
-      />
-      <FlexScrollbars>
-        <VerticalFlex padding="16px">
-          <HorizontalFlex justify="center">
-            <Avatar>
-              <Typography size={32}>
-                {`${splittedContactName[0][0]}${
-                  splittedContactName[1] ? splittedContactName[1][0] : ''
-                }`}
-              </Typography>
-            </Avatar>
-          </HorizontalFlex>
-
-          {!inEditMode && (
-            <AccountName
-              align="center"
-              size={18}
-              weight="bold"
-              margin="0 0 18px 0"
-            >
-              {editedContact.name}
-            </AccountName>
-          )}
-
-          {inEditMode && (
-            <Input
-              autoFocus
-              onChange={(e) => {
-                setEditedContact({
-                  ...editedContact,
-                  name: e.target.value,
-                });
-              }}
-              value={editedContact.name}
-              label="Name"
-              placeholder="Name"
-              type="text"
-              width="100%"
-            />
-          )}
-
-          <Typography color="text2" size={14} margin="16px 0px 0px 0px">
-            Address
-          </Typography>
-          <PrimaryAddressWithMargin
-            isTruncated={false}
-            address={editedContact.address}
-          />
-        </VerticalFlex>
-
-        <VerticalFlex align="center" grow="1" justify="flex-end" margin="16px">
-          {inEditMode ? (
-            <PrimaryButton
-              width="100%"
-              size={ComponentSize.MEDIUM}
-              onClick={async () => {
+            onClick={async () => {
+              if (inEditMode) {
                 await removeContact(editedContact);
                 await createContact(editedContact);
                 setEditedContactCopy(editedContact);
                 toast.success('Contact updated!');
-                setInEditMode(false);
-              }}
-              margin="0 0 24px"
-              disabled={editedContact.name.length === 0}
-            >
-              Save
-            </PrimaryButton>
-          ) : (
+              }
+              setInEditMode(!inEditMode);
+            }}
+            disabled={inEditMode && editedContact.name.length === 0}
+          >
+            {inEditMode ? 'Save' : 'Edit'}
+          </TextButton>
+        }
+      />
+      <VerticalFlex padding="0 16px" grow="1">
+        <HorizontalFlex justify="center" margin="16px 0 24px">
+          <Avatar>
+            <Typography size={32}>
+              {`${splittedContactName[0][0]}${
+                splittedContactName[1] ? splittedContactName[1][0] : ''
+              }`}
+            </Typography>
+          </Avatar>
+        </HorizontalFlex>
+
+        <AccountName
+          align="center"
+          size={18}
+          height="22px"
+          weight={600}
+          margin="0 0 24px"
+        >
+          {!inEditMode && editedContact.name}
+        </AccountName>
+
+        {inEditMode && (
+          <Input
+            autoFocus
+            onChange={(e) => {
+              setEditedContact({
+                ...editedContact,
+                name: e.target.value,
+              });
+            }}
+            value={editedContact.name}
+            label="Name"
+            placeholder="Enter Address Name"
+            type="text"
+            width="100%"
+            margin="0 0 16px"
+          />
+        )}
+
+        <Typography size={12} height="15px" margin="0 0 8px">
+          Address
+        </Typography>
+        <StyledPrimaryAddress
+          isTruncated={false}
+          address={editedContact.address}
+        />
+
+        <VerticalFlex
+          align="center"
+          grow="1"
+          justify="flex-end"
+          margin="0 0 24px"
+        >
+          {inEditMode ? (
             <TextButton
+              margin="0 0 8px"
               width="100%"
-              size={ComponentSize.MEDIUM}
-              onClick={async () => {
-                await removeContact(editedContact);
-                toast.success('Contact deleted!');
-                goBack();
-              }}
-              margin="0 0 24px"
+              size={ComponentSize.LARGE}
+              onClick={onDeleteAccount}
               disabled={editedContact.name.length === 0}
             >
-              Delete contact
+              Delete Contact
             </TextButton>
+          ) : (
+            <PrimaryButton
+              width="100%"
+              size={ComponentSize.LARGE}
+              onClick={() => {
+                setSendDataInParams({
+                  address: editedContact.address,
+                  options: { path: '/send' },
+                });
+                onClose?.();
+              }}
+            >
+              Send
+            </PrimaryButton>
           )}
         </VerticalFlex>
-      </FlexScrollbars>
+      </VerticalFlex>
     </VerticalFlex>
   );
 }

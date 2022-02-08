@@ -31,6 +31,12 @@ export const PageTitleMiniMode = ({
   const theme = useTheme();
   const history = useHistory();
 
+  const goBack = () => {
+    // history can be empty when the extension is opened and the last
+    // location is loaded back from localstorage
+    history.length === 1 ? history.replace('/home') : history.goBack();
+  };
+
   return (
     <HorizontalFlex
       align="center"
@@ -39,9 +45,7 @@ export const PageTitleMiniMode = ({
       width="100%"
       paddingTop={variant === PageTitleVariant.PRIMARY ? '16px' : undefined}
     >
-      <BackButton
-        onClick={() => (onBackClick ? onBackClick() : history.goBack())}
-      >
+      <BackButton onClick={() => (onBackClick ? onBackClick() : goBack())}>
         <CaretIcon
           height="20px"
           width="20px"

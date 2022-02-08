@@ -24,11 +24,11 @@ import {
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
-import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
+import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 
 export function SendMiniMode() {
   const selectedToken = useTokenFromParams();
-  const setTokenInParams = useSetTokenInParams();
+  const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
   const [contactInput, setContactInput] = useState<Contact>();
   const [amountInput, setAmountInput] = useState<BN>();
@@ -60,7 +60,7 @@ export function SendMiniMode() {
   };
 
   const onTokenChanged = (token: TokenWithBalance) => {
-    setTokenInParams(token, { replace: true });
+    setSendDataInParams({ token, options: { replace: true } });
     setSendState({
       token,
       amount: amountInputDisplay,
@@ -171,7 +171,7 @@ export function SendMiniMode() {
               align="center"
               justify="flex-end"
               width="100%"
-              paddingBottom="16px"
+              padding="0 16px 24px"
               grow="1"
             >
               <Tooltip
@@ -180,19 +180,19 @@ export function SendMiniMode() {
                 }
                 disabled={!sendState.error?.error}
               >
-                <span>
-                  <PrimaryButton
-                    size={ComponentSize.LARGE}
-                    onClick={() => {
-                      setTokenInParams(selectedToken, {
-                        path: '/send/confirm',
-                      });
-                    }}
-                    disabled={!sendState.canSubmit}
-                  >
-                    Next
-                  </PrimaryButton>
-                </span>
+                <PrimaryButton
+                  size={ComponentSize.LARGE}
+                  width="343px"
+                  onClick={() => {
+                    setSendDataInParams({
+                      token: selectedToken,
+                      options: { path: '/send/confirm' },
+                    });
+                  }}
+                  disabled={!sendState.canSubmit}
+                >
+                  Next
+                </PrimaryButton>
               </Tooltip>
             </VerticalFlex>
           </VerticalFlex>

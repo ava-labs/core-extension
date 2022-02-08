@@ -1,40 +1,21 @@
-import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  CopyIcon,
   LoadingIcon,
-  Card,
-  toast,
+  PrimaryAddress,
 } from '@avalabs/react-components';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { SlideSelector } from '@src/components/common/SlideSelector';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
-const AddressBlock = styled(Card)`
-  background: ${({ theme }) => theme.colors.bg3};
-  cursor: pointer;
-  margin: 24px 0 0 0;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-
-  & > ${Typography} {
-    word-break: break-all;
-  }
-`;
-
-const StyledQRCodeWithLogo = styled(QRCodeWithLogo)`
-  margin: 32px 0 0 0;
+const StyledPrimaryAddress = styled(PrimaryAddress)`
+  width: 100%;
 `;
 
 export const Receive = () => {
   const { addresses } = useWalletContext();
-  const [chain, setChain] = useState<string>('C');
-  const theme = useTheme();
-
   const getAddress = () => {
     return addresses.addrC;
   };
@@ -44,30 +25,21 @@ export const Receive = () => {
   }
 
   return (
-    <VerticalFlex width={'100%'} height="496px" align={'center'}>
-      <VerticalFlex height="48px" margin="24px 0" align="center">
-        <Typography height="24px">
-          This is your{' '}
-          <Typography color={theme.colors.primary1}>{chain} chain</Typography>{' '}
-          address to receive funds
-        </Typography>
+    <VerticalFlex width="100%" align="center">
+      <PageTitleMiniMode>Receive</PageTitleMiniMode>
+      <VerticalFlex width={'100%'} grow="1" align="center" justify="center">
+        <QRCodeWithLogo size={256} value={getAddress()} logoText={'C-Chain'} />
       </VerticalFlex>
-      <SlideSelector
-        onChange={(value) => setChain(value)}
-        items={[{ label: 'C Chain', value: 'C' }]}
-      />
-      <StyledQRCodeWithLogo value={getAddress()} logoText={'C-Chain'} />
-      <AddressBlock
-        onClick={() => {
-          navigator.clipboard.writeText(getAddress());
-          toast.success('Copied!');
-        }}
-      >
-        <Typography width="255px" height="24px">
-          {getAddress()}
+      <VerticalFlex padding="0 16px 24px" width="100%">
+        <Typography size={12} height="15px" margin="0 0 4px">
+          C-Chain Address
         </Typography>
-        <CopyIcon height="16px" color={theme.colors.primary1} />
-      </AddressBlock>
+        <StyledPrimaryAddress
+          truncateLength={24}
+          isTruncated={true}
+          address={getAddress()}
+        />
+      </VerticalFlex>
     </VerticalFlex>
   );
 };

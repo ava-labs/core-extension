@@ -47,23 +47,22 @@ export function RecoveryPhrase({
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Show recovery phrase'}
+        title={'Show Recovery Phrase'}
       />
-      <VerticalFlex width="100%" height="100%" align="center" padding="24px 0">
-        <Typography
-          color={theme.colors.text2}
-          padding="0 16px"
-          size={14}
-          height="16px"
-          align="center"
-        >
+      <VerticalFlex
+        width="100%"
+        height="100%"
+        align="center"
+        padding="16px 0 0"
+      >
+        <Typography padding="0 16px" size={14} height="17px" align="center">
           If you ever change browsers or move computers, you will need this
           Secret Recovery Phrase to access your accounts.
           <br />
           Save them somewhere safe and secret.
         </Typography>
         <HorizontalFlex
-          margin="16px 0"
+          margin="24px 0 16px"
           padding="16px 16px"
           align="center"
           background={theme.colors.bg3}
@@ -95,14 +94,13 @@ export function RecoveryPhrase({
             <VerticalFlex
               grow="1"
               width="100%"
-              padding="0 16px"
+              padding="0 16px 24px"
               justify="flex-end"
               align="center"
             >
               <PrimaryButton
                 size={ComponentSize.LARGE}
                 onClick={handleShowRecoveryPhrase}
-                margin="0 0 24px"
                 width="100%"
               >
                 Show Recovery Phrase

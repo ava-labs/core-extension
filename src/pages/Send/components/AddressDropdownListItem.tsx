@@ -14,6 +14,10 @@ const RowContainer = styled(VerticalFlex)`
   cursor: pointer;
   &:hover {
     background-color: ${({ theme }) => theme.colors.bg2};
+
+    > ${Typography} {
+      color: ${({ theme }) => theme.colors.text1};
+    }
   }
 `;
 

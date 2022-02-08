@@ -75,7 +75,9 @@ export function ReviewOrder({
 }: ReviewOrderProps) {
   const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
-  useLedgerDisconnectedDialog();
+  useLedgerDisconnectedDialog(() => {
+    onClose();
+  });
 
   return (
     <ReviewOrderOverlay>

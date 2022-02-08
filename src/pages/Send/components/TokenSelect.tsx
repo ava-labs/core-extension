@@ -126,7 +126,7 @@ export function TokenSelect({
         margin="0 0 8px"
         grow="1"
       >
-        <Typography size={14} color={theme.inputs.colorHelper}>
+        <Typography size={14} color={theme.inputs.colorLabel}>
           Token
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
@@ -173,7 +173,7 @@ export function TokenSelect({
             onChange={handleAmountChange}
             onClick={(e) => e.stopPropagation()}
             onError={(errorMessage) => setBNError(errorMessage)}
-            style={{ borderWidth: 0, backgroundColor: theme.colors.bg2 }}
+            style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
             hideErrorMessage
           />
         </InputContainer>
@@ -200,7 +200,7 @@ export function TokenSelect({
                 autoFocus={true}
               />
             </SearchInputContainer>
-            <VerticalFlex style={{ flexGrow: 1 }}>
+            <VerticalFlex grow="1">
               <Scrollbars>
                 {tokensWBalances
                   .filter((token) =>
@@ -241,20 +241,15 @@ export function TokenSelect({
                             />
                           )}
                           <Typography
-                            size={18}
+                            size={16}
+                            height="24px"
                             margin={'0 0 0 16px'}
-                            weight={700}
+                            weight={500}
                           >
                             {token.name}
                           </Typography>
                         </HorizontalFlex>
-                        <Typography
-                          style={{
-                            fontWeight: 400,
-                            fontSize: 14,
-                            color: theme.palette.grey[400],
-                          }}
-                        >
+                        <Typography size={14} height="24px">
                           {token.balanceDisplayValue} {token.symbol}
                         </Typography>
                       </HorizontalFlex>

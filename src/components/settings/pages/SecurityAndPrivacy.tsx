@@ -1,9 +1,9 @@
 import {
   CaretIcon,
-  DropDownMenuItem,
   HorizontalFlex,
   HorizontalSeparator,
   IconDirection,
+  SecondaryDropDownMenuItem,
   Typography,
   useDialog,
   VerticalFlex,
@@ -54,59 +54,71 @@ export function SecurityAndPrivacy({
         title={'Security & Privacy'}
       />
 
-      <DropDownMenuItem
+      <SecondaryDropDownMenuItem
         justify="space-between"
         align="center"
         onClick={() => navigateTo(SettingsPages.CONNECTED_SITES)}
+        padding="10px 16px"
+        margin="16px 0 0"
       >
-        <Typography>Connected sites</Typography>
+        <Typography size={14} height="17px">
+          Connected sites
+        </Typography>
         <CaretIcon
           color={theme.colors.icon1}
           height="14px"
           direction={IconDirection.RIGHT}
         />
-      </DropDownMenuItem>
+      </SecondaryDropDownMenuItem>
 
-      <DropDownMenuItem
+      <SecondaryDropDownMenuItem
         justify="space-between"
         align="center"
         onClick={() => navigateTo(SettingsPages.CHANGE_PASSWORD)}
+        padding="10px 16px"
       >
-        <Typography>Change password</Typography>
+        <Typography size={14} height="17px">
+          Change password
+        </Typography>
         <CaretIcon
           color={theme.colors.icon1}
           height="14px"
           direction={IconDirection.RIGHT}
         />
-      </DropDownMenuItem>
+      </SecondaryDropDownMenuItem>
 
       {walletType === 'mnemonic' && (
-        <DropDownMenuItem
+        <SecondaryDropDownMenuItem
           justify="space-between"
           align="center"
           onClick={() => navigateTo(SettingsPages.RECOVERY_PHRASE)}
+          padding="10px 16px"
         >
-          <Typography>Show recovery phrase</Typography>
+          <Typography size={14} height="17px">
+            Show recovery phrase
+          </Typography>
           <CaretIcon
             color={theme.colors.icon1}
             height="14px"
             direction={IconDirection.RIGHT}
           />
-        </DropDownMenuItem>
+        </SecondaryDropDownMenuItem>
       )}
 
       <HorizontalFlex width="100%" margin="12px 0" padding="0 16px">
         <HorizontalSeparator />
       </HorizontalFlex>
 
-      <DropDownMenuItem
+      <SecondaryDropDownMenuItem
         justify="space-between"
         align="center"
-        padding="12px 16px"
+        padding="10px 16px"
         onClick={() => onLogoutClick()}
       >
-        <Typography color={theme.colors.primary1}>Sign out</Typography>
-      </DropDownMenuItem>
+        <Typography color={theme.colors.primary1} size={14} height="17px">
+          Sign out
+        </Typography>
+      </SecondaryDropDownMenuItem>
     </VerticalFlex>
   );
 }

@@ -1,5 +1,4 @@
 import {
-  ComponentSize,
   ConnectionIndicator,
   HorizontalFlex,
   HorizontalSeparator,
@@ -10,7 +9,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
+import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
@@ -44,15 +43,15 @@ export function HeaderMiniMode() {
       align="flex-start"
       padding="16px 16px 0 16px"
     >
-      <SettingsMenuFlow />
+      <SettingsMenu />
       <VerticalFlex>
         <HorizontalFlex align="center">
           <ConnectionIndicator connected={isConnected}>
             <Typography
               weight={600}
-              size={14}
-              height="24px"
-              margin="5px 16px 8px"
+              size={12}
+              height="16px"
+              margin="0 16px 8px"
             >
               {domain}
             </Typography>
@@ -60,9 +59,8 @@ export function HeaderMiniMode() {
               <>
                 <HorizontalSeparator margin="0" />
                 <SecondaryButton
-                  margin="8px auto 0"
-                  width="208px"
-                  size={ComponentSize.SMALL}
+                  margin="8px auto"
+                  width="210px"
                   onClick={() => {
                     updateAccountPermission({
                       addressC: addresses.addrC,
@@ -75,7 +73,12 @@ export function HeaderMiniMode() {
                 </SecondaryButton>
               </>
             ) : (
-              <Typography weight={500} size={12} height="15px" margin="0 16px">
+              <Typography
+                weight={500}
+                size={12}
+                height="15px"
+                margin="0 16px 8px"
+              >
                 To connect, locate the connect button on their site.
               </Typography>
             )}

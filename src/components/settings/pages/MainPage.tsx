@@ -1,12 +1,14 @@
 import {
   CaretIcon,
+  CloseIcon,
+  ComponentSize,
   ConnectionIndicator,
   DropDownMenuItem,
   HorizontalFlex,
   HorizontalSeparator,
   IconDirection,
-  LockIcon,
   SecondaryButton,
+  TextButton,
   Toggle,
   Typography,
   VerticalFlex,
@@ -14,43 +16,49 @@ import {
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPageProps, SettingsPages } from '../models';
-import {
-  ContextContainer,
-  useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { AvalanceLogo } from './AvalanceLogo';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { Logo } from '@src/components/icons/Logo';
 
-export function MainPage({ navigateTo, width }: SettingsPageProps) {
+export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const theme = useTheme();
   const { isWalletReady, walletType } = useWalletContext();
   const { network } = useNetworkContext();
-  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const {
     showTokensWithoutBalances,
     lockWallet,
     toggleShowTokensWithoutBalanceSetting,
     currency,
+    isDefaultExtension,
+    toggleIsDefaultExtension,
   } = useSettingsContext();
 
   return (
     <VerticalFlex
       width={width}
       height="100%"
-      padding={isMiniMode ? '0' : '12px 0'}
+      padding="16px 0 24px"
       background={theme.colors.bg2}
     >
-      <HorizontalFlex margin="24px 16px 12px">
-        <AvalanceLogo />
+      <HorizontalFlex
+        margin="0 0 16px"
+        padding="0 16px"
+        height="53px"
+        justify="space-between"
+        align="center"
+      >
+        <Logo height={40} showName={true} />
+        <TextButton onClick={onClose}>
+          <CloseIcon height="16px" color={theme.colors.icon1} />
+        </TextButton>
       </HorizontalFlex>
       <DropDownMenuItem
         justify="space-between"
         align="center"
-        padding="12px 16px"
+        padding="10px 16px"
         onClick={() => navigateTo(SettingsPages.NETWORK)}
       >
-        <Typography weight={600} height="24px">
+        <Typography size={14} height="17px">
           Network
         </Typography>
         <HorizontalFlex align="center">
@@ -59,7 +67,12 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
             size={8}
             connected={isWalletReady}
           />
-          <Typography size={14} margin="0 8px" color={theme.colors.text2}>
+          <Typography
+            size={14}
+            height="17px"
+            margin="0 8px"
+            color={theme.colors.text2}
+          >
             {network?.name?.replace('Avalanche', '')}
           </Typography>
           <CaretIcon
@@ -72,10 +85,10 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
       <DropDownMenuItem
         justify="space-between"
         align="center"
-        padding="12px 16px"
+        padding="10px 16px"
         onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
       >
-        <Typography weight={600} height="24px">
+        <Typography size={14} height="17px">
           Address book
         </Typography>
         <CaretIcon
@@ -87,14 +100,19 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
       <DropDownMenuItem
         justify="space-between"
         align="center"
-        padding="12px 16px"
+        padding="10px 16px"
         onClick={() => navigateTo(SettingsPages.CURRENCIES)}
       >
-        <Typography weight={600} height="24px">
+        <Typography size={14} height="17px">
           Currency
         </Typography>
         <HorizontalFlex align="center">
-          <Typography size={14} margin="0 8px" color={theme.colors.text2}>
+          <Typography
+            size={14}
+            height="17px"
+            margin="0 8px"
+            color={theme.colors.text2}
+          >
             {currency}
           </Typography>
           <CaretIcon
@@ -104,29 +122,14 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
           />
         </HorizontalFlex>
       </DropDownMenuItem>
-      <DropDownMenuItem
-        justify="space-between"
-        align="center"
-        padding="12px 16px"
-        onClick={() => navigateTo(SettingsPages.ADVANCED)}
-      >
-        <Typography weight={600} height="24px">
-          Advanced
-        </Typography>
-        <CaretIcon
-          color={theme.colors.icon1}
-          height="14px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
       {walletType === 'ledger' && (
         <DropDownMenuItem
           justify="space-between"
           align="center"
-          padding="12px 16px"
+          padding="10px 16px"
           onClick={() => navigateTo(SettingsPages.LEDGER)}
         >
-          <Typography weight={600} height="24px">
+          <Typography size={14} height="17px">
             Ledger
           </Typography>
           <CaretIcon
@@ -136,9 +139,9 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
           />
         </DropDownMenuItem>
       )}
-      <DropDownMenuItem justify="space-between" padding="12px 16px">
-        <Typography weight={600} height="24px">
-          Show tokens without balance
+      <DropDownMenuItem justify="space-between" padding="10px 16px">
+        <Typography size={14} height="17px">
+          Show Tokens without balance
         </Typography>
         <Toggle
           isChecked={showTokensWithoutBalances}
@@ -146,17 +149,27 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
         />
       </DropDownMenuItem>
 
-      <HorizontalFlex width="100%" margin="12px 0" padding="0 16px">
+      <DropDownMenuItem justify="space-between" padding="12px 16px">
+        <Typography size={14} height="17px">
+          Set as Default Extension
+        </Typography>
+        <Toggle
+          isChecked={isDefaultExtension}
+          onChange={() => toggleIsDefaultExtension()}
+        />
+      </DropDownMenuItem>
+
+      <HorizontalFlex width="100%" margin="16px 0" padding="0 16px">
         <HorizontalSeparator />
       </HorizontalFlex>
 
       <DropDownMenuItem
         justify="space-between"
         align="center"
-        padding="12px 16px"
+        padding="10px 16px"
         onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
       >
-        <Typography weight={600} height="24px">
+        <Typography size={14} height="17px">
           Security &amp; Privacy
         </Typography>
         <CaretIcon
@@ -168,24 +181,20 @@ export function MainPage({ navigateTo, width }: SettingsPageProps) {
       <DropDownMenuItem
         justify="space-between"
         align="center"
-        padding="12px 16px"
+        padding="10px 16px"
       >
-        <Typography weight={600} height="24px">
+        <Typography size={14} height="17px">
           Legal
         </Typography>
       </DropDownMenuItem>
 
-      <VerticalFlex
-        grow="1"
-        justify="flex-end"
-        align="center"
-        padding="0 16px 40px"
-      >
-        <SecondaryButton width="100%" onClick={lockWallet}>
-          <LockIcon color={theme.colors.icon1} height="20px" />
-          <Typography margin="0 0 0 6px" weight={600}>
-            Lock wallet
-          </Typography>
+      <VerticalFlex grow="1" justify="flex-end" align="center" padding="0 16px">
+        <SecondaryButton
+          width="100%"
+          size={ComponentSize.LARGE}
+          onClick={lockWallet}
+        >
+          Lock Account
         </SecondaryButton>
       </VerticalFlex>
     </VerticalFlex>

@@ -58,7 +58,7 @@ const SummaryTokenIcon = styled(TokenIcon)`
 
 const CardLabel = styled(Typography)`
   font-size: 14px;
-  font-weight: 400;
+  line-height: 17px;
   color: ${({ theme }) => theme.colors.text2};
 `;
 
@@ -67,25 +67,30 @@ const SummaryAmount = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 18px;
+  line-height: 24px;
   font-weight: 700;
 `;
 
 const SummaryToken = styled.span`
   font-size: 16px;
+  line-height: 24px;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text2};
 `;
 
 const SummaryAmountInCurrency = styled(Typography)`
-  font-size: 16px;
+  font-size: 14px;
+  line-height: 17px;
   font-weight: 600;
-  padding-top: 8px;
+  margin: 3px 0 0 0;
   color: ${({ theme }) => theme.colors.text2};
 `;
 
 const SummaryCurrency = styled.span`
   font-size: 12px;
+  line-height: 15px;
   font-weight: 400;
+  margin-left: 4px;
 `;
 
 const ContactName = styled(Typography)`
@@ -95,13 +100,14 @@ const ContactName = styled(Typography)`
   white-space: nowrap;
   text-align: right;
   font-size: 14px;
-  font-weight: 600;
+  line-height: 17px;
 `;
 
 const ContactAddress = styled(Typography)`
   text-align: right;
-  margin-top: 8px;
+  margin-top: 2px;
   font-size: 12px;
+  line-height: 15px;
   color: ${({ theme }) => theme.colors.text2};
 `;
 
@@ -126,7 +132,9 @@ export const SendConfirmMiniMode = ({
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
-  useLedgerDisconnectedDialog();
+  useLedgerDisconnectedDialog(() => {
+    history.goBack();
+  });
 
   const amount = Utils.bnToLocaleString(
     sendState?.amount || new BN(0),
@@ -179,7 +187,7 @@ export const SendConfirmMiniMode = ({
           grow="1"
           align="center"
           width="100%"
-          padding="0 16px 16px 16px"
+          padding="0 16px 24px 16px"
         >
           <Card
             style={{ position: 'relative' }}
@@ -225,7 +233,7 @@ export const SendConfirmMiniMode = ({
                   </ContactAddress>
                 </VerticalFlex>
               </HorizontalFlex>
-              <HorizontalSeparator margin="16px 0" />
+              <HorizontalSeparator margin="8px 0" />
               <HorizontalFlex justify="space-between" width="100%">
                 <CardLabel>To</CardLabel>
                 <VerticalFlex>
@@ -238,14 +246,8 @@ export const SendConfirmMiniMode = ({
             </VerticalFlex>
           </Card>
 
-          <HorizontalFlex margin="8px 0" width="100%" align="center">
-            <Typography
-              size={12}
-              weight={400}
-              height="16px"
-              color={theme.colors.text2}
-              margin="0 8px 0 0"
-            >
+          <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
+            <Typography size={12} height="15px" margin="0 8px 0 0">
               Network Fee
             </Typography>
             <TransactionFeeTooltip
@@ -263,8 +265,12 @@ export const SendConfirmMiniMode = ({
             />
           </HorizontalFlex>
 
-          <HorizontalFlex justify="space-between" margin="8px 0" width="100%">
-            <Typography size={12} weight={400} color={theme.colors.text2}>
+          <HorizontalFlex
+            justify="space-between"
+            margin="16px 0 0"
+            width="100%"
+          >
+            <Typography size={12} height="15px">
               Balance after transaction
             </Typography>
             <VerticalFlex>
@@ -275,8 +281,7 @@ export const SendConfirmMiniMode = ({
               {token?.priceUSD && (
                 <Typography
                   size={12}
-                  weight={400}
-                  height="16px"
+                  height="15px"
                   color={theme.colors.text2}
                   align="right"
                 >
@@ -287,9 +292,10 @@ export const SendConfirmMiniMode = ({
           </HorizontalFlex>
 
           <VerticalFlex align="center" justify="flex-end" width="100%" grow="1">
-            <HorizontalFlex justify="center">
+            <HorizontalFlex width="100%" justify="space-between" align="center">
               <SecondaryButton
-                size={ComponentSize.MEDIUM}
+                width="168px"
+                size={ComponentSize.LARGE}
                 onClick={() => history.goBack()}
               >
                 Cancel
@@ -300,16 +306,14 @@ export const SendConfirmMiniMode = ({
                 }
                 disabled={!sendState?.error?.error}
               >
-                <span>
-                  <PrimaryButton
-                    size={ComponentSize.MEDIUM}
-                    margin="0 0 0 16px"
-                    onClick={onSubmit}
-                    disabled={!sendState?.canSubmit}
-                  >
-                    Send now
-                  </PrimaryButton>
-                </span>
+                <PrimaryButton
+                  width="168px"
+                  size={ComponentSize.LARGE}
+                  onClick={onSubmit}
+                  disabled={!sendState?.canSubmit}
+                >
+                  Send Now
+                </PrimaryButton>
               </Tooltip>
             </HorizontalFlex>
           </VerticalFlex>
