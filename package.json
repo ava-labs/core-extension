@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@avalabs/avalanche-wallet-sdk": "0.14.2",
-    "@avalabs/react-components": "1.78.0",
+    "@avalabs/react-components": "1.80.0",
     "@avalabs/wallet-react-components": "1.24.3",
     "@babel/runtime": "7.16.7",
     "@ledgerhq/hw-transport-u2f": "5.36.0-deprecated",
