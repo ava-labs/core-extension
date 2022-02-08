@@ -1,17 +1,14 @@
 import {
   VerticalFlex,
-  Typography,
-  TextButton,
   HorizontalFlex,
-  CaretIcon,
-  IconDirection,
-  CloseIcon,
   LedgerIcon,
   RecoveryLockIcon,
+  VerticalSeparator,
 } from '@avalabs/react-components';
-import { LoginIllustration } from '@src/components/common/LoginIllustation';
 import { OnboardButton } from './components/OnboardButton';
 import { useTheme } from 'styled-components';
+import { OnboardingStepHeader } from './components/OnboardingStepHeader';
+import { Logo } from '@src/components/icons/Logo';
 
 interface ChooseExistingTypeProps {
   onNext: (isImportFlow: boolean) => void;
@@ -27,45 +24,33 @@ export function ChooseExistingType({
   const theme = useTheme();
 
   return (
-    <VerticalFlex width="100%" align="center" justify="space-between">
-      <HorizontalFlex width="100%" justify="space-between" align="center">
-        <TextButton onClick={onBack}>
-          <CaretIcon
-            direction={IconDirection.LEFT}
-            height="18px"
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-
-        <Typography as="h1" size={24} weight={700} height="29px">
-          Access using...
-        </Typography>
-        <TextButton onClick={onCancel}>
-          <CloseIcon height="18px" color={theme.colors.icon1} />
-        </TextButton>
-      </HorizontalFlex>
-
-      <VerticalFlex justify="center" grow="1">
-        <LoginIllustration size={182} variant="secondary" />
+    <VerticalFlex width="100%" align="center">
+      <OnboardingStepHeader
+        title="Access using..."
+        onBack={onBack}
+        onClose={onCancel}
+      />
+      <VerticalFlex justify="center" margin="48px 0 64px">
+        <Logo height={144} />
       </VerticalFlex>
-      <VerticalFlex align="center" margin="0 0 64px 0">
+      <VerticalFlex align="center">
         <HorizontalFlex>
-          <OnboardButton margin="0 24px 0 0" onClick={() => onNext(true)}>
-            <Typography margin="24px 0 68px 0" size={18} weight={600}>
-              Recovery phrase
-            </Typography>
-            <RecoveryLockIcon color={theme.colors.icon1} height="80px" />
-          </OnboardButton>
-
           <OnboardButton
+            margin="3px 24px 3px 0"
+            title="Recovery phrase"
+            onClick={() => onNext(true)}
+          >
+            <RecoveryLockIcon color={theme.colors.icon1} height="46px" />
+          </OnboardButton>
+          <VerticalSeparator margin="0" />
+          <OnboardButton
+            margin="3px 0 3px 24px"
+            title="Ledger"
             onClick={() => {
               onNext(false);
             }}
           >
-            <Typography margin="24px 0 68px 0" size={18} weight={600}>
-              Ledger
-            </Typography>
-            <LedgerIcon color={theme.colors.icon1} height="80px" />
+            <LedgerIcon color={theme.colors.icon1} height="46px" />
           </OnboardButton>
         </HorizontalFlex>
       </VerticalFlex>

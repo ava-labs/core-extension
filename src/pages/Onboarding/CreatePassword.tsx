@@ -4,16 +4,11 @@ import {
   Input,
   PrimaryButton,
   Typography,
-  TextButton,
-  HorizontalFlex,
   ComponentSize,
-  CloseIcon,
-  IconDirection,
-  CaretIcon,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { useTheme } from 'styled-components';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
+import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -25,7 +20,6 @@ export const CreatePassword = ({
   onBack,
   isImportFlow,
 }: CreatePasswordProps) => {
-  const theme = useTheme();
   const { setPasswordAndName, setNextPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -43,84 +37,60 @@ export const CreatePassword = ({
 
   return (
     <VerticalFlex width="100%" align="center">
-      <HorizontalFlex width="100%" justify="space-between" align="center">
-        <TextButton onClick={onBack}>
-          <CaretIcon
-            direction={IconDirection.LEFT}
-            height="18px"
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography as="h1" size={24} weight={700} height="29px">
-          Create a Name and Password
-        </Typography>
-        <TextButton onClick={onCancel}>
-          <CloseIcon height="18px" color={theme.colors.icon1} />
-        </TextButton>
-      </HorizontalFlex>
+      <OnboardingStepHeader
+        title="Create a Name and Password"
+        onBack={onBack}
+        onClose={onCancel}
+      />
       <VerticalFlex align="center" grow="1">
-        <Typography align="center" margin="8px 0 40px" height="24px">
-          For your security, please create a new
+        <Typography align="center" margin="8px 0 0" size={14} height="17px">
+          For your security, please create a new name
           <br />
-          name and password.
+          and password.
         </Typography>
-        <HorizontalFlex height="100px">
-          <Input
-            label="Wallet Name"
-            onChange={(e) => setAccountName(e.target.value)}
-            placeholder="Placeholder"
-            autoFocus
-          />
-        </HorizontalFlex>
-        <VerticalFlex height={'120px'}>
-          <Input
-            label="Password"
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            type="password"
-            error={!!passwordLengthError}
-          />
-          <Typography
-            margin="4px 0 0 0"
-            color={
-              passwordLengthError ? theme.colors.error : theme.colors.text2
-            }
-            size={14}
-            height="17px"
-          >
-            Must be at least 8 characters
-          </Typography>
-        </VerticalFlex>
-        <HorizontalFlex height="100px">
-          <Input
-            label="Confirm Password"
-            onChange={(e) => setConfirmPasswordVal(e.target.value)}
-            placeholder="Password"
-            type="password"
-            error={confirmationError}
-            errorMessage={
-              confirmationError ? 'Passwords do not match' : undefined
-            }
-          />
-        </HorizontalFlex>
+        <Input
+          margin="32px 0 0"
+          label="Wallet Name"
+          onChange={(e) => setAccountName(e.target.value)}
+          placeholder="Enter a Name"
+          autoFocus
+        />
+        <Input
+          margin="24px 0"
+          label="Password"
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter a Password"
+          type="password"
+          error={!!passwordLengthError}
+          helperText="Must be at least 8 characters"
+        />
+        <Input
+          label="Confirm Password"
+          onChange={(e) => setConfirmPasswordVal(e.target.value)}
+          placeholder="Enter a Password"
+          type="password"
+          error={confirmationError}
+          errorMessage={
+            confirmationError ? 'Passwords do not match' : undefined
+          }
+        />
       </VerticalFlex>
-      <VerticalFlex align="center" margin="0 0 40px">
-        <PrimaryButton
-          size={ComponentSize.LARGE}
-          disabled={!canSubmit}
-          onClick={() => {
-            setPasswordAndName(password, accountName).then(() =>
-              setNextPhase(
-                isImportFlow
-                  ? OnboardingPhase.FINALIZE
-                  : OnboardingPhase.CREATE_WALLET
-              )
-            );
-          }}
-        >
-          Save
-        </PrimaryButton>
-      </VerticalFlex>
+      <PrimaryButton
+        size={ComponentSize.LARGE}
+        width="343px"
+        disabled={!canSubmit}
+        onClick={() => {
+          setPasswordAndName(password, accountName).then(() =>
+            setNextPhase(
+              isImportFlow
+                ? OnboardingPhase.FINALIZE
+                : OnboardingPhase.CREATE_WALLET
+            )
+          );
+        }}
+      >
+        Save
+      </PrimaryButton>
     </VerticalFlex>
   );
 };

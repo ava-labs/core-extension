@@ -1,13 +1,13 @@
 import {
   CheckmarkIcon,
-  DropDownMenuItem,
+  SecondaryDropDownMenuItem,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { LOCAL_NETWORK } from '@avalabs/wallet-react-components';
 
@@ -30,19 +30,23 @@ export function Network({ goBack, navigateTo, width }: SettingsPageProps) {
             return net.chainId !== LOCAL_NETWORK.chainId;
           })
           .map((n) => (
-            <DropDownMenuItem
+            <SecondaryDropDownMenuItem
+              selected={network?.name === n.name}
               key={n.name}
               justify="space-between"
               align="center"
               onClick={() => {
                 setNetwork(n);
               }}
+              padding="10px 16px"
             >
-              <Typography>{n.name}</Typography>
+              <Typography size={14} height="17px">
+                {n.name}
+              </Typography>
               {network?.name === n.name && (
                 <CheckmarkIcon height="16px" color={theme.colors.icon1} />
               )}
-            </DropDownMenuItem>
+            </SecondaryDropDownMenuItem>
           ))}
       </Scrollbars>
     </VerticalFlex>

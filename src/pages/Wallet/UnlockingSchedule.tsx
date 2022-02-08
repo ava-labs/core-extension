@@ -6,7 +6,7 @@ import {
   Typography,
   GridLineSeparator,
 } from '@avalabs/react-components';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, bnToAvaxP } from '@avalabs/avalanche-wallet-sdk';
 
 function bnToDate(val: BN) {
   const date = new Date(val.toNumber() * 1000);
@@ -27,7 +27,7 @@ export function UnlockingSchedule({ utxoSet }: { utxoSet: UTXOSet }) {
       {lockOuts.map((out, index) => (
         <GridContainerItems key={index}>
           <Typography>{bnToDate(out.getStakeableLocktime())}</Typography>
-          <Typography>{Utils.bnToAvaxP(out.getAmount())} AVAX</Typography>
+          <Typography>{bnToAvaxP(out.getAmount())} AVAX</Typography>
         </GridContainerItems>
       ))}
     </GridContainer>

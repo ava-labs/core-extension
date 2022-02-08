@@ -8,9 +8,8 @@ import {
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { NoTokenFound } from '../../Home/components/Portfolio/NoTokenFound';
 
 interface TokenListProps {
   searchQuery?: string;
@@ -49,12 +48,12 @@ export function TokenList({
   }, [tokenList, searchQuery, AVAX_TOKEN]);
 
   if (!tokens.length && !showAvax) {
-    return <NoTokenFound />;
+    return null;
   }
 
   return (
     <VerticalFlex grow="1" padding="16px 0 0 0">
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+      <Scrollbars>
         <VerticalFlex padding="0px 16px 73px">
           {AVAX_TOKEN && (!searchQuery || showAvax) && (
             <TokenCard

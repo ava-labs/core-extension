@@ -58,7 +58,9 @@ export function SignTransactionPage() {
   const { network } = useNetworkContext();
   const theme = useTheme();
   const [txFailedError, setTxFailedError] = useState<string>();
-  useLedgerDisconnectedDialog();
+  useLedgerDisconnectedDialog(() => {
+    window.close();
+  });
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 

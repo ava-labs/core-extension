@@ -1,7 +1,7 @@
 import { Overlay } from '@avalabs/react-components';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { LedgerApprovalDialog } from '@src/contracts/contractParsers/LedgerApprovalDialog';
+import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
 
 interface TxInProgressProps {
   address?: string;

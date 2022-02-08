@@ -7,10 +7,8 @@ import {
   SelectTokenModal,
   SearchInput,
   SwitchIcon,
-  TextButton,
   ComponentSize,
   PrimaryIconButton,
-  CaretIcon,
   IconDirection,
 } from '@avalabs/react-components';
 import {
@@ -22,7 +20,11 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  stringToBN,
+  bnToLocaleString,
+} from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
@@ -39,11 +41,11 @@ import {
 } from './utils';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SwapTxSuccess } from './components/SwapTxSucces';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { TxInProgress } from '../../components/common/TxInProgress';
 import { useHistory } from 'react-router-dom';
 import { GasPrice } from '@src/background/services/gas/models';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 export interface Token {
   icon?: JSX.Element;
@@ -62,11 +64,6 @@ const SwitchIconContainer = styled(PrimaryIconButton)`
   &[disabled] {
     background-color: ${({ theme }) => theme.swapCard.swapIconBg};
   }
-`;
-
-const StyledTextButton = styled(TextButton)`
-  position: absolute;
-  left: 16px;
 `;
 
 export function Swap() {
@@ -141,6 +138,15 @@ export function Swap() {
     },
     [setValuesDebouncedSubject]
   );
+
+  const calculateRate = (optimalRate: OptimalRate) => {
+    const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
+    const destAmountNumber =
+      parseInt(destAmount, 10) / Math.pow(10, destDecimals);
+    const sourceAmountNumber =
+      parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
+    return destAmountNumber / sourceAmountNumber;
+  };
 
   useEffect(() => {
     if (
@@ -278,7 +284,7 @@ export function Swap() {
     }
     const amount = {
       amount: fromTokenValue?.amount || '0',
-      bn: Utils.stringToBN(
+      bn: stringToBN(
         fromTokenValue?.amount || '0',
         selectedFromToken.denomination || 18
       ),
@@ -292,9 +298,6 @@ export function Swap() {
   };
 
   const swapTokens = () => {
-    if (!canSwap) {
-      return;
-    }
     if (
       !tokensWBalances.some(
         (token) =>
@@ -392,27 +395,11 @@ export function Swap() {
   }
 
   return (
-    <>
-      <VerticalFlex grow="1" margin="0 16px 16px">
-        <Typography
-          margin="16px 0 24px 32px"
-          size={24}
-          height="29px"
-          weight="bold"
-        >
-          <StyledTextButton
-            onClick={() => {
-              history.push('/home');
-            }}
-          >
-            <CaretIcon
-              height="24px"
-              color={theme.colors.icon1}
-              direction={IconDirection.LEFT}
-            />
-          </StyledTextButton>
-          Swap
-        </Typography>
+    <VerticalFlex width="100%">
+      <PageTitleMiniMode onBackClick={() => history.push('/home')}>
+        Swap
+      </PageTitleMiniMode>
+      <VerticalFlex grow="1" margin="16px 16px 16px">
         <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
           <SwapCard
             denomination={selectedFromToken?.denomination}
@@ -442,9 +429,9 @@ export function Swap() {
                 setIsCalculateAvaxMax(true);
               }
               setSwapError('');
-              setFromTokenValue(value);
+              setFromTokenValue(value as any);
               calculateTokenValueToInput(
-                value,
+                value as any,
                 'to',
                 selectedFromToken,
                 selectedToToken
@@ -493,9 +480,9 @@ export function Swap() {
             token={selectedToTokenFormat}
             defaultValue={destinationInputField === 'to' ? destAmount : ''}
             onChange={(value) => {
-              setToTokenValue(value);
+              setToTokenValue(value as any);
               calculateTokenValueToInput(
-                value,
+                value as any,
                 'from',
                 selectedFromToken,
                 selectedToToken
@@ -511,17 +498,14 @@ export function Swap() {
             <TransactionDetails
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
-              rate={
-                parseInt(optimalRate?.destAmount || '0', 10) /
-                parseInt(optimalRate?.srcAmount || '0', 10)
-              }
+              rate={calculateRate(optimalRate)}
               walletFee={optimalRate.partnerFee}
               onGasChange={(limit, price) => {
                 setGasLimit(limit);
                 setCustomGasPrice(price);
               }}
               gasLimit={gasLimit}
-              gasPrice={gasPrice}
+              gasPrice={gasPrice as any}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
             />
@@ -615,12 +599,13 @@ export function Swap() {
           }}
           isLoading={isLoading}
           rateValueInput={destinationInputField}
+          rate={calculateRate(optimalRate)}
         />
       )}
 
       {txInProgress && (
         <TxInProgress
-          fee={Utils.bnToLocaleString(
+          fee={bnToLocaleString(
             (customGasPrice || gasPrice)?.bn.mul(new BN(gasLimit)) || new BN(0),
             18
           )}
@@ -628,6 +613,6 @@ export function Swap() {
           symbol={selectedFromToken?.symbol}
         />
       )}
-    </>
+    </VerticalFlex>
   );
 }

@@ -13,7 +13,7 @@ import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useState } from 'react';
-import { Big, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { Big, bnToLocaleString, bigToBN } from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
@@ -36,8 +36,14 @@ const FeeButton = styled(SecondaryButton)`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.text2};
   background-color: ${({ theme }) => `${theme.colors.bg3}80`};
+  border-radius: 8px;
+  height: 40px;
+  max-height: 40px;
+  font-weight: 500;
+
   &.focus {
     font-size: 14px;
+    font-weight: 600;
     color: ${({ theme }) => theme.colors.bg2};
     background-color: ${({ theme }) => theme.colors.text1};
   }
@@ -48,7 +54,6 @@ const CustomGasLimitOverlay = styled(Overlay)`
   background-color: ${({ theme }) => theme.colors.bg1};
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 8px 16px 24px;
 `;
 
 const CustomBNInput = styled(BNInput)`
@@ -56,6 +61,7 @@ const CustomBNInput = styled(BNInput)`
 
   > div > input {
     font-size: 14px;
+    font-weight: 600;
     height: 40px;
     padding: 4px 8px;
     textalign: center;
@@ -73,7 +79,7 @@ export function CustomFees({
   gasPrice,
   limit,
   onChange,
-  gasPriceEditDisabled,
+  gasPriceEditDisabled = false,
 }: CustomGasFeesProps) {
   const { avaxPrice } = useWalletContext();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -93,11 +99,11 @@ export function CustomFees({
 
   const gasModifer = (amount: number): GasPrice => {
     // take current GasPrice (BN) and add amount .05 | .15 | custom
-    const bigGas = new Big(originalGas.value);
+    const bigGas = new Big(bnToLocaleString(originalGas.bn, 9));
     const newBigGas = bigGas.times(amount).plus(bigGas);
 
     const modifiedGasPrice = {
-      bn: Utils.bigToBN(newBigGas, 9),
+      bn: bigToBN(newBigGas, 9),
       value: newBigGas.toString(),
     };
 
@@ -160,7 +166,7 @@ export function CustomFees({
           margin="0 0 16px 0"
         >
           <HorizontalFlex align="center">
-            <Typography height="24px" weight={600} margin="0 8px 0 0">
+            <Typography size={14} height="17px" weight={600} margin="0 8px 0 0">
               {newFees.fee} AVAX
             </Typography>
             <Typography height="15px" size={12}>
@@ -217,7 +223,7 @@ export function CustomFees({
               value={customGasPrice?.bn}
               onChange={(value) =>
                 handleGasChange({
-                  bn: value.bn,
+                  bn: value.bn as any,
                   value: value.amount,
                 })
               }

@@ -2,7 +2,7 @@ import { TokenSearch, VerticalFlex } from '@avalabs/react-components';
 import { AVAX_TOKEN, TokenWithBalance } from '@avalabs/wallet-react-components';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useSetTokenInParams } from '@src/hooks/useSetTokenInParams';
+import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect } from 'react';
@@ -11,14 +11,14 @@ import { SendFlow } from './SendFlow';
 
 export function WalletHomeSend() {
   const { events } = useConnectionContext();
-  const setTokenInParams = useSetTokenInParams();
+  const setSendDataInParams = useSetSendDataInParams();
   const tokensWBalances = useTokensWithBalances();
   const selectedToken = useTokenFromParams();
 
   const onSelect = (token: TokenWithBalance) => {
     token.isAvax
-      ? setTokenInParams(AVAX_TOKEN.symbol)
-      : setTokenInParams(token.symbol);
+      ? setSendDataInParams({ token: AVAX_TOKEN })
+      : setSendDataInParams({ token });
   };
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function WalletHomeSend() {
         map((evt) => evt.value)
       )
       .subscribe(() => {
-        setTokenInParams(AVAX_TOKEN.symbol);
+        setSendDataInParams({ token: AVAX_TOKEN });
       });
 
     return () => {

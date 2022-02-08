@@ -85,13 +85,12 @@ export const ContactInput = ({
           value={getInputDisplayValue()}
           label="Send to"
           placeholder="Enter 0x Address"
-          margin="41px 0 0 0"
           buttonContent={
             <HorizontalFlex align="center" paddingRight="24px">
-              <ContactsIcon style={{ marginRight: 12 }} />
+              <ContactsIcon height="20px" style={{ marginRight: 12 }} />
               <CaretIcon
                 color={theme.colors.icon1}
-                height="18px"
+                height="16px"
                 direction={
                   isContactsOpen ? IconDirection.UP : IconDirection.DOWN
                 }
@@ -102,7 +101,10 @@ export const ContactInput = ({
         />
       </InputContainer>
       <ContainedDropdown anchorEl={inputRef} isOpen={isContactsOpen}>
-        <ContactSelect onChange={changeAndCloseDropdown} />
+        <ContactSelect
+          onChange={changeAndCloseDropdown}
+          selectedContact={contact}
+        />
       </ContainedDropdown>
     </RelativeContainer>
   );

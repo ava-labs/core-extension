@@ -1,4 +1,4 @@
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
 
 export function calculateGasAndFees(
@@ -7,7 +7,7 @@ export function calculateGasAndFees(
   avaxPrice: number
 ) {
   const bnFee = gasPrice.bn.mul(new BN(parseInt(gasLimit)));
-  const fee = Utils.bigToLocaleString(Utils.bnToBig(bnFee, 18), 4);
+  const fee = bigToLocaleString(bnToBig(bnFee, 18), 4);
   return {
     gasPrice: gasPrice,
     gasLimit: parseInt(gasLimit),

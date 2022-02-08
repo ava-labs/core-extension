@@ -14,12 +14,15 @@ import {
   GlobeIcon,
   SecondaryCard,
 } from '@avalabs/react-components';
-import { usePermissions } from './usePermissions';
 import styled, { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars-2';
+import {
+  Scrollbars,
+  ScrollbarsRef,
+} from '@src/components/common/scrollbars/Scrollbars';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
+import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -45,13 +48,13 @@ export function PermissionsPage() {
   const domain = params.get('domainUrl') as string;
   const domainName = params.get('domainName') as string;
   const domainIcon = params.get('domainIcon') as string;
-  const { permissions, updateAccountPermission } = usePermissions(domain);
+  const { permissions, updateAccountPermission } = usePermissionContext();
   const theme = useTheme();
   const { accounts, activeAccount, selectAccount } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>(
     activeAccount || accounts[0]
   );
-  const scrollbarsRef = useRef<Scrollbars>(null);
+  const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,8 +67,13 @@ export function PermissionsPage() {
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
   const onApproveClicked = async () => {
-    await updateAccountPermission(selectedAccount.addressC, true);
+    updateAccountPermission({
+      addressC: selectedAccount.addressC,
+      hasPermission: true,
+      domain,
+    });
     await selectAccount(selectedAccount.index);
+
     window.close();
   };
 
@@ -153,7 +161,7 @@ export function PermissionsPage() {
                         />
                       )}
                       {selectedAccount.index !== account.index &&
-                        permissions.accounts[account.addressC] && (
+                        permissions[domain]?.accounts[account.addressC] && (
                           <CheckmarkIcon
                             height="16px"
                             color={theme.colors.success}

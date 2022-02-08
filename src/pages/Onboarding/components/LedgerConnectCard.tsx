@@ -13,11 +13,9 @@ import styled, { useTheme } from 'styled-components';
 const LedgerCard = styled(SecondaryCard)<{
   clickable: boolean;
 }>`
-  border: 1px solid ${({ theme }) => theme.colors.stroke1};
+  background-color: ${({ theme }) => `${theme.colors.bg3}80`};
   border-radius: 8px;
-  background-color: ${({ theme }) => theme.colors.bg2};
   padding: 24px;
-  margin-bottom: 32px;
   width: 343px;
   ${({ clickable }) => clickable && `cursor: pointer;`};
 `;
@@ -44,8 +42,10 @@ export function LedgerConnectCard({
     <LedgerCard onClick={onClick} clickable={isErrorStatus}>
       <HorizontalFlex width="100%" align="center" justify="space-between">
         <VerticalFlex>
-          <SubTextTypography height="24px">Derivation Path</SubTextTypography>
-          <Typography size={24} height="29px" weight={700}>
+          <SubTextTypography size={16} height="24px">
+            Derivation Path
+          </SubTextTypography>
+          <Typography margin="4px 0 0" size={24} height="29px" weight={700}>
             {path}
           </Typography>
         </VerticalFlex>

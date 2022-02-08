@@ -3,7 +3,14 @@ import {
   addAccount as addAccountSDK,
 } from '@avalabs/wallet-react-components';
 import { resolve } from '@src/utils/promiseResolver';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  map,
+  switchMap,
+  withLatestFrom,
+} from 'rxjs';
 import { addAccount } from './handlers/addAccount';
 import { selectAccount } from './handlers/selectAccount';
 import { Account } from './models';
@@ -40,3 +47,27 @@ export async function initAccounts() {
   const activeIndex = accounts.find((a) => a.active)?.index || 0;
   await selectAccount(activeIndex);
 }
+
+sdkAccount$
+  .pipe(
+    switchMap((accounts) =>
+      combineLatest(
+        accounts.map((acc) => {
+          return acc.balance$.pipe(
+            map((balance) => {
+              return { index: acc.index, balance };
+            })
+          );
+        })
+      )
+    ),
+    withLatestFrom(accounts$)
+  )
+  .subscribe(([balances, accounts]) => {
+    const accountsWithBallances = accounts.map((acc) => ({
+      ...acc,
+      balance: balances.find((b) => b.index === acc.index)?.balance,
+    }));
+
+    accounts$.next(accountsWithBallances);
+  });

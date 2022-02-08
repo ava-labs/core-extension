@@ -1,4 +1,4 @@
-import { PopoutLinkIcon, TextButton } from '@avalabs/react-components';
+import { LinkIcon, TextButton } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 
 interface HistoryItemLinkProps {
@@ -13,7 +13,7 @@ export function HistoryItemLink({ explorerLink }: HistoryItemLinkProps) {
       onClick={() => window.open(explorerLink, '_blank')}
       margin={'6px 0 0 8px'}
     >
-      <PopoutLinkIcon height="12px" color={theme.colors.icon2} />
+      <LinkIcon height="12px" color={theme.colors.icon2} />
     </TextButton>
   );
 }

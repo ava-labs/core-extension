@@ -21,7 +21,7 @@ export function TransactionERC20({
       <HistoryItem label={item.tokenName} item={item}>
         <VerticalFlex align={'flex-end'} justify="center">
           {/* We dont know the type of token atm */}
-          <Typography height="24px">
+          <Typography size={14} height="24px">
             {item.isSender ? '-' : '+'}
             {item.amountDisplayValue} {item.tokenSymbol}
           </Typography>

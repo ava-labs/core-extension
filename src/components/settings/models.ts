@@ -1,6 +1,5 @@
 export enum SettingsPages {
   ADD_CONTACT = 'ADD_CONTACT',
-  ADVANCED = 'ADVANCED',
   CHANGE_PASSWORD = 'CHANGE_PASSWORD',
   CONTACT_LIST = 'CONTACT_LIST',
   CURRENCIES = 'CURRENCIES',
@@ -9,6 +8,7 @@ export enum SettingsPages {
   NETWORK = 'NETWORK',
   RECOVERY_PHRASE = 'RECOVERY_PHRASE',
   SECURITY_AND_PRIVACY = 'SECURITY_AND_PRIVACY',
+  CONNECTED_SITES = 'CONNECTED_SITES',
   LEDGER = 'LEDGER',
 }
 
@@ -16,4 +16,5 @@ export interface SettingsPageProps {
   width: string;
   navigateTo: (page: SettingsPages) => void;
   goBack: () => void;
+  onClose?: () => void;
 }

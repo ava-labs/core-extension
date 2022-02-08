@@ -24,7 +24,7 @@ export function HistoryItem({
         <Typography size={16} weight={500} height="24px">
           {label}
         </Typography>
-        <SubTextTypography size={14} height="17px">
+        <SubTextTypography size={12} height="17px">
           {item.isSender
             ? `To: ${truncateAddress(item.to ?? '')}`
             : `From: ${truncateAddress(item.from ?? '')}`}

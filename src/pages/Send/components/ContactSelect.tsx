@@ -24,7 +24,7 @@ const TabText = styled(Typography)<{
   font-size: 14px;
   ${({ $selected, theme }) => `
 		color: ${$selected ? theme.colors.text1 : theme.colors.text2};
-		font-weight: ${$selected ? 600 : 400};
+		font-weight: ${$selected ? 500 : 400};
 	`}
 `;
 
@@ -40,10 +40,14 @@ const Tab = styled(HorizontalFlex)<{ selected?: boolean }>`
 `;
 
 type ContactSelectProps = {
+  selectedContact?: Contact;
   onChange(contact: Contact): void;
 };
 
-export const ContactSelect = ({ onChange }: ContactSelectProps) => {
+export const ContactSelect = ({
+  onChange,
+  selectedContact,
+}: ContactSelectProps) => {
   const identifyAddress = useIdentifyAddress();
   const { recentTxHistory } = useWalletContext();
   const { accounts } = useAccountsContext();
@@ -105,14 +109,23 @@ export const ContactSelect = ({ onChange }: ContactSelectProps) => {
       {selectedTab === 'recents' && (
         <AddressDropdownList
           contacts={formattedTxHistory}
+          selectedContact={selectedContact}
           onChange={onChange}
         />
       )}
       {selectedTab === 'addressBook' && (
-        <AddressDropdownList contacts={formattedContacts} onChange={onChange} />
+        <AddressDropdownList
+          contacts={formattedContacts}
+          onChange={onChange}
+          selectedContact={selectedContact}
+        />
       )}
       {selectedTab === 'accounts' && (
-        <AddressDropdownList contacts={formattedAccounts} onChange={onChange} />
+        <AddressDropdownList
+          contacts={formattedAccounts}
+          onChange={onChange}
+          selectedContact={selectedContact}
+        />
       )}
     </VerticalFlex>
   );

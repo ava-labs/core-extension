@@ -1,30 +1,36 @@
 import { useState } from 'react';
 import {
   PlusIcon,
-  DropDownMenuItem,
+  SecondaryDropDownMenuItem,
   SearchInput,
   TextButton,
   Typography,
   VerticalFlex,
   SimpleAddress,
-  HorizontalFlex,
   Tooltip,
+  HorizontalSeparator,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars-2';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
-
-const DropDownMenuItemWithBorder = styled(DropDownMenuItem)`
-  border-bottom: solid 1px ${({ theme }) => theme.colors.stroke1};
-`;
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 
 const AccountName = styled(Typography)`
-  line-height: 1.2;
+  max-width: 95%;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  color: ${({ theme }) => theme.colors.text2};
+`;
+
+const StyledSecondaryDropDownMenuItem = styled(SecondaryDropDownMenuItem)`
+  :hover ${AccountName} {
+    color: ${({ theme }) => theme.colors.text1};
+  }
 `;
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
@@ -49,31 +55,28 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Address book'}
         action={
-          <Tooltip content={<Typography size={14}>Add New Contact</Typography>}>
-            <TextButton
-              margin="0 4px 0 0"
-              onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}
-            >
-              <PlusIcon height="20px" color={theme.colors.text1} />
+          <Tooltip content={<Typography size={12}>Add New Contact</Typography>}>
+            <TextButton onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}>
+              <PlusIcon height="18px" color={theme.colors.text1} />
             </TextButton>
           </Tooltip>
         }
       />
       <VerticalFlex padding="16px 22px">
         <SearchInput
-          placeholder="Search contacts"
+          placeholder="Search"
           onSearch={setSearchTerm}
           autoFocus={true}
         />
       </VerticalFlex>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+      <Scrollbars>
         {filteredContacts.length === 0 && (
-          <Typography margin="16px" as="p" align="center" color="text2">
+          <Typography margin="16px" size={14} as="p" align="center">
             No contacts found
           </Typography>
         )}
         {filteredContacts.map((c) => (
-          <DropDownMenuItemWithBorder
+          <StyledSecondaryDropDownMenuItem
             key={c.id}
             justify="space-between"
             align="center"
@@ -81,14 +84,22 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
               setEditedContact(c);
               navigateTo(SettingsPages.EDIT_CONTACT);
             }}
+            padding="8px 16px 0"
           >
-            <HorizontalFlex align="center" justify="space-between" width="100%">
-              <AccountName width="140px" title={c.name}>
-                {c.name}
-              </AccountName>
-              <SimpleAddress address={c.address} />
-            </HorizontalFlex>
-          </DropDownMenuItemWithBorder>
+            <VerticalFlex
+              align="flex-start"
+              justify="space-between"
+              width="100%"
+            >
+              <AccountName title={c.name}>{c.name}</AccountName>
+              <SimpleAddress
+                copyIconProps={{ color: theme.colors.icon2 }}
+                typographyProps={{ color: 'text2' }}
+                address={c.address}
+              />
+              <HorizontalSeparator margin="8px 0 0" />
+            </VerticalFlex>
+          </StyledSecondaryDropDownMenuItem>
         ))}
       </Scrollbars>
     </VerticalFlex>

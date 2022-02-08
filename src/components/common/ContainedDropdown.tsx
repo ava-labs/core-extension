@@ -1,6 +1,8 @@
 import { MutableRefObject, PropsWithChildren } from 'react';
 import styled from 'styled-components';
 
+const BOTTOM_PADDING = 16;
+
 // Dropdown is absolutely positioned, and fills the viewport beneath the select element
 const getDropdownHeight = (
   anchorEl: MutableRefObject<HTMLElement | null>
@@ -9,7 +11,8 @@ const getDropdownHeight = (
   return (
     window.visualViewport.height -
     anchorEl?.current?.getBoundingClientRect().top -
-    anchorEl?.current?.offsetHeight
+    anchorEl?.current?.offsetHeight -
+    BOTTOM_PADDING
   );
 };
 
@@ -22,9 +25,12 @@ const Dropdown = styled.div`
   display: flex;
   flex-flow: column;
   position: absolute;
-  overflow-y: scroll;
+  overflow-y: hidden;
   width: 100%;
-  background: ${({ theme }) => theme.overlay.secondary.bg};
+  background: ${({ theme }) => theme.colors.bg1};
+  z-index: 1;
+  transition: height 0.15s ease, opacity 0.15s ease;
+  borderradius: 0 0 8px 8px;
 `;
 
 type ContainedDropdownProps = {
@@ -49,8 +55,6 @@ export const ContainedDropdown = ({
         height: isOpen ? height : 0,
         opacity: isOpen ? 1 : 0,
         top,
-        zIndex: 1,
-        transition: 'height 0.15s ease, opacity 0.15s ease',
       }}
     >
       {children}

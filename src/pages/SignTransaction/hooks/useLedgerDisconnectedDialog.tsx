@@ -2,9 +2,13 @@ import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import { useLedgerSupportContext } from '@src/contexts/LedgerSupportProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useCallback, useEffect, useState } from 'react';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
-export function useLedgerDisconnectedDialog() {
+const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
+  margin: 24px 0 0;
+`;
+
+export function useLedgerDisconnectedDialog(onCancel: () => void) {
   const theme = useTheme();
   const { walletType } = useWalletContext();
   const { hasLedgerTransport } = useLedgerSupportContext();
@@ -20,12 +24,17 @@ export function useLedgerDisconnectedDialog() {
         body: 'Please connect your Ledger device to approve this transaction.',
         width: '343px',
         component: (
-          <LoadingSpinnerIcon color={theme.colors.icon1} height="32px" />
+          <StyledLoadingSpinnerIcon color={theme.colors.icon1} height="32px" />
         ),
+        cancelText: 'Cancel',
+        onCancel: () => {
+          onCancel();
+          clearDialog();
+        },
       },
       false
     );
-  }, [showDialog, theme.colors.icon1]);
+  }, [clearDialog, onCancel, showDialog, theme.colors.icon1]);
 
   useEffect(() => {
     if (walletType === 'ledger' && !hasLedgerTransport && !isDialogOpen) {

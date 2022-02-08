@@ -9,11 +9,13 @@ import {
   TransactionDisplayValues,
   txParams,
 } from '@src/background/services/transactions/models';
+import * as ethers from 'ethers';
 
 export type ContractParserHandler = (
   request: txParams,
   data: any,
-  props?: any
+  props?: any,
+  txDetails?: ethers.utils.TransactionDescription
 ) => TransactionDisplayValues;
 export type ContractParser = [ContractCall, ContractParserHandler];
 

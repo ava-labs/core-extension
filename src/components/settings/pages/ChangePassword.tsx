@@ -76,8 +76,8 @@ export function ChangePassword({
       />
       {!serverResponse ? (
         <>
-          <VerticalFlex align="center" padding="16px">
-            <HorizontalFlex height="100px" width="100%">
+          <VerticalFlex align="center" padding="16px 16px 0">
+            <HorizontalFlex height="88px" width="100%">
               <Input
                 onChange={(e) => {
                   setOldPassword(e.target.value);
@@ -91,7 +91,7 @@ export function ChangePassword({
                 width="100%"
               />
             </HorizontalFlex>
-            <VerticalFlex width="100%" padding="0 0 16px 0">
+            <VerticalFlex width="100%">
               <Input
                 onChange={(e) => {
                   setNewPassword(e.target.value);
@@ -108,7 +108,7 @@ export function ChangePassword({
                 setPasswordStrength={setNewPasswordStrength}
               />
             </VerticalFlex>
-            <HorizontalFlex height="100px" width="100%">
+            <HorizontalFlex margin="16px 0 0" height="88px" width="100%">
               <Input
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
@@ -131,13 +131,12 @@ export function ChangePassword({
             align="center"
             grow="1"
             justify="flex-end"
-            margin="16px"
+            margin="16px 16px 24px"
           >
             <PrimaryButton
               width="100%"
               size={ComponentSize.LARGE}
               onClick={handleChangePassword}
-              margin="0 0 24px"
               disabled={!canSubmit}
             >
               Save
@@ -145,8 +144,8 @@ export function ChangePassword({
           </VerticalFlex>
         </>
       ) : (
-        <VerticalFlex width="100%" align="center" grow="1" padding="24px">
-          <Typography height="24px" align="center">
+        <VerticalFlex width="100%" align="center" grow="1" padding="16px">
+          <Typography size={14} height="17px" align="center">
             {serverResponse}
           </Typography>
         </VerticalFlex>

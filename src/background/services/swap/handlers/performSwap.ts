@@ -13,7 +13,7 @@ import { firstValueFrom } from 'rxjs';
 import Web3 from 'web3';
 import { gasPrice$ } from '../../gas/gas';
 import { paraSwap$ } from '../swap';
-import ERC20_ABI from '../../../../contracts/erc20.abi.json';
+import ERC20_ABI from 'human-standard-token-abi';
 import { Allowance } from 'paraswap/build/types';
 
 const SERVER_BUSY_ERROR = 'Server too busy';

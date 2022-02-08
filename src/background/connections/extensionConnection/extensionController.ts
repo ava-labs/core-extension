@@ -21,6 +21,7 @@ import { SetOnboardingPasswordRequest } from '../../services/onboarding/handlers
 import { AddPermissionsForDomainRequest } from '../../services/permissions/handlers/addPermissionsForDomain';
 import { GetAccountsForPermissionsRequest } from '../../services/permissions/handlers/getAccountsForPermissions';
 import { GetPermissionsForDomainRequest } from '../../services/permissions/handlers/getPermissionsForDomain';
+import { GetAllPermissionsRequest } from '../../services/permissions/handlers/getAllPermissions';
 import { SettingsLockWalletStateRequest } from '../../services/settings/handlers/lockWallet';
 import { gasPriceTransactionUpdate } from '../../services/transactions/events/gasPriceTransactionUpdate';
 import { transactionFinalizedUpdate } from '../../services/transactions/events/transactionFinalizedUpdate';
@@ -69,6 +70,7 @@ import { GetPublicKeyRequest } from '@src/background/services/ledger/handlers/ge
 import { InitLedgerTransportRequest } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { SettingsGetIsDefaultExtensionRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { SettingsSetDefaultExtensionRequest } from '@src/background/services/settings/handlers/setAsDefaultExtension';
+import { permissionsUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -98,6 +100,7 @@ const extensionRequestHandlerMap = new Map<
   GetUnencryptedMnemonicRequest,
 
   AddPermissionsForDomainRequest,
+  GetAllPermissionsRequest,
   GetPermissionsForDomainRequest,
   GetAccountsForPermissionsRequest,
 
@@ -171,6 +174,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     networkUpdateEvents(),
     accountsUpdateEvents(),
     walletUpdateEvents,
+    permissionsUpdateEvents,
     onboardingPhaseUpdatedEvent(),
     gasPriceTransactionUpdate(),
     transactionFinalizedUpdate(),

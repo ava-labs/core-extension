@@ -19,7 +19,7 @@ import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { GasPrice } from '@src/background/services/gas/models';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SlippageToolTip } from '../SlippageToolTip';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
@@ -37,6 +37,7 @@ export interface ReviewOrderProps {
   onTimerExpire: () => void;
   isLoading: boolean;
   rateValueInput: 'from' | 'to' | '';
+  rate: number;
 }
 
 const ReviewOrderOverlay = styled(Overlay)`
@@ -70,14 +71,13 @@ export function ReviewOrder({
   slippage,
   onTimerExpire,
   isLoading,
+  rate,
 }: ReviewOrderProps) {
   const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
-  useLedgerDisconnectedDialog();
-
-  const rate =
-    parseInt(optimalRate?.destAmount || '0', 10) /
-    parseInt(optimalRate?.srcAmount || '0', 10);
+  useLedgerDisconnectedDialog(() => {
+    onClose();
+  });
 
   return (
     <ReviewOrderOverlay>
@@ -120,7 +120,7 @@ export function ReviewOrder({
             <TokenCard
               name={fromToken.symbol}
               symbol={fromToken.symbol}
-              balanceDisplayValue={Utils.bnToLocaleString(
+              balanceDisplayValue={bnToLocaleString(
                 new BN(optimalRate?.srcAmount || '0'),
                 optimalRate?.srcDecimals
               )}
@@ -137,7 +137,7 @@ export function ReviewOrder({
             <TokenCard
               name={toToken.symbol}
               symbol={toToken.symbol}
-              balanceDisplayValue={Utils.bnToLocaleString(
+              balanceDisplayValue={bnToLocaleString(
                 new BN(optimalRate?.destAmount || '0'),
                 optimalRate?.destDecimals
               )}
@@ -155,7 +155,7 @@ export function ReviewOrder({
               </VerticalFlex>
               <VerticalFlex>
                 <Typography>
-                  1 {fromToken?.symbol} ~ {rate?.toFixed(4)} {toToken?.symbol}
+                  1 {fromToken?.symbol} ≈ {rate?.toFixed(4)} {toToken?.symbol}
                 </Typography>
               </VerticalFlex>
             </DetailsRow>
@@ -178,17 +178,14 @@ export function ReviewOrder({
                   <Typography margin="0 16px 0 0">Network Fee</Typography>
                   <TransactionFeeTooltip
                     gasPrice={gasPrice?.bn}
-                    gasLimit={gasLimit}
+                    gasLimit={gasLimit as any}
                   />
                 </HorizontalFlex>
               </VerticalFlex>
               <VerticalFlex>
                 <Typography>
                   {Number(
-                    Utils.bnToLocaleString(
-                      gasPrice.bn.mul(new BN(gasLimit)),
-                      18
-                    )
+                    bnToLocaleString(gasPrice.bn.mul(new BN(gasLimit)), 18)
                   ).toFixed(6)}{' '}
                   AVAX
                 </Typography>

@@ -23,7 +23,6 @@ import {
   getTransactionsFromStorage,
   saveTransactionsToStorage,
 } from './storage';
-import { KnownContractABIs } from '@src/contracts';
 import {
   network$,
   wallet$,
@@ -34,6 +33,13 @@ import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { walletInitializedFilter } from '../wallet/utils/walletInitializedFilter';
+import * as ethers from 'ethers';
+import { getTxInfo, isTxDescriptionError } from './getTxInfo';
+import abiDecoder from 'abi-decoder';
+import hstABI from 'human-standard-token-abi';
+import { resolve } from '@src/utils/promiseResolver';
+
+abiDecoder.addABI(hstABI);
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
@@ -71,24 +77,18 @@ addTransaction
 
         const now = new Date().getTime();
         const txParams = (params || [])[0];
+        const txDescription = await getTxInfo(
+          txParams.to.toLocaleLowerCase(),
+          txParams.data
+        );
 
-        const knownContract =
-          KnownContractABIs.get(txParams.to.toLocaleLowerCase()) ??
-          KnownContractABIs.get('erc20');
+        const decodedData = (
+          txDescription as ethers.utils.TransactionDescription
+        ).args;
 
-        let decodedData: any;
-        try {
-          decodedData = knownContract?.parser(
-            knownContract?.decoder(txParams.data)
-          );
-        } catch (_err) {
-          console.log(
-            'error happened when attempting to decode date',
-            txParams.data
-          );
-        }
-
-        const parser = contractParserMap.get(decodedData?.contractCall);
+        const parser = contractParserMap.get(
+          (txDescription as ethers.utils.TransactionDescription).name
+        );
 
         if (txParams && isTxParams(txParams)) {
           const displayValueProps = {
@@ -109,11 +109,22 @@ addTransaction
           const txParamsWithGasLimit = gasLimit
             ? { gas: `${gasLimit}`, ...txParams }
             : txParams;
+
+          const description = isTxDescriptionError(txDescription)
+            ? txDescription
+            : undefined;
+
           const displayValues: TransactionDisplayValues = parser
-            ? parser(txParamsWithGasLimit, decodedData, displayValueProps)
+            ? parser(
+                txParamsWithGasLimit,
+                decodedData,
+                displayValueProps,
+                description
+              )
             : (parseBasicDisplayValues(
                 txParamsWithGasLimit,
-                displayValueProps
+                displayValueProps,
+                description
               ) as any);
 
           const networkMetaData = network

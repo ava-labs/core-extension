@@ -25,19 +25,20 @@ export function SettingsHeader({
   return (
     <HorizontalFlex
       width={width}
-      padding="40px 16px 12px"
+      marginTop="16px"
+      padding="12px 16px"
       align="center"
       justify="space-between"
     >
-      <HorizontalFlex>
-        <TextButton onClick={goBack} margin="0 24px 0 0">
+      <HorizontalFlex align="center">
+        <TextButton onClick={goBack} margin="0 12px 0 0">
           <CaretIcon
-            height="20px"
+            height="18px"
             direction={IconDirection.LEFT}
-            color={theme.colors.text1}
+            color={theme.colors.icon1}
           />
         </TextButton>
-        <Typography size={24} weight={700} height="29px">
+        <Typography size={20} weight={600} height="29px">
           {title}
         </Typography>
       </HorizontalFlex>

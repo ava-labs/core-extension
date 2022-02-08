@@ -1,4 +1,4 @@
-import { Assets } from '@avalabs/avalanche-wallet-sdk';
+import { getContractDataErc20 } from '@avalabs/avalanche-wallet-sdk';
 import { network$, walletState$ } from '@avalabs/wallet-react-components';
 import {
   ConnectionRequestHandler,
@@ -49,7 +49,7 @@ export async function settingsAddCustomToken(
   }
 
   try {
-    const tokenData = await Assets.getContractDataErc20(tokenAddress);
+    const tokenData = await getContractDataErc20(tokenAddress);
     if (!tokenData) {
       return {
         ...request,

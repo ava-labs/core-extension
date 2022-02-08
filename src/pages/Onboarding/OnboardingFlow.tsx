@@ -21,6 +21,7 @@ export function OnboardingFlow() {
   const [isLedgerFlow, setIsLedgerFlow] = useState<boolean>(false);
 
   async function handleOnCancel() {
+    setIsImportFlow(false);
     await setNextPhase(OnboardingPhase.RESTART);
   }
   useEffect(() => {
@@ -74,13 +75,18 @@ export function OnboardingFlow() {
             );
             setIsLedgerFlow(!isRecovery);
           }}
-          onBack={() => setNextPhase(OnboardingPhase.RESTART)}
+          onBack={handleOnCancel}
           onCancel={handleOnCancel}
         />
       );
       break;
     case OnboardingPhase.IMPORT_WALLET:
-      content = <Import onCancel={handleOnCancel} onBack={handleOnCancel} />;
+      content = (
+        <Import
+          onCancel={handleOnCancel}
+          onBack={() => setNextPhase(OnboardingPhase.EXISTING)}
+        />
+      );
       break;
     case OnboardingPhase.PASSWORD:
       content = (
@@ -117,19 +123,14 @@ export function OnboardingFlow() {
     <VerticalFlex align="center" style={{ minHeight: `100%` }}>
       <HorizontalFlex
         style={{ maxWidth: `90%` }}
-        padding="24px 0"
+        padding="16px 0"
         width="1200px"
         align="center"
       >
-        <Logo />
+        <Logo showName={true} />
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
-        <Card
-          width="600px"
-          minHeight="540px"
-          height="calc(100vh - 130px)"
-          maxHeight="800px"
-        >
+        <Card width="568px" minHeight="540px" height="639px" padding="40px">
           {content}
         </Card>
       </VerticalFlex>

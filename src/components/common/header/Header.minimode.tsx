@@ -1,5 +1,4 @@
 import {
-  ComponentSize,
   ConnectionIndicator,
   HorizontalFlex,
   HorizontalSeparator,
@@ -10,20 +9,24 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { SettingsMenuFlow } from '@src/components/settings/SettingsMenuFlow';
-import { usePermissions } from '@src/pages/Permissions/usePermissions';
+import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
+import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
 
 export function HeaderMiniMode() {
   const domain = useCurrentDomain();
   const theme = useTheme();
-  const { permissions, updateAccountPermission } = usePermissions(domain);
+  const { updateAccountPermission, isDomainConnectedToAccount } =
+    usePermissionContext();
   const { addresses } = useWalletContext();
-  const isConnected = permissions && permissions.accounts[addresses.addrC];
+  const isConnected =
+    (isDomainConnectedToAccount &&
+      isDomainConnectedToAccount(domain, addresses.addrC)) ||
+    false;
   const history = useHistory();
 
   const toggleReceivePage = () => {
@@ -35,16 +38,20 @@ export function HeaderMiniMode() {
   };
 
   return (
-    <HorizontalFlex justify="space-between" align="flex-start" padding="16px">
-      <SettingsMenuFlow />
+    <HorizontalFlex
+      justify="space-between"
+      align="flex-start"
+      padding="16px 16px 0 16px"
+    >
+      <SettingsMenu />
       <VerticalFlex>
         <HorizontalFlex align="center">
           <ConnectionIndicator connected={isConnected}>
             <Typography
               weight={600}
-              size={14}
-              height="24px"
-              margin="5px 16px 8px"
+              size={12}
+              height="16px"
+              margin="0 16px 8px"
             >
               {domain}
             </Typography>
@@ -52,18 +59,26 @@ export function HeaderMiniMode() {
               <>
                 <HorizontalSeparator margin="0" />
                 <SecondaryButton
-                  margin="8px auto 0"
-                  width="208px"
-                  size={ComponentSize.SMALL}
+                  margin="8px auto"
+                  width="210px"
                   onClick={() => {
-                    updateAccountPermission(addresses.addrC, false);
+                    updateAccountPermission({
+                      addressC: addresses.addrC,
+                      hasPermission: false,
+                      domain,
+                    });
                   }}
                 >
                   Disconnect
                 </SecondaryButton>
               </>
             ) : (
-              <Typography weight={500} size={12} height="15px" margin="0 16px">
+              <Typography
+                weight={500}
+                size={12}
+                height="15px"
+                margin="0 16px 8px"
+              >
                 To connect, locate the connect button on their site.
               </Typography>
             )}
@@ -71,7 +86,7 @@ export function HeaderMiniMode() {
           <AccountSelector />
         </HorizontalFlex>
         {addresses.addrC && (
-          <HorizontalFlex justify="center" margin="0 0 0 0">
+          <HorizontalFlex justify="center">
             <SimpleAddress
               copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
               typographyProps={{ color: 'text2', size: 12 }}

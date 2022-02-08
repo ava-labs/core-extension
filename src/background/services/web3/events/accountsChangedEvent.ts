@@ -1,5 +1,4 @@
-import { combineLatest, map, withLatestFrom } from 'rxjs';
-import { network$ } from '@avalabs/wallet-react-components';
+import { combineLatest, map } from 'rxjs';
 import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
 import { walletInitializedFilter } from '../../wallet/utils/walletInitializedFilter';
 import { wallet$ } from '@avalabs/wallet-react-components';
@@ -10,10 +9,9 @@ import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasA
 export function accountsChangedEvents(domain?: string) {
   return combineLatest([
     wallet$.pipe(walletInitializedFilter()),
-    network$,
+    permissions$,
   ]).pipe(
-    withLatestFrom(permissions$),
-    map(([[wallet], permissions]) => {
+    map(([wallet, permissions]) => {
       const hasAccessTodApp =
         domain &&
         domainHasAccountsPermissions(wallet.getAddressC(), domain, permissions);

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CloseIcon,
+  ComponentSize,
   HorizontalFlex,
   HorizontalSeparator,
   PrimaryButton,
@@ -10,9 +11,12 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars-2';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { AccountDropdownItem } from './AccountDropdownItem';
+import {
+  Scrollbars,
+  ScrollbarsRef,
+} from '@src/components/common/scrollbars/Scrollbars';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
@@ -25,7 +29,7 @@ export function AccountDropdownContent({
     useAccountsContext();
 
   const theme = useTheme();
-  const scrollbarsRef = useRef<Scrollbars>(null);
+  const scrollbarsRef = useRef<ScrollbarsRef>(null);
 
   const [editing, isEditing] = useState<boolean>(false);
   const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
@@ -73,7 +77,7 @@ export function AccountDropdownContent({
         margin="16px 0 8px"
         padding="0 16px"
       >
-        <Typography size={24} weight={700} height="29px">
+        <Typography size={20} weight={600} height="29px">
           Accounts
         </Typography>
         <TextButton onClick={() => onClose?.()}>
@@ -87,7 +91,6 @@ export function AccountDropdownContent({
           maxHeight: 'unset',
           height: '100%',
           width: '100%',
-          padding: '0 15px 15px 0',
         }}
         autoHide={false}
         ref={scrollbarsRef}
@@ -119,8 +122,17 @@ export function AccountDropdownContent({
           })}
         </VerticalFlex>
       </Scrollbars>
-      <HorizontalFlex justify="center" padding="16px" width="100%">
-        <PrimaryButton width="100%" onClick={() => addAccountAndFocus()}>
+      <HorizontalFlex
+        background={`${theme.colors.bg2}99`}
+        justify="center"
+        padding="12px 16px 24px"
+        width="100%"
+      >
+        <PrimaryButton
+          size={ComponentSize.LARGE}
+          width="100%"
+          onClick={() => addAccountAndFocus()}
+        >
           Add Account
         </PrimaryButton>
       </HorizontalFlex>

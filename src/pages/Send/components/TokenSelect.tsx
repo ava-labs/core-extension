@@ -1,6 +1,10 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  bnToLocaleString,
+  numberToBN,
+} from '@avalabs/avalanche-wallet-sdk';
 import {
   VerticalFlex,
   HorizontalFlex,
@@ -18,14 +22,14 @@ import {
   isERC20Token,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import Scrollbars from 'react-custom-scrollbars';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 
 const InputContainer = styled(HorizontalFlex)`
   justify-content: space-between;
   align-items: center;
-  padding: 16px 8px 16px 16px;
+  padding: 8px 16px;
   background: ${({ theme }) => theme.swapCard.inputContainerBg};
   cursor: pointer;
 `;
@@ -37,27 +41,27 @@ const SelectContainer = styled.div`
 const DropdownContents = styled(VerticalFlex)`
   flex-grow: 1;
   background: ${({ theme }) => theme.swapCard.inputContainerBg};
+  border-radius: 0 0 8px 8px;
 `;
 
 const SearchInputContainer = styled.div`
-  padding-left: 12px;
-  padding-right: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
 `;
 
 const StyledSearchInput = styled(SearchInput)`
   margin-top: 16px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 `;
 
 const StyledDropdownMenuItem = styled(DropDownMenuItem)`
-  padding-left: 12px;
-  padding-right: 12px;
+  padding: 8px 16px;
 `;
 
 interface TokenSelectProps {
   selectedToken?: TokenWithBalance | null;
   onTokenChange(token: TokenWithBalance): void;
-  maxAmount?: BN;
+  maxAmount: BN;
   inputAmount?: BN;
   onInputAmountChange?({ amount: string, bn: BN }): void;
   onSelectToggle?(): void;
@@ -85,20 +89,38 @@ export function TokenSelect({
   const [searchQuery, setSearchQuery] = useState('');
   const [bnError, setBNError] = useState('');
 
-  // When setting to the max, pin the input value to the max value
-  const [isMaxAmount, setIsMaxAmount] = useState(false);
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
-  const handleAmountChange = ({ amount, bn }: { amount: string; bn: BN }) => {
-    setIsMaxAmount(bn.eq(maxAmount || selectedToken?.balance || new BN(0)));
-    setAmountInCurrency(
-      !bn.isZero() && selectedToken?.priceUSD
-        ? currencyFormatter(
-            Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
-          )
-        : undefined
-    );
-    onInputAmountChange && onInputAmountChange({ amount, bn });
-  };
+  // Stringify maxAmount for referential equality in useEffect
+  const maxAmountString = bnToLocaleString(maxAmount, 18);
+  const [isMaxAmount, setIsMaxAmount] = useState(false);
+  const handleAmountChange = useCallback(
+    ({ amount, bn }: { amount: string; bn: BN }) => {
+      setIsMaxAmount(maxAmountString === amount);
+      setAmountInCurrency(
+        !bn.isZero() && selectedToken?.priceUSD
+          ? currencyFormatter(
+              Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
+            )
+          : undefined
+      );
+      onInputAmountChange && onInputAmountChange({ amount, bn });
+    },
+    [
+      currencyFormatter,
+      onInputAmountChange,
+      selectedToken?.priceUSD,
+      maxAmountString,
+    ]
+  );
+
+  // When setting to the max, pin the input value to the max value
+  useEffect(() => {
+    if (!isMaxAmount) return;
+    handleAmountChange({
+      amount: maxAmountString,
+      bn: numberToBN(maxAmountString, 18),
+    });
+  }, [maxAmountString, handleAmountChange, isMaxAmount]);
 
   return (
     <VerticalFlex width="100%" style={{ margin, padding: '0 16px' }}>
@@ -108,7 +130,7 @@ export function TokenSelect({
         margin="0 0 8px"
         grow="1"
       >
-        <Typography size={14} color={theme.inputs.colorHelper}>
+        <Typography size={14} color={theme.inputs.colorLabel}>
           Token
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
@@ -130,11 +152,11 @@ export function TokenSelect({
                 ? {
                     name: selectedToken?.symbol,
                     icon: selectedToken?.isAvax ? (
-                      <AvaxTokenIcon height="40px" />
+                      <AvaxTokenIcon height="32px" />
                     ) : (
                       <TokenIcon
-                        width="40px"
-                        height="40px"
+                        width="32px"
+                        height="32px"
                         src={selectedToken?.logoURI}
                         name={selectedToken?.name}
                       />
@@ -155,7 +177,7 @@ export function TokenSelect({
             onChange={handleAmountChange}
             onClick={(e) => e.stopPropagation()}
             onError={(errorMessage) => setBNError(errorMessage)}
-            style={{ borderWidth: 0, backgroundColor: theme.colors.bg2 }}
+            style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
             hideErrorMessage
           />
         </InputContainer>
@@ -182,7 +204,7 @@ export function TokenSelect({
                 autoFocus={true}
               />
             </SearchInputContainer>
-            <VerticalFlex style={{ flexGrow: 1 }}>
+            <VerticalFlex grow="1">
               <Scrollbars>
                 {tokensWBalances
                   .filter((token) =>
@@ -223,20 +245,15 @@ export function TokenSelect({
                             />
                           )}
                           <Typography
-                            size={18}
+                            size={16}
+                            height="24px"
                             margin={'0 0 0 16px'}
-                            weight={700}
+                            weight={500}
                           >
                             {token.name}
                           </Typography>
                         </HorizontalFlex>
-                        <Typography
-                          style={{
-                            fontWeight: 400,
-                            fontSize: 14,
-                            color: theme.palette.grey[400],
-                          }}
-                        >
+                        <Typography size={14} height="24px">
                           {token.balanceDisplayValue} {token.symbol}
                         </Typography>
                       </HorizontalFlex>

@@ -2,11 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  TextButton,
-  HorizontalFlex,
-  CaretIcon,
-  IconDirection,
-  CloseIcon,
   InfoIcon,
   Tooltip,
   PrimaryButton,
@@ -18,6 +13,7 @@ import {
   LedgerStatus,
 } from './components/LedgerConnectCard';
 import { useLedgerSupportContext } from '@src/contexts/LedgerSupportProvider';
+import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 
 interface LedgerConnectProps {
   onCancel(): void;
@@ -115,37 +111,27 @@ export function LedgerConnect({
 
   const Content = (
     <Typography align="left" size={12}>
-      This process retrieves the addresses from your ledger
+      This process retrieves the addresses
+      <br />
+      from your ledger
     </Typography>
   );
 
   return (
     <VerticalFlex width="100%" align="center">
-      <HorizontalFlex width="100%" justify="space-between" align="center">
-        <TextButton onClick={onBack}>
-          <CaretIcon
-            direction={IconDirection.LEFT}
-            height="18px"
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography as="h1" size={24} weight={700} height="29px">
-          Connect your Ledger
-        </Typography>
-        <TextButton onClick={onCancel}>
-          <CloseIcon height="18px" color={theme.colors.icon1} />
-        </TextButton>
-      </HorizontalFlex>
-      <HorizontalFlex align="center" margin="8px 0 40px">
-        <Typography align="center" height="24px">
-          Please confirm these actions on
-          <br />
-          your Ledger device
-          <StyledTooltip content={Content}>
-            <InfoIcon height="16px" color={theme.colors.text2} />
-          </StyledTooltip>
-        </Typography>
-      </HorizontalFlex>
+      <OnboardingStepHeader
+        title="Connect your Ledger"
+        onBack={onBack}
+        onClose={onCancel}
+      />
+      <Typography align="center" margin="8px 0 32px" size={14} height="17px">
+        Please confirm these actions on your
+        <br />
+        Ledger device
+        <StyledTooltip content={Content}>
+          <InfoIcon height="12px" color={theme.colors.icon2} />
+        </StyledTooltip>
+      </Typography>
       <VerticalFlex grow="1">
         <LedgerConnectCard
           path={"m/44'/60'/0'"}
@@ -157,7 +143,6 @@ export function LedgerConnect({
         <PrimaryButton
           onClick={() => tryPublicKey()}
           width="343px"
-          margin="0 0 40px"
           size={ComponentSize.LARGE}
         >
           Retry

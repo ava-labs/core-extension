@@ -53,7 +53,7 @@ const ManageTokensListItem = ({ token }: ManageTokensListItemProps) => {
       width="100%"
       justify="space-between"
       align="center"
-      margin="16px 0"
+      margin="0 0 16px 0"
     >
       <HorizontalFlex align="center">
         <TokenIcon
@@ -63,7 +63,7 @@ const ManageTokensListItem = ({ token }: ManageTokensListItemProps) => {
           name={token.name}
         />
         <VerticalFlex margin={'0 16px'}>
-          <Typography size={16} margin={'0 0 4px 0'} height="24px" weight={600}>
+          <Typography size={16} margin={'0 0 4px 0'} height="24px" weight={500}>
             {token.name}
           </Typography>
           <SubTextTypography size={14} height="17px">

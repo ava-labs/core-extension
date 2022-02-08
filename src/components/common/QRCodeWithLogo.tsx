@@ -22,8 +22,8 @@ export function QRCodeWithLogo({
   return (
     <VerticalFlex
       position="relative"
-      padding={`${Math.ceil(size * 0.06)}px`}
-      background={theme.colors.bg1}
+      padding="16px"
+      background={theme.colors.icon1}
       radius={theme.borderRadius}
       className={className}
       align="center"
@@ -31,13 +31,13 @@ export function QRCodeWithLogo({
     >
       <QRCode
         renderAs="svg"
-        fgColor={theme.colors.icon1}
-        bgColor={theme.colors.bg1}
+        fgColor={theme.colors.bg1}
+        bgColor={theme.colors.icon1}
         value={value}
         level="H"
-        size={size}
+        size={size - 32}
       />
-      {logoText && <StyledQRCodeLogo text={logoText} size={size / 2} />}
+      {logoText && <StyledQRCodeLogo text={logoText} size={size * 0.4} />}
     </VerticalFlex>
   );
 }

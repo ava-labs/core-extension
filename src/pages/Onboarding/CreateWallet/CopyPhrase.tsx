@@ -4,15 +4,10 @@ import {
   Typography,
   Mnemonic,
   PrimaryButton,
-  TextButton,
   Checkbox,
   ComponentSize,
-  HorizontalFlex,
-  CaretIcon,
-  IconDirection,
-  CloseIcon,
 } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 
 interface CopyPhraseProps {
   mnemonic: string;
@@ -27,31 +22,20 @@ export function CopyPhrase({
   onNext,
   mnemonic,
 }: CopyPhraseProps) {
-  const theme = useTheme();
   const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
 
   return (
     <VerticalFlex width="100%" align="center">
-      <HorizontalFlex width="100%" justify="space-between" align="center">
-        <TextButton onClick={onBack}>
-          <CaretIcon
-            direction={IconDirection.LEFT}
-            height="18px"
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography as="h1" size={24} weight={700} height="29px">
-          Secret Recovery Phrase
-        </Typography>
-        <TextButton onClick={onCancel}>
-          <CloseIcon height="18px" color={theme.colors.icon1} />
-        </TextButton>
-      </HorizontalFlex>
+      <OnboardingStepHeader
+        title="Secret Recovery Phrase"
+        onBack={onBack}
+        onClose={onCancel}
+      />
       <VerticalFlex align="center" grow="1">
-        <Typography align="center" margin="8px 0 40px" height="24px">
-          This is your recovery phrase. Write it down
+        <Typography align="center" margin="8px 0 32px" size={14} height="17px">
+          This is your recovery phrase. Write it down and
           <br />
-          and store it in a secure location.
+          store it in a secure location.
         </Typography>
         <Mnemonic
           phrase={mnemonic}
@@ -67,17 +51,14 @@ export function CopyPhrase({
           onChange={setTermsConfirmed}
         />
         <PrimaryButton
+          width="343px"
+          margin="16px 0 0 0"
           size={ComponentSize.LARGE}
-          margin="16px 0"
           disabled={!termsConfirmed}
           onClick={() => onNext()}
         >
-          I wrote it down
+          Next
         </PrimaryButton>
-
-        <TextButton as="a" margin="10px 0 0">
-          Learn more
-        </TextButton>
       </VerticalFlex>
     </VerticalFlex>
   );

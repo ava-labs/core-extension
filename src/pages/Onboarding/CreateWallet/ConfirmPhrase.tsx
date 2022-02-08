@@ -4,14 +4,9 @@ import {
   Typography,
   Mnemonic,
   PrimaryButton,
-  TextButton,
   ComponentSize,
-  HorizontalFlex,
-  CaretIcon,
-  IconDirection,
-  CloseIcon,
 } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 
 interface ConfirmPhraseProps {
   mnemonic: string;
@@ -26,28 +21,17 @@ export function ConfirmPhrase({
   onBack,
   mnemonic,
 }: ConfirmPhraseProps) {
-  const theme = useTheme();
   const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
 
   return (
-    <VerticalFlex width="100%" align="center" padding="16px 0">
-      <HorizontalFlex width="100%" justify="space-between" align="center">
-        <TextButton onClick={onBack}>
-          <CaretIcon
-            direction={IconDirection.LEFT}
-            height="18px"
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography as="h1" size={24} weight={700} height="29px">
-          Verify Recovery Phrase
-        </Typography>
-        <TextButton onClick={onCancel}>
-          <CloseIcon height="18px" color={theme.colors.icon1} />
-        </TextButton>
-      </HorizontalFlex>
+    <VerticalFlex width="100%" align="center">
+      <OnboardingStepHeader
+        title="Verify Recovery Phrase"
+        onBack={onBack}
+        onClose={onCancel}
+      />
       <VerticalFlex align="center" grow="1">
-        <Typography align="center" margin="8px 0 40px" height="24px">
+        <Typography align="center" margin="8px 0 32px" size={14} height="17px">
           Select the words below to verify your
           <br />
           Recovery Phrase.
@@ -60,13 +44,14 @@ export function ConfirmPhrase({
           }}
         />
       </VerticalFlex>
-      <VerticalFlex align="center" margin="0 0 40px">
+      <VerticalFlex align="center">
         <PrimaryButton
+          width="343px"
           size={ComponentSize.LARGE}
           disabled={!termsConfirmed}
           onClick={() => onNext()}
         >
-          Verify phrase
+          Next
         </PrimaryButton>
       </VerticalFlex>
     </VerticalFlex>

@@ -22,17 +22,17 @@ export function approveTxHandler(
   props: DisplayValueParserProps
 ): TransactionDisplayValues {
   const erc20sIndexedByAddress = props.erc20Tokens.reduce(
-    (acc, token) => ({ ...acc, [token.address]: token }),
+    (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
     {}
   );
 
-  const tokenToBeApproved = erc20sIndexedByAddress[request.to];
+  const tokenToBeApproved = erc20sIndexedByAddress[request.to.toLowerCase()];
 
   const result = {
     tokenToBeApproved,
     contractType: ContractCall.APPROVE,
     approveData: {
-      limit: _data.amount,
+      limit: _data.amount.toHexString(),
       spender: _data.spender,
     },
     ...parseBasicDisplayValues(request, props),

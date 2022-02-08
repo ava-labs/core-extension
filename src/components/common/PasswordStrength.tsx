@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import { useTheme, DefaultTheme } from 'styled-components';
-import { Typography, useThemeContext } from '@avalabs/react-components';
+import { useThemeContext } from '@avalabs/react-components';
 
 const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'));
 
@@ -64,23 +64,26 @@ export function PasswordStrength({
   const { darkMode } = useThemeContext();
   const barColors = getBarColors(theme, darkMode);
   return (
-    <Typography size={12} height="16px" padding="8px">
-      <PasswordStrengthBar
-        password={password}
-        scoreWords={[
-          'Password strength: Too weak',
-          'Password strength: Too weak',
-          'Password strength: Weak',
-          'Password strength: Good enough',
-          'Password strength: Strong',
-        ]}
-        shortScoreWord="Password must be at least 8 characters."
-        onChangeScore={(score) => {
-          setPasswordStrength(score);
-        }}
-        minLength={8}
-        barColors={barColors}
-      />
-    </Typography>
+    <PasswordStrengthBar
+      password={password}
+      scoreWordStyle={{
+        fontSize: '12px',
+        fontFamily: theme.fontFamily,
+        color: theme.colors.text2,
+      }}
+      scoreWords={[
+        'Password strength: Too weak',
+        'Password strength: Too weak',
+        'Password strength: Weak',
+        'Password strength: Good enough',
+        'Password strength: Strong',
+      ]}
+      shortScoreWord="Password must be at least 8 characters."
+      onChangeScore={(score) => {
+        setPasswordStrength(score);
+      }}
+      minLength={8}
+      barColors={barColors}
+    />
   );
 }
