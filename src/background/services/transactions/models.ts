@@ -3,6 +3,7 @@
 import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
 import { GasPrice } from '../gas/models';
+import * as ethers from 'ethers';
 
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
@@ -24,6 +25,7 @@ export interface TransactionDisplayValues {
   fee?: string;
   feeUSD?: number;
   site: DomainMetadata;
+  description?: ethers.utils.TransactionDescription;
   [key: string]: any;
 }
 export interface Transaction {

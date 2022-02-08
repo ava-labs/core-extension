@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { SendErc20State, ERC20 } from '@avalabs/wallet-react-components';
-import { BN, ChainIdType, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, ChainIdType, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { sendErc20ValidateRequest } from '@src/background/services/send/sendErc20/utils/sendErc20ValidateRequest';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendErc20SubmitRequest } from '@src/background/services/send/sendErc20/utils/sendErc20SubmitRequest';
@@ -57,7 +57,7 @@ SendStateWithActions & Omit<SendErc20State, 'token'> & { token?: ERC20 } {
         return Promise.reject('Unable to identify token.');
       }
 
-      const amount = Utils.bnToBig(
+      const amount = bnToBig(
         sendErc20State?.amount || new BN(0),
         sendErc20State?.token.denomination
       ).toString();

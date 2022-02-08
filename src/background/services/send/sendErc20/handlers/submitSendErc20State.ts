@@ -11,7 +11,7 @@ import {
 } from '@avalabs/wallet-react-components';
 import { firstValueFrom, map, of, tap } from 'rxjs';
 import { gasPrice$ } from '../../../gas/gas';
-import { BN, Utils, WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { BN, WalletType, stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 import { resolve } from '@src/utils/promiseResolver';
 import { isWalletLocked } from '@src/background/services/wallet/models';
@@ -96,7 +96,7 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
       sendErc20Submit(
         token,
         Promise.resolve<WalletType>(wallet),
-        Utils.stringToBN(amount, token.denomination),
+        stringToBN(amount, token.denomination),
         address,
         Promise.resolve(gasPrice),
         of(balances) as any,

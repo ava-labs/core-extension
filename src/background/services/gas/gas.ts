@@ -7,7 +7,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { BN, Utils, GasHelper } from '@avalabs/avalanche-wallet-sdk';
+import { BN, GasHelper, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from './models';
 
 const SECONDS_30 = 1000 * 30;
@@ -18,7 +18,7 @@ function getGasPrice(): Promise<BN> {
 }
 
 function parseGasPrice(bn: BN) {
-  const value = Utils.bnToLocaleString(bn, 9);
+  const value = bnToLocaleString(bn, 9);
   return {
     bn,
     value,

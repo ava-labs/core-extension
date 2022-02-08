@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { sendAvaxSubmit, wallet$ } from '@avalabs/wallet-react-components';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { gasPrice$ } from '../../../gas/gas';
 import { firstValueFrom, map, tap } from 'rxjs';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
@@ -41,7 +41,7 @@ async function submitSendAvaxState(request: ExtensionConnectionMessage) {
     firstValueFrom(
       sendAvaxSubmit(
         // we only support c chain so this needs ot be 18 decimals
-        Utils.stringToBN(amount, 18),
+        stringToBN(amount, 18),
         address,
         firstValueFrom(
           gasPrice$.pipe(

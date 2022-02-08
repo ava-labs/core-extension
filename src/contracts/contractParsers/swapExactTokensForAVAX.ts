@@ -5,13 +5,19 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  bigToLocaleString,
+  bnToBig,
+  Big,
+} from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export interface SwapExactTokensForAVAXData {
-  amountOutMin: string;
-  amountIn: string;
+  amountOutMin: Big;
+  amountIn: Big;
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
   path: string[];
@@ -32,14 +38,16 @@ export function swapExactTokensForAvax(
 ): SwapExactTokensForTokenDisplayValues {
   const erc20sIndexedByAddress: { [key: string]: ERC20WithBalance } =
     props.erc20Tokens.reduce(
-      (acc, token) => ({ ...acc, [token.address]: token }),
+      (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
       {}
     );
 
-  const firstTokenInPath = erc20sIndexedByAddress[data.path[0]];
-  const lastTokenAmountBN = new BN(data.amountIn || data.amountOutMin);
-  const amountValue = Utils.bigToLocaleString(
-    Utils.bnToBig(lastTokenAmountBN, firstTokenInPath.denomination),
+  const firstTokenInPath = erc20sIndexedByAddress[data.path[0].toLowerCase()];
+  const lastTokenAmountBN = hexToBN(
+    (data.amountIn || data.amountOutMin).toHexString()
+  );
+  const amountValue = bigToLocaleString(
+    bnToBig(lastTokenAmountBN, firstTokenInPath.denomination),
     4
   );
   const amountUSDValue =
@@ -54,11 +62,8 @@ export function swapExactTokensForAvax(
     amountUSDValue,
   };
 
-  const avaxAmountInBN = new BN(data.amountOutMin);
-  const amountAvaxValue = Utils.bigToLocaleString(
-    Utils.bnToBig(avaxAmountInBN, 18),
-    4
-  );
+  const avaxAmountInBN = hexToBN(data.amountOutMin.toHexString());
+  const amountAvaxValue = bigToLocaleString(bnToBig(avaxAmountInBN, 18), 4);
 
   const avaxToken = {
     ...props.avaxToken,

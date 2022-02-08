@@ -12,7 +12,7 @@ import {
   TransactionToast,
 } from '@avalabs/react-components';
 import { SendFormMiniMode } from './components/SendForm.minimode';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendConfirmMiniMode } from './SendConfirm.minimode';
 import { useSend } from './hooks/useSend';
@@ -141,7 +141,7 @@ export function SendMiniMode() {
               address={sendState?.address}
               amount={amountInputDisplay}
               symbol={selectedToken.symbol}
-              fee={Utils.bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
+              fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
             />
           )}
           <SendConfirmMiniMode

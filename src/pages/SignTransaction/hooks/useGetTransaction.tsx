@@ -10,7 +10,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
 import Web3 from 'web3';
-import ERC20_ABI from '../../../contracts/erc20.abi.json';
+import ERC20_ABI from 'human-standard-token-abi';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';

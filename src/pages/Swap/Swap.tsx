@@ -20,7 +20,11 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  stringToBN,
+  bnToLocaleString,
+} from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
@@ -37,7 +41,6 @@ import {
 } from './utils';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SwapTxSuccess } from './components/SwapTxSucces';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
 import { TxInProgress } from '../../components/common/TxInProgress';
 import { useHistory } from 'react-router-dom';
 import { GasPrice } from '@src/background/services/gas/models';
@@ -281,7 +284,7 @@ export function Swap() {
     }
     const amount = {
       amount: fromTokenValue?.amount || '0',
-      bn: Utils.stringToBN(
+      bn: stringToBN(
         fromTokenValue?.amount || '0',
         selectedFromToken.denomination || 18
       ),
@@ -602,7 +605,7 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={Utils.bnToLocaleString(
+          fee={bnToLocaleString(
             (customGasPrice || gasPrice)?.bn.mul(new BN(gasLimit)) || new BN(0),
             18
           )}

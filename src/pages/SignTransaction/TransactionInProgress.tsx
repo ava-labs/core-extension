@@ -6,7 +6,7 @@ import {
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { LedgerApprovalDialog } from '../../contracts/contractParsers/LedgerApprovalDialog';
+import { LedgerApprovalDialog } from './LedgerApprovalDialog';
 import { TransactionDisplayValues } from '@src/background/services/transactions/models';
 
 interface TransactionInProgressProps {

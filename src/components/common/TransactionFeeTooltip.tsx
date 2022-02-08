@@ -6,7 +6,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: string | number;
@@ -36,9 +36,7 @@ export function TransactionFeeTooltip({
       </HorizontalFlex>
       <HorizontalFlex width="100%" justify="space-between">
         <Typography size={12}>Gas Price</Typography>
-        <Typography size={12}>
-          {Utils.bnToLocaleString(gasPrice, 9)} nAVAX
-        </Typography>
+        <Typography size={12}>{bnToLocaleString(gasPrice, 9)} nAVAX</Typography>
       </HorizontalFlex>
     </VerticalFlex>
   );

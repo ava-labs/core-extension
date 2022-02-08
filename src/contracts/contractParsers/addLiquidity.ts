@@ -7,13 +7,14 @@ import {
   LiquidityPoolToken,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig, Big } from '@avalabs/avalanche-wallet-sdk';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export interface AddLiquidityData {
-  amountAMin: string;
-  amountADesired: string;
-  amountBMin: string;
-  amountBDesired: string;
+  amountAMin: Big;
+  amountADesired: Big;
+  amountBMin: Big;
+  amountBDesired: Big;
   contractCall: ContractCall.ADD_LIQUIDITY;
   deadline: string;
   tokenA: string;
@@ -34,15 +35,15 @@ export function addLiquidityHandler(
   props: DisplayValueParserProps
 ): AddLiquidityDisplayData {
   const erc20sIndexedByAddress = props.erc20Tokens.reduce(
-    (acc, token) => ({ ...acc, [token.address]: token }),
+    (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
     {}
   );
 
-  const tokenA = erc20sIndexedByAddress[data.tokenA];
-  const tokenB = erc20sIndexedByAddress[data.tokenB];
+  const tokenA = erc20sIndexedByAddress[data.tokenA.toLowerCase()];
+  const tokenB = erc20sIndexedByAddress[data.tokenB.toLowerCase()];
 
-  const firstTokenAmountDepositedDisplayValue = Utils.bigToLocaleString(
-    Utils.bnToBig(new BN(data.amountADesired), tokenA.denomination),
+  const firstTokenAmountDepositedDisplayValue = bigToLocaleString(
+    bnToBig(hexToBN(data.amountADesired.toHexString()), tokenA.denomination),
     4
   );
   const tokenA_AmountUSDValue =
@@ -55,8 +56,8 @@ export function addLiquidityHandler(
     amountUSDValue: tokenA_AmountUSDValue,
   };
 
-  const secondTokenAmountDepositedDisplayValue = Utils.bigToLocaleString(
-    Utils.bnToBig(new BN(data.amountBDesired), tokenB.denomination),
+  const secondTokenAmountDepositedDisplayValue = bigToLocaleString(
+    bnToBig(hexToBN(data.amountBDesired.toHexSTring()), tokenB.denomination),
     4
   );
   const tokenB_AmountUSDValue =

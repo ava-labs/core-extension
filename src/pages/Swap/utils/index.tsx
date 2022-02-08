@@ -5,7 +5,7 @@ import {
 } from '@avalabs/wallet-react-components';
 import { TokenIcon as TokenImage } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { APIError } from 'paraswap';
 
 interface GetTokenIconProps {
@@ -59,7 +59,7 @@ export const getMaxValue = (token?: TokenWithBalance, fee?: string) => {
   }
 
   if (isAvax(token)) {
-    return token.balance.sub(Utils.stringToBN(fee, 18));
+    return token.balance.sub(stringToBN(fee, 18));
   }
   return token.balance;
 };

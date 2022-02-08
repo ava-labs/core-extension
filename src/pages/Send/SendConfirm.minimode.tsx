@@ -1,4 +1,8 @@
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import {
+  bigToLocaleString,
+  bnToBig,
+  bnToLocaleString,
+} from '@avalabs/avalanche-wallet-sdk';
 import {
   VerticalFlex,
   Typography,
@@ -136,7 +140,7 @@ export const SendConfirmMiniMode = ({
     history.goBack();
   });
 
-  const amount = Utils.bnToLocaleString(
+  const amount = bnToLocaleString(
     sendState?.amount || new BN(0),
     token.denomination
   );
@@ -146,10 +150,7 @@ export const SendConfirmMiniMode = ({
   // For low value, fallback to CSS ellipsis
   const amountDisplayValue =
     token?.priceUSD && token.priceUSD > 1
-      ? Utils.bigToLocaleString(
-          Utils.bnToBig(sendState?.amount || new BN(0), 18),
-          4
-        )
+      ? bigToLocaleString(bnToBig(sendState?.amount || new BN(0), 18), 4)
       : fallbackAmountDisplayValue;
 
   const amountInCurrency = currencyFormatter(
@@ -159,14 +160,11 @@ export const SendConfirmMiniMode = ({
   const balanceAfter = token.balance
     .sub(sendState?.amount || new BN(0))
     .sub(token.isAvax ? sendState?.sendFee || new BN(0) : new BN(0));
-  const balanceAfterDisplay = Utils.bigToLocaleString(
-    Utils.bnToBig(balanceAfter, 18),
-    4
-  );
+  const balanceAfterDisplay = bigToLocaleString(bnToBig(balanceAfter, 18), 4);
   const balanceAfterInCurrencyDisplay = currencyFormatter(
     Number(
-      Utils.bigToLocaleString(
-        Utils.bnToBig(balanceAfter.mul(new BN(token?.priceUSD || 0)), 18),
+      bigToLocaleString(
+        bnToBig(balanceAfter.mul(new BN(token?.priceUSD || 0)), 18),
         2
       ).replace(',', '')
     )

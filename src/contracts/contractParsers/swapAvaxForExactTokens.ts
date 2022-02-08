@@ -5,7 +5,12 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  bigToLocaleString,
+  bnToBig,
+  Big,
+} from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { hexToBN } from '@src/utils/hexToBN';
@@ -14,8 +19,8 @@ export interface SwapAVAXForExactTokensData {
   /**
    * Depending on function call one of these amounts will be truthy
    */
-  amountOutMin: string;
-  amountOut: string;
+  amountOutMin: Big;
+  amountOut: Big;
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
   path: string[];
@@ -36,15 +41,12 @@ export function swapAVAXForExactTokens(
 ): SwapExactTokensForTokenDisplayValues {
   const erc20sIndexedByAddress: { [key: string]: ERC20WithBalance } =
     props.erc20Tokens.reduce(
-      (acc, token) => ({ ...acc, [token.address]: token }),
+      (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
       {}
     );
 
   const avaxAmountInBN = request.value ? hexToBN(request.value) : new BN(0);
-  const amountAvaxValue = Utils.bigToLocaleString(
-    Utils.bnToBig(avaxAmountInBN, 18),
-    4
-  );
+  const amountAvaxValue = bigToLocaleString(bnToBig(avaxAmountInBN, 18), 4);
   const amountAvaxUSDValue =
     (Number(props.avaxPrice) * Number(amountAvaxValue)).toFixed(2) ?? '';
   const avaxToken = {
@@ -57,10 +59,12 @@ export function swapAVAXForExactTokens(
   };
 
   const lastTokenInPath =
-    erc20sIndexedByAddress[data.path[data.path.length - 1]];
-  const lastTokenAmountBN = new BN(data.amountOut || data.amountOutMin);
-  const amountValue = Utils.bigToLocaleString(
-    Utils.bnToBig(lastTokenAmountBN, lastTokenInPath.denomination),
+    erc20sIndexedByAddress[data.path[data.path.length - 1].toLowerCase()];
+  const lastTokenAmountBN = hexToBN(
+    (data.amountOut || data.amountOutMin).toHexString()
+  );
+  const amountValue = bigToLocaleString(
+    bnToBig(lastTokenAmountBN, lastTokenInPath.denomination),
     4
   );
   const amountUSDValue =

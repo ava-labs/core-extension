@@ -10,12 +10,21 @@ export function UnknownTx({
   gasPrice,
   gasLimit,
   onCustomFeeSet,
+  displayValue,
+  name,
 }: TransactionDisplayValues) {
   return (
     <VerticalFlex align={'center'} width="100%">
       <Typography size={24} weight={700} margin={'8px 0 16px 0'}>
-        Transaction Summary
+        {name ? `${name} Transaction Summary` : 'Transaction Summary'}
       </Typography>
+
+      {displayValue ? (
+        <Typography margin={'8px 0 16px 0'}>{displayValue}</Typography>
+      ) : (
+        ''
+      )}
+
       <AddressPaths fromAddress={fromAddress} toAddress={toAddress} />
 
       {/* Tabs */}

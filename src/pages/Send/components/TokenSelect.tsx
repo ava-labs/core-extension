@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  bnToLocaleString,
+  numberToBN,
+} from '@avalabs/avalanche-wallet-sdk';
 import {
   VerticalFlex,
   HorizontalFlex,
@@ -87,7 +91,7 @@ export function TokenSelect({
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
   // Stringify maxAmount for referential equality in useEffect
-  const maxAmountString = Utils.bnToLocaleString(maxAmount, 18);
+  const maxAmountString = bnToLocaleString(maxAmount, 18);
   const [isMaxAmount, setIsMaxAmount] = useState(false);
   const handleAmountChange = useCallback(
     ({ amount, bn }: { amount: string; bn: BN }) => {
@@ -114,7 +118,7 @@ export function TokenSelect({
     if (!isMaxAmount) return;
     handleAmountChange({
       amount: maxAmountString,
-      bn: Utils.numberToBN(maxAmountString, 18),
+      bn: numberToBN(maxAmountString, 18),
     });
   }, [maxAmountString, handleAmountChange, isMaxAmount]);
 

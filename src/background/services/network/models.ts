@@ -1,23 +1,28 @@
-import { Network, NetworkConstants } from '@avalabs/avalanche-wallet-sdk';
+import {
+  NetworkConfig,
+  MainnetConfig,
+  TestnetConfig,
+  LocalnetConfig,
+} from '@avalabs/avalanche-wallet-sdk';
 
 export interface ActiveNetwork {
-  config: Network.NetworkConfig;
+  config: NetworkConfig;
   name: string;
   chainId: string;
 }
 
 export const MAINNET_NETWORK = {
-  config: NetworkConstants.MainnetConfig,
+  config: MainnetConfig,
   name: 'Avalanche Mainnet',
   chainId: '0xa86a',
 };
 export const FUJI_NETWORK = {
-  config: NetworkConstants.TestnetConfig,
+  config: TestnetConfig,
   name: ' Avalanche FUJI',
   chainId: '0xa869',
 };
 export const LOCAL_NETWORK = {
-  config: NetworkConstants.LocalnetConfig,
+  config: LocalnetConfig,
   name: 'Avalanche Local',
   chainId: '43112',
 };

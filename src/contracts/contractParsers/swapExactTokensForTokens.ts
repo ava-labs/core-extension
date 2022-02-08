@@ -6,18 +6,24 @@ import {
   erc20PathToken,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  bigToLocaleString,
+  bnToBig,
+  Big,
+} from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export interface SwapExactTokensForTokenData {
-  amountInMin: string;
-  amountIn: string;
-  amountInMax: string;
+  amountInMin: Big;
+  amountIn: Big;
+  amountInMax: Big;
 
-  amountOutMin: string;
-  amountOut: string;
-  amountOutMax: string;
+  amountOutMin: Big;
+  amountOut: Big;
+  amountOutMax: Big;
 
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
@@ -45,15 +51,20 @@ export function swapExactTokensForTokenHandler(
   const firstTokenInPath = data.path[0];
   const lastTokenInPath = data.path[data.path.length - 1];
   const path: erc20PathToken[] = data.path.map((address) => {
-    const pathToken: ERC20WithBalance = erc20sIndexedByAddress[address] ?? {
+    const pathToken: ERC20WithBalance = erc20sIndexedByAddress[
+      address.toLowerCase()
+    ] ?? {
       address,
     };
 
-    if (pathToken.address === firstTokenInPath && pathToken.denomination) {
-      const amount = data.amountIn || data.amountInMax || data.amountInMax;
-      const bn = new BN(amount);
-      const amountValue = Utils.bigToLocaleString(
-        Utils.bnToBig(bn, pathToken.denomination),
+    if (
+      pathToken.address.toLowerCase() === firstTokenInPath.toLowerCase() &&
+      pathToken.denomination
+    ) {
+      const amount: Big = data.amountIn || data.amountInMax || data.amountInMax;
+      const bn = hexToBN(amount.toHexString());
+      const amountValue = bigToLocaleString(
+        bnToBig(bn, pathToken.denomination),
         4
       );
       const amountUSDValue =
@@ -69,11 +80,14 @@ export function swapExactTokensForTokenHandler(
       };
     }
 
-    if (pathToken.address === lastTokenInPath && pathToken.denomination) {
+    if (
+      pathToken.address.toLowerCase() === lastTokenInPath.toLowerCase() &&
+      pathToken.denomination
+    ) {
       const amount = data.amountOutMin || data.amountOut || data.amountOutMax;
-      const bn = new BN(amount);
-      const amountValue = Utils.bigToLocaleString(
-        Utils.bnToBig(bn, pathToken.denomination),
+      const bn = hexToBN(amount.toHexString());
+      const amountValue = bigToLocaleString(
+        bnToBig(bn, pathToken.denomination),
         4
       );
       const amountUSDValue =

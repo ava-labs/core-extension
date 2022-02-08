@@ -13,7 +13,7 @@ import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useState } from 'react';
-import { Big, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { Big, bnToLocaleString, bigToBN } from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
@@ -99,11 +99,11 @@ export function CustomFees({
 
   const gasModifer = (amount: number): GasPrice => {
     // take current GasPrice (BN) and add amount .05 | .15 | custom
-    const bigGas = new Big(Utils.bnToLocaleString(originalGas.bn, 9));
+    const bigGas = new Big(bnToLocaleString(originalGas.bn, 9));
     const newBigGas = bigGas.times(amount).plus(bigGas);
 
     const modifiedGasPrice = {
-      bn: Utils.bigToBN(newBigGas, 9),
+      bn: bigToBN(newBigGas, 9),
       value: newBigGas.toString(),
     };
 

@@ -1,4 +1,4 @@
-import { Assets } from '@avalabs/avalanche-wallet-sdk';
+import { getContractDataErc20 } from '@avalabs/avalanche-wallet-sdk';
 import {
   ConnectionRequestHandler,
   ExtensionConnectionMessage,
@@ -10,7 +10,7 @@ export async function settingsGetTokenDataByAddress(
 ) {
   const [tokenAddress] = request.params || [];
   try {
-    const tokenData = await Assets.getContractDataErc20(tokenAddress);
+    const tokenData = await getContractDataErc20(tokenAddress);
     return {
       ...request,
       result: tokenData,

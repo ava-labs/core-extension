@@ -19,7 +19,7 @@ import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { GasPrice } from '@src/background/services/gas/models';
-import { BN, Utils } from '@avalabs/avalanche-wallet-sdk';
+import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SlippageToolTip } from '../SlippageToolTip';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
@@ -120,7 +120,7 @@ export function ReviewOrder({
             <TokenCard
               name={fromToken.symbol}
               symbol={fromToken.symbol}
-              balanceDisplayValue={Utils.bnToLocaleString(
+              balanceDisplayValue={bnToLocaleString(
                 new BN(optimalRate?.srcAmount || '0'),
                 optimalRate?.srcDecimals
               )}
@@ -137,7 +137,7 @@ export function ReviewOrder({
             <TokenCard
               name={toToken.symbol}
               symbol={toToken.symbol}
-              balanceDisplayValue={Utils.bnToLocaleString(
+              balanceDisplayValue={bnToLocaleString(
                 new BN(optimalRate?.destAmount || '0'),
                 optimalRate?.destDecimals
               )}
@@ -185,10 +185,7 @@ export function ReviewOrder({
               <VerticalFlex>
                 <Typography>
                   {Number(
-                    Utils.bnToLocaleString(
-                      gasPrice.bn.mul(new BN(gasLimit)),
-                      18
-                    )
+                    bnToLocaleString(gasPrice.bn.mul(new BN(gasLimit)), 18)
                   ).toFixed(6)}{' '}
                   AVAX
                 </Typography>

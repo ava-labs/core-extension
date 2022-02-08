@@ -13,7 +13,7 @@ import { firstValueFrom, map, Observable, of, startWith, Subject } from 'rxjs';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { walletState$ } from '../../../wallet/walletState';
 import { isWalletLocked } from '../../../wallet/models';
-import { Utils } from '@avalabs/avalanche-wallet-sdk';
+import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
 
 async function validateSendErc20State(request: ExtensionConnectionMessage) {
@@ -56,10 +56,7 @@ async function validateSendErc20State(request: ExtensionConnectionMessage) {
         })
       ) as Observable<GasPrice>,
       of(
-        Utils.stringToBN(
-          amount || 0,
-          (token as ERC20WithBalance).denomination || 18
-        )
+        stringToBN(amount || 0, (token as ERC20WithBalance).denomination || 18)
       ).pipe(startWith(new BN(0))) as Subject<BN>,
       of(address).pipe(startWith('')) as Subject<string>,
       of(balances) as Subject<typeof balances>,

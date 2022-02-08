@@ -9,7 +9,7 @@ import {
 } from '@avalabs/wallet-react-components';
 import { gasPrice$ } from '../../../gas/gas';
 import { firstValueFrom, map, Observable, of, startWith, Subject } from 'rxjs';
-import { Utils, BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN, stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
 
 async function validateSendAvaxState(request: ExtensionConnectionMessage) {
@@ -24,7 +24,7 @@ async function validateSendAvaxState(request: ExtensionConnectionMessage) {
             : gas
         )
       ) as Observable<GasPrice>,
-      of(Utils.stringToBN(amount || '0', 18)).pipe(
+      of(stringToBN(amount || '0', 18)).pipe(
         startWith(new BN(0))
       ) as Subject<BN>,
       of(address).pipe(startWith('')) as Subject<string>,
