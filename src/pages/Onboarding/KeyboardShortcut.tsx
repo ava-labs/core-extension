@@ -5,7 +5,7 @@ import {
   PrimaryButton,
   SecondaryButton,
   HorizontalFlex,
-  SecondaryCard,
+  Card,
 } from '@avalabs/react-components';
 
 export const KeyboardShortcut = () => {
@@ -21,11 +21,11 @@ export const KeyboardShortcut = () => {
       </Typography>
       <br />
 
-      <SecondaryCard>
+      <Card>
         <HorizontalFlex justify={'center'}>
           <Typography>List of shortcuts here?</Typography>
         </HorizontalFlex>
-      </SecondaryCard>
+      </Card>
       <br />
 
       <HorizontalFlex>

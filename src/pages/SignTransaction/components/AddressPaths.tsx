@@ -3,7 +3,7 @@ import {
   HorizontalFlex,
   IconDirection,
   LinkIcon,
-  SecondaryCard,
+  Card,
   TextButton,
   Typography,
 } from '@avalabs/react-components';
@@ -33,9 +33,9 @@ export function AddressPaths({
   }, [accounts]);
 
   return (
-    <SecondaryCard width="100%" padding={'14px 16px'}>
-      <HorizontalFlex width="100%" padding="0">
-        <HorizontalFlex flex={1} justify="center" overflow="hidden">
+    <Card width="100%" padding={'14px 16px'}>
+      <HorizontalFlex align="center" justify="center" width="100%" padding="0">
+        <HorizontalFlex justify="center" overflow="hidden">
           <Typography
             size={12}
             height="15px"
@@ -47,14 +47,14 @@ export function AddressPaths({
             {account?.name ?? truncateAddress(fromAddress, 8)}
           </Typography>
         </HorizontalFlex>
-        <HorizontalFlex padding="0 8px">
+        <HorizontalFlex padding="0 16px">
           <CaretIcon
-            height="15px"
+            height="12px"
             direction={IconDirection.RIGHT}
             color={theme.colors.icon1}
           />
         </HorizontalFlex>
-        <HorizontalFlex flex={1} justify="center">
+        <HorizontalFlex justify="center">
           <TextButton
             onClick={() => openNewTab({ url: getAddressLink(toAddress) })}
           >
@@ -73,6 +73,6 @@ export function AddressPaths({
           </TextButton>
         </HorizontalFlex>
       </HorizontalFlex>
-    </SecondaryCard>
+    </Card>
   );
 }

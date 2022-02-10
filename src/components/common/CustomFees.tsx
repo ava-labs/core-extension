@@ -170,7 +170,9 @@ export function CustomFees({
               {newFees.fee} AVAX
             </Typography>
             <Typography height="15px" size={12}>
-              {currencyFormatter(Number(newFees.feeUSD))} {currency}
+              {!isNaN(Number(newFees.feeUSD))
+                ? `${currencyFormatter(Number(newFees.feeUSD))} ${currency}`
+                : ''}
             </Typography>
           </HorizontalFlex>
           <TextButton onClick={() => setShowEditGasLimit(true)}>

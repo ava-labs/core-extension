@@ -1,15 +1,19 @@
 import {
   Typography,
   VerticalFlex,
-  TokenImg,
   GlobeIcon,
   HorizontalFlex,
   TextButton,
+  PencilIcon,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { ApproveTransactionData } from '@src/contracts/contractParsers/models';
 import { TransactionTabs } from './components/TransactionTabs';
 import { truncateAddress } from '@src/utils/truncateAddress';
+import { TransactionHeader } from './components/TransactionHeader';
+import { TokenIcon } from '@src/components/common/TokenImage';
+import { TransactionProgressData, TransactionProgressState } from './models';
+import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -29,76 +33,96 @@ export function ApproveTx({
   gasPrice,
   gasLimit,
   onCustomFeeSet,
+  transactionState,
+  hash,
+  error,
   ...rest
-}: ApproveTransactionData) {
+}: ApproveTransactionData & TransactionProgressData) {
   const theme = useTheme();
 
   return (
-    <VerticalFlex width={'100%'} align={'center'} margin="24px 0 0 0">
-      <Typography as="h1" size={24} weight={700} margin="0 0 32px 0">
-        Approval Summary
-      </Typography>
-      <SiteAvatar justify="center" align="center" margin="0 0 8px 0">
-        {site.icon ? (
-          <TokenImg height="48px" width="48px" src={site?.icon} />
-        ) : (
-          <GlobeIcon height="48px" color={theme.colors.icon1} />
-        )}
-      </SiteAvatar>
-      <Typography align="center" height="24px">
-        Allow {site?.domain} to spend your{' '}
-        {tokenToBeApproved?.name || 'Unknown Token'}
-      </Typography>
+    <VerticalFlex width="100%">
+      <TransactionHeader
+        title="Approval Summary"
+        transactionState={transactionState}
+        showNetwork={false}
+      />
 
-      {/* Tabs */}
-      <TransactionTabs
-        byteStr={txParams.data}
-        gasPrice={gasPrice}
-        limit={gasLimit?.toString() as string}
-        onCustomFeeSet={onCustomFeeSet}
-      >
-        <VerticalFlex>
-          {/* Bottom Approval Amnt */}
-          <HorizontalFlex justify="space-between">
-            <Typography padding="0 0 4px 0" height="24px" weight={600}>
-              Approval amount
-            </Typography>
-            <Typography padding="0 0 4px 0" weight={600} height="24px">
-              {displaySpendLimit}
-              <Typography
-                padding="0 0 0 4px"
-                weight={600}
-                color={theme.colors.text2}
-              >
-                {tokenToBeApproved?.symbol || 'Unknown Symbol'}
-              </Typography>
-            </Typography>
-          </HorizontalFlex>
+      <VerticalFlex align="center">
+        <SiteAvatar margin="8px 0" justify="center" align="center">
+          <TokenIcon height="48px" width="48px" src={site?.icon}>
+            <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
+          </TokenIcon>
+        </SiteAvatar>
 
-          <HorizontalFlex justify="space-between" margin="8px 0 0 0">
-            <Typography padding="0 0 4px 0" height="24px" weight={600}>
-              To
-            </Typography>
-            <Typography padding="0 0 4px 0" weight={600} height="24px">
-              {truncateAddress(rest.toAddress)}
-            </Typography>
-          </HorizontalFlex>
-          {/* Hides Edit button if its a Revoke approval */}
-          {!isRevokeApproval && setShowCustomSpendLimit && (
-            <HorizontalFlex>
-              <TextButton onClick={() => setShowCustomSpendLimit(true)}>
-                <Typography
-                  size={12}
-                  color={theme.colors.primary1}
-                  weight={600}
-                >
-                  Edit
+        <Typography align="center" size={14} height="17px">
+          Allow {site?.domain} to
+          <br />
+          spend your {tokenToBeApproved?.name || 'Unknown Token'}?
+        </Typography>
+
+        {/* Tabs */}
+        {transactionState === TransactionProgressState.NOT_APPROVED ? (
+          <TransactionTabs
+            byteStr={txParams.data}
+            gasPrice={gasPrice}
+            limit={gasLimit?.toString() as string}
+            onCustomFeeSet={onCustomFeeSet}
+          >
+            <>
+              {/* Bottom Approval Amnt */}
+              <HorizontalFlex justify="space-between" align="center">
+                {/* Hides Edit button if its a Revoke approval */}
+                {!isRevokeApproval && setShowCustomSpendLimit && (
+                  <HorizontalFlex>
+                    <Typography size={12} height="15px">
+                      Approval amount
+                    </Typography>
+                    <TextButton
+                      onClick={() => setShowCustomSpendLimit(true)}
+                      margin="0 0 0 8px"
+                    >
+                      <PencilIcon color={theme.colors.icon1} height="12px" />
+                    </TextButton>
+                  </HorizontalFlex>
+                )}
+                <Typography weight={700} size={18} height="22px">
+                  {displaySpendLimit}
+                  <Typography
+                    padding="0 0 0 4px"
+                    weight={600}
+                    size={16}
+                    height="24px"
+                    color={theme.colors.text2}
+                  >
+                    {tokenToBeApproved?.symbol || 'Unknown Symbol'}
+                  </Typography>
                 </Typography>
-              </TextButton>
-            </HorizontalFlex>
-          )}
-        </VerticalFlex>
-      </TransactionTabs>
+              </HorizontalFlex>
+
+              <HorizontalFlex
+                justify="space-between"
+                align="center"
+                margin="16px 0 0 0"
+              >
+                <Typography padding="0 0 4px 0" size={12} height="15px">
+                  To
+                </Typography>
+                <Typography weight={600} size={16} height="24px">
+                  {truncateAddress(rest.toAddress)}
+                </Typography>
+              </HorizontalFlex>
+            </>
+          </TransactionTabs>
+        ) : (
+          <SuccessFailTxInfo
+            hash={hash}
+            gasPrice={gasPrice}
+            gasLimit={gasLimit?.toString() ?? ''}
+            error={error}
+          />
+        )}
+      </VerticalFlex>
     </VerticalFlex>
   );
 }

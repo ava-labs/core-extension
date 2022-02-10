@@ -1,92 +1,69 @@
 import {
-  Tab as ReactTab,
-  Tabs as ReactTabs,
-  TabList as ReactTabList,
-  TabPanel as ReactTabPanel,
-} from 'react-tabs';
+  HorizontalFlex,
+  Typography,
+  VerticalFlex,
+} from '@avalabs/react-components';
+import { ReactNode, useState } from 'react';
 import styled from 'styled-components';
 
-/**
- * The $ in front of the variable allows you to use boolean
- * as a value, otherwise react freaks out
- *
- * @link https://styled-components.com/docs/api#transient-props
- */
-export const Tab = styled(ReactTab)<{
-  $highlight: boolean;
-  underlineColor?: string;
-  margin?: string;
-}>`
-  margin: ${({ margin }) => margin ?? '0px 16px 8px 0'};
-  color: ${({ theme }) => theme.colors.text1};
+const Tab = styled.button<{ selected?: boolean }>`
+  border: none;
+  background: transparent;
+  width: 50%;
   cursor: pointer;
-  ${({ theme, underlineColor, $highlight = true }) => {
-    return $highlight
-      ? `&[aria-selected='true'] {
-            position: relative;
-            &::after {
-              content: '';
-              position: absolute;
-              height: 2px;
-              left: 0;
-              right: 0;
-              bottom: -8px;
-              background-color: ${underlineColor || theme.colors.primary1};
-            }
-          }`
-      : '';
-  }}
+  padding: 8px 16px;
+  border-bottom: ${({ selected, theme }) =>
+    selected ? `2px solid ${theme.colors.text1}` : '2px solid transparent'}; ;
+`;
 
-  &:not([aria-selected='true']) {
-    color: ${({ theme }) => theme.colors.text2};
+const TabsContainer = styled(HorizontalFlex)`
+  border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 8px;
+  padding: 0 16px 0 16px;
+`;
 
-    &:hover {
-      color: ${({ theme }) => theme.colors.text1};
-    }
+const TabLabel = styled(Typography)<{ selected: boolean }>`
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: ${({ selected }) => (selected ? '500' : '400')};
+  color: ${({ theme, selected }) =>
+    selected ? theme.colors.text1 : theme.colors.text2};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text1};
   }
 `;
 
-export const Tabs = styled(ReactTabs)<{
-  grow: string;
-  height: string;
-}>`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  ${({ grow }) => `flex-grow: ${grow};`}
-  ${({ height }) => `height: ${height};`}
-`;
+interface TabsProps {
+  tabs: {
+    title: string;
+    id: string;
+    component: ReactNode;
+  }[];
+  margin?: string;
+}
 
-export const TabList = styled(ReactTabList)<{
-  $border: boolean;
-  justify?: string;
-}>`
-  display: flex;
-  ${({ justify }) =>
-    justify &&
-    `
-    justify-content: ${justify};
-  `}
+export function Tabs({ tabs, margin }: TabsProps) {
+  const [selectedTab, setSelectedTab] = useState<string>(tabs[0]?.id ?? '');
 
-  ${({ $border = true, theme }) => {
-    return $border
-      ? `
-      border-bottom: solid 1px ${theme.separator.color};
-      padding-bottom: 10px;
-      margin-bottom: 5px;
-      `
-      : '';
-  }}
-`;
-
-export const TabPanel = styled(ReactTabPanel)<{
-  // only applied when the tab is selected to prevent the hidden tab to take up space
-  grow: string;
-}>`
-  display: flex;
-  flex-direction: column;
-
-  &.react-tabs__tab-panel--selected {
-    ${({ grow }) => `flex-grow: ${grow};`}
-  }
-`;
+  return (
+    <>
+      <VerticalFlex margin={margin}>
+        <TabsContainer>
+          {tabs.map((tab) => (
+            <Tab
+              key={tab.id}
+              selected={selectedTab === tab.id}
+              onClick={() => setSelectedTab(tab.id)}
+            >
+              <TabLabel selected={selectedTab === tab.id}>{tab.title}</TabLabel>
+            </Tab>
+          ))}
+        </TabsContainer>
+      </VerticalFlex>
+      {tabs.find((tab) => tab.id === selectedTab)?.component}
+    </>
+  );
+}

@@ -1,8 +1,4 @@
-import {
-  SecondaryCard,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Fragment, useMemo } from 'react';
 
@@ -49,7 +45,7 @@ export function WalletRecentTxs({
       ),
     [recentTxHistory, tokenSymbolFilter]
   );
-
+  console.log(filteredTxHistory);
   if (filteredTxHistory.length === 0) {
     return <NoTransactions />;
   }
@@ -73,14 +69,14 @@ export function WalletRecentTxs({
                   {getDayString(tx.timestamp)}
                 </Typography>
               )}
-              <SecondaryCard
+              <Card
                 key={tx.hash}
                 padding={'8px 12px 8px 16px'}
                 margin={'0 0 8px 0'}
               >
                 {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}
                 {isTransactionNormal(tx) && <TransactionNormal item={tx} />}
-              </SecondaryCard>
+              </Card>
             </Fragment>
           );
         })}

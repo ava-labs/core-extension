@@ -1,13 +1,16 @@
 import {
+  HorizontalFlex,
   HorizontalSeparator,
-  SecondaryCard,
+  Card,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
-import { Tab, TabList, TabPanel, Tabs } from '@src/components/common/Tabs';
+import { Tabs } from '@src/components/common/Tabs';
 import { CustomFees } from '@src/components/common/CustomFees';
 import { GasPrice } from '@src/background/services/gas/models';
+import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
+import Scrollbars from 'react-custom-scrollbars-2';
 
 interface TransactionTabsType {
   byteStr: string;
@@ -25,8 +28,14 @@ export function TransactionTabs({
   onCustomFeeSet,
 }: TransactionTabsType) {
   // Summary Tab
-  const showSummary = () => (
+  const Summary = (
     <VerticalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
+      <HorizontalFlex margin="0 0 8px">
+        <Typography size={12} height="15px" margin="0 8px 0 0">
+          Network Fee
+        </Typography>
+        <TransactionFeeTooltip gasPrice={gasPrice?.bn} gasLimit={limit} />
+      </HorizontalFlex>
       {gasPrice && limit && onCustomFeeSet && (
         <CustomFees
           gasPrice={gasPrice}
@@ -45,35 +54,37 @@ export function TransactionTabs({
   );
 
   // Data Tab
-  const showTxData = () => (
+  const TxData = (
     <VerticalFlex margin="16px 0 0 0" width={'100%'}>
-      <Typography margin="0 0 8px 0" height="24px">
-        Hex Data: {getHexStringToBytes(byteStr)} Bytes
-      </Typography>
-      <SecondaryCard padding="16px">
-        <Typography size={14} overflow="scroll">
-          {byteStr}
+      <HorizontalFlex justify="space-between" margin="0 0 8px 0">
+        <Typography size={12} height="15px">
+          Hex Data:
         </Typography>
-      </SecondaryCard>
+        <Typography size={12} height="15px">
+          {getHexStringToBytes(byteStr)} Bytes
+        </Typography>
+      </HorizontalFlex>
+      <Card height="105px" padding="16px 0">
+        <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+          <VerticalFlex padding="0 16px">
+            <Typography size={12} height="17px" wordBreak="break-all">
+              {byteStr}
+            </Typography>
+          </VerticalFlex>
+        </Scrollbars>
+      </Card>
     </VerticalFlex>
   );
 
   return (
-    <VerticalFlex margin="32px 0 0 0" width="100%">
+    <VerticalFlex margin="24px 0 0 0" width="100%">
       {/* Tabs */}
-      <Tabs defaultIndex={0}>
-        <TabList $border={false}>
-          <Tab margin="0 32px 8px 0">
-            <Typography>Summary</Typography>
-          </Tab>
-          <Tab>
-            <Typography>Data</Typography>
-          </Tab>
-        </TabList>
-
-        <TabPanel>{showSummary()}</TabPanel>
-        <TabPanel>{showTxData()}</TabPanel>
-      </Tabs>
+      <Tabs
+        tabs={[
+          { id: 'Summary', title: 'Summary', component: Summary },
+          { id: 'Data', title: 'Data', component: TxData },
+        ]}
+      />
     </VerticalFlex>
   );
 }

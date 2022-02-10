@@ -31,10 +31,10 @@
     web3-eth-contract "1.6.0"
     xss "^1.0.10"
 
-"@avalabs/react-components@1.80.0":
-  version "1.80.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.80.0.tgz#00ab5d67336fa2f682fa4b1eb2a270476a261015"
-  integrity sha512-kkiuFQlO9Cym5TrA8osE/6JgPamqox6UN7DrJbBvVJtokT8yZUSmahuCog5rD2I57UZ1at0w2gPjOTpG73hUew==
+"@avalabs/react-components@1.82.0":
+  version "1.82.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.82.0.tgz#e506239d68707543e4340b322966a57ed336fd11"
+  integrity sha512-3psz7yA2yzjnM2UQN59r3XEoaybpu4a6Y7IZ3/AhaOIVV5tP5oeiJHSD6IIKzje5coBKFMJWd3KpB/UrAZcmNw==
   dependencies:
     "@tippyjs/react" "^4.2.6"
     big.js "^6.1.1"
@@ -53,10 +53,10 @@
     use-media "^1.4.0"
     web-vitals "^1.0.1"
 
-"@avalabs/wallet-react-components@1.24.3":
-  version "1.24.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.24.3.tgz#d3aa672c4050f9c3303ab95c9f251ec02ec2ee9d"
-  integrity sha512-Q5bzLYbcJr1tiWo7RzgOU/z2xOi7EDIXrkPg0MmLqbDhLrDvcPJyf495DX64zf6yltXdL04Xw+BGW7sb7HHPhg==
+"@avalabs/wallet-react-components@1.24.4":
+  version "1.24.4"
+  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.24.4.tgz#b2f5fe22a2d912beb0dc01da30639e4a89936eb4"
+  integrity sha512-W4YOOqWKacY5C03X3SweFTr2FByleBM5t6TYAiqPRHOlIZi7D7Dc1EMMtFKAYrhPPDU23L9O+odsblrwLCiGLA==
   dependencies:
     "@ledgerhq/hw-transport" "^6.20.0"
     "@testing-library/jest-dom" "^5.14.1"
@@ -5969,11 +5969,6 @@ clone@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
   integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
-
-clsx@^1.1.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.1.1.tgz#98b3134f9abbdf23b2663491ace13c5c03a73188"
-  integrity sha512-6/bPho624p3S2pMyvP5kKBPXnI3ufHLObBFCfgx+LkeR5lg2XYy2hqZqUf45ypD8COn2bhgGJSUE+l5dhNBieA==
 
 cmd-shim@^4.0.1:
   version "4.1.0"
@@ -15124,7 +15119,7 @@ promzard@^0.3.0:
   dependencies:
     read "1"
 
-prop-types@^15.5.0, prop-types@^15.5.10, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.10, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -15636,14 +15631,6 @@ react-shallow-renderer@^16.13.1:
   dependencies:
     object-assign "^4.1.1"
     react-is "^16.12.0 || ^17.0.0"
-
-react-tabs@3.2.3:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/react-tabs/-/react-tabs-3.2.3.tgz#ccbb3e1241ad3f601047305c75db661239977f2f"
-  integrity sha512-jx325RhRVnS9DdFbeF511z0T0WEqEoMl1uCE3LoZ6VaZZm7ytatxbum0B8bCTmaiV0KsU+4TtLGTGevCic7SWg==
-  dependencies:
-    clsx "^1.1.0"
-    prop-types "^15.5.0"
 
 react-test-renderer@17.0.2:
   version "17.0.2"

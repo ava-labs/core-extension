@@ -37,7 +37,6 @@ import * as ethers from 'ethers';
 import { getTxInfo, isTxDescriptionError } from './getTxInfo';
 import abiDecoder from 'abi-decoder';
 import hstABI from 'human-standard-token-abi';
-import { resolve } from '@src/utils/promiseResolver';
 
 abiDecoder.addABI(hstABI);
 

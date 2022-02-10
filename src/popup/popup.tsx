@@ -161,7 +161,7 @@ export function Popup() {
                               flex={1}
                               justify={'center'}
                               margin={isMiniMode ? '' : '16px 0'}
-                              maxWidth={isMiniMode ? '100%' : '90%'}
+                              maxWidth={'100%'}
                               width={appWidth}
                             >
                               <Switch>

@@ -1,15 +1,17 @@
 import {
   HorizontalFlex,
   PlusIcon,
-  Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { AddLiquidityDisplayData } from '@src/contracts/contractParsers/models';
 import { Fragment } from 'react';
 import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
+import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 import { TokenCard } from './components/TokenCard';
+import { TransactionHeader } from './components/TransactionHeader';
 import { TransactionTabs } from './components/TransactionTabs';
+import { TransactionProgressState } from './models';
 
 export function AddLiquidityTx({
   poolTokens,
@@ -19,6 +21,9 @@ export function AddLiquidityTx({
   gasPrice,
   gasLimit,
   onCustomFeeSet,
+  transactionState,
+  hash,
+  error,
 }: AddLiquidityDisplayData) {
   const theme = useTheme();
 
@@ -30,36 +35,45 @@ export function AddLiquidityTx({
 
   return (
     <VerticalFlex width={'100%'}>
-      {/* Header */}
-      <HorizontalFlex margin="8px 0 32px 0" width={'100%'} justify={'center'}>
-        <Typography as="h1" size={24} weight={700}>
-          Adding Liquidity to Pool
-        </Typography>
-      </HorizontalFlex>
-
-      {/* Account */}
-      <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
-
-      {/* Tokens */}
-      {poolTokens.map((token, index) => (
-        <Fragment key={token.symbol}>
-          <TokenCard
-            token={token}
-            margin={`${!index && '16px 0 0 0'}`}
-            displayValue={token.amountDepositedDisplayValue}
-            amount={token.amountUSDValue}
-          />
-          {!index && plusIcon}
-        </Fragment>
-      ))}
-
-      {/* Tabs */}
-      <TransactionTabs
-        byteStr={txParams?.data}
-        gasPrice={gasPrice}
-        limit={gasLimit?.toString() as string}
-        onCustomFeeSet={onCustomFeeSet}
+      <TransactionHeader
+        title="Adding Liquidity to Pool"
+        transactionState={transactionState}
       />
+
+      <VerticalFlex>
+        {/* Account */}
+        <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
+
+        {/* Tokens */}
+        {poolTokens.map((token, index) => (
+          <Fragment key={token.symbol}>
+            <TokenCard
+              token={token}
+              margin={`${!index && '16px 0 0 0'}`}
+              displayValue={token.amountDepositedDisplayValue}
+              amount={token.amountUSDValue}
+            />
+            {!index && plusIcon}
+          </Fragment>
+        ))}
+
+        {/* Tabs */}
+        {transactionState === TransactionProgressState.NOT_APPROVED ? (
+          <TransactionTabs
+            byteStr={txParams?.data}
+            gasPrice={gasPrice}
+            limit={gasLimit?.toString()}
+            onCustomFeeSet={onCustomFeeSet}
+          />
+        ) : (
+          <SuccessFailTxInfo
+            hash={hash}
+            gasPrice={gasPrice}
+            gasLimit={gasLimit?.toString() ?? ''}
+            error={error}
+          />
+        )}
+      </VerticalFlex>
     </VerticalFlex>
   );
 }

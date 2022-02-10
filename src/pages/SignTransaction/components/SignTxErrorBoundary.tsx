@@ -7,12 +7,18 @@ import {
   Typography,
   VerticalFlex,
   toast,
+  ComponentSize,
 } from '@avalabs/react-components';
 import { Component } from 'react';
+import Scrollbars from 'react-custom-scrollbars-2';
 import styled from 'styled-components';
 
 const Header = styled(Typography)`
   color: ${({ theme }) => theme.colors.primary1};
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 29px;
+  padding: 12px 0;
 `;
 
 /**
@@ -35,33 +41,40 @@ export class SignTxErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <VerticalFlex width={'100%'} align="center">
-          <Header size={18}>Error</Header>
-          <SubTextTypography margin={'8px 0'} align="center">
+        <VerticalFlex width={'100%'} align="center" padding="0 16px">
+          <Header>Error</Header>
+          <SubTextTypography margin={'8px 0 0'} align="center">
             Something went wrong while opening the confirm for this transaction.
             Copy the below error and post it in our discord, telegram or one of
             our social channels so our developers can address it as soon as
             possible. We apologize for the inconvenience.
           </SubTextTypography>
-          <Card margin={'20px 0 8px 0'}>
-            <Typography
-              wordBreak={'break-word'}
-              style={{ maxHeight: '325px', overflow: 'auto' }}
-            >
-              {this.state.errorStack}
-            </Typography>
+          <Card margin={'24px 0 0'} height="340px" padding="16px 0">
+            <Scrollbars>
+              <VerticalFlex padding="0 16px">
+                <Typography size={14} height="17px" wordBreak={'break-word'}>
+                  {this.state.errorStack}
+                </Typography>
+              </VerticalFlex>
+            </Scrollbars>
           </Card>
           <HorizontalFlex
             width="100%"
             flex={1}
             align="flex-end"
             justify="space-between"
-            margin={'40px 0 0 0'}
+            margin={'0 0 8px 0'}
           >
-            <SecondaryButton onClick={() => window.close()}>
+            <SecondaryButton
+              size={ComponentSize.LARGE}
+              width="168px"
+              onClick={() => window.close()}
+            >
               Close
             </SecondaryButton>
             <PrimaryButton
+              size={ComponentSize.LARGE}
+              width="168px"
               onClick={() => {
                 navigator.clipboard.writeText(this.state.errorStack ?? '');
                 toast.success('Copied');

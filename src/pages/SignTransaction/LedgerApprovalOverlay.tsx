@@ -9,15 +9,18 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { LedgerApprovalDialog } from './LedgerApprovalDialog';
 import { TransactionDisplayValues } from '@src/background/services/transactions/models';
 
-interface TransactionInProgressProps {
+interface LedgerApprovalOverlayProps {
   displayData: TransactionDisplayValues;
 }
 
-export function TransactionInProgress({
+export function LedgerApprovalOverlay({
   displayData,
-}: TransactionInProgressProps) {
-  const theme = useTheme();
+}: LedgerApprovalOverlayProps) {
   const { walletType } = useWalletContext();
+
+  if (walletType !== 'ledger') {
+    return null;
+  }
 
   return (
     <Overlay>
@@ -28,24 +31,10 @@ export function TransactionInProgress({
         align={'center'}
         justify="center"
       >
-        {walletType === 'ledger' ? (
-          <LedgerApprovalDialog
-            address={displayData.toAddress}
-            fee={displayData.fee}
-          />
-        ) : (
-          <>
-            <Typography size={24} height="29px" weight={700}>
-              Transaction in progress
-            </Typography>
-            <VerticalFlex grow="1" align="center" justify="center">
-              <LoadingSpinnerIcon
-                height={'52px'}
-                color={theme.colors.primary1}
-              />
-            </VerticalFlex>
-          </>
-        )}
+        <LedgerApprovalDialog
+          address={displayData.toAddress}
+          fee={displayData.fee}
+        />
       </VerticalFlex>
     </Overlay>
   );
