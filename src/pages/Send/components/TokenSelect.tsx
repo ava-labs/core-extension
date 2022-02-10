@@ -130,7 +130,7 @@ export function TokenSelect({
         margin="0 0 8px"
         grow="1"
       >
-        <Typography size={14} color={theme.inputs.colorLabel}>
+        <Typography size={12} color={theme.inputs.colorLabel}>
           Token
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
