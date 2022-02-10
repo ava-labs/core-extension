@@ -81,6 +81,7 @@ export enum ExtensionRequest {
   ONBOARDING_SET_PASSWORD_AND_NAME = 'onboarding_setWalletPasswordAndName',
   ONBOARDING_SET_ACCOUNT_NAME = 'onboarding_setAccountName',
   ONBOARDING_SET_FINALIZED = 'onboarding_setOnboardingFinalized',
+  ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',
 
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',

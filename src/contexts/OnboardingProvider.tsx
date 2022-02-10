@@ -19,6 +19,7 @@ import {
   useEffect,
   lazy,
   useState,
+  useCallback,
 } from 'react';
 import { concat, filter, from, map } from 'rxjs';
 import { browser } from 'webextension-polyfill-ts';
@@ -37,6 +38,7 @@ const OnboardingContext = createContext<{
   setMnemonic(mnemonic: string): Promise<void>;
   setPasswordAndName(password: string, accountName: string): Promise<void>;
   setFinalized(): Promise<any>;
+  updateInitialOpen(): void;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -74,6 +76,14 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request]);
+
+  const updateInitialOpen = useCallback(
+    () =>
+      request({
+        method: ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN,
+      }),
+    [request]
+  );
 
   if (!onboardingState) {
     return <LoadingIcon />;
@@ -123,6 +133,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setMnemonic,
         setPasswordAndName,
         setFinalized,
+        updateInitialOpen,
       }}
     >
       {/* 

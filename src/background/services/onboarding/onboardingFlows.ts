@@ -104,7 +104,7 @@ export const onboardingFlow = onboardingCurrentPhase$
         ? setMnemonicAndCreateWallet(mnemonic, password)
         : pubKey && setPublicKeyAndCreateWallet(pubKey, password);
       await saveOnboardingToStorage(true);
-      onboardingStatus$.next({ isOnBoarded: true });
+      onboardingStatus$.next({ isOnBoarded: true, initialOpen: true });
       initialAccountName$.next(accountName);
     })
   )

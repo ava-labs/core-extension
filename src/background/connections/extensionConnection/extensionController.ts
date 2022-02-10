@@ -72,6 +72,8 @@ import { SettingsGetIsDefaultExtensionRequest } from '@src/background/services/s
 import { SettingsSetDefaultExtensionRequest } from '@src/background/services/settings/handlers/setAsDefaultExtension';
 import { permissionsUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 
+import { InitialWalletOpenRequest } from '@src/background/services/onboarding/handlers/updateInitialOpen';
+
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
   ConnectionRequestHandler
@@ -125,6 +127,8 @@ const extensionRequestHandlerMap = new Map<
   SettingsGetTokenDataRequest,
   SettingsGetIsDefaultExtensionRequest,
   SettingsSetDefaultExtensionRequest,
+
+  InitialWalletOpenRequest,
 
   GetContactsStateRequest,
   CreateContactStateRequest,

@@ -14,7 +14,6 @@ export const getSettingsFromStorage = () =>
   getFromStorage<{ settings: SettingsState }>(SETTINGS_STORAGE_KEY).then(
     (storage) => storage.settings
   );
-
 export function removeAllSettingsFromStorage() {
   return removeFromStorage(SETTINGS_STORAGE_KEY);
 }
