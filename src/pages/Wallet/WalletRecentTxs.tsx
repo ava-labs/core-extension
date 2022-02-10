@@ -61,7 +61,7 @@ export function WalletRecentTxs({
             <Fragment key={index}>
               {isNewDay && (
                 <Typography
-                  size={12}
+                  size={14}
                   height="15px"
                   weight={500}
                   margin={index === 0 ? '8px 0 13px' : '8px 0'}

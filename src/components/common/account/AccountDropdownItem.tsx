@@ -77,10 +77,6 @@ const StyledSaveButton = styled(TextButton)`
   size: 12px;
 `;
 
-const StyledSimpleAddress = styled(SimpleAddress)`
-  flex-direction: row-reverse;
-`;
-
 export function AccountDropdownItem({
   account,
   editing,
@@ -148,7 +144,7 @@ export function AccountDropdownItem({
             </>
           )}
         </HorizontalFlex>
-        <StyledSimpleAddress
+        <SimpleAddress
           address={account.addressC}
           typographyProps={{
             size: 12,
