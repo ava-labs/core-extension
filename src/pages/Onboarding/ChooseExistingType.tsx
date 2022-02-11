@@ -5,7 +5,7 @@ import {
   RecoveryLockIcon,
   VerticalSeparator,
 } from '@avalabs/react-components';
-import { OnboardButton } from './components/OnboardButton';
+import { OnboardButton, TermsButton } from './components/OnboardButton';
 import { useTheme } from 'styled-components';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { Logo } from '@src/components/icons/Logo';
@@ -26,7 +26,7 @@ export function ChooseExistingType({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
-        title="Access using..."
+        title="Access Using..."
         onBack={onBack}
         onClose={onCancel}
       />
@@ -35,24 +35,20 @@ export function ChooseExistingType({
       </VerticalFlex>
       <VerticalFlex align="center">
         <HorizontalFlex>
-          <OnboardButton
-            margin="3px 24px 3px 0"
-            title="Recovery phrase"
-            onClick={() => onNext(true)}
-          >
-            <RecoveryLockIcon color={theme.colors.icon1} height="46px" />
+          <OnboardButton title="Recovery phrase" onClick={() => onNext(true)}>
+            <RecoveryLockIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
-          <VerticalSeparator margin="0" />
+          <VerticalSeparator margin="0 24px" />
           <OnboardButton
-            margin="3px 0 3px 24px"
             title="Ledger"
             onClick={() => {
               onNext(false);
             }}
           >
-            <LedgerIcon color={theme.colors.icon1} height="46px" />
+            <LedgerIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
         </HorizontalFlex>
+        <TermsButton />
       </VerticalFlex>
     </VerticalFlex>
   );

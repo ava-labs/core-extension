@@ -17,7 +17,7 @@ interface OnboardingStepHeaderProps {
 const Title = styled(Typography)`
   flex-grow: 1;
   line-height: 22px;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   text-align: center;
 `;
