@@ -10,8 +10,14 @@ import {
   ComponentSize,
   PrimaryIconButton,
   IconDirection,
+  LoadingSpinnerIcon,
+  TransactionToastType,
+  TransactionToast,
+  toast,
+  WarningIcon,
 } from '@avalabs/react-components';
 import {
+  getTransactionLink,
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
@@ -24,6 +30,7 @@ import {
   BN,
   stringToBN,
   bnToLocaleString,
+  isMainnetNetwork,
 } from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
@@ -40,12 +47,12 @@ import {
   isAPIError,
 } from './utils';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { SwapTxSuccess } from './components/SwapTxSucces';
 import { TxInProgress } from '../../components/common/TxInProgress';
-import { useHistory } from 'react-router-dom';
 import { GasPrice } from '@src/background/services/gas/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useHistory } from 'react-router-dom';
 
 export interface Token {
   icon?: JSX.Element;
@@ -68,8 +75,10 @@ const SwitchIconContainer = styled(PrimaryIconButton)`
 
 export function Swap() {
   const { currencyFormatter } = useSettingsContext();
-  const { erc20Tokens, avaxToken, avaxPrice } = useWalletContext();
+  const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
+  const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
+  const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
@@ -77,14 +86,11 @@ export function Swap() {
   const [swapError, setSwapError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
-  const [txHash, setTxHash] =
-    useState<{ swapTxHash: string; approveTxHash?: string }>();
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
   const [selectedToToken, setSelectedToToken] = useState<TokenWithBalance>();
   const [optimalRate, setOptimalRate] = useState<OptimalRate>();
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
-  const history = useHistory();
   const [gasLimit, setGasLimit] = useState('');
   const [customGasPrice, setCustomGasPrice] = useState<GasPrice | undefined>(
     gasPrice
@@ -318,13 +324,26 @@ export function Swap() {
 
   const getCurrencyValue = (token?: TokenWithBalance) => {
     if (!token || !token.balanceUsdDisplayValue) {
-      return '';
+      return currencyFormatter(0);
     }
     return currencyFormatter(Number(token.balanceUsdDisplayValue));
   };
 
   async function onHandleSwap() {
-    setTxInProgress(true);
+    let toastId = '';
+    if (walletType !== 'ledger') {
+      history.push('/home');
+      toastId = toast.custom(
+        <TransactionToast
+          type={TransactionToastType.PENDING}
+          text="Swap pending..."
+          startIcon={
+            <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
+          }
+        />
+      );
+    }
+
     const {
       amount,
       fromTokenAddress,
@@ -360,12 +379,30 @@ export function Swap() {
     );
     setTxInProgress(false);
     if (error) {
-      setSwapError('Something went wrong, please try again');
+      toast.custom(
+        <TransactionToast
+          type={TransactionToastType.ERROR}
+          text="Swap Failed"
+          startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
+        />,
+        { id: toastId, duration: Infinity }
+      );
       setIsReviewOrderOpen(false);
 
       return;
     }
-    setTxHash(result);
+
+    toast.custom(
+      <TransactionToast
+        status="Swap Successful"
+        type={TransactionToastType.SUCCESS}
+        text="View in Explorer"
+        href={getTransactionLink(
+          result.swapTxHash,
+          network ? isMainnetNetwork(network.config) : true
+        )}
+      />
+    );
   }
 
   const selectedFromTokenFormat = selectedFromToken
@@ -389,137 +426,133 @@ export function Swap() {
     optimalRate &&
     gasLimit &&
     gasPrice;
-
-  if (txHash) {
-    return <SwapTxSuccess swapTxHash={txHash.swapTxHash} />;
-  }
-
+  console.log(selectedFromToken?.balanceDisplayValue);
   return (
     <VerticalFlex width="100%">
-      <PageTitleMiniMode onBackClick={() => history.push('/home')}>
-        Swap
-      </PageTitleMiniMode>
-      <VerticalFlex grow="1" margin="16px 16px 16px">
+      <PageTitleMiniMode>Swap</PageTitleMiniMode>
+      <VerticalFlex grow="1" margin="8px 0 0">
         <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-          <SwapCard
-            denomination={selectedFromToken?.denomination}
-            title="From"
-            onSelectClick={() => {
-              setModalOpen('from');
-              setSearchQuery('');
-            }}
-            token={selectedFromTokenFormat}
-            balanceDisplayValue={selectedFromToken?.balanceDisplayValue}
-            currencyValue={getCurrencyValue(selectedFromToken)}
-            defaultValue={
-              defaultFromValue ||
-              (destinationInputField === 'from' ? destAmount : '')
-            }
-            onChange={(value) => {
-              if (value.bn.toString() === '0') {
-                setSwapError('Please enter an amount');
-                return;
-              }
-              if (
-                maxFromValue &&
-                value.bn.eq(maxFromValue) &&
-                selectedFromToken &&
-                isAvaxToken(selectedFromToken)
-              ) {
-                setIsCalculateAvaxMax(true);
-              }
-              setSwapError('');
-              setFromTokenValue(value as any);
-              calculateTokenValueToInput(
-                value as any,
-                'to',
-                selectedFromToken,
-                selectedToToken
-              );
-            }}
-            isValueLoading={destinationInputField === 'from' && isLoading}
-            isInputDisabled={!selectedFromToken}
-            max={
-              destinationInputField === 'from' && isLoading
-                ? undefined
-                : maxFromValue
-            }
-            hideErrorMessage={true}
-            onError={(errorMessage) => {
-              setSwapError(errorMessage);
-            }}
-          />
-
-          <HorizontalFlex
-            justify={swapError ? 'space-between' : 'flex-end'}
-            margin="16px 0 0 0"
-          >
-            {swapError && (
-              <Typography size={12} color={theme.colors.error}>
-                {swapError}
-              </Typography>
-            )}
-            <SwitchIconContainer
-              onClick={swapTokens}
-              disabled={!selectedFromToken || !selectedToToken}
-            >
-              <SwitchIcon
-                height="24px"
-                direction={IconDirection.UP}
-                color={theme.colors.text1}
-              />
-            </SwitchIconContainer>
-          </HorizontalFlex>
-
-          <SwapCard
-            title="To"
-            denomination={selectedToToken?.denomination}
-            onSelectClick={() => {
-              setModalOpen('to');
-            }}
-            token={selectedToTokenFormat}
-            defaultValue={destinationInputField === 'to' ? destAmount : ''}
-            onChange={(value) => {
-              setToTokenValue(value as any);
-              calculateTokenValueToInput(
-                value as any,
-                'from',
-                selectedFromToken,
-                selectedToToken
-              );
-            }}
-            isValueLoading={destinationInputField === 'to' && isLoading}
-            isInputDisabled={!selectedToToken}
-          />
-
-          {isLoading && <SwapLoadingSpinnerIcon />}
-
-          {!isLoading && canSwap && (
-            <TransactionDetails
-              fromTokenSymbol={selectedFromToken?.symbol}
-              toTokenSymbol={selectedToToken?.symbol}
-              rate={calculateRate(optimalRate)}
-              walletFee={optimalRate.partnerFee}
-              onGasChange={(limit, price) => {
-                setGasLimit(limit);
-                setCustomGasPrice(price);
+          <VerticalFlex grow="1" padding="0 16px">
+            <SwapCard
+              denomination={selectedFromToken?.denomination}
+              title="From"
+              onSelectClick={() => {
+                setModalOpen('from');
+                setSearchQuery('');
               }}
-              gasLimit={gasLimit}
-              gasPrice={gasPrice as any}
-              slippage={slippageTolerance}
-              setSlippage={(slippage) => setSlippageTolerance(slippage)}
+              token={selectedFromTokenFormat}
+              balanceDisplayValue={selectedFromToken?.balanceDisplayValue}
+              currencyValue={getCurrencyValue(selectedFromToken)}
+              defaultValue={
+                defaultFromValue ||
+                (destinationInputField === 'from' ? destAmount : '')
+              }
+              onChange={(value) => {
+                if (value.bn.toString() === '0') {
+                  setSwapError('Please enter an amount');
+                  return;
+                }
+                if (
+                  maxFromValue &&
+                  value.bn.eq(maxFromValue) &&
+                  selectedFromToken &&
+                  isAvaxToken(selectedFromToken)
+                ) {
+                  setIsCalculateAvaxMax(true);
+                }
+                setSwapError('');
+                setFromTokenValue(value as any);
+                calculateTokenValueToInput(
+                  value as any,
+                  'to',
+                  selectedFromToken,
+                  selectedToToken
+                );
+              }}
+              isValueLoading={destinationInputField === 'from' && isLoading}
+              isInputDisabled={!selectedFromToken}
+              max={
+                destinationInputField === 'from' && isLoading
+                  ? undefined
+                  : maxFromValue
+              }
+              hideErrorMessage={true}
+              onError={(errorMessage) => {
+                setSwapError(errorMessage);
+              }}
             />
-          )}
+
+            <HorizontalFlex
+              justify={swapError ? 'space-between' : 'flex-end'}
+              margin="8px 0 0px"
+              align="center"
+            >
+              {swapError && (
+                <Typography size={12} color={theme.colors.error}>
+                  {swapError}
+                </Typography>
+              )}
+              <SwitchIconContainer
+                onClick={swapTokens}
+                disabled={!selectedFromToken || !selectedToToken}
+              >
+                <SwitchIcon
+                  height="20px"
+                  direction={IconDirection.UP}
+                  color={theme.colors.text1}
+                />
+              </SwitchIconContainer>
+            </HorizontalFlex>
+
+            <SwapCard
+              title="To"
+              denomination={selectedToToken?.denomination}
+              onSelectClick={() => {
+                setModalOpen('to');
+              }}
+              token={selectedToTokenFormat}
+              defaultValue={destinationInputField === 'to' ? destAmount : ''}
+              onChange={(value) => {
+                setToTokenValue(value as any);
+                calculateTokenValueToInput(
+                  value as any,
+                  'from',
+                  selectedFromToken,
+                  selectedToToken
+                );
+              }}
+              isValueLoading={destinationInputField === 'to' && isLoading}
+              isInputDisabled={!selectedToToken}
+            />
+
+            {!isLoading && canSwap && (
+              <TransactionDetails
+                fromTokenSymbol={selectedFromToken?.symbol}
+                toTokenSymbol={selectedToToken?.symbol}
+                rate={calculateRate(optimalRate)}
+                walletFee={optimalRate.partnerFee}
+                onGasChange={(limit, price) => {
+                  setGasLimit(limit);
+                  setCustomGasPrice(price);
+                }}
+                gasLimit={gasLimit}
+                gasPrice={gasPrice as any}
+                slippage={slippageTolerance}
+                setSlippage={(slippage) => setSlippageTolerance(slippage)}
+              />
+            )}
+          </VerticalFlex>
         </Scrollbars>
         {!isLoading && canSwap && (
-          <PrimaryButton
-            width="100%"
-            margin="16px 0 0 0"
-            onClick={() => setIsReviewOrderOpen(true)}
-            size={ComponentSize.LARGE}
-          >
-            Review Order
-          </PrimaryButton>
+          <HorizontalFlex width="100%" padding="16px 16px 24px">
+            <PrimaryButton
+              width="100%"
+              onClick={() => setIsReviewOrderOpen(true)}
+              size={ComponentSize.LARGE}
+            >
+              Review Order
+            </PrimaryButton>
+          </HorizontalFlex>
         )}
       </VerticalFlex>
 

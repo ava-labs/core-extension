@@ -1,10 +1,4 @@
-import {
-  LoadingSpinnerIcon,
-  Overlay,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import { Overlay, VerticalFlex } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { LedgerApprovalDialog } from './LedgerApprovalDialog';
 import { TransactionDisplayValues } from '@src/background/services/transactions/models';
