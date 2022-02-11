@@ -27,6 +27,7 @@ interface TransactionDetailsProps {
   gasPrice: GasPrice;
   slippage: string;
   setSlippage: (slippage: string) => void;
+  setIsOpen?: (isOpen: boolean) => void;
 }
 
 const isSlippageValid = (value: string) => {
@@ -65,6 +66,7 @@ export function TransactionDetails({
   gasPrice,
   slippage,
   setSlippage,
+  setIsOpen,
 }: TransactionDetailsProps) {
   const { avaxToken } = useWalletContext();
   const { currencyFormatter } = useSettingsContext();
@@ -72,7 +74,12 @@ export function TransactionDetails({
   const theme = useTheme();
   return (
     <Container>
-      <TitleContainer onClick={() => setIsDetailsOpen(!isDetailsOpen)}>
+      <TitleContainer
+        onClick={() => {
+          setIsDetailsOpen(!isDetailsOpen);
+          setIsOpen && setIsOpen(!isDetailsOpen);
+        }}
+      >
         <DetailsRow>
           <VerticalFlex>
             <Typography size={14} height="24px" weight={500}>

@@ -21,7 +21,7 @@ const getOffsetTop = (anchorEl: MutableRefObject<HTMLElement | null>) =>
     ? anchorEl?.current?.offsetTop + anchorEl?.current?.offsetHeight
     : 0;
 
-const Dropdown = styled.div`
+const Dropdown = styled.div<{ isOpen: boolean; height: number; top: number }>`
   display: flex;
   flex-flow: column;
   position: absolute;
@@ -31,6 +31,10 @@ const Dropdown = styled.div`
   z-index: 1;
   transition: height 0.15s ease, opacity 0.15s ease;
   borderradius: 0 0 8px 8px;
+  height: ${({ isOpen, height }) => (isOpen ? `${height}px` : 0)};
+  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
+  top: ${({ top }) => `${top}px`};
+  transition: height 0.15s ease, opacity 0.15s ease;
 `;
 
 type ContainedDropdownProps = {
@@ -50,13 +54,7 @@ export const ContainedDropdown = ({
   const height = getDropdownHeight(anchorEl);
   const top = getOffsetTop(anchorEl);
   return (
-    <Dropdown
-      style={{
-        height: isOpen ? height : 0,
-        opacity: isOpen ? 1 : 0,
-        top,
-      }}
-    >
+    <Dropdown height={height} isOpen={isOpen} top={top}>
       {children}
     </Dropdown>
   );

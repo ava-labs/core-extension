@@ -9,8 +9,8 @@ import { PropsWithChildren } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 
-const BackButton = styled(TextButton)`
-  padding: 4px 8px 4px 16px;
+const BackButton = styled(TextButton)<{ padding?: string }>`
+  padding: ${({ padding }) => padding ?? '4px 8px 4px 16px'};
 `;
 
 export enum PageTitleVariant {
@@ -21,12 +21,14 @@ export enum PageTitleVariant {
 type PageTitleMiniModeProps = {
   onBackClick?(): void;
   variant?: PageTitleVariant;
+  buttonPadding?: string;
 };
 
 export const PageTitleMiniMode = ({
   children,
   onBackClick,
   variant = PageTitleVariant.SECONDARY,
+  buttonPadding,
 }: PropsWithChildren<PageTitleMiniModeProps>) => {
   const theme = useTheme();
   const history = useHistory();
@@ -45,7 +47,10 @@ export const PageTitleMiniMode = ({
       width="100%"
       paddingTop={variant === PageTitleVariant.PRIMARY ? '16px' : undefined}
     >
-      <BackButton onClick={() => (onBackClick ? onBackClick() : goBack())}>
+      <BackButton
+        onClick={() => (onBackClick ? onBackClick() : goBack())}
+        padding={buttonPadding}
+      >
         <CaretIcon
           height="20px"
           width="20px"

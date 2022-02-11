@@ -16,7 +16,6 @@ import {
   HorizontalSeparator,
   AvaxTokenIcon,
 } from '@avalabs/react-components';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
   isERC20Token,
@@ -61,18 +60,25 @@ const StyledDropdownMenuItem = styled(DropDownMenuItem)`
 interface TokenSelectProps {
   selectedToken?: TokenWithBalance | null;
   onTokenChange(token: TokenWithBalance): void;
-  maxAmount: BN;
+  maxAmount?: BN;
   inputAmount?: BN;
   onInputAmountChange?({ amount: string, bn: BN }): void;
   onSelectToggle?(): void;
   isOpen: boolean;
   error?: string;
-  margin: string;
+  margin?: string;
+  label?: string;
+  tokensList: TokenWithBalance[];
+  isValueLoading?: boolean;
+  hideErrorMessage?: boolean;
+  onError?: (errorMessage: string) => void;
+  skipHandleMaxAmount?: boolean;
 }
 
 export function TokenSelect({
   selectedToken,
   onTokenChange,
+  tokensList,
   maxAmount,
   inputAmount,
   onInputAmountChange,
@@ -80,9 +86,13 @@ export function TokenSelect({
   isOpen,
   error,
   margin,
+  label,
+  isValueLoading,
+  hideErrorMessage,
+  onError,
+  skipHandleMaxAmount,
 }: TokenSelectProps) {
   const theme = useTheme();
-  const tokensWBalances = useTokensWithBalances(false);
   const { currencyFormatter, currency } = useSettingsContext();
 
   const selectButtonRef = useRef<HTMLDivElement>(null);
@@ -91,10 +101,14 @@ export function TokenSelect({
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
   // Stringify maxAmount for referential equality in useEffect
-  const maxAmountString = bnToLocaleString(maxAmount, 18);
+  const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
   const handleAmountChange = useCallback(
     ({ amount, bn }: { amount: string; bn: BN }) => {
+      if (!maxAmountString) {
+        onInputAmountChange && onInputAmountChange({ amount, bn });
+        return;
+      }
       setIsMaxAmount(maxAmountString === amount);
       setAmountInCurrency(
         !bn.isZero() && selectedToken?.priceUSD
@@ -115,15 +129,15 @@ export function TokenSelect({
 
   // When setting to the max, pin the input value to the max value
   useEffect(() => {
-    if (!isMaxAmount) return;
+    if (!isMaxAmount || !maxAmountString || skipHandleMaxAmount) return;
     handleAmountChange({
       amount: maxAmountString,
       bn: numberToBN(maxAmountString, 18),
     });
-  }, [maxAmountString, handleAmountChange, isMaxAmount]);
+  }, [maxAmountString, handleAmountChange, isMaxAmount, skipHandleMaxAmount]);
 
   return (
-    <VerticalFlex width="100%" style={{ margin, padding: '0 16px' }}>
+    <VerticalFlex width="100%" style={{ margin }}>
       <HorizontalFlex
         justify="space-between"
         align="flex-end"
@@ -131,7 +145,7 @@ export function TokenSelect({
         grow="1"
       >
         <Typography size={12} color={theme.inputs.colorLabel}>
-          Token
+          {label ?? 'Token'}
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
           {selectedToken?.balanceDisplayValue &&
@@ -166,31 +180,48 @@ export function TokenSelect({
             }
           />
           <BNInput
-            value={isMaxAmount ? maxAmount || inputAmount : inputAmount}
-            max={maxAmount || selectedToken?.balance}
+            value={
+              isMaxAmount && !skipHandleMaxAmount
+                ? maxAmount || inputAmount
+                : inputAmount
+            }
+            max={
+              !isValueLoading ? maxAmount || selectedToken?.balance : undefined
+            }
             denomination={selectedToken?.denomination || 9}
-            buttonContent={selectedToken?.balance.gt(new BN(0)) ? 'Max' : ''}
+            buttonContent={
+              !isValueLoading &&
+              maxAmount &&
+              selectedToken?.balance.gt(new BN(0))
+                ? 'Max'
+                : ''
+            }
             placeholder={'0.0'}
             width="180px"
             height="40px"
-            disabled={!selectedToken}
+            disabled={!selectedToken || isValueLoading}
             onChange={handleAmountChange}
             onClick={(e) => e.stopPropagation()}
-            onError={(errorMessage) => setBNError(errorMessage)}
+            onError={(errorMessage) =>
+              onError ? onError(errorMessage) : setBNError(errorMessage)
+            }
             style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
             hideErrorMessage
+            isValueLoading={isValueLoading}
           />
         </InputContainer>
-        <HorizontalFlex justify="space-between" grow="1" margin="4px 0 0 0">
-          <Typography size={12} color={theme.colors.error}>
-            {bnError || error}
-          </Typography>
-          {amountInCurrency && (
-            <Typography size={12} color={theme.colors.text2}>
-              {amountInCurrency} {currency}
+        {!hideErrorMessage && (
+          <HorizontalFlex justify="space-between" grow="1" margin="4px 0 0 0">
+            <Typography size={12} color={theme.colors.error}>
+              {bnError || error}
             </Typography>
-          )}
-        </HorizontalFlex>
+            {amountInCurrency && (
+              <Typography size={12} color={theme.colors.text2}>
+                {amountInCurrency} {currency}
+              </Typography>
+            )}
+          </HorizontalFlex>
+        )}
 
         <ContainedDropdown anchorEl={selectButtonRef} isOpen={isOpen}>
           <DropdownContents>
@@ -206,7 +237,7 @@ export function TokenSelect({
             </SearchInputContainer>
             <VerticalFlex grow="1">
               <Scrollbars>
-                {tokensWBalances
+                {tokensList
                   .filter((token) =>
                     searchQuery.length
                       ? token.name
