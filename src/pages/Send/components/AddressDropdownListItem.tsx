@@ -21,10 +21,6 @@ const RowContainer = styled(VerticalFlex)`
   }
 `;
 
-const StyledSimpleAddress = styled(SimpleAddress)`
-  flex-direction: row-reverse;
-`;
-
 type AddressDropdownListItemProps = {
   contact: Contact;
   selectedContact?: Contact;
@@ -54,7 +50,7 @@ export const AddressDropdownListItem = ({
           {contact.name}
         </Typography>
         <HorizontalFlex marginTop="2px">
-          <StyledSimpleAddress
+          <SimpleAddress
             address={contact.address}
             typographyProps={{
               size: 12,

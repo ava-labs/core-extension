@@ -6,10 +6,11 @@ import {
   PrimaryButton,
   Tooltip,
   Typography,
-  useDialog,
   VerticalFlex,
   TransactionToastType,
   TransactionToast,
+  LoadingSpinnerIcon,
+  WarningIcon,
 } from '@avalabs/react-components';
 import { SendFormMiniMode } from './components/SendForm.minimode';
 import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
@@ -25,33 +26,40 @@ import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
+import { useIsMainnet } from '@src/hooks/useIsMainnet';
+import { useTheme } from 'styled-components';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useContactFromParams } from './hooks/useContactFromParams';
 
 export function SendMiniMode() {
+  const theme = useTheme();
+  const { walletType } = useWalletContext();
   const selectedToken = useTokenFromParams();
+  const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
-  const [contactInput, setContactInput] = useState<Contact>();
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
   const sendState = useSend(selectedToken);
   const setSendState = sendState.setValues;
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const { showDialog, clearDialog } = useDialog();
+  const isMainnet = useIsMainnet();
 
   // Reset send state before leaving the send flow.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => resetSendFlow, []);
 
   const resetSendFlow = () => {
-    setContactInput(undefined);
-    setAmountInput(undefined);
-    setAmountInputDisplay(undefined);
     sendState.reset();
   };
 
   const onContactChanged = (contact: Contact) => {
-    setContactInput(contact);
+    setSendDataInParams({
+      token: selectedToken,
+      address: contact.address,
+      options: { replace: true },
+    });
     setSendState({
       token: selectedToken,
       amount: amountInputDisplay,
@@ -60,7 +68,11 @@ export function SendMiniMode() {
   };
 
   const onTokenChanged = (token: TokenWithBalance) => {
-    setSendDataInParams({ token, options: { replace: true } });
+    setSendDataInParams({
+      token,
+      address: contactInput?.address,
+      options: { replace: true },
+    });
     setSendState({
       token,
       amount: amountInputDisplay,
@@ -91,45 +103,53 @@ export function SendMiniMode() {
     });
   };
 
-  const onError = (error: string) => {
-    showDialog({
-      title: 'Oops, something went wrong',
-      body: error,
-      confirmText: 'Retry',
-      width: '343px',
-      onConfirm: () => {
-        clearDialog();
-        history.goBack();
-      },
-      cancelText: 'Back to Home',
-      onCancel: () => {
-        clearDialog();
-        history.push('/home');
-      },
-    });
-  };
-
   const onSubmit = () => {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
+
+    let toastId: string;
+    if (walletType !== 'ledger') {
+      history.push('/home');
+      toastId = toast.custom(
+        <TransactionToast
+          type={TransactionToastType.PENDING}
+          text="Transaction pending..."
+          startIcon={
+            <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
+          }
+        />
+      );
+    }
+
     sendState
       .submit()
       .then((txId) => {
         resetSendFlow();
         toast.custom(
           <TransactionToast
-            status="Transaction sent!"
+            status="Transaction Successful"
             type={TransactionToastType.SUCCESS}
             text="View in Explorer"
-            href={txId ? getTransactionLink(txId) : ''}
-          />
+            href={txId ? getTransactionLink(txId, isMainnet) : ''}
+          />,
+          { id: toastId }
         );
         history.push('/home');
       })
-      .catch((e) => {
-        onError(e);
+      .catch(() => {
+        toast.custom(
+          <TransactionToast
+            type={TransactionToastType.ERROR}
+            text="Transaction Failed"
+            startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
+          />,
+          { id: toastId, duration: Infinity }
+        );
       })
-      .finally(() => setShowTxInProgress(false));
+      .finally(() => {
+        setShowTxInProgress(false);
+        if (walletType === 'ledger') history.push('/home');
+      });
   };
 
   return (
@@ -186,6 +206,7 @@ export function SendMiniMode() {
                   onClick={() => {
                     setSendDataInParams({
                       token: selectedToken,
+                      address: contactInput?.address,
                       options: { path: '/send/confirm' },
                     });
                   }}

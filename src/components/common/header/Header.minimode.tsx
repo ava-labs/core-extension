@@ -45,7 +45,7 @@ export function HeaderMiniMode() {
     >
       <SettingsMenu />
       <VerticalFlex>
-        <HorizontalFlex align="center">
+        <HorizontalFlex align="center" justify="center">
           <ConnectionIndicator connected={isConnected}>
             <Typography
               weight={600}

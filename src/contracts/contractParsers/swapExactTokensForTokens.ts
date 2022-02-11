@@ -6,12 +6,7 @@ import {
   erc20PathToken,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import {
-  BN,
-  bigToLocaleString,
-  bnToBig,
-  Big,
-} from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig, Big } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { hexToBN } from '@src/utils/hexToBN';
@@ -44,7 +39,7 @@ export function swapExactTokensForTokenHandler(
   props: DisplayValueParserProps
 ): SwapExactTokensForTokenDisplayValues {
   const erc20sIndexedByAddress = props.erc20Tokens.reduce(
-    (acc, token) => ({ ...acc, [token.address]: token }),
+    (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
     {}
   );
 

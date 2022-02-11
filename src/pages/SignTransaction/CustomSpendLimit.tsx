@@ -2,20 +2,18 @@ import {
   HorizontalFlex,
   BNInput,
   PrimaryButton,
-  TextButton,
   Typography,
   VerticalFlex,
-  CaretIcon,
-  IconDirection,
   SubTextTypography,
   SecondaryCard,
   Radio,
+  ComponentSize,
 } from '@avalabs/react-components';
 import { useState } from 'react';
-import { useTheme } from 'styled-components';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 export enum Limit {
   UNLIMITED = 'UNLIMITED',
@@ -47,7 +45,6 @@ export function CustomSpendLimit({
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
     ...spendLimit,
   });
-  const theme = useTheme();
 
   const handleOnSave = () => {
     setSpendLimit(customSpendLimit);
@@ -55,49 +52,37 @@ export function CustomSpendLimit({
   };
 
   return (
-    <VerticalFlex width="100%" margin="24px 0 0 0">
-      {/* Header */}
-      <HorizontalFlex align="center">
-        <TextButton onClick={() => onClose()} margin="0 108px 0 0">
-          <CaretIcon
-            height="20px"
-            direction={IconDirection.LEFT}
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography as="h1" size={24} weight={700} align="center">
-          Edit Limit
-        </Typography>
-      </HorizontalFlex>
+    <VerticalFlex width="100%">
+      <PageTitleMiniMode onBackClick={() => onClose()}>
+        Edit Limit
+      </PageTitleMiniMode>
 
       {/* Content middle */}
-      <VerticalFlex padding="32px 0 0 0">
+      <VerticalFlex padding="8px 16px 0">
         {/* Balance */}
-        <Typography size={14} padding="0 0 8px 0">
+        <Typography size={12} height="15px" padding="0 0 4px 0">
           Balance
         </Typography>
-        <SecondaryCard padding="8px 16px" margin="0 0 34px 0">
-          <VerticalFlex>
-            <Typography height="24px" padding="0 0 8px 0">
-              {activeAccount?.name}
-            </Typography>
-            <Typography weight={700} height="22px" padding="0 0 4px 0">
-              {token.balanceDisplayValue} {token.symbol}
-            </Typography>
-          </VerticalFlex>
+        <SecondaryCard padding="16px" direction="column">
+          <Typography height="24px" padding="0 0 8px 0">
+            {activeAccount?.name}
+          </Typography>
+          <Typography weight={600} height="24px">
+            {token.balanceDisplayValue} {token.symbol}
+          </Typography>
         </SecondaryCard>
 
         {/* Spending Limit */}
-        <Typography weight={600} height="24px" padding="0 0 4px 0">
+        <Typography weight={500} size={14} height="24px" margin="24px 0 0">
           Spending limit
         </Typography>
-        <SubTextTypography size={14} height="17px">
+        <SubTextTypography size={12} height="15px" margin="4px 0 0">
           Set a limit that you will allow {site.domain} to withdraw and spend.
         </SubTextTypography>
 
         {/* Radio */}
         <VerticalFlex margin="24px 0 0 0">
-          <HorizontalFlex align="center" margin="0 0 40px 0">
+          <HorizontalFlex align="center" margin="0 0 0 8px">
             <Radio
               onChange={() => {
                 setCustomSpendLimit({
@@ -110,11 +95,11 @@ export function CustomSpendLimit({
               id="unlimited"
               checked={customSpendLimit.limitType === Limit.UNLIMITED}
             />
-            <Typography margin="0 0 0 24px" weight={600}>
+            <Typography margin="0 0 0 16px" weight={600}>
               Unlimited
             </Typography>
           </HorizontalFlex>
-          <HorizontalFlex align="center" margin="0 0 16px 0">
+          <HorizontalFlex align="center" margin="24px 0 0 8px">
             <Radio
               onChange={() => {
                 setCustomSpendLimit({
@@ -127,11 +112,11 @@ export function CustomSpendLimit({
               id="custom"
               checked={customSpendLimit.limitType === Limit.CUSTOM}
             />
-            <Typography margin="0 0 0 24px" weight={600}>
+            <Typography margin="0 0 0 16px" weight={600}>
               Custom Spend Limit
             </Typography>
           </HorizontalFlex>
-          <VerticalFlex width="100%" align="flex-end" padding="0 8px 0 0">
+          <VerticalFlex width="100%" padding="16px 0 0 48px">
             <BNInput
               onChange={(value) => {
                 setCustomSpendLimit({
@@ -143,14 +128,23 @@ export function CustomSpendLimit({
               denomination={token.denomination}
               placeholder="Maximum Limit"
               value={customSpendLimit.value?.bn}
-              width="283px"
+              width="100%"
             />
           </VerticalFlex>
         </VerticalFlex>
       </VerticalFlex>
 
-      <HorizontalFlex flex={1} align="flex-end" width="100%">
-        <PrimaryButton width="100%" onClick={handleOnSave}>
+      <HorizontalFlex
+        flex={1}
+        align="flex-end"
+        width="100%"
+        padding="0 16px 8px"
+      >
+        <PrimaryButton
+          size={ComponentSize.LARGE}
+          width="100%"
+          onClick={handleOnSave}
+        >
           Save
         </PrimaryButton>
       </HorizontalFlex>

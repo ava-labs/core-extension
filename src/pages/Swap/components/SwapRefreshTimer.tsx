@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import {
   InfoIcon,
-  SecondaryCard,
+  Card,
   Tooltip,
   Typography,
   VerticalFlex,
@@ -54,14 +54,14 @@ export function SwapRefreshTimer({
   );
   return (
     <TimerContainer>
-      <SecondaryCard padding="4px 8px">
+      <Card padding="4px 8px">
         <Typography size={12} height="16px" margin=" 0 7px 0 0 " width="34px">
           {displayedMinutes}:{displayedSeconds}
         </Typography>
         <Tooltip content={Content}>
           <InfoIcon height="16px" color={theme.colors.text2} />
         </Tooltip>
-      </SecondaryCard>
+      </Card>
     </TimerContainer>
   );
 }

@@ -1,36 +1,29 @@
 import { ExtensionRequest } from '@src/background/connections/models';
-import { SignedMessageResult } from '@src/background/services/messages/models';
-import { messageParser } from '@src/background/services/messages/utils/messageParser';
+import {
+  Message,
+  MessageUpdate,
+} from '@src/background/services/messages/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useState } from 'react';
 
 export function useSignMessage(messageId: string) {
   const { request } = useConnectionContext();
-  const [message, setMessage] = useState<ReturnType<typeof messageParser>>();
-  const [signedResults, setSignedResults] = useState<SignedMessageResult>();
+  const [message, setMessage] = useState<Message>();
   const [error] = useState<string>('');
 
   useEffect(() => {
     request({
-      method: ExtensionRequest.MESSAGE_GET_PENDING,
+      method: ExtensionRequest.MESSAGE_GET,
       params: [messageId],
-    }).then((mess) => setMessage(messageParser(mess)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }).then(setMessage);
+  }, [messageId, request]);
 
-  function signMessage() {
+  function updateMessage(params: MessageUpdate) {
     request({
-      method: ExtensionRequest.MESSAGE_SIGN,
-      params: [messageId],
-    }).then((mess) => setSignedResults(mess));
-  }
-
-  function cancelSign() {
-    request({
-      method: ExtensionRequest.MESSAGE_CANCEL_PENDING,
-      params: [messageId],
+      method: ExtensionRequest.MESSAGE_UPDATE,
+      params: [params],
     }).then(() => globalThis.close());
   }
 
-  return { message, signMessage, cancelSign, signedResults, error };
+  return { message, updateMessage, error };
 }

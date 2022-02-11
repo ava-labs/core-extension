@@ -21,7 +21,13 @@ export const settings$ = new BehaviorSubject<SettingsState>(
   defaultSettingsState
 );
 
-getSettingsFromStorage().then((res) => res && settings$.next(res));
+getSettingsFromStorage().then((res) => {
+  const updateSettings = {
+    ...defaultSettingsState,
+    ...res,
+  };
+  settings$.next(updateSettings);
+});
 
 settings$.subscribe(({ currency }) => {
   const currencyObject = currencies.find(({ symbol }) => currency === symbol);

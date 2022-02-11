@@ -86,7 +86,7 @@ export const ContactInput = ({
           label="Send to"
           placeholder="Enter 0x Address"
           buttonContent={
-            <HorizontalFlex align="center" paddingRight="24px">
+            <HorizontalFlex align="center">
               <ContactsIcon height="20px" style={{ marginRight: 12 }} />
               <CaretIcon
                 color={theme.colors.icon1}

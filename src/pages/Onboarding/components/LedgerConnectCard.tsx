@@ -2,7 +2,7 @@ import {
   CheckmarkIcon,
   HorizontalFlex,
   LoadingSpinnerIcon,
-  SecondaryCard,
+  Card,
   SubTextTypography,
   Typography,
   VerticalFlex,
@@ -10,7 +10,7 @@ import {
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 
-const LedgerCard = styled(SecondaryCard)<{
+const LedgerCard = styled(Card)<{
   clickable: boolean;
 }>`
   background-color: ${({ theme }) => `${theme.colors.bg3}80`};

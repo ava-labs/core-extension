@@ -1,10 +1,7 @@
 import { OptimalRate } from 'paraswap-core';
 import {
-  CaretIcon,
   HorizontalFlex,
-  IconDirection,
   Overlay,
-  TextButton,
   Typography,
   VerticalFlex,
   TokenCard,
@@ -12,8 +9,9 @@ import {
   SecondaryButton,
   PrimaryButton,
   ComponentSize,
+  SubTextTypography,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { TokenWithBalance } from '@avalabs/wallet-react-components';
 import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
@@ -24,6 +22,8 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SlippageToolTip } from '../SlippageToolTip';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { TokenIcon } from '../../utils';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;
@@ -45,19 +45,25 @@ const ReviewOrderOverlay = styled(Overlay)`
   background-color: ${({ theme }) => theme.colors.bg1};
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 16px;
-`;
-
-const Header = styled(HorizontalFlex)`
-  width: 100%;
-  margin-bottom: 16px;
+  padding: 16px 0 24px;
 `;
 
 const DetailsRow = styled(HorizontalFlex)`
   justify-content: space-between;
   width: 100%;
-  margin: 16px 0;
+  margin: 8px 0;
   align-items: center;
+`;
+
+const DetailLabel = styled(Typography)`
+  font-size: 12px;
+  line-height: 15px;
+`;
+
+const DetailValue = styled(Typography)`
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 17px;
 `;
 
 export function ReviewOrder({
@@ -73,38 +79,27 @@ export function ReviewOrder({
   isLoading,
   rate,
 }: ReviewOrderProps) {
-  const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
+  const { avaxToken } = useWalletContext();
   useLedgerDisconnectedDialog(() => {
     onClose();
   });
 
   return (
     <ReviewOrderOverlay>
-      <Header>
-        <HorizontalFlex justify="space-between" width="100%" align="center">
-          <HorizontalFlex>
-            <TextButton onClick={onClose}>
-              <CaretIcon
-                height="20px"
-                direction={IconDirection.LEFT}
-                color={theme.colors.icon1}
-              />
-            </TextButton>
-            <Typography
-              size={24}
-              weight={700}
-              height="29px"
-              margin="0 0 0 24px"
-            >
-              Review Order
-            </Typography>
-          </HorizontalFlex>
-          {onTimerExpire && (
-            <SwapRefreshTimer secondsTimer={59} onExpire={onTimerExpire} />
-          )}
-        </HorizontalFlex>
-      </Header>
+      <HorizontalFlex
+        justify="space-between"
+        width="100%"
+        align="center"
+        padding="0 16px 0 0"
+      >
+        <PageTitleMiniMode onBackClick={onClose}>
+          Review Order
+        </PageTitleMiniMode>
+        {onTimerExpire && (
+          <SwapRefreshTimer secondsTimer={59} onExpire={onTimerExpire} />
+        )}
+      </HorizontalFlex>
 
       {isLoading && (
         <VerticalFlex width="100%" justify="center">
@@ -112,113 +107,106 @@ export function ReviewOrder({
         </VerticalFlex>
       )}
       {!isLoading && (
-        <>
-          <VerticalFlex width="100%">
-            <Typography size={16} height="24px">
-              From
-            </Typography>
-            <TokenCard
-              name={fromToken.symbol}
-              symbol={fromToken.symbol}
-              balanceDisplayValue={bnToLocaleString(
-                new BN(optimalRate?.srcAmount || '0'),
-                optimalRate?.srcDecimals
-              )}
-              balanceUSD={optimalRate?.srcUSD}
-              currencyFormatter={currencyFormatter}
-            >
-              <TokenIcon token={fromToken} />
-            </TokenCard>
-          </VerticalFlex>
-          <VerticalFlex width="100%">
-            <Typography size={16} height="24px">
-              To
-            </Typography>
-            <TokenCard
-              name={toToken.symbol}
-              symbol={toToken.symbol}
-              balanceDisplayValue={bnToLocaleString(
-                new BN(optimalRate?.destAmount || '0'),
-                optimalRate?.destDecimals
-              )}
-              balanceUSD={optimalRate?.destUSD}
-              currencyFormatter={currencyFormatter}
-            >
-              <TokenIcon token={toToken} />
-            </TokenCard>
-          </VerticalFlex>
+        <VerticalFlex padding="0 16px" grow="1" width="100%">
+          <Typography size={14} height="24px">
+            From
+          </Typography>
+          <TokenCard
+            name={fromToken.symbol}
+            symbol={fromToken.symbol}
+            balanceDisplayValue={bnToLocaleString(
+              new BN(optimalRate?.srcAmount || '0'),
+              optimalRate?.srcDecimals
+            )}
+            balanceUSD={optimalRate?.srcUSD}
+            currencyFormatter={currencyFormatter}
+          >
+            <TokenIcon token={fromToken} />
+          </TokenCard>
+
+          <Typography size={14} height="24px">
+            To
+          </Typography>
+          <TokenCard
+            name={toToken.symbol}
+            symbol={toToken.symbol}
+            balanceDisplayValue={bnToLocaleString(
+              new BN(optimalRate?.destAmount || '0'),
+              optimalRate?.destDecimals
+            )}
+            balanceUSD={optimalRate?.destUSD}
+            currencyFormatter={currencyFormatter}
+          >
+            <TokenIcon token={toToken} />
+          </TokenCard>
           <HorizontalSeparator margin="16px 0" />
           <VerticalFlex grow="1" width="100%">
             <DetailsRow>
-              <VerticalFlex>
-                <Typography>Rate</Typography>
-              </VerticalFlex>
-              <VerticalFlex>
-                <Typography>
-                  1 {fromToken?.symbol} ≈ {rate?.toFixed(4)} {toToken?.symbol}
-                </Typography>
-              </VerticalFlex>
+              <DetailLabel>Rate</DetailLabel>
+              <DetailValue size={14} height="17px" weight={600}>
+                1 {fromToken?.symbol} ≈ {rate?.toFixed(4)} {toToken?.symbol}
+              </DetailValue>
             </DetailsRow>
             <DetailsRow>
-              <VerticalFlex>
-                <HorizontalFlex>
-                  <Typography margin="0 16px 0 0">
-                    Slippage tolerance
-                  </Typography>
-                  <SlippageToolTip />
-                </HorizontalFlex>
-              </VerticalFlex>
-              <VerticalFlex>
-                <Typography>{slippage || 0}%</Typography>
-              </VerticalFlex>
+              <HorizontalFlex>
+                <DetailLabel margin="0 8px 0 0">Slippage tolerance</DetailLabel>
+                <SlippageToolTip />
+              </HorizontalFlex>
+              <DetailValue size={14} height="17px" weight={600}>
+                {slippage || 0}%
+              </DetailValue>
             </DetailsRow>
             <DetailsRow>
-              <VerticalFlex>
-                <HorizontalFlex>
-                  <Typography margin="0 16px 0 0">Network Fee</Typography>
-                  <TransactionFeeTooltip
-                    gasPrice={gasPrice?.bn}
-                    gasLimit={gasLimit as any}
-                  />
-                </HorizontalFlex>
-              </VerticalFlex>
-              <VerticalFlex>
-                <Typography>
-                  {Number(
-                    bnToLocaleString(gasPrice.bn.mul(new BN(gasLimit)), 18)
-                  ).toFixed(6)}{' '}
-                  AVAX
-                </Typography>
-              </VerticalFlex>
+              <HorizontalFlex>
+                <DetailLabel margin="0 8px 0 0">Network Fee</DetailLabel>
+                <TransactionFeeTooltip
+                  gasPrice={gasPrice?.bn}
+                  gasLimit={gasLimit as any}
+                />
+              </HorizontalFlex>
+              <DetailValue>
+                {Number(
+                  bnToLocaleString(gasPrice.bn.mul(new BN(gasLimit)), 18)
+                ).toFixed(6)}{' '}
+                AVAX
+              </DetailValue>
             </DetailsRow>
             <DetailsRow>
-              <VerticalFlex>
-                <Typography size={14} height="17px">
-                  Avalanche Wallet Fee
-                </Typography>
-              </VerticalFlex>
-              <VerticalFlex>
-                <Typography>{optimalRate.partnerFee} AVAX</Typography>
+              <DetailLabel>Avalanche Wallet Fee</DetailLabel>
+              <VerticalFlex align="flex-end">
+                <DetailValue>{optimalRate.partnerFee} AVAX</DetailValue>
+                <SubTextTypography size={12} height="15px" margin="4px 0 0">
+                  {optimalRate.partnerFee &&
+                    avaxToken.priceUSD &&
+                    currencyFormatter(
+                      Number(optimalRate.partnerFee) * avaxToken.priceUSD
+                    )}
+                </SubTextTypography>
               </VerticalFlex>
             </DetailsRow>
           </VerticalFlex>
-          <HorizontalFlex justify="space-between" width="100%">
+          <HorizontalFlex
+            grow="1"
+            align="flex-end"
+            justify="space-between"
+            width="100%"
+          >
             <SecondaryButton
+              width="168px"
               onClick={onClose}
               size={ComponentSize.LARGE}
-              margin="8px"
             >
               Cancel
             </SecondaryButton>
             <PrimaryButton
+              width="168px"
               size={ComponentSize.LARGE}
-              margin="8px"
               onClick={onConfirm}
             >
-              Confirm
+              Swap Now
             </PrimaryButton>
           </HorizontalFlex>
-        </>
+        </VerticalFlex>
       )}
     </ReviewOrderOverlay>
   );

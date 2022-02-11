@@ -28,8 +28,14 @@ export function OnboardButton({
 }) {
   return (
     <TextButtonCard onClick={onClick} margin={margin}>
-      <VerticalFlex width="177px" height="176px" align="center">
-        <Typography margin="36px 0 24px 0" size={14} height="24px" weight={600}>
+      <VerticalFlex
+        width="232px"
+        padding="36px 0"
+        align="center"
+        justify="center"
+        gap="24px"
+      >
+        <Typography size={16} height="24px" weight={600}>
           {title}
         </Typography>
         {children}
@@ -37,3 +43,13 @@ export function OnboardButton({
     </TextButtonCard>
   );
 }
+
+const StyledTermsButton = styled(TextButton)`
+  height: 40px;
+  margin: 64px 0 0 0;
+  font-size: 12px;
+`;
+
+export const TermsButton = () => (
+  <StyledTermsButton disabled>Terms and Conditions</StyledTermsButton>
+);

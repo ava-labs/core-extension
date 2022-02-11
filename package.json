@@ -14,9 +14,9 @@
     "zip": "node zipscript.js"
   },
   "dependencies": {
-    "@avalabs/avalanche-wallet-sdk": "0.14.2",
-    "@avalabs/react-components": "1.80.0",
-    "@avalabs/wallet-react-components": "1.24.3",
+    "@avalabs/avalanche-wallet-sdk": "0.14.3",
+    "@avalabs/react-components": "1.84.0",
+    "@avalabs/wallet-react-components": "1.24.6",
     "@babel/runtime": "7.16.7",
     "@ledgerhq/hw-transport-u2f": "5.36.0-deprecated",
     "@ledgerhq/hw-transport-webhid": "6.20.0",
@@ -47,7 +47,6 @@
     "react-modal": "3.14.4",
     "react-password-strength-bar": "0.4.0",
     "react-router-dom": "5.3.0",
-    "react-tabs": "3.2.3",
     "react-timer-hook": "3.0.5",
     "react-transition-group": "4.4.2",
     "rxjs": "7.5.1",

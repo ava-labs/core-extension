@@ -3,6 +3,12 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { useCallback } from 'react';
 
+const UNSAVED_CONTACT_BASE = {
+  id: '',
+  name: 'Unsaved Address',
+  isKnown: false,
+};
+
 export const useIdentifyAddress = () => {
   const { contacts } = useContactsContext();
   const { accounts } = useAccountsContext();
@@ -12,6 +18,7 @@ export const useIdentifyAddress = () => {
    */
   const identifyAddress = useCallback(
     (address: string): Contact => {
+      if (!address) return { ...UNSAVED_CONTACT_BASE, address: '' };
       const addressLowerCase = address.toLowerCase();
       for (const contact of contacts) {
         if (contact.address.toLowerCase() === addressLowerCase) {
@@ -23,10 +30,8 @@ export const useIdentifyAddress = () => {
           return { id: '', address, name: account.name, isKnown: true };
       }
       return {
-        id: '',
+        ...UNSAVED_CONTACT_BASE,
         address,
-        name: 'Unsaved Address',
-        isKnown: false,
       };
     },
     [accounts, contacts]

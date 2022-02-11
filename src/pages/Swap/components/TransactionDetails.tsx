@@ -4,6 +4,7 @@ import {
   HorizontalFlex,
   IconDirection,
   Input,
+  SubTextTypography,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -13,6 +14,8 @@ import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTool
 import { SlippageToolTip } from './SlippageToolTip';
 import { CustomFees } from '@src/components/common/CustomFees';
 import { GasPrice } from '@src/background/services/gas/models';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -24,6 +27,7 @@ interface TransactionDetailsProps {
   gasPrice: GasPrice;
   slippage: string;
   setSlippage: (slippage: string) => void;
+  setIsOpen?: (isOpen: boolean) => void;
 }
 
 const isSlippageValid = (value: string) => {
@@ -48,7 +52,7 @@ const DetailsContainer = styled(VerticalFlex)`
 const DetailsRow = styled(HorizontalFlex)`
   justify-content: space-between;
   width: 100%;
-  margin: 16px 0;
+  margin: 8px 0;
   align-items: center;
 `;
 
@@ -62,15 +66,23 @@ export function TransactionDetails({
   gasPrice,
   slippage,
   setSlippage,
+  setIsOpen,
 }: TransactionDetailsProps) {
+  const { avaxToken } = useWalletContext();
+  const { currencyFormatter } = useSettingsContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
   const theme = useTheme();
   return (
     <Container>
-      <TitleContainer onClick={() => setIsDetailsOpen(!isDetailsOpen)}>
+      <TitleContainer
+        onClick={() => {
+          setIsDetailsOpen(!isDetailsOpen);
+          setIsOpen && setIsOpen(!isDetailsOpen);
+        }}
+      >
         <DetailsRow>
           <VerticalFlex>
-            <Typography size={16} weight={600}>
+            <Typography size={14} height="24px" weight={500}>
               Transaction details
             </Typography>
           </VerticalFlex>
@@ -86,46 +98,44 @@ export function TransactionDetails({
       {isDetailsOpen && (
         <DetailsContainer>
           <DetailsRow>
-            <VerticalFlex>
-              <Typography>Rate</Typography>
-            </VerticalFlex>
-            <VerticalFlex>
-              <Typography>
-                1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
-              </Typography>
-            </VerticalFlex>
+            <Typography size={12} height="15px">
+              Rate
+            </Typography>
+            <Typography size={14} height="17px" weight={600}>
+              1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
+            </Typography>
           </DetailsRow>
           <DetailsRow>
-            <VerticalFlex>
-              <HorizontalFlex>
-                <Typography margin="0 16px 0 0">Slippage tolerance</Typography>
-                <SlippageToolTip />
-              </HorizontalFlex>
-            </VerticalFlex>
-            <VerticalFlex>
-              <HorizontalFlex align="center">
-                <Input
-                  size={ComponentSize.SMALL}
-                  value={slippage}
-                  width="66px"
-                  placeholder="0"
-                  type="number"
-                  min="0"
-                  max="100"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const isValid = isSlippageValid(value);
-                    isValid && setSlippage(value);
-                  }}
-                ></Input>
-                <Typography margin="0 0 0 8px">%</Typography>
-              </HorizontalFlex>
-            </VerticalFlex>
+            <HorizontalFlex>
+              <Typography size={12} height="15px" margin="0 8px 0 0">
+                Slippage tolerance
+              </Typography>
+              <SlippageToolTip />
+            </HorizontalFlex>
+            <HorizontalFlex align="center">
+              <Input
+                size={ComponentSize.SMALL}
+                value={slippage}
+                width="66px"
+                placeholder="0"
+                type="number"
+                min="0"
+                max="100"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const isValid = isSlippageValid(value);
+                  isValid && setSlippage(value);
+                }}
+              ></Input>
+              <Typography margin="0 0 0 8px" size={12} height="15px">
+                %
+              </Typography>
+            </HorizontalFlex>
           </DetailsRow>
           <DetailsRow>
             <VerticalFlex width="100%">
               <HorizontalFlex marginBottom="8px">
-                <Typography size={14} height="17px" margin="0 16px 0 0">
+                <Typography size={12} height="15px" margin="0 8px 0 0">
                   Network Fee
                 </Typography>
                 <TransactionFeeTooltip
@@ -143,13 +153,18 @@ export function TransactionDetails({
             </VerticalFlex>
           </DetailsRow>
           <DetailsRow>
-            <VerticalFlex>
-              <Typography size={14} height="17px">
-                Avalanche Wallet Fee
+            <Typography size={12} height="15px">
+              Avalanche Wallet Fee
+            </Typography>
+            <VerticalFlex justify="flex-end">
+              <Typography size={14} height="17px" weight={600}>
+                {walletFee} AVAX
               </Typography>
-            </VerticalFlex>
-            <VerticalFlex>
-              <Typography>{walletFee} AVAX</Typography>
+              <SubTextTypography size={12} height="15px" margin="4px 0 0">
+                {walletFee &&
+                  avaxToken.priceUSD &&
+                  currencyFormatter(Number(walletFee) * avaxToken.priceUSD)}
+              </SubTextTypography>
             </VerticalFlex>
           </DetailsRow>
         </DetailsContainer>

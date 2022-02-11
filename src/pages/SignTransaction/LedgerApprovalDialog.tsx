@@ -1,7 +1,7 @@
 import {
   HorizontalSeparator,
   LoadingSpinnerIcon,
-  SecondaryCard,
+  Card,
   truncateAddress,
   Typography,
   VerticalFlex,
@@ -15,7 +15,7 @@ interface LedgerApprovalDialogProps {
   fee?: string;
 }
 
-const StyledCard = styled(SecondaryCard)`
+const StyledCard = styled(Card)`
   margin: 16px 0 0 0;
   radius: 8px;
   padding: 16px;
@@ -54,16 +54,18 @@ export function LedgerApprovalDialog({
           )}
           <HorizontalSeparator margin="16px 0" />
           {amount && (
-            <VerticalFlex>
-              <Typography height="17px" size={14} margin="0 0 4px 0">
-                Amount
-              </Typography>
-              <Typography height="24px" weight={600}>
-                {amount} {symbol}
-              </Typography>
-            </VerticalFlex>
+            <>
+              <VerticalFlex>
+                <Typography height="17px" size={14} margin="0 0 4px 0">
+                  Amount
+                </Typography>
+                <Typography height="24px" weight={600}>
+                  {amount} {symbol}
+                </Typography>
+              </VerticalFlex>
+              <HorizontalSeparator margin="16px 0" />
+            </>
           )}
-          <HorizontalSeparator margin="16px 0" />
           {fee && (
             <VerticalFlex>
               <Typography height="17px" size={14} margin="0 0 4px 0">

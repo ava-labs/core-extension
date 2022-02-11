@@ -5,9 +5,8 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '../models';
-import { CancelPendingMessageRequest } from '../../services/messages/handlers/cancelPendingMessage';
-import { GetPendingMessageRequest } from '../../services/messages/handlers/getPendingMessage';
-import { SignMessageRequest } from '../../services/messages/handlers/signMessage';
+import { UpdateMessageByIdRequest } from '../../services/messages/handlers/updateMessage';
+import { GetMessageByIdRequest } from '../../services/messages/handlers/getMessage';
 import { networkUpdateEvents } from '../../services/network/events/networkUpdatedEvent';
 import { GetNetworkRequest } from '../../services/network/handlers/getSelectedNetwork';
 import { SetNetworkRequest } from '../../services/network/handlers/setSelectedNetwork';
@@ -72,13 +71,14 @@ import { SettingsGetIsDefaultExtensionRequest } from '@src/background/services/s
 import { SettingsSetDefaultExtensionRequest } from '@src/background/services/settings/handlers/setAsDefaultExtension';
 import { permissionsUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 
+import { InitialWalletOpenRequest } from '@src/background/services/onboarding/handlers/updateInitialOpen';
+
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
   ConnectionRequestHandler
 >([
-  SignMessageRequest,
-  GetPendingMessageRequest,
-  CancelPendingMessageRequest,
+  GetMessageByIdRequest,
+  UpdateMessageByIdRequest,
 
   GetOnboardingStateRequest,
   SetOnboardingPhaseRequest,
@@ -125,6 +125,8 @@ const extensionRequestHandlerMap = new Map<
   SettingsGetTokenDataRequest,
   SettingsGetIsDefaultExtensionRequest,
   SettingsSetDefaultExtensionRequest,
+
+  InitialWalletOpenRequest,
 
   GetContactsStateRequest,
   CreateContactStateRequest,

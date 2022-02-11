@@ -4,7 +4,10 @@ import {
   getExplorerLinkEVM,
 } from '@avalabs/wallet-react-components';
 
-export function useExplorerUrl(txId: string, chain?: ChainIdType) {
+export function useExplorerUrl(txId?: string, chain?: ChainIdType) {
+  if (!txId) {
+    return '';
+  }
   return chain === 'C'
     ? getExplorerLinkEVM(txId)
     : getExplorerLinkAvalanche(txId);

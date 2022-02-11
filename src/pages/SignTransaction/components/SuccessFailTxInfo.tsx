@@ -1,110 +1,102 @@
 import {
-  PrimaryButton,
-  TextButton,
   Typography,
   VerticalFlex,
-  LinkIcon,
-  ComponentSize,
-  Card,
   HorizontalFlex,
+  SubTextTypography,
+  LoadingSpinnerIcon,
+  truncateAddress,
+  TextButton,
   CopyIcon,
   toast,
+  Card,
 } from '@avalabs/react-components';
-import { truncateAddress } from '@src/utils/truncateAddress';
-import styled, { useTheme } from 'styled-components';
-import { useExplorerUrl } from '@src/hooks/useExplorerUrl';
-
-const StyledLinkIcon = styled(LinkIcon)`
-  margin: 0 8px 0 0;
-`;
-
-const TransparentCard = styled(Card)`
-  background-color: ${({ theme }) => `${theme.colors.bg2}80`};
-  backdrop-filter: blur(25px);
-  box-shadow: 0px 10px 25px ${({ theme }) => `${theme.colors.bg2}0D`};
-  border: 1px solid ${({ theme }) => `${theme.colors.bg2}1A`};
-`;
+import { useTheme } from 'styled-components';
+import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
+import { GasPrice } from '@src/background/services/gas/models';
+import { BN, bnToBig } from '@avalabs/avalanche-wallet-sdk';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 
 export function SuccessFailTxInfo({
-  txId,
-  onClicked,
-  title,
-  action,
-  message,
+  hash,
+  gasPrice,
+  gasLimit,
+  error,
 }: {
-  txId: string;
-  onClicked(): void;
-  title: string;
-  action: string;
-  message?: string;
+  hash?: string;
+  gasPrice: GasPrice;
+  gasLimit: string;
+  error?: string;
 }) {
   const theme = useTheme();
-  const explorerUrl = useExplorerUrl(txId, 'C');
-  return (
-    <>
-      <Typography size={24} height="29px" weight={700} margin="16px 0 0">
-        {title}
-      </Typography>
-      <Typography
-        size={16}
-        height="24px"
-        weight={400}
-        width={'280px'}
-        wordBreak={'break-all'}
-      >
-        {message}
-      </Typography>
-      <VerticalFlex
-        grow="1"
-        align="center"
-        justify="flex-end"
-        padding="16px 16px 37px"
-      >
-        {txId ? (
-          <>
-            <TransparentCard padding="16px 24px 16px 16px">
-              <HorizontalFlex
-                width="100%"
-                align="center"
-                justify="space-between"
-              >
-                <VerticalFlex>
-                  <Typography size={12} height="15px" margin="0 0 8px">
-                    Transaction hash
-                  </Typography>
-                  <Typography height="24px">
-                    {truncateAddress(txId, 10)}
-                  </Typography>
-                </VerticalFlex>
-                <CopyIcon
-                  height="23px"
-                  color={theme.colors.icon1}
-                  onClick={() => {
-                    navigator.clipboard.writeText(txId);
-                    toast.success('Copied!');
-                  }}
-                />
-              </HorizontalFlex>
-            </TransparentCard>
-            {explorerUrl && (
-              <TextButton
-                as="a"
-                href={explorerUrl}
-                target="_blank"
-                margin="32px 0 24px"
-              >
-                <StyledLinkIcon height="16px" color={theme.colors.primary1} />
-                View on Explorer
-              </TextButton>
-            )}
-          </>
-        ) : (
-          ''
-        )}
-        <PrimaryButton size={ComponentSize.LARGE} onClick={() => onClicked()}>
-          {action}
-        </PrimaryButton>
+  const { avaxToken } = useWalletContext();
+  const { currencyFormatter } = useSettingsContext();
+
+  const gasCost = bnToBig(gasPrice.bn.mul(new BN(gasLimit)), 18);
+  const gasCostUsd = gasCost.mul(avaxToken.priceUSD);
+
+  if (error) {
+    return (
+      <VerticalFlex margin="16px 0 0 0" width={'100%'}>
+        <Typography size={12} height="15px" margin="0 0 8px 0">
+          Error:
+        </Typography>
+        <Card height="105px" padding="16px 0">
+          <Scrollbars
+            style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
+          >
+            <VerticalFlex padding="0 16px">
+              <Typography size={12} height="17px" wordBreak="break-all">
+                {error}
+              </Typography>
+            </VerticalFlex>
+          </Scrollbars>
+        </Card>
       </VerticalFlex>
-    </>
+    );
+  }
+
+  return (
+    <VerticalFlex width="100%" margin="24px 0 0">
+      <HorizontalFlex width={'100%'} justify="space-between">
+        <HorizontalFlex align="center">
+          <Typography size={12} height="15px" margin="0 8px 0 0">
+            Network Fee
+          </Typography>
+          <TransactionFeeTooltip gasPrice={gasPrice?.bn} gasLimit={gasLimit} />
+        </HorizontalFlex>
+        <VerticalFlex align="flex-end">
+          <Typography size={12} height="15px" margin="0 0 4px 0">
+            {gasCost.toLocaleString(6)} AVAX
+          </Typography>
+          <SubTextTypography size={12} height="15px">
+            {currencyFormatter(gasCostUsd.toNumber())}
+          </SubTextTypography>
+        </VerticalFlex>
+      </HorizontalFlex>
+      <HorizontalFlex width={'100%'} justify="space-between" margin="16px 0 0">
+        <Typography size={12} height="15px" margin="0 8px 0 0">
+          Transaction Hash
+        </Typography>
+        {hash ? (
+          <HorizontalFlex align="cetner">
+            <Typography size={12} height="15px" margin="0 8px 0 0">
+              {truncateAddress(hash, 15)}
+            </Typography>
+            <TextButton
+              onClick={() => {
+                navigator.clipboard.writeText(hash);
+                toast.success('Copied');
+              }}
+            >
+              <CopyIcon color={theme.colors.icon1} height="16px" />
+            </TextButton>
+          </HorizontalFlex>
+        ) : (
+          <LoadingSpinnerIcon color={theme.colors.icon1} height="12px" />
+        )}
+      </HorizontalFlex>
+    </VerticalFlex>
   );
 }

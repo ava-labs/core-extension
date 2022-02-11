@@ -8,11 +8,12 @@ import {
   SecondaryButton,
   LoadingIcon,
   SecondaryDropDownMenu,
-  SecondaryDropDownMenuItem,
   CaretIcon,
   IconDirection,
   GlobeIcon,
-  SecondaryCard,
+  Card,
+  ComponentSize,
+  DropDownMenuItem,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import {
@@ -27,20 +28,21 @@ import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
   height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
+  background-color: ${({ theme }) => theme.colors.bg3};
   border-radius: 50%;
   margin: ${({ margin }) => margin ?? '0px'};
 `;
 
-const AccountName = styled(Typography)`
+const AccountName = styled(Typography)<{ selected: boolean }>`
   max-width: 165px;
   margin: 0 8px 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  height: 17px;
+  font-weight: ${({ selected }) => (selected ? '600' : '400')};
 `;
 
 export function PermissionsPage() {
@@ -85,58 +87,64 @@ export function PermissionsPage() {
     <VerticalFlex
       width="100%"
       align={'center'}
-      padding={'16px'}
+      padding="0 16px"
       color={theme.colors.text1}
     >
-      <Typography as="h1" size={24} weight={700} margin="24px 0">
-        Connect Wallet to Site?
-      </Typography>
-      <SiteAvatar margin="16px" justify="center" align="center">
+      <HorizontalFlex padding="12px 0" width="100%">
+        <Typography as="h1" size={20} height="29px" weight={600}>
+          Connect Wallet to site?
+        </Typography>
+      </HorizontalFlex>
+      <SiteAvatar margin="8px 0 16px" justify="center" align="center">
         <TokenIcon height="48px" width="48px" src={domainIcon}>
-          <GlobeIcon height="48px" width="48px" color={theme.colors.text1} />
+          <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
         </TokenIcon>
       </SiteAvatar>
       <Typography as="h2" weight="bold" size={18} height="22px">
         {domainName}
       </Typography>
       <Typography
-        margin="2px"
+        margin="2px 0 0 0"
         size={12}
-        weight={400}
-        color={theme.colors.text2}
         height="15px"
+        color={theme.colors.text2}
       >
         {domain}
       </Typography>
-      <VerticalFlex margin="24px 0 16px 0" flex={1} width="100%">
-        <Typography size={12} margin="8px 0">
+      <VerticalFlex margin="24px 0 0 0" flex={1} width="100%">
+        <Typography size={12} height="15px" margin="0 0 4px">
           Selected account
         </Typography>
         <SecondaryDropDownMenu
           icon={
-            <SecondaryCard padding="16px" width="100%">
+            <Card padding="11px 16px" margin="0 0 8px" width="100%">
               <HorizontalFlex
                 width="100%"
                 justify="space-between"
                 align={'center'}
               >
-                <AccountName>{selectedAccount?.name}</AccountName>
-                <CaretIcon
-                  direction={IconDirection.DOWN}
-                  color={theme.colors.text1}
-                  height="12px"
-                />
+                <AccountName selected={false}>
+                  {selectedAccount?.name}
+                </AccountName>
+                <HorizontalFlex width="20px" height="20px">
+                  <CaretIcon
+                    direction={IconDirection.DOWN}
+                    color={theme.colors.icon1}
+                    height="20px"
+                  />
+                </HorizontalFlex>
               </HorizontalFlex>
-            </SecondaryCard>
+            </Card>
           }
         >
-          <VerticalFlex width="305.5px" height="168px">
+          <VerticalFlex width="343px" height="168px">
             <Scrollbars
               style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
               ref={scrollbarsRef}
             >
               {accounts.map((account) => (
-                <SecondaryDropDownMenuItem
+                <DropDownMenuItem
+                  padding="11px 16px"
                   width="100%"
                   key={account.index}
                   onClick={() => setSelectedAccount(account)}
@@ -153,7 +161,11 @@ export function PermissionsPage() {
                       justify="space-between"
                       align="center"
                     >
-                      <AccountName>{account.name}</AccountName>
+                      <AccountName
+                        selected={selectedAccount.index === account.index}
+                      >
+                        {account.name}
+                      </AccountName>
                       {selectedAccount.index === account.index && (
                         <CheckmarkIcon
                           height="16px"
@@ -169,7 +181,7 @@ export function PermissionsPage() {
                         )}
                     </HorizontalFlex>
                   </VerticalFlex>
-                </SecondaryDropDownMenuItem>
+                </DropDownMenuItem>
               ))}
             </Scrollbars>
           </VerticalFlex>
@@ -178,17 +190,26 @@ export function PermissionsPage() {
       <VerticalFlex width="100%" justify="space-between">
         <Typography
           size={12}
-          margin="16px"
+          height="15px"
+          margin="0 0 16px"
           color={theme.colors.text2}
           align="center"
         >
           Only connect to sites that you trust
         </Typography>
         <HorizontalFlex justify="space-between">
-          <SecondaryButton onClick={() => window.close()} width="141px">
+          <SecondaryButton
+            size={ComponentSize.LARGE}
+            onClick={() => window.close()}
+            width="168px"
+          >
             Reject
           </SecondaryButton>
-          <PrimaryButton onClick={() => onApproveClicked()} width="141px">
+          <PrimaryButton
+            size={ComponentSize.LARGE}
+            onClick={() => onApproveClicked()}
+            width="168px"
+          >
             Approve
           </PrimaryButton>
         </HorizontalFlex>

@@ -2,14 +2,16 @@ import {
   StubbyArrowIcon,
   HorizontalFlex,
   IconDirection,
-  Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { SwapExactTokensForTokenDisplayValues } from '@src/contracts/contractParsers/models';
 import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
+import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 import { TokenCard } from './components/TokenCard';
+import { TransactionHeader } from './components/TransactionHeader';
 import { TransactionTabs } from './components/TransactionTabs';
+import { TransactionProgressData, TransactionProgressState } from './models';
 
 export function SwapTx({
   path,
@@ -19,7 +21,10 @@ export function SwapTx({
   gasPrice,
   gasLimit,
   onCustomFeeSet,
-}: SwapExactTokensForTokenDisplayValues) {
+  transactionState,
+  hash,
+  error,
+}: SwapExactTokensForTokenDisplayValues & TransactionProgressData) {
   const [sentToken] = path;
   const receivingToken = path[path.length - 1];
 
@@ -27,12 +32,10 @@ export function SwapTx({
 
   return (
     <VerticalFlex width="100%">
-      {/* Header */}
-      <HorizontalFlex margin="8px 0 32px 0" width={'100%'} justify={'center'}>
-        <Typography as="h1" size={24} weight={700}>
-          Approve Swap
-        </Typography>
-      </HorizontalFlex>
+      <TransactionHeader
+        title="Approve Swap"
+        transactionState={transactionState}
+      />
 
       <VerticalFlex>
         <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
@@ -47,6 +50,7 @@ export function SwapTx({
         {/* arrow */}
         <HorizontalFlex width={'100%'} justify={'center'} padding={'8px 0'}>
           <StubbyArrowIcon
+            height="16px"
             color={theme.colors.icon1}
             direction={IconDirection.DOWN}
           />
@@ -60,12 +64,21 @@ export function SwapTx({
         />
 
         {/* Tabs */}
-        <TransactionTabs
-          byteStr={txParams?.data}
-          gasPrice={gasPrice}
-          limit={gasLimit?.toString() as string}
-          onCustomFeeSet={onCustomFeeSet}
-        />
+        {transactionState === TransactionProgressState.NOT_APPROVED ? (
+          <TransactionTabs
+            byteStr={txParams?.data}
+            gasPrice={gasPrice}
+            limit={gasLimit?.toString()}
+            onCustomFeeSet={onCustomFeeSet}
+          />
+        ) : (
+          <SuccessFailTxInfo
+            hash={hash}
+            gasPrice={gasPrice}
+            gasLimit={gasLimit?.toString() ?? ''}
+            error={error}
+          />
+        )}
       </VerticalFlex>
     </VerticalFlex>
   );

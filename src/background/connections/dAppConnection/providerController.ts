@@ -8,10 +8,12 @@ import { SetDomainMetadataRequest } from '@src/background/services/web3/handlers
 import { PersonalEcRecoverRequest } from '@src/background/services/web3/handlers/personal_ecRecover';
 import {
   PersonalSignRequest,
+  SignRequest,
   SignTypedDataRequest,
+  SignTypedDataV1Request,
   SignTypedDataV3Request,
   SignTypedDataV4Request,
-} from '@src/background/services/web3/handlers/signMessage';
+} from '@src/background/services/messages/handlers/signMessage';
 import { WalletAddChainRequest } from '@src/background/services/web3/handlers/wallet_addEthereumChain';
 import { WalletGetPermissionsRequest } from '@src/background/services/web3/handlers/wallet_getPermissions';
 import { WalletPermissionsRequest } from '@src/background/services/web3/handlers/wallet_requestPermissions';
@@ -39,7 +41,9 @@ const dappProviderRequestHandlerMap = new Map<
   InitDappStateRequest,
   SetDomainMetadataRequest,
   PersonalEcRecoverRequest,
+  SignRequest,
   SignTypedDataRequest,
+  SignTypedDataV1Request,
   SignTypedDataV3Request,
   SignTypedDataV4Request,
   PersonalSignRequest,

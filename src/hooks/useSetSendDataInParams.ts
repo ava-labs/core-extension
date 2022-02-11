@@ -24,7 +24,7 @@ export function useSetSendDataInParams() {
       pathname: options?.path ?? pathname,
       search: `?${new URLSearchParams({
         tokenSymbol: token?.symbol || AVAX_TOKEN.symbol,
-        tokenAddress: (token as ERC20WithBalance).address ?? '',
+        tokenAddress: (token as ERC20WithBalance)?.address ?? '',
         address: address ?? '',
       }).toString()}`,
     });

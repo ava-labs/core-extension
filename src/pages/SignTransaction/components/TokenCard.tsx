@@ -1,6 +1,7 @@
 import {
   HorizontalFlex,
-  SecondaryCard,
+  Card,
+  SubTextTypography,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -11,7 +12,6 @@ import {
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import { useTheme } from 'styled-components';
 
 export function TokenCard({
   token,
@@ -25,42 +25,36 @@ export function TokenCard({
   amount?: string;
 }) {
   const { currencyFormatter, currency } = useSettingsContext();
-  const theme = useTheme();
 
   return (
-    <SecondaryCard padding="16px" margin={margin}>
+    <Card padding="8px 16px" margin={margin}>
       <HorizontalFlex align={'center'} justify={'space-between'} width={'100%'}>
         <HorizontalFlex align={'center'} height="100%">
           {isAvaxToken(token) ? (
-            <AvaxTokenIcon height="40px" />
+            <AvaxTokenIcon height="32px" />
           ) : (
             <TokenIcon
-              height="40px"
-              width="40px"
+              height="32px"
+              width="32px"
               src={(token as TokenWithBalance).logoURI}
               name={(token as TokenWithBalance).name}
             />
           )}
-          <VerticalFlex height="100%" padding="0 16px" justify="space-between">
-            <Typography weight={600} margin="0 0 4px 0">
-              {displayValue}
-            </Typography>
-            <Typography size={14}>{token.symbol}</Typography>
-          </VerticalFlex>
-        </HorizontalFlex>
-        <VerticalFlex height="100%">
-          <Typography weight={600}>
-            {currencyFormatter(Number(amount))}
-            <Typography
-              margin="0 0 0 4px"
-              weight={600}
-              color={theme.colors.text2}
-            >
-              {currency}
-            </Typography>
+          <Typography margin="0 0 0 16px" size={16} height="24px" weight={500}>
+            {token.symbol}
           </Typography>
+        </HorizontalFlex>
+        <VerticalFlex height="100%" minHeight="41px" align="flex-end">
+          <Typography size={14} height="24px" margin="0 0 2px 0">
+            {displayValue}
+          </Typography>
+          <SubTextTypography size={12} height="15px">
+            {isNaN(Number(amount))
+              ? ''
+              : `${currencyFormatter(Number(amount))} ${currency}`}
+          </SubTextTypography>
         </VerticalFlex>
       </HorizontalFlex>
-    </SecondaryCard>
+    </Card>
   );
 }

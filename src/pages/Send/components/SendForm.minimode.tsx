@@ -5,6 +5,8 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { ContactInput } from './ContactInput';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendStateWithActions } from '../models';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { HorizontalFlex } from '@avalabs/react-components';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -29,6 +31,7 @@ export const SendFormMiniMode = ({
 }: SendFormMiniModeProps) => {
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
+  const tokensWBalances = useTokensWithBalances(false);
 
   const toggleContactsDropdown = (to?: boolean) => {
     setIsContactsOpen(to === undefined ? !isContactsOpen : to);
@@ -48,19 +51,22 @@ export const SendFormMiniMode = ({
         isContactsOpen={isContactsOpen}
         toggleContactsDropdown={toggleContactsDropdown}
       />
-      <TokenSelect
-        maxAmount={
-          sendState?.maxAmount || selectedToken?.balance || FALLBACK_MAX
-        }
-        selectedToken={selectedToken}
-        onTokenChange={onTokenChange}
-        inputAmount={amountInput}
-        onInputAmountChange={onAmountInputChange}
-        onSelectToggle={toggleTokenDropdown}
-        isOpen={isTokenSelectOpen}
-        error={sendState?.error?.message}
-        margin="24px 0"
-      />
+      <HorizontalFlex padding="0 16px" width="100%">
+        <TokenSelect
+          maxAmount={
+            sendState?.maxAmount || selectedToken?.balance || FALLBACK_MAX
+          }
+          tokensList={tokensWBalances}
+          selectedToken={selectedToken}
+          onTokenChange={onTokenChange}
+          inputAmount={amountInput}
+          onInputAmountChange={onAmountInputChange}
+          onSelectToggle={toggleTokenDropdown}
+          isOpen={isTokenSelectOpen}
+          error={sendState?.error?.message}
+          margin="24px 0"
+        />
+      </HorizontalFlex>
     </>
   );
 };

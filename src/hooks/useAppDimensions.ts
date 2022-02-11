@@ -7,14 +7,9 @@ export function useAppDimensions(): { width: string; height: string } {
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
 
-  if (isMiniMode) {
+  if (isMiniMode || isConfirm) {
     return {
       height: '600px',
-      width: '375px',
-    };
-  } else if (isConfirm) {
-    return {
-      height: '632px',
       width: '375px',
     };
   }

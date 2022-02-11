@@ -3,15 +3,18 @@ import {
   Typography,
   HorizontalFlex,
   PrimaryButton,
-  SwapCard,
-  SelectTokenModal,
-  SearchInput,
   SwitchIcon,
   ComponentSize,
   PrimaryIconButton,
   IconDirection,
+  LoadingSpinnerIcon,
+  TransactionToastType,
+  TransactionToast,
+  toast,
+  WarningIcon,
 } from '@avalabs/react-components';
 import {
+  getTransactionLink,
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
@@ -24,28 +27,22 @@ import {
   BN,
   stringToBN,
   bnToLocaleString,
+  isMainnetNetwork,
 } from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
-import { TokenList } from './components/TokenList';
 import { TransactionDetails } from './components/TransactionDetails';
 import { ReviewOrder } from './components/ReviewOrder';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { SwapLoadingSpinnerIcon } from './components/SwapLoadingSpinnerIcon';
-import {
-  getMaxValue,
-  getTokenAddress,
-  getTokenIcon,
-  isAPIError,
-} from './utils';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { SwapTxSuccess } from './components/SwapTxSucces';
+import { getMaxValue, getTokenAddress, isAPIError } from './utils';
 import { TxInProgress } from '../../components/common/TxInProgress';
-import { useHistory } from 'react-router-dom';
 import { GasPrice } from '@src/background/services/gas/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { TokenSelect } from '@src/pages/Send/components/TokenSelect';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useHistory } from 'react-router-dom';
 
 export interface Token {
   icon?: JSX.Element;
@@ -57,34 +54,41 @@ export interface SwapRate extends OptimalRate {
   message?: string;
 }
 
-type ModalType = 'to' | 'from' | null;
-
-const SwitchIconContainer = styled(PrimaryIconButton)`
+const SwitchIconContainer = styled(PrimaryIconButton)<{ isSwapped: boolean }>`
   background-color: ${({ theme }) => theme.swapCard.swapIconBg};
   &[disabled] {
     background-color: ${({ theme }) => theme.swapCard.swapIconBg};
   }
+  transition: all 0.2s;
+  transform: ${({ isSwapped }) =>
+    isSwapped ? 'rotate(0deg)' : 'rotate(180deg)'};
+`;
+
+const ReviewOrderButtonContainer = styled.div<{
+  isTransactionDetailsOpen: boolean;
+}>`
+  position: ${({ isTransactionDetailsOpen }) =>
+    isTransactionDetailsOpen ? 'static' : 'absolute'};
+  bottom: 0;
+  left: 0;
+  width: 100%;
 `;
 
 export function Swap() {
-  const { currencyFormatter } = useSettingsContext();
-  const { erc20Tokens, avaxToken, avaxPrice } = useWalletContext();
+  const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
+  const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
+  const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
-  const [modalOpen, setModalOpen] = useState<ModalType>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [swapError, setSwapError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
-  const [txHash, setTxHash] =
-    useState<{ swapTxHash: string; approveTxHash?: string }>();
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
   const [selectedToToken, setSelectedToToken] = useState<TokenWithBalance>();
   const [optimalRate, setOptimalRate] = useState<OptimalRate>();
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
-  const history = useHistory();
   const [gasLimit, setGasLimit] = useState('');
   const [customGasPrice, setCustomGasPrice] = useState<GasPrice | undefined>(
     gasPrice
@@ -102,8 +106,14 @@ export function Swap() {
   const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
   const [slippageTolerance, setSlippageTolerance] = useState('1');
 
-  const [defaultFromValue, setFromDefaultValue] = useState('');
+  const [defaultFromValue, setFromDefaultValue] = useState<BN>();
   const [isCalculateAvaxMax, setIsCalculateAvaxMax] = useState(false);
+
+  const [isFromTokenSelectOpen, setIsFromTokenSelectOpen] = useState(false);
+  const [isToTokenSelectOpen, setIsToTokenSelectOpen] = useState(false);
+  const [isSwapped, setIsSwapped] = useState(false);
+  const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
+    useState(false);
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
@@ -165,7 +175,7 @@ export function Swap() {
         return;
       }
       if (isCalculateAvaxMax) {
-        setFromDefaultValue(max?.toString());
+        setFromDefaultValue(max);
         calculateTokenValueToInput(
           {
             bn: max,
@@ -242,6 +252,7 @@ export function Swap() {
                     destinationInputField === 'to'
                       ? result.optimalRate.destAmount
                       : result.optimalRate.srcAmount;
+
                   setDestAmount(resultAmount);
                 }
               })
@@ -313,18 +324,24 @@ export function Swap() {
     const [to, from] = [selectedFromToken, selectedToToken];
     setSelectedFromToken(from);
     setSelectedToToken(to);
+    setIsSwapped(!isSwapped);
     calculateSwapValue({ selectedFromToken: from, selectedToToken: to });
   };
 
-  const getCurrencyValue = (token?: TokenWithBalance) => {
-    if (!token || !token.balanceUsdDisplayValue) {
-      return '';
-    }
-    return currencyFormatter(Number(token.balanceUsdDisplayValue));
-  };
-
   async function onHandleSwap() {
-    setTxInProgress(true);
+    let toastId = '';
+    if (walletType !== 'ledger') {
+      history.push('/home');
+      toastId = toast.custom(
+        <TransactionToast
+          type={TransactionToastType.PENDING}
+          text="Swap pending..."
+          startIcon={
+            <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
+          }
+        />
+      );
+    }
     const {
       amount,
       fromTokenAddress,
@@ -360,27 +377,30 @@ export function Swap() {
     );
     setTxInProgress(false);
     if (error) {
-      setSwapError('Something went wrong, please try again');
+      toast.custom(
+        <TransactionToast
+          type={TransactionToastType.ERROR}
+          text="Swap Failed"
+          startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
+        />,
+        { id: toastId, duration: Infinity }
+      );
       setIsReviewOrderOpen(false);
 
       return;
     }
-    setTxHash(result);
+    toast.custom(
+      <TransactionToast
+        status="Swap Successful"
+        type={TransactionToastType.SUCCESS}
+        text="View in Explorer"
+        href={getTransactionLink(
+          result.swapTxHash,
+          network ? isMainnetNetwork(network.config) : true
+        )}
+      />
+    );
   }
-
-  const selectedFromTokenFormat = selectedFromToken
-    ? ({
-        name: selectedFromToken.symbol,
-        icon: getTokenIcon(selectedFromToken),
-      } as Token)
-    : null;
-
-  const selectedToTokenFormat = selectedToToken
-    ? ({
-        name: selectedToToken.symbol,
-        icon: getTokenIcon(selectedToToken),
-      } as Token)
-    : null;
 
   const canSwap =
     !swapError &&
@@ -389,33 +409,50 @@ export function Swap() {
     optimalRate &&
     gasLimit &&
     gasPrice;
-
-  if (txHash) {
-    return <SwapTxSuccess swapTxHash={txHash.swapTxHash} />;
-  }
-
   return (
     <VerticalFlex width="100%">
-      <PageTitleMiniMode onBackClick={() => history.push('/home')}>
-        Swap
-      </PageTitleMiniMode>
-      <VerticalFlex grow="1" margin="16px 16px 16px">
-        <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-          <SwapCard
-            denomination={selectedFromToken?.denomination}
-            title="From"
-            onSelectClick={() => {
-              setModalOpen('from');
-              setSearchQuery('');
+      <PageTitleMiniMode>Swap</PageTitleMiniMode>
+      <VerticalFlex grow="1" margin="8px 0 0" padding="16px">
+        <Scrollbars
+          style={{
+            flexGrow: 1,
+            maxHeight: 'unset',
+            height: '100%',
+          }}
+        >
+          <TokenSelect
+            label="From"
+            onTokenChange={(token: TokenWithBalance) => {
+              setSelectedFromToken(token);
+              calculateSwapValue({
+                selectedFromToken: token,
+                selectedToToken,
+              });
             }}
-            token={selectedFromTokenFormat}
-            balanceDisplayValue={selectedFromToken?.balanceDisplayValue}
-            currencyValue={getCurrencyValue(selectedFromToken)}
-            defaultValue={
-              defaultFromValue ||
-              (destinationInputField === 'from' ? destAmount : '')
+            onSelectToggle={() => {
+              setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
+              setIsToTokenSelectOpen(false);
+            }}
+            tokensList={tokensWBalances}
+            maxAmount={
+              destinationInputField === 'from' && isLoading
+                ? undefined
+                : maxFromValue ?? new BN(0)
             }
-            onChange={(value) => {
+            skipHandleMaxAmount
+            isOpen={isFromTokenSelectOpen}
+            selectedToken={selectedFromToken}
+            inputAmount={
+              destinationInputField === 'from'
+                ? new BN(destAmount)
+                : defaultFromValue || new BN(0)
+            }
+            isValueLoading={destinationInputField === 'from' && isLoading}
+            hideErrorMessage
+            onError={(errorMessage) => {
+              setSwapError(errorMessage);
+            }}
+            onInputAmountChange={(value) => {
               if (value.bn.toString() === '0') {
                 setSwapError('Please enter an amount');
                 return;
@@ -437,22 +474,11 @@ export function Swap() {
                 selectedToToken
               );
             }}
-            isValueLoading={destinationInputField === 'from' && isLoading}
-            isInputDisabled={!selectedFromToken}
-            max={
-              destinationInputField === 'from' && isLoading
-                ? undefined
-                : maxFromValue
-            }
-            hideErrorMessage={true}
-            onError={(errorMessage) => {
-              setSwapError(errorMessage);
-            }}
           />
 
           <HorizontalFlex
             justify={swapError ? 'space-between' : 'flex-end'}
-            margin="16px 0 0 0"
+            margin="16px 0"
           >
             {swapError && (
               <Typography size={12} color={theme.colors.error}>
@@ -462,6 +488,7 @@ export function Swap() {
             <SwitchIconContainer
               onClick={swapTokens}
               disabled={!selectedFromToken || !selectedToToken}
+              isSwapped={isSwapped}
             >
               <SwitchIcon
                 height="24px"
@@ -470,16 +497,30 @@ export function Swap() {
               />
             </SwitchIconContainer>
           </HorizontalFlex>
-
-          <SwapCard
-            title="To"
-            denomination={selectedToToken?.denomination}
-            onSelectClick={() => {
-              setModalOpen('to');
+          <TokenSelect
+            label="To"
+            onTokenChange={(token: TokenWithBalance) => {
+              setSelectedToToken(token);
+              calculateSwapValue({
+                selectedFromToken,
+                selectedToToken: token,
+              });
             }}
-            token={selectedToTokenFormat}
-            defaultValue={destinationInputField === 'to' ? destAmount : ''}
-            onChange={(value) => {
+            onSelectToggle={() => {
+              setIsToTokenSelectOpen(!isToTokenSelectOpen);
+              setIsFromTokenSelectOpen(false);
+            }}
+            tokensList={[...erc20Tokens, avaxToken]}
+            isOpen={isToTokenSelectOpen}
+            selectedToken={selectedToToken}
+            inputAmount={
+              destinationInputField === 'to' && destAmount
+                ? new BN(destAmount)
+                : new BN(0)
+            }
+            isValueLoading={destinationInputField === 'to' && isLoading}
+            hideErrorMessage
+            onInputAmountChange={(value) => {
               setToTokenValue(value as any);
               calculateTokenValueToInput(
                 value as any,
@@ -488,11 +529,7 @@ export function Swap() {
                 selectedToToken
               );
             }}
-            isValueLoading={destinationInputField === 'to' && isLoading}
-            isInputDisabled={!selectedToToken}
           />
-
-          {isLoading && <SwapLoadingSpinnerIcon />}
 
           {!isLoading && canSwap && (
             <TransactionDetails
@@ -508,62 +545,24 @@ export function Swap() {
               gasPrice={gasPrice as any}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
+              setIsOpen={setIsTransactionDetailsOpen}
             />
           )}
-        </Scrollbars>
-        {!isLoading && canSwap && (
-          <PrimaryButton
-            width="100%"
-            margin="16px 0 0 0"
-            onClick={() => setIsReviewOrderOpen(true)}
-            size={ComponentSize.LARGE}
+          <ReviewOrderButtonContainer
+            isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
-            Review Order
-          </PrimaryButton>
-        )}
+            <PrimaryButton
+              width="100%"
+              margin="16px 0 0 0"
+              onClick={() => setIsReviewOrderOpen(true)}
+              size={ComponentSize.LARGE}
+              disabled={isLoading || !canSwap}
+            >
+              Review Order
+            </PrimaryButton>
+          </ReviewOrderButtonContainer>
+        </Scrollbars>
       </VerticalFlex>
-
-      <SelectTokenModal
-        open={!!modalOpen}
-        onClose={() => {
-          setModalOpen(null);
-          setSearchQuery('');
-        }}
-        title="Select Token"
-      >
-        <>
-          <HorizontalFlex padding="0 16px">
-            <SearchInput
-              searchTerm={searchQuery}
-              placeholder="Search"
-              width="343px"
-              onSearch={(term) => setSearchQuery(term)}
-              autoFocus={true}
-            />
-          </HorizontalFlex>
-          <TokenList
-            tokenList={
-              modalOpen === 'from'
-                ? tokensWBalances
-                : [...erc20Tokens, avaxToken]
-            }
-            searchQuery={searchQuery}
-            onClick={(token: TokenWithBalance) => {
-              if (modalOpen === 'from') {
-                setSelectedFromToken(token);
-                calculateSwapValue({
-                  selectedFromToken: token,
-                  selectedToToken,
-                });
-                return;
-              }
-              setSelectedToToken(token);
-              calculateSwapValue({ selectedFromToken, selectedToToken: token });
-            }}
-            onClose={() => setModalOpen(null)}
-          />
-        </>
-      </SelectTokenModal>
 
       {isReviewOrderOpen && canSwap && (
         <ReviewOrder

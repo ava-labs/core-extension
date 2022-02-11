@@ -62,7 +62,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
           </Tooltip>
         }
       />
-      <VerticalFlex padding="16px 22px">
+      <VerticalFlex padding="16px">
         <SearchInput
           placeholder="Search"
           onSearch={setSearchTerm}

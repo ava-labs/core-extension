@@ -3,16 +3,21 @@ import {
   PlaceholderCard,
   PlaceholderTextLine,
 } from '@avalabs/react-components';
+import styled from 'styled-components';
+
+const ReviewLoadingContainer = styled.div`
+  padding: 0 16px;
+`;
 
 export const ReviewLoading = () => {
   return (
-    <>
-      <PlaceholderTextLine height="20px" margin="16px 0 5px 0" width="40px" />
-      <PlaceholderCard height="70px" />
-      <PlaceholderTextLine height="20px" margin="24px 0 5px 0" width="20px" />
-      <PlaceholderCard height="0px" />
-      <PlaceholderTextLine width="100%" margin="24px 0" height="2px" />
-      <HorizontalFlex margin="24px 0" justify="space-between" align="center">
+    <ReviewLoadingContainer>
+      <PlaceholderTextLine height="12px" margin="8px 0 5px 0" width="40px" />
+      <PlaceholderCard height="50px" />
+      <PlaceholderTextLine height="12px" margin="16px 0 5px 0" width="20px" />
+      <PlaceholderCard height="50px" />
+      <PlaceholderTextLine width="100%" margin="16px 0" height="2px" />
+      <HorizontalFlex margin="32px 0" justify="space-between" align="center">
         <PlaceholderTextLine width="20%" />
         <PlaceholderTextLine width="50%" />
       </HorizontalFlex>
@@ -28,6 +33,6 @@ export const ReviewLoading = () => {
         <PlaceholderTextLine width="40%" />
         <PlaceholderTextLine width="30%" />
       </HorizontalFlex>
-    </>
+    </ReviewLoadingContainer>
   );
 };
