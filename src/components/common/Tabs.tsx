@@ -6,16 +6,6 @@ import {
 import { ReactNode, useState } from 'react';
 import styled from 'styled-components';
 
-const Tab = styled.button<{ selected?: boolean }>`
-  border: none;
-  background: transparent;
-  width: 50%;
-  cursor: pointer;
-  padding: 8px 16px;
-  border-bottom: ${({ selected, theme }) =>
-    selected ? `2px solid ${theme.colors.text1}` : '2px solid transparent'}; ;
-`;
-
 const TabsContainer = styled(HorizontalFlex)`
   border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
   justify-content: center;
@@ -30,9 +20,20 @@ const TabLabel = styled(Typography)<{ selected: boolean }>`
   font-weight: ${({ selected }) => (selected ? '500' : '400')};
   color: ${({ theme, selected }) =>
     selected ? theme.colors.text1 : theme.colors.text2};
+`;
 
+const Tab = styled.button<{ selected?: boolean }>`
+  border: none;
+  background: transparent;
+  width: 50%;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-bottom: ${({ selected, theme }) =>
+    selected ? `2px solid ${theme.colors.text1}` : '2px solid transparent'};
   &:hover {
-    color: ${({ theme }) => theme.colors.text1};
+    & > ${TabLabel} {
+      color: ${({ theme }) => theme.colors.text1};
+    }
   }
 `;
 
