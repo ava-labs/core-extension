@@ -13,6 +13,8 @@ export enum DAppProviderRequest {
   PERSONAL_SIGN = 'personal_sign',
   ETH_SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
   ETH_SIGN_TYPED_DATA_V3 = 'eth_signTypedData_v3',
+  ETH_SIGN_TYPED_DATA_V1 = 'eth_signTypedData_v1',
   ETH_SIGN_TYPED_DATA = 'eth_signTypedData',
+  ETH_SIGN = 'eth_sign',
   GET_IS_DEFAULT_EXTENSION = 'avalanche_getIsDefaultExtensionState',
 }

@@ -1,12 +1,9 @@
 import { JsonRpcRequest } from '@src/utils/jsonRpcEngine';
 import { MessageType } from '../models';
 
-export function paramsToMessageParams(
-  data: JsonRpcRequest<any>,
-  signType: MessageType
-) {
-  const { params } = data;
-  switch (signType) {
+export function paramsToMessageParams(data: JsonRpcRequest<any>) {
+  const { params, method } = data;
+  switch (method) {
     case MessageType.PERSONAL_SIGN:
       return {
         data: params[0],
@@ -20,13 +17,19 @@ export function paramsToMessageParams(
       };
     case MessageType.ETH_SIGN:
       return {
-        data: params[0],
-        from: params[1],
+        data: params[1],
+        from: params[0],
+      };
+    case MessageType.SIGN_TYPED_DATA_V3:
+    case MessageType.SIGN_TYPED_DATA_V4:
+      return {
+        data: JSON.parse(params[1]),
+        from: params[0],
       };
     default:
       return {
-        from: params[0],
         data: params[1],
+        from: params[0],
       };
   }
 }

@@ -15,12 +15,12 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { TransactionProgressData, TransactionProgressState } from './models';
 import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 
-const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
+const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
   height: 80px;
   background-color: ${({ theme }) => theme.colors.bg2};
   border-radius: 50%;
-  margin: ${({ margin }) => margin ?? '0px'};
+  margin: 8px 0;
 `;
 
 export function ApproveTx({
@@ -49,7 +49,7 @@ export function ApproveTx({
       />
 
       <VerticalFlex align="center">
-        <SiteAvatar margin="8px 0" justify="center" align="center">
+        <SiteAvatar justify="center" align="center">
           <TokenIcon height="48px" width="48px" src={site?.icon}>
             <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
           </TokenIcon>

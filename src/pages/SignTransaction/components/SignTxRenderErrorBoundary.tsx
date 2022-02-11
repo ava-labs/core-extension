@@ -41,7 +41,7 @@ export class SignTxRenderErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <VerticalFlex width={'100%'} align="center">
+        <VerticalFlex width={'100%'} grow="1" align="center">
           <Header>Render Error</Header>
           <SubTextTypography margin={'8px 0 0'} align="center">
             Something went wrong while attempting to show the info for this

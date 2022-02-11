@@ -1,3 +1,7 @@
+import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
+import { Message } from '@src/background/services/messages/models';
+import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+
 /**
  * This is in support of of EIP-712
  * @link https://eips.ethereum.org/EIPS/eip-712
@@ -7,22 +11,27 @@
  * @param param0
  * @returns
  */
-export function SignData({ data }: { data: any }) {
+export function SignData({ message }: { message: Message }) {
+  const data = message.displayData.data;
   return (
-    <>
-      <div>Sign data and SignDataV1</div>
-
-      {data &&
-        data.map((x, i) => {
-          const { name, value } = x;
-
-          return (
-            <div key={i}>
-              <span className="label">{name}: </span>
-              <span className="value">{`${value}`}</span>
-            </div>
-          );
-        })}
-    </>
+    <VerticalFlex width={'100%'}>
+      <Typography size={12} height="15px" margin="0 0 8px 0">
+        Message:
+      </Typography>
+      <Card height="250px" padding="16px 0">
+        <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+          {data?.map((x, i) => (
+            <VerticalFlex key={i} padding="0 16px 24px">
+              <Typography size={14} height="17px">
+                {x.name}:{' '}
+              </Typography>
+              <Typography size={12} height="17px" wordBreak="break-all">
+                {x.value}
+              </Typography>
+            </VerticalFlex>
+          ))}
+        </Scrollbars>
+      </Card>
+    </VerticalFlex>
   );
 }

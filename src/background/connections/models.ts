@@ -99,9 +99,8 @@ export enum ExtensionRequest {
 
   SETTINGS_LOCK_WALLET = 'settings_lockWallet',
 
-  MESSAGE_SIGN = 'message_signMessage',
-  MESSAGE_GET_PENDING = 'message_getPendingMessage',
-  MESSAGE_CANCEL_PENDING = 'message_cancelPendingMessage',
+  MESSAGE_GET = 'message_getMessage',
+  MESSAGE_UPDATE = 'message_updateMessage',
 
   PERMISSIONS_ADD_DOMAIN = 'permissions_addDomain',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',

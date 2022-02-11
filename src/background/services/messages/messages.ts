@@ -1,47 +1,44 @@
+import { DomainMetadata } from '@src/background/models';
 import { JsonRpcRequest } from '@src/utils/jsonRpcEngine';
 import { toLogger } from '@src/utils/logging';
 import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { Message, MessageType } from './models';
+import { TxStatus } from '../transactions/models';
+import { Message, MessageUpdate } from './models';
 import { paramsToMessageParams } from './utils/messageParamsParser';
 
-export const messages$ = new BehaviorSubject<Message[]>([]);
-
-export const pendingMessages = new BehaviorSubject<{ [id: string]: Message }>(
+export const pendingMessages$ = new BehaviorSubject<{ [id: string]: Message }>(
   {}
 );
 
-export const addMessage = new Subject<{
-  data: JsonRpcRequest<any>;
-  signType: MessageType;
-}>();
+export const addMessage$ = new Subject<
+  JsonRpcRequest<any> & {
+    site: DomainMetadata;
+  }
+>();
 
-export const updateMessage = new Subject<{
-  status: string;
-  id: Message['id'];
-  result: any;
-}>();
+export const updateMessage$ = new Subject<MessageUpdate>();
 
-addMessage
+addMessage$
   .pipe(
     switchMap(async (newMessage) => {
       return Promise.all([
-        firstValueFrom(pendingMessages),
+        firstValueFrom(pendingMessages$),
         Promise.resolve(newMessage),
       ]);
     }),
-    map(([currentPendingMessages, { data, signType }]) => {
-      const pendingMessage = {
-        id: data.id,
+    map(([currentPendingMessages, message]) => {
+      const pendingMessage: Message = {
+        ...message,
+        id: message.id,
         time: new Date().getTime(),
-        status: 'unsigned',
-        msgParams: paramsToMessageParams(data, signType),
-        type: signType,
+        status: TxStatus.PENDING,
+        displayData: paramsToMessageParams(message),
       };
 
-      pendingMessages.next({
+      pendingMessages$.next({
         ...currentPendingMessages,
-        [`${data.id}`]: pendingMessage,
+        [`${message.id}`]: pendingMessage,
       });
 
       return pendingMessage;
@@ -50,27 +47,34 @@ addMessage
   )
   .subscribe();
 
-updateMessage
+updateMessage$
   .pipe(
     switchMap(async (messageUpdate) => {
       return Promise.all([
-        firstValueFrom(messages$),
-        firstValueFrom(pendingMessages),
+        firstValueFrom(pendingMessages$),
         Promise.resolve(messageUpdate),
       ]);
     }),
-    map(([currentMessages, currentPendingMessages, { status, id, result }]) => {
-      const pendingMessage = currentPendingMessages[id as string];
-      if (pendingMessage) {
-        const updatedMessage = {
-          ...pendingMessage,
-          status,
-          result,
-        };
-
-        messages$.next([...currentMessages, updatedMessage]);
-
-        return updatedMessage;
+    map(([currentPendingMessages, { status, id, result, error }]) => {
+      if (
+        status !== TxStatus.SIGNED &&
+        status !== TxStatus.ERROR &&
+        status !== TxStatus.ERROR_USER_CANCELED
+      ) {
+        const pendingMessage = currentPendingMessages[id];
+        pendingMessages$.next({
+          ...currentPendingMessages,
+          [id]: {
+            ...pendingMessage,
+            status,
+            result,
+            error,
+          },
+        });
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [`${id}`]: _removed, ...txs } = currentPendingMessages;
+        pendingMessages$.next(txs);
       }
     }),
     toLogger('pending message updated')

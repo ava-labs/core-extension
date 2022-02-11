@@ -409,7 +409,6 @@ export function Swap() {
     optimalRate &&
     gasLimit &&
     gasPrice;
-
   return (
     <VerticalFlex width="100%">
       <PageTitleMiniMode>Swap</PageTitleMiniMode>

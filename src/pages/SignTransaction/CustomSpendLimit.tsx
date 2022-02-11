@@ -119,7 +119,6 @@ export function CustomSpendLimit({
           <VerticalFlex width="100%" padding="16px 0 0 48px">
             <BNInput
               onChange={(value) => {
-                console.log('setValue', value);
                 setCustomSpendLimit({
                   ...customSpendLimit,
                   value,

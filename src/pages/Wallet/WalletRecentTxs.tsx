@@ -45,7 +45,6 @@ export function WalletRecentTxs({
       ),
     [recentTxHistory, tokenSymbolFilter]
   );
-  console.log(filteredTxHistory);
   if (filteredTxHistory.length === 0) {
     return <NoTransactions />;
   }

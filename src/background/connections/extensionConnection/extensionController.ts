@@ -5,9 +5,8 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '../models';
-import { CancelPendingMessageRequest } from '../../services/messages/handlers/cancelPendingMessage';
-import { GetPendingMessageRequest } from '../../services/messages/handlers/getPendingMessage';
-import { SignMessageRequest } from '../../services/messages/handlers/signMessage';
+import { UpdateMessageByIdRequest } from '../../services/messages/handlers/updateMessage';
+import { GetMessageByIdRequest } from '../../services/messages/handlers/getMessage';
 import { networkUpdateEvents } from '../../services/network/events/networkUpdatedEvent';
 import { GetNetworkRequest } from '../../services/network/handlers/getSelectedNetwork';
 import { SetNetworkRequest } from '../../services/network/handlers/setSelectedNetwork';
@@ -78,9 +77,8 @@ const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
   ConnectionRequestHandler
 >([
-  SignMessageRequest,
-  GetPendingMessageRequest,
-  CancelPendingMessageRequest,
+  GetMessageByIdRequest,
+  UpdateMessageByIdRequest,
 
   GetOnboardingStateRequest,
   SetOnboardingPhaseRequest,

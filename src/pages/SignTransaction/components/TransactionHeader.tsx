@@ -22,7 +22,7 @@ export function TransactionHeader({
 }: TransactionHeaderProps) {
   const { isWalletReady } = useWalletContext();
   const { network } = useNetworkContext();
-  console.log(transactionState);
+
   return (
     <VerticalFlex padding="12px 0">
       <Typography as="h1" size={20} height="29px" weight={600}>
