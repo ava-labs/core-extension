@@ -35,7 +35,7 @@ export function ChooseExistingType({
       </VerticalFlex>
       <VerticalFlex align="center">
         <HorizontalFlex>
-          <OnboardButton title="Recovery phrase" onClick={() => onNext(true)}>
+          <OnboardButton title="Recovery Phrase" onClick={() => onNext(true)}>
             <RecoveryLockIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
           <VerticalSeparator margin="0 24px" />
