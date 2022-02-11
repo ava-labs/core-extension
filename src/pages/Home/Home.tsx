@@ -27,6 +27,8 @@ export function Home() {
         {
           // Toast will show until user clicks X icon or yes button
           duration: Infinity,
+          // define id to prevent showing it up multiple times
+          id: 'default_extension_toast',
         }
       );
     }
