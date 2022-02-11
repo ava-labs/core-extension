@@ -29,14 +29,15 @@ import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useContactFromParams } from './hooks/useContactFromParams';
 
 export function SendMiniMode() {
   const theme = useTheme();
   const { walletType } = useWalletContext();
   const selectedToken = useTokenFromParams();
+  const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
-  const [contactInput, setContactInput] = useState<Contact>();
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
   const sendState = useSend(selectedToken);
@@ -50,14 +51,15 @@ export function SendMiniMode() {
   useEffect(() => resetSendFlow, []);
 
   const resetSendFlow = () => {
-    setContactInput(undefined);
-    setAmountInput(undefined);
-    setAmountInputDisplay(undefined);
     sendState.reset();
   };
 
   const onContactChanged = (contact: Contact) => {
-    setContactInput(contact);
+    setSendDataInParams({
+      token: selectedToken,
+      address: contact.address,
+      options: { replace: true },
+    });
     setSendState({
       token: selectedToken,
       amount: amountInputDisplay,
@@ -66,7 +68,11 @@ export function SendMiniMode() {
   };
 
   const onTokenChanged = (token: TokenWithBalance) => {
-    setSendDataInParams({ token, options: { replace: true } });
+    setSendDataInParams({
+      token,
+      address: contactInput?.address,
+      options: { replace: true },
+    });
     setSendState({
       token,
       amount: amountInputDisplay,
@@ -200,6 +206,7 @@ export function SendMiniMode() {
                   onClick={() => {
                     setSendDataInParams({
                       token: selectedToken,
+                      address: contactInput?.address,
                       options: { path: '/send/confirm' },
                     });
                   }}
