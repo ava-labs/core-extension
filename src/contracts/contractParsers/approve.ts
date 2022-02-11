@@ -32,7 +32,10 @@ export function approveTxHandler(
     tokenToBeApproved,
     contractType: ContractCall.APPROVE,
     approveData: {
-      limit: _data.amount.toHexString(),
+      // in erc20 contracts the approve is has the limit as second parameter however it's not always named the same
+      // eg JOE uses the standard namig: `approve(spender, amount)`
+      // while PNG uses something else: `approve(spender, rawAmount)`
+      limit: _data[1]?.toHexString(),
       spender: _data.spender,
     },
     ...parseBasicDisplayValues(request, props),
