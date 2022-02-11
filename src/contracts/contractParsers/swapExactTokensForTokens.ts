@@ -39,7 +39,7 @@ export function swapExactTokensForTokenHandler(
   props: DisplayValueParserProps
 ): SwapExactTokensForTokenDisplayValues {
   const erc20sIndexedByAddress = props.erc20Tokens.reduce(
-    (acc, token) => ({ ...acc, [token.address]: token }),
+    (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
     {}
   );
 
