@@ -93,8 +93,6 @@ const CustomLabel = styled.span`
   }
 `;
 
-const MINIMUM_GAS_PRICE = '25';
-
 export function CustomFees({
   gasPrice,
   limit,
@@ -109,7 +107,9 @@ export function CustomFees({
     ReturnType<typeof calculateGasAndFees>
   >(calculateGasAndFees(gasPrice, limit, avaxPrice));
   const [originalGas] = useState<GasPrice>(gasPrice);
-  const [customGasInput, setCustomGasInput] = useState(MINIMUM_GAS_PRICE);
+  const [customGasInput, setCustomGasInput] = useState(
+    parseInt(bnToLocaleString(originalGas.bn, 9)).toString()
+  );
   const customInputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
 
@@ -276,11 +276,10 @@ export function CustomFees({
                 }}
                 onBlur={(e) => {
                   if (e.target.value === '') {
-                    setCustomGasInput(MINIMUM_GAS_PRICE);
-                    handleGasChange({
-                      bn: stringToBN(MINIMUM_GAS_PRICE, 9),
-                      value: e.target.value,
-                    });
+                    setCustomGasInput(
+                      parseInt(bnToLocaleString(originalGas.bn, 9)).toString()
+                    );
+                    handleGasChange(originalGas);
                   }
                 }}
               />
