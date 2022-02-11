@@ -7,13 +7,18 @@ import {
   GearIcon,
   SecondaryButton,
   Overlay,
-  BNInput,
 } from '@avalabs/react-components';
 import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { useState } from 'react';
-import { Big, bnToLocaleString, bigToBN } from '@avalabs/avalanche-wallet-sdk';
+import { useRef, useState } from 'react';
+import {
+  Big,
+  bnToLocaleString,
+  bigToBN,
+  BN,
+  stringToBN,
+} from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
@@ -40,12 +45,16 @@ const FeeButton = styled(SecondaryButton)`
   height: 40px;
   max-height: 40px;
   font-weight: 500;
+  padding: 4px 0;
+  line-height: 15px;
+  position: relative;
 
   &.focus {
-    font-size: 14px;
     font-weight: 600;
     color: ${({ theme }) => theme.colors.bg2};
     background-color: ${({ theme }) => theme.colors.text1};
+    padding: 4px 0 5px 0;
+    line-height: 16px;
   }
 `;
 
@@ -56,24 +65,35 @@ const CustomGasLimitOverlay = styled(Overlay)`
   justify-content: flex-start;
 `;
 
-const CustomBNInput = styled(BNInput)`
-  width: 65px;
+const CustomInput = styled.input`
+  width: 100%;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+  line-height: 15px;
+  text-align: center;
+  border: none;
+  font-family: ${({ theme }) => theme.fontFamily};
+  padding: 0 4px;
 
-  > div > input {
-    font-size: 14px;
-    font-weight: 600;
-    height: 40px;
-    padding: 4px 8px;
-    textalign: center;
-    background-color: ${({ theme }) => theme.colors.text1};
-    color: ${({ theme }) => theme.colors.bg2};
-
-    :focus {
-      background-color: ${({ theme }) => theme.colors.text1};
-      color: ${({ theme }) => theme.colors.bg2};
-    }
+  ::-webkit-outer-spin-button,
+  ::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
   }
 `;
+
+const CustomLabel = styled.span`
+  color: ${({ theme }) => theme.colors.text2};
+
+  &.focus {
+    color: ${({ theme }) => theme.colors.bg2};
+  }
+`;
+
+const MINIMUM_GAS_PRICE = '25';
 
 export function CustomFees({
   gasPrice,
@@ -89,6 +109,8 @@ export function CustomFees({
     ReturnType<typeof calculateGasAndFees>
   >(calculateGasAndFees(gasPrice, limit, avaxPrice));
   const [originalGas] = useState<GasPrice>(gasPrice);
+  const [customGasInput, setCustomGasInput] = useState(MINIMUM_GAS_PRICE);
+  const customInputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
 
   const [gasModifierSelected, setGasModifierSelected] = useState(
@@ -97,17 +119,15 @@ export function CustomFees({
 
   const [showEditGasLimit, setShowEditGasLimit] = useState(false);
 
-  const gasModifer = (amount: number): GasPrice => {
+  const gasModifer = (amount: number): { bn: BN; value: string } => {
     // take current GasPrice (BN) and add amount .05 | .15 | custom
     const bigGas = new Big(bnToLocaleString(originalGas.bn, 9));
     const newBigGas = bigGas.times(amount).plus(bigGas);
 
-    const modifiedGasPrice = {
+    return {
       bn: bigToBN(newBigGas, 9),
       value: newBigGas.toString(),
     };
-
-    return modifiedGasPrice;
   };
 
   const handleGasChange = (gas: GasPrice): void => {
@@ -131,6 +151,10 @@ export function CustomFees({
         break;
       }
       case GasFeeModifier.CUSTOM:
+        handleGasChange({
+          bn: stringToBN(customGasInput, 9),
+          value: customGasInput,
+        });
         break;
       default:
         handleGasChange(originalGas);
@@ -158,7 +182,7 @@ export function CustomFees({
   }
 
   return (
-    <Card padding="16px">
+    <Card padding="8px 16px">
       <VerticalFlex width="100%">
         <HorizontalFlex
           align="center"
@@ -188,7 +212,8 @@ export function CustomFees({
             onClick={() => updateGasFee(GasFeeModifier.NORMAL)}
             width="65px"
           >
-            Normal
+            Normal <br />
+            {parseInt(bnToLocaleString(originalGas.bn, 9))}
           </FeeButton>
           <FeeButton
             disabled={gasPriceEditDisabled}
@@ -198,7 +223,8 @@ export function CustomFees({
             onClick={() => updateGasFee(GasFeeModifier.FAST)}
             width="65px"
           >
-            Fast
+            Fast <br />
+            {parseInt(gasModifer(0.05).value)}
           </FeeButton>
           <FeeButton
             disabled={gasPriceEditDisabled}
@@ -208,31 +234,58 @@ export function CustomFees({
             onClick={() => updateGasFee(GasFeeModifier.INSTANT)}
             width="65px"
           >
-            Instant
+            Instant <br />
+            {parseInt(gasModifer(0.15).value)}
           </FeeButton>
-          {gasModifierSelected !== GasFeeModifier.CUSTOM && (
-            <FeeButton
-              disabled={gasPriceEditDisabled}
-              onClick={() => updateGasFee(GasFeeModifier.CUSTOM)}
-              width="65px"
-            >
-              Custom
-            </FeeButton>
-          )}
-          {gasModifierSelected === GasFeeModifier.CUSTOM && (
-            <CustomBNInput
-              placeholder={'nAVAX'}
-              value={customGasPrice?.bn}
-              onChange={(value) =>
-                handleGasChange({
-                  bn: value.bn as any,
-                  value: value.amount,
-                })
-              }
-              disabled={gasPriceEditDisabled}
-              denomination={9}
-            />
-          )}
+          <FeeButton
+            disabled={gasPriceEditDisabled}
+            className={
+              gasModifierSelected === GasFeeModifier.CUSTOM ? 'focus' : ''
+            }
+            onClick={() => {
+              updateGasFee(GasFeeModifier.CUSTOM);
+              customInputRef?.current?.focus();
+            }}
+            width="65px"
+          >
+            <VerticalFlex>
+              <CustomLabel
+                className={
+                  gasModifierSelected === GasFeeModifier.CUSTOM ? 'focus' : ''
+                }
+              >
+                Custom
+              </CustomLabel>
+              <CustomInput
+                ref={customInputRef}
+                type={'number'}
+                value={customGasInput}
+                onChange={(e) => {
+                  setCustomGasInput(e.target.value);
+                  if (e.target.value === '') {
+                    handleGasChange({
+                      bn: stringToBN('0', 9),
+                      value: e.target.value,
+                    });
+                  } else {
+                    handleGasChange({
+                      bn: stringToBN(e.target.value, 9),
+                      value: e.target.value,
+                    });
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setCustomGasInput(MINIMUM_GAS_PRICE);
+                    handleGasChange({
+                      bn: stringToBN(MINIMUM_GAS_PRICE, 9),
+                      value: e.target.value,
+                    });
+                  }
+                }}
+              />
+            </VerticalFlex>
+          </FeeButton>
         </HorizontalFlex>
       </VerticalFlex>
     </Card>
