@@ -6,6 +6,7 @@ import { HashRouter as Router } from 'react-router-dom';
 import {
   LoadingIcon,
   ThemeContextProvider,
+  Toaster,
   walletThemeDark,
 } from '@avalabs/react-components';
 
@@ -22,6 +23,7 @@ browser.tabs.query({ active: true }).then(() => {
         lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
         darkTheme={walletThemeDark}
       >
+        <Toaster />
         <Suspense fallback={<LoadingIcon />}>
           <App />
         </Suspense>

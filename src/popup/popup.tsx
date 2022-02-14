@@ -11,7 +11,6 @@ import {
   LoadingIcon,
   VerticalFlex,
   DialogContextProvider,
-  Toaster,
 } from '@avalabs/react-components';
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
@@ -134,8 +133,6 @@ export function Popup() {
                     <SwapContextProvider>
                       <ContactsContextProvider>
                         <PermissionContextProvider>
-                          <Toaster />
-
                           <VerticalFlex
                             height={dimensions.height}
                             width={dimensions.width}
