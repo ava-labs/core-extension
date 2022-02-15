@@ -7,9 +7,9 @@ import {
   ComponentSize,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import * as bip39 from 'bip39';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
+import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
 
 interface ImportProps {
   onCancel(): void;
@@ -21,26 +21,30 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
   const [recoveryPhrase, setRecoveryPhrase] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  const isPhraseCorrectLength = (phrase) => {
-    return [12, 24].includes(phrase.split(' ').length);
+  const isPhraseCorrectLength = (phrase: string) => {
+    return [12, 24].includes(phrase.trim().split(' ').length);
   };
 
-  const onPhraseChanged = (e) => {
+  const isPhraseValid = (phrase: string) => {
+    return (
+      phrase &&
+      isPhraseCorrectLength(phrase) &&
+      MnemonicWallet.validateMnemonic(phrase)
+    );
+  };
+
+  const onPhraseChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const phrase = e.currentTarget.value;
     setRecoveryPhrase(phrase);
-    if (
-      phrase &&
-      !isPhraseCorrectLength(phrase) &&
-      !bip39.validateMnemonic(phrase)
-    ) {
+
+    if (!isPhraseValid(phrase)) {
       setError('Invalid mnemonic phrase');
     } else {
       setError('');
     }
   };
 
-  const nextButtonDisabled =
-    !(recoveryPhrase && isPhraseCorrectLength(recoveryPhrase)) || !!error;
+  const nextButtonDisabled = !isPhraseValid(recoveryPhrase) || !!error;
 
   return (
     <VerticalFlex width="100%" align="center">
