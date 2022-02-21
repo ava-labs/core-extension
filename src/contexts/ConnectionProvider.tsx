@@ -2,7 +2,7 @@ import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Observable, Subject } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
@@ -10,14 +10,11 @@ import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/background/connections/connectionResponseMapper';
 import { LoadingIcon } from '@avalabs/react-components';
 
-function request(connection: Runtime.Port, eventsHandler) {
+function request(engine: ReturnType<typeof requestEngine>) {
   return function requestHandler<T = any>(
     message: Omit<ExtensionConnectionMessage, 'id'>
   ) {
-    return requestEngine(
-      connection,
-      eventsHandler
-    )(message).then<T>((results) => {
+    return engine(message).then<T>((results) => {
       return results.error ? Promise.reject(results.error) : results.result;
     });
   };
@@ -42,7 +39,12 @@ export function ConnectionContextProvider({ children }: { children: any }) {
     setConnection(connection);
   }, []);
 
-  if (!connection || !eventsHandler) {
+  const engine = useMemo(
+    () => connection && requestEngine(connection, eventsHandler),
+    [connection, eventsHandler]
+  );
+
+  if (!engine || !eventsHandler) {
     return <LoadingIcon />;
   }
 
@@ -50,7 +52,7 @@ export function ConnectionContextProvider({ children }: { children: any }) {
     <ConnectionContext.Provider
       value={{
         connection,
-        request: request(connection, eventsHandler),
+        request: request(engine),
         events: () => eventsHandler.asObservable(),
       }}
     >
