@@ -1,6 +1,7 @@
 import { accounts$ } from '@src/background/services/accounts/accounts';
 import { permissions$ } from '@src/background/services/permissions/permissions';
 import { firstValueFrom } from 'rxjs';
+import { COREX_DOMAINS } from '../models';
 import { Middleware } from './models';
 
 const RESTRICTED_METHODS = Object.freeze(['eth_accounts']);
@@ -75,6 +76,11 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'avalanche_getIsDefaultExtensionState',
 ]);
 
+const COREX_METHODS = Object.freeze([
+  'avalanche_getContacts',
+  'avalanche_getAccounts',
+]);
+
 export function PermissionMiddleware(): Middleware {
   return async (context, next, error) => {
     // check if domain has permission
@@ -100,11 +106,22 @@ export function PermissionMiddleware(): Middleware {
       return;
     }
 
+    if (COREX_METHODS.includes(context.request.data.method)) {
+      const domain = context.domainMetadata?.domain
+        ? context.domainMetadata.domain
+        : '';
+
+      if (context.authenticated === true && COREX_DOMAINS.includes(domain)) {
+        next();
+      } else {
+        error(new Error('No permission to access requested method.'));
+      }
+      return;
+    }
     if (!UNRESTRICTED_METHODS.includes(context.request.data.method)) {
       error(new Error('Unrecognized method'));
       return;
     }
-
     next();
   };
 }
