@@ -12,6 +12,7 @@ export function calculateGasAndFees(
     gasPrice: gasPrice,
     gasLimit: parseInt(gasLimit),
     fee,
+    bnFee,
     feeUSD: parseFloat((parseFloat(fee) * avaxPrice).toFixed(4)),
   };
 }

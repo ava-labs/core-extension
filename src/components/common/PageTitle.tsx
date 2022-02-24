@@ -36,7 +36,7 @@ export const PageTitleMiniMode = ({
   const goBack = () => {
     // history can be empty when the extension is opened and the last
     // location is loaded back from localstorage
-    history.length === 1 ? history.replace('/home') : history.goBack();
+    history.length <= 2 ? history.replace('/home') : history.goBack();
   };
 
   return (

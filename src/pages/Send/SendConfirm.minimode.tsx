@@ -26,7 +26,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import { CustomFees } from '@src/components/common/CustomFees';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { GasPrice } from '@src/background/services/gas/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import {
@@ -121,7 +121,15 @@ type SendConfirmProps = {
   token: TokenWithBalance;
   fallbackAmountDisplayValue?: string;
   onSubmit(): void;
-  onGasChanged(gasLimit: string, gasPrice: GasPrice): void;
+  onGasChanged(
+    gasLimit: string,
+    gasPrice: GasPrice,
+    feeType: GasFeeModifier
+  ): void;
+  maxGasPrice?: string;
+  gasPrice?: GasPrice;
+  defaultGasPrice?: GasPrice;
+  selectedGasFee?: GasFeeModifier;
 };
 
 export const SendConfirmMiniMode = ({
@@ -131,11 +139,16 @@ export const SendConfirmMiniMode = ({
   fallbackAmountDisplayValue,
   onSubmit,
   onGasChanged,
+  maxGasPrice,
+  gasPrice,
+  selectedGasFee,
+  defaultGasPrice,
 }: SendConfirmProps) => {
   const theme = useTheme();
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
+
   useLedgerDisconnectedDialog(() => {
     history.goBack();
   });
@@ -253,15 +266,18 @@ export const SendConfirmMiniMode = ({
               gasLimit={sendState?.gasLimit}
             />
           </HorizontalFlex>
-          <HorizontalFlex width="100%">
+          <VerticalFlex width="100%">
             <CustomFees
               gasPrice={{
-                bn: sendState?.gasPrice || new BN(0),
+                bn: gasPrice?.bn || defaultGasPrice?.bn || new BN(0),
               }}
+              defaultGasPrice={defaultGasPrice}
               limit={`${sendState?.gasLimit}`}
               onChange={onGasChanged}
+              maxGasPrice={maxGasPrice}
+              selectedGasFeeModifier={selectedGasFee}
             />
-          </HorizontalFlex>
+          </VerticalFlex>
 
           <HorizontalFlex
             justify="space-between"

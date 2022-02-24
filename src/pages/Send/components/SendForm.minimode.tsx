@@ -5,7 +5,6 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { ContactInput } from './ContactInput';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendStateWithActions } from '../models';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { HorizontalFlex } from '@avalabs/react-components';
 
 const FALLBACK_MAX = new BN(0);
@@ -18,6 +17,7 @@ type SendFormMiniModeProps = {
   onTokenChange(token: TokenWithBalance): void;
   amountInput?: BN;
   onAmountInputChange({ amount: string, bn: BN }): void;
+  tokensWBalances: TokenWithBalance[];
 };
 
 export const SendFormMiniMode = ({
@@ -28,10 +28,10 @@ export const SendFormMiniMode = ({
   onTokenChange,
   amountInput,
   onAmountInputChange,
+  tokensWBalances,
 }: SendFormMiniModeProps) => {
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
-  const tokensWBalances = useTokensWithBalances(false);
 
   const toggleContactsDropdown = (to?: boolean) => {
     setIsContactsOpen(to === undefined ? !isContactsOpen : to);
