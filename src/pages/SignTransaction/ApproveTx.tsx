@@ -4,7 +4,7 @@ import {
   GlobeIcon,
   HorizontalFlex,
   TextButton,
-  PencilIcon,
+  ComponentSize,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { ApproveTransactionData } from '@src/contracts/contractParsers/models';
@@ -40,6 +40,11 @@ export function ApproveTx({
 }: ApproveTransactionData & TransactionProgressData) {
   const theme = useTheme();
 
+  const hideEdit: boolean =
+    (isRevokeApproval && setShowCustomSpendLimit) ||
+    (transactionState === TransactionProgressState.PENDING && !hash) ||
+    transactionState === TransactionProgressState.SUCCESS;
+
   return (
     <VerticalFlex width="100%">
       <TransactionHeader
@@ -61,6 +66,52 @@ export function ApproveTx({
           spend your {tokenToBeApproved?.name || 'Unknown Token'}?
         </Typography>
 
+        {/* Approval Amnt */}
+        <VerticalFlex width="100%" margin="24px 0 0 0">
+          <HorizontalFlex justify="space-between" align="center">
+            <Typography size={12} height="15px">
+              Approval amount
+            </Typography>
+            <Typography weight={700} size={18} height="22px">
+              {displaySpendLimit}
+              <Typography
+                padding="0 0 0 4px"
+                weight={600}
+                size={16}
+                height="24px"
+                color={theme.colors.text2}
+              >
+                {tokenToBeApproved?.symbol || 'Unknown Symbol'}
+              </Typography>
+            </Typography>
+          </HorizontalFlex>
+
+          {/* 
+            Hides Edit button if its a Revoke approval or PENDING or SUCCESS
+          */}
+
+          {!hideEdit && (
+            <HorizontalFlex>
+              <TextButton
+                onClick={() => setShowCustomSpendLimit(true)}
+                size={ComponentSize.SMALL}
+                height="16px"
+              >
+                Edit
+              </TextButton>
+            </HorizontalFlex>
+          )}
+
+          <HorizontalFlex justify="space-between" align="center">
+            <Typography size={12} height="15px">
+              To
+            </Typography>
+            <Typography weight={600} size={16} height="24px">
+              {truncateAddress(rest.toAddress)}
+            </Typography>
+          </HorizontalFlex>
+        </VerticalFlex>
+
         {/* Tabs */}
         {transactionState === TransactionProgressState.NOT_APPROVED ? (
           <TransactionTabs
@@ -68,52 +119,7 @@ export function ApproveTx({
             gasPrice={gasPrice}
             limit={gasLimit?.toString() as string}
             onCustomFeeSet={onCustomFeeSet}
-          >
-            <>
-              {/* Bottom Approval Amnt */}
-              <HorizontalFlex justify="space-between" align="center">
-                {/* Hides Edit button if its a Revoke approval */}
-                {!isRevokeApproval && setShowCustomSpendLimit && (
-                  <HorizontalFlex>
-                    <Typography size={12} height="15px">
-                      Approval amount
-                    </Typography>
-                    <TextButton
-                      onClick={() => setShowCustomSpendLimit(true)}
-                      margin="0 0 0 8px"
-                    >
-                      <PencilIcon color={theme.colors.icon1} height="12px" />
-                    </TextButton>
-                  </HorizontalFlex>
-                )}
-                <Typography weight={700} size={18} height="22px">
-                  {displaySpendLimit}
-                  <Typography
-                    padding="0 0 0 4px"
-                    weight={600}
-                    size={16}
-                    height="24px"
-                    color={theme.colors.text2}
-                  >
-                    {tokenToBeApproved?.symbol || 'Unknown Symbol'}
-                  </Typography>
-                </Typography>
-              </HorizontalFlex>
-
-              <HorizontalFlex
-                justify="space-between"
-                align="center"
-                margin="16px 0 0 0"
-              >
-                <Typography padding="0 0 4px 0" size={12} height="15px">
-                  To
-                </Typography>
-                <Typography weight={600} size={16} height="24px">
-                  {truncateAddress(rest.toAddress)}
-                </Typography>
-              </HorizontalFlex>
-            </>
-          </TransactionTabs>
+          />
         ) : (
           <SuccessFailTxInfo
             hash={hash}

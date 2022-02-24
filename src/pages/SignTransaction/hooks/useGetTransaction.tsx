@@ -169,7 +169,7 @@ export function useGetTransaction(requestId: string) {
 
   useEffect(() => {
     // Handle transaction Approval for REVOKING spend limit
-    if (transaction?.displayValues?.approveData?.limit === '0') {
+    if (transaction?.displayValues?.approveData?.limit === '0x00') {
       setDisplaySpendLimit('0');
       setIsRevokeApproval(true);
     }

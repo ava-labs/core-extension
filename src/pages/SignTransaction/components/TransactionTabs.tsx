@@ -27,8 +27,8 @@ export function TransactionTabs({
   limit,
   onCustomFeeSet,
 }: TransactionTabsType) {
-  // Summary Tab
-  const Summary = (
+  // Details Tab
+  const Details = (
     <VerticalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
       <HorizontalFlex margin="0 0 8px">
         <Typography size={12} height="15px" margin="0 8px 0 0">
@@ -81,7 +81,7 @@ export function TransactionTabs({
       {/* Tabs */}
       <Tabs
         tabs={[
-          { id: 'Summary', title: 'Summary', component: Summary },
+          { id: 'Details', title: 'Details', component: Details },
           { id: 'Data', title: 'Data', component: TxData },
         ]}
       />
