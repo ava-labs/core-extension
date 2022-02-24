@@ -34,7 +34,7 @@ export function SuccessFailTxInfo({
   const { currencyFormatter } = useSettingsContext();
 
   const gasCost = bnToBig(gasPrice.bn.mul(new BN(gasLimit)), 18);
-  const gasCostUsd = gasCost.mul(avaxToken.priceUSD);
+  const gasCostUsd = gasCost.mul(avaxToken.priceUSD || 0);
 
   if (error) {
     return (

@@ -58,7 +58,7 @@ export const PageTitleMiniMode = ({
           direction={IconDirection.LEFT}
         />
       </BackButton>
-      <Typography weight={500} size={20}>
+      <Typography weight={500} size={20} width="100%">
         {children}
       </Typography>
     </HorizontalFlex>

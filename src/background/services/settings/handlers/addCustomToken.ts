@@ -65,7 +65,7 @@ export async function settingsAddCustomToken(
         ...customTokens,
         [chain]: {
           ...customTokens[chain],
-          [tokenAddress]: tokenData,
+          [tokenAddress.toLowerCase()]: tokenData,
         },
       },
     };

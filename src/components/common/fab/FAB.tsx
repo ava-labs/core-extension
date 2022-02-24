@@ -6,6 +6,7 @@ import {
   HorizontalFlex,
   TextButton,
   IconDirection,
+  BridgeIcon,
   ArrowIcon,
   Overlay,
   VerticalFlex,
@@ -133,6 +134,11 @@ export function FAB() {
               text: 'Receive',
               route: '/receive',
               icon: <QRCodeIcon height="24px" color={theme.colors.bg1} />,
+            },
+            {
+              text: 'Bridge',
+              route: '/bridge',
+              icon: <BridgeIcon height="24px" color={theme.colors.bg1} />,
             },
             {
               text: 'Swap',

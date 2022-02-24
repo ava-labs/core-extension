@@ -91,6 +91,11 @@ export enum ExtensionRequest {
   ACCOUNT_RENAME = 'account_rename',
   ACCOUNT_ADD = 'account_add',
 
+  BRIDGE_GET_CONFIG = 'bridge_get_config',
+  BRIDGE_GET_ETH_BALANCE = 'bridge_get_eth_balance',
+  BRIDGE_GET_ETH_BALANCES = 'bridge_get_eth_balances',
+  BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
+
   WALLET_STATE = 'wallet_InitializeState',
   WALLET_UNLOCK_STATE = 'wallet_unlockWalletState',
   WALLET_CHANGE_PASSWORD = 'wallet_changePassword',

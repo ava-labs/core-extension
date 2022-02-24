@@ -22,7 +22,7 @@ function request(engine: ReturnType<typeof requestEngine>) {
 
 const ConnectionContext = createContext<{
   request: ReturnType<typeof request>;
-  events?<V = any>(): Observable<ExtensionConnectionEvent<V>>;
+  events<V = any>(): Observable<ExtensionConnectionEvent<V>>;
   connection?: Runtime.Port;
 }>({} as any);
 

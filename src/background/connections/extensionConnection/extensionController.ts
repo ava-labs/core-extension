@@ -50,6 +50,10 @@ import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/han
 import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
 import { accountsUpdateEvents } from '@src/background/services/accounts/events/accountsUpdatedEvent';
+import { GetBridgeConfigRequest } from '@src/background/services/bridge/handlers/getBridgeConfig';
+import { GetEthereumBalanceRequest } from '@src/background/services/bridge/handlers/getEthereumBalance';
+import { GetEthereumBalancesRequest } from '@src/background/services/bridge/handlers/getEthereumBalances';
+import { TransferAssetRequest } from '@src/background/services/bridge/handlers/transferAsset';
 import { CreateFavoriteRequest } from '@src/background/services/favorites/handlers/createFavorite';
 import { GetFavoritesRequest } from '@src/background/services/favorites/handlers/getFavorites';
 import { RemoveFavoriteRequest } from '@src/background/services/favorites/handlers/removeFavorite';
@@ -72,6 +76,7 @@ import { SettingsSetDefaultExtensionRequest } from '@src/background/services/set
 import { permissionsUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 
 import { InitialWalletOpenRequest } from '@src/background/services/onboarding/handlers/updateInitialOpen';
+import { bridgeTransferEvent } from '@src/background/services/bridge/events/bridgeTransferEvents';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -93,6 +98,11 @@ const extensionRequestHandlerMap = new Map<
   SelectAccountRequest,
   RenameAccountRequest,
   AddAccountRequest,
+
+  GetBridgeConfigRequest,
+  GetEthereumBalanceRequest,
+  GetEthereumBalancesRequest,
+  TransferAssetRequest,
 
   GetWalletStateRequest,
   UnlockWalletStateRequest,
@@ -175,6 +185,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     onboardingUpdatedEvent(),
     networkUpdateEvents(),
     accountsUpdateEvents(),
+    bridgeTransferEvent(),
     walletUpdateEvents,
     permissionsUpdateEvents,
     onboardingPhaseUpdatedEvent(),

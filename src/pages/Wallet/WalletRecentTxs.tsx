@@ -11,6 +11,8 @@ import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { TransactionERC20 } from './components/History/TransactionERC20';
 import { TransactionNormal } from './components/History/TransactionNormal';
+import { TransactionBridge } from './components/History/TransactionBridge';
+import { Blockchain, useBridgeSDK } from '@avalabs/bridge-sdk';
 
 type WalletRecentTxsProps = {
   isEmbedded?: boolean;
@@ -22,7 +24,7 @@ export function WalletRecentTxs({
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
   const { recentTxHistory } = useWalletContext();
-
+  const { bridgeAssets } = useBridgeSDK();
   const yesterday = endOfYesterday();
   const today = endOfToday();
 
@@ -45,6 +47,26 @@ export function WalletRecentTxs({
       ),
     [recentTxHistory, tokenSymbolFilter]
   );
+
+  const isTransactionBridge = (tx) => {
+    if (bridgeAssets) {
+      return (
+        Object.values(bridgeAssets).filter(
+          (el) =>
+            (el.nativeNetwork === Blockchain.AVALANCHE &&
+              el.nativeContractAddress.toLowerCase() ===
+                tx.contractAddress.toLowerCase()) ||
+            el.wrappedContractAddress.toLowerCase() ===
+              tx.contractAddress.toLowerCase() ||
+            tx.to === '0x0000000000000000000000000000000000000000' ||
+            tx.from === '0x0000000000000000000000000000000000000000'
+        ).length > 0
+      );
+    }
+
+    return false;
+  };
+
   if (filteredTxHistory.length === 0) {
     return <NoTransactions />;
   }
@@ -73,8 +95,14 @@ export function WalletRecentTxs({
                 padding={'8px 12px 8px 16px'}
                 margin={'0 0 8px 0'}
               >
-                {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}
-                {isTransactionNormal(tx) && <TransactionNormal item={tx} />}
+                {isTransactionBridge(tx) ? (
+                  <TransactionBridge item={tx} />
+                ) : (
+                  <>
+                    {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}
+                    {isTransactionNormal(tx) && <TransactionNormal item={tx} />}
+                  </>
+                )}
               </Card>
             </Fragment>
           );
