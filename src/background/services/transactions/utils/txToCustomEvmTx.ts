@@ -1,7 +1,7 @@
 import { Transaction } from '../models';
 import { firstValueFrom } from 'rxjs';
 import { gasPrice$ } from '../../gas/gas';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export async function txToCustomEvmTx(tx?: Transaction) {
   if (!tx) {
@@ -22,7 +22,7 @@ export async function txToCustomEvmTx(tx?: Transaction) {
   }
 
   const gasLimit = Number(gas);
-  const bnGasPrice = txGasPriceHex && new BN(txGasPriceHex, 'hex');
+  const bnGasPrice = txGasPriceHex && hexToBN(txGasPriceHex);
 
   return {
     gasPrice: bnGasPrice || gasPrice.bn,
