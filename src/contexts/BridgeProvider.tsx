@@ -3,6 +3,7 @@ import {
   BridgeSDKProvider,
   Environment,
   setBridgeEnvironment,
+  TrackerViewProps,
   useBridgeConfigUpdater,
   useBridgeSDK,
   WrapStatus,
@@ -10,16 +11,29 @@ import {
 import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { ExtensionRequest } from '@src/background/connections/models';
 import { isBridgeTransferEventListener } from '@src/background/services/bridge/events/bridgeTransferEvents';
-import { TransferEventType } from '@src/background/services/bridge/models';
+import {
+  BridgeState,
+  TransferEventType,
+} from '@src/background/services/bridge/models';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { MAINNET_NETWORK } from '@src/background/services/network/models';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Big } from '@avalabs/avalanche-wallet-sdk';
-import { createContext, useCallback, useContext, useEffect } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
+import { bridgeTransactionsUpdatedEventListener } from '@src/background/services/bridge/events/listeners';
 
 const BridgeContext = createContext<{
+  createBridgeTransaction(tx: TrackerViewProps): Promise<void>;
+  removeBridgeTransaction(tx: TrackerViewProps): Promise<void>;
+  bridgeTransactions: BridgeState['bridgeTransactions'];
   transferAsset: (
     amount: Big,
     asset: Asset,
@@ -46,6 +60,45 @@ function InnerBridgeProvider({ children }: { children: any }) {
 
   const { request, events } = useConnectionContext();
   const { currentBlockchain } = useBridgeSDK();
+  const [bridgeTransactions, setBridgeTransactions] = useState<BridgeState>({
+    bridgeTransactions: {},
+  });
+
+  useEffect(() => {
+    if (!events) {
+      return;
+    }
+
+    request({
+      method: ExtensionRequest.BRIDGE_TRANSACTIONS_GET,
+    }).then((res) => {
+      setBridgeTransactions(res);
+      return res;
+    });
+
+    const subscription = events()
+      .pipe(
+        filter(bridgeTransactionsUpdatedEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe((val) => setBridgeTransactions(val));
+
+    return () => subscription.unsubscribe();
+  }, [events, request]);
+
+  async function createBridgeTransaction(bridgeTransaction) {
+    await request({
+      method: ExtensionRequest.BRIDGE_TRANSACTION_CREATE,
+      params: [bridgeTransaction],
+    });
+  }
+
+  async function removeBridgeTransaction(bridgeTransaction) {
+    await request({
+      method: ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,
+      params: [bridgeTransaction],
+    });
+  }
 
   async function transferAsset(
     amount: Big,
@@ -76,7 +129,10 @@ function InnerBridgeProvider({ children }: { children: any }) {
   return (
     <BridgeContext.Provider
       value={{
+        ...bridgeTransactions,
         transferAsset,
+        removeBridgeTransaction,
+        createBridgeTransaction,
       }}
     >
       {children}

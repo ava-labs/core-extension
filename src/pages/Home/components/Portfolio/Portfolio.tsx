@@ -1,5 +1,6 @@
 import { LoadingSpinnerIcon, VerticalFlex } from '@avalabs/react-components';
 import { Tabs } from '@src/components/common/Tabs';
+import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Activity } from '@src/pages/Activity/Activity';
 import { useTheme } from 'styled-components';
@@ -14,6 +15,7 @@ enum PortfolioTabs {
 export function Portfolio() {
   const theme = useTheme();
   const { isBalanceLoading, isWalletReady } = useWalletContext();
+  const { bridgeTransactions } = useBridgeContext();
 
   if (isBalanceLoading || !isWalletReady) {
     return (
@@ -39,6 +41,8 @@ export function Portfolio() {
               title: 'Activity',
               id: PortfolioTabs.ACTIVITY,
               component: <Activity />,
+              badgeAmount:
+                bridgeTransactions && Object.values(bridgeTransactions).length,
             },
           ]}
         />

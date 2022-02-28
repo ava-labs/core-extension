@@ -26,7 +26,7 @@ import {
 } from '@avalabs/bridge-sdk';
 import styled, { useTheme } from 'styled-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import capitalize from 'lodash/capitalize';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
@@ -42,6 +42,7 @@ import { getAvalancheProvider } from '@src/background/services/bridge/getAvalanc
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { displaySeconds } from '@src/utils/displaySeconds';
+import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { getEtherscanLink } from '@src/utils/getEtherscanLink';
 
 const SummaryTokenIcon = styled(TokenIcon)`
@@ -96,6 +97,7 @@ const TimerBadge = styled(Typography)<{
   complete: boolean;
 }>`
   font-size: 12px;
+  font-variant: tabular-nums;
   font-weight: 600;
   padding: 4px 8px;
   border-radius: 999px;
@@ -119,7 +121,6 @@ const StyledCard = styled(Card)<{
 const BridgeTransactionStatus = () => {
   const history = useHistory();
   const theme = useTheme();
-  const location = useLocation();
   const params = useParams<{
     complete: string;
     sourceBlockchain: Blockchain;
@@ -137,10 +138,10 @@ const BridgeTransactionStatus = () => {
     setTransactionDetails,
   } = useBridgeSDK();
   const { config } = useBridgeConfig();
+  const { createBridgeTransaction, removeBridgeTransaction } =
+    useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
-  const [toastShown, setToastShown] = useState<boolean>(
-    location.search.includes('complete=true')
-  );
+  const [toastShown, setToastShown] = useState<boolean>();
   const { network } = useNetworkContext();
   const etherscanLink = getEtherscanLink(network);
   const ethereumProvider = getEthereumProvider(network);
@@ -177,11 +178,20 @@ const BridgeTransactionStatus = () => {
         />,
         { id: txProps.sourceTxHash, duration: Infinity }
       );
+      removeBridgeTransaction({ ...txProps });
       setToastShown(true);
     }
     // We only want this to trigger when `complete` switches to `true` and on load
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txProps?.complete, toastShown]);
+
+  useEffect(() => {
+    createBridgeTransaction({
+      ...txProps,
+    });
+    // create a tx upfront incase the user somehow manage to exit without clicking "Hide"
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!activeAccount) {
     history.push('/home');
@@ -190,9 +200,12 @@ const BridgeTransactionStatus = () => {
 
   return (
     <VerticalFlex height="100%" width="100%">
-      <PageTitleMiniMode variant={PageTitleVariant.PRIMARY}>
+      <PageTitleMiniMode
+        showBackButton={false}
+        variant={PageTitleVariant.PRIMARY}
+      >
         <HorizontalFlex justify="space-between" align="center">
-          Transaction {toastShown ? 'Details' : 'Status'}
+          Transaction Status
           <TextButton
             margin="0 24px 0 0"
             onClick={() => {
@@ -206,6 +219,12 @@ const BridgeTransactionStatus = () => {
                   confirmText: 'Hide',
                   width: '343px',
                   onConfirm: async () => {
+                    if (!txProps?.complete) {
+                      // Update in case we closed the extension, re-opened and now leaving
+                      await createBridgeTransaction({
+                        ...txProps,
+                      });
+                    }
                     history.replace('/home');
                     clearDialog();
                   },
@@ -239,7 +258,7 @@ const BridgeTransactionStatus = () => {
                 grow="1"
                 paddingTop="16px"
               >
-                <CardLabel>{toastShown ? 'Sent' : 'Sending'} Amount</CardLabel>
+                <CardLabel>Sending Amount</CardLabel>
                 <VerticalFlex>
                   <Typography align="right">
                     <SummaryAmount>{txProps.amount?.toNumber()}</SummaryAmount>{' '}
@@ -267,7 +286,7 @@ const BridgeTransactionStatus = () => {
               margin="16px 0 0 0"
               padding={`16px 16px ${txProps.gasCost ? 4 : 16}px 16px`}
               complete={
-                txProps.complete || txProps.targetSeconds > 0 || toastShown
+                !!(txProps.complete || txProps.targetSeconds > 0 || toastShown)
               }
             >
               <VerticalFlex width="100%">
@@ -349,9 +368,11 @@ const BridgeTransactionStatus = () => {
                     </Typography>
                     <TimerBadge
                       complete={
-                        txProps.complete ||
-                        txProps.targetSeconds > 0 ||
-                        toastShown
+                        !!(
+                          txProps.complete ||
+                          txProps.targetSeconds > 0 ||
+                          toastShown
+                        )
                       }
                     >
                       <Typography
@@ -364,7 +385,9 @@ const BridgeTransactionStatus = () => {
                             : '0'
                         }
                       >
-                        {displaySeconds(txProps.sourceSeconds)}
+                        {txProps.sourceSeconds > 0
+                          ? displaySeconds(txProps.sourceSeconds)
+                          : '00:00'}
                       </Typography>
                       {(txProps.complete ||
                         txProps.targetSeconds > 0 ||
@@ -404,7 +427,7 @@ const BridgeTransactionStatus = () => {
             <StyledCard
               margin="16px 0 0 0"
               padding="16px"
-              complete={txProps.complete || toastShown}
+              complete={!!(txProps.complete || toastShown)}
             >
               <VerticalFlex width="100%">
                 <HorizontalFlex justify="space-between" grow="1">
@@ -453,14 +476,16 @@ const BridgeTransactionStatus = () => {
                         1 // On the destination network, we just need 1 confirmation
                       }
                     </Typography>
-                    <TimerBadge complete={txProps.complete || toastShown}>
+                    <TimerBadge complete={!!(txProps.complete || toastShown)}>
                       <Typography
                         size={12}
                         margin={
                           txProps.complete || toastShown ? '0 4px 0 0' : '0'
                         }
                       >
-                        {displaySeconds(txProps.targetSeconds)}
+                        {txProps.targetSeconds > 0
+                          ? displaySeconds(txProps.targetSeconds)
+                          : '00:00'}
                       </Typography>
                       {(txProps.complete || toastShown) && (
                         <CheckmarkIcon color={theme.colors.text1} />

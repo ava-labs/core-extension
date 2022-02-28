@@ -154,6 +154,7 @@ export function Popup() {
                               {![
                                 '/tokens/manage',
                                 '/bridge/transaction-status',
+                                '/bridge/transaction-details',
                                 '/send/confirm',
                               ].some((path) =>
                                 location.pathname.startsWith(path)

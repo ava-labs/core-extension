@@ -83,6 +83,7 @@ export function TransactionDetails({
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
 
   const theme = useTheme();
+
   return (
     <Container>
       <TitleContainer

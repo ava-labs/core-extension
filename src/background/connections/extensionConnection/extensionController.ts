@@ -41,6 +41,7 @@ import { GetContactsStateRequest } from '@src/background/services/contacts/handl
 import { CreateContactStateRequest } from '@src/background/services/contacts/handlers/createContact';
 import { RemoveContactStateRequest } from '@src/background/services/contacts/handlers/removeContact';
 import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
+import { bridgeTransactionsUpdatedEvent } from '@src/background/services/bridge/events/bridgeTransactionsUpdateEvents';
 import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { SettingsUpdateTokensVisibility } from '@src/background/services/settings/handlers/updateTokensVisibility';
@@ -76,6 +77,10 @@ import { SettingsSetDefaultExtensionRequest } from '@src/background/services/set
 import { permissionsUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 
 import { InitialWalletOpenRequest } from '@src/background/services/onboarding/handlers/updateInitialOpen';
+import { GetBridgeTransactionsStateRequest } from '@src/background/services/bridge/handlers/getBridgeTransactions';
+import { CreateBridgeTransactionStateRequest } from '@src/background/services/bridge/handlers/createBridgeTransaction';
+import { RemoveBridgeTransactionStateRequest } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
+import { bridgeConfigUpdateEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
 import { bridgeTransferEvent } from '@src/background/services/bridge/events/bridgeTransferEvents';
 
 const extensionRequestHandlerMap = new Map<
@@ -142,6 +147,10 @@ const extensionRequestHandlerMap = new Map<
   CreateContactStateRequest,
   RemoveContactStateRequest,
 
+  GetBridgeTransactionsStateRequest,
+  CreateBridgeTransactionStateRequest,
+  RemoveBridgeTransactionStateRequest,
+
   CreateFavoriteRequest,
   GetFavoritesRequest,
   RemoveFavoriteRequest,
@@ -185,6 +194,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     onboardingUpdatedEvent(),
     networkUpdateEvents(),
     accountsUpdateEvents(),
+    bridgeConfigUpdateEvents(),
     bridgeTransferEvent(),
     walletUpdateEvents,
     permissionsUpdateEvents,
@@ -192,6 +202,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     gasPriceTransactionUpdate(),
     transactionFinalizedUpdate(),
     settingsUpdatedEvent(),
+    bridgeTransactionsUpdatedEvent(),
     contactsUpdatedEvent(),
     sendTxDetailsEvent(),
     gasPriceSwapUpdate(),

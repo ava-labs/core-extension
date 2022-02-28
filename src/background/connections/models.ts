@@ -141,6 +141,10 @@ export enum ExtensionRequest {
   CONTACTS_CREATE = 'contacts_create',
   CONTACTS_REMOVE = 'contacts_remove',
 
+  BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
+  BRIDGE_TRANSACTIONS_GET = 'bridge_transaction_get',
+  BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
+
   FAVORITES_CREATE = 'favorites_create',
   FAVORITES_REMOVE = 'favorites_remove',
   FAVORITES_GET = 'favorites_get',

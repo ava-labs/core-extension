@@ -5,12 +5,12 @@ import {
   Blockchain,
   formatTokenAmount,
   useAssets,
-  useBridgeConfig,
   useBridgeSDK,
   useTokenInfoContext,
   useTransactionFee,
   usePrice,
   WrapStatus,
+  useBridgeConfig,
 } from '@avalabs/bridge-sdk';
 import { useHistory } from 'react-router-dom';
 import {
@@ -178,6 +178,39 @@ export function Bridge() {
   };
 
   if (error) {
+    return (
+      <VerticalFlex height="100%" width="100%">
+        <PageTitleMiniMode>Bridge</PageTitleMiniMode>
+        <VerticalFlex
+          padding="16px 16px 0 16px"
+          style={{ flex: 1 }}
+          align="center"
+        >
+          <Typography size={24} weight="bold" margin="0 0 16px 0">
+            Sorry
+          </Typography>
+          <Typography size={14} color={theme.colors.text2} margin="0 0 8px 0">
+            Sorry, the Bridge is currently unavailable.
+          </Typography>
+          <Typography size={14} color={theme.colors.text2} margin="0 0 8px 0">
+            Please check back later.
+          </Typography>
+          <Typography size={14} color={theme.colors.text2} margin="0 0 8px 0">
+            Thanks.
+          </Typography>
+          <PrimaryButton
+            size={ComponentSize.LARGE}
+            margin="24px 0 0 0"
+            as="a"
+            href="https://status.avax.network/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Go to the status page
+          </PrimaryButton>
+        </VerticalFlex>
+      </VerticalFlex>
+    );
     return <Typography>Error: {error}</Typography>;
   }
 
