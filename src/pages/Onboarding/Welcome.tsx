@@ -7,8 +7,8 @@ import {
 } from '@avalabs/react-components';
 import { OnboardButton, TermsButton } from './components/OnboardButton';
 import { useTheme } from 'styled-components';
-import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { Logo } from '@src/components/icons/Logo';
+import { BrandName } from '@src/components/icons/BrandName';
 
 interface WelcomeProps {
   onNext: (isImportFlow: boolean) => void;
@@ -19,9 +19,9 @@ export function Welcome({ onNext }: WelcomeProps) {
 
   return (
     <VerticalFlex width="100%" align="center">
-      <OnboardingStepHeader title="Welcome to Core X" />
-      <VerticalFlex justify="center" margin="48px 0 64px">
-        <Logo height={144} />
+      <VerticalFlex justify="center" margin="22px 0 64px">
+        <Logo height={204} />
+        <BrandName width={288} />
       </VerticalFlex>
       <VerticalFlex align="center">
         <HorizontalFlex>

@@ -9,7 +9,7 @@ import {
 import styled, { useTheme } from 'styled-components';
 
 interface OnboardingStepHeaderProps {
-  title: string;
+  title?: string;
   onBack?: () => void;
   onClose?: () => void;
 }
@@ -39,7 +39,7 @@ export function OnboardingStepHeader({
           />
         </TextButton>
       )}
-      <Title as="h1">{title}</Title>
+      {title && <Title as="h1">{title}</Title>}
       {onClose && (
         <TextButton width="24px" padding="2px 0" onClick={onClose}>
           <CloseIcon height="18px" color={theme.colors.icon1} />
