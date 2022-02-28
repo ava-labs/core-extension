@@ -15,6 +15,7 @@ import { walletState$ } from '../../../wallet/walletState';
 import { isWalletLocked } from '../../../wallet/models';
 import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
+import { hexToBN } from '@src/utils/hexToBN';
 
 async function validateSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address, gasPrice, gasLimit] = request.params || [];
@@ -51,7 +52,7 @@ async function validateSendErc20State(request: ExtensionConnectionMessage) {
       gasPrice$.pipe(
         map((gas) => {
           return gasPrice?.bn
-            ? { bn: new BN(gasPrice.bn, 'hex'), value: gasPrice.value }
+            ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
             : gas;
         })
       ) as Observable<GasPrice>,

@@ -5,6 +5,7 @@ import { sendErc20ValidateRequest } from '@src/background/services/send/sendErc2
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendErc20SubmitRequest } from '@src/background/services/send/sendErc20/utils/sendErc20SubmitRequest';
 import { SendStateWithActions, SetSendValuesParams } from '../models';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export function useSendErc20(): // Make token optional since token is undefined while we're using `useSendAvax`
 SendStateWithActions & Omit<SendErc20State, 'token'> & { token?: ERC20 } {
@@ -15,13 +16,13 @@ SendStateWithActions & Omit<SendErc20State, 'token'> & { token?: ERC20 } {
   const parseAndSetState = (state: SendErc20State) => {
     const parsedState: SendErc20State = {
       ...state,
-      amount: new BN(state.amount || 0, 'hex'),
-      sendFee: new BN(state.sendFee || 0, 'hex'),
-      maxAmount: state.maxAmount && new BN(state.maxAmount, 'hex'),
-      gasPrice: state.gasPrice && new BN(state.gasPrice, 'hex'),
+      amount: hexToBN(state.amount || '0'),
+      sendFee: hexToBN(state.sendFee || '0'),
+      maxAmount: state.maxAmount && hexToBN(state.maxAmount),
+      gasPrice: state.gasPrice && hexToBN(state.gasPrice),
       token: {
         ...state.token,
-        balance: new BN(state.token.balance, 'hex'),
+        balance: hexToBN(state.token.balance),
       } as ERC20,
     };
 

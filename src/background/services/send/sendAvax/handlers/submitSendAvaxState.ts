@@ -4,12 +4,13 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { sendAvaxSubmit, wallet$ } from '@avalabs/wallet-react-components';
-import { BN, stringToBN } from '@avalabs/avalanche-wallet-sdk';
+import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { gasPrice$ } from '../../../gas/gas';
 import { firstValueFrom, map, tap } from 'rxjs';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 import { resolve } from '@src/utils/promiseResolver';
 import { GasPrice } from '@src/background/services/gas/models';
+import { hexToBN } from '@src/utils/hexToBN';
 
 async function submitSendAvaxState(request: ExtensionConnectionMessage) {
   const params = request.params || [];
@@ -46,7 +47,7 @@ async function submitSendAvaxState(request: ExtensionConnectionMessage) {
         firstValueFrom(
           gasPrice$.pipe(
             map((gas) =>
-              customGasPrice ? { bn: new BN(customGasPrice, 'hex') } : gas
+              customGasPrice ? { bn: hexToBN(customGasPrice) } : gas
             )
           )
         ) as Promise<GasPrice>,

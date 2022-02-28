@@ -1,5 +1,5 @@
 import { WalletState } from '@avalabs/wallet-react-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export function recastWalletState(state: WalletState) {
   return {
@@ -11,11 +11,11 @@ export function recastWalletState(state: WalletState) {
       })),
       avaxToken: {
         ...state.avaxToken,
-        balance: new BN(state.avaxToken.balance, 'hex'),
+        balance: hexToBN(state.avaxToken.balance),
       },
       erc20Tokens: state.erc20Tokens.map((token) => ({
         ...token,
-        balance: new BN(token.balance, 'hex'),
+        balance: hexToBN(token.balance),
       })),
     },
   };

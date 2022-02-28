@@ -11,6 +11,7 @@ import { gasPrice$ } from '../../../gas/gas';
 import { firstValueFrom, map, Observable, of, startWith, Subject } from 'rxjs';
 import { BN, stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
+import { hexToBN } from '@src/utils/hexToBN';
 
 async function validateSendAvaxState(request: ExtensionConnectionMessage) {
   const [amount, address, gasPrice, gasLimit] = request.params || [];
@@ -20,7 +21,7 @@ async function validateSendAvaxState(request: ExtensionConnectionMessage) {
       gasPrice$.pipe(
         map((gas) =>
           gasPrice?.bn
-            ? { bn: new BN(gasPrice.bn, 'hex'), value: gasPrice.value }
+            ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
             : gas
         )
       ) as Observable<GasPrice>,

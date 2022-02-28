@@ -9,6 +9,8 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
  * @param hex the hex value
  * @returns BN
  */
-export function hexToBN(hex: string) {
-  return hex.match('0x') ? new BN(BigInt(hex) as any) : new BN(hex, 'hex');
+export function hexToBN(hex: string | BN) {
+  return BN.isBN(hex) || !hex.match('0x')
+    ? new BN(hex, 'hex')
+    : new BN(BigInt(hex) as any);
 }
