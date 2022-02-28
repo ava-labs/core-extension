@@ -29,11 +29,17 @@ const StyledDropDownMenu = styled(DropDownMenu)`
   position: absolute;
   right: 16px;
   top: 0;
-  > div > div {
-    background: transparent;
-    > div > span {
-      padding-right: 12px;
-    }
+`;
+
+const StyledDropdownMenuItem = styled(DropDownMenuItem)`
+  border-bottom: 1px solid ${({ theme }) => `${theme.colors.stroke2}1A`};
+
+  &:hover {
+    background: ${({ theme }) => `${theme.colors.bg1}40`};
+  }
+
+  &:last-of-type {
+    border-bottom: none;
   }
 `;
 
@@ -129,14 +135,14 @@ export function WalletRecentTxs({
   );
 
   const FilterItem = ({ keyName }) => (
-    <DropDownMenuItem onClick={() => setSelectedFilter(keyName)}>
+    <StyledDropdownMenuItem onClick={() => setSelectedFilter(keyName)}>
       <HorizontalFlex justify="space-between" align="center" width="100%">
         <Typography margin="0 16px 0 0">{keyName}</Typography>
         {selectedFilter === keyName && (
           <CheckmarkIcon color={theme.colors.text1} height="12px" />
         )}
       </HorizontalFlex>
-    </DropDownMenuItem>
+    </StyledDropdownMenuItem>
   );
 
   if (filteredTxHistory.length === 0) {
@@ -147,22 +153,21 @@ export function WalletRecentTxs({
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
       <VerticalFlex padding={isEmbedded ? '0' : '4px 16px 68px'}>
         <StyledDropDownMenu
+          coords={{ right: '0' }}
           icon={
-            <Card padding={'10px'}>
-              <HorizontalFlex
-                width="100%"
-                align={'center'}
-                justify="space-between"
-              >
-                <Typography size={12} margin={'0 auto 0 5px'}>
-                  Display: {selectedFilter}
-                </Typography>
-                <CaretIcon height={'12px'} color={theme.colors.text1} />
-              </HorizontalFlex>
-            </Card>
+            <HorizontalFlex
+              padding={'10px'}
+              align={'center'}
+              justify="space-between"
+            >
+              <Typography size={12} margin={'0 8px 0 5px'}>
+                Display: {selectedFilter}
+              </Typography>
+              <CaretIcon height={'12px'} color={theme.colors.text1} />
+            </HorizontalFlex>
           }
         >
-          <VerticalFlex>
+          <VerticalFlex width="200px">
             <FilterItem keyName="All" />
             <FilterItem keyName="Contract Call" />
             <FilterItem keyName="Bridge" />
