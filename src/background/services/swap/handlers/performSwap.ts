@@ -15,6 +15,7 @@ import { gasPrice$ } from '../../gas/gas';
 import { paraSwap$ } from '../swap';
 import ERC20_ABI from 'human-standard-token-abi';
 import { Allowance } from 'paraswap/build/types';
+import { hexToBN } from '@src/utils/hexToBN';
 
 const SERVER_BUSY_ERROR = 'Server too busy';
 
@@ -229,7 +230,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
 
   const [swapTxHash, txError] = await resolve(
     (wallet as WalletType).sendCustomEvmTx(
-      gasPrice.bn ? new BN(gasPrice.bn, 'hex') : defaultGasPrice.bn,
+      gasPrice.bn ? hexToBN(gasPrice.bn) : defaultGasPrice.bn,
       Number(txBuildData.gas),
       txBuildData.data,
       txBuildData.to,

@@ -15,6 +15,7 @@ const TabsContainer = styled(HorizontalFlex)`
 `;
 
 const TabLabel = styled(Typography)<{ selected: boolean }>`
+  position: relative;
   font-size: 14px;
   line-height: 17px;
   font-weight: ${({ selected }) => (selected ? '500' : '400')};
@@ -37,11 +38,31 @@ const Tab = styled.button<{ selected?: boolean }>`
   }
 `;
 
+const Badge = styled(Typography)`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: -8px;
+  right: -14px;
+  font-size: 10px;
+  line-height: 1;
+  min-width: 18px;
+  min-height: 18px;
+  font-weight: 600;
+  padding: 2px;
+  border-radius: 999px;
+  margin-left: 16px;
+  border: ${({ theme }) => `2px solid ${theme.colors.bg1}`};
+  background-color: ${({ theme }) => theme.colors.primary1};
+`;
+
 interface TabsProps {
   tabs: {
     title: string;
     id: string;
     component: ReactNode;
+    badgeAmount?: number;
   }[];
   margin?: string;
 }
@@ -59,7 +80,12 @@ export function Tabs({ tabs, margin }: TabsProps) {
               selected={selectedTab === tab.id}
               onClick={() => setSelectedTab(tab.id)}
             >
-              <TabLabel selected={selectedTab === tab.id}>{tab.title}</TabLabel>
+              <TabLabel selected={selectedTab === tab.id}>
+                {tab.title}
+                {Number(tab.badgeAmount) > 0 && (
+                  <Badge>{tab.badgeAmount}</Badge>
+                )}
+              </TabLabel>
             </Tab>
           ))}
         </TabsContainer>

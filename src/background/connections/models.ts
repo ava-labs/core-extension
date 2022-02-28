@@ -91,6 +91,11 @@ export enum ExtensionRequest {
   ACCOUNT_RENAME = 'account_rename',
   ACCOUNT_ADD = 'account_add',
 
+  BRIDGE_GET_CONFIG = 'bridge_get_config',
+  BRIDGE_GET_ETH_BALANCE = 'bridge_get_eth_balance',
+  BRIDGE_GET_ETH_BALANCES = 'bridge_get_eth_balances',
+  BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
+
   WALLET_STATE = 'wallet_InitializeState',
   WALLET_UNLOCK_STATE = 'wallet_unlockWalletState',
   WALLET_CHANGE_PASSWORD = 'wallet_changePassword',
@@ -136,6 +141,10 @@ export enum ExtensionRequest {
   CONTACTS_CREATE = 'contacts_create',
   CONTACTS_REMOVE = 'contacts_remove',
 
+  BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
+  BRIDGE_TRANSACTIONS_GET = 'bridge_transaction_get',
+  BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
+
   FAVORITES_CREATE = 'favorites_create',
   FAVORITES_REMOVE = 'favorites_remove',
   FAVORITES_GET = 'favorites_get',
@@ -153,3 +162,5 @@ export enum ExtensionRequest {
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
   domain: string;
 }
+
+export const COREX_DOMAINS = ['localhost'];

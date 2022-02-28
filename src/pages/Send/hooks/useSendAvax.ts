@@ -5,6 +5,7 @@ import { sendAvaxValidateRequest } from '@src/background/services/send/sendAvax/
 import { BN, ChainIdType, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { sendAvaxSubmitRequest } from '@src/background/services/send/sendAvax/utils/sendAvaxSubmitRequest';
 import { SendStateWithActions, SetSendValuesParams } from '../models';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export function useSendAvax(): SendStateWithActions {
   const [sendAvaxState, setSendAvaxState] = useState<SendState>();
@@ -14,10 +15,10 @@ export function useSendAvax(): SendStateWithActions {
   const parseAndSetState = (state: SendState) => {
     const parsedState: SendState = {
       ...state,
-      amount: state?.amount ? new BN(state?.amount, 'hex') : undefined,
-      sendFee: new BN(state.sendFee || 0, 'hex'),
-      maxAmount: state.maxAmount && new BN(state.maxAmount, 'hex'),
-      gasPrice: state.gasPrice && new BN(state.gasPrice, 'hex'),
+      amount: state?.amount ? hexToBN(state?.amount) : undefined,
+      sendFee: hexToBN(state.sendFee || '0'),
+      maxAmount: state.maxAmount && hexToBN(state.maxAmount),
+      gasPrice: state.gasPrice && hexToBN(state.gasPrice),
     };
 
     setSendAvaxState(parsedState);

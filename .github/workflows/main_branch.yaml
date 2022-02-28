@@ -8,6 +8,8 @@ jobs:
     name: Release Main Branch
     runs-on: ubuntu-latest
     env:
+      ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+      INFURA_API_KEY: ${{ secrets.INFURA_KEY }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Checkout

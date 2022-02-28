@@ -41,6 +41,7 @@ import { GetContactsStateRequest } from '@src/background/services/contacts/handl
 import { CreateContactStateRequest } from '@src/background/services/contacts/handlers/createContact';
 import { RemoveContactStateRequest } from '@src/background/services/contacts/handlers/removeContact';
 import { settingsUpdatedEvent } from '@src/background/services/settings/events/settingsUpdatedEvent';
+import { bridgeTransactionsUpdatedEvent } from '@src/background/services/bridge/events/bridgeTransactionsUpdateEvents';
 import { SettingsUpdateCurrencySelectionRequest } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { SettingsUpdateShowTokensWithBalanceRequest } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { SettingsUpdateTokensVisibility } from '@src/background/services/settings/handlers/updateTokensVisibility';
@@ -50,6 +51,10 @@ import { ChangeWalletPasswordRequest } from '@src/background/services/wallet/han
 import { GetUnencryptedMnemonicRequest } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { sendTxDetailsEvent } from '@src/background/services/send/events/sendTxDetailsEvent';
 import { accountsUpdateEvents } from '@src/background/services/accounts/events/accountsUpdatedEvent';
+import { GetBridgeConfigRequest } from '@src/background/services/bridge/handlers/getBridgeConfig';
+import { GetEthereumBalanceRequest } from '@src/background/services/bridge/handlers/getEthereumBalance';
+import { GetEthereumBalancesRequest } from '@src/background/services/bridge/handlers/getEthereumBalances';
+import { TransferAssetRequest } from '@src/background/services/bridge/handlers/transferAsset';
 import { CreateFavoriteRequest } from '@src/background/services/favorites/handlers/createFavorite';
 import { GetFavoritesRequest } from '@src/background/services/favorites/handlers/getFavorites';
 import { RemoveFavoriteRequest } from '@src/background/services/favorites/handlers/removeFavorite';
@@ -72,6 +77,11 @@ import { SettingsSetDefaultExtensionRequest } from '@src/background/services/set
 import { permissionsUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 
 import { InitialWalletOpenRequest } from '@src/background/services/onboarding/handlers/updateInitialOpen';
+import { GetBridgeTransactionsStateRequest } from '@src/background/services/bridge/handlers/getBridgeTransactions';
+import { CreateBridgeTransactionStateRequest } from '@src/background/services/bridge/handlers/createBridgeTransaction';
+import { RemoveBridgeTransactionStateRequest } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
+import { bridgeConfigUpdateEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
+import { bridgeTransferEvent } from '@src/background/services/bridge/events/bridgeTransferEvents';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -93,6 +103,11 @@ const extensionRequestHandlerMap = new Map<
   SelectAccountRequest,
   RenameAccountRequest,
   AddAccountRequest,
+
+  GetBridgeConfigRequest,
+  GetEthereumBalanceRequest,
+  GetEthereumBalancesRequest,
+  TransferAssetRequest,
 
   GetWalletStateRequest,
   UnlockWalletStateRequest,
@@ -131,6 +146,10 @@ const extensionRequestHandlerMap = new Map<
   GetContactsStateRequest,
   CreateContactStateRequest,
   RemoveContactStateRequest,
+
+  GetBridgeTransactionsStateRequest,
+  CreateBridgeTransactionStateRequest,
+  RemoveBridgeTransactionStateRequest,
 
   CreateFavoriteRequest,
   GetFavoritesRequest,
@@ -175,12 +194,15 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     onboardingUpdatedEvent(),
     networkUpdateEvents(),
     accountsUpdateEvents(),
+    bridgeConfigUpdateEvents(),
+    bridgeTransferEvent(),
     walletUpdateEvents,
     permissionsUpdateEvents,
     onboardingPhaseUpdatedEvent(),
     gasPriceTransactionUpdate(),
     transactionFinalizedUpdate(),
     settingsUpdatedEvent(),
+    bridgeTransactionsUpdatedEvent(),
     contactsUpdatedEvent(),
     sendTxDetailsEvent(),
     gasPriceSwapUpdate(),

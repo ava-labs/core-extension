@@ -11,8 +11,8 @@ import { OptimalRate, SwapSide } from 'paraswap-core';
 import { GasPrice } from '@src/background/services/gas/models';
 import { filter } from 'rxjs';
 import { gasPriceSwapUpdateListener } from '@src/background/services/swap/events/gasPriceSwapUpdateListener';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { APIError } from 'paraswap';
+import { hexToBN } from '@src/utils/hexToBN';
 
 const SwapContext = createContext<{
   getRate(
@@ -51,7 +51,7 @@ export function SwapContextProvider({ children }: { children: any }) {
     }).then((res) => {
       setGasPrice({
         ...res,
-        bn: new BN(res.bn, 'hex'),
+        bn: hexToBN(res.bn),
       });
     });
   }, [request]);
@@ -62,7 +62,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       .subscribe(function (evt) {
         setGasPrice({
           ...evt.value,
-          bn: new BN(evt.value.bn, 'hex'),
+          bn: hexToBN(evt.value.bn),
         });
       });
 

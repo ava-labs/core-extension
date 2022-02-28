@@ -20,6 +20,7 @@ import { useSend } from './hooks/useSend';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
   getTransactionLink,
+  isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
@@ -30,10 +31,11 @@ import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useContactFromParams } from './hooks/useContactFromParams';
-
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 export function SendMiniMode() {
   const theme = useTheme();
-  const { walletType } = useWalletContext();
+  const { walletType, avaxToken } = useWalletContext();
   const selectedToken = useTokenFromParams();
   const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
@@ -41,14 +43,30 @@ export function SendMiniMode() {
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
   const sendState = useSend(selectedToken);
+
+  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
+
   const setSendState = sendState.setValues;
+  const tokensWBalances = useTokensWithBalances(false);
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
+  const [gasPriceState, setGasPrice] = useState<GasPrice>();
+
   const isMainnet = useIsMainnet();
 
   // Reset send state before leaving the send flow.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => resetSendFlow, []);
+
+  useEffect(() => {
+    if (!defaultGasPrice && sendState.gasPrice) {
+      setDefaultGasPrice({
+        bn: sendState.gasPrice,
+        value: sendState.gasPrice.toString(),
+      });
+    }
+  }, [defaultGasPrice, sendState.gasPrice]);
 
   const resetSendFlow = () => {
     sendState.reset();
@@ -84,25 +102,43 @@ export function SendMiniMode() {
     ({ amount, bn }: { amount: string; bn: BN }) => {
       setAmountInput(bn);
       setAmountInputDisplay(amount);
+      if (gasPriceState) {
+        setSendState({
+          token: selectedToken,
+          amount: amount,
+          address: contactInput?.address,
+          gasPrice: gasPriceState,
+        });
+        return;
+      }
       setSendState({
         token: selectedToken,
         amount: amount,
         address: contactInput?.address,
       });
     },
-    [contactInput?.address, selectedToken, setSendState]
+    [contactInput?.address, gasPriceState, selectedToken, setSendState]
   );
 
-  const onGasChanged = (gasLimit: string, gasPrice: GasPrice) => {
-    setSendState({
-      token: selectedToken,
-      amount: amountInputDisplay,
-      address: contactInput?.address,
-      gasLimit: Number(gasLimit),
-      gasPrice,
-    });
-  };
+  const maxGasPrice =
+    selectedToken && amountInput && isAvaxToken(selectedToken)
+      ? avaxToken.balance.sub(amountInput).toString()
+      : avaxToken.balance.toString();
 
+  const onGasChanged = useCallback(
+    (gasLimit: string, gasPrice: GasPrice, feeType: GasFeeModifier) => {
+      setGasPrice(gasPrice);
+      setSendState({
+        token: selectedToken,
+        amount: amountInputDisplay,
+        address: contactInput?.address,
+        gasLimit: Number(gasLimit),
+        gasPrice,
+      });
+      setSelectedGasFee(feeType);
+    },
+    [amountInputDisplay, contactInput?.address, selectedToken, setSendState]
+  );
   const onSubmit = () => {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
@@ -171,6 +207,10 @@ export function SendMiniMode() {
             fallbackAmountDisplayValue={amountInputDisplay}
             onSubmit={onSubmit}
             onGasChanged={onGasChanged}
+            maxGasPrice={maxGasPrice}
+            gasPrice={gasPriceState}
+            defaultGasPrice={defaultGasPrice}
+            selectedGasFee={selectedGasFee}
           />
         </>
       </Route>
@@ -186,6 +226,7 @@ export function SendMiniMode() {
               amountInput={amountInput}
               onAmountInputChange={onAmountChanged}
               sendState={sendState}
+              tokensWBalances={tokensWBalances}
             />
             <VerticalFlex
               align="center"

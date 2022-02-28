@@ -10,7 +10,10 @@ export function HistoryItemLink({ explorerLink }: HistoryItemLinkProps) {
 
   return (
     <TextButton
-      onClick={() => window.open(explorerLink, '_blank')}
+      onClick={(e) => {
+        e.stopPropagation();
+        window.open(explorerLink, '_blank');
+      }}
       margin={'6px 0 0 8px'}
     >
       <LinkIcon height="12px" color={theme.colors.icon2} />

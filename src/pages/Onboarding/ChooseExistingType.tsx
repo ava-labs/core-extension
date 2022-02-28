@@ -4,11 +4,13 @@ import {
   LedgerIcon,
   RecoveryLockIcon,
   VerticalSeparator,
+  Typography,
 } from '@avalabs/react-components';
 import { OnboardButton, TermsButton } from './components/OnboardButton';
 import { useTheme } from 'styled-components';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { Logo } from '@src/components/icons/Logo';
+import { BrandName } from '@src/components/icons/BrandName';
 
 interface ChooseExistingTypeProps {
   onNext: (isImportFlow: boolean) => void;
@@ -25,14 +27,19 @@ export function ChooseExistingType({
 
   return (
     <VerticalFlex width="100%" align="center">
-      <OnboardingStepHeader
-        title="Access Using..."
-        onBack={onBack}
-        onClose={onCancel}
-      />
-      <VerticalFlex justify="center" margin="48px 0 64px">
-        <Logo height={144} />
+      <OnboardingStepHeader onBack={onBack} onClose={onCancel} />
+      <VerticalFlex justify="center" margin="0px 0 22px">
+        <Logo height={204} />
+        <BrandName width={288} />
       </VerticalFlex>
+      <Typography
+        weight="bold"
+        color={theme.colors.text1}
+        size={20}
+        margin="0 0 22px"
+      >
+        Access using...
+      </Typography>
       <VerticalFlex align="center">
         <HorizontalFlex>
           <OnboardButton title="Recovery Phrase" onClick={() => onNext(true)}>

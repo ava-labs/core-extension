@@ -19,6 +19,7 @@ import { SettingsPageProps, SettingsPages } from '../models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Logo } from '@src/components/icons/Logo';
+import { BrandName } from '@src/components/icons/BrandName';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const theme = useTheme();
@@ -47,7 +48,10 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         justify="space-between"
         align="center"
       >
-        <Logo height={40} showName={true} />
+        <HorizontalFlex align="center">
+          <Logo height={54} />
+          <BrandName width={102} margin="0 0 0 8px" />
+        </HorizontalFlex>
         <TextButton onClick={onClose}>
           <CloseIcon height="16px" color={theme.colors.icon1} />
         </TextButton>

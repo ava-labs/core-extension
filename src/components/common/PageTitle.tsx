@@ -20,6 +20,7 @@ export enum PageTitleVariant {
 
 type PageTitleMiniModeProps = {
   onBackClick?(): void;
+  showBackButton?: boolean;
   variant?: PageTitleVariant;
   buttonPadding?: string;
 };
@@ -27,6 +28,7 @@ type PageTitleMiniModeProps = {
 export const PageTitleMiniMode = ({
   children,
   onBackClick,
+  showBackButton = true,
   variant = PageTitleVariant.SECONDARY,
   buttonPadding,
 }: PropsWithChildren<PageTitleMiniModeProps>) => {
@@ -36,7 +38,7 @@ export const PageTitleMiniMode = ({
   const goBack = () => {
     // history can be empty when the extension is opened and the last
     // location is loaded back from localstorage
-    history.length === 1 ? history.replace('/home') : history.goBack();
+    history.length <= 2 ? history.replace('/home') : history.goBack();
   };
 
   return (
@@ -47,18 +49,25 @@ export const PageTitleMiniMode = ({
       width="100%"
       paddingTop={variant === PageTitleVariant.PRIMARY ? '16px' : undefined}
     >
-      <BackButton
-        onClick={() => (onBackClick ? onBackClick() : goBack())}
-        padding={buttonPadding}
+      {showBackButton && (
+        <BackButton
+          onClick={() => (onBackClick ? onBackClick() : goBack())}
+          padding={buttonPadding}
+        >
+          <CaretIcon
+            height="20px"
+            width="20px"
+            color={theme.colors.icon1}
+            direction={IconDirection.LEFT}
+          />
+        </BackButton>
+      )}
+      <Typography
+        weight={500}
+        size={20}
+        width="100%"
+        margin={showBackButton ? '0' : '0 0 0 16px'}
       >
-        <CaretIcon
-          height="20px"
-          width="20px"
-          color={theme.colors.icon1}
-          direction={IconDirection.LEFT}
-        />
-      </BackButton>
-      <Typography weight={500} size={20}>
         {children}
       </Typography>
     </HorizontalFlex>

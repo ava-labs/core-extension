@@ -43,6 +43,7 @@ import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 import { TokenSelect } from '@src/pages/Send/components/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 
 export interface Token {
   icon?: JSX.Element;
@@ -78,9 +79,11 @@ export function Swap() {
   const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
+
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
+
   const [swapError, setSwapError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
@@ -93,6 +96,7 @@ export function Swap() {
   const [customGasPrice, setCustomGasPrice] = useState<GasPrice | undefined>(
     gasPrice
   );
+
   const [gasCost, setGasCost] = useState('');
   const [destAmount, setDestAmount] = useState('');
   const [destinationInputField, setDestinationInputField] = useState<
@@ -114,6 +118,7 @@ export function Swap() {
   const [isSwapped, setIsSwapped] = useState(false);
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
@@ -137,6 +142,7 @@ export function Swap() {
       }
       setDestinationInputField(destinationInput);
       setIsLoading(true);
+      setIsTransactionDetailsOpen(false);
       setValuesDebouncedSubject.next({
         ...setValuesDebouncedSubject.getValue(),
         fromTokenAddress: getTokenAddress(sourceToken),
@@ -160,12 +166,12 @@ export function Swap() {
 
   useEffect(() => {
     if (
-      gasPrice &&
+      customGasPrice &&
       gasLimit &&
       selectedFromToken &&
       isAvaxToken(selectedFromToken)
     ) {
-      const newFees = calculateGasAndFees(gasPrice, gasLimit, avaxPrice);
+      const newFees = calculateGasAndFees(customGasPrice, gasLimit, avaxPrice);
 
       setGasCost(newFees.fee);
       const max = getMaxValue(selectedFromToken, newFees.fee);
@@ -195,9 +201,9 @@ export function Swap() {
     isCalculateAvaxMax,
     gasCost,
     gasLimit,
-    gasPrice,
     selectedFromToken,
     selectedToToken,
+    customGasPrice,
   ]);
 
   useEffect(() => {
@@ -402,6 +408,20 @@ export function Swap() {
     );
   }
 
+  const onGasChange = useCallback(
+    (limit: string, price: GasPrice, feeType: GasFeeModifier) => {
+      setGasLimit(limit);
+      setCustomGasPrice(price);
+      setSelectedGasFee(feeType);
+    },
+    []
+  );
+
+  const maxGasPrice =
+    selectedFromToken && fromTokenValue && isAvaxToken(selectedFromToken)
+      ? avaxToken.balance.sub(fromTokenValue.bn).toString()
+      : avaxToken.balance.toString();
+
   const canSwap =
     !swapError &&
     selectedFromToken &&
@@ -537,15 +557,15 @@ export function Swap() {
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(optimalRate)}
               walletFee={optimalRate.partnerFee}
-              onGasChange={(limit, price) => {
-                setGasLimit(limit);
-                setCustomGasPrice(price);
-              }}
+              onGasChange={onGasChange}
               gasLimit={gasLimit}
-              gasPrice={gasPrice as any}
+              gasPrice={customGasPrice as any}
+              defaultGasPrice={gasPrice}
+              maxGasPrice={maxGasPrice}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
               setIsOpen={setIsTransactionDetailsOpen}
+              selectedGasFee={selectedGasFee}
             />
           )}
           <ReviewOrderButtonContainer

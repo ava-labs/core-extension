@@ -7,11 +7,11 @@ import { gasPriceTransactionUpdateListener } from '@src/background/services/tran
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { GasPrice } from '@src/background/services/gas/models';
 import Web3 from 'web3';
 import ERC20_ABI from 'human-standard-token-abi';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
+import { hexToBN } from '@src/utils/hexToBN';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -113,12 +113,13 @@ export function useGetTransaction(requestId: string) {
     request({
       method: ExtensionRequest.TRANSACTIONS_GET,
       params: [requestId],
-    }).then((tx) => {
+    }).then((tx: Transaction) => {
       // the gasPrice.bn on the tx is a hex
       // we convert it here to a BN
+
       const gasPrice: GasPrice = {
         ...tx.displayValues.gasPrice,
-        bn: new BN(tx.displayValues.gasPrice.bn, 'hex'),
+        bn: hexToBN(tx.displayValues.gasPrice.bn),
       };
 
       setDefaultGasPrice(gasPrice);
@@ -137,7 +138,7 @@ export function useGetTransaction(requestId: string) {
         .subscribe(function (evt) {
           const gasPrice = {
             ...evt.value,
-            bn: new BN(evt.value.bn, 'hex'),
+            bn: hexToBN(evt.value.bn),
           } as any;
           setDefaultGasPrice(gasPrice);
         })
@@ -169,7 +170,7 @@ export function useGetTransaction(requestId: string) {
 
   useEffect(() => {
     // Handle transaction Approval for REVOKING spend limit
-    if (transaction?.displayValues?.approveData?.limit === '0') {
+    if (transaction?.displayValues?.approveData?.limit === '0x00') {
       setDisplaySpendLimit('0');
       setIsRevokeApproval(true);
     }

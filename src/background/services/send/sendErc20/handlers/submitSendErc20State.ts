@@ -11,10 +11,11 @@ import {
 } from '@avalabs/wallet-react-components';
 import { firstValueFrom, map, of, tap } from 'rxjs';
 import { gasPrice$ } from '../../../gas/gas';
-import { BN, WalletType, stringToBN } from '@avalabs/avalanche-wallet-sdk';
+import { WalletType, stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
 import { resolve } from '@src/utils/promiseResolver';
 import { isWalletLocked } from '@src/background/services/wallet/models';
+import { hexToBN } from '@src/utils/hexToBN';
 
 async function submitSendErc20State(request: ExtensionConnectionMessage) {
   const [token, amount, address, gasLimit, customGasPrice] =
@@ -59,9 +60,7 @@ async function submitSendErc20State(request: ExtensionConnectionMessage) {
 
   const gasPrice = await firstValueFrom(
     gasPrice$.pipe(
-      map((gas) =>
-        customGasPrice ? { bn: new BN(customGasPrice, 'hex') } : gas
-      )
+      map((gas) => (customGasPrice ? { bn: hexToBN(customGasPrice) } : gas))
     )
   );
 

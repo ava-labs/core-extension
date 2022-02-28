@@ -6,7 +6,7 @@ export function LoadingOverlay() {
 
   return (
     <Overlay>
-      <LoadingSpinnerIcon color={theme.colors.primary1} />
+      <LoadingSpinnerIcon color={theme.colors.secondary1} />
     </Overlay>
   );
 }

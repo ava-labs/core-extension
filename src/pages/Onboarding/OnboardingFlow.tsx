@@ -11,6 +11,7 @@ import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { ChooseExistingType } from './ChooseExistingType';
 import { LedgerConnect } from './LedgerConnect';
 import { LedgerTrouble } from './LedgerTrouble';
+import { BrandName } from '@src/components/icons/BrandName';
 
 const ECOSYSTEM_URL = 'https://ecosystem.avax.network?wallet-installed';
 
@@ -127,7 +128,8 @@ export function OnboardingFlow() {
         width="1200px"
         align="center"
       >
-        <Logo showName={true} />
+        <Logo />
+        <BrandName width={102} margin="0 0 0 8px" />
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
         <Card width="568px" minHeight="540px" height="639px" padding="40px">

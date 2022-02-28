@@ -12,7 +12,7 @@ import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { SlippageToolTip } from './SlippageToolTip';
-import { CustomFees } from '@src/components/common/CustomFees';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { GasPrice } from '@src/background/services/gas/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -22,12 +22,19 @@ interface TransactionDetailsProps {
   toTokenSymbol: string;
   rate: number;
   walletFee: number | null;
-  onGasChange: (gasLimit: string, gasPrice: GasPrice) => void;
+  onGasChange: (
+    gasLimit: string,
+    gasPrice: GasPrice,
+    feeType: GasFeeModifier
+  ) => void;
   gasLimit: string;
   gasPrice: GasPrice;
+  defaultGasPrice: GasPrice;
   slippage: string;
   setSlippage: (slippage: string) => void;
   setIsOpen?: (isOpen: boolean) => void;
+  maxGasPrice?: string;
+  selectedGasFee?: GasFeeModifier;
 }
 
 const isSlippageValid = (value: string) => {
@@ -67,11 +74,16 @@ export function TransactionDetails({
   slippage,
   setSlippage,
   setIsOpen,
+  maxGasPrice,
+  defaultGasPrice,
+  selectedGasFee,
 }: TransactionDetailsProps) {
   const { avaxToken } = useWalletContext();
   const { currencyFormatter } = useSettingsContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
+
   const theme = useTheme();
+
   return (
     <Container>
       <TitleContainer
@@ -148,6 +160,9 @@ export function TransactionDetails({
                   gasPrice={gasPrice}
                   limit={gasLimit.toString()}
                   onChange={onGasChange}
+                  maxGasPrice={maxGasPrice}
+                  defaultGasPrice={defaultGasPrice}
+                  selectedGasFeeModifier={selectedGasFee}
                 />
               )}
             </VerticalFlex>

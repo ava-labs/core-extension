@@ -14,7 +14,6 @@ import { SecurityAndPrivacy } from './pages/SecurityAndPrivacy';
 import { ChangePassword } from './pages/ChangePassword';
 import { RecoveryPhrase } from './pages/RecoveryPhrase';
 import { Network } from './pages/Network';
-import { EditContact } from './pages/EditContact';
 import { AddContact } from './pages/AddContact';
 import { ContactList } from './pages/ContactList';
 import { ConnectedSites } from './pages/ConnectedSites';
@@ -141,9 +140,6 @@ export function SettingsMenu() {
       break;
     case SettingsPages.ADD_CONTACT:
       pageElement = <AddContact {...pageProps} />;
-      break;
-    case SettingsPages.EDIT_CONTACT:
-      pageElement = <EditContact {...pageProps} />;
       break;
     case SettingsPages.SECURITY_AND_PRIVACY:
       pageElement = <SecurityAndPrivacy {...pageProps} />;

@@ -46,7 +46,7 @@ export function OnboardButton({
 
 const StyledTermsButton = styled(TextButton)`
   height: 40px;
-  margin: 64px 0 0 0;
+  margin: 46px 0 0 0;
   font-size: 12px;
 `;
 

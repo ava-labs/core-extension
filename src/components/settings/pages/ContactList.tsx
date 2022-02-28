@@ -1,41 +1,28 @@
 import { useState } from 'react';
 import {
   PlusIcon,
-  SecondaryDropDownMenuItem,
   SearchInput,
   TextButton,
   Typography,
   VerticalFlex,
-  SimpleAddress,
   Tooltip,
-  HorizontalSeparator,
+  toast,
+  useDialog,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-
-const AccountName = styled(Typography)`
-  max-width: 95%;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 17px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  color: ${({ theme }) => theme.colors.text2};
-`;
-
-const StyledSecondaryDropDownMenuItem = styled(SecondaryDropDownMenuItem)`
-  :hover ${AccountName} {
-    color: ${({ theme }) => theme.colors.text1};
-  }
-`;
+import { ContactListItem } from '../components/ContactListItem';
+import { Contact } from '@src/background/services/contacts/models';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { contacts, setEditedContact } = useContactsContext();
+  const { contacts, createContact, removeContact } = useContactsContext();
+  const [editingId, setEditingId] = useState('');
+  const [editedContactData, setEditedContactData] = useState<Contact>();
+  const { showDialog, clearDialog } = useDialog();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredContacts = contacts
@@ -46,6 +33,44 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         c.address.toLowerCase().includes(searchTerm) ||
         c.name.toLowerCase().includes(searchTerm)
     );
+
+  const editContact = (e: React.MouseEvent, contact) => {
+    e.stopPropagation();
+    setEditingId(contact.id);
+    setEditedContactData(contact);
+  };
+
+  const onSaveContact = async (e: React.UIEvent, newContact: Contact) => {
+    e.stopPropagation();
+    if (!editedContactData) {
+      return;
+    }
+    await removeContact(editedContactData);
+    await createContact(newContact);
+    setEditingId('');
+    setEditedContactData(undefined);
+    toast.success('Contact updated!');
+  };
+
+  const onDelete = () => {
+    editedContactData &&
+      showDialog({
+        title: 'Delete Contact?',
+        body: 'Are you sure you want to delete this contact?',
+        confirmText: 'Delete',
+        width: '343px',
+        onConfirm: async () => {
+          clearDialog();
+          await removeContact(editedContactData);
+          toast.success('Contact deleted!');
+        },
+        cancelText: 'Cancel',
+        onCancel: () => {
+          clearDialog();
+          setEditingId('');
+        },
+      });
+  };
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -75,31 +100,15 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
             No contacts found
           </Typography>
         )}
-        {filteredContacts.map((c) => (
-          <StyledSecondaryDropDownMenuItem
-            key={c.id}
-            justify="space-between"
-            align="center"
-            onClick={() => {
-              setEditedContact(c);
-              navigateTo(SettingsPages.EDIT_CONTACT);
-            }}
-            padding="8px 16px 0"
-          >
-            <VerticalFlex
-              align="flex-start"
-              justify="space-between"
-              width="100%"
-            >
-              <AccountName title={c.name}>{c.name}</AccountName>
-              <SimpleAddress
-                copyIconProps={{ color: theme.colors.icon2 }}
-                typographyProps={{ color: 'text2' }}
-                address={c.address}
-              />
-              <HorizontalSeparator margin="8px 0 0" />
-            </VerticalFlex>
-          </StyledSecondaryDropDownMenuItem>
+        {filteredContacts.map((contact) => (
+          <ContactListItem
+            key={contact.id}
+            contact={contact}
+            onEdit={editContact}
+            isEditing={editingId === contact.id}
+            onSave={onSaveContact}
+            onDelete={onDelete}
+          />
         ))}
       </Scrollbars>
     </VerticalFlex>
