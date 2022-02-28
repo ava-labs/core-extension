@@ -1,4 +1,5 @@
 import {
+  ComponentSize,
   HorizontalFlex,
   HorizontalSeparator,
   PencilIcon,
@@ -59,12 +60,6 @@ const StyledSecondaryDropDownMenuItem = styled(SecondaryDropDownMenuItem)`
   }
 `;
 
-const StyledSaveButton = styled(TextButton)`
-  color: ${({ theme }) => theme.colors.primary2};
-  margin: 0 0 0 8px;
-  font-size: 12px;
-`;
-
 export const ContactListItem = ({
   contact,
   onEdit,
@@ -104,7 +99,9 @@ export const ContactListItem = ({
                   }}
                   autoFocus
                 />
-                <StyledSaveButton
+                <TextButton
+                  size={ComponentSize.SMALL}
+                  margin="0 0 0 8px"
                   onClick={(e) =>
                     onSave(e, {
                       ...contact,
@@ -113,7 +110,7 @@ export const ContactListItem = ({
                   }
                 >
                   Save
-                </StyledSaveButton>
+                </TextButton>
               </HorizontalFlex>
               <HorizontalFlex>
                 <TextButton onClick={onDelete} margin="0 0 0 8px">

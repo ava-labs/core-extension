@@ -14,7 +14,7 @@ import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { ContactListItem } from '../../../pages/ContactList/ContactListItem';
+import { ContactListItem } from '../components/ContactListItem';
 import { Contact } from '@src/background/services/contacts/models';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {

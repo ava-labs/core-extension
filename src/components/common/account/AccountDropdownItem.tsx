@@ -1,4 +1,5 @@
 import {
+  ComponentSize,
   HorizontalFlex,
   PencilIcon,
   SimpleAddress,
@@ -71,12 +72,6 @@ const AccountItem = styled(HorizontalFlex)<{
   transition: 0.2s ease-in-out;
 `;
 
-const StyledSaveButton = styled(TextButton)`
-  color: ${({ theme }) => theme.colors.primary2};
-  margin: 0 0 0 8px;
-  size: 12px;
-`;
-
 export function AccountDropdownItem({
   account,
   editing,
@@ -131,7 +126,13 @@ export function AccountDropdownItem({
                 }}
                 autoFocus
               />
-              <StyledSaveButton onClick={onSaveClicked}>Save</StyledSaveButton>
+              <TextButton
+                size={ComponentSize.SMALL}
+                margin="0 0 0 8px"
+                onClick={onSaveClicked}
+              >
+                Save
+              </TextButton>
             </>
           ) : (
             <>
