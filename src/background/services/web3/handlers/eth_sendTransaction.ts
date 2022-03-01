@@ -31,6 +31,13 @@ class EthSendTransactionHandler implements DappRequestHandler {
 
     addTransaction.next(request);
 
+    // wait for the transaction to be added to the pending transactions
+    await firstValueFrom(
+      pendingTransactions$.pipe(
+        filter((currentPendingTXs) => !!currentPendingTXs[`${request.id}`])
+      )
+    );
+
     const window = await openExtensionNewWindow(
       `sign/transaction?id=${request.id}`,
       '',
