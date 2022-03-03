@@ -30,6 +30,7 @@ import { useEffect } from 'react';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { BridgeTransaction } from '@src/background/services/bridge/models';
 import { TransactionNormal } from '@avalabs/wallet-react-components';
+import { ElapsedTimer } from '@src/pages/Bridge/components/ElapsedTimer';
 
 const IconCircle = styled(HorizontalFlex)<{ pending: boolean }>`
   width: 32px;
@@ -169,12 +170,19 @@ export function TransactionBridge({
                     <Tooltip
                       placement="bottom"
                       content={
-                        <Typography size={12}>
-                          Started at: {new Date(item.createdAt).getHours()}:
-                          {String(
-                            new Date(item.createdAt).getMinutes()
-                          ).padStart(2, '0')}
-                        </Typography>
+                        <HorizontalFlex align="center" justify="space-between">
+                          {txProps && (
+                            <Typography size={12} margin="0 40px 0 0">
+                              Number of confirmations:{' '}
+                              {txProps.confirmationCount > // to avoid showing 16/15 since confirmations keep going up
+                              txProps.requiredConfirmationCount
+                                ? txProps.requiredConfirmationCount
+                                : txProps.confirmationCount}
+                              /{txProps.requiredConfirmationCount}
+                            </Typography>
+                          )}
+                          <ElapsedTimer startTime={item.createdAt} />
+                        </HorizontalFlex>
                       }
                     >
                       <InfoIcon height="12px" color={theme.colors.icon2} />
