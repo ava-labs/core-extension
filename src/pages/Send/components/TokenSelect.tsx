@@ -100,6 +100,7 @@ export function TokenSelect({
   const [bnError, setBNError] = useState('');
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
+
   // Stringify maxAmount for referential equality in useEffect
   const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
@@ -115,7 +116,7 @@ export function TokenSelect({
           ? currencyFormatter(
               Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
             )
-          : undefined
+          : ''
       );
       onInputAmountChange && onInputAmountChange({ amount, bn });
     },
@@ -218,6 +219,19 @@ export function TokenSelect({
             {amountInCurrency && (
               <Typography size={12} color={theme.colors.text2}>
                 {amountInCurrency} {currency}
+              </Typography>
+            )}
+            {!amountInCurrency && inputAmount && (
+              <Typography size={12} color={theme.colors.text2}>
+                {currencyFormatter(
+                  Number(
+                    bnToLocaleString(
+                      inputAmount,
+                      selectedToken?.denomination
+                    ) || 0
+                  ) * (selectedToken?.priceUSD ?? 0)
+                )}{' '}
+                {currency}
               </Typography>
             )}
           </HorizontalFlex>

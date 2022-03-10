@@ -157,6 +157,11 @@ export enum ExtensionRequest {
   LEDGER_INIT_TRANSPORT = 'ledger_init_transport',
   LEDGER_HAS_TRANSPORT = 'ledger_has_transport',
   LEDGER_GET_PUBLIC = 'ledger_get_public',
+
+  NAVIGATION_HISTORY_GET = 'navigation_history_get',
+  NAVIGATION_HISTORY_SET = 'navigation_history_set',
+  NAVIGATION_HISTORY_DATA_GET = 'navigation_history_data_get',
+  NAVIGATION_HISTORY_DATA_SET = 'navigation_history_data_set',
 }
 
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {

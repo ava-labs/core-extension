@@ -13,7 +13,11 @@ import {
   WarningIcon,
 } from '@avalabs/react-components';
 import { SendFormMiniMode } from './components/SendForm.minimode';
-import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
+import {
+  BN,
+  bnToLocaleString,
+  stringToBN,
+} from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendConfirmMiniMode } from './SendConfirm.minimode';
 import { useSend } from './hooks/useSend';
@@ -33,6 +37,8 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useContactFromParams } from './hooks/useContactFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+
 export function SendMiniMode() {
   const theme = useTheme();
   const { walletType, avaxToken } = useWalletContext();
@@ -54,6 +60,13 @@ export function SendMiniMode() {
   const [gasPriceState, setGasPrice] = useState<GasPrice>();
 
   const isMainnet = useIsMainnet();
+
+  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+  const pageHistory: {
+    address?: string;
+    token?: TokenWithBalance;
+    amountInput?: string;
+  } = getPageHistoryData();
 
   // Reset send state before leaving the send flow.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,6 +115,9 @@ export function SendMiniMode() {
     ({ amount, bn }: { amount: string; bn: BN }) => {
       setAmountInput(bn);
       setAmountInputDisplay(amount);
+      setNavigationHistoryData({
+        amountInput: amount,
+      });
       if (gasPriceState) {
         setSendState({
           token: selectedToken,
@@ -117,8 +133,25 @@ export function SendMiniMode() {
         address: contactInput?.address,
       });
     },
-    [contactInput?.address, gasPriceState, selectedToken, setSendState]
+    [
+      contactInput?.address,
+      gasPriceState,
+      selectedToken,
+      setNavigationHistoryData,
+      setSendState,
+    ]
   );
+
+  // restore page history
+  useEffect(() => {
+    if (pageHistory) {
+      setSendState({
+        token: selectedToken,
+        amount: pageHistory?.amountInput,
+        address: contactInput?.address,
+      });
+    }
+  }, [contactInput?.address, pageHistory, selectedToken, setSendState]);
 
   const maxGasPrice =
     selectedToken && amountInput && isAvaxToken(selectedToken)
@@ -223,7 +256,16 @@ export function SendMiniMode() {
               onContactChange={onContactChanged}
               selectedToken={selectedToken}
               onTokenChange={onTokenChanged}
-              amountInput={amountInput}
+              amountInput={
+                amountInput ||
+                (pageHistory &&
+                  pageHistory.amountInput &&
+                  stringToBN(
+                    pageHistory.amountInput,
+                    selectedToken.denomination || 9
+                  )) ||
+                undefined
+              }
               onAmountInputChange={onAmountChanged}
               sendState={sendState}
               tokensWBalances={tokensWBalances}
