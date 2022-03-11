@@ -7,27 +7,27 @@ import {
   useLocation,
 } from 'react-router-dom';
 import {
+  DialogContextProvider,
   HorizontalFlex,
   LoadingIcon,
   VerticalFlex,
-  DialogContextProvider,
 } from '@avalabs/react-components';
+import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
+import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
-import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
+import { SwapContextProvider } from '@src/contexts/SwapProvider';
+import { useAppDimensions } from '@src/hooks/useAppDimensions';
+import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
 import { Home } from '@src/pages/Home/Home';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { BridgeProvider } from '@src/contexts/BridgeProvider';
-import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
 import { Receive } from '@src/pages/Receive/Receive';
-import { SwapContextProvider } from '@src/contexts/SwapProvider';
-import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
 import { LedgerSupportContextProvider } from '@src/contexts/LedgerSupportProvider';
 import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';

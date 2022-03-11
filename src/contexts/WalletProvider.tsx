@@ -1,8 +1,8 @@
 import {
   createContext,
+  useContext,
   useEffect,
   useCallback,
-  useContext,
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
