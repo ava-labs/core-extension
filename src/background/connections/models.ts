@@ -127,6 +127,10 @@ export enum ExtensionRequest {
   SEND_ERC20_RESET = 'send_resetSendErc20State',
   SEND_ERC20_SUBMIT = 'send_submitSendErc20State',
 
+  SEND_NFT_VALIDATE = 'send_validateSendNftState',
+  SEND_NFT_RESET = 'send_resetSendNftState',
+  SEND_NFT_SUBMIT = 'send_submitSendNfftState',
+
   SETTINGS_GET = 'settings_get',
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',

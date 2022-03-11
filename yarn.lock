@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@avalabs/avalanche-wallet-sdk@0.14.5":
-  version "0.14.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-wallet-sdk/-/avalanche-wallet-sdk-0.14.5.tgz#fc0cec6d522f36cb203bc87d840c7f5b43cec7d9"
-  integrity sha512-mk4hbELNOWilzXBpooZq8i9cyf+eoB4wsRd4GhxwWnniqUK10rDpgEga9DowpVcKmzpIoQtbmxysXfw3qrSDcA==
+"@avalabs/avalanche-wallet-sdk@0.16.0":
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-wallet-sdk/-/avalanche-wallet-sdk-0.16.0.tgz#edc1b93ff8108678d6e09ea24a5f80d56940f746"
+  integrity sha512-GcjQ+MFRu/PAZeTa/HpZXytqMveLxGh1W99sv3DrK9uwNxyaFV9fhyGIzbEQ3EBU1lO7PeDcaAh3kfHCfvSbQg==
   dependencies:
     "@ethereumjs/common" "2.6.0"
     "@ethereumjs/tx" "3.4.0"
@@ -20,7 +20,7 @@
     "@ledgerhq/hw-transport" "^6.19.0"
     "@metamask/eth-sig-util" "^4.0.0"
     "@obsidiansystems/hw-app-avalanche" "0.2.2"
-    "@openzeppelin/contracts" "4.4.2"
+    "@openzeppelin/contracts" "4.5.0"
     avalanche "3.10.1"
     big.js "^6.1.1"
     bip32 "^2.0.6"
@@ -32,6 +32,7 @@
     crypto-js "^4.1.1"
     ethereumjs-util "^7.0.7"
     ethers "^5.1.4"
+    moment "^2.29.1"
     randomstring "^1.2.1"
     sockette "^2.0.6"
     typescript-transform-paths "^2.2.3"
@@ -56,10 +57,10 @@
     big.js "6.1.1"
     ethers "5.2.0"
 
-"@avalabs/react-components@1.90.0":
-  version "1.90.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.90.0.tgz#e1f271f453afdb1a9eb5725ccf8b80527ae9bb3e"
-  integrity sha512-FgEicwATB+aUVDh1QJSvaYiUCKnxBbtOuaKfasORGv/DExHrHU9XxmvKeUT9/intD0LzWxu4NzgJVEJMP+uycg==
+"@avalabs/react-components@1.91.0":
+  version "1.91.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.91.0.tgz#8facf026cf49366df1988199bd81b10891e969b3"
+  integrity sha512-DNYrEWOZ1JEcZa8I4WjQ8HHSO0fQ0MeQXBSCP5fZgNi8M9oHVaNL83oVzy6b8hcfMuDh2MM6+rJmEgPoZPcchg==
   dependencies:
     "@tippyjs/react" "^4.2.6"
     big.js "^6.1.1"
@@ -83,10 +84,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-1.2.0.tgz#f80b3b758a063c169a8caac683b9308b8c6593ac"
   integrity sha512-puLaLe6MGudgZcXCEE0D9vsqn9dHwvIU1pFxkwmMLzeViBURH/mA3Yo3kNSe4rSRVft0YgQnJEr7J9H+M78dJA==
 
-"@avalabs/wallet-react-components@1.24.6":
-  version "1.24.6"
-  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.24.6.tgz#764dbdc2f2d9e2af9397f3b5bc15cfe48d574792"
-  integrity sha512-wiKZ4F/TU725JKccmmCDBGp71ImHE7n04iMd5p1sC7vvl7wePsHxJ2rPUuKm5b4mJ37D7TBUzpR+xVQrprbt2w==
+"@avalabs/wallet-react-components@1.28.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.28.0.tgz#1d57cddabd749169d6d5a3d8d36e1962b8a79a39"
+  integrity sha512-A949kEfe0sdhpoQrGor5KkEknTW4HFcxpl3Td93+qrwJifJSZF4X2xirKxhbmGkcF93BB86gmhhB3Wemckq9hw==
   dependencies:
     "@ledgerhq/hw-transport" "^6.20.0"
     "@testing-library/jest-dom" "^5.14.1"
@@ -2964,10 +2965,10 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
-"@openzeppelin/contracts@4.4.2":
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.4.2.tgz#4e889c9c66e736f7de189a53f8ba5b8d789425c2"
-  integrity sha512-NyJV7sJgoGYqbtNUWgzzOGW4T6rR19FmX1IJgXGdapGPWsuMelGJn9h03nos0iqfforCbCB0iYIR0MtIuIFLLw==
+"@openzeppelin/contracts@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.5.0.tgz#3fd75d57de172b3743cdfc1206883f56430409cc"
+  integrity sha512-fdkzKPYMjrRiPK6K4y64e6GzULR7R7RwxSigHS8DDp7aWDeoReqsQI+cxHV1UuhAqX69L1lAaWDxenfP+xiqzA==
 
 "@pangolindex/exchange-contracts@1.0.2":
   version "1.0.2"
@@ -13669,6 +13670,11 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
+moment@^2.29.1:
+  version "2.29.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
+  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
+
 move-concurrently@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/move-concurrently/-/move-concurrently-1.0.1.tgz#be2c005fda32e0b29af1f05d7c4b33214c701f92"
@@ -16234,6 +16240,11 @@ react-loading-skeleton@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/react-loading-skeleton/-/react-loading-skeleton-3.0.3.tgz#4f45467cf3193fb25456bc02aeb81922b82b8f1f"
   integrity sha512-HPkEqQGwmbg1ImcYA9n4hDiLC3u92xUdU+sSfrv/9l3lNBChAubcl1azjV2WakapdkbA3gko+hPzZkZGIb/9xA==
+
+react-masonry-css@1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/react-masonry-css/-/react-masonry-css-1.0.16.tgz#72b28b4ae3484e250534700860597553a10f1a2c"
+  integrity sha512-KSW0hR2VQmltt/qAa3eXOctQDyOu7+ZBevtKgpNDSzT7k5LA/0XntNa9z9HKCdz3QlxmJHglTZ18e4sX4V8zZQ==
 
 react-modal@3.14.4:
   version "3.14.4"

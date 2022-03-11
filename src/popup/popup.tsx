@@ -95,6 +95,18 @@ const SendFlow = lazy(() => {
   }));
 });
 
+const CollectibleDetails = lazy(() => {
+  return import('../pages/Collectibles/CollectibleDetails').then((m) => ({
+    default: m.CollectibleDetails,
+  }));
+});
+
+const CollectibleSend = lazy(() => {
+  return import('../pages/Collectibles/CollectibleSend').then((m) => ({
+    default: m.CollectibleSend,
+  }));
+});
+
 export function Popup() {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const dimensions = useAppDimensions();
@@ -155,6 +167,7 @@ export function Popup() {
                               '/bridge/transaction-status',
                               '/bridge/transaction-details',
                               '/send/confirm',
+                              '/collectible/send/confirm',
                             ].some((path) =>
                               location.pathname.startsWith(path)
                             ) && (
@@ -208,6 +221,18 @@ export function Popup() {
                                 <Route path="/token">
                                   <Suspense fallback={<LoadingIcon />}>
                                     <TokenFlowPage />
+                                  </Suspense>
+                                </Route>
+
+                                <Route path="/collectible/send">
+                                  <Suspense fallback={<LoadingIcon />}>
+                                    <CollectibleSend />
+                                  </Suspense>
+                                </Route>
+
+                                <Route path="/collectible">
+                                  <Suspense fallback={<LoadingIcon />}>
+                                    <CollectibleDetails />
                                   </Suspense>
                                 </Route>
 

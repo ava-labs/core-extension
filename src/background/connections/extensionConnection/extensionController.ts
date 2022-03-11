@@ -88,6 +88,10 @@ import { SetNavigationHistoryDataStateRequest } from '@src/background/services/n
 import { GetNavigationHistoryStateRequest } from '@src/background/services/navigationHistory/handlers/getNavigationHistory';
 import { SetNavigationHistoryStateRequest } from '@src/background/services/navigationHistory/handlers/setNavigationHistory';
 
+import { SubmitSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/submitSendNftState';
+import { ValidateSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/validateSendNftState';
+import { ResetSendNftStateRequest } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
+
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
   ConnectionRequestHandler
@@ -134,6 +138,10 @@ const extensionRequestHandlerMap = new Map<
   ResetSendErc20StateRequest,
   ValidateSendErc20StateRequest,
   SubmitSendErc20StateRequest,
+
+  SubmitSendNFTStateRequest,
+  ResetSendNftStateRequest,
+  ValidateSendNFTStateRequest,
 
   GetSettingsStateRequest,
   SettingsUpdateCurrencySelectionRequest,

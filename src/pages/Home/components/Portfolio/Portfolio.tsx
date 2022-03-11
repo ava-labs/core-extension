@@ -4,11 +4,13 @@ import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Activity } from '@src/pages/Activity/Activity';
 import { useTheme } from 'styled-components';
+import { Collectibles } from '../../../Collectibles/Collectibles';
 import { TokenList } from './TokenList';
 import { WalletBalances } from './WalletBalances';
 
 enum PortfolioTabs {
   ASSETS = 'ASSETS',
+  COLLECTIBLES = 'COLLECTIBLES',
   ACTIVITY = 'ACTIVITY',
 }
 
@@ -36,6 +38,11 @@ export function Portfolio() {
               title: 'Assets',
               id: PortfolioTabs.ASSETS,
               component: <TokenList />,
+            },
+            {
+              title: 'Collectibles',
+              id: PortfolioTabs.COLLECTIBLES,
+              component: <Collectibles />,
             },
             {
               title: 'Activity',
