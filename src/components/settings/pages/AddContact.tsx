@@ -33,11 +33,17 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
     name: '',
     address: '',
   });
+  const [hasAddressError, setHasAddressError] = useState(false);
+
   const theme = useTheme();
   const { createContact } = useContactsContext();
-  const isValidAddress =
-    AddressHelper.validateAddress(contact.address) &&
-    AddressHelper.getAddressChain(contact.address) === 'C';
+  const isValidAddress = (address: string) => {
+    return (
+      !!address.length &&
+      AddressHelper.validateAddress(address) &&
+      AddressHelper.getAddressChain(address) === 'C'
+    );
+  };
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -49,6 +55,11 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         action={
           <TextButton
             onClick={() => {
+              if (!isValidAddress(contact.address)) {
+                setHasAddressError(true);
+                return;
+              }
+              setHasAddressError(false);
               createContact(contact);
               toast.success('Contact created!');
               goBack();
@@ -78,18 +89,17 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
             size={ComponentSize.SMALL}
             margin="24px 0px 0px"
             onChange={(e) => {
+              const address = e.target.value;
               setContact({
                 ...contact,
-                address: e.target.value,
+                address,
               });
             }}
             value={contact.address}
             label="Address"
-            error={!isValidAddress && contact.address.length > 0}
+            error={hasAddressError}
             errorMessage={
-              !isValidAddress && contact.address.length > 0
-                ? 'Not a valid 0x address'
-                : undefined
+              hasAddressError ? 'Not a valid 0x address' : undefined
             }
             placeholder="Enter the address"
             width="100%"

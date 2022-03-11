@@ -9,6 +9,7 @@ import {
   Toaster,
   walletThemeDark,
 } from '@avalabs/react-components';
+import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
@@ -23,10 +24,12 @@ browser.tabs.query({ active: true }).then(() => {
         lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
         darkTheme={walletThemeDark}
       >
-        <Toaster />
-        <Suspense fallback={<LoadingIcon />}>
-          <App />
-        </Suspense>
+        <ConnectionContextProvider>
+          <Toaster />
+          <Suspense fallback={<LoadingIcon />}>
+            <App />
+          </Suspense>
+        </ConnectionContextProvider>
       </ThemeContextProvider>
     </Router>,
     document.getElementById('popup')

@@ -9,6 +9,12 @@ export type SetSendValuesParams = {
   gasLimit?: number;
 };
 
+export type SetSendNftValuesParams = {
+  address?: string;
+  gasPrice?: GasPrice;
+  gasLimit?: number;
+};
+
 export interface SendStateWithActions extends SendState {
   txId?: string;
   setValues: (args: SetSendValuesParams) => void;

@@ -279,7 +279,7 @@ export function Bridge() {
               <HorizontalFlex justify="space-between">
                 <SwapCard
                   variant="dense"
-                  onChange={handleAmountChanged}
+                  onChange={handleAmountChanged as any}
                   denomination={asset?.denomination}
                   onSelectClick={() => {
                     if (!loading) {

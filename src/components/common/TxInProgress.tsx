@@ -8,6 +8,7 @@ interface TxInProgressProps {
   fee: string;
   amount?: string;
   symbol?: string;
+  nftName?: string;
 }
 
 export function TxInProgress({
@@ -15,6 +16,7 @@ export function TxInProgress({
   amount,
   symbol,
   address,
+  nftName,
 }: TxInProgressProps) {
   const { walletType } = useWalletContext();
 
@@ -26,6 +28,7 @@ export function TxInProgress({
           fee={fee}
           amount={amount}
           symbol={symbol}
+          nftName={nftName}
         />
       </Overlay>
     );

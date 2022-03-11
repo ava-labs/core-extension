@@ -127,6 +127,10 @@ export enum ExtensionRequest {
   SEND_ERC20_RESET = 'send_resetSendErc20State',
   SEND_ERC20_SUBMIT = 'send_submitSendErc20State',
 
+  SEND_NFT_VALIDATE = 'send_validateSendNftState',
+  SEND_NFT_RESET = 'send_resetSendNftState',
+  SEND_NFT_SUBMIT = 'send_submitSendNfftState',
+
   SETTINGS_GET = 'settings_get',
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
@@ -157,6 +161,11 @@ export enum ExtensionRequest {
   LEDGER_INIT_TRANSPORT = 'ledger_init_transport',
   LEDGER_HAS_TRANSPORT = 'ledger_has_transport',
   LEDGER_GET_PUBLIC = 'ledger_get_public',
+
+  NAVIGATION_HISTORY_GET = 'navigation_history_get',
+  NAVIGATION_HISTORY_SET = 'navigation_history_set',
+  NAVIGATION_HISTORY_DATA_GET = 'navigation_history_data_get',
+  NAVIGATION_HISTORY_DATA_SET = 'navigation_history_data_set',
 }
 
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {

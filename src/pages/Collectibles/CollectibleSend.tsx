@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import {
   toast,
   ComponentSize,
@@ -11,66 +10,47 @@ import {
   TransactionToast,
   LoadingSpinnerIcon,
   WarningIcon,
+  Card,
+  HorizontalFlex,
 } from '@avalabs/react-components';
-import { SendFormMiniMode } from './components/SendForm.minimode';
-import {
-  BN,
-  bnToLocaleString,
-  stringToBN,
-} from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
-import { SendConfirmMiniMode } from './SendConfirm.minimode';
-import { useSend } from './hooks/useSend';
-import { Route, Switch, useHistory } from 'react-router-dom';
-import {
-  getTransactionLink,
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
-import { TxInProgress } from '@src/components/common/TxInProgress';
+import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
+import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { GasPrice } from '@src/background/services/gas/models';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
-import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useContactFromParams } from './hooks/useContactFromParams';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
-import { usePageHistory } from '@src/hooks/usePageHistory';
+import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
+import { ContactInput } from '../Send/components/ContactInput';
+import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
+import { CollectibleMedia } from './components/CollectibleMedia';
+import { useContactFromParams } from '../Send/hooks/useContactFromParams';
+import { TxInProgress } from '@src/components/common/TxInProgress';
+import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
+import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
+import { useSendNft } from '../Send/hooks/useSendNft';
 
-export function SendMiniMode() {
+export function CollectibleSend() {
   const theme = useTheme();
-  const { walletType, avaxToken } = useWalletContext();
-  const selectedToken = useTokenFromParams();
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const { avaxToken, walletType } = useWalletContext();
+  const { nft, tokenId } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
-  const setSendDataInParams = useSetSendDataInParams();
+  const setCollectibleParams = useSetCollectibleParams();
+  const sendState = useSendNft(nft?.contractAddress || '', Number(tokenId));
   const history = useHistory();
-  const [amountInput, setAmountInput] = useState<BN>();
-  const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
-  const sendState = useSend(selectedToken);
-
-  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
 
   const setSendState = sendState.setValues;
-  const tokensWBalances = useTokensWithBalances(false);
+
+  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [gasPriceState, setGasPrice] = useState<GasPrice>();
 
   const isMainnet = useIsMainnet();
-
-  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
-  const pageHistory: {
-    address?: string;
-    token?: TokenWithBalance;
-    amountInput?: string;
-  } = getPageHistoryData();
-
-  // Reset send state before leaving the send flow.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => resetSendFlow, []);
 
   useEffect(() => {
     if (!defaultGasPrice && sendState.gasPrice) {
@@ -81,97 +61,33 @@ export function SendMiniMode() {
     }
   }, [defaultGasPrice, sendState.gasPrice]);
 
-  const resetSendFlow = () => {
-    sendState.reset();
-  };
-
   const onContactChanged = (contact: Contact) => {
-    setSendDataInParams({
-      token: selectedToken,
+    setCollectibleParams({
+      nft: nft,
+      tokenId,
       address: contact.address,
       options: { replace: true },
     });
     setSendState({
-      token: selectedToken,
-      amount: amountInputDisplay,
       address: contact.address,
     });
   };
 
-  const onTokenChanged = (token: TokenWithBalance) => {
-    setSendDataInParams({
-      token,
-      address: contactInput?.address,
-      options: { replace: true },
-    });
-    setSendState({
-      token,
-      amount: amountInputDisplay,
-      address: contactInput?.address,
-    });
-  };
-
-  const onAmountChanged = useCallback(
-    ({ amount, bn }: { amount: string; bn: BN }) => {
-      setAmountInput(bn);
-      setAmountInputDisplay(amount);
-      setNavigationHistoryData({
-        amountInput: amount,
-      });
-      if (gasPriceState) {
-        setSendState({
-          token: selectedToken,
-          amount: amount,
-          address: contactInput?.address,
-          gasPrice: gasPriceState,
-        });
-        return;
-      }
-      setSendState({
-        token: selectedToken,
-        amount: amount,
-        address: contactInput?.address,
-      });
-    },
-    [
-      contactInput?.address,
-      gasPriceState,
-      selectedToken,
-      setNavigationHistoryData,
-      setSendState,
-    ]
-  );
-
-  // restore page history
-  useEffect(() => {
-    if (pageHistory) {
-      setSendState({
-        token: selectedToken,
-        amount: pageHistory?.amountInput,
-        address: contactInput?.address,
-      });
-    }
-  }, [contactInput?.address, pageHistory, selectedToken, setSendState]);
-
-  const maxGasPrice =
-    selectedToken && amountInput && isAvaxToken(selectedToken)
-      ? avaxToken.balance.sub(amountInput).toString()
-      : avaxToken.balance.toString();
+  const maxGasPrice = avaxToken.balance.toString();
 
   const onGasChanged = useCallback(
     (gasLimit: string, gasPrice: GasPrice, feeType: GasFeeModifier) => {
       setGasPrice(gasPrice);
       setSendState({
-        token: selectedToken,
-        amount: amountInputDisplay,
         address: contactInput?.address,
         gasLimit: Number(gasLimit),
         gasPrice,
       });
       setSelectedGasFee(feeType);
     },
-    [amountInputDisplay, contactInput?.address, selectedToken, setSendState]
+    [contactInput?.address, setSendState]
   );
+
   const onSubmit = () => {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
@@ -193,7 +109,7 @@ export function SendMiniMode() {
     sendState
       .submit()
       .then((txId) => {
-        resetSendFlow();
+        sendState.reset();
         toast.custom(
           <TransactionToast
             status="Transaction Successful"
@@ -221,23 +137,27 @@ export function SendMiniMode() {
       });
   };
 
+  const nftItem = nft?.nftData.find((item) => item.tokenId === tokenId);
+  if (!nft || !tokenId || !nftItem) {
+    return <Redirect to={'/'} />;
+  }
+
   return (
     <Switch>
-      <Route path="/send/confirm">
+      <Route path="/collectible/send/confirm">
         <>
           {showTxInProgress && (
             <TxInProgress
-              address={sendState?.address}
-              amount={amountInputDisplay}
-              symbol={selectedToken.symbol}
+              address={sendState?.contractAddress}
+              nftName={nftItem.externalData.name}
               fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
             />
           )}
-          <SendConfirmMiniMode
+          <CollectibleSendConfirm
             sendState={sendState}
             contact={contactInput as Contact}
-            token={selectedToken}
-            fallbackAmountDisplayValue={amountInputDisplay}
+            nft={nft}
+            tokenId={tokenId}
             onSubmit={onSubmit}
             onGasChanged={onGasChanged}
             maxGasPrice={maxGasPrice}
@@ -247,29 +167,37 @@ export function SendMiniMode() {
           />
         </>
       </Route>
-      <Route path="/send">
+      <Route path="/collectible/send">
         <VerticalFlex height="100%" width="100%">
           <PageTitleMiniMode>Send</PageTitleMiniMode>
           <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
-            <SendFormMiniMode
-              contactInput={contactInput}
-              onContactChange={onContactChanged}
-              selectedToken={selectedToken}
-              onTokenChange={onTokenChanged}
-              amountInput={
-                amountInput ||
-                (pageHistory &&
-                  pageHistory.amountInput &&
-                  stringToBN(
-                    pageHistory.amountInput,
-                    selectedToken.denomination || 9
-                  )) ||
-                undefined
+            <ContactInput
+              contact={contactInput}
+              onChange={onContactChanged}
+              isContactsOpen={isContactsOpen}
+              toggleContactsDropdown={(to?: boolean) =>
+                setIsContactsOpen(to ?? !isContactsOpen)
               }
-              onAmountInputChange={onAmountChanged}
-              sendState={sendState}
-              tokensWBalances={tokensWBalances}
             />
+            <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
+              <Typography size={12} height="15px">
+                Collectible
+              </Typography>
+              <Card padding="16px" margin="8px 0 0" height="auto">
+                <HorizontalFlex>
+                  <CollectibleMedia
+                    width="auto"
+                    maxWidth="80px"
+                    height="80px"
+                    url={nftItem?.externalData.imageSmall}
+                    hover={false}
+                  />
+                  <Typography size={14} height="17px" margin="0 0 0 16px">
+                    {nftItem.externalData.name}
+                  </Typography>
+                </HorizontalFlex>
+              </Card>
+            </VerticalFlex>
             <VerticalFlex
               align="center"
               justify="flex-end"
@@ -287,10 +215,11 @@ export function SendMiniMode() {
                   size={ComponentSize.LARGE}
                   width="343px"
                   onClick={() => {
-                    setSendDataInParams({
-                      token: selectedToken,
+                    setCollectibleParams({
+                      nft,
+                      tokenId,
                       address: contactInput?.address,
-                      options: { path: '/send/confirm' },
+                      options: { path: '/collectible/send/confirm' },
                     });
                   }}
                   disabled={!sendState.canSubmit}

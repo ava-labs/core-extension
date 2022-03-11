@@ -44,6 +44,8 @@ import { TokenSelect } from '@src/pages/Send/components/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+import { hexToBN } from '@src/utils/hexToBN';
 
 export interface Token {
   icon?: JSX.Element;
@@ -53,6 +55,11 @@ export interface Token {
 export interface SwapRate extends OptimalRate {
   status?: number;
   message?: string;
+}
+
+interface Amount {
+  bn: BN;
+  amount: string;
 }
 
 const SwitchIconContainer = styled(PrimaryIconButton)<{ isSwapped: boolean }>`
@@ -83,6 +90,13 @@ export function Swap() {
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
+  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+  const pageHistory: {
+    selectedFromToken?: TokenWithBalance;
+    selectedToToken?: TokenWithBalance;
+    destinationInputField?: 'from' | 'to' | '';
+    tokenValue?: Amount;
+  } = getPageHistoryData();
 
   const [swapError, setSwapError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -92,6 +106,7 @@ export function Swap() {
   const [optimalRate, setOptimalRate] = useState<OptimalRate>();
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
+
   const [gasLimit, setGasLimit] = useState('');
   const [customGasPrice, setCustomGasPrice] = useState<GasPrice | undefined>(
     gasPrice
@@ -103,10 +118,8 @@ export function Swap() {
     'from' | 'to' | ''
   >('');
 
-  const [fromTokenValue, setFromTokenValue] =
-    useState<{ bn: BN; amount: string }>();
-  const [toTokenValue, setToTokenValue] =
-    useState<{ bn: BN; amount: string }>();
+  const [fromTokenValue, setFromTokenValue] = useState<Amount>();
+  const [toTokenValue, setToTokenValue] = useState<Amount>();
   const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
   const [slippageTolerance, setSlippageTolerance] = useState('1');
 
@@ -122,7 +135,7 @@ export function Swap() {
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
-      amount?: { bn: BN; amount: string };
+      amount?: Amount;
       toTokenAddress?: string;
       fromTokenAddress?: string;
       toTokenDecimals?: number;
@@ -132,7 +145,7 @@ export function Swap() {
 
   const calculateTokenValueToInput = useCallback(
     (
-      amount: { bn: BN; amount: string },
+      amount: Amount,
       destinationInput: 'from' | 'to' | '',
       sourceToken?: TokenWithBalance,
       destinationToken?: TokenWithBalance
@@ -163,6 +176,47 @@ export function Swap() {
       parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
     return destAmountNumber / sourceAmountNumber;
   };
+
+  // reload and recalculate the data from the history
+  useEffect(() => {
+    if (pageHistory) {
+      const selectedFromToken = pageHistory.selectedFromToken
+        ? {
+            ...pageHistory.selectedFromToken,
+            balance: hexToBN(pageHistory.selectedFromToken.balance),
+          }
+        : undefined;
+      setSelectedFromToken(selectedFromToken);
+      const selectedToToken = pageHistory.selectedToToken
+        ? {
+            ...pageHistory.selectedToToken,
+            balance: hexToBN(pageHistory.selectedToToken.balance),
+          }
+        : undefined;
+      setSelectedToToken(selectedToToken);
+      const tokenValueBN =
+        pageHistory.tokenValue && pageHistory.tokenValue.bn
+          ? hexToBN(pageHistory.tokenValue.bn)
+          : new BN(0);
+      if (pageHistory.destinationInputField === 'from') {
+        setToTokenValue({
+          bn: tokenValueBN,
+          amount: bnToLocaleString(tokenValueBN),
+        });
+      } else {
+        setFromDefaultValue(tokenValueBN);
+      }
+      calculateTokenValueToInput(
+        {
+          bn: tokenValueBN,
+          amount: bnToLocaleString(tokenValueBN),
+        },
+        pageHistory.destinationInputField || 'to',
+        selectedFromToken,
+        selectedToToken
+      );
+    }
+  }, [calculateTokenValueToInput, pageHistory]);
 
   useEffect(() => {
     if (
@@ -448,6 +502,12 @@ export function Swap() {
                 selectedFromToken: token,
                 selectedToToken,
               });
+              setNavigationHistoryData({
+                selectedFromToken: token,
+                selectedToToken,
+                tokenValue: fromTokenValue,
+                destinationInputField,
+              });
             }}
             onSelectToggle={() => {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
@@ -493,6 +553,12 @@ export function Swap() {
                 selectedFromToken,
                 selectedToToken
               );
+              setNavigationHistoryData({
+                selectedFromToken,
+                selectedToToken,
+                tokenValue: value,
+                destinationInputField: 'to',
+              });
             }}
           />
 
@@ -525,6 +591,12 @@ export function Swap() {
                 selectedFromToken,
                 selectedToToken: token,
               });
+              setNavigationHistoryData({
+                selectedFromToken,
+                selectedToToken: token,
+                tokenValue: fromTokenValue,
+                destinationInputField,
+              });
             }}
             onSelectToggle={() => {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
@@ -536,7 +608,7 @@ export function Swap() {
             inputAmount={
               destinationInputField === 'to' && destAmount
                 ? new BN(destAmount)
-                : new BN(0)
+                : toTokenValue?.bn || new BN(0)
             }
             isValueLoading={destinationInputField === 'to' && isLoading}
             hideErrorMessage
@@ -548,6 +620,12 @@ export function Swap() {
                 selectedFromToken,
                 selectedToToken
               );
+              setNavigationHistoryData({
+                selectedFromToken,
+                selectedToToken,
+                tokenValue: value,
+                destinationInputField: 'from',
+              });
             }}
           />
 

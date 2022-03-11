@@ -1,4 +1,4 @@
-import { network$ } from '@avalabs/wallet-react-components';
+import { setNetwork } from '@avalabs/wallet-react-components';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DappRequestHandler } from '@src/background/connections/models';
 import { supportedNetworksByChainID } from './../../network/models';
@@ -30,7 +30,7 @@ class WalletSwitchEthereumChainHandler implements DappRequestHandler {
         } as any,
       };
     }
-    network$.next(targetNetwork);
+    setNetwork(targetNetwork);
     return {
       ...request,
       result: null,

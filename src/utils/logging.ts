@@ -65,7 +65,7 @@ export function disconnectLog(message: string) {
 }
 
 export function responseLog(message: string, value?: any) {
-  if (value.result || value.data?.result) {
+  if (value.result || value.data?.result || value.result === '') {
     formatAndLog(`🚀 ${message}`, value, { color: '#A6BF4B' });
   } else if (value.error || value.data?.error) {
     formatAndLog(`💥 ${message}`, value, { color: '#E3460E' });

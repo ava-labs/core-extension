@@ -83,6 +83,15 @@ import { RemoveBridgeTransactionStateRequest } from '@src/background/services/br
 import { bridgeConfigUpdateEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
 import { bridgeTransferEvent } from '@src/background/services/bridge/events/bridgeTransferEvents';
 
+import { GetNavigationHistoryDataStateRequest } from '@src/background/services/navigationHistory/handlers/getNavigationHistoryData';
+import { SetNavigationHistoryDataStateRequest } from '@src/background/services/navigationHistory/handlers/setNavigationHistoryData';
+import { GetNavigationHistoryStateRequest } from '@src/background/services/navigationHistory/handlers/getNavigationHistory';
+import { SetNavigationHistoryStateRequest } from '@src/background/services/navigationHistory/handlers/setNavigationHistory';
+
+import { SubmitSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/submitSendNftState';
+import { ValidateSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/validateSendNftState';
+import { ResetSendNftStateRequest } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
+
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
   ConnectionRequestHandler
@@ -130,6 +139,10 @@ const extensionRequestHandlerMap = new Map<
   ValidateSendErc20StateRequest,
   SubmitSendErc20StateRequest,
 
+  SubmitSendNFTStateRequest,
+  ResetSendNftStateRequest,
+  ValidateSendNFTStateRequest,
+
   GetSettingsStateRequest,
   SettingsUpdateCurrencySelectionRequest,
   SettingsUpdateShowTokensWithBalanceRequest,
@@ -163,6 +176,11 @@ const extensionRequestHandlerMap = new Map<
   InitLedgerTransportRequest,
   HasLedgerTransportRequest,
   GetPublicKeyRequest,
+
+  GetNavigationHistoryDataStateRequest,
+  SetNavigationHistoryDataStateRequest,
+  GetNavigationHistoryStateRequest,
+  SetNavigationHistoryStateRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {

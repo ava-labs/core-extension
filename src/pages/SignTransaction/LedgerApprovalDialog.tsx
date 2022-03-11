@@ -13,6 +13,7 @@ interface LedgerApprovalDialogProps {
   amount?: string;
   symbol?: string;
   fee?: string;
+  nftName?: string;
 }
 
 const StyledCard = styled(Card)`
@@ -27,6 +28,7 @@ export function LedgerApprovalDialog({
   amount,
   symbol,
   fee,
+  nftName,
 }: LedgerApprovalDialogProps) {
   const theme = useTheme();
   return (
@@ -73,6 +75,16 @@ export function LedgerApprovalDialog({
               </Typography>
               <Typography height="24px" weight={600}>
                 {fee} AVAX
+              </Typography>
+            </VerticalFlex>
+          )}
+          {nftName && (
+            <VerticalFlex>
+              <Typography height="17px" size={14} margin="0 0 4px 0">
+                Collectible
+              </Typography>
+              <Typography height="24px" weight={600}>
+                {nftName}
               </Typography>
             </VerticalFlex>
           )}
