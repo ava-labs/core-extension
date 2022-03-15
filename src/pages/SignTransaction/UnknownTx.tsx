@@ -23,6 +23,7 @@ export function UnknownTx({
   transactionState,
   hash,
   error,
+  selectedGasFee,
 }: TransactionDisplayValues) {
   return (
     <VerticalFlex width="100%">
@@ -58,6 +59,7 @@ export function UnknownTx({
             gasPrice={gasPrice}
             limit={gasLimit?.toString()}
             onCustomFeeSet={onCustomFeeSet}
+            selectedGasFee={selectedGasFee}
           />
         ) : (
           <SuccessFailTxInfo

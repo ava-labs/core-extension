@@ -131,7 +131,9 @@ export function Swap() {
   const [isSwapped, setIsSwapped] = useState(false);
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
-  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{

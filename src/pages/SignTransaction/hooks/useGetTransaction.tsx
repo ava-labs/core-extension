@@ -12,6 +12,7 @@ import Web3 from 'web3';
 import ERC20_ABI from 'human-standard-token-abi';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
 import { hexToBN } from '@src/utils/hexToBN';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -34,6 +35,9 @@ export function useGetTransaction(requestId: string) {
     limitType: Limit.UNLIMITED,
   });
   const [isRevokeApproval, setIsRevokeApproval] = useState<boolean>(false);
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const updateTransaction = useCallback(
     (update) => {
@@ -46,8 +50,9 @@ export function useGetTransaction(requestId: string) {
   );
 
   const setCustomFee = useCallback(
-    (gasLimit: string, gasPrice: GasPrice) => {
+    (gasLimit: string, gasPrice: GasPrice, modifier: GasFeeModifier) => {
       setCustomGas({ gasLimit, gasPrice });
+      setSelectedGasFee(modifier);
 
       const feeDisplayValues = calculateGasAndFees(
         gasPrice,
@@ -200,6 +205,8 @@ export function useGetTransaction(requestId: string) {
       displaySpendLimit,
       customSpendLimit,
       isRevokeApproval,
+      selectedGasFee,
+      setSelectedGasFee,
     };
   }, [
     defaultGasPrice,
@@ -214,5 +221,7 @@ export function useGetTransaction(requestId: string) {
     displaySpendLimit,
     customSpendLimit,
     isRevokeApproval,
+    selectedGasFee,
+    setSelectedGasFee,
   ]);
 }

@@ -36,6 +36,7 @@ export function ApproveTx({
   transactionState,
   hash,
   error,
+  selectedGasFee,
   ...rest
 }: ApproveTransactionData & TransactionProgressData) {
   const theme = useTheme();
@@ -119,6 +120,7 @@ export function ApproveTx({
             gasPrice={gasPrice}
             limit={gasLimit?.toString() as string}
             onCustomFeeSet={onCustomFeeSet}
+            selectedGasFee={selectedGasFee}
           />
         ) : (
           <SuccessFailTxInfo

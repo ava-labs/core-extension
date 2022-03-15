@@ -45,7 +45,9 @@ export function CollectibleSend() {
   const setSendState = sendState.setValues;
 
   const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
-  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [gasPriceState, setGasPrice] = useState<GasPrice>();

@@ -7,7 +7,7 @@ import {
 } from '@avalabs/react-components';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
 import { Tabs } from '@src/components/common/Tabs';
-import { CustomFees } from '@src/components/common/CustomFees';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { GasPrice } from '@src/background/services/gas/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import Scrollbars from 'react-custom-scrollbars-2';
@@ -17,6 +17,7 @@ interface TransactionTabsType {
   children?: JSX.Element;
   gasPrice?: GasPrice;
   limit?: string;
+  selectedGasFee: GasFeeModifier;
   onCustomFeeSet?: () => void;
 }
 
@@ -25,6 +26,7 @@ export function TransactionTabs({
   children,
   gasPrice,
   limit,
+  selectedGasFee,
   onCustomFeeSet,
 }: TransactionTabsType) {
   // Details Tab
@@ -41,6 +43,7 @@ export function TransactionTabs({
           gasPrice={gasPrice}
           limit={limit}
           onChange={onCustomFeeSet}
+          selectedGasFeeModifier={selectedGasFee}
         />
       )}
 

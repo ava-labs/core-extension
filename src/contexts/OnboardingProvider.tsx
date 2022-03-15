@@ -85,16 +85,18 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     [request]
   );
 
-  if (!onboardingState) {
-    return <LoadingIcon />;
-  }
-
   /**
    * If they are on the popup.html file then force onboarding to a tab. These files are created
    * in the webpack config and we decipher the environment by the .html file.
    */
-  if (!isHome && !onboardingState.isOnBoarded) {
-    browser.tabs.create({ url: '/home.html' });
+  useEffect(() => {
+    if (!isHome && onboardingState && !onboardingState.isOnBoarded) {
+      browser.tabs.create({ url: '/home.html' });
+    }
+  }, [isHome, onboardingState]);
+
+  if (!onboardingState) {
+    return <LoadingIcon />;
   }
 
   function setNextPhase(phase: OnboardingPhase) {

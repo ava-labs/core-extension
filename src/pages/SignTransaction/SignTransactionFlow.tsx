@@ -27,7 +27,6 @@ import { LedgerApprovalOverlay } from './LedgerApprovalOverlay';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { useTheme } from 'styled-components';
 import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundary';
-import { GasPrice } from '@src/background/services/gas/models';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
@@ -48,6 +47,8 @@ export function SignTransactionPage() {
     displaySpendLimit,
     customSpendLimit,
     isRevokeApproval,
+    selectedGasFee,
+    setSelectedGasFee,
     ...params
   } = useGetTransaction(requestId);
   const [transactionProgressState, setTransactionProgressState] = useState(
@@ -123,9 +124,8 @@ export function SignTransactionPage() {
                   transactionState={transactionProgressState}
                   hash={hash}
                   error={txFailedError}
-                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
-                    setCustomFee(gasLimit, gas);
-                  }}
+                  onCustomFeeSet={setCustomFee}
+                  selectedGasFee={selectedGasFee}
                 />
               ),
               [ContractCall.APPROVE]: (
@@ -137,9 +137,8 @@ export function SignTransactionPage() {
                   setShowCustomSpendLimit={setShowCustomSpendLimit}
                   displaySpendLimit={displaySpendLimit}
                   isRevokeApproval={isRevokeApproval}
-                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
-                    setCustomFee(gasLimit, gas);
-                  }}
+                  onCustomFeeSet={setCustomFee}
+                  selectedGasFee={selectedGasFee}
                 />
               ),
               [ContractCall.ADD_LIQUIDITY]: (
@@ -148,9 +147,8 @@ export function SignTransactionPage() {
                   transactionState={transactionProgressState}
                   hash={hash}
                   error={txFailedError}
-                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
-                    setCustomFee(gasLimit, gas);
-                  }}
+                  onCustomFeeSet={setCustomFee}
+                  selectedGasFee={selectedGasFee}
                 />
               ),
               [ContractCall.ADD_LIQUIDITY_AVAX]: (
@@ -159,9 +157,8 @@ export function SignTransactionPage() {
                   transactionState={transactionProgressState}
                   hash={hash}
                   error={txFailedError}
-                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
-                    setCustomFee(gasLimit, gas);
-                  }}
+                  onCustomFeeSet={setCustomFee}
+                  selectedGasFee={selectedGasFee}
                 />
               ),
               ['unknown']: (
@@ -170,9 +167,8 @@ export function SignTransactionPage() {
                   transactionState={transactionProgressState}
                   hash={hash}
                   error={txFailedError}
-                  onCustomFeeSet={(gasLimit: string, gas: GasPrice) => {
-                    setCustomFee(gasLimit, gas);
-                  }}
+                  onCustomFeeSet={setCustomFee}
+                  selectedGasFee={selectedGasFee}
                 />
               ),
             }[contractType || 'unknown']

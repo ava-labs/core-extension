@@ -24,6 +24,7 @@ export function SwapTx({
   transactionState,
   hash,
   error,
+  selectedGasFee,
 }: SwapExactTokensForTokenDisplayValues & TransactionProgressData) {
   const [sentToken] = path;
   const receivingToken = path[path.length - 1];
@@ -70,6 +71,7 @@ export function SwapTx({
             gasPrice={gasPrice}
             limit={gasLimit?.toString()}
             onCustomFeeSet={onCustomFeeSet}
+            selectedGasFee={selectedGasFee}
           />
         ) : (
           <SuccessFailTxInfo

@@ -54,7 +54,9 @@ export function SendMiniMode() {
 
   const setSendState = sendState.setValues;
   const tokensWBalances = useTokensWithBalances(false);
-  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [gasPriceState, setGasPrice] = useState<GasPrice>();
