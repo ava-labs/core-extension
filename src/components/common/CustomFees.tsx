@@ -125,6 +125,9 @@ export function CustomFees({
   const theme = useTheme();
 
   const [showEditGasLimit, setShowEditGasLimit] = useState(false);
+  const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
+    selectedGasFeeModifier || GasFeeModifier.NORMAL
+  );
 
   const handleGasChange = useCallback(
     (gas: GasPrice, modifier: GasFeeModifier): void => {
@@ -139,7 +142,11 @@ export function CustomFees({
         setIsGasPriceTooHigh(true);
         return;
       }
-      setCustomGasInput(gas.value || '0');
+
+      if (modifier === GasFeeModifier.CUSTOM) {
+        setCustomGasInput(gas.value || '0');
+      }
+
       setNewFees(newFees);
       // call cb with limit and gas
       onChange(customGasLimit, gas, modifier);
@@ -166,6 +173,7 @@ export function CustomFees({
       if (!modifier) {
         return;
       }
+      setSelectedFee(modifier);
       switch (modifier) {
         case GasFeeModifier.FAST: {
           handleGasChange(gasModifer(0.05), modifier);
@@ -195,13 +203,6 @@ export function CustomFees({
   useEffect(() => {
     updateGasFee(selectedGasFeeModifier);
   }, [selectedGasFeeModifier, updateGasFee]);
-
-  const isSelectedGasFee = (feeType: GasFeeModifier) => {
-    if (!selectedGasFeeModifier && feeType === GasFeeModifier.NORMAL) {
-      return true;
-    }
-    return selectedGasFeeModifier === feeType;
-  };
 
   if (showEditGasLimit && customGasPrice) {
     return (
@@ -258,7 +259,7 @@ export function CustomFees({
           <HorizontalFlex justify="space-between">
             <FeeButton
               disabled={gasPriceEditDisabled}
-              className={isSelectedGasFee(GasFeeModifier.NORMAL) ? 'focus' : ''}
+              className={selectedFee === GasFeeModifier.NORMAL ? 'focus' : ''}
               onClick={() => {
                 updateGasFee(GasFeeModifier.NORMAL);
               }}
@@ -269,7 +270,7 @@ export function CustomFees({
             </FeeButton>
             <FeeButton
               disabled={gasPriceEditDisabled}
-              className={isSelectedGasFee(GasFeeModifier.FAST) ? 'focus' : ''}
+              className={selectedFee === GasFeeModifier.FAST ? 'focus' : ''}
               onClick={() => {
                 updateGasFee(GasFeeModifier.FAST);
               }}
@@ -280,9 +281,7 @@ export function CustomFees({
             </FeeButton>
             <FeeButton
               disabled={gasPriceEditDisabled}
-              className={
-                isSelectedGasFee(GasFeeModifier.INSTANT) ? 'focus' : ''
-              }
+              className={selectedFee === GasFeeModifier.INSTANT ? 'focus' : ''}
               onClick={() => {
                 updateGasFee(GasFeeModifier.INSTANT);
               }}
@@ -293,7 +292,7 @@ export function CustomFees({
             </FeeButton>
             <FeeButton
               disabled={gasPriceEditDisabled}
-              className={isSelectedGasFee(GasFeeModifier.CUSTOM) ? 'focus' : ''}
+              className={selectedFee === GasFeeModifier.CUSTOM ? 'focus' : ''}
               onClick={() => {
                 updateGasFee(GasFeeModifier.CUSTOM);
                 customInputRef?.current?.focus();
@@ -301,13 +300,7 @@ export function CustomFees({
               width="65px"
             >
               <VerticalFlex>
-                <CustomLabel
-                  className={
-                    isSelectedGasFee(GasFeeModifier.CUSTOM) ? 'focus' : ''
-                  }
-                >
-                  Custom
-                </CustomLabel>
+                <CustomLabel>Custom</CustomLabel>
                 <CustomInput
                   ref={customInputRef}
                   type={'number'}
