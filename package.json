@@ -19,7 +19,7 @@
     "@avalabs/blizzard-sdk": "2.0.0",
     "@avalabs/bridge-sdk": "1.2.0",
     "@avalabs/react-components": "1.91.0",
-    "@avalabs/wallet-react-components": "1.28.0",
+    "@avalabs/wallet-react-components": "1.29.0",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
     "@ethereumjs/tx": "3.4.0",

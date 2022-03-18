@@ -12,7 +12,7 @@ export const useCollectibleFromParams = () => {
     );
 
     return {
-      nft: nfts.find((item) => item.contractAddress === nft),
+      nft: nfts.items?.find((item) => item.contractAddress === nft),
       tokenId: tokenId,
     };
   }, [nfts, search]);

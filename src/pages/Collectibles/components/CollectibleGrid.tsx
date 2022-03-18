@@ -34,7 +34,7 @@ export function CollectibleGrid({
       breakpointCols={2}
       columnClassName="masonryColumn"
     >
-      {nfts.map((collection, i) =>
+      {nfts.items?.map((collection, i) =>
         collection.nftData?.map((nft, j) => (
           <TextButton
             key={`${i}-${j}`}
