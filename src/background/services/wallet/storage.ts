@@ -6,14 +6,12 @@ import {
   saveToStorage,
 } from '@src/utils/storage/chrome-storage';
 const WALLET_STORAGE_KEY = 'wallet';
-const WALLET_DERIVE_KEY_SALT =
-  'C&YM&IHy41!NtaLwUL3NDXZU1KyDkLG0OfWY9U!z1roixz8T*wxwG*YoM2XsYels2';
 
 /**
  * Derives a CryptoKey from the password based
  * Using derivation to make brute-force attacks harder
  */
-async function deriveKey(password: string) {
+async function deriveKey(password: string, salt: ArrayBuffer) {
   // import password and create a PBKDF2 key
   const key = await crypto.subtle.importKey(
     'raw',
@@ -32,7 +30,7 @@ async function deriveKey(password: string) {
       name: 'PBKDF2',
       hash: { name: 'SHA-256' },
       iterations: 100000,
-      salt: Buffer.from(WALLET_DERIVE_KEY_SALT),
+      salt: salt,
     },
     key,
     { name: 'AES-GCM', length: 256 },
@@ -59,10 +57,14 @@ export function getPublicKeyFromStorage() {
   });
 }
 
-function getIVFromStorage() {
+function getEncryptionParamsFromStorage() {
   return getFromStorage(WALLET_STORAGE_KEY).then(
     (store) =>
-      store && store[WALLET_STORAGE_KEY] && store[WALLET_STORAGE_KEY].iv
+      store &&
+      store[WALLET_STORAGE_KEY] && {
+        iv: store[WALLET_STORAGE_KEY].iv,
+        salt: store[WALLET_STORAGE_KEY].salt,
+      }
   );
 }
 
@@ -75,7 +77,8 @@ export async function savePhraseOrKeyToStorage({
   mnemonic?: string;
   pubKey?: string;
 }) {
-  const key = await deriveKey(password);
+  const salt = window.crypto.getRandomValues(new Uint8Array(32));
+  const key = await deriveKey(password, salt);
   // generate initialization vektor for AES-GCM, used to randomize the encryption
   // this value is needed for the decription but it doesn't have to be encrypted itself
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
@@ -95,31 +98,37 @@ export async function savePhraseOrKeyToStorage({
         ? { mnemonic: Array.from(new Uint8Array(cipher)) }
         : { pubKey: Array.from(new Uint8Array(cipher)) }),
       iv: Array.from(iv),
+      salt: Array.from(salt),
     },
   });
 }
 
 export async function decryptPhraseOrKeyInStorage(password: string) {
   try {
+    const [params, errParams] = await resolve(getEncryptionParamsFromStorage());
+
+    if (errParams || !params.iv || !params.salt) {
+      return Promise.reject(new Error('mnemonic or public key not found'));
+    }
+
     // get decription key, cipher and the initialization vector
-    const key = await deriveKey(password);
+    const key = await deriveKey(password, Uint8Array.from(params.salt));
     const [mnemonicCipher, errMnemonicCipher] = await resolve(
       getMnemonicFromStorage()
     );
     const [publicKeyCipher, errPublicKeyCipher] = await resolve(
       getPublicKeyFromStorage()
     );
-    const [iv, errIV] = await resolve(getIVFromStorage());
 
     // any one of the pieces is missing, the mnemonic is not decryptable
-    if ((errMnemonicCipher && errPublicKeyCipher) || errIV)
-      return Promise.reject(errMnemonicCipher || errPublicKeyCipher || errIV);
-    if ((!mnemonicCipher && !publicKeyCipher) || !iv)
+    if (errMnemonicCipher && errPublicKeyCipher)
+      return Promise.reject(errMnemonicCipher || errPublicKeyCipher);
+    if (!mnemonicCipher && !publicKeyCipher)
       return Promise.reject(new Error('mnemonic or public key not found'));
 
     // throws error when using the wrong key
     const bytes: ArrayBuffer = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: Uint8Array.from(iv) },
+      { name: 'AES-GCM', iv: Uint8Array.from(params.iv) },
       key,
       Uint8Array.from(mnemonicCipher ?? publicKeyCipher)
     );
