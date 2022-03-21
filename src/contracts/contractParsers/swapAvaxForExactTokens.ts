@@ -9,25 +9,26 @@ import {
   BN,
   bigToLocaleString,
   bnToBig,
-  Big,
+  getErc20Token,
 } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { hexToBN } from '@src/utils/hexToBN';
+import { BigNumber } from 'ethers';
+import { findToken } from './utils/findToken';
 
 export interface SwapAVAXForExactTokensData {
   /**
    * Depending on function call one of these amounts will be truthy
    */
-  amountOutMin: Big;
-  amountOut: Big;
+  amountOutMin: BigNumber;
+  amountOut: BigNumber;
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
   path: string[];
   to: string;
 }
 
-export function swapAVAXForExactTokens(
+export async function swapAVAXForExactTokens(
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -38,13 +39,7 @@ export function swapAVAXForExactTokens(
    */
   data: SwapAVAXForExactTokensData,
   props: DisplayValueParserProps
-): SwapExactTokensForTokenDisplayValues {
-  const erc20sIndexedByAddress: { [key: string]: ERC20WithBalance } =
-    props.erc20Tokens.reduce(
-      (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
-      {}
-    );
-
+): Promise<SwapExactTokensForTokenDisplayValues> {
   const avaxAmountInBN = request.value ? hexToBN(request.value) : new BN(0);
   const amountAvaxValue = bigToLocaleString(bnToBig(avaxAmountInBN, 18), 4);
   const amountAvaxUSDValue =
@@ -58,17 +53,18 @@ export function swapAVAXForExactTokens(
     amountUSDValue: amountAvaxUSDValue,
   };
 
-  const lastTokenInPath =
-    erc20sIndexedByAddress[data.path[data.path.length - 1].toLowerCase()];
+  const lastTokenInPath = await findToken(
+    data.path[data.path.length - 1].toLowerCase()
+  );
   const lastTokenAmountBN = hexToBN(
     (data.amountOut || data.amountOutMin).toHexString()
   );
   const amountValue = bigToLocaleString(
-    bnToBig(lastTokenAmountBN, lastTokenInPath.denomination),
+    bnToBig(lastTokenAmountBN, lastTokenInPath?.denomination),
     4
   );
   const amountUSDValue =
-    (Number(lastTokenInPath.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
+    (Number(lastTokenInPath?.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
 
   const tokenReceived = {
     ...lastTokenInPath,

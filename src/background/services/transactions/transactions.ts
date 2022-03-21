@@ -78,7 +78,8 @@ addTransaction
         const txParams = (params || [])[0];
         const txDescription = await getTxInfo(
           txParams.to.toLocaleLowerCase(),
-          txParams.data
+          txParams.data,
+          txParams.value
         );
 
         const decodedData = (
@@ -114,7 +115,7 @@ addTransaction
             : undefined;
 
           const displayValues: TransactionDisplayValues = parser
-            ? parser(
+            ? await parser(
                 txParamsWithGasLimit,
                 decodedData,
                 displayValueProps,

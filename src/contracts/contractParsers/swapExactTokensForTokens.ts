@@ -6,19 +6,21 @@ import {
   erc20PathToken,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { bigToLocaleString, bnToBig, Big } from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { hexToBN } from '@src/utils/hexToBN';
+import { BigNumber } from 'ethers';
+import { findToken } from './utils/findToken';
 
 export interface SwapExactTokensForTokenData {
-  amountInMin: Big;
-  amountIn: Big;
-  amountInMax: Big;
+  amountInMin: BigNumber;
+  amountIn: BigNumber;
+  amountInMax: BigNumber;
 
-  amountOutMin: Big;
-  amountOut: Big;
-  amountOutMax: Big;
+  amountOutMin: BigNumber;
+  amountOut: BigNumber;
+  amountOutMax: BigNumber;
 
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
@@ -26,7 +28,7 @@ export interface SwapExactTokensForTokenData {
   to: string;
 }
 
-export function swapExactTokensForTokenHandler(
+export async function swapExactTokensForTokenHandler(
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -37,68 +39,64 @@ export function swapExactTokensForTokenHandler(
    */
   data: SwapExactTokensForTokenData,
   props: DisplayValueParserProps
-): SwapExactTokensForTokenDisplayValues {
-  const erc20sIndexedByAddress = props.erc20Tokens.reduce(
-    (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
-    {}
-  );
-
+): Promise<SwapExactTokensForTokenDisplayValues> {
   const firstTokenInPath = data.path[0];
   const lastTokenInPath = data.path[data.path.length - 1];
-  const path: erc20PathToken[] = data.path.map((address) => {
-    const pathToken: ERC20WithBalance = erc20sIndexedByAddress[
-      address.toLowerCase()
-    ] ?? {
-      address,
-    };
-
-    if (
-      pathToken.address.toLowerCase() === firstTokenInPath.toLowerCase() &&
-      pathToken.denomination
-    ) {
-      const amount: Big = data.amountIn || data.amountInMax || data.amountInMax;
-      const bn = hexToBN(amount.toHexString());
-      const amountValue = bigToLocaleString(
-        bnToBig(bn, pathToken.denomination),
-        4
+  const path: erc20PathToken[] = await Promise.all(
+    data.path.map(async (address) => {
+      const pathToken: ERC20WithBalance = await findToken(
+        address.toLowerCase()
       );
-      const amountUSDValue =
-        (Number(pathToken.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
 
-      return {
-        ...pathToken,
-        amountIn: {
-          bn,
-          value: amountValue,
-        },
-        amountUSDValue,
-      };
-    }
+      if (
+        pathToken.address.toLowerCase() === firstTokenInPath.toLowerCase() &&
+        pathToken.denomination
+      ) {
+        const amount: BigNumber =
+          data.amountIn || data.amountInMax || data.amountInMax;
+        const bn = hexToBN(amount.toHexString());
+        const amountValue = bigToLocaleString(
+          bnToBig(bn, pathToken.denomination),
+          4
+        );
+        const amountUSDValue =
+          (Number(pathToken.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
 
-    if (
-      pathToken.address.toLowerCase() === lastTokenInPath.toLowerCase() &&
-      pathToken.denomination
-    ) {
-      const amount = data.amountOutMin || data.amountOut || data.amountOutMax;
-      const bn = hexToBN(amount.toHexString());
-      const amountValue = bigToLocaleString(
-        bnToBig(bn, pathToken.denomination),
-        4
-      );
-      const amountUSDValue =
-        (Number(pathToken.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
+        return {
+          ...pathToken,
+          amountIn: {
+            bn,
+            value: amountValue,
+          },
+          amountUSDValue,
+        };
+      }
 
-      return {
-        ...pathToken,
-        amountOut: {
-          bn,
-          value: amountValue,
-        },
-        amountUSDValue,
-      };
-    }
-    return pathToken;
-  });
+      if (
+        pathToken.address.toLowerCase() === lastTokenInPath.toLowerCase() &&
+        pathToken.denomination
+      ) {
+        const amount = data.amountOutMin || data.amountOut || data.amountOutMax;
+        const bn = hexToBN(amount.toHexString());
+        const amountValue = bigToLocaleString(
+          bnToBig(bn, pathToken.denomination),
+          4
+        );
+        const amountUSDValue =
+          (Number(pathToken.priceUSD) * Number(amountValue)).toFixed(2) ?? '';
+
+        return {
+          ...pathToken,
+          amountOut: {
+            bn,
+            value: amountValue,
+          },
+          amountUSDValue,
+        };
+      }
+      return pathToken;
+    })
+  );
 
   const result = {
     path,

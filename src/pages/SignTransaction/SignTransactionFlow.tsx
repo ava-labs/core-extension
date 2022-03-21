@@ -46,9 +46,7 @@ export function SignTransactionPage() {
     setSpendLimit,
     displaySpendLimit,
     customSpendLimit,
-    isRevokeApproval,
     selectedGasFee,
-    setSelectedGasFee,
     ...params
   } = useGetTransaction(requestId);
   const [transactionProgressState, setTransactionProgressState] = useState(
@@ -136,7 +134,6 @@ export function SignTransactionPage() {
                   error={txFailedError}
                   setShowCustomSpendLimit={setShowCustomSpendLimit}
                   displaySpendLimit={displaySpendLimit}
-                  isRevokeApproval={isRevokeApproval}
                   onCustomFeeSet={setCustomFee}
                   selectedGasFee={selectedGasFee}
                 />

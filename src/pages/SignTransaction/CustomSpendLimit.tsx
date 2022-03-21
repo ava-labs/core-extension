@@ -16,6 +16,7 @@ import { DomainMetadata } from '@src/background/models';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 
 export enum Limit {
+  DEFAULT = 'DEFAULT',
   UNLIMITED = 'UNLIMITED',
   CUSTOM = 'CUSTOM',
 }
@@ -83,6 +84,23 @@ export function CustomSpendLimit({
         {/* Radio */}
         <VerticalFlex margin="24px 0 0 0">
           <HorizontalFlex align="center" margin="0 0 0 8px">
+            <Radio
+              onChange={() => {
+                setCustomSpendLimit({
+                  ...customSpendLimit,
+                  limitType: Limit.DEFAULT,
+                });
+              }}
+              value={Limit.DEFAULT}
+              name="unlimitedGroup"
+              id="default"
+              checked={customSpendLimit.limitType === Limit.DEFAULT}
+            />
+            <Typography margin="0 0 0 16px" weight={600}>
+              Default
+            </Typography>
+          </HorizontalFlex>
+          <HorizontalFlex align="center" margin="24px 0 0 8px">
             <Radio
               onChange={() => {
                 setCustomSpendLimit({

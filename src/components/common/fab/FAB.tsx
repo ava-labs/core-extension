@@ -94,7 +94,7 @@ const openMiniWindow = (url: string) => {
 };
 
 const moonpayURL = async (address: string) => {
-  const moonAPI = new Moonpay({ baseURL: 'https://blizzard.avax.network/' });
+  const moonAPI = new Moonpay({ baseUrl: 'https://blizzard.avax.network/' });
   return await moonAPI.getUrl(address);
 };
 

@@ -41,19 +41,17 @@
     web3-eth-contract "1.6.0"
     xss "^1.0.10"
 
-"@avalabs/blizzard-sdk@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/blizzard-sdk/-/blizzard-sdk-2.0.0.tgz#2f8746f0aab8b56462395aac2c378633e5894b8a"
-  integrity sha512-aVy39VMAuD30nO1Ls/vsUXr3K/52ADXTV0YSlA4HwswDrbyCJE+X9bw/8KH0YAe/b1hmCWOv1UCfK3kVENIMSw==
-  dependencies:
-    axios "^0.21.4"
+"@avalabs/blizzard-sdk@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/blizzard-sdk/-/blizzard-sdk-2.1.0.tgz#39df5b4a85f3e6b764009d7dd0e4917773a73814"
+  integrity sha512-8A9+J/YGb/mVCVgaGL27tZzKBDLU5ipBAD1EyXxp1fLfzuMDazV2Dapq/Jh3AoHuauCyenshr2hW9eW+V1f54A==
 
-"@avalabs/bridge-sdk@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-1.2.0.tgz#df336b3422fb0826ae68f0e8c535cfec1ccc6da4"
-  integrity sha512-S5jr3SAn3HnrZvTP4pX9Eeim49PnmanFa9QYloxjqUEVmLFM6A6LAlKm4dXwUvglu4Aq6KZFz+gd6WmpXekZdw==
+"@avalabs/bridge-sdk@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-2.1.0.tgz#82637015a20de0c183bc7bee7aa8d2e00cff3f56"
+  integrity sha512-FryA7UjXybUkuuLnozh37Qryre3undXFquCKXYU6azAOk/SeTFhOSvdO5dFjOpoqcIs9ClmwWEhj+Ws8aVpujA==
   dependencies:
-    "@avalabs/utils-sdk" "1.2.0"
+    "@avalabs/utils-sdk" "2.1.0"
     big.js "6.1.1"
     ethers "5.2.0"
 
@@ -79,10 +77,17 @@
     use-media "^1.4.0"
     web-vitals "^1.0.1"
 
-"@avalabs/utils-sdk@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-1.2.0.tgz#f80b3b758a063c169a8caac683b9308b8c6593ac"
-  integrity sha512-puLaLe6MGudgZcXCEE0D9vsqn9dHwvIU1pFxkwmMLzeViBURH/mA3Yo3kNSe4rSRVft0YgQnJEr7J9H+M78dJA==
+"@avalabs/snowtrace-sdk@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/snowtrace-sdk/-/snowtrace-sdk-2.1.0.tgz#7996d7e06e2a478cb9a9648edc2ca5228267b5c6"
+  integrity sha512-WXvsBNQfMilnd2l6xV119rgLUkugjTi45sVX5p5lXquBkBiRaKfjAtLAf6YjH8P/JYqG3kItuw3XiWnBK1NKCw==
+  dependencies:
+    "@avalabs/utils-sdk" "2.1.0"
+
+"@avalabs/utils-sdk@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.1.0.tgz#e2ed85cf85b9bb19a0026fa65152d53c6fdb4f98"
+  integrity sha512-+2/Wrerv5LdnO9psVofMdBciY93kx44bTPNMJgmQcLxGSAg9rn5oV9SNtBeF8NmAdDUyRnCxZiDOcJXHzcq5sg==
 
 "@avalabs/wallet-react-components@1.29.0":
   version "1.29.0"
@@ -5089,13 +5094,6 @@ axios@0.25.0:
   dependencies:
     follow-redirects "^1.14.7"
 
-axios@^0.21.4:
-  version "0.21.4"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
-  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
-  dependencies:
-    follow-redirects "^1.14.0"
-
 axios@^0.23.0:
   version "0.23.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.23.0.tgz#b0fa5d0948a8d1d75e3d5635238b6c4625b05149"
@@ -9796,7 +9794,7 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.14.0, follow-redirects@^1.14.4, follow-redirects@^1.14.7:
+follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.14.4, follow-redirects@^1.14.7:
   version "1.14.9"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
   integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==

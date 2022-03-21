@@ -13,6 +13,8 @@ import ERC20_ABI from 'human-standard-token-abi';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
 import { hexToBN } from '@src/utils/hexToBN';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
+import * as ethers from 'ethers';
+import { bnToLocaleString } from '@avalabs/utils-sdk';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -32,9 +34,8 @@ export function useGetTransaction(requestId: string) {
     UNLIMITED_SPEND_LIMIT_LABEL
   );
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
-    limitType: Limit.UNLIMITED,
+    limitType: Limit.DEFAULT,
   });
-  const [isRevokeApproval, setIsRevokeApproval] = useState<boolean>(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
@@ -78,24 +79,27 @@ export function useGetTransaction(requestId: string) {
         transaction?.displayValues.approveData.spender;
       let limitAmount = '';
 
-      setCustomSpendLimit(customSpendData);
-      // Sets the string to be displayed in AmountTx
-      const spendAmountToDisplay =
-        customSpendData.limitType === Limit.UNLIMITED || !customSpendData.value
-          ? UNLIMITED_SPEND_LIMIT_LABEL
-          : customSpendData.value.amount;
-      setDisplaySpendLimit(spendAmountToDisplay);
-
       if (customSpendData.limitType === Limit.UNLIMITED) {
         setCustomSpendLimit({
           ...customSpendData,
           value: undefined,
         });
-        limitAmount = transaction?.displayValues.approveData.limit;
-      }
-
-      if (customSpendData.limitType === Limit.CUSTOM && customSpendData.value) {
-        limitAmount = customSpendData.value.bn.toString();
+        limitAmount = ethers.constants.MaxUint256.toHexString();
+        setDisplaySpendLimit(UNLIMITED_SPEND_LIMIT_LABEL);
+      } else {
+        setCustomSpendLimit(customSpendData);
+        setDisplaySpendLimit(
+          customSpendData.limitType === Limit.CUSTOM
+            ? customSpendData.value?.amount || ''
+            : bnToLocaleString(
+                hexToBN(transaction?.displayValues.approveData.limit),
+                transaction?.displayValues.tokenToBeApproved.decimals
+              )
+        );
+        limitAmount =
+          customSpendData.limitType === Limit.CUSTOM
+            ? customSpendData.value?.bn.toString()
+            : transaction?.displayValues?.approveData?.limit;
       }
 
       // create hex string for approval amount
@@ -174,10 +178,17 @@ export function useGetTransaction(requestId: string) {
   }, []);
 
   useEffect(() => {
-    // Handle transaction Approval for REVOKING spend limit
-    if (transaction?.displayValues?.approveData?.limit === '0x00') {
-      setDisplaySpendLimit('0');
-      setIsRevokeApproval(true);
+    if (transaction?.displayValues?.approveData?.limit) {
+      setDisplaySpendLimit(
+        ethers.constants.MaxUint256.eq(
+          transaction.displayValues.approveData.limit
+        )
+          ? UNLIMITED_SPEND_LIMIT_LABEL
+          : bnToLocaleString(
+              hexToBN(transaction.displayValues.approveData.limit),
+              transaction.displayValues.tokenToBeApproved.decimals
+            )
+      );
     }
   }, [transaction]);
 
@@ -204,9 +215,7 @@ export function useGetTransaction(requestId: string) {
       setSpendLimit,
       displaySpendLimit,
       customSpendLimit,
-      isRevokeApproval,
       selectedGasFee,
-      setSelectedGasFee,
     };
   }, [
     defaultGasPrice,
@@ -220,8 +229,6 @@ export function useGetTransaction(requestId: string) {
     setSpendLimit,
     displaySpendLimit,
     customSpendLimit,
-    isRevokeApproval,
     selectedGasFee,
-    setSelectedGasFee,
   ]);
 }

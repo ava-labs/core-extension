@@ -29,7 +29,6 @@ export function ApproveTx({
   txParams,
   setShowCustomSpendLimit,
   displaySpendLimit,
-  isRevokeApproval,
   gasPrice,
   gasLimit,
   onCustomFeeSet,
@@ -42,7 +41,7 @@ export function ApproveTx({
   const theme = useTheme();
 
   const hideEdit: boolean =
-    (isRevokeApproval && setShowCustomSpendLimit) ||
+    (displaySpendLimit === '0' && setShowCustomSpendLimit) ||
     (transactionState === TransactionProgressState.PENDING && !hash) ||
     transactionState === TransactionProgressState.SUCCESS;
 
