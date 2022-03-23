@@ -87,6 +87,7 @@ export function Swap() {
   const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
 
+  const swapIsAvaible = network ? isMainnetNetwork(network?.config) : false;
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
@@ -485,6 +486,20 @@ export function Swap() {
     optimalRate &&
     gasLimit &&
     gasPrice;
+
+  if (!swapIsAvaible) {
+    return (
+      <VerticalFlex width="100%">
+        <PageTitleMiniMode>Swap</PageTitleMiniMode>
+        <VerticalFlex align="center" justify="center" grow="1">
+          <Typography size={16}>
+            Swap is not available on Fuji Testnet
+          </Typography>
+        </VerticalFlex>
+      </VerticalFlex>
+    );
+  }
+
   return (
     <VerticalFlex width="100%">
       <PageTitleMiniMode>Swap</PageTitleMiniMode>
