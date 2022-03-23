@@ -7,7 +7,7 @@ import {
 } from '@src/background/connections/models';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { resolve } from '@src/utils/promiseResolver';
-import { APIError, ParaSwap, ETHER_ADDRESS } from 'paraswap';
+import { APIError, ETHER_ADDRESS } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
 import { firstValueFrom } from 'rxjs';
 import Web3 from 'web3';
@@ -16,6 +16,9 @@ import { paraSwap$ } from '../swap';
 import ERC20_ABI from 'human-standard-token-abi';
 import { Allowance } from 'paraswap/build/types';
 import { hexToBN } from '@src/utils/hexToBN';
+import { getParaswapSpender } from '../utils/getParaswapSpender';
+import { getAllowance } from '../utils/getAllowance';
+import { buildTx } from '../utils/buildTx';
 
 const SERVER_BUSY_ERROR = 'Server too busy';
 
@@ -106,8 +109,6 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     };
   }
 
-  const pSwap = paraSwap as ParaSwap;
-
   if (walletError) {
     return {
       ...request,
@@ -131,7 +132,7 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     deadline = undefined,
     partnerFeeBps = undefined;
 
-  const spender = await pSwap.getTokenTransferProxy();
+  const spender = await getParaswapSpender();
 
   let approveTxHash;
 
@@ -149,13 +150,13 @@ export async function performSwap(request: ExtensionConnectionMessage) {
 
   // no need to approve AVAX
   if (srcToken !== AVAX_TOKEN.symbol) {
-    const contract = new (pSwap.web3Provider as Web3).eth.Contract(
+    const contract = new (paraSwap.web3Provider as Web3).eth.Contract(
       ERC20_ABI as any,
       srcTokenAddress
     );
 
     const [allowance, allowanceError] = await resolve(
-      pSwap.getAllowance(userAddress, srcTokenAddress)
+      getAllowance('43114', userAddress, srcTokenAddress)
     );
 
     if (
@@ -195,7 +196,8 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     approveTxHash = approveHash;
   }
 
-  const txData = pSwap.buildTx(
+  const txData = buildTx(
+    '43114',
     srcTokenAddress,
     destTokenAddress,
     sourceAmount,

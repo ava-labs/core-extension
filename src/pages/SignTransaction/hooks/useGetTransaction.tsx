@@ -103,7 +103,7 @@ export function useGetTransaction(requestId: string) {
       }
 
       // create hex string for approval amount
-      const web3 = new Web3(Web3.givenProvider);
+      const web3 = new Web3();
       const contract = new web3.eth.Contract(ERC20_ABI as any, srcToken);
 
       const hashedCustomSpend =

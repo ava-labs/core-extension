@@ -18,7 +18,7 @@ export function Home() {
     if (onboardingState.initialOpen && !isDefaultExtension) {
       toast.custom(
         <TransactionToast
-          status="You've entered your Core X wallet!"
+          status="You've entered your Core wallet!"
           type={TransactionToastType.SUCCESS}
           text="Set as your default wallet?"
           onClick={() => toggleIsDefaultExtension()}

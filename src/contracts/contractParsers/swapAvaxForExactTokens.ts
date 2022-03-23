@@ -5,12 +5,7 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import {
-  BN,
-  bigToLocaleString,
-  bnToBig,
-  getErc20Token,
-} from '@avalabs/avalanche-wallet-sdk';
+import { BN, bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';

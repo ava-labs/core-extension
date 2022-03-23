@@ -10,7 +10,6 @@ export function usePageHistory() {
   const [historyState, setHistoryState] = useState<NavigationHistoryState>({});
 
   const setNavigationHistoryData = (data: Record<string, unknown>) => {
-    console.log('data: ', data);
     request({
       method: ExtensionRequest.NAVIGATION_HISTORY_DATA_SET,
       params: [data],

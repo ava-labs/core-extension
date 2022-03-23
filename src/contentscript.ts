@@ -1,17 +1,10 @@
 import extension from 'extensionizer';
 
-import { CONTENT_SCRIPT, INPAGE_SCRIPT } from './common';
+import { CONTENT_SCRIPT, INPAGE_SCRIPT, KEEPALIVE_SCRIPT } from './common';
 import { windowPostMessage } from './utils/windowPostMessage';
-import { Runtime } from 'webextension-polyfill-ts';
+import { browser, Runtime } from 'webextension-polyfill-ts';
 import { providerHandshake } from './utils/providerHandshake';
 import { requestLog, responseLog } from './utils/logging';
-
-const inpage = require('raw-loader!/dist/js/inpage.mjs');
-
-const inpageSuffix = `//# sourceURL=${extension.runtime.getURL(
-  'inpage.mjs'
-)}\n`;
-const inpageBundle = `${inpage.default}` + inpageSuffix;
 
 const shouldInjectProvider = () => {
   return (
@@ -92,12 +85,12 @@ const blockedDomainCheck = () => {
   return false;
 };
 
-const injectScript = (content: any) => {
+const injectScript = (path: string) => {
   try {
     const container = document.head || document.documentElement;
     const scriptTag = document.createElement('script');
     scriptTag.setAttribute('async', 'false');
-    scriptTag.textContent = content;
+    scriptTag.src = path;
     container.insertBefore(scriptTag, container.children[0]);
     container.removeChild(scriptTag);
   } catch (error) {
@@ -123,18 +116,41 @@ function setupStream() {
     name: CONTENT_SCRIPT,
   });
 
-  listen.pipe(providerHandshake(dispatch)).subscribe((val) => {
-    requestLog(`provider request (${val.data.data.method})`, val.data);
-    backgroundConnection.postMessage(val.data);
-  });
+  let backgroundKeepaliveConnection: Runtime.Port | null = null;
+
+  function keepAlive() {
+    if (backgroundKeepaliveConnection) return;
+    backgroundKeepaliveConnection = extension.runtime.connect({
+      name: KEEPALIVE_SCRIPT,
+    });
+    backgroundKeepaliveConnection?.onDisconnect.addListener(() => {
+      backgroundKeepaliveConnection = null;
+      keepAlive();
+    });
+  }
+
+  keepAlive();
+
+  const subscription = listen
+    .pipe(providerHandshake(dispatch))
+    .subscribe((val) => {
+      requestLog(`provider request (${val.data.data.method})`, val.data);
+      backgroundConnection.postMessage(val.data);
+    });
 
   backgroundConnection.onMessage.addListener((val) => {
     responseLog(`background connection response (${val.data?.method})`, val);
     dispatch(val);
   });
+
+  backgroundConnection.onDisconnect.addListener(() => {
+    console.log('reconnecting...');
+    setupStream();
+    subscription.unsubscribe();
+  });
 }
 
 if (shouldInjectProvider()) {
-  injectScript(inpageBundle);
+  injectScript(browser.runtime.getURL('js/inpage.js'));
   setupStream();
 }

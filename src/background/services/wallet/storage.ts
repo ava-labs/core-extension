@@ -81,7 +81,7 @@ export async function savePhraseOrKeyToStorage({
   const key = await deriveKey(password, salt);
   // generate initialization vektor for AES-GCM, used to randomize the encryption
   // this value is needed for the decription but it doesn't have to be encrypted itself
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
 
   // use authenticated encryption to check data integrity at decryption
   const cipher: ArrayBuffer = await crypto.subtle.encrypt(

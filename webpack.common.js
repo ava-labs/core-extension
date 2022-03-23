@@ -1,7 +1,7 @@
 const path = require('path');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const { ProvidePlugin } = require('webpack');
+const { ProvidePlugin, BannerPlugin } = require('webpack');
 
 module.exports = {
   entry: {
@@ -77,6 +77,15 @@ module.exports = {
     }),
     new ProvidePlugin({
       React: 'react',
+    }),
+
+    // TODO: Provide a more elegant solution for this
+    // Some libraries need the window object such as web3.js which is not available in service workers
+    // ethers.js looks for crypto on window
+    new BannerPlugin({
+      banner: 'var window = { crypto: crypto };',
+      raw: true,
+      test: 'backgroundPage',
     }),
   ],
 };

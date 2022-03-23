@@ -15,12 +15,12 @@
     "zip": "node zipscript.js"
   },
   "dependencies": {
-    "@avalabs/avalanche-wallet-sdk": "0.16.0",
+    "@avalabs/avalanche-wallet-sdk": "0.17.0",
     "@avalabs/blizzard-sdk": "2.1.0",
     "@avalabs/bridge-sdk": "2.1.0",
     "@avalabs/snowtrace-sdk": "2.1.0",
     "@avalabs/react-components": "1.91.0",
-    "@avalabs/wallet-react-components": "1.29.0",
+    "@avalabs/wallet-react-components": "1.30.0",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
     "@ethereumjs/tx": "3.4.0",
@@ -95,7 +95,6 @@
     "@types/web3": "1.2.2",
     "@typescript-eslint/eslint-plugin": "5.10.1",
     "@typescript-eslint/parser": "5.10.1",
-    "axios": "0.25.0",
     "babel-core": "6.26.3",
     "babel-jest": "26.6.3",
     "babel-loader": "8.2.3",

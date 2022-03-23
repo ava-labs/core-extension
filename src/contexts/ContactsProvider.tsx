@@ -61,7 +61,7 @@ export function ContactsContextProvider({ children }: { children: any }) {
   async function createContact(contact: Contact) {
     const contactCopy = {
       ...contact,
-      id: window.crypto.randomUUID(),
+      id: crypto.randomUUID(),
     };
     await request({
       method: ExtensionRequest.CONTACTS_CREATE,
