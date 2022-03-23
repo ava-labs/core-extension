@@ -61,6 +61,7 @@ export function WalletRecentTxs({
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
   const { recentTxHistory } = useWalletContext();
+
   const { bridgeAssets } = useBridgeSDK();
   const yesterday = endOfYesterday();
   const today = endOfToday();
@@ -89,10 +90,10 @@ export function WalletRecentTxs({
               (el.nativeNetwork === Blockchain.AVALANCHE &&
                 el.nativeContractAddress.toLowerCase() ===
                   tx.contractAddress.toLowerCase()) ||
-              el.wrappedContractAddress.toLowerCase() ===
-                tx.contractAddress.toLowerCase() ||
-              tx.to === '0x0000000000000000000000000000000000000000' ||
-              tx.from === '0x0000000000000000000000000000000000000000'
+              (el.wrappedContractAddress.toLowerCase() ===
+                tx.contractAddress.toLowerCase() &&
+                (tx.to === '0x0000000000000000000000000000000000000000' ||
+                  tx.from === '0x0000000000000000000000000000000000000000'))
           ).length > 0
         );
       }
