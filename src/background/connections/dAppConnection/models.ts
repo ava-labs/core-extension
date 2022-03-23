@@ -19,4 +19,5 @@ export enum DAppProviderRequest {
   GET_IS_DEFAULT_EXTENSION = 'avalanche_getIsDefaultExtensionState',
   AVALANCHE_GET_CONTACTS = 'avalanche_getContacts',
   AVALANCHE_GET_ACCOUNTS = 'avalanche_getAccounts',
+  AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
 }

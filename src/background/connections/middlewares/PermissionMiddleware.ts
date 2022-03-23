@@ -81,6 +81,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
 const COREX_METHODS = Object.freeze([
   'avalanche_getContacts',
   'avalanche_getAccounts',
+  'avalanche_getBridgeState',
 ]);
 
 export function PermissionMiddleware(): Middleware {
