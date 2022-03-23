@@ -67,29 +67,34 @@ export function Bridge() {
     setCurrentBlockchain,
     setTransactionDetails,
   } = useBridgeSDK();
+
   const theme = useTheme();
   const { assetsWithBalances, loading } = useAssetBalances();
-  const assetPrice = usePrice(currentAsset, currency.toLowerCase());
+
   const [amount, setAmount] = useState<Big>(BIG_ZERO);
   const [amountTooLowError, setAmountTooLowError] = useState<string>('');
   const [bridgeError, setBridgeError] = useState<string>('');
-  const [pending, setPending] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
   const [wrapStatus, setWrapStatus] = useState<WrapStatus>(WrapStatus.INITIAL);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [txHash, setTxHash] = useState<string>();
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [, setTxHash] = useState<string>();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const assets = useAssets(currentBlockchain);
   const tokenInfoData = useTokenInfoContext();
   const asset = assets[currentAsset || ''];
+  const assetPrice = usePrice(currentAsset, currency.toLowerCase());
+
   const destinationBlockchain =
     currentBlockchain === Blockchain.AVALANCHE
       ? Blockchain.ETHEREUM
       : Blockchain.AVALANCHE;
   const [maxValue, setMaxValue] = useState<BN>(new BN(0));
+
   const history = useHistory();
   const sourceBalance = useAssetBalance(currentAsset, currentBlockchain);
+
   const transferCost = useTransactionFee(currentBlockchain);
+
   const minimumTransferAmount = transferCost ? transferCost.mul(3) : BIG_ZERO;
   const tooLowAmount =
     !!transferCost && amount.gt(0) && amount.lt(minimumTransferAmount);
@@ -107,23 +112,14 @@ export function Bridge() {
     setCurrentAsset(symbol);
   };
 
-  const EthereumLogo = () => (
-    <TokenIcon
-      width="24px"
-      height="24px"
-      src={EthLogo}
-      name={Blockchain.ETHEREUM}
-    />
-  );
-
   const handleTransfer = async () => {
     if (BIG_ZERO.eq(amount)) {
       return;
     }
 
-    setPending(true);
+    setIsPending(true);
     const result = await transferAsset(amount, asset, setWrapStatus, setTxHash);
-    setPending(false);
+    setIsPending(false);
 
     const timestamp = Date.now();
 
@@ -211,7 +207,6 @@ export function Bridge() {
         </VerticalFlex>
       </VerticalFlex>
     );
-    return <Typography>Error: {error}</Typography>;
   }
 
   return (
@@ -236,7 +231,12 @@ export function Bridge() {
                       {currentBlockchain === Blockchain.AVALANCHE ? (
                         <AvaxTokenIcon />
                       ) : (
-                        <EthereumLogo />
+                        <TokenIcon
+                          width="24px"
+                          height="24px"
+                          src={EthLogo}
+                          name={Blockchain.ETHEREUM}
+                        />
                       )}
                       <Typography margin={'0 16px 0 8px'}>
                         {capitalize(currentBlockchain)}
@@ -267,7 +267,12 @@ export function Bridge() {
                       }
                     }}
                   >
-                    <EthereumLogo />
+                    <TokenIcon
+                      width="24px"
+                      height="24px"
+                      src={EthLogo}
+                      name={Blockchain.ETHEREUM}
+                    />
                     <Typography margin="0 16px 0 8px">Ethereum</Typography>
                     {currentBlockchain === Blockchain.ETHEREUM && (
                       <CheckmarkIcon height="16px" color={theme.colors.text1} />
@@ -283,7 +288,7 @@ export function Bridge() {
                   denomination={asset?.denomination}
                   onSelectClick={() => {
                     if (!loading) {
-                      setModalOpen(true);
+                      setIsModalOpen(true);
                       setSearchQuery('');
                     }
                   }}
@@ -327,9 +332,9 @@ export function Bridge() {
           </Card>
 
           <SelectTokenModal
-            open={!!modalOpen}
+            open={!!isModalOpen}
             onClose={() => {
-              setModalOpen(false);
+              setIsModalOpen(false);
               setSearchQuery('');
             }}
             title="Select Token"
@@ -351,7 +356,7 @@ export function Bridge() {
                   handleSelect(tokenSymbol);
                   return;
                 }}
-                onClose={() => setModalOpen(false)}
+                onClose={() => setIsModalOpen(false)}
               />
             </>
           </SelectTokenModal>
@@ -405,7 +410,12 @@ export function Bridge() {
                       {destinationBlockchain === Blockchain.AVALANCHE ? (
                         <AvaxTokenIcon />
                       ) : (
-                        <EthereumLogo />
+                        <TokenIcon
+                          width="24px"
+                          height="24px"
+                          src={EthLogo}
+                          name={Blockchain.ETHEREUM}
+                        />
                       )}
                       <Typography margin={'0 16px 0 8px'}>
                         {capitalize(destinationBlockchain)}
@@ -436,7 +446,12 @@ export function Bridge() {
                       }
                     }}
                   >
-                    <EthereumLogo />
+                    <TokenIcon
+                      width="24px"
+                      height="24px"
+                      src={EthLogo}
+                      name={Blockchain.ETHEREUM}
+                    />
                     <Typography margin="0 16px 0 8px">Ethereum</Typography>
                     {destinationBlockchain === Blockchain.ETHEREUM && (
                       <CheckmarkIcon height="16px" color={theme.colors.text1} />
@@ -497,13 +512,13 @@ export function Bridge() {
             bridgeError.length > 0 ||
             amountTooLowError.length > 0 ||
             loading ||
-            pending ||
+            isPending ||
             tooLowAmount ||
             BIG_ZERO.eq(amount)
           }
           onClick={handleTransfer}
         >
-          {pending && (
+          {isPending && (
             <StyledLoading height="16px" color={theme.colors.stroke2} />
           )}
           Transfer
