@@ -30,14 +30,7 @@
     "default_title": "Core Browser Extension",
     "default_popup": "popup.html"
   },
-  "permissions": [
-    "scripting",
-    "storage",
-    "unlimitedStorage",
-    "activeTab",
-    "contextMenus"
-  ],
-  "host_permissions": ["*://*/*"],
+  "permissions": ["storage", "unlimitedStorage", "activeTab", "contextMenus"],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
