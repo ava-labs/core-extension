@@ -55,10 +55,10 @@
     big.js "6.1.1"
     ethers "5.2.0"
 
-"@avalabs/react-components@1.91.0":
-  version "1.91.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.91.0.tgz#8facf026cf49366df1988199bd81b10891e969b3"
-  integrity sha512-DNYrEWOZ1JEcZa8I4WjQ8HHSO0fQ0MeQXBSCP5fZgNi8M9oHVaNL83oVzy6b8hcfMuDh2MM6+rJmEgPoZPcchg==
+"@avalabs/react-components@1.92.0":
+  version "1.92.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.92.0.tgz#849d451399c8d5649530d565953d7a7a51a94fbf"
+  integrity sha512-JIi908K1fuLDazFM2SUdz+bRKKOqV6l2tDngvnvBGxr4B1VVefMfY3lLXa0oteiYKcW5OIlSplHq9pVbj/sLnw==
   dependencies:
     "@tippyjs/react" "^4.2.6"
     big.js "^6.1.1"
