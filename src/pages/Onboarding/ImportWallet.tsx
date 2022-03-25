@@ -2,9 +2,9 @@ import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  TextArea,
   PrimaryButton,
   ComponentSize,
+  Input,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
@@ -33,7 +33,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
     );
   };
 
-  const onPhraseChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const onPhraseChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     const phrase = e.currentTarget.value;
     setRecoveryPhrase(phrase);
 
@@ -59,14 +59,15 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           <br />
           recovery phrase.
         </Typography>
-        <TextArea
+        <Input
+          type="password"
           autoFocus
           margin="32px 0 0 0"
           error={!!error}
           errorMessage={error}
           placeholder="Type your recovery phrase"
           onChange={onPhraseChanged}
-        ></TextArea>
+        />
       </VerticalFlex>
       <PrimaryButton
         size={ComponentSize.LARGE}
