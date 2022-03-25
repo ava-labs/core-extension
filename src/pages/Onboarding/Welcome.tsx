@@ -19,9 +19,9 @@ export function Welcome({ onNext }: WelcomeProps) {
 
   return (
     <VerticalFlex width="100%" align="center">
-      <VerticalFlex justify="center" margin="22px 0 64px">
-        <Logo height={204} />
-        <BrandName width={288} />
+      <VerticalFlex justify="center" align="center" margin="58px 0 64px">
+        <Logo height={111} />
+        <BrandName height={42} margin="24px 0 0 0" />
       </VerticalFlex>
       <VerticalFlex align="center">
         <HorizontalFlex>

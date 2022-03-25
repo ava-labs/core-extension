@@ -49,8 +49,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         align="center"
       >
         <HorizontalFlex align="center">
-          <Logo height={54} />
-          <BrandName width={102} margin="0 0 0 8px" />
+          <Logo height={29} />
+          <BrandName height={15} margin="0 0 0 8px" />
         </HorizontalFlex>
         <TextButton onClick={onClose}>
           <CloseIcon height="16px" color={theme.colors.icon1} />

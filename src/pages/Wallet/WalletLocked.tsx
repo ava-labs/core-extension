@@ -75,8 +75,8 @@ export function WalletLocked({
       {...dimensions}
     >
       <VerticalFlex grow="1" justify="center" align="center">
-        <Logo height={186} />
-        <BrandName width={263} />
+        <Logo height={101} />
+        <BrandName height={40} margin="24px 0 0 0" />
       </VerticalFlex>
 
       <VerticalFlex align="center" height="88px">
