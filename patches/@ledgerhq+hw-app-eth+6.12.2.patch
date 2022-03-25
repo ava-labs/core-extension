@@ -1,0 +1,141 @@
+diff --git a/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.d.ts.map b/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.d.ts.map
+index ca9dfe0..b30876b 100644
+--- a/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.d.ts.map
++++ b/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"contracts.d.ts","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":"AAEA,aAAK,cAAc,GAAG;IACpB,OAAO,EAAE,MAAM,CAAC;IAChB,SAAS,EAAE,MAAM,CAAC;IAClB,MAAM,EAAE,MAAM,CAAC;IACf,eAAe,EAAE,MAAM,EAAE,CAAC;IAC1B,GAAG,EAAE,GAAG,CAAC;CACV,CAAC;AAGF,oBAAY,iBAAiB,GAAG;IAG9B,OAAO,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IAGxB,YAAY,CAAC,EAAE,GAAG,GAAG,IAAI,CAAC;CAC3B,CAAC;AAOF;;GAEG;AACH,eAAO,MAAM,0BAA0B,oBACpB,MAAM,YACb,MAAM,WACP,MAAM,yBACQ,iBAAiB,KACvC,QAAQ,cAAc,GAAG,SAAS,CA2CpC,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"contracts.d.ts","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":"AAAA,aAAK,cAAc,GAAG;IACpB,OAAO,EAAE,MAAM,CAAC;IAChB,SAAS,EAAE,MAAM,CAAC;IAClB,MAAM,EAAE,MAAM,CAAC;IACf,eAAe,EAAE,MAAM,EAAE,CAAC;IAC1B,GAAG,EAAE,GAAG,CAAC;CACV,CAAC;AAGF,oBAAY,iBAAiB,GAAG;IAG9B,OAAO,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IAGxB,YAAY,CAAC,EAAE,GAAG,GAAG,IAAI,CAAC;CAC3B,CAAC;AAOF;;GAEG;AACH,eAAO,MAAM,0BAA0B,oBACpB,MAAM,YACb,MAAM,WACP,MAAM,yBACQ,iBAAiB,KACvC,QAAQ,cAAc,GAAG,SAAS,CA2CpC,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js b/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js
+index 4a70262..5bd0d11 100644
+--- a/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js
++++ b/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js
+@@ -45,7 +45,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
+         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+     }
+ };
+-import axios from "axios";
+ var defaultPluginsLoadConfig = {
+     baseURL: "https://cdn.live.ledger.com",
+     extraPlugins: null
+@@ -62,12 +61,14 @@ export var loadInfosForContractMethod = function (contractAddress, selector, cha
+                 if (!!baseURL) return [3 /*break*/, 1];
+                 _b = {};
+                 return [3 /*break*/, 3];
+-            case 1: return [4 /*yield*/, axios
+-                    .get(baseURL + "/plugins/ethereum.json")
+-                    .then(function (r) { return r.data; })["catch"](function (e) {
+-                    if (e.response &&
+-                        400 <= e.response.status &&
+-                        e.response.status < 500) {
++            case 1: return [4 /*yield*/, fetch(baseURL + "/plugins/ethereum.json")
++                    .then(function (r) {
++                    if (!r.ok) {
++                        throw r;
++                    }
++                    return r.json();
++                })["catch"](function (e) {
++                    if (e && 400 <= e.status && e.status < 500) {
+                         return null; // not found cases can be ignored to allow future changes in endpoint without failing a signature to be done.
+                     }
+                     throw e;
+diff --git a/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js.map b/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js.map
+index b727240..d0cb154 100644
+--- a/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js.map
++++ b/node_modules/@ledgerhq/hw-app-eth/lib-es/contracts.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"contracts.js","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AAoB1B,IAAM,wBAAwB,GAAG;IAC/B,OAAO,EAAE,6BAA6B;IACtC,YAAY,EAAE,IAAI;CACnB,CAAC;AAEF;;GAEG;AACH,MAAM,CAAC,IAAM,0BAA0B,GAAG,UACxC,eAAuB,EACvB,QAAgB,EAChB,OAAe,EACf,qBAAwC;;;;;gBAElC,2BACD,wBAAwB,GACxB,qBAAqB,CACzB,EAHO,OAAO,aAAA,EAAE,YAAY,kBAAA,CAG3B;qBACS,CAAC,OAAO,EAAR,wBAAQ;gBACf,KAAA,EAAE,CAAA;;oBACF,qBAAM,KAAK;qBACR,GAAG,CAAI,OAAO,2BAAwB,CAAC;qBACvC,IAAI,CAAC,UAAC,CAAC,IAAK,OAAA,CAAC,CAAC,IAAW,EAAb,CAAa,CAAC,CAC1B,OAAK,CAAA,CAAC,UAAC,CAAC;oBACP,IACE,CAAC,CAAC,QAAQ;wBACV,GAAG,IAAI,CAAC,CAAC,QAAQ,CAAC,MAAM;wBACxB,CAAC,CAAC,QAAQ,CAAC,MAAM,GAAG,GAAG,EACvB;wBACA,OAAO,IAAI,CAAC,CAAC,6GAA6G;qBAC3H;oBACD,MAAM,CAAC,CAAC;gBACV,CAAC,CAAC,EAAA;;gBAZJ,KAAA,SAYI,CAAA;;;gBAdJ,IAAI,KAcA;gBAER,IAAI,YAAY,EAAE;oBAChB,IAAI,yBAAQ,IAAI,GAAK,YAAY,CAAE,CAAC;iBACrC;gBAED,IAAI,CAAC,IAAI;oBAAE,sBAAO;gBAEZ,UAAU,GAAG,QAAQ,CAAC,WAAW,EAAE,CAAC;gBACpC,iBAAiB,GAAG,eAAe,CAAC,WAAW,EAAE,CAAC;gBAExD,IAAI,iBAAiB,IAAI,IAAI,EAAE;oBACvB,iBAAiB,GAAG,IAAI,CAAC,iBAAiB,CAAC,CAAC;oBAElD,IAAI,UAAU,IAAI,iBAAiB,EAAE;wBACnC,sBAAO;gCACL,OAAO,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACzD,SAAS,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,WAAW,CAAC;gCACrD,MAAM,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,QAAQ,CAAC;gCAC/C,eAAe,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACjE,GAAG,EAAE,iBAAiB,CAAC,KAAK,CAAC;6BAC9B,EAAC;qBACH;iBACF;;;;KACF,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"contracts.js","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAkBA,IAAM,wBAAwB,GAAG;IAC/B,OAAO,EAAE,6BAA6B;IACtC,YAAY,EAAE,IAAI;CACnB,CAAC;AAEF;;GAEG;AACH,MAAM,CAAC,IAAM,0BAA0B,GAAG,UACxC,eAAuB,EACvB,QAAgB,EAChB,OAAe,EACf,qBAAwC;;;;;gBAElC,2BACD,wBAAwB,GACxB,qBAAqB,CACzB,EAHO,OAAO,aAAA,EAAE,YAAY,kBAAA,CAG3B;qBACS,CAAC,OAAO,EAAR,wBAAQ;gBACf,KAAA,EAAE,CAAA;;oBACF,qBAAM,KAAK,CAAI,OAAO,2BAAwB,CAAC;qBAC5C,IAAI,CAAC,UAAC,CAAC;oBACN,IAAI,CAAC,CAAC,CAAC,EAAE,EAAE;wBACT,MAAM,CAAC,CAAC;qBACT;oBACD,OAAO,CAAC,CAAC,IAAI,EAAE,CAAC;gBAClB,CAAC,CAAC,CACD,OAAK,CAAA,CAAC,UAAC,CAAC;oBACP,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC,CAAC,MAAM,IAAI,CAAC,CAAC,MAAM,GAAG,GAAG,EAAE;wBAC1C,OAAO,IAAI,CAAC,CAAC,6GAA6G;qBAC3H;oBACD,MAAM,CAAC,CAAC;gBACV,CAAC,CAAC,EAAA;;gBAZJ,KAAA,SAYI,CAAA;;;gBAdJ,IAAI,KAcA;gBAER,IAAI,YAAY,EAAE;oBAChB,IAAI,yBAAQ,IAAI,GAAK,YAAY,CAAE,CAAC;iBACrC;gBAED,IAAI,CAAC,IAAI;oBAAE,sBAAO;gBAEZ,UAAU,GAAG,QAAQ,CAAC,WAAW,EAAE,CAAC;gBACpC,iBAAiB,GAAG,eAAe,CAAC,WAAW,EAAE,CAAC;gBAExD,IAAI,iBAAiB,IAAI,IAAI,EAAE;oBACvB,iBAAiB,GAAG,IAAI,CAAC,iBAAiB,CAAC,CAAC;oBAElD,IAAI,UAAU,IAAI,iBAAiB,EAAE;wBACnC,sBAAO;gCACL,OAAO,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACzD,SAAS,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,WAAW,CAAC;gCACrD,MAAM,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,QAAQ,CAAC;gCAC/C,eAAe,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACjE,GAAG,EAAE,iBAAiB,CAAC,KAAK,CAAC;6BAC9B,EAAC;qBACH;iBACF;;;;KACF,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/@ledgerhq/hw-app-eth/lib/contracts.d.ts.map b/node_modules/@ledgerhq/hw-app-eth/lib/contracts.d.ts.map
+index ca9dfe0..b30876b 100644
+--- a/node_modules/@ledgerhq/hw-app-eth/lib/contracts.d.ts.map
++++ b/node_modules/@ledgerhq/hw-app-eth/lib/contracts.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"contracts.d.ts","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":"AAEA,aAAK,cAAc,GAAG;IACpB,OAAO,EAAE,MAAM,CAAC;IAChB,SAAS,EAAE,MAAM,CAAC;IAClB,MAAM,EAAE,MAAM,CAAC;IACf,eAAe,EAAE,MAAM,EAAE,CAAC;IAC1B,GAAG,EAAE,GAAG,CAAC;CACV,CAAC;AAGF,oBAAY,iBAAiB,GAAG;IAG9B,OAAO,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IAGxB,YAAY,CAAC,EAAE,GAAG,GAAG,IAAI,CAAC;CAC3B,CAAC;AAOF;;GAEG;AACH,eAAO,MAAM,0BAA0B,oBACpB,MAAM,YACb,MAAM,WACP,MAAM,yBACQ,iBAAiB,KACvC,QAAQ,cAAc,GAAG,SAAS,CA2CpC,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"contracts.d.ts","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":"AAAA,aAAK,cAAc,GAAG;IACpB,OAAO,EAAE,MAAM,CAAC;IAChB,SAAS,EAAE,MAAM,CAAC;IAClB,MAAM,EAAE,MAAM,CAAC;IACf,eAAe,EAAE,MAAM,EAAE,CAAC;IAC1B,GAAG,EAAE,GAAG,CAAC;CACV,CAAC;AAGF,oBAAY,iBAAiB,GAAG;IAG9B,OAAO,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IAGxB,YAAY,CAAC,EAAE,GAAG,GAAG,IAAI,CAAC;CAC3B,CAAC;AAOF;;GAEG;AACH,eAAO,MAAM,0BAA0B,oBACpB,MAAM,YACb,MAAM,WACP,MAAM,yBACQ,iBAAiB,KACvC,QAAQ,cAAc,GAAG,SAAS,CA2CpC,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js b/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js
+index 91611d7..40a5957 100644
+--- a/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js
++++ b/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js
+@@ -46,12 +46,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
+         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+     }
+ };
+-var __importDefault = (this && this.__importDefault) || function (mod) {
+-    return (mod && mod.__esModule) ? mod : { "default": mod };
+-};
+ exports.__esModule = true;
+ exports.loadInfosForContractMethod = void 0;
+-var axios_1 = __importDefault(require("axios"));
+ var defaultPluginsLoadConfig = {
+     baseURL: "https://cdn.live.ledger.com",
+     extraPlugins: null
+@@ -68,12 +64,14 @@ var loadInfosForContractMethod = function (contractAddress, selector, chainId, u
+                 if (!!baseURL) return [3 /*break*/, 1];
+                 _b = {};
+                 return [3 /*break*/, 3];
+-            case 1: return [4 /*yield*/, axios_1["default"]
+-                    .get(baseURL + "/plugins/ethereum.json")
+-                    .then(function (r) { return r.data; })["catch"](function (e) {
+-                    if (e.response &&
+-                        400 <= e.response.status &&
+-                        e.response.status < 500) {
++            case 1: return [4 /*yield*/, fetch(baseURL + "/plugins/ethereum.json")
++                    .then(function (r) {
++                    if (!r.ok) {
++                        throw r;
++                    }
++                    return r.json();
++                })["catch"](function (e) {
++                    if (e && 400 <= e.status && e.status < 500) {
+                         return null; // not found cases can be ignored to allow future changes in endpoint without failing a signature to be done.
+                     }
+                     throw e;
+diff --git a/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js.map b/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js.map
+index 1559479..f7033ff 100644
+--- a/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js.map
++++ b/node_modules/@ledgerhq/hw-app-eth/lib/contracts.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"contracts.js","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,gDAA0B;AAoB1B,IAAM,wBAAwB,GAAG;IAC/B,OAAO,EAAE,6BAA6B;IACtC,YAAY,EAAE,IAAI;CACnB,CAAC;AAEF;;GAEG;AACI,IAAM,0BAA0B,GAAG,UACxC,eAAuB,EACvB,QAAgB,EAChB,OAAe,EACf,qBAAwC;;;;;gBAElC,2BACD,wBAAwB,GACxB,qBAAqB,CACzB,EAHO,OAAO,aAAA,EAAE,YAAY,kBAAA,CAG3B;qBACS,CAAC,OAAO,EAAR,wBAAQ;gBACf,KAAA,EAAE,CAAA;;oBACF,qBAAM,kBAAK;qBACR,GAAG,CAAI,OAAO,2BAAwB,CAAC;qBACvC,IAAI,CAAC,UAAC,CAAC,IAAK,OAAA,CAAC,CAAC,IAAW,EAAb,CAAa,CAAC,CAC1B,OAAK,CAAA,CAAC,UAAC,CAAC;oBACP,IACE,CAAC,CAAC,QAAQ;wBACV,GAAG,IAAI,CAAC,CAAC,QAAQ,CAAC,MAAM;wBACxB,CAAC,CAAC,QAAQ,CAAC,MAAM,GAAG,GAAG,EACvB;wBACA,OAAO,IAAI,CAAC,CAAC,6GAA6G;qBAC3H;oBACD,MAAM,CAAC,CAAC;gBACV,CAAC,CAAC,EAAA;;gBAZJ,KAAA,SAYI,CAAA;;;gBAdJ,IAAI,KAcA;gBAER,IAAI,YAAY,EAAE;oBAChB,IAAI,yBAAQ,IAAI,GAAK,YAAY,CAAE,CAAC;iBACrC;gBAED,IAAI,CAAC,IAAI;oBAAE,sBAAO;gBAEZ,UAAU,GAAG,QAAQ,CAAC,WAAW,EAAE,CAAC;gBACpC,iBAAiB,GAAG,eAAe,CAAC,WAAW,EAAE,CAAC;gBAExD,IAAI,iBAAiB,IAAI,IAAI,EAAE;oBACvB,iBAAiB,GAAG,IAAI,CAAC,iBAAiB,CAAC,CAAC;oBAElD,IAAI,UAAU,IAAI,iBAAiB,EAAE;wBACnC,sBAAO;gCACL,OAAO,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACzD,SAAS,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,WAAW,CAAC;gCACrD,MAAM,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,QAAQ,CAAC;gCAC/C,eAAe,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACjE,GAAG,EAAE,iBAAiB,CAAC,KAAK,CAAC;6BAC9B,EAAC;qBACH;iBACF;;;;KACF,CAAC;AAhDW,QAAA,0BAA0B,8BAgDrC"}
+\ No newline at end of file
++{"version":3,"file":"contracts.js","sourceRoot":"","sources":["../src/contracts.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAkBA,IAAM,wBAAwB,GAAG;IAC/B,OAAO,EAAE,6BAA6B;IACtC,YAAY,EAAE,IAAI;CACnB,CAAC;AAEF;;GAEG;AACI,IAAM,0BAA0B,GAAG,UACxC,eAAuB,EACvB,QAAgB,EAChB,OAAe,EACf,qBAAwC;;;;;gBAElC,2BACD,wBAAwB,GACxB,qBAAqB,CACzB,EAHO,OAAO,aAAA,EAAE,YAAY,kBAAA,CAG3B;qBACS,CAAC,OAAO,EAAR,wBAAQ;gBACf,KAAA,EAAE,CAAA;;oBACF,qBAAM,KAAK,CAAI,OAAO,2BAAwB,CAAC;qBAC5C,IAAI,CAAC,UAAC,CAAC;oBACN,IAAI,CAAC,CAAC,CAAC,EAAE,EAAE;wBACT,MAAM,CAAC,CAAC;qBACT;oBACD,OAAO,CAAC,CAAC,IAAI,EAAE,CAAC;gBAClB,CAAC,CAAC,CACD,OAAK,CAAA,CAAC,UAAC,CAAC;oBACP,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC,CAAC,MAAM,IAAI,CAAC,CAAC,MAAM,GAAG,GAAG,EAAE;wBAC1C,OAAO,IAAI,CAAC,CAAC,6GAA6G;qBAC3H;oBACD,MAAM,CAAC,CAAC;gBACV,CAAC,CAAC,EAAA;;gBAZJ,KAAA,SAYI,CAAA;;;gBAdJ,IAAI,KAcA;gBAER,IAAI,YAAY,EAAE;oBAChB,IAAI,yBAAQ,IAAI,GAAK,YAAY,CAAE,CAAC;iBACrC;gBAED,IAAI,CAAC,IAAI;oBAAE,sBAAO;gBAEZ,UAAU,GAAG,QAAQ,CAAC,WAAW,EAAE,CAAC;gBACpC,iBAAiB,GAAG,eAAe,CAAC,WAAW,EAAE,CAAC;gBAExD,IAAI,iBAAiB,IAAI,IAAI,EAAE;oBACvB,iBAAiB,GAAG,IAAI,CAAC,iBAAiB,CAAC,CAAC;oBAElD,IAAI,UAAU,IAAI,iBAAiB,EAAE;wBACnC,sBAAO;gCACL,OAAO,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACzD,SAAS,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,WAAW,CAAC;gCACrD,MAAM,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,QAAQ,CAAC;gCAC/C,eAAe,EAAE,iBAAiB,CAAC,UAAU,CAAC,CAAC,iBAAiB,CAAC;gCACjE,GAAG,EAAE,iBAAiB,CAAC,KAAK,CAAC;6BAC9B,EAAC;qBACH;iBACF;;;;KACF,CAAC;AAhDW,QAAA,0BAA0B,8BAgDrC"}
+\ No newline at end of file
+diff --git a/node_modules/@ledgerhq/hw-app-eth/src/contracts.ts b/node_modules/@ledgerhq/hw-app-eth/src/contracts.ts
+index c57b32a..dac80d7 100644
+--- a/node_modules/@ledgerhq/hw-app-eth/src/contracts.ts
++++ b/node_modules/@ledgerhq/hw-app-eth/src/contracts.ts
+@@ -1,5 +1,3 @@
+-import axios from "axios";
+-
+ type ContractMethod = {
+   payload: string;
+   signature: string;
+@@ -38,15 +36,15 @@ export const loadInfosForContractMethod = async (
+   };
+   let data = !baseURL
+     ? {}
+-    : await axios
+-        .get(`${baseURL}/plugins/ethereum.json`)
+-        .then((r) => r.data as any)
++    : await fetch(`${baseURL}/plugins/ethereum.json`)
++        .then((r) => {
++          if (!r.ok) {
++            throw r;
++          }
++          return r.json();
++        })
+         .catch((e) => {
+-          if (
+-            e.response &&
+-            400 <= e.response.status &&
+-            e.response.status < 500
+-          ) {
++          if (e && 400 <= e.status && e.status < 500) {
+             return null; // not found cases can be ignored to allow future changes in endpoint without failing a signature to be done.
+           }
+           throw e;

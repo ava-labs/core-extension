@@ -68,8 +68,6 @@ import { PerformSwapRequest } from '@src/background/services/swap/handlers/perfo
 import { contactsUpdatedEvent } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { gasPriceSwapUpdate } from '@src/background/services/swap/events/gasPriceSwapUpdate';
 import { GetGasRequest } from '@src/background/services/gas/handlers/getGas';
-import { HasLedgerTransportRequest } from '@src/background/services/ledger/handlers/hasLedgerTransport';
-import { hasLedgerTransportEvent } from '@src/background/services/ledger/events/hasLedgerTransportEvent';
 import { GetPublicKeyRequest } from '@src/background/services/ledger/handlers/getPublicKey';
 import { InitLedgerTransportRequest } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { SettingsGetIsDefaultExtensionRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
@@ -91,6 +89,8 @@ import { SetNavigationHistoryStateRequest } from '@src/background/services/navig
 import { SubmitSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/submitSendNftState';
 import { ValidateSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/validateSendNftState';
 import { ResetSendNftStateRequest } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
+import { ledgerDeviceRequest } from '@src/background/services/ledger/events/ledgerDeviceRequest';
+import { LedgerResponseRequest } from '@src/background/services/ledger/handlers/ledgerResponse';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -174,8 +174,8 @@ const extensionRequestHandlerMap = new Map<
   GetGasRequest,
 
   InitLedgerTransportRequest,
-  HasLedgerTransportRequest,
   GetPublicKeyRequest,
+  LedgerResponseRequest,
 
   GetNavigationHistoryDataStateRequest,
   SetNavigationHistoryDataStateRequest,
@@ -224,7 +224,7 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     contactsUpdatedEvent(),
     sendTxDetailsEvent(),
     gasPriceSwapUpdate(),
-    hasLedgerTransportEvent()
+    ledgerDeviceRequest()
   ).pipe(
     tap((evt) => {
       eventLog(`extension event (${evt.name})`, evt);

@@ -1,3 +1,4 @@
+import { getAppAvax } from '@avalabs/avalanche-wallet-sdk';
 import {
   ledgerTransport$,
   ledgerPubKey$,
@@ -24,9 +25,11 @@ import {
 } from '../wallet/storage';
 import { restartWalletLock$ } from '../wallet/walletLocked';
 import { walletUnlock$ } from '../wallet/walletUnlock';
-import { initLedgerTransport } from './handlers/initLedgerTransport';
+import { DeviceRequestData, DeviceResponseData } from './models';
 
 const _pubKey = new Subject<{ pubKey: string; password: string }>();
+export const ledgerDeviceRequest$ = new Subject<DeviceRequestData>();
+export const ledgerDeviceResponse$ = new Subject<DeviceResponseData>();
 
 /**
  * Aggregating the ledger state so that it shows in app state
@@ -64,15 +67,7 @@ merge(pubKeyFromStorage, freshPubKey)
       initWalletLedger(pubKey);
       restartWalletLock$.next(true);
       initAccounts();
-    }),
-    // after unlock make sure we always have a ledger transport
-    switchMap(() =>
-      ledgerTransport$.pipe(
-        filter((transport) => !transport),
-        mergeMap(() => initLedgerTransport()),
-        retryWhen((errors) => errors.pipe(delay(2000)))
-      )
-    )
+    })
   )
   .subscribe();
 

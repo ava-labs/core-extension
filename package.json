@@ -5,8 +5,8 @@
   "scripts": {
     "start": "yarn dev",
     "build:inpage": "webpack --config webpack.inpage.js",
-    "build": "yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
-    "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
+    "build": "yarn patch-package && yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
+    "dev": "yarn patch-package && yarn run build:inpage && webpack -w --config webpack.dev.js",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
     "postinstall": "husky install",
     "prettify": "prettier --write \"src/**/*.ts*\"",
@@ -18,8 +18,8 @@
     "@avalabs/avalanche-wallet-sdk": "0.17.0",
     "@avalabs/blizzard-sdk": "2.1.0",
     "@avalabs/bridge-sdk": "2.1.0",
-    "@avalabs/snowtrace-sdk": "2.1.0",
     "@avalabs/react-components": "1.92.0",
+    "@avalabs/snowtrace-sdk": "2.1.0",
     "@avalabs/wallet-react-components": "1.30.0",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
@@ -124,7 +124,9 @@
     "webextension-polyfill-ts": "0.26.0",
     "webpack": "5.67.0",
     "webpack-cli": "4.9.2",
-    "webpack-merge": "5.8.0"
+    "webpack-merge": "5.8.0",
+    "patch-package": "6.4.7",
+    "postinstall-postinstall": "2.1.0"
   },
   "prettier": {
     "tabWidth": 2,

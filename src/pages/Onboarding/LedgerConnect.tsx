@@ -71,7 +71,9 @@ export function LedgerConnect({
   useEffect(() => {
     initLedgerTransport()
       .then(() => {
-        getPublicKeyAndRedirect();
+        setTimeout(() => {
+          getPublicKeyAndRedirect();
+        }, WAIT_1500_MILLI_FOR_USER);
       })
       .catch(() => {
         // unable to get transport, try device selection first

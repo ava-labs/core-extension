@@ -93,6 +93,7 @@ class EthSendTransactionHandler implements DappRequestHandler {
             return { ...request, result };
           })
           .catch((err) => {
+            console.error(err);
             updateTransaction.next({
               status: TxStatus.ERROR,
               id: request.id,

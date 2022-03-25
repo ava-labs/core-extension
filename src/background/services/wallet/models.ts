@@ -18,8 +18,8 @@ export interface WalletLockedState {
 }
 
 export function isWalletLocked(
-  state: WalletLockedState | WalletState
+  state?: WalletLockedState | WalletState
 ): state is WalletLockedState {
   // eslint-disable-next-line no-prototype-builtins
-  return state?.hasOwnProperty('locked');
+  return !!state?.hasOwnProperty('locked');
 }
