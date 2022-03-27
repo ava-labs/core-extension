@@ -5,7 +5,6 @@ import {
   PrimaryButton,
   SwitchIcon,
   ComponentSize,
-  PrimaryIconButton,
   IconDirection,
   LoadingSpinnerIcon,
   TransactionToastType,
@@ -36,16 +35,17 @@ import { TransactionDetails } from './components/TransactionDetails';
 import { ReviewOrder } from './components/ReviewOrder';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { getMaxValue, getTokenAddress, isAPIError } from './utils';
-import { TxInProgress } from '../../components/common/TxInProgress';
+import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
-import { TokenSelect } from '@src/pages/Send/components/TokenSelect';
+import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { hexToBN } from '@src/utils/hexToBN';
+import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 
 export interface Token {
   icon?: JSX.Element;
@@ -61,16 +61,6 @@ interface Amount {
   bn: BN;
   amount: string;
 }
-
-const SwitchIconContainer = styled(PrimaryIconButton)<{ isSwapped: boolean }>`
-  background-color: ${({ theme }) => theme.swapCard.swapIconBg};
-  &[disabled] {
-    background-color: ${({ theme }) => theme.swapCard.swapIconBg};
-  }
-  transition: all 0.2s;
-  transform: ${({ isSwapped }) =>
-    isSwapped ? 'rotate(0deg)' : 'rotate(180deg)'};
-`;
 
 const ReviewOrderButtonContainer = styled.div<{
   isTransactionDetailsOpen: boolean;

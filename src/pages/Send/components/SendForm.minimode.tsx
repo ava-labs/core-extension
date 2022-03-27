@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TokenSelect } from './TokenSelect';
+import { TokenSelect } from '@src/components/common/TokenSelect';
 import { SendErrors, TokenWithBalance } from '@avalabs/wallet-react-components';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { ContactInput } from './ContactInput';
