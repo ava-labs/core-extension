@@ -91,6 +91,7 @@ import { ValidateSendNFTStateRequest } from '@src/background/services/send/sendN
 import { ResetSendNftStateRequest } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
 import { ledgerDeviceRequest } from '@src/background/services/ledger/events/ledgerDeviceRequest';
 import { LedgerResponseRequest } from '@src/background/services/ledger/handlers/ledgerResponse';
+import { isDevelopment } from '@src/utils/isDevelopment';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -185,12 +186,16 @@ const extensionRequestHandlerMap = new Map<
 
 export function extensionMessageHandler(connection: Runtime.Port) {
   function respondToRequest(response) {
-    responseLog(`extension reponse (${response.method})`, response);
+    if (isDevelopment()) {
+      responseLog(`extension reponse (${response.method})`, response);
+    }
     connection.postMessage(response);
   }
 
   return (message: ExtensionConnectionMessage) => {
-    requestLog(`extension request (${message.method})`, message);
+    if (isDevelopment()) {
+      requestLog(`extension request (${message.method})`, message);
+    }
 
     const handler = extensionRequestHandlerMap.get(
       message.method as ExtensionRequest
