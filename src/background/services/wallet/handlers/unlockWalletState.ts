@@ -4,6 +4,8 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
+import { saveToSessionStorage } from '@src/utils/storage/session-storage';
+import { SessionAuthData, SESSION_AUTH_DATA_KEY } from '../models';
 import { decryptPhraseOrKeyInStorage } from '../storage';
 import { walletUnlock$ } from '../walletUnlock';
 
@@ -35,6 +37,10 @@ export async function unlockWalletState(request: ExtensionConnectionMessage) {
     };
   }
   walletUnlock$.next({ value });
+  const sessionData: SessionAuthData = { password, loginTime: Date.now() };
+  await saveToSessionStorage({
+    [SESSION_AUTH_DATA_KEY]: sessionData,
+  });
 
   return {
     ...request,

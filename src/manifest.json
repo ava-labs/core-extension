@@ -41,7 +41,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["js/inpage.js", "keepalive.html"],
+      "resources": ["js/inpage.js"],
       "matches": ["file://*/*", "http://*/*", "https://*/*"]
     }
   ]

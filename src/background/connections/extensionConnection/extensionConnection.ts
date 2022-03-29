@@ -6,8 +6,12 @@ import {
 import { OnboardingPhase } from '../../services/onboarding/models';
 import { onboardingCurrentPhase$ } from '../../services/onboarding/onboardingFlows';
 import { connectionLog, disconnectLog } from '@src/utils/logging';
+import { unlockFromSessionStorage } from '@src/background/services/wallet/utils/unlockFromSessionStorage';
 
-export function extensionConnection(connection: Runtime.Port) {
+export async function extensionConnection(connection: Runtime.Port) {
+  // make sure the service worker is authenticated if still in session before handling any requests
+  await unlockFromSessionStorage();
+
   const onMessageHandler = extensionMessageHandler(connection);
   const onEventsSubscription = extensionEventsHandler(connection).subscribe();
 

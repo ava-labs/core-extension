@@ -76,7 +76,7 @@
     "@semantic-release/exec": "6.0.3",
     "@semantic-release/git": "10.0.1",
     "@semantic-release/github": "8.0.2",
-    "@types/chrome": "0.0.177",
+    "@types/chrome": "0.0.180",
     "@types/jest": "26.0.22",
     "@types/ledgerhq__hw-transport": "4.21.4",
     "@types/ledgerhq__hw-transport-u2f": "4.21.2",

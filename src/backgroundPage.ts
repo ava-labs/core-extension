@@ -8,7 +8,6 @@ import { ContextContainer } from './hooks/useIsSpecificContextContainer';
 import { activateServices } from '@avalabs/wallet-react-components';
 import { lockWalletFromSettings } from './background/services/settings/handlers/lockWallet';
 import { ExtensionRequest } from './background/connections/models';
-import { disconnectLog } from './utils/logging';
 
 /**
  * This activates all of the services in the wallet react components SDK

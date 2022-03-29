@@ -3742,10 +3742,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chrome@0.0.177":
-  version "0.0.177"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.177.tgz#b9098a9b0f3714d6604289d176b2a042ddd88ee7"
-  integrity sha512-bZIZyNAJMMqIgbRsBM+nGNDPezaWZMr3p+CKz1JGj4Jn8c7SpvdUqaconpxUG5WEL1WoisBeA3sumo+WXaC9CA==
+"@types/chrome@0.0.180":
+  version "0.0.180"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.180.tgz#b7fb831848f6b6c49abffd85410b73037c02381e"
+  integrity sha512-A/CuuKAaHq2CHEpYBAtl0lp2ib7TTXK7VjJI4q+c+1U/HDvZLJ8IlsdEDzzHdvkNdh36bGONxrMnO9YZrKqbAw==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"

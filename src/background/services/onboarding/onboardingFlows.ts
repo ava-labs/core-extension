@@ -1,12 +1,14 @@
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { isDevelopment } from '@src/utils/isDevelopment';
 import { formatAndLog, toLogger } from '@src/utils/logging';
+import { saveToSessionStorage } from '@src/utils/storage/session-storage';
 import { combineLatest, EMPTY, BehaviorSubject, merge, Observable } from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';
 import { browser } from 'webextension-polyfill-ts';
 import { initialAccountName$ } from '../accounts/accounts';
 import { setPublicKeyAndCreateWallet } from '../ledger/ledger';
 import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
+import { SessionAuthData, SESSION_AUTH_DATA_KEY } from '../wallet/models';
 import { OnboardingPhase, OnboardingState } from './models';
 import {
   getOnboardingFromStorage,
@@ -104,6 +106,10 @@ export const onboardingFlow = onboardingCurrentPhase$
         ? setMnemonicAndCreateWallet(mnemonic, password)
         : pubKey && setPublicKeyAndCreateWallet(pubKey, password);
       await saveOnboardingToStorage(true);
+      const sessionData: SessionAuthData = { password, loginTime: Date.now() };
+      await saveToSessionStorage({
+        [SESSION_AUTH_DATA_KEY]: sessionData,
+      });
       onboardingStatus$.next({ isOnBoarded: true, initialOpen: true });
       initialAccountName$.next(accountName);
     })

@@ -3,9 +3,9 @@ import {
   EMPTY,
   filter,
   firstValueFrom,
+  from,
   interval,
   map,
-  startWith,
   Subject,
   switchMap,
 } from 'rxjs';
@@ -13,6 +13,11 @@ import { onboardingStatus$ } from '../onboarding/onboardingFlows';
 import { getMnemonicFromStorage, getPublicKeyFromStorage } from './storage';
 import { clearWallet, wallet$ } from '@avalabs/wallet-react-components';
 import { resolve } from '@src/utils/promiseResolver';
+import {
+  clearSessionStorage,
+  getFromSessionStorage,
+} from '@src/utils/storage/session-storage';
+import { LOCK_TIMEOUT, SessionAuthData, SESSION_AUTH_DATA_KEY } from './models';
 
 export const restartWalletLock$ = new Subject<boolean>();
 export const lockWallet$ = new Subject<boolean>();
@@ -52,13 +57,16 @@ wallet$
     state && walletLocked$.next(state as any);
   });
 
-const HOURS_12 = 1000 * 60 * 60 * 12;
 // Since intervals get suspended when the computer is in sleep mode,
 // instead of starting a 12 hour interval, check every minute if it's time to lock
 restartWalletLock$
   .pipe(
-    startWith({}),
-    map(() => Date.now() + HOURS_12), // get the timestamp when the wallet should lock itself
+    switchMap(() =>
+      from(getFromSessionStorage<SessionAuthData>(SESSION_AUTH_DATA_KEY)).pipe(
+        map((data) => data?.loginTime || Date.now())
+      )
+    ),
+    map((loginTime) => loginTime + LOCK_TIMEOUT), // get the timestamp when the wallet should lock itself
     switchMap((timeToLock) =>
       interval(1000 * 60).pipe(filter(() => Date.now() > timeToLock))
     )
@@ -67,5 +75,6 @@ restartWalletLock$
 
 lockWallet$.subscribe(() => {
   clearWallet();
+  clearSessionStorage();
   wallet$.next(undefined);
 });
