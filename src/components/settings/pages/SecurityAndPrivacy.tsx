@@ -4,6 +4,7 @@ import {
   HorizontalSeparator,
   IconDirection,
   SecondaryDropDownMenuItem,
+  Toggle,
   Typography,
   useDialog,
   VerticalFlex,
@@ -13,6 +14,7 @@ import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -22,6 +24,7 @@ export function SecurityAndPrivacy({
   const theme = useTheme();
   const { showDialog, clearDialog } = useDialog();
   const { walletType } = useWalletContext();
+  const { analyticsConsent, setAnalyticsConsent } = useSettingsContext();
 
   const onLogoutClick = () => {
     showDialog({
@@ -104,6 +107,20 @@ export function SecurityAndPrivacy({
           />
         </SecondaryDropDownMenuItem>
       )}
+
+      <SecondaryDropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="10px 16px"
+      >
+        <Typography size={14} height="17px">
+          Participate in CoreAnalytics
+        </Typography>
+        <Toggle
+          isChecked={analyticsConsent}
+          onChange={() => setAnalyticsConsent(!analyticsConsent)}
+        />
+      </SecondaryDropDownMenuItem>
 
       <HorizontalFlex width="100%" margin="12px 0" padding="0 16px">
         <HorizontalSeparator />

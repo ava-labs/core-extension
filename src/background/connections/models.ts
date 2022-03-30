@@ -78,6 +78,7 @@ export enum ExtensionRequest {
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SET_PHASE = 'onboarding_setCurrentPhase',
   ONBOARDING_SET_MNEMONIC = 'onboarding_setWalletMnemonic',
+  ONBOARDING_SET_ANALYTICS_CONSENT = 'onboarding_setAnalyticsConsent',
   ONBOARDING_SET_PASSWORD_AND_NAME = 'onboarding_setWalletPasswordAndName',
   ONBOARDING_SET_ACCOUNT_NAME = 'onboarding_setAccountName',
   ONBOARDING_SET_FINALIZED = 'onboarding_setOnboardingFinalized',
@@ -140,6 +141,7 @@ export enum ExtensionRequest {
   SETTINGS_GET_TOKEN_DATA = 'settings_get_token_data',
   SETTINGS_SET_DEFAULT_EXTENSION = 'settings_set_default_extension',
   SETTINGS_GET_DEFAULT_EXTENSION = 'settings_get_default_extension',
+  SETTINGS_SET_ANALYTICS_CONSENT = 'settings_set_analytics_consent',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',

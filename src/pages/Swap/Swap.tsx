@@ -45,6 +45,8 @@ import { useHistory } from 'react-router-dom';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { hexToBN } from '@src/utils/hexToBN';
+import { FeatureGates } from '@avalabs/posthog-sdk';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 
 export interface Token {
@@ -73,6 +75,7 @@ const ReviewOrderButtonContainer = styled.div<{
 `;
 
 export function Swap() {
+  const { flags } = useAnalyticsContext();
   const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
@@ -484,6 +487,21 @@ export function Swap() {
         <VerticalFlex align="center" justify="center" grow="1">
           <Typography size={16}>
             Swap is not available on Fuji Testnet
+          </Typography>
+        </VerticalFlex>
+      </VerticalFlex>
+    );
+  }
+
+  if (!flags[FeatureGates.SWAP]) {
+    return (
+      <VerticalFlex width="100%">
+        <PageTitleMiniMode>Swap</PageTitleMiniMode>
+        <VerticalFlex align="center" justify="center" grow="1">
+          <Typography size={16} align="center">
+            Sorry, Swap is currently unavailable.
+            <br />
+            Please check back later.
           </Typography>
         </VerticalFlex>
       </VerticalFlex>

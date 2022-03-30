@@ -20,4 +20,5 @@ export interface SettingsState {
   theme: ThemeVariant;
   tokensVisibility: TokensVisibility;
   isDefaultExtension: boolean;
+  analyticsConsent: boolean;
 }

@@ -89,9 +89,13 @@ import { SetNavigationHistoryStateRequest } from '@src/background/services/navig
 import { SubmitSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/submitSendNftState';
 import { ValidateSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/validateSendNftState';
 import { ResetSendNftStateRequest } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
+
+import { SettingsSetAnalyticsConsentRequest } from '@src/background/services/settings/handlers/setAnalyticsConsent';
+
 import { ledgerDeviceRequest } from '@src/background/services/ledger/events/ledgerDeviceRequest';
 import { LedgerResponseRequest } from '@src/background/services/ledger/handlers/ledgerResponse';
 import { isDevelopment } from '@src/utils/isDevelopment';
+import { SetOnboardingAnalyticsConsentRequest } from '@src/background/services/onboarding/handlers/setAnalyticsConsent';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -105,6 +109,7 @@ const extensionRequestHandlerMap = new Map<
   SetOnboardingFinalizedRequest,
   SetOnboardingMnemonicRequest,
   SetOnboardingPasswordRequest,
+  SetOnboardingAnalyticsConsentRequest,
 
   GetNetworkRequest,
   SetNetworkRequest,
@@ -154,6 +159,7 @@ const extensionRequestHandlerMap = new Map<
   SettingsGetTokenDataRequest,
   SettingsGetIsDefaultExtensionRequest,
   SettingsSetDefaultExtensionRequest,
+  SettingsSetAnalyticsConsentRequest,
 
   InitialWalletOpenRequest,
 

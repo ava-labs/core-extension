@@ -41,19 +41,28 @@
     web3-eth-contract "1.6.0"
     xss "^1.0.10"
 
-"@avalabs/blizzard-sdk@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/blizzard-sdk/-/blizzard-sdk-2.1.0.tgz#39df5b4a85f3e6b764009d7dd0e4917773a73814"
-  integrity sha512-8A9+J/YGb/mVCVgaGL27tZzKBDLU5ipBAD1EyXxp1fLfzuMDazV2Dapq/Jh3AoHuauCyenshr2hW9eW+V1f54A==
+"@avalabs/blizzard-sdk@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/blizzard-sdk/-/blizzard-sdk-2.1.1.tgz#1a9bc3b4ed1c59e23b11ebbf0c1a532e73b278e3"
+  integrity sha512-Mtfz+IS39GCoiS5LLwwNtSU8nE4Oa+sYaqlDgCcTc9L2DfauRDgmjvQ/oAm559QhjErShtqmpUq3ym5yajRrpA==
 
-"@avalabs/bridge-sdk@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-2.1.0.tgz#82637015a20de0c183bc7bee7aa8d2e00cff3f56"
-  integrity sha512-FryA7UjXybUkuuLnozh37Qryre3undXFquCKXYU6azAOk/SeTFhOSvdO5dFjOpoqcIs9ClmwWEhj+Ws8aVpujA==
+"@avalabs/bridge-sdk@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-2.1.1.tgz#bc5889b9648acbef6b66e4f52472cda78ea654fa"
+  integrity sha512-4OWYqJtf4wDPXBrZXhk8srtURhJsKq1JHS7meT5/pdEO2avc8d3q+prlx8bYnKZafOxRf6LPGfOAkVdh9tyATw==
   dependencies:
-    "@avalabs/utils-sdk" "2.1.0"
+    "@avalabs/utils-sdk" "2.1.1"
     big.js "6.1.1"
     ethers "5.2.0"
+
+"@avalabs/posthog-sdk@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/posthog-sdk/-/posthog-sdk-2.1.1.tgz#8d31d016a41d250256f213c398a3a2dd8ed17683"
+  integrity sha512-GbTM+qlEqcasYGv397yOvPti//iyCaZbgy5JcTbJ8QDIMlEmsTyWRkK6QITYA0KfQ7F32g0tKz55GGiEvNE1zw==
+  dependencies:
+    "@avalabs/utils-sdk" "2.1.1"
+    micro-signals "^2.4.0"
+    posthog-js "^1.18.0"
 
 "@avalabs/react-components@1.92.0":
   version "1.92.0"
@@ -77,17 +86,22 @@
     use-media "^1.4.0"
     web-vitals "^1.0.1"
 
-"@avalabs/snowtrace-sdk@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/snowtrace-sdk/-/snowtrace-sdk-2.1.0.tgz#7996d7e06e2a478cb9a9648edc2ca5228267b5c6"
-  integrity sha512-WXvsBNQfMilnd2l6xV119rgLUkugjTi45sVX5p5lXquBkBiRaKfjAtLAf6YjH8P/JYqG3kItuw3XiWnBK1NKCw==
+"@avalabs/snowtrace-sdk@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/snowtrace-sdk/-/snowtrace-sdk-2.1.1.tgz#3ab5a9db0803929fbc5f117a92c5d84e312867de"
+  integrity sha512-HzD4bRym4aOQSmgNTDcpaVpXLOF81o2Xn0K6OxapfJtafwW3mTxLOopNXhWfGgHA2IVmRGQycvo7WDAHuInMWQ==
   dependencies:
-    "@avalabs/utils-sdk" "2.1.0"
+    "@avalabs/utils-sdk" "2.1.1"
 
 "@avalabs/utils-sdk@2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.1.0.tgz#e2ed85cf85b9bb19a0026fa65152d53c6fdb4f98"
   integrity sha512-+2/Wrerv5LdnO9psVofMdBciY93kx44bTPNMJgmQcLxGSAg9rn5oV9SNtBeF8NmAdDUyRnCxZiDOcJXHzcq5sg==
+
+"@avalabs/utils-sdk@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.1.1.tgz#c45f6c372310abf72911528b685852e6ef112e1e"
+  integrity sha512-KxPtElfaXYuhdXS6AvyZqBMO1RIohAHav7I8oWKt8UOUmjots9+TmoedbRxwVPSwQcHKXdoHOvSn9Y3xPfLj7Q==
 
 "@avalabs/wallet-react-components@1.30.0":
   version "1.30.0"
@@ -2976,7 +2990,7 @@
   resolved "https://registry.yarnpkg.com/@metamask/safe-event-emitter/-/safe-event-emitter-2.0.0.tgz#af577b477c683fad17c619a78208cede06f9605c"
   integrity sha512-/kSXhY692qiV1MXu6EeOZvg5nECLclxNXcKCxJ3cXQgYuRymRHpdx/t7JXfsK+JLjwA1e1c1/SBrlQYpusC29Q==
 
-"@noble/hashes@^1.0.0":
+"@noble/hashes@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.0.0.tgz#d5e38bfbdaba174805a4e649f13be9a9ed3351ae"
   integrity sha512-DZVbtY62kc3kkBtMHqwCOfXrT/hnoORy5BJ4+HU1IR59X0KWAOqsfzQPcUl/lQLlG7qXbe/fZ3r/emxtAl+sqg==
@@ -3476,6 +3490,11 @@
     into-stream "^6.0.0"
     lodash "^4.17.4"
     read-pkg-up "^7.0.0"
+
+"@sentry/types@^6.11.0":
+  version "6.19.2"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.19.2.tgz#0219c9da21ed975951108b8541913b1966464435"
+  integrity sha512-XO5qmVBdTs+7PdCz7fAwn1afWxSnRE2KLBFg5/vOdKosPSSHsSHUURSkxiEZc2QsR+JpRB4AeQ26AkIRX38qTg==
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
@@ -4100,13 +4119,6 @@
   version "0.16.2"
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
-
-"@types/scrypt-js@3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@types/scrypt-js/-/scrypt-js-3.0.1.tgz#7c2779c5994d86779b17d70f222e9c670bd52e03"
-  integrity sha512-nIZInEvKE4R6yxpWUe+nbC4loIHPBxUIUWG9SUKdgB/TiCWSzQ+2Mg2JcWt1cqFf0L+c9PH6nu1Z/IQgc0hN9Q==
-  dependencies:
-    scrypt-js "*"
 
 "@types/secp256k1@^4.0.1":
   version "4.0.3"
@@ -9838,6 +9850,11 @@ fd-slicer@~1.1.0:
   dependencies:
     pend "~1.2.0"
 
+fflate@^0.4.1:
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.4.8.tgz#f90b82aefbd8ac174213abb338bd7ef848f0f5ae"
+  integrity sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==
+
 figgy-pudding@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
@@ -13580,6 +13597,11 @@ methods@~1.1.2:
   resolved "https://registry.yarnpkg.com/methods/-/methods-1.1.2.tgz#5529a4d67654134edcc5266656835b0f851afcee"
   integrity sha1-VSmk1nZUE07cxSZmVoNbD4Ua/O4=
 
+micro-signals@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/micro-signals/-/micro-signals-2.4.0.tgz#007af19ea18051e360f9fa17023284779d839593"
+  integrity sha512-OpGuAaqeJQEV4Q45M8K1RWi4/Fs8QRl9xB9Q5MBGcMlXu5rJu4exdZ0dNXrHKDUpXcIvGW/Lndr7qrtlNB5MGg==
+
 microevent.ts@~0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/microevent.ts/-/microevent.ts-0.1.1.tgz#70b09b83f43df5172d0205a63025bce0f7357fa0"
@@ -15922,6 +15944,15 @@ postcss@^8.1.0, postcss@^8.2.10:
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
+posthog-js@^1.18.0:
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/posthog-js/-/posthog-js-1.20.0.tgz#312bf9c79ae66b462e8631f4bbe1811d8a6050d8"
+  integrity sha512-Vjyx6p3pJ+d8MOTDHDvEpGMmjMiYR+PSPs3y+LqS54XVxNnUgTppbj+HcF2inla7IBzIbIsip5pN/xC1O1QsTA==
+  dependencies:
+    "@sentry/types" "^6.11.0"
+    fflate "^0.4.1"
+    rrweb-snapshot "^1.1.7"
+
 postinstall-postinstall@2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#4f7f77441ef539d1512c40bd04c71b06a4704ca3"
@@ -17263,6 +17294,11 @@ rollup@^2.53.2:
   optionalDependencies:
     fsevents "~2.3.2"
 
+rrweb-snapshot@^1.1.7:
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/rrweb-snapshot/-/rrweb-snapshot-1.1.13.tgz#fc15adb7eb6354c859c8d594f57b09e1f5bccdd8"
+  integrity sha512-lv4vBSJ5orBcRoJnjLvtly6cSsctC+TNm5orVzYRL9SH3LmtSpQ+wI4bw7eh4AcyKoUf0x4pe1Bn632GggmKWQ==
+
 rsuite-table@^5.3.2:
   version "5.3.4"
   resolved "https://registry.yarnpkg.com/rsuite-table/-/rsuite-table-5.3.4.tgz#a25cc843d6b78e6d796e4501890cc5860ce2e571"
@@ -17432,7 +17468,7 @@ schema-utils@^4.0.0:
     ajv-formats "^2.1.1"
     ajv-keywords "^5.0.0"
 
-scrypt-js@*, scrypt-js@3.0.1, scrypt-js@^3.0.0, scrypt-js@^3.0.1:
+scrypt-js@3.0.1, scrypt-js@^3.0.0, scrypt-js@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/scrypt-js/-/scrypt-js-3.0.1.tgz#d314a57c2aef69d1ad98a138a21fe9eafa9ee312"
   integrity sha512-cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==

@@ -42,6 +42,8 @@ import { useAssetBalances } from './useAssetBalances';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import EthLogo from '@src/images/tokens/eth.png';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { AssetBalance } from './models';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
@@ -55,6 +57,7 @@ function formatBalance(balance: Big | undefined) {
 }
 
 export function Bridge() {
+  const { flags } = useAnalyticsContext();
   const { transferAsset } = useBridgeContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { error } = useBridgeConfig();
@@ -185,7 +188,7 @@ export function Bridge() {
     )}`;
   };
 
-  if (error) {
+  if (error || !flags[FeatureGates.BRIDGE]) {
     return (
       <VerticalFlex height="100%" width="100%">
         <PageTitleMiniMode>Bridge</PageTitleMiniMode>

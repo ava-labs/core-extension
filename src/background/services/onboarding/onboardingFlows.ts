@@ -2,12 +2,20 @@ import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { isDevelopment } from '@src/utils/isDevelopment';
 import { formatAndLog, toLogger } from '@src/utils/logging';
 import { saveToSessionStorage } from '@src/utils/storage/session-storage';
-import { combineLatest, EMPTY, BehaviorSubject, merge, Observable } from 'rxjs';
+import {
+  combineLatest,
+  EMPTY,
+  BehaviorSubject,
+  merge,
+  Observable,
+  firstValueFrom,
+} from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';
 import nacl from 'tweetnacl';
 import { browser } from 'webextension-polyfill-ts';
 import { initialAccountName$ } from '../accounts/accounts';
 import { setPublicKeyAndCreateWallet } from '../ledger/ledger';
+import { settingsSetAnalyticsConsent } from '../settings/handlers/setAnalyticsConsent';
 import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
 import { SessionAuthData, SESSION_AUTH_DATA_KEY } from '../wallet/models';
 import { storageKey$ } from '../wallet/storageKey';
@@ -37,6 +45,7 @@ export const onboardingMnemonic$ = new BehaviorSubject<string>('');
 export const onboardingPassword$ = new BehaviorSubject<string>('');
 export const onboardingAccountName$ = new BehaviorSubject<string>('');
 export const onboardingFinalized$ = new BehaviorSubject<boolean>(false);
+export const onboardingAnalyticsConsent$ = new BehaviorSubject<boolean>(false);
 export const onboardingPublicKey$ = new BehaviorSubject<string>('');
 export const onboardingCurrentPhase$ = new BehaviorSubject<
   OnboardingPhase | undefined
@@ -49,6 +58,7 @@ function resetStates() {
   onboardingFinalized$.next(false);
   onboardingCurrentPhase$.next(undefined);
   onboardingPublicKey$.next('');
+  onboardingAnalyticsConsent$.next(false);
 }
 
 // Make sure logs are disabled for production releases to prevent logging sensitive information
@@ -117,6 +127,11 @@ export const onboardingFlow = onboardingCurrentPhase$
       };
       await saveToSessionStorage(SESSION_AUTH_DATA_KEY, sessionData);
       storageKey$.next(storageKey); // set storage key so the app can load data from and to the storage
+
+      settingsSetAnalyticsConsent(
+        await firstValueFrom(onboardingAnalyticsConsent$)
+      );
+
       onboardingStatus$.next({ isOnBoarded: true, initialOpen: true });
       initialAccountName$.next(accountName);
     })

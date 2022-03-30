@@ -16,6 +16,7 @@ export const defaultSettingsState: SettingsState = {
   theme: ThemeVariant.DARK,
   tokensVisibility: {},
   isDefaultExtension: false,
+  analyticsConsent: false,
 };
 
 export const settings$ = new BehaviorSubject<SettingsState>(

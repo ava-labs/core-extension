@@ -36,6 +36,7 @@ const OnboardingContext = createContext<{
   onboardingPhase?: OnboardingPhase;
   setNextPhase(phase: OnboardingPhase): Promise<void>;
   setMnemonic(mnemonic: string): Promise<void>;
+  setAnalyticsConsent(consent: boolean): Promise<void>;
   setPasswordAndName(password: string, accountName: string): Promise<void>;
   setFinalized(): Promise<any>;
   updateInitialOpen(): void;
@@ -120,6 +121,13 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     });
   }
 
+  function setAnalyticsConsent(consent: boolean) {
+    return request({
+      method: ExtensionRequest.ONBOARDING_SET_ANALYTICS_CONSENT,
+      params: [consent],
+    });
+  }
+
   function setFinalized() {
     return request({
       method: ExtensionRequest.ONBOARDING_SET_FINALIZED,
@@ -136,6 +144,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setPasswordAndName,
         setFinalized,
         updateInitialOpen,
+        setAnalyticsConsent,
       }}
     >
       {/* 

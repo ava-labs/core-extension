@@ -29,7 +29,10 @@ import {
 } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import {
+  PageTitleMiniMode,
+  PageTitleVariant,
+} from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
@@ -38,9 +41,12 @@ import { useContactFromParams } from './hooks/useContactFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 
 export function SendMiniMode() {
   const theme = useTheme();
+  const { flags } = useAnalyticsContext();
   const { walletType, avaxToken } = useWalletContext();
   const selectedToken = useTokenFromParams();
   const contactInput = useContactFromParams();
@@ -222,6 +228,21 @@ export function SendMiniMode() {
         if (walletType === 'ledger') history.push('/home');
       });
   };
+
+  if (!flags[FeatureGates.SEND]) {
+    <VerticalFlex height="100%" width="100%">
+      <PageTitleMiniMode variant={PageTitleVariant.PRIMARY}>
+        Confirm Transaction
+      </PageTitleMiniMode>
+      <VerticalFlex align="center" justify="center" grow="1">
+        <Typography size={16} align="center">
+          Sorry, Send is currently unavailable.
+          <br />
+          Please check back later.
+        </Typography>
+      </VerticalFlex>
+    </VerticalFlex>;
+  }
 
   return (
     <Switch>

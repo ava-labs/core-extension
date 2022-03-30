@@ -187,7 +187,13 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         align="center"
         padding="10px 16px"
       >
-        <Typography size={14} height="17px">
+        <Typography
+          as="a"
+          target="_blank"
+          href="https://wallet.avax.network/legal?core"
+          size={14}
+          height="17px"
+        >
           Legal
         </Typography>
       </DropDownMenuItem>
