@@ -1,17 +1,15 @@
-import { removeAllAccountsFromStorage } from '@src/background/services/accounts/storage';
-import { removeOnboardingFromStorage } from '@src/background/services/onboarding/storage';
-import { removeAllPermissionsFromStorage } from '@src/background/services/permissions/storage';
-import { removeAllTranscationsFromStorage } from '@src/background/services/transactions/storage';
-import { removeWalletFromStorage } from '@src/background/services/wallet/storage';
+import { saveReImportStateToStorage } from '@src/background/services/onboarding/storage';
 import browser from 'extensionizer';
+import { clearStorage } from './storage/chrome-storage';
 
 // openOnboarding true will open the onboarding flow after the extension was reset
-export function resetExtensionState(openOnboarding?: boolean) {
-  return Promise.all([
-    removeAllTranscationsFromStorage(),
-    removeWalletFromStorage(),
-    removeAllPermissionsFromStorage(),
-    removeOnboardingFromStorage(openOnboarding),
-    removeAllAccountsFromStorage(),
-  ]).then(() => browser.runtime.reload());
+export async function resetExtensionState(openOnboarding?: boolean) {
+  // clear everything from the chrome.stoage.local
+  await clearStorage();
+
+  // make sure we arrive to the correct step of the onboarding
+  await saveReImportStateToStorage(!!openOnboarding);
+
+  // reload kills everyhing in memory and clears the chrome.stoage.session storage
+  browser.runtime.reload();
 }

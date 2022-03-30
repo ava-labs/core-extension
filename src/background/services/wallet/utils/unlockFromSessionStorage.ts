@@ -1,4 +1,4 @@
-import { wallet$ } from '@avalabs/wallet-react-components';
+import { isWalletReady$ } from '@avalabs/wallet-react-components';
 import { resolve } from '@src/utils/promiseResolver';
 import {
   getFromSessionStorage,
@@ -10,7 +10,11 @@ import {
   SessionAuthData,
   SESSION_AUTH_DATA_KEY,
 } from '../models';
-import { decryptPhraseOrKeyInStorage } from '../storage';
+import {
+  decryptPhraseOrKeyInStorage,
+  decryptStorageKeyInStorage,
+} from '../storage';
+import { storageKey$ } from '../storageKey';
 import { walletLocked$ } from '../walletLocked';
 import { walletUnlock$ } from '../walletUnlock';
 
@@ -38,14 +42,21 @@ export async function unlockFromSessionStorage() {
   const [value, err] = await resolve(
     decryptPhraseOrKeyInStorage(authData.password)
   );
+  const [storageKey, errStorageKey] = await resolve(
+    decryptStorageKeyInStorage(authData.password)
+  );
 
-  if (err) {
+  if (err || errStorageKey) {
     return;
   }
+
+  // add storage key so data can be loaded from storage
+  storageKey$.next(storageKey);
+
   // set encrypted data and trigger unlock mechanism
   walletUnlock$.next({ value });
 
   // wait for the wallet to be really unlocked
-  // to prevent "lot logged in" responses for dApp requests
-  await firstValueFrom(wallet$.pipe(filter((wallet) => !!wallet)));
+  // to prevent "lot logged in" responses for dApp requests=
+  await firstValueFrom(isWalletReady$.pipe(filter((wallet) => !!wallet)));
 }

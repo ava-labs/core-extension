@@ -57,12 +57,6 @@ const SignTransactionPage = lazy(() => {
   }));
 });
 
-const SettingsPage = lazy(() => {
-  return import('../pages/Settings/SettingsPage').then((m) => ({
-    default: m.SettingsPage,
-  }));
-});
-
 const TokenFlowPage = lazy(() => {
   return import('../pages/Wallet/TokenFlow.minimode').then((m) => ({
     default: m.TokenFlowMiniMode,
@@ -245,12 +239,6 @@ export function Popup() {
                                 <Route path="/send">
                                   <Suspense fallback={<LoadingIcon />}>
                                     <SendFlow />
-                                  </Suspense>
-                                </Route>
-
-                                <Route path="/settings">
-                                  <Suspense fallback={<LoadingIcon />}>
-                                    <SettingsPage />
                                   </Suspense>
                                 </Route>
 

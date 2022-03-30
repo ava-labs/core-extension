@@ -10,12 +10,12 @@ export interface StorageEvent<T = any> {
 const storage: typeof chrome.storage & { session: chrome.storage.StorageArea } =
   extension.storage;
 
-export async function saveToSessionStorage<T = any>(value: T) {
+export async function saveToSessionStorage<T = any>(key: string, value: T) {
   return new Promise<T>((resolve, reject) => {
     if (!value) {
       reject('trying to store an empty value');
     }
-    storage.session.set(value, () => {
+    storage.session.set({ [key]: value }, () => {
       resolve(value);
     });
   });

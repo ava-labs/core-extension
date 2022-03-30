@@ -11,7 +11,7 @@ import {
   isTxStatusUpdate,
   TransactionDisplayValues,
 } from './models';
-import { tap, switchMap } from 'rxjs/operators';
+import { tap, switchMap, filter } from 'rxjs/operators';
 import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
 import { updatePendingTxParams } from './utils/updatePendingTxParams';
 import {
@@ -37,12 +37,18 @@ import * as ethers from 'ethers';
 import { getTxInfo, isTxDescriptionError } from './getTxInfo';
 import abiDecoder from 'abi-decoder';
 import hstABI from 'human-standard-token-abi';
+import { storageKey$ } from '../wallet/storageKey';
 
 abiDecoder.addABI(hstABI);
 
 export const transactions$ = new BehaviorSubject<Transaction[]>([]);
 
-getTransactionsFromStorage().then((txs) => txs && transactions$.next(txs));
+storageKey$
+  .pipe(
+    filter((ready) => !!ready),
+    switchMap(() => getTransactionsFromStorage())
+  )
+  .subscribe((txs) => txs && transactions$.next(txs));
 
 export const pendingTransactions$ = new BehaviorSubject<{
   [id: string]: Transaction;
@@ -193,6 +199,12 @@ updateTransaction
   )
   .subscribe();
 
-transactions$
-  .pipe(tap((results) => saveTransactionsToStorage(results)))
+// wait for key to start storing transactions in storage
+storageKey$
+  .pipe(
+    filter((ready) => !!ready),
+    switchMap(() =>
+      transactions$.pipe(tap((results) => saveTransactionsToStorage(results)))
+    )
+  )
   .subscribe();

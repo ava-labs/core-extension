@@ -24,8 +24,6 @@ export async function getPublicKey(request: ExtensionConnectionMessage) {
     LedgerWallet.getExtendedPublicKeyEthAccount(transport)
   );
 
-  console.log('asdads', pubKey, pubKeyError);
-
   if (pubKeyError) {
     if (pubKeyError.message === 'The device was disconnected.') {
       ledgerTransport$.next(null);

@@ -29,7 +29,6 @@ export function useSendNft(
 
   const setValues = useCallback(
     ({ address, gasPrice, gasLimit }: SetSendNftValuesParams) => {
-      console.log('VALIDATE');
       request(
         sendNftValidateRequest(
           contractAddress,
@@ -50,7 +49,6 @@ export function useSendNft(
     txId,
     setValues,
     reset() {
-      console.log('RESET');
       sendNftResetRequest(contractAddress, tokenId);
     },
     submit() {

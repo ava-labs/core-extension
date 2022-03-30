@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, switchMap } from 'rxjs';
 import { SettingsState, ThemeVariant } from './models';
 import { getSettingsFromStorage } from './storage';
 import {
@@ -7,6 +7,7 @@ import {
   customErc20Tokens$,
   network$,
 } from '@avalabs/wallet-react-components';
+import { storageKey$ } from '../wallet/storageKey';
 
 export const defaultSettingsState: SettingsState = {
   currency: 'USD',
@@ -21,13 +22,18 @@ export const settings$ = new BehaviorSubject<SettingsState>(
   defaultSettingsState
 );
 
-getSettingsFromStorage().then((res) => {
-  const updateSettings = {
-    ...defaultSettingsState,
-    ...res,
-  };
-  settings$.next(updateSettings);
-});
+storageKey$
+  .pipe(
+    filter((ready) => !!ready),
+    switchMap(() => getSettingsFromStorage())
+  )
+  .subscribe((res) => {
+    const updateSettings = {
+      ...defaultSettingsState,
+      ...res,
+    };
+    settings$.next(updateSettings);
+  });
 
 settings$.subscribe(({ currency }) => {
   const currencyObject = currencies.find(({ symbol }) => currency === symbol);

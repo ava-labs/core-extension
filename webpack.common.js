@@ -44,6 +44,17 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.wasm$/,
+        // Tells WebPack that this module should be included as
+        // base64-encoded binary file and not as code
+        loader: 'base64-loader',
+        // Disables WebPack's opinion where WebAssembly should be,
+        // makes it think that it's not WebAssembly
+        //
+        // Error: WebAssembly module is included in initial chunk.
+        type: 'javascript/auto',
+      },
     ],
   },
   resolve: {
@@ -58,6 +69,17 @@ module.exports = {
       'bn.js': path.resolve(
         './node_modules/@avalabs/avalanche-wallet-sdk/node_modules/bn.js'
       ),
+    },
+    // We're using different node.js modules in our code,
+    // this prevents WebPack from failing on them or embedding
+    // polyfills for them into the bundle.
+    //
+    // Error: Module not found: Error: Can't resolve 'fs'
+    fallback: {
+      path: false,
+      fs: false,
+      Buffer: false,
+      process: false,
     },
     symlinks: false,
   },

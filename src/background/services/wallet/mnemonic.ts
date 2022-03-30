@@ -3,16 +3,19 @@ import { map, mapTo, switchMap } from 'rxjs/operators';
 import { getMnemonicFromStorage, savePhraseOrKeyToStorage } from './storage';
 import { walletUnlock$ } from './walletUnlock';
 import { initWalletMnemonic } from '@avalabs/wallet-react-components';
-import { initAccounts } from '../accounts/accounts';
 import { restartWalletLock$ } from './walletLocked';
 
-const _mnemonic = new Subject<{ mnemonic: string; password: string }>();
+const _mnemonic = new Subject<{
+  mnemonic: string;
+  password: string;
+  storageKey: string;
+}>();
 
 export const freshMnemonic = _mnemonic.pipe(
-  switchMap(({ mnemonic, password }) => {
-    return from(savePhraseOrKeyToStorage({ password, mnemonic })).pipe(
-      mapTo(mnemonic)
-    );
+  switchMap(({ mnemonic, password, storageKey }) => {
+    return from(
+      savePhraseOrKeyToStorage({ password, mnemonic, storageKey })
+    ).pipe(mapTo(mnemonic));
   })
 );
 
@@ -37,9 +40,12 @@ const mnemonicFromStorage = merge(
 merge(mnemonicFromStorage, freshMnemonic).subscribe((mnemonic) => {
   initWalletMnemonic(mnemonic);
   restartWalletLock$.next(true);
-  initAccounts();
 });
 
-export function setMnemonicAndCreateWallet(mnem: string, password: string) {
-  _mnemonic.next({ mnemonic: mnem, password });
+export function setMnemonicAndCreateWallet(
+  mnem: string,
+  password: string,
+  storageKey: string
+) {
+  _mnemonic.next({ mnemonic: mnem, password, storageKey });
 }

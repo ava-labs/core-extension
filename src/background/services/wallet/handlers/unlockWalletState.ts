@@ -6,7 +6,11 @@ import {
 import { resolve } from '@src/utils/promiseResolver';
 import { saveToSessionStorage } from '@src/utils/storage/session-storage';
 import { SessionAuthData, SESSION_AUTH_DATA_KEY } from '../models';
-import { decryptPhraseOrKeyInStorage } from '../storage';
+import {
+  decryptPhraseOrKeyInStorage,
+  decryptStorageKeyInStorage,
+} from '../storage';
+import { storageKey$ } from '../storageKey';
 import { walletUnlock$ } from '../walletUnlock';
 
 export async function unlockWalletState(request: ExtensionConnectionMessage) {
@@ -27,21 +31,24 @@ export async function unlockWalletState(request: ExtensionConnectionMessage) {
       error: new Error('password missing for request'),
     };
   }
-
   const [value, err] = await resolve(decryptPhraseOrKeyInStorage(password));
-
-  if (err) {
+  const [storageKey, errStorageKey] = await resolve(
+    decryptStorageKeyInStorage(password)
+  );
+  if (err || errStorageKey) {
     return {
       ...request,
-      error: err,
+      error: err || errStorageKey,
     };
   }
+  // set storage key first so we can load data from storage for unlock
+  storageKey$.next(storageKey);
   walletUnlock$.next({ value });
-  const sessionData: SessionAuthData = { password, loginTime: Date.now() };
-  await saveToSessionStorage({
-    [SESSION_AUTH_DATA_KEY]: sessionData,
-  });
-
+  const sessionData: SessionAuthData = {
+    password,
+    loginTime: Date.now(),
+  };
+  await saveToSessionStorage(SESSION_AUTH_DATA_KEY, sessionData);
   return {
     ...request,
     result: true,

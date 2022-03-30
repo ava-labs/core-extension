@@ -1,9 +1,15 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, filter, switchMap } from 'rxjs';
+import { storageKey$ } from '../wallet/storageKey';
 import { FavoritesState } from './models';
 import { getFavoritesFromStorage } from './storage';
 
 export const favorites$ = new BehaviorSubject<FavoritesState>({});
 
-getFavoritesFromStorage().then((favoritesState) => {
-  !!favoritesState && favorites$.next(favoritesState);
-});
+storageKey$
+  .pipe(
+    filter((ready) => !!ready),
+    switchMap(() => getFavoritesFromStorage())
+  )
+  .subscribe((favoritesState) => {
+    !!favoritesState && favorites$.next(favoritesState);
+  });

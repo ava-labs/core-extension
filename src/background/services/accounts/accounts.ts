@@ -6,11 +6,13 @@ import { resolve } from '@src/utils/promiseResolver';
 import {
   BehaviorSubject,
   combineLatest,
+  filter,
   firstValueFrom,
   map,
   switchMap,
   withLatestFrom,
 } from 'rxjs';
+import { storageKey$ } from '../wallet/storageKey';
 import { addAccount } from './handlers/addAccount';
 import { selectAccount } from './handlers/selectAccount';
 import { Account } from './models';
@@ -22,9 +24,15 @@ export const accounts$ = new BehaviorSubject<Account[]>([]);
 // the onboarding flow updates this value to the user selected one
 export const initialAccountName$ = new BehaviorSubject<string>('Account 1');
 
-getAccountsFromStorage().then((values) => {
-  accounts$.next(values?.accounts || []);
-});
+storageKey$
+  .pipe(
+    filter((ready) => !!ready),
+    switchMap(() => getAccountsFromStorage())
+  )
+  .subscribe((values) => {
+    accounts$.next(values?.accounts || []);
+    initAccounts();
+  });
 
 export async function initAccounts() {
   const sdkAccounts = await firstValueFrom(sdkAccount$);

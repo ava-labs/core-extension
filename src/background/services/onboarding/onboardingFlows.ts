@@ -4,11 +4,13 @@ import { formatAndLog, toLogger } from '@src/utils/logging';
 import { saveToSessionStorage } from '@src/utils/storage/session-storage';
 import { combineLatest, EMPTY, BehaviorSubject, merge, Observable } from 'rxjs';
 import { take, map, switchMap, filter, tap } from 'rxjs/operators';
+import nacl from 'tweetnacl';
 import { browser } from 'webextension-polyfill-ts';
 import { initialAccountName$ } from '../accounts/accounts';
 import { setPublicKeyAndCreateWallet } from '../ledger/ledger';
 import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
 import { SessionAuthData, SESSION_AUTH_DATA_KEY } from '../wallet/models';
+import { storageKey$ } from '../wallet/storageKey';
 import { OnboardingPhase, OnboardingState } from './models';
 import {
   getOnboardingFromStorage,
@@ -102,14 +104,19 @@ export const onboardingFlow = onboardingCurrentPhase$
 
     switchMap(async ([secret, password, accountName]) => {
       const { mnemonic, pubKey } = secret;
+      const storageKey = Buffer.from(nacl.box.keyPair().secretKey).toString(
+        'hex'
+      );
       mnemonic
-        ? setMnemonicAndCreateWallet(mnemonic, password)
-        : pubKey && setPublicKeyAndCreateWallet(pubKey, password);
+        ? setMnemonicAndCreateWallet(mnemonic, password, storageKey)
+        : pubKey && setPublicKeyAndCreateWallet(pubKey, password, storageKey);
       await saveOnboardingToStorage(true);
-      const sessionData: SessionAuthData = { password, loginTime: Date.now() };
-      await saveToSessionStorage({
-        [SESSION_AUTH_DATA_KEY]: sessionData,
-      });
+      const sessionData: SessionAuthData = {
+        password,
+        loginTime: Date.now(),
+      };
+      await saveToSessionStorage(SESSION_AUTH_DATA_KEY, sessionData);
+      storageKey$.next(storageKey); // set storage key so the app can load data from and to the storage
       onboardingStatus$.next({ isOnBoarded: true, initialOpen: true });
       initialAccountName$.next(accountName);
     })

@@ -1,4 +1,3 @@
-import { getAppAvax } from '@avalabs/avalanche-wallet-sdk';
 import {
   ledgerTransport$,
   ledgerPubKey$,
@@ -6,19 +5,15 @@ import {
 } from '@avalabs/wallet-react-components';
 import {
   combineLatest,
-  delay,
   filter,
   from,
   map,
   mapTo,
   merge,
-  mergeMap,
-  retryWhen,
   Subject,
   switchMap,
   tap,
 } from 'rxjs';
-import { initAccounts } from '../accounts/accounts';
 import {
   getPublicKeyFromStorage,
   savePhraseOrKeyToStorage,
@@ -27,7 +22,11 @@ import { restartWalletLock$ } from '../wallet/walletLocked';
 import { walletUnlock$ } from '../wallet/walletUnlock';
 import { DeviceRequestData, DeviceResponseData } from './models';
 
-const _pubKey = new Subject<{ pubKey: string; password: string }>();
+const _pubKey = new Subject<{
+  pubKey: string;
+  password: string;
+  storageKey: string;
+}>();
 export const ledgerDeviceRequest$ = new Subject<DeviceRequestData>();
 export const ledgerDeviceResponse$ = new Subject<DeviceResponseData>();
 
@@ -40,10 +39,10 @@ export const ledgerState$ = combineLatest([
 ]).pipe(map(([transport, pubKey]) => ({ transport, pubKey })));
 
 export const freshPubKey = _pubKey.pipe(
-  switchMap(({ pubKey, password }) => {
-    return from(savePhraseOrKeyToStorage({ password, pubKey })).pipe(
-      mapTo(pubKey)
-    );
+  switchMap(({ pubKey, password, storageKey }) => {
+    return from(
+      savePhraseOrKeyToStorage({ password, pubKey, storageKey })
+    ).pipe(mapTo(pubKey));
   })
 );
 
@@ -66,11 +65,14 @@ merge(pubKeyFromStorage, freshPubKey)
     tap((pubKey: string) => {
       initWalletLedger(pubKey);
       restartWalletLock$.next(true);
-      initAccounts();
     })
   )
   .subscribe();
 
-export function setPublicKeyAndCreateWallet(pubKey: string, password: string) {
-  _pubKey.next({ pubKey, password });
+export async function setPublicKeyAndCreateWallet(
+  pubKey: string,
+  password: string,
+  storageKey: string
+) {
+  _pubKey.next({ pubKey, password, storageKey });
 }
