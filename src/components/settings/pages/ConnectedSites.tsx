@@ -74,7 +74,7 @@ export function ConnectedSites({
         )}
       </HorizontalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        {connectedSitesList.length && (
+        {!!connectedSitesList.length && (
           <VerticalFlex padding="8px">
             {connectedSitesList.map((site: any) => {
               return (
