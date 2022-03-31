@@ -32,6 +32,8 @@ import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignT
 import { LedgerSupportContextProvider } from '@src/contexts/LedgerSupportProvider';
 import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
 import { usePageHistory } from '@src/hooks/usePageHistory';
+import { OfflineContent } from './OfflineContent';
+import { useOnline } from '@src/hooks/useOnline';
 import { AnalyticsContextProvider } from '@src/contexts/AnalyticsProvider';
 import { WalletMaintenance } from '@src/components/common/WalletMaintenance';
 
@@ -112,6 +114,7 @@ export function Popup() {
   const location = useLocation();
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistoryState = getNavigationHistoryState();
+  const { isOnline } = useOnline();
 
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm ? '100%' : '1280px'),
@@ -138,6 +141,9 @@ export function Popup() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMiniMode, navigationHistoryState]);
 
+  if (!isOnline) {
+    return <OfflineContent />;
+  }
   return (
     <DialogContextProvider>
       <SettingsContextProvider>
