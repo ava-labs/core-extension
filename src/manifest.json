@@ -44,5 +44,8 @@
       "resources": ["js/inpage.js"],
       "matches": ["file://*/*", "http://*/*", "https://*/*"]
     }
-  ]
+  ],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; img-src 'self' https: ipfs: data:; connect-src 'self' https: wss:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; child-src 'none'; frame-ancestors 'none'; object-src 'none'"
+  }
 }
