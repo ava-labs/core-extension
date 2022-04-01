@@ -109,7 +109,7 @@ export function FAB() {
     let moonpayBuyURL: string;
     activeAccount &&
       moonpayURL(activeAccount?.addressC).then(
-        (res) => (moonpayBuyURL = res.data)
+        (res) => (moonpayBuyURL = res.data.url)
       );
 
     showDialog({

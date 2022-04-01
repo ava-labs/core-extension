@@ -1,4 +1,4 @@
-import { recoverPersonalSignature } from 'eth-sig-util';
+import { recoverPersonalSignature } from '@metamask/eth-sig-util';
 
 /**
  * Gets the "from" address from the data and the signed result .
@@ -6,7 +6,7 @@ import { recoverPersonalSignature } from 'eth-sig-util';
 export function personalSigRecovery(msg: string, signedResult: string): string {
   const recoveredAddress = recoverPersonalSignature({
     data: msg,
-    sig: signedResult,
+    signature: signedResult,
   });
   return recoveredAddress;
 }
