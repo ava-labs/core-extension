@@ -64,31 +64,17 @@ export function LedgerConnect({
         })
         .catch(() => {
           setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
+          popDeviceSelection();
         }),
-    [getPublicKey, onNext]
+    [getPublicKey, onNext, popDeviceSelection]
   );
 
   useEffect(() => {
-    initLedgerTransport()
-      .then(() => {
-        setTimeout(() => {
-          getPublicKeyAndRedirect();
-        }, WAIT_1500_MILLI_FOR_USER);
-      })
-      .catch(() => {
-        // unable to get transport, try device selection first
-        popDeviceSelection()
-          .then(() => {
-            initLedgerTransport().then(() => {
-              getPublicKeyAndRedirect();
-            });
-          })
-          .catch(() => {
-            // transport creation and device selection failed
-            // need to retry
-            setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
-          });
-      });
+    initLedgerTransport().then(() => {
+      setTimeout(() => {
+        getPublicKeyAndRedirect();
+      }, WAIT_1500_MILLI_FOR_USER);
+    });
     // only call this once when the component is initialized
     // extra calls can break the ledger flow
     // eslint-disable-next-line react-hooks/exhaustive-deps
