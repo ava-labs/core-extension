@@ -74,6 +74,11 @@ const ReviewOrderButtonContainer = styled.div<{
   width: 100%;
 `;
 
+const TryAgainButton = styled.span`
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 export function Swap() {
   const { flags } = useAnalyticsContext();
   const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
@@ -92,7 +97,11 @@ export function Swap() {
     tokenValue?: Amount;
   } = getPageHistoryData();
 
-  const [swapError, setSwapError] = useState<string>('');
+  const [swapError, setSwapError] = useState<{
+    message: string;
+    hasTryAgain?: boolean;
+  }>({ message: '' });
+  const [swapWarning, setSwapWarning] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
@@ -276,7 +285,7 @@ export function Swap() {
           ) {
             const amountString = amount.bn.toString();
             if (amountString === '0') {
-              setSwapError('Please enter an amount');
+              setSwapError({ message: 'Please enter an amount' });
               setIsLoading(false);
               return;
             }
@@ -314,7 +323,10 @@ export function Swap() {
               })
               .catch(() => {
                 setOptimalRate(undefined);
-                setSwapError('Something went wrong, please try again');
+                setSwapError({
+                  message: 'Something went wrong, ',
+                  hasTryAgain: true,
+                });
               })
               .finally(() => {
                 if (!isCalculateAvaxMax) {
@@ -372,7 +384,7 @@ export function Swap() {
           token.symbol === selectedToToken?.symbol
       )
     ) {
-      setSwapError(
+      setSwapWarning(
         `You don't have any ${selectedToToken?.symbol} token for swap`
       );
       return;
@@ -473,7 +485,7 @@ export function Swap() {
       : avaxToken.balance.toString();
 
   const canSwap =
-    !swapError &&
+    !swapError.message &&
     selectedFromToken &&
     selectedToToken &&
     optimalRate &&
@@ -523,6 +535,7 @@ export function Swap() {
             label="From"
             onTokenChange={(token: TokenWithBalance) => {
               setSelectedFromToken(token);
+              setSwapWarning('');
               calculateSwapValue({
                 selectedFromToken: token,
                 selectedToToken,
@@ -555,11 +568,11 @@ export function Swap() {
             isValueLoading={destinationInputField === 'from' && isLoading}
             hideErrorMessage
             onError={(errorMessage) => {
-              setSwapError(errorMessage);
+              setSwapError({ message: errorMessage });
             }}
             onInputAmountChange={(value) => {
               if (value.bn.toString() === '0') {
-                setSwapError('Please enter an amount');
+                setSwapError({ message: 'Please enter an amount' });
                 return;
               }
               if (
@@ -570,7 +583,8 @@ export function Swap() {
               ) {
                 setIsCalculateAvaxMax(true);
               }
-              setSwapError('');
+              setSwapError({ message: '' });
+              setSwapWarning('');
               setFromTokenValue(value as any);
               calculateTokenValueToInput(
                 value as any,
@@ -588,12 +602,41 @@ export function Swap() {
           />
 
           <HorizontalFlex
-            justify={swapError ? 'space-between' : 'flex-end'}
+            justify={
+              swapError?.message || swapWarning ? 'space-between' : 'flex-end'
+            }
             margin="16px 0"
           >
-            {swapError && (
+            {swapError?.message && (
+              <div>
+                <Typography size={12} color={theme.colors.error}>
+                  {swapError.message ?? ''}
+                </Typography>
+                {swapError.hasTryAgain && (
+                  <Typography
+                    size={12}
+                    color={theme.colors.error}
+                    onClick={() => {
+                      const value =
+                        destinationInputField === 'to'
+                          ? fromTokenValue
+                          : toTokenValue || { bn: new BN(0), amount: '0' };
+                      calculateTokenValueToInput(
+                        value as any,
+                        destinationInputField || 'to',
+                        selectedFromToken,
+                        selectedToToken
+                      );
+                    }}
+                  >
+                    <TryAgainButton>try again</TryAgainButton>
+                  </Typography>
+                )}
+              </div>
+            )}
+            {swapWarning && (
               <Typography size={12} color={theme.colors.error}>
-                {swapError}
+                {swapWarning}
               </Typography>
             )}
             <SwitchIconContainer
@@ -612,6 +655,7 @@ export function Swap() {
             label="To"
             onTokenChange={(token: TokenWithBalance) => {
               setSelectedToToken(token);
+              setSwapWarning('');
               calculateSwapValue({
                 selectedFromToken,
                 selectedToToken: token,
