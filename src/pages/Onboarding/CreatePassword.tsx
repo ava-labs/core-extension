@@ -32,13 +32,16 @@ export const CreatePassword = ({
     useState<boolean>(false);
   const [termsOfUseChecked, setTermsOfUseChecked] = useState<boolean>(false);
 
+  const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
+
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(
     password &&
     confirmPasswordVal &&
     password !== confirmPasswordVal
   );
-  const passwordLengthError = password && password.length < 8;
+  const passwordLengthError =
+    isPasswordInputFilled && password && password.length < 8;
   const canSubmit =
     !passwordLengthError &&
     !confirmationError &&
@@ -74,6 +77,9 @@ export const CreatePassword = ({
           type="password"
           error={!!passwordLengthError}
           helperText="Must be at least 8 characters"
+          onBlur={() => {
+            setIsPasswordInputFilled(true);
+          }}
         />
         <HorizontalFlex width="100%" height="84px">
           <Input
