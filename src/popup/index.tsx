@@ -10,6 +10,8 @@ import {
   walletThemeDark,
 } from '@avalabs/react-components';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
+import { AnalyticsContextProvider } from '@src/contexts/AnalyticsProvider';
+import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
@@ -25,10 +27,14 @@ browser.tabs.query({ active: true }).then(() => {
         darkTheme={walletThemeDark}
       >
         <ConnectionContextProvider>
-          <Toaster />
-          <Suspense fallback={<LoadingIcon />}>
-            <App />
-          </Suspense>
+          <SettingsContextProvider>
+            <AnalyticsContextProvider>
+              <Toaster />
+              <Suspense fallback={<LoadingIcon />}>
+                <App />
+              </Suspense>
+            </AnalyticsContextProvider>
+          </SettingsContextProvider>
         </ConnectionContextProvider>
       </ThemeContextProvider>
     </Router>,

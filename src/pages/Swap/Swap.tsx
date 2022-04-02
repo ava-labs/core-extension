@@ -48,6 +48,7 @@ import { hexToBN } from '@src/utils/hexToBN';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
 export interface Token {
   icon?: JSX.Element;
@@ -506,18 +507,7 @@ export function Swap() {
   }
 
   if (!flags[FeatureGates.SWAP]) {
-    return (
-      <VerticalFlex width="100%">
-        <PageTitleMiniMode>Swap</PageTitleMiniMode>
-        <VerticalFlex align="center" justify="center" grow="1">
-          <Typography size={16} align="center">
-            Sorry, Swap is currently unavailable.
-            <br />
-            Please check back later.
-          </Typography>
-        </VerticalFlex>
-      </VerticalFlex>
-    );
+    return <FunctionIsOffline functionName="Swap" />;
   }
 
   return (

@@ -29,10 +29,7 @@ import {
 } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
-import {
-  PageTitleMiniMode,
-  PageTitleVariant,
-} from '@src/components/common/PageTitle';
+import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
@@ -43,6 +40,7 @@ import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
 export function SendMiniMode() {
   const theme = useTheme();
@@ -230,18 +228,7 @@ export function SendMiniMode() {
   };
 
   if (!flags[FeatureGates.SEND]) {
-    <VerticalFlex height="100%" width="100%">
-      <PageTitleMiniMode variant={PageTitleVariant.PRIMARY}>
-        Confirm Transaction
-      </PageTitleMiniMode>
-      <VerticalFlex align="center" justify="center" grow="1">
-        <Typography size={16} align="center">
-          Sorry, Send is currently unavailable.
-          <br />
-          Please check back later.
-        </Typography>
-      </VerticalFlex>
-    </VerticalFlex>;
+    return <FunctionIsOffline functionName="Send" />;
   }
 
   return (
