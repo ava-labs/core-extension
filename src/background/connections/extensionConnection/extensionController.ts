@@ -96,6 +96,11 @@ import { ledgerDeviceRequest } from '@src/background/services/ledger/events/ledg
 import { LedgerResponseRequest } from '@src/background/services/ledger/handlers/ledgerResponse';
 import { isDevelopment } from '@src/utils/isDevelopment';
 import { SetOnboardingAnalyticsConsentRequest } from '@src/background/services/onboarding/handlers/setAnalyticsConsent';
+import { analyticsStateUpdatedEvent } from '@src/background/services/analytics/events/analyticsStateUpdatedEvent';
+import { AnalyticsStoreIdsRequest } from '@src/background/services/analytics/handlers/storeAnalyticsIds';
+import { AnalyticsInitIdsRequest } from '@src/background/services/analytics/handlers/initAnalyticsIds';
+import { AnalyticsClearIdsRequest } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
+import { AnalyticsGetIdsRequest } from '@src/background/services/analytics/handlers/getAnalyticsIds';
 
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
@@ -188,6 +193,11 @@ const extensionRequestHandlerMap = new Map<
   SetNavigationHistoryDataStateRequest,
   GetNavigationHistoryStateRequest,
   SetNavigationHistoryStateRequest,
+
+  AnalyticsInitIdsRequest,
+  AnalyticsStoreIdsRequest,
+  AnalyticsClearIdsRequest,
+  AnalyticsGetIdsRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
@@ -235,7 +245,8 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     contactsUpdatedEvent(),
     sendTxDetailsEvent(),
     gasPriceSwapUpdate(),
-    ledgerDeviceRequest()
+    ledgerDeviceRequest(),
+    analyticsStateUpdatedEvent()
   ).pipe(
     tap((evt) => {
       eventLog(`extension event (${evt.name})`, evt);

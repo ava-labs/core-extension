@@ -14,6 +14,7 @@ import { take, map, switchMap, filter, tap } from 'rxjs/operators';
 import nacl from 'tweetnacl';
 import { browser } from 'webextension-polyfill-ts';
 import { initialAccountName$ } from '../accounts/accounts';
+import { storeAnalyticsIds } from '../analytics/handlers/storeAnalyticsIds';
 import { setPublicKeyAndCreateWallet } from '../ledger/ledger';
 import { settingsSetAnalyticsConsent } from '../settings/handlers/setAnalyticsConsent';
 import { setMnemonicAndCreateWallet } from '../wallet/mnemonic';
@@ -128,9 +129,13 @@ export const onboardingFlow = onboardingCurrentPhase$
       await saveToSessionStorage(SESSION_AUTH_DATA_KEY, sessionData);
       storageKey$.next(storageKey); // set storage key so the app can load data from and to the storage
 
-      settingsSetAnalyticsConsent(
-        await firstValueFrom(onboardingAnalyticsConsent$)
+      const analyticsConsent = await firstValueFrom(
+        onboardingAnalyticsConsent$
       );
+      settingsSetAnalyticsConsent(analyticsConsent);
+      if (analyticsConsent) {
+        storeAnalyticsIds();
+      }
 
       onboardingStatus$.next({ isOnBoarded: true, initialOpen: true });
       initialAccountName$.next(accountName);

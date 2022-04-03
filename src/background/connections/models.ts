@@ -169,6 +169,11 @@ export enum ExtensionRequest {
   NAVIGATION_HISTORY_SET = 'navigation_history_set',
   NAVIGATION_HISTORY_DATA_GET = 'navigation_history_data_get',
   NAVIGATION_HISTORY_DATA_SET = 'navigation_history_data_set',
+
+  ANALYTICS_INIT_IDS = 'analytics_init_ids',
+  ANALYTICS_STORE_IDS = 'analytics_store_ids',
+  ANALYTICS_CLEAR_IDS = 'analytics_clear_ids',
+  ANALYTICS_GET_IDS = 'analytics_get_ids',
 }
 
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {

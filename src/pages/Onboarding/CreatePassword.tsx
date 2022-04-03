@@ -12,6 +12,7 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useTheme } from 'styled-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -24,6 +25,7 @@ export const CreatePassword = ({
   isImportFlow,
 }: CreatePasswordProps) => {
   const theme = useTheme();
+  const { capture } = useAnalyticsContext();
   const { setPasswordAndName, setNextPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -141,6 +143,9 @@ export const CreatePassword = ({
         width="343px"
         disabled={!canSubmit}
         onClick={() => {
+          capture('OnboardingPasswordSet', {
+            AccountNameSet: !!accountName,
+          });
           setPasswordAndName(password, accountName).then(() =>
             setNextPhase(
               isImportFlow

@@ -8,6 +8,7 @@ import {
   ComponentSize,
 } from '@avalabs/react-components';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface CopyPhraseProps {
   mnemonic: string;
@@ -22,6 +23,7 @@ export function CopyPhrase({
   onNext,
   mnemonic,
 }: CopyPhraseProps) {
+  const { capture } = useAnalyticsContext();
   const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
 
   return (
@@ -55,7 +57,10 @@ export function CopyPhrase({
           margin="16px 0 0 0"
           size={ComponentSize.LARGE}
           disabled={!termsConfirmed}
-          onClick={() => onNext()}
+          onClick={() => {
+            capture('OnboardingMnemonicCreated');
+            onNext();
+          }}
         >
           Next
         </PrimaryButton>

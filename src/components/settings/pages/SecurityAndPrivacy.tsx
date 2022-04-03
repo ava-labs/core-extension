@@ -15,6 +15,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -25,6 +26,7 @@ export function SecurityAndPrivacy({
   const { showDialog, clearDialog } = useDialog();
   const { walletType } = useWalletContext();
   const { analyticsConsent, setAnalyticsConsent } = useSettingsContext();
+  const { stopDataCollection, initAnalyticsIds } = useAnalyticsContext();
 
   const onLogoutClick = () => {
     showDialog({
@@ -34,6 +36,7 @@ export function SecurityAndPrivacy({
       width: '343px',
       onConfirm: () => {
         clearDialog();
+        stopDataCollection();
         resetExtensionState();
       },
       cancelText: 'No',
@@ -118,7 +121,14 @@ export function SecurityAndPrivacy({
         </Typography>
         <Toggle
           isChecked={analyticsConsent}
-          onChange={() => setAnalyticsConsent(!analyticsConsent)}
+          onChange={() => {
+            setAnalyticsConsent(!analyticsConsent);
+            if (analyticsConsent) {
+              stopDataCollection();
+            } else {
+              initAnalyticsIds();
+            }
+          }}
         />
       </SecondaryDropDownMenuItem>
 

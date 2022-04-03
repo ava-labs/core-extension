@@ -10,6 +10,7 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface ImportProps {
   onCancel(): void;
@@ -17,6 +18,7 @@ interface ImportProps {
 }
 
 export const Import = ({ onCancel, onBack }: ImportProps) => {
+  const { capture } = useAnalyticsContext();
   const { setMnemonic, setNextPhase } = useOnboardingContext();
   const [recoveryPhrase, setRecoveryPhrase] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -74,6 +76,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
         width="343px"
         disabled={nextButtonDisabled}
         onClick={async () => {
+          capture('OnboardingMnemonicImported');
           setMnemonic(recoveryPhrase).then(() =>
             setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)
           );

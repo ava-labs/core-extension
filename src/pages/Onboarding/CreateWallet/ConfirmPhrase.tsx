@@ -7,6 +7,7 @@ import {
   ComponentSize,
 } from '@avalabs/react-components';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface ConfirmPhraseProps {
   mnemonic: string;
@@ -21,6 +22,7 @@ export function ConfirmPhrase({
   onBack,
   mnemonic,
 }: ConfirmPhraseProps) {
+  const { capture } = useAnalyticsContext();
   const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
 
   return (
@@ -49,7 +51,10 @@ export function ConfirmPhrase({
           width="343px"
           size={ComponentSize.LARGE}
           disabled={!termsConfirmed}
-          onClick={() => onNext()}
+          onClick={() => {
+            capture('OnboardingMnemonicVerified');
+            onNext();
+          }}
         >
           Next
         </PrimaryButton>

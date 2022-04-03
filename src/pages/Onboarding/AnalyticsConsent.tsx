@@ -10,10 +10,12 @@ import {
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { useTheme } from 'styled-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export const AnalyticsConsent = () => {
   const theme = useTheme();
   const { setNextPhase, setAnalyticsConsent } = useOnboardingContext();
+  const { capture, stopDataCollection } = useAnalyticsContext();
 
   return (
     <VerticalFlex width="100%" height="100%" align="center">
@@ -26,8 +28,8 @@ export const AnalyticsConsent = () => {
           technologies to help us understand how our users interact with Core.
         </Typography>
         <Typography size={16} height="24px" margin="16px 0 0">
-          This enables us to develop improvements and enhance your experience to
-          find out more you can read our{' '}
+          This enables us to develop improvements and enhance your experience.
+          To find out more you can read our{' '}
           <Typography
             as="a"
             target="_blank"
@@ -36,7 +38,7 @@ export const AnalyticsConsent = () => {
           >
             Privacy Policy
           </Typography>{' '}
-          by visting the settings page.
+          by visiting the settings page.
         </Typography>
         <Typography
           as="h2"
@@ -107,6 +109,7 @@ export const AnalyticsConsent = () => {
           width="190px"
           margin="0 16px 0 0"
           onClick={async () => {
+            capture('OnboardingAnalyticsAccepted');
             setAnalyticsConsent(true).then(() =>
               setNextPhase(OnboardingPhase.PASSWORD)
             );
@@ -118,6 +121,8 @@ export const AnalyticsConsent = () => {
           size={ComponentSize.LARGE}
           width="190px"
           onClick={async () => {
+            capture('OnboardingAnalyticsRejected');
+            stopDataCollection();
             setAnalyticsConsent(false).then(() =>
               setNextPhase(OnboardingPhase.PASSWORD)
             );

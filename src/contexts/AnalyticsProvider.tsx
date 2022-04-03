@@ -4,11 +4,19 @@ import {
   FeatureGates,
   useCapturePageview,
 } from '@avalabs/posthog-sdk';
+import { ExtensionRequest } from '@src/background/connections/models';
+import { analyticsStateUpdatedEventListener } from '@src/background/services/analytics/events/listeners';
+import { AnalyticsState } from '@src/background/services/analytics/models';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { filter, map } from 'rxjs';
+import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
 
 const AnalyticsContext = createContext<{
   flags: Record<FeatureGates, boolean>;
+  initAnalyticsIds: () => Promise<void>;
+  stopDataCollection: () => void;
+  capture: (eventName: string, properties?: Record<string, any>) => void;
 }>({} as any);
 
 const DefaultFeatureFlagConfig = {
@@ -21,33 +29,107 @@ const DefaultFeatureFlagConfig = {
 };
 
 export function AnalyticsContextProvider({ children }: { children: any }) {
+  const [posthogInstance, setPosthogInstance] = useState<any>();
+  const { request, events } = useConnectionContext();
   const [flags, setFlags] = useState<Record<FeatureGates, boolean>>(
     DefaultFeatureFlagConfig
   );
-  const [posthogInstance, setPosthogInstance] = useState<any>();
   const { analyticsConsent } = useSettingsContext();
+  const [analyticsState, setAnalyticsState] = useState<AnalyticsState>();
 
   useEffect(() => {
-    const hog = initPosthog(
+    request({
+      method: ExtensionRequest.ANALYTICS_GET_IDS,
+    }).then((state) => {
+      if (state) {
+        setAnalyticsState(state);
+      }
+    });
+
+    const subscription = events()
+      .pipe(
+        filter(analyticsStateUpdatedEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe((val) => setAnalyticsState(val));
+
+    return () => subscription.unsubscribe();
+  }, [events, request]);
+
+  useEffect(() => {
+    if (!analyticsState || posthogInstance || !analyticsConsent) {
+      return;
+    }
+
+    initPosthog(
       process.env.POSTHOG_KEY ?? '',
       {
-        // track only if consent is given
-        opt_out_capturing_by_default: !analyticsConsent,
+        opt_out_capturing_by_default: false,
         api_host: 'https://data-posthog.avax.network',
+        ip: false,
+        disable_persistence: true,
+        disable_cookie: true,
+        loaded: (hog) => {
+          if (!analyticsConsent) {
+            hog.opt_out_capturing();
+          }
+          // register_once does not work for $device_id
+          hog.register({
+            $ip: '',
+            $device_id: analyticsState.deviceId,
+          });
+          hog.identify(analyticsState.userId);
+          const { listen } = initFeatureFlags(hog);
+          listen.add((flags: any) => {
+            setFlags(flags);
+          });
+          setPosthogInstance(hog);
+        },
       },
       'browser-extension-posthog'
     );
-    setPosthogInstance(hog);
-  }, [analyticsConsent]);
+  }, [analyticsConsent, analyticsState, posthogInstance]);
 
   useEffect(() => {
-    if (posthogInstance) {
-      const { listen } = initFeatureFlags(posthogInstance) as any;
-      listen.add((flags: any) => {
-        setFlags(flags);
-      });
+    if (!posthogInstance) {
+      return;
     }
-  }, [posthogInstance]);
+
+    if (analyticsConsent) {
+      posthogInstance.opt_in_capturing();
+    } else {
+      posthogInstance.opt_out_capturing();
+    }
+  }, [analyticsConsent, posthogInstance]);
+
+  const captureEvent = (
+    eventName: string,
+    properties?: Record<string, any>
+  ) => {
+    if (!analyticsConsent || !flags[FeatureGates.EVENTS] || !posthogInstance) {
+      return;
+    }
+
+    posthogInstance.capture(eventName, properties);
+  };
+
+  const initAnalyticsIds = () => {
+    return request({
+      method: ExtensionRequest.ANALYTICS_INIT_IDS,
+      params: [],
+    });
+  };
+
+  const stopDataCollection = () => {
+    if (posthogInstance) {
+      posthogInstance.opt_out_capturing();
+      posthogInstance.reset();
+    }
+    request({
+      method: ExtensionRequest.ANALYTICS_CLEAR_IDS,
+      params: [],
+    });
+  };
 
   useCapturePageview();
 
@@ -55,6 +137,9 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     <AnalyticsContext.Provider
       value={{
         flags,
+        capture: captureEvent,
+        initAnalyticsIds,
+        stopDataCollection,
       }}
     >
       {children}
