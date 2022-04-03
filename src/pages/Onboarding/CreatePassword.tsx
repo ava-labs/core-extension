@@ -82,6 +82,9 @@ export const CreatePassword = ({
           onBlur={() => {
             setIsPasswordInputFilled(true);
           }}
+          errorMessage={
+            passwordLengthError ? 'Must be at least 8 characters' : ''
+          }
         />
         <HorizontalFlex width="100%" height="84px">
           <Input
