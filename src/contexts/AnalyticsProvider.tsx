@@ -57,7 +57,14 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
   }, [events, request]);
 
   useEffect(() => {
-    if (!analyticsState || posthogInstance || !analyticsConsent) {
+    if (
+      posthogInstance ||
+      // wait for consent state
+      analyticsConsent === undefined ||
+      // Analytics state is empty when there is no consent.
+      // When users opt out we delete all of the tracking IDs
+      (!analyticsState && analyticsConsent === true)
+    ) {
       return;
     }
 
@@ -70,15 +77,17 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
         disable_persistence: true,
         disable_cookie: true,
         loaded: (hog) => {
-          if (!analyticsConsent) {
+          if (analyticsConsent === true && analyticsState) {
+            // register_once does not work for $device_id
+            hog.register({
+              $ip: '',
+              $device_id: analyticsState.deviceId,
+            });
+            hog.identify(analyticsState.userId);
+          } else {
             hog.opt_out_capturing();
           }
-          // register_once does not work for $device_id
-          hog.register({
-            $ip: '',
-            $device_id: analyticsState.deviceId,
-          });
-          hog.identify(analyticsState.userId);
+          // we need to use feature flags even if we opt out analytics
           const { listen } = initFeatureFlags(hog);
           listen.add((flags: any) => {
             setFlags(flags);

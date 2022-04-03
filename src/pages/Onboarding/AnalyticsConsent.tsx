@@ -28,8 +28,8 @@ export const AnalyticsConsent = () => {
           technologies to help us understand how our users interact with Core.
         </Typography>
         <Typography size={16} height="24px" margin="16px 0 0">
-          This enables us to develop improvements and enhance your experience.
-          To find out more you can read our{' '}
+          This enables us to develop improvements and enhance your experience,
+          to find out more you can read our{' '}
           <Typography
             as="a"
             target="_blank"
@@ -37,8 +37,9 @@ export const AnalyticsConsent = () => {
             color={theme.colors.secondary1}
           >
             Privacy Policy
-          </Typography>{' '}
-          by visiting the settings page.
+          </Typography>
+          {'. '}
+          You can always opt out by visiting the settings page.
         </Typography>
         <Typography
           as="h2"
@@ -66,8 +67,7 @@ export const AnalyticsConsent = () => {
             <Typography size={16} height="24px" weight={700}>
               Never
             </Typography>{' '}
-            collect keys, addresses, transactions, balances, hashes, or personal
-            information
+            collect keys, public addresses, balances, or hashes
           </Typography>
         </HorizontalFlex>
         <HorizontalFlex margin="16px 0">
