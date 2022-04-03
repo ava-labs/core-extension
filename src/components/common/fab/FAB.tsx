@@ -94,7 +94,7 @@ const openMiniWindow = (url: string) => {
 };
 
 const moonpayURL = async (address: string) => {
-  const moonAPI = new Moonpay({ baseURL: 'https://blizzard.avax.network/' });
+  const moonAPI = new Moonpay({ baseUrl: 'https://blizzard.avax.network' });
   return await moonAPI.getUrl(address);
 };
 
@@ -106,28 +106,38 @@ export function FAB() {
   const { activeAccount } = useAccountsContext();
 
   const onBuyClick = () => {
-    let moonpayBuyURL: string;
     activeAccount &&
-      moonpayURL(activeAccount?.addressC).then(
-        (res) => (moonpayBuyURL = res.data)
-      );
-
-    showDialog({
-      title: 'Attention',
-      body: "Clicking “Continue” will take you to a page powered by our partner MoonPay, use is subject to MoonPay's terms and policies",
-      confirmText: 'Yes',
-      width: '343px',
-      onConfirm: () => {
-        clearDialog();
-        moonpayBuyURL && openMiniWindow(moonpayBuyURL);
-        setIsOpen(false);
-        // close(); uncomment if we want the extension to close
-      },
-      cancelText: 'Back',
-      onCancel: () => {
-        clearDialog();
-      },
-    });
+      moonpayURL(activeAccount?.addressC)
+        .then((res) => {
+          const moonpayBuyURL = res.data.url;
+          showDialog({
+            title: 'Attention',
+            body: "Clicking “Continue” will take you to a page powered by our partner MoonPay, use is subject to MoonPay's terms and policies",
+            confirmText: 'Yes',
+            width: '343px',
+            onConfirm: () => {
+              clearDialog();
+              moonpayBuyURL && openMiniWindow(moonpayBuyURL);
+              setIsOpen(false);
+              // close(); uncomment if we want the extension to close
+            },
+            cancelText: 'Back',
+            onCancel: () => {
+              clearDialog();
+            },
+          });
+        })
+        .catch(() => {
+          showDialog({
+            title: 'Service Unavailable',
+            body: 'Buy is currently under maintenance. Service will resume shortly.',
+            confirmText: 'Close',
+            width: '343px',
+            onConfirm: () => {
+              clearDialog();
+            },
+          });
+        });
   };
 
   const ActionButton = ({ icon, text, ...rest }) => (

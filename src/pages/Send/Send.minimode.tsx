@@ -38,9 +38,13 @@ import { useContactFromParams } from './hooks/useContactFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
 export function SendMiniMode() {
   const theme = useTheme();
+  const { flags } = useAnalyticsContext();
   const { walletType, avaxToken } = useWalletContext();
   const selectedToken = useTokenFromParams();
   const contactInput = useContactFromParams();
@@ -54,7 +58,9 @@ export function SendMiniMode() {
 
   const setSendState = sendState.setValues;
   const tokensWBalances = useTokensWithBalances(false);
-  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [gasPriceState, setGasPrice] = useState<GasPrice>();
@@ -220,6 +226,10 @@ export function SendMiniMode() {
         if (walletType === 'ledger') history.push('/home');
       });
   };
+
+  if (!flags[FeatureGates.SEND]) {
+    return <FunctionIsOffline functionName="Send" />;
+  }
 
   return (
     <Switch>

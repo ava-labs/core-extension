@@ -38,6 +38,7 @@ type SettingsFromProvider = SettingsState & {
   updateTheme(theme: ThemeVariant): Promise<boolean>;
   currencyFormatter(value: number): string;
   toggleIsDefaultExtension(): Promise<boolean>;
+  setAnalyticsConsent(consent: boolean): Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -151,6 +152,13 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  function setAnalyticsConsent(consent: boolean) {
+    return request({
+      method: ExtensionRequest.SETTINGS_SET_ANALYTICS_CONSENT,
+      params: [consent],
+    });
+  }
+
   return (
     <SettingsContext.Provider
       value={
@@ -164,6 +172,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           updateTheme,
           currencyFormatter,
           toggleIsDefaultExtension,
+          setAnalyticsConsent,
         } as SettingsFromProvider
       }
     >

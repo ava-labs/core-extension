@@ -1,6 +1,6 @@
 import { browser } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
-import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from './common';
+import { CONTENT_SCRIPT, EXTENSION_SCRIPT, KEEPALIVE_SCRIPT } from './common';
 import { providerConnection } from './background/connections/dAppConnection/providerConnection';
 import { extensionConnection } from './background/connections/extensionConnection/extensionConnection';
 import '@src/background/services/state';
@@ -27,18 +27,22 @@ browser.runtime.onInstalled.addListener((details) => {
 browser.contextMenus.removeAll().then(() => {
   // Creating the "Lock wallet" extension menu item
   browser.contextMenus.create({
-    type: 'normal',
     id: 'lock-wallet',
     title: '🔒 Lock wallet',
-    contexts: ['browser_action'],
-    onclick: (info, tab) => {
+    contexts: ['action'],
+  });
+
+  (browser.contextMenus as any).onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'lock-wallet') {
       lockWalletFromSettings({
         id: tab.id?.toString() || '',
         method: ExtensionRequest.SETTINGS_LOCK_WALLET,
       });
-    },
+    }
   });
 });
+
+const now = performance.now();
 
 browser.runtime.onConnect.addListener((connection) => {
   /**
@@ -55,6 +59,15 @@ browser.runtime.onConnect.addListener((connection) => {
       providerConnection(connection);
     } else if (connection.name === EXTENSION_SCRIPT) {
       extensionConnection(connection);
+    } else if (connection.name === KEEPALIVE_SCRIPT) {
+      console.log(`Alive for ${(performance.now() - now) / 1000 / 60} minutes`);
+      const listener = (val) => {
+        console.log('KEEPALIVE MESSAGE', val);
+      };
+      connection.onMessage.addListener(listener);
+      setTimeout(() => {
+        connection.disconnect();
+      }, 60000);
     }
   }
 });

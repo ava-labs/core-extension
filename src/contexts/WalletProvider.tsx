@@ -17,6 +17,7 @@ import { walletUpdatedEventListener } from '@src/background/services/wallet/even
 import { ExtensionRequest } from '@src/background/connections/models';
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
+import { useLedgerSupportContext } from './LedgerSupportProvider';
 
 type WalletStateAndMethods = WalletState & {
   changeWalletPassword(
@@ -28,6 +29,7 @@ type WalletStateAndMethods = WalletState & {
 const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
+  const { initLedgerTransport } = useLedgerSupportContext();
   const { request, events } = useConnectionContext();
   const [walletState, setWalletState] = useState<
     WalletState | WalletLockedState
@@ -58,6 +60,12 @@ export function WalletContextProvider({ children }: { children: any }) {
       )
       .subscribe(setWalletStateAndCast);
   }, [events, request]);
+
+  useEffect(() => {
+    if (!isWalletLocked(walletState) && walletState?.walletType === 'ledger') {
+      initLedgerTransport();
+    }
+  }, [initLedgerTransport, walletState]);
 
   const unlockWallet = useCallback(
     (password: string) => {

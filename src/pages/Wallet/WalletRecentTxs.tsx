@@ -61,6 +61,7 @@ export function WalletRecentTxs({
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
   const { recentTxHistory } = useWalletContext();
+
   const { bridgeAssets } = useBridgeSDK();
   const yesterday = endOfYesterday();
   const today = endOfToday();
@@ -89,10 +90,10 @@ export function WalletRecentTxs({
               (el.nativeNetwork === Blockchain.AVALANCHE &&
                 el.nativeContractAddress.toLowerCase() ===
                   tx.contractAddress.toLowerCase()) ||
-              el.wrappedContractAddress.toLowerCase() ===
-                tx.contractAddress.toLowerCase() ||
-              tx.to === '0x0000000000000000000000000000000000000000' ||
-              tx.from === '0x0000000000000000000000000000000000000000'
+              (el.wrappedContractAddress.toLowerCase() ===
+                tx.contractAddress.toLowerCase() &&
+                (tx.to === '0x0000000000000000000000000000000000000000' ||
+                  tx.from === '0x0000000000000000000000000000000000000000'))
           ).length > 0
         );
       }
@@ -145,10 +146,6 @@ export function WalletRecentTxs({
     </StyledDropdownMenuItem>
   );
 
-  if (filteredTxHistory.length === 0) {
-    return <NoTransactions />;
-  }
-
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
       <VerticalFlex padding={isEmbedded ? '0' : '4px 16px 68px'}>
@@ -176,68 +173,81 @@ export function WalletRecentTxs({
           </VerticalFlex>
         </StyledDropDownMenu>
 
-        {bridgeTransactions &&
-          Object.values(bridgeTransactions).length > 0 &&
-          (selectedFilter === 'All' || selectedFilter === 'Bridge') && (
-            <>
-              <Typography
-                size={14}
-                height="15px"
-                weight={500}
-                margin={'8px 0 13px'}
-              >
-                Pending
-              </Typography>
+        {filteredTxHistory.length === 0 ? (
+          <NoTransactions />
+        ) : (
+          <>
+            {bridgeTransactions &&
+              Object.values(bridgeTransactions).length > 0 &&
+              (selectedFilter === 'All' || selectedFilter === 'Bridge') && (
+                <>
+                  <Typography
+                    size={14}
+                    height="15px"
+                    weight={500}
+                    margin={'8px 0 13px'}
+                  >
+                    Pending
+                  </Typography>
 
-              {Object.values(bridgeTransactions).map((tx: any, i) => (
-                <Card
-                  key={`${tx.sourceTxHash}-${i}`}
-                  padding={'8px 12px 8px 16px'}
-                  margin={'0 0 8px 0'}
-                >
-                  <TransactionBridge pending item={tx} />
-                </Card>
-              ))}
-            </>
-          )}
-
-        {filteredTxHistory.map((tx: any, index) => {
-          const isNewDay =
-            index === 0 ||
-            !isSameDay(tx.timestamp, filteredTxHistory[index - 1].timestamp);
-
-          return (
-            <Fragment key={index}>
-              {isNewDay && (
-                <Typography
-                  size={14}
-                  height="15px"
-                  weight={500}
-                  margin={index === 0 ? '8px 0 13px' : '8px 0'}
-                >
-                  {getDayString(tx.timestamp)}
-                </Typography>
+                  {Object.values(bridgeTransactions).map((tx: any, i) => (
+                    <Card
+                      key={`${tx.sourceTxHash}-${i}`}
+                      padding={'8px 12px 8px 16px'}
+                      margin={'0 0 8px 0'}
+                    >
+                      <TransactionBridge pending item={tx} />
+                    </Card>
+                  ))}
+                </>
               )}
 
-              <Card
-                key={tx.hash}
-                padding={'8px 12px 8px 16px'}
-                margin={'0 0 8px 0'}
-              >
-                {isTransactionBridge(tx) &&
-                (selectedFilter === FilterType.ALL ||
-                  selectedFilter === FilterType.BRIDGE) ? (
-                  <TransactionBridge item={tx} />
-                ) : (
-                  <>
-                    {isTransactionERC20(tx) && <TransactionERC20 item={tx} />}
-                    {isTransactionNormal(tx) && <TransactionNormal item={tx} />}
-                  </>
-                )}
-              </Card>
-            </Fragment>
-          );
-        })}
+            {filteredTxHistory.map((tx: any, index) => {
+              const isNewDay =
+                index === 0 ||
+                !isSameDay(
+                  tx.timestamp,
+                  filteredTxHistory[index - 1].timestamp
+                );
+
+              return (
+                <Fragment key={index}>
+                  {isNewDay && (
+                    <Typography
+                      size={14}
+                      height="15px"
+                      weight={500}
+                      margin={index === 0 ? '8px 0 13px' : '8px 0'}
+                    >
+                      {getDayString(tx.timestamp)}
+                    </Typography>
+                  )}
+
+                  <Card
+                    key={tx.hash}
+                    padding={'8px 12px 8px 16px'}
+                    margin={'0 0 8px 0'}
+                  >
+                    {isTransactionBridge(tx) &&
+                    (selectedFilter === FilterType.ALL ||
+                      selectedFilter === FilterType.BRIDGE) ? (
+                      <TransactionBridge item={tx} />
+                    ) : (
+                      <>
+                        {isTransactionERC20(tx) && (
+                          <TransactionERC20 item={tx} />
+                        )}
+                        {isTransactionNormal(tx) && (
+                          <TransactionNormal item={tx} />
+                        )}
+                      </>
+                    )}
+                  </Card>
+                </Fragment>
+              );
+            })}
+          </>
+        )}
       </VerticalFlex>
     </Scrollbars>
   );

@@ -11,7 +11,7 @@ export function CollectibleList({
   const { nfts } = useWalletContext();
   return (
     <VerticalFlex padding="0 16px 72px">
-      {nfts.map((collection, i) =>
+      {nfts.items?.map((collection, i) =>
         collection.nftData?.map((nft, j) => (
           <TokenCard
             name={collection.contractName}

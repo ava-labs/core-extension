@@ -32,6 +32,7 @@ import { responseLog } from '@src/utils/logging';
 import { SettingsGetIsDefaultExtensionDappRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { AvalancheGetContactsRequest } from '@src/background/services/contacts/handlers/avalanche_getContacts';
 import { AvalancheGetAccountsRequest } from '@src/background/services/accounts/handlers/avalanche_getAccounts';
+import { AvalancheGetBridgeStateRequest } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
 
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
@@ -56,6 +57,7 @@ const dappProviderRequestHandlerMap = new Map<
   SettingsGetIsDefaultExtensionDappRequest,
   AvalancheGetContactsRequest,
   AvalancheGetAccountsRequest,
+  AvalancheGetBridgeStateRequest,
 ]);
 
 export function providerConnectionHandlers(connection: Runtime.Port) {

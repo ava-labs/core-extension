@@ -78,6 +78,7 @@ export enum ExtensionRequest {
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SET_PHASE = 'onboarding_setCurrentPhase',
   ONBOARDING_SET_MNEMONIC = 'onboarding_setWalletMnemonic',
+  ONBOARDING_SET_ANALYTICS_CONSENT = 'onboarding_setAnalyticsConsent',
   ONBOARDING_SET_PASSWORD_AND_NAME = 'onboarding_setWalletPasswordAndName',
   ONBOARDING_SET_ACCOUNT_NAME = 'onboarding_setAccountName',
   ONBOARDING_SET_FINALIZED = 'onboarding_setOnboardingFinalized',
@@ -140,6 +141,7 @@ export enum ExtensionRequest {
   SETTINGS_GET_TOKEN_DATA = 'settings_get_token_data',
   SETTINGS_SET_DEFAULT_EXTENSION = 'settings_set_default_extension',
   SETTINGS_GET_DEFAULT_EXTENSION = 'settings_get_default_extension',
+  SETTINGS_SET_ANALYTICS_CONSENT = 'settings_set_analytics_consent',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',
@@ -161,11 +163,17 @@ export enum ExtensionRequest {
   LEDGER_INIT_TRANSPORT = 'ledger_init_transport',
   LEDGER_HAS_TRANSPORT = 'ledger_has_transport',
   LEDGER_GET_PUBLIC = 'ledger_get_public',
+  LEDGER_RESPONSE = 'ledger_response',
 
   NAVIGATION_HISTORY_GET = 'navigation_history_get',
   NAVIGATION_HISTORY_SET = 'navigation_history_set',
   NAVIGATION_HISTORY_DATA_GET = 'navigation_history_data_get',
   NAVIGATION_HISTORY_DATA_SET = 'navigation_history_data_set',
+
+  ANALYTICS_INIT_IDS = 'analytics_init_ids',
+  ANALYTICS_STORE_IDS = 'analytics_store_ids',
+  ANALYTICS_CLEAR_IDS = 'analytics_clear_ids',
+  ANALYTICS_GET_IDS = 'analytics_get_ids',
 }
 
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {

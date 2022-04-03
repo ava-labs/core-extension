@@ -48,8 +48,21 @@ const StyledTermsButton = styled(TextButton)`
   height: 40px;
   margin: 46px 0 0 0;
   font-size: 12px;
+  color: ${({ theme }) => theme.buttons.text.colorDisabled};
+
+  &:active,
+  &:hover {
+    color: ${({ theme }) => theme.buttons.text.colorDisabled};
+  }
 `;
 
 export const TermsButton = () => (
-  <StyledTermsButton disabled>Terms and Conditions</StyledTermsButton>
+  <StyledTermsButton
+    as="a"
+    target="_blank"
+    rel="noopener noreferrer"
+    href="https://wallet.avax.network/legal?coreTos"
+  >
+    Terms and Conditions
+  </StyledTermsButton>
 );

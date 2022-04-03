@@ -29,19 +29,19 @@ export function ApproveTx({
   txParams,
   setShowCustomSpendLimit,
   displaySpendLimit,
-  isRevokeApproval,
   gasPrice,
   gasLimit,
   onCustomFeeSet,
   transactionState,
   hash,
   error,
+  selectedGasFee,
   ...rest
 }: ApproveTransactionData & TransactionProgressData) {
   const theme = useTheme();
 
   const hideEdit: boolean =
-    (isRevokeApproval && setShowCustomSpendLimit) ||
+    (displaySpendLimit === '0' && setShowCustomSpendLimit) ||
     (transactionState === TransactionProgressState.PENDING && !hash) ||
     transactionState === TransactionProgressState.SUCCESS;
 
@@ -119,6 +119,7 @@ export function ApproveTx({
             gasPrice={gasPrice}
             limit={gasLimit?.toString() as string}
             onCustomFeeSet={onCustomFeeSet}
+            selectedGasFee={selectedGasFee}
           />
         ) : (
           <SuccessFailTxInfo

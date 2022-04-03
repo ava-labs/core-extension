@@ -14,6 +14,7 @@ import {
 } from './components/LedgerConnectCard';
 import { useLedgerSupportContext } from '@src/contexts/LedgerSupportProvider';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface LedgerConnectProps {
   onCancel(): void;
@@ -41,6 +42,7 @@ export function LedgerConnect({
   onError,
 }: LedgerConnectProps) {
   const theme = useTheme();
+  const { capture } = useAnalyticsContext();
   const {
     getPublicKey,
     popDeviceSelection,
@@ -57,42 +59,33 @@ export function LedgerConnect({
         .then((res) => {
           if (res) {
             setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
+            capture('OnboardingLedgerConnected');
             setTimeout(() => {
               onNext();
             }, WAIT_1500_MILLI_FOR_USER);
           }
         })
         .catch(() => {
+          capture('OnboardingLedgerConnectionFailed');
           setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
+          popDeviceSelection();
         }),
-    [getPublicKey, onNext]
+    [capture, getPublicKey, onNext, popDeviceSelection]
   );
 
   useEffect(() => {
-    initLedgerTransport()
-      .then(() => {
+    initLedgerTransport().then(() => {
+      setTimeout(() => {
         getPublicKeyAndRedirect();
-      })
-      .catch(() => {
-        // unable to get transport, try device selection first
-        popDeviceSelection()
-          .then(() => {
-            initLedgerTransport().then(() => {
-              getPublicKeyAndRedirect();
-            });
-          })
-          .catch(() => {
-            // transport creation and device selection failed
-            // need to retry
-            setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
-          });
-      });
+      }, WAIT_1500_MILLI_FOR_USER);
+    });
     // only call this once when the component is initialized
     // extra calls can break the ledger flow
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const tryPublicKey = async () => {
+    capture('OnboardingLedgerRetry');
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
 
     if (!hasLedgerTransport) {
@@ -105,6 +98,7 @@ export function LedgerConnect({
 
   const onLedgerCardClicked = () => {
     if (publicKeyState === LedgerStatus.LEDGER_CONNECTION_FAILED) {
+      capture('OnboardingLedgerErrorPageVisited');
       onError();
     }
   };

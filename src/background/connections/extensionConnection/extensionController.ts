@@ -68,8 +68,6 @@ import { PerformSwapRequest } from '@src/background/services/swap/handlers/perfo
 import { contactsUpdatedEvent } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { gasPriceSwapUpdate } from '@src/background/services/swap/events/gasPriceSwapUpdate';
 import { GetGasRequest } from '@src/background/services/gas/handlers/getGas';
-import { HasLedgerTransportRequest } from '@src/background/services/ledger/handlers/hasLedgerTransport';
-import { hasLedgerTransportEvent } from '@src/background/services/ledger/events/hasLedgerTransportEvent';
 import { GetPublicKeyRequest } from '@src/background/services/ledger/handlers/getPublicKey';
 import { InitLedgerTransportRequest } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { SettingsGetIsDefaultExtensionRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
@@ -92,6 +90,18 @@ import { SubmitSendNFTStateRequest } from '@src/background/services/send/sendNft
 import { ValidateSendNFTStateRequest } from '@src/background/services/send/sendNft/handlers/validateSendNftState';
 import { ResetSendNftStateRequest } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
 
+import { SettingsSetAnalyticsConsentRequest } from '@src/background/services/settings/handlers/setAnalyticsConsent';
+
+import { ledgerDeviceRequest } from '@src/background/services/ledger/events/ledgerDeviceRequest';
+import { LedgerResponseRequest } from '@src/background/services/ledger/handlers/ledgerResponse';
+import { isDevelopment } from '@src/utils/isDevelopment';
+import { SetOnboardingAnalyticsConsentRequest } from '@src/background/services/onboarding/handlers/setAnalyticsConsent';
+import { analyticsStateUpdatedEvent } from '@src/background/services/analytics/events/analyticsStateUpdatedEvent';
+import { AnalyticsStoreIdsRequest } from '@src/background/services/analytics/handlers/storeAnalyticsIds';
+import { AnalyticsInitIdsRequest } from '@src/background/services/analytics/handlers/initAnalyticsIds';
+import { AnalyticsClearIdsRequest } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
+import { AnalyticsGetIdsRequest } from '@src/background/services/analytics/handlers/getAnalyticsIds';
+
 const extensionRequestHandlerMap = new Map<
   ExtensionRequest,
   ConnectionRequestHandler
@@ -104,6 +114,7 @@ const extensionRequestHandlerMap = new Map<
   SetOnboardingFinalizedRequest,
   SetOnboardingMnemonicRequest,
   SetOnboardingPasswordRequest,
+  SetOnboardingAnalyticsConsentRequest,
 
   GetNetworkRequest,
   SetNetworkRequest,
@@ -153,6 +164,7 @@ const extensionRequestHandlerMap = new Map<
   SettingsGetTokenDataRequest,
   SettingsGetIsDefaultExtensionRequest,
   SettingsSetDefaultExtensionRequest,
+  SettingsSetAnalyticsConsentRequest,
 
   InitialWalletOpenRequest,
 
@@ -174,23 +186,32 @@ const extensionRequestHandlerMap = new Map<
   GetGasRequest,
 
   InitLedgerTransportRequest,
-  HasLedgerTransportRequest,
   GetPublicKeyRequest,
+  LedgerResponseRequest,
 
   GetNavigationHistoryDataStateRequest,
   SetNavigationHistoryDataStateRequest,
   GetNavigationHistoryStateRequest,
   SetNavigationHistoryStateRequest,
+
+  AnalyticsInitIdsRequest,
+  AnalyticsStoreIdsRequest,
+  AnalyticsClearIdsRequest,
+  AnalyticsGetIdsRequest,
 ]);
 
 export function extensionMessageHandler(connection: Runtime.Port) {
   function respondToRequest(response) {
-    responseLog(`extension reponse (${response.method})`, response);
+    if (isDevelopment()) {
+      responseLog(`extension reponse (${response.method})`, response);
+    }
     connection.postMessage(response);
   }
 
   return (message: ExtensionConnectionMessage) => {
-    requestLog(`extension request (${message.method})`, message);
+    if (isDevelopment()) {
+      requestLog(`extension request (${message.method})`, message);
+    }
 
     const handler = extensionRequestHandlerMap.get(
       message.method as ExtensionRequest
@@ -224,7 +245,8 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     contactsUpdatedEvent(),
     sendTxDetailsEvent(),
     gasPriceSwapUpdate(),
-    hasLedgerTransportEvent()
+    ledgerDeviceRequest(),
+    analyticsStateUpdatedEvent()
   ).pipe(
     tap((evt) => {
       eventLog(`extension event (${evt.name})`, evt);

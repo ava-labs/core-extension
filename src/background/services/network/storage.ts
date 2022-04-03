@@ -7,11 +7,10 @@ import { ActiveNetwork, supportedNetworks } from './models';
 export const NETWORK_STORAGE_KEY = 'network';
 
 export const getNetworkFromStorage = () =>
-  getFromStorage<{ network: string }>(NETWORK_STORAGE_KEY).then((result) => {
-    const { network } = result;
-    return supportedNetworks.get(network);
+  getFromStorage<string>(NETWORK_STORAGE_KEY).then((network) => {
+    return supportedNetworks.get(network || '');
   });
 
 export function saveNetworkToStorage(net: ActiveNetwork) {
-  return saveToStorage({ [NETWORK_STORAGE_KEY]: net.name });
+  return saveToStorage(NETWORK_STORAGE_KEY, net.name);
 }

@@ -8,12 +8,10 @@ import { SettingsState } from './models';
 const SETTINGS_STORAGE_KEY = 'settings';
 
 export const saveSettingsToStorage = (settings: SettingsState) =>
-  saveToStorage({ [SETTINGS_STORAGE_KEY]: settings });
+  saveToStorage(SETTINGS_STORAGE_KEY, settings);
 
 export const getSettingsFromStorage = () =>
-  getFromStorage<{ settings: SettingsState }>(SETTINGS_STORAGE_KEY).then(
-    (storage) => storage.settings
-  );
+  getFromStorage<SettingsState>(SETTINGS_STORAGE_KEY);
 export function removeAllSettingsFromStorage() {
   return removeFromStorage(SETTINGS_STORAGE_KEY);
 }

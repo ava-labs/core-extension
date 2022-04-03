@@ -58,10 +58,12 @@ export const ContactSelect = ({
     () =>
       recentTxHistory
         // filter out dupe to addresses
-        .filter(
-          (tx, index, self) =>
-            index === self.findIndex((temp) => temp.to === tx.to)
-        )
+        .filter((tx, index, self) => {
+          return (
+            index === self.findIndex((temp) => temp.to === tx.to) &&
+            tx.to !== '0x0000000000000000000000000000000000000000'
+          );
+        })
         .map((tx) => identifyAddress(tx.to)),
     [recentTxHistory, identifyAddress]
   );

@@ -28,9 +28,9 @@ export function ChooseExistingType({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader onBack={onBack} onClose={onCancel} />
-      <VerticalFlex justify="center" margin="0px 0 22px">
-        <Logo height={204} />
-        <BrandName width={288} />
+      <VerticalFlex justify="center" align="center" margin="36px 0 22px">
+        <Logo height={111} />
+        <BrandName height={42} margin="24px 0 0 0" />
       </VerticalFlex>
       <Typography
         weight="bold"

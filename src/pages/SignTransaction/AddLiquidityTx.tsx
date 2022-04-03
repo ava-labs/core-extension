@@ -24,6 +24,7 @@ export function AddLiquidityTx({
   transactionState,
   hash,
   error,
+  selectedGasFee,
 }: AddLiquidityDisplayData) {
   const theme = useTheme();
 
@@ -64,6 +65,7 @@ export function AddLiquidityTx({
             gasPrice={gasPrice}
             limit={gasLimit?.toString()}
             onCustomFeeSet={onCustomFeeSet}
+            selectedGasFee={selectedGasFee}
           />
         ) : (
           <SuccessFailTxInfo

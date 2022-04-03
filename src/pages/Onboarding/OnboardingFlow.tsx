@@ -12,16 +12,20 @@ import { ChooseExistingType } from './ChooseExistingType';
 import { LedgerConnect } from './LedgerConnect';
 import { LedgerTrouble } from './LedgerTrouble';
 import { BrandName } from '@src/components/icons/BrandName';
+import { AnalyticsConsent } from './AnalyticsConsent';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const ECOSYSTEM_URL = 'https://ecosystem.avax.network?wallet-installed';
 
 export function OnboardingFlow() {
   const { onboardingPhase, onboardingState, setNextPhase, setFinalized } =
     useOnboardingContext();
+  const { initAnalyticsIds, capture } = useAnalyticsContext();
   const [isImportFlow, setIsImportFlow] = useState<boolean>(false);
   const [isLedgerFlow, setIsLedgerFlow] = useState<boolean>(false);
 
   async function handleOnCancel() {
+    capture('OnboardingCancelled', { step: onboardingPhase });
     setIsImportFlow(false);
     await setNextPhase(OnboardingPhase.RESTART);
   }
@@ -36,6 +40,7 @@ export function OnboardingFlow() {
   }, [onboardingPhase, onboardingState.isOnBoarded, setFinalized]);
 
   useEffect(() => {
+    initAnalyticsIds();
     if (onboardingState.isOnBoarded) {
       window.location.href = ECOSYSTEM_URL;
     } else if (onboardingState.reImportMnemonic) {
@@ -48,8 +53,15 @@ export function OnboardingFlow() {
   let content = (
     <Welcome
       onNext={(isExisting) => {
+        capture(
+          isExisting
+            ? 'OnboardingImportWalletSelected'
+            : 'OnboardingCreateNewWalletSelected'
+        );
         setNextPhase(
-          isExisting ? OnboardingPhase.EXISTING : OnboardingPhase.PASSWORD
+          isExisting
+            ? OnboardingPhase.EXISTING
+            : OnboardingPhase.ANALYTICS_CONSENT
         );
       }}
     />
@@ -68,6 +80,11 @@ export function OnboardingFlow() {
       content = (
         <ChooseExistingType
           onNext={(isRecovery) => {
+            capture(
+              isRecovery
+                ? 'OnboardingImportMnemonicSelected'
+                : 'OnboardingImportLedgertSelected'
+            );
             setIsImportFlow(isRecovery);
             setNextPhase(
               isRecovery
@@ -103,7 +120,7 @@ export function OnboardingFlow() {
         <LedgerConnect
           onCancel={handleOnCancel}
           onBack={() => setNextPhase(OnboardingPhase.EXISTING)}
-          onNext={() => setNextPhase(OnboardingPhase.PASSWORD)}
+          onNext={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
           onError={() => setNextPhase(OnboardingPhase.LEDGER_TROUBLE)}
         />
       );
@@ -113,6 +130,9 @@ export function OnboardingFlow() {
       content = (
         <LedgerTrouble onBack={() => setNextPhase(OnboardingPhase.LEDGER)} />
       );
+      break;
+    case OnboardingPhase.ANALYTICS_CONSENT:
+      content = <AnalyticsConsent />;
       break;
     case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:
@@ -128,8 +148,8 @@ export function OnboardingFlow() {
         width="1200px"
         align="center"
       >
-        <Logo />
-        <BrandName width={102} margin="0 0 0 8px" />
+        <Logo height={29} />
+        <BrandName height={15} margin="0 0 0 8px" />
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
         <Card width="568px" minHeight="540px" height="639px" padding="40px">

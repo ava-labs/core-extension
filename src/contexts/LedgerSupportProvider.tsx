@@ -5,9 +5,11 @@ import { ExtensionRequest } from '@src/background/connections/models';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { resolve } from '@src/utils/promiseResolver';
-import { filter } from 'rxjs';
+import { delay, filter, of, retryWhen, switchMap } from 'rxjs';
 import { LedgerEvent } from '@src/background/services/ledger/events/models';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
+import { getAppAvax } from '@avalabs/avalanche-wallet-sdk';
 
 export const SUPPORTED_LEDGER_VERSION = '0.5.9';
 
@@ -19,17 +21,78 @@ const LedgerSupportContext = createContext<{
 }>({} as any);
 
 export function LedgerSupportContextProvider({ children }: { children: any }) {
-  const [hasLedgerTransport, setHasLedgerTransport] = useState(false);
+  const [initialized, setInialized] = useState(false);
+  const [app, setApp] = useState<any>();
   const { request, events } = useConnectionContext();
 
   useEffect(() => {
-    events &&
-      events()
-        .pipe(filter((evt) => evt.name === LedgerEvent.HAS_TRANSPORT))
-        .subscribe((res) => {
-          setHasLedgerTransport(!!res.value);
-        });
-  }, [events]);
+    const subscription = events()
+      .pipe(filter((evt) => evt.name === LedgerEvent.TRANSPORT_REQUEST))
+      .subscribe(async (res) => {
+        if (res.value.method === 'SEND') {
+          try {
+            const { cla, ins, p1, p2, data, statusList } = res.value.params;
+            const result = await app?.transport.send(
+              cla,
+              ins,
+              p1,
+              p2,
+              Buffer.from(data),
+              statusList
+            );
+            request({
+              method: ExtensionRequest.LEDGER_RESPONSE,
+              params: [
+                {
+                  requestId: res.value.requestId,
+                  method: res.value.method,
+                  result,
+                },
+              ],
+            });
+          } catch (e) {
+            request({
+              method: ExtensionRequest.LEDGER_RESPONSE,
+              params: [
+                {
+                  requestId: res.value.requestId,
+                  method: res.value.method,
+                  error: (e as Error).message,
+                },
+              ],
+            });
+          }
+        }
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [request, events, app?.transport]);
+
+  useEffect(() => {
+    const subscription = of([initialized, app])
+      .pipe(
+        filter(([initialized, app]) => initialized && !app),
+        switchMap(async () => {
+          const transport = await getLedgerTransport();
+          if (!transport) {
+            throw new Error('Ledger not connected');
+          }
+          const appInstance = await getAppAvax(transport);
+          appInstance.transport.on('disconnect', () => {
+            setApp(undefined);
+          });
+          return appInstance;
+        }),
+        retryWhen((errors) => errors.pipe(delay(2000)))
+      )
+      .subscribe((appInstance) => {
+        setApp(appInstance);
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [initialized, app]);
 
   /**
    *
@@ -54,7 +117,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
    * @returns The transport object
    */
   async function popDeviceSelection() {
-    if (hasLedgerTransport) {
+    if (app) {
       return true;
     }
     const [hidTransport] = await resolve(TransportWebHID.request());
@@ -80,6 +143,10 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
   }
 
   async function initLedgerTransport() {
+    if (initialized) {
+      return;
+    }
+    setInialized(true);
     await request({
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [],
@@ -96,7 +163,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
         popDeviceSelection,
         getPublicKey,
         initLedgerTransport,
-        hasLedgerTransport,
+        hasLedgerTransport: !!app,
       }}
     >
       {children}

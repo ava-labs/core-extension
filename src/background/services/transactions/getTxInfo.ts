@@ -1,14 +1,13 @@
-import {
-  NetworkConfig,
-  getABIForContract,
-} from '@avalabs/avalanche-wallet-sdk/dist/index';
+import { isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
 import { network$ } from '@avalabs/wallet-react-components';
 import { firstValueFrom } from 'rxjs';
 import * as ethers from 'ethers';
-import hstABI from 'human-standard-token-abi';
-import { resolve } from '@src/utils/promiseResolver';
-
-const hstInterface = new ethers.utils.Interface(hstABI);
+import { Interface } from 'ethers/lib/utils';
+import {
+  ContractSourceCodeResponse,
+  getABIForContract,
+  getSourceForContract,
+} from '@avalabs/snowtrace-sdk';
 
 export function isTxDescriptionError(
   desc: ethers.utils.TransactionDescription | { error: string }
@@ -17,26 +16,40 @@ export function isTxDescriptionError(
   return !!desc && !desc.hasOwnProperty('error');
 }
 
-export async function getTxInfo(address: string, data: string) {
+export async function getTxInfo(address: string, data: string, value: string) {
   const network = await firstValueFrom(network$);
-  const [contractABIResult] = await resolve(
-    getABIForContract(address, network?.config as NetworkConfig)
-  );
-
+  const isMainnet = network?.config && isMainnetNetwork(network.config);
+  let contractSource: ContractSourceCodeResponse;
   try {
-    const contractInterface = new ethers.utils.Interface(
-      contractABIResult.data.result
-    );
-    const contractDecoding = contractInterface.parseTransaction({
-      data,
-    });
-
-    if (contractDecoding) return contractDecoding;
-
-    return hstInterface.parseTransaction({
-      data,
-    });
-  } catch (err) {
+    const response = await getSourceForContract(address, isMainnet);
+    contractSource = response.result[0];
+  } catch (e) {
+    console.error(e);
     return { error: 'error decoding with abi' };
   }
+
+  let contractInterface: Interface;
+  if (
+    contractSource.Proxy === '1' &&
+    contractSource.Implementation.length > 0
+  ) {
+    // get the real contract's ABI since it's a proxy
+    try {
+      const response = await getABIForContract(
+        contractSource.Implementation,
+        isMainnet
+      );
+      contractInterface = new Interface(response.result);
+    } catch (e) {
+      console.error(e);
+      return { error: 'error decoding with abi' };
+    }
+  } else {
+    contractInterface = new Interface(contractSource.ABI);
+  }
+
+  return contractInterface.parseTransaction({
+    data: data,
+    value: value,
+  });
 }

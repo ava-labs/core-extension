@@ -7,8 +7,7 @@ import {
 } from '@src/background/connections/models';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { resolve } from '@src/utils/promiseResolver';
-import { APIError, ParaSwap } from 'paraswap';
-import { SwapSide } from 'paraswap';
+import { SwapSide, APIError } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
 import { firstValueFrom } from 'rxjs';
 import { paraSwap$ } from '../swap';
@@ -71,25 +70,31 @@ export async function getSwapRate(request: ExtensionConnectionMessage) {
     };
   }
 
-  const optimalRates = (paraSwap as ParaSwap).getRate(
+  const query = new URLSearchParams({
     srcToken,
     destToken,
-    srcAmount,
-    (wallet as WalletType).getAddressC(),
-    (swapSide as SwapSide) || SwapSide.SELL,
-    {
-      partner: 'Avalanche',
-    },
-    AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals,
-    AVAX_TOKEN.symbol === destToken ? 18 : destDecimals
-  );
+    amount: srcAmount,
+    side: (swapSide as SwapSide) || SwapSide.SELL,
+    network: '43114',
+    srcDecimals: AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals,
+    destDecimals: AVAX_TOKEN.symbol === destToken ? 18 : destDecimals,
+    userAddress: (wallet as WalletType).getAddressC(),
+  });
+
+  const url = `${paraSwap.apiURL}/prices/?${query.toString()}`;
+
+  const optimalRates = async () => {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.priceRoute;
+  };
 
   function checkForErrorsInResult(result: OptimalRate | APIError) {
     return (result as APIError).message === SERVER_BUSY_ERROR;
   }
 
   const result = await incrementalPromiseResolve<OptimalRate | APIError>(
-    () => optimalRates,
+    () => optimalRates(),
     checkForErrorsInResult
   );
 

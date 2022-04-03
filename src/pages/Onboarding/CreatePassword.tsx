@@ -5,10 +5,14 @@ import {
   PrimaryButton,
   Typography,
   ComponentSize,
+  HorizontalFlex,
+  Checkbox,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
+import { useTheme } from 'styled-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -20,10 +24,17 @@ export const CreatePassword = ({
   onBack,
   isImportFlow,
 }: CreatePasswordProps) => {
+  const theme = useTheme();
+  const { capture } = useAnalyticsContext();
   const { setPasswordAndName, setNextPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
+  const [privacyPolicyChecked, setPrivacyPolicyChecked] =
+    useState<boolean>(false);
+  const [termsOfUseChecked, setTermsOfUseChecked] = useState<boolean>(false);
+
+  const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(
@@ -31,9 +42,14 @@ export const CreatePassword = ({
     confirmPasswordVal &&
     password !== confirmPasswordVal
   );
-  const passwordLengthError = password && password.length < 8;
+  const passwordLengthError =
+    isPasswordInputFilled && password && password.length < 8;
   const canSubmit =
-    !passwordLengthError && !confirmationError && isFieldsFilled;
+    !passwordLengthError &&
+    !confirmationError &&
+    isFieldsFilled &&
+    privacyPolicyChecked &&
+    termsOfUseChecked;
 
   return (
     <VerticalFlex width="100%" align="center">
@@ -63,23 +79,76 @@ export const CreatePassword = ({
           type="password"
           error={!!passwordLengthError}
           helperText="Must be at least 8 characters"
-        />
-        <Input
-          label="Confirm Password"
-          onChange={(e) => setConfirmPasswordVal(e.target.value)}
-          placeholder="Enter a Password"
-          type="password"
-          error={confirmationError}
+          onBlur={() => {
+            setIsPasswordInputFilled(true);
+          }}
           errorMessage={
-            confirmationError ? 'Passwords do not match' : undefined
+            passwordLengthError ? 'Must be at least 8 characters' : ''
           }
         />
+        <HorizontalFlex width="100%" height="84px">
+          <Input
+            label="Confirm Password"
+            onChange={(e) => setConfirmPasswordVal(e.target.value)}
+            placeholder="Enter a Password"
+            type="password"
+            error={confirmationError}
+            errorMessage={
+              confirmationError ? 'Passwords do not match' : undefined
+            }
+          />
+        </HorizontalFlex>
+        <VerticalFlex justify="flex-start" width="100%">
+          <HorizontalFlex margin="8px 0 0">
+            <Checkbox
+              isChecked={termsOfUseChecked}
+              onChange={() => setTermsOfUseChecked(!termsOfUseChecked)}
+            />
+            <Typography margin="0 0 0 8px" size={12} height="15px">
+              I have read and agree to our{' '}
+              <Typography
+                as="a"
+                target="_blank"
+                href="https://wallet.avax.network/legal?coreToS"
+                color={theme.colors.secondary1}
+                size={12}
+                height="15px"
+                weight={500}
+              >
+                Terms of Use
+              </Typography>
+            </Typography>
+          </HorizontalFlex>
+          <HorizontalFlex margin="8px 0 0">
+            <Checkbox
+              isChecked={privacyPolicyChecked}
+              onChange={() => setPrivacyPolicyChecked(!privacyPolicyChecked)}
+            />
+            <Typography margin="0 0 0 8px" size={12} height="15px">
+              I have read and agree to our{' '}
+              <Typography
+                as="a"
+                target="_blank"
+                href="https://wallet.avax.network/legal?core"
+                color={theme.colors.secondary1}
+                size={12}
+                height="15px"
+                weight={500}
+              >
+                Privacy Policy
+              </Typography>
+            </Typography>
+          </HorizontalFlex>
+        </VerticalFlex>
       </VerticalFlex>
       <PrimaryButton
         size={ComponentSize.LARGE}
         width="343px"
         disabled={!canSubmit}
         onClick={() => {
+          capture('OnboardingPasswordSet', {
+            AccountNameSet: !!accountName,
+          });
           setPasswordAndName(password, accountName).then(() =>
             setNextPhase(
               isImportFlow

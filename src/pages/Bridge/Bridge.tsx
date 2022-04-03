@@ -24,11 +24,7 @@ import {
   HorizontalSeparator,
   IconDirection,
   PrimaryButton,
-  PrimaryIconButton,
-  SearchInput,
-  SelectTokenModal,
   AvaxTokenIcon,
-  SwapCard,
   SwitchIcon,
   Tooltip,
   Typography,
@@ -43,10 +39,15 @@ import { useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { useAssetBalance } from './useAssetBalance';
 import { useAssetBalances } from './useAssetBalances';
-import { TokenList } from './components/TokenList';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import EthLogo from './../../images/tokens/eth.png';
+import EthLogo from '@src/images/tokens/eth.png';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
+import { TokenSelect } from '@src/components/common/TokenSelect';
+import { AssetBalance } from './models';
+import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -57,6 +58,7 @@ function formatBalance(balance: Big | undefined) {
 }
 
 export function Bridge() {
+  const { flags } = useAnalyticsContext();
   const { transferAsset } = useBridgeContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { error } = useBridgeConfig();
@@ -67,29 +69,47 @@ export function Bridge() {
     setCurrentBlockchain,
     setTransactionDetails,
   } = useBridgeSDK();
+
   const theme = useTheme();
   const { assetsWithBalances, loading } = useAssetBalances();
-  const assetPrice = usePrice(currentAsset, currency.toLowerCase());
+
   const [amount, setAmount] = useState<Big>(BIG_ZERO);
   const [amountTooLowError, setAmountTooLowError] = useState<string>('');
   const [bridgeError, setBridgeError] = useState<string>('');
-  const [pending, setPending] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
   const [wrapStatus, setWrapStatus] = useState<WrapStatus>(WrapStatus.INITIAL);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [txHash, setTxHash] = useState<string>();
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [, setTxHash] = useState<string>();
   const assets = useAssets(currentBlockchain);
   const tokenInfoData = useTokenInfoContext();
+
   const asset = assets[currentAsset || ''];
+  const assetPrice = usePrice(currentAsset, currency.toLowerCase());
+
   const destinationBlockchain =
     currentBlockchain === Blockchain.AVALANCHE
       ? Blockchain.ETHEREUM
       : Blockchain.AVALANCHE;
   const [maxValue, setMaxValue] = useState<BN>(new BN(0));
+
   const history = useHistory();
   const sourceBalance = useAssetBalance(currentAsset, currentBlockchain);
+
   const transferCost = useTransactionFee(currentBlockchain);
+  const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
+  const [selectedToken, setSelectedToken] = useState<any>();
+  const [isSwitched, setIsSwitched] = useState(false);
+  const [isFromOpen, setIsFromOpen] = useState(false);
+  const [isToOpen, setIsToOpen] = useState(false);
+
+  useEffect(() => {
+    if (selectedToken && assetPrice.toNumber() !== selectedToken?.priceUSD) {
+      setSelectedToken({
+        ...selectedToken,
+        priceUSD: assetPrice.toNumber(),
+      });
+    }
+  }, [assetPrice, selectedToken]);
+
   const minimumTransferAmount = transferCost ? transferCost.mul(3) : BIG_ZERO;
   const tooLowAmount =
     !!transferCost && amount.gt(0) && amount.lt(minimumTransferAmount);
@@ -101,29 +121,21 @@ export function Bridge() {
 
   const handleBlockchainToggle = () => {
     setCurrentBlockchain(destinationBlockchain);
+    setIsSwitched(!isSwitched);
   };
 
   const handleSelect = (symbol: string) => {
     setCurrentAsset(symbol);
   };
 
-  const EthereumLogo = () => (
-    <TokenIcon
-      width="24px"
-      height="24px"
-      src={EthLogo}
-      name={Blockchain.ETHEREUM}
-    />
-  );
-
   const handleTransfer = async () => {
     if (BIG_ZERO.eq(amount)) {
       return;
     }
 
-    setPending(true);
+    setIsPending(true);
     const result = await transferAsset(amount, asset, setWrapStatus, setTxHash);
-    setPending(false);
+    setIsPending(false);
 
     const timestamp = Date.now();
 
@@ -177,41 +189,21 @@ export function Bridge() {
     )}`;
   };
 
-  if (error) {
+  if (error || !flags[FeatureGates.BRIDGE]) {
     return (
-      <VerticalFlex height="100%" width="100%">
-        <PageTitleMiniMode>Bridge</PageTitleMiniMode>
-        <VerticalFlex
-          padding="16px 16px 0 16px"
-          style={{ flex: 1 }}
-          align="center"
+      <FunctionIsOffline functionName="Bridge">
+        <PrimaryButton
+          size={ComponentSize.LARGE}
+          margin="24px 0 0 0"
+          as="a"
+          href="https://status.avax.network/"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          <Typography size={24} weight="bold" margin="0 0 16px 0">
-            Sorry
-          </Typography>
-          <Typography size={14} color={theme.colors.text2} margin="0 0 8px 0">
-            Sorry, the Bridge is currently unavailable.
-          </Typography>
-          <Typography size={14} color={theme.colors.text2} margin="0 0 8px 0">
-            Please check back later.
-          </Typography>
-          <Typography size={14} color={theme.colors.text2} margin="0 0 8px 0">
-            Thanks.
-          </Typography>
-          <PrimaryButton
-            size={ComponentSize.LARGE}
-            margin="24px 0 0 0"
-            as="a"
-            href="https://status.avax.network/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Go to the status page
-          </PrimaryButton>
-        </VerticalFlex>
-      </VerticalFlex>
+          Go to the status page
+        </PrimaryButton>
+      </FunctionIsOffline>
     );
-    return <Typography>Error: {error}</Typography>;
   }
 
   return (
@@ -219,12 +211,17 @@ export function Bridge() {
       <PageTitleMiniMode>Bridge</PageTitleMiniMode>
       <VerticalFlex padding="0 16px 0 16px" style={{ flex: 1 }}>
         <VerticalFlex style={{ flex: 1 }}>
-          <Card padding="16px">
+          <Card padding="0">
             <VerticalFlex width="100%">
-              <HorizontalFlex justify="space-between" align="center">
+              <HorizontalFlex
+                justify="space-between"
+                align="center"
+                padding="16px 16px 0 16px"
+              >
                 <Typography>From</Typography>
 
                 <SecondaryDropDownMenu
+                  onMenuToggle={setIsFromOpen}
                   coords={{ top: `32px`, right: `0px` }}
                   disabled={loading}
                   icon={
@@ -236,12 +233,23 @@ export function Bridge() {
                       {currentBlockchain === Blockchain.AVALANCHE ? (
                         <AvaxTokenIcon />
                       ) : (
-                        <EthereumLogo />
+                        <TokenIcon
+                          width="24px"
+                          height="24px"
+                          src={EthLogo}
+                          name={Blockchain.ETHEREUM}
+                        />
                       )}
                       <Typography margin={'0 16px 0 8px'}>
                         {capitalize(currentBlockchain)}
                       </Typography>
-                      <CaretIcon height={'12px'} color={theme.colors.text1} />
+                      <CaretIcon
+                        height={'9px'}
+                        color={theme.colors.text1}
+                        direction={
+                          isFromOpen ? IconDirection.UP : IconDirection.DOWN
+                        }
+                      />
                     </HorizontalFlex>
                   }
                 >
@@ -267,7 +275,12 @@ export function Bridge() {
                       }
                     }}
                   >
-                    <EthereumLogo />
+                    <TokenIcon
+                      width="24px"
+                      height="24px"
+                      src={EthLogo}
+                      name={Blockchain.ETHEREUM}
+                    />
                     <Typography margin="0 16px 0 8px">Ethereum</Typography>
                     {currentBlockchain === Blockchain.ETHEREUM && (
                       <CheckmarkIcon height="16px" color={theme.colors.text1} />
@@ -276,85 +289,38 @@ export function Bridge() {
                 </SecondaryDropDownMenu>
               </HorizontalFlex>
               <HorizontalSeparator margin="16px 0 16px 0" />
-              <HorizontalFlex justify="space-between">
-                <SwapCard
-                  variant="dense"
-                  onChange={handleAmountChanged as any}
-                  denomination={asset?.denomination}
-                  onSelectClick={() => {
-                    if (!loading) {
-                      setModalOpen(true);
-                      setSearchQuery('');
-                    }
+              <HorizontalFlex padding="0">
+                <TokenSelect
+                  onSelectToggle={() => {
+                    setIsTokenSelectOpen(!isTokenSelectOpen);
                   }}
-                  token={
-                    currentAsset
-                      ? {
-                          icon: (
-                            <TokenIcon
-                              width="32px"
-                              height="32px"
-                              src={
-                                currentAsset === 'ETH'
-                                  ? EthLogo
-                                  : tokenInfoData?.[currentAsset]?.logo
-                              }
-                              name={currentAsset}
-                            />
-                          ),
-                          name: currentAsset,
-                        }
-                      : undefined
-                  }
-                  balanceDisplayValue={formatBalance(sourceBalance?.balance)}
-                  currencyValue={
-                    !amount.eq(BIG_ZERO)
-                      ? `~${currencyFormatter(
-                          assetPrice.mul(amount).toNumber()
-                        )}`
-                      : ''
-                  }
+                  bridgeTokensList={assetsWithBalances}
+                  maxAmount={asset ? maxValue : undefined}
+                  onTokenChange={(token: AssetBalance) => {
+                    setSelectedToken({
+                      ...token.asset,
+                      balanceDisplayValue: formatBalance(token.balance),
+                      balance: token.balance,
+                      priceUSD: assetPrice.toNumber(),
+                      logoURI: tokenInfoData?.[token.asset.symbol]?.logo,
+                      name: token.asset.tokenName,
+                    });
+                    handleSelect(token.symbol);
+                    return;
+                  }}
+                  isOpen={isTokenSelectOpen}
                   isValueLoading={loading}
-                  isInputDisabled={!currentAsset}
-                  max={asset ? maxValue : undefined}
-                  hideErrorMessage
+                  selectedToken={selectedToken}
+                  onInputAmountChange={handleAmountChanged}
+                  padding="8px 16px"
                   onError={(errorMessage) => {
                     setBridgeError(errorMessage);
                   }}
+                  skipHandleMaxAmount
                 />
               </HorizontalFlex>
             </VerticalFlex>
           </Card>
-
-          <SelectTokenModal
-            open={!!modalOpen}
-            onClose={() => {
-              setModalOpen(false);
-              setSearchQuery('');
-            }}
-            title="Select Token"
-          >
-            <>
-              <HorizontalFlex padding="0 16px">
-                <SearchInput
-                  searchTerm={searchQuery}
-                  placeholder="Search"
-                  width="343px"
-                  onSearch={(term) => setSearchQuery(term)}
-                  autoFocus={true}
-                />
-              </HorizontalFlex>
-              <TokenList
-                tokenList={assetsWithBalances}
-                searchQuery={searchQuery}
-                onClick={(tokenSymbol) => {
-                  handleSelect(tokenSymbol);
-                  return;
-                }}
-                onClose={() => setModalOpen(false)}
-              />
-            </>
-          </SelectTokenModal>
 
           <HorizontalFlex
             justify={
@@ -378,13 +344,17 @@ export function Bridge() {
               placement="left"
               content={<Typography size={12}>Switch</Typography>}
             >
-              <PrimaryIconButton onClick={handleBlockchainToggle}>
+              <SwitchIconContainer
+                onClick={handleBlockchainToggle}
+                disabled={false}
+                isSwapped={isSwitched}
+              >
                 <SwitchIcon
-                  direction={IconDirection.DOWN}
                   height="24px"
+                  direction={IconDirection.UP}
                   color={theme.colors.text1}
                 />
-              </PrimaryIconButton>
+              </SwitchIconContainer>
             </Tooltip>
           </HorizontalFlex>
 
@@ -394,6 +364,7 @@ export function Bridge() {
                 <Typography>To</Typography>
 
                 <SecondaryDropDownMenu
+                  onMenuToggle={setIsToOpen}
                   coords={{ top: `32px`, right: `0px` }}
                   disabled={loading}
                   icon={
@@ -405,12 +376,23 @@ export function Bridge() {
                       {destinationBlockchain === Blockchain.AVALANCHE ? (
                         <AvaxTokenIcon />
                       ) : (
-                        <EthereumLogo />
+                        <TokenIcon
+                          width="24px"
+                          height="24px"
+                          src={EthLogo}
+                          name={Blockchain.ETHEREUM}
+                        />
                       )}
                       <Typography margin={'0 16px 0 8px'}>
                         {capitalize(destinationBlockchain)}
                       </Typography>
-                      <CaretIcon height={'12px'} color={theme.colors.text1} />
+                      <CaretIcon
+                        height={'9px'}
+                        color={theme.colors.text1}
+                        direction={
+                          isToOpen ? IconDirection.UP : IconDirection.DOWN
+                        }
+                      />
                     </HorizontalFlex>
                   }
                 >
@@ -436,7 +418,12 @@ export function Bridge() {
                       }
                     }}
                   >
-                    <EthereumLogo />
+                    <TokenIcon
+                      width="24px"
+                      height="24px"
+                      src={EthLogo}
+                      name={Blockchain.ETHEREUM}
+                    />
                     <Typography margin="0 16px 0 8px">Ethereum</Typography>
                     {destinationBlockchain === Blockchain.ETHEREUM && (
                       <CheckmarkIcon height="16px" color={theme.colors.text1} />
@@ -497,13 +484,13 @@ export function Bridge() {
             bridgeError.length > 0 ||
             amountTooLowError.length > 0 ||
             loading ||
-            pending ||
+            isPending ||
             tooLowAmount ||
             BIG_ZERO.eq(amount)
           }
           onClick={handleTransfer}
         >
-          {pending && (
+          {isPending && (
             <StyledLoading height="16px" color={theme.colors.stroke2} />
           )}
           Transfer

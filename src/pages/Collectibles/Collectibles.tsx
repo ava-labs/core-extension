@@ -3,7 +3,9 @@ import {
   GridIcon,
   HorizontalFlex,
   ListIcon,
+  LoadingSpinnerIcon,
   PrimaryButton,
+  Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
@@ -82,7 +84,7 @@ export function Collectibles() {
           />
         </GroupButton>
       </ButtonGroup>
-      {nfts.length ? (
+      {!nfts.loading && nfts.items?.length && (
         <Scrollbars>
           {listType === ListType.LIST ? (
             <CollectibleList
@@ -106,9 +108,43 @@ export function Collectibles() {
             />
           )}
         </Scrollbars>
-      ) : (
-        <VerticalFlex grow="1" width="100%" align="center" justify="center">
+      )}
+      {!nfts.loading && nfts.items?.length === 0 && (
+        <VerticalFlex
+          grow="1"
+          padding="0 0 72px"
+          width="100%"
+          align="center"
+          justify="center"
+        >
           <CollectibleListEmpty />
+        </VerticalFlex>
+      )}
+      {nfts.loading && (
+        <VerticalFlex
+          grow="1"
+          padding="0 0 72px"
+          width="100%"
+          align="center"
+          justify="center"
+        >
+          <LoadingSpinnerIcon color={theme.colors.primary1} />
+        </VerticalFlex>
+      )}
+      {nfts.error && (
+        <VerticalFlex
+          grow="1"
+          padding="0 0 72px"
+          width="100%"
+          align="center"
+          justify="center"
+        >
+          <Typography size={18} height="22px" weight={600}>
+            Error
+          </Typography>
+          <Typography size={14} align="center" height="17px" margin="8px 0">
+            Failed to load collectibles
+          </Typography>
         </VerticalFlex>
       )}
     </VerticalFlex>

@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { COREX_DOMAINS } from '../models';
 import { Middleware } from './models';
 
-const RESTRICTED_METHODS = Object.freeze(['eth_accounts']);
+const RESTRICTED_METHODS = Object.freeze([] as string[]);
 
 /**
  * All unrestricted methods recognized by the PermissionController.
@@ -14,6 +14,7 @@ const RESTRICTED_METHODS = Object.freeze(['eth_accounts']);
  * "method not found" error.
  */
 export const UNRESTRICTED_METHODS = Object.freeze([
+  'eth_accounts',
   'eth_requestAccounts',
   'eth_blockNumber',
   'eth_call',
@@ -80,6 +81,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
 const COREX_METHODS = Object.freeze([
   'avalanche_getContacts',
   'avalanche_getAccounts',
+  'avalanche_getBridgeState',
 ]);
 
 export function PermissionMiddleware(): Middleware {

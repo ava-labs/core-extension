@@ -2,14 +2,15 @@ import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  TextArea,
   PrimaryButton,
   ComponentSize,
+  Input,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface ImportProps {
   onCancel(): void;
@@ -17,6 +18,7 @@ interface ImportProps {
 }
 
 export const Import = ({ onCancel, onBack }: ImportProps) => {
+  const { capture } = useAnalyticsContext();
   const { setMnemonic, setNextPhase } = useOnboardingContext();
   const [recoveryPhrase, setRecoveryPhrase] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -33,7 +35,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
     );
   };
 
-  const onPhraseChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const onPhraseChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     const phrase = e.currentTarget.value;
     setRecoveryPhrase(phrase);
 
@@ -59,22 +61,24 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           <br />
           recovery phrase.
         </Typography>
-        <TextArea
+        <Input
+          type="password"
           autoFocus
           margin="32px 0 0 0"
           error={!!error}
           errorMessage={error}
           placeholder="Type your recovery phrase"
           onChange={onPhraseChanged}
-        ></TextArea>
+        />
       </VerticalFlex>
       <PrimaryButton
         size={ComponentSize.LARGE}
         width="343px"
         disabled={nextButtonDisabled}
         onClick={async () => {
+          capture('OnboardingMnemonicImported');
           setMnemonic(recoveryPhrase).then(() =>
-            setNextPhase(OnboardingPhase.PASSWORD)
+            setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)
           );
         }}
       >

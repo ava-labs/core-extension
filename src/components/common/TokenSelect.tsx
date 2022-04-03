@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import {
+  Big,
   BN,
   bnToLocaleString,
   numberToBN,
@@ -24,11 +25,18 @@ import {
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
+import { AssetBalance } from '@src/pages/Bridge/models';
+import { formatTokenAmount, useTokenInfoContext } from '@avalabs/bridge-sdk';
+import EthLogo from '@src/images/tokens/eth.png';
+
+function formatBalance(balance: Big | undefined) {
+  return balance ? formatTokenAmount(balance, 6) : '-';
+}
 
 const InputContainer = styled(HorizontalFlex)`
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
+  padding: ${({ padding }) => padding ?? '8px 16px'};
   background: ${({ theme }) => theme.swapCard.inputContainerBg};
   cursor: pointer;
 `;
@@ -59,7 +67,7 @@ const StyledDropdownMenuItem = styled(DropDownMenuItem)`
 
 interface TokenSelectProps {
   selectedToken?: TokenWithBalance | null;
-  onTokenChange(token: TokenWithBalance): void;
+  onTokenChange(token: TokenWithBalance | AssetBalance): void;
   maxAmount?: BN;
   inputAmount?: BN;
   onInputAmountChange?({ amount: string, bn: BN }): void;
@@ -67,8 +75,10 @@ interface TokenSelectProps {
   isOpen: boolean;
   error?: string;
   margin?: string;
+  padding?: string;
   label?: string;
-  tokensList: TokenWithBalance[];
+  tokensList?: TokenWithBalance[];
+  bridgeTokensList?: AssetBalance[];
   isValueLoading?: boolean;
   hideErrorMessage?: boolean;
   onError?: (errorMessage: string) => void;
@@ -86,11 +96,13 @@ export function TokenSelect({
   isOpen,
   error,
   margin,
+  padding,
   label,
   isValueLoading,
   hideErrorMessage,
   onError,
   skipHandleMaxAmount,
+  bridgeTokensList,
 }: TokenSelectProps) {
   const theme = useTheme();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -100,6 +112,7 @@ export function TokenSelect({
   const [bnError, setBNError] = useState('');
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
+  const tokenInfoData = useTokenInfoContext();
 
   // Stringify maxAmount for referential equality in useEffect
   const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
@@ -142,8 +155,9 @@ export function TokenSelect({
       <HorizontalFlex
         justify="space-between"
         align="flex-end"
-        margin="0 0 8px"
+        margin={!padding ? '0 0 8px' : '0'}
         grow="1"
+        padding={padding}
       >
         <Typography size={12} color={theme.inputs.colorLabel}>
           {label ?? 'Token'}
@@ -159,6 +173,7 @@ export function TokenSelect({
           ref={selectButtonRef}
           style={{ borderRadius: isOpen ? '8px 8px 0 0' : 8 }}
           onClick={() => onSelectToggle && onSelectToggle()}
+          padding={padding}
         >
           <TokenSelector
             isOpen={isOpen}
@@ -212,7 +227,12 @@ export function TokenSelect({
           />
         </InputContainer>
         {!hideErrorMessage && (
-          <HorizontalFlex justify="space-between" grow="1" margin="4px 0 0 0">
+          <HorizontalFlex
+            justify="space-between"
+            grow="1"
+            margin={!padding ? '4px 0 0 0' : '0'}
+            padding={padding}
+          >
             <Typography size={12} color={theme.colors.error}>
               {bnError || error}
             </Typography>
@@ -251,59 +271,111 @@ export function TokenSelect({
             </SearchInputContainer>
             <VerticalFlex grow="1">
               <Scrollbars>
-                {tokensList
-                  .filter((token) =>
-                    searchQuery.length
-                      ? token.name
-                          .toLowerCase()
-                          .includes(searchQuery.toLowerCase()) ||
-                        token.symbol
-                          .toLowerCase()
-                          .includes(searchQuery.toLowerCase())
-                      : true
-                  )
-                  .map((token) => (
-                    <StyledDropdownMenuItem
-                      key={
-                        isERC20Token(token)
-                          ? token.address
-                          : (token as any).symbol
-                      }
-                      onClick={() => {
-                        onTokenChange(token);
-                        onSelectToggle && onSelectToggle();
-                      }}
-                    >
-                      <HorizontalFlex
-                        justify="space-between"
-                        align="center"
-                        grow="1"
+                {tokensList &&
+                  tokensList
+                    .filter((token) =>
+                      searchQuery.length
+                        ? token.name
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          token.symbol
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase())
+                        : true
+                    )
+                    .map((token) => (
+                      <StyledDropdownMenuItem
+                        key={
+                          isERC20Token(token)
+                            ? token.address
+                            : (token as any).symbol
+                        }
+                        onClick={() => {
+                          onTokenChange(token);
+                          onSelectToggle && onSelectToggle();
+                        }}
                       >
-                        <HorizontalFlex align="center">
-                          {token?.isAvax ? (
-                            <AvaxTokenIcon height="32px" />
-                          ) : (
-                            <TokenIcon
-                              height="32px"
-                              src={token.logoURI}
-                              name={token.name}
-                            />
-                          )}
-                          <Typography
-                            size={16}
-                            height="24px"
-                            margin={'0 0 0 16px'}
-                            weight={500}
-                          >
-                            {token.name}
+                        <HorizontalFlex
+                          justify="space-between"
+                          align="center"
+                          grow="1"
+                        >
+                          <HorizontalFlex align="center">
+                            {token?.isAvax ? (
+                              <AvaxTokenIcon height="32px" />
+                            ) : (
+                              <TokenIcon
+                                height="32px"
+                                src={token.logoURI}
+                                name={token.name}
+                              />
+                            )}
+                            <Typography
+                              size={16}
+                              height="24px"
+                              margin={'0 0 0 16px'}
+                              weight={500}
+                            >
+                              {token.name}
+                            </Typography>
+                          </HorizontalFlex>
+                          <Typography size={14} height="24px">
+                            {token.balanceDisplayValue} {token.symbol}
                           </Typography>
                         </HorizontalFlex>
-                        <Typography size={14} height="24px">
-                          {token.balanceDisplayValue} {token.symbol}
-                        </Typography>
-                      </HorizontalFlex>
-                    </StyledDropdownMenuItem>
-                  ))}
+                      </StyledDropdownMenuItem>
+                    ))}
+                {bridgeTokensList &&
+                  bridgeTokensList
+                    .filter((token) =>
+                      searchQuery.length
+                        ? token.symbol
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase())
+                        : true
+                    )
+                    .map((token) => {
+                      return (
+                        <StyledDropdownMenuItem
+                          key={token.symbol}
+                          onClick={() => {
+                            onTokenChange(token);
+                            onSelectToggle && onSelectToggle();
+                          }}
+                        >
+                          <HorizontalFlex
+                            justify="space-between"
+                            align="center"
+                            grow="1"
+                          >
+                            <HorizontalFlex align="center">
+                              <TokenIcon
+                                width="32px"
+                                height="32px"
+                                src={
+                                  token.symbol === 'ETH'
+                                    ? EthLogo
+                                    : tokenInfoData?.[token.symbol]?.logo
+                                }
+                                name={token.asset.symbol}
+                              />
+
+                              <Typography
+                                size={16}
+                                height="24px"
+                                margin={'0 0 0 16px'}
+                                weight={500}
+                              >
+                                {token.asset.tokenName || token.symbol}
+                              </Typography>
+                            </HorizontalFlex>
+                            <Typography size={14} height="24px">
+                              {formatBalance(token.balance)} {token.symbol}
+                            </Typography>
+                          </HorizontalFlex>
+                        </StyledDropdownMenuItem>
+                      );
+                    })}
               </Scrollbars>
             </VerticalFlex>
           </DropdownContents>

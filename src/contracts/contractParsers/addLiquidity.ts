@@ -7,14 +7,16 @@ import {
   LiquidityPoolToken,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { bigToLocaleString, bnToBig, Big } from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { hexToBN } from '@src/utils/hexToBN';
+import { BigNumber } from 'ethers';
+import { findToken } from './utils/findToken';
 
 export interface AddLiquidityData {
-  amountAMin: Big;
-  amountADesired: Big;
-  amountBMin: Big;
-  amountBDesired: Big;
+  amountAMin: BigNumber;
+  amountADesired: BigNumber;
+  amountBMin: BigNumber;
+  amountBDesired: BigNumber;
   contractCall: ContractCall.ADD_LIQUIDITY;
   deadline: string;
   tokenA: string;
@@ -22,7 +24,7 @@ export interface AddLiquidityData {
   to: string;
 }
 
-export function addLiquidityHandler(
+export async function addLiquidityHandler(
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -33,14 +35,9 @@ export function addLiquidityHandler(
    */
   data: AddLiquidityData,
   props: DisplayValueParserProps
-): AddLiquidityDisplayData {
-  const erc20sIndexedByAddress = props.erc20Tokens.reduce(
-    (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
-    {}
-  );
-
-  const tokenA = erc20sIndexedByAddress[data.tokenA.toLowerCase()];
-  const tokenB = erc20sIndexedByAddress[data.tokenB.toLowerCase()];
+): Promise<AddLiquidityDisplayData> {
+  const tokenA = await findToken(data.tokenA.toLowerCase());
+  const tokenB = await findToken(data.tokenB.toLowerCase());
 
   const firstTokenAmountDepositedDisplayValue = bigToLocaleString(
     bnToBig(hexToBN(data.amountADesired.toHexString()), tokenA.denomination),
@@ -57,7 +54,7 @@ export function addLiquidityHandler(
   };
 
   const secondTokenAmountDepositedDisplayValue = bigToLocaleString(
-    bnToBig(hexToBN(data.amountBDesired.toHexSTring()), tokenB.denomination),
+    bnToBig(hexToBN(data.amountBDesired.toString()), tokenB.denomination),
     4
   );
   const tokenB_AmountUSDValue =

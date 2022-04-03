@@ -5,21 +5,22 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { bigToLocaleString, bnToBig, Big } from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { hexToBN } from '@src/utils/hexToBN';
+import { BigNumber } from 'ethers';
+import { findToken } from './utils/findToken';
 
 export interface SwapExactTokensForAVAXData {
-  amountOutMin: Big;
-  amountIn: Big;
+  amountOutMin: BigNumber;
+  amountIn: BigNumber;
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
   path: string[];
   to: string;
 }
 
-export function swapExactTokensForAvax(
+export async function swapExactTokensForAvax(
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -30,14 +31,8 @@ export function swapExactTokensForAvax(
    */
   data: SwapExactTokensForAVAXData,
   props: DisplayValueParserProps
-): SwapExactTokensForTokenDisplayValues {
-  const erc20sIndexedByAddress: { [key: string]: ERC20WithBalance } =
-    props.erc20Tokens.reduce(
-      (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
-      {}
-    );
-
-  const firstTokenInPath = erc20sIndexedByAddress[data.path[0].toLowerCase()];
+): Promise<SwapExactTokensForTokenDisplayValues> {
+  const firstTokenInPath = await findToken(data.path[0].toLowerCase());
   const lastTokenAmountBN = hexToBN(
     (data.amountIn || data.amountOutMin).toHexString()
   );

@@ -1,10 +1,10 @@
 {
-  "name": "Core X",
-  "short_name": "Core X",
+  "name": "Core",
+  "short_name": "Core",
   "version": "0.0.3",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "author": "AvaLabs",
-  "description": "Core X Browser Extension",
+  "description": "Core Browser Extension",
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
@@ -20,15 +20,14 @@
     "192": "images/icon-192.png"
   },
   "background": {
-    "scripts": ["js/backgroundPage.js"],
-    "persistent": true
+    "service_worker": "js/backgroundPage.js"
   },
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "images/icon-16.png",
       "32": "images/icon-32.png"
     },
-    "default_title": "Core X Browser Extension",
+    "default_title": "Core Browser Extension",
     "default_popup": "popup.html"
   },
   "permissions": ["storage", "unlimitedStorage", "activeTab", "contextMenus"],
@@ -41,10 +40,12 @@
     }
   ],
   "web_accessible_resources": [
-    "popup.html",
-    "home.html",
-    "confirm.html",
-    "inpage.js"
+    {
+      "resources": ["js/inpage.js"],
+      "matches": ["file://*/*", "http://*/*", "https://*/*"]
+    }
   ],
-  "externally_connectable": {}
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; img-src 'self' https: ipfs: data:; connect-src 'self' https: wss:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; child-src 'none'; frame-ancestors 'none'; object-src 'none'"
+  }
 }

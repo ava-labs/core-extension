@@ -5,14 +5,25 @@ import {
   PrimaryButton,
   Typography,
   ComponentSize,
-  TextArea,
   HorizontalFlex,
   WarningIcon,
 } from '@avalabs/react-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+
+const RecoveryPhraseContainer = styled(HorizontalFlex)`
+  width: 100%;
+  padding: 12px 16px;
+  line-height: 1.4em;
+  font-size: ${({ theme }) => theme.sizes.textarea[ComponentSize.MEDIUM].font};
+  color: ${({ theme }) => theme.inputs.color};
+  font-family: ${({ theme }) => theme.fontFamily};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  border: ${({ theme }) => theme.inputs.border};
+  background: ${({ theme }) => theme.inputs.bg};
+`;
 
 export function RecoveryPhrase({
   goBack,
@@ -109,7 +120,7 @@ export function RecoveryPhrase({
           </>
         ) : (
           <VerticalFlex width="100%" align="center" padding="12px 16px">
-            <TextArea width="100%" value={recoveryValue} disabled></TextArea>
+            <RecoveryPhraseContainer>{recoveryValue}</RecoveryPhraseContainer>
           </VerticalFlex>
         )}
       </VerticalFlex>

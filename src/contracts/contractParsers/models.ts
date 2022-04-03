@@ -16,7 +16,7 @@ export type ContractParserHandler = (
   data: any,
   props?: any,
   txDetails?: ethers.utils.TransactionDescription
-) => TransactionDisplayValues;
+) => Promise<TransactionDisplayValues>;
 export type ContractParser = [ContractCall, ContractParserHandler];
 
 export enum ContractCall {

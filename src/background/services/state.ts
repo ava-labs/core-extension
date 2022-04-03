@@ -19,6 +19,8 @@ import { favorites$ } from './favorites/favorites';
 import { accounts$ } from './accounts/accounts';
 import { paraSwap$ } from './swap/swap';
 import { ledgerState$ } from './ledger/ledger';
+import { analyticsState$ } from './analytics/analytics';
+import './network/network'; // Force load because it has no exports
 
 function mapToState(result): { [key: string]: any } {
   return result.reduce((acc, value) => {
@@ -47,6 +49,7 @@ combineLatest([
   favorites$.pipe(toStructure('favoritesState')),
   paraSwap$.pipe(toStructure('paraswap')),
   ledgerState$.pipe(toStructure('ledger')),
+  analyticsState$.pipe(toStructure('analytics')),
 ])
   .pipe(throttleTime(500), map(mapToState))
   .subscribe((state) => stateLog(state));

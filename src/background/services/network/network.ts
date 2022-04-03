@@ -1,15 +1,22 @@
 import { getNetworkFromStorage, saveNetworkToStorage } from './storage';
-import { network$ } from '@avalabs/wallet-react-components';
-import { tap } from 'rxjs';
+import { network$, networkUpdates$ } from '@avalabs/wallet-react-components';
+import { filter, switchMap, tap, withLatestFrom } from 'rxjs';
+import { storageKey$ } from '../wallet/storageKey';
 
-getNetworkFromStorage().then((activeNetwork) => {
-  activeNetwork && network$.next(activeNetwork);
-});
+storageKey$
+  .pipe(
+    filter((ready) => !!ready),
+    switchMap(() => getNetworkFromStorage())
+  )
+  .subscribe((activeNetwork) => {
+    activeNetwork && networkUpdates$.next(activeNetwork);
+  });
 
 network$
   .pipe(
-    tap((selectedNetwork) => {
-      selectedNetwork && saveNetworkToStorage(selectedNetwork);
+    withLatestFrom(storageKey$),
+    tap(([selectedNetwork, ready]) => {
+      !!ready && selectedNetwork && saveNetworkToStorage(selectedNetwork);
     })
   )
   .subscribe();

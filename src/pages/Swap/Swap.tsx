@@ -5,7 +5,6 @@ import {
   PrimaryButton,
   SwitchIcon,
   ComponentSize,
-  PrimaryIconButton,
   IconDirection,
   LoadingSpinnerIcon,
   TransactionToastType,
@@ -36,16 +35,20 @@ import { TransactionDetails } from './components/TransactionDetails';
 import { ReviewOrder } from './components/ReviewOrder';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { getMaxValue, getTokenAddress, isAPIError } from './utils';
-import { TxInProgress } from '../../components/common/TxInProgress';
+import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
-import { TokenSelect } from '@src/pages/Send/components/TokenSelect';
+import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { hexToBN } from '@src/utils/hexToBN';
+import { FeatureGates } from '@avalabs/posthog-sdk';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
 export interface Token {
   icon?: JSX.Element;
@@ -62,16 +65,6 @@ interface Amount {
   amount: string;
 }
 
-const SwitchIconContainer = styled(PrimaryIconButton)<{ isSwapped: boolean }>`
-  background-color: ${({ theme }) => theme.swapCard.swapIconBg};
-  &[disabled] {
-    background-color: ${({ theme }) => theme.swapCard.swapIconBg};
-  }
-  transition: all 0.2s;
-  transform: ${({ isSwapped }) =>
-    isSwapped ? 'rotate(0deg)' : 'rotate(180deg)'};
-`;
-
 const ReviewOrderButtonContainer = styled.div<{
   isTransactionDetailsOpen: boolean;
 }>`
@@ -82,11 +75,18 @@ const ReviewOrderButtonContainer = styled.div<{
   width: 100%;
 `;
 
+const TryAgainButton = styled.span`
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 export function Swap() {
+  const { flags } = useAnalyticsContext();
   const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
 
+  const swapIsAvaible = network ? isMainnetNetwork(network?.config) : false;
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
@@ -98,7 +98,11 @@ export function Swap() {
     tokenValue?: Amount;
   } = getPageHistoryData();
 
-  const [swapError, setSwapError] = useState<string>('');
+  const [swapError, setSwapError] = useState<{
+    message: string;
+    hasTryAgain?: boolean;
+  }>({ message: '' });
+  const [swapWarning, setSwapWarning] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
@@ -131,7 +135,9 @@ export function Swap() {
   const [isSwapped, setIsSwapped] = useState(false);
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
-  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>();
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
@@ -280,7 +286,7 @@ export function Swap() {
           ) {
             const amountString = amount.bn.toString();
             if (amountString === '0') {
-              setSwapError('Please enter an amount');
+              setSwapError({ message: 'Please enter an amount' });
               setIsLoading(false);
               return;
             }
@@ -318,7 +324,10 @@ export function Swap() {
               })
               .catch(() => {
                 setOptimalRate(undefined);
-                setSwapError('Something went wrong, please try again');
+                setSwapError({
+                  message: 'Something went wrong, ',
+                  hasTryAgain: true,
+                });
               })
               .finally(() => {
                 if (!isCalculateAvaxMax) {
@@ -376,7 +385,7 @@ export function Swap() {
           token.symbol === selectedToToken?.symbol
       )
     ) {
-      setSwapError(
+      setSwapWarning(
         `You don't have any ${selectedToToken?.symbol} token for swap`
       );
       return;
@@ -477,12 +486,30 @@ export function Swap() {
       : avaxToken.balance.toString();
 
   const canSwap =
-    !swapError &&
+    !swapError.message &&
     selectedFromToken &&
     selectedToToken &&
     optimalRate &&
     gasLimit &&
     gasPrice;
+
+  if (!swapIsAvaible) {
+    return (
+      <VerticalFlex width="100%">
+        <PageTitleMiniMode>Swap</PageTitleMiniMode>
+        <VerticalFlex align="center" justify="center" grow="1">
+          <Typography size={16}>
+            Swap is not available on Fuji Testnet
+          </Typography>
+        </VerticalFlex>
+      </VerticalFlex>
+    );
+  }
+
+  if (!flags[FeatureGates.SWAP]) {
+    return <FunctionIsOffline functionName="Swap" />;
+  }
+
   return (
     <VerticalFlex width="100%">
       <PageTitleMiniMode>Swap</PageTitleMiniMode>
@@ -498,6 +525,7 @@ export function Swap() {
             label="From"
             onTokenChange={(token: TokenWithBalance) => {
               setSelectedFromToken(token);
+              setSwapWarning('');
               calculateSwapValue({
                 selectedFromToken: token,
                 selectedToToken,
@@ -530,11 +558,11 @@ export function Swap() {
             isValueLoading={destinationInputField === 'from' && isLoading}
             hideErrorMessage
             onError={(errorMessage) => {
-              setSwapError(errorMessage);
+              setSwapError({ message: errorMessage });
             }}
             onInputAmountChange={(value) => {
               if (value.bn.toString() === '0') {
-                setSwapError('Please enter an amount');
+                setSwapError({ message: 'Please enter an amount' });
                 return;
               }
               if (
@@ -545,7 +573,8 @@ export function Swap() {
               ) {
                 setIsCalculateAvaxMax(true);
               }
-              setSwapError('');
+              setSwapError({ message: '' });
+              setSwapWarning('');
               setFromTokenValue(value as any);
               calculateTokenValueToInput(
                 value as any,
@@ -563,12 +592,41 @@ export function Swap() {
           />
 
           <HorizontalFlex
-            justify={swapError ? 'space-between' : 'flex-end'}
+            justify={
+              swapError?.message || swapWarning ? 'space-between' : 'flex-end'
+            }
             margin="16px 0"
           >
-            {swapError && (
+            {swapError?.message && (
+              <div>
+                <Typography size={12} color={theme.colors.error}>
+                  {swapError.message ?? ''}
+                </Typography>
+                {swapError.hasTryAgain && (
+                  <Typography
+                    size={12}
+                    color={theme.colors.error}
+                    onClick={() => {
+                      const value =
+                        destinationInputField === 'to'
+                          ? fromTokenValue
+                          : toTokenValue || { bn: new BN(0), amount: '0' };
+                      calculateTokenValueToInput(
+                        value as any,
+                        destinationInputField || 'to',
+                        selectedFromToken,
+                        selectedToToken
+                      );
+                    }}
+                  >
+                    <TryAgainButton>try again</TryAgainButton>
+                  </Typography>
+                )}
+              </div>
+            )}
+            {swapWarning && (
               <Typography size={12} color={theme.colors.error}>
-                {swapError}
+                {swapWarning}
               </Typography>
             )}
             <SwitchIconContainer
@@ -587,6 +645,7 @@ export function Swap() {
             label="To"
             onTokenChange={(token: TokenWithBalance) => {
               setSelectedToToken(token);
+              setSwapWarning('');
               calculateSwapValue({
                 selectedFromToken,
                 selectedToToken: token,

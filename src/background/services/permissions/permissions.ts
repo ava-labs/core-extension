@@ -1,12 +1,26 @@
-import { Subject, tap, firstValueFrom, BehaviorSubject, switchMap } from 'rxjs';
+import {
+  Subject,
+  tap,
+  firstValueFrom,
+  BehaviorSubject,
+  switchMap,
+  filter,
+  mergeMap,
+} from 'rxjs';
+import { storageKey$ } from '../wallet/storageKey';
 import { DappPermissions, Permissions } from './models';
 import { getPermissionsFromStorage, savePermissionsToStorage } from './storage';
 
 export const permissions$ = new BehaviorSubject<Permissions>({});
 
-getPermissionsFromStorage().then((values) => {
-  permissions$.next(values);
-});
+storageKey$
+  .pipe(
+    filter((ready) => !!ready),
+    mergeMap(() => getPermissionsFromStorage())
+  )
+  .subscribe((values) => {
+    permissions$.next(values);
+  });
 
 export const addPermissionsForDomain = new Subject<DappPermissions>();
 

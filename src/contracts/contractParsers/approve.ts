@@ -7,9 +7,10 @@ import {
   ContractParser,
   DisplayValueParserProps,
 } from './models';
+import { findToken } from './utils/findToken';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 
-export function approveTxHandler(
+export async function approveTxHandler(
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -20,13 +21,8 @@ export function approveTxHandler(
    */
   _data: any,
   props: DisplayValueParserProps
-): TransactionDisplayValues {
-  const erc20sIndexedByAddress = props.erc20Tokens.reduce(
-    (acc, token) => ({ ...acc, [token.address.toLowerCase()]: token }),
-    {}
-  );
-
-  const tokenToBeApproved = erc20sIndexedByAddress[request.to.toLowerCase()];
+): Promise<TransactionDisplayValues> {
+  const tokenToBeApproved = await findToken(request.to.toLowerCase());
 
   const result = {
     tokenToBeApproved,

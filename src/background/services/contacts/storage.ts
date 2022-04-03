@@ -8,12 +8,10 @@ import { ContactsState } from './models';
 const CONTACTS_STORAGE_KEY = 'contacts';
 
 export const saveContactsToStorage = (contacts: ContactsState) =>
-  saveToStorage({ [CONTACTS_STORAGE_KEY]: contacts });
+  saveToStorage(CONTACTS_STORAGE_KEY, contacts);
 
 export const getContactsFromStorage = () =>
-  getFromStorage<{ contacts: ContactsState }>(CONTACTS_STORAGE_KEY).then(
-    (storage) => storage.contacts
-  );
+  getFromStorage<ContactsState>(CONTACTS_STORAGE_KEY);
 
 export function removeAllContactsFromStorage() {
   return removeFromStorage(CONTACTS_STORAGE_KEY);

@@ -1,9 +1,21 @@
+import { storageKey$ } from '@src/background/services/wallet/storageKey';
 import extension from 'extensionizer';
-import { Subject } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
+import { decrypt, encrypt } from '../crypto';
 
 export interface StorageEvent<T = any> {
   namespace: 'sync' | 'local' | 'managed';
   changes: { [key: string]: { newValue: T; oldValue: T } };
+}
+
+export interface EncryptedData {
+  cypher: number[];
+  nonce: number[];
+  salt: number[];
+}
+
+interface UnencryptedData<T = any> {
+  data: T;
 }
 
 const storage: typeof chrome.storage = extension.storage;
@@ -13,23 +25,67 @@ export function storageEventListener() {
   return storageEvents.asObservable();
 }
 
-export async function saveToStorage<T = any>(value: T) {
-  return new Promise<T>((resolve, reject) => {
-    if (!value) {
-      reject('trying to store an empty value');
+export async function saveToStorage<T = any>(
+  key: string,
+  value: T,
+  encryptData = true
+): Promise<Record<string, T>> {
+  if (!value) {
+    throw new Error('trying to store an empty value');
+  }
+
+  let dataToStore: Record<string, UnencryptedData<T> | EncryptedData>;
+
+  if (encryptData) {
+    const data = JSON.stringify(value);
+
+    const storageKey = await firstValueFrom(storageKey$);
+    if (!storageKey) {
+      throw new Error('encryption failed, no storageKey found');
     }
-    storage.local.set(value, () => {
-      resolve(value);
-    });
-  });
+    const encryptedData = await encrypt(data, storageKey, false);
+
+    dataToStore = {
+      [key]: {
+        cypher: Array.from(encryptedData.cypher),
+        nonce: Array.from(encryptedData.nonce),
+        salt: Array.from(encryptedData.salt),
+      },
+    };
+  } else {
+    dataToStore = {
+      [key]: { data: value },
+    };
+  }
+
+  await storage.local.set(dataToStore);
+  return { [key]: value };
 }
 
 export async function getFromStorage<T = any>(
-  key: string | Record<string, unknown> | string[] | null
-) {
-  return new Promise<T>((resolve) => {
-    storage.local.get(key, (result) => resolve(result as T));
-  });
+  key: string
+): Promise<T | undefined> {
+  const result = await storage.local.get(key);
+  if (!result?.[key] || result[key]?.data) {
+    return result?.[key]?.data as T;
+  }
+
+  const storageKey = await firstValueFrom(storageKey$);
+
+  if (!storageKey) {
+    throw new Error('decryption failed, no storageKey found');
+    return;
+  }
+
+  const data = await decrypt(
+    Uint8Array.from(result[key].cypher),
+    storageKey,
+    Uint8Array.from(result[key].salt),
+    Uint8Array.from(result[key].nonce),
+    false
+  );
+
+  return JSON.parse(data) as T;
 }
 
 export async function removeFromStorage(key: string) {
@@ -50,3 +106,7 @@ storage.onChanged.addListener(function listener(changes: any, namespace) {
     namespace,
   });
 });
+
+export async function clearStorage() {
+  return storage.local.clear();
+}

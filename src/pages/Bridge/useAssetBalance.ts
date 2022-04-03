@@ -1,17 +1,15 @@
 import { Big, bnToBig } from '@avalabs/avalanche-wallet-sdk';
-import {
-  Asset,
-  AssetType,
-  Blockchain,
-  ERC20Asset,
-  useAssets,
-} from '@avalabs/bridge-sdk';
+import { AssetType, Blockchain, useAssets } from '@avalabs/bridge-sdk';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { AssetBalance } from '@src/pages/Bridge/models';
+import {
+  AssetBalance,
+  ExtendedERC20Asset,
+  Asset,
+} from '@src/pages/Bridge/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useMemo, useState } from 'react';
@@ -65,7 +63,7 @@ export function useAssetBalance(
 }
 
 function getAvalancheBalance(
-  asset: ERC20Asset,
+  asset: ExtendedERC20Asset,
   erc20Tokens: ERC20WithBalance[]
 ): AssetBalance {
   const erc20TokensByAddress = erc20Tokens.reduce<{
