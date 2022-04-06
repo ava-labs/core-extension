@@ -69,7 +69,7 @@ export function ConnectedSites({
           </Typography>
         ) : (
           <Typography size={14} height="17px">
-            There are no connected sites
+            There are no connected sites.
           </Typography>
         )}
       </HorizontalFlex>

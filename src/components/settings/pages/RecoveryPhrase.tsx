@@ -89,7 +89,7 @@ export function RecoveryPhrase({
           <>
             <HorizontalFlex height="100px" padding="0 16px" width="100%">
               <Input
-                label="Enter password to continue"
+                label="Enter Password to Continue"
                 error={!!errorMessage}
                 errorMessage={errorMessage}
                 onChange={(e) => {
@@ -97,7 +97,7 @@ export function RecoveryPhrase({
                   setErrorMessage('');
                 }}
                 value={passwordValue}
-                placeholder="password"
+                placeholder="Password"
                 type="password"
                 width="100%"
               />

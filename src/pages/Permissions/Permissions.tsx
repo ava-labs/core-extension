@@ -113,7 +113,7 @@ export function PermissionsPage() {
       </Typography>
       <VerticalFlex margin="24px 0 0 0" flex={1} width="100%">
         <Typography size={12} height="15px" margin="0 0 4px">
-          Selected account
+          Selected Account
         </Typography>
         <SecondaryDropDownMenu
           icon={
@@ -195,7 +195,7 @@ export function PermissionsPage() {
           color={theme.colors.text2}
           align="center"
         >
-          Only connect to sites that you trust
+          Only connect to sites that you trust.
         </Typography>
         <HorizontalFlex justify="space-between">
           <SecondaryButton

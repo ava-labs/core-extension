@@ -68,7 +68,7 @@ export function SecurityAndPrivacy({
         margin="16px 0 0"
       >
         <Typography size={14} height="17px">
-          Connected sites
+          Connected Sites
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -84,7 +84,7 @@ export function SecurityAndPrivacy({
         padding="10px 16px"
       >
         <Typography size={14} height="17px">
-          Change password
+          Change Password
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -101,7 +101,7 @@ export function SecurityAndPrivacy({
           padding="10px 16px"
         >
           <Typography size={14} height="17px">
-            Show recovery phrase
+            Show Recovery Phrase
           </Typography>
           <CaretIcon
             color={theme.colors.icon1}
@@ -143,7 +143,7 @@ export function SecurityAndPrivacy({
         onClick={() => onLogoutClick()}
       >
         <Typography color={theme.colors.primary1} size={14} height="17px">
-          Sign out
+          Sign Out
         </Typography>
       </SecondaryDropDownMenuItem>
     </VerticalFlex>

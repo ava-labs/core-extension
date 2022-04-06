@@ -93,7 +93,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
       >
         <Typography size={14} height="17px">
-          Address book
+          Address Book
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -145,7 +145,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
       )}
       <DropDownMenuItem justify="space-between" padding="10px 16px">
         <Typography size={14} height="17px">
-          Show Tokens without balance
+          Show Tokens Without Balance
         </Typography>
         <Toggle
           isChecked={showTokensWithoutBalances}
