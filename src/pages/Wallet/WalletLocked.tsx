@@ -1,5 +1,6 @@
 import {
   ComponentSize,
+  HorizontalFlex,
   HorizontalSeparator,
   Input,
   LoadingSpinnerIcon,
@@ -8,6 +9,7 @@ import {
   useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { BrandName } from '@src/components/icons/BrandName';
 import { Logo } from '@src/components/icons/Logo';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
@@ -75,8 +77,11 @@ export function WalletLocked({
       {...dimensions}
     >
       <VerticalFlex grow="1" justify="center" align="center">
-        <Logo height={101} />
-        <BrandName height={40} margin="24px 0 0 0" />
+        <Logo height={132} />
+        <BrandName height={50} margin="24px 0 0 0" />
+        <HorizontalFlex justify="flex-end" width="100%" margin="10px 0 0 0">
+          <BetaLabel />
+        </HorizontalFlex>
       </VerticalFlex>
 
       <VerticalFlex align="center" height="88px">

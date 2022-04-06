@@ -11,6 +11,7 @@ import { useTheme } from 'styled-components';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
+import { BetaLabel } from '@src/components/icons/BetaLabel';
 
 interface ChooseExistingTypeProps {
   onNext: (isImportFlow: boolean) => void;
@@ -28,15 +29,18 @@ export function ChooseExistingType({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader onBack={onBack} onClose={onCancel} />
-      <VerticalFlex justify="center" align="center" margin="36px 0 22px">
-        <Logo height={111} />
-        <BrandName height={42} margin="24px 0 0 0" />
+      <VerticalFlex justify="center" align="center" margin="36px 0 4px">
+        <Logo height={132} />
+        <BrandName height={50} margin="24px 0 0 0" />
+        <HorizontalFlex justify="flex-end" width="100%" margin="10px 0 0 0">
+          <BetaLabel />
+        </HorizontalFlex>
       </VerticalFlex>
       <Typography
         weight="bold"
         color={theme.colors.text1}
         size={20}
-        margin="0 0 22px"
+        margin="0 0 12px"
       >
         Access using...
       </Typography>

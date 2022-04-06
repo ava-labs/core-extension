@@ -1,4 +1,5 @@
 import { Typography, VerticalFlex } from '@avalabs/react-components';
+import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { BrandName } from '@src/components/icons/BrandName';
 import { Logo } from '@src/components/icons/Logo';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
@@ -37,7 +38,10 @@ export function OfflineContent({ message }) {
       <AnimatedLogo>
         <Logo height={96} />
       </AnimatedLogo>
-      <BrandName height={42} animated />
+      <VerticalFlex>
+        <BrandName height={42} animated />
+        <BetaLabel />
+      </VerticalFlex>
       {message && (
         <Typography size={16} align="center" height="24px" margin="32px 0">
           {message}

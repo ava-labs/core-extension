@@ -14,6 +14,7 @@ import { LedgerTrouble } from './LedgerTrouble';
 import { BrandName } from '@src/components/icons/BrandName';
 import { AnalyticsConsent } from './AnalyticsConsent';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { BetaLabel } from '@src/components/icons/BetaLabel';
 
 const ECOSYSTEM_URL = 'https://ecosystem.avax.network?wallet-installed';
 
@@ -150,6 +151,9 @@ export function OnboardingFlow() {
       >
         <Logo height={29} />
         <BrandName height={15} margin="0 0 0 8px" />
+        <HorizontalFlex width="auto" margin="0 0 0 16px">
+          <BetaLabel />
+        </HorizontalFlex>
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
         <Card width="568px" minHeight="540px" height="639px" padding="40px">
