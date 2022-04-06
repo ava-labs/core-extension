@@ -1,5 +1,14 @@
-import { WalletType, BN, Big } from '@avalabs/avalanche-wallet-sdk';
-import { AVAX_TOKEN, wallet$ } from '@avalabs/wallet-react-components';
+import {
+  WalletType,
+  BN,
+  Big,
+  isMainnetNetwork,
+} from '@avalabs/avalanche-wallet-sdk';
+import {
+  AVAX_TOKEN,
+  network$,
+  wallet$,
+} from '@avalabs/wallet-react-components';
 import {
   ConnectionRequestHandler,
   ExtensionConnectionMessage,
@@ -10,15 +19,13 @@ import { resolve } from '@src/utils/promiseResolver';
 import { APIError, ETHER_ADDRESS } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
 import { firstValueFrom } from 'rxjs';
-import Web3 from 'web3';
 import { gasPrice$ } from '../../gas/gas';
-import { paraSwap$ } from '../swap';
 import ERC20_ABI from 'human-standard-token-abi';
-import { Allowance } from 'paraswap/build/types';
 import { hexToBN } from '@src/utils/hexToBN';
 import { getParaswapSpender } from '../utils/getParaswapSpender';
-import { getAllowance } from '../utils/getAllowance';
 import { buildTx } from '../utils/buildTx';
+import { getAvalancheProvider } from '../../network/getAvalancheProvider';
+import { BigNumber, ethers } from 'ethers';
 
 const SERVER_BUSY_ERROR = 'Server too busy';
 
@@ -96,16 +103,16 @@ export async function performSwap(request: ExtensionConnectionMessage) {
     srcToken === AVAX_TOKEN.symbol ? ETHER_ADDRESS : srcToken;
   const destTokenAddress =
     destToken === AVAX_TOKEN.symbol ? ETHER_ADDRESS : destToken;
-  const [paraSwap, err] = await resolve(firstValueFrom(paraSwap$));
+  const network = await firstValueFrom(network$);
   const [wallet, walletError] = await resolve(firstValueFrom(wallet$));
   const [defaultGasPrice, defaultGasPriceError] = await resolve(
     firstValueFrom(gasPrice$)
   );
 
-  if (err) {
+  if (!network || !isMainnetNetwork(network.config)) {
     return {
       ...request,
-      error: `Paraswap Init Error: ${err}`,
+      error: `Network Init Error: Wrong network`,
     };
   }
 
@@ -148,27 +155,19 @@ export async function performSwap(request: ExtensionConnectionMessage) {
   const destinationAmount =
     priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
 
+  const provider = getAvalancheProvider(network);
   // no need to approve AVAX
   if (srcToken !== AVAX_TOKEN.symbol) {
-    const contract = new (paraSwap.web3Provider as Web3).eth.Contract(
-      ERC20_ABI as any,
-      srcTokenAddress
-    );
+    const contract = new ethers.Contract(srcTokenAddress, ERC20_ABI, provider);
 
     const [allowance, allowanceError] = await resolve(
-      getAllowance('43114', userAddress, srcTokenAddress)
+      contract.allowance(userAddress, spender)
     );
 
-    if (
-      allowanceError ||
-      (!!(allowance as APIError).message &&
-        (allowance as APIError).message !== 'Not Found')
-    ) {
+    if (allowanceError) {
       return {
         ...request,
-        error: `Allowance Error: ${
-          allowanceError ?? (allowance as APIError).message
-        }`,
+        error: `Allowance Error: ${allowanceError}`,
       };
     }
 
@@ -176,12 +175,16 @@ export async function performSwap(request: ExtensionConnectionMessage) {
       /**
        * We may need to check if the allowance is enough to cover what is trying to be sent?
        */
-      (allowance as Allowance).tokenAddress
+      (allowance as BigNumber).gte(sourceAmount)
         ? (Promise.resolve([]) as any)
         : (wallet as WalletType).sendCustomEvmTx(
             defaultGasPrice.bn,
-            Number(gasLimit),
-            contract.methods.approve(spender, sourceAmount).encodeABI(),
+            (
+              await contract.estimateGas.approve(spender, sourceAmount)
+            ).toNumber(),
+            (
+              await contract.populateTransaction.approve(spender, sourceAmount)
+            ).data,
             srcTokenAddress
           )
     );

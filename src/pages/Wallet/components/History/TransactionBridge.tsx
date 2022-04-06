@@ -19,7 +19,7 @@ import {
   VerticalFlex,
   TransactionToastType,
 } from '@avalabs/react-components';
-import { getAvalancheProvider } from '@src/background/services/bridge/getAvalancheProvider';
+import { getAvalancheProvider } from '@src/background/services/network/getAvalancheProvider';
 import { getEthereumProvider } from '@src/background/services/bridge/getEthereumProvider';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
