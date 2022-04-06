@@ -11,6 +11,7 @@ import {
   usePrice,
   WrapStatus,
   useBridgeConfig,
+  useHasEnoughForGas,
 } from '@avalabs/bridge-sdk';
 import { useHistory } from 'react-router-dom';
 import {
@@ -48,6 +49,10 @@ import { TokenSelect } from '@src/components/common/TokenSelect';
 import { AssetBalance } from './models';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { getEthereumProvider } from '@src/background/services/bridge/getEthereumProvider';
+import { getAvalancheProvider } from '@src/background/services/network/getAvalancheProvider';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -94,6 +99,16 @@ export function Bridge() {
   const history = useHistory();
   const sourceBalance = useAssetBalance(currentAsset, currentBlockchain);
 
+  const { addresses } = useWalletContext();
+  const { network } = useNetworkContext();
+  const avalancheProvider = getAvalancheProvider(network);
+  const ethereumProvider = getEthereumProvider(network);
+  const hasEnoughEthForTransaction = useHasEnoughForGas(
+    addresses.addrC,
+    currentBlockchain === Blockchain.AVALANCHE
+      ? avalancheProvider
+      : ethereumProvider
+  );
   const transferCost = useTransactionFee(currentBlockchain);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<any>();
@@ -324,10 +339,21 @@ export function Bridge() {
 
           <HorizontalFlex
             justify={
-              bridgeError || amountTooLowError ? 'space-between' : 'flex-end'
+              bridgeError || amountTooLowError || !hasEnoughEthForTransaction
+                ? 'space-between'
+                : 'flex-end'
             }
+            align="center"
             margin="8px 0 8px 0"
           >
+            {!hasEnoughEthForTransaction && (
+              <Typography size={12} color={theme.colors.error}>
+                Insufficient balance to cover gas costs. <br />
+                Please add{' '}
+                {currentBlockchain === Blockchain.AVALANCHE ? 'AVAX' : 'ETH'}.
+              </Typography>
+            )}
+
             {bridgeError && (
               <Typography size={12} color={theme.colors.error}>
                 {bridgeError}
@@ -486,7 +512,8 @@ export function Bridge() {
             loading ||
             isPending ||
             tooLowAmount ||
-            BIG_ZERO.eq(amount)
+            BIG_ZERO.eq(amount) ||
+            hasEnoughEthForTransaction
           }
           onClick={handleTransfer}
         >

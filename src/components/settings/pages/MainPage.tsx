@@ -20,6 +20,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
+import { BetaLabel } from '@src/components/icons/BetaLabel';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const theme = useTheme();
@@ -51,6 +52,9 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         <HorizontalFlex align="center">
           <Logo height={29} />
           <BrandName height={15} margin="0 0 0 8px" />
+          <HorizontalFlex width="auto" margin="0 0 0 16px">
+            <BetaLabel />
+          </HorizontalFlex>
         </HorizontalFlex>
         <TextButton onClick={onClose}>
           <CloseIcon height="16px" color={theme.colors.icon1} />
@@ -93,7 +97,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
       >
         <Typography size={14} height="17px">
-          Address book
+          Address Book
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -145,7 +149,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
       )}
       <DropDownMenuItem justify="space-between" padding="10px 16px">
         <Typography size={14} height="17px">
-          Show Tokens without balance
+          Show Tokens Without Balance
         </Typography>
         <Toggle
           isChecked={showTokensWithoutBalances}

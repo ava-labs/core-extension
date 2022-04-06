@@ -38,7 +38,7 @@ import { useEffect, useState } from 'react';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { getEthereumProvider } from '@src/background/services/bridge/getEthereumProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { getAvalancheProvider } from '@src/background/services/bridge/getAvalancheProvider';
+import { getAvalancheProvider } from '@src/background/services/network/getAvalancheProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { displaySeconds } from '@src/utils/displaySeconds';

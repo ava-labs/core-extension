@@ -1,5 +1,5 @@
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
-import { ActiveNetwork, FUJI_NETWORK } from '../network/models';
+import { ActiveNetwork, FUJI_NETWORK } from './models';
 
 const providers: Record<string, StaticJsonRpcProvider> = {};
 

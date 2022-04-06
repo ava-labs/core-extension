@@ -25,7 +25,7 @@ import { MAINNET_NETWORK } from '../../network/models';
 import { isWalletLocked } from '../../wallet/models';
 import { walletState$ } from '../../wallet/walletState';
 import { bridgeConfig$ } from '../bridgeConfig';
-import { getAvalancheProvider } from '../getAvalancheProvider';
+import { getAvalancheProvider } from '../../network/getAvalancheProvider';
 import { getEthereumProvider } from '../getEthereumProvider';
 import { TransferEventType } from '../models';
 import { transferEvent$ } from '../transferEvent';

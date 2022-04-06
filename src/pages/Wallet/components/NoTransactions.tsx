@@ -7,7 +7,7 @@ export function NoTransactions() {
         No recent activity
       </Typography>
       <Typography size={14} height="17px" margin="8px 0">
-        New transactions will show here
+        New transactions will show here.
       </Typography>
     </VerticalFlex>
   );
