@@ -78,7 +78,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
         onClick={async () => {
           capture('OnboardingMnemonicImported');
           setMnemonic(recoveryPhrase).then(() =>
-            setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)
+            setNextPhase(OnboardingPhase.PASSWORD)
           );
         }}
       >

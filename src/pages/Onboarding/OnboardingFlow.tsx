@@ -12,7 +12,6 @@ import { ChooseExistingType } from './ChooseExistingType';
 import { LedgerConnect } from './LedgerConnect';
 import { LedgerTrouble } from './LedgerTrouble';
 import { BrandName } from '@src/components/icons/BrandName';
-import { AnalyticsConsent } from './AnalyticsConsent';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 
@@ -60,9 +59,7 @@ export function OnboardingFlow() {
             : 'OnboardingCreateNewWalletSelected'
         );
         setNextPhase(
-          isExisting
-            ? OnboardingPhase.EXISTING
-            : OnboardingPhase.ANALYTICS_CONSENT
+          isExisting ? OnboardingPhase.EXISTING : OnboardingPhase.PASSWORD
         );
       }}
     />
@@ -121,7 +118,7 @@ export function OnboardingFlow() {
         <LedgerConnect
           onCancel={handleOnCancel}
           onBack={() => setNextPhase(OnboardingPhase.EXISTING)}
-          onNext={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
+          onNext={() => setNextPhase(OnboardingPhase.PASSWORD)}
           onError={() => setNextPhase(OnboardingPhase.LEDGER_TROUBLE)}
         />
       );
@@ -131,9 +128,6 @@ export function OnboardingFlow() {
       content = (
         <LedgerTrouble onBack={() => setNextPhase(OnboardingPhase.LEDGER)} />
       );
-      break;
-    case OnboardingPhase.ANALYTICS_CONSENT:
-      content = <AnalyticsConsent />;
       break;
     case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:
