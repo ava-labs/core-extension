@@ -49,6 +49,7 @@ import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import { ParaswapNotice } from './components/ParaswapNotice';
 
 export interface Token {
   icon?: JSX.Element;
@@ -708,6 +709,7 @@ export function Swap() {
           <ReviewOrderButtonContainer
             isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
+            <ParaswapNotice />
             <PrimaryButton
               width="100%"
               margin="16px 0 0 0"
