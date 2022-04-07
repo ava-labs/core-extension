@@ -171,32 +171,39 @@ export async function performSwap(request: ExtensionConnectionMessage) {
       };
     }
 
-    const [approveHash, approveError] = await resolve(
-      /**
-       * We may need to check if the allowance is enough to cover what is trying to be sent?
-       */
-      (allowance as BigNumber).gte(sourceAmount)
-        ? (Promise.resolve([]) as any)
-        : (wallet as WalletType).sendCustomEvmTx(
-            defaultGasPrice.bn,
-            (
-              await contract.estimateGas.approve(spender, sourceAmount)
-            ).toNumber(),
-            (
-              await contract.populateTransaction.approve(spender, sourceAmount)
-            ).data,
-            srcTokenAddress
-          )
-    );
+    if ((allowance as BigNumber).lt(sourceAmount)) {
+      const [approveGasLimit] = await resolve(
+        contract.estimateGas.approve(spender, sourceAmount)
+      );
 
-    if (approveError) {
-      return {
-        ...request,
-        error: `Approve Error: ${approveError}`,
-      };
+      const [approveHash, approveError] = await resolve(
+        /**
+         * We may need to check if the allowance is enough to cover what is trying to be sent?
+         */
+        (allowance as BigNumber).gte(sourceAmount)
+          ? (Promise.resolve([]) as any)
+          : (wallet as WalletType).sendCustomEvmTx(
+              defaultGasPrice.bn,
+              approveGasLimit ? approveGasLimit.toNumber() : Number(gasLimit),
+              (
+                await contract.populateTransaction.approve(
+                  spender,
+                  sourceAmount
+                )
+              ).data,
+              srcTokenAddress
+            )
+      );
+
+      if (approveError) {
+        return {
+          ...request,
+          error: `Approve Error: ${approveError}`,
+        };
+      }
+
+      approveTxHash = approveHash;
     }
-
-    approveTxHash = approveHash;
   }
 
   const txData = buildTx(
