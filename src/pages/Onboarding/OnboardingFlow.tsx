@@ -82,7 +82,7 @@ export function OnboardingFlow() {
             capture(
               isRecovery
                 ? 'OnboardingImportMnemonicSelected'
-                : 'OnboardingImportLedgertSelected'
+                : 'OnboardingImportLedgerSelected'
             );
             setIsImportFlow(isRecovery);
             setNextPhase(
