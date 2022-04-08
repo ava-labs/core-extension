@@ -7,8 +7,6 @@ import {
   ComponentSize,
   HorizontalFlex,
   Checkbox,
-  InfoIcon,
-  Tooltip,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
@@ -27,19 +25,14 @@ export const CreatePassword = ({
   isImportFlow,
 }: CreatePasswordProps) => {
   const theme = useTheme();
-  const { capture, stopDataCollection } = useAnalyticsContext();
-  const {
-    setPasswordAndName,
-    setNextPhase,
-    setAnalyticsConsent: saveAnalyticsConsent,
-  } = useOnboardingContext();
+  const { capture } = useAnalyticsContext();
+  const { setPasswordAndName, setNextPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
   const [privacyPolicyChecked, setPrivacyPolicyChecked] =
     useState<boolean>(false);
   const [termsOfUseChecked, setTermsOfUseChecked] = useState<boolean>(false);
-  const [analyticsConsent, setAnalyticsConsent] = useState<boolean>(false);
 
   const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
 
@@ -57,31 +50,6 @@ export const CreatePassword = ({
     isFieldsFilled &&
     privacyPolicyChecked &&
     termsOfUseChecked;
-
-  const onSubmit = () => {
-    capture('OnboardingPasswordSet', {
-      AccountNameSet: !!accountName,
-    });
-
-    if (analyticsConsent) {
-      capture('OnboardingAnalyticsAccepted');
-      saveAnalyticsConsent(true).then(() =>
-        setNextPhase(OnboardingPhase.PASSWORD)
-      );
-    } else {
-      capture('OnboardingAnalyticsRejected');
-      stopDataCollection();
-      saveAnalyticsConsent(false).then(() =>
-        setNextPhase(OnboardingPhase.PASSWORD)
-      );
-    }
-
-    setPasswordAndName(password, accountName).then(() =>
-      setNextPhase(
-        isImportFlow ? OnboardingPhase.FINALIZE : OnboardingPhase.CREATE_WALLET
-      )
-    );
-  };
 
   return (
     <VerticalFlex width="100%" align="center">
@@ -171,35 +139,24 @@ export const CreatePassword = ({
               </Typography>
             </Typography>
           </HorizontalFlex>
-          <HorizontalFlex margin="8px 0 0" align="center">
-            <Checkbox
-              isChecked={analyticsConsent}
-              onChange={() => setAnalyticsConsent(!analyticsConsent)}
-            />
-            <HorizontalFlex align="center" margin="0 0 0 8px">
-              <Typography margin="0 8px 0 0" size={12} height="15px">
-                I would like to share data to help improve Core{' '}
-              </Typography>
-              <Tooltip
-                content={
-                  <Typography size={12} height="15px">
-                    You can opt out at anytime by visting
-                    <br />
-                    the settings page.
-                  </Typography>
-                }
-              >
-                <InfoIcon color={theme.colors.icon1} height="12px" />
-              </Tooltip>
-            </HorizontalFlex>
-          </HorizontalFlex>
         </VerticalFlex>
       </VerticalFlex>
       <PrimaryButton
         size={ComponentSize.LARGE}
         width="343px"
         disabled={!canSubmit}
-        onClick={onSubmit}
+        onClick={() => {
+          capture('OnboardingPasswordSet', {
+            AccountNameSet: !!accountName,
+          });
+          setPasswordAndName(password, accountName).then(() =>
+            setNextPhase(
+              isImportFlow
+                ? OnboardingPhase.FINALIZE
+                : OnboardingPhase.CREATE_WALLET
+            )
+          );
+        }}
       >
         Save
       </PrimaryButton>
