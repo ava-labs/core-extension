@@ -19,7 +19,7 @@
     "@avalabs/blizzard-sdk": "2.1.4",
     "@avalabs/bridge-sdk": "2.1.4",
     "@avalabs/posthog-sdk": "2.1.4",
-    "@avalabs/react-components": "1.92.0",
+    "@avalabs/react-components": "1.93.0",
     "@avalabs/snowtrace-sdk": "2.1.4",
     "@avalabs/utils-sdk": "2.1.4",
     "@avalabs/wallet-react-components": "1.30.2",

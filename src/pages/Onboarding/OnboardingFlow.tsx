@@ -15,8 +15,7 @@ import { BrandName } from '@src/components/icons/BrandName';
 import { AnalyticsConsent } from './AnalyticsConsent';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
-
-const ECOSYSTEM_URL = 'https://ecosystem.avax.network?wallet-installed';
+import { WalletCreated } from './WalletCreated';
 
 export function OnboardingFlow() {
   const { onboardingPhase, onboardingState, setNextPhase, setFinalized } =
@@ -36,14 +35,13 @@ export function OnboardingFlow() {
       !onboardingState.isOnBoarded
     ) {
       setFinalized();
-      window.location.href = ECOSYSTEM_URL;
     }
   }, [onboardingPhase, onboardingState.isOnBoarded, setFinalized]);
 
   useEffect(() => {
     initAnalyticsIds();
     if (onboardingState.isOnBoarded) {
-      window.location.href = ECOSYSTEM_URL;
+      setNextPhase(OnboardingPhase.FINALIZE);
     } else if (onboardingState.reImportMnemonic) {
       setIsImportFlow(true);
       setNextPhase(OnboardingPhase.IMPORT_WALLET);
@@ -84,7 +82,7 @@ export function OnboardingFlow() {
             capture(
               isRecovery
                 ? 'OnboardingImportMnemonicSelected'
-                : 'OnboardingImportLedgertSelected'
+                : 'OnboardingImportLedgerSelected'
             );
             setIsImportFlow(isRecovery);
             setNextPhase(
@@ -139,6 +137,10 @@ export function OnboardingFlow() {
     case OnboardingPhase.CONFIRM:
       content = <LoadingOverlay />;
       break;
+  }
+
+  if (onboardingPhase === OnboardingPhase.FINALIZE) {
+    return <WalletCreated />;
   }
 
   return (

@@ -103,7 +103,7 @@ export function Bridge() {
   const { network } = useNetworkContext();
   const avalancheProvider = getAvalancheProvider(network);
   const ethereumProvider = getEthereumProvider(network);
-  const hasEnoughEthForTransaction = useHasEnoughForGas(
+  const hasEnoughAssetsForGas = useHasEnoughForGas(
     addresses.addrC,
     currentBlockchain === Blockchain.AVALANCHE
       ? avalancheProvider
@@ -339,14 +339,14 @@ export function Bridge() {
 
           <HorizontalFlex
             justify={
-              bridgeError || amountTooLowError || !hasEnoughEthForTransaction
+              bridgeError || amountTooLowError || !hasEnoughAssetsForGas
                 ? 'space-between'
                 : 'flex-end'
             }
             align="center"
             margin="8px 0 8px 0"
           >
-            {!hasEnoughEthForTransaction && (
+            {!hasEnoughAssetsForGas && (
               <Typography size={12} color={theme.colors.error}>
                 Insufficient balance to cover gas costs. <br />
                 Please add{' '}
@@ -354,15 +354,9 @@ export function Bridge() {
               </Typography>
             )}
 
-            {bridgeError && (
+            {(amountTooLowError || bridgeError) && (
               <Typography size={12} color={theme.colors.error}>
-                {bridgeError}
-              </Typography>
-            )}
-
-            {amountTooLowError && (
-              <Typography size={12} color={theme.colors.error}>
-                {amountTooLowError}
+                {amountTooLowError || bridgeError}
               </Typography>
             )}
 
@@ -513,7 +507,7 @@ export function Bridge() {
             isPending ||
             tooLowAmount ||
             BIG_ZERO.eq(amount) ||
-            hasEnoughEthForTransaction
+            !hasEnoughAssetsForGas
           }
           onClick={handleTransfer}
         >
