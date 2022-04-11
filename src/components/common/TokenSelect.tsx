@@ -208,6 +208,7 @@ export function TokenSelect({
             buttonContent={
               !isValueLoading &&
               maxAmount &&
+              selectedToken?.balance &&
               selectedToken?.balance.gt(new BN(0))
                 ? 'Max'
                 : ''
