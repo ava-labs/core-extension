@@ -10,20 +10,21 @@ import {
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Fragment, useCallback, useMemo, useState } from 'react';
-
 import {
   isTransactionERC20,
   isTransactionNormal,
+  TransactionERC20 as TransactionERC20Type,
 } from '@avalabs/wallet-react-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { TransactionERC20 } from './components/History/TransactionERC20';
 import { TransactionNormal } from './components/History/TransactionNormal';
-import { Blockchain, useBridgeSDK } from '@avalabs/bridge-sdk';
+import { useBridgeSDK } from '@avalabs/bridge-sdk';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { TransactionBridge } from './components/History/TransactionBridge';
 import styled, { useTheme } from 'styled-components';
+import { isBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
 
 const StyledDropDownMenu = styled(DropDownMenu)`
   position: absolute;
@@ -61,8 +62,7 @@ export function WalletRecentTxs({
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
   const { recentTxHistory } = useWalletContext();
-
-  const { bridgeAssets } = useBridgeSDK();
+  const { bitcoinAssets, ethereumWrappedAssets } = useBridgeSDK();
   const yesterday = endOfYesterday();
   const today = endOfToday();
   const [selectedFilter, setSelectedFilter] = useState<FilterType>(
@@ -81,35 +81,19 @@ export function WalletRecentTxs({
       : format(date, 'MMMM do');
   };
 
-  const isTransactionBridge = useCallback(
-    (tx) => {
-      if (bridgeAssets) {
-        return (
-          Object.values(bridgeAssets).filter(
-            (el) =>
-              (el.nativeNetwork === Blockchain.AVALANCHE &&
-                el.nativeContractAddress.toLowerCase() ===
-                  tx.contractAddress.toLowerCase()) ||
-              (el.wrappedContractAddress.toLowerCase() ===
-                tx.contractAddress.toLowerCase() &&
-                (tx.to === '0x0000000000000000000000000000000000000000' ||
-                  tx.from === '0x0000000000000000000000000000000000000000'))
-          ).length > 0
-        );
-      }
-
-      return false;
+  const isBridgeTx = useCallback(
+    (tx: typeof recentTxHistory[0]): tx is TransactionERC20Type => {
+      return isBridgeTransaction(tx, ethereumWrappedAssets, bitcoinAssets);
     },
-    [bridgeAssets]
+    [bitcoinAssets, ethereumWrappedAssets]
   );
 
   const filteredTxHistory = useMemo(
     () =>
-      recentTxHistory.filter((tx: any) => {
+      recentTxHistory.filter((tx) => {
         const isAll = selectedFilter === FilterType.ALL;
         const isBridge =
-          isTransactionBridge(tx) &&
-          (isAll || selectedFilter === FilterType.BRIDGE);
+          isBridgeTx(tx) && (isAll || selectedFilter === FilterType.BRIDGE);
         const isIncoming =
           !tx.isSender && (isAll || selectedFilter === FilterType.INCOMING);
         const isOutgoing =
@@ -129,10 +113,11 @@ export function WalletRecentTxs({
         }
 
         return tokenSymbolFilter
-          ? tokenSymbolFilter === (tx?.tokenSymbol || 'AVAX')
+          ? tokenSymbolFilter ===
+              (('tokenSymbol' in tx && tx.tokenSymbol) || 'AVAX')
           : true;
       }),
-    [recentTxHistory, tokenSymbolFilter, selectedFilter, isTransactionBridge]
+    [recentTxHistory, tokenSymbolFilter, selectedFilter, isBridgeTx]
   );
 
   const FilterItem = ({ keyName }) => (
@@ -190,19 +175,19 @@ export function WalletRecentTxs({
                     Pending
                   </Typography>
 
-                  {Object.values(bridgeTransactions).map((tx: any, i) => (
+                  {Object.values(bridgeTransactions).map((tx, i) => (
                     <Card
                       key={`${tx.sourceTxHash}-${i}`}
                       padding={'8px 12px 8px 16px'}
                       margin={'0 0 8px 0'}
                     >
-                      <TransactionBridge pending item={tx} />
+                      <TransactionBridge item={tx} />
                     </Card>
                   ))}
                 </>
               )}
 
-            {filteredTxHistory.map((tx: any, index) => {
+            {filteredTxHistory.map((tx, index) => {
               const isNewDay =
                 index === 0 ||
                 !isSameDay(
@@ -228,7 +213,7 @@ export function WalletRecentTxs({
                     padding={'8px 12px 8px 16px'}
                     margin={'0 0 8px 0'}
                   >
-                    {isTransactionBridge(tx) &&
+                    {isBridgeTx(tx) &&
                     (selectedFilter === FilterType.ALL ||
                       selectedFilter === FilterType.BRIDGE) ? (
                       <TransactionBridge item={tx} />

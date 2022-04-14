@@ -3,7 +3,6 @@ import {
   BridgeSDKProvider,
   Environment,
   setBridgeEnvironment,
-  TrackerViewProps,
   useBridgeConfigUpdater,
   useBridgeSDK,
   WrapStatus,
@@ -29,10 +28,16 @@ import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { bridgeTransactionsUpdatedEventListener } from '@src/background/services/bridge/events/listeners';
+import { PartialBridgeTransaction } from '@src/background/services/bridge/handlers/createBridgeTransaction';
+import {
+  deserializeBridgeState,
+  filterBridgeStateToNetwork,
+} from '@src/background/services/bridge/utils';
+import { defaultBridgeState } from '@src/background/services/bridge/bridge';
 
-const BridgeContext = createContext<{
-  createBridgeTransaction(tx: TrackerViewProps): Promise<void>;
-  removeBridgeTransaction(tx: TrackerViewProps): Promise<void>;
+interface BridgeContext {
+  createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
+  removeBridgeTransaction(txHash: string): Promise<void>;
   bridgeTransactions: BridgeState['bridgeTransactions'];
   transferAsset: (
     amount: Big,
@@ -40,7 +45,9 @@ const BridgeContext = createContext<{
     onStatusChange: (status: WrapStatus) => void,
     onTxHashChange: (txHash: string) => void
   ) => Promise<TransactionResponse>;
-}>({} as any);
+}
+
+const bridgeContext = createContext<BridgeContext>({} as any);
 
 export function BridgeProvider({ children }: { children: any }) {
   return (
@@ -51,7 +58,7 @@ export function BridgeProvider({ children }: { children: any }) {
 }
 
 export function useBridgeContext() {
-  return useContext(BridgeContext);
+  return useContext(bridgeContext);
 }
 
 // This component is separate so it has access to useBridgeSDK
@@ -60,9 +67,13 @@ function InnerBridgeProvider({ children }: { children: any }) {
 
   const { request, events } = useConnectionContext();
   const { currentBlockchain } = useBridgeSDK();
-  const [bridgeTransactions, setBridgeTransactions] = useState<BridgeState>({
-    bridgeTransactions: {},
-  });
+  const { network } = useNetworkContext();
+  const [bridgeState, setBridgeState] =
+    useState<BridgeState>(defaultBridgeState);
+  // Separate from bridgeState so they can be filtered to the current network
+  const [bridgeTransactions, setBridgeTransactions] = useState<
+    BridgeState['bridgeTransactions']
+  >({});
 
   useEffect(() => {
     if (!events) {
@@ -71,9 +82,8 @@ function InnerBridgeProvider({ children }: { children: any }) {
 
     request({
       method: ExtensionRequest.BRIDGE_TRANSACTIONS_GET,
-    }).then((res) => {
-      setBridgeTransactions(res);
-      return res;
+    }).then((txs) => {
+      setBridgeState(deserializeBridgeState(txs));
     });
 
     const subscription = events()
@@ -81,24 +91,42 @@ function InnerBridgeProvider({ children }: { children: any }) {
         filter(bridgeTransactionsUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((val) => setBridgeTransactions(val));
+      .subscribe((txs) => {
+        setBridgeState(deserializeBridgeState(txs));
+      });
 
     return () => subscription.unsubscribe();
   }, [events, request]);
 
-  async function createBridgeTransaction(bridgeTransaction) {
-    await request({
-      method: ExtensionRequest.BRIDGE_TRANSACTION_CREATE,
-      params: [bridgeTransaction],
-    });
-  }
+  useEffect(() => {
+    if (!network) return;
+    const filteredState = filterBridgeStateToNetwork(bridgeState, network);
+    setBridgeTransactions(filteredState.bridgeTransactions);
+  }, [bridgeState, network]);
 
-  async function removeBridgeTransaction(bridgeTransaction) {
-    await request({
-      method: ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,
-      params: [bridgeTransaction],
-    });
-  }
+  const createBridgeTransaction = useCallback<
+    BridgeContext['createBridgeTransaction']
+  >(
+    async (params) => {
+      await request({
+        method: ExtensionRequest.BRIDGE_TRANSACTION_CREATE,
+        params: [params],
+      });
+    },
+    [request]
+  );
+
+  const removeBridgeTransaction = useCallback<
+    BridgeContext['removeBridgeTransaction']
+  >(
+    async (txHash) => {
+      await request({
+        method: ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,
+        params: [txHash],
+      });
+    },
+    [request]
+  );
 
   async function transferAsset(
     amount: Big,
@@ -127,16 +155,16 @@ function InnerBridgeProvider({ children }: { children: any }) {
   }
 
   return (
-    <BridgeContext.Provider
+    <bridgeContext.Provider
       value={{
-        ...bridgeTransactions,
+        bridgeTransactions,
         transferAsset,
         removeBridgeTransaction,
         createBridgeTransaction,
       }}
     >
       {children}
-    </BridgeContext.Provider>
+    </bridgeContext.Provider>
   );
 }
 

@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { BridgeEvents } from '../models';
+import { BridgeEvents } from './models';
 import { BridgeConfig } from '@avalabs/bridge-sdk';
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
 import { bridgeConfig$ } from '../bridgeConfig';

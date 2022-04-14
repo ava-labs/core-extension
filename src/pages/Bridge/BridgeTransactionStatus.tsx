@@ -18,16 +18,16 @@ import {
 } from '@avalabs/react-components';
 import {
   useBridgeSDK,
-  useTxTracker,
   useTokenInfoContext,
-  useBridgeConfig,
   Blockchain,
   usePrice,
+  BridgeTransaction,
+  getNativeSymbol,
+  usePriceForChain,
 } from '@avalabs/bridge-sdk';
 import styled, { useTheme } from 'styled-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory, useParams } from 'react-router-dom';
-import capitalize from 'lodash/capitalize';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
@@ -36,14 +36,12 @@ import {
 } from '@src/components/common/PageTitle';
 import { useEffect, useState } from 'react';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { getEthereumProvider } from '@src/background/services/bridge/getEthereumProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { getAvalancheProvider } from '@src/background/services/network/getAvalancheProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { getTransactionLink } from '@avalabs/wallet-react-components';
-import { displaySeconds } from '@src/utils/displaySeconds';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { getEtherscanLink } from '@src/utils/getEtherscanLink';
+import { VsCurrencyType } from '@avalabs/coingecko-sdk';
+import { ElapsedTimer } from './components/ElapsedTimer';
+import { useIsMainnet } from '@src/hooks/useIsMainnet';
+import { getLinkForBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -93,17 +91,13 @@ const SummaryAmountInCurrency = styled(Typography)`
   color: ${({ theme }) => theme.colors.text2};
 `;
 
-const TimerBadge = styled(Typography)<{
-  complete: boolean;
-}>`
+const TimerBadge = styled(Typography)`
   font-size: 12px;
   font-variant: tabular-nums;
   font-weight: 600;
   padding: 4px 8px;
   border-radius: 999px;
   margin-left: 16px;
-  background-color: ${({ complete, theme }) =>
-    complete ? theme.colors.success : theme.colors.bg3};
 `;
 
 const PopOutButton = styled(TextButton)`
@@ -131,67 +125,47 @@ const BridgeTransactionStatus = () => {
   const tokenInfoData = useTokenInfoContext();
   const { showDialog, clearDialog } = useDialog();
   const { activeAccount } = useAccountsContext();
-  const {
-    currentAsset,
-    transactionDetails,
-    bridgeAssets,
-    setTransactionDetails,
-  } = useBridgeSDK();
-  const { config } = useBridgeConfig();
-  const { createBridgeTransaction, removeBridgeTransaction } =
-    useBridgeContext();
+  const { currentAsset, transactionDetails } = useBridgeSDK();
+  const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
   const [toastShown, setToastShown] = useState<boolean>();
-  const { network } = useNetworkContext();
-  const etherscanLink = getEtherscanLink(network);
-  const ethereumProvider = getEthereumProvider(network);
-  const avalancheProvider = getAvalancheProvider(network);
-  const txProps = useTxTracker(
-    params.sourceBlockchain,
-    params.txHash,
-    params.txTimestamp,
-    avalancheProvider,
-    ethereumProvider,
-    setTransactionDetails,
-    config,
-    activeAccount?.addressC,
-    transactionDetails,
-    bridgeAssets
-  );
+  const isMainnet = useIsMainnet();
+  const bridgeTransaction = bridgeTransactions[params.txHash] as
+    | BridgeTransaction
+    | undefined;
 
   const assetPrice = usePrice(
-    txProps?.symbol || currentAsset,
-    currency.toLowerCase()
+    bridgeTransaction?.symbol || currentAsset,
+    currency.toLowerCase() as VsCurrencyType
   );
+  const networkPrice = usePriceForChain(bridgeTransaction?.sourceChain);
+
+  const formattedNetworkPrice =
+    networkPrice && bridgeTransaction?.sourceNetworkFee
+      ? currencyFormatter(
+          networkPrice.mul(bridgeTransaction.sourceNetworkFee).toNumber()
+        )
+      : '-';
 
   useLedgerDisconnectedDialog(() => {
     history.goBack();
   });
 
   useEffect(() => {
-    if (txProps?.complete && !toastShown) {
+    if (bridgeTransaction?.complete && !toastShown) {
       toast.custom(
         <TransactionToast
           status="Bridge Successful!"
           type={TransactionToastType.SUCCESS}
-          text={`You received ${txProps.amount} ${txProps.symbol}!`}
+          text={`You transferred ${bridgeTransaction.amount} ${bridgeTransaction.symbol}!`}
         />,
-        { id: txProps.sourceTxHash, duration: Infinity }
+        { id: bridgeTransaction.sourceTxHash, duration: Infinity }
       );
-      removeBridgeTransaction({ ...txProps });
       setToastShown(true);
     }
     // We only want this to trigger when `complete` switches to `true` and on load
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txProps?.complete, toastShown]);
-
-  useEffect(() => {
-    createBridgeTransaction({
-      ...txProps,
-    });
-    // create a tx upfront incase the user somehow manage to exit without clicking "Hide"
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [bridgeTransaction?.complete, toastShown]);
 
   if (!activeAccount) {
     history.push('/home');
@@ -209,8 +183,9 @@ const BridgeTransactionStatus = () => {
           <TextButton
             margin="0 24px 0 0"
             onClick={() => {
-              if (txProps.complete || toastShown) {
+              if (bridgeTransaction?.complete) {
                 history.replace('/home');
+                removeBridgeTransaction(bridgeTransaction.sourceTxHash);
                 clearDialog();
               } else {
                 showDialog({
@@ -219,12 +194,6 @@ const BridgeTransactionStatus = () => {
                   confirmText: 'Hide',
                   width: '343px',
                   onConfirm: async () => {
-                    if (!txProps?.complete) {
-                      // Update in case we closed the extension, re-opened and now leaving
-                      await createBridgeTransaction({
-                        ...txProps,
-                      });
-                    }
                     history.replace('/home');
                     clearDialog();
                   },
@@ -240,7 +209,7 @@ const BridgeTransactionStatus = () => {
           </TextButton>
         </HorizontalFlex>
       </PageTitleMiniMode>
-      {txProps && (
+      {bridgeTransaction && (
         <Scrollbars>
           <VerticalFlex
             grow="1"
@@ -261,14 +230,16 @@ const BridgeTransactionStatus = () => {
                 <CardLabel>Sending Amount</CardLabel>
                 <VerticalFlex>
                   <Typography align="right">
-                    <SummaryAmount>{txProps.amount?.toNumber()}</SummaryAmount>{' '}
-                    <SummaryToken>{txProps.symbol}</SummaryToken>
+                    <SummaryAmount>
+                      {bridgeTransaction.amount?.toNumber()}
+                    </SummaryAmount>{' '}
+                    <SummaryToken>{bridgeTransaction.symbol}</SummaryToken>
                   </Typography>
 
                   <SummaryAmountInCurrency align="right">
-                    {txProps.amount &&
+                    {bridgeTransaction.amount &&
                       currencyFormatter(
-                        assetPrice.mul(txProps.amount).toNumber()
+                        assetPrice.mul(bridgeTransaction.amount).toNumber()
                       )}
                   </SummaryAmountInCurrency>
                 </VerticalFlex>
@@ -284,10 +255,10 @@ const BridgeTransactionStatus = () => {
             </Card>
             <StyledCard
               margin="16px 0 0 0"
-              padding={`16px 16px ${txProps.gasCost ? 4 : 16}px 16px`}
-              complete={
-                !!(txProps.complete || txProps.targetSeconds > 0 || toastShown)
-              }
+              padding={`16px 16px ${
+                bridgeTransaction.sourceNetworkFee ? 4 : 16
+              }px 16px`}
+              complete={!!bridgeTransaction.complete}
             >
               <VerticalFlex width="100%">
                 <HorizontalFlex justify="space-between" grow="1">
@@ -296,37 +267,34 @@ const BridgeTransactionStatus = () => {
                   </Typography>
 
                   <HorizontalFlex>
-                    <Typography size={14}>
-                      {capitalize(txProps.sourceNetwork)}
+                    <Typography size={14} transform="capitalize">
+                      {bridgeTransaction.sourceChain}
                     </Typography>
-                    {(txProps.complete ||
-                      txProps.targetSeconds > 0 ||
-                      toastShown) &&
-                      txProps.sourceTxHash && (
-                        <Tooltip
-                          placement="left"
-                          content={
-                            <Typography size={14}>View on explorer</Typography>
+                    {bridgeTransaction.sourceTxHash && (
+                      <Tooltip
+                        placement="left"
+                        content={
+                          <Typography size={14}>View on explorer</Typography>
+                        }
+                      >
+                        <PopOutButton
+                          onClick={() =>
+                            window.open(
+                              getLinkForBridgeTransaction(
+                                bridgeTransaction.sourceChain,
+                                bridgeTransaction.sourceTxHash,
+                                isMainnet
+                              )
+                            )
                           }
                         >
-                          <PopOutButton
-                            onClick={() =>
-                              window.open(
-                                txProps.sourceNetwork === Blockchain.AVALANCHE
-                                  ? getTransactionLink(
-                                      txProps.sourceTxHash || ''
-                                    )
-                                  : `${etherscanLink}/tx/${txProps.sourceTxHash}`
-                              )
-                            }
-                          >
-                            <PopoutLinkIcon
-                              height={'16px'}
-                              color={theme.colors.text1}
-                            />
-                          </PopOutButton>
-                        </Tooltip>
-                      )}
+                          <PopoutLinkIcon
+                            height={'16px'}
+                            color={theme.colors.text1}
+                          />
+                        </PopOutButton>
+                      </Tooltip>
+                    )}
                   </HorizontalFlex>
                 </HorizontalFlex>
                 {fromCardOpen && (
@@ -339,15 +307,17 @@ const BridgeTransactionStatus = () => {
 
                       <VerticalFlex justify="flex-end">
                         <Typography size={14} align="right">
-                          {txProps.gasCost?.toNumber().toFixed(9)}{' '}
-                          {txProps.symbol}
+                          {bridgeTransaction.sourceNetworkFee
+                            ?.toNumber()
+                            .toFixed(9)}{' '}
+                          {getNativeSymbol(bridgeTransaction.sourceChain)}
                         </Typography>
                         <Typography
                           color={theme.colors.text2}
                           size={12}
                           align="right"
                         >
-                          ~{txProps.gasValue?.toNumber().toFixed(2)} USD
+                          ~{formattedNetworkPrice} {currency}
                         </Typography>
                       </VerticalFlex>
                     </HorizontalFlex>
@@ -360,38 +330,18 @@ const BridgeTransactionStatus = () => {
                   </Typography>
                   <div>
                     <Typography size={14}>
-                      {txProps.confirmationCount > // to avoid showing 16/15 since confirmations keep going up
-                      txProps.requiredConfirmationCount
-                        ? txProps.requiredConfirmationCount
-                        : txProps.confirmationCount}
-                      /{txProps.requiredConfirmationCount}
+                      {bridgeTransaction.confirmationCount > // to avoid showing 16/15 since confirmations keep going up
+                      bridgeTransaction.requiredConfirmationCount
+                        ? bridgeTransaction.requiredConfirmationCount
+                        : bridgeTransaction.confirmationCount}
+                      /{bridgeTransaction.requiredConfirmationCount}
                     </Typography>
-                    <TimerBadge
-                      complete={
-                        !!(
-                          txProps.complete ||
-                          txProps.targetSeconds > 0 ||
-                          toastShown
-                        )
-                      }
-                    >
-                      <Typography
-                        size={12}
-                        margin={
-                          txProps.complete ||
-                          txProps.targetSeconds > 0 ||
-                          toastShown
-                            ? '0 4px 0 0'
-                            : '0'
-                        }
-                      >
-                        {txProps.sourceSeconds > 0
-                          ? displaySeconds(txProps.sourceSeconds)
-                          : '00:00'}
-                      </Typography>
-                      {(txProps.complete ||
-                        txProps.targetSeconds > 0 ||
-                        toastShown) && (
+                    <TimerBadge>
+                      <ElapsedTimer
+                        startTime={bridgeTransaction.sourceStartedAt}
+                        endTime={bridgeTransaction.targetStartedAt}
+                      />{' '}
+                      {bridgeTransaction.targetStartedAt && (
                         <CheckmarkIcon color={theme.colors.text1} />
                       )}
                     </TimerBadge>
@@ -399,16 +349,16 @@ const BridgeTransactionStatus = () => {
                 </HorizontalFlex>
                 <ConfirmationTracker
                   started={true}
-                  requiredCount={txProps.requiredConfirmationCount}
+                  requiredCount={bridgeTransaction.requiredConfirmationCount}
                   currentCount={
-                    txProps.confirmationCount >
-                    txProps.requiredConfirmationCount
-                      ? txProps.requiredConfirmationCount
-                      : txProps.confirmationCount
+                    bridgeTransaction.confirmationCount >
+                    bridgeTransaction.requiredConfirmationCount
+                      ? bridgeTransaction.requiredConfirmationCount
+                      : bridgeTransaction.confirmationCount
                   }
                 />
 
-                {txProps.gasCost && (
+                {bridgeTransaction.sourceNetworkFee && (
                   <CaretButton
                     onClick={() => setFromCardOpen(!fromCardOpen)}
                     margin="4px auto 0 auto"
@@ -427,7 +377,7 @@ const BridgeTransactionStatus = () => {
             <StyledCard
               margin="16px 0 0 0"
               padding="16px"
-              complete={!!(txProps.complete || toastShown)}
+              complete={!!bridgeTransaction.complete}
             >
               <VerticalFlex width="100%">
                 <HorizontalFlex justify="space-between" grow="1">
@@ -436,32 +386,35 @@ const BridgeTransactionStatus = () => {
                   </Typography>
 
                   <HorizontalFlex>
-                    <Typography size={14}>
-                      {capitalize(txProps.targetNetwork)}
+                    <Typography size={14} transform="capitalize">
+                      {bridgeTransaction.targetChain}
                     </Typography>
-                    {(txProps.complete || toastShown) && txProps.targetTxHash && (
-                      <Tooltip
-                        placement="left"
-                        content={
-                          <Typography size={14}>View on explorer</Typography>
-                        }
-                      >
-                        <PopOutButton
-                          onClick={() =>
-                            window.open(
-                              txProps.targetNetwork === Blockchain.AVALANCHE
-                                ? getTransactionLink(txProps.targetTxHash || '')
-                                : `${etherscanLink}/tx/${txProps.targetTxHash}`
-                            )
+                    {bridgeTransaction.complete &&
+                      bridgeTransaction.targetTxHash && (
+                        <Tooltip
+                          placement="left"
+                          content={
+                            <Typography size={14}>View on explorer</Typography>
                           }
                         >
-                          <PopoutLinkIcon
-                            height={'16px'}
-                            color={theme.colors.text1}
-                          />
-                        </PopOutButton>
-                      </Tooltip>
-                    )}
+                          <PopOutButton
+                            onClick={() =>
+                              window.open(
+                                getLinkForBridgeTransaction(
+                                  bridgeTransaction.targetChain,
+                                  bridgeTransaction.targetTxHash || '',
+                                  isMainnet
+                                )
+                              )
+                            }
+                          >
+                            <PopoutLinkIcon
+                              height={'16px'}
+                              color={theme.colors.text1}
+                            />
+                          </PopOutButton>
+                        </Tooltip>
+                      )}
                   </HorizontalFlex>
                 </HorizontalFlex>
                 <HorizontalSeparator margin="16px 0 16px 0" />
@@ -471,23 +424,21 @@ const BridgeTransactionStatus = () => {
                   </Typography>
                   <div>
                     <Typography size={14}>
-                      {txProps.complete || toastShown ? '1' : '0'}/
+                      {bridgeTransaction.complete ? '1' : '0'}/
                       {
                         1 // On the destination network, we just need 1 confirmation
                       }
                     </Typography>
-                    <TimerBadge complete={!!(txProps.complete || toastShown)}>
-                      <Typography
-                        size={12}
-                        margin={
-                          txProps.complete || toastShown ? '0 4px 0 0' : '0'
-                        }
-                      >
-                        {txProps.targetSeconds > 0
-                          ? displaySeconds(txProps.targetSeconds)
-                          : '00:00'}
-                      </Typography>
-                      {(txProps.complete || toastShown) && (
+                    <TimerBadge>
+                      {bridgeTransaction.targetStartedAt ? (
+                        <ElapsedTimer
+                          startTime={bridgeTransaction.targetStartedAt}
+                          endTime={bridgeTransaction.completedAt}
+                        />
+                      ) : (
+                        '00:00'
+                      )}{' '}
+                      {bridgeTransaction.complete && (
                         <CheckmarkIcon color={theme.colors.text1} />
                       )}
                     </TimerBadge>
@@ -495,11 +446,11 @@ const BridgeTransactionStatus = () => {
                 </HorizontalFlex>
 
                 <ConfirmationTracker
-                  started={txProps.targetSeconds > 0}
+                  started={!!bridgeTransaction.targetStartedAt}
                   requiredCount={
                     1 // On avalanche, we just need 1 confirmation
                   }
-                  currentCount={txProps.complete || toastShown ? 1 : 0}
+                  currentCount={bridgeTransaction.complete ? 1 : 0}
                 />
               </VerticalFlex>
             </StyledCard>

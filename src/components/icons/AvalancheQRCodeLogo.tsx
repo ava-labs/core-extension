@@ -1,37 +1,23 @@
 import { VerticalFlex } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
+import { CircularText } from '../common/CircularText';
 
-function CircularText({ text }: { text: string }) {
-  const theme = useTheme();
-  return (
-    <svg height="90" width="90" viewBox="25 25 150 150">
-      <defs>
-        <path
-          id="circle"
-          d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
-        />
-      </defs>
-      <text fill={theme.colors.bg1} fontSize="10" fontFamily="Inter">
-        <textPath href="#circle">{`${text.trim()} `.repeat(20)}</textPath>
-      </text>
-    </svg>
-  );
-}
-
-export function QRCodeLogo({
+export function AvalancheQRCodeLogo({
   text,
   size = 91,
+  position = 'relative',
   className,
 }: {
   text: string;
   size: number;
+  position?: string;
   className?: string;
 }) {
   const theme = useTheme();
   return (
     <VerticalFlex
       className={className}
-      position="relative"
+      position={position}
       radius="50%"
       background={theme.colors.icon1}
       width={`${size}px`}

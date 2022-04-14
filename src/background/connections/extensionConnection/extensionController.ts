@@ -76,10 +76,12 @@ import { permissionsUpdateEvents } from '@src/background/services/permissions/ev
 
 import { InitialWalletOpenRequest } from '@src/background/services/onboarding/handlers/updateInitialOpen';
 import { GetBridgeTransactionsStateRequest } from '@src/background/services/bridge/handlers/getBridgeTransactions';
+import { GetBtcBalancesRequest } from '@src/background/services/bridge/handlers/getBtcBalances';
 import { CreateBridgeTransactionStateRequest } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import { RemoveBridgeTransactionStateRequest } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { bridgeConfigUpdateEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
 import { bridgeTransferEvent } from '@src/background/services/bridge/events/bridgeTransferEvents';
+import { SignAndIssueBtcTxRequest } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
 
 import { GetNavigationHistoryDataStateRequest } from '@src/background/services/navigationHistory/handlers/getNavigationHistoryData';
 import { SetNavigationHistoryDataStateRequest } from '@src/background/services/navigationHistory/handlers/setNavigationHistoryData';
@@ -128,6 +130,11 @@ const extensionRequestHandlerMap = new Map<
   GetEthereumBalanceRequest,
   GetEthereumBalancesRequest,
   TransferAssetRequest,
+  SignAndIssueBtcTxRequest,
+  GetBtcBalancesRequest,
+  GetBridgeTransactionsStateRequest,
+  CreateBridgeTransactionStateRequest,
+  RemoveBridgeTransactionStateRequest,
 
   GetWalletStateRequest,
   UnlockWalletStateRequest,
@@ -171,10 +178,6 @@ const extensionRequestHandlerMap = new Map<
   GetContactsStateRequest,
   CreateContactStateRequest,
   RemoveContactStateRequest,
-
-  GetBridgeTransactionsStateRequest,
-  CreateBridgeTransactionStateRequest,
-  RemoveBridgeTransactionStateRequest,
 
   CreateFavoriteRequest,
   GetFavoritesRequest,

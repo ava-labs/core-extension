@@ -1,6 +1,7 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
 import { map } from 'rxjs';
-import { BridgeEvents, TransferEvent } from '../models';
+import { TransferEvent } from '../models';
+import { BridgeEvents } from './models';
 import { transferEvent$ } from '../transferEvent';
 
 export function bridgeTransferEvent() {

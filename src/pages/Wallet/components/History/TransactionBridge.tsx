@@ -1,36 +1,26 @@
-import {
-  Blockchain,
-  TrackerViewProps,
-  TransactionDetails,
-  useBridgeConfig,
-  useBridgeSDK,
-  useTxTracker,
-} from '@avalabs/bridge-sdk';
+import { BridgeTransaction } from '@avalabs/bridge-sdk';
 import {
   BridgeIcon,
   HorizontalFlex,
   InfoIcon,
   SubTextTypography,
   TextButton,
-  Tooltip,
   toast,
+  Tooltip,
   TransactionToast,
+  TransactionToastType,
   Typography,
   VerticalFlex,
-  TransactionToastType,
 } from '@avalabs/react-components';
-import { getAvalancheProvider } from '@src/background/services/network/getAvalancheProvider';
-import { getEthereumProvider } from '@src/background/services/bridge/getEthereumProvider';
+import { TransactionERC20 } from '@avalabs/wallet-react-components';
+import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { ElapsedTimer } from '@src/pages/Bridge/components/ElapsedTimer';
+import { isPendingBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
+import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { HistoryItemLink } from './components/HistoryItemLink';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useEffect } from 'react';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { BridgeTransaction } from '@src/background/services/bridge/models';
-import { TransactionNormal } from '@avalabs/wallet-react-components';
-import { ElapsedTimer } from '@src/pages/Bridge/components/ElapsedTimer';
+import { useBlockchainNames } from './useBlockchainNames';
 
 const IconCircle = styled(HorizontalFlex)<{ pending: boolean }>`
   width: 32px;
@@ -70,64 +60,32 @@ const IconCircle = styled(HorizontalFlex)<{ pending: boolean }>`
 	`};
 `;
 
-type TransactionBridgeItem = TransactionNormal &
-  BridgeTransaction &
-  TransactionDetails;
+type TransactionBridgeProps = {
+  item: TransactionERC20 | BridgeTransaction;
+};
 
-export function TransactionBridge({
-  pending,
-  item,
-}: {
-  item: TransactionBridgeItem;
-  pending?: boolean;
-}) {
+export function TransactionBridge({ item }: TransactionBridgeProps) {
+  const pending = isPendingBridgeTransaction(item);
   const theme = useTheme();
   const history = useHistory();
-  const fromAvalancheToEthereum =
-    item.sourceNetwork === Blockchain.AVALANCHE ||
-    item.to === '0x0000000000000000000000000000000000000000';
-  const { network } = useNetworkContext();
-  const ethereumProvider = getEthereumProvider(network);
-  const avalancheProvider = getAvalancheProvider(network);
-  const { config } = useBridgeConfig();
   const { removeBridgeTransaction } = useBridgeContext();
-  const { activeAccount } = useAccountsContext();
-  const { transactionDetails, bridgeAssets, setTransactionDetails } =
-    useBridgeSDK();
-
-  const txProps: TrackerViewProps | undefined =
-    pending && item?.sourceTxHash
-      ? // @TODO: breaking rules of hook.. useTxTracker should prob not be a hook
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useTxTracker(
-          item.sourceNetwork,
-          item.sourceTxHash,
-          item.timeStamp,
-          avalancheProvider,
-          ethereumProvider,
-          setTransactionDetails,
-          config,
-          activeAccount?.addressC,
-          transactionDetails,
-          bridgeAssets
-        )
-      : undefined;
+  const { sourceBlockchain, targetBlockchain } = useBlockchainNames(item);
 
   useEffect(() => {
-    if (txProps?.complete) {
+    if (pending && item?.complete) {
       toast.custom(
         <TransactionToast
           status="Bridge Successful!"
           type={TransactionToastType.SUCCESS}
-          text={`You received ${txProps.amount} ${txProps.symbol}!`}
+          text={`You transferred ${item.amount} ${item.symbol}!`}
         />,
-        { id: txProps.sourceTxHash, duration: Infinity }
+        { id: item.sourceTxHash, duration: Infinity }
       );
-      removeBridgeTransaction({ ...txProps });
+      removeBridgeTransaction(item.sourceTxHash);
     }
     // We only want this to trigger when `complete` switches to `true` and on load
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txProps?.complete]);
+  }, [pending && item?.complete]);
 
   return (
     <HorizontalFlex width="100%" justify="space-between" align="center">
@@ -143,19 +101,15 @@ export function TransactionBridge({
             <Typography size={16} weight={500} height="24px">
               {pending ? 'Bridging...' : 'Bridge'}
             </Typography>
-            <Typography size={14} height="24px">
-              {item.amountDisplayValue} {item.tokenSymbol}
-            </Typography>
+            {!pending ? (
+              <Typography size={14} height="24px">
+                {item.amountDisplayValue} {item.tokenSymbol}
+              </Typography>
+            ) : null}
           </HorizontalFlex>
-          {fromAvalancheToEthereum ? (
-            <SubTextTypography size={12} height="17px">
-              Avalanche -&gt; Ethereum
-            </SubTextTypography>
-          ) : (
-            <SubTextTypography size={12} height="17px">
-              Ethereum -&gt; Avalanche
-            </SubTextTypography>
-          )}
+          <SubTextTypography size={12} height="17px">
+            {sourceBlockchain} -&gt; {targetBlockchain}
+          </SubTextTypography>
         </VerticalFlex>
         <HorizontalFlex align="flex-start">
           {pending ? (
@@ -165,42 +119,35 @@ export function TransactionBridge({
                 height="24px"
                 style={{ whiteSpace: 'nowrap' }}
               >
-                {item.createdAt && (
-                  <span style={{ display: 'inline-flex', marginRight: '6px' }}>
-                    <Tooltip
-                      placement="bottom"
-                      content={
-                        <HorizontalFlex align="center" justify="space-between">
-                          {txProps && (
-                            <Typography size={12} margin="0 40px 0 0">
-                              Number of confirmations:{' '}
-                              {txProps.confirmationCount > // to avoid showing 16/15 since confirmations keep going up
-                              txProps.requiredConfirmationCount
-                                ? txProps.requiredConfirmationCount
-                                : txProps.confirmationCount}
-                              /{txProps.requiredConfirmationCount}
-                            </Typography>
-                          )}
-                          <ElapsedTimer startTime={item.createdAt} />
-                        </HorizontalFlex>
-                      }
-                    >
-                      <InfoIcon height="12px" color={theme.colors.icon2} />
-                    </Tooltip>
-                  </span>
-                )}
-                {item.amount} {item.symbol}
+                <span style={{ display: 'inline-flex', marginRight: '6px' }}>
+                  <Tooltip
+                    placement="bottom"
+                    content={
+                      <HorizontalFlex align="center" justify="space-between">
+                        <Typography size={12} margin="0 40px 0 0">
+                          Number of confirmations:{' '}
+                          {item.confirmationCount > // to avoid showing 16/15 since confirmations keep going up
+                          item.requiredConfirmationCount
+                            ? item.requiredConfirmationCount
+                            : item.confirmationCount}
+                          /{item.requiredConfirmationCount}
+                        </Typography>
+                        <ElapsedTimer
+                          startTime={item.sourceStartedAt}
+                          endTime={item.completedAt}
+                        />
+                      </HorizontalFlex>
+                    }
+                  >
+                    <InfoIcon height="12px" color={theme.colors.icon2} />
+                  </Tooltip>
+                </span>
+                {item.amount?.toString()} {item.symbol}
               </Typography>
               <TextButton
                 onClick={() => {
                   history.push(
-                    `/bridge/transaction-status/${item.sourceNetwork}/${
-                      item.sourceTxHash
-                    }/${
-                      item.createdAt
-                        ? Date.parse(item.createdAt.toString())
-                        : item.timestamp || item.timeStamp || Date.now()
-                    }`
+                    `/bridge/transaction-status/${item.sourceChain}/${item.sourceTxHash}/${item.sourceStartedAt}`
                   );
                 }}
               >

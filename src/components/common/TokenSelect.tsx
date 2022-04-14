@@ -367,7 +367,7 @@ export function TokenSelect({
                                 margin={'0 0 0 16px'}
                                 weight={500}
                               >
-                                {token.asset.tokenName || token.symbol}
+                                {token.symbolOnNetwork || token.symbol}
                               </Typography>
                             </HorizontalFlex>
                             <Typography size={14} height="24px">

@@ -1,9 +1,4 @@
-import { TrackerViewProps, WrapStatus } from '@avalabs/bridge-sdk';
-
-export enum BridgeEvents {
-  BRIDGE_CONFIG_UPDATE_EVENT = 'bridge_config_update_event',
-  BRIDGE_TRANSFER_EVENT = 'bridge_transfer_event',
-}
+import { BridgeTransaction, WrapStatus } from '@avalabs/bridge-sdk';
 
 export enum TransferEventType {
   WRAP_STATUS = 'wrap_status',
@@ -19,10 +14,6 @@ export type TransferEvent =
       type: TransferEventType.TX_HASH;
       txHash: string;
     };
-
-export interface BridgeTransaction extends TrackerViewProps {
-  createdAt?: Date;
-}
 
 export interface BridgeState {
   bridgeTransactions: {

@@ -3,21 +3,22 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { bridge$ } from '../bridge';
+import { removeBridgeTransaction } from '../bridge';
 
-export async function removeBridgeTransaction(
+export async function removeBridgeTransactionHandler(
   request: ExtensionConnectionMessage
 ) {
-  const [bridgeTransaction] = request.params || [];
+  const [txHash] = request.params || [];
+  if (!txHash) return { ...request, error: 'missing txHash' };
 
-  const bridgeState = await firstValueFrom(bridge$);
+  const error = await removeBridgeTransaction(txHash);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { [bridgeTransaction.sourceTxHash]: unused, ...rest } =
-    bridgeState.bridgeTransactions;
-
-  bridge$.next({ ...bridgeState, bridgeTransactions: rest });
+  if (error) {
+    return {
+      ...request,
+      error,
+    };
+  }
 
   return {
     ...request,
@@ -28,4 +29,7 @@ export async function removeBridgeTransaction(
 export const RemoveBridgeTransactionStateRequest: [
   ExtensionRequest,
   ConnectionRequestHandler
-] = [ExtensionRequest.BRIDGE_TRANSACTION_REMOVE, removeBridgeTransaction];
+] = [
+  ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,
+  removeBridgeTransactionHandler,
+];

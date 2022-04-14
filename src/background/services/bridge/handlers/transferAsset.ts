@@ -1,9 +1,10 @@
 import { bnToBig, stringToBN, WalletType } from '@avalabs/avalanche-wallet-sdk';
 import {
-  Asset,
   Blockchain,
   WrapStatus,
   transferAsset as transferAssetSDK,
+  EthereumConfigAsset,
+  NativeAsset,
 } from '@avalabs/bridge-sdk';
 import { network$, wallet$ } from '@avalabs/wallet-react-components';
 import Common, { Chain } from '@ethereumjs/common';
@@ -34,7 +35,7 @@ async function transferAsset(
   currentBlockchain: Blockchain,
   amount: Big,
   account: string,
-  asset: Asset,
+  asset: EthereumConfigAsset | NativeAsset,
   wallet: WalletType
 ): Promise<TransactionResponse | undefined> {
   const config = (await firstValueFrom(bridgeConfig$))?.config;

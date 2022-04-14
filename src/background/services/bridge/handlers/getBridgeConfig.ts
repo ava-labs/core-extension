@@ -13,24 +13,25 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { bridgeConfig$ } from '../bridgeConfig';
 
-async function getBridgeConfig(request: ExtensionConnectionMessage) {
+export async function getBridgeConfig() {
   const network = await firstValueFrom(network$);
   setBridgeEnvironment(
     network?.chainId === MAINNET_NETWORK.chainId
       ? Environment.PROD
-      : Environment.TEST
+      : Environment.DEV
   );
   const config = await fetchConfig();
 
   bridgeConfig$.next(config);
+  return config;
+}
 
-  return {
-    ...request,
-    result: config,
-  };
+async function getBridgeConfigHandler(request: ExtensionConnectionMessage) {
+  const config = await getBridgeConfig();
+  return { ...request, result: config };
 }
 
 export const GetBridgeConfigRequest: [
   ExtensionRequest,
   ConnectionRequestHandler<BridgeConfig>
-] = [ExtensionRequest.BRIDGE_GET_CONFIG, getBridgeConfig];
+] = [ExtensionRequest.BRIDGE_GET_CONFIG, getBridgeConfigHandler];

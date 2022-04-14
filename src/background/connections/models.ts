@@ -93,9 +93,11 @@ export enum ExtensionRequest {
   ACCOUNT_ADD = 'account_add',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
+  BRIDGE_GET_BTC_BALANCES = 'bridge_get_btc_balances',
   BRIDGE_GET_ETH_BALANCE = 'bridge_get_eth_balance',
   BRIDGE_GET_ETH_BALANCES = 'bridge_get_eth_balances',
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
+  BRIDGE_SIGN_ISSUE_BTC = 'bridge_sign_issue_btc',
 
   WALLET_STATE = 'wallet_InitializeState',
   WALLET_UNLOCK_STATE = 'wallet_unlockWalletState',

@@ -1,5 +1,11 @@
 import { Big, bnToBig } from '@avalabs/avalanche-wallet-sdk';
-import { AssetType, Blockchain, useAssets } from '@avalabs/bridge-sdk';
+import {
+  Asset,
+  AssetType,
+  BitcoinConfigAsset,
+  Blockchain,
+  EthereumConfigAsset,
+} from '@avalabs/bridge-sdk';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import {
   ExtensionConnectionMessage,
@@ -7,25 +13,24 @@ import {
 } from '@src/background/connections/models';
 import {
   AssetBalance,
-  ExtendedERC20Asset,
-  Asset,
+  BALANCE_REFRESH_INTERVAL,
 } from '@src/pages/Bridge/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useMemo, useState } from 'react';
+import { useInterval } from '@src/hooks/useInterval';
 
 /**
  * Get the balance of a bridge supported asset for the given blockchain.
  */
-export function useAssetBalance(
-  symbol: string | undefined,
-  blockchain: Blockchain
+export function useAssetBalanceEVM(
+  asset: Asset | undefined,
+  source: Blockchain
 ): AssetBalance | undefined {
   const { request } = useConnectionContext();
   const [ethBalance, setEthBalance] = useState<AssetBalance>();
-  const assets = useAssets(blockchain);
-  const asset = symbol && assets[symbol];
   const { addresses, erc20Tokens } = useWalletContext();
+  const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
 
   // TODO update this when adding support for /convert
   const showDeprecated = false;
@@ -33,16 +38,20 @@ export function useAssetBalance(
   const avalancheBalance = useMemo(() => {
     if (
       asset &&
-      asset.assetType === AssetType.ERC20 &&
-      blockchain === Blockchain.AVALANCHE
+      (asset.assetType === AssetType.ERC20 ||
+        asset.assetType === AssetType.BTC) &&
+      source === Blockchain.AVALANCHE
     ) {
       return getAvalancheBalance(asset, erc20Tokens);
     }
-  }, [asset, blockchain, erc20Tokens]);
+  }, [asset, source, erc20Tokens]);
 
   // fetch balance from Ethereum
   useEffect(() => {
-    if (!asset || blockchain !== Blockchain.ETHEREUM) return;
+    if (!asset || source !== Blockchain.ETHEREUM) {
+      setEthBalance(undefined);
+      return;
+    }
 
     (async function getBalances() {
       const balance = await getEthereumBalance(
@@ -54,18 +63,30 @@ export function useAssetBalance(
 
       setEthBalance(balance);
     })();
-  }, [addresses.addrC, asset, blockchain, request, showDeprecated]);
+  }, [
+    addresses.addrC,
+    asset,
+    source,
+    request,
+    showDeprecated,
+    // refetchInterval is here to ensure the balance is updated periodically
+    refetchInterval,
+  ]);
 
-  const assetBalance =
-    blockchain === Blockchain.AVALANCHE ? avalancheBalance : ethBalance;
+  const balance =
+    source === Blockchain.AVALANCHE
+      ? avalancheBalance
+      : source === Blockchain.ETHEREUM
+      ? ethBalance
+      : undefined;
 
-  return assetBalance;
+  return asset && { symbol: asset.symbol, asset, balance };
 }
 
 function getAvalancheBalance(
-  asset: ExtendedERC20Asset,
+  asset: EthereumConfigAsset | BitcoinConfigAsset,
   erc20Tokens: ERC20WithBalance[]
-): AssetBalance {
+): Big {
   const erc20TokensByAddress = erc20Tokens.reduce<{
     [address: string]: ERC20WithBalance;
   }>((tokens, token) => {
@@ -74,11 +95,8 @@ function getAvalancheBalance(
     return tokens;
   }, {});
 
-  const symbol = asset.symbol;
   const token = erc20TokensByAddress[asset.wrappedContractAddress];
-  const balance = token && bnToBig(token.balance, token.denomination);
-
-  return { symbol, asset, balance };
+  return token && bnToBig(token.balance, token.denomination);
 }
 
 async function getEthereumBalance(
@@ -88,13 +106,10 @@ async function getEthereumBalance(
   asset: Asset,
   account: string,
   deprecated: boolean
-): Promise<AssetBalance> {
+): Promise<Big> {
   const balanceStr = await request({
     method: ExtensionRequest.BRIDGE_GET_ETH_BALANCE,
     params: [asset, account, deprecated],
   });
-  const symbol = asset.symbol;
-  const balance = balanceStr ? new Big(balanceStr) : undefined;
-
-  return { symbol, asset, balance };
+  return balanceStr ? new Big(balanceStr) : undefined;
 }

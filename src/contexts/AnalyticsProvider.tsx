@@ -22,7 +22,8 @@ const AnalyticsContext = createContext<{
 const DefaultFeatureFlagConfig = {
   [FeatureGates.EVERYTHING]: true,
   [FeatureGates.BRIDGE]: true,
-  [FeatureGates.BRIDGE]: true,
+  [FeatureGates.BRIDGE_BTC]: true,
+  [FeatureGates.BRIDGE_ETH]: true,
   [FeatureGates.EVENTS]: true,
   [FeatureGates.SEND]: true,
   [FeatureGates.SWAP]: true,

@@ -25,7 +25,7 @@ export function ParaswapNotice() {
       </Typography>
       <ParaswapIcon color={theme.colors.text1} />
       <HorizontalFlex margin="0 0 0 6px">
-        <Tooltip  placement={'top'} content={TooltipContent}>
+        <Tooltip placement={'top'} content={TooltipContent}>
           <InfoIcon height="12px" color={theme.colors.text1} />
         </Tooltip>
       </HorizontalFlex>
