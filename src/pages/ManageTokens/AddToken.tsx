@@ -16,6 +16,7 @@ import styled from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -31,6 +32,7 @@ export function AddToken() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tokenData, setTokenData] = useState<Erc20TokenData | null>(null);
   const [error, setError] = useState<string>('');
+  const { capture } = useAnalyticsContext();
 
   const addCustomToken = async () => {
     if (!addressInput) return;
@@ -40,8 +42,16 @@ export function AddToken() {
         params: [addressInput],
       });
       success && toast.success('Added!');
+      capture('ManageTokensAddCustomToken', {
+        status: 'success',
+        address: addressInput,
+      });
       history.goBack();
     } catch (err) {
+      capture('ManageTokensAddCustomToken', {
+        status: 'failed',
+        address: addressInput,
+      });
       toast.error('Failed.');
     }
   };

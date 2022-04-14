@@ -7,6 +7,7 @@ import {
 } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import {
+  ERC20WithBalance,
   isAntToken,
   isAvaxToken,
   isERC20Token,
@@ -20,6 +21,7 @@ import { WalletIsEmpty } from './WalletIsEmpty';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface TokenListProps {
   searchQuery?: string;
@@ -31,6 +33,8 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const history = useHistory();
   const { avaxToken } = useWalletContext();
   const setSendDataInParams = useSetSendDataInParams();
+  const { capture } = useAnalyticsContext();
+
   const { tokens, showAvax } = useMemo(() => {
     const tokens = (
       searchQuery
@@ -83,12 +87,13 @@ export function TokenList({ searchQuery }: TokenListProps) {
         <VerticalFlex padding="0px 16px 68px">
           {avaxToken && (!searchQuery || showAvax) && (
             <TokenListItem
-              onClick={() =>
+              onClick={() => {
+                capture('TokenListTokenSelected', { selectedToken: 'AVAX' });
                 setSendDataInParams({
                   token: avaxToken,
                   options: { path: '/token' },
-                })
-              }
+                });
+              }}
               name={avaxToken.name}
               symbol={avaxToken.symbol}
               balanceDisplayValue={avaxToken.balanceDisplayValue}
@@ -101,12 +106,15 @@ export function TokenList({ searchQuery }: TokenListProps) {
           {ERC20Tokens?.map((token) => {
             return (
               <TokenListItem
-                onClick={() =>
+                onClick={() => {
                   setSendDataInParams({
                     token: token,
                     options: { path: '/token' },
-                  })
-                }
+                  });
+                  capture('TokenListTokenSelected', {
+                    selectedToken: (token as ERC20WithBalance).address,
+                  });
+                }}
                 key={
                   isERC20Token(token) ? token.address : (token as any).symbol
                 }

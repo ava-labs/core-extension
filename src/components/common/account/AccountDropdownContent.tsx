@@ -17,6 +17,7 @@ import {
   Scrollbars,
   ScrollbarsRef,
 } from '@src/components/common/scrollbars/Scrollbars';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
@@ -35,6 +36,7 @@ export function AccountDropdownContent({
   const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
     null
   );
+  const { capture } = useAnalyticsContext();
 
   const addAccountAndFocus = async () => {
     const nextIndex = accounts.length;
@@ -131,7 +133,12 @@ export function AccountDropdownContent({
         <PrimaryButton
           size={ComponentSize.LARGE}
           width="100%"
-          onClick={() => addAccountAndFocus()}
+          onClick={() => {
+            capture('AccountSelectorAddAccount', {
+              accountNumber: accounts.length + 1,
+            });
+            addAccountAndFocus();
+          }}
         >
           Add Account
         </PrimaryButton>

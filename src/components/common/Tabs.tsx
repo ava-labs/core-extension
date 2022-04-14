@@ -63,6 +63,7 @@ interface TabsProps {
     id: string;
     component: ReactNode;
     badgeAmount?: number;
+    onClick?: () => void;
   }[];
   margin?: string;
 }
@@ -78,7 +79,10 @@ export function Tabs({ tabs, margin }: TabsProps) {
             <Tab
               key={tab.id}
               selected={selectedTab === tab.id}
-              onClick={() => setSelectedTab(tab.id)}
+              onClick={() => {
+                setSelectedTab(tab.id);
+                tab.onClick && tab.onClick();
+              }}
             >
               <TabLabel selected={selectedTab === tab.id}>
                 {tab.title}

@@ -1,5 +1,6 @@
 import { LoadingSpinnerIcon, VerticalFlex } from '@avalabs/react-components';
 import { Tabs } from '@src/components/common/Tabs';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Activity } from '@src/pages/Activity/Activity';
@@ -18,6 +19,7 @@ export function Portfolio() {
   const theme = useTheme();
   const { isBalanceLoading, isWalletReady } = useWalletContext();
   const { bridgeTransactions } = useBridgeContext();
+  const { capture } = useAnalyticsContext();
 
   if (isBalanceLoading || !isWalletReady) {
     return (
@@ -38,11 +40,13 @@ export function Portfolio() {
               title: 'Assets',
               id: PortfolioTabs.ASSETS,
               component: <TokenList />,
+              onClick: () => capture('PortfolioAssetsClicked'),
             },
             {
               title: 'Collectibles',
               id: PortfolioTabs.COLLECTIBLES,
               component: <Collectibles />,
+              onClick: () => capture('PortfolioCollectiblesClicked'),
             },
             {
               title: 'Activity',
@@ -50,6 +54,7 @@ export function Portfolio() {
               component: <Activity />,
               badgeAmount:
                 bridgeTransactions && Object.values(bridgeTransactions).length,
+              onClick: () => capture('PortfolioActivityClicked'),
             },
           ]}
         />
