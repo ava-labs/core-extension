@@ -1,11 +1,4 @@
-import { lazy, useMemo, Suspense, useEffect, useState } from 'react';
-import {
-  Switch,
-  Route,
-  Redirect,
-  useHistory,
-  useLocation,
-} from 'react-router-dom';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 import {
   DialogContextProvider,
   HorizontalFlex,
@@ -14,27 +7,35 @@ import {
 } from '@avalabs/react-components';
 import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
-import { WalletContextProvider } from '@src/contexts/WalletProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { BridgeProvider } from '@src/contexts/BridgeProvider';
+import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
+import { LedgerSupportContextProvider } from '@src/contexts/LedgerSupportProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
+import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
+import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
-import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
-import { Home } from '@src/pages/Home/Home';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import { BridgeProvider } from '@src/contexts/BridgeProvider';
+import { useOnline } from '@src/hooks/useOnline';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+import { ApproveAction } from '@src/pages/ApproveAction/ApproveAction';
+import { Home } from '@src/pages/Home/Home';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
-import { LedgerSupportContextProvider } from '@src/contexts/LedgerSupportProvider';
-import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
-import { usePageHistory } from '@src/hooks/usePageHistory';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+} from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
-import { useOnline } from '@src/hooks/useOnline';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -218,6 +219,12 @@ export function Popup() {
                               <Route path="/sign">
                                 <Suspense fallback={<LoadingIcon />}>
                                   <SignMessage />
+                                </Suspense>
+                              </Route>
+
+                              <Route path="/approve">
+                                <Suspense fallback={<LoadingIcon />}>
+                                  <ApproveAction />
                                 </Suspense>
                               </Route>
 

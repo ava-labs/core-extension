@@ -1,9 +1,9 @@
 import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
-import { Message } from '@src/background/services/messages/models';
+import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { toUtf8 } from 'ethereumjs-util';
 
-export function PersonalSign({ message }: { message: Message }) {
+export function PersonalSign({ message }: { message: Action }) {
   return (
     <VerticalFlex width={'100%'}>
       <Typography size={12} height="15px" margin="0 0 8px 0">

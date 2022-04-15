@@ -3,8 +3,9 @@ import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTheme } from 'styled-components';
 
-export function EthSign({ message }: { message: Action }) {
+export function BridgeTransferAsset({ action }: { action: Action }) {
   const theme = useTheme();
+  const { displayData } = action;
   return (
     <VerticalFlex width={'100%'}>
       <Typography
@@ -14,11 +15,7 @@ export function EthSign({ message }: { message: Action }) {
         margin="0 8px 16px"
         align="center"
       >
-        Signing this message can be dangerous. This signature could potentially
-        perform any operation on your account&apos;s behalf, including granting
-        complete control of your account and all of its assets to the requesting
-        site. Only sign this message if you know what you&apos;re doing or
-        completely trust the requesting site
+        CoreX wants to bridge
       </Typography>
       <Typography size={12} height="15px" margin="0 0 8px 0">
         Message:
@@ -27,7 +24,9 @@ export function EthSign({ message }: { message: Action }) {
         <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
           <VerticalFlex padding="0 16px">
             <Typography size={12} height="17px" wordBreak="break-all">
-              {message.displayData.data}
+              You are about to bridge {displayData.amountStr}{' '}
+              {displayData.asset.symbol} on {displayData.currentBlockchain}{' '}
+              Network
             </Typography>
           </VerticalFlex>
         </Scrollbars>

@@ -4,7 +4,7 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { pendingMessages$ } from '../messages';
+import { pendingActions$ } from './actions';
 
 async function getMessage(request: ExtensionConnectionMessage) {
   const params = request.params;
@@ -24,8 +24,8 @@ async function getMessage(request: ExtensionConnectionMessage) {
     };
   }
 
-  const currentPendingMessages = await firstValueFrom(pendingMessages$);
-  const message = currentPendingMessages[messageId];
+  const currentPendingAction = await firstValueFrom(pendingActions$);
+  const message = currentPendingAction[messageId];
 
   if (!message) {
     return { ...request, error: 'no message found with that id' };
@@ -37,4 +37,4 @@ async function getMessage(request: ExtensionConnectionMessage) {
 export const GetMessageByIdRequest: [
   ExtensionRequest,
   ConnectionRequestHandler
-] = [ExtensionRequest.MESSAGE_GET, getMessage];
+] = [ExtensionRequest.ACTION_GET, getMessage];

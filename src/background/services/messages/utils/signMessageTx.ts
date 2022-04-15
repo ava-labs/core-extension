@@ -1,8 +1,9 @@
 import { WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { Message, MessageType } from '../models';
+import { Action } from '../../actions/models';
+import { MessageType } from '../models';
 
 export const signMessageTx = async (
-  message: Message,
+  message: Action,
   wallet: WalletType
 ): Promise<string> => {
   if (!wallet || wallet.type === 'ledger') {

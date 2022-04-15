@@ -4,10 +4,10 @@ import {
   ExtensionRequest,
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
-import { pendingMessages$ } from '../messages';
-import { MessageUpdate } from '../models';
+import { pendingActions$ } from './actions';
+import { ActionUpdate } from './models';
 
-async function updateMessageById(request: ExtensionConnectionMessage) {
+async function updateActionById(request: ExtensionConnectionMessage) {
   const params = request.params;
 
   if (!params) {
@@ -17,7 +17,7 @@ async function updateMessageById(request: ExtensionConnectionMessage) {
     };
   }
 
-  const { id, ...updates } = params[0] as MessageUpdate;
+  const { id, ...updates } = params[0] as ActionUpdate;
 
   if (!id) {
     return {
@@ -26,22 +26,22 @@ async function updateMessageById(request: ExtensionConnectionMessage) {
     };
   }
 
-  const messages = await firstValueFrom(pendingMessages$);
+  const actions = await firstValueFrom(pendingActions$);
 
-  if (!messages) {
+  if (!actions) {
     return { ...request, error: 'no messages found' };
   }
 
-  const message = messages[id];
+  const action = actions[id];
 
-  if (!message) {
+  if (!action) {
     return { ...request, error: 'no message found with that id' };
   }
 
-  pendingMessages$.next({
-    ...messages,
+  pendingActions$.next({
+    ...actions,
     [id]: {
-      ...message,
+      ...action,
       ...updates,
     },
   });
@@ -49,7 +49,7 @@ async function updateMessageById(request: ExtensionConnectionMessage) {
   return { ...request, result: true };
 }
 
-export const UpdateMessageByIdRequest: [
+export const UpdateActionByIdRequest: [
   ExtensionRequest,
   ConnectionRequestHandler
-] = [ExtensionRequest.MESSAGE_UPDATE, updateMessageById];
+] = [ExtensionRequest.ACTION_UPDATE, updateActionById];

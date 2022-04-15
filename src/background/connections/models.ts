@@ -107,8 +107,8 @@ export enum ExtensionRequest {
 
   SETTINGS_LOCK_WALLET = 'settings_lockWallet',
 
-  MESSAGE_GET = 'message_getMessage',
-  MESSAGE_UPDATE = 'message_updateMessage',
+  ACTION_GET = 'action_getAction',
+  ACTION_UPDATE = 'action_updateAction',
 
   PERMISSIONS_ADD_DOMAIN = 'permissions_addDomain',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',

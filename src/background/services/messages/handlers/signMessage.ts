@@ -4,12 +4,13 @@ import { DappRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { defer, filter, firstValueFrom, map, merge, tap } from 'rxjs';
 import {
-  addMessage$,
-  updateMessage$,
-  pendingMessages$,
-} from '../../messages/messages';
-import { MessageType } from '../../messages/models';
-import { TxStatus } from '../../transactions/models';
+  addAction$,
+  pendingActions$,
+  updateAction$,
+} from '../../actions/actions';
+import { ActionStatus } from '../../actions/models';
+import { MessageType } from '../models';
+import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { signMessageTx } from '../utils/signMessageTx';
 
 class PersonalSignHandler implements DappRequestHandler {
@@ -31,7 +32,11 @@ class PersonalSignHandler implements DappRequestHandler {
         error: 'wallet undefined',
       };
     }
-    addMessage$.next(request);
+    const actionData = {
+      ...request,
+      displayData: paramsToMessageParams(request),
+    };
+    addAction$.next(actionData);
 
     const window = await openExtensionNewWindow(
       `sign?id=${request.id}`,
@@ -45,8 +50,8 @@ class PersonalSignHandler implements DappRequestHandler {
         error: 'Signature rejected by user',
       })),
       tap(() => {
-        updateMessage$.next({
-          status: TxStatus.ERROR_USER_CANCELED,
+        updateAction$.next({
+          status: ActionStatus.ERROR_USER_CANCELED,
           id: request.id,
           error: 'Signature rejected by user',
         });
@@ -55,28 +60,28 @@ class PersonalSignHandler implements DappRequestHandler {
 
     const signTx$ = defer(async () => {
       const pendingMessage = await firstValueFrom(
-        pendingMessages$.pipe(
+        pendingActions$.pipe(
           map(
             (currentPendingMessages) => currentPendingMessages[`${request.id}`]
           ),
           filter(
-            (pending) => !!pending && pending.status === TxStatus.SUBMITTING
+            (pending) => !!pending && pending.status === ActionStatus.SUBMITTING
           )
         )
       );
 
       return signMessageTx(pendingMessage, walletResult)
         .then((result) => {
-          updateMessage$.next({
-            status: TxStatus.SIGNED,
+          updateAction$.next({
+            status: ActionStatus.COMPLETED,
             id: request.id,
             result,
           });
           return { ...request, result };
         })
         .catch((err) => {
-          updateMessage$.next({
-            status: TxStatus.ERROR,
+          updateAction$.next({
+            status: ActionStatus.ERROR,
             id: request.id,
             error: err?.message ?? err.toString(),
           });

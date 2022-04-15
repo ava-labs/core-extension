@@ -2,15 +2,15 @@
 
 import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
-import { GasPrice } from '../gas/models';
 import * as ethers from 'ethers';
+import { GasPrice } from '../gas/models';
 
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
   PENDING = 'pending',
   // user has approved and we are waiting on the background to confirm
   SUBMITTING = 'submitting',
-  // tx was submitted and returned succesfull
+  // tx was submitted and returned successful
   SIGNED = 'signed',
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',

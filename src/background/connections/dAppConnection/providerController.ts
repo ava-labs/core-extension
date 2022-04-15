@@ -1,11 +1,6 @@
-import { ExtensionConnectionMessage, DappRequestHandler } from '../models';
-import { ConnectRequest } from '@src/background/services/web3/handlers/connect';
-import { DAppProviderRequest } from './models';
-import { EthAccountsRequest } from '@src/background/services/web3/handlers/eth_accounts';
-import { EthSendTransactionRequest } from '@src/background/services/web3/handlers/eth_sendTransaction';
-import { InitDappStateRequest } from '@src/background/services/web3/handlers/metamask_getProviderState';
-import { SetDomainMetadataRequest } from '@src/background/services/web3/handlers/metamask_sendDomainMetadata';
-import { PersonalEcRecoverRequest } from '@src/background/services/web3/handlers/personal_ecRecover';
+import { AvalancheGetAccountsRequest } from '@src/background/services/accounts/handlers/avalanche_getAccounts';
+import { AvalancheGetBridgeStateRequest } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
+import { AvalancheGetContactsRequest } from '@src/background/services/contacts/handlers/avalanche_getContacts';
 import {
   PersonalSignRequest,
   SignRequest,
@@ -14,25 +9,31 @@ import {
   SignTypedDataV3Request,
   SignTypedDataV4Request,
 } from '@src/background/services/messages/handlers/signMessage';
+import { SettingsGetIsDefaultExtensionDappRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
+import { ConnectRequest } from '@src/background/services/web3/handlers/connect';
+import { EthAccountsRequest } from '@src/background/services/web3/handlers/eth_accounts';
+import { EthSendTransactionRequest } from '@src/background/services/web3/handlers/eth_sendTransaction';
+import { InitDappStateRequest } from '@src/background/services/web3/handlers/metamask_getProviderState';
+import { SetDomainMetadataRequest } from '@src/background/services/web3/handlers/metamask_sendDomainMetadata';
+import { PersonalEcRecoverRequest } from '@src/background/services/web3/handlers/personal_ecRecover';
 import { WalletAddChainRequest } from '@src/background/services/web3/handlers/wallet_addEthereumChain';
 import { WalletGetPermissionsRequest } from '@src/background/services/web3/handlers/wallet_getPermissions';
 import { WalletPermissionsRequest } from '@src/background/services/web3/handlers/wallet_requestPermissions';
-import { Runtime } from 'webextension-polyfill-ts';
 import { WalletSwitchEthereumChain } from '@src/background/services/web3/handlers/wallet_switchEthereumChain';
-import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
-import { SiteMetadataMiddleware } from '../middlewares/SiteMetadataMiddleware';
+import { responseLog } from '@src/utils/logging';
+import { resolve } from '@src/utils/promiseResolver';
+import { Runtime } from 'webextension-polyfill-ts';
+import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
+import { RequestHandlerMiddleware } from '../middlewares/RequestHandlerMiddleware';
 import {
   LoggerMiddleware,
   SideToLog,
 } from '../middlewares/RequestLoggerMiddleware';
-import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
-import { RequestHandlerMiddleware } from '../middlewares/RequestHandlerMiddleware';
-import { resolve } from '@src/utils/promiseResolver';
-import { responseLog } from '@src/utils/logging';
-import { SettingsGetIsDefaultExtensionDappRequest } from '@src/background/services/settings/handlers/getIsDefaultExtension';
-import { AvalancheGetContactsRequest } from '@src/background/services/contacts/handlers/avalanche_getContacts';
-import { AvalancheGetAccountsRequest } from '@src/background/services/accounts/handlers/avalanche_getAccounts';
-import { AvalancheGetBridgeStateRequest } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
+import { SiteMetadataMiddleware } from '../middlewares/SiteMetadataMiddleware';
+import { DappRequestHandler, ExtensionConnectionMessage } from '../models';
+import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
+import { AvalancheTransferAssetRequest } from './../../services/bridge/handlers/AvalancheBridgeAsset';
+import { DAppProviderRequest } from './models';
 
 const dappProviderRequestHandlerMap = new Map<
   DAppProviderRequest,
@@ -57,6 +58,7 @@ const dappProviderRequestHandlerMap = new Map<
   SettingsGetIsDefaultExtensionDappRequest,
   AvalancheGetContactsRequest,
   AvalancheGetAccountsRequest,
+  AvalancheTransferAssetRequest,
   AvalancheGetBridgeStateRequest,
 ]);
 

@@ -1,3 +1,5 @@
+import { bridgeTransactionsUpdatedEvent } from '@src/background/services/bridge/events/bridgeTransactionsUpdateEvents';
+import { bridgeTransferEvent } from '@src/background/services/bridge/events/bridgeTransferEvents';
 import { accountsChangedEvents } from '@src/background/services/web3/events/accountsChangedEvent';
 import { chainChangedEvents } from '@src/background/services/web3/events/chainChangedEvent';
 import { unlockStateChangedEvents } from '@src/background/services/web3/events/unlockStateChangedEvent';
@@ -25,7 +27,10 @@ export function providerEventsController(connection: Runtime.Port) {
   return merge(
     accountsChangedEvents(connectionDomain),
     chainChangedEvents(),
-    unlockStateChangedEvents()
+    unlockStateChangedEvents(),
+    // for CoreX
+    bridgeTransferEvent(),
+    bridgeTransactionsUpdatedEvent()
   ).pipe(
     tap((evt) => connection.postMessage({ name: INPAGE_PROVIDER, data: evt }))
   );

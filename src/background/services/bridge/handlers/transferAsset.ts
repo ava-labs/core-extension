@@ -1,8 +1,13 @@
-import { bnToBig, stringToBN, WalletType } from '@avalabs/avalanche-wallet-sdk';
+import {
+  Big,
+  bnToBig,
+  stringToBN,
+  WalletType,
+} from '@avalabs/avalanche-wallet-sdk';
 import {
   Blockchain,
-  WrapStatus,
   transferAsset as transferAssetSDK,
+  WrapStatus,
   EthereumConfigAsset,
   NativeAsset,
 } from '@avalabs/bridge-sdk';
@@ -16,9 +21,9 @@ import {
 import {
   ConnectionRequestHandler,
   ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
   ExtensionRequest,
 } from '@src/background/connections/models';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { BNLike, BufferLike } from 'ethereumjs-util';
 import { BigNumber, BigNumberish } from 'ethers';
 import { firstValueFrom } from 'rxjs';
@@ -31,7 +36,7 @@ import { getEthereumProvider } from '../getEthereumProvider';
 import { TransferEventType } from '../models';
 import { transferEvent$ } from '../transferEvent';
 
-async function transferAsset(
+export async function transferAsset(
   currentBlockchain: Blockchain,
   amount: Big,
   account: string,
@@ -110,7 +115,9 @@ function makeBNLike(n: BigNumberish | undefined): BNLike | undefined {
   return BigNumber.from(n).toHexString();
 }
 
-async function transferAssetHandler(request: ExtensionConnectionMessage) {
+export async function transferAssetHandler(
+  request: ExtensionConnectionMessage
+): Promise<ExtensionConnectionMessageResponse<TransactionResponse>> {
   const wallet = await firstValueFrom(wallet$);
   const walletState = await firstValueFrom(walletState$);
   if (!wallet || !walletState || isWalletLocked(walletState))
@@ -150,7 +157,6 @@ async function transferAssetHandler(request: ExtensionConnectionMessage) {
     };
   }
 }
-
 export const TransferAssetRequest: [
   ExtensionRequest,
   ConnectionRequestHandler<TransactionResponse>

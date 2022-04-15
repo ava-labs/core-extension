@@ -5,8 +5,8 @@ import {
   ExtensionConnectionMessage,
   ExtensionRequest,
 } from '../models';
-import { UpdateMessageByIdRequest } from '../../services/messages/handlers/updateMessage';
-import { GetMessageByIdRequest } from '../../services/messages/handlers/getMessage';
+import { UpdateActionByIdRequest } from '../../services/actions/updateAction';
+import { GetMessageByIdRequest } from '../../services/actions/getActions';
 import { networkUpdateEvents } from '../../services/network/events/networkUpdatedEvent';
 import { GetNetworkRequest } from '../../services/network/handlers/getSelectedNetwork';
 import { SetNetworkRequest } from '../../services/network/handlers/setSelectedNetwork';
@@ -109,7 +109,7 @@ const extensionRequestHandlerMap = new Map<
   ConnectionRequestHandler
 >([
   GetMessageByIdRequest,
-  UpdateMessageByIdRequest,
+  UpdateActionByIdRequest,
 
   GetOnboardingStateRequest,
   SetOnboardingPhaseRequest,
