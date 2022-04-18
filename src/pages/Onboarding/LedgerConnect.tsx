@@ -15,6 +15,7 @@ import {
 import { useLedgerSupportContext } from '@src/contexts/LedgerSupportProvider';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 interface LedgerConnectProps {
   onCancel(): void;
@@ -49,6 +50,7 @@ export function LedgerConnect({
     hasLedgerTransport,
     initLedgerTransport,
   } = useLedgerSupportContext();
+  const { setPublicKey } = useOnboardingContext();
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
     LedgerStatus.LEDGER_LOADING
   );
@@ -58,6 +60,7 @@ export function LedgerConnect({
       getPublicKey()
         .then((res) => {
           if (res) {
+            setPublicKey(res);
             setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
             capture('OnboardingLedgerConnected');
             setTimeout(() => {
@@ -70,7 +73,7 @@ export function LedgerConnect({
           setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
           popDeviceSelection();
         }),
-    [capture, getPublicKey, onNext, popDeviceSelection]
+    [capture, getPublicKey, onNext, popDeviceSelection, setPublicKey]
   );
 
   useEffect(() => {

@@ -2,7 +2,7 @@ import { filterFalseyValues } from '@src/utils/filterFalsyValues';
 import { stateLog } from '@src/utils/logging';
 import { combineLatest, map, throttleTime } from 'rxjs';
 import { contacts$ } from './contacts/contacts';
-import { onboardingStatus$ } from './onboarding/onboardingFlows';
+import { onboardingState$ } from './onboarding/onboardingState';
 import { permissions$ } from './permissions/permissions';
 import {
   pendingTransactions$,
@@ -39,7 +39,7 @@ combineLatest([
   transactions$.pipe(toStructure('transactions')),
   pendingTransactions$.pipe(toStructure('transactionsPending')),
   permissions$.pipe(toStructure('permissions')),
-  onboardingStatus$.pipe(filterFalseyValues(), toStructure('onboardingStatus')),
+  onboardingState$.pipe(filterFalseyValues(), toStructure('onboardingStatus')),
   network$.pipe(toStructure('network')),
   walletState$.pipe(filterFalseyValues(), toStructure('walletState')),
   settings$.pipe(toStructure('settingsState')),

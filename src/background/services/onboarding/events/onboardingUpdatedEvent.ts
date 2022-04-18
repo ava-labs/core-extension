@@ -1,10 +1,10 @@
 import { combineLatest, filter, map } from 'rxjs';
 import { wallet$ } from '@avalabs/wallet-react-components';
-import { onboardingStatus$ } from '../onboardingFlows';
+import { onboardingState$ } from '../onboardingState';
 import { OnboardingEvents } from './models';
 
 export function onboardingUpdatedEvent() {
-  return combineLatest([onboardingStatus$, wallet$]).pipe(
+  return combineLatest([onboardingState$, wallet$]).pipe(
     filter(
       ([onboarded, wallet]) => !!(onboarded && onboarded.isOnBoarded && wallet)
     ),

@@ -31,12 +31,23 @@ export function ConnectionContextProvider({ children }: { children: any }) {
   const [eventsHandler, setEventsHandler] = useState<Subject<any>>();
 
   useEffect(() => {
-    const connection: Runtime.Port = extension.runtime.connect({
-      name: EXTENSION_SCRIPT,
-    });
+    function getAndSetNewConnection() {
+      const newConnection: Runtime.Port = extension.runtime.connect({
+        name: EXTENSION_SCRIPT,
+      });
+      newConnection.onDisconnect.addListener(() => {
+        console.log('Reconnecting...');
+        getAndSetNewConnection();
+      });
+      setConnection(newConnection);
+    }
 
+    if (!connection) {
+      getAndSetNewConnection();
+    }
     setEventsHandler(new Subject<ExtensionConnectionEvent>());
-    setConnection(connection);
+    // This is for initialization of states and needs to only run once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const engine = useMemo(

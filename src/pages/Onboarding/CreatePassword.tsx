@@ -149,12 +149,11 @@ export const CreatePassword = ({
           capture('OnboardingPasswordSet', {
             AccountNameSet: !!accountName,
           });
-          setPasswordAndName(password, accountName).then(() =>
-            setNextPhase(
-              isImportFlow
-                ? OnboardingPhase.FINALIZE
-                : OnboardingPhase.CREATE_WALLET
-            )
+          setPasswordAndName(password, accountName);
+          setNextPhase(
+            isImportFlow
+              ? OnboardingPhase.FINALIZE
+              : OnboardingPhase.CREATE_WALLET
           );
         }}
       >

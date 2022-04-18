@@ -10,13 +10,9 @@ import { GetMessageByIdRequest } from '../../services/actions/getActions';
 import { networkUpdateEvents } from '../../services/network/events/networkUpdatedEvent';
 import { GetNetworkRequest } from '../../services/network/handlers/getSelectedNetwork';
 import { SetNetworkRequest } from '../../services/network/handlers/setSelectedNetwork';
-import { onboardingPhaseUpdatedEvent } from '../../services/onboarding/events/onboardingPhaseEvent';
 import { onboardingUpdatedEvent } from '../../services/onboarding/events/onboardingUpdatedEvent';
 import { GetOnboardingStateRequest } from '../../services/onboarding/handlers/getIsOnBoarded';
-import { SetOnboardingFinalizedRequest } from '../../services/onboarding/handlers/setOnboardingFinalized';
-import { SetOnboardingPhaseRequest } from '../../services/onboarding/handlers/setWalletImportOrCreatePhase';
-import { SetOnboardingMnemonicRequest } from '../../services/onboarding/handlers/setWalletMnemonic';
-import { SetOnboardingPasswordRequest } from '../../services/onboarding/handlers/setWalletPassword';
+import { OnboardingSubmitRequest } from '../../services/onboarding/handlers/submitOnboarding';
 import { AddPermissionsForDomainRequest } from '../../services/permissions/handlers/addPermissionsForDomain';
 import { GetAccountsForPermissionsRequest } from '../../services/permissions/handlers/getAccountsForPermissions';
 import { GetPermissionsForDomainRequest } from '../../services/permissions/handlers/getPermissionsForDomain';
@@ -97,7 +93,6 @@ import { SettingsSetAnalyticsConsentRequest } from '@src/background/services/set
 import { ledgerDeviceRequest } from '@src/background/services/ledger/events/ledgerDeviceRequest';
 import { LedgerResponseRequest } from '@src/background/services/ledger/handlers/ledgerResponse';
 import { isDevelopment } from '@src/utils/isDevelopment';
-import { SetOnboardingAnalyticsConsentRequest } from '@src/background/services/onboarding/handlers/setAnalyticsConsent';
 import { analyticsStateUpdatedEvent } from '@src/background/services/analytics/events/analyticsStateUpdatedEvent';
 import { AnalyticsStoreIdsRequest } from '@src/background/services/analytics/handlers/storeAnalyticsIds';
 import { AnalyticsInitIdsRequest } from '@src/background/services/analytics/handlers/initAnalyticsIds';
@@ -112,11 +107,7 @@ const extensionRequestHandlerMap = new Map<
   UpdateActionByIdRequest,
 
   GetOnboardingStateRequest,
-  SetOnboardingPhaseRequest,
-  SetOnboardingFinalizedRequest,
-  SetOnboardingMnemonicRequest,
-  SetOnboardingPasswordRequest,
-  SetOnboardingAnalyticsConsentRequest,
+  OnboardingSubmitRequest,
 
   GetNetworkRequest,
   SetNetworkRequest,
@@ -240,7 +231,6 @@ export function extensionEventsHandler(connection: Runtime.Port) {
     bridgeTransferEvent(),
     walletUpdateEvents,
     permissionsUpdateEvents,
-    onboardingPhaseUpdatedEvent(),
     gasPriceTransactionUpdate(),
     transactionFinalizedUpdate(),
     settingsUpdatedEvent(),

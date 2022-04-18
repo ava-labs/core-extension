@@ -77,9 +77,8 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
         disabled={nextButtonDisabled}
         onClick={async () => {
           capture('OnboardingMnemonicImported');
-          setMnemonic(recoveryPhrase).then(() =>
-            setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)
-          );
+          setMnemonic(recoveryPhrase);
+          setNextPhase(OnboardingPhase.ANALYTICS_CONSENT);
         }}
       >
         Next

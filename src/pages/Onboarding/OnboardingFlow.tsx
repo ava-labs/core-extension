@@ -18,25 +18,26 @@ import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { WalletCreated } from './WalletCreated';
 
 export function OnboardingFlow() {
-  const { onboardingPhase, onboardingState, setNextPhase, setFinalized } =
+  const { nextPhase, onboardingState, setNextPhase, submit, submitInProgress } =
     useOnboardingContext();
   const { initAnalyticsIds, capture } = useAnalyticsContext();
   const [isImportFlow, setIsImportFlow] = useState<boolean>(false);
   const [isLedgerFlow, setIsLedgerFlow] = useState<boolean>(false);
 
   async function handleOnCancel() {
-    capture('OnboardingCancelled', { step: onboardingPhase });
+    capture('OnboardingCancelled', { step: nextPhase });
     setIsImportFlow(false);
     await setNextPhase(OnboardingPhase.RESTART);
   }
   useEffect(() => {
     if (
-      onboardingPhase === OnboardingPhase.FINALIZE &&
-      !onboardingState.isOnBoarded
+      nextPhase === OnboardingPhase.FINALIZE &&
+      !onboardingState.isOnBoarded &&
+      !submitInProgress
     ) {
-      setFinalized();
+      submit();
     }
-  }, [onboardingPhase, onboardingState.isOnBoarded, setFinalized]);
+  }, [nextPhase, onboardingState.isOnBoarded, submit, submitInProgress]);
 
   useEffect(() => {
     initAnalyticsIds();
@@ -66,7 +67,7 @@ export function OnboardingFlow() {
     />
   );
 
-  switch (onboardingPhase) {
+  switch (nextPhase) {
     case OnboardingPhase.CREATE_WALLET:
       content = (
         <CreateWallet
@@ -139,7 +140,7 @@ export function OnboardingFlow() {
       break;
   }
 
-  if (onboardingPhase === OnboardingPhase.FINALIZE) {
+  if (nextPhase === OnboardingPhase.FINALIZE) {
     return <WalletCreated />;
   }
 

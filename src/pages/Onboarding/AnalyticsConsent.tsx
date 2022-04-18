@@ -110,9 +110,8 @@ export const AnalyticsConsent = () => {
           margin="0 16px 0 0"
           onClick={async () => {
             capture('OnboardingAnalyticsAccepted');
-            setAnalyticsConsent(true).then(() =>
-              setNextPhase(OnboardingPhase.PASSWORD)
-            );
+            setAnalyticsConsent(true);
+            setNextPhase(OnboardingPhase.PASSWORD);
           }}
         >
           I Agree
@@ -123,9 +122,8 @@ export const AnalyticsConsent = () => {
           onClick={async () => {
             capture('OnboardingAnalyticsRejected');
             stopDataCollection();
-            setAnalyticsConsent(false).then(() =>
-              setNextPhase(OnboardingPhase.PASSWORD)
-            );
+            setAnalyticsConsent(false);
+            setNextPhase(OnboardingPhase.PASSWORD);
           }}
         >
           <Typography size={16} weight={600} color={theme.colors.text2}>

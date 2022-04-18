@@ -76,12 +76,7 @@ export interface DappRequestHandler<T = any> {
 
 export enum ExtensionRequest {
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
-  ONBOARDING_SET_PHASE = 'onboarding_setCurrentPhase',
-  ONBOARDING_SET_MNEMONIC = 'onboarding_setWalletMnemonic',
-  ONBOARDING_SET_ANALYTICS_CONSENT = 'onboarding_setAnalyticsConsent',
-  ONBOARDING_SET_PASSWORD_AND_NAME = 'onboarding_setWalletPasswordAndName',
-  ONBOARDING_SET_ACCOUNT_NAME = 'onboarding_setAccountName',
-  ONBOARDING_SET_FINALIZED = 'onboarding_setOnboardingFinalized',
+  ONBOARDING_SUBMIT = 'onboarding_submit',
   ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',
 
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',

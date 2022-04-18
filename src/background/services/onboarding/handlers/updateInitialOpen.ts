@@ -5,11 +5,11 @@ import {
 } from '@src/background/connections/models';
 import { firstValueFrom } from 'rxjs';
 import { OnboardingState } from '@src/background/services/onboarding/models';
-import { onboardingStatus$ } from '@src/background/services/onboarding/onboardingFlows';
+import { onboardingState$ } from '@src/background/services/onboarding/onboardingState';
 import { saveInitialOpenToStorage } from '@src/background/services/onboarding/storage';
 
 export async function updateInitialOpen(request: ExtensionConnectionMessage) {
-  const onboardingStatus = await firstValueFrom(onboardingStatus$);
+  const onboardingStatus = await firstValueFrom(onboardingState$);
   const isInitialOpen = false;
 
   let updatedOnboardingStatus: OnboardingState | undefined;
@@ -23,7 +23,7 @@ export async function updateInitialOpen(request: ExtensionConnectionMessage) {
 
   await saveInitialOpenToStorage(isInitialOpen);
 
-  updatedOnboardingStatus && onboardingStatus$.next(updatedOnboardingStatus);
+  updatedOnboardingStatus && onboardingState$.next(updatedOnboardingStatus);
 
   return {
     ...request,

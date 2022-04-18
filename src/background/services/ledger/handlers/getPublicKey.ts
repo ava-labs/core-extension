@@ -7,7 +7,6 @@ import {
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { firstValueFrom } from 'rxjs';
-import { onboardingPublicKey$ } from '../../onboarding/onboardingFlows';
 
 export async function getPublicKey(request: ExtensionConnectionMessage) {
   const transport = await firstValueFrom(ledgerTransport$);
@@ -42,12 +41,6 @@ export async function getPublicKey(request: ExtensionConnectionMessage) {
         'Public key could not be derived, transport may have been disconnected or locked',
     };
   }
-
-  /**
-   * Not the most ideal place for this but when the UI is requesting the public key that means we are in the onboaridng
-   * stage and that we need this pushed. This may change locations but for now it "works"
-   */
-  onboardingPublicKey$.next(pubKey);
 
   return {
     ...request,

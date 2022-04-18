@@ -9,7 +9,7 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import { onboardingStatus$ } from '../onboarding/onboardingFlows';
+import { onboardingState$ } from '../onboarding/onboardingState';
 import { getMnemonicFromStorage, getPublicKeyFromStorage } from './storage';
 import { clearWallet, wallet$ } from '@avalabs/wallet-react-components';
 import { resolve } from '@src/utils/promiseResolver';
@@ -37,7 +37,7 @@ wallet$
     switchMap(async (wallet) => {
       const [encryptedMnemonic] = await resolve(getMnemonicFromStorage());
       const [encryptedPubKey] = await resolve(getPublicKeyFromStorage());
-      const onboardingState = await firstValueFrom(onboardingStatus$);
+      const onboardingState = await firstValueFrom(onboardingState$);
 
       if (wallet) {
         return Promise.resolve({ locked: false });
