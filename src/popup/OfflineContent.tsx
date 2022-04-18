@@ -20,6 +20,10 @@ export const AnimatedLogo = styled.div`
   animation: 6s ease-in infinite fade;
 `;
 
+const BetaLabelWrapper = styled.div`
+  margin: 6px 0;
+`;
+
 interface OfflineContent {
   message?: string;
 }
@@ -38,9 +42,11 @@ export function OfflineContent({ message }) {
       <AnimatedLogo>
         <Logo height={96} />
       </AnimatedLogo>
-      <VerticalFlex>
+      <VerticalFlex align="end">
         <BrandName height={42} animated />
-        <BetaLabel />
+        <BetaLabelWrapper>
+          <BetaLabel />
+        </BetaLabelWrapper>
       </VerticalFlex>
       {message && (
         <Typography size={16} align="center" height="24px" margin="32px 0">
