@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -10,6 +11,7 @@ import styled from 'styled-components';
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
 import { PageTitleMiniMode } from '@src/components/common/PageTitle';
 import { AvalancheQRCodeLogo } from '@src/components/icons/AvalancheQRCodeLogo';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   width: 100%;
@@ -17,6 +19,12 @@ const StyledPrimaryAddress = styled(PrimaryAddress)`
 
 export const Receive = () => {
   const { addresses } = useWalletContext();
+  const { capture } = useAnalyticsContext();
+
+  useEffect(() => {
+    capture('ReceivePageVisited');
+  }, [capture]);
+
   const getAddress = () => {
     return addresses.addrC;
   };

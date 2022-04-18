@@ -64,6 +64,7 @@ export function SendMiniMode() {
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [gasPriceState, setGasPrice] = useState<GasPrice>();
+  const { capture } = useAnalyticsContext();
 
   const isMainnet = useIsMainnet();
 
@@ -91,7 +92,7 @@ export function SendMiniMode() {
     sendState.reset();
   };
 
-  const onContactChanged = (contact: Contact) => {
+  const onContactChanged = (contact: Contact, selectedTab?: string) => {
     setSendDataInParams({
       token: selectedToken,
       address: contact.address,
@@ -101,6 +102,9 @@ export function SendMiniMode() {
       token: selectedToken,
       amount: amountInputDisplay,
       address: contact.address,
+    });
+    capture('SendContactSelected', {
+      contactSource: selectedTab,
     });
   };
 
@@ -181,7 +185,9 @@ export function SendMiniMode() {
   const onSubmit = () => {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
-
+    capture('SendApproved', {
+      selectedGasFee,
+    });
     let toastId: string;
     if (walletType !== 'ledger') {
       history.push('/home');
@@ -301,6 +307,12 @@ export function SendMiniMode() {
                       token: selectedToken,
                       address: contactInput?.address,
                       options: { path: '/send/confirm' },
+                    });
+
+                    capture('SendTokenAndAmountSelected', {
+                      selectedToken:
+                        selectedToken.address || selectedToken.symbol,
+                      amount: amountInputDisplay,
                     });
                   }}
                   disabled={!sendState.canSubmit}

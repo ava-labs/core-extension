@@ -87,6 +87,7 @@ export function Bridge() {
   const history = useHistory();
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [isSwitched, setIsSwitched] = useState(false);
+  const { capture } = useAnalyticsContext();
 
   const isAmountTooLow =
     amount && !amount.eq(BIG_ZERO) && amount.lt(minimum || BIG_ZERO);
@@ -122,6 +123,13 @@ export function Bridge() {
 
   const handleTransfer = async () => {
     if (BIG_ZERO.eq(amount)) return;
+
+    capture('BridgeTransferStarted', {
+      currentAsset,
+      sourceBlockchain: currentBlockchain,
+      targetBlockchain,
+      amount: amount.toString(),
+    });
 
     setIsPending(true);
     const hash = await transfer();
@@ -238,6 +246,9 @@ export function Bridge() {
                   onInputAmountChange={handleAmountChanged}
                   padding="8px 16px"
                   onError={(errorMessage) => {
+                    capture('BridgeTokenSelectError', {
+                      errorMessage,
+                    });
                     setBridgeError(errorMessage);
                   }}
                   skipHandleMaxAmount

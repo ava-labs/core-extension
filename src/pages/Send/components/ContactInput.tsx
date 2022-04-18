@@ -30,7 +30,7 @@ const truncateName = (name: string) => {
 
 type ContactInputProps = {
   contact?: Contact;
-  onChange(contact?: Contact): void;
+  onChange(contact?: Contact, selectedTab?: string): void;
   isContactsOpen: boolean;
   toggleContactsDropdown(to?: boolean): void;
 };
@@ -45,8 +45,8 @@ export const ContactInput = ({
   const inputRef = useRef<HTMLDivElement>(null);
   const identifyAddress = useIdentifyAddress();
 
-  const changeAndCloseDropdown = (contact: Contact) => {
-    onChange(contact);
+  const changeAndCloseDropdown = (contact: Contact, selectedTab: string) => {
+    onChange(contact, selectedTab);
     toggleContactsDropdown();
   };
 

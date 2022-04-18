@@ -12,7 +12,7 @@ const FALLBACK_MAX = new BN(0);
 type SendFormMiniModeProps = {
   sendState: (SendStateWithActions & { errors: SendErrors }) | null;
   contactInput?: Contact;
-  onContactChange(contact?: Contact): void;
+  onContactChange(contact?: Contact, selectedTab?: string): void;
   selectedToken?: TokenWithBalance | null;
   onTokenChange(token: TokenWithBalance): void;
   amountInput?: BN;

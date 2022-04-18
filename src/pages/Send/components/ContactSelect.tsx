@@ -39,10 +39,10 @@ const Tab = styled(HorizontalFlex)<{ selected?: boolean }>`
     selected ? `2px solid ${theme.colors.text1}` : '2px solid transparent'}; ;
 `;
 
-type ContactSelectProps = {
+interface ContactSelectProps {
   selectedContact?: Contact;
-  onChange(contact: Contact): void;
-};
+  onChange(contact: Contact, selectedTab: string): void;
+}
 
 export const ContactSelect = ({
   onChange,
@@ -112,20 +112,20 @@ export const ContactSelect = ({
         <AddressDropdownList
           contacts={formattedTxHistory}
           selectedContact={selectedContact}
-          onChange={onChange}
+          onChange={(contact) => onChange(contact, selectedTab)}
         />
       )}
       {selectedTab === 'addressBook' && (
         <AddressDropdownList
           contacts={formattedContacts}
-          onChange={onChange}
+          onChange={(contact) => onChange(contact, selectedTab)}
           selectedContact={selectedContact}
         />
       )}
       {selectedTab === 'accounts' && (
         <AddressDropdownList
           contacts={formattedAccounts}
-          onChange={onChange}
+          onChange={(contact) => onChange(contact, selectedTab)}
           selectedContact={selectedContact}
         />
       )}

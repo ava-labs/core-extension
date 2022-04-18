@@ -42,6 +42,7 @@ import { VsCurrencyType } from '@avalabs/coingecko-sdk';
 import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { getLinkForBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -139,6 +140,7 @@ const BridgeTransactionStatus = () => {
     currency.toLowerCase() as VsCurrencyType
   );
   const networkPrice = usePriceForChain(bridgeTransaction?.sourceChain);
+  const { capture } = useAnalyticsContext();
 
   const formattedNetworkPrice =
     networkPrice && bridgeTransaction?.sourceNetworkFee
@@ -194,11 +196,13 @@ const BridgeTransactionStatus = () => {
                   confirmText: 'Hide',
                   width: '343px',
                   onConfirm: async () => {
+                    capture('BridgeTransactionHide');
                     history.replace('/home');
                     clearDialog();
                   },
                   cancelText: 'Back',
                   onCancel: () => {
+                    capture('BridgeTransactionHideCancel');
                     clearDialog();
                   },
                 });

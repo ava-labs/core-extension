@@ -31,6 +31,7 @@ const DefaultFeatureFlagConfig = {
 
 export function AnalyticsContextProvider({ children }: { children: any }) {
   const [posthogInstance, setPosthogInstance] = useState<any>();
+
   const { request, events } = useConnectionContext();
   const [flags, setFlags] = useState<Record<FeatureGates, boolean>>(
     DefaultFeatureFlagConfig
@@ -68,7 +69,6 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     ) {
       return;
     }
-
     initPosthog(
       process.env.POSTHOG_KEY ?? '',
       {

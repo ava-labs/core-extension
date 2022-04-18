@@ -23,7 +23,7 @@
     "@avalabs/react-components": "1.93.0",
     "@avalabs/snowtrace-sdk": "2.2.0",
     "@avalabs/utils-sdk": "2.2.0",
-    "@avalabs/wallet-react-components": "1.30.2",
+    "@avalabs/wallet-react-components": "1.30.3",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
     "@ethereumjs/tx": "3.4.0",

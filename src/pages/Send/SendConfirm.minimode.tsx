@@ -33,6 +33,7 @@ import {
   PageTitleMiniMode,
   PageTitleVariant,
 } from '@src/components/common/PageTitle';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const SummaryAvaxTokenIcon = styled(AvaxTokenIcon)`
   position: absolute;
@@ -148,6 +149,7 @@ export const SendConfirmMiniMode = ({
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
+  const { capture } = useAnalyticsContext();
 
   useLedgerDisconnectedDialog(() => {
     history.goBack();
@@ -310,7 +312,12 @@ export const SendConfirmMiniMode = ({
               <SecondaryButton
                 width="168px"
                 size={ComponentSize.LARGE}
-                onClick={() => history.goBack()}
+                onClick={() => {
+                  capture('SendCancel', {
+                    selectedGasFee,
+                  });
+                  history.goBack();
+                }}
               >
                 Cancel
               </SecondaryButton>

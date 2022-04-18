@@ -122,10 +122,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.2.0.tgz#14d771f98ba5ed164410fa0cf7c263ba9e3a0dea"
   integrity sha512-W/CsP0J0587v39XVXi/z2ptkD/inEWg9HrvhtRz3cCreGEjwoJhwODFrPpCyxhM38GfwMEXNiMYcrcKBt9jJpQ==
 
-"@avalabs/wallet-react-components@1.30.2":
-  version "1.30.2"
-  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.30.2.tgz#2e9d19b04d16ef1a6e72f82bf5ab3d1d6e301119"
-  integrity sha512-g/HWnPzV5XE+hVVhToOSzgCFGk6s6HvMZ8+YoufefViJDpS+AV+py/JumaEl6odc20jhQR8/ZQJLO741WtNb1g==
+"@avalabs/wallet-react-components@1.30.3":
+  version "1.30.3"
+  resolved "https://registry.yarnpkg.com/@avalabs/wallet-react-components/-/wallet-react-components-1.30.3.tgz#407ed1c0f03a0dba3371a22135c025c3dd219f10"
+  integrity sha512-p0PYCsoxd6UQUNfht/CXsBMXoPydsoeOn6ox7X8lqxEK35uEmeud4BObJ7XNUpyhDhltGDjXRqEDMsCiYcFBiQ==
   dependencies:
     "@avalabs/utils-sdk" "2.1.0"
     "@ledgerhq/hw-transport" "6.20.0"

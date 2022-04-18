@@ -82,7 +82,7 @@ const TryAgainButton = styled.span`
 `;
 
 export function Swap() {
-  const { flags } = useAnalyticsContext();
+  const { flags, capture } = useAnalyticsContext();
   const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
@@ -713,7 +713,18 @@ export function Swap() {
             <PrimaryButton
               width="100%"
               margin="16px 0 0 0"
-              onClick={() => setIsReviewOrderOpen(true)}
+              onClick={() => {
+                capture('SwapReviewOrder', {
+                  fromToken:
+                    selectedFromToken?.address || selectedFromToken?.symbol,
+                  toToken: selectedToToken?.address || selectedToToken?.symbol,
+                  fromTokenValue: fromTokenValue?.amount,
+                  destinationInputField,
+                  slippageTolerance,
+                  customGasPrice: customGasPrice?.value,
+                });
+                setIsReviewOrderOpen(true);
+              }}
               size={ComponentSize.LARGE}
               disabled={isLoading || !canSwap}
             >
@@ -727,13 +738,20 @@ export function Swap() {
         <ReviewOrder
           fromToken={selectedFromToken}
           toToken={selectedToToken}
-          onClose={() => setIsReviewOrderOpen(false)}
-          onConfirm={() => onHandleSwap()}
+          onClose={() => {
+            capture('SwapCancelled');
+            setIsReviewOrderOpen(false);
+          }}
+          onConfirm={() => {
+            capture('SwapConfirmed');
+            onHandleSwap();
+          }}
           optimalRate={optimalRate}
           gasLimit={gasLimit}
           gasPrice={customGasPrice || gasPrice}
           slippage={slippageTolerance}
           onTimerExpire={() => {
+            capture('SwapReviewTimerRestarted');
             if (fromTokenValue) {
               const srcToken =
                 destinationInputField === 'to'
