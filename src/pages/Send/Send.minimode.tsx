@@ -52,6 +52,7 @@ export function SendMiniMode() {
   const history = useHistory();
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
+
   const sendState = useSend(selectedToken);
 
   const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
@@ -75,6 +76,14 @@ export function SendMiniMode() {
     amountInput?: string;
   } = getPageHistoryData();
 
+  // this will prevent the amount reset after come back from Confirmation page or when the user set the amount before choose the destionation address
+  useEffect(() => {
+    if (amountInputDisplay && !pageHistory?.amountInput) {
+      setNavigationHistoryData({
+        amountInput: amountInputDisplay,
+      });
+    }
+  }, [amountInputDisplay, pageHistory?.amountInput, setNavigationHistoryData]);
   // Reset send state before leaving the send flow.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => resetSendFlow, []);
@@ -155,13 +164,20 @@ export function SendMiniMode() {
   // restore page history
   useEffect(() => {
     if (pageHistory) {
+      !amountInputDisplay && setAmountInputDisplay(pageHistory?.amountInput);
       setSendState({
         token: selectedToken,
-        amount: pageHistory?.amountInput,
+        amount: amountInputDisplay || pageHistory?.amountInput,
         address: contactInput?.address,
       });
     }
-  }, [contactInput?.address, pageHistory, selectedToken, setSendState]);
+  }, [
+    amountInputDisplay,
+    contactInput?.address,
+    pageHistory,
+    selectedToken,
+    setSendState,
+  ]);
 
   const maxGasPrice =
     selectedToken && amountInput && isAvaxToken(selectedToken)
