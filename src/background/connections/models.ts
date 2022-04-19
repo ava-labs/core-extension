@@ -177,4 +177,4 @@ export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
   domain: string;
 }
 
-export const COREX_DOMAINS = ['localhost'];
+export const COREX_DOMAINS = ['localhost', 'corex.pages.dev'];
