@@ -5,7 +5,7 @@ import {
   CreateWalletIcon,
   VerticalSeparator,
 } from '@avalabs/react-components';
-import { OnboardButton, TermsButton } from './components/OnboardButton';
+import { OnboardButton } from './components/OnboardButton';
 import { useTheme } from 'styled-components';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
@@ -43,8 +43,6 @@ export function Welcome({ onNext }: WelcomeProps) {
             <WalletIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
         </HorizontalFlex>
-
-        <TermsButton />
       </VerticalFlex>
     </VerticalFlex>
   );

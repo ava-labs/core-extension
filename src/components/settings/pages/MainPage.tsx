@@ -192,11 +192,16 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         padding="10px 16px"
         as="a"
         target="_blank"
-        href="https://wallet.avax.network/legal?core"
+        onClick={() => navigateTo(SettingsPages.LEGAL)}
       >
         <Typography size={14} height="17px">
           Legal
         </Typography>
+        <CaretIcon
+          color={theme.colors.icon1}
+          height="14px"
+          direction={IconDirection.RIGHT}
+        />
       </DropDownMenuItem>
 
       <VerticalFlex grow="1" justify="flex-end" align="center" padding="0 16px">

@@ -32,7 +32,7 @@ export const AnalyticsConsent = () => {
           <Typography
             as="a"
             target="_blank"
-            href="https://wallet.avax.network/legal?core"
+            href="https://www.avalabs.org/privacy-policy"
             color={theme.colors.secondary1}
           >
             Privacy Policy

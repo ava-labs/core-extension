@@ -6,7 +6,7 @@ import {
   VerticalSeparator,
   Typography,
 } from '@avalabs/react-components';
-import { OnboardButton, TermsButton } from './components/OnboardButton';
+import { OnboardButton } from './components/OnboardButton';
 import { useTheme } from 'styled-components';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { Logo } from '@src/components/icons/Logo';
@@ -59,7 +59,6 @@ export function ChooseExistingType({
             <LedgerIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
         </HorizontalFlex>
-        <TermsButton />
       </VerticalFlex>
     </VerticalFlex>
   );

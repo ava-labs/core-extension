@@ -109,7 +109,7 @@ export const CreatePassword = ({
               <Typography
                 as="a"
                 target="_blank"
-                href="https://wallet.avax.network/legal?coreToS"
+                href="https://wallet.avax.network/legal?core"
                 color={theme.colors.secondary1}
                 size={12}
                 height="15px"
@@ -129,7 +129,7 @@ export const CreatePassword = ({
               <Typography
                 as="a"
                 target="_blank"
-                href="https://wallet.avax.network/legal?core"
+                href="https://www.avalabs.org/privacy-policy"
                 color={theme.colors.secondary1}
                 size={12}
                 height="15px"
