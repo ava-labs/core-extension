@@ -20,7 +20,7 @@
     "@avalabs/bridge-sdk": "2.2.0",
     "@avalabs/coingecko-sdk": "2.2.0",
     "@avalabs/posthog-sdk": "2.2.0",
-    "@avalabs/react-components": "1.93.0",
+    "@avalabs/react-components": "1.93.2",
     "@avalabs/snowtrace-sdk": "2.2.0",
     "@avalabs/utils-sdk": "2.2.0",
     "@avalabs/wallet-react-components": "1.30.3",

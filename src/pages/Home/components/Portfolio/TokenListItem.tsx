@@ -18,13 +18,12 @@ export function TokenListItem({
   balanceUSD,
   onClick,
 }: TokenListItemProps) {
-  const { currency, currencyFormatter } = useSettingsContext();
+  const { currencyFormatter } = useSettingsContext();
   return (
     <TokenCard
       name={name}
       symbol={symbol}
       onClick={onClick}
-      currency={currency}
       balanceDisplayValue={balanceDisplayValue}
       balanceUSD={balanceUSD}
       currencyFormatter={currencyFormatter}
