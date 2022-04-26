@@ -8,8 +8,10 @@ import {
   excludedPathNames,
   navigationHistory$,
   navigationHistoryData$,
+  reservedData,
 } from '../navigationHistory';
 import * as H from 'history';
+export { reservedData } from '../navigationHistory';
 
 export async function setNavigationHistory(
   request: ExtensionConnectionMessage
@@ -29,8 +31,25 @@ export async function setNavigationHistory(
     };
   }
 
+  const navigationHistoryData = await firstValueFrom(navigationHistoryData$);
+
   navigationHistory$.next(request.params[0]);
-  navigationHistoryData$.next({});
+
+  const resetNavigationHistoryData = reservedData.reduce(
+    (historyData, dataItem) => {
+      if (navigationHistoryData[dataItem]) {
+        return {
+          ...historyData,
+          [dataItem]: navigationHistoryData[dataItem],
+        };
+      }
+      return {
+        ...historyData,
+      };
+    },
+    {}
+  );
+  navigationHistoryData$.next(resetNavigationHistoryData);
 
   return {
     ...request,

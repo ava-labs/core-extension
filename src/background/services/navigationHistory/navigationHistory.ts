@@ -19,3 +19,4 @@ export const navigationHistory$ = new BehaviorSubject<NavigationHistoryState>(
 );
 
 export const excludedPathNames = ['/send/confirm', '/collectible/send/confirm'];
+export const reservedData = ['listType'];

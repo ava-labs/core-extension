@@ -3,7 +3,9 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { useTabFromParams } from '@src/hooks/useTabFromParams';
 import { ReactNode, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 const TabsContainer = styled(HorizontalFlex)`
@@ -69,7 +71,13 @@ interface TabsProps {
 }
 
 export function Tabs({ tabs, margin }: TabsProps) {
-  const [selectedTab, setSelectedTab] = useState<string>(tabs[0]?.id ?? '');
+  const history = useHistory();
+  const { pathname } = useLocation();
+  const { activeTab } = useTabFromParams();
+
+  const [selectedTab, setSelectedTab] = useState<string>(
+    activeTab || (tabs[0]?.id ?? '')
+  );
 
   return (
     <>
@@ -81,6 +89,12 @@ export function Tabs({ tabs, margin }: TabsProps) {
               selected={selectedTab === tab.id}
               onClick={() => {
                 setSelectedTab(tab.id);
+                history.push({
+                  pathname: pathname,
+                  search: `?${new URLSearchParams({
+                    activeTab: tab.id,
+                  }).toString()}`,
+                });
                 tab.onClick && tab.onClick();
               }}
             >
