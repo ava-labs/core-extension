@@ -1,4 +1,5 @@
 import { Big } from '@avalabs/avalanche-wallet-sdk';
+import { TxSimple } from '@avalabs/blockcypher-sdk';
 import {
   BIG_ZERO,
   Blockchain,
@@ -7,7 +8,6 @@ import {
   getBtcTransaction,
   getMinimumTransferAmount,
   satoshiToBtc,
-  TxSimple,
   useBridgeConfig,
   useBridgeSDK,
 } from '@avalabs/bridge-sdk';
