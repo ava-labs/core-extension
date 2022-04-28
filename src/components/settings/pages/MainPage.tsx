@@ -204,6 +204,21 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         />
       </DropDownMenuItem>
 
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="10px 16px"
+        as="a"
+        target="_blank"
+        onClick={() =>
+          window.open('https://support.avax.network/en/', '_blank')
+        }
+      >
+        <Typography size={14} height="17px">
+          Help Center
+        </Typography>
+      </DropDownMenuItem>
+
       <VerticalFlex grow="1" justify="flex-end" align="center" padding="0 16px">
         <SecondaryButton
           width="100%"
