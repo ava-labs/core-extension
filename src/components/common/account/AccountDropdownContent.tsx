@@ -33,17 +33,23 @@ export function AccountDropdownContent({
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
 
   const [editing, isEditing] = useState<boolean>(false);
+  const [hasError, setHasError] = useState(false);
   const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
     null
   );
   const { capture } = useAnalyticsContext();
 
   const addAccountAndFocus = async () => {
-    const nextIndex = accounts.length;
-    await addAccount();
-    await selectAccount(nextIndex);
-    isEditing(true);
-    scrollbarsRef.current?.scrollToBottom();
+    try {
+      await addAccount();
+      const nextIndex = accounts.length;
+      await selectAccount(nextIndex);
+      isEditing(true);
+      scrollbarsRef.current?.scrollToBottom();
+      setHasError(false);
+    } catch (e) {
+      setHasError(true);
+    }
   };
 
   useEffect(() => {
@@ -98,6 +104,11 @@ export function AccountDropdownContent({
         ref={scrollbarsRef}
       >
         <VerticalFlex padding="0 0 16px 0">
+          {hasError && (
+            <Typography color={theme.colors.error} size={12} margin="8px">
+              Some error occured, pleas try again later
+            </Typography>
+          )}
           {accounts.map((account, i) => {
             return (
               <VerticalFlex
