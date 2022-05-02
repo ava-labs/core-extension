@@ -20,10 +20,7 @@ import { useHistory } from 'react-router-dom';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { GasPrice } from '@src/background/services/gas/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
-import {
-  PageTitleMiniMode,
-  PageTitleVariant,
-} from '@src/components/common/PageTitle';
+import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { SendStateWithActions } from '@src/pages/Send/models';
@@ -111,9 +108,9 @@ export const CollectibleSendConfirm = ({
   return (
     <>
       <VerticalFlex height="100%" width="100%">
-        <PageTitleMiniMode variant={PageTitleVariant.PRIMARY}>
+        <PageTitle variant={PageTitleVariant.PRIMARY}>
           Confirm Transaction
-        </PageTitleMiniMode>
+        </PageTitle>
         <VerticalFlex
           grow="1"
           align="center"

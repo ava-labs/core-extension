@@ -30,10 +30,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory, useParams } from 'react-router-dom';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import {
-  PageTitleMiniMode,
-  PageTitleVariant,
-} from '@src/components/common/PageTitle';
+import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useEffect, useState } from 'react';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -176,10 +173,7 @@ const BridgeTransactionStatus = () => {
 
   return (
     <VerticalFlex height="100%" width="100%">
-      <PageTitleMiniMode
-        showBackButton={false}
-        variant={PageTitleVariant.PRIMARY}
-      >
+      <PageTitle showBackButton={false} variant={PageTitleVariant.PRIMARY}>
         <HorizontalFlex justify="space-between" align="center">
           Transaction Status
           <TextButton
@@ -212,7 +206,7 @@ const BridgeTransactionStatus = () => {
             Hide
           </TextButton>
         </HorizontalFlex>
-      </PageTitleMiniMode>
+      </PageTitle>
       {bridgeTransaction && (
         <Scrollbars>
           <VerticalFlex

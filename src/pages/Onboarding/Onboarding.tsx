@@ -17,7 +17,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { WalletCreated } from './WalletCreated';
 
-export function OnboardingFlow() {
+export function Onboarding() {
   const { nextPhase, onboardingState, setNextPhase, submit, submitInProgress } =
     useOnboardingContext();
   const { initAnalyticsIds, capture } = useAnalyticsContext();

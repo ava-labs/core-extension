@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const AddressInput = styled(TextArea)`
@@ -94,7 +94,7 @@ export function AddToken() {
   return (
     <>
       <VerticalFlex flex={1} align="center">
-        <PageTitleMiniMode>Add Custom Token</PageTitleMiniMode>
+        <PageTitle>Add Custom Token</PageTitle>
         <VerticalFlex
           grow="1"
           align="center"

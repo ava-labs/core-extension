@@ -24,9 +24,9 @@ import { concat, filter, from, map } from 'rxjs';
 import { browser } from 'webextension-polyfill-ts';
 import { useConnectionContext } from './ConnectionProvider';
 
-const OnboardingFlow = lazy(() =>
-  import('../pages/Onboarding/OnboardingFlow').then((m) => ({
-    default: m.OnboardingFlow,
+const Onboarding = lazy(() =>
+  import('../pages/Onboarding/Onboarding').then((m) => ({
+    default: m.Onboarding,
   }))
 );
 
@@ -156,7 +156,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
       {isHome ? (
         <Suspense fallback={<LoadingIcon />}>
-          <OnboardingFlow />
+          <Onboarding />
         </Suspense>
       ) : (
         children

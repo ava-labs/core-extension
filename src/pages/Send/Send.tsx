@@ -12,14 +12,14 @@ import {
   LoadingSpinnerIcon,
   WarningIcon,
 } from '@avalabs/react-components';
-import { SendFormMiniMode } from './components/SendForm.minimode';
+import { SendForm } from './components/SendForm';
 import {
   BN,
   bnToLocaleString,
   stringToBN,
 } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
-import { SendConfirmMiniMode } from './SendConfirm.minimode';
+import { SendConfirm } from './SendConfirm';
 import { useSend } from './hooks/useSend';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
@@ -29,7 +29,7 @@ import {
 } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
@@ -42,7 +42,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
-export function SendMiniMode() {
+export function SendPage() {
   const theme = useTheme();
   const { flags } = useAnalyticsContext();
   const { walletType, avaxToken } = useWalletContext();
@@ -265,7 +265,7 @@ export function SendMiniMode() {
               fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
             />
           )}
-          <SendConfirmMiniMode
+          <SendConfirm
             sendState={sendState}
             contact={contactInput as Contact}
             token={selectedToken}
@@ -281,9 +281,9 @@ export function SendMiniMode() {
       </Route>
       <Route path="/send">
         <VerticalFlex height="100%" width="100%">
-          <PageTitleMiniMode>Send</PageTitleMiniMode>
+          <PageTitle>Send</PageTitle>
           <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
-            <SendFormMiniMode
+            <SendForm
               contactInput={contactInput}
               onContactChange={onContactChanged}
               selectedToken={selectedToken}

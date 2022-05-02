@@ -5,7 +5,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -39,7 +39,7 @@ export function CollectibleDetails() {
 
   return (
     <VerticalFlex width={'100%'} height="100%">
-      <PageTitleMiniMode>{nftItem.externalData.name}</PageTitleMiniMode>
+      <PageTitle>{nftItem.externalData.name}</PageTitle>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0 16px">
           <CollectibleMedia

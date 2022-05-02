@@ -38,7 +38,7 @@ import { getMaxValue, getTokenAddress, isAPIError } from './utils';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { GasPrice } from '@src/background/services/gas/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
@@ -497,7 +497,7 @@ export function Swap() {
   if (!swapIsAvaible) {
     return (
       <VerticalFlex width="100%">
-        <PageTitleMiniMode>Swap</PageTitleMiniMode>
+        <PageTitle>Swap</PageTitle>
         <VerticalFlex align="center" justify="center" grow="1">
           <Typography size={16}>
             Swap is not available on Fuji Testnet
@@ -513,7 +513,7 @@ export function Swap() {
 
   return (
     <VerticalFlex width="100%">
-      <PageTitleMiniMode>Swap</PageTitleMiniMode>
+      <PageTitle>Swap</PageTitle>
       <VerticalFlex grow="1" margin="8px 0 0" padding="16px">
         <Scrollbars
           style={{

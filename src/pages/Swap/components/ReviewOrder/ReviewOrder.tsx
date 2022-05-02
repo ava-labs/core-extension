@@ -22,7 +22,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SlippageToolTip } from '../SlippageToolTip';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { TokenIcon } from '../../utils';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export interface ReviewOrderProps {
@@ -93,9 +93,7 @@ export function ReviewOrder({
         align="center"
         padding="0 16px 0 0"
       >
-        <PageTitleMiniMode onBackClick={onClose}>
-          Review Order
-        </PageTitleMiniMode>
+        <PageTitle onBackClick={onClose}>Review Order</PageTitle>
         {onTimerExpire && (
           <SwapRefreshTimer secondsTimer={59} onExpire={onTimerExpire} />
         )}

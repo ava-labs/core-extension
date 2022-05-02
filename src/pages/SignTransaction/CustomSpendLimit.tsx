@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -54,9 +54,7 @@ export function CustomSpendLimit({
 
   return (
     <VerticalFlex width="100%">
-      <PageTitleMiniMode onBackClick={() => onClose()}>
-        Edit Limit
-      </PageTitleMiniMode>
+      <PageTitle onBackClick={() => onClose()}>Edit Limit</PageTitle>
 
       {/* Content middle */}
       <VerticalFlex padding="8px 16px 0">

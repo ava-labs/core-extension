@@ -9,7 +9,7 @@ import {
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled from 'styled-components';
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { AvalancheQRCodeLogo } from '@src/components/icons/AvalancheQRCodeLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
@@ -35,7 +35,7 @@ export const Receive = () => {
 
   return (
     <VerticalFlex width="100%" align="center">
-      <PageTitleMiniMode>Receive</PageTitleMiniMode>
+      <PageTitle>Receive</PageTitle>
       <VerticalFlex width={'100%'} grow="1" align="center" justify="center">
         <QRCodeWithLogo size={256} value={getAddress()}>
           <AvalancheQRCodeLogo

@@ -5,7 +5,7 @@ import {
   LoadingIcon,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
+import { Header } from '@src/components/common/header/Header';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BridgeProvider } from '@src/contexts/BridgeProvider';
@@ -27,7 +27,7 @@ import { ApproveAction } from '@src/pages/ApproveAction/ApproveAction';
 import { Home } from '@src/pages/Home/Home';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
 import {
   Redirect,
   Route,
@@ -56,14 +56,14 @@ const PermissionsPage = lazy(() => {
 });
 
 const SignTransactionPage = lazy(() => {
-  return import('../pages/SignTransaction/SignTransactionFlow').then((m) => ({
+  return import('../pages/SignTransaction/SignTransaction').then((m) => ({
     default: m.SignTransactionPage,
   }));
 });
 
 const TokenFlowPage = lazy(() => {
-  return import('../pages/Wallet/TokenFlow.minimode').then((m) => ({
-    default: m.TokenFlowMiniMode,
+  return import('../pages/Wallet/TokenFlow').then((m) => ({
+    default: m.TokenFlow,
   }));
 });
 
@@ -87,9 +87,9 @@ const BridgeTransactionStatus = lazy(() => {
   return import('../pages/Bridge/BridgeTransactionStatus');
 });
 
-const SendFlow = lazy(() => {
-  return import('../pages/Send/SendFlow').then((m) => ({
-    default: m.SendFlow,
+const SendPage = lazy(() => {
+  return import('../pages/Send/Send').then((m) => ({
+    default: m.SendPage,
   }));
 });
 
@@ -106,7 +106,6 @@ const CollectibleSend = lazy(() => {
 });
 
 export function Popup() {
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
@@ -168,8 +167,8 @@ export function Popup() {
                         <VerticalFlex
                           height={dimensions.height}
                           width={dimensions.width}
-                          maxHeight={drawerOpen ? '100%' : 'auto'}
-                          overflow={drawerOpen ? 'hidden' : 'auto'}
+                          maxHeight={'auto'}
+                          overflow={'auto'}
                           align="center"
                           margin="auto"
                         >
@@ -183,11 +182,7 @@ export function Popup() {
                             location.pathname.startsWith(path)
                           ) && (
                             <VerticalFlex width="100%">
-                              {!isConfirm && (
-                                <HeaderFlow
-                                  onDrawerStateChanged={setDrawerOpen}
-                                />
-                              )}
+                              {!isConfirm && <Header />}
                             </VerticalFlex>
                           )}{' '}
                           <HorizontalFlex
@@ -260,7 +255,7 @@ export function Popup() {
 
                               <Route path="/send">
                                 <Suspense fallback={<LoadingIcon />}>
-                                  <SendFlow />
+                                  <SendPage />
                                 </Suspense>
                               </Route>
 

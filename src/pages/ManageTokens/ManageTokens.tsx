@@ -10,7 +10,7 @@ import { ManageTokensList } from './ManageTokensList';
 import { useTheme } from 'styled-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 
 export const ManageTokens = () => {
   const theme = useTheme();
@@ -19,7 +19,7 @@ export const ManageTokens = () => {
 
   return (
     <VerticalFlex flex={1}>
-      <PageTitleMiniMode>Manage Token List</PageTitleMiniMode>
+      <PageTitle>Manage Token List</PageTitle>
       <VerticalFlex grow="1" width="100%" padding="8px 16px">
         <SearchInput
           searchTerm={searchQuery}

@@ -24,7 +24,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -242,7 +242,7 @@ export function Bridge() {
 
   return (
     <VerticalFlex height="100%" width="100%">
-      <PageTitleMiniMode>Bridge</PageTitleMiniMode>
+      <PageTitle>Bridge</PageTitle>
       <VerticalFlex padding="0 16px 0 16px" style={{ flex: 1 }}>
         <VerticalFlex style={{ flex: 1 }}>
           <Card padding="0">

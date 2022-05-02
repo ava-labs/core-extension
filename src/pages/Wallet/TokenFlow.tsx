@@ -12,7 +12,7 @@ import {
   isAvaxToken,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
 
-export function TokenFlowMiniMode() {
+export function TokenFlow() {
   const history = useHistory();
   const { currencyFormatter } = useSettingsContext();
   const token = useTokenFromParams();
@@ -43,7 +43,7 @@ export function TokenFlowMiniMode() {
 
   return (
     <VerticalFlex width={'100%'} position="relative">
-      <PageTitleMiniMode>Token Details</PageTitleMiniMode>
+      <PageTitle>Token Details</PageTitle>
       <HorizontalFlex width={'100%'} padding="8px 16px" justify={'center'}>
         {isAvaxToken(token) ? (
           <AvaxTokenIcon height={'40px'} />

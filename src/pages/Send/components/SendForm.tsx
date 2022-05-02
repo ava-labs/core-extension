@@ -9,7 +9,7 @@ import { HorizontalFlex } from '@avalabs/react-components';
 
 const FALLBACK_MAX = new BN(0);
 
-type SendFormMiniModeProps = {
+type SendFormProps = {
   sendState: (SendStateWithActions & { errors: SendErrors }) | null;
   contactInput?: Contact;
   onContactChange(contact?: Contact, selectedTab?: string): void;
@@ -20,7 +20,7 @@ type SendFormMiniModeProps = {
   tokensWBalances: TokenWithBalance[];
 };
 
-export const SendFormMiniMode = ({
+export const SendForm = ({
   sendState,
   contactInput,
   onContactChange,
@@ -29,7 +29,7 @@ export const SendFormMiniMode = ({
   amountInput,
   onAmountInputChange,
   tokensWBalances,
-}: SendFormMiniModeProps) => {
+}: SendFormProps) => {
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
 

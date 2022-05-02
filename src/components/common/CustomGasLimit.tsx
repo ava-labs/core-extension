@@ -11,7 +11,7 @@ import { GasPrice } from '@src/background/services/gas/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useState } from 'react';
-import { PageTitleMiniMode } from './PageTitle';
+import { PageTitle } from './PageTitle';
 
 interface CustomGasLimitProps {
   limit: string;
@@ -57,9 +57,7 @@ export function CustomGasLimit({
 
   return (
     <VerticalFlex padding="16px 0 24px 0" height="100%">
-      <PageTitleMiniMode onBackClick={onCancel}>
-        Edit Gas Limit
-      </PageTitleMiniMode>
+      <PageTitle onBackClick={onCancel}>Edit Gas Limit</PageTitle>
       <VerticalFlex padding="8px 16px 0">
         <Typography
           size={32}

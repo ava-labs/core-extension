@@ -17,7 +17,7 @@ import { Contact } from '@src/background/services/contacts/models';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { GasPrice } from '@src/background/services/gas/models';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -171,7 +171,7 @@ export function CollectibleSend() {
       </Route>
       <Route path="/collectible/send">
         <VerticalFlex height="100%" width="100%">
-          <PageTitleMiniMode>Send</PageTitleMiniMode>
+          <PageTitle>Send</PageTitle>
           <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
             <ContactInput
               contact={contactInput}
