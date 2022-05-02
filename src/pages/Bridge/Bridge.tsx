@@ -30,7 +30,7 @@ import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { AddBtcPopup } from './components/AddBtcPopup';
@@ -38,6 +38,8 @@ import { NetworkSelector } from './components/NetworkSelector';
 import { AssetBalance } from './models';
 import { useBridge } from './useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+import { stringToBN } from '@avalabs/utils-sdk';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -64,6 +66,7 @@ export function Bridge() {
     wrapStatus,
     transfer,
   } = useBridge();
+
   const isMainnet = useIsMainnet();
   const { currencyFormatter } = useSettingsContext();
   const { error } = useBridgeConfig();
@@ -75,10 +78,12 @@ export function Bridge() {
     targetBlockchain,
     targetChains,
   } = useBridgeSDK();
+
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
 
   const theme = useTheme();
   const [bridgeError, setBridgeError] = useState<string>('');
+
   const [isPending, setIsPending] = useState<boolean>(false);
   const [addBitcoinModalOpen, setAddBitcoinModalOpen] =
     useState<boolean>(false);
@@ -88,6 +93,40 @@ export function Bridge() {
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [isSwitched, setIsSwitched] = useState(false);
   const { capture } = useAnalyticsContext();
+  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+  const [defaultInputValue, setDefaultInputValue] = useState({
+    bn: new BN(0),
+    amount: '0',
+  });
+
+  const bridgePageHistoryData: {
+    currentBlockchain?: Blockchain;
+    selectedToken?: string;
+    inputAmount?: {
+      bn: BN;
+      amount: string;
+    };
+  } = getPageHistoryData();
+
+  useEffect(() => {
+    if (bridgePageHistoryData.currentBlockchain) {
+      setCurrentBlockchain(bridgePageHistoryData.currentBlockchain);
+    }
+    if (bridgePageHistoryData.inputAmount) {
+      setDefaultInputValue({
+        bn: stringToBN(bridgePageHistoryData.inputAmount.amount, 9),
+        amount: bridgePageHistoryData.inputAmount.amount,
+      });
+    }
+  }, [
+    bridgePageHistoryData.currentBlockchain,
+    bridgePageHistoryData.inputAmount,
+    setCurrentBlockchain,
+  ]);
+
+  if (bridgePageHistoryData.selectedToken && !currentAsset) {
+    setCurrentAsset(bridgePageHistoryData.selectedToken);
+  }
 
   const isAmountTooLow =
     amount && !amount.eq(BIG_ZERO) && amount.lt(minimum || BIG_ZERO);
@@ -103,21 +142,42 @@ export function Bridge() {
       : '-';
 
   const handleAmountChanged = (value: { bn: BN; amount: string }) => {
+    setNavigationHistoryData({
+      currentBlockchain,
+      selectedToken: currentAsset,
+      inputAmount: value,
+    });
+    setDefaultInputValue(value);
     setAmount(bnToBig(value.bn, denomination));
   };
 
   const handleBlockchainToggle = () => {
     if (targetBlockchain) {
+      setNavigationHistoryData({
+        currentBlockchain: targetBlockchain,
+        selectedToken: currentAsset,
+        inputAmount: defaultInputValue,
+      });
       setCurrentBlockchain(targetBlockchain);
       setIsSwitched(!isSwitched);
     }
   };
 
   const handleBlockchainSwitchFrom = (blockchain: Blockchain) => {
+    setNavigationHistoryData({
+      currentBlockchain: blockchain,
+      selectedToken: currentAsset,
+      inputAmount: defaultInputValue,
+    });
     setCurrentBlockchain(blockchain);
   };
 
   const handleSelect = (symbol: string) => {
+    setNavigationHistoryData({
+      currentBlockchain,
+      selectedToken: symbol,
+      inputAmount: defaultInputValue,
+    });
     setCurrentAsset(symbol);
   };
 
@@ -252,6 +312,7 @@ export function Bridge() {
                     setBridgeError(errorMessage);
                   }}
                   skipHandleMaxAmount
+                  inputAmount={defaultInputValue.bn}
                 />
               </HorizontalFlex>
             </VerticalFlex>
@@ -276,6 +337,11 @@ export function Bridge() {
             {isAmountTooLow && (
               <Typography size={12} color={theme.colors.error}>
                 {`Amount too low -- minimum is ${minimum?.toFixed(9)}`}
+              </Typography>
+            )}
+            {bridgeError && (
+              <Typography size={12} color={theme.colors.error}>
+                {bridgeError}
               </Typography>
             )}
 
