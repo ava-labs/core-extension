@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -6,30 +6,61 @@ import {
   PrimaryAddress,
 } from '@avalabs/react-components';
 
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import styled from 'styled-components';
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { AvalancheQRCodeLogo } from '@src/components/icons/AvalancheQRCodeLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { BITCOIN_NETWORK } from '@src/background/services/network/models';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { BtcQRCodeLogo } from '@src/components/icons/BtcQRCodeLogo';
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   width: 100%;
 `;
 
 export const Receive = () => {
-  const { addresses } = useWalletContext();
+  const { network } = useNetworkContext();
+  const { activeAccount } = useAccountsContext();
   const { capture } = useAnalyticsContext();
+  const [address, setAddress] = useState<string>('');
+  const [isBitcoinActive, setIsBitcoinActive] = useState<boolean>(false);
 
   useEffect(() => {
     capture('ReceivePageVisited');
   }, [capture]);
 
-  const getAddress = () => {
-    return addresses.addrC;
-  };
+  useEffect(() => {
+    setIsBitcoinActive(network?.chainId === BITCOIN_NETWORK.chainId);
+  }, [network]);
 
-  if (!addresses || !addresses.addrC) {
+  useEffect(() => {
+    const activeAddress = isBitcoinActive
+      ? activeAccount?.addressBTC
+      : activeAccount?.addressC;
+    if (activeAddress) {
+      setAddress(activeAddress);
+    }
+  }, [isBitcoinActive, activeAccount]);
+
+  function getLogo() {
+    if (isBitcoinActive) {
+      return (
+        <BtcQRCodeLogo position={'absolute'} text={'Bitcoin'} size={102} />
+      );
+    }
+
+    return (
+      <AvalancheQRCodeLogo position={'absolute'} text={'C-Chain'} size={102} />
+    );
+  }
+
+  function getName() {
+    return isBitcoinActive ? 'Bitcoin Address' : 'C-Chain Address';
+  }
+
+  if (!address || !network) {
     return <LoadingIcon />;
   }
 
@@ -37,22 +68,18 @@ export const Receive = () => {
     <VerticalFlex width="100%" align="center">
       <PageTitle>Receive</PageTitle>
       <VerticalFlex width={'100%'} grow="1" align="center" justify="center">
-        <QRCodeWithLogo size={256} value={getAddress()}>
-          <AvalancheQRCodeLogo
-            position={'absolute'}
-            text={'C-Chain'}
-            size={102}
-          />
+        <QRCodeWithLogo size={256} value={address}>
+          {getLogo()}
         </QRCodeWithLogo>
       </VerticalFlex>
       <VerticalFlex padding="0 16px 24px" width="100%">
         <Typography size={12} height="15px" margin="0 0 4px">
-          C-Chain Address
+          {getName()}
         </Typography>
         <StyledPrimaryAddress
           truncateLength={24}
           isTruncated={true}
-          address={getAddress()}
+          address={address}
         />
       </VerticalFlex>
     </VerticalFlex>
