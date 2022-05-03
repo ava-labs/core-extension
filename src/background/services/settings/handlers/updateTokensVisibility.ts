@@ -1,39 +1,27 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { SettingsState } from '../models';
-import { settings$ } from '../settings';
-import { saveSettingsToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { SettingsService } from '../SettingsService';
 
-export async function settingsUpdateTokensVisibility(
-  request: ExtensionConnectionMessage
-) {
-  const [tokensVisibility] = request.params || [];
+@injectable()
+export class UpdateTokensVisiblityHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY];
 
-  const settings = await firstValueFrom(settings$);
+  constructor(private settingsService: SettingsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [tokensVisibility] = request.params || [];
 
-  const newSettings: SettingsState = {
-    ...settings,
-    tokensVisibility,
-  };
+    await this.settingsService.setTokensVisibility(tokensVisibility);
 
-  await saveSettingsToStorage(newSettings);
-
-  settings$.next(newSettings);
-
-  return {
-    ...request,
-    result: true,
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const SettingsUpdateTokensVisibility: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [
-  ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
-  settingsUpdateTokensVisibility,
-];

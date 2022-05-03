@@ -4,7 +4,7 @@ import {
   ERC20WithBalance,
 } from '@avalabs/wallet-react-components';
 import { DomainMetadata } from '@src/background/models';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import {
   TransactionDisplayValues,
   txParams,

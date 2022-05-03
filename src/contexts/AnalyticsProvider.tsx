@@ -4,7 +4,7 @@ import {
   FeatureGates,
   useCapturePageview,
 } from '@avalabs/posthog-sdk';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { analyticsStateUpdatedEventListener } from '@src/background/services/analytics/events/listeners';
 import { AnalyticsState } from '@src/background/services/analytics/models';
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -14,7 +14,7 @@ import { useSettingsContext } from './SettingsProvider';
 
 const AnalyticsContext = createContext<{
   flags: Record<FeatureGates, boolean>;
-  initAnalyticsIds: () => Promise<void>;
+  initAnalyticsIds: (storeInStorage: boolean) => Promise<void>;
   stopDataCollection: () => void;
   capture: (eventName: string, properties?: Record<string, any>) => void;
 }>({} as any);
@@ -123,10 +123,10 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     posthogInstance.capture(eventName, properties);
   };
 
-  const initAnalyticsIds = () => {
+  const initAnalyticsIds = (storeInStorage: boolean) => {
     return request({
       method: ExtensionRequest.ANALYTICS_INIT_IDS,
-      params: [],
+      params: [storeInStorage],
     });
   };
 

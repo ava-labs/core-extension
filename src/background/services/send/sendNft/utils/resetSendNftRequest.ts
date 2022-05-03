@@ -1,7 +1,5 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionConnectionMessage } from '@src/background/connections/models';
 
 export function sendNftResetRequest(
   contractAddress: string,

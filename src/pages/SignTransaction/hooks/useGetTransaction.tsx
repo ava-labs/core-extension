@@ -2,12 +2,11 @@ import { useCallback, useMemo, useEffect, useState } from 'react';
 import { Transaction } from '@src/background/services/transactions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { filter, map, Subscription, take } from 'rxjs';
-import { ExtensionRequest } from '@src/background/connections/models';
-import { gasPriceTransactionUpdateListener } from '@src/background/services/transactions/events/gasPriceTransactionUpdateListener';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import Web3 from 'web3';
 import ERC20_ABI from 'human-standard-token-abi';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
@@ -15,6 +14,7 @@ import { hexToBN } from '@src/utils/hexToBN';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import * as ethers from 'ethers';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
+import { networkFeeUpdatedEventListener } from '@src/background/services/networkFee/events/listeners';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -143,7 +143,7 @@ export function useGetTransaction(requestId: string) {
     const subscriptions = new Subscription();
     subscriptions.add(
       events?.()
-        .pipe(filter(gasPriceTransactionUpdateListener))
+        .pipe(filter(networkFeeUpdatedEventListener))
         .subscribe(function (evt) {
           const gasPrice = {
             ...evt.value,
@@ -157,10 +157,8 @@ export function useGetTransaction(requestId: string) {
       events?.()
         .pipe(
           filter(transactionFinalizedUpdateListener),
-          map(({ value }) => {
-            return value.find((tx) => tx.id === Number(requestId));
-          }),
-          filter((tx) => !!tx),
+          map(({ value }) => value),
+          filter((tx) => tx.id === Number(requestId)),
           take(1)
         )
         .subscribe({

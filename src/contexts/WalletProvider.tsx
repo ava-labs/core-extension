@@ -14,7 +14,7 @@ import {
 } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
 import { useLedgerSupportContext } from './LedgerSupportProvider';
@@ -70,7 +70,7 @@ export function WalletContextProvider({ children }: { children: any }) {
   const unlockWallet = useCallback(
     (password: string) => {
       return request({
-        method: ExtensionRequest.WALLET_UNLOCK_STATE,
+        method: ExtensionRequest.UNLOCK_WALLET,
         params: [password],
       });
     },
@@ -80,7 +80,7 @@ export function WalletContextProvider({ children }: { children: any }) {
   const changeWalletPassword = useCallback(
     (newPassword: string, oldPassword: string) => {
       return request({
-        method: ExtensionRequest.WALLET_CHANGE_PASSWORD,
+        method: ExtensionRequest.LOCK_CHANGE_PASSWORD,
         params: [newPassword, oldPassword],
       });
     },

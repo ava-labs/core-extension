@@ -1,6 +1,5 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { AnalyticsState } from '../models';
-import { AnalyticsEvents } from './models';
+import { AnalyticsState, AnalyticsEvents } from '../models';
 
 export function analyticsStateUpdatedEventListener(
   evt: ExtensionConnectionEvent<AnalyticsState>

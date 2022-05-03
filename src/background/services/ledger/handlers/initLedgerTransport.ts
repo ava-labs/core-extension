@@ -1,43 +1,40 @@
-import { ledgerTransport$ } from '@avalabs/wallet-react-components';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { ledgerDeviceRequest$, ledgerDeviceResponse$ } from '../ledger';
-import { LedgerTransport } from '../LedgerTransport';
+import { injectable } from 'tsyringe';
+import { LedgerService } from '../LedgerService';
 
-export async function initLedgerTransport() {
-  ledgerTransport$.next(
-    new LedgerTransport(ledgerDeviceRequest$, ledgerDeviceResponse$)
-  );
-}
+@injectable()
+export class InitLedgerTransportHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.LEDGER_INIT_TRANSPORT];
 
-async function initLedgerTransportHandler(request: ExtensionConnectionMessage) {
-  const currentTransport = await firstValueFrom(ledgerTransport$);
+  constructor(private ledgerService: LedgerService) {}
 
-  if (currentTransport) {
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    if (this.ledgerService.transport) {
+      return {
+        result: true,
+        ...request,
+      };
+    }
+
+    try {
+      await this.ledgerService.initTransport();
+    } catch (e) {
+      return {
+        ...request,
+        error: (e as Error).message,
+      };
+    }
+
     return {
       ...request,
+      result: true,
     };
-  }
-
-  try {
-    await initLedgerTransport();
-  } catch (e) {
-    return {
-      ...request,
-      error: (e as Error).message,
-    };
-  }
-
-  return {
-    ...request,
   };
 }
-
-export const InitLedgerTransportRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.LEDGER_INIT_TRANSPORT, initLedgerTransportHandler];

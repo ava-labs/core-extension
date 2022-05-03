@@ -1,10 +1,15 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { contacts$ } from '../contacts';
-class AvalancheGetContactsHandler implements DappRequestHandler {
+import { DAppRequestHandler } from '@src/background/connections/models';
+import { injectable } from 'tsyringe';
+import { ContactsService } from '../ContactsService';
+@injectable()
+export class AvalancheGetContactsHandler implements DAppRequestHandler {
+  methods = [DAppProviderRequest.AVALANCHE_GET_CONTACTS];
+
+  constructor(private contactsService: ContactsService) {}
+
   handleAuthenticated = async (request) => {
-    const contacts = await firstValueFrom(contacts$);
+    const contacts = await this.contactsService.getContacts();
 
     return {
       ...request,
@@ -19,11 +24,3 @@ class AvalancheGetContactsHandler implements DappRequestHandler {
     };
   };
 }
-
-export const AvalancheGetContactsRequest: [
-  DAppProviderRequest,
-  DappRequestHandler
-] = [
-  DAppProviderRequest.AVALANCHE_GET_CONTACTS,
-  new AvalancheGetContactsHandler(),
-];

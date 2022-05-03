@@ -1,37 +1,24 @@
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { OnboardingState } from '@src/background/services/onboarding/models';
-import { onboardingState$ } from '@src/background/services/onboarding/onboardingState';
-import { saveInitialOpenToStorage } from '@src/background/services/onboarding/storage';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { OnboardingService } from '../OnboardingService';
+import { injectable } from 'tsyringe';
+@injectable()
+export class UpdateInitialOpenHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN];
 
-export async function updateInitialOpen(request: ExtensionConnectionMessage) {
-  const onboardingStatus = await firstValueFrom(onboardingState$);
-  const isInitialOpen = false;
+  constructor(private onboardingService: OnboardingService) {}
 
-  let updatedOnboardingStatus: OnboardingState | undefined;
-
-  if (onboardingStatus) {
-    updatedOnboardingStatus = {
-      ...onboardingStatus,
-      initialOpen: isInitialOpen,
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    await this.onboardingService.setInitialOpen(false);
+    return {
+      ...request,
+      result: true,
     };
-  }
-
-  await saveInitialOpenToStorage(isInitialOpen);
-
-  updatedOnboardingStatus && onboardingState$.next(updatedOnboardingStatus);
-
-  return {
-    ...request,
-    result: true,
   };
 }
-
-export const InitialWalletOpenRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN, updateInitialOpen];

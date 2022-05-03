@@ -166,7 +166,8 @@ export function AccountDropdownItem({
           height="15px"
           margin="4px 0 0 0"
         >
-          {account.balance !== undefined && currencyFormatter(account.balance)}
+          {account.balance !== undefined &&
+            currencyFormatter(Number(account.balance))}
         </Typography>
       </VerticalFlex>
     </AccountItem>

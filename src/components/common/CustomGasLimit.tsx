@@ -7,7 +7,7 @@ import {
   SubTextTypography,
   ComponentSize,
 } from '@avalabs/react-components';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useState } from 'react';

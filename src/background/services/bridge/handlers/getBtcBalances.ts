@@ -1,4 +1,9 @@
-import { Big, isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   AppConfig,
   Blockchain,
@@ -6,79 +11,68 @@ import {
   getBtcAsset,
   getUTXOs,
 } from '@avalabs/bridge-sdk';
-import { network$, wallet$ } from '@avalabs/wallet-react-components';
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
-import { firstValueFrom } from 'rxjs';
+import { NetworkService } from '../../network/NetworkService';
+import { Big } from '@avalabs/avalanche-wallet-sdk';
+import { BridgeService } from '../BridgeService';
+import { AccountsService } from '../../accounts/AccountsService';
 import { getAvalancheProvider } from '../../network/getAvalancheProvider';
-import { isWalletLocked } from '../../wallet/models';
-import { walletState$ } from '../../wallet/walletState';
-import { bridgeConfig$ } from '../bridgeConfig';
+import { injectable } from 'tsyringe';
 
-export async function getBtcBalances() {
-  const { config } = await firstValueFrom(bridgeConfig$);
-  const network = await firstValueFrom(network$);
-  const wallet = await firstValueFrom(wallet$);
-  const walletState = await firstValueFrom(walletState$);
-  if (
-    !config ||
-    !network ||
-    !wallet ||
-    !walletState ||
-    isWalletLocked(walletState)
-  )
-    throw new Error('Not ready');
+@injectable()
+export class BridgeGetBtcBalancesHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.BRIDGE_GET_BTC_BALANCES];
 
-  const isMainnet = isMainnetNetwork(network.config);
-  const btcAddress = wallet.getAddressBTC(isMainnet ? 'bitcoin' : 'testnet');
+  constructor(
+    private networkService: NetworkService,
+    private bridgeService: BridgeService,
+    private accountsService: AccountsService
+  ) {}
 
-  const btcBalanceAvalanche = (
-    await getBtcBalanceAvalanche(config, walletState.addresses.addrC)
-  ).toNumber();
-  const { balance: btcBalanceBitcoin, utxos: bitcoinUtxos } = await getUTXOs(
-    config,
-    btcAddress
-  );
+  private async getBtcBalanceAvalanche(
+    config: AppConfig
+  ): Promise<Big | undefined> {
+    const btcAsset = getBtcAsset(config);
+    if (!btcAsset || !this.accountsService.activeAccount?.addressC) {
+      return;
+    }
 
-  return {
-    bitcoinUtxos,
-    btcAddress,
-    btcBalanceAvalanche,
-    btcBalanceBitcoin,
+    const provider = getAvalancheProvider(this.networkService.activeNetwork);
+
+    const balancesBySymbol = await fetchTokenBalances(
+      { [btcAsset.symbol]: btcAsset },
+      Blockchain.AVALANCHE,
+      provider,
+      this.accountsService.activeAccount.addressC
+    );
+
+    return balancesBySymbol?.[btcAsset.symbol];
+  }
+
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const { config } = await this.bridgeService.updateBridgeConfig();
+    if (!config || !this.accountsService.activeAccount)
+      throw new Error('Not ready');
+
+    const btcAddress = this.accountsService.activeAccount.addressBTC;
+
+    const btcBalanceAvalanche = (
+      await this.getBtcBalanceAvalanche(config)
+    ).toNumber();
+    const { balance: btcBalanceBitcoin, utxos: bitcoinUtxos } = await getUTXOs(
+      config,
+      btcAddress
+    );
+
+    return {
+      ...request,
+      result: {
+        bitcoinUtxos,
+        btcAddress,
+        btcBalanceAvalanche,
+        btcBalanceBitcoin,
+      },
+    };
   };
 }
-
-async function getBtcBalanceAvalanche(
-  config: AppConfig,
-  address: string
-): Promise<Big | undefined> {
-  const btcAsset = getBtcAsset(config);
-  if (!btcAsset) return;
-
-  const network = await firstValueFrom(network$);
-  const provider = getAvalancheProvider(network);
-
-  const balancesBySymbol = await fetchTokenBalances(
-    { [btcAsset.symbol]: btcAsset },
-    Blockchain.AVALANCHE,
-    provider,
-    address
-  );
-
-  return balancesBySymbol?.[btcAsset.symbol];
-}
-
-async function getBtcBalancesHandler(request: ExtensionConnectionMessage) {
-  const [result, error] = await resolve(getBtcBalances());
-  if (error) return { ...request, error };
-  return { ...request, result };
-}
-
-export const GetBtcBalancesRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.BRIDGE_GET_BTC_BALANCES, getBtcBalancesHandler];

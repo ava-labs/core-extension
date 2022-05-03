@@ -1,12 +1,11 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
+import { DAppRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { filter, firstValueFrom, map, merge } from 'rxjs';
-import { permissions$ } from '../../permissions/permissions';
-import { domainHasAccountsPermissions } from '../../permissions/utils/domainHasAccountPermissions';
-import { domainPermissionsExist } from '../../permissions/utils/domainPermissionsExist';
-import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet$ } from '@avalabs/wallet-react-components';
+import { firstValueFrom, map, merge, of } from 'rxjs';
+import { PermissionsService } from '../../permissions/PermissionsService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { PermissionEvents } from '../../permissions/models';
+import { injectable } from 'tsyringe';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -17,11 +16,17 @@ import { wallet$ } from '@avalabs/wallet-react-components';
  * @returns
  */
 
-class ConnectRequestHandler implements DappRequestHandler {
-  handleAuthenticated = async (request) => {
-    const walletResult = await firstValueFrom(wallet$);
+@injectable()
+export class ConnectRequestHandler implements DAppRequestHandler {
+  methods = [DAppProviderRequest.CONNECT_METHOD];
 
-    if (!walletResult) {
+  constructor(
+    private permissionsService: PermissionsService,
+    private accountsService: AccountsService
+  ) {}
+
+  handleAuthenticated = async (request) => {
+    if (!this.accountsService.activeAccount) {
       return {
         ...request,
         error: 'wallet locked, undefined or malformed',
@@ -30,17 +35,22 @@ class ConnectRequestHandler implements DappRequestHandler {
 
     return {
       ...request,
-      result: walletResult ? getAccountsFromWallet(walletResult) : [],
+      result: [this.accountsService.activeAccount.addressC],
     };
   };
 
   handleUnauthenticated = async (request) => {
-    const walletResult = await firstValueFrom(wallet$);
-
-    if (!walletResult) {
+    if (!this.accountsService.activeAccount) {
       return {
         ...request,
         error: 'wallet locked, undefined or malformed',
+      };
+    }
+
+    if (!request.site?.domain) {
+      return {
+        ...request,
+        error: 'domain unknown',
       };
     }
 
@@ -55,23 +65,42 @@ class ConnectRequestHandler implements DappRequestHandler {
      * promise is resolved. If not and the window is closed before then the promise will also be resolved and
      * the consumer will be notified that the window closed prematurely
      */
-    const permissionsSet = permissions$.pipe(
-      filter(
-        (currentPermissions) =>
-          domainPermissionsExist(request.site?.domain, currentPermissions) &&
-          domainHasAccountsPermissions(
-            walletResult.getAddressC(),
-            request.site?.domain,
-            currentPermissions
-          )
-      ),
-      map((hasPermissions) => ({
-        ...request,
-        result:
-          hasPermissions && walletResult
-            ? getAccountsFromWallet(walletResult)
-            : [],
-      }))
+
+    const currentPermissions =
+      await this.permissionsService.getPermissionsForDomain(
+        request.site.domain
+      );
+
+    const permissionsSet = of(
+      new Promise((resolve) => {
+        if (
+          this.accountsService.activeAccount &&
+          currentPermissions?.accounts[
+            this.accountsService.activeAccount.addressC
+          ]
+        ) {
+          resolve(true);
+          return;
+        }
+        const listener = (newPermissions) => {
+          if (
+            this.accountsService.activeAccount &&
+            newPermissions?.[request.site.domain]?.accounts?.[
+              this.accountsService.activeAccount.addressC
+            ]
+          ) {
+            this.permissionsService.removeListener(
+              PermissionEvents.PERMISSIONS_STATE_UPDATE,
+              listener
+            );
+            resolve(true);
+          }
+        };
+        this.permissionsService.addListener(
+          PermissionEvents.PERMISSIONS_STATE_UPDATE,
+          listener
+        );
+      })
     );
 
     // detect if users closes the window and take it as a rejection
@@ -85,8 +114,3 @@ class ConnectRequestHandler implements DappRequestHandler {
     return firstValueFrom(merge(permissionsSet, windowClosed));
   };
 }
-
-export const ConnectRequest: [DAppProviderRequest, DappRequestHandler] = [
-  DAppProviderRequest.CONNECT_METHOD,
-  new ConnectRequestHandler(),
-];

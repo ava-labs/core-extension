@@ -1,39 +1,25 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { SettingsState } from '../models';
-import { settings$ } from '../settings';
-import { saveSettingsToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { SettingsService } from '../SettingsService';
 
-export async function settingsSetDefaultExtension(
-  request: ExtensionConnectionMessage
-) {
-  const settings = await firstValueFrom(settings$);
+@injectable()
+export class SetDefaultExtensionHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SETTINGS_SET_DEFAULT_EXTENSION];
 
-  const isDefault = !settings.isDefaultExtension;
+  constructor(private settingsService: SettingsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    await this.settingsService.toggleIsDefaultExtension();
 
-  const newSettings: SettingsState = {
-    ...settings,
-    isDefaultExtension: isDefault,
-  };
-
-  await saveSettingsToStorage(newSettings);
-
-  settings$.next(newSettings);
-
-  return {
-    ...request,
-    result: isDefault,
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const SettingsSetDefaultExtensionRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [
-  ExtensionRequest.SETTINGS_SET_DEFAULT_EXTENSION,
-  settingsSetDefaultExtension,
-];

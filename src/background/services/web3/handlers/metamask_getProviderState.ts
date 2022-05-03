@@ -1,42 +1,41 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { network$ } from '@avalabs/wallet-react-components';
-import { getAccountsFromWallet } from '../../wallet/utils/getAccountsFromWallet';
-import { wallet$ } from '@avalabs/wallet-react-components';
+import { DAppRequestHandler } from '@src/background/connections/models';
+import { NetworkService } from '../../network/NetworkService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { injectable } from 'tsyringe';
 
-class MetamaskGetProviderState implements DappRequestHandler {
+@injectable()
+export class MetamaskGetProviderState implements DAppRequestHandler {
+  methods = [DAppProviderRequest.INIT_DAPP_STATE];
+
+  constructor(
+    private networkService: NetworkService,
+    private accountsService: AccountsService
+  ) {}
+
   handleUnauthenticated = async (request) => {
-    const network = await firstValueFrom(network$);
-
     return {
       ...request,
       result: {
         isUnlocked: false,
         networkVersion: 'avax',
         accounts: [],
-        chainId: network?.chainId,
+        chainId: this.networkService.activeNetwork?.chainId,
       },
     };
   };
 
   handleAuthenticated = async (request) => {
-    const network = await firstValueFrom(network$);
-    const walletResult = await firstValueFrom(wallet$);
-
     return {
       ...request,
       result: {
         isUnlocked: true,
-        chainId: network?.chainId,
+        chainId: this.networkService.activeNetwork?.chainId,
         networkVersion: 'avax',
-        accounts: walletResult ? getAccountsFromWallet(walletResult) : [],
+        accounts: this.accountsService.activeAccount
+          ? [this.accountsService.activeAccount.addressC]
+          : [],
       },
     };
   };
 }
-
-export const InitDappStateRequest: [DAppProviderRequest, DappRequestHandler] = [
-  DAppProviderRequest.INIT_DAPP_STATE,
-  new MetamaskGetProviderState(),
-];

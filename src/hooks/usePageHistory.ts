@@ -1,8 +1,8 @@
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useEffect, useState } from 'react';
 import * as H from 'history';
-import { NavigationHistoryState } from '@src/background/services/navigationHistory/navigationHistory';
+import { NavigationHistoryState } from '@src/background/services/navigationHistory/models';
 
 export function usePageHistory() {
   const { request } = useConnectionContext();

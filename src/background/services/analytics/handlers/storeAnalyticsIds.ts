@@ -1,34 +1,33 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { analyticsState$ } from '../analytics';
-import { saveAnalyticsStateToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { AnalyticsService } from '../AnalyticsService';
 
-export async function storeAnalyticsIds() {
-  const state = await firstValueFrom(analyticsState$);
+@injectable()
+export class StoreAnalyticsIdsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ANALYTICS_STORE_IDS];
 
-  if (!state) {
-    return;
-  }
+  constructor(private analyticsService: AnalyticsService) {}
 
-  await saveAnalyticsStateToStorage(state);
-}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    try {
+      await this.analyticsService.saveTemporaryAnalyticsIds();
+    } catch (e: any) {
+      return {
+        ...request,
+        result: e.toString(),
+      };
+    }
 
-export async function storeAnalyticsIdsHandler(
-  request: ExtensionConnectionMessage
-) {
-  await storeAnalyticsIds();
-
-  return {
-    ...request,
-    result: true,
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const AnalyticsStoreIdsRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.ANALYTICS_STORE_IDS, storeAnalyticsIdsHandler];

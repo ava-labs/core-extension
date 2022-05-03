@@ -3,10 +3,8 @@ import {
   ERC20WithBalance,
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
-import {
-  ExtensionConnectionMessageResponse,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionConnectionMessageResponse } from '@src/background/connections/models';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
 import {
   SettingsState,
@@ -91,7 +89,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }, [settings?.currency]);
 
   function lockWallet() {
-    return request({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
+    return request({ method: ExtensionRequest.LOCK_WALLET });
   }
 
   function updateCurrencySetting(currency: string) {

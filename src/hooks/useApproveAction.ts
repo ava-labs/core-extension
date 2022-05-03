@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { Action, ActionUpdate } from '@src/background/services/actions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useState } from 'react';

@@ -8,7 +8,7 @@ import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
 import { concat, filter, from, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 const NetworkContext = createContext<{
   network?: ActiveNetwork;

@@ -12,7 +12,7 @@ import {
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { BN, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

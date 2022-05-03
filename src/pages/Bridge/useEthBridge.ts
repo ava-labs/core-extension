@@ -14,7 +14,7 @@ import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { BridgeAdapter } from './useBridge';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { getEthereumProvider } from '@src/background/services/bridge/getEthereumProvider';
+import { getEthereumProvider } from '@src/background/services/network/getEthereumProvider';
 
 /**
  * Hook for when the bridge source chain is Ethereum

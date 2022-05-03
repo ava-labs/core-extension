@@ -9,11 +9,12 @@ import {
   useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { BrandName } from '@src/components/icons/BrandName';
 import { Logo } from '@src/components/icons/Logo';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
-import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -26,6 +27,7 @@ export function WalletLocked({
 }: {
   unlockWallet(password: string): Promise<any>;
 }) {
+  const { request } = useConnectionContext();
   const dimensions = useAppDimensions();
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -42,7 +44,10 @@ export function WalletLocked({
       width: '343px',
       onConfirm: () => {
         clearDialog();
-        resetExtensionState(true);
+        request({
+          method: ExtensionRequest.RESET_EXTENSION_STATE,
+          params: [true],
+        });
       },
       cancelText: 'No',
       onCancel: () => {

@@ -1,29 +1,30 @@
 import { getContractDataErc20 } from '@avalabs/avalanche-wallet-sdk';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
+import { injectable } from 'tsyringe';
+@injectable()
+export class GetTokenDataHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SETTINGS_GET_TOKEN_DATA];
 
-export async function settingsGetTokenDataByAddress(
-  request: ExtensionConnectionMessage
-) {
-  const [tokenAddress] = request.params || [];
-  try {
-    const tokenData = await getContractDataErc20(tokenAddress);
-    return {
-      ...request,
-      result: tokenData,
-    };
-  } catch {
-    return {
-      ...request,
-      result: false,
-    };
-  }
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [tokenAddress] = request.params || [];
+    try {
+      const tokenData = await getContractDataErc20(tokenAddress);
+      return {
+        ...request,
+        result: tokenData,
+      };
+    } catch {
+      return {
+        ...request,
+        result: false,
+      };
+    }
+  };
 }
-
-export const SettingsGetTokenDataRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SETTINGS_GET_TOKEN_DATA, settingsGetTokenDataByAddress];

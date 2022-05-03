@@ -16,3 +16,9 @@ export enum OnboardingPhase {
   LEDGER_TROUBLE = 'ledger_trouble',
   ANALYTICS_CONSENT = 'analytics_consent',
 }
+
+export enum OnboardingEvents {
+  ONBOARDING_UPDATED_EVENT = 'ONBOARDING_UPDATED_EVENT',
+}
+
+export const ONBOARDING_STORAGE_KEY = 'onboarding';

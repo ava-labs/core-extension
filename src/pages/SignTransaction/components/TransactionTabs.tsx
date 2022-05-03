@@ -8,7 +8,7 @@ import {
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
 import { Tabs } from '@src/components/common/Tabs';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import Scrollbars from 'react-custom-scrollbars-2';
 

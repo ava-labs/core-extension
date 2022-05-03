@@ -8,10 +8,12 @@ import {
   WrapStatus,
 } from '@avalabs/bridge-sdk';
 import { TransactionResponse } from '@ethersproject/abstract-provider';
-import { ExtensionRequest } from '@src/background/connections/models';
-import { isBridgeTransferEventListener } from '@src/background/services/bridge/events/bridgeTransferEvents';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { isBridgeTransferEventListener } from '@src/background/services/bridge/events/listeners';
 import {
   BridgeState,
+  DefaultBridgeState,
+  PartialBridgeTransaction,
   TransferEventType,
 } from '@src/background/services/bridge/models';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
@@ -28,12 +30,10 @@ import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { bridgeTransactionsUpdatedEventListener } from '@src/background/services/bridge/events/listeners';
-import { PartialBridgeTransaction } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import {
   deserializeBridgeState,
   filterBridgeStateToNetwork,
 } from '@src/background/services/bridge/utils';
-import { defaultBridgeState } from '@src/background/services/bridge/bridge';
 
 interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
@@ -69,7 +69,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
   const { currentBlockchain } = useBridgeSDK();
   const { network } = useNetworkContext();
   const [bridgeState, setBridgeState] =
-    useState<BridgeState>(defaultBridgeState);
+    useState<BridgeState>(DefaultBridgeState);
   // Separate from bridgeState so they can be filtered to the current network
   const [bridgeTransactions, setBridgeTransactions] = useState<
     BridgeState['bridgeTransactions']

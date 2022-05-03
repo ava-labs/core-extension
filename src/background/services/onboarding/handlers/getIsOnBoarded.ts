@@ -1,20 +1,23 @@
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { onboardingState$ } from '../onboardingState';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { OnboardingService } from '../OnboardingService';
+import { injectable } from 'tsyringe';
+@injectable()
+export class GetIsOnboardedHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ONBOARDING_GET_STATE];
 
-export async function getIsOnBoarded(request: ExtensionConnectionMessage) {
-  const result = await firstValueFrom(onboardingState$);
-  return {
-    ...request,
-    result,
+  constructor(private onboardingService: OnboardingService) {}
+
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    return {
+      ...request,
+      result: await this.onboardingService.getState(),
+    };
   };
 }
-
-export const GetOnboardingStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.ONBOARDING_GET_STATE, getIsOnBoarded];

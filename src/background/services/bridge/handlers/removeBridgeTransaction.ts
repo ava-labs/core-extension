@@ -1,35 +1,29 @@
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { removeBridgeTransaction } from '../bridge';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { BridgeService } from '../BridgeService';
+import { injectable } from 'tsyringe';
 
-export async function removeBridgeTransactionHandler(
-  request: ExtensionConnectionMessage
-) {
-  const [txHash] = request.params || [];
-  if (!txHash) return { ...request, error: 'missing txHash' };
+@injectable()
+export class BridgeRemoveTransactionHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.BRIDGE_TRANSACTION_REMOVE];
 
-  const error = await removeBridgeTransaction(txHash);
+  constructor(private bridgeService: BridgeService) {}
 
-  if (error) {
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [txHash] = request.params || [];
+    if (!txHash) return { ...request, error: 'missing txHash' };
+
+    await this.bridgeService.removeBridgeTransaction(txHash);
+
     return {
       ...request,
-      error,
+      result: true,
     };
-  }
-
-  return {
-    ...request,
-    result: true,
   };
 }
-
-export const RemoveBridgeTransactionStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [
-  ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,
-  removeBridgeTransactionHandler,
-];

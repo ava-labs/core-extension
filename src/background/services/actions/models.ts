@@ -20,9 +20,18 @@ export interface Action extends JsonRpcRequest<any> {
   site: DomainMetadata;
 }
 
+export interface Actions {
+  [id: string]: Action;
+}
+
 export interface ActionUpdate {
   id: any;
   status: ActionStatus;
   result?: any;
   error?: string;
+}
+export const ACTIONS_STORAGE_KEY = 'actions';
+
+export enum ActionsEvent {
+  ACTION_UPDATED = 'action-updated',
 }

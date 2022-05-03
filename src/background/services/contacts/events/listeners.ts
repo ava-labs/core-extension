@@ -1,6 +1,5 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { ContactsState } from '../models';
-import { ContactsEvents } from './models';
+import { ContactsState, ContactsEvents } from '../models';
 
 export function contactsUpdatedEventListener(
   evt: ExtensionConnectionEvent<ContactsState>

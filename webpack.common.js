@@ -5,7 +5,7 @@ const { ProvidePlugin, BannerPlugin } = require('webpack');
 
 module.exports = {
   entry: {
-    backgroundPage: path.join(__dirname, 'src/backgroundPage.ts'),
+    backgroundPage: path.join(__dirname, 'src/background/index.ts'),
     popup: path.join(__dirname, 'src/popup/index.tsx'),
     contentscript: path.join(__dirname, 'src/contentscript.ts'),
   },
@@ -24,10 +24,22 @@ module.exports = {
           options: {
             presets: [
               '@babel/preset-typescript',
-              '@babel/preset-env',
+              [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    browsers: ['last 2 Chrome versions'],
+                  },
+                  modules: false,
+                },
+              ],
               '@babel/preset-react',
             ],
-            plugins: ['@babel/transform-runtime'],
+            plugins: [
+              'babel-plugin-transform-typescript-metadata',
+              '@babel/transform-runtime',
+              ['@babel/plugin-proposal-decorators', { legacy: true }],
+            ],
           },
         },
       },

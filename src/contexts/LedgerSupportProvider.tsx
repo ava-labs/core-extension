@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { resolve } from '@src/utils/promiseResolver';
@@ -51,6 +51,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
               ],
             });
           } catch (e) {
+            console.error(e);
             request({
               method: ExtensionRequest.LEDGER_RESPONSE,
               params: [

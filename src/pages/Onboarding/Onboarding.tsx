@@ -40,7 +40,7 @@ export function Onboarding() {
   }, [nextPhase, onboardingState.isOnBoarded, submit, submitInProgress]);
 
   useEffect(() => {
-    initAnalyticsIds();
+    initAnalyticsIds(false);
     if (onboardingState.isOnBoarded) {
       setNextPhase(OnboardingPhase.FINALIZE);
     } else if (onboardingState.reImportMnemonic) {

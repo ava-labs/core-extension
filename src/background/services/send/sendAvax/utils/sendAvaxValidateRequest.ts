@@ -1,8 +1,6 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
-import { GasPrice } from '@src/background/services/gas/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 
 export function sendAvaxValidateRequest(
   amount?: string,

@@ -6,11 +6,9 @@ import {
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { OptimalRate, SwapSide } from 'paraswap-core';
-import { GasPrice } from '@src/background/services/gas/models';
-import { filter } from 'rxjs';
-import { gasPriceSwapUpdateListener } from '@src/background/services/swap/events/gasPriceSwapUpdateListener';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { APIError } from 'paraswap';
 import { hexToBN } from '@src/utils/hexToBN';
 
@@ -42,12 +40,12 @@ const SwapContext = createContext<{
 }>({} as any);
 
 export function SwapContextProvider({ children }: { children: any }) {
-  const { request, events } = useConnectionContext();
+  const { request } = useConnectionContext();
   const [gasPrice, setGasPrice] = useState<GasPrice | undefined>();
 
   useEffect(() => {
     request({
-      method: ExtensionRequest.GAS_GET,
+      method: ExtensionRequest.NETWORK_FEE_GET,
     }).then((res) => {
       setGasPrice({
         ...res,
@@ -57,19 +55,21 @@ export function SwapContextProvider({ children }: { children: any }) {
   }, [request]);
 
   useEffect(() => {
-    const subscription = events?.()
-      .pipe(filter(gasPriceSwapUpdateListener))
-      .subscribe(function (evt) {
+    const interval = setInterval(() => {
+      request({
+        method: ExtensionRequest.NETWORK_FEE_GET,
+      }).then((res) => {
         setGasPrice({
-          ...evt.value,
-          bn: hexToBN(evt.value.bn),
+          ...res,
+          bn: hexToBN(res.bn),
         });
       });
+    }, 30000);
 
     return () => {
-      subscription?.unsubscribe();
+      clearInterval(interval);
     };
-  }, [events]);
+  }, [request]);
 
   const getRate = useCallback(
     (

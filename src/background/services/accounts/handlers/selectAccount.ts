@@ -1,54 +1,41 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { activateAccount } from '@avalabs/wallet-react-components';
-import { resolve } from '@src/utils/promiseResolver';
-import { saveAccountsToStorage } from '../storage';
-import { firstValueFrom } from 'rxjs';
-import { accounts$ } from '../accounts';
+import { injectable } from 'tsyringe';
+import { AccountsService } from '../AccountsService';
 
-export async function selectAccount(selectedIndex?: number) {
-  if (selectedIndex === undefined) {
+@injectable()
+export class SelectAccountHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ACCOUNT_SELECT];
+
+  constructor(private accountsService: AccountsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const selectedIndex = request.params?.pop();
+
+    if (selectedIndex === undefined) {
+      return {
+        ...request,
+        error: 'account index missing in params',
+      };
+    }
+
+    try {
+      await this.accountsService.activateAccount(selectedIndex);
+    } catch (e: any) {
+      return {
+        ...request,
+        error: e.toString(),
+      };
+    }
+
     return {
-      error: 'account index missing in params',
+      ...request,
+      result: 'success',
     };
-  }
-
-  let accounts = await firstValueFrom(accounts$);
-
-  if (selectedIndex >= accounts.length) {
-    return {
-      error: 'account not added',
-    };
-  }
-
-  await activateAccount(selectedIndex);
-
-  accounts = accounts.map((a) => ({
-    ...a,
-    active: a.index === selectedIndex,
-  }));
-
-  accounts$.next(accounts);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, err] = await resolve(saveAccountsToStorage(accounts));
-
-  return {
-    result: 'success',
   };
 }
-
-async function selectAccountHandler(
-  request: ExtensionConnectionMessage<number>
-) {
-  const selectedIndex = request.params?.pop();
-  const result = await selectAccount(selectedIndex);
-  return { ...request, ...result };
-}
-
-export const SelectAccountRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.ACCOUNT_SELECT, selectAccountHandler];

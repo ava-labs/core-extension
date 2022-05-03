@@ -1,6 +1,5 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { ActiveNetwork } from '../models';
-import { NetworkEvents } from './models';
+import { ActiveNetwork, NetworkEvents } from '../models';
 
 export function networkUpdatedEventListener(
   evt: ExtensionConnectionEvent<ActiveNetwork>

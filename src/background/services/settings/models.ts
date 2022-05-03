@@ -5,7 +5,7 @@ export enum ThemeVariant {
   DARK = 'DARK',
 }
 
-type TokensVisibility = {
+export type TokensVisibility = {
   [key: string]: boolean;
 };
 
@@ -21,4 +21,10 @@ export interface SettingsState {
   tokensVisibility: TokensVisibility;
   isDefaultExtension: boolean;
   analyticsConsent: boolean;
+}
+
+export const SETTINGS_STORAGE_KEY = 'settings';
+
+export enum SettingsEvents {
+  SETTINGS_UPDATED = 'SettingsEvents: SETTINGS_UPDATED',
 }

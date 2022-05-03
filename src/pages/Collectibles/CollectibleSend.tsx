@@ -16,7 +16,7 @@ import {
 import { Contact } from '@src/background/services/contacts/models';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';

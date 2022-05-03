@@ -1,14 +1,11 @@
 import { Transaction } from '../models';
-import { firstValueFrom } from 'rxjs';
-import { gasPrice$ } from '../../gas/gas';
 import { hexToBN } from '@src/utils/hexToBN';
+import { GasPrice } from '../../networkFee/models';
 
-export async function txToCustomEvmTx(tx?: Transaction) {
+export async function txToCustomEvmTx(tx?: Transaction, gasPrice?: GasPrice) {
   if (!tx) {
     throw new Error('transaction is malformed');
   }
-
-  const gasPrice = await firstValueFrom(gasPrice$);
 
   const txParams = tx.txParams;
   const { gas, to, from, data, value, gasPrice: txGasPriceHex } = txParams;

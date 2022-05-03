@@ -10,7 +10,7 @@ import {
   SubTextTypography,
   BNInput,
 } from '@avalabs/react-components';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useEffect, useState } from 'react';

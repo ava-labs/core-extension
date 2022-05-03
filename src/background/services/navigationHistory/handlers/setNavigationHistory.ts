@@ -1,63 +1,33 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import {
-  excludedPathNames,
-  navigationHistory$,
-  navigationHistoryData$,
-  reservedData,
-} from '../navigationHistory';
+import { NavigationHistoryService } from '../NavigationHistoryService';
 import * as H from 'history';
-export { reservedData } from '../navigationHistory';
+import { injectable } from 'tsyringe';
 
-export async function setNavigationHistory(
-  request: ExtensionConnectionMessage
-) {
-  const navigationHistory = await firstValueFrom(navigationHistory$);
+@injectable()
+export class SetNavigationHistoryHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.NAVIGATION_HISTORY_SET];
 
-  if (!request?.params?.length) {
-    return { ...request, error: 'history object is missing' };
-  }
+  constructor(private navigationHistoryService: NavigationHistoryService) {}
 
-  const newNavigationHistory: H.History<unknown> = request.params[0];
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    if (!request?.params?.length) {
+      return { ...request, error: 'history object is missing' };
+    }
 
-  if (excludedPathNames.includes(newNavigationHistory.location.pathname)) {
+    const newNavigationHistory: H.History<unknown> = request.params[0];
+
     return {
       ...request,
-      result: navigationHistory,
+      result: await this.navigationHistoryService.setHistory(
+        newNavigationHistory
+      ),
     };
-  }
-
-  const navigationHistoryData = await firstValueFrom(navigationHistoryData$);
-
-  navigationHistory$.next(request.params[0]);
-
-  const resetNavigationHistoryData = reservedData.reduce(
-    (historyData, dataItem) => {
-      if (navigationHistoryData[dataItem]) {
-        return {
-          ...historyData,
-          [dataItem]: navigationHistoryData[dataItem],
-        };
-      }
-      return {
-        ...historyData,
-      };
-    },
-    {}
-  );
-  navigationHistoryData$.next(resetNavigationHistoryData);
-
-  return {
-    ...request,
-    result: newNavigationHistory,
   };
 }
-
-export const SetNavigationHistoryStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.NAVIGATION_HISTORY_SET, setNavigationHistory];

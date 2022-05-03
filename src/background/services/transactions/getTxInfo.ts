@@ -1,6 +1,3 @@
-import { isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
-import { network$ } from '@avalabs/wallet-react-components';
-import { firstValueFrom } from 'rxjs';
 import * as ethers from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import {
@@ -16,9 +13,12 @@ export function isTxDescriptionError(
   return !!desc && !desc.hasOwnProperty('error');
 }
 
-export async function getTxInfo(address: string, data: string, value: string) {
-  const network = await firstValueFrom(network$);
-  const isMainnet = network?.config && isMainnetNetwork(network.config);
+export async function getTxInfo(
+  address: string,
+  data: string,
+  value: string,
+  isMainnet: boolean
+) {
   let contractSource: ContractSourceCodeResponse;
   try {
     const response = await getSourceForContract(address, isMainnet);

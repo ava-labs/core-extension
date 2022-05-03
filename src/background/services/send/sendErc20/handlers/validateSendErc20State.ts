@@ -1,78 +1,84 @@
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
 import {
   checkAndValidateSendErc20,
   ERC20WithBalance,
   wallet$,
 } from '@avalabs/wallet-react-components';
-import { gasPrice$ } from '../../../gas/gas';
-import { firstValueFrom, map, Observable, of, startWith, Subject } from 'rxjs';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
-import { walletState$ } from '../../../wallet/walletState';
-import { isWalletLocked } from '../../../wallet/models';
-import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
-import { GasPrice } from '@src/background/services/gas/models';
-import { hexToBN } from '@src/utils/hexToBN';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '@src/background/connections/models';
+import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
+import BN from 'bn.js';
+import { firstValueFrom, of, startWith, Subject } from 'rxjs';
+import { WalletService } from '@src/background/services/wallet/WalletService';
+import { injectable } from 'tsyringe';
+@injectable()
+export class SendErc20ValidateHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SEND_ERC20_VALIDATE];
 
-async function validateSendErc20State(request: ExtensionConnectionMessage) {
-  const [token, amount, address, gasPrice, gasLimit] = request.params || [];
+  constructor(
+    private walletService: WalletService,
+    private networkFeeService: NetworkFeeService
+  ) {}
 
-  const walletState = await firstValueFrom(walletState$);
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [token, amount, address, gasPrice, gasLimit] = request.params || [];
 
-  if (walletState && isWalletLocked(walletState)) {
-    return {
-      ...request,
-      error: 'wallet locked',
-    };
-  }
-
-  const balances = walletState?.erc20Tokens.reduce(
-    (acc: { [key: string]: ERC20WithBalance }, token) => {
+    if (!this.walletService.walletState?.erc20Tokens) {
       return {
-        ...acc,
-        [token.address]: token,
+        ...request,
+        error: 'wallet locked',
       };
-    },
-    {}
-  );
+    }
 
-  if (!balances) {
+    const balances = this.walletService.walletState.erc20Tokens.reduce(
+      (acc: { [key: string]: ERC20WithBalance }, token) => {
+        return {
+          ...acc,
+          [token.address]: token,
+        };
+      },
+      {}
+    );
+
+    if (!balances) {
+      return {
+        ...request,
+        error: 'no token balances',
+      };
+    }
+
+    const gas = await this.networkFeeService.getNetworkFee();
+
+    const result = await firstValueFrom(
+      checkAndValidateSendErc20(
+        token,
+        of(
+          gasPrice?.bn
+            ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
+            : gas
+        ),
+        of(
+          stringToBN(
+            amount || 0,
+            (token as ERC20WithBalance).denomination || 18
+          )
+        ).pipe(startWith(new BN(0))) as Subject<BN>,
+        of(address).pipe(startWith('')) as Subject<string>,
+        of(balances) as Subject<typeof balances>,
+        wallet$,
+        of(gasLimit) as Subject<number>
+      )
+    );
+
     return {
       ...request,
-      error: 'no token balances',
+      result,
     };
-  }
-
-  const result = await firstValueFrom(
-    checkAndValidateSendErc20(
-      token,
-      gasPrice$.pipe(
-        map((gas) => {
-          return gasPrice?.bn
-            ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
-            : gas;
-        })
-      ) as Observable<GasPrice>,
-      of(
-        stringToBN(amount || 0, (token as ERC20WithBalance).denomination || 18)
-      ).pipe(startWith(new BN(0))) as Subject<BN>,
-      of(address).pipe(startWith('')) as Subject<string>,
-      of(balances) as Subject<typeof balances>,
-      wallet$,
-      of(gasLimit) as Subject<number>
-    )
-  );
-
-  return {
-    ...request,
-    result,
   };
 }
-
-export const ValidateSendErc20StateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SEND_ERC20_VALIDATE, validateSendErc20State];

@@ -1,31 +1,36 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { analyticsState$ } from '../analytics';
-import { saveAnalyticsStateToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { AnalyticsService } from '../AnalyticsService';
 
-export async function initAnalyticsIds(request: ExtensionConnectionMessage) {
-  const state = {
-    deviceId: crypto.randomUUID(),
-    userId: crypto.randomUUID(),
-  };
-  analyticsState$.next(state);
+@injectable()
+export class InitAnalyticsIdsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ANALYTICS_INIT_IDS];
 
-  try {
-    await saveAnalyticsStateToStorage(state);
-  } catch (e) {
-    // saving the key failed, we probly don't have a storage key yet
-  }
+  constructor(private analyticsService: AnalyticsService) {}
 
-  return {
-    ...request,
-    result: true,
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const { params } = request;
+    const [storeInStorage] = params || [];
+
+    try {
+      await this.analyticsService.initIds(!!storeInStorage);
+    } catch (e: any) {
+      return {
+        ...request,
+        result: e.toString(),
+      };
+    }
+
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const AnalyticsInitIdsRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.ANALYTICS_INIT_IDS, initAnalyticsIds];

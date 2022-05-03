@@ -1,30 +1,33 @@
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
 import { SEND_ERC20_FORM_DEFAULT } from '@avalabs/wallet-react-components';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '@src/background/connections/models';
+import { injectable } from 'tsyringe';
+@injectable()
+export class SendErc20ResetHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SEND_ERC20_RESET];
 
-async function resetSendErc20State(request: ExtensionConnectionMessage) {
-  const [token] = request.params || [];
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [token] = request.params || [];
 
-  if (!token) {
+    if (!token) {
+      return {
+        ...request,
+        error: 'no token in params',
+      };
+    }
+
     return {
       ...request,
-      error: 'no token in params',
+      result: {
+        ...SEND_ERC20_FORM_DEFAULT,
+        token,
+      },
     };
-  }
-
-  return {
-    ...request,
-    result: {
-      ...SEND_ERC20_FORM_DEFAULT,
-      token,
-    },
   };
 }
-
-export const ResetSendErc20StateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SEND_ERC20_RESET, resetSendErc20State];

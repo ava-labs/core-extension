@@ -1,8 +1,6 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 export function sendNftSubmitRequest(
   contractAddress: string,

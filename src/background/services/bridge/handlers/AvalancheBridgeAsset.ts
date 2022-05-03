@@ -1,17 +1,24 @@
+import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
+import { DAppRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { defer, filter, firstValueFrom, map, tap } from 'rxjs';
-import {
-  addAction$,
-  pendingActions$,
-  updateAction$,
-} from '../../actions/actions';
-import { ActionStatus } from '../../actions/models';
-import { transferAssetHandler } from './transferAsset';
+import { resolve } from '@src/utils/promiseResolver';
+import { defer, firstValueFrom, map, tap } from 'rxjs';
+import { injectable } from 'tsyringe';
+import { ActionsService } from '../../actions/ActionsService';
+import { Action, ActionsEvent, ActionStatus } from '../../actions/models';
+import { BridgeService } from '../BridgeService';
 
 // this is used for coreX web
-class AvalancheBridgeAsset implements DappRequestHandler {
+@injectable()
+export class AvalancheBridgeAsset implements DAppRequestHandler {
+  methods = [DAppProviderRequest.AVALANCHE_BRIDGE_ASSET];
+
+  constructor(
+    private bridgeService: BridgeService,
+    private actionsService: ActionsService
+  ) {}
+
   handleAuthenticated = async (request) => {
     const [currentBlockchain, amountStr, asset] = request.params || [];
 
@@ -24,7 +31,8 @@ class AvalancheBridgeAsset implements DappRequestHandler {
       },
     };
 
-    addAction$.next(action);
+    await this.actionsService.addAction(action);
+
     const window = await openExtensionNewWindow(
       `approve?id=${request.id}`,
       '',
@@ -37,8 +45,8 @@ class AvalancheBridgeAsset implements DappRequestHandler {
           ...request,
           error: 'Signature rejected by user',
         })),
-        tap(() => {
-          updateAction$.next({
+        tap(async () => {
+          await this.actionsService.updateAction({
             status: ActionStatus.ERROR_USER_CANCELED,
             id: request.id,
             error: 'Signature rejected by user',
@@ -47,18 +55,23 @@ class AvalancheBridgeAsset implements DappRequestHandler {
       )
       .subscribe();
 
-    const userAction = await firstValueFrom(
-      pendingActions$.pipe(
-        map(
-          (currentPendingMessages) => currentPendingMessages[`${request.id}`]
-        ),
-        filter(
-          (pending) =>
-            (!!pending && pending.status === ActionStatus.SUBMITTING) ||
-            pending.status === ActionStatus.ERROR_USER_CANCELED
-        )
-      )
-    );
+    const userAction = await new Promise<Action>((resolve) => {
+      const listener = (currentPendingMessages) => {
+        if (
+          currentPendingMessages[`${request.id}`]?.status ===
+            ActionStatus.SUBMITTING ||
+          currentPendingMessages[`${request.id}`]?.status ===
+            ActionStatus.ERROR_USER_CANCELED
+        ) {
+          this.actionsService.removeListener(
+            ActionsEvent.ACTION_UPDATED,
+            listener
+          );
+          resolve(currentPendingMessages[`${request.id}`]);
+        }
+      };
+      this.actionsService.addListener(ActionsEvent.ACTION_UPDATED, listener);
+    });
 
     if (userAction.status !== ActionStatus.SUBMITTING) {
       windowClosedSubscription.unsubscribe();
@@ -67,19 +80,26 @@ class AvalancheBridgeAsset implements DappRequestHandler {
         error: 'user rejected request',
       };
     }
-    const transferAsset$ = defer(async () => {
-      const result = await transferAssetHandler(request);
+    const amount = bnToBig(
+      stringToBN(amountStr, asset.denomination),
+      asset.denomination
+    );
 
-      if (result.error) {
-        updateAction$.next({
+    const transferAsset$ = defer(async () => {
+      const [result, error] = await resolve(
+        this.bridgeService.transferAsset(currentBlockchain, amount, asset)
+      );
+
+      if (error) {
+        await this.actionsService.updateAction({
           status: ActionStatus.ERROR,
           id: request.id,
-          error: result.error,
+          error: error.toString(),
         });
         return result;
       }
 
-      updateAction$.next({
+      await this.actionsService.updateAction({
         status: ActionStatus.COMPLETED,
         id: request.id,
         result,
@@ -99,8 +119,3 @@ class AvalancheBridgeAsset implements DappRequestHandler {
     };
   };
 }
-
-export const AvalancheTransferAssetRequest: [
-  DAppProviderRequest,
-  DappRequestHandler
-] = [DAppProviderRequest.AVALANCHE_BRIDGE_ASSET, new AvalancheBridgeAsset()];

@@ -1,15 +1,20 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
-import { bridge$ } from '../bridge';
-import { firstValueFrom } from 'rxjs';
+import { DAppRequestHandler } from '@src/background/connections/models';
+import { injectable } from 'tsyringe';
+import { BridgeService } from '../BridgeService';
 
-class AvalancheGetBridgeTransactionHandler implements DappRequestHandler {
+@injectable()
+export class AvalancheGetBridgeTransactionHandler
+  implements DAppRequestHandler
+{
+  methods = [DAppProviderRequest.AVALANCHE_GET_BRIDGE_STATE];
+
+  constructor(private bridgeService: BridgeService) {}
+
   handleAuthenticated = async (request) => {
-    const bridge = await firstValueFrom(bridge$);
-
     return {
       ...request,
-      result: bridge,
+      result: this.bridgeService.bridgeState,
     };
   };
 
@@ -20,11 +25,3 @@ class AvalancheGetBridgeTransactionHandler implements DappRequestHandler {
     };
   };
 }
-
-export const AvalancheGetBridgeStateRequest: [
-  DAppProviderRequest,
-  DappRequestHandler
-] = [
-  DAppProviderRequest.AVALANCHE_GET_BRIDGE_STATE,
-  new AvalancheGetBridgeTransactionHandler(),
-];

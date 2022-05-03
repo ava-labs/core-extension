@@ -36,7 +36,7 @@ import { ReviewOrder } from './components/ReviewOrder';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { getMaxValue, getTokenAddress, isAPIError } from './utils';
 import { TxInProgress } from '@src/components/common/TxInProgress';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenSelect } from '@src/components/common/TokenSelect';

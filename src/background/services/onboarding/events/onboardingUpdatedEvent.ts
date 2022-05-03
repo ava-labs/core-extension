@@ -1,16 +1,33 @@
-import { combineLatest, filter, map } from 'rxjs';
-import { wallet$ } from '@avalabs/wallet-react-components';
-import { onboardingState$ } from '../onboardingState';
-import { OnboardingEvents } from './models';
+import { OnboardingEvents } from '../models';
+import {
+  ExtensionConnectionEvent,
+  ExtensionEventEmitter,
+} from '@src/background/connections/models';
+import { EventEmitter } from 'events';
+import { OnboardingService } from '../OnboardingService';
+import { singleton } from 'tsyringe';
+@singleton()
+export class OnboardingUpdatedEvents implements ExtensionEventEmitter {
+  private eventEmitter = new EventEmitter();
+  constructor(private onboardingService: OnboardingService) {
+    this.onboardingService.addListener(
+      OnboardingEvents.ONBOARDING_UPDATED_EVENT,
+      (onboardingState) => {
+        this.eventEmitter.emit('update', {
+          name: OnboardingEvents.ONBOARDING_UPDATED_EVENT,
+          value: onboardingState,
+        });
+      }
+    );
+  }
 
-export function onboardingUpdatedEvent() {
-  return combineLatest([onboardingState$, wallet$]).pipe(
-    filter(
-      ([onboarded, wallet]) => !!(onboarded && onboarded.isOnBoarded && wallet)
-    ),
-    map(() => ({
-      name: OnboardingEvents.ONBOARDING_UPDATED_EVENT,
-      value: { isOnBoarded: true },
-    }))
-  );
+  addListener(handler: (event: ExtensionConnectionEvent) => void): void {
+    this.eventEmitter.on('update', handler);
+  }
+
+  removeListener(
+    handler: (event: ExtensionConnectionEvent<any>) => void
+  ): void {
+    this.eventEmitter.off('update', handler);
+  }
 }

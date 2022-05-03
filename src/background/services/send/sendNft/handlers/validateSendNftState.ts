@@ -1,59 +1,62 @@
+import { hexToBN } from '@avalabs/utils-sdk';
 import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
-import {
-  wallet$,
   checkAndValidateSendNft,
+  wallet$,
 } from '@avalabs/wallet-react-components';
-import { firstValueFrom, map, Observable, of, startWith, Subject } from 'rxjs';
-import { gasPrice$ } from '@src/background/services/gas/gas';
-import { hexToBN } from '@src/utils/hexToBN';
-import { GasPrice } from '@src/background/services/gas/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '@src/background/connections/models';
+import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
+import { firstValueFrom, of } from 'rxjs';
+import { injectable } from 'tsyringe';
+@injectable()
+export class SendNftValidateHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SEND_NFT_VALIDATE];
 
-async function validateSendNftState(request: ExtensionConnectionMessage) {
-  const params = request.params || [];
-  const [contractAddress, tokenId, address, gasPrice, gasLimit] = params;
+  constructor(private networkFeeService: NetworkFeeService) {}
 
-  if (!contractAddress) {
-    return {
-      ...request,
-      error: 'no contractAddress in params',
-    };
-  }
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const params = request.params || [];
+    const [contractAddress, tokenId, address, gasPrice, gasLimit] = params;
 
-  if (!tokenId) {
-    return {
-      ...request,
-      error: 'no contractAddress in params',
-    };
-  }
+    if (!contractAddress) {
+      return {
+        ...request,
+        error: 'no contractAddress in params',
+      };
+    }
 
-  const result = await firstValueFrom(
-    checkAndValidateSendNft(
-      contractAddress,
-      Number(tokenId),
-      gasPrice$.pipe(
-        map((gas) => {
-          return gasPrice?.bn
+    if (!tokenId) {
+      return {
+        ...request,
+        error: 'no contractAddress in params',
+      };
+    }
+
+    const gas = await this.networkFeeService.getNetworkFee();
+    const result = await firstValueFrom(
+      checkAndValidateSendNft(
+        contractAddress,
+        Number(tokenId),
+        of(
+          gasPrice?.bn
             ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
-            : gas;
-        })
-      ) as Observable<GasPrice>,
-      of(address).pipe(startWith('')) as Subject<string>,
-      wallet$,
-      of(gasLimit) as Subject<number>
-    )
-  );
+            : gas
+        ),
+        of(address || ''),
+        wallet$,
+        of(gasLimit)
+      )
+    );
 
-  return {
-    ...request,
-    result,
+    return {
+      ...request,
+      result,
+    };
   };
 }
-
-export const ValidateSendNFTStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SEND_NFT_VALIDATE, validateSendNftState];

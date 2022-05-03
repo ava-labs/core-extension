@@ -1,20 +1,29 @@
-import { wallet$ } from '@avalabs/wallet-react-components';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
+import { DAppRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { defer, filter, firstValueFrom, map, merge, tap } from 'rxjs';
-import {
-  addAction$,
-  pendingActions$,
-  updateAction$,
-} from '../../actions/actions';
-import { ActionStatus } from '../../actions/models';
+import { defer, firstValueFrom, map, merge, tap } from 'rxjs';
+import { injectable } from 'tsyringe';
+import { ActionsService } from '../../actions/ActionsService';
+import { Action, ActionsEvent, ActionStatus } from '../../actions/models';
+import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
-import { signMessageTx } from '../utils/signMessageTx';
 
-class PersonalSignHandler implements DappRequestHandler {
-  constructor(private signType: MessageType) {}
+@injectable()
+export class PersonalSignHandler implements DAppRequestHandler {
+  methods = [
+    MessageType.ETH_SIGN,
+    MessageType.SIGN_TYPED_DATA,
+    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V1,
+    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
+    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
+    MessageType.PERSONAL_SIGN,
+  ];
+
+  constructor(
+    private actionsService: ActionsService,
+    private walletService: WalletService
+  ) {}
 
   handleUnauthenticated = async (request) => {
     return {
@@ -24,9 +33,7 @@ class PersonalSignHandler implements DappRequestHandler {
   };
 
   handleAuthenticated = async (request) => {
-    const walletResult = await firstValueFrom(wallet$);
-
-    if (!walletResult) {
+    if (!this.walletService.walletState?.walletType) {
       return {
         ...request,
         error: 'wallet undefined',
@@ -36,7 +43,7 @@ class PersonalSignHandler implements DappRequestHandler {
       ...request,
       displayData: paramsToMessageParams(request),
     };
-    addAction$.next(actionData);
+    await this.actionsService.addAction(actionData);
 
     const window = await openExtensionNewWindow(
       `sign?id=${request.id}`,
@@ -49,8 +56,8 @@ class PersonalSignHandler implements DappRequestHandler {
         ...request,
         error: 'Signature rejected by user',
       })),
-      tap(() => {
-        updateAction$.next({
+      tap(async () => {
+        await this.actionsService.updateAction({
           status: ActionStatus.ERROR_USER_CANCELED,
           id: request.id,
           error: 'Signature rejected by user',
@@ -59,28 +66,37 @@ class PersonalSignHandler implements DappRequestHandler {
     );
 
     const signTx$ = defer(async () => {
-      const pendingMessage = await firstValueFrom(
-        pendingActions$.pipe(
-          map(
-            (currentPendingMessages) => currentPendingMessages[`${request.id}`]
-          ),
-          filter(
-            (pending) => !!pending && pending.status === ActionStatus.SUBMITTING
-          )
-        )
-      );
+      const pendingMessage = await new Promise<Action>((resolve) => {
+        const listener = (currentPendingMessages) => {
+          if (
+            currentPendingMessages[`${request.id}`]?.status ===
+            ActionStatus.SUBMITTING
+          ) {
+            this.actionsService.removeListener(
+              ActionsEvent.ACTION_UPDATED,
+              listener
+            );
+            resolve(currentPendingMessages[`${request.id}`]);
+          }
+        };
+        this.actionsService.addListener(ActionsEvent.ACTION_UPDATED, listener);
+      });
 
-      return signMessageTx(pendingMessage, walletResult)
-        .then((result) => {
-          updateAction$.next({
+      return this.walletService
+        .signMessage(
+          pendingMessage.method as MessageType,
+          pendingMessage.displayData.data
+        )
+        .then(async (result) => {
+          await this.actionsService.updateAction({
             status: ActionStatus.COMPLETED,
             id: request.id,
             result,
           });
           return { ...request, result };
         })
-        .catch((err) => {
-          updateAction$.next({
+        .catch(async (err) => {
+          await this.actionsService.updateAction({
             status: ActionStatus.ERROR,
             id: request.id,
             error: err?.message ?? err.toString(),
@@ -92,35 +108,3 @@ class PersonalSignHandler implements DappRequestHandler {
     return firstValueFrom(merge(windowClosed$, signTx$));
   };
 }
-export const SignRequest: [DAppProviderRequest, DappRequestHandler] = [
-  DAppProviderRequest.ETH_SIGN,
-  new PersonalSignHandler(MessageType.ETH_SIGN),
-];
-
-export const SignTypedDataRequest: [DAppProviderRequest, DappRequestHandler] = [
-  DAppProviderRequest.ETH_SIGN_TYPED_DATA,
-  new PersonalSignHandler(MessageType.SIGN_TYPED_DATA),
-];
-
-export const SignTypedDataV1Request: [DAppProviderRequest, DappRequestHandler] =
-  [
-    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V1,
-    new PersonalSignHandler(MessageType.SIGN_TYPED_DATA),
-  ];
-
-export const SignTypedDataV3Request: [DAppProviderRequest, DappRequestHandler] =
-  [
-    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
-    new PersonalSignHandler(MessageType.SIGN_TYPED_DATA_V3),
-  ];
-
-export const SignTypedDataV4Request: [DAppProviderRequest, DappRequestHandler] =
-  [
-    DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
-    new PersonalSignHandler(MessageType.SIGN_TYPED_DATA_V4),
-  ];
-
-export const PersonalSignRequest: [DAppProviderRequest, DappRequestHandler] = [
-  DAppProviderRequest.PERSONAL_SIGN,
-  new PersonalSignHandler(MessageType.PERSONAL_SIGN),
-];

@@ -1,36 +1,28 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { SettingsState, ThemeVariant } from '../models';
-import { settings$ } from '../settings';
-import { saveSettingsToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { ThemeVariant } from '../models';
+import { SettingsService } from '../SettingsService';
 
-export async function settingsUpdateTheme(
-  request: ExtensionConnectionMessage<ThemeVariant>
-) {
-  const [theme] = request.params || [ThemeVariant.DARK];
+@injectable()
+export class UpdateThemeHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SETTINGS_UPDATE_THEME];
 
-  const settings = await firstValueFrom(settings$);
+  constructor(private settingsService: SettingsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [theme] = request.params || [ThemeVariant.DARK];
 
-  const newSettings: SettingsState = {
-    ...settings,
-    theme: theme,
-  };
+    await this.settingsService.setTheme(theme);
 
-  await saveSettingsToStorage(newSettings);
-
-  settings$.next(newSettings);
-
-  return {
-    ...request,
-    result: true,
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const SettingsUpdateThemeRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SETTINGS_UPDATE_THEME, settingsUpdateTheme];

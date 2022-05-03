@@ -1,37 +1,22 @@
 import {
-  BridgeConfig,
-  Environment,
-  fetchConfig,
-  setBridgeEnvironment,
-} from '@avalabs/bridge-sdk';
-import { MAINNET_NETWORK, network$ } from '@avalabs/wallet-react-components';
-import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { bridgeConfig$ } from '../bridgeConfig';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { BridgeService } from '../BridgeService';
+import { injectable } from 'tsyringe';
 
-export async function getBridgeConfig() {
-  const network = await firstValueFrom(network$);
-  setBridgeEnvironment(
-    network?.chainId === MAINNET_NETWORK.chainId
-      ? Environment.PROD
-      : Environment.DEV
-  );
-  const config = await fetchConfig();
+@injectable()
+export class BridgeGetConfigHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.BRIDGE_GET_CONFIG];
 
-  bridgeConfig$.next(config);
-  return config;
+  constructor(private bridgeService: BridgeService) {}
+
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const config = await this.bridgeService.updateBridgeConfig();
+    return { ...request, result: config };
+  };
 }
-
-async function getBridgeConfigHandler(request: ExtensionConnectionMessage) {
-  const config = await getBridgeConfig();
-  return { ...request, result: config };
-}
-
-export const GetBridgeConfigRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler<BridgeConfig>
-] = [ExtensionRequest.BRIDGE_GET_CONFIG, getBridgeConfigHandler];

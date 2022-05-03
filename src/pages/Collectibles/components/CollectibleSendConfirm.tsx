@@ -18,7 +18,7 @@ import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory } from 'react-router-dom';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';

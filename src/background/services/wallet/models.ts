@@ -17,6 +17,11 @@ export interface WalletLockedState {
   locked: boolean;
 }
 
+export interface WalletSecretInStorage {
+  mnemonic?: string;
+  publicKey?: string;
+}
+
 export function isWalletLocked(
   state?: WalletLockedState | WalletState
 ): state is WalletLockedState {
@@ -24,10 +29,8 @@ export function isWalletLocked(
   return !!state?.hasOwnProperty('locked');
 }
 
-export const SESSION_AUTH_DATA_KEY = 'SESSION_AUTH_DATA_KEY';
-export interface SessionAuthData {
-  password: string;
-  loginTime: number;
+export enum WalletEvents {
+  WALLET_STATE_UPDATE = 'wallet-state-updated',
 }
 
-export const LOCK_TIMEOUT = 1000 * 60 * 60 * 12; // 12 hours
+export const WALLET_STORAGE_KEY = 'wallet';

@@ -1,21 +1,26 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { analyticsState$ } from '../analytics';
+import { injectable } from 'tsyringe';
+import { AnalyticsService } from '../AnalyticsService';
 
-export async function getAnalyticsIds(request: ExtensionConnectionMessage) {
-  const analyticsState = await firstValueFrom(analyticsState$);
+@injectable()
+export class GetAnalyticsIdsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ANALYTICS_GET_IDS];
 
-  return {
-    ...request,
-    result: analyticsState,
+  constructor(private analyticsService: AnalyticsService) {}
+
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const analyticsState = await this.analyticsService.getIds();
+
+    return {
+      ...request,
+      result: analyticsState,
+    };
   };
 }
-
-export const AnalyticsGetIdsRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.ANALYTICS_GET_IDS, getAnalyticsIds];

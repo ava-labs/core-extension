@@ -1,5 +1,5 @@
 import { BN, bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 
 export function calculateGasAndFees(
   gasPrice: GasPrice,

@@ -1,105 +1,98 @@
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
-import {
-  wallet$,
-  sendNftSubmit,
-  walletState$,
-} from '@avalabs/wallet-react-components';
-import { firstValueFrom, map, tap } from 'rxjs';
-import { isWalletLocked } from '@src/background/services/wallet/models';
-import { gasPrice$ } from '@src/background/services/gas/gas';
-import { hexToBN } from '@src/utils/hexToBN';
 import { WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { hexToBN } from '@avalabs/utils-sdk';
+import { sendNftSubmit, wallet$ } from '@avalabs/wallet-react-components';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '@src/background/connections/models';
+import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { resolve } from '@src/utils/promiseResolver';
-import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
+import { firstValueFrom, tap } from 'rxjs';
+import { injectable } from 'tsyringe';
+import { SendService } from '../../SendService';
+@injectable()
+export class SendNftSubmitHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SEND_NFT_SUBMIT];
 
-async function submitSendNftState(request: ExtensionConnectionMessage) {
-  const params = request.params || [];
-  const [contractAddress, tokenId, address, gasLimit, customGasPrice] = params;
+  constructor(
+    private sendService: SendService,
+    private networkFeeService: NetworkFeeService
+  ) {}
 
-  if (!address) {
-    return {
-      ...request,
-      error: 'no destinationAddress in params',
-    };
-  }
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const params = request.params || [];
+    const [contractAddress, tokenId, address, gasLimit, customGasPrice] =
+      params;
 
-  if (!contractAddress) {
-    return {
-      ...request,
-      error: 'no contractAddress in params',
-    };
-  }
+    if (!address) {
+      return {
+        ...request,
+        error: 'no destinationAddress in params',
+      };
+    }
 
-  if (!tokenId) {
-    return {
-      ...request,
-      error: 'no tokenId in params',
-    };
-  }
+    if (!contractAddress) {
+      return {
+        ...request,
+        error: 'no contractAddress in params',
+      };
+    }
 
-  if (!gasLimit) {
-    return {
-      ...request,
-      error: 'no gas limit in params',
-    };
-  }
+    if (!tokenId) {
+      return {
+        ...request,
+        error: 'no tokenId in params',
+      };
+    }
 
-  const wallet = await firstValueFrom(wallet$);
+    if (!gasLimit) {
+      return {
+        ...request,
+        error: 'no gas limit in params',
+      };
+    }
 
-  if (!wallet) {
-    return {
-      ...request,
-      error: 'wallet malformed or undefined',
-    };
-  }
+    const wallet = await firstValueFrom(wallet$);
 
-  const gasPrice = await firstValueFrom(
-    gasPrice$.pipe(
-      map((gas) => (customGasPrice ? { bn: hexToBN(customGasPrice) } : gas))
-    )
-  );
+    if (!wallet) {
+      return {
+        ...request,
+        error: 'wallet malformed or undefined',
+      };
+    }
 
-  if (!gasPrice?.bn) {
-    return {
-      ...request,
-      error: 'gas price malformed or undefined',
-    };
-  }
+    const gasPrice = customGasPrice
+      ? { bn: hexToBN(customGasPrice) }
+      : await this.networkFeeService.getNetworkFee();
 
-  const walletState = await firstValueFrom(walletState$);
+    if (!gasPrice?.bn) {
+      return {
+        ...request,
+        error: 'gas price malformed or undefined',
+      };
+    }
 
-  if (walletState && isWalletLocked(walletState)) {
-    return {
-      ...request,
-      error: 'wallet locked',
-    };
-  }
-
-  return await resolve(
-    firstValueFrom(
-      sendNftSubmit(
-        contractAddress,
-        Number(tokenId),
-        Promise.resolve<WalletType>(wallet),
-        address,
-        Promise.resolve(gasPrice),
-        gasLimit
-      ).pipe(tap((value) => sendTxDetails$.next(value)))
-    )
-  ).then(([result, error]) => {
-    return {
-      ...request,
-      result: result || undefined,
-      error: error ? error?.message || error.toString() : undefined,
-    };
-  });
+    return await resolve(
+      firstValueFrom(
+        sendNftSubmit(
+          contractAddress,
+          Number(tokenId),
+          Promise.resolve<WalletType>(wallet),
+          address,
+          Promise.resolve(gasPrice),
+          gasLimit
+        ).pipe(tap((value) => this.sendService.transactionUpdated(value)))
+      )
+    ).then(([result, error]) => {
+      return {
+        ...request,
+        result: result || undefined,
+        error: error ? error?.message || error.toString() : undefined,
+      };
+    });
+  };
 }
-
-export const SubmitSendNFTStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SEND_NFT_SUBMIT, submitSendNftState];

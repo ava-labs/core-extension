@@ -1,43 +1,45 @@
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
 import {
   sendAvaxCheckFormAndCalculateFees,
   wallet$,
 } from '@avalabs/wallet-react-components';
-import { gasPrice$ } from '../../../gas/gas';
-import { firstValueFrom, map, Observable, of, startWith, Subject } from 'rxjs';
-import { BN, stringToBN } from '@avalabs/avalanche-wallet-sdk';
-import { GasPrice } from '@src/background/services/gas/models';
-import { hexToBN } from '@src/utils/hexToBN';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '@src/background/connections/models';
+import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
+import { BN } from 'bn.js';
+import { firstValueFrom, of, startWith, Subject } from 'rxjs';
+import { injectable } from 'tsyringe';
+@injectable()
+export class SendAvaxValidateHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SEND_AVAX_VALIDATE];
 
-async function validateSendAvaxState(request: ExtensionConnectionMessage) {
-  const [amount, address, gasPrice, gasLimit] = request.params || [];
+  constructor(private networkFeeService: NetworkFeeService) {}
 
-  const state = await firstValueFrom(
-    sendAvaxCheckFormAndCalculateFees(
-      gasPrice$.pipe(
-        map((gas) =>
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [amount, address, gasPrice, gasLimit] = request.params || [];
+
+    const gas = await this.networkFeeService.getNetworkFee();
+
+    const state = await firstValueFrom(
+      sendAvaxCheckFormAndCalculateFees(
+        of(
           gasPrice?.bn
             ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
             : gas
-        )
-      ) as Observable<GasPrice>,
-      of(stringToBN(amount || '0', 18)).pipe(
-        startWith(new BN(0))
-      ) as Subject<BN>,
-      of(address).pipe(startWith('')) as Subject<string>,
-      wallet$,
-      of(gasLimit) as Subject<number>
-    )
-  );
+        ),
+        of(stringToBN(amount || '0', 18)).pipe(startWith(new BN(0))),
+        of(address).pipe(startWith('')) as Subject<string>,
+        wallet$,
+        of(gasLimit) as Subject<number>
+      )
+    );
 
-  return { ...request, result: state };
+    return { ...request, result: state };
+  };
 }
-
-export const ValidateSendAvaxStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SEND_AVAX_VALIDATE, validateSendAvaxState];

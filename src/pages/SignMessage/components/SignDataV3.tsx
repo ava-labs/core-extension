@@ -14,8 +14,11 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
  */
 export function SignDataV3({ message }: { message: Action }) {
   const data = message.displayData.data;
-
   const renderRow = (data: any) => {
+    if (!data) {
+      return null;
+    }
+
     return Object.keys(data).map((key) => {
       if (typeof data[key] === 'object') {
         return (

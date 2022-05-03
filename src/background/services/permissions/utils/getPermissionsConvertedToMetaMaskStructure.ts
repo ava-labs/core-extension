@@ -1,5 +1,4 @@
 import { Permissions } from '../models';
-import { domainHasAccountsPermissions } from './domainHasAccountPermissions';
 
 /**
  * In order to work with the @link https://metamask.github.io/test-dapp/ we convert our own
@@ -13,15 +12,12 @@ export function getPermissionsConvertedToMetaMaskStructure(
   domain?: string,
   permissions?: Permissions
 ) {
-  if (!domain || !permissions) {
+  if (!domain || !permissions || !addressC) {
     return [];
   }
 
-  const hasAccountsPermission = domainHasAccountsPermissions(
-    addressC,
-    domain,
-    permissions
-  );
+  const hasAccountsPermission = permissions?.[domain]?.accounts[addressC];
+
   return hasAccountsPermission
     ? [
         {

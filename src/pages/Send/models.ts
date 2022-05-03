@@ -1,5 +1,5 @@
 import { SendState, TokenWithBalance } from '@avalabs/wallet-react-components';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 
 export type SetSendValuesParams = {
   token?: TokenWithBalance;

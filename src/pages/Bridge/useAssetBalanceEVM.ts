@@ -7,10 +7,7 @@ import {
   EthereumConfigAsset,
 } from '@avalabs/bridge-sdk';
 import { ERC20WithBalance } from '@avalabs/wallet-react-components';
-import {
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import {
   AssetBalance,
   BALANCE_REFRESH_INTERVAL,
@@ -19,6 +16,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { useInterval } from '@src/hooks/useInterval';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 /**
  * Get the balance of a bridge supported asset for the given blockchain.

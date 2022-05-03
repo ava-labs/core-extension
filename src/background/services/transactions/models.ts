@@ -3,7 +3,7 @@
 import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
 import * as ethers from 'ethers';
-import { GasPrice } from '../gas/models';
+import { GasPrice } from '../networkFee/models';
 
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
@@ -14,6 +14,11 @@ export enum TxStatus {
   SIGNED = 'signed',
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
+}
+
+export enum TransactionEvent {
+  TRANSACTIONS_UPDATED = 'transactions-updated',
+  TRANSACTION_FINALIZED = 'transaction-finalized',
 }
 
 export interface TransactionDisplayValues {
@@ -104,3 +109,5 @@ export function isTxFinalizedUpdate(
       (update as txStatusUpdate).status === TxStatus.SIGNED)
   );
 }
+
+export const TRANSACTIONS_STORAGE_KEY = 'transactions';

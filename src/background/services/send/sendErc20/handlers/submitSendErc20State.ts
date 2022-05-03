@@ -1,117 +1,121 @@
-import {
-  ConnectionRequestHandler,
-  ExtensionConnectionMessage,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+import { WalletType } from '@avalabs/avalanche-wallet-sdk';
+import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
 import {
   ERC20WithBalance,
   sendErc20Submit,
   wallet$,
-  walletState$,
 } from '@avalabs/wallet-react-components';
-import { firstValueFrom, map, of, tap } from 'rxjs';
-import { gasPrice$ } from '../../../gas/gas';
-import { WalletType, stringToBN } from '@avalabs/avalanche-wallet-sdk';
-import { sendTxDetails$ } from '../../events/sendTxDetailsEvent';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '@src/background/connections/models';
+import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
+import { WalletService } from '@src/background/services/wallet/WalletService';
 import { resolve } from '@src/utils/promiseResolver';
-import { isWalletLocked } from '@src/background/services/wallet/models';
-import { hexToBN } from '@src/utils/hexToBN';
+import { firstValueFrom, of, tap } from 'rxjs';
+import { injectable } from 'tsyringe';
+import { SendService } from '../../SendService';
+@injectable()
+export class SendErc20SubmitHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SEND_ERC20_SUBMIT];
 
-async function submitSendErc20State(request: ExtensionConnectionMessage) {
-  const [token, amount, address, gasLimit, customGasPrice] =
-    request.params || [];
+  constructor(
+    private sendService: SendService,
+    private walletService: WalletService,
+    private networkFeeService: NetworkFeeService
+  ) {}
 
-  if (!amount) {
-    return {
-      ...request,
-      error: 'no amount in params',
-    };
-  }
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [token, amount, address, gasLimit, customGasPrice] =
+      request.params || [];
 
-  if (!address) {
-    return {
-      ...request,
-      error: 'no address in params',
-    };
-  }
-
-  if (!token) {
-    return {
-      ...request,
-      error: 'no token in params',
-    };
-  }
-
-  if (!gasLimit) {
-    return {
-      ...request,
-      error: 'no gas limit in params',
-    };
-  }
-
-  const wallet = await firstValueFrom(wallet$);
-
-  if (!wallet) {
-    return {
-      ...request,
-      error: 'wallet malformed or undefined',
-    };
-  }
-
-  const gasPrice = await firstValueFrom(
-    gasPrice$.pipe(
-      map((gas) => (customGasPrice ? { bn: hexToBN(customGasPrice) } : gas))
-    )
-  );
-
-  if (!gasPrice?.bn) {
-    return {
-      ...request,
-      error: 'gas price malformed or undefined',
-    };
-  }
-
-  const walletState = await firstValueFrom(walletState$);
-
-  if (walletState && isWalletLocked(walletState)) {
-    return {
-      ...request,
-      error: 'wallet locked',
-    };
-  }
-
-  const balances = walletState?.erc20Tokens.reduce(
-    (acc: { [key: string]: ERC20WithBalance }, token) => {
+    if (!amount) {
       return {
-        ...acc,
-        [token.address]: token,
+        ...request,
+        error: 'no amount in params',
       };
-    },
-    {}
-  );
+    }
 
-  return await resolve(
-    firstValueFrom(
-      sendErc20Submit(
-        token,
-        Promise.resolve<WalletType>(wallet),
-        stringToBN(amount, token.denomination),
-        address,
-        Promise.resolve(gasPrice),
-        of(balances) as any,
-        gasLimit
-      ).pipe(tap((value) => sendTxDetails$.next(value)))
-    )
-  ).then(([result, error]) => {
-    return {
-      ...request,
-      result: result || undefined,
-      error: error ? error?.message || error.toString() : undefined,
-    };
-  });
+    if (!address) {
+      return {
+        ...request,
+        error: 'no address in params',
+      };
+    }
+
+    if (!token) {
+      return {
+        ...request,
+        error: 'no token in params',
+      };
+    }
+
+    if (!gasLimit) {
+      return {
+        ...request,
+        error: 'no gas limit in params',
+      };
+    }
+
+    const wallet = await firstValueFrom(wallet$);
+
+    if (!wallet) {
+      return {
+        ...request,
+        error: 'wallet malformed or undefined',
+      };
+    }
+
+    const gasPrice = customGasPrice
+      ? { bn: hexToBN(customGasPrice) }
+      : await this.networkFeeService.getNetworkFee();
+
+    if (!gasPrice?.bn) {
+      return {
+        ...request,
+        error: 'gas price malformed or undefined',
+      };
+    }
+
+    if (!this.walletService.walletState?.erc20Tokens) {
+      return {
+        ...request,
+        error: 'wallet locked',
+      };
+    }
+
+    const balances = this.walletService.walletState.erc20Tokens.reduce(
+      (acc: { [key: string]: ERC20WithBalance }, token) => {
+        return {
+          ...acc,
+          [token.address]: token,
+        };
+      },
+      {}
+    );
+
+    return await resolve(
+      firstValueFrom(
+        sendErc20Submit(
+          token,
+          Promise.resolve(wallet),
+          stringToBN(amount, token.denomination),
+          address,
+          Promise.resolve(gasPrice),
+          of(balances) as any,
+          gasLimit
+        ).pipe(tap((value) => this.sendService.transactionUpdated(value)))
+      )
+    ).then(([result, error]) => {
+      return {
+        ...request,
+        result: result || undefined,
+        error: error ? error?.message || error.toString() : undefined,
+      };
+    });
+  };
 }
-
-export const SubmitSendErc20StateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SEND_ERC20_SUBMIT, submitSendErc20State];

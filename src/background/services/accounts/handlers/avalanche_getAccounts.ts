@@ -1,11 +1,16 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { accounts$ } from '../accounts';
+import { DAppRequestHandler } from '@src/background/connections/models';
+import { injectable } from 'tsyringe';
+import { AccountsService } from '../AccountsService';
 
-class AvalancheGetAccountsHandler implements DappRequestHandler {
+@injectable()
+export class AvalancheGetAccountsHandler implements DAppRequestHandler {
+  methods = [DAppProviderRequest.AVALANCHE_GET_ACCOUNTS];
+
+  constructor(private accountsService: AccountsService) {}
+
   handleAuthenticated = async (request) => {
-    const accounts = await firstValueFrom(accounts$);
+    const accounts = this.accountsService.getAccounts();
 
     return {
       ...request,
@@ -20,11 +25,3 @@ class AvalancheGetAccountsHandler implements DappRequestHandler {
     };
   };
 }
-
-export const AvalancheGetAccountsRequest: [
-  DAppProviderRequest,
-  DappRequestHandler
-] = [
-  DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
-  new AvalancheGetAccountsHandler(),
-];

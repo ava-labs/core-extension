@@ -1,119 +1,66 @@
-import { Big, isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
 import {
-  BridgeTransaction,
-  getMinimumConfirmations,
-} from '@avalabs/bridge-sdk';
-import {
-  network$,
-  wallet$,
-  walletState$,
-} from '@avalabs/wallet-react-components';
-import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { isWalletLocked } from '../../wallet/models';
-import { bridge$, saveBridgeTransaction } from '../bridge';
-import { bridgeConfig$ } from '../bridgeConfig';
-import { trackBridgeTransaction } from '../trackBridgeTransaction';
-
-export type PartialBridgeTransaction = Pick<
-  BridgeTransaction,
-  | 'sourceChain'
-  | 'sourceTxHash'
-  | 'sourceStartedAt'
-  | 'targetChain'
-  | 'amount'
-  | 'symbol'
->;
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { BridgeService } from '../BridgeService';
+import { PartialBridgeTransaction } from '../models';
+import { resolve } from '@src/utils/promiseResolver';
+import { injectable } from 'tsyringe';
 
 /**
  * Add a new pending bridge transaction to the background state and start the
  * transaction tracking process.
  */
-export async function createBridgeTransaction(
-  request: ExtensionConnectionMessage
-) {
-  const partialBridgeTransaction = (request.params?.[0] ||
-    {}) as PartialBridgeTransaction;
-  const {
-    sourceChain,
-    sourceTxHash,
-    sourceStartedAt,
-    targetChain,
-    amount: amountStr,
-    symbol,
-  } = partialBridgeTransaction;
-  if (!sourceChain) return { ...request, error: 'missing sourceChain' };
-  if (!sourceTxHash) return { ...request, error: 'missing sourceTxHash' };
-  if (!sourceStartedAt) return { ...request, error: 'missing sourceStartedAt' };
-  if (!targetChain) return { ...request, error: 'missing targetChain' };
-  if (!amountStr) return { ...request, error: 'missing amount' };
-  if (!symbol) return { ...request, error: 'missing symbol' };
+@injectable()
+export class BridgeCreateTransactionHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.BRIDGE_TRANSACTION_CREATE];
 
-  const { config } = await firstValueFrom(bridgeConfig$);
-  if (!config) return { ...request, error: 'missing bridge config' };
+  constructor(private bridgeService: BridgeService) {}
 
-  const bridgeState = await firstValueFrom(bridge$);
-  const bridgeTransactions = bridgeState.bridgeTransactions;
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const partialBridgeTransaction = (request.params?.[0] ||
+      {}) as PartialBridgeTransaction;
+    const {
+      sourceChain,
+      sourceTxHash,
+      sourceStartedAt,
+      targetChain,
+      amount: amountStr,
+      symbol,
+    } = partialBridgeTransaction;
+    if (!sourceChain) return { ...request, error: 'missing sourceChain' };
+    if (!sourceTxHash) return { ...request, error: 'missing sourceTxHash' };
+    if (!sourceStartedAt)
+      return { ...request, error: 'missing sourceStartedAt' };
+    if (!targetChain) return { ...request, error: 'missing targetChain' };
+    if (!amountStr) return { ...request, error: 'missing amount' };
+    if (!symbol) return { ...request, error: 'missing symbol' };
 
-  const network = await firstValueFrom(network$);
-  const wallet = await firstValueFrom(wallet$);
-  const walletState = await firstValueFrom(walletState$);
-  if (!wallet || !walletState || isWalletLocked(walletState) || !network)
-    return { ...request, error: 'wallet not ready' };
+    const [, error] = await resolve(
+      this.bridgeService.createTransaction(
+        sourceChain,
+        sourceTxHash,
+        sourceStartedAt,
+        targetChain,
+        amountStr,
+        symbol
+      )
+    );
 
-  if (bridgeTransactions[sourceTxHash])
-    return { ...request, error: 'bridge tx already exists' };
+    if (error) {
+      return {
+        ...request,
+        error,
+      };
+    }
 
-  const addressC = walletState.addresses.addrC;
-  const isMainnet = isMainnetNetwork(network.config);
-  const addressBTC = wallet.getAddressBTC(isMainnet ? 'bitcoin' : 'testnet');
-  const amount = new Big(amountStr);
-  const requiredConfirmationCount = getMinimumConfirmations(
-    sourceChain,
-    config
-  );
-
-  const bridgeTransaction: BridgeTransaction = {
-    /* from params */
-    sourceChain,
-    sourceTxHash,
-    sourceStartedAt,
-    targetChain,
-    amount,
-    symbol,
-    /* new fields */
-    addressC,
-    addressBTC,
-    complete: false,
-    confirmationCount: 0,
-    environment: isMainnet ? 'main' : 'test',
-    requiredConfirmationCount,
-  };
-
-  // Save the initial version
-  const error = await saveBridgeTransaction(bridgeTransaction);
-
-  // Start transaction tracking process (no need to await)
-  trackBridgeTransaction(bridgeTransaction, config);
-
-  if (error) {
     return {
       ...request,
-      error,
+      result: true,
     };
-  }
-
-  return {
-    ...request,
-    result: true,
   };
 }
-
-export const CreateBridgeTransactionStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.BRIDGE_TRANSACTION_CREATE, createBridgeTransaction];

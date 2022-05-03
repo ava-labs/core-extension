@@ -1,0 +1,101 @@
+import { injectable, injectAll } from 'tsyringe';
+import { Runtime } from 'webextension-polyfill-ts';
+import { Pipeline } from '../middlewares/models';
+import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
+import {
+  ConnectionController,
+  ExtensionConnectionEvent,
+  ExtensionConnectionMessage,
+  ExtensionEventEmitter,
+  ExtensionRequestHandler,
+} from '../models';
+import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
+import {
+  connectionLog,
+  disconnectLog,
+  eventLog,
+  responseLog,
+} from '@src/utils/logging';
+import { resolve } from '@avalabs/utils-sdk';
+import { isDevelopment } from '@src/utils/isDevelopment';
+import './registry';
+
+@injectable()
+export class ExtensionConnectionController implements ConnectionController {
+  private pipeline?: Pipeline;
+  private connection?: Runtime.Port;
+
+  constructor(
+    @injectAll('ExtensionRequestHandler')
+    private handlers: ExtensionRequestHandler[],
+    @injectAll('ExtensionEventEmitter')
+    private eventEmitters: ExtensionEventEmitter[]
+  ) {
+    this.onMessage = this.onMessage.bind(this);
+    this.disconnect = this.disconnect.bind(this);
+    this.onEvent = this.onEvent.bind(this);
+  }
+
+  connect(connection: Runtime.Port) {
+    this.connection = connection;
+    this.pipeline = RequestProcessorPipeline(
+      ExtensionRequestHandlerMiddleware(this.handlers)
+    );
+
+    connectionLog('Extension Provider');
+
+    this.connection.onMessage.addListener(this.onMessage);
+    this.connection.onDisconnect.addListener(this.disconnect);
+    this.eventEmitters.forEach((emitter) => emitter.addListener(this.onEvent));
+  }
+
+  disconnect(): void {
+    this.connection?.onMessage.removeListener(this.onMessage);
+    this.eventEmitters.forEach((emitter) =>
+      emitter.removeListener(this.onEvent)
+    );
+    disconnectLog('Extension Provider');
+  }
+
+  private async onMessage(request: ExtensionConnectionMessage) {
+    if (!this.pipeline || !this.connection) {
+      throw Error('ExtensionConnectionController is not connected to a port');
+    }
+
+    const [context, error] = await resolve(
+      this.pipeline.execute({
+        // always start with authenticated false, middlewares take care of context updates
+        authenticated: false,
+        request: request,
+      })
+    );
+
+    if (error) {
+      const response = {
+        ...request,
+        data: {
+          ...request.data,
+          ...{ error },
+        },
+      };
+      if (isDevelopment()) {
+        responseLog(`extension reponse (${request.method})`, response);
+      }
+      this.connection.postMessage(response);
+    } else if (context) {
+      if (isDevelopment()) {
+        responseLog(`extension reponse (${request.method})`, context.response);
+      }
+      this.connection.postMessage(context.response);
+    }
+  }
+
+  private onEvent(evt: ExtensionConnectionEvent) {
+    eventLog(`extension event (${evt.name})`, evt);
+    try {
+      this.connection?.postMessage(evt);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { LoadingIcon } from '@avalabs/react-components';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
 import {
   OnboardingPhase,

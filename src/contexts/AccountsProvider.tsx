@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { concat, filter, from, map } from 'rxjs';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { accountsUpdatedEventListener } from '@src/background/services/accounts/events/accountsUpdatedEventListener';
 import { Account } from '@src/background/services/accounts/models';
 

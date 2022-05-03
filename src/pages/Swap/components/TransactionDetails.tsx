@@ -13,7 +13,7 @@ import styled, { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { SlippageToolTip } from './SlippageToolTip';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/gas/models';
+import { GasPrice } from '@src/background/services/networkFee/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 

@@ -20,3 +20,25 @@ export interface BridgeState {
     [key: string]: BridgeTransaction;
   };
 }
+
+export type PartialBridgeTransaction = Pick<
+  BridgeTransaction,
+  | 'sourceChain'
+  | 'sourceTxHash'
+  | 'sourceStartedAt'
+  | 'targetChain'
+  | 'amount'
+  | 'symbol'
+>;
+
+export enum BridgeEvents {
+  BRIDGE_CONFIG_UPDATE_EVENT = 'BRIDGE_CONFIG_UPDATE_EVENT',
+  BRIDGE_TRANSACTIONS_UPDATED = 'BRIDGE_TRANSACTIONS_UPDATED',
+  BRIDGE_TRANSFER_EVENT = 'BRIDGE_TRANSFER_EVENT',
+}
+
+export const BRIDGE_STORAGE_KEY = 'bridge';
+
+export const DefaultBridgeState: BridgeState = {
+  bridgeTransactions: {},
+};

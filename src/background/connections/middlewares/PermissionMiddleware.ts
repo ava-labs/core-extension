@@ -1,6 +1,5 @@
-import { accounts$ } from '@src/background/services/accounts/accounts';
-import { permissions$ } from '@src/background/services/permissions/permissions';
-import { firstValueFrom } from 'rxjs';
+import { AccountsService } from '@src/background/services/accounts/AccountsService';
+import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
 import { COREX_DOMAINS } from '../models';
 import { Middleware } from './models';
 
@@ -85,11 +84,14 @@ const COREX_METHODS = Object.freeze([
   'avalanche_getBridgeState',
 ]);
 
-export function PermissionMiddleware(): Middleware {
+export function PermissionMiddleware(
+  permissionService: PermissionsService,
+  accountsService: AccountsService
+): Middleware {
   return async (context, next, error) => {
     // check if domain has permission
-    const permissions = await firstValueFrom(permissions$);
-    const accounts = await firstValueFrom(accounts$);
+    const permissions = await permissionService.getPermissions();
+    const accounts = await accountsService.getAccounts();
     const activeAccountAddress = accounts.find((a) => a.active)?.addressC;
 
     if (

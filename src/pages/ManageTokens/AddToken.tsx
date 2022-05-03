@@ -7,7 +7,7 @@ import {
   VerticalFlex,
   toast,
 } from '@avalabs/react-components';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

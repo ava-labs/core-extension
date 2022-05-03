@@ -1,21 +1,23 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { network$ } from '@avalabs/wallet-react-components';
+import { injectable } from 'tsyringe';
+import { NetworkService } from '../NetworkService';
 
-export async function getSelectedNetwork(request: ExtensionConnectionMessage) {
-  const result = await firstValueFrom(network$);
+@injectable()
+export class GetSelectedNetworkHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.NETWORK_GET_SELECTED];
 
-  return {
-    ...request,
-    result,
+  constructor(private networkService: NetworkService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    return {
+      ...request,
+      result: this.networkService.activeNetwork,
+    };
   };
 }
-
-export const GetNetworkRequest: [ExtensionRequest, ConnectionRequestHandler] = [
-  ExtensionRequest.NETWORK_GET_SELECTED,
-  getSelectedNetwork,
-];

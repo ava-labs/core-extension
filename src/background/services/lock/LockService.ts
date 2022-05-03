@@ -1,0 +1,98 @@
+import { EventEmitter } from 'events';
+import { singleton } from 'tsyringe';
+import { browser } from 'webextension-polyfill-ts';
+import { StorageService } from '../storage/StorageService';
+import { WalletService } from '../wallet/WalletService';
+import {
+  LockEvents,
+  LOCK_TIMEOUT,
+  SessionAuthData,
+  SESSION_AUTH_DATA_KEY,
+} from './models';
+
+@singleton()
+export class LockService {
+  private _locked = true;
+  private eventEmitter = new EventEmitter();
+
+  private lockCheckInterval?: any;
+
+  public get locked(): boolean {
+    return this._locked;
+  }
+
+  constructor(
+    private storageService: StorageService,
+    private walletService: WalletService
+  ) {}
+
+  async activate() {
+    const authData =
+      await this.storageService.loadFromSessionStorage<SessionAuthData>(
+        SESSION_AUTH_DATA_KEY
+      );
+
+    if (
+      !authData?.password ||
+      !authData?.loginTime ||
+      authData.loginTime + LOCK_TIMEOUT < Date.now()
+    ) {
+      await this.storageService.removeFromSessionStorage(SESSION_AUTH_DATA_KEY);
+      return;
+    }
+
+    await this.unlock(authData.password);
+    this.startAutoLockInterval(authData?.loginTime);
+  }
+
+  async unlock(password: string) {
+    try {
+      await this.walletService.activate(password);
+      await this.storageService.activate(password);
+
+      // save password to session storage to make auto unlock possible when the service worker restarts
+      await this.storageService.saveToSessionStorage(SESSION_AUTH_DATA_KEY, {
+        password,
+        loginTime: Date.now(),
+      });
+
+      this._locked = false;
+      this.eventEmitter.emit(LockEvents.UNLOCKED);
+    } catch (e) {
+      throw new Error('invalid password');
+    }
+  }
+
+  async changePassword(oldPassword: string, newPassword: string) {
+    const authData =
+      await this.storageService.loadFromSessionStorage<SessionAuthData>(
+        SESSION_AUTH_DATA_KEY
+      );
+
+    if (!authData || oldPassword !== authData.password) {
+      throw new Error('wrong password');
+    }
+    await this.storageService.changePassword(oldPassword, newPassword);
+    await this.walletService.changePassword(oldPassword, newPassword);
+  }
+
+  private startAutoLockInterval(loginTime: number) {
+    const timeToLock = loginTime + LOCK_TIMEOUT;
+    this.lockCheckInterval = setInterval(() => {
+      if (Date.now() > timeToLock) {
+        clearInterval(this.lockCheckInterval);
+        this.lock();
+      }
+    }, 60000);
+  }
+
+  lock() {
+    this.storageService.clearSessionStorage();
+    this.walletService.lock();
+    this.eventEmitter.emit(LockEvents.LOCKED);
+  }
+
+  addListener(event: LockEvents, callback: (data: unknown) => void) {
+    this.eventEmitter.on(event, callback);
+  }
+}
