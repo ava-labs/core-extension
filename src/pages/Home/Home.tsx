@@ -7,15 +7,20 @@ import {
 import { FAB } from '@src/components/common/fab/FAB';
 import { Portfolio } from './components/Portfolio/Portfolio';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 export function Home() {
   const { toggleIsDefaultExtension, isDefaultExtension } = useSettingsContext();
   const { updateInitialOpen, onboardingState } = useOnboardingContext();
+  const [isSetAsDefaultDisplayed, setIsSetAsDefaultDisplayed] = useState(false);
 
   useEffect(() => {
-    if (onboardingState.initialOpen && !isDefaultExtension) {
+    if (
+      !isSetAsDefaultDisplayed &&
+      onboardingState.initialOpen &&
+      !isDefaultExtension
+    ) {
       toast.custom(
         <TransactionToast
           status="You've entered your Core wallet!"
@@ -31,6 +36,7 @@ export function Home() {
           id: 'default_extension_toast',
         }
       );
+      setIsSetAsDefaultDisplayed(true);
     }
     if (onboardingState.initialOpen) {
       updateInitialOpen();
@@ -40,6 +46,7 @@ export function Home() {
     isDefaultExtension,
     toggleIsDefaultExtension,
     updateInitialOpen,
+    isSetAsDefaultDisplayed,
   ]);
 
   return (
