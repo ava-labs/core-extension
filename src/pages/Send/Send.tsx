@@ -132,27 +132,35 @@ export function SendPage() {
 
   const onAmountChanged = useCallback(
     ({ amount, bn }: { amount: string; bn: BN }) => {
-      setAmountInput(bn);
-      setAmountInputDisplay(amount);
-      setNavigationHistoryData({
-        amountInput: amount,
-      });
-      if (gasPriceState) {
+      if (!amountInput || !bn.eq(amountInput)) {
+        setAmountInput(bn);
+      }
+
+      if (!amountInputDisplay || amountInputDisplay !== amount) {
+        setAmountInputDisplay(amount);
+        setNavigationHistoryData({
+          amountInput: amount,
+        });
+
+        if (gasPriceState) {
+          setSendState({
+            token: selectedToken,
+            amount: amount,
+            address: contactInput?.address,
+            gasPrice: gasPriceState,
+          });
+          return;
+        }
         setSendState({
           token: selectedToken,
           amount: amount,
           address: contactInput?.address,
-          gasPrice: gasPriceState,
         });
-        return;
       }
-      setSendState({
-        token: selectedToken,
-        amount: amount,
-        address: contactInput?.address,
-      });
     },
     [
+      amountInput,
+      amountInputDisplay,
       contactInput?.address,
       gasPriceState,
       selectedToken,
