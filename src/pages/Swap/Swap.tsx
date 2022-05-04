@@ -50,6 +50,8 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 
 export interface Token {
   icon?: JSX.Element;
@@ -87,7 +89,9 @@ export function Swap() {
   const { network } = useNetworkContext();
   const { getRate, swap, gasPrice } = useSwapContext();
 
-  const swapIsAvaible = network ? isMainnetNetwork(network?.config) : false;
+  const { isFunctionAvailable: isSwapAvailable } =
+    useIsFunctionAvailable('Swap');
+
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
@@ -481,6 +485,19 @@ export function Swap() {
     []
   );
 
+  if (!isSwapAvailable) {
+    return (
+      <FunctionIsUnavailable
+        functionName="Swap"
+        network={network?.name || 'Testnet'}
+      />
+    );
+  }
+
+  if (!flags[FeatureGates.SWAP]) {
+    return <FunctionIsOffline functionName="Swap" />;
+  }
+
   const maxGasPrice =
     selectedFromToken && fromTokenValue && isAvaxToken(selectedFromToken)
       ? avaxToken.balance.sub(fromTokenValue.bn).toString()
@@ -493,23 +510,6 @@ export function Swap() {
     optimalRate &&
     gasLimit &&
     gasPrice;
-
-  if (!swapIsAvaible) {
-    return (
-      <VerticalFlex width="100%">
-        <PageTitle>Swap</PageTitle>
-        <VerticalFlex align="center" justify="center" grow="1">
-          <Typography size={16}>
-            Swap is not available on Fuji Testnet
-          </Typography>
-        </VerticalFlex>
-      </VerticalFlex>
-    );
-  }
-
-  if (!flags[FeatureGates.SWAP]) {
-    return <FunctionIsOffline functionName="Swap" />;
-  }
 
   return (
     <VerticalFlex width="100%">

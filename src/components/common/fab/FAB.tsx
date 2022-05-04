@@ -18,6 +18,7 @@ import { useHistory } from 'react-router-dom';
 import { useDialog } from '@avalabs/react-components';
 import { Moonpay } from '@avalabs/blizzard-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 
 const ActionButtonWrapper = styled(TextButton)`
   padding: 8px;
@@ -104,6 +105,7 @@ export function FAB() {
   const history = useHistory();
   const { showDialog, clearDialog } = useDialog();
   const { activeAccount } = useAccountsContext();
+  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
 
   const onBuyClick = () => {
     activeAccount &&
@@ -164,6 +166,53 @@ export function FAB() {
     </ActionButtonWrapper>
   );
 
+  const FABMenuItems = [
+    {
+      text: 'Send',
+      route: '/send',
+      name: 'Send',
+      icon: (
+        <ArrowIcon
+          height="21px"
+          color={theme.colors.bg1}
+          style={{
+            transform: `rotate(315deg)`,
+          }}
+        />
+      ),
+    },
+    {
+      text: 'Receive',
+      route: '/receive',
+      name: 'Receive',
+      icon: <QRCodeIcon height="24px" color={theme.colors.bg1} />,
+    },
+    {
+      text: 'Buy',
+      route: '',
+      name: 'Buy',
+      icon: <BuyIcon height="21px" color={theme.colors.bg1} />,
+    },
+    {
+      text: 'Swap',
+      route: '/swap',
+      name: 'Swap',
+      icon: (
+        <SwitchIcon
+          direction={IconDirection.RIGHT}
+          height="21px"
+          color={theme.colors.bg1}
+        />
+      ),
+    },
+    {
+      text: 'Bridge',
+      route: '/bridge',
+      name: 'Bridge',
+      icon: <BridgeIcon height="24px" color={theme.colors.bg1} />,
+    },
+  ];
+
   return (
     <>
       {isOpen && <InvisibleOverlay onClick={() => setIsOpen(false)} />}
@@ -177,56 +226,21 @@ export function FAB() {
           <PlusIcon height="16px" color={theme.colors.bg1} />
         </FabButton>
         <Menu>
-          {[
-            {
-              text: 'Send',
-              route: '/send',
-              icon: (
-                <ArrowIcon
-                  height="21px"
-                  color={theme.colors.bg1}
-                  style={{
-                    transform: `rotate(315deg)`,
-                  }}
-                />
-              ),
-            },
-            {
-              text: 'Receive',
-              route: '/receive',
-              icon: <QRCodeIcon height="24px" color={theme.colors.bg1} />,
-            },
-            {
-              text: 'Buy',
-              route: '',
-              icon: <BuyIcon height="21px" color={theme.colors.bg1} />,
-            },
-            {
-              text: 'Swap',
-              route: '/swap',
-              icon: (
-                <SwitchIcon
-                  direction={IconDirection.RIGHT}
-                  height="21px"
-                  color={theme.colors.bg1}
-                />
-              ),
-            },
-            {
-              text: 'Bridge',
-              route: '/bridge',
-              icon: <BridgeIcon height="24px" color={theme.colors.bg1} />,
-            },
-          ].map(({ text, route, icon }) => (
-            <ActionButton
-              key={text}
-              text={text}
-              icon={icon}
-              onClick={() => {
-                !route ? onBuyClick() : history.push(route);
-              }}
-            />
-          ))}
+          {FABMenuItems.map(({ text, route, icon, name }) => {
+            if (!checkIsFunctionAvailable(name)) {
+              return null;
+            }
+            return (
+              <ActionButton
+                key={text}
+                text={text}
+                icon={icon}
+                onClick={() => {
+                  !route ? onBuyClick() : history.push(route);
+                }}
+              />
+            );
+          })}
         </Menu>
       </FabContainer>
     </>

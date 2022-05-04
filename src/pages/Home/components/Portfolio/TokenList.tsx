@@ -22,6 +22,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 
 interface TokenListProps {
   searchQuery?: string;
@@ -34,6 +35,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const { avaxToken } = useWalletContext();
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
+  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
 
   const { tokens, showAvax } = useMemo(() => {
     const tokens = (
@@ -77,11 +79,14 @@ export function TokenList({ searchQuery }: TokenListProps) {
         <Typography size={14} weight={500} height="24px">
           Tokens
         </Typography>
-        <TextButton onClick={toggleManageTokensPage}>
-          <Typography color="inherit" size={12} weight={500}>
-            Manage
-          </Typography>
-        </TextButton>
+
+        {checkIsFunctionAvailable('ManageTokens') && (
+          <TextButton onClick={toggleManageTokensPage}>
+            <Typography color="inherit" size={12} weight={500}>
+              Manage
+            </Typography>
+          </TextButton>
+        )}
       </HorizontalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0px 16px 68px">
