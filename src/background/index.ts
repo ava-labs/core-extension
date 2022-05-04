@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { container } from 'tsyringe';
-import { BackgroundRuntime } from './BackgroundRuntime';
+import { BackgroundRuntime } from './runtime/BackgroundRuntime';
 
 const runtime = container.resolve(BackgroundRuntime);
 runtime.activate();

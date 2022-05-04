@@ -1,13 +1,12 @@
 import { activateServices } from '@avalabs/wallet-react-components';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { browser } from 'webextension-polyfill-ts';
-import { ConnectionService } from './connections/ConnectionService';
-import { container, singleton } from 'tsyringe';
-import { LockService } from './services/lock/LockService';
-import { OnboardingService } from './services/onboarding/OnboardingService';
-import { BridgeService } from './services/bridge/BridgeService';
-import { NetworkFeeService } from './services/networkFee/NetworkFeeService';
-import { DAppRequestHandler } from './connections/models';
+import { ConnectionService } from '../connections/ConnectionService';
+import { singleton } from 'tsyringe';
+import { LockService } from '../services/lock/LockService';
+import { OnboardingService } from '../services/onboarding/OnboardingService';
+import { BridgeService } from '../services/bridge/BridgeService';
+import { NetworkFeeService } from '../services/networkFee/NetworkFeeService';
 
 @singleton()
 export class BackgroundRuntime {

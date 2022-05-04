@@ -14,12 +14,13 @@ import {
   ACCOUNTS_STORAGE_KEY,
 } from './models';
 import { firstValueFrom } from 'rxjs';
-import { StorageEvents } from '../storage/models';
-import { LockService } from '../lock/LockService';
-import { LockEvents } from '../lock/models';
+import {
+  OnLock,
+  OnStorageReady,
+} from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class AccountsService {
+export class AccountsService implements OnLock, OnStorageReady {
   private eventEmitter = new EventEmitter();
 
   private accounts: Account[] = [];
@@ -30,17 +31,16 @@ export class AccountsService {
 
   constructor(
     private storageService: StorageService,
-    private networkService: NetworkService,
-    private lockService: LockService
-  ) {
-    storageService.addListener(StorageEvents.INITIALIZED, () => {
-      this.init();
-    });
-    // Implement tsyringe Disposable interface once it's released
-    lockService.addListener(LockEvents.LOCKED, () => {
-      this.accounts = [];
-      this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
-    });
+    private networkService: NetworkService
+  ) {}
+
+  onStorageReady(): void {
+    this.init();
+  }
+
+  onLock() {
+    this.accounts = [];
+    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
   private async init() {

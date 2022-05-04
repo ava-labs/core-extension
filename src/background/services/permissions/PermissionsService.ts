@@ -1,7 +1,7 @@
+import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { LockService } from '../lock/LockService';
-import { LockEvents } from '../lock/models';
 import { StorageService } from '../storage/StorageService';
 import {
   DappPermissions,
@@ -11,7 +11,7 @@ import {
 } from './models';
 
 @singleton()
-export class PermissionsService {
+export class PermissionsService implements OnLock {
   private eventEmitter = new EventEmitter();
 
   private permissions?: Permissions;
@@ -19,11 +19,10 @@ export class PermissionsService {
   constructor(
     private storageService: StorageService,
     private lockService: LockService
-  ) {
-    // Implement tsyringe Disposable interface once it's released
-    this.lockService.addListener(LockEvents.LOCKED, () => {
-      this.permissions = undefined;
-    });
+  ) {}
+
+  onLock(): void {
+    this.permissions = undefined;
   }
 
   // use getter to cache permissions

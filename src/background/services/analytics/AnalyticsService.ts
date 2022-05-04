@@ -1,6 +1,6 @@
+import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { StorageEvents } from '../storage/models';
 import { StorageService } from '../storage/StorageService';
 import {
   AnalyticsEvents,
@@ -9,16 +9,16 @@ import {
 } from './models';
 
 @singleton()
-export class AnalyticsService {
+export class AnalyticsService implements OnStorageReady {
   private eventEmitter = new EventEmitter();
 
-  constructor(private storageService: StorageService) {
-    this.storageService.addListener(StorageEvents.INITIALIZED, async () => {
-      const state = await this.getIds();
-      if (state) {
-        this.eventEmitter.emit(AnalyticsEvents.ANALYTICS_STATE_UPDATED, state);
-      }
-    });
+  constructor(private storageService: StorageService) {}
+
+  async onStorageReady(): Promise<void> {
+    const state = await this.getIds();
+    if (state) {
+      this.eventEmitter.emit(AnalyticsEvents.ANALYTICS_STATE_UPDATED, state);
+    }
   }
 
   async clearIds() {

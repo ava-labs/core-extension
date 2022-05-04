@@ -32,13 +32,14 @@ import { AccountsService } from '../accounts/AccountsService';
 import Common, { Chain } from '@ethereumjs/common';
 import { Transaction } from '@ethereumjs/tx';
 import { convertTxData } from './utils';
-import { StorageEvents } from '../storage/models';
 import { singleton } from 'tsyringe';
-import { LockService } from '../lock/LockService';
-import { LockEvents } from '../lock/models';
+import {
+  OnLock,
+  OnStorageReady,
+} from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class BridgeService {
+export class BridgeService implements OnLock, OnStorageReady {
   private eventEmitter = new EventEmitter();
   private _bridgeState: BridgeState = DefaultBridgeState;
   private config?: BridgeConfig;
@@ -51,17 +52,16 @@ export class BridgeService {
     private storageService: StorageService,
     private networkService: NetworkService,
     private walletService: WalletService,
-    private accountsService: AccountsService,
-    private lockService: LockService
-  ) {
-    this.storageService.addListener(StorageEvents.INITIALIZED, () => {
-      this.activate();
-    });
-    // Implement tsyringe Disposable interface once it's released
-    this.lockService.addListener(LockEvents.LOCKED, () => {
-      this._bridgeState = DefaultBridgeState;
-      this.config = undefined;
-    });
+    private accountsService: AccountsService
+  ) {}
+
+  onStorageReady(): void {
+    this.activate();
+  }
+
+  onLock() {
+    this._bridgeState = DefaultBridgeState;
+    this.config = undefined;
   }
 
   async activate() {

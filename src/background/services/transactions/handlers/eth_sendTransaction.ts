@@ -1,7 +1,7 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { defer, firstValueFrom, map, merge, of, tap } from 'rxjs';
+import { defer, firstValueFrom, map, merge, tap } from 'rxjs';
 import {
   PendingTransactions,
   Transaction,

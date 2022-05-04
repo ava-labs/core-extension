@@ -5,7 +5,7 @@ import {
   eventLog,
   responseLog,
 } from '@src/utils/logging';
-import { inject, injectable, injectAll } from 'tsyringe';
+import { injectable, injectAll } from 'tsyringe';
 import { Runtime } from 'webextension-polyfill-ts';
 import { Pipeline } from '../middlewares/models';
 import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';

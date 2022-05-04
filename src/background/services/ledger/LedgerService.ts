@@ -1,18 +1,14 @@
-import {
-  ledgerTransport$,
-  setLedgerTransport,
-} from '@avalabs/wallet-react-components';
+import { setLedgerTransport } from '@avalabs/wallet-react-components';
 import Transport from '@ledgerhq/hw-transport';
+import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { Subject, Subscription } from 'rxjs';
 import { singleton } from 'tsyringe';
-import { LockService } from '../lock/LockService';
-import { LockEvents } from '../lock/models';
 import { LedgerTransport } from './LedgerTransport';
 import { DeviceRequestData, DeviceResponseData, LedgerEvent } from './models';
 
 @singleton()
-export class LedgerService {
+export class LedgerService implements OnLock {
   private eventEmitter = new EventEmitter();
 
   private _transport?: Transport;
@@ -24,12 +20,10 @@ export class LedgerService {
     return this._transport;
   }
 
-  constructor(private lockService: LockService) {
-    this.lockService.addListener(LockEvents.LOCKED, () => {
-      this._transport?.close();
-      this._transport = undefined;
-      this.ledgerRequestSubscription?.unsubscribe();
-    });
+  onLock() {
+    this._transport?.close();
+    this._transport = undefined;
+    this.ledgerRequestSubscription?.unsubscribe();
   }
 
   initTransport() {

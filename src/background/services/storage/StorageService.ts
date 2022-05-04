@@ -1,17 +1,18 @@
+import { CallbackManager } from '@src/background/runtime/CallbackManager';
 import {
   decrypt,
   encrypt,
 } from '@src/background/services/storage/utils/crypto';
-import { EventEmitter } from 'events';
 import extension from 'extensionizer';
 import { singleton } from 'tsyringe';
 import nacl from 'tweetnacl';
-import { StorageEvents, WALLET_STORAGE_ENCRYPTION_KEY } from './models';
+import { WALLET_STORAGE_ENCRYPTION_KEY } from './models';
 
 @singleton()
 export class StorageService {
   private _storageKey?: string;
-  private eventEmitter = new EventEmitter();
+
+  constructor(private callbackManager: CallbackManager) {}
 
   /**
    * Initializes the storage service with a password that can decrypt the storage encryption key
@@ -23,7 +24,7 @@ export class StorageService {
         password
       );
 
-      this.eventEmitter.emit(StorageEvents.INITIALIZED);
+      this.callbackManager.onStorageReady();
     } catch (err) {
       console.error(err);
       return Promise.reject(new Error('password incorrect'));
@@ -52,11 +53,7 @@ export class StorageService {
 
     await this.save(WALLET_STORAGE_ENCRYPTION_KEY, storageKey, password);
     this._storageKey = storageKey;
-    this.eventEmitter.emit(StorageEvents.INITIALIZED);
-  }
-
-  addListener(event: StorageEvents, callback: () => void) {
-    this.eventEmitter.on(event, callback);
+    this.callbackManager.onStorageReady();
   }
 
   async save<T>(key: string, data: T, customEncryptionKey?: string) {

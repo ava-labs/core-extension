@@ -1,19 +1,12 @@
-import { EventEmitter } from 'events';
+import { CallbackManager } from '@src/background/runtime/CallbackManager';
 import { singleton } from 'tsyringe';
-import { browser } from 'webextension-polyfill-ts';
 import { StorageService } from '../storage/StorageService';
 import { WalletService } from '../wallet/WalletService';
-import {
-  LockEvents,
-  LOCK_TIMEOUT,
-  SessionAuthData,
-  SESSION_AUTH_DATA_KEY,
-} from './models';
+import { LOCK_TIMEOUT, SessionAuthData, SESSION_AUTH_DATA_KEY } from './models';
 
 @singleton()
 export class LockService {
   private _locked = true;
-  private eventEmitter = new EventEmitter();
 
   private lockCheckInterval?: any;
 
@@ -22,6 +15,7 @@ export class LockService {
   }
 
   constructor(
+    private callbackManager: CallbackManager,
     private storageService: StorageService,
     private walletService: WalletService
   ) {}
@@ -57,7 +51,7 @@ export class LockService {
       });
 
       this._locked = false;
-      this.eventEmitter.emit(LockEvents.UNLOCKED);
+      this.callbackManager.onUnlock();
     } catch (e) {
       throw new Error('invalid password');
     }
@@ -89,10 +83,6 @@ export class LockService {
   lock() {
     this.storageService.clearSessionStorage();
     this.walletService.lock();
-    this.eventEmitter.emit(LockEvents.LOCKED);
-  }
-
-  addListener(event: LockEvents, callback: (data: unknown) => void) {
-    this.eventEmitter.on(event, callback);
+    this.callbackManager.onLock();
   }
 }

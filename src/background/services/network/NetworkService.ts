@@ -3,11 +3,12 @@ import {
   ActiveNetwork,
   networkUpdates$,
 } from '@avalabs/wallet-react-components';
+import {
+  OnLock,
+  OnStorageReady,
+} from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { LockService } from '../lock/LockService';
-import { LockEvents } from '../lock/models';
-import { StorageEvents } from '../storage/models';
 import { StorageService } from '../storage/StorageService';
 import {
   NetworkEvents,
@@ -17,7 +18,7 @@ import {
 } from './models';
 
 @singleton()
-export class NetworkService {
+export class NetworkService implements OnLock, OnStorageReady {
   private eventEmitter = new EventEmitter();
 
   private _activeNetwork?: ActiveNetwork;
@@ -32,21 +33,14 @@ export class NetworkService {
       : false;
   }
 
-  constructor(
-    private storageService: StorageService,
-    private lockService: LockService
-  ) {
-    this.storageService.addListener(StorageEvents.INITIALIZED, () => {
-      this.init();
-    });
+  constructor(private storageService: StorageService) {}
 
-    // Implement tsyringe Disposable interface once it's released
-    this.lockService.addListener(LockEvents.LOCKED, () => {
-      this._activeNetwork = undefined;
-    });
-    this.lockService.addListener(LockEvents.UNLOCKED, () => {
-      this.init();
-    });
+  onLock(): void {
+    this._activeNetwork = undefined;
+  }
+
+  onStorageReady(): void {
+    this.init();
   }
 
   async init() {

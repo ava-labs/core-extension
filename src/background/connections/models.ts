@@ -1,6 +1,5 @@
 /* eslint-disable no-prototype-builtins */
 
-import { injectable, singleton } from 'tsyringe';
 import { Runtime } from 'webextension-polyfill-ts';
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 import { DomainMetadata } from '../models';

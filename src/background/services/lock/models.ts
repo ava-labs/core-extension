@@ -1,8 +1,3 @@
-export enum LockEvents {
-  UNLOCKED = 'UNLOCKED',
-  LOCKED = 'LOCKED',
-}
-
 export const SESSION_AUTH_DATA_KEY = 'SESSION_AUTH_DATA_KEY';
 export interface SessionAuthData {
   password: string;

@@ -1,4 +1,3 @@
-import { WalletType } from '@avalabs/avalanche-wallet-sdk';
 import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
 import {
   ERC20WithBalance,

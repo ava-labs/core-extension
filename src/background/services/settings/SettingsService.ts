@@ -4,11 +4,11 @@ import {
   currentSelectedCurrency$,
   customErc20Tokens$,
 } from '@avalabs/wallet-react-components';
+import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkEvents } from '../network/models';
 import { NetworkService } from '../network/NetworkService';
-import { StorageEvents } from '../storage/models';
 import { StorageService } from '../storage/StorageService';
 import { WalletService } from '../wallet/WalletService';
 import { SettingsEvents, TokensVisibility } from './models';
@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
 };
 
 @singleton()
-export class SettingsService {
+export class SettingsService implements OnStorageReady {
   private eventEmitter = new EventEmitter();
   constructor(
     private storageService: StorageService,
@@ -36,9 +36,10 @@ export class SettingsService {
     this.networkService.addListener(NetworkEvents.NETWORK_UPDATE_EVENT, () => {
       this.applySettings();
     });
-    this.storageService.addListener(StorageEvents.INITIALIZED, () => {
-      this.applySettings();
-    });
+  }
+
+  onStorageReady(): void {
+    this.applySettings();
   }
 
   private async applySettings() {
