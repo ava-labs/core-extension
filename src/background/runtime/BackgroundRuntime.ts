@@ -1,12 +1,13 @@
 import { activateServices } from '@avalabs/wallet-react-components';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { browser } from 'webextension-polyfill-ts';
-import { ConnectionService } from '../connections/ConnectionService';
+import { ConnectionService } from '@src/background/connections/ConnectionService';
 import { singleton } from 'tsyringe';
-import { LockService } from '../services/lock/LockService';
-import { OnboardingService } from '../services/onboarding/OnboardingService';
-import { BridgeService } from '../services/bridge/BridgeService';
-import { NetworkFeeService } from '../services/networkFee/NetworkFeeService';
+import { LockService } from '@src/background/services/lock/LockService';
+import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
+import { BridgeService } from '@src/background/services/bridge/BridgeService';
+import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
+import { BalancesService } from '@src/background/services/balances/BalancesService';
 
 @singleton()
 export class BackgroundRuntime {
@@ -15,6 +16,7 @@ export class BackgroundRuntime {
     private lockService: LockService,
     private onboardingService: OnboardingService,
     private bridgeService: BridgeService,
+    private balancesService: BalancesService,
     private networkFeeService: NetworkFeeService
   ) {}
 
@@ -33,6 +35,7 @@ export class BackgroundRuntime {
     this.onboardingService.activate();
     this.bridgeService.activate();
     this.networkFeeService.activate();
+    this.balancesService.activate();
   }
 
   private onInstalled() {

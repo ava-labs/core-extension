@@ -16,6 +16,7 @@ import { resolve } from '@src/utils/promiseResolver';
 import { firstValueFrom, of, tap } from 'rxjs';
 import { injectable } from 'tsyringe';
 import { SendService } from '../../SendService';
+
 @injectable()
 export class SendErc20SubmitHandler implements ExtensionRequestHandler {
   methods = [ExtensionRequest.SEND_ERC20_SUBMIT];

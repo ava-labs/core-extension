@@ -1,21 +1,27 @@
 import { isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
-import {
-  ActiveNetwork,
-  networkUpdates$,
-} from '@avalabs/wallet-react-components';
+import { networkUpdates$ } from '@avalabs/wallet-react-components';
+import { EventEmitter } from 'events';
+import { singleton } from 'tsyringe';
 import {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
-import { EventEmitter } from 'events';
-import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
+  isCustomNetwork,
   NetworkEvents,
   NETWORK_STORAGE_KEY,
   supportedNetworks,
+  ActiveNetwork,
+  NetworkTypes,
   MAINNET_NETWORK,
+  NetworkVM,
+  BITCOIN_NETWORK,
 } from './models';
+import {
+  JsonRpcBatchProvider,
+  BlockCypherProvider,
+} from '@avalabs/wallets-sdk';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -70,6 +76,21 @@ export class NetworkService implements OnLock, OnStorageReady {
       this.activeNetwork
     );
     networkUpdates$.next(this._activeNetwork);
+  }
+
+  getProviderForNetwork(network: NetworkTypes, numberOfRequestsPerBatch = 40) {
+    if (network.vm === NetworkVM.BITCOIN) {
+      const isMainnet = network.name === BITCOIN_NETWORK.name;
+      return new BlockCypherProvider(isMainnet);
+    } else if (network.vm === NetworkVM.EVM) {
+      return new JsonRpcBatchProvider(
+        numberOfRequestsPerBatch,
+        isCustomNetwork(network) ? network.rpcUrl : network.config.rpcUrl.c,
+        network.chainId
+      );
+    } else {
+      throw new Error('unsupported network');
+    }
   }
 
   addListener(event: NetworkEvents, callback: (data: unknown) => void) {

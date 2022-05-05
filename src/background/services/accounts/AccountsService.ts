@@ -170,7 +170,7 @@ export class AccountsService implements OnLock, OnStorageReady {
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
-  addListener(event: AccountsEvents, callback: (data: unknown) => void) {
+  addListener<T = unknown>(event: AccountsEvents, callback: (data: T) => void) {
     this.eventEmitter.on(event, callback);
   }
 }

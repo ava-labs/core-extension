@@ -26,7 +26,7 @@ export function useAssetBalanceEVM(
   source: Blockchain
 ): AssetBalance | undefined {
   const { request } = useConnectionContext();
-  const [ethBalance, setEthBalance] = useState<AssetBalance>();
+  const [ethBalance, setEthBalance] = useState<Big>();
   const { addresses, erc20Tokens } = useWalletContext();
   const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
 
@@ -104,7 +104,7 @@ async function getEthereumBalance(
   asset: Asset,
   account: string,
   deprecated: boolean
-): Promise<Big> {
+): Promise<Big | undefined> {
   const balanceStr = await request({
     method: ExtensionRequest.BRIDGE_GET_ETH_BALANCE,
     params: [asset, account, deprecated],

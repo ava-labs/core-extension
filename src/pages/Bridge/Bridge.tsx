@@ -293,7 +293,7 @@ export function Bridge() {
                         denomination
                       ),
                       denomination: sourceBalance.asset.denomination,
-                      priceUSD: price.toNumber(),
+                      priceUSD: price?.toNumber(),
                       logoURI:
                         tokenInfoData?.[sourceBalance.asset.symbol]?.logo,
                       name: sourceBalance.asset.symbol,

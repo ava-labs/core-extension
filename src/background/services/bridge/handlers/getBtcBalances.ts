@@ -6,6 +6,7 @@ import {
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   AppConfig,
+  BIG_ZERO,
   Blockchain,
   fetchTokenBalances,
   getBtcAsset,
@@ -58,7 +59,7 @@ export class BridgeGetBtcBalancesHandler implements ExtensionRequestHandler {
     const btcAddress = this.accountsService.activeAccount.addressBTC;
 
     const btcBalanceAvalanche = (
-      await this.getBtcBalanceAvalanche(config)
+      (await this.getBtcBalanceAvalanche(config)) || BIG_ZERO
     ).toNumber();
     const { balance: btcBalanceBitcoin, utxos: bitcoinUtxos } = await getUTXOs(
       config,

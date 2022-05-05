@@ -2,6 +2,7 @@ import {
   AssetType,
   BIG_ZERO,
   Blockchain,
+  btcToSatoshi,
   getMinimumTransferAmount,
   satoshiToBtc,
   useBridgeSDK,
@@ -61,7 +62,7 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
         getMinimumTransferAmount(
           Blockchain.AVALANCHE,
           bridgeConfig.config,
-          amount
+          btcToSatoshi(amount)
         )
       );
     }

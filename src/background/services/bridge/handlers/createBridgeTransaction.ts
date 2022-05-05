@@ -1,3 +1,4 @@
+import { Big } from '@avalabs/avalanche-wallet-sdk';
 import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
@@ -22,14 +23,19 @@ export class BridgeCreateTransactionHandler implements ExtensionRequestHandler {
   handle = async (
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
-    const partialBridgeTransaction = (request.params?.[0] ||
-      {}) as PartialBridgeTransaction;
+    const partialBridgeTransaction = (request.params?.[0] || {}) as Omit<
+      PartialBridgeTransaction,
+      'amount'
+    > & {
+      // amount is serialized when coming from the request
+      amount: string;
+    };
     const {
       sourceChain,
       sourceTxHash,
       sourceStartedAt,
       targetChain,
-      amount: amountStr,
+      amount,
       symbol,
     } = partialBridgeTransaction;
     if (!sourceChain) return { ...request, error: 'missing sourceChain' };
@@ -37,7 +43,7 @@ export class BridgeCreateTransactionHandler implements ExtensionRequestHandler {
     if (!sourceStartedAt)
       return { ...request, error: 'missing sourceStartedAt' };
     if (!targetChain) return { ...request, error: 'missing targetChain' };
-    if (!amountStr) return { ...request, error: 'missing amount' };
+    if (!amount) return { ...request, error: 'missing amount' };
     if (!symbol) return { ...request, error: 'missing symbol' };
 
     const [, error] = await resolve(
@@ -46,7 +52,7 @@ export class BridgeCreateTransactionHandler implements ExtensionRequestHandler {
         sourceTxHash,
         sourceStartedAt,
         targetChain,
-        amountStr,
+        new Big(amount),
         symbol
       )
     );

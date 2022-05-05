@@ -215,7 +215,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     sourceTxHash: string,
     sourceStartedAt: number,
     targetChain: Blockchain,
-    amountStr: string,
+    amount: Big,
     symbol: string
   ) {
     const { config } = await this.updateBridgeConfig();
@@ -229,7 +229,6 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     const addressC = this.accountsService.activeAccount.addressC;
     const addressBTC = this.accountsService.activeAccount.addressBTC;
-    const amount = new Big(amountStr);
     const requiredConfirmationCount = getMinimumConfirmations(
       sourceChain,
       config
