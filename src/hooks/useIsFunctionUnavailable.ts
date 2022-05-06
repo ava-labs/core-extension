@@ -1,11 +1,12 @@
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import {
+  BITCOIN_NETWORK,
+  FUJI_NETWORK,
+} from '@src/background/services/network/models';
 
-/**
- * TODO: @link https://ava-labs.atlassian.net/browse/CP-1938
- */
 const disabledFeatures = {
-  btc: ['COLLECTIBLES', 'Swap', 'Buy', 'ManageTokens'],
-  '0xa869': ['Swap'], // FUJI network
+  [BITCOIN_NETWORK.chainId]: ['COLLECTIBLES', 'Swap', 'Buy', 'ManageTokens'],
+  [FUJI_NETWORK.chainId]: ['Swap'],
 };
 
 interface FunctionIsAvailable {
