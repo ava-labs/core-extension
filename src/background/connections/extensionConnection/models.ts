@@ -11,6 +11,8 @@ export enum ExtensionRequest {
   ACCOUNT_RENAME = 'account_rename',
   ACCOUNT_ADD = 'account_add',
 
+  BALANCES_GET = 'balances_get',
+
   BRIDGE_GET_CONFIG = 'bridge_get_config',
   BRIDGE_GET_BTC_BALANCES = 'bridge_get_btc_balances',
   BRIDGE_GET_ETH_BALANCE = 'bridge_get_eth_balance',
@@ -43,6 +45,10 @@ export enum ExtensionRequest {
   SEND_ANT_VALIDATE = 'send_validateSendAntState',
   SEND_ANT_RESET = 'send_resetSendAntState',
   SEND_ANT_SUBMIT = 'send_submitSendAntState',
+
+  SEND_BTC_VALIDATE = 'send_validateSendBtcState',
+  SEND_BTC_RESET = 'send_resetSendBtcState',
+  SEND_BTC_SUBMIT = 'send_submitSendBtcState',
 
   SEND_ERC20_VALIDATE = 'send_validateSendErc20State',
   SEND_ERC20_RESET = 'send_resetSendErc20State',

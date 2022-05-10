@@ -1,3 +1,4 @@
+import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 import BN from 'bn.js';
 
 export enum BalanceServiceEvents {
@@ -25,11 +26,13 @@ export interface TokenWithBalance {
   color?: string;
   denomination?: number;
   decimals?: number;
+  utxos?: BitcoinInputUTXO[];
 }
 
 export interface TokenListDict {
   [contract: string]: TokenListERC20;
 }
+
 export interface TokenListERC20 {
   address: string;
   chainId: number;

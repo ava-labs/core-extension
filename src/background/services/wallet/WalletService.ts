@@ -21,13 +21,19 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { signPsbt } from '@avalabs/bridge-sdk';
 import { FeeMarketEIP1559Transaction, Transaction } from '@ethereumjs/tx';
 import { MessageType } from '../messages/models';
+import { BitcoinWallet } from '@avalabs/wallets-sdk';
+import { NetworkService } from '../network/NetworkService';
+import { isForNetworkVM, NetworkVM } from '../network/models';
 
 @singleton()
 export class WalletService {
   private eventEmitter = new EventEmitter();
   private _walletState: WalletState | undefined;
   private walletStateSubscription?: Subscription;
-  constructor(private storageService: StorageService) {}
+  constructor(
+    private storageService: StorageService,
+    private networkService: NetworkService
+  ) {}
 
   public get walletState(): WalletState | undefined {
     return this._walletState;
@@ -200,5 +206,25 @@ export class WalletService {
 
   addListener(event: WalletEvents, callback: (data: unknown) => void) {
     this.eventEmitter.on(event, callback);
+  }
+
+  async getBitcoinWallet(): Promise<BitcoinWallet> {
+    const wallet = await firstValueFrom(wallet$);
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
+    if (!isMnemonicWallet(wallet)) {
+      throw new Error('Only MnemonicWallet supported');
+    }
+    const network = this.networkService.activeNetwork;
+    if (!isForNetworkVM(network, NetworkVM.BITCOIN)) {
+      throw new Error('Only Bitcoin networks supported');
+    }
+    const provider = this.networkService.getProviderForNetwork(network);
+
+    return new BitcoinWallet(
+      Buffer.from(wallet.evmWallet.getPrivateKeyHex(), 'hex'),
+      provider
+    );
   }
 }

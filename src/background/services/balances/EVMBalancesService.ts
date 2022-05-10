@@ -19,6 +19,7 @@ import { firstValueFrom } from 'rxjs';
 const hstABI = require('human-standard-token-abi');
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import { TokenListDict, TokenWithBalance } from './models';
+
 @singleton()
 export class EVMBalancesService {
   constructor(
@@ -36,7 +37,7 @@ export class EVMBalancesService {
     provider: Provider,
     userAddress: string,
     network: ActiveNetwork
-  ) {
+  ): Promise<TokenWithBalance> {
     const balanceBig = await provider.getBalance(userAddress);
     const tokenPrice = await this.tokenPricesService.getPriceByCoinId(
       network.nativeToken.coinId,
@@ -55,7 +56,7 @@ export class EVMBalancesService {
       balanceUsdDisplayValue: tokenPrice
         ? big.mul(tokenPrice.price).toFixed(2)
         : undefined,
-      priceUSD: tokenPrice,
+      priceUSD: tokenPrice?.price,
     };
   }
 
@@ -66,7 +67,7 @@ export class EVMBalancesService {
       [address: string]: number;
     },
     userAddress: string
-  ) {
+  ): Promise<TokenWithBalance[]> {
     const tokensBalances: TokenWithBalance[] = await Promise.allSettled(
       Object.values(activeTokenList).map(async (token) => {
         const contract = new ethers.Contract(token.address, hstABI, provider);
@@ -114,13 +115,18 @@ export class EVMBalancesService {
     });
   }
 
-  private async getErc721Balances(userAddress: string) {
+  private async getErc721Balances(
+    userAddress: string
+  ): Promise<TokenWithBalance[]> {
     const user = new User({ baseUrl: 'https://blizzard.avax.network' });
     const result = await user.getNftState(userAddress);
-    return result.data ?? [];
+    return (result.data ?? []) as any[]; // TODO fit to TokenWithBalance interface
   }
 
-  async getBalances(userAddress: string, network: NetworkTypes) {
+  async getBalances(
+    userAddress: string,
+    network: NetworkTypes
+  ): Promise<TokenWithBalance[]> {
     const provider = this.networkService.getProviderForNetwork(
       network
     ) as JsonRpcBatchInternal;
@@ -144,7 +150,7 @@ export class EVMBalancesService {
       userAddress
     );
 
-    const nftStates = await await this.getErc721Balances(userAddress);
+    const nftStates = await this.getErc721Balances(userAddress);
     return [nativeTok, ...erc20Tokens, ...nftStates];
   }
 }

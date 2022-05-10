@@ -1,6 +1,6 @@
 import { EVMBalancesService } from '@src/background/services/balances/EVMBalancesService';
 import {
-  BITCOIN_NETWORK,
+  BITCOIN_TEST_NETWORK,
   MAINNET_NETWORK,
   NetworkTypes,
 } from '@src/background/services/network/models';
@@ -13,12 +13,15 @@ import {
   AccountsEvents,
 } from '@src/background/services/accounts/models';
 import { EventEmitter } from 'events';
-import { BalanceServiceEvents } from '@src/background/services/balances/models';
-import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
+import {
+  TokenWithBalance,
+  BalanceServiceEvents,
+} from '@src/background/services/balances/models';
+import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class BalancesService implements OnLock {
-  private _balances = new Map<string, any>();
+export class BalancesService implements OnLock, OnUnlock {
+  private _balances = new Map<string, TokenWithBalance[]>();
   get balances() {
     return Object.fromEntries(this._balances);
   }
@@ -43,7 +46,10 @@ export class BalancesService implements OnLock {
     throw new Error('no balances service for this provider is supported');
   }
 
-  async getBalanceForNetwork(network: NetworkTypes, userAddress: string) {
+  async getBalanceForNetwork(
+    network: NetworkTypes,
+    userAddress: string
+  ): Promise<TokenWithBalance[]> {
     /**
      * At this point we need to call glacier
      *    1. check if its up and supports the current chain
@@ -53,7 +59,7 @@ export class BalancesService implements OnLock {
      * Otherwise the code below should run
      */
     const provider = this.networkService.getProviderForNetwork(network);
-    const balanceService = await this.getBalanceServiceByProvider(provider);
+    const balanceService = this.getBalanceServiceByProvider(provider);
 
     return balanceService.getBalances(userAddress, network);
   }
@@ -83,14 +89,14 @@ export class BalancesService implements OnLock {
         const btcBalances = await Promise.all(
           allBTCAccounts.map(async (address) => {
             const accountBalance = await this.getBalanceForNetwork(
-              BITCOIN_NETWORK,
+              BITCOIN_TEST_NETWORK,
               address.btcAddress
             );
             return { ...address, balance: accountBalance };
           })
         );
 
-        btcBalances.every((acc) => {
+        btcBalances.forEach((acc) => {
           this._balances.set(acc.btcAddress, acc.balance);
         });
 
@@ -104,7 +110,7 @@ export class BalancesService implements OnLock {
           })
         );
 
-        cChainBalances.every((acc) => {
+        cChainBalances.forEach((acc) => {
           this._balances.set(acc.cAddress, acc.balance);
         });
 
@@ -113,12 +119,19 @@ export class BalancesService implements OnLock {
     );
   }
 
-  addListener<T = unknown>(event: AccountsEvents, callback: (data: T) => void) {
+  addListener<T = unknown>(
+    event: BalanceServiceEvents,
+    callback: (data: T) => void
+  ) {
     this.eventEmitter.on(event, callback);
   }
 
   onLock() {
     this._balances = new Map();
     this.eventEmitter.emit(BalanceServiceEvents.updated, this.balances);
+  }
+
+  onUnlock() {
+    this.activate();
   }
 }

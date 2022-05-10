@@ -14,11 +14,12 @@ export class TokenPricesService {
    * @returns the native token price
    */
   async getPriceByCoinId(coinId: string, selectedCurrency: string) {
+    const currencyCode = selectedCurrency.toLowerCase() as any;
     const coinPriceResult = await simplePrice(getBasicCoingeckoHttp(), {
       coinIds: [coinId],
-      currencies: [selectedCurrency.toLocaleLowerCase() as any],
+      currencies: [currencyCode],
     });
-    return coinPriceResult[coinId][selectedCurrency.toLowerCase() as any].price;
+    return coinPriceResult[coinId][currencyCode].price;
   }
 
   /**

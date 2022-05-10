@@ -161,22 +161,31 @@ export const SendConfirm = ({
   // For expensive tokens, display up to 4 decimals.
   // For low value, fallback to CSS ellipsis
   const amountDisplayValue =
-    token?.priceUSD && token.priceUSD > 1
-      ? bigToLocaleString(bnToBig(sendState?.amount || new BN(0), 18), 4)
+    token.priceUSD && token.priceUSD > 1
+      ? bigToLocaleString(
+          bnToBig(sendState?.amount || new BN(0), token.denomination),
+          4
+        )
       : fallbackAmountDisplayValue;
 
   const amountInCurrency = currencyFormatter(
-    Number(amount || 0) * (token?.priceUSD ?? 0)
+    Number(amount || 0) * (token.priceUSD ?? 0)
   );
 
   const balanceAfter = token.balance
     .sub(sendState?.amount || new BN(0))
     .sub(token.isAvax ? sendState?.sendFee || new BN(0) : new BN(0));
-  const balanceAfterDisplay = bigToLocaleString(bnToBig(balanceAfter, 18), 4);
+  const balanceAfterDisplay = bigToLocaleString(
+    bnToBig(balanceAfter, token.denomination),
+    4
+  );
   const balanceAfterInCurrencyDisplay = currencyFormatter(
     Number(
       bigToLocaleString(
-        bnToBig(balanceAfter.mul(new BN(token?.priceUSD || 0)), 18),
+        bnToBig(
+          balanceAfter.mul(new BN(token.priceUSD || 0)),
+          token.denomination
+        ),
         2
       ).replace(',', '')
     )
@@ -212,7 +221,7 @@ export const SendConfirm = ({
                   <SummaryToken>{token.symbol}</SummaryToken>
                 </Typography>
 
-                {token?.priceUSD && (
+                {token.priceUSD && (
                   <SummaryAmountInCurrency align="right">
                     {amountInCurrency}{' '}
                     <SummaryCurrency>{currency}</SummaryCurrency>
@@ -220,7 +229,7 @@ export const SendConfirm = ({
                 )}
               </VerticalFlex>
             </HorizontalFlex>
-            {token?.isAvax ? (
+            {token.isAvax ? (
               <SummaryAvaxTokenIcon height="56px" />
             ) : (
               <SummaryTokenIcon
@@ -291,7 +300,7 @@ export const SendConfirm = ({
                 <SummaryAmount>{balanceAfterDisplay}</SummaryAmount>{' '}
                 <SummaryToken>{token.symbol}</SummaryToken>
               </Typography>
-              {token?.priceUSD && (
+              {token.priceUSD && (
                 <Typography
                   size={12}
                   height="15px"

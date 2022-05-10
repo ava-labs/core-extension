@@ -51,24 +51,24 @@
     web3-eth-contract "1.7.1"
     xss "1.0.11"
 
-"@avalabs/blizzard-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/blizzard-sdk/-/blizzard-sdk-2.4.0-alpha.8.tgz#4c197e64fd3885189e0d1ad044fd29430c777fc2"
-  integrity sha512-rvITi/a1g4Y1ulFIbmg44mP9Xqu7Ele+sduyZfqo2v27Xjm7WgRb+pzqQzyWuSg3MK/bb09Si9mNrWEua72ngw==
+"@avalabs/blizzard-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/blizzard-sdk/-/blizzard-sdk-2.4.0-alpha.9.tgz#6ad3b2d2c915a78f455ec0c20d2b4d1f34c34062"
+  integrity sha512-Cy+YbhrlrplpDHFRUiJZEDDeyWJqckneKB+LMgW8kcmfYRiotA4epqwYQbzwVGKPmgf9MSXlawiavZPvdAVbfg==
 
-"@avalabs/blockcypher-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/blockcypher-sdk/-/blockcypher-sdk-2.4.0-alpha.8.tgz#63e169edc684d38921f36a102409624abe374f29"
-  integrity sha512-o4QB+GokGRoxodtsn3NryESjTRGSX6Iize9V4IIjD8Q1q9rO2WU+f0LceiJlXY1oIcGSLBeZs8/YDeNkg4ChGA==
+"@avalabs/blockcypher-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/blockcypher-sdk/-/blockcypher-sdk-2.4.0-alpha.9.tgz#32d78963defee72a74da881a3bbe72a5a9599d92"
+  integrity sha512-O5SXPlzxf3TwPqpYuvesfA0bfwKBbPjG8Um5becZMuKs82vO0i7EMH4Wy2ToI/EBKrxVq+Yy/fXu2R93rX6bMA==
 
-"@avalabs/bridge-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-2.4.0-alpha.8.tgz#3ec3052d4e628ba717e0475d0b39b7b523188a22"
-  integrity sha512-mUJqv0VbJSLaqz/iQurMblQZrzhAqeHvEUyR74vlsyicI6zMHONivOX0LPSaVRwBR4mtCg/dvQKTK3FBk/bShA==
+"@avalabs/bridge-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-2.4.0-alpha.9.tgz#92bab13e766634a8c09b395fe02a99f7574a7736"
+  integrity sha512-9rJFJGkzaIU/ix/bLhRNIWPNpQEsaZPa/t6s5HaJ7WUcaTaXre1KvnC7zJH7quEJF92eBLqvIVt0e7CvRZmQ9w==
   dependencies:
-    "@avalabs/blockcypher-sdk" "2.4.0-alpha.8"
-    "@avalabs/coingecko-sdk" "2.4.0-alpha.8"
-    "@avalabs/utils-sdk" "2.4.0-alpha.8"
+    "@avalabs/blockcypher-sdk" "2.4.0-alpha.9"
+    "@avalabs/coingecko-sdk" "2.4.0-alpha.9"
+    "@avalabs/utils-sdk" "2.4.0-alpha.9"
     big.js "6.1.1"
     bitcoinjs-lib "5.2.0"
     coinselect "3.1.12"
@@ -81,19 +81,19 @@
   dependencies:
     "@avalabs/utils-sdk" "2.3.0-alpha.3"
 
-"@avalabs/coingecko-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/coingecko-sdk/-/coingecko-sdk-2.4.0-alpha.8.tgz#d6cf25a8a17031321b144e74790dd2976fd106ea"
-  integrity sha512-I79rvSVf2W1nAP0I40oQD88oHHe0WDxvO3p7E/jc4EFWf+Jn9HxLfB0sRcPsbluYCA346sSPXCg/v47gIp52ow==
+"@avalabs/coingecko-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/coingecko-sdk/-/coingecko-sdk-2.4.0-alpha.9.tgz#3e0baa643781ed69091d7ef2cb12a5ae931ac0fd"
+  integrity sha512-xL7dRj9OOEFVizDRORZbXdIw0TrSuzTrovYwrXHg22Oh2NiA0Pvl59sjcYMG+buG+dP+q8nqZW5JtF8Psdpp+g==
   dependencies:
-    "@avalabs/utils-sdk" "2.4.0-alpha.8"
+    "@avalabs/utils-sdk" "2.4.0-alpha.9"
 
-"@avalabs/posthog-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/posthog-sdk/-/posthog-sdk-2.4.0-alpha.8.tgz#69ef1ba3667c609909f49fea8cdbb228aed8c294"
-  integrity sha512-mZ8jzwheQYaKf5yoZgwsPl+9YsTPu7fNMwXyRP9aViOK784QaenTv1aMmcKgdugSjwC2V4dhpB+v+jhu9tqIXg==
+"@avalabs/posthog-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/posthog-sdk/-/posthog-sdk-2.4.0-alpha.9.tgz#b3e4311db4559bb8d47682f0079a68d731b865a9"
+  integrity sha512-5/NbINtdvkShrqF+LmczPqWBem2E9HqvbYacKmgKnPx8atk8KLmPUzmF/+eLHKSgVB06B7ohZURzyo22ahdHlQ==
   dependencies:
-    "@avalabs/utils-sdk" "2.4.0-alpha.8"
+    "@avalabs/utils-sdk" "2.4.0-alpha.9"
     micro-signals "^2.4.0"
     posthog-js "^1.18.0"
 
@@ -119,17 +119,17 @@
     use-media "^1.4.0"
     web-vitals "^1.0.1"
 
-"@avalabs/snowtrace-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/snowtrace-sdk/-/snowtrace-sdk-2.4.0-alpha.8.tgz#752e07a55c66ced74af1b89a84e467998e77151b"
-  integrity sha512-04RdSz2PmDm6sEIdS90CCezYZACNy+x9LFOylITcpndXMYgyQl8D4hdl65PslyDp/2a0d+cXBvbFVxpG+KCJtg==
+"@avalabs/snowtrace-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/snowtrace-sdk/-/snowtrace-sdk-2.4.0-alpha.9.tgz#5ccce2a622e15aa13faa8055fc62bff88014d6b0"
+  integrity sha512-ScbWQT9v4UP4tPjmIN0Q47WPASB/FNrp2gwcwXuh9VukCkTFbAyo2EFnozgKCpozY3AC7Ca8Ui5xcNc9F+VHcg==
   dependencies:
-    "@avalabs/utils-sdk" "2.4.0-alpha.8"
+    "@avalabs/utils-sdk" "2.4.0-alpha.9"
 
-"@avalabs/token-prices-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/token-prices-sdk/-/token-prices-sdk-2.4.0-alpha.8.tgz#022711a915cda8b925bab4e4284cb241c5203822"
-  integrity sha512-J8wDcA+bce0YqFNwgQAUfawYjMeDz1fK+js0MQB4hnnfynG52bpKklusy4utn0AVHDC/+c/I2Yab9Ip5mCdX2g==
+"@avalabs/token-prices-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/token-prices-sdk/-/token-prices-sdk-2.4.0-alpha.9.tgz#9ed7942ee4db917676aa24f5939da828e2e09fdf"
+  integrity sha512-XWAPgerEqkBWnPfcT1CV75nmcLgK1T3aDD5V0JtdhLWa7WKyeNIpkKoup6qFhPNOaxqd5U44a+7W2MMd6p9Khg==
   dependencies:
     "@avalabs/coingecko-sdk" "2.3.0-alpha.3"
     "@avalabs/utils-sdk" "2.3.0-alpha.3"
@@ -150,10 +150,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.3.0-alpha.3.tgz#4ac34f6872f4282b7d0defa50a1f4c2f740c389b"
   integrity sha512-1FtTrvSD1ggNYAemMz9iLnEgb2oeOtOtycIPhXmTgIkPUGhblQQ3a3Odyqt/95b79z6ugc2hxrGWX8EwDUifhg==
 
-"@avalabs/utils-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.4.0-alpha.8.tgz#4a2810335ef66f27cb3501b43d987f28d10cfaf7"
-  integrity sha512-tuEt7qSiy0qEiRNHdyhLdRfvLCemrQVMwHOtWgbSfLONmIZGsc8Ybz4NAdAEORVKzSz70bhtvNCDCLo8meMU0A==
+"@avalabs/utils-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.4.0-alpha.9.tgz#a26c8543e92606d87325bcc45e62fa130c611e72"
+  integrity sha512-haLizRzP0nVtLUtUObdgOqz2EiqqiGHpAk7E4J5vE0G2kixNJWxuw1pJOjvIEOniGJEVTexIsvBmtYTlQ7NGnw==
 
 "@avalabs/wallet-react-components@1.30.3":
   version "1.30.3"
@@ -168,12 +168,12 @@
     rxjs "7.5.1"
     web-vitals "1.1.2"
 
-"@avalabs/wallets-sdk@2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@avalabs/wallets-sdk/-/wallets-sdk-2.4.0-alpha.8.tgz#6d4f7847d43bda71559bcf7d9eb98a2c6ccd97a4"
-  integrity sha512-+dWUn7g8/l3AfBwu1kMMhNPcEU2iEt6yfHjDul0aZIzA7K9VyNvi0Jhp9uQ3oqXT8Cx68R4rUc/BzYhKhVTOoQ==
+"@avalabs/wallets-sdk@2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@avalabs/wallets-sdk/-/wallets-sdk-2.4.0-alpha.9.tgz#7549cb4d715a6406954e6e9c1195f2d346e1ac64"
+  integrity sha512-bysLNAuwtX0Qqs/vHg8zfavL9JVmc3ktgnq0pXKmXLAR8NowPr9n0znBOad/PDTYzu7cQN0oQxxX9ME3aZkt0g==
   dependencies:
-    "@avalabs/blizzard-sdk" "2.4.0-alpha.8"
+    "@avalabs/blizzard-sdk" "2.4.0-alpha.9"
     "@avalabs/utils-sdk" "2.2.0-alpha.0"
     "@ethereumjs/common" "2.6.0"
     "@ethereumjs/tx" "3.4.0"

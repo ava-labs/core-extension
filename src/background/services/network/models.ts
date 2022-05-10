@@ -20,7 +20,7 @@ const NULL_PLATFORM_ID = 'no-id-for-this-platform';
 export interface NativeToken {
   name: string;
   symbol: string;
-  balance?: BN;
+  balance: BN;
   denomination: number;
   coinId: string;
 }
@@ -38,7 +38,7 @@ export const AVAX_TOKEN: NativeToken = {
   coinId: 'avalanche-2',
 };
 export const BTC_TOKEN: NativeToken = {
-  name: 'Bitoin',
+  name: 'Bitcoin',
   symbol: 'BTC',
   balance: new BN(0),
   denomination: 8,
@@ -120,10 +120,18 @@ export function isCustomNetwork(
   return !!network && network.hasOwnProperty('rpcUrl');
 }
 
+export function isForNetworkVM<T extends NetworkVM>(
+  network: NetworkTypes | undefined,
+  vm: T
+): network is NetworkTypes & { vm: T } {
+  return network?.vm === vm;
+}
+
 export const supportedNetworks = new Map<string, ActiveNetwork>([
   [MAINNET_NETWORK.name, MAINNET_NETWORK],
   [FUJI_NETWORK.name, FUJI_NETWORK],
   [BITCOIN_NETWORK.name, BITCOIN_NETWORK],
+  [BITCOIN_TEST_NETWORK.name, BITCOIN_TEST_NETWORK],
   [LOCAL_NETWORK.name, LOCAL_NETWORK],
 ]);
 

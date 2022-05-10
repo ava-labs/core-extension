@@ -10,6 +10,8 @@ import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/han
 import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
 import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
 import { StoreAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/storeAnalyticsIds';
+import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
+import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { BridgeConfigUpdatedEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
 import { BridgeTransactionUpdatedEvents } from '@src/background/services/bridge/events/bridgeTransactionsUpdateEvents';
 import { BridgeTransferEvents } from '@src/background/services/bridge/events/bridgeTransferEvents';
@@ -54,6 +56,8 @@ import { SendTxDetailsEvents } from '@src/background/services/send/events/sendTx
 import { SendAvaxResetHandler } from '@src/background/services/send/sendAvax/handlers/resetSendAvaxState';
 import { SendAvaxSubmitHandler } from '@src/background/services/send/sendAvax/handlers/submitSendAvaxState';
 import { SendAvaxValidateHandler } from '@src/background/services/send/sendAvax/handlers/validateSendAvaxState';
+import { SendBtcSubmitHandler } from '@src/background/services/send/sendBtc/handlers/SendBtcSubmitHandler';
+import { ValidateBtcSendStateHandler } from '@src/background/services/send/sendBtc/handlers/ValidateBtcSendStateHandler';
 import { SendErc20ResetHandler } from '@src/background/services/send/sendErc20/handlers/resetSendErc20State';
 import { SendErc20SubmitHandler } from '@src/background/services/send/sendErc20/handlers/submitSendErc20State';
 import { SendErc20ValidateHandler } from '@src/background/services/send/sendErc20/handlers/validateSendErc20State';
@@ -102,6 +106,7 @@ import { UpdateTransactionHandler } from '../../services/transactions/handlers/u
     token: 'ExtensionRequestHandler',
     useToken: BridgeCreateTransactionHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetTransactionsHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetBtcBalancesHandler },
@@ -153,6 +158,8 @@ import { UpdateTransactionHandler } from '../../services/transactions/handlers/u
   { token: 'ExtensionRequestHandler', useToken: SendAvaxResetHandler },
   { token: 'ExtensionRequestHandler', useToken: SendAvaxSubmitHandler },
   { token: 'ExtensionRequestHandler', useToken: SendAvaxValidateHandler },
+  { token: 'ExtensionRequestHandler', useToken: SendBtcSubmitHandler },
+  { token: 'ExtensionRequestHandler', useToken: ValidateBtcSendStateHandler },
   { token: 'ExtensionRequestHandler', useToken: SendErc20ResetHandler },
   { token: 'ExtensionRequestHandler', useToken: SendErc20SubmitHandler },
   { token: 'ExtensionRequestHandler', useToken: SendErc20ValidateHandler },
@@ -182,6 +189,7 @@ export class ExtensionRequestHandlerRegistry {}
 @registry([
   { token: 'ExtensionEventEmitter', useToken: AccountsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
   {
