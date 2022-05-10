@@ -6,22 +6,15 @@ export function useBlockchainNames(item: TransactionERC20 | BridgeTransaction) {
   const pending = isPendingBridgeTransaction(item);
   const { avalancheAssets } = useBridgeSDK();
 
-  const symbol = (
-    !pending
-      ? item.tokenSymbol === 'TEST.t'
-        ? // TEMP: use "BTC" when "TEST.t" until testnet changes
-          'BTC'
-        : item.tokenSymbol
-      : ''
-  ).split('.')[0];
-
   if (pending) {
     return {
-      sourceBlockchain: item.sourceChain,
-      targetBlockchain: item.targetChain,
+      sourceBlockchain: titleCase(item.sourceChain),
+      targetBlockchain: titleCase(item.targetChain),
     };
   }
 
+  // e.g. remove '.e' from 'LINK.e'
+  const symbol = item.tokenSymbol.split('.')[0];
   const isToAvalanche =
     item.from === '0x0000000000000000000000000000000000000000';
   const txBlockchain = titleCase(
