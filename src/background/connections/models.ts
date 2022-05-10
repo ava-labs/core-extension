@@ -96,7 +96,12 @@ export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
   domain: string;
 }
 
-export const COREX_DOMAINS = ['localhost', 'corex.pages.dev'];
+export const COREX_DOMAINS = [
+  'localhost',
+  'core-web.pages.dev',
+  'core.avax-test.network',
+  'core.avax.network',
+];
 
 export interface ConnectionController {
   connect(connection: Runtime.Port): void;
