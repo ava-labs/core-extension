@@ -33,6 +33,7 @@ type ContactInputProps = {
   onChange(contact?: Contact, selectedTab?: string): void;
   isContactsOpen: boolean;
   toggleContactsDropdown(to?: boolean): void;
+  setIsOpen: (isOpen: boolean) => void;
 };
 
 export const ContactInput = ({
@@ -40,6 +41,7 @@ export const ContactInput = ({
   onChange,
   isContactsOpen,
   toggleContactsDropdown,
+  setIsOpen,
 }: ContactInputProps) => {
   const theme = useTheme();
   const inputRef = useRef<HTMLDivElement>(null);
@@ -100,7 +102,11 @@ export const ContactInput = ({
           onButtonClicked={toggleContactsDropdown}
         />
       </InputContainer>
-      <ContainedDropdown anchorEl={inputRef} isOpen={isContactsOpen}>
+      <ContainedDropdown
+        anchorEl={inputRef}
+        isOpen={isContactsOpen}
+        setIsOpen={setIsOpen}
+      >
         <ContactSelect
           onChange={changeAndCloseDropdown}
           selectedContact={contact}

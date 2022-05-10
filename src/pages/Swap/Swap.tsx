@@ -590,6 +590,7 @@ export function Swap() {
                 destinationInputField: 'to',
               });
             }}
+            setIsOpen={setIsFromTokenSelectOpen}
           />
 
           <HorizontalFlex
@@ -687,6 +688,7 @@ export function Swap() {
                 destinationInputField: 'from',
               });
             }}
+            setIsOpen={setIsToTokenSelectOpen}
           />
 
           {!isLoading && canSwap && (

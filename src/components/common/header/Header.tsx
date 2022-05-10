@@ -2,20 +2,18 @@ import {
   ConnectionIndicator,
   HorizontalFlex,
   HorizontalSeparator,
-  QRCodeIcon,
   SecondaryButton,
   SimpleAddress,
-  TextButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
+import { NetworkSwitcher } from './NetworkSwitcher';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -27,15 +25,6 @@ export function Header() {
     (isDomainConnectedToAccount &&
       isDomainConnectedToAccount(domain, addresses.addrC)) ||
     false;
-  const history = useHistory();
-
-  const toggleReceivePage = () => {
-    if (history.location.pathname.startsWith('/receive')) {
-      history.push('/');
-      return;
-    }
-    history.push('/receive');
-  };
 
   return (
     <HorizontalFlex
@@ -95,9 +84,8 @@ export function Header() {
           </HorizontalFlex>
         )}
       </VerticalFlex>
-      <TextButton onClick={toggleReceivePage}>
-        <QRCodeIcon color={theme.colors.text1} />
-      </TextButton>
+
+      <NetworkSwitcher />
     </HorizontalFlex>
   );
 }

@@ -313,6 +313,7 @@ export function Bridge() {
                   }}
                   skipHandleMaxAmount
                   inputAmount={defaultInputValue.bn}
+                  setIsOpen={setIsTokenSelectOpen}
                 />
               </HorizontalFlex>
             </VerticalFlex>

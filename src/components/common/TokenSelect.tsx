@@ -73,6 +73,7 @@ interface TokenSelectProps {
   onInputAmountChange?({ amount: string, bn: BN }): void;
   onSelectToggle?(): void;
   isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
   error?: string;
   margin?: string;
   padding?: string;
@@ -103,6 +104,7 @@ export function TokenSelect({
   onError,
   skipHandleMaxAmount,
   bridgeTokensList,
+  setIsOpen,
 }: TokenSelectProps) {
   const theme = useTheme();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -258,7 +260,11 @@ export function TokenSelect({
           </HorizontalFlex>
         )}
 
-        <ContainedDropdown anchorEl={selectButtonRef} isOpen={isOpen}>
+        <ContainedDropdown
+          anchorEl={selectButtonRef}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+        >
           <DropdownContents>
             <HorizontalSeparator margin="0" />
             <SearchInputContainer>

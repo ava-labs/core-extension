@@ -13,7 +13,6 @@ import { SettingsPages } from './models';
 import { SecurityAndPrivacy } from './pages/SecurityAndPrivacy';
 import { ChangePassword } from './pages/ChangePassword';
 import { RecoveryPhrase } from './pages/RecoveryPhrase';
-import { Network } from './pages/Network';
 import { AddContact } from './pages/AddContact';
 import { ContactList } from './pages/ContactList';
 import { ConnectedSites } from './pages/ConnectedSites';
@@ -150,9 +149,6 @@ export function SettingsMenu() {
       break;
     case SettingsPages.RECOVERY_PHRASE:
       pageElement = <RecoveryPhrase {...pageProps} />;
-      break;
-    case SettingsPages.NETWORK:
-      pageElement = <Network {...pageProps} />;
       break;
     case SettingsPages.CONNECTED_SITES:
       pageElement = <ConnectedSites {...pageProps} />;

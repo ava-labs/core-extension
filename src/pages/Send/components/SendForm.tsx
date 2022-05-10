@@ -50,6 +50,7 @@ export const SendForm = ({
         onChange={onContactChange}
         isContactsOpen={isContactsOpen}
         toggleContactsDropdown={toggleContactsDropdown}
+        setIsOpen={setIsContactsOpen}
       />
       <HorizontalFlex padding="0 16px" width="100%">
         <TokenSelect
@@ -65,6 +66,7 @@ export const SendForm = ({
           isOpen={isTokenSelectOpen}
           error={sendState?.error?.message}
           margin="24px 0"
+          setIsOpen={setIsTokenSelectOpen}
         />
       </HorizontalFlex>
     </>
