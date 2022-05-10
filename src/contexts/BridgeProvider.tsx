@@ -1,23 +1,26 @@
+import { Big } from '@avalabs/avalanche-wallet-sdk';
 import {
   Asset,
   BridgeSDKProvider,
-  Environment,
-  setBridgeEnvironment,
-  useBridgeConfigUpdater,
   useBridgeSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
 import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { isBridgeTransferEventListener } from '@src/background/services/bridge/events/listeners';
+import {
+  bridgeTransactionsUpdatedEventListener,
+  isBridgeTransferEventListener,
+} from '@src/background/services/bridge/events/listeners';
 import {
   BridgeState,
   DefaultBridgeState,
   PartialBridgeTransaction,
   TransferEventType,
 } from '@src/background/services/bridge/models';
-import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
-import { MAINNET_NETWORK } from '@src/background/services/network/models';
+import {
+  deserializeBridgeState,
+  filterBridgeStateToNetwork,
+} from '@src/background/services/bridge/utils';
 import {
   createContext,
   useCallback,
@@ -25,15 +28,9 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { bridgeTransactionsUpdatedEventListener } from '@src/background/services/bridge/events/listeners';
-import {
-  deserializeBridgeState,
-  filterBridgeStateToNetwork,
-} from '@src/background/services/bridge/utils';
 
 interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
@@ -63,8 +60,6 @@ export function useBridgeContext() {
 
 // This component is separate so it has access to useBridgeSDK
 function InnerBridgeProvider({ children }: { children: any }) {
-  useSyncConfig();
-
   const { request, events } = useConnectionContext();
   const { currentBlockchain } = useBridgeSDK();
   const { network } = useNetworkContext();
@@ -166,42 +161,4 @@ function InnerBridgeProvider({ children }: { children: any }) {
       {children}
     </bridgeContext.Provider>
   );
-}
-
-/**
- * Periodically update the bridge config and keep it in sync with the background.
- */
-function useSyncConfig() {
-  const { setBridgeConfig } = useBridgeSDK();
-  const { events, request } = useConnectionContext();
-  const { network } = useNetworkContext();
-
-  const fetchConfig = useCallback(
-    () => request({ method: ExtensionRequest.BRIDGE_GET_CONFIG }),
-    [request]
-  );
-
-  // periodically update the bridge config
-  useBridgeConfigUpdater(fetchConfig);
-
-  useEffect(() => {
-    setBridgeEnvironment(
-      network?.chainId === MAINNET_NETWORK.chainId
-        ? Environment.PROD
-        : Environment.TEST
-    );
-  }, [network]);
-
-  // update the bridge config when the network changes
-  useEffect(() => {
-    if (!events) return;
-
-    const subscription = events()
-      .pipe(filter(networkUpdatedEventListener))
-      .subscribe(async () => {
-        const newConfig = await fetchConfig();
-        setBridgeConfig(newConfig);
-      });
-    return () => subscription.unsubscribe();
-  }, [events, fetchConfig, setBridgeConfig]);
 }

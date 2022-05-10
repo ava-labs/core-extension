@@ -40,6 +40,7 @@ import { useBridge } from './useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { stringToBN } from '@avalabs/utils-sdk';
+import { useSyncBridgeConfig } from './useSyncBridgeConfig';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -50,6 +51,7 @@ function formatBalance(balance: Big | undefined) {
 }
 
 export function Bridge() {
+  useSyncBridgeConfig(); // keep bridge config up-to-date
   const { flags } = useAnalyticsContext();
   const {
     address,
