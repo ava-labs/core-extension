@@ -19,7 +19,7 @@ import {
   BITCOIN_NETWORK,
 } from './models';
 import {
-  JsonRpcBatchProvider,
+  JsonRpcBatchInternal,
   BlockCypherProvider,
 } from '@avalabs/wallets-sdk';
 
@@ -83,7 +83,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       const isMainnet = network.name === BITCOIN_NETWORK.name;
       return new BlockCypherProvider(isMainnet);
     } else if (network.vm === NetworkVM.EVM) {
-      return new JsonRpcBatchProvider(
+      return new JsonRpcBatchInternal(
         numberOfRequestsPerBatch,
         isCustomNetwork(network) ? network.rpcUrl : network.config.rpcUrl.c,
         network.chainId

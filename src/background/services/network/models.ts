@@ -6,6 +6,13 @@ import {
   BN,
 } from '@avalabs/avalanche-wallet-sdk';
 
+const AVALANCHE_PLATFORM_ID = 'avalanche';
+/**
+ * This means there is no platform representation on coin gecko for this platform
+ * @link https://api.coingecko.com/api/v3/asset_platforms
+ */
+const NULL_PLATFORM_ID = 'no-id-for-this-platform';
+
 /**
  * Entering into multichain the networks need to be cleaned up
  * here is the story to do so @link https://ava-labs.atlassian.net/browse/CP-1872
@@ -44,6 +51,7 @@ export interface ActiveNetwork {
   chainId: string;
   nativeToken: NativeToken;
   vm: NetworkVM;
+  platformId: string;
 }
 export interface CustomNetwork extends ActiveNetwork {
   rpcUrl?: string;
@@ -55,6 +63,7 @@ export const MAINNET_NETWORK: ActiveNetwork = {
   chainId: 43114 as any,
   nativeToken: AVAX_TOKEN,
   vm: NetworkVM.EVM,
+  platformId: AVALANCHE_PLATFORM_ID,
 };
 
 export const FUJI_NETWORK: ActiveNetwork = {
@@ -63,6 +72,7 @@ export const FUJI_NETWORK: ActiveNetwork = {
   chainId: 43113 as any,
   nativeToken: AVAX_TOKEN,
   vm: NetworkVM.EVM,
+  platformId: AVALANCHE_PLATFORM_ID,
 };
 
 export const BITCOIN_NETWORK: ActiveNetwork = {
@@ -71,6 +81,7 @@ export const BITCOIN_NETWORK: ActiveNetwork = {
   chainId: 'btc',
   nativeToken: BTC_TOKEN,
   vm: NetworkVM.BITCOIN,
+  platformId: NULL_PLATFORM_ID,
 };
 export const BITCOIN_TEST_NETWORK: ActiveNetwork = {
   config: TestnetConfig,
@@ -78,6 +89,7 @@ export const BITCOIN_TEST_NETWORK: ActiveNetwork = {
   chainId: 'btc-testnet',
   nativeToken: BTC_TOKEN,
   vm: NetworkVM.BITCOIN,
+  platformId: NULL_PLATFORM_ID,
 };
 
 export const LOCAL_NETWORK: ActiveNetwork = {
@@ -86,6 +98,7 @@ export const LOCAL_NETWORK: ActiveNetwork = {
   chainId: '43112',
   nativeToken: AVAX_TOKEN,
   vm: NetworkVM.EVM,
+  platformId: AVALANCHE_PLATFORM_ID,
 };
 
 export type NetworkTypes =

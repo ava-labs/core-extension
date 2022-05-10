@@ -80,7 +80,6 @@ export class BalancesService implements OnLock {
           },
           []
         );
-
         const btcBalances = await Promise.all(
           allBTCAccounts.map(async (address) => {
             const accountBalance = await this.getBalanceForNetwork(

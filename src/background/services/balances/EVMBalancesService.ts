@@ -1,7 +1,4 @@
-import {
-  activeTokenList$,
-  tokenListPrices$,
-} from '@avalabs/wallet-react-components';
+import { activeTokenList$ } from '@avalabs/wallet-react-components';
 import { User } from '@avalabs/blizzard-sdk';
 import { Provider } from '@ethersproject/providers';
 import { singleton } from 'tsyringe';
@@ -13,20 +10,20 @@ import {
   numberToBN,
 } from '@avalabs/utils-sdk';
 import {
-  NativeToken,
+  ActiveNetwork,
   NetworkTypes,
 } from '@src/background/services/network/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
-import { JsonRpcBatchProvider } from '@avalabs/wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { firstValueFrom } from 'rxjs';
 const hstABI = require('human-standard-token-abi');
-import { CoinGeckoService } from '@src/background/services/balances/CoinGeckoService';
+import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import { TokenListDict, TokenWithBalance } from './models';
 @singleton()
 export class EVMBalancesService {
   constructor(
     private networkService: NetworkService,
-    private coingeckoService: CoinGeckoService
+    private tokenPricesService: TokenPricesService
   ) {}
 
   getServiceForProvider(provider: any) {
@@ -38,17 +35,21 @@ export class EVMBalancesService {
   private async getNativeTokenBalance(
     provider: Provider,
     userAddress: string,
-    nativeToken: NativeToken
+    network: ActiveNetwork
   ) {
     const balanceBig = await provider.getBalance(userAddress);
-    const tokenPrice = await this.coingeckoService.getTokenPrice(
-      nativeToken.coinId
+    const tokenPrice = await this.tokenPricesService.getPriceByCoinId(
+      network.nativeToken.coinId,
+      network.platformId
     );
-    const big = ethersBigNumberToBig(balanceBig, nativeToken.denomination);
-    const balance = bigToBN(big, nativeToken.denomination);
+    const big = ethersBigNumberToBig(
+      balanceBig,
+      network.nativeToken.denomination
+    );
+    const balance = bigToBN(big, network.nativeToken.denomination);
 
     return {
-      ...nativeToken,
+      ...network.nativeToken,
       balance,
       balanceDisplayValue: balanceToDisplayValue(balance, 18),
       balanceUsdDisplayValue: tokenPrice
@@ -122,13 +123,18 @@ export class EVMBalancesService {
   async getBalances(userAddress: string, network: NetworkTypes) {
     const provider = this.networkService.getProviderForNetwork(
       network
-    ) as JsonRpcBatchProvider;
+    ) as JsonRpcBatchInternal;
     const activeTokenList = await firstValueFrom(activeTokenList$);
-    const tokenPriceDict = await firstValueFrom(tokenListPrices$);
+    const tokenPriceDict =
+      await this.tokenPricesService.getTokenPricesByAddresses(
+        Object.values(activeTokenList),
+        network.platformId,
+        network.nativeToken.coinId
+      );
     const nativeTok = await this.getNativeTokenBalance(
       provider,
       userAddress,
-      network.nativeToken
+      network
     );
 
     const erc20Tokens = await this.getErc20Balances(
