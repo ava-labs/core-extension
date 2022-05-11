@@ -17,7 +17,7 @@ import {
   TxStatus,
 } from '@src/background/services/transactions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ApproveTx } from './ApproveTx';
 import { SwapTx } from './SwapTx';
 import { UnknownTx } from './UnknownTx';
@@ -62,6 +62,22 @@ export function SignTransactionPage() {
   useLedgerDisconnectedDialog(() => {
     window.close();
   });
+
+  function cancelHandler() {
+    updateTransaction({
+      status: TxStatus.ERROR_USER_CANCELED,
+      id: id,
+    });
+  }
+  useEffect(() => {
+    window.addEventListener('unload', cancelHandler);
+
+    return () => {
+      window.removeEventListener('unload', cancelHandler);
+    };
+    // This only needs to run once since this is a part of initializing process.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 

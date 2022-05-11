@@ -2,6 +2,7 @@ import { Web3Event } from '@src/background/connections/dAppConnection/models';
 import {
   ExtensionConnectionEvent,
   DAppEventEmitter,
+  ConnectionInfo,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
@@ -11,10 +12,10 @@ import { NetworkService } from '../NetworkService';
 @injectable()
 export class ChainChangedEvents implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
-  private _domain?: string;
+  private _connectionInfo?: ConnectionInfo;
 
-  setDomain(domain: string) {
-    this._domain = domain;
+  setConnectionInfo(connectionInfo: ConnectionInfo) {
+    this._connectionInfo = connectionInfo;
   }
 
   constructor(private networkService: NetworkService) {

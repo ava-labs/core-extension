@@ -45,6 +45,7 @@ export interface Transaction {
   txHash?: string;
   displayValues: TransactionDisplayValues;
   error?: string;
+  tabId?: number;
 }
 
 export function isTxParams(params: Partial<txParams>): params is txParams {
@@ -69,6 +70,7 @@ export interface txParams {
 export interface txParamsUpdate {
   id: any;
   params: txParams;
+  tabId?: number;
 }
 /**
  * This is updating the result with the txHash or the status
@@ -78,6 +80,7 @@ export interface txStatusUpdate {
   id: Transaction['id'];
   result?: string;
   error?: string;
+  tabId?: number;
 }
 
 export function isTxParamsUpdate(

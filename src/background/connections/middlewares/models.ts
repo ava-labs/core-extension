@@ -7,11 +7,13 @@ import {
 export type Next = () => Promise<void> | void;
 export type ErrorCallback = (error: Error) => void;
 
+export const DEFERRED_RESPONSE: unique symbol = Symbol();
+
 export type Context = {
   request: ExtensionConnectionMessage;
   domainMetadata?: DomainMetadata;
   authenticated: boolean;
-  response?: ExtensionConnectionMessageResponse;
+  response?: ExtensionConnectionMessageResponse | typeof DEFERRED_RESPONSE;
 };
 
 export type Middleware = (

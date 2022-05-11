@@ -17,7 +17,6 @@ export class UpdateActionHandler implements ExtensionRequestHandler {
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
     const params = request.params;
-
     if (!params) {
       return {
         ...request,
@@ -46,13 +45,7 @@ export class UpdateActionHandler implements ExtensionRequestHandler {
       return { ...request, error: 'no message found with that id' };
     }
 
-    this.actionsService.saveActions({
-      ...actions,
-      [id]: {
-        ...action,
-        ...updates,
-      },
-    });
+    this.actionsService.updateAction({ id, ...updates });
 
     return { ...request, result: true };
   };

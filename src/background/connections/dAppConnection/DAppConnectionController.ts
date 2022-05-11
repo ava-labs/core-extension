@@ -1,3 +1,4 @@
+import { DEFERRED_RESPONSE } from './../middlewares/models';
 import { resolve } from '@avalabs/utils-sdk';
 import {
   connectionLog,
@@ -7,7 +8,7 @@ import {
 } from '@src/utils/logging';
 import { injectable, injectAll } from 'tsyringe';
 import { Runtime } from 'webextension-polyfill-ts';
-import { Pipeline } from '../middlewares/models';
+import { Context, Pipeline } from '../middlewares/models';
 import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
 import { DAppRequestHandlerMiddleware } from '../middlewares/DAppRequestHandlerMiddleware';
 import {
@@ -65,7 +66,10 @@ export class DAppConnectionController implements ConnectionController {
     this.connection.onDisconnect.addListener(this.disconnect);
     this.eventEmitters.forEach((emitter) => {
       emitter.addListener(this.onEvent);
-      emitter.setDomain(new URL(this.connection?.sender?.url || '').hostname);
+      emitter.setConnectionInfo({
+        domain: new URL(this.connection?.sender?.url || '').hostname,
+        tabId: connection.sender?.tab?.id,
+      });
     });
   }
 
@@ -75,6 +79,10 @@ export class DAppConnectionController implements ConnectionController {
       emitter.removeListener(this.onEvent)
     );
     disconnectLog('dApp Provider');
+  }
+
+  needToPost(context: Context): boolean {
+    return context.response !== DEFERRED_RESPONSE;
   }
 
   private async onMessage(request: ExtensionConnectionMessage) {
@@ -102,7 +110,9 @@ export class DAppConnectionController implements ConnectionController {
       this.connection.postMessage(response);
       return;
     } else if (context) {
-      this.connection.postMessage(context.response);
+      if (this.needToPost(context)) {
+        this.connection.postMessage(context.response);
+      }
     }
   }
 

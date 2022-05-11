@@ -1,6 +1,7 @@
 import { AccountsChangedEvents } from '@src/background/services/accounts/events/accountsChangedEvent';
 import { AvalancheGetAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_getAccounts';
 import { EthAccountsHandler } from '@src/background/services/accounts/handlers/eth_accounts';
+import { ActionCompletedEvents } from '@src/background/services/actions/events/actionCompletedEvents';
 import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/AvalancheBridgeAsset';
 import { AvalancheGetBridgeTransactionHandler } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
 import { AvalancheGetContactsHandler } from '@src/background/services/contacts/handlers/avalanche_getContacts';
@@ -13,6 +14,7 @@ import { WalletSwitchEthereumChainHandler } from '@src/background/services/netwo
 import { WalletGetPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_getPermissions';
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
 import { GetIsDefaultExtensionHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
+import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
 import { ConnectRequestHandler } from '@src/background/services/web3/handlers/connect';
 import { MetamaskGetProviderState } from '@src/background/services/web3/handlers/metamask_getProviderState';
@@ -51,5 +53,7 @@ export class DappRequestHandlerRegistry {}
   { token: 'DAppEventEmitter', useToken: AccountsChangedEvents },
   { token: 'DAppEventEmitter', useToken: LockStateChangedEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
+  { token: 'DAppEventEmitter', useToken: ActionCompletedEvents },
+  { token: 'DAppEventEmitter', useToken: TransactionCompletedEvents },
 ])
 export class DappEventEmitterRegistry {}

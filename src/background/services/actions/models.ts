@@ -18,6 +18,7 @@ export interface Action extends JsonRpcRequest<any> {
   displayData: any;
   method: string;
   site: DomainMetadata;
+  tabId?: number;
 }
 
 export interface Actions {
@@ -34,4 +35,16 @@ export const ACTIONS_STORAGE_KEY = 'actions';
 
 export enum ActionsEvent {
   ACTION_UPDATED = 'action-updated',
+  ACTION_COMPLETED = 'action-completed',
 }
+
+export enum ActionCompletedEventType {
+  COMPLETED = 'completed',
+  ERROR = 'error',
+}
+
+export type ActionEvent = {
+  type: ActionCompletedEventType;
+  action: Action;
+  result: string;
+};

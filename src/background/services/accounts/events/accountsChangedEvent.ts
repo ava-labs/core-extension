@@ -1,4 +1,5 @@
 import {
+  ConnectionInfo,
   DAppEventEmitter,
   ExtensionConnectionEvent,
 } from '@src/background/connections/models';
@@ -12,10 +13,10 @@ import { injectable } from 'tsyringe';
 @injectable()
 export class AccountsChangedEvents implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
-  private _domain?: string;
+  private _connectionInfo?: ConnectionInfo;
 
-  setDomain(domain: string) {
-    this._domain = domain;
+  setConnectionInfo(connectionInfo: ConnectionInfo) {
+    this._connectionInfo = connectionInfo;
   }
 
   constructor(
@@ -26,8 +27,10 @@ export class AccountsChangedEvents implements DAppEventEmitter {
       AccountsEvents.ACCOUNTS_UPDATED,
       async () => {
         const currentPermissions =
-          this._domain &&
-          (await this.permissionsService.getPermissionsForDomain(this._domain));
+          this._connectionInfo?.domain &&
+          (await this.permissionsService.getPermissionsForDomain(
+            this._connectionInfo.domain
+          ));
 
         const hasAccessTodApp =
           currentPermissions &&

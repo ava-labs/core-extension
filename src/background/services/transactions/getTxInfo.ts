@@ -20,6 +20,7 @@ export async function getTxInfo(
   isMainnet: boolean
 ) {
   let contractSource: ContractSourceCodeResponse;
+
   try {
     const response = await getSourceForContract(address, isMainnet);
     contractSource = response.result[0];
@@ -40,16 +41,28 @@ export async function getTxInfo(
         isMainnet
       );
       contractInterface = new Interface(response.result);
+      const finalResponse = contractInterface.parseTransaction({
+        data: data,
+        value: value,
+      });
+
+      return finalResponse;
     } catch (e) {
       console.error(e);
       return { error: 'error decoding with abi' };
     }
   } else {
-    contractInterface = new Interface(contractSource.ABI);
-  }
+    try {
+      contractInterface = new Interface(contractSource.ABI);
 
-  return contractInterface.parseTransaction({
-    data: data,
-    value: value,
-  });
+      const finalResponse = contractInterface.parseTransaction({
+        data: data,
+        value: value,
+      });
+
+      return finalResponse;
+    } catch (e) {
+      return { error: 'error getting interface with abi' };
+    }
+  }
 }

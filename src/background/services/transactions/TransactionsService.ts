@@ -60,6 +60,7 @@ export class TransactionsService {
 
     const now = new Date().getTime();
     const txParams = (params || [])[0];
+
     const txDescription = await getTxInfo(
       txParams.to.toLocaleLowerCase(),
       txParams.data,
@@ -138,6 +139,7 @@ export class TransactionsService {
           displayValues,
           type: 'standard',
           transactionCategory: 'transfer',
+          tabId: site?.tabId,
         },
       });
     }

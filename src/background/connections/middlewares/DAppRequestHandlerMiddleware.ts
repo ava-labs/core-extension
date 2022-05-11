@@ -1,3 +1,4 @@
+import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
 import { engine } from '@src/utils/jsonRpcEngine';
@@ -31,6 +32,9 @@ export function DAppRequestHandlerMiddleware(
     }
 
     context.response = await resolve(promise).then(([result, error]) => {
+      if (result && result === DEFERRED_RESPONSE) {
+        return DEFERRED_RESPONSE;
+      }
       return {
         ...context.request,
         data: {

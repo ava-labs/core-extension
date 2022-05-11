@@ -13,6 +13,7 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ActionStatus } from '@src/background/services/actions/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useApproveAction } from '@src/hooks/useApproveAction';
+import { useEffect } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import styled, { useTheme } from 'styled-components';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
@@ -31,6 +32,23 @@ export function ApproveAction() {
   const theme = useTheme();
   const requestId = useGetRequestId();
   const { action, updateAction } = useApproveAction(requestId);
+
+  function cancelHandler() {
+    updateAction({
+      status: ActionStatus.ERROR_USER_CANCELED,
+      id: requestId,
+    });
+  }
+
+  useEffect(() => {
+    window.addEventListener('unload', cancelHandler);
+
+    return () => {
+      window.removeEventListener('unload', cancelHandler);
+    };
+    // This only needs to run once since this is a part of initializing process.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!action) {
     return (

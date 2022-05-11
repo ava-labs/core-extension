@@ -8,12 +8,21 @@ import {
   TxStatus,
 } from '../models';
 import { injectable } from 'tsyringe';
+import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
+import { txToCustomEvmTx } from '../utils/txToCustomEvmTx';
+import { WalletService } from '../../wallet/WalletService';
+import EventEmitter from 'events';
 
 @injectable()
 export class UpdateTransactionHandler implements ExtensionRequestHandler {
   methods = [ExtensionRequest.TRANSACTIONS_UPDATE];
+  private eventEmitter = new EventEmitter();
 
-  constructor(private transactionsService: TransactionsService) {}
+  constructor(
+    private transactionsService: TransactionsService,
+    private networkFeeService: NetworkFeeService,
+    private walletService: WalletService
+  ) {}
 
   handle = async (request) => {
     const params = request.params;
@@ -53,20 +62,40 @@ export class UpdateTransactionHandler implements ExtensionRequestHandler {
     const pendingTx = currentPendingTransactions[update.id];
 
     if (update.status === TxStatus.SUBMITTING) {
-      /**
-       * If we are updating submit then we need to wait for the tx to be put into the
-       * doen state before we update the requester
-       */
+      const gasPrice = await this.networkFeeService.getNetworkFee();
 
-      return pendingTx.txHash
-        ? {
-            ...request,
-            result: pendingTx,
-          }
-        : {
-            ...request,
-            error: pendingTx.error,
-          };
+      return txToCustomEvmTx(pendingTx, gasPrice).then((params) => {
+        return this.walletService
+          .sendCustomTx(
+            params.gasPrice,
+            params.gasLimit,
+            params.data,
+            params.to,
+            params.value
+          )
+          .then((result) => {
+            this.transactionsService.updateTransaction({
+              status: TxStatus.SIGNED,
+              id: update.id,
+              tabId: pendingTx.tabId,
+              result,
+            });
+            return { ...request, result };
+          })
+          .catch((err) => {
+            console.error(err);
+            this.transactionsService.updateTransaction({
+              status: TxStatus.ERROR,
+              id: update.id,
+              tabId: pendingTx.tabId,
+              error: err?.message ?? err,
+            });
+            return {
+              ...request,
+              error: err,
+            };
+          });
+      });
     }
 
     return {

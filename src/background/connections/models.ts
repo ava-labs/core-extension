@@ -29,6 +29,7 @@ export interface ExtensionConnectionMessage<T = any> {
   site?: DomainMetadata;
   meta?: ExtensionMessageMetaData;
   data?: T;
+  tabId?: number;
 }
 
 export interface ExtensionConnectionMessageResponse<T = any>
@@ -88,9 +89,14 @@ interface ConnectionEventEmitter {
   removeListener(handler: (event: ExtensionConnectionEvent) => void): void;
 }
 
+export interface ConnectionInfo {
+  domain: string;
+  tabId?: number;
+}
+
 export type ExtensionEventEmitter = ConnectionEventEmitter;
 export interface DAppEventEmitter extends ConnectionEventEmitter {
-  setDomain(domain: string): void;
+  setConnectionInfo(connectionInfo: ConnectionInfo): void;
 }
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
   domain: string;

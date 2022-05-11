@@ -11,6 +11,7 @@ export function SiteMetadataMiddleware(connection: Runtime.Port): Middleware {
     domain: connection.sender?.url
       ? new URL(connection.sender?.url || '').hostname
       : 'unknown',
+    tabId: connection.sender?.tab?.id,
   };
 
   return (context, next, error) => {

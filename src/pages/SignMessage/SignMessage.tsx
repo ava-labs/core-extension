@@ -12,6 +12,7 @@ import {
 import { ActionStatus } from '@src/background/services/actions/models';
 import { MessageType } from '@src/background/services/messages/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
+import { useEffect } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import styled, { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
@@ -36,6 +37,23 @@ export function SignMessage() {
   const requestId = useGetRequestId();
   const { action: message, updateAction: updateMessage } =
     useApproveAction(requestId);
+
+  function cancelHandler() {
+    updateMessage({
+      status: ActionStatus.ERROR_USER_CANCELED,
+      id: requestId,
+    });
+  }
+
+  useEffect(() => {
+    window.addEventListener('unload', cancelHandler);
+
+    return () => {
+      window.removeEventListener('unload', cancelHandler);
+    };
+    // This only needs to run once since this is a part of initializing process.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!message) {
     return (

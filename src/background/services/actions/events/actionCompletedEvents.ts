@@ -1,18 +1,15 @@
+import { ActionsService } from './../ActionsService';
 import {
   ConnectionInfo,
   DAppEventEmitter,
   ExtensionConnectionEvent,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
-import { AccountsService } from '../../accounts/AccountsService';
-import { Web3Event } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { ActionCompletedEventType, ActionsEvent } from '../models';
 
 @injectable()
-export class LockStateChangedEvents
-  implements DAppEventEmitter, OnLock, OnUnlock
-{
+export class ActionCompletedEvents implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
   private _connectionInfo?: ConnectionInfo;
 
@@ -20,20 +17,20 @@ export class LockStateChangedEvents
     this._connectionInfo = connectionInfo;
   }
 
-  constructor(private accountsService: AccountsService) {}
+  constructor(private actionService: ActionsService) {
+    this.actionService.addListener(
+      ActionsEvent.ACTION_COMPLETED,
+      ({ type, action, result }) => {
+        if (action.tabId === this._connectionInfo?.tabId) {
+          const response =
+            type === ActionCompletedEventType.ERROR
+              ? { ...action, error: result }
+              : { ...action, result: result };
 
-  onLock() {
-    this.eventEmitter.emit('update', {
-      method: Web3Event.UNLOCK_STATE_CHANGED,
-      params: [],
-    });
-  }
-
-  onUnlock() {
-    this.eventEmitter.emit('update', {
-      method: Web3Event.UNLOCK_STATE_CHANGED,
-      params: [this.accountsService.activeAccount?.addressC],
-    });
+          this.eventEmitter.emit('update', response);
+        }
+      }
+    );
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {
