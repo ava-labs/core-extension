@@ -41,6 +41,7 @@ import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 
 export function SendPage() {
   const theme = useTheme();
@@ -66,15 +67,27 @@ export function SendPage() {
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [gasPriceState, setGasPrice] = useState<GasPrice>();
   const { capture } = useAnalyticsContext();
+  const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
+    useSendAnalyticsData();
 
   const isMainnet = useIsMainnet();
 
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+
   const pageHistory: {
     address?: string;
     token?: TokenWithBalance;
     amountInput?: string;
   } = getPageHistoryData();
+
+  // we send the default selected token to the posthog
+  useEffect(() => {
+    if (selectedToken) {
+      sendTokenSelectedAnalytics(selectedToken.address || selectedToken.symbol);
+    }
+    // we don't need to run this block again just when it is first time loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // this will prevent the amount reset after come back from Confirmation page or when the user set the amount before choose the destionation address
   useEffect(() => {
@@ -128,6 +141,7 @@ export function SendPage() {
       amount: amountInputDisplay,
       address: contactInput?.address,
     });
+    sendTokenSelectedAnalytics(token.address || token.symbol);
   };
 
   const onAmountChanged = useCallback(
@@ -156,6 +170,7 @@ export function SendPage() {
           amount: amount,
           address: contactInput?.address,
         });
+        sendAmountEnteredAnalytics(amount);
       }
     },
     [
@@ -166,6 +181,7 @@ export function SendPage() {
       selectedToken,
       setNavigationHistoryData,
       setSendState,
+      sendAmountEnteredAnalytics,
     ]
   );
 
@@ -331,12 +347,6 @@ export function SendPage() {
                       token: selectedToken,
                       address: contactInput?.address,
                       options: { path: '/send/confirm' },
-                    });
-
-                    capture('SendTokenAndAmountSelected', {
-                      selectedToken:
-                        selectedToken.address || selectedToken.symbol,
-                      amount: amountInputDisplay,
                     });
                   }}
                   disabled={!sendState.canSubmit}

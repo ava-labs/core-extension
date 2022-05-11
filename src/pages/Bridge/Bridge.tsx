@@ -40,6 +40,7 @@ import { useBridge } from './useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { stringToBN } from '@avalabs/utils-sdk';
+import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useSyncBridgeConfig } from './useSyncBridgeConfig';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
@@ -100,6 +101,8 @@ export function Bridge() {
     bn: new BN(0),
     amount: '0',
   });
+  const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
+    useSendAnalyticsData();
 
   const bridgePageHistoryData: {
     currentBlockchain?: Blockchain;
@@ -151,6 +154,7 @@ export function Bridge() {
     });
     setDefaultInputValue(value);
     setAmount(bnToBig(value.bn, denomination));
+    sendAmountEnteredAnalytics(value.amount);
   };
 
   const handleBlockchainToggle = () => {
@@ -181,16 +185,15 @@ export function Bridge() {
       inputAmount: defaultInputValue,
     });
     setCurrentAsset(symbol);
+    sendTokenSelectedAnalytics(symbol);
   };
 
   const handleTransfer = async () => {
     if (BIG_ZERO.eq(amount)) return;
 
     capture('BridgeTransferStarted', {
-      currentAsset,
       sourceBlockchain: currentBlockchain,
       targetBlockchain,
-      amount: amount.toString(),
     });
 
     setIsPending(true);

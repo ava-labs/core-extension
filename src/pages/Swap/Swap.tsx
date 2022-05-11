@@ -52,6 +52,7 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
+import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 
 export interface Token {
   icon?: JSX.Element;
@@ -143,6 +144,8 @@ export function Swap() {
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
+  const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
+    useSendAnalyticsData();
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
@@ -537,6 +540,7 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
+              sendTokenSelectedAnalytics(token.address || token.symbol);
             }}
             onSelectToggle={() => {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
@@ -589,6 +593,7 @@ export function Swap() {
                 tokenValue: value,
                 destinationInputField: 'to',
               });
+              sendAmountEnteredAnalytics(value.amount);
             }}
             setIsOpen={setIsFromTokenSelectOpen}
           />
@@ -658,6 +663,7 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
+              sendTokenSelectedAnalytics(token.address || token.symbol);
             }}
             onSelectToggle={() => {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
@@ -687,6 +693,7 @@ export function Swap() {
                 tokenValue: value,
                 destinationInputField: 'from',
               });
+              sendAmountEnteredAnalytics(value.amount);
             }}
             setIsOpen={setIsToTokenSelectOpen}
           />
@@ -717,10 +724,6 @@ export function Swap() {
               margin="16px 0 0 0"
               onClick={() => {
                 capture('SwapReviewOrder', {
-                  fromToken:
-                    selectedFromToken?.address || selectedFromToken?.symbol,
-                  toToken: selectedToToken?.address || selectedToToken?.symbol,
-                  fromTokenValue: fromTokenValue?.amount,
                   destinationInputField,
                   slippageTolerance,
                   customGasPrice: customGasPrice?.value,

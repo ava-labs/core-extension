@@ -104,7 +104,6 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     if (!posthogInstance) {
       return;
     }
-
     if (analyticsConsent) {
       posthogInstance.opt_in_capturing();
     } else {
