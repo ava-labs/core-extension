@@ -1,6 +1,5 @@
-import { MutableRefObject, PropsWithChildren, useRef } from 'react';
+import { MutableRefObject, PropsWithChildren, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { useOnClickOutside } from '@avalabs/react-components';
 
 const BOTTOM_PADDING = 16;
 
@@ -76,8 +75,25 @@ export const ContainedDropdown = ({
 }: PropsWithChildren<ContainedDropdownProps>) => {
   const calculatedHeight = getDropdownHeight(anchorEl);
   const top = getOffsetTop(anchorEl);
-  const container = useRef(null);
-  useOnClickOutside(container, () => setIsOpen(false));
+  const container = useRef<HTMLDivElement>(null);
+
+  // We need to detect the where the user clicked. If outside of the anchor (that is the button which opens the dropdown) and the list, it should close the dropdown
+  // if the user click the anchor (the button) it will handle that on its own
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const anchorElementClicked = anchorEl.current?.contains(e.target as Node);
+      const containerClicked = container.current?.contains(e.target as Node);
+      if (!anchorElementClicked && !containerClicked) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [anchorEl, setIsOpen]);
+
   return (
     <Dropdown
       height={height || calculatedHeight}

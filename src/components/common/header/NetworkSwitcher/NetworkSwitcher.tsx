@@ -107,26 +107,22 @@ export function NetworkSwitcher() {
               })
               .map((networkItem) => {
                 return (
-                  <>
-                    <NetworkSwitcherItem
-                      onClick={() => {
-                        setNetwork(networkItem);
-                      }}
-                    >
-                      <HorizontalFlex align="center">
-                        {getBlockChainLogo(networkItem?.chainId)}
-                        <Typography margin="0 0 0 8px" weight={600} size={14}>
-                          {networkItem.name}
-                        </Typography>
-                      </HorizontalFlex>
-                      {networkItem.chainId === network?.chainId && (
-                        <CheckmarkIcon
-                          height="16px"
-                          color={theme.colors.text1}
-                        />
-                      )}
-                    </NetworkSwitcherItem>
-                  </>
+                  <NetworkSwitcherItem
+                    key={networkItem.chainId}
+                    onClick={() => {
+                      setNetwork(networkItem);
+                    }}
+                  >
+                    <HorizontalFlex align="center">
+                      {getBlockChainLogo(networkItem?.chainId)}
+                      <Typography margin="0 0 0 8px" weight={600} size={14}>
+                        {networkItem.name}
+                      </Typography>
+                    </HorizontalFlex>
+                    {networkItem.chainId === network?.chainId && (
+                      <CheckmarkIcon height="16px" color={theme.colors.text1} />
+                    )}
+                  </NetworkSwitcherItem>
                 );
               })}
           </VerticalFlex>
