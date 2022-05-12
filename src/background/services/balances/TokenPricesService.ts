@@ -13,13 +13,16 @@ export class TokenPricesService {
    * @param selectedCurrency the currency selected
    * @returns the native token price
    */
-  async getPriceByCoinId(coinId: string, selectedCurrency: string) {
+  async getPriceByCoinId(
+    coinId: string,
+    selectedCurrency: string
+  ): Promise<number | undefined> {
     const currencyCode = selectedCurrency.toLowerCase() as any;
     const coinPriceResult = await simplePrice(getBasicCoingeckoHttp(), {
       coinIds: [coinId],
       currencies: [currencyCode],
     });
-    return coinPriceResult[coinId][currencyCode].price;
+    return coinPriceResult[coinId]?.[currencyCode]?.price;
   }
 
   /**
@@ -40,7 +43,7 @@ export class TokenPricesService {
     const tokenPriceRes = await getTokensPrice(
       [address],
       selectedCurrency.toLowerCase(),
-      avaxPrice as number,
+      avaxPrice || 0,
       assetPlatformId
     );
 
@@ -66,7 +69,7 @@ export class TokenPricesService {
     const tokenPriceRes = await getTokensPrice(
       tokenAddys,
       currency,
-      avaxPrice as number,
+      avaxPrice || 0,
       assetPlatformId
     );
 

@@ -54,9 +54,9 @@ export class EVMBalancesService {
       balance,
       balanceDisplayValue: balanceToDisplayValue(balance, 18),
       balanceUsdDisplayValue: tokenPrice
-        ? big.mul(tokenPrice.price).toFixed(2)
+        ? big.mul(tokenPrice).toFixed(2)
         : undefined,
-      priceUSD: tokenPrice?.price,
+      priceUSD: tokenPrice,
     };
   }
 

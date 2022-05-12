@@ -51,9 +51,9 @@ export class BTCBalancesService {
         balance,
         balanceDisplayValue: balanceToDisplayValue(balance, denomination),
         balanceUsdDisplayValue: tokenPrice
-          ? balanceBig.mul(tokenPrice.price).toFixed(2)
+          ? balanceBig.mul(tokenPrice).toFixed(2)
           : undefined,
-        priceUSD: tokenPrice?.price,
+        priceUSD: tokenPrice,
         utxos,
       },
     ];
