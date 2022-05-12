@@ -21,7 +21,7 @@
     "@avalabs/bridge-sdk": "2.4.0-alpha.9",
     "@avalabs/coingecko-sdk": "2.4.0-alpha.9",
     "@avalabs/posthog-sdk": "2.4.0-alpha.9",
-    "@avalabs/react-components": "1.93.3",
+    "@avalabs/react-components": "1.94.0",
     "@avalabs/snowtrace-sdk": "2.4.0-alpha.9",
     "@avalabs/utils-sdk": "2.4.0-alpha.9",
     "@avalabs/token-prices-sdk": "2.4.0-alpha.9",

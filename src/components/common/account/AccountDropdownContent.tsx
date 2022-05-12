@@ -127,7 +127,7 @@ export function AccountDropdownContent({
                   <HorizontalSeparator
                     color={`${theme.colors.bg3}80`}
                     margin="0 16px"
-                    width={327}
+                    width="auto"
                   />
                 )}
               </VerticalFlex>
