@@ -29,6 +29,8 @@ import { PermissionsService } from '@src/background/services/permissions/Permiss
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 
 import './registry';
+import { RPCCallsMiddleware } from '../middlewares/RPCCallsMiddleware';
+import { NetworkService } from '@src/background/services/network/NetworkService';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -43,7 +45,8 @@ export class DAppConnectionController implements ConnectionController {
     @injectAll('DAppRequestHandler') private handlers: DAppRequestHandler[],
     @injectAll('DAppEventEmitter') private eventEmitters: DAppEventEmitter[],
     private permissionsService: PermissionsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private networkService: NetworkService
   ) {
     this.onMessage = this.onMessage.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -55,6 +58,7 @@ export class DAppConnectionController implements ConnectionController {
     this.pipeline = RequestProcessorPipeline(
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
+      RPCCallsMiddleware(this.networkService),
       PermissionMiddleware(this.permissionsService, this.accountsService),
       DAppRequestHandlerMiddleware(this.handlers),
       LoggerMiddleware(SideToLog.RESPONSE)
