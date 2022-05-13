@@ -12,7 +12,10 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { AvalancheQRCodeLogo } from '@src/components/icons/AvalancheQRCodeLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { BITCOIN_NETWORK } from '@src/background/services/network/models';
+import {
+  BITCOIN_NETWORK,
+  BITCOIN_TEST_NETWORK,
+} from '@src/background/services/network/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BtcQRCodeLogo } from '@src/components/icons/BtcQRCodeLogo';
 
@@ -32,7 +35,10 @@ export const Receive = () => {
   }, [capture]);
 
   useEffect(() => {
-    setIsBitcoinActive(network?.chainId === BITCOIN_NETWORK.chainId);
+    setIsBitcoinActive(
+      network?.chainId === BITCOIN_NETWORK.chainId ||
+        network?.chainId === BITCOIN_TEST_NETWORK.chainId
+    );
   }, [network]);
 
   useEffect(() => {
@@ -42,7 +48,7 @@ export const Receive = () => {
     if (activeAddress) {
       setAddress(activeAddress);
     }
-  }, [isBitcoinActive, activeAccount]);
+  }, [activeAccount, isBitcoinActive]);
 
   function getLogo() {
     if (isBitcoinActive) {
