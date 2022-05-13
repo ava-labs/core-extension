@@ -18,6 +18,7 @@ import {
   LOCAL_NETWORK,
   MAINNET_NETWORK,
   FUJI_NETWORK,
+  BITCOIN_TEST_NETWORK,
 } from '@src/background/services/network/models';
 
 const NetworkSwitcherButton = styled(HorizontalFlex)`
@@ -69,6 +70,8 @@ export function NetworkSwitcher() {
       case FUJI_NETWORK.chainId: // FUJI
         return <AvaxTokenIcon height="16" />;
       case BITCOIN_NETWORK.chainId:
+        return <BitcoinLogo height="16" />;
+      case BITCOIN_TEST_NETWORK.chainId:
         return <BitcoinLogo height="16" />;
       default:
         return <AvaxTokenIcon height="16" />;
