@@ -84,7 +84,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
   async updateBridgeConfig() {
     setBridgeEnvironment(
-      this.networkService.isMainnet ? Environment.PROD : Environment.DEV
+      this.networkService.isMainnet ? Environment.PROD : Environment.TEST
     );
     const config = await fetchConfig();
 
