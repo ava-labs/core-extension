@@ -5,6 +5,7 @@ import {
   Blockchain,
   useBridgeSDK,
   useHasEnoughForGas,
+  useMaxTransferAmount,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
@@ -49,7 +50,12 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const [wrapStatus, setWrapStatus] = useState<WrapStatus>(WrapStatus.INITIAL);
   const [txHash, setTxHash] = useState<string>();
 
-  const maximum = sourceBalance?.balance || BIG_ZERO;
+  const maximum =
+    useMaxTransferAmount(
+      sourceBalance?.balance,
+      addresses.addrC,
+      ethereumProvider
+    ) || undefined;
   const minimum = bridgeFee?.mul(3);
   const receiveAmount = amount.gt(minimum) ? amount.minus(bridgeFee) : BIG_ZERO;
 
