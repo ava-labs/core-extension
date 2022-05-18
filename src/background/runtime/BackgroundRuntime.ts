@@ -7,6 +7,7 @@ import { LockService } from '@src/background/services/lock/LockService';
 import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
 import { BridgeService } from '@src/background/services/bridge/BridgeService';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
+import { getBlockCypher } from '@avalabs/blockcypher-sdk';
 
 @singleton()
 export class BackgroundRuntime {
@@ -24,6 +25,7 @@ export class BackgroundRuntime {
      */
     activateServices();
 
+    this.initBlockcypher();
     this.onInstalled();
     this.addContextMenus();
 
@@ -62,5 +64,12 @@ export class BackgroundRuntime {
         }
       });
     });
+  }
+
+  private initBlockcypher() {
+    if (process.env.BLOCKCYPHER_API_KEY) {
+      getBlockCypher(true).setApiKey(process.env.BLOCKCYPHER_API_KEY);
+      getBlockCypher(false).setApiKey(process.env.BLOCKCYPHER_API_KEY);
+    }
   }
 }
