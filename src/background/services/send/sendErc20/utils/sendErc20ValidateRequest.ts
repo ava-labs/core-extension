@@ -1,13 +1,13 @@
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { ERC20 } from '@avalabs/wallet-react-components';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { BigNumber } from 'ethers';
 
 export function sendErc20ValidateRequest(
   amount?: string,
   token?: ERC20,
   address?: string,
-  gasPrice?: GasPrice,
+  gasPrice?: BigNumber,
   gasLimit?: number
 ): Omit<ExtensionConnectionMessage, 'id'> {
   return {

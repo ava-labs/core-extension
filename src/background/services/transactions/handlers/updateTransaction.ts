@@ -11,17 +11,19 @@ import { injectable } from 'tsyringe';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import { txToCustomEvmTx } from '../utils/txToCustomEvmTx';
 import { WalletService } from '../../wallet/WalletService';
-import EventEmitter from 'events';
+import { NetworkService } from '../../network/NetworkService';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { BigNumber } from 'ethers';
 
 @injectable()
 export class UpdateTransactionHandler implements ExtensionRequestHandler {
   methods = [ExtensionRequest.TRANSACTIONS_UPDATE];
-  private eventEmitter = new EventEmitter();
 
   constructor(
     private transactionsService: TransactionsService,
     private networkFeeService: NetworkFeeService,
-    private walletService: WalletService
+    private walletService: WalletService,
+    private networkService: NetworkService
   ) {}
 
   handle = async (request) => {
@@ -64,15 +66,24 @@ export class UpdateTransactionHandler implements ExtensionRequestHandler {
     if (update.status === TxStatus.SUBMITTING) {
       const gasPrice = await this.networkFeeService.getNetworkFee();
 
+      const nonce = await (
+        this.networkService.activeProvider as JsonRpcBatchInternal
+      ).getTransactionCount(pendingTx.txParams.from);
+
       return txToCustomEvmTx(pendingTx, gasPrice).then((params) => {
         return this.walletService
-          .sendCustomTx(
-            params.gasPrice,
-            params.gasLimit,
-            params.data,
-            params.to,
-            params.value
-          )
+          .sign({
+            nonce,
+            chainId: BigNumber.from(pendingTx.chainId).toNumber(),
+            gasPrice: params.gasPrice,
+            gasLimit: params.gasLimit,
+            data: params.data,
+            to: params.to,
+            value: params.value,
+          })
+          .then((signedTx) => {
+            return this.networkService.sendTransaction(signedTx);
+          })
           .then((result) => {
             this.transactionsService.updateTransaction({
               status: TxStatus.SIGNED,

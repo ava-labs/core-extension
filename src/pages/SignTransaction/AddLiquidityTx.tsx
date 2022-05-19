@@ -63,7 +63,7 @@ export function AddLiquidityTx({
           <TransactionTabs
             byteStr={txParams?.data}
             gasPrice={gasPrice}
-            limit={gasLimit?.toString()}
+            limit={gasLimit}
             onCustomFeeSet={onCustomFeeSet}
             selectedGasFee={selectedGasFee}
           />
@@ -71,7 +71,7 @@ export function AddLiquidityTx({
           <SuccessFailTxInfo
             hash={hash}
             gasPrice={gasPrice}
-            gasLimit={gasLimit?.toString() ?? ''}
+            gasLimit={gasLimit ?? 0}
             error={error}
           />
         )}

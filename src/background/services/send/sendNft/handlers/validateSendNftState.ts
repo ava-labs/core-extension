@@ -1,4 +1,4 @@
-import { hexToBN } from '@avalabs/utils-sdk';
+import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
 import {
   checkAndValidateSendNft,
   wallet$,
@@ -10,6 +10,8 @@ import {
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
+import { BN } from 'bn.js';
+import { BigNumber } from 'ethers';
 import { firstValueFrom, of } from 'rxjs';
 import { injectable } from 'tsyringe';
 @injectable()
@@ -44,9 +46,9 @@ export class SendNftValidateHandler implements ExtensionRequestHandler {
         contractAddress,
         Number(tokenId),
         of(
-          gasPrice?.bn
-            ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
-            : gas
+          gasPrice
+            ? { bn: ethersBigNumberToBN(BigNumber.from(gasPrice)) }
+            : { bn: gas ? ethersBigNumberToBN(gas?.low) : new BN(0) }
         ),
         of(address || ''),
         wallet$,

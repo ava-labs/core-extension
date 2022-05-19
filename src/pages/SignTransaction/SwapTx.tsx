@@ -69,7 +69,7 @@ export function SwapTx({
           <TransactionTabs
             byteStr={txParams?.data}
             gasPrice={gasPrice}
-            limit={gasLimit?.toString()}
+            limit={gasLimit}
             onCustomFeeSet={onCustomFeeSet}
             selectedGasFee={selectedGasFee}
           />
@@ -77,7 +77,7 @@ export function SwapTx({
           <SuccessFailTxInfo
             hash={hash}
             gasPrice={gasPrice}
-            gasLimit={gasLimit?.toString() ?? ''}
+            gasLimit={gasLimit ?? 0}
             error={error}
           />
         )}

@@ -33,6 +33,16 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._activeNetwork;
   }
 
+  public get activeProvider():
+    | BlockCypherProvider
+    | JsonRpcBatchInternal
+    | null {
+    if (!this._activeNetwork) {
+      return null;
+    }
+    return this.getProviderForNetwork(this._activeNetwork);
+  }
+
   public get isMainnet(): boolean {
     return this._activeNetwork?.config
       ? isMainnetNetwork(this._activeNetwork.config)
@@ -105,7 +115,26 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
   }
 
+  async sendTransaction(signedTx: string): Promise<string> {
+    if (!this.activeNetwork) {
+      throw new Error('No active network');
+    }
+    const provider = this.getProviderForNetwork(this.activeNetwork);
+    if (provider instanceof JsonRpcBatchInternal) {
+      return (await provider.sendTransaction(signedTx)).hash;
+    }
+
+    if (provider instanceof BlockCypherProvider) {
+      return (await provider.issueRawTx(signedTx)).hash;
+    }
+
+    throw new Error('No provider found');
+  }
+
   addListener(event: NetworkEvents, callback: (data: unknown) => void) {
     this.eventEmitter.on(event, callback);
+  }
+  removeListener(event: NetworkEvents, callback: (data: unknown) => void) {
+    this.eventEmitter.off(event, callback);
   }
 }

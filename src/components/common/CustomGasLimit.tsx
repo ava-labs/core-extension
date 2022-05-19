@@ -7,16 +7,16 @@ import {
   SubTextTypography,
   ComponentSize,
 } from '@avalabs/react-components';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
+import { BigNumber } from 'ethers';
 import { useState } from 'react';
 import { PageTitle } from './PageTitle';
 
 interface CustomGasLimitProps {
-  limit: string;
-  gasPrice: GasPrice;
-  onSave(gasLimit: string): void;
+  limit: number;
+  gasPrice: BigNumber;
+  onSave(gasLimit: number): void;
   onCancel(): void;
 }
 
@@ -27,7 +27,7 @@ export function CustomGasLimit({
   onCancel,
 }: CustomGasLimitProps) {
   const { avaxPrice } = useWalletContext();
-  const [customGasLimit, setCustomGasLimit] = useState<string>(limit);
+  const [customGasLimit, setCustomGasLimit] = useState<number>(limit);
   const [calculateGasAndFeesError, setCalculateGasAndFeesError] =
     useState<string>('');
   const [newFees, setNewFees] = useState<
@@ -40,7 +40,7 @@ export function CustomGasLimit({
     }
   }
 
-  const checkCustomGasLimit = (customGasLimit: string) => {
+  const checkCustomGasLimit = (customGasLimit: number) => {
     try {
       const calculatedGasAndFees = calculateGasAndFees(
         gasPrice,
@@ -74,7 +74,9 @@ export function CustomGasLimit({
           label={'Gas Limit'}
           type={'number'}
           value={customGasLimit}
-          onChange={(evt) => checkCustomGasLimit(evt.currentTarget.value)}
+          onChange={(evt) =>
+            checkCustomGasLimit(parseInt(evt.currentTarget.value || '0'))
+          }
           margin="16px 0 0 0"
           error={!!calculateGasAndFeesError}
           errorMessage={calculateGasAndFeesError}

@@ -1,16 +1,19 @@
 import { Transaction } from '../models';
-import { hexToBN } from '@src/utils/hexToBN';
-import { GasPrice } from '../../networkFee/models';
+import { BigNumber } from 'ethers';
+import { NetworkFee } from '../../networkFee/models';
 
-export async function txToCustomEvmTx(tx?: Transaction, gasPrice?: GasPrice) {
+export async function txToCustomEvmTx(
+  tx?: Transaction,
+  networkFee?: NetworkFee | null
+) {
   if (!tx) {
     throw new Error('transaction is malformed');
   }
 
   const txParams = tx.txParams;
-  const { gas, to, from, data, value, gasPrice: txGasPriceHex } = txParams;
+  const { gas, to, from, data, value, gasPrice } = txParams;
 
-  if (!gas || !gasPrice) {
+  if (!gas || !networkFee) {
     throw new Error('Gas or gas estimate is malformed');
   }
 
@@ -19,10 +22,9 @@ export async function txToCustomEvmTx(tx?: Transaction, gasPrice?: GasPrice) {
   }
 
   const gasLimit = Number(gas);
-  const bnGasPrice = txGasPriceHex && hexToBN(txGasPriceHex);
 
   return {
-    gasPrice: bnGasPrice || gasPrice.bn,
+    gasPrice: BigNumber.from(gasPrice || networkFee.low),
     gasLimit: gasLimit,
     to,
     from,

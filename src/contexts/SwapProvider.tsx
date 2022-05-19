@@ -1,16 +1,9 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { OptimalRate, SwapSide } from 'paraswap-core';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { APIError } from 'paraswap';
-import { hexToBN } from '@src/utils/hexToBN';
+import { BigNumber } from 'ethers';
 
 const SwapContext = createContext<{
   getRate(
@@ -32,44 +25,14 @@ const SwapContext = createContext<{
     amount: string,
     priceRoute: OptimalRate,
     destAmount,
-    gasLimit: string,
-    gasPrice: GasPrice,
+    gasLimit: number,
+    gasPrice: BigNumber,
     slippage: number
   ): Promise<string>;
-  gasPrice?: GasPrice;
 }>({} as any);
 
 export function SwapContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
-  const [gasPrice, setGasPrice] = useState<GasPrice | undefined>();
-
-  useEffect(() => {
-    request({
-      method: ExtensionRequest.NETWORK_FEE_GET,
-    }).then((res) => {
-      setGasPrice({
-        ...res,
-        bn: hexToBN(res.bn),
-      });
-    });
-  }, [request]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      request({
-        method: ExtensionRequest.NETWORK_FEE_GET,
-      }).then((res) => {
-        setGasPrice({
-          ...res,
-          bn: hexToBN(res.bn),
-        });
-      });
-    }, 30000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [request]);
 
   const getRate = useCallback(
     (
@@ -104,8 +67,8 @@ export function SwapContextProvider({ children }: { children: any }) {
       amount: string,
       priceRoute: OptimalRate,
       destAmount,
-      gasLimit: string,
-      gasPrice: GasPrice,
+      gasLimit: number,
+      gasPrice: BigNumber,
       slippage: number
     ) => {
       return request({
@@ -132,7 +95,6 @@ export function SwapContextProvider({ children }: { children: any }) {
       value={{
         getRate,
         swap,
-        gasPrice,
       }}
     >
       {children}

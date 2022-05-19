@@ -29,9 +29,7 @@ import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { TransactionResponse } from '@ethersproject/providers';
 import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
-import Common, { Chain } from '@ethereumjs/common';
-import { Transaction } from '@ethereumjs/tx';
-import { convertTxData, deserializeBridgeState } from './utils';
+import { deserializeBridgeState } from './utils';
 import { singleton } from 'tsyringe';
 import {
   OnLock,
@@ -169,18 +167,6 @@ export class BridgeService implements OnLock, OnStorageReady {
       this.networkService.activeNetwork
     );
 
-    const common =
-      currentBlockchain === Blockchain.AVALANCHE
-        ? Common.custom({
-            networkId: this.networkService.activeNetwork.config.networkID,
-            chainId: parseInt(this.networkService.activeNetwork.chainId),
-          })
-        : new Common({
-            chain: this.networkService.isMainnet
-              ? Chain.Mainnet
-              : Chain.Rinkeby,
-          });
-
     return await transferAssetSDK(
       currentBlockchain,
       amount,
@@ -200,13 +186,7 @@ export class BridgeService implements OnLock, OnStorageReady {
           txHash,
         }),
       async (txData) => {
-        const tx = Transaction.fromTxData(convertTxData(txData), {
-          common:
-            common as any /* fix "private property '_chainParams'" conflict */,
-        });
-        const signedTx = await this.walletService.signEvm(tx);
-        const txHex = '0x' + signedTx.serialize().toString('hex');
-        return txHex;
+        return await this.walletService.sign(txData);
       }
     );
   }

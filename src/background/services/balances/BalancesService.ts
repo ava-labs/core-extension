@@ -1,5 +1,6 @@
 import { EVMBalancesService } from '@src/background/services/balances/EVMBalancesService';
 import {
+  BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   MAINNET_NETWORK,
   NetworkTypes,
@@ -89,7 +90,9 @@ export class BalancesService implements OnLock, OnUnlock {
         const btcBalances = await Promise.all(
           allBTCAccounts.map(async (address) => {
             const accountBalance = await this.getBalanceForNetwork(
-              BITCOIN_TEST_NETWORK,
+              this.networkService.isMainnet
+                ? BITCOIN_NETWORK
+                : BITCOIN_TEST_NETWORK,
               address.btcAddress
             );
             return { ...address, balance: accountBalance };

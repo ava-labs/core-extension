@@ -6,7 +6,6 @@ import { singleton } from 'tsyringe';
 import { LockService } from '@src/background/services/lock/LockService';
 import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
 import { BridgeService } from '@src/background/services/bridge/BridgeService';
-import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { getBlockCypher } from '@avalabs/blockcypher-sdk';
 
 @singleton()
@@ -15,8 +14,7 @@ export class BackgroundRuntime {
     private connectionService: ConnectionService,
     private lockService: LockService,
     private onboardingService: OnboardingService,
-    private bridgeService: BridgeService,
-    private networkFeeService: NetworkFeeService
+    private bridgeService: BridgeService
   ) {}
 
   activate() {
@@ -34,7 +32,6 @@ export class BackgroundRuntime {
     this.lockService.activate();
     this.onboardingService.activate();
     this.bridgeService.activate();
-    this.networkFeeService.activate();
   }
 
   private onInstalled() {

@@ -27,10 +27,13 @@ import { useHistory } from 'react-router-dom';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { BigNumber } from 'ethers';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { isBitcoin } from '@src/utils/isBitcoin';
 
 const SummaryAvaxTokenIcon = styled(AvaxTokenIcon)`
   position: absolute;
@@ -120,13 +123,12 @@ type SendConfirmProps = {
   fallbackAmountDisplayValue?: string;
   onSubmit(): void;
   onGasChanged(
-    gasLimit: string,
-    gasPrice: GasPrice,
+    gasLimit: number,
+    gasPrice: BigNumber,
     feeType: GasFeeModifier
   ): void;
   maxGasPrice?: string;
-  gasPrice?: GasPrice;
-  defaultGasPrice?: GasPrice;
+  gasPrice?: BigNumber;
   selectedGasFee?: GasFeeModifier;
 };
 
@@ -140,13 +142,14 @@ export const SendConfirm = ({
   maxGasPrice,
   gasPrice,
   selectedGasFee,
-  defaultGasPrice,
 }: SendConfirmProps) => {
   const theme = useTheme();
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { capture } = useAnalyticsContext();
+  const { networkFee } = useNetworkFeeContext();
+  const { network } = useNetworkContext();
 
   useLedgerDisconnectedDialog(() => {
     history.goBack();
@@ -248,7 +251,11 @@ export const SendConfirm = ({
                 <VerticalFlex>
                   <ContactName>{activeAccount?.name}</ContactName>
                   <ContactAddress>
-                    {truncateAddress(activeAccount?.addressC || '')}
+                    {truncateAddress(
+                      (isBitcoin(network)
+                        ? activeAccount?.addressBTC
+                        : activeAccount?.addressC) || ''
+                    )}
                   </ContactAddress>
                 </VerticalFlex>
               </HorizontalFlex>
@@ -270,17 +277,14 @@ export const SendConfirm = ({
               Network Fee
             </Typography>
             <TransactionFeeTooltip
-              gasPrice={sendState?.gasPrice}
+              gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}
               gasLimit={sendState?.gasLimit}
             />
           </HorizontalFlex>
           <VerticalFlex width="100%">
             <CustomFees
-              gasPrice={{
-                bn: gasPrice?.bn || defaultGasPrice?.bn || new BN(0),
-              }}
-              defaultGasPrice={defaultGasPrice}
-              limit={`${sendState?.gasLimit}`}
+              gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
+              limit={sendState?.gasLimit || 0}
               onChange={onGasChanged}
               maxGasPrice={maxGasPrice}
               selectedGasFeeModifier={selectedGasFee}

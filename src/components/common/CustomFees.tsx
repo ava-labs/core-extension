@@ -8,29 +8,26 @@ import {
   SecondaryButton,
   Overlay,
 } from '@avalabs/react-components';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Big,
-  bnToLocaleString,
-  bigToBN,
-  BN,
-  stringToBN,
-} from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
+import { BigNumber } from 'ethers';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 interface CustomGasFeesProps {
-  gasPrice: GasPrice;
-  limit: string;
-  onChange(gasLimit: string, gasPrice: GasPrice, feeType: GasFeeModifier): void;
+  gasPrice: BigNumber;
+  limit: number;
+  onChange(
+    gasLimit: number,
+    gasPrice: BigNumber,
+    feeType: GasFeeModifier
+  ): void;
   gasPriceEditDisabled?: boolean;
   maxGasPrice?: string;
   selectedGasFeeModifier?: GasFeeModifier;
-  defaultGasPrice?: GasPrice;
 }
 
 export enum GasFeeModifier {
@@ -103,21 +100,20 @@ export function CustomFees({
   gasPriceEditDisabled = false,
   maxGasPrice,
   selectedGasFeeModifier,
-  defaultGasPrice,
 }: CustomGasFeesProps) {
   const { avaxPrice } = useWalletContext();
   const { currencyFormatter, currency } = useSettingsContext();
-  const [customGasLimit, setCustomGasLimit] = useState<string>(limit);
-  const [customGasPrice, setCustomGasPrice] = useState<GasPrice>(gasPrice);
+  const { networkFee } = useNetworkFeeContext();
+  const [customGasLimit, setCustomGasLimit] = useState<number>(limit);
+  const [customGasPrice, setCustomGasPrice] = useState<BigNumber>(gasPrice);
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
   >(calculateGasAndFees(gasPrice, limit, avaxPrice));
-  const [originalGas] = useState<GasPrice>(defaultGasPrice || gasPrice);
 
   const [customGasInput, setCustomGasInput] = useState(
     selectedGasFeeModifier === GasFeeModifier.CUSTOM
-      ? parseInt(bnToLocaleString(gasPrice.bn, 9)).toString()
-      : parseInt(bnToLocaleString(originalGas.bn, 9)).toString()
+      ? parseInt(gasPrice.div(10 ** 9).toString()).toString()
+      : parseInt(networkFee?.low.div(10 ** 9).toString() || '0').toString()
   );
 
   const [isGasPriceTooHigh, setIsGasPriceTooHigh] = useState(false);
@@ -130,7 +126,7 @@ export function CustomFees({
   );
 
   const handleGasChange = useCallback(
-    (gas: GasPrice, modifier: GasFeeModifier): void => {
+    (gas: BigNumber, modifier: GasFeeModifier): void => {
       setIsGasPriceTooHigh(false);
 
       // update customGas
@@ -138,13 +134,13 @@ export function CustomFees({
       // update
       const newFees = calculateGasAndFees(gas, customGasLimit, avaxPrice);
 
-      if (maxGasPrice && newFees.bnFee.gte(stringToBN(maxGasPrice, 0))) {
+      if (maxGasPrice && newFees.bnFee.gte(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
         return;
       }
 
       if (modifier === GasFeeModifier.CUSTOM) {
-        setCustomGasInput(gas.value || '0');
+        setCustomGasInput(gas.div(10 ** 9).toString() || '0');
       }
 
       setNewFees(newFees);
@@ -154,49 +150,32 @@ export function CustomFees({
     [avaxPrice, customGasLimit, maxGasPrice, onChange]
   );
 
-  const gasModifer = useCallback(
-    (amount: number): { bn: BN; value: string } => {
-      // take current GasPrice (BN) and add amount .05 | .15 | custom
-      const bigGas = new Big(bnToLocaleString(originalGas.bn, 9));
-      const newBigGas = bigGas.times(amount).plus(bigGas);
-
-      return {
-        bn: bigToBN(newBigGas, 9),
-        value: newBigGas.toString(),
-      };
-    },
-    [originalGas.bn]
-  );
-
   const updateGasFee = useCallback(
     (modifier?: GasFeeModifier) => {
-      if (!modifier) {
+      if (!modifier || !networkFee) {
         return;
       }
       setSelectedFee(modifier);
       switch (modifier) {
         case GasFeeModifier.FAST: {
-          handleGasChange(gasModifer(0.05), modifier);
+          handleGasChange(networkFee.medium, modifier);
           break;
         }
         case GasFeeModifier.INSTANT: {
-          handleGasChange(gasModifer(0.15), modifier);
+          handleGasChange(networkFee.high, modifier);
           break;
         }
         case GasFeeModifier.CUSTOM:
           handleGasChange(
-            {
-              bn: stringToBN(customGasInput, 9),
-              value: customGasInput,
-            },
+            BigNumber.from(customGasInput).mul(10 ** 9),
             modifier
           );
           break;
         default:
-          handleGasChange(originalGas, GasFeeModifier.NORMAL);
+          handleGasChange(networkFee.low, GasFeeModifier.NORMAL);
       }
     },
-    [customGasInput, gasModifer, handleGasChange, originalGas]
+    [customGasInput, handleGasChange, networkFee]
   );
 
   // this should update the gas prices when there is a change (e.g. from hook)
@@ -226,6 +205,10 @@ export function CustomFees({
         />
       </CustomGasLimitOverlay>
     );
+  }
+
+  if (!networkFee) {
+    return null;
   }
 
   return (
@@ -266,7 +249,7 @@ export function CustomFees({
               width="65px"
             >
               Normal <br />
-              {parseInt(bnToLocaleString(originalGas.bn, 9))}
+              {parseInt(networkFee.low.div(10 ** 9).toString())}
             </FeeButton>
             <FeeButton
               disabled={gasPriceEditDisabled}
@@ -277,7 +260,7 @@ export function CustomFees({
               width="65px"
             >
               Fast <br />
-              {parseInt(gasModifer(0.05).value)}
+              {parseInt(networkFee.medium.div(10 ** 9).toString())}
             </FeeButton>
             <FeeButton
               disabled={gasPriceEditDisabled}
@@ -288,7 +271,7 @@ export function CustomFees({
               width="65px"
             >
               Instant <br />
-              {parseInt(gasModifer(0.15).value)}
+              {parseInt(networkFee.high.div(10 ** 9).toString())}
             </FeeButton>
             <FeeButton
               disabled={gasPriceEditDisabled}
@@ -307,19 +290,10 @@ export function CustomFees({
                   value={customGasInput}
                   onChange={(e) => {
                     if (e.target.value === '') {
-                      handleGasChange(
-                        {
-                          bn: stringToBN('0', 9),
-                          value: e.target.value,
-                        },
-                        GasFeeModifier.CUSTOM
-                      );
+                      handleGasChange(BigNumber.from(0), GasFeeModifier.CUSTOM);
                     } else {
                       handleGasChange(
-                        {
-                          bn: stringToBN(e.target.value, 9),
-                          value: e.target.value,
-                        },
+                        BigNumber.from(e.target.value).mul(10 ** 9),
                         GasFeeModifier.CUSTOM
                       );
                     }
@@ -327,9 +301,11 @@ export function CustomFees({
                   onBlur={(e) => {
                     if (e.target.value === '') {
                       setCustomGasInput(
-                        parseInt(bnToLocaleString(originalGas.bn, 9)).toString()
+                        parseInt(
+                          networkFee.low.div(10 ** 9).toString()
+                        ).toString()
                       );
-                      handleGasChange(originalGas, GasFeeModifier.CUSTOM);
+                      handleGasChange(networkFee.low, GasFeeModifier.CUSTOM);
                     }
                   }}
                 />

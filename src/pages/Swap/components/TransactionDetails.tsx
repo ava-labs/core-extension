@@ -13,9 +13,9 @@ import styled, { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { SlippageToolTip } from './SlippageToolTip';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { BigNumber } from 'ethers';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -23,13 +23,12 @@ interface TransactionDetailsProps {
   rate: number;
   walletFee: number | null;
   onGasChange: (
-    gasLimit: string,
-    gasPrice: GasPrice,
+    gasLimit: number,
+    gasPrice: BigNumber,
     feeType: GasFeeModifier
   ) => void;
-  gasLimit: string;
-  gasPrice: GasPrice;
-  defaultGasPrice: GasPrice;
+  gasLimit: number;
+  gasPrice: BigNumber;
   slippage: string;
   setSlippage: (slippage: string) => void;
   setIsOpen?: (isOpen: boolean) => void;
@@ -75,7 +74,6 @@ export function TransactionDetails({
   setSlippage,
   setIsOpen,
   maxGasPrice,
-  defaultGasPrice,
   selectedGasFee,
 }: TransactionDetailsProps) {
   const { avaxToken } = useWalletContext();
@@ -151,17 +149,16 @@ export function TransactionDetails({
                   Network Fee
                 </Typography>
                 <TransactionFeeTooltip
-                  gasPrice={gasPrice?.bn}
+                  gasPrice={gasPrice}
                   gasLimit={gasLimit}
                 />
               </HorizontalFlex>
               {gasLimit && gasPrice && (
                 <CustomFees
                   gasPrice={gasPrice}
-                  limit={gasLimit.toString()}
+                  limit={gasLimit}
                   onChange={onGasChange}
                   maxGasPrice={maxGasPrice}
-                  defaultGasPrice={defaultGasPrice}
                   selectedGasFeeModifier={selectedGasFee}
                 />
               )}

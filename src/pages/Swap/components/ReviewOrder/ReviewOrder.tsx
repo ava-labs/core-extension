@@ -16,7 +16,6 @@ import { TokenWithBalance } from '@avalabs/wallet-react-components';
 import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SlippageToolTip } from '../SlippageToolTip';
@@ -24,6 +23,8 @@ import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTool
 import { TokenIcon } from '../../utils';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { BigNumber } from 'ethers';
+import Big from 'big.js';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;
@@ -31,8 +32,8 @@ export interface ReviewOrderProps {
   onClose: () => void;
   onConfirm: () => void;
   optimalRate: OptimalRate;
-  gasLimit: string;
-  gasPrice: GasPrice;
+  gasLimit: number;
+  gasPrice: BigNumber;
   slippage: string;
   onTimerExpire: () => void;
   isLoading: boolean;
@@ -158,14 +159,15 @@ export function ReviewOrder({
               <HorizontalFlex>
                 <DetailLabel margin="0 8px 0 0">Network Fee</DetailLabel>
                 <TransactionFeeTooltip
-                  gasPrice={gasPrice?.bn}
+                  gasPrice={gasPrice}
                   gasLimit={gasLimit as any}
                 />
               </HorizontalFlex>
               <DetailValue>
-                {Number(
-                  bnToLocaleString(gasPrice.bn.mul(new BN(gasLimit)), 18)
-                ).toFixed(6)}{' '}
+                {new Big(gasPrice.toString())
+                  .mul(gasLimit)
+                  .div(10 ** 18)
+                  .toFixed(6)}{' '}
                 AVAX
               </DetailValue>
             </DetailsRow>

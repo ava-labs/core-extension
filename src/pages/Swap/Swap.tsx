@@ -36,7 +36,6 @@ import { ReviewOrder } from './components/ReviewOrder';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { getMaxValue, getTokenAddress, isAPIError } from './utils';
 import { TxInProgress } from '@src/components/common/TxInProgress';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenSelect } from '@src/components/common/TokenSelect';
@@ -53,6 +52,8 @@ import { ParaswapNotice } from './components/ParaswapNotice';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
+import { BigNumber } from 'ethers';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 export interface Token {
   icon?: JSX.Element;
@@ -88,7 +89,8 @@ export function Swap() {
   const { flags, capture } = useAnalyticsContext();
   const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
   const { network } = useNetworkContext();
-  const { getRate, swap, gasPrice } = useSwapContext();
+  const { getRate, swap } = useSwapContext();
+  const { networkFee } = useNetworkFeeContext();
 
   const { isFunctionAvailable: isSwapAvailable } =
     useIsFunctionAvailable('Swap');
@@ -117,9 +119,9 @@ export function Swap() {
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
 
-  const [gasLimit, setGasLimit] = useState('');
-  const [customGasPrice, setCustomGasPrice] = useState<GasPrice | undefined>(
-    gasPrice
+  const [gasLimit, setGasLimit] = useState<number>(0);
+  const [customGasPrice, setCustomGasPrice] = useState<BigNumber | undefined>(
+    networkFee?.low
   );
 
   const [gasCost, setGasCost] = useState('');
@@ -321,7 +323,7 @@ export function Swap() {
                 } else {
                   // Never modify the properies of the optimalRate since the swap API needs it unchanged
                   setOptimalRate(result.optimalRate);
-                  setGasLimit(result.optimalRate?.gasCost);
+                  setGasLimit(Number(result.optimalRate?.gasCost || 0));
                   const resultAmount =
                     destinationInputField === 'to'
                       ? result.optimalRate.destAmount
@@ -427,7 +429,7 @@ export function Swap() {
       fromTokenDecimals,
     } = setValuesDebouncedSubject.getValue();
     if (
-      !gasPrice ||
+      !networkFee ||
       !optimalRate?.gasCost ||
       !toTokenDecimals ||
       !toTokenAddress ||
@@ -448,7 +450,7 @@ export function Swap() {
         optimalRate,
         optimalRate.destAmount,
         gasLimit,
-        customGasPrice || gasPrice,
+        customGasPrice || networkFee.low,
         parseFloat(slippage)
       )
     );
@@ -480,7 +482,7 @@ export function Swap() {
   }
 
   const onGasChange = useCallback(
-    (limit: string, price: GasPrice, feeType: GasFeeModifier) => {
+    (limit: number, price: BigNumber, feeType: GasFeeModifier) => {
       setGasLimit(limit);
       setCustomGasPrice(price);
       setSelectedGasFee(feeType);
@@ -512,7 +514,7 @@ export function Swap() {
     selectedToToken &&
     optimalRate &&
     gasLimit &&
-    gasPrice;
+    networkFee;
 
   return (
     <VerticalFlex width="100%">
@@ -706,8 +708,7 @@ export function Swap() {
               walletFee={optimalRate.partnerFee}
               onGasChange={onGasChange}
               gasLimit={gasLimit}
-              gasPrice={customGasPrice as any}
-              defaultGasPrice={gasPrice}
+              gasPrice={customGasPrice || networkFee.low}
               maxGasPrice={maxGasPrice}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
@@ -726,7 +727,7 @@ export function Swap() {
                 capture('SwapReviewOrder', {
                   destinationInputField,
                   slippageTolerance,
-                  customGasPrice: customGasPrice?.value,
+                  customGasPrice: customGasPrice?.toString(),
                 });
                 setIsReviewOrderOpen(true);
               }}
@@ -753,7 +754,7 @@ export function Swap() {
           }}
           optimalRate={optimalRate}
           gasLimit={gasLimit}
-          gasPrice={customGasPrice || gasPrice}
+          gasPrice={customGasPrice || networkFee.low}
           slippage={slippageTolerance}
           onTimerExpire={() => {
             capture('SwapReviewTimerRestarted');
@@ -786,10 +787,12 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={bnToLocaleString(
-            (customGasPrice || gasPrice)?.bn.mul(new BN(gasLimit)) || new BN(0),
-            18
-          )}
+          fee={(
+            (customGasPrice || networkFee?.low)?.mul(gasLimit) ||
+            BigNumber.from(0)
+          )
+            .div(10 ** 18)
+            .toString()}
           amount={fromTokenValue?.amount}
           symbol={selectedFromToken?.symbol}
         />

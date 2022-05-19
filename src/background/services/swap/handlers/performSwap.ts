@@ -16,10 +16,11 @@ import { WalletService } from '../../wallet/WalletService';
 import { SwapService } from '../SwapService';
 import ERC20_ABI from 'human-standard-token-abi';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
-import { hexToBN } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import { injectable } from 'tsyringe';
+import { AccountsService } from '../../accounts/AccountsService';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 @injectable()
 export class PerformSwapHandler implements ExtensionRequestHandler {
@@ -29,7 +30,8 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
     private swapService: SwapService,
     private networkService: NetworkService,
     private walletService: WalletService,
-    private networkFeeService: NetworkFeeService
+    private networkFeeService: NetworkFeeService,
+    private accountsService: AccountsService
   ) {}
   handle = async (
     request: ExtensionConnectionMessage
@@ -116,7 +118,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
       };
     }
 
-    if (!this.walletService.walletState?.addresses.addrC) {
+    if (!this.accountsService.activeAccount?.addressC) {
       return {
         ...request,
         error: `Wallet Error: address not defined`,
@@ -126,7 +128,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
     const buildOptions = undefined,
       partnerAddress = undefined,
       partner = 'Avalanche',
-      userAddress = this.walletService.walletState.addresses.addrC,
+      userAddress = this.accountsService.activeAccount?.addressC,
       receiver = undefined,
       permit = undefined,
       deadline = undefined,
@@ -173,33 +175,51 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
           contract.estimateGas.approve(spender, sourceAmount)
         );
 
-        const [approveHash, approveError] = await resolve(
-          /**
-           * We may need to check if the allowance is enough to cover what is trying to be sent?
-           */
-          (allowance as BigNumber).gte(sourceAmount)
-            ? (Promise.resolve([]) as any)
-            : this.walletService.sendCustomTx(
-                defaultGasPrice.bn,
-                approveGasLimit ? approveGasLimit.toNumber() : Number(gasLimit),
-                (
-                  await contract.populateTransaction.approve(
-                    spender,
-                    sourceAmount
-                  )
-                ).data,
-                srcTokenAddress
-              )
-        );
+        if (!(allowance as BigNumber).gte(sourceAmount)) {
+          const [signedTx, signError] = await resolve(
+            this.walletService.sign({
+              nonce: await (
+                this.networkService.activeProvider as JsonRpcBatchInternal
+              ).getTransactionCount(userAddress),
+              chainId: BigNumber.from(
+                this.networkService.activeNetwork.chainId
+              ).toNumber(),
+              gasPrice: defaultGasPrice?.low,
+              gasLimit: approveGasLimit
+                ? approveGasLimit.toNumber()
+                : Number(gasLimit),
+              data: (
+                await contract.populateTransaction.approve(
+                  spender,
+                  sourceAmount
+                )
+              ).data,
+              to: srcTokenAddress,
+            })
+          );
 
-        if (approveError) {
-          return {
-            ...request,
-            error: `Approve Error: ${approveError}`,
-          };
+          if (signError) {
+            return {
+              ...request,
+              error: `Approve Error: ${signError}`,
+            };
+          }
+
+          const [hash, approveError] = await resolve(
+            this.networkService.sendTransaction(signedTx)
+          );
+
+          if (approveError) {
+            return {
+              ...request,
+              error: `Approve Error: ${approveError}`,
+            };
+          }
+
+          approveTxHash = hash;
+        } else {
+          approveTxHash = [];
         }
-
-        approveTxHash = approveHash;
       }
     }
 
@@ -237,16 +257,34 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
       };
     }
 
+    const [signedTx, signError] = await resolve(
+      this.walletService.sign({
+        nonce: await (
+          this.networkService.activeProvider as JsonRpcBatchInternal
+        ).getTransactionCount(userAddress),
+        chainId: BigNumber.from(
+          this.networkService.activeNetwork.chainId
+        ).toNumber(),
+        gasPrice: BigNumber.from(gasPrice ? gasPrice : defaultGasPrice?.low),
+        gasLimit: Number(txBuildData.gas),
+        data: txBuildData.data,
+        to: txBuildData.to,
+        value:
+          srcToken === AVAX_TOKEN.symbol
+            ? new BN(sourceAmount).toString('hex')
+            : undefined, // AVAX value needs to be sent with the transaction
+      })
+    );
+
+    if (signError) {
+      return {
+        ...request,
+        error: `Tx Error: ${signError}`,
+      };
+    }
+
     const [swapTxHash, txError] = await resolve(
-      this.walletService.sendCustomTx(
-        gasPrice.bn ? hexToBN(gasPrice.bn) : defaultGasPrice.bn,
-        Number(txBuildData.gas),
-        txBuildData.data,
-        txBuildData.to,
-        srcToken === AVAX_TOKEN.symbol
-          ? `0x${new BN(sourceAmount).toString('hex')}`
-          : undefined // AVAX value needs to be sent with the transaction
-      )
+      this.networkService.sendTransaction(signedTx)
     );
 
     if (txError) {

@@ -1,20 +1,28 @@
 import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { btcToSatoshi } from '@avalabs/bridge-sdk';
-import { BitcoinInputUTXO, BitcoinWallet } from '@avalabs/wallets-sdk';
+import {
+  BitcoinInputUTXO,
+  BitcoinProviderAbstract,
+  createTransferTx,
+} from '@avalabs/wallets-sdk';
 import { TokenWithBalance } from '../../balances/models';
+import { NetworkService } from '../../network/NetworkService';
+import { WalletService } from '../../wallet/WalletService';
 import { validateSendBtcValues } from './validateSendBtcValues';
 
 export async function sendBtcSubmit(
   toAddress: string,
+  changeAddress: string,
   amountStr: string,
   balance: number,
   utxos: BitcoinInputUTXO[],
   feeRate: number,
   token: TokenWithBalance,
-  wallet: BitcoinWallet,
-  isMainnet: boolean
+  walletService: WalletService,
+  networkService: NetworkService
 ): Promise<{ txId?: string }> {
   const state = await validateSendBtcValues(
+    changeAddress,
     {
       amount: amountStr,
       address: toAddress,
@@ -23,8 +31,8 @@ export async function sendBtcSubmit(
     balance,
     utxos,
     feeRate,
-    wallet,
-    isMainnet
+    walletService,
+    networkService
   );
 
   if (state.error?.error) {
@@ -37,19 +45,21 @@ export async function sendBtcSubmit(
 
   const amountInSatoshis = btcToSatoshi(new Big(amountStr));
 
-  const { psbt } = wallet.createTransferTx(
+  const { ins, outs } = createTransferTx(
     toAddress,
+    changeAddress,
     amountInSatoshis,
     feeRate,
-    utxos
+    utxos,
+    networkService.activeProvider as BitcoinProviderAbstract
   );
 
-  if (!psbt) {
+  if (!ins || !outs) {
     throw new Error('Unable to create transaction');
   }
 
-  const signedTx = wallet.signPsbt(psbt);
-  const result = await wallet.getProvider().issueRawTx(signedTx.toHex());
+  const signedTx = await walletService.sign({ ins, outs });
+  const result = await networkService.sendTransaction(signedTx);
 
-  return { txId: result.hash };
+  return { txId: result };
 }

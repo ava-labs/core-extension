@@ -19,7 +19,8 @@ export interface WalletLockedState {
 
 export interface WalletSecretInStorage {
   mnemonic?: string;
-  publicKey?: string;
+  // Extended public key of m/44'/60'/0'
+  xpub: string;
 }
 
 export function isWalletLocked(

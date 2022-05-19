@@ -16,11 +16,18 @@ export class GetAnalyticsIdsHandler implements ExtensionRequestHandler {
   handle = async (
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
-    const analyticsState = await this.analyticsService.getIds();
+    try {
+      const analyticsState = await this.analyticsService.getIds();
 
-    return {
-      ...request,
-      result: analyticsState,
-    };
+      return {
+        ...request,
+        result: analyticsState,
+      };
+    } catch (e: any) {
+      return {
+        ...request,
+        error: e.toString(),
+      };
+    }
   };
 }

@@ -1,7 +1,6 @@
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import {
   DappPermissions,
@@ -16,10 +15,7 @@ export class PermissionsService implements OnLock {
 
   private permissions?: Permissions;
 
-  constructor(
-    private storageService: StorageService,
-    private lockService: LockService
-  ) {}
+  constructor(private storageService: StorageService) {}
 
   onLock(): void {
     this.permissions = undefined;

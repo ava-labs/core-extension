@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
-import { NetworkService } from '../network/NetworkService';
 import {
   activateAccount,
   addAccount as addAccountSDK,
@@ -14,13 +13,13 @@ import {
   ACCOUNTS_STORAGE_KEY,
 } from './models';
 import { firstValueFrom } from 'rxjs';
-import {
-  OnLock,
-  OnStorageReady,
-} from '@src/background/runtime/lifecycleCallbacks';
+import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { WalletService } from '../wallet/WalletService';
+import { NetworkEvents, NetworkVM } from '../network/models';
+import { NetworkService } from '../network/NetworkService';
 
 @singleton()
-export class AccountsService implements OnLock, OnStorageReady {
+export class AccountsService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
 
   private accounts: Account[] = [];
@@ -31,16 +30,27 @@ export class AccountsService implements OnLock, OnStorageReady {
 
   constructor(
     private storageService: StorageService,
+    private walletService: WalletService,
     private networkService: NetworkService
   ) {}
 
-  onStorageReady(): void {
-    this.init();
+  async onUnlock(): Promise<void> {
+    await this.init();
+
+    // refresh addresses so in case the user switches to testnet the BTC address gets updated
+    this.networkService.addListener(
+      NetworkEvents.NETWORK_UPDATE_EVENT,
+      this.init.bind(this)
+    );
   }
 
   onLock() {
     this.accounts = [];
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
+    this.networkService.removeListener(
+      NetworkEvents.NETWORK_UPDATE_EVENT,
+      this.init.bind(this)
+    );
   }
 
   private async init() {
@@ -56,14 +66,17 @@ export class AccountsService implements OnLock, OnStorageReady {
       sdkAccounts.push(addAccountSDK());
     }
     const activeIndex = accounts.find((a) => a.active)?.index || 0;
-    this.accounts = accounts.map((acc) => ({
-      ...acc,
-      active: acc.index === activeIndex,
-      addressC: sdkAccounts[acc.index].wallet.getAddressC(),
-      addressBTC: sdkAccounts[acc.index].wallet.getAddressBTC(
-        this.networkService.isMainnet ? 'bitcoin' : 'testnet'
-      ),
-    }));
+    this.accounts = [];
+    for (const acc of accounts) {
+      const addresses = await this.walletService.getAddress(acc.index);
+
+      this.accounts.push({
+        ...acc,
+        active: acc.index === activeIndex,
+        addressC: addresses[NetworkVM.EVM],
+        addressBTC: addresses[NetworkVM.BITCOIN],
+      });
+    }
 
     // activate account
     await this.activateAccount(activeIndex);
@@ -115,15 +128,14 @@ export class AccountsService implements OnLock, OnStorageReady {
     };
 
     const balance = await firstValueFrom(newSDKAccount.balance$);
+    const addresses = await this.walletService.getAddress(newSDKAccount.index);
 
     this.accounts = [
       ...this.accounts,
       {
         ...newAccount,
-        addressC: newSDKAccount.wallet.getAddressC(),
-        addressBTC: newSDKAccount.wallet.getAddressBTC(
-          this.networkService.isMainnet ? 'bitcoin' : 'testnet'
-        ),
+        addressC: addresses[NetworkVM.EVM],
+        addressBTC: addresses[NetworkVM.BITCOIN],
         balance,
       },
     ];

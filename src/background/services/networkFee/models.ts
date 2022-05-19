@@ -1,8 +1,9 @@
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BigNumber } from 'ethers';
 
-export interface GasPrice {
-  bn: BN;
-  value?: string;
+export interface NetworkFee {
+  low: BigNumber;
+  medium: BigNumber;
+  high: BigNumber;
 }
 
 export enum NetworkFeeEvents {

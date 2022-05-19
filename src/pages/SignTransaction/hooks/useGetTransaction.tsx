@@ -6,7 +6,6 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import Web3 from 'web3';
 import ERC20_ABI from 'human-standard-token-abi';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
@@ -14,18 +13,18 @@ import { hexToBN } from '@src/utils/hexToBN';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import * as ethers from 'ethers';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
-import { networkFeeUpdatedEventListener } from '@src/background/services/networkFee/events/listeners';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
 export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
   const { avaxPrice } = useWalletContext();
+  const { networkFee } = useNetworkFeeContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice | null>(null);
   const [customGas, setCustomGas] = useState<{
-    gasLimit: string;
-    gasPrice: GasPrice;
+    gasLimit: number;
+    gasPrice: ethers.BigNumber;
   } | null>(null);
   const [hash, setHash] = useState<string>('');
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
@@ -51,7 +50,11 @@ export function useGetTransaction(requestId: string) {
   );
 
   const setCustomFee = useCallback(
-    (gasLimit: string, gasPrice: GasPrice, modifier: GasFeeModifier) => {
+    (
+      gasLimit: number,
+      gasPrice: ethers.BigNumber,
+      modifier: GasFeeModifier
+    ) => {
       setCustomGas({ gasLimit, gasPrice });
       setSelectedGasFee(modifier);
 
@@ -64,7 +67,7 @@ export function useGetTransaction(requestId: string) {
         id: transaction?.id,
         params: {
           gas: feeDisplayValues.gasLimit.toString(),
-          gasPrice: feeDisplayValues.gasPrice.bn,
+          gasPrice: feeDisplayValues.gasPrice,
         },
       });
     },
@@ -123,35 +126,15 @@ export function useGetTransaction(requestId: string) {
       method: ExtensionRequest.TRANSACTIONS_GET,
       params: [requestId],
     }).then((tx: Transaction) => {
-      // the gasPrice.bn on the tx is a hex
-      // we convert it here to a BN
-
-      const gasPrice: GasPrice = {
-        ...tx.displayValues.gasPrice,
-        bn: hexToBN(tx.displayValues.gasPrice.bn),
-      };
-
-      setDefaultGasPrice(gasPrice);
       setTransaction({
         ...tx,
         displayValues: {
           ...tx.displayValues,
-          gasPrice,
+          gasPrice: ethers.BigNumber.from(tx.displayValues.gasPrice),
         },
       });
     });
     const subscriptions = new Subscription();
-    subscriptions.add(
-      events?.()
-        .pipe(filter(networkFeeUpdatedEventListener))
-        .subscribe(function (evt) {
-          const gasPrice = {
-            ...evt.value,
-            bn: hexToBN(evt.value.bn),
-          } as any;
-          setDefaultGasPrice(gasPrice);
-        })
-    );
 
     subscriptions.add(
       events?.()
@@ -192,11 +175,11 @@ export function useGetTransaction(requestId: string) {
 
   return useMemo(() => {
     const feeDisplayValues =
-      defaultGasPrice &&
+      networkFee &&
       transaction?.displayValues.gasLimit &&
       calculateGasAndFees(
-        customGas?.gasPrice ?? defaultGasPrice,
-        customGas?.gasLimit ?? transaction.displayValues.gasLimit.toString(),
+        customGas?.gasPrice ?? networkFee.low,
+        customGas?.gasLimit ?? transaction.displayValues.gasLimit,
         avaxPrice
       );
 
@@ -216,7 +199,7 @@ export function useGetTransaction(requestId: string) {
       selectedGasFee,
     };
   }, [
-    defaultGasPrice,
+    networkFee,
     transaction,
     customGas,
     avaxPrice,

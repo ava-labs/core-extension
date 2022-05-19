@@ -3,7 +3,6 @@
 import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
 import * as ethers from 'ethers';
-import { GasPrice } from '../networkFee/models';
 
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
@@ -24,7 +23,7 @@ export enum TransactionEvent {
 export interface TransactionDisplayValues {
   fromAddress: string;
   toAddress: string;
-  gasPrice: GasPrice;
+  gasPrice: ethers.BigNumber;
   contractType: ContractCall;
   gasLimit?: number;
   fee?: string;
@@ -61,7 +60,7 @@ export interface txParams {
   to: string;
   value?: string;
   data?: string;
-  gas?: string;
+  gas?: number;
   gasPrice?: string;
 }
 /**

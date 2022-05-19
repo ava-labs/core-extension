@@ -55,6 +55,8 @@ export class BTCBalancesService {
           : undefined,
         priceUSD: tokenPrice,
         utxos,
+        logoURI:
+          'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
       },
     ];
   }

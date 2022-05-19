@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   toast,
   ComponentSize,
@@ -16,7 +16,6 @@ import {
 import { Contact } from '@src/background/services/contacts/models';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
@@ -31,6 +30,7 @@ import { TxInProgress } from '@src/components/common/TxInProgress';
 import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
 import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { useSendNft } from '../Send/hooks/useSendNft';
+import { BigNumber } from 'ethers';
 
 export function CollectibleSend() {
   const theme = useTheme();
@@ -44,24 +44,14 @@ export function CollectibleSend() {
 
   const setSendState = sendState.setValues;
 
-  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const [gasPriceState, setGasPrice] = useState<GasPrice>();
+  const [gasPriceState, setGasPrice] = useState<BigNumber>();
 
   const isMainnet = useIsMainnet();
-
-  useEffect(() => {
-    if (!defaultGasPrice && sendState.gasPrice) {
-      setDefaultGasPrice({
-        bn: sendState.gasPrice,
-        value: sendState.gasPrice.toString(),
-      });
-    }
-  }, [defaultGasPrice, sendState.gasPrice]);
 
   const onContactChanged = (contact: Contact) => {
     setCollectibleParams({
@@ -78,11 +68,11 @@ export function CollectibleSend() {
   const maxGasPrice = avaxToken.balance.toString();
 
   const onGasChanged = useCallback(
-    (gasLimit: string, gasPrice: GasPrice, feeType: GasFeeModifier) => {
+    (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
       setGasPrice(gasPrice);
       setSendState({
         address: contactInput?.address,
-        gasLimit: Number(gasLimit),
+        gasLimit,
         gasPrice,
       });
       setSelectedGasFee(feeType);
@@ -164,7 +154,6 @@ export function CollectibleSend() {
             onGasChanged={onGasChanged}
             maxGasPrice={maxGasPrice}
             gasPrice={gasPriceState}
-            defaultGasPrice={defaultGasPrice}
             selectedGasFee={selectedGasFee}
           />
         </>

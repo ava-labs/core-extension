@@ -1,4 +1,4 @@
-import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
+import { ethersBigNumberToBN, stringToBN } from '@avalabs/utils-sdk';
 import {
   sendAvaxCheckFormAndCalculateFees,
   wallet$,
@@ -11,6 +11,7 @@ import {
 } from '@src/background/connections/models';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { BN } from 'bn.js';
+import { BigNumber } from 'ethers';
 import { firstValueFrom, of, startWith, Subject } from 'rxjs';
 import { injectable } from 'tsyringe';
 @injectable()
@@ -29,9 +30,11 @@ export class SendAvaxValidateHandler implements ExtensionRequestHandler {
     const state = await firstValueFrom(
       sendAvaxCheckFormAndCalculateFees(
         of(
-          gasPrice?.bn
-            ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
-            : gas
+          gasPrice
+            ? {
+                bn: ethersBigNumberToBN(BigNumber.from(gasPrice)),
+              }
+            : { bn: ethersBigNumberToBN(gas?.low || BigNumber.from(0)) }
         ),
         of(stringToBN(amount || '0', 18)).pipe(startWith(new BN(0))),
         of(address).pipe(startWith('')) as Subject<string>,

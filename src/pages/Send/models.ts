@@ -1,17 +1,17 @@
 import { SendState, TokenWithBalance } from '@avalabs/wallet-react-components';
-import { GasPrice } from '@src/background/services/networkFee/models';
+import { BigNumber } from 'ethers';
 
 export type SetSendValuesParams = {
   token?: TokenWithBalance;
   amount?: string;
   address?: string;
-  gasPrice?: GasPrice;
+  gasPrice?: BigNumber;
   gasLimit?: number;
 };
 
 export type SetSendNftValuesParams = {
   address?: string;
-  gasPrice?: GasPrice;
+  gasPrice?: BigNumber;
   gasLimit?: number;
 };
 

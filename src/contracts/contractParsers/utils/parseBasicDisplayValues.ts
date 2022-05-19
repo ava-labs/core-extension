@@ -28,11 +28,7 @@ export function parseBasicDisplayValues(
      * The wallet this is being sent from
      */
     fromAddress: request.from,
-    ...calculateGasAndFees(
-      props.gasPrice,
-      request.gas as string,
-      props.avaxPrice
-    ),
+    ...calculateGasAndFees(props.gasPrice, request.gas || 0, props.avaxPrice),
     site: props.site,
     description,
     name: name ? name[0].toUpperCase() + name.slice(1) : '',

@@ -125,7 +125,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     request({
       method: ExtensionRequest.ONBOARDING_SUBMIT,
       params: [
-        { mnemonic, publicKey, password, accountName, analyticsConsent },
+        { mnemonic, xpub: publicKey, password, accountName, analyticsConsent },
       ],
     })
       .then(() => {

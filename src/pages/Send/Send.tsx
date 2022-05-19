@@ -28,7 +28,6 @@ import {
   TokenWithBalance,
 } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
@@ -42,6 +41,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
+import { BigNumber } from 'ethers';
 
 export function SendPage() {
   const theme = useTheme();
@@ -56,8 +56,6 @@ export function SendPage() {
 
   const sendState = useSend(selectedToken);
 
-  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
-
   const setSendState = sendState.setValues;
   const tokensWBalances = useTokensWithBalances(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
@@ -65,7 +63,7 @@ export function SendPage() {
   );
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const [gasPriceState, setGasPrice] = useState<GasPrice>();
+  const [gasPriceState, setGasPrice] = useState<BigNumber>();
   const { capture } = useAnalyticsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -100,15 +98,6 @@ export function SendPage() {
   // Reset send state before leaving the send flow.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => resetSendFlow, []);
-
-  useEffect(() => {
-    if (!defaultGasPrice && sendState.gasPrice) {
-      setDefaultGasPrice({
-        bn: sendState.gasPrice,
-        value: sendState.gasPrice.toString(),
-      });
-    }
-  }, [defaultGasPrice, sendState.gasPrice]);
 
   const resetSendFlow = () => {
     sendState.reset();
@@ -209,13 +198,13 @@ export function SendPage() {
       : avaxToken.balance.toString();
 
   const onGasChanged = useCallback(
-    (gasLimit: string, gasPrice: GasPrice, feeType: GasFeeModifier) => {
+    (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
       setGasPrice(gasPrice);
       setSendState({
         token: selectedToken,
         amount: amountInputDisplay,
         address: contactInput?.address,
-        gasLimit: Number(gasLimit),
+        gasLimit,
         gasPrice,
       });
       setSelectedGasFee(feeType);
@@ -298,7 +287,6 @@ export function SendPage() {
             onGasChanged={onGasChanged}
             maxGasPrice={maxGasPrice}
             gasPrice={gasPriceState}
-            defaultGasPrice={defaultGasPrice}
             selectedGasFee={selectedGasFee}
           />
         </>

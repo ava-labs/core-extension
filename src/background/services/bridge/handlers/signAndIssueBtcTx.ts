@@ -38,7 +38,7 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
     const [unsignedTxHex] = request.params || [];
 
     const [signedTx, error] = await resolve(
-      this.walletService.signBtc(unsignedTxHex)
+      this.walletService.sign(unsignedTxHex)
     );
 
     if (error) {

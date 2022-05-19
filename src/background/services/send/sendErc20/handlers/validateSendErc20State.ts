@@ -1,4 +1,4 @@
-import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
+import { ethersBigNumberToBN, stringToBN } from '@avalabs/utils-sdk';
 import {
   checkAndValidateSendErc20,
   ERC20WithBalance,
@@ -15,6 +15,7 @@ import BN from 'bn.js';
 import { firstValueFrom, of, startWith, Subject } from 'rxjs';
 import { WalletService } from '@src/background/services/wallet/WalletService';
 import { injectable } from 'tsyringe';
+import { BigNumber } from 'ethers';
 @injectable()
 export class SendErc20ValidateHandler implements ExtensionRequestHandler {
   methods = [ExtensionRequest.SEND_ERC20_VALIDATE];
@@ -60,8 +61,8 @@ export class SendErc20ValidateHandler implements ExtensionRequestHandler {
         token,
         of(
           gasPrice?.bn
-            ? { bn: hexToBN(gasPrice.bn), value: gasPrice.value }
-            : gas
+            ? { bn: ethersBigNumberToBN(BigNumber.from(gasPrice)) }
+            : { bn: gas ? ethersBigNumberToBN(gas?.low) : new BN(0) }
         ),
         of(
           stringToBN(

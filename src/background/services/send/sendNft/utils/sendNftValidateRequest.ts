@@ -1,12 +1,12 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
-import { GasPrice } from '@src/background/services/networkFee/models';
+import { BigNumber } from 'ethers';
 
 export function sendNftValidateRequest(
   contractAddress?: string,
   tokenId?: number,
   address?: string,
-  gasPrice?: GasPrice,
+  gasPrice?: BigNumber,
   gasLimit?: number
 ): Omit<ExtensionConnectionMessage, 'id'> {
   return {

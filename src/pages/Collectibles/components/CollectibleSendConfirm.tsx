@@ -11,20 +11,20 @@ import {
   SubTextTypography,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendNftState } from '@avalabs/wallet-react-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory } from 'react-router-dom';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { SendStateWithActions } from '@src/pages/Send/models';
 import { NFT } from '@avalabs/blizzard-sdk';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { BigNumber } from 'ethers';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -69,13 +69,12 @@ type CollectibleSendConfirmProps = {
   tokenId: string;
   onSubmit(): void;
   onGasChanged(
-    gasLimit: string,
-    gasPrice: GasPrice,
+    gasLimit: number,
+    gasPrice: BigNumber,
     feeType: GasFeeModifier
   ): void;
   maxGasPrice?: string;
-  gasPrice?: GasPrice;
-  defaultGasPrice?: GasPrice;
+  gasPrice?: BigNumber;
   selectedGasFee?: GasFeeModifier;
 };
 
@@ -89,10 +88,10 @@ export const CollectibleSendConfirm = ({
   maxGasPrice,
   gasPrice,
   selectedGasFee,
-  defaultGasPrice,
 }: CollectibleSendConfirmProps) => {
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
+  const { networkFee } = useNetworkFeeContext();
 
   useLedgerDisconnectedDialog(() => {
     history.goBack();
@@ -171,17 +170,14 @@ export const CollectibleSendConfirm = ({
               Network Fee
             </Typography>
             <TransactionFeeTooltip
-              gasPrice={sendState?.gasPrice}
+              gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}
               gasLimit={sendState?.gasLimit}
             />
           </HorizontalFlex>
           <VerticalFlex width="100%">
             <CustomFees
-              gasPrice={{
-                bn: gasPrice?.bn || defaultGasPrice?.bn || new BN(0),
-              }}
-              defaultGasPrice={defaultGasPrice}
-              limit={`${sendState?.gasLimit}`}
+              gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
+              limit={sendState?.gasLimit || 0}
               onChange={onGasChanged}
               maxGasPrice={maxGasPrice}
               selectedGasFeeModifier={selectedGasFee}

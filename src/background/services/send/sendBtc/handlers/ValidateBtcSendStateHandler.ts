@@ -9,6 +9,7 @@ import {
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { BalancesService } from '@src/background/services/balances/BalancesService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
+import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { isWalletLocked } from '@src/background/services/wallet/models';
 import { WalletService } from '@src/background/services/wallet/WalletService';
 import { firstValueFrom } from 'rxjs';
@@ -23,7 +24,8 @@ export class ValidateBtcSendStateHandler implements ExtensionRequestHandler {
     private accountsService: AccountsService,
     private balancesService: BalancesService,
     private networkService: NetworkService,
-    private walletService: WalletService
+    private walletService: WalletService,
+    private networkFeeService: NetworkFeeService
   ) {}
 
   handle = async (
@@ -39,11 +41,15 @@ export class ValidateBtcSendStateHandler implements ExtensionRequestHandler {
     }
 
     const wallet = await firstValueFrom(wallet$);
+    // TODO get from UI
+    const fee = await this.networkFeeService.getNetworkFee();
 
     if (
       !wallet ||
+      !fee ||
       !this.walletService.walletState ||
-      isWalletLocked(this.walletService.walletState)
+      isWalletLocked(this.walletService.walletState) ||
+      !this.accountsService.activeAccount?.addressBTC
     ) {
       return {
         ...request,
@@ -51,22 +57,20 @@ export class ValidateBtcSendStateHandler implements ExtensionRequestHandler {
       };
     }
 
-    const bitcoinWallet = await this.walletService.getBitcoinWallet();
     const tokenWithBalance =
       this.balancesService.balances[
-        this.accountsService.activeAccount?.addressBTC || ''
+        this.accountsService.activeAccount.addressBTC
       ]?.[0];
-    // TODO get from UI
-    const { medium: feeRate } = await bitcoinWallet.getProvider().getFeeRates();
 
     return await resolve(
       validateSendBtcValues(
+        this.accountsService.activeAccount.addressBTC,
         values,
         tokenWithBalance.balance.toNumber(),
         tokenWithBalance.utxos || [],
-        feeRate,
-        bitcoinWallet,
-        this.networkService.isMainnet
+        fee?.medium.toNumber(),
+        this.walletService,
+        this.networkService
       )
     ).then(([result, error]) => {
       return {

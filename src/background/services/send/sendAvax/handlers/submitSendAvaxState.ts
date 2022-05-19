@@ -1,4 +1,4 @@
-import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
+import { ethersBigNumberToBN, stringToBN } from '@avalabs/utils-sdk';
 import { sendAvaxSubmit, wallet$ } from '@avalabs/wallet-react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
@@ -8,6 +8,7 @@ import {
 } from '@src/background/connections/models';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { resolve } from '@src/utils/promiseResolver';
+import { BigNumber } from 'ethers';
 import { firstValueFrom, tap } from 'rxjs';
 import { injectable } from 'tsyringe';
 import { SendService } from '../../SendService';
@@ -48,7 +49,14 @@ export class SendAvaxSubmitHandler implements ExtensionRequestHandler {
       };
     }
 
-    const gas = this.networkFeeService.getNetworkFee();
+    const gas = await this.networkFeeService.getNetworkFee();
+
+    if (!gas && !customGasPrice) {
+      return {
+        ...request,
+        error: 'unknown gas price',
+      };
+    }
 
     return await resolve(
       firstValueFrom(
@@ -59,9 +67,11 @@ export class SendAvaxSubmitHandler implements ExtensionRequestHandler {
           Promise.resolve(
             customGasPrice
               ? {
-                  bn: hexToBN(customGasPrice),
+                  bn: ethersBigNumberToBN(
+                    BigNumber.from(`0x${customGasPrice}`)
+                  ),
                 }
-              : gas
+              : { bn: ethersBigNumberToBN(gas?.low || BigNumber.from(0)) }
           ),
           wallet$,
           customGasLimit

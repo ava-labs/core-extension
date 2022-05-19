@@ -2,7 +2,7 @@ import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { contractParserMap } from '@src/contracts/contractParsers/contractParserMap';
 import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
@@ -76,10 +76,11 @@ export class TransactionsService {
     );
 
     const gasPrice = await this.networkFeeService.getNetworkFee();
+    console.log('gasPrice', gasPrice);
 
     if (txParams && isTxParams(txParams)) {
       const displayValueProps = {
-        gasPrice,
+        gasPrice: gasPrice?.low || BigNumber.from(0),
         erc20Tokens: this.walletService.walletState?.erc20Tokens,
         avaxPrice: this.walletService.walletState?.avaxPrice,
         avaxToken: this.walletService.walletState?.avaxToken,
@@ -90,7 +91,7 @@ export class TransactionsService {
        * Some requests, revoke approval, dont have gasLimit on it so we make sure its there
        */
       const gasLimit: any = await (txParams.gas
-        ? Promise.resolve(false)
+        ? BigNumber.from(txParams.gas).toNumber()
         : this.networkFeeService.estimateGasLimit(
             txParams.from,
             txParams.to,
@@ -98,7 +99,7 @@ export class TransactionsService {
           ));
 
       const txParamsWithGasLimit = gasLimit
-        ? { gas: `${gasLimit}`, ...txParams }
+        ? { ...txParams, gas: gasLimit }
         : txParams;
 
       const description = isTxDescriptionError(txDescription)

@@ -4,7 +4,6 @@ import {
   ERC20WithBalance,
 } from '@avalabs/wallet-react-components';
 import { DomainMetadata } from '@src/background/models';
-import { GasPrice } from '@src/background/services/networkFee/models';
 import {
   TransactionDisplayValues,
   txParams,
@@ -54,7 +53,7 @@ export interface ApproveTransactionData extends TransactionDisplayValues {
 }
 
 export interface DisplayValueParserProps {
-  gasPrice: GasPrice;
+  gasPrice: ethers.BigNumber;
   erc20Tokens: ERC20WithBalance[];
   avaxToken: AvaxWithBalance;
   avaxPrice: number;

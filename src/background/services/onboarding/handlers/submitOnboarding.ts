@@ -1,3 +1,4 @@
+import { getXpubFromMnemonic } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   ExtensionConnectionMessage,
@@ -35,13 +36,27 @@ export class SubmitOnboardingHandler implements ExtensionRequestHandler {
         error: 'params missing from request',
       };
     }
-    const { mnemonic, publicKey, password, accountName, analyticsConsent } =
-      params[0];
+    const {
+      mnemonic,
+      xpub: xPubFromLedger,
+      password,
+      accountName,
+      analyticsConsent,
+    } = params[0];
+
+    if (!mnemonic && !xPubFromLedger) {
+      return {
+        ...request,
+        error: 'unable to create a wallet, mnemonic or public key required',
+      };
+    }
 
     await this.storageService.createStorageKey(password);
 
-    if (mnemonic || publicKey) {
-      await this.walletService.init({ mnemonic, password, publicKey });
+    const xpub = xPubFromLedger || (await getXpubFromMnemonic(mnemonic));
+
+    if (xpub) {
+      await this.walletService.init({ mnemonic, xpub });
     } else {
       return {
         ...request,

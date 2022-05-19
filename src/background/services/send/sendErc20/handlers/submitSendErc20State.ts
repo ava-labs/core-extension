@@ -1,4 +1,4 @@
-import { hexToBN, stringToBN } from '@avalabs/utils-sdk';
+import { ethersBigNumberToBN, hexToBN, stringToBN } from '@avalabs/utils-sdk';
 import {
   ERC20WithBalance,
   sendErc20Submit,
@@ -13,6 +13,7 @@ import {
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { WalletService } from '@src/background/services/wallet/WalletService';
 import { resolve } from '@src/utils/promiseResolver';
+import { BigNumber } from 'ethers';
 import { firstValueFrom, of, tap } from 'rxjs';
 import { injectable } from 'tsyringe';
 import { SendService } from '../../SendService';
@@ -69,10 +70,14 @@ export class SendErc20SubmitHandler implements ExtensionRequestHandler {
         error: 'wallet malformed or undefined',
       };
     }
-
+    const currentNetworkFee = await this.networkFeeService.getNetworkFee();
     const gasPrice = customGasPrice
       ? { bn: hexToBN(customGasPrice) }
-      : await this.networkFeeService.getNetworkFee();
+      : {
+          bn: ethersBigNumberToBN(
+            currentNetworkFee?.medium || BigNumber.from(0)
+          ),
+        };
 
     if (!gasPrice?.bn) {
       return {

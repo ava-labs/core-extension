@@ -2,47 +2,64 @@ import {
   clearWallet,
   initWalletLedger,
   initWalletMnemonic,
-  wallet$,
   WalletState,
   walletState$,
 } from '@avalabs/wallet-react-components';
-import BN from 'bn.js';
 import { EventEmitter } from 'events';
-import { firstValueFrom, Subscription } from 'rxjs';
-import { singleton } from 'tsyringe';
+import { Subscription } from 'rxjs';
+import { container, singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
-  isMnemonicWallet,
   WalletEvents,
   WalletSecretInStorage,
   WALLET_STORAGE_KEY,
 } from './models';
-import * as bitcoin from 'bitcoinjs-lib';
-import { signPsbt } from '@avalabs/bridge-sdk';
-import { FeeMarketEIP1559Transaction, Transaction } from '@ethereumjs/tx';
 import { MessageType } from '../messages/models';
-import { BitcoinWallet } from '@avalabs/wallets-sdk';
+import {
+  BitcoinInputUTXO,
+  BitcoinLedgerWallet,
+  BitcoinOutputUTXO,
+  BitcoinProviderAbstract,
+  BitcoinWallet,
+  getAddressFromXPub,
+  getBech32AddressFromXPub,
+  getWalletFromMnemonic,
+  JsonRpcBatchInternal,
+  LedgerSigner,
+} from '@avalabs/wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
-import { isForNetworkVM, NetworkVM } from '../network/models';
+import { NetworkVM } from '../network/models';
+import { LockService } from '../lock/LockService';
+import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
+import {
+  personalSign,
+  signTypedData,
+  SignTypedDataVersion,
+} from '@metamask/eth-sig-util';
+import { TransactionRequest } from '@ethersproject/providers';
+import { LedgerService } from '../ledger/LedgerService';
+import { Wallet } from 'ethers';
+import { networks } from 'bitcoinjs-lib';
+import { AccountsService } from '../accounts/AccountsService';
 
 @singleton()
-export class WalletService {
+export class WalletService implements OnLock {
   private eventEmitter = new EventEmitter();
   private _walletState: WalletState | undefined;
   private walletStateSubscription?: Subscription;
   constructor(
     private storageService: StorageService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private ledgerService: LedgerService
   ) {}
 
   public get walletState(): WalletState | undefined {
     return this._walletState;
   }
 
-  async activate(password: string) {
+  async activate() {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
-      WALLET_STORAGE_KEY,
-      password
+      WALLET_STORAGE_KEY
     );
 
     if (!walletKeys) {
@@ -52,8 +69,8 @@ export class WalletService {
 
     if (walletKeys.mnemonic) {
       await initWalletMnemonic(walletKeys.mnemonic);
-    } else if (walletKeys.publicKey) {
-      await initWalletLedger(walletKeys.publicKey);
+    } else if (walletKeys.xpub) {
+      await initWalletLedger(walletKeys.xpub);
     } else {
       throw new Error('Wallet initialization failed, no key found');
     }
@@ -71,40 +88,101 @@ export class WalletService {
    * Called during the onboarding flow.
    * Responsible for saving the mnemonic/pubkey and activating the wallet.
    */
-  async init({
-    password,
-    mnemonic,
-    publicKey,
-  }: {
-    password: string;
-    mnemonic?: string;
-    publicKey?: string;
-  }) {
-    if (!mnemonic && !publicKey) {
-      throw new Error('Mnemonic or publicKey is required');
+  async init({ mnemonic, xpub }: { xpub: string; mnemonic?: string }) {
+    if (!mnemonic && !xpub) {
+      throw new Error('Mnemonic or xpub is required');
     }
 
-    await this.storageService.save<WalletSecretInStorage>(
-      WALLET_STORAGE_KEY,
-      { mnemonic, publicKey },
-      password
-    );
-
-    await this.activate(password);
+    await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
+      mnemonic,
+      xpub,
+    });
+    await this.activate();
   }
 
-  lock() {
+  onLock() {
     clearWallet();
     this.walletStateSubscription?.unsubscribe();
     this._walletState = undefined;
     this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, { locked: true });
   }
 
+  private async getWallet() {
+    const walletKeys = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    // To resolve circular dependencies we are
+    // getting accounts service on the fly instead of via constructor
+    const accountsService = container.resolve(AccountsService);
+
+    if (
+      !walletKeys ||
+      !walletKeys.xpub ||
+      !this.networkService.activeNetwork ||
+      !accountsService?.activeAccount
+    ) {
+      // wallet is not initialized
+      return;
+    }
+    const provider = this.networkService.getProviderForNetwork(
+      this.networkService.activeNetwork
+    );
+    if (this.networkService.activeNetwork.vm === NetworkVM.EVM) {
+      if (walletKeys.mnemonic) {
+        const wallet = getWalletFromMnemonic(
+          walletKeys.mnemonic,
+          accountsService.activeAccount.index
+        );
+        return wallet.connect(provider as JsonRpcBatchInternal);
+      } else if (walletKeys.xpub) {
+        if (!this.ledgerService.transport) {
+          throw new Error('Ledger transport not available');
+        }
+
+        return new LedgerSigner(
+          accountsService.activeAccount.index,
+          this.ledgerService.transport,
+          provider as JsonRpcBatchInternal
+        );
+      }
+    } else if (this.networkService.activeNetwork.vm === NetworkVM.BITCOIN) {
+      if (walletKeys.mnemonic) {
+        return await BitcoinWallet.fromMnemonic(
+          walletKeys.mnemonic,
+          accountsService.activeAccount.index,
+          provider as BitcoinProviderAbstract
+        );
+      } else if (walletKeys.xpub) {
+        if (!this.ledgerService.transport) {
+          throw new Error('Ledger transport not available');
+        }
+
+        return new BitcoinLedgerWallet(
+          walletKeys.xpub,
+          accountsService.activeAccount.index,
+          provider as BitcoinProviderAbstract,
+          this.ledgerService.transport
+        );
+      }
+    } else {
+      throw new Error('Wallet initialization failed unsupported network type');
+    }
+
+    throw new Error('Wallet initialization failed missing keys');
+  }
+
   async getMnemonic(password: string) {
     const secrets = await this.storageService.load<WalletSecretInStorage>(
-      WALLET_STORAGE_KEY,
-      password
+      WALLET_STORAGE_KEY
     );
+
+    // TODO Remove as soon as react-wallet-components is removed and circular dependency is fixed
+    const lockService = container.resolve(LockService);
+    if (!lockService.verifyPassword(password)) {
+      throw new Error('Password invalid');
+    }
+
     if (!secrets?.mnemonic) {
       throw new Error('Not a MnemonicWallet');
     }
@@ -112,93 +190,76 @@ export class WalletService {
     return secrets.mnemonic;
   }
 
-  async changePassword(oldPassword: string, newPassword: string) {
-    try {
-      const secrets = await this.storageService.load<WalletSecretInStorage>(
-        WALLET_STORAGE_KEY,
-        oldPassword
-      );
+  async sign(
+    tx:
+      | TransactionRequest
+      | {
+          ins: BitcoinInputUTXO[];
+          outs: BitcoinOutputUTXO[];
+        }
+  ): Promise<string> {
+    const wallet = await this.getWallet();
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
 
-      if (!secrets) {
-        throw new Error('wallet not initialized');
+    // handle BTC signing
+    if ('ins' in tx) {
+      if (
+        !(wallet instanceof BitcoinWallet) &&
+        !(wallet instanceof BitcoinLedgerWallet)
+      ) {
+        throw new Error('Signing error, wrong network');
       }
-
-      this.storageService.save<WalletSecretInStorage>(
-        WALLET_STORAGE_KEY,
-        secrets,
-        newPassword
-      );
-    } catch (err) {
-      console.error(err);
-      return Promise.reject(new Error('password incorrect'));
-    }
-  }
-
-  async sendCustomTx(
-    gasPrice: BN,
-    gasLimit: number,
-    data?: string | undefined,
-    to?: string | undefined,
-    value?: string | undefined,
-    nonce?: number | undefined
-  ) {
-    const wallet = await firstValueFrom(wallet$);
-    if (!wallet) {
-      throw new Error('Wallet not found');
+      const signedTx = await wallet.signTx(tx.ins, tx.outs);
+      return signedTx.toHex();
     }
 
-    return wallet?.sendCustomEvmTx(gasPrice, gasLimit, data, to, value, nonce);
-  }
-
-  async signBtc(unsignedTxHex: string): Promise<bitcoin.Transaction> {
-    const wallet = await firstValueFrom(wallet$);
-    if (!wallet) {
-      throw new Error('Wallet not found');
-    }
-    if (!isMnemonicWallet(wallet)) {
-      throw new Error('Only MnemonicWallet supported');
+    if (!(wallet instanceof Wallet) && !(wallet instanceof LedgerSigner)) {
+      throw new Error('Signing error, wrong network');
     }
 
-    const psbt = bitcoin.Psbt.fromHex(unsignedTxHex);
-    return signPsbt(
-      wallet.evmWallet.getPrivateKeyHex(),
-      psbt
-    ).extractTransaction();
-  }
-
-  async signEvm(
-    tx: Transaction
-  ): Promise<Transaction | FeeMarketEIP1559Transaction> {
-    const wallet = await firstValueFrom(wallet$);
-    if (!wallet) {
-      throw new Error('Wallet not found');
-    }
-    return await wallet.signEvm(tx);
+    return await wallet.signTransaction(tx);
   }
 
   async signMessage(messageType: MessageType, data: any) {
-    const wallet = await firstValueFrom(wallet$);
-    if (!wallet || wallet.type === 'ledger') {
+    const wallet = await this.getWallet();
+    if (!wallet || !(wallet instanceof Wallet)) {
       throw new Error(
         wallet
-          ? `this function not supported on ${wallet.type} wallet`
+          ? `this function not supported on your wallet`
           : 'wallet undefined in sign tx'
       );
     }
+    const key = Buffer.from(wallet.privateKey, 'hex');
+
     if (data) {
       switch (messageType) {
         case MessageType.ETH_SIGN:
         case MessageType.PERSONAL_SIGN:
-          return await wallet.personalSign(data);
+          return await personalSign({ privateKey: key, data });
         case MessageType.SIGN_TYPED_DATA:
         case MessageType.SIGN_TYPED_DATA_V1:
-          return await wallet.signTypedData_V1(data);
+          return await signTypedData({
+            privateKey: key,
+            data,
+            version: SignTypedDataVersion.V1,
+          });
         case MessageType.SIGN_TYPED_DATA_V3:
-          return await wallet.signTypedData_V3(data);
+          return await signTypedData({
+            privateKey: key,
+            data,
+            version: SignTypedDataVersion.V3,
+          });
         case MessageType.SIGN_TYPED_DATA_V4:
-          return await wallet.signTypedData_V4(data);
+          return await signTypedData({
+            privateKey: key,
+            data,
+            version: SignTypedDataVersion.V4,
+          });
+        default:
+          throw new Error('unknown method');
       }
-      throw new Error('unknown method');
     } else {
       throw new Error('no message to sign');
     }
@@ -208,23 +269,23 @@ export class WalletService {
     this.eventEmitter.on(event, callback);
   }
 
-  async getBitcoinWallet(): Promise<BitcoinWallet> {
-    const wallet = await firstValueFrom(wallet$);
-    if (!wallet) {
-      throw new Error('Wallet not found');
-    }
-    if (!isMnemonicWallet(wallet)) {
-      throw new Error('Only MnemonicWallet supported');
-    }
-    const network = this.networkService.activeNetwork;
-    if (!isForNetworkVM(network, NetworkVM.BITCOIN)) {
-      throw new Error('Only Bitcoin networks supported');
-    }
-    const provider = this.networkService.getProviderForNetwork(network);
-
-    return new BitcoinWallet(
-      Buffer.from(wallet.evmWallet.getPrivateKeyHex(), 'hex'),
-      provider
+  async getAddress(index: number): Promise<Record<NetworkVM, string>> {
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
     );
+    const isMainnet = this.networkService.isMainnet;
+
+    if (!secrets?.xpub) {
+      throw new Error('No xpub found');
+    }
+
+    return {
+      [NetworkVM.EVM]: getAddressFromXPub(secrets.xpub, index),
+      [NetworkVM.BITCOIN]: getBech32AddressFromXPub(
+        secrets.xpub,
+        index,
+        isMainnet ? networks.bitcoin : networks.testnet
+      ),
+    };
   }
 }

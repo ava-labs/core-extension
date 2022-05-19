@@ -8,6 +8,8 @@ import {
   ethersBigNumberToBig,
   bigToBN,
   numberToBN,
+  ethersBigNumberToBN,
+  bnToBig,
 } from '@avalabs/utils-sdk';
 import {
   ActiveNetwork,
@@ -73,7 +75,7 @@ export class EVMBalancesService {
         const contract = new ethers.Contract(token.address, hstABI, provider);
         const balanceBig = await contract.balanceOf(userAddress);
         const balance =
-          ethersBigNumberToBig(balanceBig, token.decimals) ||
+          ethersBigNumberToBN(balanceBig) ||
           numberToBN(0, token.decimals || 18);
 
         const tokenWithBalance = {
@@ -94,8 +96,9 @@ export class EVMBalancesService {
     return tokensBalances.map((token) => {
       const priceUSD = tokenPriceDict[(token.address as string).toLowerCase()];
 
-      const balanceNum = token.balance?.toNumber();
-      const balanceUSD = priceUSD || balanceNum ? priceUSD * balanceNum : 0;
+      const balanceNum = bnToBig(token.balance, token.decimals);
+      const balanceUSD =
+        priceUSD && balanceNum ? balanceNum.times(priceUSD).toNumber() : 0;
       const balanceDisplayValue = balanceToDisplayValue(
         token.balance,
         token.decimals as number

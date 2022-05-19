@@ -1,5 +1,5 @@
 import { WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { hexToBN } from '@avalabs/utils-sdk';
+import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
 import { sendNftSubmit, wallet$ } from '@avalabs/wallet-react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
@@ -9,6 +9,8 @@ import {
 } from '@src/background/connections/models';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { resolve } from '@src/utils/promiseResolver';
+import { BN } from 'bn.js';
+import { BigNumber } from 'ethers';
 import { firstValueFrom, tap } from 'rxjs';
 import { injectable } from 'tsyringe';
 import { SendService } from '../../SendService';
@@ -65,9 +67,10 @@ export class SendNftSubmitHandler implements ExtensionRequestHandler {
       };
     }
 
+    const gas = await this.networkFeeService.getNetworkFee();
     const gasPrice = customGasPrice
-      ? { bn: hexToBN(customGasPrice) }
-      : await this.networkFeeService.getNetworkFee();
+      ? { bn: ethersBigNumberToBN(BigNumber.from(customGasPrice)) }
+      : { bn: gas ? ethersBigNumberToBN(gas?.low) : new BN(0) };
 
     if (!gasPrice?.bn) {
       return {
