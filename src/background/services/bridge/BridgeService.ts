@@ -31,7 +31,7 @@ import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
 import Common, { Chain } from '@ethereumjs/common';
 import { Transaction } from '@ethereumjs/tx';
-import { convertTxData } from './utils';
+import { convertTxData, deserializeBridgeState } from './utils';
 import { singleton } from 'tsyringe';
 import {
   OnLock,
@@ -67,9 +67,10 @@ export class BridgeService implements OnLock, OnStorageReady {
   async activate() {
     await this.updateBridgeConfig();
 
-    this._bridgeState =
+    this._bridgeState = deserializeBridgeState(
       (await this.storageService.load<BridgeState>(BRIDGE_STORAGE_KEY)) ??
-      DefaultBridgeState;
+        DefaultBridgeState
+    );
     this.eventEmitter.emit(
       BridgeEvents.BRIDGE_TRANSACTIONS_UPDATED,
       this.bridgeState
