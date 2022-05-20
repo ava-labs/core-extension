@@ -27,6 +27,7 @@ import { BridgeTransferAssetHandler } from '@src/background/services/bridge/hand
 import { ContactsUpdatedEvents } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
 import { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
+import { UpdateContactHandler } from '@src/background/services/contacts/handlers/updateContact';
 import { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
 import { LedgerTransportRequestEvents } from '@src/background/services/ledger/events/ledgerDeviceRequest';
 import { GetPublicKeyHandler } from '@src/background/services/ledger/handlers/getPublicKey';
@@ -129,6 +130,7 @@ import { GetDevelopermodeNetworkHandler } from '@src/background/services/network
   { token: 'ExtensionRequestHandler', useToken: BridgeTransferAssetHandler },
   { token: 'ExtensionRequestHandler', useToken: CreateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
+  { token: 'ExtensionRequestHandler', useToken: UpdateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetPublicKeyHandler },
   { token: 'ExtensionRequestHandler', useToken: InitLedgerTransportHandler },

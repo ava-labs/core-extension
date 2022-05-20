@@ -3,6 +3,7 @@ export interface Contact {
   name: string;
   address: string;
   isKnown?: boolean;
+  addressBTC?: string;
 }
 
 export interface ContactsState {

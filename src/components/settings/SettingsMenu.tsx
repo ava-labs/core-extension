@@ -15,6 +15,7 @@ import { ChangePassword } from './pages/ChangePassword';
 import { RecoveryPhrase } from './pages/RecoveryPhrase';
 import { AddContact } from './pages/AddContact';
 import { ContactList } from './pages/ContactList';
+import { ContactProfile } from './components/ContactProfile';
 import { ConnectedSites } from './pages/ConnectedSites';
 import { Ledger } from './pages/Ledger';
 import { Legal } from './pages/Legal';
@@ -138,6 +139,9 @@ export function SettingsMenu() {
       break;
     case SettingsPages.CONTACT_LIST:
       pageElement = <ContactList {...pageProps} />;
+      break;
+    case SettingsPages.CONTACT_PROFILE:
+      pageElement = <ContactProfile {...pageProps} />;
       break;
     case SettingsPages.ADD_CONTACT:
       pageElement = <AddContact {...pageProps} />;

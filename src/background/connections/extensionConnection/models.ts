@@ -74,6 +74,7 @@ export enum ExtensionRequest {
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',
+  CONTACTS_UPDATE = 'contacts_update',
   CONTACTS_REMOVE = 'contacts_remove',
 
   BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',

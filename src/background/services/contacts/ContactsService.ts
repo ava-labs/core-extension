@@ -38,6 +38,20 @@ export class ContactsService {
     this.eventEmitter.emit(ContactsEvents.CONTACTS_UPDATED, newContacts);
   }
 
+  async updateContact(contact: Contact) {
+    const contacts = await this.getContacts();
+
+    const updatedContacts = {
+      ...contacts,
+      contacts: contacts.contacts.map((c) =>
+        c.id === contact.id ? contact : c
+      ),
+    };
+
+    this.storageService.save(CONTACTS_STORAGE_KEY, updatedContacts);
+    this.eventEmitter.emit(ContactsEvents.CONTACTS_UPDATED, updatedContacts);
+  }
+
   async remove(contact: Contact) {
     const contacts = await this.getContacts();
 

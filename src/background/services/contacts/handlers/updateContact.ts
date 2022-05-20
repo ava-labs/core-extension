@@ -8,8 +8,8 @@ import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
 
 @injectable()
-export class CreateContactHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.CONTACTS_CREATE];
+export class UpdateContactHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.CONTACTS_UPDATE];
 
   constructor(private contactsService: ContactsService) {}
 
@@ -18,19 +18,8 @@ export class CreateContactHandler implements ExtensionRequestHandler {
   ): Promise<ExtensionConnectionMessageResponse> => {
     const [contact] = request.params || [];
 
-    if (
-      !contact ||
-      !contact.name ||
-      (!contact.address && !contact.addressBTC) ||
-      !contact.id
-    ) {
-      return {
-        ...request,
-        error: 'contact name, address or id missing',
-      };
-    }
     try {
-      await this.contactsService.addContact(contact);
+      await this.contactsService.updateContact(contact);
     } catch (e: any) {
       return {
         ...request,
