@@ -10,7 +10,6 @@ import {
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
 import {
-  LOCAL_NETWORK,
   MAINNET_NETWORK,
   FUJI_NETWORK,
 } from '@avalabs/wallet-react-components';
@@ -75,11 +74,8 @@ export function WalletConnection() {
           Networks
         </Typography>
         {/* Filtering local network until we support this in the background */}
-        {networks
-          .filter((net) => {
-            return net.chainId !== LOCAL_NETWORK.chainId;
-          })
-          .map((n) => (
+        {networks &&
+          networks.map((n) => (
             <SecondaryDropDownMenuItem
               key={n.name}
               onClick={() => setNetwork(n)}

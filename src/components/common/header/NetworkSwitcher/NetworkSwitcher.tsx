@@ -15,7 +15,6 @@ import { useTheme } from 'styled-components';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import {
   BITCOIN_NETWORK,
-  LOCAL_NETWORK,
   MAINNET_NETWORK,
   FUJI_NETWORK,
   BITCOIN_TEST_NETWORK,
@@ -59,6 +58,7 @@ const SelectContainer = styled.div`
 
 export function NetworkSwitcher() {
   const { network, setNetwork, networks } = useNetworkContext();
+
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
   const selectButtonRef = useRef<HTMLDivElement>(null);
@@ -104,11 +104,8 @@ export function NetworkSwitcher() {
       >
         <DropdownContents>
           <VerticalFlex>
-            {networks
-              .filter((network) => {
-                return network.chainId !== LOCAL_NETWORK.chainId;
-              })
-              .map((networkItem) => {
+            {networks &&
+              networks.map((networkItem) => {
                 return (
                   <NetworkSwitcherItem
                     key={networkItem.chainId}

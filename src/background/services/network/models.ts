@@ -127,12 +127,19 @@ export function isForNetworkVM<T extends NetworkVM>(
   return network?.vm === vm;
 }
 
-export const supportedNetworks = new Map<string, ActiveNetwork>([
-  [MAINNET_NETWORK.name, MAINNET_NETWORK],
+export const developerNetworks = new Map<string, ActiveNetwork>([
   [FUJI_NETWORK.name, FUJI_NETWORK],
-  [BITCOIN_NETWORK.name, BITCOIN_NETWORK],
   [BITCOIN_TEST_NETWORK.name, BITCOIN_TEST_NETWORK],
-  [LOCAL_NETWORK.name, LOCAL_NETWORK],
+]);
+
+export const mainNetworks = new Map<string, ActiveNetwork>([
+  [MAINNET_NETWORK.name, MAINNET_NETWORK],
+  [BITCOIN_NETWORK.name, BITCOIN_NETWORK],
+]);
+
+export const supportedNetworks = new Map<string, ActiveNetwork>([
+  ...mainNetworks,
+  ...developerNetworks,
 ]);
 
 export const supportedNetworksByChainID = Array.from(

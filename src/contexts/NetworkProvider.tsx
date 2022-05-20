@@ -2,18 +2,20 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import {
   ActiveNetwork,
   MAINNET_NETWORK,
-  supportedNetworks,
 } from '@src/background/services/network/models';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
-import { concat, filter, from, map } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 const NetworkContext = createContext<{
   network?: ActiveNetwork;
   setNetwork(network: ActiveNetwork): void;
-  networks: ActiveNetwork[];
+  networks?: ActiveNetwork[];
+  setDeveloperMode(status: boolean): void;
+  supportedNetworks?: ActiveNetwork[];
+  isDeveloperMode: boolean;
 }>({} as any);
 
 /**
@@ -23,27 +25,49 @@ const NetworkContext = createContext<{
  */
 export function NetworkContextProvider({ children }: { children: any }) {
   const [network, setNetwork] = useState<ActiveNetwork>(MAINNET_NETWORK);
+  const [networks, setNetworks] = useState<ActiveNetwork[]>();
+  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const { request, events } = useConnectionContext();
 
   useEffect(() => {
     if (!request || !events) {
       return;
     }
-    concat(
-      from(
-        request({
-          method: ExtensionRequest.NETWORK_GET_SELECTED,
-        })
-      ),
-      events().pipe(
+
+    request({
+      method: ExtensionRequest.NETWORK_GET_SELECTED,
+      params: [],
+    }).then((result) => {
+      setNetwork(result);
+    });
+
+    request({
+      method: ExtensionRequest.NETWORK_GET_DEVELOPER_MODE,
+    }).then((result) => {
+      setIsDeveloperMode(result);
+    });
+
+    const subscription = events()
+      .pipe(
         filter(networkUpdatedEventListener),
         map((evt) => evt.value)
       )
-    ).subscribe((result) => {
-      setNetwork(result as any);
+      .subscribe((network) => {
+        setNetwork(network.activeNetwork as ActiveNetwork);
+        setIsDeveloperMode(network.isDeveloperMode);
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events, request]);
+
+  useEffect(() => {
+    request({
+      method: ExtensionRequest.NETWORK_GET_SUPPORTED_NETWORKS,
+    }).then((networks) => {
+      setNetworks(networks);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [request]);
+  }, [isDeveloperMode, request]);
 
   if (!request || !events) {
     return <LoadingIcon />;
@@ -58,7 +82,13 @@ export function NetworkContextProvider({ children }: { children: any }) {
             method: ExtensionRequest.NETWORK_SET_SELECTED,
             params: [network.name],
           }),
-        networks: Array.from(supportedNetworks.values()),
+        setDeveloperMode: (status: boolean) =>
+          request({
+            method: ExtensionRequest.NETWORK_SET_DEVELOPER_MODE,
+            params: [status],
+          }),
+        networks,
+        isDeveloperMode,
       }}
     >
       {children}

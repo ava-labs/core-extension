@@ -9,6 +9,7 @@ export enum SettingsPages {
   CONNECTED_SITES = 'CONNECTED_SITES',
   LEDGER = 'LEDGER',
   LEGAL = 'LEGAL',
+  ADVANCED = 'ADVANCED',
 }
 
 export interface SettingsPageProps {

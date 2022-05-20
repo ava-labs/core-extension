@@ -17,17 +17,26 @@ import {
   MAINNET_NETWORK,
   NetworkVM,
   BITCOIN_NETWORK,
+  mainNetworks,
+  developerNetworks,
 } from './models';
 import {
   BlockCypherProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 
+export interface NetworkStorage {
+  activeNetwork: ActiveNetwork;
+  isDeveloperMode: boolean;
+}
+
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
   private eventEmitter = new EventEmitter();
 
   private _activeNetwork?: ActiveNetwork;
+
+  private _isDeveloperMode = false;
 
   public get activeNetwork(): ActiveNetwork | undefined {
     return this._activeNetwork;
@@ -49,6 +58,17 @@ export class NetworkService implements OnLock, OnStorageReady {
       : false;
   }
 
+  public get isDeveloperMode() {
+    return this._isDeveloperMode;
+  }
+
+  public get supportedNetworks(): ActiveNetwork[] {
+    const networks = !this.isDeveloperMode
+      ? Array.from(mainNetworks.values())
+      : Array.from(developerNetworks.values());
+    return networks;
+  }
+
   constructor(private storageService: StorageService) {}
 
   onLock(): void {
@@ -60,16 +80,17 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async init() {
-    const network = await this.storageService.load<ActiveNetwork>(
+    const network = await this.storageService.load<NetworkStorage>(
       NETWORK_STORAGE_KEY
     );
-    this._activeNetwork = network || MAINNET_NETWORK;
+    this._activeNetwork = network?.activeNetwork || MAINNET_NETWORK;
+    this._isDeveloperMode = network?.isDeveloperMode || false;
 
     networkUpdates$.next(this._activeNetwork);
-    this.eventEmitter.emit(
-      NetworkEvents.NETWORK_UPDATE_EVENT,
-      this._activeNetwork
-    );
+    this.eventEmitter.emit(NetworkEvents.NETWORK_UPDATE_EVENT, {
+      activeNetwork: this.activeNetwork,
+      isDeveloperMode: this.isDeveloperMode,
+    });
   }
 
   async setNetwork(networkName: string) {
@@ -80,12 +101,31 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     this._activeNetwork = selectedNetwork;
 
-    this.storageService.save(NETWORK_STORAGE_KEY, this.activeNetwork);
-    this.eventEmitter.emit(
-      NetworkEvents.NETWORK_UPDATE_EVENT,
-      this.activeNetwork
-    );
+    this.storageService.save(NETWORK_STORAGE_KEY, {
+      activeNetwork: this.activeNetwork,
+      isDeveloperMode: this.isDeveloperMode,
+    });
+
+    this.eventEmitter.emit(NetworkEvents.NETWORK_UPDATE_EVENT, {
+      activeNetwork: this.activeNetwork,
+      isDeveloperMode: this.isDeveloperMode,
+    });
     networkUpdates$.next(this._activeNetwork);
+  }
+
+  async setDeveloperMode(status: boolean) {
+    this._isDeveloperMode = status;
+    await this.setNetwork(this.supportedNetworks[0].name);
+
+    this.storageService.save(NETWORK_STORAGE_KEY, {
+      activeNetwork: this.activeNetwork,
+      isDeveloperMode: this.isDeveloperMode,
+    });
+
+    this.eventEmitter.emit(NetworkEvents.NETWORK_UPDATE_EVENT, {
+      activeNetwork: this.activeNetwork,
+      isDeveloperMode: this.isDeveloperMode,
+    });
   }
 
   getProviderForNetwork(

@@ -97,6 +97,29 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           />
         </HorizontalFlex>
       </DropDownMenuItem>
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="10px 16px"
+        onClick={() => navigateTo(SettingsPages.ADVANCED)}
+      >
+        <Typography size={14} height="17px">
+          Advanced
+        </Typography>
+        <HorizontalFlex align="center">
+          <Typography
+            size={14}
+            height="17px"
+            margin="0 8px"
+            color={theme.colors.text2}
+          ></Typography>
+          <CaretIcon
+            color={theme.colors.icon1}
+            height="14px"
+            direction={IconDirection.RIGHT}
+          />
+        </HorizontalFlex>
+      </DropDownMenuItem>
       {walletType === 'ledger' && (
         <DropDownMenuItem
           justify="space-between"

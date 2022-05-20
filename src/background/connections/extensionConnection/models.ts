@@ -5,6 +5,9 @@ export enum ExtensionRequest {
 
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
+  NETWORK_SET_DEVELOPER_MODE = 'network_setDeveloperMode',
+  NETWORK_GET_SUPPORTED_NETWORKS = 'network_getSupportedNetworks',
+  NETWORK_GET_DEVELOPER_MODE = 'network_getDeveloperMode',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',

@@ -18,6 +18,7 @@ import { ContactList } from './pages/ContactList';
 import { ConnectedSites } from './pages/ConnectedSites';
 import { Ledger } from './pages/Ledger';
 import { Legal } from './pages/Legal';
+import { Advanced } from './pages/Advanced';
 
 const OuterContainer = styled(SecondaryOverlay)`
   flex-direction: column;
@@ -158,6 +159,9 @@ export function SettingsMenu() {
       break;
     case SettingsPages.LEGAL:
       pageElement = <Legal {...pageProps} />;
+      break;
+    case SettingsPages.ADVANCED:
+      pageElement = <Advanced {...pageProps} />;
       break;
     default:
       pageElement = <MainPage {...pageProps} />;

@@ -42,6 +42,7 @@ import { SetNavigationHistoryDataHandler } from '@src/background/services/naviga
 import { NetworkUpdatedEvents } from '@src/background/services/network/events/networkUpdatedEvent';
 import { GetSelectedNetworkHandler } from '@src/background/services/network/handlers/getSelectedNetwork';
 import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
+import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
 import { NetworkFeeUpdateEvents } from '@src/background/services/networkFee/events/networkFeeUpdate';
 import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '@src/background/services/onboarding/events/onboardingUpdatedEvent';
@@ -85,6 +86,8 @@ import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCu
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
 import { PerformSwapHandler } from '../../services/swap/handlers/performSwap';
 import { UpdateTransactionHandler } from '../../services/transactions/handlers/updateTransaction';
+import { GetNetworksHandler } from '@src/background/services/network/handlers/getNetworks';
+import { GetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/getDeveloperMode';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -145,6 +148,18 @@ import { UpdateTransactionHandler } from '../../services/transactions/handlers/u
   },
   { token: 'ExtensionRequestHandler', useToken: GetSelectedNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: SetSelectedNetworkHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetDevelopermodeNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetDevelopermodeNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetNetworksHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
   { token: 'ExtensionRequestHandler', useToken: SubmitOnboardingHandler },
