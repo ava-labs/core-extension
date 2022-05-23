@@ -145,8 +145,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       const isMainnet = network.name === BITCOIN_NETWORK.name;
       return new BlockCypherProvider(
         isMainnet,
-        process.env.BLOCKCYPHER_API_KEY,
-        undefined
+        undefined,
+        'https://glacier-api.avax-test.network/proxy/blockcypher'
       );
     } else if (network.vm === NetworkVM.EVM) {
       return new JsonRpcBatchInternal(
