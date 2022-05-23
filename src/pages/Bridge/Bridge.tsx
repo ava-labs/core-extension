@@ -29,7 +29,6 @@ import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer'
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
@@ -39,7 +38,7 @@ import { AssetBalance } from './models';
 import { useBridge } from './useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { stringToBN } from '@avalabs/utils-sdk';
+import { resolve, stringToBN } from '@avalabs/utils-sdk';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useSyncBridgeConfig } from './useSyncBridgeConfig';
 
@@ -70,7 +69,6 @@ export function Bridge() {
     transfer,
   } = useBridge();
 
-  const isMainnet = useIsMainnet();
   const { currencyFormatter } = useSettingsContext();
   const { error } = useBridgeConfig();
   const {
@@ -197,8 +195,14 @@ export function Bridge() {
     });
 
     setIsPending(true);
-    const hash = await transfer();
+    const [hash, error] = await resolve(transfer());
     setIsPending(false);
+
+    if (error) {
+      console.error(error);
+      setBridgeError('The was a problem with the transfer');
+      return;
+    }
 
     const timestamp = Date.now();
 
@@ -230,8 +234,7 @@ export function Bridge() {
     chains.filter((chain) => {
       switch (chain) {
         case Blockchain.BITCOIN:
-          // TODO remove !isMainnet check when mainnet is supported
-          return !isMainnet && flags[FeatureGates.BRIDGE_BTC];
+          return flags[FeatureGates.BRIDGE_BTC];
         case Blockchain.ETHEREUM:
           return flags[FeatureGates.BRIDGE_ETH];
         default:

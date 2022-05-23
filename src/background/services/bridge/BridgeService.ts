@@ -15,7 +15,11 @@ import {
 import { EventEmitter } from 'events';
 import { getAvalancheProvider } from '../network/getAvalancheProvider';
 import { getEthereumProvider } from '../network/getEthereumProvider';
-import { FUJI_NETWORK, MAINNET_NETWORK } from '../network/models';
+import {
+  FUJI_NETWORK,
+  MAINNET_NETWORK,
+  NetworkEvents,
+} from '../network/models';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import {
@@ -35,6 +39,7 @@ import {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
+import { BlockCypherProvider } from '@avalabs/wallets-sdk';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -46,12 +51,23 @@ export class BridgeService implements OnLock, OnStorageReady {
     return this._bridgeState;
   }
 
+  public get bridgeConfig(): BridgeConfig {
+    if (!this.config) {
+      throw new Error('Bridge config not initialized');
+    }
+    return this.config;
+  }
+
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService,
     private walletService: WalletService,
     private accountsService: AccountsService
-  ) {}
+  ) {
+    this.networkService.addListener(NetworkEvents.NETWORK_UPDATE_EVENT, () => {
+      this.updateBridgeConfig();
+    });
+  }
 
   onStorageReady(): void {
     this.activate();
@@ -74,17 +90,28 @@ export class BridgeService implements OnLock, OnStorageReady {
       this.bridgeState
     );
 
+    // Track bridgeTransactions from storage
+    const envs = Object.values(this.bridgeState.bridgeTransactions).map(
+      (bridgeTransaction) =>
+        this.getEnv(bridgeTransaction.environment === 'main')
+    );
+    const prodConfig = envs.includes(Environment.PROD)
+      ? await fetchConfig(Environment.PROD)
+      : undefined;
+    const testConfig = envs.includes(Environment.PROD)
+      ? await fetchConfig(Environment.TEST)
+      : undefined;
     Object.values(this.bridgeState.bridgeTransactions).forEach(
       (bridgeTransaction) => {
-        this.trackBridgeTransaction(bridgeTransaction);
+        const config =
+          bridgeTransaction.environment === 'main' ? prodConfig : testConfig;
+        this.trackBridgeTransaction(bridgeTransaction, config);
       }
     );
   }
 
   async updateBridgeConfig() {
-    setBridgeEnvironment(
-      this.networkService.isMainnet ? Environment.PROD : Environment.TEST
-    );
+    setBridgeEnvironment(this.getEnv(this.networkService.isMainnet));
     const config = await fetchConfig();
 
     this.config = config;
@@ -95,8 +122,12 @@ export class BridgeService implements OnLock, OnStorageReady {
     return config;
   }
 
-  private trackBridgeTransaction(bridgeTransaction: BridgeTransaction) {
-    if (!this.config?.config) {
+  private trackBridgeTransaction(
+    bridgeTransaction: BridgeTransaction,
+    bridgeConfig: BridgeConfig | undefined
+  ) {
+    const config = bridgeConfig?.config;
+    if (!config) {
       throw new Error('Bridge config not initialized');
     }
     const network =
@@ -107,9 +138,10 @@ export class BridgeService implements OnLock, OnStorageReady {
     trackBridgeTransactionSDK({
       bridgeTransaction,
       onBridgeTransactionUpdate: this.saveBridgeTransaction.bind(this),
-      config: this.config.config,
+      config,
       avalancheProvider,
       ethereumProvider,
+      bitcoinProvider: this.bitcoinProvider,
     });
   }
 
@@ -232,10 +264,21 @@ export class BridgeService implements OnLock, OnStorageReady {
       requiredConfirmationCount,
     };
     await this.saveBridgeTransaction(bridgeTransaction);
-    this.trackBridgeTransaction(bridgeTransaction);
+    this.trackBridgeTransaction(bridgeTransaction, this.config);
   }
 
   addListener(event: BridgeEvents, callback: (data: unknown) => void) {
     this.eventEmitter.on(event, callback);
+  }
+
+  private get bitcoinProvider(): BlockCypherProvider {
+    const provider = this.networkService.activeProvider;
+    if (!(provider instanceof BlockCypherProvider))
+      throw new Error('provider mismatch');
+    return provider;
+  }
+
+  private getEnv(isMainnet: boolean) {
+    return isMainnet ? Environment.PROD : Environment.TEST;
   }
 }

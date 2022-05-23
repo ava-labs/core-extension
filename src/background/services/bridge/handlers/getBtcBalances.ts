@@ -1,23 +1,23 @@
 import {
+  Blockchain,
+  btcToSatoshi,
+  fetchTokenBalances,
+  getBtcAsset,
+} from '@avalabs/bridge-sdk';
+import { BIG_ZERO } from '@avalabs/utils-sdk';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  AppConfig,
-  BIG_ZERO,
-  Blockchain,
-  fetchTokenBalances,
-  getBtcAsset,
-  getUTXOs,
-} from '@avalabs/bridge-sdk';
-import { NetworkService } from '../../network/NetworkService';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
-import { BridgeService } from '../BridgeService';
-import { AccountsService } from '../../accounts/AccountsService';
-import { getAvalancheProvider } from '../../network/getAvalancheProvider';
+import { BN } from 'bn.js';
 import { injectable } from 'tsyringe';
+import { AccountsService } from '../../accounts/AccountsService';
+import { BalancesService } from '../../balances/BalancesService';
+import { getAvalancheProvider } from '../../network/getAvalancheProvider';
+import { NetworkService } from '../../network/NetworkService';
+import { BridgeService } from '../BridgeService';
 
 @injectable()
 export class BridgeGetBtcBalancesHandler implements ExtensionRequestHandler {
@@ -26,16 +26,17 @@ export class BridgeGetBtcBalancesHandler implements ExtensionRequestHandler {
   constructor(
     private networkService: NetworkService,
     private bridgeService: BridgeService,
+    private balancesService: BalancesService,
     private accountsService: AccountsService
   ) {}
 
-  private async getBtcBalanceAvalanche(
-    config: AppConfig
-  ): Promise<Big | undefined> {
-    const btcAsset = getBtcAsset(config);
-    if (!btcAsset || !this.accountsService.activeAccount?.addressC) {
-      return;
+  private async getBtcBalanceAvalanche(): Promise<number> {
+    const { config } = this.bridgeService.bridgeConfig;
+    if (!config || !this.accountsService.activeAccount) {
+      throw new Error('Not ready');
     }
+    const btcAsset = getBtcAsset(config);
+    if (!btcAsset) throw new Error('Not ready');
 
     const provider = getAvalancheProvider(this.networkService.activeNetwork);
 
@@ -46,34 +47,50 @@ export class BridgeGetBtcBalancesHandler implements ExtensionRequestHandler {
       this.accountsService.activeAccount.addressC
     );
 
-    return balancesBySymbol?.[btcAsset.symbol];
+    return btcToSatoshi(balancesBySymbol?.[btcAsset.symbol] || BIG_ZERO);
   }
 
   handle = async (
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
-    const { config } = await this.bridgeService.updateBridgeConfig();
-    if (!config || !this.accountsService.activeAccount)
-      throw new Error('Not ready');
+    const bitcoin = this.bitcoinBalance;
 
-    const btcAddress = this.accountsService.activeAccount.addressBTC;
-
-    const btcBalanceAvalanche = (
-      (await this.getBtcBalanceAvalanche(config)) || BIG_ZERO
-    ).toNumber();
-    const { balance: btcBalanceBitcoin, utxos: bitcoinUtxos } = await getUTXOs(
-      config,
-      btcAddress
-    );
+    const btcBalanceAvalanche =
+      this.avalancheBalance || (await this.getBtcBalanceAvalanche());
 
     return {
       ...request,
       result: {
-        bitcoinUtxos,
-        btcAddress,
+        bitcoinUtxos: bitcoin.utxos,
+        btcAddress: this.addressBTC,
         btcBalanceAvalanche,
-        btcBalanceBitcoin,
+        btcBalanceBitcoin: bitcoin.balance,
       },
     };
   };
+
+  private get addressBTC() {
+    if (!this.accountsService.activeAccount) throw new Error('Not ready');
+    return this.accountsService.activeAccount.addressBTC;
+  }
+
+  private get addressC() {
+    if (!this.accountsService.activeAccount) throw new Error('Not ready');
+    return this.accountsService.activeAccount.addressC;
+  }
+
+  private get avalancheBalance() {
+    const token = this.balancesService.balances[this.addressC]?.find(
+      (token) => token.symbol === 'BTC.b'
+    );
+    return token?.balance ? token.balance.toNumber() : undefined;
+  }
+
+  private get bitcoinBalance() {
+    const token = this.balancesService.balances[this.addressBTC]?.[0];
+    return {
+      balance: (token?.balance || new BN(0)).toNumber(),
+      utxos: token?.utxos || [],
+    };
+  }
 }

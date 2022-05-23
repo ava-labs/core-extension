@@ -6,9 +6,12 @@ import {
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { BridgeService } from '../BridgeService';
 import { WalletService } from '../../wallet/WalletService';
-import { issueRawTx } from '@avalabs/bridge-sdk';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
+import { NetworkService } from '../../network/NetworkService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { BalancesService } from '../../balances/BalancesService';
+import { getBtcTransaction } from '@avalabs/bridge-sdk';
 
 /**
  * FYI: the input UTXOs to the unsignedTxHex must be owned by the wallet
@@ -20,12 +23,15 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
 
   constructor(
     private bridgeService: BridgeService,
+    private networkService: NetworkService,
+    private accountsService: AccountsService,
+    private balancesService: BalancesService,
     private walletService: WalletService
   ) {}
 
   handle = async (
     request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  ): Promise<ExtensionConnectionMessageResponse<{ hash: string }>> => {
     const { config } = await this.bridgeService.updateBridgeConfig();
 
     if (!config) {
@@ -35,10 +41,19 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
       };
     }
 
-    const [unsignedTxHex] = request.params || [];
+    const [amountInSatoshis] = request.params || [];
 
+    const { inputs, outputs } = getBtcTransaction(
+      config,
+      this.addressBTC,
+      this.utxos,
+      amountInSatoshis
+    );
     const [signedTx, error] = await resolve(
-      this.walletService.sign(unsignedTxHex)
+      this.walletService.sign({
+        ins: inputs,
+        outs: outputs,
+      })
     );
 
     if (error) {
@@ -48,11 +63,21 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
       };
     }
 
-    const result = await issueRawTx(signedTx.toHex(), config);
+    const hash = await this.networkService.sendTransaction(signedTx);
 
     return {
       ...request,
-      result,
+      result: { hash },
     };
   };
+
+  private get addressBTC() {
+    if (!this.accountsService.activeAccount) throw new Error('Not ready');
+    return this.accountsService.activeAccount.addressBTC;
+  }
+
+  private get utxos() {
+    const token = this.balancesService.balances[this.addressBTC]?.[0];
+    return token?.utxos || [];
+  }
 }

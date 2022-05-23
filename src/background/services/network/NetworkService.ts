@@ -143,7 +143,11 @@ export class NetworkService implements OnLock, OnStorageReady {
   getProviderForNetwork(network: NetworkTypes, numberOfRequestsPerBatch = 40) {
     if (network.vm === NetworkVM.BITCOIN) {
       const isMainnet = network.name === BITCOIN_NETWORK.name;
-      return new BlockCypherProvider(isMainnet);
+      return new BlockCypherProvider(
+        isMainnet,
+        process.env.BLOCKCYPHER_API_KEY,
+        undefined
+      );
     } else if (network.vm === NetworkVM.EVM) {
       return new JsonRpcBatchInternal(
         numberOfRequestsPerBatch,

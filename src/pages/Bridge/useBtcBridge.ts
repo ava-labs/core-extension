@@ -1,5 +1,4 @@
 import { Big } from '@avalabs/avalanche-wallet-sdk';
-import { TxSimple } from '@avalabs/blockcypher-sdk';
 import {
   BIG_ZERO,
   Blockchain,
@@ -11,6 +10,7 @@ import {
   useBridgeConfig,
   useBridgeSDK,
 } from '@avalabs/bridge-sdk';
+import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -38,7 +38,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const [btcBalance, setBtcBalance] = useState<AssetBalance>();
   const [btcBalanceAvalanche, setBtcBalanceAvalanche] =
     useState<AssetBalance>();
-  const [utxos, setUtxos] = useState<TxSimple[]>();
+  const [utxos, setUtxos] = useState<BitcoinInputUTXO[]>();
   const [btcAddress, setBtcAddress] = useState<string>();
 
   /** Network fee (in BTC) */
@@ -135,16 +135,10 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
     const timestamp = Date.now();
     const symbol = currentAsset || '';
-    const { tx } = getBtcTransaction(
-      config,
-      btcAddress,
-      utxos,
-      amountInSatoshis
-    );
-    const unsignedTxHex = tx.toHex();
+
     const result = await request({
       method: ExtensionRequest.BRIDGE_SIGN_ISSUE_BTC,
-      params: [unsignedTxHex],
+      params: [amountInSatoshis],
     });
 
     setTransactionDetails({
