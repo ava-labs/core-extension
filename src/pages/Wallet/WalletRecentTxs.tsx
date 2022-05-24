@@ -9,22 +9,23 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { Fragment, useCallback, useMemo, useState } from 'react';
-import {
-  isTransactionERC20,
-  isTransactionNormal,
-  TransactionERC20 as TransactionERC20Type,
-} from '@avalabs/wallet-react-components';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
-import { TransactionERC20 } from './components/History/TransactionERC20';
-import { TransactionNormal } from './components/History/TransactionNormal';
-import { useBridgeSDK } from '@avalabs/bridge-sdk';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { TransactionBridge } from './components/History/TransactionBridge';
 import styled, { useTheme } from 'styled-components';
-import { isBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
+
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { TxHistoryItem } from '@src/background/services/history/models';
+import {
+  HistoryReceivedIndicator,
+  HistorySentIndicator,
+} from './components/History/components/SentReceivedIndicators';
+import { HistoryItem } from './components/History/components/HistoryItem';
+import { PendingTransactionBridge } from './components/History/PendingTransactionBrigde';
 
 const StyledDropDownMenu = styled(DropDownMenu)`
   position: absolute;
@@ -61,64 +62,92 @@ export function WalletRecentTxs({
   isEmbedded = false,
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
-  const { recentTxHistory } = useWalletContext();
-  const { bitcoinAssets, ethereumWrappedAssets } = useBridgeSDK();
+  const { getTransactionHistory, addresses, recentTxHistory } =
+    useWalletContext();
   const yesterday = endOfYesterday();
   const today = endOfToday();
+  const [unfilteredTxHistory, setUnfilteredTxHistory] = useState<
+    TxHistoryItem[]
+  >([]);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>(
     FilterType.ALL
   );
+
+  const { network } = useNetworkContext();
   const theme = useTheme();
   const { bridgeTransactions } = useBridgeContext();
 
-  const getDayString = (date: Date) => {
+  /**
+   * When network, addresses, or recentTxHistory changes, new history gets fetched.
+   * But recentTxHistory will be removed soon.
+   * TODO: Replace recentTxHistory with data we will be getting from balance service
+   */
+  useEffect(() => {
+    getTransactionHistory()
+      .then((result) => {
+        setUnfilteredTxHistory(result);
+      })
+      .catch(() => {
+        setUnfilteredTxHistory([]);
+      });
+  }, [network, addresses, recentTxHistory, getTransactionHistory]);
+
+  const filteredTxHistory = useMemo(() => {
+    function isPendingBridge(tx: TxHistoryItem) {
+      return Object.values(bridgeTransactions).some(
+        (bridge) =>
+          bridge.sourceTxHash === tx.hash ||
+          (!!bridge.targetTxHash && bridge.targetTxHash === tx.hash)
+      );
+    }
+
+    function shouldTxBeKept(tx: TxHistoryItem, filter: FilterType) {
+      if (tx.isBridge && isPendingBridge(tx)) {
+        return false;
+      }
+
+      if (filter === FilterType.ALL) {
+        return true;
+      } else if (filter === FilterType.BRIDGE) {
+        return tx.isBridge;
+      } else if (filter === FilterType.CONTRACT_CALL) {
+        return tx.isContractCall;
+      } else if (filter === FilterType.INCOMING) {
+        return tx.isIncoming;
+      } else if (filter === FilterType.OUTGOING) {
+        return tx.isOutgoing;
+      } else {
+        return false;
+      }
+    }
+
+    return unfilteredTxHistory
+      .filter((tx) => {
+        if (tokenSymbolFilter) {
+          return tokenSymbolFilter === tx.token.symbol;
+        } else {
+          return true;
+        }
+      })
+      .filter((tx) => shouldTxBeKept(tx, selectedFilter));
+  }, [
+    unfilteredTxHistory,
+    selectedFilter,
+    bridgeTransactions,
+    tokenSymbolFilter,
+  ]);
+
+  const getDayString = (timestamp: string) => {
+    const date = new Date(timestamp);
     const isToday = isSameDay(today, date);
     const isYesterday = isSameDay(yesterday, date);
+
     return isToday
       ? 'Today'
       : isYesterday
       ? 'Yesterday'
       : format(date, 'MMMM do');
   };
-
-  const isBridgeTx = useCallback(
-    (tx: typeof recentTxHistory[0]): tx is TransactionERC20Type => {
-      return isBridgeTransaction(tx, ethereumWrappedAssets, bitcoinAssets);
-    },
-    [bitcoinAssets, ethereumWrappedAssets]
-  );
-
-  const filteredTxHistory = useMemo(
-    () =>
-      recentTxHistory.filter((tx) => {
-        const isAll = selectedFilter === FilterType.ALL;
-        const isBridge =
-          isBridgeTx(tx) && (isAll || selectedFilter === FilterType.BRIDGE);
-        const isIncoming =
-          !tx.isSender && (isAll || selectedFilter === FilterType.INCOMING);
-        const isOutgoing =
-          tx.input === '0x' &&
-          tx.isSender &&
-          (isAll || selectedFilter === FilterType.OUTGOING);
-        const isContractCall =
-          isTransactionNormal(tx) &&
-          tx.input !== '0x' &&
-          (isAll || selectedFilter === FilterType.CONTRACT_CALL);
-
-        if (
-          // Return empty if the tx doesn't fit in the currently selected filter
-          !(isAll || isBridge || isIncoming || isOutgoing || isContractCall)
-        ) {
-          return;
-        }
-
-        return tokenSymbolFilter
-          ? tokenSymbolFilter ===
-              (('tokenSymbol' in tx && tx.tokenSymbol) || 'AVAX')
-          : true;
-      }),
-    [recentTxHistory, tokenSymbolFilter, selectedFilter, isBridgeTx]
-  );
 
   const FilterItem = ({ keyName }) => (
     <StyledDropdownMenuItem onClick={() => setSelectedFilter(keyName)}>
@@ -181,7 +210,7 @@ export function WalletRecentTxs({
                       padding={'8px 12px 8px 16px'}
                       margin={'0 0 8px 0'}
                     >
-                      <TransactionBridge item={tx} />
+                      <PendingTransactionBridge item={tx} />
                     </Card>
                   ))}
                 </>
@@ -191,10 +220,9 @@ export function WalletRecentTxs({
               const isNewDay =
                 index === 0 ||
                 !isSameDay(
-                  tx.timestamp,
-                  filteredTxHistory[index - 1].timestamp
+                  new Date(tx.timestamp),
+                  new Date(filteredTxHistory[index - 1]?.timestamp)
                 );
-
               return (
                 <Fragment key={index}>
                   {isNewDay && (
@@ -213,18 +241,34 @@ export function WalletRecentTxs({
                     padding={'8px 12px 8px 16px'}
                     margin={'0 0 8px 0'}
                   >
-                    {isBridgeTx(tx) &&
-                    (selectedFilter === FilterType.ALL ||
-                      selectedFilter === FilterType.BRIDGE) ? (
+                    {(tx.isBridge && selectedFilter === FilterType.ALL) ||
+                    selectedFilter === FilterType.BRIDGE ? (
                       <TransactionBridge item={tx} />
                     ) : (
                       <>
-                        {isTransactionERC20(tx) && (
-                          <TransactionERC20 item={tx} />
-                        )}
-                        {isTransactionNormal(tx) && (
-                          <TransactionNormal item={tx} />
-                        )}
+                        <HorizontalFlex
+                          width={'100%'}
+                          justify={'space-between'}
+                          align="center"
+                        >
+                          {tx.isSender ? (
+                            <HistorySentIndicator />
+                          ) : (
+                            <HistoryReceivedIndicator />
+                          )}
+                          {tx.isContractCall ? (
+                            <HistoryItem label={'Contract Call'} item={tx} />
+                          ) : (
+                            <HistoryItem label={tx.token.name} item={tx}>
+                              <VerticalFlex>
+                                <Typography size={14} height="24px">
+                                  {tx.isSender ? '-' : '+'}
+                                  {tx.amount} {tx.token.symbol}
+                                </Typography>
+                              </VerticalFlex>
+                            </HistoryItem>
+                          )}
+                        </HorizontalFlex>
                       </>
                     )}
                   </Card>

@@ -69,7 +69,6 @@ function InnerBridgeProvider({ children }: { children: any }) {
   const [bridgeTransactions, setBridgeTransactions] = useState<
     BridgeState['bridgeTransactions']
   >({});
-
   useEffect(() => {
     if (!events) {
       return;

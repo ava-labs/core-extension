@@ -18,6 +18,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { WalletState } from '@avalabs/wallet-react-components';
 import { recastWalletState } from './utils/castWalletState';
 import { useLedgerSupportContext } from './LedgerSupportProvider';
+import { TxHistoryItem } from '@src/background/services/history/models';
 
 type WalletStateAndMethods = WalletState & {
   changeWalletPassword(
@@ -25,6 +26,7 @@ type WalletStateAndMethods = WalletState & {
     oldPassword: string
   ): Promise<boolean>;
   getUnencryptedMnemonic(password: string): Promise<string>;
+  getTransactionHistory(): Promise<TxHistoryItem[]>;
 };
 const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
@@ -97,6 +99,12 @@ export function WalletContextProvider({ children }: { children: any }) {
     [request]
   );
 
+  const getTransactionHistory = useCallback(() => {
+    return request({
+      method: ExtensionRequest.HISTORY_GET,
+    });
+  }, [request]);
+
   if (!walletState) {
     return <LoadingIcon />;
   }
@@ -111,6 +119,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         ...walletState,
         changeWalletPassword,
         getUnencryptedMnemonic,
+        getTransactionHistory,
       }}
     >
       {children}

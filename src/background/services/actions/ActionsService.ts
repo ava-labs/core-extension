@@ -66,7 +66,7 @@ export class ActionsService {
         ? ActionCompletedEventType.COMPLETED
         : ActionCompletedEventType.ERROR,
       action: action,
-      ...(isSuccess ? { result } : { error: result }),
+      result,
     });
   }
 

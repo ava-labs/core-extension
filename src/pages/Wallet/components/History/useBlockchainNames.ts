@@ -1,10 +1,17 @@
-import { BridgeTransaction, useBridgeSDK } from '@avalabs/bridge-sdk';
-import { TransactionERC20 } from '@avalabs/wallet-react-components';
-import { isPendingBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
+import {
+  MAINNET_NETWORK,
+  FUJI_NETWORK,
+  BTC_TOKEN,
+} from './../../../../background/services/network/models';
+import { Blockchain, BridgeTransaction } from '@avalabs/bridge-sdk';
+import { TxHistoryItem } from '@src/background/services/history/models';
+import {
+  ETHEREUM_ADDRESS,
+  isPendingBridgeTransaction,
+} from '@src/utils/bridgeTransactionUtils';
 
-export function useBlockchainNames(item: TransactionERC20 | BridgeTransaction) {
+export function useBlockchainNames(item: TxHistoryItem | BridgeTransaction) {
   const pending = isPendingBridgeTransaction(item);
-  const { avalancheAssets } = useBridgeSDK();
 
   if (pending) {
     return {
@@ -13,13 +20,8 @@ export function useBlockchainNames(item: TransactionERC20 | BridgeTransaction) {
     };
   }
 
-  // e.g. remove '.e' from 'LINK.e'
-  const symbol = item.tokenSymbol.split('.')[0];
-  const isToAvalanche =
-    item.from === '0x0000000000000000000000000000000000000000';
-  const txBlockchain = titleCase(
-    avalancheAssets[symbol]?.nativeNetwork || 'N/A'
-  );
+  const isToAvalanche = isTxToAvalanche(item);
+  const txBlockchain = getTxBlockchain(item);
 
   return {
     sourceBlockchain: isToAvalanche ? txBlockchain : 'Avalanche',
@@ -29,4 +31,49 @@ export function useBlockchainNames(item: TransactionERC20 | BridgeTransaction) {
 
 function titleCase(name: string) {
   return name[0].toUpperCase() + name.slice(1);
+}
+
+function isBridgeTransaction(
+  tx: TxHistoryItem | BridgeTransaction
+): tx is BridgeTransaction {
+  return 'addressBTC' in tx;
+}
+
+function isTxToAvalanche(tx: TxHistoryItem | BridgeTransaction): boolean {
+  if (isBridgeTransaction(tx)) {
+    return tx.targetChain === Blockchain.AVALANCHE;
+  } else if (tx.from === ETHEREUM_ADDRESS) {
+    return true;
+  } else if (tx.isOutgoing) {
+    return (
+      tx.chainId !== MAINNET_NETWORK.chainId &&
+      tx.chainId !== FUJI_NETWORK.chainId
+    );
+  } else if (tx.isIncoming) {
+    return (
+      tx.chainId === MAINNET_NETWORK.chainId ||
+      tx.chainId === FUJI_NETWORK.chainId
+    );
+  }
+  return false;
+}
+
+function getTxBlockchain(tx: TxHistoryItem | BridgeTransaction) {
+  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.token.symbol;
+  const ethereum = 'Ethereum';
+  const bitcoin = 'Bitcoin';
+
+  if (symbol === BTC_TOKEN.symbol) {
+    return bitcoin;
+  }
+  const symbolPostfix = symbol.split('.')[1];
+
+  switch (symbolPostfix) {
+    case 'e':
+      return ethereum;
+    case 'b':
+      return bitcoin;
+    default:
+      return 'N/A';
+  }
 }

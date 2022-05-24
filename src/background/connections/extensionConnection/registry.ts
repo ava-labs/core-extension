@@ -29,6 +29,7 @@ import { CreateContactHandler } from '@src/background/services/contacts/handlers
 import { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
 import { UpdateContactHandler } from '@src/background/services/contacts/handlers/updateContact';
 import { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
+import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
 import { LedgerTransportRequestEvents } from '@src/background/services/ledger/events/ledgerDeviceRequest';
 import { GetPublicKeyHandler } from '@src/background/services/ledger/handlers/getPublicKey';
 import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
@@ -200,6 +201,7 @@ import { GetDevelopermodeNetworkHandler } from '@src/background/services/network
   { token: 'ExtensionRequestHandler', useToken: PerformSwapHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTransactionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateTransactionHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 

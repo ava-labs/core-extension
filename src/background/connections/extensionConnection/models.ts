@@ -106,4 +106,6 @@ export enum ExtensionRequest {
   ANALYTICS_GET_IDS = 'analytics_get_ids',
 
   RESET_EXTENSION_STATE = 'reset_extension_state',
+
+  HISTORY_GET = 'history_get',
 }
