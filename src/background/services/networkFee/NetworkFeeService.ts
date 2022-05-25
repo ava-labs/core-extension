@@ -60,6 +60,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
       const bigPrice = new Big(price.toString());
 
       return {
+        displayDecimals: 9, // use gwei to display amount
         low: price,
         medium: BigNumber.from(bigPrice.mul(1.05).toFixed(0)),
         high: BigNumber.from(bigPrice.mul(1.15).toFixed(0)),
@@ -67,6 +68,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     } else if (this.networkService.activeNetwork.vm === NetworkVM.BITCOIN) {
       const rates = await (provider as BitcoinProviderAbstract).getFeeRates();
       return {
+        displayDecimals: 0, // display btc fees in satoshi
         low: BigNumber.from(rates.low),
         medium: BigNumber.from(rates.medium),
         high: BigNumber.from(rates.high),

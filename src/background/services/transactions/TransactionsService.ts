@@ -76,7 +76,6 @@ export class TransactionsService {
     );
 
     const gasPrice = await this.networkFeeService.getNetworkFee();
-    console.log('gasPrice', gasPrice);
 
     if (txParams && isTxParams(txParams)) {
       const displayValueProps = {

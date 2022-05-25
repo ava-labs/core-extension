@@ -3,16 +3,17 @@ import { BigNumber } from 'ethers';
 
 export function calculateGasAndFees(
   gasPrice: BigNumber,
-  gasLimit: number,
-  avaxPrice: number
+  tokenPrice: number,
+  tokenDecimals = 18,
+  gasLimit?: number
 ) {
-  const bnFee = gasLimit ? gasPrice.mul(gasLimit) : BigNumber.from(0);
-  const fee = ethersBigNumberToBig(bnFee, 18).toLocaleString(4);
+  const bnFee = gasLimit ? gasPrice.mul(gasLimit) : gasPrice;
+  const fee = ethersBigNumberToBig(bnFee, tokenDecimals).toLocaleString(8);
   return {
     gasPrice: gasPrice,
     gasLimit: gasLimit || 0,
     fee,
     bnFee,
-    feeUSD: parseFloat((parseFloat(fee) * avaxPrice).toFixed(4)),
+    feeUSD: parseFloat((parseFloat(fee) * tokenPrice).toFixed(4)),
   };
 }

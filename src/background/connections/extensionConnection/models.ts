@@ -15,6 +15,7 @@ export enum ExtensionRequest {
   ACCOUNT_ADD = 'account_add',
 
   BALANCES_GET = 'balances_get',
+  TOKEN_PRICE_GET = 'token_price_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
   BRIDGE_GET_BTC_BALANCES = 'bridge_get_btc_balances',

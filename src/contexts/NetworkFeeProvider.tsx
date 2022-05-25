@@ -28,11 +28,12 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         filter(networkFeeUpdatedEventListener),
         map((evt) => evt.value)
       )
-    ).subscribe((result) => {
+    ).subscribe((result: NetworkFee) => {
       if (!result) {
         setNetworkFee(null);
       } else {
         setNetworkFee({
+          displayDecimals: result.displayDecimals,
           low: BigNumber.from(result.low),
           medium: BigNumber.from(result.medium),
           high: BigNumber.from(result.high),

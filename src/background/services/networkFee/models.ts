@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers';
 
 export interface NetworkFee {
+  displayDecimals: number;
   low: BigNumber;
   medium: BigNumber;
   high: BigNumber;

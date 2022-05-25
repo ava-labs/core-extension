@@ -12,6 +12,7 @@ import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/hand
 import { StoreAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/storeAnalyticsIds';
 import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
+import { GetTokenPriceHandler } from '@src/background/services/balances/handlers/getTokenPrice';
 import { BridgeConfigUpdatedEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
 import { BridgeTransactionUpdatedEvents } from '@src/background/services/bridge/events/bridgeTransactionsUpdateEvents';
 import { BridgeTransferEvents } from '@src/background/services/bridge/events/bridgeTransferEvents';
@@ -201,6 +202,7 @@ import { GetDevelopermodeNetworkHandler } from '@src/background/services/network
   { token: 'ExtensionRequestHandler', useToken: PerformSwapHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTransactionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateTransactionHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
