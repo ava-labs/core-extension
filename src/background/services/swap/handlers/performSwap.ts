@@ -10,7 +10,6 @@ import { resolve } from '@src/utils/promiseResolver';
 import { BigNumber, ethers } from 'ethers';
 import { APIError, ETHER_ADDRESS } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
-import { getAvalancheProvider } from '../../network/getAvalancheProvider';
 import { NetworkService } from '../../network/NetworkService';
 import { WalletService } from '../../wallet/WalletService';
 import { SwapService } from '../SwapService';
@@ -19,8 +18,8 @@ import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve'
 import { BN } from 'bn.js';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import { injectable } from 'tsyringe';
+import { ChainId } from '@avalabs/chains-sdk';
 import { AccountsService } from '../../accounts/AccountsService';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 @injectable()
 export class PerformSwapHandler implements ExtensionRequestHandler {
@@ -150,7 +149,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
     const destinationAmount =
       priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
 
-    const provider = getAvalancheProvider(this.networkService.activeNetwork);
+    const provider = await this.networkService.getAvalancheProvider();
     // no need to approve AVAX
     if (srcToken !== AVAX_TOKEN.symbol) {
       const contract = new ethers.Contract(
@@ -178,12 +177,8 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
         if (!(allowance as BigNumber).gte(sourceAmount)) {
           const [signedTx, signError] = await resolve(
             this.walletService.sign({
-              nonce: await (
-                this.networkService.activeProvider as JsonRpcBatchInternal
-              ).getTransactionCount(userAddress),
-              chainId: BigNumber.from(
-                this.networkService.activeNetwork.chainId
-              ).toNumber(),
+              nonce: await provider.getTransactionCount(userAddress),
+              chainId: ChainId.AVALANCHE_MAINNET_ID,
               gasPrice: defaultGasPrice?.low,
               gasLimit: approveGasLimit
                 ? approveGasLimit.toNumber()
@@ -224,7 +219,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
     }
 
     const txData = this.swapService.buildTx(
-      '43114',
+      ChainId.AVALANCHE_MAINNET_ID.toString(),
       srcTokenAddress,
       destTokenAddress,
       sourceAmount,
@@ -259,12 +254,8 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
 
     const [signedTx, signError] = await resolve(
       this.walletService.sign({
-        nonce: await (
-          this.networkService.activeProvider as JsonRpcBatchInternal
-        ).getTransactionCount(userAddress),
-        chainId: BigNumber.from(
-          this.networkService.activeNetwork.chainId
-        ).toNumber(),
+        nonce: await provider.getTransactionCount(userAddress),
+        chainId: ChainId.AVALANCHE_MAINNET_ID,
         gasPrice: BigNumber.from(gasPrice ? gasPrice : defaultGasPrice?.low),
         gasLimit: Number(txBuildData.gas),
         data: txBuildData.data,

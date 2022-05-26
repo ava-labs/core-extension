@@ -1,10 +1,10 @@
+import { BITCOIN_NETWORK } from '@avalabs/chains-sdk';
 import {
   SendErrors,
-  TokenWithBalance,
   useErc20FormErrors,
   useSendAvaxFormErrors,
 } from '@avalabs/wallet-react-components';
-import { BTC_TOKEN } from '@src/background/services/network/models';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useCallback } from 'react';
 import { SendStateWithActions, SetSendValuesParams } from '../models';
 import { useSendAvax } from './useSendAvax';
@@ -32,7 +32,7 @@ export function useSend(
 
   const setAvaxOrErc20Values = useCallback(
     ({ token, ...rest }: SetSendValuesParams) => {
-      return token?.isErc20
+      return token?.isERC20
         ? setErc20Values({ token, ...rest })
         : setAvaxValues({ token, ...rest });
     },
@@ -45,7 +45,7 @@ export function useSend(
     sendERC20State.reset();
   }, [sendAvaxState, sendBtcState, sendERC20State]);
 
-  if (selectedToken?.symbol === BTC_TOKEN.symbol) {
+  if (selectedToken?.symbol === BITCOIN_NETWORK.networkToken.symbol) {
     return {
       ...sendBtcState,
       reset,
@@ -54,7 +54,7 @@ export function useSend(
     };
   }
 
-  return selectedToken?.isErc20
+  return selectedToken?.isERC20
     ? {
         ...sendERC20State,
         reset,

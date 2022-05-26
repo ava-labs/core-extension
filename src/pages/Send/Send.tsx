@@ -13,20 +13,12 @@ import {
   WarningIcon,
 } from '@avalabs/react-components';
 import { SendForm } from './components/SendForm';
-import {
-  BN,
-  bnToLocaleString,
-  stringToBN,
-} from '@avalabs/avalanche-wallet-sdk';
+import { bnToLocaleString, stringToBN } from '@avalabs/utils-sdk';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendConfirm } from './SendConfirm';
 import { useSend } from './hooks/useSend';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import {
-  getTransactionLink,
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
+import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
@@ -42,11 +34,13 @@ import { FeatureGates } from '@avalabs/posthog-sdk';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { BigNumber } from 'ethers';
+import BN from 'bn.js';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 
 export function SendPage() {
   const theme = useTheme();
   const { flags } = useAnalyticsContext();
-  const { walletType, avaxToken } = useWalletContext();
+  const { walletType } = useWalletContext();
   const selectedToken = useTokenFromParams();
   const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
@@ -81,7 +75,9 @@ export function SendPage() {
   // we send the default selected token to the posthog
   useEffect(() => {
     if (selectedToken) {
-      sendTokenSelectedAnalytics(selectedToken.address || selectedToken.symbol);
+      sendTokenSelectedAnalytics(
+        selectedToken.isERC20 ? selectedToken.address : selectedToken.symbol
+      );
     }
     // we don't need to run this block again just when it is first time loaded
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,7 +126,7 @@ export function SendPage() {
       amount: amountInputDisplay,
       address: contactInput?.address,
     });
-    sendTokenSelectedAnalytics(token.address || token.symbol);
+    sendTokenSelectedAnalytics(token.isERC20 ? token.address : token.symbol);
   };
 
   const onAmountChanged = useCallback(
@@ -193,9 +189,10 @@ export function SendPage() {
   ]);
 
   const maxGasPrice =
-    selectedToken && amountInput && isAvaxToken(selectedToken)
-      ? avaxToken.balance.sub(amountInput).toString()
-      : avaxToken.balance.toString();
+    selectedToken?.isNetworkToken && amountInput
+      ? selectedToken.balance.sub(amountInput).toString()
+      : tokensWBalances.find((t) => t.isNetworkToken)?.balance.toString() ||
+        '0';
 
   const onGasChanged = useCallback(
     (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
@@ -306,7 +303,7 @@ export function SendPage() {
                   pageHistory.amountInput &&
                   stringToBN(
                     pageHistory.amountInput,
-                    selectedToken.denomination || 9
+                    selectedToken?.decimals || 9
                   )) ||
                 undefined
               }

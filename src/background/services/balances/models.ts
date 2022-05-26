@@ -1,36 +1,42 @@
+import { NetworkContractToken, NetworkToken } from '@avalabs/chains-sdk';
 import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 import BN from 'bn.js';
 
 export enum BalanceServiceEvents {
-  updated = 'BalanceServiceEvents:updated',
+  UPDATED = 'BalanceServiceEvents:updated',
 }
 
-/**
- * The goal here is to normalize the data between Ant, Avax and ERC20. All display values should be
- * normalized as well and we provide a few type guards to filter and type back tot he expected type
- * for the respected entity.
- */
-export interface TokenWithBalance {
-  name: string;
-  symbol: string;
-  address?: string;
-  logoURI?: string;
-  isErc20?: boolean;
-  isAvax?: boolean;
-  isAnt?: boolean;
+interface TokenBalanceData {
+  isNetworkToken: boolean;
+  isERC20: boolean;
   balance: BN;
   balanceUSD?: number;
   balanceDisplayValue?: string;
   balanceUsdDisplayValue?: string;
   priceUSD?: number;
-  color?: string;
-  denomination?: number;
-  decimals?: number;
   utxos?: BitcoinInputUTXO[];
 }
 
+export interface NetworkContractTokenWithBalance
+  extends TokenBalanceData,
+    NetworkContractToken {
+  isERC20: true;
+  isNetworkToken: false;
+}
+
+export interface NetworkTokenWithBalance
+  extends TokenBalanceData,
+    NetworkToken {
+  isERC20: false;
+  isNetworkToken: true;
+}
+
+export type TokenWithBalance =
+  | NetworkTokenWithBalance
+  | NetworkContractTokenWithBalance;
+
 export interface TokenListDict {
-  [contract: string]: TokenListERC20;
+  [contract: string]: TokenWithBalance;
 }
 
 export interface TokenListERC20 {
@@ -41,3 +47,11 @@ export interface TokenListERC20 {
   decimals: number;
   logoURI?: string;
 }
+
+// store balances in the structure of network ID -> address -> tokens
+export type Balances = Record<number, Record<string, TokenWithBalance[]>>;
+
+export type SerializedBalances = Record<
+  number,
+  Record<string, Omit<TokenWithBalance, 'balances'> & { balance: string }>
+>;

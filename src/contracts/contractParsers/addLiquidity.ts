@@ -40,7 +40,7 @@ export async function addLiquidityHandler(
   const tokenB = await findToken(data.tokenB.toLowerCase());
 
   const firstTokenAmountDepositedDisplayValue = bigToLocaleString(
-    bnToBig(hexToBN(data.amountADesired.toHexString()), tokenA.denomination),
+    bnToBig(hexToBN(data.amountADesired.toHexString()), tokenA.decimals),
     4
   );
   const tokenA_AmountUSDValue =
@@ -54,7 +54,7 @@ export async function addLiquidityHandler(
   };
 
   const secondTokenAmountDepositedDisplayValue = bigToLocaleString(
-    bnToBig(hexToBN(data.amountBDesired.toString()), tokenB.denomination),
+    bnToBig(hexToBN(data.amountBDesired.toString()), tokenB.decimals),
     4
   );
   const tokenB_AmountUSDValue =

@@ -9,21 +9,21 @@ import {
 } from '@avalabs/react-components';
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTheme } from 'styled-components';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
 import { NetworkSwitcher } from './NetworkSwitcher';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 export function Header() {
   const domain = useCurrentDomain();
   const theme = useTheme();
   const { updateAccountPermission, isDomainConnectedToAccount } =
     usePermissionContext();
-  const { addresses } = useWalletContext();
+  const { activeAccount } = useAccountsContext();
   const isConnected =
     (isDomainConnectedToAccount &&
-      isDomainConnectedToAccount(domain, addresses.addrC)) ||
+      isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||
     false;
 
   return (
@@ -52,7 +52,7 @@ export function Header() {
                   width="210px"
                   onClick={() => {
                     updateAccountPermission({
-                      addressC: addresses.addrC,
+                      addressC: activeAccount?.addressC,
                       hasPermission: false,
                       domain,
                     });
@@ -74,12 +74,12 @@ export function Header() {
           </ConnectionIndicator>
           <AccountSelector />
         </HorizontalFlex>
-        {addresses.addrC && (
+        {activeAccount?.addressC && (
           <HorizontalFlex justify="center">
             <SimpleAddress
               copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
               typographyProps={{ color: 'text2', size: 12 }}
-              address={addresses.addrC}
+              address={activeAccount.addressC}
             />
           </HorizontalFlex>
         )}

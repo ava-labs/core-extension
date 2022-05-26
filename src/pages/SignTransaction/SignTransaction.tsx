@@ -31,7 +31,6 @@ import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog
 import { TransactionProgressState } from './models';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -55,10 +54,7 @@ export function SignTransactionPage() {
   const { network } = useNetworkContext();
   const theme = useTheme();
   const [txFailedError, setTxFailedError] = useState<string>();
-  const explorerUrl = getTransactionLink(
-    hash,
-    network ? isMainnetNetwork(network.config) : true
-  );
+  const explorerUrl = getTransactionLink(hash, !network?.isTestnet);
   useLedgerDisconnectedDialog(() => {
     window.close();
   });

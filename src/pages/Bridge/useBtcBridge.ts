@@ -1,4 +1,3 @@
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import {
   BIG_ZERO,
   Blockchain,
@@ -10,12 +9,16 @@ import {
   useBridgeConfig,
   useBridgeSDK,
 } from '@avalabs/bridge-sdk';
+import { ChainId } from '@avalabs/chains-sdk';
 import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useInterval } from '@src/hooks/useInterval';
+import Big from 'big.js';
 import { useCallback, useEffect, useState } from 'react';
 import { AssetBalance, BALANCE_REFRESH_INTERVAL } from './models';
 import { BridgeAdapter } from './useBridge';
@@ -33,13 +36,14 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const { network } = useNetworkContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
+  const { balances } = useBalancesContext();
+  const { activeAccount } = useAccountsContext();
 
   const [loading, setLoading] = useState(false);
   const [btcBalance, setBtcBalance] = useState<AssetBalance>();
   const [btcBalanceAvalanche, setBtcBalanceAvalanche] =
     useState<AssetBalance>();
   const [utxos, setUtxos] = useState<BitcoinInputUTXO[]>();
-  const [btcAddress, setBtcAddress] = useState<string>();
 
   /** Network fee (in BTC) */
   const [networkFee, setFee] = useState<Big>();
@@ -61,30 +65,30 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
       ]
     : [];
 
-  // balances, utxos, & btcAddress
+  // balances, utxos
   useEffect(() => {
     async function load() {
-      if (isBitcoinBridge && btcAsset) {
+      if (isBitcoinBridge && btcAsset && activeAccount) {
         setLoading(true);
-        const {
-          bitcoinUtxos,
-          btcAddress,
-          btcBalanceAvalanche,
-          btcBalanceBitcoin,
-        } = await request({
-          method: ExtensionRequest.BRIDGE_GET_BTC_BALANCES,
-        });
-        setBtcAddress(btcAddress);
-        setUtxos(bitcoinUtxos);
+        const btcBalance =
+          balances[
+            network?.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+          ]?.[activeAccount.addressBTC][0];
+        const btcAvalabcheBalance = balances[
+          network?.isTestnet
+            ? ChainId.AVALANCHE_TESTNET_ID
+            : ChainId.AVALANCHE_MAINNET_ID
+        ][activeAccount.addressC].find((token) => token.symbol === 'BTC.b');
+        setUtxos(btcBalance.utxos);
         setBtcBalance({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(btcBalanceBitcoin),
+          balance: satoshiToBtc(btcBalance.balance.toNumber()),
         });
         setBtcBalanceAvalanche({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(btcBalanceAvalanche),
+          balance: satoshiToBtc(btcAvalabcheBalance?.balance.toNumber() || 0),
         });
         setLoading(false);
       }
@@ -92,24 +96,25 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
     load();
   }, [
+    activeAccount,
+    balances,
     btcAsset,
     isBitcoinBridge,
-    // network is here so balances will update when it changes
     network,
-    // refetchInterval is here to ensure the balance is updated periodically
     refetchInterval,
     request,
   ]);
 
   useEffect(() => {
-    if (!isBitcoinBridge || !config || !btcAddress || !utxos) return;
+    if (!isBitcoinBridge || !config || !activeAccount || !utxos) return;
 
     try {
       const { fee, receiveAmount } = getBtcTransaction(
         config,
-        btcAddress,
+        activeAccount.addressBTC,
         utxos,
-        amountInSatoshis
+        amountInSatoshis,
+        networkFee?.toNumber() || 0
       );
 
       setFee(satoshiToBtc(fee));
@@ -127,10 +132,10 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
       amountInSatoshis
     );
     setMinimum(satoshiToBtc(minimumSatoshis));
-  }, [amountInSatoshis, btcAddress, config, isBitcoinBridge, utxos]);
+  }, [amountInSatoshis, activeAccount, config, isBitcoinBridge, utxos]);
 
   const transfer = useCallback(async () => {
-    if (!isBitcoinBridge || !config || !btcAddress || !btcAsset || !utxos)
+    if (!isBitcoinBridge || !config || !activeAccount || !btcAsset || !utxos)
       return;
 
     const timestamp = Date.now();
@@ -156,9 +161,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
     return result.hash;
   }, [
+    activeAccount,
     amountInBtc,
     amountInSatoshis,
-    btcAddress,
     btcAsset,
     config,
     createBridgeTransaction,
@@ -170,7 +175,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   ]);
 
   return {
-    address: btcAddress,
+    address: activeAccount?.addressBTC,
     sourceBalance: btcBalance,
     targetBalance: btcBalanceAvalanche,
     assetsWithBalances,

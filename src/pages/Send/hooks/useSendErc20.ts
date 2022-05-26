@@ -1,14 +1,16 @@
 import { useCallback, useState } from 'react';
-import { SendErc20State, ERC20 } from '@avalabs/wallet-react-components';
+import { SendErc20State } from '@avalabs/wallet-react-components';
 import { BN, ChainIdType, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { sendErc20ValidateRequest } from '@src/background/services/send/sendErc20/utils/sendErc20ValidateRequest';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { sendErc20SubmitRequest } from '@src/background/services/send/sendErc20/utils/sendErc20SubmitRequest';
 import { SendStateWithActions, SetSendValuesParams } from '../models';
 import { hexToBN } from '@src/utils/hexToBN';
+import { NetworkContractTokenWithBalance } from '@src/background/services/balances/models';
 
 export function useSendErc20(): // Make token optional since token is undefined while we're using `useSendAvax`
-SendStateWithActions & Omit<SendErc20State, 'token'> & { token?: ERC20 } {
+SendStateWithActions &
+  Omit<SendErc20State, 'token'> & { token?: NetworkContractTokenWithBalance } {
   const [sendErc20State, setSendErc20State] = useState<SendErc20State>();
   const [txId, setTxId] = useState<string>();
   const { request } = useConnectionContext();
@@ -23,7 +25,7 @@ SendStateWithActions & Omit<SendErc20State, 'token'> & { token?: ERC20 } {
       token: {
         ...state.token,
         balance: hexToBN(state.token.balance),
-      } as ERC20,
+      },
     };
 
     setSendErc20State(parsedState);
@@ -35,7 +37,14 @@ SendStateWithActions & Omit<SendErc20State, 'token'> & { token?: ERC20 } {
       request(
         sendErc20ValidateRequest(
           amount,
-          token as ERC20,
+          token && {
+            ...token,
+            address: token.isERC20 ? token.address : '',
+            logoURI: token?.logoUri,
+            isErc20: token.isERC20,
+            balanceParsed: token.balanceDisplayValue || '',
+            denomination: token.decimals,
+          },
           address,
           gasPrice,
           gasLimit
@@ -47,6 +56,15 @@ SendStateWithActions & Omit<SendErc20State, 'token'> & { token?: ERC20 } {
 
   return {
     ...sendErc20State,
+    token: sendErc20State?.token && {
+      ...sendErc20State.token,
+      isERC20: true,
+      isNetworkToken: false,
+      contractType: '',
+      decimals: sendErc20State.token.denomination,
+      logoUri: sendErc20State.token.logoURI || '',
+      resourceLinks: [],
+    },
     targetChain: 'C' as ChainIdType,
     txId,
     setValues,

@@ -15,7 +15,7 @@ import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { BridgeAdapter } from './useBridge';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { getEthereumProvider } from '@src/background/services/network/getEthereumProvider';
+import { InfuraProvider } from '@ethersproject/providers';
 
 /**
  * Hook for when the bridge source chain is Ethereum
@@ -41,7 +41,11 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
 
   const { addresses } = useWalletContext();
   const { network } = useNetworkContext();
-  const ethereumProvider = getEthereumProvider(network);
+
+  const ethereumProvider = new InfuraProvider(
+    network?.isTestnet ? 'rinkeby' : 'homestead',
+    process.env.INFURA_API_KEY
+  );
   const hasEnoughForNetworkFee = useHasEnoughForGas(
     isEthereumBridge ? addresses.addrC : undefined,
     ethereumProvider

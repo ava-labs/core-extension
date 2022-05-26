@@ -11,7 +11,7 @@ export function useNativeTokenPrice() {
   useEffect(() => {
     request({
       method: ExtensionRequest.TOKEN_PRICE_GET,
-      params: [network?.nativeToken.coinId],
+      params: [network?.networkToken.coingeckoId],
     })
       .then((p) => {
         setPrice(p || 0);

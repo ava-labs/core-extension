@@ -1,38 +1,16 @@
 import { EVMBalancesService } from '@src/background/services/balances/EVMBalancesService';
-import {
-  BITCOIN_NETWORK,
-  BITCOIN_TEST_NETWORK,
-  MAINNET_NETWORK,
-  NetworkTypes,
-} from '@src/background/services/network/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { BTCBalancesService } from '@src/background/services/balances/BTCBalancesService';
 import { singleton } from 'tsyringe';
-import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import {
-  Account,
-  AccountsEvents,
-} from '@src/background/services/accounts/models';
-import { EventEmitter } from 'events';
-import {
-  TokenWithBalance,
-  BalanceServiceEvents,
-} from '@src/background/services/balances/models';
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { TokenWithBalance } from '@src/background/services/balances/models';
+import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 
 @singleton()
-export class BalancesService implements OnLock, OnUnlock {
-  private _balances = new Map<string, TokenWithBalance[]>();
-  get balances() {
-    return Object.fromEntries(this._balances);
-  }
-  private eventEmitter = new EventEmitter();
-
+export class BalancesService {
   constructor(
     private evmBalancesService: EVMBalancesService,
     private btcBalancesService: BTCBalancesService,
-    private networkService: NetworkService,
-    private accountsService: AccountsService
+    private networkService: NetworkService
   ) {}
 
   private getBalanceServiceByProvider(provider: any) {
@@ -48,7 +26,7 @@ export class BalancesService implements OnLock, OnUnlock {
   }
 
   async getBalanceForNetwork(
-    network: NetworkTypes,
+    network: Network,
     userAddress: string
   ): Promise<TokenWithBalance[]> {
     /**
@@ -59,82 +37,28 @@ export class BalancesService implements OnLock, OnUnlock {
      *
      * Otherwise the code below should run
      */
-    const provider = this.networkService.getProviderForNetwork(network);
-    const balanceService = this.getBalanceServiceByProvider(provider);
+    const getBalanceForProvider = (provider) => {
+      const balanceService = this.getBalanceServiceByProvider(provider);
+      return balanceService.getBalances(userAddress, network);
+    };
 
-    return balanceService.getBalances(userAddress, network);
-  }
+    const btcNetworks = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET];
+    const ethNetworks = [
+      ChainId.ETHEREUM_HOMESTEAD,
+      ChainId.ETHEREUM_TEST_RINKEBY,
+    ];
 
-  async activate() {
-    this.accountsService.addListener<Account[]>(
-      AccountsEvents.ACCOUNTS_UPDATED,
-      async (data) => {
-        /**
-         * 1. We need to normalize this data to what glacier is going to return
-         * 2. we need to add polling
-         *  a. considering just doing a few seconds (10 secs) and just call to update all
-         */
-        const allBTCAccounts = data.reduce(
-          (acc: { btcAddress: string }[], account) => {
-            return [...acc, { btcAddress: account.addressBTC }];
-          },
-          []
-        );
-
-        const allCChainAccounts = data.reduce(
-          (acc: { cAddress: string }[], account) => {
-            return [...acc, { cAddress: account.addressC }];
-          },
-          []
-        );
-        const btcBalances = await Promise.all(
-          allBTCAccounts.map(async (address) => {
-            const accountBalance = await this.getBalanceForNetwork(
-              this.networkService.isMainnet
-                ? BITCOIN_NETWORK
-                : BITCOIN_TEST_NETWORK,
-              address.btcAddress
-            );
-            return { ...address, balance: accountBalance };
-          })
-        );
-
-        btcBalances.forEach((acc) => {
-          this._balances.set(acc.btcAddress, acc.balance);
-        });
-
-        const cChainBalances = await Promise.all(
-          allCChainAccounts.map(async (address) => {
-            const accountBalance = await this.getBalanceForNetwork(
-              MAINNET_NETWORK,
-              address.cAddress
-            );
-            return { ...address, balance: accountBalance };
-          })
-        );
-
-        cChainBalances.forEach((acc) => {
-          this._balances.set(acc.cAddress, acc.balance);
-        });
-
-        this.eventEmitter.emit(BalanceServiceEvents.updated, this.balances);
-      }
-    );
-  }
-
-  addListener<T = unknown>(
-    event: BalanceServiceEvents,
-    callback: (data: T) => void
-  ) {
-    this.eventEmitter.on(event, callback);
-  }
-
-  onLock() {
-    this._balances = new Map();
-    this.eventEmitter.emit(BalanceServiceEvents.updated, this.balances);
-  }
-
-  onUnlock() {
-    this.activate();
+    if (btcNetworks.includes(network.chainId)) {
+      const provider = await this.networkService.getBitcoinProvider();
+      return getBalanceForProvider(provider);
+    } else if (ethNetworks.includes(network.chainId)) {
+      const provider = await this.networkService.getEthereumProvider();
+      return getBalanceForProvider(provider);
+    } else if (network.vmName === NetworkVMType.EVM) {
+      const provider = await this.networkService.getProviderForNetwork(network);
+      return getBalanceForProvider(provider);
+    } else {
+      throw new Error('unsupported network');
+    }
   }
 }

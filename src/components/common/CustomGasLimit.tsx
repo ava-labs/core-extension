@@ -7,7 +7,7 @@ import {
   SubTextTypography,
   ComponentSize,
 } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
@@ -26,13 +26,13 @@ export function CustomGasLimit({
   onSave,
   onCancel,
 }: CustomGasLimitProps) {
-  const { avaxPrice } = useWalletContext();
+  const tokenPrice = useNativeTokenPrice();
   const [customGasLimit, setCustomGasLimit] = useState<number>(limit);
   const [calculateGasAndFeesError, setCalculateGasAndFeesError] =
     useState<string>('');
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
-  >(calculateGasAndFees(gasPrice, limit, avaxPrice));
+  >(calculateGasAndFees(gasPrice, limit, tokenPrice));
   function handleOnSave(): void {
     if (customGasLimit) {
       onSave(customGasLimit);
@@ -45,7 +45,7 @@ export function CustomGasLimit({
       const calculatedGasAndFees = calculateGasAndFees(
         gasPrice,
         customGasLimit,
-        avaxPrice
+        tokenPrice
       );
       setNewFees(calculatedGasAndFees);
       setCustomGasLimit(customGasLimit);

@@ -2,12 +2,10 @@ import { getContractDataErc20 } from '@avalabs/avalanche-wallet-sdk';
 import {
   currencies,
   currentSelectedCurrency$,
-  customErc20Tokens$,
 } from '@avalabs/wallet-react-components';
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { NetworkEvents } from '../network/models';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { WalletService } from '../wallet/WalletService';
@@ -33,7 +31,7 @@ export class SettingsService implements OnStorageReady {
     private walletService: WalletService
   ) {
     this.applySettings();
-    this.networkService.addListener(NetworkEvents.NETWORK_UPDATE_EVENT, () => {
+    this.networkService.activeNetwork.add(() => {
       this.applySettings();
     });
   }
@@ -48,11 +46,6 @@ export class SettingsService implements OnStorageReady {
       settings = await this.getSettings();
     } catch (e) {
       return;
-    }
-    if (this.networkService.activeNetwork?.chainId && settings.customTokens) {
-      customErc20Tokens$.next(
-        settings.customTokens[this.networkService.activeNetwork.chainId]
-      );
     }
 
     const currencyObject = currencies.find(
@@ -79,6 +72,7 @@ export class SettingsService implements OnStorageReady {
     if (!this.walletService.walletState?.erc20Tokens) {
       throw new Error('No ERC20 tokens found in wallet.');
     }
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
     const tokenAlreadyExists =
       this.walletService.walletState.erc20Tokens.reduce(
         (exists, existingToken) =>
@@ -94,7 +88,7 @@ export class SettingsService implements OnStorageReady {
     if (!tokenData) {
       throw new Error(`ERC20 contract ${tokenAddress} does not exist.`);
     }
-    if (!this.networkService.activeNetwork?.chainId) {
+    if (!activeNetwork?.chainId) {
       throw new Error('Unable to detect current network selection.');
     }
 
@@ -104,16 +98,13 @@ export class SettingsService implements OnStorageReady {
       ...settings,
       customTokens: {
         ...settings.customTokens,
-        [this.networkService.activeNetwork.chainId]: {
-          ...settings.customTokens[this.networkService.activeNetwork.chainId],
+        [activeNetwork?.chainId]: {
+          ...settings.customTokens[activeNetwork?.chainId],
           [tokenAddress.toLowerCase()]: tokenData,
         },
       },
     };
     await this.saveSettings(newSettings);
-    customErc20Tokens$.next(
-      newSettings.customTokens[this.networkService.activeNetwork.chainId]
-    );
   }
 
   async setAnalyticsConsent(consent: boolean) {

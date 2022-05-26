@@ -1,5 +1,5 @@
+import { ChainId } from '@avalabs/chains-sdk';
 import { resolve } from '@avalabs/utils-sdk';
-import { wallet$ } from '@avalabs/wallet-react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   ExtensionConnectionMessage,
@@ -7,12 +7,10 @@ import {
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { BalancesService } from '@src/background/services/balances/BalancesService';
+import { TokenWithBalance } from '@src/background/services/balances/models';
+import { NetworkBalanceAggregatorService } from '@src/background/services/balances/NetworkBalanceAggregatorService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
-import { isWalletLocked } from '@src/background/services/wallet/models';
-import { WalletService } from '@src/background/services/wallet/WalletService';
-import { firstValueFrom } from 'rxjs';
 import { injectable } from 'tsyringe';
 import { validateSendBtcValues } from '../validateSendBtcValues';
 
@@ -22,9 +20,8 @@ export class ValidateBtcSendStateHandler implements ExtensionRequestHandler {
 
   constructor(
     private accountsService: AccountsService,
-    private balancesService: BalancesService,
     private networkService: NetworkService,
-    private walletService: WalletService,
+    private networkBalanceAggregator: NetworkBalanceAggregatorService,
     private networkFeeService: NetworkFeeService
   ) {}
 
@@ -40,27 +37,22 @@ export class ValidateBtcSendStateHandler implements ExtensionRequestHandler {
       };
     }
 
-    const wallet = await firstValueFrom(wallet$);
     // TODO get from UI
     const fee = await this.networkFeeService.getNetworkFee();
 
-    if (
-      !wallet ||
-      !fee ||
-      !this.walletService.walletState ||
-      isWalletLocked(this.walletService.walletState) ||
-      !this.accountsService.activeAccount?.addressBTC
-    ) {
+    if (!fee || !this.accountsService.activeAccount?.addressBTC) {
       return {
         ...request,
         error: 'Wallet not ready',
       };
     }
 
-    const tokenWithBalance =
-      this.balancesService.balances[
-        this.accountsService.activeAccount.addressBTC
-      ]?.[0];
+    const isMainnet = await this.networkService.isMainnet();
+    const tokenWithBalance: TokenWithBalance =
+      this.networkBalanceAggregator.balances[
+        isMainnet ? ChainId.BITCOIN : ChainId.BITCOIN_TESTNET
+      ]?.[this.accountsService.activeAccount?.addressBTC || '']?.[0];
+    if (!tokenWithBalance) throw new Error('No btc token with balance');
 
     return await resolve(
       validateSendBtcValues(
@@ -69,7 +61,6 @@ export class ValidateBtcSendStateHandler implements ExtensionRequestHandler {
         tokenWithBalance.balance.toNumber(),
         tokenWithBalance.utxos || [],
         fee?.medium.toNumber(),
-        this.walletService,
         this.networkService
       )
     ).then(([result, error]) => {

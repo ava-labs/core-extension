@@ -65,9 +65,17 @@ export class UpdateTransactionHandler implements ExtensionRequestHandler {
 
     if (update.status === TxStatus.SUBMITTING) {
       const gasPrice = await this.networkFeeService.getNetworkFee();
-
+      const network = await this.networkService.activeNetwork.promisify();
+      if (!network) {
+        return {
+          ...request,
+          error: 'network not found',
+        };
+      }
       const nonce = await (
-        this.networkService.activeProvider as JsonRpcBatchInternal
+        this.networkService.getProviderForNetwork(
+          network
+        ) as JsonRpcBatchInternal
       ).getTransactionCount(pendingTx.txParams.from);
 
       return txToCustomEvmTx(pendingTx, gasPrice).then((params) => {

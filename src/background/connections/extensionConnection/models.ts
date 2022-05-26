@@ -5,8 +5,8 @@ export enum ExtensionRequest {
 
   NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
+  NETWORK_GET_NETWORKS = 'network_getNetworks',
   NETWORK_SET_DEVELOPER_MODE = 'network_setDeveloperMode',
-  NETWORK_GET_SUPPORTED_NETWORKS = 'network_getSupportedNetworks',
   NETWORK_GET_DEVELOPER_MODE = 'network_getDeveloperMode',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
@@ -18,7 +18,6 @@ export enum ExtensionRequest {
   TOKEN_PRICE_GET = 'token_price_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
-  BRIDGE_GET_BTC_BALANCES = 'bridge_get_btc_balances',
   BRIDGE_GET_ETH_BALANCE = 'bridge_get_eth_balance',
   BRIDGE_GET_ETH_BALANCES = 'bridge_get_eth_balances',
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',

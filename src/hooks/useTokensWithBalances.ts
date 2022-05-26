@@ -1,46 +1,45 @@
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useMemo } from 'react';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
-import { TokenWithBalance } from '@avalabs/wallet-react-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { ChainId } from '@avalabs/chains-sdk';
+import { TokenWithBalance } from '@src/background/services/balances/models';
+import { BN } from 'bn.js';
 
 const bnZero = new BN(0);
 
 export function useTokensWithBalances(
   forceShowTokensWithoutBalances?: boolean
 ) {
-  const { erc20Tokens, avaxPrice, avaxToken } = useWalletContext();
+  const { balances } = useBalancesContext();
   const { showTokensWithoutBalances } = useSettingsContext();
   const { activeAccount } = useAccountsContext();
-  const balances = useBalancesContext();
+  const { network } = useNetworkContext();
 
   return useMemo<TokenWithBalance[]>(() => {
-    const btcBalances =
-      (activeAccount && balances[activeAccount.addressBTC]) || [];
+    if (!network || !activeAccount) {
+      return [];
+    }
 
-    return [
-      {
-        ...avaxToken,
-        priceUSD: avaxPrice,
-      },
-      ...(btcBalances as any[]),
-      ...erc20Tokens.filter((token) => {
-        if (forceShowTokensWithoutBalances !== undefined) {
-          return forceShowTokensWithoutBalances
-            ? true
-            : token.balance.gt(bnZero);
-        }
-        return showTokensWithoutBalances ? true : token.balance.gt(bnZero);
-      }),
-    ];
+    const address =
+      network.chainId === ChainId.BITCOIN ||
+      network.chainId === ChainId.BITCOIN_TESTNET
+        ? activeAccount.addressBTC
+        : activeAccount.addressC;
+    if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
+      return balances[network?.chainId]?.[address] || [];
+    }
+
+    return (
+      balances[network?.chainId]?.[address]?.filter((token) =>
+        token.balance.gt(bnZero)
+      ) || []
+    );
   }, [
     activeAccount,
     balances,
-    avaxToken,
-    avaxPrice,
-    erc20Tokens,
+    network,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
   ]);

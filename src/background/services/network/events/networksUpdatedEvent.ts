@@ -1,15 +1,16 @@
-import { Web3Event } from '@src/background/connections/dAppConnection/models';
+import { Network } from '@avalabs/chains-sdk';
 import {
   ExtensionConnectionEvent,
-  DAppEventEmitter,
+  ExtensionEventEmitter,
   ConnectionInfo,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
+import { NetworkEvents } from '../models';
 import { NetworkService } from '../NetworkService';
 
 @injectable()
-export class ChainChangedEvents implements DAppEventEmitter {
+export class NetworksUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   private _connectionInfo?: ConnectionInfo;
 
@@ -18,13 +19,15 @@ export class ChainChangedEvents implements DAppEventEmitter {
   }
 
   constructor(private networkService: NetworkService) {
-    this.networkService.activeNetwork.add((chain) => {
-      if (!chain) return;
+    this.networkService.developerModeChanges.add(async () => {
+      const networks = await this.networkService.activeNetworks.promisify();
+      const activeNetwork = await this.networkService.activeNetwork.promisify();
       this.eventEmitter.emit('update', {
-        method: Web3Event.CHAIN_CHANGED,
-        params: {
-          chainId: chain.chainId,
-          networkVersion: chain.chainName,
+        name: NetworkEvents.NETWORKS_UPDATED_EVENT,
+        value: {
+          networks: Object.values<Network>(networks),
+          isDeveloperMode: this.networkService.isDeveloperMode,
+          activeNetwork,
         },
       });
     });

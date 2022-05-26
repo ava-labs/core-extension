@@ -1,11 +1,7 @@
 import { satoshiToBtc } from '@avalabs/bridge-sdk';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { balanceToDisplayValue, bigToBN } from '@avalabs/utils-sdk';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
-import {
-  ActiveNetwork,
-  isForNetworkVM,
-  NetworkVM,
-} from '@src/background/services/network/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { singleton } from 'tsyringe';
 import { SettingsService } from '../settings/SettingsService';
@@ -26,18 +22,18 @@ export class BTCBalancesService {
 
   async getBalances(
     userAddress: string,
-    network: ActiveNetwork
+    network: Network
   ): Promise<TokenWithBalance[]> {
-    if (!isForNetworkVM(network, NetworkVM.BITCOIN)) return [];
+    if (network.vmName !== NetworkVMType.BITCOIN) return [];
 
-    const provider = this.networkService.getProviderForNetwork(network);
+    const provider = await this.networkService.getBitcoinProvider();
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
     const tokenPrice = await this.tokenPricesService.getPriceByCoinId(
-      network.nativeToken.coinId,
+      network.networkToken.coingeckoId,
       selectedCurrency
     );
-    const denomination = network.nativeToken.denomination;
+    const denomination = network.networkToken.decimals;
     const { balance: balanceSatoshis, utxos } = await provider.getUtxoBalance(
       userAddress
     );
@@ -47,7 +43,9 @@ export class BTCBalancesService {
     // balanceDisplayValue and priceDisplayValue
     return [
       {
-        ...network.nativeToken,
+        ...network.networkToken,
+        isERC20: false,
+        isNetworkToken: true,
         balance,
         balanceDisplayValue: balanceToDisplayValue(balance, denomination),
         balanceUsdDisplayValue: tokenPrice
@@ -55,7 +53,7 @@ export class BTCBalancesService {
           : undefined,
         priceUSD: tokenPrice,
         utxos,
-        logoURI:
+        logoUri:
           'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
       },
     ];

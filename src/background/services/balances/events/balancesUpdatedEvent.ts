@@ -2,24 +2,23 @@ import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
-import { BalanceServiceEvents } from '../models';
 import { EventEmitter } from 'events';
-import { BalancesService } from '../BalancesService';
 import { singleton } from 'tsyringe';
+import { BalanceServiceEvents } from '../models';
+import { NetworkBalanceAggregatorService } from '../NetworkBalanceAggregatorService';
 
 @singleton()
 export class BalancesUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
-  constructor(private balancesService: BalancesService) {
-    this.balancesService.addListener(
-      BalanceServiceEvents.updated,
-      (balances) => {
-        this.eventEmitter.emit('update', {
-          name: BalanceServiceEvents.updated,
-          value: balances,
-        });
-      }
-    );
+  constructor(
+    private networkBalancesAggregator: NetworkBalanceAggregatorService
+  ) {
+    this.networkBalancesAggregator.balanceUpdates.add((balances) => {
+      this.eventEmitter.emit('update', {
+        name: BalanceServiceEvents.UPDATED,
+        value: balances,
+      });
+    });
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

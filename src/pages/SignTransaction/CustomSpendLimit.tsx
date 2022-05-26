@@ -10,10 +10,10 @@ import {
   ComponentSize,
 } from '@avalabs/react-components';
 import { useState } from 'react';
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
 import { PageTitle } from '@src/components/common/PageTitle';
+import { NetworkContractTokenWithBalance } from '@src/background/services/balances/models';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -36,7 +36,7 @@ export function CustomSpendLimit({
   setSpendLimit,
   site,
 }: {
-  token: ERC20WithBalance;
+  token: NetworkContractTokenWithBalance;
   setSpendLimit(limitData: SpendLimit): void;
   onClose(): void;
   spendLimit: SpendLimit;
@@ -141,7 +141,7 @@ export function CustomSpendLimit({
                   limitType: Limit.CUSTOM,
                 });
               }}
-              denomination={token.denomination}
+              denomination={token.decimals}
               placeholder="Maximum Limit"
               value={customSpendLimit.value?.bn}
               width="100%"

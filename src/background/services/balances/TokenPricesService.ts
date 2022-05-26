@@ -3,7 +3,6 @@ import { SimplePriceInCurrency } from '@avalabs/coingecko-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import { getTokensPrice } from '@avalabs/token-prices-sdk';
 import { simplePrice, getBasicCoingeckoHttp } from '@avalabs/coingecko-sdk';
-import { MAINNET_NETWORK } from '../network/models';
 @singleton()
 export class TokenPricesService {
   constructor(private settingsService: SettingsService) {}
@@ -35,7 +34,7 @@ export class TokenPricesService {
   async getTokenPriceByAddress(
     address: string,
     assetPlatformId: string,
-    coinId = MAINNET_NETWORK.nativeToken.coinId
+    coinId: string
   ): Promise<SimplePriceInCurrency> {
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
@@ -59,23 +58,18 @@ export class TokenPricesService {
   async getTokenPricesByAddresses(
     tokens: { address: string }[],
     assetPlatformId: string,
-    coinId = MAINNET_NETWORK.nativeToken.coinId
-  ): Promise<SimplePriceInCurrency> {
+    coinId: string
+  ): Promise<Record<string, number>> {
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
     const avaxPrice = await this.getPriceByCoinId(coinId, selectedCurrency);
     const tokenAddys = tokens.map((token) => token.address);
     const currency = selectedCurrency.toLocaleLowerCase();
-    const tokenPriceRes = await getTokensPrice(
+    return await getTokensPrice(
       tokenAddys,
       currency,
       avaxPrice || 0,
       assetPlatformId
     );
-
-    return tokens.reduce((acc: any, token) => {
-      const price = tokenPriceRes[token.address];
-      return [...acc, { ...token, price }];
-    }, []);
   }
 }

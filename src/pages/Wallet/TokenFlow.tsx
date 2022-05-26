@@ -7,14 +7,8 @@ import {
   SecondaryButton,
   ComponentSize,
 } from '@avalabs/react-components';
-import {
-  ERC20WithBalance,
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
@@ -45,16 +39,12 @@ export function TokenFlow() {
     <VerticalFlex width={'100%'} position="relative">
       <PageTitle>Token Details</PageTitle>
       <HorizontalFlex width={'100%'} padding="8px 16px" justify={'center'}>
-        {isAvaxToken(token) ? (
-          <AvaxTokenIcon height={'40px'} />
-        ) : (
-          <TokenIcon
-            height={'40px'}
-            width={'40px'}
-            src={(token as ERC20WithBalance).logoURI}
-            name={(token as TokenWithBalance).name}
-          />
-        )}
+        <TokenIcon
+          height={'40px'}
+          width={'40px'}
+          src={token.logoUri}
+          name={token.name}
+        />
         <VerticalFlex flex={1} margin={'0 0 0 16px'}>
           <Typography size={18} weight={'bold'} height="22px">
             {token.name}

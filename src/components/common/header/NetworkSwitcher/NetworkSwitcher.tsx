@@ -13,12 +13,7 @@ import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useRef, useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
-import {
-  BITCOIN_NETWORK,
-  MAINNET_NETWORK,
-  FUJI_NETWORK,
-  BITCOIN_TEST_NETWORK,
-} from '@src/background/services/network/models';
+import { ChainId } from '@avalabs/chains-sdk';
 
 const NetworkSwitcherButton = styled(HorizontalFlex)`
   border-radius: 100px;
@@ -56,27 +51,16 @@ const SelectContainer = styled.div`
   position: relative;
 `;
 
+const NetworkLogo = styled.img`
+  width: 16px;
+`;
+
 export function NetworkSwitcher() {
   const { network, setNetwork, networks } = useNetworkContext();
 
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
   const selectButtonRef = useRef<HTMLDivElement>(null);
-
-  const getBlockChainLogo = (chainId?: string) => {
-    switch (chainId) {
-      case MAINNET_NETWORK.chainId: // main
-        return <AvaxTokenIcon height="16" />;
-      case FUJI_NETWORK.chainId: // FUJI
-        return <AvaxTokenIcon height="16" />;
-      case BITCOIN_NETWORK.chainId:
-        return <BitcoinLogo height="16" />;
-      case BITCOIN_TEST_NETWORK.chainId:
-        return <BitcoinLogo height="16" />;
-      default:
-        return <AvaxTokenIcon height="16" />;
-    }
-  };
 
   return (
     <SelectContainer>
@@ -86,7 +70,7 @@ export function NetworkSwitcher() {
         onClick={() => setIsOpen(!isOpen)}
         ref={selectButtonRef}
       >
-        {getBlockChainLogo(network?.chainId)}
+        <NetworkLogo src={network?.logoUri} />
         <CaretIcon
           height={'12px'}
           color={theme.colors.text1}
@@ -104,8 +88,11 @@ export function NetworkSwitcher() {
       >
         <DropdownContents>
           <VerticalFlex>
-            {networks &&
-              networks.map((networkItem) => {
+            {networks
+              .filter((network) => {
+                return network.chainId !== ChainId.AVALANCHE_LOCAL_ID;
+              })
+              .map((networkItem) => {
                 return (
                   <NetworkSwitcherItem
                     key={networkItem.chainId}
@@ -114,9 +101,9 @@ export function NetworkSwitcher() {
                     }}
                   >
                     <HorizontalFlex align="center">
-                      {getBlockChainLogo(networkItem?.chainId)}
+                      <NetworkLogo src={networkItem.logoUri} />
                       <Typography margin="0 0 0 8px" weight={600} size={14}>
-                        {networkItem.name}
+                        {networkItem.chainName}
                       </Typography>
                     </HorizontalFlex>
                     {networkItem.chainId === network?.chainId && (

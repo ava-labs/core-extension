@@ -1,7 +1,7 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { supportedNetworks } from '../models';
+import { NetworkService } from '../NetworkService';
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3085
@@ -10,6 +10,7 @@ import { supportedNetworks } from '../models';
 @injectable()
 export class WalletAddEthereumChainHandler implements DAppRequestHandler {
   methods = [DAppProviderRequest.WALLET_ADD_CHAIN];
+  constructor(private networkService: NetworkService) {}
   handleUnauthenticated = async (request) => {
     return {
       ...request,
@@ -19,9 +20,8 @@ export class WalletAddEthereumChainHandler implements DAppRequestHandler {
 
   handleAuthenticated = async (request) => {
     const params = request.params;
-    const supportedChainIds = Array.from(supportedNetworks.values()).map(
-      (network) => network.chainId
-    );
+    const chains = await this.networkService.activeNetworks.promisify();
+    const supportedChainIds = Object.keys(chains);
     const chainsRequestedIsSupported = params?.every((chainRequested) =>
       supportedChainIds.includes(chainRequested.chainId)
     );

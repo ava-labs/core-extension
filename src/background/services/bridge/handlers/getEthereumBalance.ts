@@ -6,7 +6,6 @@ import {
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { Asset, Blockchain, fetchTokenBalances } from '@avalabs/bridge-sdk';
 import { NetworkService } from '../../network/NetworkService';
-import { getEthereumProvider } from '../../network/getEthereumProvider';
 import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { injectable } from 'tsyringe';
 
@@ -26,8 +25,8 @@ export class BridgeGetEthereumBalanceHandler
       account: string,
       deprecated: boolean
     ];
+    const provider = await this.networkService.getEthereumProvider();
 
-    const provider = getEthereumProvider(this.networkService.activeNetwork);
     const ethereumBalancesBySymbol = await fetchTokenBalances(
       { [asset.symbol]: asset },
       Blockchain.ETHEREUM,

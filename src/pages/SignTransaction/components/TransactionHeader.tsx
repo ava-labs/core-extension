@@ -43,7 +43,7 @@ export function TransactionHeader({
             connected={isWalletReady}
           />
           <SubTextTypography margin={'0 0 0 8px'} size={16} height="24px">
-            {network?.name} C-Chain
+            {network?.chainName}
           </SubTextTypography>
         </HorizontalFlex>
       )}

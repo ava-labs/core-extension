@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import { SendErrors, TokenWithBalance } from '@avalabs/wallet-react-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { SendErrors } from '@avalabs/wallet-react-components';
 import { ContactInput } from './ContactInput';
 import { Contact } from '@src/background/services/contacts/models';
 import { SendStateWithActions } from '../models';
 import { HorizontalFlex } from '@avalabs/react-components';
+import { TokenWithBalance } from '@src/background/services/balances/models';
+import BN from 'bn.js';
 
 const FALLBACK_MAX = new BN(0);
 

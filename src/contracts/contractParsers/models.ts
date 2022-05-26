@@ -1,9 +1,10 @@
 import { BN } from '@avalabs/avalanche-wallet-sdk';
-import {
-  AvaxWithBalance,
-  ERC20WithBalance,
-} from '@avalabs/wallet-react-components';
 import { DomainMetadata } from '@src/background/models';
+import {
+  NetworkContractTokenWithBalance,
+  NetworkTokenWithBalance,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import {
   TransactionDisplayValues,
   txParams,
@@ -30,7 +31,7 @@ export enum ContractCall {
 }
 
 export type BNWithDisplay = { bn: BN; value: string };
-export type erc20PathToken = (ERC20WithBalance | AvaxWithBalance) & {
+export type erc20PathToken = TokenWithBalance & {
   amountIn?: BNWithDisplay;
   amountOut?: BNWithDisplay;
   amountUSDValue?: string;
@@ -40,7 +41,7 @@ export interface SwapExactTokensForTokenDisplayValues
   path: erc20PathToken[];
 }
 
-export type LiquidityPoolToken = (ERC20WithBalance | AvaxWithBalance) & {
+export type LiquidityPoolToken = TokenWithBalance & {
   amountDepositedDisplayValue: string;
   amountUSDValue?: string;
 };
@@ -49,13 +50,13 @@ export interface AddLiquidityDisplayData extends TransactionDisplayValues {
 }
 
 export interface ApproveTransactionData extends TransactionDisplayValues {
-  tokenToBeApproved: ERC20WithBalance | AvaxWithBalance;
+  tokenToBeApproved: TokenWithBalance;
 }
 
 export interface DisplayValueParserProps {
   gasPrice: ethers.BigNumber;
-  erc20Tokens: ERC20WithBalance[];
-  avaxToken: AvaxWithBalance;
+  erc20Tokens: NetworkContractTokenWithBalance[];
+  avaxToken: NetworkTokenWithBalance;
   avaxPrice: number;
   site: DomainMetadata;
 }

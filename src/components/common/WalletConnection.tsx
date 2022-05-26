@@ -9,10 +9,7 @@ import {
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
-import {
-  MAINNET_NETWORK,
-  FUJI_NETWORK,
-} from '@avalabs/wallet-react-components';
+import { ChainId } from '@avalabs/chains-sdk';
 const ConnectedDot = styled.div<{
   color: string;
 }>`
@@ -29,11 +26,11 @@ export function WalletConnection() {
   const { network, setNetwork, networks } = useNetworkContext();
   const theme = useTheme();
 
-  const getNetworkColor = (networkName?: string) => {
-    switch (networkName) {
-      case MAINNET_NETWORK.name:
+  const getNetworkColor = (networkId?: number) => {
+    switch (networkId) {
+      case ChainId.AVALANCHE_MAINNET_ID:
         return theme.palette.secondary[400];
-      case FUJI_NETWORK.name:
+      case ChainId.AVALANCHE_TESTNET_ID:
         return theme.palette.orange[400];
       default:
         return theme.palette.grey[400];
@@ -55,7 +52,7 @@ export function WalletConnection() {
             justify="center"
             overflow="hidden"
           >
-            <ConnectedDot color={getNetworkColor(network?.name)} />
+            <ConnectedDot color={getNetworkColor(network?.chainId)} />
             <Typography
               margin="0 0 0 8px"
               height="24px"
@@ -63,7 +60,7 @@ export function WalletConnection() {
               overflow="hidden"
               textOverflow="ellipsis"
             >
-              {network?.name}
+              {network?.chainName}
             </Typography>
           </HorizontalFlex>
         </Card>
@@ -74,20 +71,23 @@ export function WalletConnection() {
           Networks
         </Typography>
         {/* Filtering local network until we support this in the background */}
-        {networks &&
-          networks.map((n) => (
+        {networks
+          .filter((net) => {
+            return net.chainId !== ChainId.AVALANCHE_LOCAL_ID;
+          })
+          .map((n) => (
             <SecondaryDropDownMenuItem
-              key={n.name}
+              key={n.chainName}
               onClick={() => setNetwork(n)}
               align="center"
               justify="space-between"
               width="100%"
             >
               <HorizontalFlex align="center">
-                <ConnectedDot color={getNetworkColor(n.name)} />
-                <Typography height="24px">{n.name}</Typography>
+                <ConnectedDot color={getNetworkColor(n.chainId)} />
+                <Typography height="24px">{n.chainName}</Typography>
               </HorizontalFlex>
-              {network?.name === n.name && (
+              {network?.chainName === n.chainName && (
                 <CheckmarkIcon height="16px" color={theme.colors.primary1} />
               )}
             </SecondaryDropDownMenuItem>

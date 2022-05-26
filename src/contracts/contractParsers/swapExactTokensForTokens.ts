@@ -6,12 +6,12 @@ import {
   erc20PathToken,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig } from '@avalabs/utils-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
+import { NetworkContractTokenWithBalance } from '@src/background/services/balances/models';
 
 export interface SwapExactTokensForTokenData {
   amountInMin: BigNumber;
@@ -44,19 +44,19 @@ export async function swapExactTokensForTokenHandler(
   const lastTokenInPath = data.path[data.path.length - 1];
   const path: erc20PathToken[] = await Promise.all(
     data.path.map(async (address) => {
-      const pathToken: ERC20WithBalance = await findToken(
+      const pathToken: NetworkContractTokenWithBalance = await findToken(
         address.toLowerCase()
       );
 
       if (
         pathToken.address.toLowerCase() === firstTokenInPath.toLowerCase() &&
-        pathToken.denomination
+        pathToken.decimals
       ) {
         const amount: BigNumber =
           data.amountIn || data.amountInMax || data.amountInMax;
         const bn = hexToBN(amount.toHexString());
         const amountValue = bigToLocaleString(
-          bnToBig(bn, pathToken.denomination),
+          bnToBig(bn, pathToken.decimals),
           4
         );
         const amountUSDValue =
@@ -74,12 +74,12 @@ export async function swapExactTokensForTokenHandler(
 
       if (
         pathToken.address.toLowerCase() === lastTokenInPath.toLowerCase() &&
-        pathToken.denomination
+        pathToken.decimals
       ) {
         const amount = data.amountOutMin || data.amountOut || data.amountOutMax;
         const bn = hexToBN(amount.toHexString());
         const amountValue = bigToLocaleString(
-          bnToBig(bn, pathToken.denomination),
+          bnToBig(bn, pathToken.decimals),
           4
         );
         const amountUSDValue =

@@ -11,14 +11,13 @@ import {
   Card,
   HorizontalFlex,
   SecondaryButton,
-  AvaxTokenIcon,
   HorizontalSeparator,
   Tooltip,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
-import { SendErrors, TokenWithBalance } from '@avalabs/wallet-react-components';
+import { SendErrors } from '@avalabs/wallet-react-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { SendStateWithActions } from './models';
@@ -34,19 +33,7 @@ import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
-
-const SummaryAvaxTokenIcon = styled(AvaxTokenIcon)`
-  position: absolute;
-  top: -28px;
-  margin-left: auto;
-  margin-right: auto;
-  left: 0;
-  right: 0;
-  text-align: center;
-  border: 8px solid;
-  border-color: ${({ theme }) => theme.colors.bg1};
-  border-radius: 50%;
-`;
+import { TokenWithBalance } from '@src/background/services/balances/models';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -157,7 +144,7 @@ export const SendConfirm = ({
 
   const amount = bnToLocaleString(
     sendState?.amount || new BN(0),
-    token.denomination
+    token.decimals
   );
 
   // Need separate formatting for high-value (ETH/BTC) vs low-value (DOGE/SHIB) tokens
@@ -166,7 +153,7 @@ export const SendConfirm = ({
   const amountDisplayValue =
     token.priceUSD && token.priceUSD > 1
       ? bigToLocaleString(
-          bnToBig(sendState?.amount || new BN(0), token.denomination),
+          bnToBig(sendState?.amount || new BN(0), token.decimals),
           4
         )
       : fallbackAmountDisplayValue;
@@ -177,18 +164,15 @@ export const SendConfirm = ({
 
   const balanceAfter = token.balance
     .sub(sendState?.amount || new BN(0))
-    .sub(token.isAvax ? sendState?.sendFee || new BN(0) : new BN(0));
+    .sub(token.isNetworkToken ? sendState?.sendFee || new BN(0) : new BN(0));
   const balanceAfterDisplay = bigToLocaleString(
-    bnToBig(balanceAfter, token.denomination),
+    bnToBig(balanceAfter, token.decimals),
     4
   );
   const balanceAfterInCurrencyDisplay = currencyFormatter(
     Number(
       bigToLocaleString(
-        bnToBig(
-          balanceAfter.mul(new BN(token.priceUSD || 0)),
-          token.denomination
-        ),
+        bnToBig(balanceAfter.mul(new BN(token.priceUSD || 0)), token.decimals),
         2
       ).replace(',', '')
     )
@@ -232,16 +216,12 @@ export const SendConfirm = ({
                 )}
               </VerticalFlex>
             </HorizontalFlex>
-            {token.isAvax ? (
-              <SummaryAvaxTokenIcon height="56px" />
-            ) : (
-              <SummaryTokenIcon
-                height="56px"
-                width="56px"
-                src={token.logoURI}
-                name={token.name}
-              />
-            )}
+            <SummaryTokenIcon
+              height="56px"
+              width="56px"
+              src={token.logoUri}
+              name={token.name}
+            />
           </Card>
 
           <Card padding="16px" margin="16px 0 0 0">

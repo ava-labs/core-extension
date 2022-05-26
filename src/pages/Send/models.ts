@@ -1,4 +1,5 @@
-import { SendState, TokenWithBalance } from '@avalabs/wallet-react-components';
+import { SendState } from '@avalabs/wallet-react-components';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 import { BigNumber } from 'ethers';
 
 export type SetSendValuesParams = {

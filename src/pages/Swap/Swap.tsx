@@ -12,22 +12,12 @@ import {
   toast,
   WarningIcon,
 } from '@avalabs/react-components';
-import {
-  getTransactionLink,
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  BN,
-  stringToBN,
-  bnToLocaleString,
-  isMainnetNetwork,
-} from '@avalabs/avalanche-wallet-sdk';
+import { stringToBN, bnToLocaleString } from '@avalabs/utils-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
@@ -54,6 +44,10 @@ import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavaila
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { TokenWithBalance } from '@src/background/services/balances/models';
+import { getTransactionLink } from '@avalabs/wallet-react-components';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import BN from 'bn.js';
 
 export interface Token {
   icon?: JSX.Element;
@@ -87,7 +81,7 @@ const TryAgainButton = styled.span`
 
 export function Swap() {
   const { flags, capture } = useAnalyticsContext();
-  const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
+  const { walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const { getRate, swap } = useSwapContext();
   const { networkFee } = useNetworkFeeContext();
@@ -98,6 +92,8 @@ export function Swap() {
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
+  const allTokensOnNetwork = useTokensWithBalances(true);
+  const avaxPrice = useNativeTokenPrice();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const pageHistory: {
     selectedFromToken?: TokenWithBalance;
@@ -176,8 +172,8 @@ export function Swap() {
         ...setValuesDebouncedSubject.getValue(),
         fromTokenAddress: getTokenAddress(sourceToken),
         toTokenAddress: getTokenAddress(destinationToken),
-        fromTokenDecimals: sourceToken.denomination,
-        toTokenDecimals: destinationToken.denomination,
+        fromTokenDecimals: sourceToken.decimals,
+        toTokenDecimals: destinationToken.decimals,
         amount,
       });
     },
@@ -235,12 +231,7 @@ export function Swap() {
   }, [calculateTokenValueToInput, pageHistory]);
 
   useEffect(() => {
-    if (
-      customGasPrice &&
-      gasLimit &&
-      selectedFromToken &&
-      isAvaxToken(selectedFromToken)
-    ) {
+    if (customGasPrice && gasLimit && selectedFromToken?.isNetworkToken) {
       const newFees = calculateGasAndFees(customGasPrice, gasLimit, avaxPrice);
 
       setGasCost(newFees.fee);
@@ -376,7 +367,7 @@ export function Swap() {
       amount: fromTokenValue?.amount || '0',
       bn: stringToBN(
         fromTokenValue?.amount || '0',
-        selectedFromToken.denomination || 18
+        selectedFromToken.decimals || 18
       ),
     };
     calculateTokenValueToInput(
@@ -473,10 +464,7 @@ export function Swap() {
         status="Swap Successful"
         type={TransactionToastType.SUCCESS}
         text="View in Explorer"
-        href={getTransactionLink(
-          result.swapTxHash,
-          network ? isMainnetNetwork(network.config) : true
-        )}
+        href={getTransactionLink(result.swapTxHash, !network?.isTestnet)}
       />
     );
   }
@@ -494,7 +482,7 @@ export function Swap() {
     return (
       <FunctionIsUnavailable
         functionName="Swap"
-        network={network?.name || 'Testnet'}
+        network={network?.chainName || 'Testnet'}
       />
     );
   }
@@ -504,9 +492,10 @@ export function Swap() {
   }
 
   const maxGasPrice =
-    selectedFromToken && fromTokenValue && isAvaxToken(selectedFromToken)
-      ? avaxToken.balance.sub(fromTokenValue.bn).toString()
-      : avaxToken.balance.toString();
+    selectedFromToken?.isNetworkToken && fromTokenValue
+      ? selectedFromToken.balance.sub(fromTokenValue.bn).toString()
+      : tokensWBalances.find((t) => t.isNetworkToken)?.balance.toString() ||
+        '0';
 
   const canSwap =
     !swapError.message &&
@@ -542,7 +531,9 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
-              sendTokenSelectedAnalytics(token.address || token.symbol);
+              sendTokenSelectedAnalytics(
+                token.isERC20 ? token.address : token.symbol
+              );
             }}
             onSelectToggle={() => {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
@@ -575,8 +566,7 @@ export function Swap() {
               if (
                 maxFromValue &&
                 value.bn.eq(maxFromValue) &&
-                selectedFromToken &&
-                isAvaxToken(selectedFromToken)
+                selectedFromToken?.isNetworkToken
               ) {
                 setIsCalculateAvaxMax(true);
               }
@@ -665,13 +655,15 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
-              sendTokenSelectedAnalytics(token.address || token.symbol);
+              sendTokenSelectedAnalytics(
+                token.isERC20 ? token.address : token.symbol
+              );
             }}
             onSelectToggle={() => {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={[...erc20Tokens, avaxToken]}
+            tokensList={allTokensOnNetwork}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={

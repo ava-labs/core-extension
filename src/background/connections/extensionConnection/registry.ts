@@ -19,7 +19,6 @@ import { BridgeTransferEvents } from '@src/background/services/bridge/events/bri
 import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';
 import { BridgeGetTransactionsHandler } from '@src/background/services/bridge/handlers/getBridgeTransactions';
-import { BridgeGetBtcBalancesHandler } from '@src/background/services/bridge/handlers/getBtcBalances';
 import { BridgeGetEthereumBalanceHandler } from '@src/background/services/bridge/handlers/getEthereumBalance';
 import { BridgeGetEthereumBalancesHandler } from '@src/background/services/bridge/handlers/getEthereumBalances';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
@@ -91,6 +90,7 @@ import { PerformSwapHandler } from '../../services/swap/handlers/performSwap';
 import { UpdateTransactionHandler } from '../../services/transactions/handlers/updateTransaction';
 import { GetNetworksHandler } from '@src/background/services/network/handlers/getNetworks';
 import { GetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/getDeveloperMode';
+import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -115,7 +115,6 @@ import { GetDevelopermodeNetworkHandler } from '@src/background/services/network
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetTransactionsHandler },
-  { token: 'ExtensionRequestHandler', useToken: BridgeGetBtcBalancesHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeGetEthereumBalanceHandler,
@@ -221,6 +220,7 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SendTxDetailsEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworkFeeUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworkUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: NetworksUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: ContactsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeTransferEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeTransactionUpdatedEvents },

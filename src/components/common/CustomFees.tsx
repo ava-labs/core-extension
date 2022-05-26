@@ -17,7 +17,7 @@ import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNetworkContext } from '../../contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { NetworkVM } from '@src/background/services/network/models';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 
 interface CustomGasFeesProps {
   gasPrice: BigNumber;
@@ -117,7 +117,7 @@ export function CustomFees({
     calculateGasAndFees(
       gasPrice,
       tokenPrice,
-      network?.nativeToken.denomination,
+      network?.networkToken.decimals,
       customGasLimit
     )
   );
@@ -153,7 +153,7 @@ export function CustomFees({
       const newFees = calculateGasAndFees(
         gas,
         tokenPrice,
-        network?.nativeToken.denomination,
+        network?.networkToken.decimals,
         customGasLimit
       );
 
@@ -210,7 +210,11 @@ export function CustomFees({
     updateGasFee(selectedGasFeeModifier);
   }, [selectedGasFeeModifier, updateGasFee]);
 
-  if (network?.vm === NetworkVM.EVM && showEditGasLimit && customGasPrice) {
+  if (
+    network?.vmName === NetworkVMType.EVM &&
+    showEditGasLimit &&
+    customGasPrice
+  ) {
     return (
       <CustomGasLimitOverlay>
         <CustomGasLimit
@@ -225,7 +229,7 @@ export function CustomFees({
               calculateGasAndFees(
                 customGasPrice,
                 tokenPrice,
-                network?.nativeToken.denomination,
+                network?.networkToken.decimals,
                 limit
               )
             );
@@ -261,7 +265,7 @@ export function CustomFees({
                 weight={600}
                 margin="0 8px 0 0"
               >
-                {newFees.fee} {network?.nativeToken.symbol}
+                {newFees.fee} {network?.networkToken.symbol}
               </Typography>
               <Typography height="15px" size={12}>
                 {!isNaN(Number(newFees.feeUSD))
@@ -269,7 +273,7 @@ export function CustomFees({
                   : ''}
               </Typography>
             </HorizontalFlex>
-            {network?.vm === NetworkVM.EVM && (
+            {network?.vmName === NetworkVMType.EVM && (
               <TextButton onClick={() => setShowEditGasLimit(true)}>
                 <GearIcon height="16px" color={theme.colors.icon1} />
               </TextButton>

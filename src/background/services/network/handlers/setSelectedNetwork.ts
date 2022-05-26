@@ -17,16 +17,16 @@ export class SetSelectedNetworkHandler implements ExtensionRequestHandler {
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
     const { params } = request;
-    const [networkName] = params || [];
+    const [chainId] = params || [];
 
-    if (!networkName) {
+    if (!chainId) {
       return {
         ...request,
         error: 'network name missing in params',
       };
     }
 
-    const [, err] = await resolve(this.networkService.setNetwork(networkName));
+    const [, err] = await resolve(this.networkService.setNetwork(chainId));
 
     if (err) {
       return {

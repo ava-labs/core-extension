@@ -1,4 +1,4 @@
-import { TokenListDict } from '@avalabs/wallet-react-components';
+import { NetworkContractToken } from '@avalabs/chains-sdk';
 
 export enum ThemeVariant {
   LIGHT = 'LIGHT',
@@ -10,7 +10,7 @@ export type TokensVisibility = {
 };
 
 type CustomTokens = {
-  [chain: string]: TokenListDict;
+  [chain: string]: NetworkContractToken;
 };
 
 export interface SettingsState {

@@ -37,7 +37,7 @@ export async function swapExactTokensForAvax(
     (data.amountIn || data.amountOutMin).toHexString()
   );
   const amountValue = bigToLocaleString(
-    bnToBig(lastTokenAmountBN, firstTokenInPath.denomination),
+    bnToBig(lastTokenAmountBN, firstTokenInPath.decimals),
     4
   );
   const amountUSDValue =

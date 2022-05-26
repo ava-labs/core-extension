@@ -1,8 +1,5 @@
-import {
-  AVAX_TOKEN,
-  ERC20WithBalance,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
+import { TokenWithBalance } from '@src/background/services/balances/models';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory, useLocation } from 'react-router-dom';
 
 type SetSendDataInParams = {
@@ -16,6 +13,7 @@ type SetSendDataInParams = {
 
 export function useSetSendDataInParams() {
   const { pathname } = useLocation();
+  const { network } = useNetworkContext();
   const history = useHistory();
 
   return ({ token, address, options }: SetSendDataInParams) => {
@@ -23,8 +21,8 @@ export function useSetSendDataInParams() {
     pushOrReplace({
       pathname: options?.path ?? pathname,
       search: `?${new URLSearchParams({
-        tokenSymbol: token?.symbol || AVAX_TOKEN.symbol,
-        tokenAddress: (token as ERC20WithBalance)?.address ?? '',
+        tokenSymbol: token?.symbol || network?.networkToken.symbol || '',
+        tokenAddress: token?.isERC20 ? token?.address : '',
         address: address ?? '',
       }).toString()}`,
     });

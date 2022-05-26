@@ -11,15 +11,12 @@ import { NetworkService } from '../NetworkService';
 export class NetworkUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   constructor(private networkService: NetworkService) {
-    this.networkService.addListener(
-      NetworkEvents.NETWORK_UPDATE_EVENT,
-      (activeNetwork) => {
-        this.eventEmitter.emit('update', {
-          name: NetworkEvents.NETWORK_UPDATE_EVENT,
-          value: activeNetwork,
-        });
-      }
-    );
+    this.networkService.activeNetwork.add((chain) => {
+      this.eventEmitter.emit('update', {
+        name: NetworkEvents.NETWORK_UPDATE_EVENT,
+        value: chain,
+      });
+    });
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

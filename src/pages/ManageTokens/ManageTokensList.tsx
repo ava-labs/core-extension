@@ -8,10 +8,7 @@ import {
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import {
-  isERC20Token,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 
 type ManageTokensListProps = {
   searchQuery: string;
@@ -25,7 +22,7 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
       {tokensWithBalances
         .filter(
           (token) =>
-            !token.isAvax &&
+            !token.isNetworkToken &&
             (searchQuery.length
               ? token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
@@ -33,7 +30,7 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
         )
         .map((token) => (
           <ManageTokensListItem
-            key={isERC20Token(token) ? token.address : token.symbol}
+            key={token.isERC20 ? token.address : token.symbol}
             token={token}
           />
         ))}
@@ -59,7 +56,7 @@ const ManageTokensListItem = ({ token }: ManageTokensListItemProps) => {
         <TokenIcon
           width="32px"
           height="32px"
-          src={token.logoURI}
+          src={token.logoUri}
           name={token.name}
         />
         <VerticalFlex margin={'0 16px'}>

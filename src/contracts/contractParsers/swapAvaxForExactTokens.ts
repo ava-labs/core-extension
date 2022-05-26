@@ -5,11 +5,12 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { BN, bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig } from '@avalabs/utils-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
+import BN from 'bn.js';
 
 export interface SwapAVAXForExactTokensData {
   /**
@@ -55,7 +56,7 @@ export async function swapAVAXForExactTokens(
     (data.amountOut || data.amountOutMin).toHexString()
   );
   const amountValue = bigToLocaleString(
-    bnToBig(lastTokenAmountBN, lastTokenInPath?.denomination),
+    bnToBig(lastTokenAmountBN, lastTokenInPath?.decimals),
     4
   );
   const amountUSDValue =

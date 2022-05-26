@@ -7,12 +7,6 @@ import { BitcoinHistoryTx, BlockCypherProvider } from '@avalabs/wallets-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
-import {
-  ActiveNetwork,
-  BITCOIN_NETWORK,
-  BTC_TOKEN,
-  NetworkVM,
-} from '../network/models';
 import { WalletService } from '../wallet/WalletService';
 import {
   AVAX_TOKEN,
@@ -25,6 +19,7 @@ import {
   isTransactionNormal,
 } from '@src/utils/transactionUtils';
 import { TxHistoryItem } from './models';
+import { BITCOIN_NETWORK, Network, NetworkVMType } from '@avalabs/chains-sdk';
 
 @singleton()
 export class HistoryService {
@@ -67,14 +62,14 @@ export class HistoryService {
 
   private txHistoryItemConverter(
     tx: TransactionNormal | TransactionERC20 | BitcoinHistoryTx,
-    network: ActiveNetwork
+    network: Network
   ): TxHistoryItem {
     if (isTransactionBitcoin(tx)) {
       const userAddress = this.accountsService.activeAccount?.addressBTC
         ? this.accountsService.activeAccount?.addressBTC
         : '';
       const txAddress = tx.addresses[0] ? tx.addresses[0] : '';
-      const denomination = BTC_TOKEN.denomination;
+      const denomination = BITCOIN_NETWORK.networkToken.decimals;
       return {
         isBridge: this.isBridge(tx),
         isIncoming: !tx.isSender,
@@ -88,14 +83,14 @@ export class HistoryService {
         to: tx.isSender ? txAddress : userAddress,
         token: {
           decimal: denomination.toString(),
-          name: BTC_TOKEN.name,
-          symbol: BTC_TOKEN.symbol,
+          name: BITCOIN_NETWORK.networkToken.name,
+          symbol: BITCOIN_NETWORK.networkToken.symbol,
         },
         explorerLink: getBTCBlockchainLink(
           tx.hash,
           network.chainId === BITCOIN_NETWORK.chainId
         ),
-        chainId: network.chainId,
+        chainId: network.chainId.toString(),
       };
     } else if (isTransactionERC20(tx)) {
       return {
@@ -115,7 +110,7 @@ export class HistoryService {
           symbol: tx.tokenSymbol,
         },
         explorerLink: tx.explorerLink,
-        chainId: network.chainId,
+        chainId: network.chainId.toString(),
       };
     } else {
       return {
@@ -135,13 +130,13 @@ export class HistoryService {
           symbol: AVAX_TOKEN.symbol,
         },
         explorerLink: tx.explorerLink,
-        chainId: network.chainId,
+        chainId: network.chainId.toString(),
       };
     }
   }
 
-  async getEVMHistory(network: ActiveNetwork) {
-    if (network?.vm !== NetworkVM.EVM) {
+  async getEVMHistory(network: Network) {
+    if (network?.vmName !== NetworkVMType.EVM) {
       return [];
     }
     const state = this.walletService.walletState;
@@ -157,8 +152,8 @@ export class HistoryService {
     return results;
   }
 
-  async getBTCTxHistory(network: ActiveNetwork) {
-    if (network?.vm !== NetworkVM.BITCOIN) {
+  async getBTCTxHistory(network: Network) {
+    if (network?.vmName !== NetworkVMType.BITCOIN) {
       return [];
     }
     const account = this.accountsService.activeAccount?.addressBTC;
@@ -188,10 +183,10 @@ export class HistoryService {
   }
 
   async getTxHistory() {
-    const network = this.networkService.activeNetwork;
+    const network = await this.networkService.activeNetwork.promisify();
     if (network) {
-      switch (network.vm) {
-        case NetworkVM.BITCOIN:
+      switch (network.vmName) {
+        case NetworkVMType.BITCOIN:
           return await this.getBTCTxHistory(network);
         default:
           return await this.getEVMHistory(network);

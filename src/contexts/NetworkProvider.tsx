@@ -1,20 +1,17 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import {
-  ActiveNetwork,
-  MAINNET_NETWORK,
-} from '@src/background/services/network/models';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
 import { filter, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { Network } from '@avalabs/chains-sdk';
+import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 
 const NetworkContext = createContext<{
-  network?: ActiveNetwork;
-  setNetwork(network: ActiveNetwork): void;
-  networks?: ActiveNetwork[];
+  network?: Network;
+  setNetwork(network: Network): void;
+  networks: Network[];
   setDeveloperMode(status: boolean): void;
-  supportedNetworks?: ActiveNetwork[];
   isDeveloperMode: boolean;
 }>({} as any);
 
@@ -24,8 +21,8 @@ const NetworkContext = createContext<{
  * event. Thus updating all instances of the network provider and everything stays in sync.
  */
 export function NetworkContextProvider({ children }: { children: any }) {
-  const [network, setNetwork] = useState<ActiveNetwork>(MAINNET_NETWORK);
-  const [networks, setNetworks] = useState<ActiveNetwork[]>();
+  const [network, setNetwork] = useState<Network>();
+  const [networks, setNetworks] = useState<Network[]>([]);
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const { request, events } = useConnectionContext();
 
@@ -35,10 +32,15 @@ export function NetworkContextProvider({ children }: { children: any }) {
     }
 
     request({
+      method: ExtensionRequest.NETWORK_GET_NETWORKS,
+    }).then((networks) => {
+      setNetworks(networks);
+    });
+
+    request({
       method: ExtensionRequest.NETWORK_GET_SELECTED,
-      params: [],
-    }).then((result) => {
-      setNetwork(result);
+    }).then((network) => {
+      setNetwork(network as any);
     });
 
     request({
@@ -47,27 +49,26 @@ export function NetworkContextProvider({ children }: { children: any }) {
       setIsDeveloperMode(result);
     });
 
-    const subscription = events()
+    events()
       .pipe(
         filter(networkUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((network) => {
-        setNetwork(network.activeNetwork as ActiveNetwork);
-        setIsDeveloperMode(network.isDeveloperMode);
+      .subscribe((result) => {
+        setNetwork(result);
       });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [events, request]);
 
-  useEffect(() => {
-    request({
-      method: ExtensionRequest.NETWORK_GET_SUPPORTED_NETWORKS,
-    }).then((networks) => {
-      setNetworks(networks);
-    });
-  }, [isDeveloperMode, request]);
+    events()
+      .pipe(
+        filter(networksUpdatedEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe((result) => {
+        setNetworks(result.networks);
+        setNetwork(result.activeNetwork);
+        setIsDeveloperMode(result.isDeveloperMode);
+      });
+  }, [events, request]);
 
   if (!request || !events) {
     return <LoadingIcon />;
@@ -77,17 +78,17 @@ export function NetworkContextProvider({ children }: { children: any }) {
     <NetworkContext.Provider
       value={{
         network,
-        setNetwork: (network: ActiveNetwork) =>
+        setNetwork: (network: Network) =>
           request({
             method: ExtensionRequest.NETWORK_SET_SELECTED,
-            params: [network.name],
+            params: [network.chainId],
           }),
+        networks,
         setDeveloperMode: (status: boolean) =>
           request({
             method: ExtensionRequest.NETWORK_SET_DEVELOPER_MODE,
             params: [status],
           }),
-        networks,
         isDeveloperMode,
       }}
     >

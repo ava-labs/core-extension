@@ -5,13 +5,9 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import {
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 
 export function TokenCard({
   token,
@@ -30,16 +26,12 @@ export function TokenCard({
     <Card padding="8px 16px" margin={margin}>
       <HorizontalFlex align={'center'} justify={'space-between'} width={'100%'}>
         <HorizontalFlex align={'center'} height="100%">
-          {isAvaxToken(token) ? (
-            <AvaxTokenIcon height="32px" />
-          ) : (
-            <TokenIcon
-              height="32px"
-              width="32px"
-              src={(token as TokenWithBalance).logoURI}
-              name={(token as TokenWithBalance).name}
-            />
-          )}
+          <TokenIcon
+            height="32px"
+            width="32px"
+            src={(token as TokenWithBalance).logoUri}
+            name={(token as TokenWithBalance).name}
+          />
           <Typography margin="0 0 0 16px" size={16} height="24px" weight={500}>
             {token.symbol}
           </Typography>

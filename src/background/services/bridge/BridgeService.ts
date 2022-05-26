@@ -13,13 +13,6 @@ import {
   getMinimumConfirmations,
 } from '@avalabs/bridge-sdk';
 import { EventEmitter } from 'events';
-import { getAvalancheProvider } from '../network/getAvalancheProvider';
-import { getEthereumProvider } from '../network/getEthereumProvider';
-import {
-  FUJI_NETWORK,
-  MAINNET_NETWORK,
-  NetworkEvents,
-} from '../network/models';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import {
@@ -39,7 +32,6 @@ import {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
-import { BlockCypherProvider } from '@avalabs/wallets-sdk';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -64,7 +56,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     private walletService: WalletService,
     private accountsService: AccountsService
   ) {
-    this.networkService.addListener(NetworkEvents.NETWORK_UPDATE_EVENT, () => {
+    this.networkService.activeNetwork.add(() => {
       this.updateBridgeConfig();
     });
   }
@@ -111,7 +103,7 @@ export class BridgeService implements OnLock, OnStorageReady {
   }
 
   async updateBridgeConfig() {
-    setBridgeEnvironment(this.getEnv(this.networkService.isMainnet));
+    setBridgeEnvironment(this.getEnv(await this.networkService.isMainnet()));
     const config = await fetchConfig();
 
     this.config = config;
@@ -122,7 +114,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     return config;
   }
 
-  private trackBridgeTransaction(
+  private async trackBridgeTransaction(
     bridgeTransaction: BridgeTransaction,
     bridgeConfig: BridgeConfig | undefined
   ) {
@@ -130,10 +122,9 @@ export class BridgeService implements OnLock, OnStorageReady {
     if (!config) {
       throw new Error('Bridge config not initialized');
     }
-    const network =
-      bridgeTransaction.environment === 'main' ? MAINNET_NETWORK : FUJI_NETWORK;
-    const avalancheProvider = getAvalancheProvider(network);
-    const ethereumProvider = getEthereumProvider(network);
+
+    const avalancheProvider = await this.networkService.getAvalancheProvider();
+    const ethereumProvider = await this.networkService.getEthereumProvider();
 
     trackBridgeTransactionSDK({
       bridgeTransaction,
@@ -141,7 +132,7 @@ export class BridgeService implements OnLock, OnStorageReady {
       config,
       avalancheProvider,
       ethereumProvider,
-      bitcoinProvider: this.bitcoinProvider,
+      bitcoinProvider: await this.networkService.getBitcoinProvider(),
     });
   }
 
@@ -187,17 +178,13 @@ export class BridgeService implements OnLock, OnStorageReady {
     if (!this.accountsService.activeAccount) {
       throw new Error('no active account found');
     }
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
 
-    if (!this.networkService.activeNetwork) {
+    if (!activeNetwork) {
       throw new Error('missing network');
     }
-
-    const avalancheProvider = getAvalancheProvider(
-      this.networkService.activeNetwork
-    );
-    const ethereumProvider = getEthereumProvider(
-      this.networkService.activeNetwork
-    );
+    const avalancheProvider = await this.networkService.getAvalancheProvider();
+    const ethereumProvider = await this.networkService.getEthereumProvider();
 
     return await transferAssetSDK(
       currentBlockchain,
@@ -246,7 +233,8 @@ export class BridgeService implements OnLock, OnStorageReady {
       sourceChain,
       config
     );
-
+    const isMainnet = await this.networkService.isMainnet();
+    const environment = isMainnet ? 'main' : 'test';
     const bridgeTransaction: BridgeTransaction = {
       /* from params */
       sourceChain,
@@ -260,7 +248,7 @@ export class BridgeService implements OnLock, OnStorageReady {
       addressBTC,
       complete: false,
       confirmationCount: 0,
-      environment: this.networkService.isMainnet ? 'main' : 'test',
+      environment,
       requiredConfirmationCount,
     };
     await this.saveBridgeTransaction(bridgeTransaction);
@@ -269,13 +257,6 @@ export class BridgeService implements OnLock, OnStorageReady {
 
   addListener(event: BridgeEvents, callback: (data: unknown) => void) {
     this.eventEmitter.on(event, callback);
-  }
-
-  private get bitcoinProvider(): BlockCypherProvider {
-    const provider = this.networkService.activeProvider;
-    if (!(provider instanceof BlockCypherProvider))
-      throw new Error('provider mismatch');
-    return provider;
   }
 
   private getEnv(isMainnet: boolean) {

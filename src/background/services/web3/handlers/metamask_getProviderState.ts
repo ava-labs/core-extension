@@ -14,23 +14,27 @@ export class MetamaskGetProviderState implements DAppRequestHandler {
   ) {}
 
   handleUnauthenticated = async (request) => {
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
     return {
       ...request,
       result: {
         isUnlocked: false,
+        // this needs to be changed to the network?
         networkVersion: 'avax',
         accounts: [],
-        chainId: this.networkService.activeNetwork?.chainId,
+        chainId: activeNetwork?.chainId,
       },
     };
   };
 
   handleAuthenticated = async (request) => {
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
     return {
       ...request,
       result: {
         isUnlocked: true,
-        chainId: this.networkService.activeNetwork?.chainId,
+        chainId: activeNetwork?.chainId,
+        // this needs to be changed to the network?
         networkVersion: 'avax',
         accounts: this.accountsService.activeAccount
           ? [this.accountsService.activeAccount.addressC]

@@ -1,15 +1,11 @@
 import { isBech32AddressInNetwork } from '@avalabs/bridge-sdk';
 import { stringToBN } from '@avalabs/utils-sdk';
 import { SendState } from '@avalabs/wallet-react-components';
-import {
-  BitcoinInputUTXO,
-  BitcoinProviderAbstract,
-  createTransferTx,
-} from '@avalabs/wallets-sdk';
+import { BitcoinInputUTXO, createTransferTx } from '@avalabs/wallets-sdk';
 import { SetSendValuesParams } from '@src/pages/Send/models';
+import { bitcoin, testnet } from 'bitcoinjs-lib/src/networks';
 import { BN } from 'bn.js';
 import { NetworkService } from '../../network/NetworkService';
-import { WalletService } from '../../wallet/WalletService';
 
 export enum SendBtcError {
   AMOUNT_REQUIRED = 'Amount required',
@@ -24,7 +20,6 @@ export async function validateSendBtcValues(
   balance: number,
   utxos: BitcoinInputUTXO[],
   feeRate: number,
-  walletService: WalletService,
   networkService: NetworkService
 ): Promise<SendState> {
   const { amount: amountStr, address } = values;
@@ -38,7 +33,10 @@ export async function validateSendBtcValues(
   if (!address) {
     error = SendBtcError.ADDRESS_REQUIRED;
   }
-  if (address && !isBech32AddressInNetwork(address, networkService.isMainnet)) {
+  if (
+    address &&
+    !isBech32AddressInNetwork(address, await networkService.isMainnet())
+  ) {
     error = SendBtcError.INVALID_ADDRESS;
   }
 
@@ -49,7 +47,7 @@ export async function validateSendBtcValues(
     balance,
     feeRate,
     utxos,
-    networkService.activeProvider as BitcoinProviderAbstract
+    (await networkService.isMainnet()) ? bitcoin : testnet
   );
   let maxAmount = new BN(balance - maxFee);
   if (maxAmount.lt(new BN(0))) {
@@ -62,7 +60,7 @@ export async function validateSendBtcValues(
     amountInSatoshis.toNumber(),
     feeRate,
     utxos,
-    networkService.activeProvider as BitcoinProviderAbstract
+    (await networkService.isMainnet()) ? bitcoin : testnet
   );
 
   if (!psbt && amountInSatoshis.gt(new BN(0))) {

@@ -16,7 +16,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { getAvalancheProvider } from '@src/background/services/network/getAvalancheProvider';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 /**
  * Hook for when the source is Avalanche
@@ -46,7 +46,11 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
 
   const { addresses } = useWalletContext();
   const { network } = useNetworkContext();
-  const avalancheProvider = getAvalancheProvider(network);
+  const avalancheProvider = new JsonRpcBatchInternal(
+    40,
+    network?.rpcUrl,
+    network?.chainId
+  );
   const hasEnoughForNetworkFee = useHasEnoughForGas(
     isAvalancheBridge ? addresses.addrC : undefined,
     avalancheProvider

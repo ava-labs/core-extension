@@ -15,9 +15,10 @@ export class GetSelectedNetworkHandler implements ExtensionRequestHandler {
   handle = async (
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
+    const result = await this.networkService.activeNetwork.promisify();
     return {
       ...request,
-      result: this.networkService.activeNetwork,
+      result,
     };
   };
 }

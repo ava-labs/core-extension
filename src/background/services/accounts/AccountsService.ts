@@ -15,8 +15,8 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { WalletService } from '../wallet/WalletService';
-import { NetworkEvents, NetworkVM } from '../network/models';
 import { NetworkService } from '../network/NetworkService';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 
 @singleton()
 export class AccountsService implements OnLock, OnUnlock {
@@ -38,19 +38,13 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.init();
 
     // refresh addresses so in case the user switches to testnet the BTC address gets updated
-    this.networkService.addListener(
-      NetworkEvents.NETWORK_UPDATE_EVENT,
-      this.init.bind(this)
-    );
+    this.networkService.developerModeChanges.add(this.init.bind(this));
   }
 
   onLock() {
     this.accounts = [];
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
-    this.networkService.removeListener(
-      NetworkEvents.NETWORK_UPDATE_EVENT,
-      this.init.bind(this)
-    );
+    this.networkService.developerModeChanges.remove(this.init.bind(this));
   }
 
   private async init() {
@@ -73,8 +67,8 @@ export class AccountsService implements OnLock, OnUnlock {
       this.accounts.push({
         ...acc,
         active: acc.index === activeIndex,
-        addressC: addresses[NetworkVM.EVM],
-        addressBTC: addresses[NetworkVM.BITCOIN],
+        addressC: addresses[NetworkVMType.EVM],
+        addressBTC: addresses[NetworkVMType.BITCOIN],
       });
     }
 
@@ -128,14 +122,15 @@ export class AccountsService implements OnLock, OnUnlock {
     };
 
     const balance = await firstValueFrom(newSDKAccount.balance$);
+
     const addresses = await this.walletService.getAddress(newSDKAccount.index);
 
     this.accounts = [
       ...this.accounts,
       {
         ...newAccount,
-        addressC: addresses[NetworkVM.EVM],
-        addressBTC: addresses[NetworkVM.BITCOIN],
+        addressC: addresses[NetworkVMType.EVM],
+        addressBTC: addresses[NetworkVMType.BITCOIN],
         balance,
       },
     ];

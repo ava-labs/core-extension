@@ -1,6 +1,3 @@
-import { isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
-import { networkUpdates$ } from '@avalabs/wallet-react-components';
-import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import {
   OnLock,
@@ -8,71 +5,83 @@ import {
 } from '@src/background/runtime/lifecycleCallbacks';
 import { StorageService } from '../storage/StorageService';
 import {
-  isCustomNetwork,
-  NetworkEvents,
   NETWORK_STORAGE_KEY,
-  supportedNetworks,
-  ActiveNetwork,
-  NetworkTypes,
-  MAINNET_NETWORK,
-  NetworkVM,
-  BITCOIN_NETWORK,
-  mainNetworks,
-  developerNetworks,
+  NetworkStorage,
+  NETWORK_LIST_STORAGE_KEY,
 } from './models';
+import {
+  getChainsAndTokens,
+  Network,
+  ChainList,
+  ChainId,
+  NetworkVMType,
+  ETHEREUM_TEST_NETWORK_RINKEBY,
+  ETHEREUM_NETWORK,
+  BITCOIN_TEST_NETWORK,
+  BITCOIN_NETWORK,
+} from '@avalabs/chains-sdk';
+import { Signal, ValueCache } from 'micro-signals';
 import {
   BlockCypherProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
-
-export interface NetworkStorage {
-  activeNetwork: ActiveNetwork;
-  isDeveloperMode: boolean;
-}
+import { resolve } from '@avalabs/utils-sdk';
+import { InfuraProvider } from '@ethersproject/providers';
+import {
+  FUJI_NETWORK,
+  MAINNET_NETWORK,
+  networkUpdates$,
+} from '@avalabs/wallet-react-components';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
-  private eventEmitter = new EventEmitter();
-
-  private _activeNetwork?: ActiveNetwork;
-
+  private _chainActiveNetworks = new ValueCache<ChainList>();
+  private _activeNetworkCache = new ValueCache<Network>();
+  private _activeNetworks = new Signal<ChainList | undefined>();
+  private _activeNetwork = new Signal<Network | undefined>();
+  private _developerModeChanges = new Signal<boolean>();
   private _isDeveloperMode = false;
-
-  public get activeNetwork(): ActiveNetwork | undefined {
-    return this._activeNetwork;
-  }
-
-  public get activeProvider():
-    | BlockCypherProvider
-    | JsonRpcBatchInternal
-    | null {
-    if (!this._activeNetwork) {
-      return null;
-    }
-    return this.getProviderForNetwork(this._activeNetwork);
-  }
-
-  public get isMainnet(): boolean {
-    return this._activeNetwork?.config
-      ? isMainnetNetwork(this._activeNetwork.config)
-      : false;
-  }
+  public developerModeChanges = this._developerModeChanges.readOnly();
+  public activeNetworks = this._activeNetworks
+    .cache(this._chainActiveNetworks)
+    .filter((value) => !!value)
+    .map<ChainList>((chainList) =>
+      /**
+       * Basically if in developer mode we only want to return the testnet
+       * networks. Otherwise we want only mainnet networks
+       *
+       * The logic here allows the consumer to listen for developer mode changed events
+       * promisify this data and get the latest expected network set
+       */
+      Object.values(chainList || {})
+        .filter((network) =>
+          this._isDeveloperMode ? network.isTestnet : !network.isTestnet
+        )
+        .reduce((acc: ChainList, network) => {
+          return { ...acc, [network.chainId]: network };
+        }, {})
+    )
+    .readOnly();
+  public activeNetwork = this._activeNetwork
+    .cache(this._activeNetworkCache)
+    .filter((value?: Network) => !!value)
+    .readOnly();
 
   public get isDeveloperMode() {
     return this._isDeveloperMode;
   }
 
-  public get supportedNetworks(): ActiveNetwork[] {
-    const networks = !this.isDeveloperMode
-      ? Array.from(mainNetworks.values())
-      : Array.from(developerNetworks.values());
-    return networks;
-  }
-
   constructor(private storageService: StorageService) {}
 
+  public async isMainnet() {
+    return await this.activeNetwork
+      .promisify()
+      .then((network) => !network?.isTestnet);
+  }
+
   onLock(): void {
-    this._activeNetwork = undefined;
+    this._activeNetwork.dispatch(undefined);
+    this._activeNetworks.dispatch(undefined);
   }
 
   onStorageReady(): void {
@@ -80,78 +89,123 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async init() {
+    const chainlist = await this.setChainListOrFallback();
+    if (!chainlist) throw new Error('chainlist failed to load');
     const network = await this.storageService.load<NetworkStorage>(
       NETWORK_STORAGE_KEY
     );
-    this._activeNetwork = network?.activeNetwork || MAINNET_NETWORK;
-    this._isDeveloperMode = network?.isDeveloperMode || false;
 
-    networkUpdates$.next(this._activeNetwork);
-    this.eventEmitter.emit(NetworkEvents.NETWORK_UPDATE_EVENT, {
-      activeNetwork: this.activeNetwork,
-      isDeveloperMode: this.isDeveloperMode,
-    });
+    this._isDeveloperMode = network?.isDeveloperMode || false;
+    networkUpdates$.next(
+      this._isDeveloperMode ? FUJI_NETWORK : MAINNET_NETWORK
+    );
+    this._activeNetwork.dispatch(
+      chainlist[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID]
+    );
   }
 
-  async setNetwork(networkName: string) {
-    const selectedNetwork = supportedNetworks.get(networkName);
+  async setChainListOrFallback() {
+    const [result] = await resolve(getChainsAndTokens());
+
+    if (result) {
+      const withBitcoin = {
+        ...result,
+        [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
+        [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
+      };
+      this.storageService.save(NETWORK_LIST_STORAGE_KEY, withBitcoin);
+      this._activeNetworks.dispatch(withBitcoin);
+      return withBitcoin;
+    } else {
+      const chainlist = await this.storageService.load<ChainList>(
+        NETWORK_LIST_STORAGE_KEY
+      );
+      this._activeNetworks.dispatch(chainlist);
+      return chainlist;
+    }
+  }
+
+  async setNetwork(networkId: string) {
+    const activeNetworks = await this.activeNetworks.promisify();
+    const selectedNetwork = activeNetworks[networkId];
     if (!selectedNetwork) {
       throw new Error('selected network not supported');
     }
 
-    this._activeNetwork = selectedNetwork;
-
-    this.storageService.save(NETWORK_STORAGE_KEY, {
-      activeNetwork: this.activeNetwork,
+    this._activeNetwork.dispatch(selectedNetwork);
+    this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
       isDeveloperMode: this.isDeveloperMode,
+      activeNetworkId: selectedNetwork.chainId,
     });
-
-    this.eventEmitter.emit(NetworkEvents.NETWORK_UPDATE_EVENT, {
-      activeNetwork: this.activeNetwork,
-      isDeveloperMode: this.isDeveloperMode,
-    });
-    networkUpdates$.next(this._activeNetwork);
   }
 
   async setDeveloperMode(status: boolean) {
     this._isDeveloperMode = status;
-    await this.setNetwork(this.supportedNetworks[0].name);
+    networkUpdates$.next(
+      this._isDeveloperMode ? FUJI_NETWORK : MAINNET_NETWORK
+    );
 
-    this.storageService.save(NETWORK_STORAGE_KEY, {
-      activeNetwork: this.activeNetwork,
-      isDeveloperMode: this.isDeveloperMode,
-    });
+    const activeNetworks = await this.activeNetworks.promisify();
+    const selectedNetwork =
+      activeNetworks[
+        this.isDeveloperMode
+          ? ChainId.AVALANCHE_TESTNET_ID
+          : ChainId.AVALANCHE_MAINNET_ID
+      ];
+    this._activeNetwork.dispatch(selectedNetwork);
+    this._developerModeChanges.dispatch(this._isDeveloperMode);
 
-    this.eventEmitter.emit(NetworkEvents.NETWORK_UPDATE_EVENT, {
-      activeNetwork: this.activeNetwork,
+    this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
+      activeNetworkId: selectedNetwork.chainId || null,
       isDeveloperMode: this.isDeveloperMode,
     });
   }
 
+  async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
+    const activeNetwork = await this.activeNetwork.promisify();
+    const activeNetworks = await this.activeNetworks.promisify();
+    const network = activeNetwork?.isTestnet
+      ? activeNetworks[ChainId.AVALANCHE_TESTNET_ID]
+      : activeNetworks[ChainId.AVALANCHE_MAINNET_ID];
+    return (await this.getProviderForNetwork(network)) as JsonRpcBatchInternal;
+  }
+
+  async getEthereumProvider() {
+    const activeNetwork = await this.activeNetwork.promisify();
+    const network = activeNetwork?.isTestnet
+      ? ETHEREUM_TEST_NETWORK_RINKEBY
+      : ETHEREUM_NETWORK;
+
+    return new InfuraProvider(
+      network.isTestnet ? 'rinkeby' : 'homestead',
+      process.env.INFURA_API_KEY
+    );
+  }
+
+  async getBitcoinProvider(): Promise<BlockCypherProvider> {
+    const activeNetwork = await this.activeNetwork.promisify();
+    const network = activeNetwork?.isTestnet
+      ? BITCOIN_TEST_NETWORK
+      : BITCOIN_NETWORK;
+    return (await this.getProviderForNetwork(network)) as BlockCypherProvider;
+  }
+
   getProviderForNetwork(
-    network: NetworkTypes & { vm: NetworkVM.BITCOIN },
-    numberOfRequestsPerBatch?: number
-  ): BlockCypherProvider;
-  getProviderForNetwork(
-    network: NetworkTypes & { vm: NetworkVM.EVM },
-    numberOfRequestsPerBatch?: number
-  ): JsonRpcBatchInternal;
-  getProviderForNetwork(
-    network: NetworkTypes,
-    numberOfRequestsPerBatch?: number
-  ): BlockCypherProvider | JsonRpcBatchInternal;
-  getProviderForNetwork(network: NetworkTypes, numberOfRequestsPerBatch = 40) {
-    if (network.vm === NetworkVM.BITCOIN) {
-      const isMainnet = network.name === BITCOIN_NETWORK.name;
+    network: Network
+  ): BlockCypherProvider | JsonRpcBatchInternal {
+    if (network.vmName === NetworkVMType.BITCOIN) {
       return new BlockCypherProvider(
-        isMainnet,
+        !network.isTestnet,
         undefined,
         'https://glacier-api.avax-test.network/proxy/blockcypher'
       );
-    } else if (network.vm === NetworkVM.EVM) {
+    } else if (network.vmName === NetworkVMType.EVM) {
       return new JsonRpcBatchInternal(
-        numberOfRequestsPerBatch,
-        isCustomNetwork(network) ? network.rpcUrl : network.config.rpcUrl.c,
+        {
+          maxCalls: 40,
+          multiContractAddress: network.multicallAddress,
+        },
+        network.rpcUrl,
         network.chainId
       );
     } else {
@@ -160,10 +214,11 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async sendTransaction(signedTx: string): Promise<string> {
-    if (!this.activeNetwork) {
+    const network = await this.activeNetwork.promisify();
+    if (!network) {
       throw new Error('No active network');
     }
-    const provider = this.getProviderForNetwork(this.activeNetwork);
+    const provider = this.getProviderForNetwork(network);
     if (provider instanceof JsonRpcBatchInternal) {
       return (await provider.sendTransaction(signedTx)).hash;
     }
@@ -173,12 +228,5 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
 
     throw new Error('No provider found');
-  }
-
-  addListener(event: NetworkEvents, callback: (data: unknown) => void) {
-    this.eventEmitter.on(event, callback);
-  }
-  removeListener(event: NetworkEvents, callback: (data: unknown) => void) {
-    this.eventEmitter.off(event, callback);
   }
 }

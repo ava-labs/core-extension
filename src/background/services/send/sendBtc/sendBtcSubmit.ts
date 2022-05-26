@@ -1,10 +1,7 @@
 import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { btcToSatoshi } from '@avalabs/bridge-sdk';
-import {
-  BitcoinInputUTXO,
-  BitcoinProviderAbstract,
-  createTransferTx,
-} from '@avalabs/wallets-sdk';
+import { BitcoinInputUTXO, createTransferTx } from '@avalabs/wallets-sdk';
+import { bitcoin, testnet } from 'bitcoinjs-lib/src/networks';
 import { TokenWithBalance } from '../../balances/models';
 import { NetworkService } from '../../network/NetworkService';
 import { WalletService } from '../../wallet/WalletService';
@@ -31,7 +28,6 @@ export async function sendBtcSubmit(
     balance,
     utxos,
     feeRate,
-    walletService,
     networkService
   );
 
@@ -45,20 +41,20 @@ export async function sendBtcSubmit(
 
   const amountInSatoshis = btcToSatoshi(new Big(amountStr));
 
-  const { ins, outs } = createTransferTx(
+  const { inputs, outputs } = createTransferTx(
     toAddress,
     changeAddress,
     amountInSatoshis,
     feeRate,
     utxos,
-    networkService.activeProvider as BitcoinProviderAbstract
+    (await networkService.isMainnet()) ? bitcoin : testnet
   );
 
-  if (!ins || !outs) {
+  if (!inputs || !outputs) {
     throw new Error('Unable to create transaction');
   }
 
-  const signedTx = await walletService.sign({ ins, outs });
+  const signedTx = await walletService.sign({ inputs, outputs });
   const result = await networkService.sendTransaction(signedTx);
 
   return { txId: result };

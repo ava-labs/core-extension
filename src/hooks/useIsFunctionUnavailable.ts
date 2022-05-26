@@ -1,12 +1,16 @@
+import { ChainId } from '@avalabs/chains-sdk';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import {
-  BITCOIN_NETWORK,
-  FUJI_NETWORK,
-} from '@src/background/services/network/models';
 
+const bitcoin_disabled_features = [
+  'COLLECTIBLES',
+  'Swap',
+  'Buy',
+  'ManageTokens',
+];
 const disabledFeatures = {
-  [BITCOIN_NETWORK.chainId]: ['COLLECTIBLES', 'Swap', 'Buy', 'ManageTokens'],
-  [FUJI_NETWORK.chainId]: ['Swap'],
+  [ChainId.BITCOIN]: bitcoin_disabled_features,
+  [ChainId.BITCOIN_TESTNET]: bitcoin_disabled_features,
+  [ChainId.AVALANCHE_TESTNET_ID]: ['Swap'],
 };
 
 interface FunctionIsAvailable {

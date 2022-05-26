@@ -6,13 +6,6 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import {
-  ERC20WithBalance,
-  isAntToken,
-  isAvaxToken,
-  isERC20Token,
-} from '@avalabs/wallet-react-components';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { TokenListItem } from './TokenListItem';
@@ -20,7 +13,6 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { WalletIsEmpty } from './WalletIsEmpty';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 
@@ -32,14 +24,13 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const { getTokenVisibility } = useSettingsContext();
   const tokensWithBalances = useTokensWithBalances();
   const history = useHistory();
-  const { avaxToken } = useWalletContext();
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
 
-  const { tokens, showAvax } = useMemo(() => {
-    const tokens = (
-      searchQuery
+  const tokens = useMemo(
+    () =>
+      (searchQuery
         ? tokensWithBalances.filter(
             (token) =>
               getTokenVisibility(token) &&
@@ -47,15 +38,9 @@ export function TokenList({ searchQuery }: TokenListProps) {
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase()))
           )
         : tokensWithBalances
-    ).filter((token) => getTokenVisibility(token));
-
-    const showAvax =
-      searchQuery &&
-      (avaxToken.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        avaxToken.symbol.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    return { tokens, showAvax };
-  }, [searchQuery, tokensWithBalances, avaxToken, getTokenVisibility]);
+      ).filter((token) => getTokenVisibility(token)),
+    [searchQuery, tokensWithBalances, getTokenVisibility]
+  );
 
   const toggleManageTokensPage = () => {
     if (history.location.pathname.startsWith('/manage-tokens')) {
@@ -64,10 +49,6 @@ export function TokenList({ searchQuery }: TokenListProps) {
     }
     history.push('/manage-tokens');
   };
-
-  const ERC20Tokens = tokens?.filter(
-    (token) => !isAvaxToken(token) && !isAntToken(token)
-  );
 
   return (
     <VerticalFlex grow="1" margin="8px 0 0">
@@ -90,25 +71,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
       </HorizontalFlex>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0px 16px 68px">
-          {avaxToken && (!searchQuery || showAvax) && (
-            <TokenListItem
-              onClick={() => {
-                capture('TokenListTokenSelected', { selectedToken: 'AVAX' });
-                setSendDataInParams({
-                  token: avaxToken,
-                  options: { path: '/token' },
-                });
-              }}
-              name={avaxToken.name}
-              symbol={avaxToken.symbol}
-              balanceDisplayValue={avaxToken.balanceDisplayValue}
-              balanceUSD={avaxToken.balanceUsdDisplayValue?.toString()}
-            >
-              <AvaxTokenIcon height="32px" />
-            </TokenListItem>
-          )}
-
-          {ERC20Tokens?.map((token) => {
+          {tokens?.map((token) => {
             return (
               <TokenListItem
                 onClick={() => {
@@ -117,12 +80,10 @@ export function TokenList({ searchQuery }: TokenListProps) {
                     options: { path: '/token' },
                   });
                   capture('TokenListTokenSelected', {
-                    selectedToken: (token as ERC20WithBalance).address,
+                    selectedToken: token.isERC20 ? token.address : token.symbol,
                   });
                 }}
-                key={
-                  isERC20Token(token) ? token.address : (token as any).symbol
-                }
+                key={token.isERC20 ? token.address : token.symbol}
                 name={token.name}
                 symbol={token.symbol}
                 balanceDisplayValue={token.balanceDisplayValue}
@@ -131,15 +92,14 @@ export function TokenList({ searchQuery }: TokenListProps) {
                 <TokenIcon
                   width="32px"
                   height="32px"
-                  src={token.logoURI}
+                  src={token.logoUri}
                   name={token.name}
                 />
               </TokenListItem>
             );
           })}
 
-          {ERC20Tokens.length === 0 &&
-            avaxToken?.balanceDisplayValue === '0' && <WalletIsEmpty />}
+          {tokens.length === 0 && <WalletIsEmpty />}
         </VerticalFlex>
       </Scrollbars>
     </VerticalFlex>

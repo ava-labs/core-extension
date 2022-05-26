@@ -1,8 +1,5 @@
-import {
-  ActiveNetwork,
-  NetworkVM,
-} from '@src/background/services/network/models';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 
-export function isBitcoin(network?: ActiveNetwork) {
-  return network?.vm === NetworkVM.BITCOIN;
+export function isBitcoin(network?: Network) {
+  return network?.vmName === NetworkVMType.BITCOIN;
 }

@@ -5,6 +5,13 @@ import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/pa
 import { BigNumber, ethers } from 'ethers';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
+import { AccountsService } from '../accounts/AccountsService';
+import {
+  NetworkContractTokenWithBalance,
+  NetworkTokenWithBalance,
+  TokenWithBalance,
+} from '../balances/models';
+import { NetworkBalanceAggregatorService } from '../balances/NetworkBalanceAggregatorService';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { StorageService } from '../storage/StorageService';
@@ -36,7 +43,9 @@ export class TransactionsService {
     private storageService: StorageService,
     private networkService: NetworkService,
     private networkFeeService: NetworkFeeService,
-    private walletService: WalletService
+    private balancesService: NetworkBalanceAggregatorService,
+    private walletService: WalletService,
+    private accountsService: AccountsService
   ) {}
 
   async getTransactions(): Promise<PendingTransactions> {
@@ -60,12 +69,12 @@ export class TransactionsService {
 
     const now = new Date().getTime();
     const txParams = (params || [])[0];
-
+    const isMainnet = await this.networkService.isMainnet();
     const txDescription = await getTxInfo(
       txParams.to.toLocaleLowerCase(),
       txParams.data,
       txParams.value,
-      this.networkService.isMainnet
+      isMainnet
     );
 
     const decodedData = (txDescription as ethers.utils.TransactionDescription)
@@ -78,13 +87,28 @@ export class TransactionsService {
     const gasPrice = await this.networkFeeService.getNetworkFee();
 
     if (txParams && isTxParams(txParams)) {
-      const displayValueProps = {
+      const activeNetwork = await this.networkService.activeNetwork.promisify();
+
+      if (!activeNetwork) {
+        throw Error('no network selected');
+      }
+
+      const tokens: TokenWithBalance[] =
+        this.balancesService.balances?.[activeNetwork?.chainId || '']?.[
+          this.accountsService.activeAccount?.addressC || ''
+        ] || [];
+      const nativeToken = tokens.filter((t) => t.isNetworkToken);
+      const displayValueProps: DisplayValueParserProps = {
         gasPrice: gasPrice?.low || BigNumber.from(0),
-        erc20Tokens: this.walletService.walletState?.erc20Tokens,
-        avaxPrice: this.walletService.walletState?.avaxPrice,
-        avaxToken: this.walletService.walletState?.avaxToken,
-        site,
-      } as DisplayValueParserProps;
+        erc20Tokens: tokens.filter(
+          (t) => t.isERC20
+        ) as NetworkContractTokenWithBalance[],
+        avaxPrice: nativeToken[0].priceUSD || 0,
+        avaxToken: nativeToken[0] as NetworkTokenWithBalance,
+        site: site ?? {
+          domain: '',
+        },
+      };
 
       /**
        * Some requests, revoke approval, dont have gasLimit on it so we make sure its there
@@ -121,8 +145,9 @@ export class TransactionsService {
       const networkMetaData = this.networkService.activeNetwork
         ? {
             metamaskNetworkId:
-              this.networkService.activeNetwork.config.networkID.toString(),
-            chainId: this.networkService.activeNetwork.chainId,
+              // not sure this is the right value as it was networkId, let me know in the PR
+              activeNetwork.platformChainId,
+            chainId: activeNetwork.chainId as any,
           }
         : { metamaskNetworkId: '', chainId: '' };
 

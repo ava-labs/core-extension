@@ -4,9 +4,9 @@ import {
   useBridgeConfigUpdater,
   useBridgeSDK,
 } from '@avalabs/bridge-sdk';
+import { ChainId } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
-import { MAINNET_NETWORK } from '@src/background/services/network/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback, useEffect } from 'react';
@@ -30,7 +30,7 @@ export function useSyncBridgeConfig() {
 
   useEffect(() => {
     setBridgeEnvironment(
-      network?.chainId === MAINNET_NETWORK.chainId
+      network?.chainId === ChainId.AVALANCHE_MAINNET_ID
         ? Environment.PROD
         : Environment.TEST
     );

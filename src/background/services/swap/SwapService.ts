@@ -1,3 +1,4 @@
+import { ChainId } from '@avalabs/chains-sdk';
 import { AVAX_TOKEN } from '@avalabs/wallet-react-components';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import {
@@ -21,8 +22,11 @@ const NETWORK_UNSUPPORTED_ERROR = new Error(
 
 @singleton()
 export class SwapService {
-  // 43114: Avalanche Mainnet network ID
-  private paraSwap = new ParaSwap(43114, undefined, new Web3());
+  private paraSwap = new ParaSwap(
+    ChainId.AVALANCHE_MAINNET_ID,
+    undefined,
+    new Web3()
+  );
 
   public get apiUrl(): string {
     return (this.paraSwap as any).apiURL;
@@ -52,7 +56,7 @@ export class SwapService {
       destToken,
       amount: srcAmount,
       side: swapSide || SwapSide.SELL,
-      network: '43114',
+      network: ChainId.AVALANCHE_MAINNET_ID.toString(),
       srcDecimals: `${AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals}`,
       destDecimals: `${AVAX_TOKEN.symbol === destToken ? 18 : destDecimals}`,
       userAddress: this.walletService.walletState.addresses.addrC,
@@ -81,7 +85,7 @@ export class SwapService {
 
   async getParaswapSpender(): Promise<string> {
     const response = await fetch(
-      `${this.apiUrl}/adapters/contracts?network=43114`
+      `${this.apiUrl}/adapters/contracts?network=${ChainId.AVALANCHE_MAINNET_ID}`
     );
 
     const result = await response.json();

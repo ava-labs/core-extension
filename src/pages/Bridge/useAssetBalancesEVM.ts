@@ -6,9 +6,10 @@ import {
 import { getAvalancheBalances } from './getAvalancheBalances';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { getEthereumBalances } from '@src/pages/Bridge/getEthereumBalances';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 /**
  * Get for the current chain.
@@ -23,7 +24,8 @@ export function useAssetBalancesEVM(
 } {
   const { request } = useConnectionContext();
   const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
-  const { addresses, erc20Tokens } = useWalletContext();
+  const { activeAccount } = useAccountsContext();
+  const tokens = useTokensWithBalances(true);
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
 
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ export function useAssetBalancesEVM(
       currentBlockchain !== Blockchain.AVALANCHE
     )
       return [];
-    return getAvalancheBalances(avalancheAssets, erc20Tokens).map((token) => ({
+    return getAvalancheBalances(avalancheAssets, tokens).map((token) => ({
       ...token,
       symbolOnNetwork: getTokenSymbolOnNetwork(
         token.symbol,
@@ -50,13 +52,14 @@ export function useAssetBalancesEVM(
     chain,
     currentBlockchain,
     avalancheAssets,
-    erc20Tokens,
+    tokens,
     getTokenSymbolOnNetwork,
   ]);
 
   // Fetch balances from Ethereum (including native)
   useEffect(() => {
     if (
+      !activeAccount?.addressC ||
       chain !== Blockchain.ETHEREUM ||
       currentBlockchain !== Blockchain.ETHEREUM
     )
@@ -67,14 +70,14 @@ export function useAssetBalancesEVM(
       const balances = await getEthereumBalances(
         request,
         ethereumAssets,
-        addresses.addrC,
+        activeAccount?.addressC,
         showDeprecated
       );
       setLoading(false);
       setEthBalances(balances);
     })();
   }, [
-    addresses.addrC,
+    activeAccount?.addressC,
     ethereumAssets,
     chain,
     request,

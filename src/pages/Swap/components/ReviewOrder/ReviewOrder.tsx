@@ -12,7 +12,6 @@ import {
   SubTextTypography,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { TokenWithBalance } from '@avalabs/wallet-react-components';
 import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
@@ -22,9 +21,10 @@ import { SlippageToolTip } from '../SlippageToolTip';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { TokenIcon } from '../../utils';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BigNumber } from 'ethers';
 import Big from 'big.js';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;
@@ -81,7 +81,7 @@ export function ReviewOrder({
   rate,
 }: ReviewOrderProps) {
   const { currencyFormatter } = useSettingsContext();
-  const { avaxToken } = useWalletContext();
+  const tokenPrice = useNativeTokenPrice();
   useLedgerDisconnectedDialog(() => {
     onClose();
   });
@@ -177,9 +177,9 @@ export function ReviewOrder({
                 <DetailValue>{optimalRate.partnerFee} AVAX</DetailValue>
                 <SubTextTypography size={12} height="15px" margin="4px 0 0">
                   {optimalRate.partnerFee &&
-                    avaxToken.priceUSD &&
+                    tokenPrice &&
                     currencyFormatter(
-                      Number(optimalRate.partnerFee) * avaxToken.priceUSD
+                      Number(optimalRate.partnerFee) * tokenPrice
                     )}
                 </SubTextTypography>
               </VerticalFlex>

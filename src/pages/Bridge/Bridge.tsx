@@ -1,4 +1,3 @@
-import { Big, bigToBN, BN, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import {
   BIG_ZERO,
   Blockchain,
@@ -38,9 +37,11 @@ import { AssetBalance } from './models';
 import { useBridge } from './useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { resolve, stringToBN } from '@avalabs/utils-sdk';
+import { bigToBN, bnToBig, resolve, stringToBN } from '@avalabs/utils-sdk';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useSyncBridgeConfig } from './useSyncBridgeConfig';
+import BN from 'bn.js';
+import Big from 'big.js';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -295,20 +296,25 @@ export function Bridge() {
                   isValueLoading={loading}
                   selectedToken={
                     sourceBalance && {
+                      isERC20: true,
+                      isNetworkToken: false,
                       balanceDisplayValue: formatBalance(sourceBalance.balance),
                       balance: bigToBN(
                         sourceBalance.balance || BIG_ZERO,
                         denomination
                       ),
-                      denomination: sourceBalance.asset.denomination,
+                      decimals: sourceBalance.asset.denomination,
                       priceUSD: price?.toNumber(),
-                      logoURI:
-                        tokenInfoData?.[sourceBalance.asset.symbol]?.logo,
+                      logoUri:
+                        tokenInfoData?.[sourceBalance.asset.symbol]?.logo || '',
                       name: sourceBalance.asset.symbol,
                       symbol: getTokenSymbolOnNetwork(
                         sourceBalance.asset.symbol,
                         currentBlockchain
                       ),
+                      address: sourceBalance.asset.symbol,
+                      contractType: 'ERC20',
+                      resourceLinks: [],
                     }
                   }
                   onInputAmountChange={handleAmountChanged}

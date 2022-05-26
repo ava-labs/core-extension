@@ -1,9 +1,9 @@
-import { Big, isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
+import { Big } from '@avalabs/avalanche-wallet-sdk';
+import { Network } from '@avalabs/chains-sdk';
 import { TxData } from '@ethereumjs/tx';
 import { TransactionRequest } from '@ethersproject/providers';
 import { BNLike, BufferLike } from 'ethereumjs-util';
 import { BigNumber, BigNumberish } from 'ethers';
-import { ActiveNetwork } from '../network/models';
 import { BridgeState } from './models';
 
 /**
@@ -34,9 +34,9 @@ export function deserializeBridgeState(state: any): BridgeState {
  */
 export function filterBridgeStateToNetwork(
   bridge: BridgeState,
-  network: ActiveNetwork
+  network: Network
 ): BridgeState {
-  const isMainnet = isMainnetNetwork(network.config);
+  const isMainnet = !network.isTestnet;
   const bridgeTransactions = Object.values(bridge.bridgeTransactions).reduce<
     BridgeState['bridgeTransactions']
   >((txs, btx) => {

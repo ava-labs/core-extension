@@ -1,9 +1,5 @@
-import {
-  MAINNET_NETWORK,
-  FUJI_NETWORK,
-  BTC_TOKEN,
-} from './../../../../background/services/network/models';
 import { Blockchain, BridgeTransaction } from '@avalabs/bridge-sdk';
+import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
 import { TxHistoryItem } from '@src/background/services/history/models';
 import {
   ETHEREUM_ADDRESS,
@@ -46,13 +42,13 @@ function isTxToAvalanche(tx: TxHistoryItem | BridgeTransaction): boolean {
     return true;
   } else if (tx.isOutgoing) {
     return (
-      tx.chainId !== MAINNET_NETWORK.chainId &&
-      tx.chainId !== FUJI_NETWORK.chainId
+      tx.chainId !== ChainId.AVALANCHE_MAINNET_ID.toString() &&
+      tx.chainId !== ChainId.AVALANCHE_TESTNET_ID.toString()
     );
   } else if (tx.isIncoming) {
     return (
-      tx.chainId === MAINNET_NETWORK.chainId ||
-      tx.chainId === FUJI_NETWORK.chainId
+      tx.chainId === ChainId.AVALANCHE_MAINNET_ID.toString() ||
+      tx.chainId === ChainId.AVALANCHE_TESTNET_ID.toString()
     );
   }
   return false;
@@ -63,7 +59,7 @@ function getTxBlockchain(tx: TxHistoryItem | BridgeTransaction) {
   const ethereum = 'Ethereum';
   const bitcoin = 'Bitcoin';
 
-  if (symbol === BTC_TOKEN.symbol) {
+  if (symbol === BITCOIN_NETWORK.networkToken.symbol) {
     return bitcoin;
   }
   const symbolPostfix = symbol.split('.')[1];

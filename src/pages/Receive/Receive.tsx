@@ -12,12 +12,9 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { AvalancheQRCodeLogo } from '@src/components/icons/AvalancheQRCodeLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import {
-  BITCOIN_NETWORK,
-  BITCOIN_TEST_NETWORK,
-} from '@src/background/services/network/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BtcQRCodeLogo } from '@src/components/icons/BtcQRCodeLogo';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   width: 100%;
@@ -35,10 +32,7 @@ export const Receive = () => {
   }, [capture]);
 
   useEffect(() => {
-    setIsBitcoinActive(
-      network?.chainId === BITCOIN_NETWORK.chainId ||
-        network?.chainId === BITCOIN_TEST_NETWORK.chainId
-    );
+    setIsBitcoinActive(network?.vmName === NetworkVMType.BITCOIN);
   }, [network]);
 
   useEffect(() => {

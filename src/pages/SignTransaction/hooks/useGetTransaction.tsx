@@ -5,7 +5,6 @@ import { filter, map, Subscription, take } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import Web3 from 'web3';
 import ERC20_ABI from 'human-standard-token-abi';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
@@ -14,12 +13,13 @@ import { GasFeeModifier } from '@src/components/common/CustomFees';
 import * as ethers from 'ethers';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
 export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
-  const { avaxPrice } = useWalletContext();
+  const tokenPrice = useNativeTokenPrice();
   const { networkFee } = useNetworkFeeContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [customGas, setCustomGas] = useState<{
@@ -61,7 +61,7 @@ export function useGetTransaction(requestId: string) {
       const feeDisplayValues = calculateGasAndFees(
         gasPrice,
         gasLimit,
-        avaxPrice
+        tokenPrice
       );
       updateTransaction({
         id: transaction?.id,
@@ -71,7 +71,7 @@ export function useGetTransaction(requestId: string) {
         },
       });
     },
-    [avaxPrice, transaction?.id, updateTransaction]
+    [tokenPrice, transaction?.id, updateTransaction]
   );
 
   const setSpendLimit = useCallback(
@@ -180,7 +180,7 @@ export function useGetTransaction(requestId: string) {
       calculateGasAndFees(
         customGas?.gasPrice ?? networkFee.low,
         customGas?.gasLimit ?? transaction.displayValues.gasLimit,
-        avaxPrice
+        tokenPrice
       );
 
     return {
@@ -202,7 +202,7 @@ export function useGetTransaction(requestId: string) {
     networkFee,
     transaction,
     customGas,
-    avaxPrice,
+    tokenPrice,
     updateTransaction,
     hash,
     setCustomFee,

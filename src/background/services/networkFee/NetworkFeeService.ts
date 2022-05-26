@@ -1,3 +1,4 @@
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import {
   BitcoinProviderAbstract,
   JsonRpcBatchInternal,
@@ -7,7 +8,6 @@ import Big from 'big.js';
 import { BigNumber } from 'ethers';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { NetworkEvents, NetworkVM } from '../network/models';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkFee, NetworkFeeEvents } from './models';
 
@@ -18,12 +18,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
 
   private currentNetworkFee: NetworkFee | null = null;
 
-  constructor(private networkService: NetworkService) {
-    this.networkService.addListener(
-      NetworkEvents.NETWORK_UPDATE_EVENT,
-      this.updateFee.bind(this)
-    );
-  }
+  constructor(private networkService: NetworkService) {}
 
   private async updateFee() {
     const newFee = await this.getNetworkFee();
@@ -38,24 +33,27 @@ export class NetworkFeeService implements OnUnlock, OnLock {
   }
 
   onUnlock(): void | Promise<void> {
+    this.networkService.activeNetwork.add(this.updateFee.bind(this));
     this.intervalId = setInterval(async () => {
       this.updateFee();
     }, 30000);
   }
 
   onLock() {
+    this.networkService.activeNetwork.remove(this.updateFee.bind(this));
     this.intervalId && clearInterval(this.intervalId);
     this.currentNetworkFee = null;
   }
 
   async getNetworkFee(): Promise<NetworkFee | null> {
-    const provider = this.networkService.activeProvider;
+    const network = await this.networkService.activeNetwork.promisify();
 
-    if (!provider || !this.networkService.activeNetwork) {
+    if (!network) {
       return null;
     }
+    const provider = this.networkService.getProviderForNetwork(network);
 
-    if (this.networkService.activeNetwork.vm === NetworkVM.EVM) {
+    if (network.vmName === NetworkVMType.EVM) {
       const price = await (provider as JsonRpcBatchInternal).getGasPrice();
       const bigPrice = new Big(price.toString());
 
@@ -65,7 +63,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
         medium: BigNumber.from(bigPrice.mul(1.05).toFixed(0)),
         high: BigNumber.from(bigPrice.mul(1.15).toFixed(0)),
       };
-    } else if (this.networkService.activeNetwork.vm === NetworkVM.BITCOIN) {
+    } else if (network.vmName === NetworkVMType.BITCOIN) {
       const rates = await (provider as BitcoinProviderAbstract).getFeeRates();
       return {
         displayDecimals: 0, // display btc fees in satoshi
@@ -83,10 +81,11 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     to: string,
     data: string
   ): Promise<number | null> {
-    if (this.networkService.activeNetwork?.vm !== NetworkVM.EVM) {
+    const network = await this.networkService.activeNetwork.promisify();
+    if (network?.vmName !== NetworkVMType.EVM) {
       return null;
     }
-    const provider = this.networkService.activeProvider;
+    const provider = this.networkService.getProviderForNetwork(network);
 
     const nonce = await (provider as JsonRpcBatchInternal).getTransactionCount(
       from

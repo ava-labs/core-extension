@@ -1,4 +1,3 @@
-import { Big, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import {
   Asset,
   AssetType,
@@ -6,17 +5,23 @@ import {
   Blockchain,
   EthereumConfigAsset,
 } from '@avalabs/bridge-sdk';
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import {
   AssetBalance,
   BALANCE_REFRESH_INTERVAL,
 } from '@src/pages/Bridge/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { useInterval } from '@src/hooks/useInterval';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { bnToBig } from '@avalabs/utils-sdk';
+import {
+  NetworkContractTokenWithBalance,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
+import Big from 'big.js';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 /**
  * Get the balance of a bridge supported asset for the given blockchain.
@@ -27,7 +32,8 @@ export function useAssetBalanceEVM(
 ): AssetBalance | undefined {
   const { request } = useConnectionContext();
   const [ethBalance, setEthBalance] = useState<Big>();
-  const { addresses, erc20Tokens } = useWalletContext();
+  const tokens = useTokensWithBalances(true);
+  const { activeAccount } = useAccountsContext();
   const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
 
   // TODO update this when adding support for /convert
@@ -40,13 +46,13 @@ export function useAssetBalanceEVM(
         asset.assetType === AssetType.BTC) &&
       source === Blockchain.AVALANCHE
     ) {
-      return getAvalancheBalance(asset, erc20Tokens);
+      return getAvalancheBalance(asset, tokens);
     }
-  }, [asset, source, erc20Tokens]);
+  }, [asset, source, tokens]);
 
   // fetch balance from Ethereum
   useEffect(() => {
-    if (!asset || source !== Blockchain.ETHEREUM) {
+    if (!activeAccount?.addressC || !asset || source !== Blockchain.ETHEREUM) {
       setEthBalance(undefined);
       return;
     }
@@ -55,14 +61,14 @@ export function useAssetBalanceEVM(
       const balance = await getEthereumBalance(
         request,
         asset,
-        addresses.addrC,
+        activeAccount.addressC,
         showDeprecated
       );
 
       setEthBalance(balance);
     })();
   }, [
-    addresses.addrC,
+    activeAccount?.addressC,
     asset,
     source,
     request,
@@ -83,18 +89,21 @@ export function useAssetBalanceEVM(
 
 function getAvalancheBalance(
   asset: EthereumConfigAsset | BitcoinConfigAsset,
-  erc20Tokens: ERC20WithBalance[]
+  erc20Tokens: TokenWithBalance[]
 ): Big {
   const erc20TokensByAddress = erc20Tokens.reduce<{
-    [address: string]: ERC20WithBalance;
+    [address: string]: NetworkContractTokenWithBalance;
   }>((tokens, token) => {
+    if (!token.isERC20) {
+      return tokens;
+    }
     // Need to convert the keys to lowercase because they are mixed case, and this messes up or comparison function
     tokens[token.address.toLowerCase()] = token;
     return tokens;
   }, {});
 
   const token = erc20TokensByAddress[asset.wrappedContractAddress];
-  return token && bnToBig(token.balance, token.denomination);
+  return token && bnToBig(token.balance, token.decimals);
 }
 
 async function getEthereumBalance(

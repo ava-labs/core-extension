@@ -28,7 +28,7 @@ import {
   LedgerSigner,
 } from '@avalabs/wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
-import { NetworkVM } from '../network/models';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import { LockService } from '../lock/LockService';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import {
@@ -116,19 +116,19 @@ export class WalletService implements OnLock {
     // getting accounts service on the fly instead of via constructor
     const accountsService = container.resolve(AccountsService);
 
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
+
     if (
       !walletKeys ||
       !walletKeys.xpub ||
-      !this.networkService.activeNetwork ||
+      !activeNetwork ||
       !accountsService?.activeAccount
     ) {
       // wallet is not initialized
       return;
     }
-    const provider = this.networkService.getProviderForNetwork(
-      this.networkService.activeNetwork
-    );
-    if (this.networkService.activeNetwork.vm === NetworkVM.EVM) {
+    const provider = this.networkService.getProviderForNetwork(activeNetwork);
+    if (activeNetwork.vmName === NetworkVMType.EVM) {
       if (walletKeys.mnemonic) {
         const wallet = getWalletFromMnemonic(
           walletKeys.mnemonic,
@@ -146,7 +146,7 @@ export class WalletService implements OnLock {
           provider as JsonRpcBatchInternal
         );
       }
-    } else if (this.networkService.activeNetwork.vm === NetworkVM.BITCOIN) {
+    } else if (activeNetwork.vmName === NetworkVMType.BITCOIN) {
       if (walletKeys.mnemonic) {
         return await BitcoinWallet.fromMnemonic(
           walletKeys.mnemonic,
@@ -194,8 +194,8 @@ export class WalletService implements OnLock {
     tx:
       | TransactionRequest
       | {
-          ins: BitcoinInputUTXO[];
-          outs: BitcoinOutputUTXO[];
+          inputs: BitcoinInputUTXO[];
+          outputs: BitcoinOutputUTXO[];
         }
   ): Promise<string> {
     const wallet = await this.getWallet();
@@ -204,14 +204,14 @@ export class WalletService implements OnLock {
     }
 
     // handle BTC signing
-    if ('ins' in tx) {
+    if ('inputs' in tx) {
       if (
         !(wallet instanceof BitcoinWallet) &&
         !(wallet instanceof BitcoinLedgerWallet)
       ) {
         throw new Error('Signing error, wrong network');
       }
-      const signedTx = await wallet.signTx(tx.ins, tx.outs);
+      const signedTx = await wallet.signTx(tx.inputs, tx.outputs);
       return signedTx.toHex();
     }
 
@@ -269,19 +269,19 @@ export class WalletService implements OnLock {
     this.eventEmitter.on(event, callback);
   }
 
-  async getAddress(index: number): Promise<Record<NetworkVM, string>> {
+  async getAddress(index: number): Promise<Record<NetworkVMType, string>> {
     const secrets = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
-    const isMainnet = this.networkService.isMainnet;
+    const isMainnet = await this.networkService.isMainnet();
 
     if (!secrets?.xpub) {
       throw new Error('No xpub found');
     }
 
     return {
-      [NetworkVM.EVM]: getAddressFromXPub(secrets.xpub, index),
-      [NetworkVM.BITCOIN]: getBech32AddressFromXPub(
+      [NetworkVMType.EVM]: getAddressFromXPub(secrets.xpub, index),
+      [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
         secrets.xpub,
         index,
         isMainnet ? networks.bitcoin : networks.testnet

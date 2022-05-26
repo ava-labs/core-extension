@@ -4,9 +4,12 @@ import {
   BitcoinConfigAsset,
   EthereumConfigAsset,
 } from '@avalabs/bridge-sdk';
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import { bnToBig } from '@avalabs/avalanche-wallet-sdk';
+import { bnToBig } from '@avalabs/utils-sdk';
+import {
+  NetworkContractTokenWithBalance,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 
 /**
  * Get balances of wrapped erc20 tokens on Avalanche
@@ -15,11 +18,14 @@ import { bnToBig } from '@avalabs/avalanche-wallet-sdk';
  */
 export function getAvalancheBalances(
   assets: AvalancheAssets,
-  erc20Tokens: ERC20WithBalance[]
+  erc20Tokens: TokenWithBalance[]
 ): AssetBalance[] {
   const erc20TokensByAddress = erc20Tokens.reduce<{
-    [address: string]: ERC20WithBalance;
+    [address: string]: NetworkContractTokenWithBalance;
   }>((tokens, token) => {
+    if (!token.isERC20) {
+      return tokens;
+    }
     // Need to convert the keys to lowercase because they are mixed case, and this messes up or comparison function
     tokens[token.address.toLowerCase()] = token;
     return tokens;
@@ -34,7 +40,7 @@ export function getAvalancheBalances(
     .map((asset) => {
       const symbol = asset.symbol;
       const token = erc20TokensByAddress[asset.wrappedContractAddress];
-      const balance = token && bnToBig(token.balance, token.denomination);
+      const balance = token && bnToBig(token.balance, token.decimals);
 
       return { symbol, asset, balance };
     });

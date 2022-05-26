@@ -1,17 +1,31 @@
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useTokensWithBalances } from './useTokensWithBalances';
+import { ChainId } from '@avalabs/chains-sdk';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useMemo } from 'react';
 
 export function useBalanceTotalInCurrency() {
-  const { avaxToken } = useWalletContext();
-  const tokensWBalances = useTokensWithBalances();
+  const { balances } = useBalancesContext();
+  const { activeAccount } = useAccountsContext();
 
-  // don't freak users out by display falsely a 0 balance when we just don't know the usd value
-  if (avaxToken?.balanceUsdDisplayValue === undefined) {
-    return null;
-  }
+  return useMemo(() => {
+    // don't freak users out by display falsely a 0 balance when we just don't know the usd value
+    if (!activeAccount || !balances) {
+      return null;
+    }
 
-  return (
-    ((Number(avaxToken?.balanceUsdDisplayValue) || 0) as number) +
-    tokensWBalances.reduce((acc, token) => (acc += token?.balanceUSD || 0), 0)
-  );
+    return Object.keys(balances).reduce((total, network) => {
+      const address =
+        network === ChainId.BITCOIN.toString() ||
+        network === ChainId.BITCOIN_TESTNET.toString()
+          ? activeAccount.addressBTC
+          : activeAccount.addressC;
+      return (
+        total +
+        (balances[network][address]?.reduce(
+          (sum, token) => sum + (token.balanceUSD ?? 0),
+          0
+        ) || 0)
+      );
+    }, 0);
+  }, [activeAccount, balances]);
 }
