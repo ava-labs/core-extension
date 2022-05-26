@@ -13,7 +13,6 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { getBtcTransaction } from '@avalabs/bridge-sdk';
 import { NetworkBalanceAggregatorService } from '../../balances/NetworkBalanceAggregatorService';
 import { ChainId } from '@avalabs/chains-sdk';
-import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 
 /**
  * FYI: the input UTXOs to the unsignedTxHex must be owned by the wallet
@@ -28,8 +27,7 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private balancesService: NetworkBalanceAggregatorService,
-    private walletService: WalletService,
-    private networkFeeService: NetworkFeeService
+    private walletService: WalletService
   ) {}
 
   handle = async (
@@ -44,17 +42,16 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
       };
     }
 
-    const [amountInSatoshis] = request.params || [];
-
-    const networkFee = await this.networkFeeService.getNetworkFee();
+    const [amountInSatoshis, feeRate] = request.params || [];
 
     const { inputs, outputs } = getBtcTransaction(
       config,
       this.addressBTC,
       await this.utxos(),
       amountInSatoshis,
-      networkFee?.medium.toNumber() ?? 0
+      feeRate
     );
+
     const [signedTx, error] = await resolve(
       this.walletService.sign({
         inputs,

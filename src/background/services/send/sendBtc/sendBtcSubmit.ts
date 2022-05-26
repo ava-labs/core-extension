@@ -1,7 +1,6 @@
 import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { btcToSatoshi } from '@avalabs/bridge-sdk';
 import { BitcoinInputUTXO, createTransferTx } from '@avalabs/wallets-sdk';
-import { bitcoin, testnet } from 'bitcoinjs-lib/src/networks';
 import { TokenWithBalance } from '../../balances/models';
 import { NetworkService } from '../../network/NetworkService';
 import { WalletService } from '../../wallet/WalletService';
@@ -47,7 +46,7 @@ export async function sendBtcSubmit(
     amountInSatoshis,
     feeRate,
     utxos,
-    (await networkService.isMainnet()) ? bitcoin : testnet
+    (await networkService.getBitcoinProvider()).getNetwork()
   );
 
   if (!inputs || !outputs) {

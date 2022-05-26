@@ -10,7 +10,7 @@ import {
   useBridgeSDK,
 } from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
-import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
+import { BitcoinInputUTXO, getMaxTransferAmount } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
@@ -19,9 +19,10 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useInterval } from '@src/hooks/useInterval';
 import Big from 'big.js';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetBalance, BALANCE_REFRESH_INTERVAL } from './models';
 import { BridgeAdapter } from './useBridge';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 /**
  * Hook for Bitcoin to Avalanche transactions
@@ -34,6 +35,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
   const { request } = useConnectionContext();
   const { network } = useNetworkContext();
+  const { networkFee: feeRates } = useNetworkFeeContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
   const { balances } = useBalancesContext();
@@ -44,6 +46,22 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const [btcBalanceAvalanche, setBtcBalanceAvalanche] =
     useState<AssetBalance>();
   const [utxos, setUtxos] = useState<BitcoinInputUTXO[]>();
+
+  const feeRate = useMemo(() => {
+    return feeRates?.high.toNumber() || 0;
+  }, [feeRates]);
+
+  const maximum = useMemo(() => {
+    if (!config || !activeAccount) return Big(0);
+    const maxAmt = getMaxTransferAmount(
+      utxos || [],
+      // As long as the address type is the same (P2WPKH) it should not matter.
+      config.criticalBitcoin.walletAddresses.btc,
+      activeAccount.addressBTC,
+      feeRate
+    );
+    return satoshiToBtc(maxAmt);
+  }, [utxos, config, feeRate, activeAccount]);
 
   /** Network fee (in BTC) */
   const [networkFee, setFee] = useState<Big>();
@@ -114,7 +132,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         activeAccount.addressBTC,
         utxos,
         amountInSatoshis,
-        networkFee?.toNumber() || 0
+        feeRate
       );
 
       setFee(satoshiToBtc(fee));
@@ -132,7 +150,14 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
       amountInSatoshis
     );
     setMinimum(satoshiToBtc(minimumSatoshis));
-  }, [amountInSatoshis, activeAccount, config, isBitcoinBridge, utxos]);
+  }, [
+    amountInSatoshis,
+    activeAccount,
+    config,
+    isBitcoinBridge,
+    utxos,
+    feeRate,
+  ]);
 
   const transfer = useCallback(async () => {
     if (!isBitcoinBridge || !config || !activeAccount || !btcAsset || !utxos)
@@ -143,7 +168,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
     const result = await request({
       method: ExtensionRequest.BRIDGE_SIGN_ISSUE_BTC,
-      params: [amountInSatoshis],
+      params: [amountInSatoshis, feeRate],
     });
 
     setTransactionDetails({
@@ -172,6 +197,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     request,
     setTransactionDetails,
     utxos,
+    feeRate,
   ]);
 
   return {
@@ -183,7 +209,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     loading,
     networkFee,
     receiveAmount,
-    maximum: btcBalance?.balance,
+    maximum,
     minimum,
     transfer,
   };

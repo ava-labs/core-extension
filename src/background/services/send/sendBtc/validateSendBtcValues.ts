@@ -3,7 +3,6 @@ import { stringToBN } from '@avalabs/utils-sdk';
 import { SendState } from '@avalabs/wallet-react-components';
 import { BitcoinInputUTXO, createTransferTx } from '@avalabs/wallets-sdk';
 import { SetSendValuesParams } from '@src/pages/Send/models';
-import { bitcoin, testnet } from 'bitcoinjs-lib/src/networks';
 import { BN } from 'bn.js';
 import { NetworkService } from '../../network/NetworkService';
 
@@ -47,7 +46,7 @@ export async function validateSendBtcValues(
     balance,
     feeRate,
     utxos,
-    (await networkService.isMainnet()) ? bitcoin : testnet
+    (await networkService.getBitcoinProvider()).getNetwork()
   );
   let maxAmount = new BN(balance - maxFee);
   if (maxAmount.lt(new BN(0))) {
@@ -60,7 +59,7 @@ export async function validateSendBtcValues(
     amountInSatoshis.toNumber(),
     feeRate,
     utxos,
-    (await networkService.isMainnet()) ? bitcoin : testnet
+    (await networkService.getBitcoinProvider()).getNetwork()
   );
 
   if (!psbt && amountInSatoshis.gt(new BN(0))) {
