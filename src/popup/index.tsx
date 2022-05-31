@@ -4,7 +4,6 @@ import { browser } from 'webextension-polyfill-ts';
 // MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
 import { HashRouter as Router } from 'react-router-dom';
 import {
-  LoadingIcon,
   ThemeContextProvider,
   Toaster,
   walletThemeDark,
@@ -12,6 +11,7 @@ import {
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { AnalyticsContextProvider } from '@src/contexts/AnalyticsProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
+import { LoadingContent } from './LoadingContent';
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
@@ -30,7 +30,7 @@ browser.tabs.query({ active: true }).then(() => {
           <SettingsContextProvider>
             <AnalyticsContextProvider>
               <Toaster />
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<LoadingContent />}>
                 <App />
               </Suspense>
             </AnalyticsContextProvider>
