@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import {
   BitcoinProviderAbstract,
   JsonRpcBatchInternal,
@@ -45,8 +45,9 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     this.currentNetworkFee = null;
   }
 
-  async getNetworkFee(): Promise<NetworkFee | null> {
-    const network = await this.networkService.activeNetwork.promisify();
+  async getNetworkFee(otherNetwork?: Network): Promise<NetworkFee | null> {
+    const network =
+      otherNetwork || (await this.networkService.activeNetwork.promisify());
 
     if (!network) {
       return null;

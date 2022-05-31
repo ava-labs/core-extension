@@ -102,6 +102,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._activeNetwork.dispatch(
       chainlist[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID]
     );
+    this._developerModeChanges.dispatch(this._isDeveloperMode);
   }
 
   async setChainListOrFallback() {
@@ -125,9 +126,13 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
   }
 
-  async setNetwork(networkId: string) {
+  async getNetwork(networkId: number): Promise<Network | undefined> {
     const activeNetworks = await this.activeNetworks.promisify();
-    const selectedNetwork = activeNetworks[networkId];
+    return activeNetworks[networkId];
+  }
+
+  async setNetwork(networkId: number) {
+    const selectedNetwork = await this.getNetwork(networkId);
     if (!selectedNetwork) {
       throw new Error('selected network not supported');
     }
@@ -161,33 +166,39 @@ export class NetworkService implements OnLock, OnStorageReady {
     });
   }
 
-  async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
-    const activeNetwork = await this.activeNetwork.promisify();
+  async getAvalancheNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
-    const network = activeNetwork?.isTestnet
+    return this._isDeveloperMode
       ? activeNetworks[ChainId.AVALANCHE_TESTNET_ID]
       : activeNetworks[ChainId.AVALANCHE_MAINNET_ID];
-    return (await this.getProviderForNetwork(network)) as JsonRpcBatchInternal;
+  }
+
+  async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
+    const network = await this.getAvalancheNetwork();
+    return this.getProviderForNetwork(network) as JsonRpcBatchInternal;
+  }
+
+  async getEthereumNetwork(): Promise<Network> {
+    return this._isDeveloperMode
+      ? ETHEREUM_TEST_NETWORK_RINKEBY
+      : ETHEREUM_NETWORK;
   }
 
   async getEthereumProvider() {
-    const activeNetwork = await this.activeNetwork.promisify();
-    const network = activeNetwork?.isTestnet
-      ? ETHEREUM_TEST_NETWORK_RINKEBY
-      : ETHEREUM_NETWORK;
-
+    const network = await this.getEthereumNetwork();
     return new InfuraProvider(
       network.isTestnet ? 'rinkeby' : 'homestead',
       process.env.INFURA_API_KEY
     );
   }
 
+  async getBitcoinNetwork(): Promise<Network> {
+    return this._isDeveloperMode ? BITCOIN_TEST_NETWORK : BITCOIN_NETWORK;
+  }
+
   async getBitcoinProvider(): Promise<BlockCypherProvider> {
-    const activeNetwork = await this.activeNetwork.promisify();
-    const network = activeNetwork?.isTestnet
-      ? BITCOIN_TEST_NETWORK
-      : BITCOIN_NETWORK;
-    return (await this.getProviderForNetwork(network)) as BlockCypherProvider;
+    const network = await this.getBitcoinNetwork();
+    return this.getProviderForNetwork(network) as BlockCypherProvider;
   }
 
   getProviderForNetwork(

@@ -90,7 +90,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     const prodConfig = envs.includes(Environment.PROD)
       ? await fetchConfig(Environment.PROD)
       : undefined;
-    const testConfig = envs.includes(Environment.PROD)
+    const testConfig = envs.includes(Environment.TEST)
       ? await fetchConfig(Environment.TEST)
       : undefined;
     Object.values(this.bridgeState.bridgeTransactions).forEach(
@@ -125,6 +125,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     const avalancheProvider = await this.networkService.getAvalancheProvider();
     const ethereumProvider = await this.networkService.getEthereumProvider();
+    const bitcoinProvider = await this.networkService.getBitcoinProvider();
 
     trackBridgeTransactionSDK({
       bridgeTransaction,
@@ -132,7 +133,7 @@ export class BridgeService implements OnLock, OnStorageReady {
       config,
       avalancheProvider,
       ethereumProvider,
-      bitcoinProvider: await this.networkService.getBitcoinProvider(),
+      bitcoinProvider,
     });
   }
 
@@ -178,11 +179,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     if (!this.accountsService.activeAccount) {
       throw new Error('no active account found');
     }
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
 
-    if (!activeNetwork) {
-      throw new Error('missing network');
-    }
     const avalancheProvider = await this.networkService.getAvalancheProvider();
     const ethereumProvider = await this.networkService.getEthereumProvider();
 

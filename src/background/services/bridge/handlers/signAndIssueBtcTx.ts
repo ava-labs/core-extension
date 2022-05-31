@@ -34,8 +34,9 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse<{ hash: string }>> => {
     const { config } = await this.bridgeService.updateBridgeConfig();
+    const bitcoinNetwork = await this.networkService.getBitcoinNetwork();
 
-    if (!config) {
+    if (!config || !bitcoinNetwork) {
       return {
         ...request,
         error: 'Not ready',
@@ -43,6 +44,11 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
     }
 
     const [amountInSatoshis, feeRate] = request.params || [];
+
+    if (typeof amountInSatoshis !== 'number')
+      return { ...request, error: 'Missing amountInSatoshis' };
+    if (typeof feeRate !== 'number')
+      return { ...request, error: 'Missing feeRate' };
 
     const { inputs, outputs } = getBtcTransaction(
       config,
@@ -53,10 +59,7 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
     );
 
     const [signedTx, error] = await resolve(
-      this.walletService.sign({
-        inputs,
-        outputs,
-      })
+      this.walletService.sign({ inputs, outputs }, bitcoinNetwork)
     );
 
     if (error) {
@@ -85,7 +88,7 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
         (await this.networkService.isMainnet())
           ? ChainId.BITCOIN
           : ChainId.BITCOIN_TESTNET
-      ][this.addressBTC]?.[0];
+      ]?.[this.addressBTC]?.[0];
     return token?.utxos || [];
   }
 }

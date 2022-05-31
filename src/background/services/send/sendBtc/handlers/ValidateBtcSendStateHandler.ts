@@ -7,7 +7,6 @@ import {
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { TokenWithBalance } from '@src/background/services/balances/models';
 import { NetworkBalanceAggregatorService } from '@src/background/services/balances/NetworkBalanceAggregatorService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
@@ -48,7 +47,7 @@ export class ValidateBtcSendStateHandler implements ExtensionRequestHandler {
     }
 
     const isMainnet = await this.networkService.isMainnet();
-    const tokenWithBalance: TokenWithBalance =
+    const tokenWithBalance =
       this.networkBalanceAggregator.balances[
         isMainnet ? ChainId.BITCOIN : ChainId.BITCOIN_TESTNET
       ]?.[this.accountsService.activeAccount?.addressBTC || '']?.[0];

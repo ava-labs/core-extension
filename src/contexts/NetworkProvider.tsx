@@ -40,7 +40,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     request({
       method: ExtensionRequest.NETWORK_GET_SELECTED,
     }).then((network) => {
-      setNetwork(network as any);
+      setNetwork(network);
     });
 
     request({

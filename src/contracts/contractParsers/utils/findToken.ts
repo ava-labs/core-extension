@@ -35,7 +35,7 @@ export async function findToken(
     return UNKNOWN_TOKEN(address);
   }
 
-  const token = balancesService.balances[activeNetwork.chainId][
+  const token = balancesService.balances[activeNetwork.chainId]?.[
     accountsService.activeAccount.addressC
   ].find((t) => t.isERC20 && t.address.toLowerCase() === address.toLowerCase());
 

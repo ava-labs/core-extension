@@ -14,6 +14,7 @@ import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
 import { NetworkSwitcher } from './NetworkSwitcher';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useLocation } from 'react-router-dom';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -25,6 +26,8 @@ export function Header() {
     (isDomainConnectedToAccount &&
       isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||
     false;
+  const location = useLocation();
+  const showNetworkSwitcher = !location.pathname.startsWith('/bridge');
 
   return (
     <HorizontalFlex
@@ -85,7 +88,11 @@ export function Header() {
         )}
       </VerticalFlex>
 
-      <NetworkSwitcher />
+      {showNetworkSwitcher ? (
+        <NetworkSwitcher />
+      ) : (
+        <div style={{ width: 52 }} />
+      )}
     </HorizontalFlex>
   );
 }

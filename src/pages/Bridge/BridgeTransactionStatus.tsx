@@ -387,32 +387,31 @@ const BridgeTransactionStatus = () => {
                     <Typography size={14} transform="capitalize">
                       {bridgeTransaction.targetChain}
                     </Typography>
-                    {bridgeTransaction.complete &&
-                      bridgeTransaction.targetTxHash && (
-                        <Tooltip
-                          placement="left"
-                          content={
-                            <Typography size={14}>View on explorer</Typography>
+                    {bridgeTransaction.targetTxHash && (
+                      <Tooltip
+                        placement="left"
+                        content={
+                          <Typography size={14}>View on explorer</Typography>
+                        }
+                      >
+                        <PopOutButton
+                          onClick={() =>
+                            window.open(
+                              getLinkForBridgeTransaction(
+                                bridgeTransaction.targetChain,
+                                bridgeTransaction.targetTxHash || '',
+                                isMainnet
+                              )
+                            )
                           }
                         >
-                          <PopOutButton
-                            onClick={() =>
-                              window.open(
-                                getLinkForBridgeTransaction(
-                                  bridgeTransaction.targetChain,
-                                  bridgeTransaction.targetTxHash || '',
-                                  isMainnet
-                                )
-                              )
-                            }
-                          >
-                            <PopoutLinkIcon
-                              height={'16px'}
-                              color={theme.colors.text1}
-                            />
-                          </PopOutButton>
-                        </Tooltip>
-                      )}
+                          <PopoutLinkIcon
+                            height={'16px'}
+                            color={theme.colors.text1}
+                          />
+                        </PopOutButton>
+                      </Tooltip>
+                    )}
                   </HorizontalFlex>
                 </HorizontalFlex>
                 <HorizontalSeparator margin="16px 0 16px 0" />

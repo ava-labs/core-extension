@@ -22,7 +22,7 @@ export class SetSelectedNetworkHandler implements ExtensionRequestHandler {
     if (!chainId) {
       return {
         ...request,
-        error: 'network name missing in params',
+        error: 'network chainId missing in params',
       };
     }
 

@@ -28,7 +28,7 @@ import {
   LedgerSigner,
 } from '@avalabs/wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { LockService } from '../lock/LockService';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import {
@@ -107,7 +107,7 @@ export class WalletService implements OnLock {
     this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, { locked: true });
   }
 
-  private async getWallet() {
+  private async getWallet(network?: Network) {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
@@ -116,7 +116,8 @@ export class WalletService implements OnLock {
     // getting accounts service on the fly instead of via constructor
     const accountsService = container.resolve(AccountsService);
 
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork =
+      network || (await this.networkService.activeNetwork.promisify());
 
     if (
       !walletKeys ||
@@ -196,9 +197,10 @@ export class WalletService implements OnLock {
       | {
           inputs: BitcoinInputUTXO[];
           outputs: BitcoinOutputUTXO[];
-        }
+        },
+    network?: Network
   ): Promise<string> {
-    const wallet = await this.getWallet();
+    const wallet = await this.getWallet(network);
     if (!wallet) {
       throw new Error('Wallet not found');
     }
