@@ -224,12 +224,12 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
   }
 
-  async sendTransaction(signedTx: string): Promise<string> {
-    const network = await this.activeNetwork.promisify();
-    if (!network) {
+  async sendTransaction(signedTx: string, network?: Network): Promise<string> {
+    const activeNetwork = network || (await this.activeNetwork.promisify());
+    if (!activeNetwork) {
       throw new Error('No active network');
     }
-    const provider = this.getProviderForNetwork(network);
+    const provider = this.getProviderForNetwork(activeNetwork);
     if (provider instanceof JsonRpcBatchInternal) {
       return (await provider.sendTransaction(signedTx)).hash;
     }

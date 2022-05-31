@@ -69,7 +69,10 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
       };
     }
 
-    const hash = await this.networkService.sendTransaction(signedTx);
+    const hash = await this.networkService.sendTransaction(
+      signedTx,
+      bitcoinNetwork
+    );
 
     return {
       ...request,
