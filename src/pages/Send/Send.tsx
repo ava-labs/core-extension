@@ -310,6 +310,10 @@ export function SendPage() {
               onAmountInputChange={onAmountChanged}
               sendState={sendState}
               tokensWBalances={tokensWBalances}
+              onGasChanged={onGasChanged}
+              maxGasPrice={maxGasPrice}
+              gasPrice={gasPriceState}
+              selectedGasFee={selectedGasFee}
             />
             <VerticalFlex
               align="center"

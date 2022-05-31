@@ -8,8 +8,6 @@ import {
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled from 'styled-components';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useRef, useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';

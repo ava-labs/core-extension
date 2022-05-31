@@ -25,15 +25,17 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BigNumber } from 'ethers';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
+import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
+
 import { TokenWithBalance } from '@src/background/services/balances/models';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -125,8 +127,6 @@ export const SendConfirm = ({
   token,
   fallbackAmountDisplayValue,
   onSubmit,
-  onGasChanged,
-  maxGasPrice,
   gasPrice,
   selectedGasFee,
 }: SendConfirmProps) => {
@@ -135,8 +135,8 @@ export const SendConfirm = ({
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { capture } = useAnalyticsContext();
-  const { networkFee } = useNetworkFeeContext();
   const { network } = useNetworkContext();
+  const nativeTokenPrice = useNativeTokenPrice();
 
   useLedgerDisconnectedDialog(() => {
     history.goBack();
@@ -252,24 +252,37 @@ export const SendConfirm = ({
             </VerticalFlex>
           </Card>
 
-          <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
-            <Typography size={12} height="15px" margin="0 8px 0 0">
-              Network Fee
+          <HorizontalFlex
+            justify="space-between"
+            margin="16px 0 0"
+            width="100%"
+          >
+            <HorizontalFlex>
+              <Typography size={12} height="15px" margin="0 8px 0 0">
+                Network Fee
+              </Typography>
+              <TransactionFeeTooltip
+                gasPrice={gasPrice}
+                gasLimit={sendState?.gasLimit}
+              />
+            </HorizontalFlex>
+            <Typography
+              size={14}
+              height="15px"
+              color={theme.colors.text2}
+              align="right"
+            >
+              {gasPrice &&
+                sendState?.gasLimit &&
+                calculateGasAndFees(
+                  gasPrice,
+                  nativeTokenPrice,
+                  network?.networkToken.decimals,
+                  sendState?.gasLimit
+                ).fee}{' '}
+              {network?.networkToken.symbol}
             </Typography>
-            <TransactionFeeTooltip
-              gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}
-              gasLimit={sendState?.gasLimit}
-            />
           </HorizontalFlex>
-          <VerticalFlex width="100%">
-            <CustomFees
-              gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
-              limit={sendState?.gasLimit || 0}
-              onChange={onGasChanged}
-              maxGasPrice={maxGasPrice}
-              selectedGasFeeModifier={selectedGasFee}
-            />
-          </VerticalFlex>
 
           <HorizontalFlex
             justify="space-between"
