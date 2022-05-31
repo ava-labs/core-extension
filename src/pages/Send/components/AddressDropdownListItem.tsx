@@ -1,4 +1,5 @@
 import {
+  AvaxTokenIcon,
   HorizontalFlex,
   HorizontalSeparator,
   SimpleAddress,
@@ -8,9 +9,10 @@ import {
 import React from 'react';
 import styled, { useTheme } from 'styled-components';
 import { Contact } from '@src/background/services/contacts/models';
+import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 
 const RowContainer = styled(VerticalFlex)`
-  padding: 8px 16px;
+  padding: 16px;
   cursor: pointer;
   &:hover {
     background-color: ${({ theme }) => theme.colors.bg2};
@@ -19,6 +21,24 @@ const RowContainer = styled(VerticalFlex)`
       color: ${({ theme }) => theme.colors.text1};
     }
   }
+`;
+
+const StyledAvaxIcon = styled(AvaxTokenIcon)`
+  margin: 0 4px 0 0;
+`;
+
+const StyleBitcoinIcon = styled(BitcoinLogo)`
+  margin: 0 4px 0 0;
+`;
+
+const ContactName = styled(Typography)`
+  max-width: 95%;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 `;
 
 type AddressDropdownListItemProps = {
@@ -46,24 +66,27 @@ export const AddressDropdownListItem = ({
           onChange(contact);
         }}
       >
-        <Typography size={14} color={color}>
-          {contact.name}
-        </Typography>
-        <HorizontalFlex marginTop="2px">
-          <SimpleAddress
-            address={contact.address}
-            typographyProps={{
-              size: 12,
-              height: '15px',
-              color: theme.colors.text2,
-              margin: '0 8px 0 0',
-            }}
-            copyIconProps={{
-              height: '12px',
-              color,
-            }}
-          />
-        </HorizontalFlex>
+        <VerticalFlex align="flex-start" justify="space-between" width="100%">
+          <HorizontalFlex justify="space-between" width={'100%'} align="center">
+            <ContactName color={color} title={contact.name}>
+              {contact.name}
+            </ContactName>
+            <VerticalFlex>
+              {contact.address && (
+                <HorizontalFlex align="center">
+                  <StyledAvaxIcon height="16px" />
+                  <SimpleAddress address={contact.address} />
+                </HorizontalFlex>
+              )}
+              {contact.addressBTC && (
+                <HorizontalFlex align="center">
+                  <StyleBitcoinIcon height="16px" />
+                  <SimpleAddress address={contact.addressBTC} />
+                </HorizontalFlex>
+              )}
+            </VerticalFlex>
+          </HorizontalFlex>
+        </VerticalFlex>
       </RowContainer>
       <div style={{ padding: '0 16px' }}>
         <HorizontalSeparator margin="0" />

@@ -11,6 +11,8 @@ import styled from 'styled-components';
 import { AddressDropdownList } from './AddressDropdownList';
 import { Contact } from '@src/background/services/contacts/models';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 
 const Tabs = styled(HorizontalFlex)`
   border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
@@ -52,10 +54,11 @@ export const ContactSelect = ({
   const { recentTxHistory } = useWalletContext();
   const { accounts } = useAccountsContext();
   const { contacts } = useContactsContext();
+  const { network } = useNetworkContext();
   const [selectedTab, setSelectedTab] = useState<string>('recents');
 
-  const formattedTxHistory = useMemo(
-    () =>
+  const formattedTxHistory = useMemo(() => {
+    return (
       recentTxHistory
         // filter out dupe to addresses
         .filter((tx, index, self) => {
@@ -64,25 +67,38 @@ export const ContactSelect = ({
             tx.to !== '0x0000000000000000000000000000000000000000'
           );
         })
-        .map((tx) => identifyAddress(tx.to)),
-    [recentTxHistory, identifyAddress]
-  );
+        .map((tx) => identifyAddress(tx.to))
+    );
+  }, [recentTxHistory, identifyAddress]);
 
-  const formattedAccounts = useMemo(
-    () =>
-      accounts.map(({ addressC, name }) => ({
-        id: '',
-        address: addressC,
-        name,
+  const formattedAccounts = useMemo(() => {
+    return accounts.map(({ addressC, name, addressBTC }) => ({
+      id: '',
+      address: network?.vmName == NetworkVMType.EVM ? addressC : '',
+      addressBTC: network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
+      name,
+      isKnown: true,
+    }));
+  }, [accounts, network]);
+
+  const formattedContacts = useMemo(() => {
+    return contacts
+      .filter((contact) => {
+        if (network?.vmName === NetworkVMType.EVM) {
+          return contact.address;
+        }
+        if (network?.vmName === NetworkVMType.BITCOIN) {
+          return contact.addressBTC;
+        }
+      })
+      .map((contact) => ({
+        ...contact,
+        address: network?.vmName == NetworkVMType.EVM ? contact.address : '',
+        addressBTC:
+          network?.vmName === NetworkVMType.BITCOIN ? contact.addressBTC : '',
         isKnown: true,
-      })),
-    [accounts]
-  );
-
-  const formattedContacts = useMemo(
-    () => contacts.map((contact) => ({ ...contact, isKnown: true })),
-    [contacts]
-  );
+      }));
+  }, [contacts, network]);
 
   return (
     <VerticalFlex margin="24px 0 0 0" grow="1">

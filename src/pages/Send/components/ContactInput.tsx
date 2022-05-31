@@ -13,6 +13,9 @@ import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import styled, { useTheme } from 'styled-components';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { NetworkVMType } from '@avalabs/chains-sdk';
+import { isBech32Address } from '@avalabs/bridge-sdk';
 
 const RelativeContainer = styled.div`
   position: relative;
@@ -44,6 +47,7 @@ export const ContactInput = ({
   setIsOpen,
 }: ContactInputProps) => {
   const theme = useTheme();
+  const { network } = useNetworkContext();
   const inputRef = useRef<HTMLDivElement>(null);
   const identifyAddress = useIdentifyAddress();
 
@@ -54,10 +58,18 @@ export const ContactInput = ({
 
   const [inputFocused, setInputFocused] = useState<boolean>(true);
 
-  const isValidAddress = contact
-    ? AddressHelper.validateAddress(contact.address) &&
-      AddressHelper.getAddressChain(contact.address) === 'C'
-    : false;
+  const isValidAddress = (): boolean => {
+    if (network?.vmName === NetworkVMType.EVM) {
+      return contact
+        ? !!AddressHelper.validateAddress(contact.address) &&
+            AddressHelper.getAddressChain(contact.address) === 'C'
+        : false;
+    }
+    if (network?.vmName === NetworkVMType.BITCOIN) {
+      return contact ? isBech32Address(contact.address) : false;
+    }
+    return false;
+  };
 
   const getInputDisplayValue = () => {
     if (!contact?.address) return '';
@@ -65,11 +77,16 @@ export const ContactInput = ({
     if (inputFocused) return contact.address || '';
     let displayStr = '';
     if (contact?.isKnown) displayStr += truncateName(contact.name) + '   ';
-    displayStr += isValidAddress
+    displayStr += isValidAddress()
       ? truncateAddress(contact.address)
       : contact.address; // user is typing in the address
     return displayStr;
   };
+
+  const inputPlaceholder =
+    network?.vmName === NetworkVMType.BITCOIN
+      ? 'Enter Bitcoin Address'
+      : 'Enter 0x Address';
 
   return (
     <RelativeContainer>
@@ -86,7 +103,7 @@ export const ContactInput = ({
           onBlur={() => setInputFocused(false)}
           value={getInputDisplayValue()}
           label="Send to"
-          placeholder="Enter 0x Address"
+          placeholder={inputPlaceholder}
           buttonContent={
             <HorizontalFlex align="center">
               <ContactsIcon height="20px" style={{ marginRight: 12 }} />

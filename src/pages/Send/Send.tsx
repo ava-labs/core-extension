@@ -32,10 +32,11 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import { BigNumber } from 'ethers';
 import BN from 'bn.js';
 import { TokenWithBalance } from '@src/background/services/balances/models';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 export function SendPage() {
@@ -46,6 +47,7 @@ export function SendPage() {
   const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
+  const { network } = useNetworkContext();
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
 
@@ -58,13 +60,13 @@ export function SendPage() {
   );
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
+  const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
   const [gasPriceState, setGasPrice] = useState<BigNumber>();
   const { capture } = useAnalyticsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
 
   const isMainnet = useIsMainnet();
-  const { network } = useNetworkContext();
 
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
 
@@ -97,20 +99,38 @@ export function SendPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => resetSendFlow, []);
 
-  const resetSendFlow = () => {
-    sendState.reset();
-  };
+  // when the network changes we need to clear contact input
+  useEffect(() => {
+    if (currentNetwork !== network?.vmName) {
+      setCurrentNetwork(network?.vmName);
+      setSendDataInParams({});
+    }
+  }, [network?.vmName, currentNetwork, setSendDataInParams]);
+
+  const resetSendFlow = () => sendState.reset();
 
   const onContactChanged = (contact: Contact, selectedTab?: string) => {
+    let addressToUse = '';
+    if (network?.vmName === NetworkVMType.EVM) {
+      // use contact.address
+      addressToUse = contact.address || '';
+    }
+    if (network?.vmName === NetworkVMType.BITCOIN) {
+      // when the contact is selected from the dropdown it will have 'contact.addressBTC'
+      // when the address is typed in manually it will be 'contact.address' and not have 'contact.addressBTC'
+      // this is because the contact is set in the params and only uses 'address'
+      addressToUse = contact.addressBTC || contact.address;
+    }
+
     setSendDataInParams({
       token: selectedToken,
-      address: contact.address,
+      address: addressToUse,
       options: { replace: true },
     });
     setSendState({
       token: selectedToken,
       amount: amountInputDisplay,
-      address: contact.address,
+      address: addressToUse,
     });
     capture('SendContactSelected', {
       contactSource: selectedTab,
