@@ -38,8 +38,8 @@ import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { VsCurrencyType } from '@avalabs/coingecko-sdk';
 import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
-import { getLinkForBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -278,7 +278,7 @@ const BridgeTransactionStatus = () => {
                         <PopOutButton
                           onClick={() =>
                             window.open(
-                              getLinkForBridgeTransaction(
+                              getExplorerAddress(
                                 bridgeTransaction.sourceChain,
                                 bridgeTransaction.sourceTxHash,
                                 isMainnet
@@ -397,7 +397,7 @@ const BridgeTransactionStatus = () => {
                         <PopOutButton
                           onClick={() =>
                             window.open(
-                              getLinkForBridgeTransaction(
+                              getExplorerAddress(
                                 bridgeTransaction.targetChain,
                                 bridgeTransaction.targetTxHash || '',
                                 isMainnet

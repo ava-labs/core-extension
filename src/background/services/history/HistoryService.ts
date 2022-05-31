@@ -1,7 +1,5 @@
-import {
-  getBTCBlockchainLink,
-  isBridgeTransaction,
-} from '@src/utils/bridgeTransactionUtils';
+import { Blockchain } from '@avalabs/bridge-sdk';
+import { isBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
 import { BridgeService } from './../bridge/BridgeService';
 import { BitcoinHistoryTx, BlockCypherProvider } from '@avalabs/wallets-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
@@ -20,6 +18,7 @@ import {
 } from '@src/utils/transactionUtils';
 import { TxHistoryItem } from './models';
 import { BITCOIN_NETWORK, Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 
 @singleton()
 export class HistoryService {
@@ -86,7 +85,8 @@ export class HistoryService {
           name: BITCOIN_NETWORK.networkToken.name,
           symbol: BITCOIN_NETWORK.networkToken.symbol,
         },
-        explorerLink: getBTCBlockchainLink(
+        explorerLink: getExplorerAddress(
+          Blockchain.BITCOIN,
           tx.hash,
           network.chainId === BITCOIN_NETWORK.chainId
         ),

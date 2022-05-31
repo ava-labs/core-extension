@@ -1,11 +1,9 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
 import {
   BitcoinConfigAssets,
   BridgeTransaction,
   EthereumConfigAssets,
 } from '@avalabs/bridge-sdk';
 import {
-  getTransactionLink,
   TransactionERC20,
   WalletState,
 } from '@avalabs/wallet-react-components';
@@ -96,31 +94,4 @@ export function isPendingBridgeTransaction(
   item: TxHistoryItem | BridgeTransaction
 ): item is BridgeTransaction {
   return 'addressBTC' in item;
-}
-
-export function getLinkForBridgeTransaction(
-  chain: Blockchain,
-  txHash: string,
-  isMainnet: boolean
-): string {
-  switch (chain) {
-    case Blockchain.AVALANCHE:
-      return getTransactionLink(txHash, isMainnet);
-    case Blockchain.BITCOIN:
-      return getBTCBlockchainLink(txHash, isMainnet);
-    default:
-      return getEtherscanLink(txHash, isMainnet);
-  }
-}
-
-export function getEtherscanLink(txHash: string, isMainnet: boolean) {
-  const root = isMainnet
-    ? 'https://etherscan.io'
-    : 'https://rinkeby.etherscan.io';
-  return `${root}/tx/${txHash}`;
-}
-
-export function getBTCBlockchainLink(txHash: string, isMainnet: boolean) {
-  const env = isMainnet ? 'btc' : 'btc-testnet';
-  return `https://www.blockchain.com/${env}/tx/${txHash}`;
 }

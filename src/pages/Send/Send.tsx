@@ -18,7 +18,6 @@ import { Contact } from '@src/background/services/contacts/models';
 import { SendConfirm } from './SendConfirm';
 import { useSend } from './hooks/useSend';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
@@ -36,6 +35,8 @@ import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { BigNumber } from 'ethers';
 import BN from 'bn.js';
 import { TokenWithBalance } from '@src/background/services/balances/models';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 export function SendPage() {
   const theme = useTheme();
@@ -63,6 +64,7 @@ export function SendPage() {
     useSendAnalyticsData();
 
   const isMainnet = useIsMainnet();
+  const { network } = useNetworkContext();
 
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
 
@@ -208,6 +210,13 @@ export function SendPage() {
     },
     [amountInputDisplay, contactInput?.address, selectedToken, setSendState]
   );
+
+  function getURL(hash: string | undefined | void): string {
+    if (hash && network) {
+      return getExplorerAddressByNetwork(network, hash, isMainnet);
+    }
+    return '';
+  }
   const onSubmit = () => {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
@@ -237,7 +246,7 @@ export function SendPage() {
             status="Transaction Successful"
             type={TransactionToastType.SUCCESS}
             text="View in Explorer"
-            href={txId ? getTransactionLink(txId, isMainnet) : ''}
+            href={getURL(txId)}
           />,
           { id: toastId }
         );
