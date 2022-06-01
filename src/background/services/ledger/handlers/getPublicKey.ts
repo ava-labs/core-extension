@@ -18,7 +18,7 @@ export class GetPublicKeyHandler implements ExtensionRequestHandler {
   handle = async (
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
-    if (!this.ledgerService.transport) {
+    if (!this.ledgerService.recentTransport) {
       return {
         ...request,
         error:
@@ -27,7 +27,9 @@ export class GetPublicKeyHandler implements ExtensionRequestHandler {
     }
 
     const [pubKey, pubKeyError] = await resolve(
-      LedgerWallet.getExtendedPublicKeyEthAccount(this.ledgerService.transport)
+      LedgerWallet.getExtendedPublicKeyEthAccount(
+        this.ledgerService.recentTransport
+      )
     );
 
     if (pubKeyError) {

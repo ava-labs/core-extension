@@ -53,6 +53,7 @@
     "extensionizer": "1.0.1",
     "human-standard-token-abi": "2.0.0",
     "loglevel": "1.8.0",
+    "lru-cache": "7.10.1",
     "node-polyfill-webpack-plugin": "1.1.4",
     "paraswap": "5.1.0",
     "pump": "3.0.0",

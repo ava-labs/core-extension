@@ -137,13 +137,13 @@ export class WalletService implements OnLock {
         );
         return wallet.connect(provider as JsonRpcBatchInternal);
       } else if (walletKeys.xpub) {
-        if (!this.ledgerService.transport) {
+        if (!this.ledgerService.recentTransport) {
           throw new Error('Ledger transport not available');
         }
 
         return new LedgerSigner(
           accountsService.activeAccount.index,
-          this.ledgerService.transport,
+          this.ledgerService.recentTransport,
           provider as JsonRpcBatchInternal
         );
       }
@@ -155,7 +155,7 @@ export class WalletService implements OnLock {
           provider as BitcoinProviderAbstract
         );
       } else if (walletKeys.xpub) {
-        if (!this.ledgerService.transport) {
+        if (!this.ledgerService.recentTransport) {
           throw new Error('Ledger transport not available');
         }
 
@@ -163,7 +163,7 @@ export class WalletService implements OnLock {
           walletKeys.xpub,
           accountsService.activeAccount.index,
           provider as BitcoinProviderAbstract,
-          this.ledgerService.transport
+          this.ledgerService.recentTransport
         );
       }
     } else {

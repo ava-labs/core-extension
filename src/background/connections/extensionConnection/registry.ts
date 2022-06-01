@@ -91,6 +91,7 @@ import { UpdateTransactionHandler } from '../../services/transactions/handlers/u
 import { GetNetworksHandler } from '@src/background/services/network/handlers/getNetworks';
 import { GetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/getDeveloperMode';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
+import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -135,6 +136,7 @@ import { NetworksUpdatedEvents } from '@src/background/services/network/events/n
   { token: 'ExtensionRequestHandler', useToken: RemoveContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetPublicKeyHandler },
   { token: 'ExtensionRequestHandler', useToken: InitLedgerTransportHandler },
+  { token: 'ExtensionRequestHandler', useToken: RemoveLedgerTransportHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerResponseHandler },
   { token: 'ExtensionRequestHandler', useToken: LockChangePasswordHandler },
   { token: 'ExtensionRequestHandler', useToken: LockWalletHandler },

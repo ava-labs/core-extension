@@ -12,6 +12,7 @@ import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
 import { getAppAvax } from '@avalabs/avalanche-wallet-sdk';
 
 export const SUPPORTED_LEDGER_VERSION = '0.5.9';
+const LEDGER_INSTANCE_UUID = crypto.randomUUID();
 
 const LedgerSupportContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
@@ -27,7 +28,10 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     const subscription = events()
-      .pipe(filter((evt) => evt.name === LedgerEvent.TRANSPORT_REQUEST))
+      .pipe(
+        filter((evt) => evt.name === LedgerEvent.TRANSPORT_REQUEST),
+        filter((evt) => evt.value.connectionUUID === LEDGER_INSTANCE_UUID)
+      )
       .subscribe(async (res) => {
         if (res.value.method === 'SEND') {
           try {
@@ -69,6 +73,16 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
       subscription.unsubscribe();
     };
   }, [request, events, app?.transport]);
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', (ev) => {
+      ev.preventDefault();
+      request({
+        method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
+        params: [LEDGER_INSTANCE_UUID],
+      });
+    });
+  });
 
   useEffect(() => {
     const subscription = of([initialized, app])
@@ -150,7 +164,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
     setInialized(true);
     await request({
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
-      params: [],
+      params: [LEDGER_INSTANCE_UUID],
     });
   }
 

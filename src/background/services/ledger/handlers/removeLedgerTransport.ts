@@ -8,8 +8,8 @@ import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
 
 @injectable()
-export class InitLedgerTransportHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.LEDGER_INIT_TRANSPORT];
+export class RemoveLedgerTransportHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.LEDGER_REMOVE_TRANSPORT];
 
   constructor(private ledgerService: LedgerService) {}
 
@@ -19,24 +19,12 @@ export class InitLedgerTransportHandler implements ExtensionRequestHandler {
     const params = request.params || [];
     const [LEDGER_INIT_UUID] = params;
     if (this.ledgerService.getTransport(LEDGER_INIT_UUID)) {
-      return {
-        result: true,
-        ...request,
-      };
-    }
-
-    try {
-      await this.ledgerService.initTransport(LEDGER_INIT_UUID);
-    } catch (e) {
-      return {
-        ...request,
-        error: (e as Error).message,
-      };
+      this.ledgerService.removeTransportFromCache(LEDGER_INIT_UUID);
     }
 
     return {
-      ...request,
       result: true,
+      ...request,
     };
   };
 }
