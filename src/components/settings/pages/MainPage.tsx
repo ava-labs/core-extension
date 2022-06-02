@@ -201,7 +201,10 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         as="a"
         target="_blank"
         onClick={() =>
-          window.open('https://support.avax.network/en/', '_blank')
+          window.open(
+            'https://support.avax.network/en/collections/3391518-core',
+            '_blank'
+          )
         }
       >
         <Typography size={14} height="17px">
