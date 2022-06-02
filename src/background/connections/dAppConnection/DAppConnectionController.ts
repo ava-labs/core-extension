@@ -60,7 +60,7 @@ export class DAppConnectionController implements ConnectionController {
       SiteMetadataMiddleware(connection),
       RPCCallsMiddleware(this.networkService),
       PermissionMiddleware(this.permissionsService, this.accountsService),
-      DAppRequestHandlerMiddleware(this.handlers),
+      DAppRequestHandlerMiddleware(this.handlers, this.networkService),
       LoggerMiddleware(SideToLog.RESPONSE)
     );
 

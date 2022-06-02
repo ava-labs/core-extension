@@ -1,15 +1,13 @@
 import { JsonRpcEngine } from 'json-rpc-engine';
 import { createFetchMiddleware } from 'eth-json-rpc-middleware';
-import { firstValueFrom } from 'rxjs';
-import { network$ } from '@avalabs/wallet-react-components';
+import { Network } from '@avalabs/chains-sdk';
 
 export { JsonRpcRequest } from 'json-rpc-engine';
 
-export async function engine() {
-  const net = await firstValueFrom(network$);
+export async function engine(network: Network) {
   const fetchMiddleware = createFetchMiddleware({
     get rpcUrl() {
-      return net?.config.rpcUrl.c ?? '';
+      return network.rpcUrl;
     },
   });
   const engine = new JsonRpcEngine();
