@@ -214,7 +214,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return new JsonRpcBatchInternal(
         {
           maxCalls: 40,
-          multiContractAddress: network.multicallAddress,
+          multiContractAddress: network.utilityAddresses?.multicall,
         },
         network.rpcUrl,
         network.chainId

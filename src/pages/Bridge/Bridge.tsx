@@ -306,15 +306,15 @@ export function Bridge() {
                       decimals: sourceBalance.asset.denomination,
                       priceUSD: price?.toNumber(),
                       logoUri:
-                        tokenInfoData?.[sourceBalance.asset.symbol]?.logo || '',
+                        tokenInfoData?.[sourceBalance.asset.symbol]?.logo,
                       name: sourceBalance.asset.symbol,
                       symbol: getTokenSymbolOnNetwork(
                         sourceBalance.asset.symbol,
                         currentBlockchain
                       ),
                       address: sourceBalance.asset.symbol,
-                      contractType: 'ERC20',
-                      resourceLinks: [],
+                      contractType: 'ERC-20',
+                      description: '',
                     }
                   }
                   onInputAmountChange={handleAmountChanged}

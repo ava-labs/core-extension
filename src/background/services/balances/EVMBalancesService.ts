@@ -44,10 +44,13 @@ export class EVMBalancesService {
     network: Network
   ): Promise<NetworkTokenWithBalance> {
     const balanceBig = await provider.getBalance(userAddress);
-    const tokenPrice = await this.tokenPricesService.getPriceByCoinId(
-      network.networkToken.coingeckoId,
-      (await this.settingsService.getSettings()).currency || 'usd'
-    );
+    const coingeckoTokenId = network.pricingProviders?.coingecko.nativeTokenId;
+    const tokenPrice = coingeckoTokenId
+      ? await this.tokenPricesService.getPriceByCoinId(
+          coingeckoTokenId,
+          (await this.settingsService.getSettings()).currency || 'usd'
+        )
+      : undefined;
     const big = ethersBigNumberToBig(balanceBig, network.networkToken.decimals);
     const balance = bigToBN(big, network.networkToken.decimals);
 
@@ -153,13 +156,17 @@ export class EVMBalancesService {
       network
     );
     const activeTokenList = [...customTokens, ...(network.tokens || [])];
-    const tokenPriceDict = network.coingeckoAssetPlatformId
-      ? await this.tokenPricesService.getTokenPricesByAddresses(
-          activeTokenList,
-          network.coingeckoAssetPlatformId,
-          network.networkToken.coingeckoId
-        )
-      : {};
+    const coingeckoTokenId = network.pricingProviders?.coingecko.nativeTokenId;
+    const coingeckoPlatformId =
+      network.pricingProviders?.coingecko.assetPlatformId;
+    const tokenPriceDict =
+      coingeckoPlatformId && coingeckoTokenId
+        ? await this.tokenPricesService.getTokenPricesByAddresses(
+            activeTokenList,
+            coingeckoPlatformId,
+            coingeckoTokenId
+          )
+        : {};
     const nativeTok = await this.getNativeTokenBalance(
       provider as JsonRpcBatchInternal,
       userAddress,

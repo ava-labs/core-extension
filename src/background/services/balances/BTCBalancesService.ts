@@ -29,10 +29,13 @@ export class BTCBalancesService {
     const provider = await this.networkService.getBitcoinProvider();
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
-    const tokenPrice = await this.tokenPricesService.getPriceByCoinId(
-      network.networkToken.coingeckoId,
-      selectedCurrency
-    );
+    const coingeckoTokenId = network.pricingProviders?.coingecko.nativeTokenId;
+    const tokenPrice = coingeckoTokenId
+      ? await this.tokenPricesService.getPriceByCoinId(
+          coingeckoTokenId,
+          selectedCurrency
+        )
+      : undefined;
     const denomination = network.networkToken.decimals;
     const { balance: balanceSatoshis, utxos } = await provider.getUtxoBalance(
       userAddress

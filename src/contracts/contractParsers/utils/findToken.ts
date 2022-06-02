@@ -10,13 +10,12 @@ const UNKNOWN_TOKEN = (address: string): NetworkContractTokenWithBalance => ({
   address,
   isERC20: true,
   isNetworkToken: false,
-  contractType: '',
-  logoUri: '',
-  resourceLinks: [],
+  contractType: 'ERC-20',
   name: 'UNKNOWN TOKEN',
   symbol: '-',
   balance: new BN(0),
   decimals: 0,
+  description: '',
 });
 
 export async function findToken(
@@ -64,8 +63,7 @@ export async function findToken(
     balance: balance,
     isERC20: true,
     isNetworkToken: false,
-    contractType: '',
-    logoUri: '',
-    resourceLinks: [],
+    contractType: 'ERC-20',
+    description: '',
   };
 }
