@@ -141,7 +141,7 @@ export function CollectibleSend() {
           {showTxInProgress && (
             <TxInProgress
               address={sendState?.contractAddress}
-              nftName={nftItem.externalData.name}
+              nftName={nftItem.externalData?.name}
               fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
             />
           )}
@@ -181,11 +181,14 @@ export function CollectibleSend() {
                     width="auto"
                     maxWidth="80px"
                     height="80px"
-                    url={nftItem?.externalData.imageSmall}
+                    url={
+                      nftItem?.externalData?.imageSmall ||
+                      nftItem?.externalData?.image
+                    }
                     hover={false}
                   />
                   <Typography size={14} height="17px" margin="0 0 0 16px">
-                    {nftItem.externalData.name}
+                    {nftItem.externalData?.name}
                   </Typography>
                 </HorizontalFlex>
               </Card>

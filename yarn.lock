@@ -91,6 +91,13 @@
   dependencies:
     "@avalabs/utils-sdk" "2.4.0-alpha.42"
 
+"@avalabs/covalent-sdk@2.4.0-alpha.42":
+  version "2.4.0-alpha.42"
+  resolved "https://registry.yarnpkg.com/@avalabs/covalent-sdk/-/covalent-sdk-2.4.0-alpha.42.tgz#4a5b4a81e0486abd74903850e35ebd1b58b8b06f"
+  integrity sha512-NiYEwXs/mdt99BPkreDlw18Yq1attjdFzeH951zedpcDfXCLZFFHy7inkKd0Dy9ZE7H/rwOqTVesEVVvVlauWg==
+  dependencies:
+    "@avalabs/utils-sdk" "2.4.0-alpha.42"
+
 "@avalabs/posthog-sdk@2.4.0-alpha.42":
   version "2.4.0-alpha.42"
   resolved "https://registry.yarnpkg.com/@avalabs/posthog-sdk/-/posthog-sdk-2.4.0-alpha.42.tgz#e27eb50c44f7991ba8eb2d5f259c32d642c4c49a"

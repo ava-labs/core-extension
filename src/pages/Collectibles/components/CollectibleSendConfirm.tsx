@@ -22,7 +22,7 @@ import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { SendStateWithActions } from '@src/pages/Send/models';
-import { NFT } from '@avalabs/blizzard-sdk';
+import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { BigNumber } from 'ethers';
 
@@ -124,7 +124,9 @@ export const CollectibleSendConfirm = ({
             <StyledCollectibleMedia
               width="auto"
               height="56px"
-              url={nftItem.externalData.imageSmall}
+              url={
+                nftItem.externalData?.imageSmall || nftItem.externalData?.image
+              }
             />
             <VerticalFlex width="100%" align="center">
               <SubTextTypography size={14} height="17px">
@@ -137,7 +139,7 @@ export const CollectibleSendConfirm = ({
                 margin="4px 0"
               >{`#${tokenId}`}</Typography>
               <SubTextTypography size={16} height="24px" weight={600}>
-                {nftItem?.externalData.name}
+                {nftItem?.externalData?.name}
               </SubTextTypography>
               <HorizontalFlex
                 margin="16px 0 0"

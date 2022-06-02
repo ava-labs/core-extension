@@ -1,10 +1,10 @@
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
 export const useCollectibleFromParams = () => {
   const { search } = useLocation();
-  const { nfts } = useWalletContext();
+  const { nfts } = useBalancesContext();
 
   return useMemo(() => {
     const { nft, tokenId } = (Object as any).fromEntries(

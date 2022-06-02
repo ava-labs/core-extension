@@ -1,4 +1,3 @@
-import { NFT, User } from '@avalabs/blizzard-sdk';
 import { Provider } from '@ethersproject/providers';
 import { singleton } from 'tsyringe';
 import { ethers } from 'ethers';
@@ -18,7 +17,7 @@ import {
   NetworkContractTokenWithBalance,
   TokenWithBalance,
 } from './models';
-import { ChainId, Network, NetworkContractToken } from '@avalabs/chains-sdk';
+import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
 import { TokenManagerService } from '../tokens/TokenManagerService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { SettingsService } from '../settings/SettingsService';
@@ -126,25 +125,6 @@ export class EVMBalancesService {
           : '0',
       };
     });
-  }
-
-  private async getErc721Balances(
-    userAddress: string,
-    network: Network
-  ): Promise<NFT[]> {
-    if (
-      network.chainId !== ChainId.AVALANCHE_MAINNET_ID &&
-      network.chainId !== ChainId.AVALANCHE_TESTNET_ID
-    ) {
-      return [];
-    }
-
-    const user = new User({ baseUrl: 'https://blizzard.avax.network' });
-    const result = await user.getNftState(userAddress, {
-      network:
-        network.chainId === ChainId.AVALANCHE_MAINNET_ID ? 'mainnet' : 'fuji',
-    });
-    return result.data ?? [];
   }
 
   async getBalances(
