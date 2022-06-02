@@ -75,7 +75,19 @@ export function WalletRecentTxs({
 
   const { network } = useNetworkContext();
   const theme = useTheme();
+
+  /*
+   * If a tokenSymbolFilter exists, we need to filter out the bridge
+   * transactions to only show the bridge transactions for the token being viewed.
+   * If there is no tokenSymbolFilter, then we just return all the current bridge transactions
+   * because its probably being rendered in the all activity list.
+   */
   const { bridgeTransactions } = useBridgeContext();
+  const filteredBridgeTransactions = tokenSymbolFilter
+    ? Object.values(bridgeTransactions).filter(
+        (tx) => tx.symbol === tokenSymbolFilter
+      )
+    : bridgeTransactions;
 
   /**
    * When network, addresses, or recentTxHistory changes, new history gets fetched.
@@ -192,7 +204,7 @@ export function WalletRecentTxs({
         ) : (
           <>
             {bridgeTransactions &&
-              Object.values(bridgeTransactions).length > 0 &&
+              Object.values(filteredBridgeTransactions).length > 0 &&
               (selectedFilter === 'All' || selectedFilter === 'Bridge') && (
                 <>
                   <Typography
@@ -204,7 +216,7 @@ export function WalletRecentTxs({
                     Pending
                   </Typography>
 
-                  {Object.values(bridgeTransactions).map((tx, i) => (
+                  {Object.values(filteredBridgeTransactions).map((tx, i) => (
                     <Card
                       key={`${tx.sourceTxHash}-${i}`}
                       padding={'8px 12px 8px 16px'}
