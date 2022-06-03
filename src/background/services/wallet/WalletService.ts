@@ -39,6 +39,7 @@ import { LedgerService } from '../ledger/LedgerService';
 import { Wallet } from 'ethers';
 import { networks } from 'bitcoinjs-lib';
 import { AccountsService } from '../accounts/AccountsService';
+import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 
 @singleton()
 export class WalletService implements OnLock {
@@ -203,7 +204,17 @@ export class WalletService implements OnLock {
       ) {
         throw new Error('Signing error, wrong network');
       }
-      const signedTx = await wallet.signTx(tx.inputs, tx.outputs);
+
+      // prepare transaction for ledger signing
+      const txToSign =
+        wallet instanceof BitcoinLedgerWallet
+          ? await prepareBtcTxForLedger(
+              tx,
+              await this.networkService.getBitcoinProvider()
+            )
+          : tx;
+
+      const signedTx = await wallet.signTx(txToSign.inputs, txToSign.outputs);
       return signedTx.toHex();
     }
 

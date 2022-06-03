@@ -146,9 +146,7 @@ const BridgeTransactionStatus = () => {
         )
       : '-';
 
-  useLedgerDisconnectedDialog(() => {
-    history.goBack();
-  });
+  useLedgerDisconnectedDialog(history.goBack);
 
   useEffect(() => {
     if (bridgeTransaction?.complete && !toastShown) {

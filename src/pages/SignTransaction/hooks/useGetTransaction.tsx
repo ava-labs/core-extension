@@ -14,6 +14,7 @@ import * as ethers from 'ethers';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -21,6 +22,7 @@ export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
   const tokenPrice = useNativeTokenPrice();
   const { networkFee } = useNetworkFeeContext();
+  const { network } = useNetworkContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [customGas, setCustomGas] = useState<{
     gasLimit: number;
@@ -188,6 +190,7 @@ export function useGetTransaction(requestId: string) {
       id: transaction?.id,
       ...(transaction?.txParams ? { txParams: transaction?.txParams } : {}),
       ...feeDisplayValues,
+      feeSymbol: network?.networkToken.symbol,
       updateTransaction,
       hash,
       setCustomFee,
@@ -200,6 +203,7 @@ export function useGetTransaction(requestId: string) {
     };
   }, [
     networkFee,
+    network,
     transaction,
     customGas,
     tokenPrice,

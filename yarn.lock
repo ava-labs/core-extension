@@ -107,10 +107,10 @@
     micro-signals "2.4.0"
     posthog-js "^1.18.0"
 
-"@avalabs/react-components@1.94.0":
-  version "1.94.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.94.0.tgz#fe3c65e84e707e45f0d3e857797c78f95800c08a"
-  integrity sha512-PG9D4ovKgwZCOX0xpPpiqjorzQXTmlcwyPMkrlzCetNPa8dZguRjE77rbW5VrWZHS7TcbleiSPQp80Z5Quuvug==
+"@avalabs/react-components@1.94.1":
+  version "1.94.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/react-components/-/react-components-1.94.1.tgz#26d66a0dbca63f281201abb46009e6ca1e74148f"
+  integrity sha512-UYttNDdtncanfn85ZsBW/9H3Hnyx5Tebv0uiZgxn/liHjgCWQsVOa2BPb6hUxUK7rF7YF5c9BXc6erpQMBoMHQ==
   dependencies:
     "@tippyjs/react" "^4.2.6"
     big.js "^6.1.1"

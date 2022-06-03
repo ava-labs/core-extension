@@ -783,8 +783,9 @@ export function Swap() {
             (customGasPrice || networkFee?.low)?.mul(gasLimit) ||
             BigNumber.from(0)
           )
-            .div(10 ** 18)
+            .div(10 ** (network?.networkToken.decimals ?? 18))
             .toString()}
+          feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}
           symbol={selectedFromToken?.symbol}
         />

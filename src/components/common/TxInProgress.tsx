@@ -6,6 +6,7 @@ import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalD
 interface TxInProgressProps {
   address?: string;
   fee: string;
+  feeSymbol?: string;
   amount?: string;
   symbol?: string;
   nftName?: string;
@@ -13,6 +14,7 @@ interface TxInProgressProps {
 
 export function TxInProgress({
   fee,
+  feeSymbol,
   amount,
   symbol,
   address,
@@ -26,6 +28,7 @@ export function TxInProgress({
         <LedgerApprovalDialog
           address={address}
           fee={fee}
+          feeSymbol={feeSymbol}
           amount={amount}
           symbol={symbol}
           nftName={nftName}

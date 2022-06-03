@@ -28,6 +28,7 @@ export function LedgerApprovalOverlay({
         <LedgerApprovalDialog
           address={displayData.toAddress}
           fee={displayData.fee}
+          feeSymbol={displayData.feeSymbol}
         />
       </VerticalFlex>
     </Overlay>

@@ -108,6 +108,12 @@ const CollectibleSend = lazy(() => {
   }));
 });
 
+const LedgerConnect = lazy(() => {
+  return import('../pages/Ledger/Connect').then((m) => ({
+    default: m.LedgerConnect,
+  }));
+});
+
 export function Popup() {
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
@@ -213,6 +219,12 @@ export function Popup() {
                                       <SignTxErrorBoundary>
                                         <SignTransactionPage />
                                       </SignTxErrorBoundary>
+                                    </Suspense>
+                                  </Route>
+
+                                  <Route path="/ledger/connect">
+                                    <Suspense fallback={<LoadingIcon />}>
+                                      <LedgerConnect />
                                     </Suspense>
                                   </Route>
 

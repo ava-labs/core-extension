@@ -55,9 +55,7 @@ export function SignTransactionPage() {
   const theme = useTheme();
   const [txFailedError, setTxFailedError] = useState<string>();
   const explorerUrl = getTransactionLink(hash, !network?.isTestnet);
-  useLedgerDisconnectedDialog(() => {
-    window.close();
-  });
+  useLedgerDisconnectedDialog(window.close);
 
   function cancelHandler() {
     updateTransaction({

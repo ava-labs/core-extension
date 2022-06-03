@@ -7,12 +7,7 @@ import { WalletState } from '@avalabs/wallet-react-components';
 import { BitcoinInputUTXO, BitcoinOutputUTXO } from '@avalabs/wallets-sdk';
 import { TransactionRequest } from '@ethersproject/providers';
 
-export type SignTransactionRequest =
-  | TransactionRequest
-  | {
-      inputs: BitcoinInputUTXO[];
-      outputs: BitcoinOutputUTXO[];
-    };
+export type SignTransactionRequest = TransactionRequest | BtcTransactionRequest;
 
 export function isMnemonicWallet(wallet: WalletType): wallet is MnemonicWallet {
   return wallet.type === 'mnemonic';
@@ -20,6 +15,11 @@ export function isMnemonicWallet(wallet: WalletType): wallet is MnemonicWallet {
 
 export function isLedgerWallet(wallet: WalletType): wallet is LedgerWallet {
   return wallet.type === 'ledger';
+}
+
+export interface BtcTransactionRequest {
+  inputs: BitcoinInputUTXO[];
+  outputs: BitcoinOutputUTXO[];
 }
 
 export interface WalletLockedState {

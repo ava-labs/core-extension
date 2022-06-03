@@ -1,7 +1,13 @@
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
-import { useLedgerSupportContext } from '@src/contexts/LedgerSupportProvider';
+import {
+  LedgerAppType,
+  useLedgerSupportContext,
+} from '@src/contexts/LedgerSupportProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useCallback, useEffect, useState } from 'react';
+import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { useCallback, useEffect } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
@@ -11,21 +17,24 @@ const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
 export function useLedgerDisconnectedDialog(onCancel: () => void) {
   const theme = useTheme();
   const { walletType } = useWalletContext();
-  const { hasLedgerTransport } = useLedgerSupportContext();
+  const { hasLedgerTransport, appType } = useLedgerSupportContext();
   const { showDialog, clearDialog } = useDialog();
-  // maintaing dialog state to prevent accidentally closing other dialogs
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { network } = useNetworkContext();
 
   const showLedgerDisconnectedDialog = useCallback(() => {
-    setIsDialogOpen(true);
+    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
     showDialog(
       {
         title: 'Ledger Disconnected',
         body: 'Please connect your Ledger device to approve this transaction.',
         width: '343px',
-        component: (
+        component: !isBitcoin ? (
           <StyledLoadingSpinnerIcon color={theme.colors.icon1} height="32px" />
-        ),
+        ) : undefined,
+        confirmText: isBitcoin ? 'Connect Ledger' : undefined,
+        onConfirm: () => {
+          openExtensionNewWindow(`ledger/connect`, '');
+        },
         cancelText: 'Cancel',
         onCancel: () => {
           onCancel();
@@ -34,22 +43,60 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
       },
       false
     );
-  }, [clearDialog, onCancel, showDialog, theme.colors.icon1]);
+  }, [clearDialog, network?.vmName, onCancel, showDialog, theme.colors.icon1]);
+
+  const showIncorrectAppDialog = useCallback(() => {
+    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
+    showDialog(
+      {
+        title: 'Wrong App',
+        body: `Please switch to the ${
+          isBitcoin ? 'Bitcoin' : 'Avalanche'
+        } app on your Ledger`,
+        width: '343px',
+        confirmText: isBitcoin ? 'Connect Ledger' : undefined,
+        onConfirm: () => {
+          openExtensionNewWindow(`ledger/connect`, '', {
+            screenX: window.screenX,
+            screenY: window.screenY,
+            viewPortHeight: window.innerHeight,
+            viewportWidth: window.innerWidth,
+          });
+        },
+        cancelText: 'Cancel',
+        onCancel: () => {
+          onCancel();
+          clearDialog();
+        },
+      },
+      false
+    );
+  }, [clearDialog, network?.vmName, onCancel, showDialog]);
 
   useEffect(() => {
-    if (walletType === 'ledger' && !hasLedgerTransport && !isDialogOpen) {
+    clearDialog();
+
+    if (walletType !== 'ledger') {
+      return;
+    }
+
+    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
+    const hasCorrectApp =
+      hasLedgerTransport &&
+      ((appType === LedgerAppType.BITCOIN && isBitcoin) ||
+        (appType === LedgerAppType.AVALANCHE && !isBitcoin));
+    if (!hasLedgerTransport) {
       showLedgerDisconnectedDialog();
-    } else if (isDialogOpen && walletType === 'ledger' && hasLedgerTransport) {
-      setIsDialogOpen(false);
-      clearDialog();
+    } else if (!hasCorrectApp) {
+      showIncorrectAppDialog();
     }
   }, [
-    clearDialog,
     hasLedgerTransport,
     showLedgerDisconnectedDialog,
     walletType,
-    isDialogOpen,
+    appType,
+    showIncorrectAppDialog,
+    clearDialog,
+    network?.vmName,
   ]);
-
-  return showLedgerDisconnectedDialog;
 }

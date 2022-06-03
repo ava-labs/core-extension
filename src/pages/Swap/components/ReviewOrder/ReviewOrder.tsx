@@ -82,9 +82,7 @@ export function ReviewOrder({
 }: ReviewOrderProps) {
   const { currencyFormatter } = useSettingsContext();
   const tokenPrice = useNativeTokenPrice();
-  useLedgerDisconnectedDialog(() => {
-    onClose();
-  });
+  useLedgerDisconnectedDialog(onClose);
 
   return (
     <ReviewOrderOverlay>

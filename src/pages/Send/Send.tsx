@@ -287,7 +287,11 @@ export function SendPage() {
               address={sendState?.address}
               amount={amountInputDisplay}
               symbol={selectedToken?.symbol}
-              fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
+              fee={bnToLocaleString(
+                sendState?.sendFee || new BN(0),
+                network?.networkToken.decimals ?? 18
+              )}
+              feeSymbol={network?.networkToken.symbol}
             />
           )}
           <SendConfirm

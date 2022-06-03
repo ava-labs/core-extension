@@ -31,9 +31,11 @@ import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
 import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { useSendNft } from '../Send/hooks/useSendNft';
 import { BigNumber } from 'ethers';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export function CollectibleSend() {
   const theme = useTheme();
+  const { network } = useNetworkContext();
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const { avaxToken, walletType } = useWalletContext();
   const { nft, tokenId } = useCollectibleFromParams();
@@ -140,7 +142,11 @@ export function CollectibleSend() {
             <TxInProgress
               address={sendState?.contractAddress}
               nftName={nftItem.externalData?.name}
-              fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
+              fee={bnToLocaleString(
+                sendState?.sendFee || new BN(0),
+                network?.networkToken.decimals ?? 18
+              )}
+              feeSymbol={network?.networkToken.symbol}
             />
           )}
           <CollectibleSendConfirm

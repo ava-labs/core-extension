@@ -92,9 +92,7 @@ export const CollectibleSendConfirm = ({
   const { activeAccount } = useAccountsContext();
   const { networkFee } = useNetworkFeeContext();
 
-  useLedgerDisconnectedDialog(() => {
-    history.goBack();
-  });
+  useLedgerDisconnectedDialog(history.goBack);
 
   const nftItem = nft.nftData.find((data) => data.tokenId === tokenId);
 

@@ -138,9 +138,7 @@ export const SendConfirm = ({
   const { network } = useNetworkContext();
   const nativeTokenPrice = useNativeTokenPrice();
 
-  useLedgerDisconnectedDialog(() => {
-    history.goBack();
-  });
+  useLedgerDisconnectedDialog(history.goBack);
 
   const amount = bnToLocaleString(
     sendState?.amount || new BN(0),
