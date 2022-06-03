@@ -234,7 +234,12 @@ export class WalletService implements OnLock {
           : 'wallet undefined in sign tx'
       );
     }
-    const key = Buffer.from(wallet.privateKey, 'hex');
+
+    const privateKey = wallet.privateKey.toLowerCase().startsWith('0x')
+      ? wallet.privateKey.slice(2)
+      : wallet.privateKey;
+
+    const key = Buffer.from(privateKey, 'hex');
 
     if (data) {
       switch (messageType) {

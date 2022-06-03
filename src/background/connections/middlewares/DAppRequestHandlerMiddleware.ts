@@ -38,9 +38,10 @@ export function DAppRequestHandlerMiddleware(
     }
 
     context.response = await resolve(promise).then(([result, error]) => {
-      if (result && result === DEFERRED_RESPONSE) {
+      if (result && result.result === DEFERRED_RESPONSE) {
         return DEFERRED_RESPONSE;
       }
+
       return {
         ...context.request,
         data: {
