@@ -26,6 +26,7 @@ import {
 import { useOnline } from '@src/hooks/useOnline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { ApproveAction } from '@src/pages/ApproveAction/ApproveAction';
+import { TokenList } from '@src/pages/Home/components/Portfolio/TokenList';
 import { Home } from '@src/pages/Home/Home';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
@@ -290,6 +291,12 @@ export function Popup() {
                                   <Route path="/manage-tokens">
                                     <Suspense fallback={<LoadingIcon />}>
                                       <ManageTokensPage />
+                                    </Suspense>
+                                  </Route>
+
+                                  <Route path="/tokenlist">
+                                    <Suspense fallback={<LoadingIcon />}>
+                                      <TokenList />
                                     </Suspense>
                                   </Route>
 

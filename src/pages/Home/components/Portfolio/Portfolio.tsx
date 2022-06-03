@@ -6,7 +6,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Activity } from '@src/pages/Activity/Activity';
 import { useTheme } from 'styled-components';
 import { Collectibles } from '../../../Collectibles/Collectibles';
-import { TokenList } from './TokenList';
+import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
 
 enum PortfolioTabs {
@@ -39,7 +39,7 @@ export function Portfolio() {
             {
               title: 'Assets',
               id: PortfolioTabs.ASSETS,
-              component: <TokenList />,
+              component: <NetworksWidget />,
               onClick: () => capture('PortfolioAssetsClicked'),
             },
             {

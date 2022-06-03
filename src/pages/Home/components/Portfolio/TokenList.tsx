@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import {
+  CaretIcon,
   HorizontalFlex,
+  IconDirection,
   TextButton,
   Typography,
   VerticalFlex,
@@ -15,18 +17,30 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import styled, { useTheme } from 'styled-components';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
+
+const LogoContainer = styled.div`
+  margin: 0 16px;
+`;
 
 interface TokenListProps {
   searchQuery?: string;
 }
 
 export function TokenList({ searchQuery }: TokenListProps) {
-  const { getTokenVisibility } = useSettingsContext();
+  const { getTokenVisibility, currencyFormatter } = useSettingsContext();
   const tokensWithBalances = useTokensWithBalances();
   const history = useHistory();
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const theme = useTheme();
+  const { network } = useNetworkContext();
+  const activeNetworkAssetList = useTokensWithBalances();
+
+  const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
 
   const tokens = useMemo(
     () =>
@@ -53,15 +67,44 @@ export function TokenList({ searchQuery }: TokenListProps) {
   return (
     <VerticalFlex grow="1" margin="8px 0 0">
       <HorizontalFlex
+        width="100%"
+        marginTop="16px"
+        padding="12px 16px"
         align="center"
-        justify="space-between"
+        justify="flex-start"
+      >
+        <HorizontalFlex align="center">
+          <TextButton onClick={() => history.push('/home')} margin="0 12px 0 0">
+            <CaretIcon
+              height="18px"
+              direction={IconDirection.LEFT}
+              color={theme.colors.icon1}
+            />
+          </TextButton>
+          <LogoContainer>
+            <TokenIcon
+              width="40px"
+              height="40px"
+              src={network?.logoUri}
+              name={network?.chainName}
+            />
+          </LogoContainer>
+          <VerticalFlex>
+            <Typography size={20} weight={600} height="29px">
+              {network?.chainName}
+            </Typography>
+            <Typography size={20} weight={600} height="29px">
+              {currencyFormatter(activeNetworkBalance)}
+            </Typography>
+          </VerticalFlex>
+        </HorizontalFlex>
+      </HorizontalFlex>
+      <HorizontalFlex
+        align="center"
+        justify="flex-end"
         margin="0 16px 8px 16px"
       >
-        <Typography size={14} weight={500} height="24px">
-          Tokens
-        </Typography>
-
-        {checkIsFunctionAvailable('ManageTokens') && (
+        {checkIsFunctionAvailable('ManageTokens') && tokens.length && (
           <TextButton onClick={toggleManageTokensPage}>
             <Typography color="inherit" size={12} weight={500}>
               Manage
