@@ -6,6 +6,8 @@ import { onBalanceUpdate } from './balanceEmitters/models';
 import { Signal } from 'micro-signals';
 import './balanceEmitters/registry';
 import { Balances, TokenWithBalance } from './models';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+
 @singleton()
 export class NetworkBalanceAggregatorService implements OnLock, OnUnlock {
   private _balances: Balances = {};
@@ -35,11 +37,39 @@ export class NetworkBalanceAggregatorService implements OnLock, OnUnlock {
     this.accountsService.addListener<Account[]>(
       AccountsEvents.ACCOUNTS_UPDATED,
       (accounts) => {
-        this.emitters.forEach(async (emitter) => {
-          emitter.onUpdate(accounts, this.updateBalancesAndEmit.bind(this));
-        });
+        this.onNetworkBalanceUpdate(accounts);
       }
     );
+  }
+
+  updateEVMBalancesForNetworks(networks: Network[], accounts: Account[]) {
+    const emitter = this.emitters.find(
+      (emitter) => emitter.vmType === NetworkVMType.EVM
+    );
+    if (!emitter) throw new Error('no subnet balance emitter found');
+    this.onNetworkBalanceUpdate(accounts, networks, [emitter]);
+  }
+
+  updateBTCBalancesForNetwork(accounts: Account[]) {
+    const emitter = this.emitters.find(
+      (emitter) => emitter.vmType === NetworkVMType.BITCOIN
+    );
+    if (!emitter) throw new Error('no BTC balance emitter found');
+    this.onNetworkBalanceUpdate(accounts, undefined, [emitter]);
+  }
+
+  private onNetworkBalanceUpdate(
+    accounts: Account[],
+    customNetworks?: Network[],
+    customEmitters?: onBalanceUpdate[]
+  ) {
+    (customEmitters || this.emitters).forEach(async (emitter) => {
+      emitter.onUpdate(
+        accounts,
+        this.updateBalancesAndEmit.bind(this),
+        customNetworks
+      );
+    });
   }
 
   onLock() {

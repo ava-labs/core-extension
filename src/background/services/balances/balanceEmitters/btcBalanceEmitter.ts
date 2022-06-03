@@ -1,4 +1,8 @@
-import { BITCOIN_NETWORK, BITCOIN_TEST_NETWORK } from '@avalabs/chains-sdk';
+import {
+  BITCOIN_NETWORK,
+  BITCOIN_TEST_NETWORK,
+  NetworkVMType,
+} from '@avalabs/chains-sdk';
 import { singleton } from 'tsyringe';
 import { Account } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
@@ -7,6 +11,7 @@ import { onBalanceUpdate, BalanceEmitter } from './models';
 
 @singleton()
 export class BtcBalanceEmitter implements onBalanceUpdate {
+  vmType = NetworkVMType.BITCOIN;
   constructor(
     protected balanceService: BalancesService,
     protected networkService: NetworkService

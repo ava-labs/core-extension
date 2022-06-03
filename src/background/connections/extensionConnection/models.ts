@@ -15,6 +15,7 @@ export enum ExtensionRequest {
   ACCOUNT_ADD = 'account_add',
 
   BALANCES_GET = 'balances_get',
+  NETWORK_BALANCES_UPDATE = 'network_balances_update',
   NFT_BALANCES_GET = 'nft_balances_get',
   TOKEN_PRICE_GET = 'token_price_get',
 

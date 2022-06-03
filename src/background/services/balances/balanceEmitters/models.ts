@@ -1,3 +1,4 @@
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { Account } from '../../accounts/models';
 import { TokenWithBalance } from '../models';
 
@@ -6,5 +7,10 @@ export type BalanceEmitter = (
   value: Record<string, TokenWithBalance[]>
 ) => void;
 export interface onBalanceUpdate {
-  onUpdate(accounts: Account[], emitter: BalanceEmitter): void;
+  vmType: NetworkVMType;
+  onUpdate(
+    accounts: Account[],
+    emitter: BalanceEmitter,
+    customNetworks?: Network[]
+  ): void;
 }

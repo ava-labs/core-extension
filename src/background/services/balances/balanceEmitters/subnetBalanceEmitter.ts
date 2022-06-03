@@ -1,4 +1,4 @@
-import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { singleton } from 'tsyringe';
 import { Account } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
@@ -11,14 +11,19 @@ const unsupportedNetworks = [
 ];
 @singleton()
 export class SubnetBalanceEmitter implements onBalanceUpdate {
+  vmType = NetworkVMType.EVM;
   constructor(
     protected balanceService: BalancesService,
     protected networkService: NetworkService
   ) {}
 
-  async onUpdate(accounts: Account[], emitter: BalanceEmitter) {
+  async onUpdate(
+    accounts: Account[],
+    emitter: BalanceEmitter,
+    customNetworks?: Network[]
+  ) {
     const activeNetworks = await this.networkService.activeNetworks.promisify();
-    Object.values(activeNetworks)
+    (customNetworks || Object.values(activeNetworks))
       .filter(
         (network) =>
           network.vmName === NetworkVMType.EVM &&

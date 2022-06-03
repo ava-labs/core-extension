@@ -14,7 +14,8 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { concat, filter, from, map, timer } from 'rxjs';
+import { concat, filter, from, interval, map, timer } from 'rxjs';
+import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 
 interface NftState {
@@ -34,6 +35,7 @@ const BalancesContext = createContext<{
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const { network } = useNetworkContext();
+  const { activeAccount } = useAccountsContext();
   const [balances, setBalances] = useState<Balances>({});
   const [nfts, setNfts] = useState<NftState>({ loading: true });
 
@@ -52,10 +54,27 @@ export function BalancesProvider({ children }: { children: any }) {
       setBalances(deserializeBalances(result ?? {}));
     });
 
+    // update balances every 2 seconds for the active network when the UI is open
+    // update balances for all networks and accounts every 30 seconds
+    subscription.add(
+      interval(2000).subscribe((intervalCount) => {
+        if (intervalCount % 15 === 0) {
+          request({
+            method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
+          });
+        } else {
+          request({
+            method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
+            params: [[activeAccount], [network]],
+          });
+        }
+      })
+    );
+
     return () => {
       subscription.unsubscribe();
     };
-  }, [events, request]);
+  }, [activeAccount, events, network, request]);
 
   const updateNftBalances = useCallback(
     (resetPreviousState = true) => {

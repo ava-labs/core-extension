@@ -85,6 +85,7 @@ import { UpdateTransactionHandler } from '../../services/transactions/handlers/u
 import { GetNetworksHandler } from '@src/background/services/network/handlers/getNetworks';
 import { GetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/getDeveloperMode';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
+import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 
@@ -107,6 +108,10 @@ import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/ha
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeCreateTransactionHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UpdateBalancesForNetworkHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
