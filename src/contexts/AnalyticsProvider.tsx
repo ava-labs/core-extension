@@ -73,7 +73,8 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       process.env.POSTHOG_KEY ?? '',
       {
         opt_out_capturing_by_default: false,
-        api_host: 'https://data-posthog.avax.network',
+        api_host:
+          process.env.POSTHOG_URL || 'https://data-posthog.avax-test.network',
         ip: false,
         disable_persistence: true,
         disable_cookie: true,
