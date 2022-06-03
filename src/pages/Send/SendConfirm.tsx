@@ -17,10 +17,8 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
-import { SendErrors } from '@avalabs/wallet-react-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { SendStateWithActions } from './models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
@@ -33,9 +31,11 @@ import { BigNumber } from 'ethers';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { SendState } from '@src/background/services/send/models';
+import { NetworkVMType } from '@avalabs/chains-sdk';
+import { satoshiToBtc } from '@avalabs/bridge-sdk';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -106,9 +106,9 @@ const ContactAddress = styled(Typography)`
 `;
 
 type SendConfirmProps = {
-  sendState: (SendStateWithActions & { errors: SendErrors }) | null;
+  sendState: SendState;
   contact: Contact;
-  token: TokenWithBalance;
+  token: TokenWithBalance | undefined;
   fallbackAmountDisplayValue?: string;
   onSubmit(): void;
   onGasChanged(
@@ -144,14 +144,14 @@ export const SendConfirm = ({
 
   const amount = bnToLocaleString(
     sendState?.amount || new BN(0),
-    token.decimals
+    token?.decimals
   );
 
   // Need separate formatting for high-value (ETH/BTC) vs low-value (DOGE/SHIB) tokens
   // For expensive tokens, display up to 4 decimals.
   // For low value, fallback to CSS ellipsis
   const amountDisplayValue =
-    token.priceUSD && token.priceUSD > 1
+    token?.priceUSD && token.priceUSD > 1
       ? bigToLocaleString(
           bnToBig(sendState?.amount || new BN(0), token.decimals),
           4
@@ -159,29 +159,45 @@ export const SendConfirm = ({
       : fallbackAmountDisplayValue;
 
   const amountInCurrency = currencyFormatter(
-    Number(amount || 0) * (token.priceUSD ?? 0)
+    Number(amount || 0) * (token?.priceUSD ?? 0)
   );
 
-  const balanceAfter = token.balance
+  const balanceAfter = token?.balance
     .sub(sendState?.amount || new BN(0))
     .sub(token.isNetworkToken ? sendState?.sendFee || new BN(0) : new BN(0));
-  const balanceAfterDisplay = bigToLocaleString(
-    bnToBig(balanceAfter, token.decimals),
-    4
-  );
-  const balanceAfterInCurrencyDisplay = currencyFormatter(
-    Number(
-      bigToLocaleString(
-        bnToBig(balanceAfter.mul(new BN(token.priceUSD || 0)), token.decimals),
-        2
-      ).replace(',', '')
-    )
-  );
+  const balanceAfterDisplay =
+    balanceAfter &&
+    bigToLocaleString(bnToBig(balanceAfter, token?.decimals), 4);
+  const balanceAfterInCurrencyDisplay =
+    balanceAfter &&
+    currencyFormatter(
+      Number(
+        bigToLocaleString(
+          bnToBig(
+            balanceAfter.mul(new BN(token?.priceUSD || 0)),
+            token?.decimals
+          ),
+          2
+        ).replace(',', '')
+      )
+    );
 
   if (!activeAccount) {
     history.push('/home');
     return null;
   }
+
+  const networkFee =
+    network?.vmName === NetworkVMType.BITCOIN
+      ? satoshiToBtc(sendState.sendFee?.toNumber() || 0).toLocaleString(8)
+      : gasPrice &&
+        sendState?.gasLimit &&
+        calculateGasAndFees(
+          gasPrice,
+          nativeTokenPrice,
+          network?.networkToken.decimals,
+          sendState?.gasLimit
+        ).fee;
 
   return (
     <>
@@ -205,10 +221,10 @@ export const SendConfirm = ({
               <VerticalFlex>
                 <Typography align="right">
                   <SummaryAmount>{amountDisplayValue}</SummaryAmount>{' '}
-                  <SummaryToken>{token.symbol}</SummaryToken>
+                  <SummaryToken>{token?.symbol}</SummaryToken>
                 </Typography>
 
-                {token.priceUSD && (
+                {token?.priceUSD && (
                   <SummaryAmountInCurrency align="right">
                     {amountInCurrency}{' '}
                     <SummaryCurrency>{currency}</SummaryCurrency>
@@ -219,8 +235,8 @@ export const SendConfirm = ({
             <SummaryTokenIcon
               height="56px"
               width="56px"
-              src={token.logoUri}
-              name={token.name}
+              src={token?.logoUri}
+              name={token?.name}
             />
           </Card>
 
@@ -272,15 +288,7 @@ export const SendConfirm = ({
               color={theme.colors.text2}
               align="right"
             >
-              {gasPrice &&
-                sendState?.gasLimit &&
-                calculateGasAndFees(
-                  gasPrice,
-                  nativeTokenPrice,
-                  network?.networkToken.decimals,
-                  sendState?.gasLimit
-                ).fee}{' '}
-              {network?.networkToken.symbol}
+              {networkFee} {network?.networkToken.symbol}
             </Typography>
           </HorizontalFlex>
 
@@ -295,9 +303,9 @@ export const SendConfirm = ({
             <VerticalFlex>
               <Typography align="right">
                 <SummaryAmount>{balanceAfterDisplay}</SummaryAmount>{' '}
-                <SummaryToken>{token.symbol}</SummaryToken>
+                <SummaryToken>{token?.symbol}</SummaryToken>
               </Typography>
-              {token.priceUSD && (
+              {token?.priceUSD && (
                 <Typography
                   size={12}
                   height="15px"

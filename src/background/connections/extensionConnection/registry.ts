@@ -56,14 +56,8 @@ import { PermissionsAddDomainHandler } from '@src/background/services/permission
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
 import { GetPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/getPermissionsForDomain';
 import { SendTxDetailsEvents } from '@src/background/services/send/events/sendTxDetailsEvent';
-import { SendAvaxResetHandler } from '@src/background/services/send/sendAvax/handlers/resetSendAvaxState';
-import { SendAvaxSubmitHandler } from '@src/background/services/send/sendAvax/handlers/submitSendAvaxState';
-import { SendAvaxValidateHandler } from '@src/background/services/send/sendAvax/handlers/validateSendAvaxState';
-import { SendBtcSubmitHandler } from '@src/background/services/send/sendBtc/handlers/SendBtcSubmitHandler';
-import { ValidateBtcSendStateHandler } from '@src/background/services/send/sendBtc/handlers/ValidateBtcSendStateHandler';
-import { SendErc20ResetHandler } from '@src/background/services/send/sendErc20/handlers/resetSendErc20State';
-import { SendErc20SubmitHandler } from '@src/background/services/send/sendErc20/handlers/submitSendErc20State';
-import { SendErc20ValidateHandler } from '@src/background/services/send/sendErc20/handlers/validateSendErc20State';
+import { SendSubmitHandler } from '@src/background/services/send/handlers/SendSubmitHandler';
+import { SendValidateHandler } from '@src/background/services/send/handlers/SendValidateHandler';
 import { SendNftResetHandler } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
 import { SendNftSubmitHandler } from '@src/background/services/send/sendNft/handlers/submitSendNftState';
 import { SendNftValidateHandler } from '@src/background/services/send/sendNft/handlers/validateSendNftState';
@@ -177,14 +171,8 @@ import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/ha
     token: 'ExtensionRequestHandler',
     useToken: GetPermissionsForDomainHandler,
   },
-  { token: 'ExtensionRequestHandler', useToken: SendAvaxResetHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendAvaxSubmitHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendAvaxValidateHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendBtcSubmitHandler },
-  { token: 'ExtensionRequestHandler', useToken: ValidateBtcSendStateHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendErc20ResetHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendErc20SubmitHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendErc20ValidateHandler },
+  { token: 'ExtensionRequestHandler', useToken: SendSubmitHandler },
+  { token: 'ExtensionRequestHandler', useToken: SendValidateHandler },
   { token: 'ExtensionRequestHandler', useToken: SendNftResetHandler },
   { token: 'ExtensionRequestHandler', useToken: SendNftSubmitHandler },
   { token: 'ExtensionRequestHandler', useToken: SendNftValidateHandler },

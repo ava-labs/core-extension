@@ -9,12 +9,15 @@ export function usePageHistory() {
   const [historyDataState, setHistoryDataState] = useState({});
   const [historyState, setHistoryState] = useState<NavigationHistoryState>({});
 
-  const setNavigationHistoryData = (data: Record<string, unknown>) => {
-    request({
-      method: ExtensionRequest.NAVIGATION_HISTORY_DATA_SET,
-      params: [data],
-    });
-  };
+  const setNavigationHistoryData = useCallback(
+    (data: Record<string, unknown>) => {
+      request({
+        method: ExtensionRequest.NAVIGATION_HISTORY_DATA_SET,
+        params: [data],
+      });
+    },
+    [request]
+  );
 
   const getNavigationHistoryData = useCallback(() => {
     request({
@@ -24,12 +27,15 @@ export function usePageHistory() {
     });
   }, [request]);
 
-  const setNavigationHistory = (history: H.History<unknown>) => {
-    request({
-      method: ExtensionRequest.NAVIGATION_HISTORY_SET,
-      params: [history],
-    });
-  };
+  const setNavigationHistory = useCallback(
+    (history: H.History<unknown>) => {
+      request({
+        method: ExtensionRequest.NAVIGATION_HISTORY_SET,
+        params: [history],
+      });
+    },
+    [request]
+  );
 
   const getNavigationHistory = useCallback(() => {
     request({
@@ -44,13 +50,13 @@ export function usePageHistory() {
     getNavigationHistoryData();
   }, [getNavigationHistory, getNavigationHistoryData]);
 
-  const getPageHistoryData = () => {
-    return historyDataState ?? null;
-  };
+  const getPageHistoryData = useCallback(() => {
+    return historyDataState;
+  }, [historyDataState]);
 
-  const getNavigationHistoryState = () => {
+  const getNavigationHistoryState = useCallback(() => {
     return historyState;
-  };
+  }, [historyState]);
 
   return {
     getNavigationHistoryData,

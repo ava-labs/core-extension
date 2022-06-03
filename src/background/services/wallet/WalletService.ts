@@ -10,15 +10,14 @@ import { Subscription } from 'rxjs';
 import { container, singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
+  SignTransactionRequest,
   WalletEvents,
   WalletSecretInStorage,
   WALLET_STORAGE_KEY,
 } from './models';
 import { MessageType } from '../messages/models';
 import {
-  BitcoinInputUTXO,
   BitcoinLedgerWallet,
-  BitcoinOutputUTXO,
   BitcoinProviderAbstract,
   BitcoinWallet,
   getAddressFromXPub,
@@ -36,7 +35,6 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import { TransactionRequest } from '@ethersproject/providers';
 import { LedgerService } from '../ledger/LedgerService';
 import { Wallet } from 'ethers';
 import { networks } from 'bitcoinjs-lib';
@@ -191,15 +189,7 @@ export class WalletService implements OnLock {
     return secrets.mnemonic;
   }
 
-  async sign(
-    tx:
-      | TransactionRequest
-      | {
-          inputs: BitcoinInputUTXO[];
-          outputs: BitcoinOutputUTXO[];
-        },
-    network?: Network
-  ): Promise<string> {
+  async sign(tx: SignTransactionRequest, network?: Network): Promise<string> {
     const wallet = await this.getWallet(network);
     if (!wallet) {
       throw new Error('Wallet not found');

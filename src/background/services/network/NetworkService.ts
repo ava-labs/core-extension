@@ -224,6 +224,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
   }
 
+  /**
+   * Sends a signed transaction.
+   * @returns the transaction hash
+   */
   async sendTransaction(signedTx: string, network?: Network): Promise<string> {
     const activeNetwork = network || (await this.activeNetwork.promisify());
     if (!activeNetwork) {

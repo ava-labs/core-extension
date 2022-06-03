@@ -88,7 +88,11 @@ export class SendNftSubmitHandler implements ExtensionRequestHandler {
           address,
           Promise.resolve(gasPrice),
           gasLimit
-        ).pipe(tap((value) => this.sendService.transactionUpdated(value)))
+        ).pipe(
+          tap(
+            (value) => value.txId && this.sendService.transactionUpdated(value)
+          )
+        )
       )
     ).then(([result, error]) => {
       return {

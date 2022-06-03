@@ -6,7 +6,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import Web3 from 'web3';
-import ERC20_ABI from 'human-standard-token-abi';
+import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
 import { hexToBN } from '@src/utils/hexToBN';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
@@ -107,7 +107,7 @@ export function useGetTransaction(requestId: string) {
 
       // create hex string for approval amount
       const web3 = new Web3();
-      const contract = new web3.eth.Contract(ERC20_ABI as any, srcToken);
+      const contract = new web3.eth.Contract(ERC20.abi as any, srcToken);
 
       const hashedCustomSpend =
         limitAmount &&

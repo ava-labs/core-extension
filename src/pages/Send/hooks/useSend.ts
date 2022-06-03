@@ -1,70 +1,85 @@
-import { BITCOIN_NETWORK } from '@avalabs/chains-sdk';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { SendState } from '@src/background/services/send/models';
+import { deserializeSendState } from '@src/background/services/send/utils/deserializeSendState';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import Queue from 'queue';
 import {
-  SendErrors,
-  useErc20FormErrors,
-  useSendAvaxFormErrors,
-} from '@avalabs/wallet-react-components';
-import { TokenWithBalance } from '@src/background/services/balances/models';
-import { useCallback } from 'react';
-import { SendStateWithActions, SetSendValuesParams } from '../models';
-import { useSendAvax } from './useSendAvax';
-import { useSendBtc } from './useSendBtc';
-import { useSendBtcFormErrors } from './useSendBtcFormErrors';
-import { useSendErc20 } from './useSendErc20';
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { DEFAULT_SEND_FORM, SendStateWithActions } from '../models';
 
-export function useSend(
-  // selectedToken is only used to determine which sendState (AVAX vs ERC20) to return.
-  // When updating sendState, the token is passed in as a param to `setValues`
-  selectedToken?: TokenWithBalance
-):
-  | SendStateWithActions & {
-      errors: SendErrors;
-    } {
-  const { setValues: setAvaxValues, ...sendAvaxState } = useSendAvax();
-  const sendAvaxErrors = useSendAvaxFormErrors(sendAvaxState.error);
+export function useSend(): SendStateWithActions {
+  const backgroundQueue = useRef(Queue({ autostart: true, concurrency: 1 }));
+  const [sendState, setSendState] = useState<SendState>(DEFAULT_SEND_FORM);
+  const stateRef = useRef<SendState>(sendState);
+  const { request } = useConnectionContext();
 
-  const { setValues: setBtcValues, ...sendBtcState } =
-    useSendBtc(selectedToken);
-  const sendBtcErrors = useSendBtcFormErrors(sendBtcState.error);
+  const resetSendState = useCallback(() => setSendState(DEFAULT_SEND_FORM), []);
 
-  const { setValues: setErc20Values, ...sendERC20State } = useSendErc20();
-  const sendERC20Errors = useErc20FormErrors(sendERC20State.error);
+  // Keep a ref to the sendState so it doesn't need to be a dependency of
+  // updateSendState, otherwise it causes infinite rerenders in Send.tsx.
+  useLayoutEffect(() => {
+    stateRef.current = sendState;
+  }, [sendState]);
 
-  const setAvaxOrErc20Values = useCallback(
-    ({ token, ...rest }: SetSendValuesParams) => {
-      return token?.isERC20
-        ? setErc20Values({ token, ...rest })
-        : setAvaxValues({ token, ...rest });
+  useEffect(() => {
+    // Get initial maxAmount, fees, etc.
+    if (!sendState.maxAmount) updateSendState(sendState);
+    // ONLY run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateSendState = useCallback(
+    (updates: Partial<SendState>) => {
+      // Updates are queued because the SEND_VALIDATE call may modify the state
+      // and we want to ensure that subsequent updates have the latest state.
+      backgroundQueue.current.push(async () => {
+        const newState = getUpdatedState(updates, stateRef.current);
+        const validatedState = await request({
+          method: ExtensionRequest.SEND_VALIDATE,
+          params: [newState],
+        });
+        setSendState(deserializeSendState(validatedState));
+      });
     },
-    [setAvaxValues, setErc20Values]
+    [request]
   );
 
-  const reset = useCallback(() => {
-    sendAvaxState.reset();
-    sendBtcState.reset();
-    sendERC20State.reset();
-  }, [sendAvaxState, sendBtcState, sendERC20State]);
+  const submitSendState = useCallback(async () => {
+    if (!sendState) return Promise.resolve('');
 
-  if (selectedToken?.symbol === BITCOIN_NETWORK.networkToken.symbol) {
-    return {
-      ...sendBtcState,
-      reset,
-      setValues: setBtcValues,
-      errors: sendBtcErrors,
-    };
+    const txId = await request({
+      method: ExtensionRequest.SEND_SUBMIT,
+      params: [sendState],
+    });
+
+    setSendState((sendState) => ({ ...sendState, txId }));
+    return txId;
+  }, [sendState, request]);
+
+  return {
+    sendState,
+    resetSendState,
+    submitSendState,
+    updateSendState,
+  };
+}
+
+function getUpdatedState(
+  updates: Partial<SendState>,
+  current: SendState
+): SendState {
+  const newState = { ...current, ...updates };
+
+  // Reset gasLimit when the address changes because a different address can
+  // affect the gasLimit estimate.
+  if (updates.address && updates.address !== current.address) {
+    delete newState.gasLimit;
   }
 
-  return selectedToken?.isERC20
-    ? {
-        ...sendERC20State,
-        reset,
-        setValues: setAvaxOrErc20Values,
-        errors: sendERC20Errors,
-      }
-    : {
-        ...sendAvaxState,
-        reset,
-        setValues: setAvaxOrErc20Values,
-        errors: sendAvaxErrors,
-      };
+  return newState;
 }

@@ -1,24 +1,16 @@
-import { SendState } from '@avalabs/wallet-react-components';
-import { TokenWithBalance } from '@src/background/services/balances/models';
-import { BigNumber } from 'ethers';
-
-export type SetSendValuesParams = {
-  token?: TokenWithBalance;
-  amount?: string;
-  address?: string;
-  gasPrice?: BigNumber;
-  gasLimit?: number;
-};
-
-export type SetSendNftValuesParams = {
-  address?: string;
-  gasPrice?: BigNumber;
-  gasLimit?: number;
-};
+import { SendState } from '@src/background/services/send/models';
+import BN from 'bn.js';
 
 export interface SendStateWithActions extends SendState {
-  txId?: string;
-  setValues: (args: SetSendValuesParams) => void;
-  reset: () => void;
-  submit: () => Promise<string | undefined | void>;
+  sendState: SendState;
+  resetSendState: () => void;
+  submitSendState: () => Promise<string | undefined | void>;
+  updateSendState: (args: Partial<SendState>) => void;
 }
+
+export const DEFAULT_SEND_FORM: SendState = {
+  amount: new BN(0),
+  address: '',
+  canSubmit: false,
+  loading: true,
+};

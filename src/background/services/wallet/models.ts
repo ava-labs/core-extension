@@ -4,6 +4,15 @@ import {
   WalletType,
 } from '@avalabs/avalanche-wallet-sdk';
 import { WalletState } from '@avalabs/wallet-react-components';
+import { BitcoinInputUTXO, BitcoinOutputUTXO } from '@avalabs/wallets-sdk';
+import { TransactionRequest } from '@ethersproject/providers';
+
+export type SignTransactionRequest =
+  | TransactionRequest
+  | {
+      inputs: BitcoinInputUTXO[];
+      outputs: BitcoinOutputUTXO[];
+    };
 
 export function isMnemonicWallet(wallet: WalletType): wallet is MnemonicWallet {
   return wallet.type === 'mnemonic';

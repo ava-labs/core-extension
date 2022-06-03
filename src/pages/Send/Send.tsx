@@ -43,7 +43,7 @@ export function SendPage() {
   const theme = useTheme();
   const { flags } = useAnalyticsContext();
   const { walletType } = useWalletContext();
-  const selectedToken = useTokenFromParams();
+  const selectedToken = useTokenFromParams(false);
   const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
@@ -51,9 +51,9 @@ export function SendPage() {
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
 
-  const sendState = useSend(selectedToken);
+  const { sendState, resetSendState, submitSendState, updateSendState } =
+    useSend();
 
-  const setSendState = sendState.setValues;
   const tokensWBalances = useTokensWithBalances(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
@@ -76,28 +76,18 @@ export function SendPage() {
     amountInput?: string;
   } = getPageHistoryData();
 
-  // we send the default selected token to the posthog
-  useEffect(() => {
-    if (selectedToken) {
-      sendTokenSelectedAnalytics(
-        selectedToken.isERC20 ? selectedToken.address : selectedToken.symbol
-      );
-    }
-    // we don't need to run this block again just when it is first time loaded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // this will prevent the amount reset after come back from Confirmation page or when the user set the amount before choose the destionation address
   useEffect(() => {
-    if (amountInputDisplay && !pageHistory?.amountInput) {
+    if (amountInputDisplay && !pageHistory.amountInput) {
       setNavigationHistoryData({
         amountInput: amountInputDisplay,
       });
     }
-  }, [amountInputDisplay, pageHistory?.amountInput, setNavigationHistoryData]);
+  }, [amountInputDisplay, pageHistory.amountInput, setNavigationHistoryData]);
+
   // Reset send state before leaving the send flow.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => resetSendFlow, []);
+  useEffect(() => resetSendState, []);
 
   // when the network changes we need to clear contact input
   useEffect(() => {
@@ -106,8 +96,6 @@ export function SendPage() {
       setSendDataInParams({});
     }
   }, [network?.vmName, currentNetwork, setSendDataInParams]);
-
-  const resetSendFlow = () => sendState.reset();
 
   const onContactChanged = (contact: Contact, selectedTab?: string) => {
     let addressToUse = '';
@@ -127,29 +115,35 @@ export function SendPage() {
       address: addressToUse,
       options: { replace: true },
     });
-    setSendState({
-      token: selectedToken,
-      amount: amountInputDisplay,
-      address: addressToUse,
-    });
-    capture('SendContactSelected', {
-      contactSource: selectedTab,
-    });
+    updateSendState({ address: addressToUse });
+    capture('SendContactSelected', { contactSource: selectedTab });
   };
 
-  const onTokenChanged = (token: TokenWithBalance) => {
-    setSendDataInParams({
-      token,
-      address: contactInput?.address,
-      options: { replace: true },
-    });
-    setSendState({
-      token,
-      amount: amountInputDisplay,
-      address: contactInput?.address,
-    });
-    sendTokenSelectedAnalytics(token.isERC20 ? token.address : token.symbol);
-  };
+  const onTokenChanged = useCallback(
+    (token: TokenWithBalance) => {
+      if (selectedToken?.symbol !== token.symbol)
+        setSendDataInParams({
+          token,
+          address: contactInput?.address,
+          options: { replace: true },
+        });
+      updateSendState({ token });
+      sendTokenSelectedAnalytics(token.isERC20 ? token.address : token.symbol);
+    },
+    [
+      contactInput?.address,
+      selectedToken?.symbol,
+      sendTokenSelectedAnalytics,
+      setSendDataInParams,
+      updateSendState,
+    ]
+  );
+
+  // When the URL updates (selectedToken) then update sendState
+  useEffect(() => {
+    if (selectedToken && selectedToken?.symbol !== sendState.token?.symbol)
+      onTokenChanged(selectedToken);
+  }, [onTokenChanged, selectedToken, sendState.token?.symbol]);
 
   const onAmountChanged = useCallback(
     ({ amount, bn }: { amount: string; bn: BN }) => {
@@ -164,50 +158,49 @@ export function SendPage() {
         });
 
         if (gasPriceState) {
-          setSendState({
-            token: selectedToken,
-            amount: amount,
-            address: contactInput?.address,
+          updateSendState({
+            amount: bn,
             gasPrice: gasPriceState,
           });
           return;
         }
-        setSendState({
-          token: selectedToken,
-          amount: amount,
-          address: contactInput?.address,
-        });
+        updateSendState({ amount: bn });
         sendAmountEnteredAnalytics(amount);
       }
     },
     [
       amountInput,
       amountInputDisplay,
-      contactInput?.address,
-      gasPriceState,
-      selectedToken,
       setNavigationHistoryData,
-      setSendState,
+      gasPriceState,
+      updateSendState,
       sendAmountEnteredAnalytics,
     ]
   );
 
   // restore page history
   useEffect(() => {
-    if (pageHistory) {
-      !amountInputDisplay && setAmountInputDisplay(pageHistory?.amountInput);
-      setSendState({
-        token: selectedToken,
-        amount: amountInputDisplay || pageHistory?.amountInput,
-        address: contactInput?.address,
+    if (pageHistory.amountInput && !amountInputDisplay) {
+      setAmountInputDisplay(pageHistory.amountInput);
+      updateSendState({
+        amount: stringToBN(
+          pageHistory.amountInput || '0',
+          selectedToken?.decimals || 9
+        ),
+        address: contactInput?.address || pageHistory.address,
       });
     }
+    if (contactInput?.address && !sendState.address) {
+      updateSendState({ address: contactInput?.address });
+    }
   }, [
+    amountInput,
     amountInputDisplay,
     contactInput?.address,
     pageHistory,
-    selectedToken,
-    setSendState,
+    selectedToken?.decimals,
+    sendState.address,
+    updateSendState,
   ]);
 
   const maxGasPrice =
@@ -219,16 +212,13 @@ export function SendPage() {
   const onGasChanged = useCallback(
     (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
       setGasPrice(gasPrice);
-      setSendState({
-        token: selectedToken,
-        amount: amountInputDisplay,
-        address: contactInput?.address,
+      updateSendState({
         gasLimit,
         gasPrice,
       });
       setSelectedGasFee(feeType);
     },
-    [amountInputDisplay, contactInput?.address, selectedToken, setSendState]
+    [updateSendState]
   );
 
   function getURL(hash: string | undefined | void): string {
@@ -257,10 +247,9 @@ export function SendPage() {
       );
     }
 
-    sendState
-      .submit()
+    submitSendState()
       .then((txId) => {
-        resetSendFlow();
+        resetSendState();
         toast.custom(
           <TransactionToast
             status="Transaction Successful"
@@ -300,7 +289,7 @@ export function SendPage() {
             <TxInProgress
               address={sendState?.address}
               amount={amountInputDisplay}
-              symbol={selectedToken.symbol}
+              symbol={selectedToken?.symbol}
               fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
             />
           )}

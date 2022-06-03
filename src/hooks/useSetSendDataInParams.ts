@@ -1,5 +1,6 @@
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 type SetSendDataInParams = {
@@ -16,15 +17,20 @@ export function useSetSendDataInParams() {
   const { network } = useNetworkContext();
   const history = useHistory();
 
-  return ({ token, address, options }: SetSendDataInParams) => {
-    const pushOrReplace = options?.replace ? history.replace : history.push;
-    pushOrReplace({
-      pathname: options?.path ?? pathname,
-      search: `?${new URLSearchParams({
-        tokenSymbol: token?.symbol || network?.networkToken.symbol || '',
-        tokenAddress: token?.isERC20 ? token?.address : '',
-        address: address ?? '',
-      }).toString()}`,
-    });
-  };
+  const setSendDataInParams = useCallback(
+    ({ token, address, options }: SetSendDataInParams) => {
+      const pushOrReplace = options?.replace ? history.replace : history.push;
+      pushOrReplace({
+        pathname: options?.path ?? pathname,
+        search: `?${new URLSearchParams({
+          tokenSymbol: token?.symbol || network?.networkToken.symbol || '',
+          tokenAddress: token?.isERC20 ? token?.address : '',
+          address: address ?? '',
+        }).toString()}`,
+      });
+    },
+    [history, network?.networkToken.symbol, pathname]
+  );
+
+  return setSendDataInParams;
 }

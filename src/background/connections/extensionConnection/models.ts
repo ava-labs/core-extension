@@ -42,21 +42,8 @@ export enum ExtensionRequest {
   TRANSACTIONS_GET = 'transactions_getTransaction',
   TRANSACTIONS_UPDATE = 'transactions_updateTransaction',
 
-  SEND_AVAX_VALIDATE = 'send_validateSendAvaxState',
-  SEND_AVAX_RESET = 'send_resetSendAvaxState',
-  SEND_AVAX_SUBMIT = 'send_submitSendAvaxState',
-
-  SEND_ANT_VALIDATE = 'send_validateSendAntState',
-  SEND_ANT_RESET = 'send_resetSendAntState',
-  SEND_ANT_SUBMIT = 'send_submitSendAntState',
-
-  SEND_BTC_VALIDATE = 'send_validateSendBtcState',
-  SEND_BTC_RESET = 'send_resetSendBtcState',
-  SEND_BTC_SUBMIT = 'send_submitSendBtcState',
-
-  SEND_ERC20_VALIDATE = 'send_validateSendErc20State',
-  SEND_ERC20_RESET = 'send_resetSendErc20State',
-  SEND_ERC20_SUBMIT = 'send_submitSendErc20State',
+  SEND_VALIDATE = 'send_validate',
+  SEND_SUBMIT = 'send_submit',
 
   SEND_NFT_VALIDATE = 'send_validateSendNftState',
   SEND_NFT_RESET = 'send_resetSendNftState',

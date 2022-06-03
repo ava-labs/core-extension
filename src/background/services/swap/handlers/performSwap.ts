@@ -13,7 +13,7 @@ import { OptimalRate } from 'paraswap-core';
 import { NetworkService } from '../../network/NetworkService';
 import { WalletService } from '../../wallet/WalletService';
 import { SwapService } from '../SwapService';
-import ERC20_ABI from 'human-standard-token-abi';
+import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { BN } from 'bn.js';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
@@ -154,7 +154,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
     if (srcToken !== AVAX_TOKEN.symbol) {
       const contract = new ethers.Contract(
         srcTokenAddress,
-        ERC20_ABI,
+        ERC20.abi,
         provider
       );
 

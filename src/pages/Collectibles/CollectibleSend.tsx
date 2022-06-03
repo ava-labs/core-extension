@@ -39,10 +39,9 @@ export function CollectibleSend() {
   const { nft, tokenId } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
-  const sendState = useSendNft(nft?.contractAddress || '', Number(tokenId));
+  const { sendState, resetSendState, submitSendState, updateSendState } =
+    useSendNft(nft?.contractAddress || '', Number(tokenId));
   const history = useHistory();
-
-  const setSendState = sendState.setValues;
 
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
@@ -60,7 +59,7 @@ export function CollectibleSend() {
       address: contact.address,
       options: { replace: true },
     });
-    setSendState({
+    updateSendState({
       address: contact.address,
     });
   };
@@ -70,14 +69,14 @@ export function CollectibleSend() {
   const onGasChanged = useCallback(
     (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
       setGasPrice(gasPrice);
-      setSendState({
+      updateSendState({
         address: contactInput?.address,
         gasLimit,
         gasPrice,
       });
       setSelectedGasFee(feeType);
     },
-    [contactInput?.address, setSendState]
+    [contactInput?.address, updateSendState]
   );
 
   const onSubmit = () => {
@@ -98,10 +97,9 @@ export function CollectibleSend() {
       );
     }
 
-    sendState
-      .submit()
+    submitSendState()
       .then((txId) => {
-        sendState.reset();
+        resetSendState();
         toast.custom(
           <TransactionToast
             status="Transaction Successful"

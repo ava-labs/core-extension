@@ -12,7 +12,6 @@ import {
 } from '@avalabs/react-components';
 import styled from 'styled-components';
 import { Contact } from '@src/background/services/contacts/models';
-import { SendNftState } from '@avalabs/wallet-react-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory } from 'react-router-dom';
@@ -21,10 +20,10 @@ import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTool
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { SendStateWithActions } from '@src/pages/Send/models';
 import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { BigNumber } from 'ethers';
+import { SendNftState } from '@src/background/services/send/models';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -63,7 +62,7 @@ const ContactAddress = styled(Typography)`
 `;
 
 type CollectibleSendConfirmProps = {
-  sendState: SendStateWithActions & SendNftState;
+  sendState: SendNftState;
   contact: Contact;
   nft: NFT;
   tokenId: string;

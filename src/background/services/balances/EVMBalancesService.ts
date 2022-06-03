@@ -10,7 +10,7 @@ import {
   bnToBig,
 } from '@avalabs/utils-sdk';
 import { NetworkService } from '@src/background/services/network/NetworkService';
-const hstABI = require('human-standard-token-abi');
+import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import {
   NetworkTokenWithBalance,
@@ -80,7 +80,11 @@ export class EVMBalancesService {
     const tokensBalances: NetworkContractTokenWithBalance[] =
       await Promise.allSettled(
         Object.values(activeTokenList).map(async (token) => {
-          const contract = new ethers.Contract(token.address, hstABI, provider);
+          const contract = new ethers.Contract(
+            token.address,
+            ERC20.abi,
+            provider
+          );
           const balanceBig = await contract.balanceOf(userAddress);
           const balance =
             ethersBigNumberToBN(balanceBig) ||

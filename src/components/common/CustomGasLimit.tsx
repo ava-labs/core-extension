@@ -7,6 +7,7 @@ import {
   SubTextTypography,
   ComponentSize,
 } from '@avalabs/react-components';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { BigNumber } from 'ethers';
@@ -27,12 +28,20 @@ export function CustomGasLimit({
   onCancel,
 }: CustomGasLimitProps) {
   const tokenPrice = useNativeTokenPrice();
+  const { network } = useNetworkContext();
   const [customGasLimit, setCustomGasLimit] = useState<number>(limit);
   const [calculateGasAndFeesError, setCalculateGasAndFeesError] =
     useState<string>('');
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
-  >(calculateGasAndFees(gasPrice, limit, tokenPrice));
+  >(
+    calculateGasAndFees(
+      gasPrice,
+      tokenPrice,
+      network?.networkToken.decimals,
+      limit
+    )
+  );
   function handleOnSave(): void {
     if (customGasLimit) {
       onSave(customGasLimit);
@@ -44,8 +53,9 @@ export function CustomGasLimit({
     try {
       const calculatedGasAndFees = calculateGasAndFees(
         gasPrice,
-        customGasLimit,
-        tokenPrice
+        tokenPrice,
+        network?.networkToken.decimals,
+        customGasLimit
       );
       setNewFees(calculatedGasAndFees);
       setCustomGasLimit(customGasLimit);
@@ -71,6 +81,7 @@ export function CustomGasLimit({
           </SubTextTypography>
         </Typography>
         <Input
+          autoFocus
           label={'Gas Limit'}
           type={'number'}
           value={customGasLimit}

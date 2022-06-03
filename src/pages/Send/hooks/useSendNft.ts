@@ -1,26 +1,27 @@
 import { useCallback, useState } from 'react';
-import { SendNftState } from '@avalabs/wallet-react-components';
 import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { SendStateWithActions, SetSendNftValuesParams } from '../models';
+import { SendStateWithActions } from '../models';
 import { hexToBN } from '@src/utils/hexToBN';
 import { sendNftValidateRequest } from '@src/background/services/send/sendNft/utils/sendNftValidateRequest';
 import { sendNftResetRequest } from '@src/background/services/send/sendNft/utils/resetSendNftRequest';
 import { sendNftSubmitRequest } from '@src/background/services/send/sendNft/utils/sendNftSubmitRequest';
+import { SendNftState, SendState } from '@src/background/services/send/models';
+import { BigNumber } from 'ethers';
+import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
 
 export function useSendNft(
   contractAddress: string,
   tokenId: number
-): SendStateWithActions & SendNftState {
+): SendStateWithActions & { sendState: SendNftState } {
   const [sendNftState, setSendNftState] = useState<SendNftState>();
-  const [txId, setTxId] = useState<string>();
   const { request } = useConnectionContext();
 
   const parseAndSetState = (state: SendNftState) => {
     const parsedState: SendNftState = {
       ...state,
       sendFee: hexToBN(state.sendFee || '0'),
-      gasPrice: state.gasPrice && hexToBN(state.gasPrice),
+      gasPrice: state.gasPrice && BigNumber.from(state.gasPrice),
     };
 
     setSendNftState(parsedState);
@@ -28,7 +29,7 @@ export function useSendNft(
   };
 
   const setValues = useCallback(
-    ({ address, gasPrice, gasLimit }: SetSendNftValuesParams) => {
+    ({ address, gasPrice, gasLimit }: SendState) => {
       request(
         sendNftValidateRequest(
           contractAddress,
@@ -43,15 +44,16 @@ export function useSendNft(
   );
 
   return {
-    ...sendNftState,
-    contractAddress,
-    tokenId,
-    txId,
-    setValues,
-    reset() {
+    sendState: {
+      ...sendNftState,
+      contractAddress,
+      tokenId,
+    },
+    updateSendState: setValues,
+    resetSendState() {
       sendNftResetRequest(contractAddress, tokenId);
     },
-    submit() {
+    submitSendState() {
       if (!contractAddress) {
         return Promise.reject('Unable to identify token.');
       }
@@ -62,10 +64,11 @@ export function useSendNft(
           tokenId,
           sendNftState?.address as string,
           sendNftState?.gasLimit as number,
-          sendNftState?.gasPrice as BN
+          sendNftState?.gasPrice
+            ? ethersBigNumberToBN(sendNftState.gasPrice)
+            : new BN(0)
         )
       ).then(({ txId }) => {
-        setTxId(txId);
         return txId;
       });
     },

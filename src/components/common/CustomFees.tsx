@@ -21,7 +21,7 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 
 interface CustomGasFeesProps {
   gasPrice: BigNumber;
-  limit?: number;
+  limit: number;
   onChange(
     gasLimit: number,
     gasPrice: BigNumber,
@@ -107,9 +107,8 @@ export function CustomFees({
   const tokenPrice = useNativeTokenPrice();
   const { currencyFormatter, currency } = useSettingsContext();
   const { networkFee } = useNetworkFeeContext();
-  const [customGasLimit, setCustomGasLimit] = useState<number | undefined>(
-    limit
-  );
+  const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();
+  const gasLimit = customGasLimit || limit;
   const [customGasPrice, setCustomGasPrice] = useState<BigNumber>(gasPrice);
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
@@ -118,7 +117,7 @@ export function CustomFees({
       gasPrice,
       tokenPrice,
       network?.networkToken.decimals,
-      customGasLimit
+      gasLimit
     )
   );
 
@@ -154,7 +153,7 @@ export function CustomFees({
         gas,
         tokenPrice,
         network?.networkToken.decimals,
-        customGasLimit
+        gasLimit
       );
 
       if (maxGasPrice && newFees.bnFee.gte(maxGasPrice)) {
@@ -170,9 +169,16 @@ export function CustomFees({
 
       setNewFees(newFees);
       // call cb with limit and gas
-      onChange(customGasLimit || 0, gas, modifier);
+      onChange(gasLimit, gas, modifier);
     },
-    [tokenPrice, network, networkFee, customGasLimit, maxGasPrice, onChange]
+    [
+      tokenPrice,
+      network?.networkToken.decimals,
+      gasLimit,
+      maxGasPrice,
+      onChange,
+      networkFee?.displayDecimals,
+    ]
   );
 
   const updateGasFee = useCallback(
@@ -218,7 +224,7 @@ export function CustomFees({
     return (
       <CustomGasLimitOverlay>
         <CustomGasLimit
-          limit={customGasLimit || 0}
+          limit={gasLimit}
           gasPrice={customGasPrice}
           onCancel={() => setShowEditGasLimit(false)}
           onSave={(limit) => {
