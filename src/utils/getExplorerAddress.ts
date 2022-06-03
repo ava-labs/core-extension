@@ -1,5 +1,5 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
-import { ChainId, Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/chains-sdk';
 
 function getAvalancheTxLink(hash: string, isMainnet = true) {
   const root = isMainnet
@@ -34,22 +34,6 @@ export function getExplorerAddress(
   }
 }
 
-export function getExplorerAddressByNetwork(
-  network: Network,
-  txHash: string,
-  isMainnet: boolean
-) {
-  const { chainId } = network;
-
-  switch (chainId) {
-    case ChainId.AVALANCHE_MAINNET_ID:
-    case ChainId.AVALANCHE_TESTNET_ID:
-    case ChainId.AVALANCHE_LOCAL_ID:
-      return getExplorerAddress(Blockchain.AVALANCHE, txHash, isMainnet);
-    case ChainId.BITCOIN:
-    case ChainId.BITCOIN_TESTNET:
-      return getExplorerAddress(Blockchain.BITCOIN, txHash, isMainnet);
-    default:
-      return getExplorerAddress(Blockchain.ETHEREUM, txHash, isMainnet);
-  }
+export function getExplorerAddressByNetwork(network: Network, txHash: string) {
+  return `${network.explorerUrl}/tx/${txHash}`;
 }

@@ -21,7 +21,6 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
-import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useContactFromParams } from './hooks/useContactFromParams';
@@ -65,8 +64,6 @@ export function SendPage() {
   const { capture } = useAnalyticsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
-
-  const isMainnet = useIsMainnet();
 
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
 
@@ -223,7 +220,7 @@ export function SendPage() {
 
   function getURL(hash: string | undefined | void): string {
     if (hash && network) {
-      return getExplorerAddressByNetwork(network, hash, isMainnet);
+      return getExplorerAddressByNetwork(network, hash);
     }
     return '';
   }
