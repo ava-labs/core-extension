@@ -29,8 +29,8 @@ import { useTheme } from 'styled-components';
 import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundary';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
-import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -54,7 +54,7 @@ export function SignTransactionPage() {
   const { network } = useNetworkContext();
   const theme = useTheme();
   const [txFailedError, setTxFailedError] = useState<string>();
-  const explorerUrl = getTransactionLink(hash, !network?.isTestnet);
+  const explorerUrl = network && getExplorerAddressByNetwork(network, hash);
   useLedgerDisconnectedDialog(window.close);
 
   function cancelHandler() {

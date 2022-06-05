@@ -5,7 +5,7 @@ import {
 } from '@avalabs/wallets-sdk';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import Big from 'big.js';
-import { BigNumber } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
@@ -80,7 +80,8 @@ export class NetworkFeeService implements OnUnlock, OnLock {
   async estimateGasLimit(
     from: string,
     to: string,
-    data: string
+    data: string,
+    value?: BigNumberish
   ): Promise<number | null> {
     const network = await this.networkService.activeNetwork.promisify();
     if (network?.vmName !== NetworkVMType.EVM) {
@@ -98,6 +99,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
         nonce: nonce,
         to: to,
         data: data,
+        value,
       })
     ).toNumber();
   }

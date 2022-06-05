@@ -113,12 +113,12 @@ export function CustomFees({
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
   >(
-    calculateGasAndFees(
+    calculateGasAndFees({
       gasPrice,
       tokenPrice,
-      network?.networkToken.decimals,
-      gasLimit
-    )
+      tokenDecimals: network?.networkToken.decimals,
+      gasLimit,
+    })
   );
 
   const [customGasInput, setCustomGasInput] = useState(
@@ -149,12 +149,12 @@ export function CustomFees({
       // update customGas
       setCustomGasPrice(gas);
       // update
-      const newFees = calculateGasAndFees(
-        gas,
+      const newFees = calculateGasAndFees({
+        gasPrice: gas,
         tokenPrice,
-        network?.networkToken.decimals,
-        gasLimit
-      );
+        tokenDecimals: network?.networkToken.decimals,
+        gasLimit,
+      });
 
       if (maxGasPrice && newFees.bnFee.gte(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
@@ -232,12 +232,12 @@ export function CustomFees({
             setCustomGasLimit(limit);
             // update newFees
             setNewFees(
-              calculateGasAndFees(
-                customGasPrice,
+              calculateGasAndFees({
+                gasPrice: customGasPrice,
                 tokenPrice,
-                network?.networkToken.decimals,
-                limit
-              )
+                tokenDecimals: network?.networkToken.decimals,
+                gasLimit: limit,
+              })
             );
             // call cb with limit and gas
             onChange(

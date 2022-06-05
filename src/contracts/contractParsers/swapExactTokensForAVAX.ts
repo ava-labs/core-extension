@@ -10,6 +10,7 @@ import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
+import { Network } from '@avalabs/chains-sdk';
 
 export interface SwapExactTokensForAVAXData {
   amountOutMin: BigNumber;
@@ -21,6 +22,7 @@ export interface SwapExactTokensForAVAXData {
 }
 
 export async function swapExactTokensForAvax(
+  network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -68,7 +70,7 @@ export async function swapExactTokensForAvax(
   const result = {
     path: [tokenSwapped, avaxToken],
     contractType: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS,
-    ...parseBasicDisplayValues(request, props),
+    ...parseBasicDisplayValues(network, request, props),
   };
 
   return result;

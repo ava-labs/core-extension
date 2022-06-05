@@ -11,6 +11,7 @@ import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
+import { Network } from '@avalabs/chains-sdk';
 
 export interface AddLiquidityData {
   amountAMin: BigNumber;
@@ -25,6 +26,7 @@ export interface AddLiquidityData {
 }
 
 export async function addLiquidityHandler(
+  network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -70,7 +72,7 @@ export async function addLiquidityHandler(
   const result = {
     poolTokens: [firstToken, secondToken],
     contractType: ContractCall.ADD_LIQUIDITY,
-    ...parseBasicDisplayValues(request, props),
+    ...parseBasicDisplayValues(network, request, props),
   };
 
   return result;

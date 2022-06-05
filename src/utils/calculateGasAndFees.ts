@@ -1,12 +1,17 @@
 import { ethersBigNumberToBig } from '@avalabs/utils-sdk';
 import { BigNumber } from 'ethers';
 
-export function calculateGasAndFees(
-  gasPrice: BigNumber,
-  tokenPrice: number,
+export function calculateGasAndFees({
+  gasPrice,
+  tokenPrice,
   tokenDecimals = 18,
-  gasLimit?: number
-) {
+  gasLimit,
+}: {
+  gasPrice: BigNumber;
+  tokenPrice: number;
+  tokenDecimals?: number;
+  gasLimit?: number;
+}) {
   const bnFee = gasLimit ? gasPrice.mul(gasLimit) : gasPrice;
   const fee = ethersBigNumberToBig(bnFee, tokenDecimals).toLocaleString(8);
   return {

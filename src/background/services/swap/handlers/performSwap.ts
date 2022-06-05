@@ -262,7 +262,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
         to: txBuildData.to,
         value:
           srcToken === AVAX_TOKEN.symbol
-            ? new BN(sourceAmount).toString('hex')
+            ? `0x${new BN(sourceAmount).toString('hex')}`
             : undefined, // AVAX value needs to be sent with the transaction
       })
     );

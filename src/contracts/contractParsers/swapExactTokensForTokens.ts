@@ -12,6 +12,7 @@ import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import { NetworkContractTokenWithBalance } from '@src/background/services/balances/models';
+import { Network } from '@avalabs/chains-sdk';
 
 export interface SwapExactTokensForTokenData {
   amountInMin: BigNumber;
@@ -29,6 +30,7 @@ export interface SwapExactTokensForTokenData {
 }
 
 export async function swapExactTokensForTokenHandler(
+  network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -101,7 +103,7 @@ export async function swapExactTokensForTokenHandler(
   const result = {
     path,
     contractType: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS,
-    ...parseBasicDisplayValues(request, props),
+    ...parseBasicDisplayValues(network, request, props),
   };
 
   return result;

@@ -24,7 +24,6 @@ export function AddressPaths({
 }) {
   const { accounts } = useAccountsContext();
   const theme = useTheme();
-
   const account = useMemo(() => {
     return accounts.find((acc) => {
       return acc.addressC.toLowerCase() === fromAddress.toLowerCase();

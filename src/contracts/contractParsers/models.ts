@@ -1,4 +1,5 @@
 import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { Network } from '@avalabs/chains-sdk';
 import { DomainMetadata } from '@src/background/models';
 import {
   NetworkContractTokenWithBalance,
@@ -12,6 +13,7 @@ import {
 import * as ethers from 'ethers';
 
 export type ContractParserHandler = (
+  network: Network,
   request: txParams,
   data: any,
   props?: any,

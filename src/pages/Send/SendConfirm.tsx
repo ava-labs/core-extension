@@ -190,12 +190,12 @@ export const SendConfirm = ({
       ? satoshiToBtc(sendState.sendFee?.toNumber() || 0).toLocaleString(8)
       : gasPrice &&
         sendState?.gasLimit &&
-        calculateGasAndFees(
+        calculateGasAndFees({
           gasPrice,
-          nativeTokenPrice,
-          network?.networkToken.decimals,
-          sendState?.gasLimit
-        ).fee;
+          tokenPrice: nativeTokenPrice,
+          tokenDecimals: network?.networkToken.decimals,
+          gasLimit: sendState?.gasLimit,
+        }).fee;
 
   return (
     <>

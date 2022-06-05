@@ -15,7 +15,6 @@ import { NetworkBalanceAggregatorService } from '../balances/NetworkBalanceAggre
 import { NetworkService } from '../network/NetworkService';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { StorageService } from '../storage/StorageService';
-import { WalletService } from '../wallet/WalletService';
 import { getTxInfo, isTxDescriptionError } from './getTxInfo';
 import {
   isTxFinalizedUpdate,
@@ -44,7 +43,6 @@ export class TransactionsService {
     private networkService: NetworkService,
     private networkFeeService: NetworkFeeService,
     private balancesService: NetworkBalanceAggregatorService,
-    private walletService: WalletService,
     private accountsService: AccountsService
   ) {}
 
@@ -66,15 +64,15 @@ export class TransactionsService {
 
   async addTransaction(tx: ExtensionConnectionMessage) {
     const { params, site } = tx;
-
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
     const now = new Date().getTime();
     const txParams = (params || [])[0];
-    const isMainnet = await this.networkService.isMainnet();
+
     const txDescription = await getTxInfo(
       txParams.to.toLocaleLowerCase(),
       txParams.data,
       txParams.value,
-      isMainnet
+      this.networkService
     );
 
     const decodedData = (txDescription as ethers.utils.TransactionDescription)
@@ -87,8 +85,6 @@ export class TransactionsService {
     const gasPrice = await this.networkFeeService.getNetworkFee();
 
     if (txParams && isTxParams(txParams)) {
-      const activeNetwork = await this.networkService.activeNetwork.promisify();
-
       if (!activeNetwork) {
         throw Error('no network selected');
       }
@@ -118,7 +114,8 @@ export class TransactionsService {
         : this.networkFeeService.estimateGasLimit(
             txParams.from,
             txParams.to,
-            txParams.data as string
+            txParams.data as string,
+            txParams.value
           ));
 
       const txParamsWithGasLimit = gasLimit
@@ -131,12 +128,14 @@ export class TransactionsService {
 
       const displayValues: TransactionDisplayValues = parser
         ? await parser(
+            activeNetwork,
             txParamsWithGasLimit,
             decodedData,
             displayValueProps,
             description
           )
         : (parseBasicDisplayValues(
+            activeNetwork,
             txParamsWithGasLimit,
             displayValueProps,
             description

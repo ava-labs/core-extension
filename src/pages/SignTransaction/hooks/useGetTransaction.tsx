@@ -60,11 +60,12 @@ export function useGetTransaction(requestId: string) {
       setCustomGas({ gasLimit, gasPrice });
       setSelectedGasFee(modifier);
 
-      const feeDisplayValues = calculateGasAndFees(
+      const feeDisplayValues = calculateGasAndFees({
         gasPrice,
         gasLimit,
-        tokenPrice
-      );
+        tokenPrice,
+        tokenDecimals: network?.networkToken.decimals,
+      });
       updateTransaction({
         id: transaction?.id,
         params: {
@@ -73,7 +74,7 @@ export function useGetTransaction(requestId: string) {
         },
       });
     },
-    [tokenPrice, transaction?.id, updateTransaction]
+    [network, tokenPrice, transaction?.id, updateTransaction]
   );
 
   const setSpendLimit = useCallback(
@@ -179,18 +180,18 @@ export function useGetTransaction(requestId: string) {
     const feeDisplayValues =
       networkFee &&
       transaction?.displayValues.gasLimit &&
-      calculateGasAndFees(
-        customGas?.gasPrice ?? networkFee.low,
-        customGas?.gasLimit ?? transaction.displayValues.gasLimit,
-        tokenPrice
-      );
+      calculateGasAndFees({
+        gasPrice: customGas?.gasPrice ?? networkFee.low,
+        gasLimit: customGas?.gasLimit ?? transaction.displayValues.gasLimit,
+        tokenPrice,
+        tokenDecimals: network?.networkToken.decimals,
+      });
 
     return {
       ...transaction?.displayValues,
       id: transaction?.id,
       ...(transaction?.txParams ? { txParams: transaction?.txParams } : {}),
       ...feeDisplayValues,
-      feeSymbol: network?.networkToken.symbol,
       updateTransaction,
       hash,
       setCustomFee,

@@ -35,12 +35,12 @@ export function CustomGasLimit({
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
   >(
-    calculateGasAndFees(
+    calculateGasAndFees({
       gasPrice,
       tokenPrice,
-      network?.networkToken.decimals,
-      limit
-    )
+      tokenDecimals: network?.networkToken.decimals,
+      gasLimit: limit,
+    })
   );
   function handleOnSave(): void {
     if (customGasLimit) {
@@ -51,12 +51,12 @@ export function CustomGasLimit({
 
   const checkCustomGasLimit = (customGasLimit: number) => {
     try {
-      const calculatedGasAndFees = calculateGasAndFees(
+      const calculatedGasAndFees = calculateGasAndFees({
         gasPrice,
         tokenPrice,
-        network?.networkToken.decimals,
-        customGasLimit
-      );
+        tokenDecimals: network?.networkToken.decimals,
+        gasLimit: customGasLimit,
+      });
       setNewFees(calculatedGasAndFees);
       setCustomGasLimit(customGasLimit);
       calculateGasAndFeesError && setCalculateGasAndFeesError('');

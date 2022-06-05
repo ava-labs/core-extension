@@ -27,7 +27,6 @@ export interface TransactionDisplayValues {
   contractType: ContractCall;
   gasLimit?: number;
   fee?: string;
-  feeSymbol?: string;
   feeUSD?: number;
   site: DomainMetadata;
   description?: ethers.utils.TransactionDescription;

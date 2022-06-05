@@ -1,3 +1,4 @@
+import { Network } from '@avalabs/chains-sdk';
 import {
   TransactionDisplayValues,
   txParams,
@@ -11,6 +12,7 @@ import { findToken } from './utils/findToken';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 
 export async function approveTxHandler(
+  network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -34,7 +36,7 @@ export async function approveTxHandler(
       limit: _data[1]?.toHexString(),
       spender: _data.spender,
     },
-    ...parseBasicDisplayValues(request, props),
+    ...parseBasicDisplayValues(network, request, props),
   };
 
   return result;

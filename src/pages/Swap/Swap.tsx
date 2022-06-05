@@ -232,7 +232,12 @@ export function Swap() {
 
   useEffect(() => {
     if (customGasPrice && gasLimit && selectedFromToken?.isNetworkToken) {
-      const newFees = calculateGasAndFees(customGasPrice, gasLimit, avaxPrice);
+      const newFees = calculateGasAndFees({
+        gasPrice: customGasPrice,
+        gasLimit,
+        tokenPrice: avaxPrice,
+        tokenDecimals: network?.networkToken.decimals,
+      });
 
       setGasCost(newFees.fee);
       const max = getMaxValue(selectedFromToken, newFees.fee);
@@ -265,6 +270,7 @@ export function Swap() {
     selectedFromToken,
     selectedToToken,
     customGasPrice,
+    network,
   ]);
 
   useEffect(() => {

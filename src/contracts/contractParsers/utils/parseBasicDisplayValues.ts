@@ -4,8 +4,10 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import * as ethers from 'ethers';
 import { hexToBN } from '@src/utils/hexToBN';
 import { bnToBig, bigToLocaleString } from '@avalabs/avalanche-wallet-sdk';
+import { Network } from '@avalabs/chains-sdk';
 
 export function parseBasicDisplayValues(
+  network: Network,
   request: txParams,
   props: DisplayValueParserProps,
   description?: ethers.utils.TransactionDescription
@@ -28,7 +30,12 @@ export function parseBasicDisplayValues(
      * The wallet this is being sent from
      */
     fromAddress: request.from,
-    ...calculateGasAndFees(props.gasPrice, request.gas || 0, props.avaxPrice),
+    ...calculateGasAndFees({
+      gasPrice: props.gasPrice,
+      gasLimit: request.gas || 0,
+      tokenPrice: props.avaxPrice,
+      tokenDecimals: network.networkToken.decimals,
+    }),
     site: props.site,
     description,
     name: name ? name[0].toUpperCase() + name.slice(1) : '',
