@@ -43,7 +43,7 @@ export function OfflineContent({ message }) {
         <Logo height={96} />
       </AnimatedLogo>
       <VerticalFlex align="end">
-        <BrandName height={42} animated />
+        <BrandName height={42} />
         <BetaLabelWrapper>
           <BetaLabel />
         </BetaLabelWrapper>
