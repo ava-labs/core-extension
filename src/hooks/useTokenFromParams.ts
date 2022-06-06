@@ -7,16 +7,14 @@ import {
 } from '@src/background/services/balances/models';
 import { useTokensWithBalances } from './useTokensWithBalances';
 
-export function useTokenFromParams(withDefault?: true): TokenWithBalance;
 export function useTokenFromParams(
-  withDefault?: false
-): TokenWithBalance | undefined;
-export function useTokenFromParams(withDefault = true) {
+  withDefault = true
+): TokenWithBalance | undefined {
   const { search } = useLocation();
   const allTokens = useTokensWithBalances(true);
   const [selectedToken, setSelectedToken] = useState<
     TokenWithBalance | undefined
-  >(withDefault ? allTokens[0] : undefined);
+  >(withDefault ? allTokens?.[0] : undefined);
   const { activeAccount } = useAccountsContext();
 
   const { tokenSymbol, tokenAddress } = useMemo(
@@ -36,7 +34,7 @@ export function useTokenFromParams(withDefault = true) {
         : false
     );
     if (!targetToken && !withDefault) return;
-    setSelectedToken(targetToken ?? allTokens[0]);
+    setSelectedToken(targetToken ?? allTokens?.[0]);
   }, [tokenSymbol, tokenAddress, allTokens, activeAccount, withDefault]);
 
   return selectedToken;

@@ -29,7 +29,7 @@ export function TokenFlow() {
     setShowSend(!!tokensWithBalances.length);
   }, [tokensWithBalances]);
 
-  if (showSend === undefined) {
+  if (!token || showSend === undefined) {
     return <LoadingIcon />;
   }
 
