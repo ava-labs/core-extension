@@ -13,9 +13,9 @@ import { useCallback, useState } from 'react';
 import { useAssetBalanceEVM } from './useAssetBalanceEVM';
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { BridgeAdapter } from './useBridge';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { InfuraProvider } from '@ethersproject/providers';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 /**
  * Hook for when the bridge source chain is Ethereum
@@ -39,7 +39,7 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     Blockchain.ETHEREUM
   );
 
-  const { addresses } = useWalletContext();
+  const { activeAccount } = useAccountsContext();
   const { network } = useNetworkContext();
 
   const ethereumProvider = new InfuraProvider(
@@ -47,7 +47,7 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     process.env.INFURA_API_KEY
   );
   const hasEnoughForNetworkFee = useHasEnoughForGas(
-    isEthereumBridge ? addresses.addrC : undefined,
+    isEthereumBridge ? activeAccount?.addressC : undefined,
     ethereumProvider
   );
 
@@ -57,7 +57,7 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const maximum =
     useMaxTransferAmount(
       sourceBalance?.balance,
-      addresses.addrC,
+      activeAccount?.addressC,
       ethereumProvider
     ) || undefined;
   const minimum = bridgeFee?.mul(3);

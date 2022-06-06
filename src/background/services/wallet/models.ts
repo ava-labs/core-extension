@@ -1,22 +1,7 @@
-import {
-  LedgerWallet,
-  MnemonicWallet,
-  WalletType,
-} from '@avalabs/avalanche-wallet-sdk';
-import { WalletState } from '@avalabs/wallet-react-components';
 import { BitcoinInputUTXO, BitcoinOutputUTXO } from '@avalabs/wallets-sdk';
 import { TransactionRequest } from '@ethersproject/providers';
 
 export type SignTransactionRequest = TransactionRequest | BtcTransactionRequest;
-
-export function isMnemonicWallet(wallet: WalletType): wallet is MnemonicWallet {
-  return wallet.type === 'mnemonic';
-}
-
-export function isLedgerWallet(wallet: WalletType): wallet is LedgerWallet {
-  return wallet.type === 'ledger';
-}
-
 export interface BtcTransactionRequest {
   inputs: BitcoinInputUTXO[];
   outputs: BitcoinOutputUTXO[];
@@ -32,15 +17,12 @@ export interface WalletSecretInStorage {
   xpub: string;
 }
 
-export function isWalletLocked(
-  state?: WalletLockedState | WalletState
-): state is WalletLockedState {
-  // eslint-disable-next-line no-prototype-builtins
-  return !!state?.hasOwnProperty('locked');
-}
-
 export enum WalletEvents {
   WALLET_STATE_UPDATE = 'wallet-state-updated',
 }
 
 export const WALLET_STORAGE_KEY = 'wallet';
+export enum WalletType {
+  MNEMONIC = 'MNEMONIC',
+  LEDGER = 'LEDGER',
+}

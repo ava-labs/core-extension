@@ -1,5 +1,6 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
+import { WalletType } from '@src/background/services/wallet/models';
 import {
   LedgerAppType,
   useLedgerSupportContext,
@@ -76,7 +77,7 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
   useEffect(() => {
     clearDialog();
 
-    if (walletType !== 'ledger') {
+    if (walletType !== WalletType.LEDGER) {
       return;
     }
 

@@ -1,7 +1,7 @@
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { Network } from '@avalabs/chains-sdk';
 import { TxData } from '@ethereumjs/tx';
 import { TransactionRequest } from '@ethersproject/providers';
+import Big from 'big.js';
 import { BNLike, BufferLike } from 'ethereumjs-util';
 import { BigNumber, BigNumberish } from 'ethers';
 import { BridgeState } from './models';

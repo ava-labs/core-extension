@@ -1,4 +1,3 @@
-import { setLedgerTransport } from '@avalabs/wallet-react-components';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { Subject, Subscription } from 'rxjs';
@@ -68,8 +67,6 @@ export class LedgerService implements OnLock {
         ledgerTransportUUID
       )
     );
-
-    this.recentTransport && setLedgerTransport(this.recentTransport);
   }
 
   ledgerResponse(response: DeviceResponseData) {

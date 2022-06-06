@@ -2,7 +2,7 @@ import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { Assets } from '@avalabs/bridge-sdk';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
+import Big from 'big.js';
 
 /**
  *

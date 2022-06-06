@@ -1,4 +1,3 @@
-import { activateServices } from '@avalabs/wallet-react-components';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { browser } from 'webextension-polyfill-ts';
 import { ConnectionService } from '@src/background/connections/ConnectionService';
@@ -17,11 +16,6 @@ export class BackgroundRuntime {
   ) {}
 
   activate() {
-    /**
-     * This activates all of the services in the wallet react components SDK
-     */
-    activateServices();
-
     this.onInstalled();
     this.addContextMenus();
 

@@ -8,6 +8,7 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { BigNumber } from 'ethers';
 import Big from 'big.js';
+import { bigToLocaleString } from '@avalabs/utils-sdk';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: string | number;
@@ -38,7 +39,8 @@ export function TransactionFeeTooltip({
       <HorizontalFlex width="100%" justify="space-between">
         <Typography size={12}>Gas Price</Typography>
         <Typography size={12}>
-          {new Big(gasPrice.toString()).div(10 ** 9).toLocaleString(0)} nAVAX
+          {bigToLocaleString(new Big(gasPrice.toString()).div(10 ** 9), 0)}{' '}
+          nAVAX
         </Typography>
       </HorizontalFlex>
     </VerticalFlex>

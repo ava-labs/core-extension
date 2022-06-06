@@ -26,18 +26,24 @@ import { CollectibleMedia } from './components/CollectibleMedia';
 import { useContactFromParams } from '../Send/hooks/useContactFromParams';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
-import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { BigNumber } from 'ethers';
-import { TokenWithBalanceERC721 } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalanceERC721,
+} from '@src/background/services/balances/models';
 import { useSend } from '../Send/hooks/useSend';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { mapTokenFromNFT } from '@src/background/services/send/utils/mapTokenFromNFT';
+import { WalletType } from '@src/background/services/wallet/models';
+import { bnToLocaleString } from '@avalabs/utils-sdk';
+import { BN } from 'bn.js';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 export function CollectibleSend() {
   const theme = useTheme();
-  const { avaxToken, walletType } = useWalletContext();
+  const { walletType } = useWalletContext();
   const { nft, tokenId } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
@@ -45,6 +51,7 @@ export function CollectibleSend() {
     useSend<TokenWithBalanceERC721>();
   const history = useHistory();
   const { network } = useNetworkContext();
+  const tokensWithBalances = useTokensWithBalances(true);
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
@@ -74,7 +81,10 @@ export function CollectibleSend() {
     });
   };
 
-  const maxGasPrice = avaxToken.balance.toString();
+  const maxGasPrice =
+    tokensWithBalances
+      ?.find((t) => t.type === TokenType.NATIVE)
+      ?.balance.toString() || '0';
 
   const onGasChanged = useCallback(
     (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
@@ -99,7 +109,7 @@ export function CollectibleSend() {
     if (!sendState.canSubmit) return;
 
     let toastId: string;
-    if (walletType !== 'ledger') {
+    if (walletType !== WalletType.LEDGER) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -138,7 +148,7 @@ export function CollectibleSend() {
       })
       .finally(() => {
         setShowTxInProgress(false);
-        if (walletType === 'ledger') history.push('/home');
+        if (walletType === WalletType.LEDGER) history.push('/home');
       });
   };
 

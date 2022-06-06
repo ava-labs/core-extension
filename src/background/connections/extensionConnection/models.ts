@@ -25,12 +25,13 @@ export enum ExtensionRequest {
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
   BRIDGE_SIGN_ISSUE_BTC = 'bridge_sign_issue_btc',
 
-  WALLET_STATE = 'wallet_InitializeState',
+  WALLET_GET_TYPE = 'wallet_getType',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
   GET_WALLET_HISTORY = 'wallet_getHistory',
 
   LOCK_WALLET = 'lock_lock',
   UNLOCK_WALLET = 'lock_unlock',
+  LOCK_GET_STATE = 'lock_getState',
   LOCK_CHANGE_PASSWORD = 'lock_changePassword',
 
   ACTION_GET = 'action_getAction',

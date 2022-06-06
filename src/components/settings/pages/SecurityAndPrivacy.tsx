@@ -17,6 +17,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { WalletType } from '@src/background/services/wallet/models';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -98,7 +99,7 @@ export function SecurityAndPrivacy({
         />
       </SecondaryDropDownMenuItem>
 
-      {walletType === 'mnemonic' && (
+      {walletType === WalletType.MNEMONIC && (
         <SecondaryDropDownMenuItem
           justify="space-between"
           align="center"

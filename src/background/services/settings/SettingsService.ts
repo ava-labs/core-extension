@@ -1,14 +1,9 @@
-import { getContractDataErc20 } from '@avalabs/avalanche-wallet-sdk';
-import {
-  currencies,
-  currentSelectedCurrency$,
-} from '@avalabs/wallet-react-components';
+import { NetworkContractToken } from '@avalabs/chains-sdk';
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
-import { WalletService } from '../wallet/WalletService';
 import { SettingsEvents, TokensVisibility } from './models';
 import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
 
@@ -27,8 +22,7 @@ export class SettingsService implements OnStorageReady {
   private eventEmitter = new EventEmitter();
   constructor(
     private storageService: StorageService,
-    private networkService: NetworkService,
-    private walletService: WalletService
+    private networkService: NetworkService
   ) {
     this.applySettings();
     this.networkService.activeNetwork.add(() => {
@@ -48,12 +42,6 @@ export class SettingsService implements OnStorageReady {
       return;
     }
 
-    const currencyObject = currencies.find(
-      ({ symbol }) => settings.currency === symbol
-    );
-    if (currencyObject) {
-      currentSelectedCurrency$.next(currencyObject.symbol);
-    }
     this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, settings);
   }
 
@@ -68,39 +56,37 @@ export class SettingsService implements OnStorageReady {
     };
   }
 
-  async addCustomToken(tokenAddress: string) {
-    if (!this.walletService.walletState?.erc20Tokens) {
+  async addCustomToken(token: NetworkContractToken) {
+    const network = await this.networkService.activeNetwork.promisify();
+    if (!network?.tokens) {
       throw new Error('No ERC20 tokens found in wallet.');
     }
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
-    const tokenAlreadyExists =
-      this.walletService.walletState.erc20Tokens.reduce(
-        (exists, existingToken) =>
-          exists || existingToken.address === tokenAddress,
-        false
-      );
+    const tokenAlreadyExists = network.tokens.reduce(
+      (exists, existingToken) =>
+        exists ||
+        existingToken.address.toLowerCase() === token.address.toLowerCase(),
+      false
+    );
+    const settings = await this.getSettings();
 
-    if (tokenAlreadyExists) {
+    if (
+      tokenAlreadyExists ||
+      settings.customTokens?.[network.chainId]?.[token.address.toLowerCase()]
+    ) {
       throw new Error('Token already exists in the wallet.');
     }
 
-    const tokenData = await getContractDataErc20(tokenAddress);
-    if (!tokenData) {
-      throw new Error(`ERC20 contract ${tokenAddress} does not exist.`);
-    }
-    if (!activeNetwork?.chainId) {
+    if (!network?.chainId) {
       throw new Error('Unable to detect current network selection.');
     }
-
-    const settings = await this.getSettings();
 
     const newSettings: SettingsState = {
       ...settings,
       customTokens: {
         ...settings.customTokens,
-        [activeNetwork?.chainId]: {
-          ...settings.customTokens[activeNetwork?.chainId],
-          [tokenAddress.toLowerCase()]: tokenData,
+        [network?.chainId]: {
+          ...settings.customTokens[network?.chainId],
+          [token.address.toLowerCase()]: token,
         },
       },
     };
@@ -125,10 +111,6 @@ export class SettingsService implements OnStorageReady {
 
   async setCurrencty(currency: string) {
     const settings = await this.getSettings();
-    const currencyObject = currencies.find(({ symbol }) => currency === symbol);
-    if (currencyObject) {
-      currentSelectedCurrency$.next(currencyObject.symbol);
-    }
 
     await this.saveSettings({
       ...settings,

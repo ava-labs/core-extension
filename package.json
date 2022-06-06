@@ -5,8 +5,8 @@
   "scripts": {
     "start": "yarn dev",
     "build:inpage": "webpack --config webpack.inpage.js",
-    "build": "yarn patch-package && yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
-    "dev": "yarn patch-package && yarn run build:inpage && webpack -w --config webpack.dev.js",
+    "build": "yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
+    "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
     "postinstall": "husky install",
     "prettify": "prettier --write \"src/**/*.ts*\"",
@@ -15,7 +15,6 @@
     "zip": "node zipscript.js"
   },
   "dependencies": {
-    "@avalabs/avalanche-wallet-sdk": "0.17.1",
     "@avalabs/blizzard-sdk": "2.4.0-alpha.47",
     "@avalabs/blockcypher-sdk": "2.4.0-alpha.47",
     "@avalabs/bridge-sdk": "2.4.0-alpha.47",
@@ -25,9 +24,8 @@
     "@avalabs/posthog-sdk": "2.4.0-alpha.47",
     "@avalabs/react-components": "1.94.1",
     "@avalabs/snowtrace-sdk": "2.4.0-alpha.47",
-    "@avalabs/utils-sdk": "2.4.0-alpha.47",
     "@avalabs/token-prices-sdk": "2.4.0-alpha.47",
-    "@avalabs/wallet-react-components": "1.30.3",
+    "@avalabs/utils-sdk": "2.4.0-alpha.47",
     "@avalabs/wallets-sdk": "2.4.0-alpha.47",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
@@ -46,6 +44,7 @@
     "@pangolindex/exchange-contracts": "1.0.2",
     "abi-decoder": "2.4.0",
     "bitcoinjs-lib": "5.2.0",
+    "bn.js": "5.2.1",
     "copy-webpack-plugin": "10.2.1",
     "crypto-js": "4.1.1",
     "date-fns": "2.28.0",
@@ -79,7 +78,8 @@
     "styled-components": "5.3.3",
     "tsyringe": "4.6.0",
     "tweetnacl": "1.0.3",
-    "web3": "1.7.1"
+    "web3": "1.7.1",
+    "xss": "1.0.13"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "7.17.9",
@@ -135,7 +135,6 @@
     "husky": "7.0.4",
     "jest": "26.6.3",
     "lint-staged": "12.3.1",
-    "patch-package": "6.4.7",
     "postinstall-postinstall": "2.1.0",
     "prettier": "2.5.1",
     "react-docgen-typescript-loader": "3.7.2",
@@ -174,14 +173,6 @@
   },
   "lavamoat": {
     "allowScripts": {
-      "@avalabs/avalanche-wallet-sdk>@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "@avalabs/avalanche-wallet-sdk>@ethereumjs/common>ethereumjs-util>ethereum-cryptography>secp256k1": false,
-      "@avalabs/avalanche-wallet-sdk>bip32>tiny-secp256k1": false,
-      "@avalabs/avalanche-wallet-sdk>web3": false,
-      "@avalabs/avalanche-wallet-sdk>web3>web3-bzz": false,
-      "@avalabs/avalanche-wallet-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>bufferutil": false,
-      "@avalabs/avalanche-wallet-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>utf-8-validate": false,
-      "@avalabs/avalanche-wallet-sdk>web3>web3-shh": false,
       "@lavamoat/preinstall-always-fail": false,
       "@types/web3>web3": false,
       "@types/web3>web3>web3-bzz": false,

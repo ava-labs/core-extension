@@ -1,8 +1,8 @@
 import { LoadingSpinnerIcon, VerticalFlex } from '@avalabs/react-components';
 import { Tabs } from '@src/components/common/Tabs';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Activity } from '@src/pages/Activity/Activity';
 import { useTheme } from 'styled-components';
 import { Collectibles } from '../../../Collectibles/Collectibles';
@@ -17,14 +17,18 @@ enum PortfolioTabs {
 
 export function Portfolio() {
   const theme = useTheme();
-  const { isBalanceLoading, isWalletReady } = useWalletContext();
+  const { tokens } = useBalancesContext();
   const { bridgeTransactions } = useBridgeContext();
   const { capture } = useAnalyticsContext();
 
-  if (isBalanceLoading || !isWalletReady) {
+  if (tokens.loading) {
     return (
-      <VerticalFlex justify="center" height="100%">
-        <LoadingSpinnerIcon color={theme.colors.primary1} />
+      <VerticalFlex justify="center" align="center" height="100%">
+        <LoadingSpinnerIcon
+          width="32px"
+          height="32px"
+          color={theme.colors.primary1}
+        />
       </VerticalFlex>
     );
   }

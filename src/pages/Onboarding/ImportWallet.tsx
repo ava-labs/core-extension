@@ -9,8 +9,8 @@ import {
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
-import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { isValidMnemonic } from 'ethers/lib/utils';
 
 interface ImportProps {
   onCancel(): void;
@@ -28,11 +28,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
   };
 
   const isPhraseValid = (phrase: string) => {
-    return (
-      phrase &&
-      isPhraseCorrectLength(phrase) &&
-      MnemonicWallet.validateMnemonic(phrase)
-    );
+    return phrase && isPhraseCorrectLength(phrase) && isValidMnemonic(phrase);
   };
 
   const onPhraseChanged = (e: React.ChangeEvent<HTMLInputElement>) => {

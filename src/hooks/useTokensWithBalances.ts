@@ -12,7 +12,7 @@ const bnZero = new BN(0);
 export function useTokensWithBalances(
   forceShowTokensWithoutBalances?: boolean
 ) {
-  const { balances } = useBalancesContext();
+  const { tokens } = useBalancesContext();
   const { showTokensWithoutBalances } = useSettingsContext();
   const { activeAccount } = useAccountsContext();
   const { network } = useNetworkContext();
@@ -28,17 +28,17 @@ export function useTokensWithBalances(
         ? activeAccount.addressBTC
         : activeAccount.addressC;
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
-      return balances[network?.chainId]?.[address] || [];
+      return tokens.balances?.[network?.chainId]?.[address] || [];
     }
 
     return (
-      balances[network?.chainId]?.[address]?.filter((token) =>
+      tokens.balances?.[network?.chainId]?.[address]?.filter((token) =>
         token.balance.gt(bnZero)
       ) || []
     );
   }, [
     activeAccount,
-    balances,
+    tokens,
     network,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,

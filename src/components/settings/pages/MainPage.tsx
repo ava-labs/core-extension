@@ -19,6 +19,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
+import { WalletType } from '@src/background/services/wallet/models';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const theme = useTheme();
@@ -120,7 +121,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           />
         </HorizontalFlex>
       </DropDownMenuItem>
-      {walletType === 'ledger' && (
+      {walletType === WalletType.LEDGER && (
         <DropDownMenuItem
           justify="space-between"
           align="center"

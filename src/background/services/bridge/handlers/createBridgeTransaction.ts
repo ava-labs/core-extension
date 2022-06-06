@@ -1,4 +1,3 @@
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
@@ -9,6 +8,7 @@ import { BridgeService } from '../BridgeService';
 import { PartialBridgeTransaction } from '../models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
+import Big from 'big.js';
 
 /**
  * Add a new pending bridge transaction to the background state and start the

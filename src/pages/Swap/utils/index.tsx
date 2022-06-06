@@ -1,10 +1,10 @@
 import { TokenIcon as TokenImage } from '@src/components/common/TokenImage';
-import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { APIError } from 'paraswap';
 import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
+import { stringToBN } from '@avalabs/utils-sdk';
 
 interface GetTokenIconProps {
   token?: TokenWithBalance;

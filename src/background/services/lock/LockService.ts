@@ -1,7 +1,6 @@
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
-import { container, singleton } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
-import { WalletService } from '../wallet/WalletService';
 import { LOCK_TIMEOUT, SessionAuthData, SESSION_AUTH_DATA_KEY } from './models';
 
 @singleton()
@@ -41,9 +40,6 @@ export class LockService {
   async unlock(password: string) {
     try {
       await this.storageService.activate(password);
-      // need to be activate before other services due to the react-wallet-components wallet objects
-      // TODO use proper onUnlock callback once react-wallet-components is removed from the project
-      await container.resolve(WalletService).activate();
 
       // save password to session storage to make auto unlock possible when the service worker restarts
       await this.storageService.saveToSessionStorage(SESSION_AUTH_DATA_KEY, {

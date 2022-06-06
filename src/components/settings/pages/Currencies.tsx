@@ -11,14 +11,14 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { currencies } from '@avalabs/wallet-react-components';
+import { CURRENCIES } from '@src/background/services/settings/models';
 
 export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { updateCurrencySetting, currency } = useSettingsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const filteredCurrencies = currencies.filter(
+  const filteredCurrencies = CURRENCIES.filter(
     (c) =>
       !searchTerm ||
       c.symbol.toLowerCase().includes(searchTerm) ||

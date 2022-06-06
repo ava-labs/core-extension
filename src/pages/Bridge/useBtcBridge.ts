@@ -45,7 +45,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const { getNetworkFeeForNetwork } = useNetworkFeeContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
-  const { balances } = useBalancesContext();
+  const { tokens } = useBalancesContext();
   const { activeAccount } = useAccountsContext();
 
   const [btcBalance, setBtcBalance] = useState<AssetBalance>();
@@ -113,9 +113,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   useEffect(() => {
     if (isBitcoinBridge && btcAsset && activeAccount && refetchInterval) {
       const btcBalance =
-        balances[isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN]?.[
-          activeAccount.addressBTC
-        ][0];
+        tokens.balances?.[
+          isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+        ]?.[activeAccount.addressBTC][0];
 
       if (btcBalance) {
         setUtxos(btcBalance.utxos);
@@ -126,7 +126,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         });
       }
 
-      const btcAvalabcheBalance = balances[
+      const btcAvalabcheBalance = tokens.balances?.[
         isDeveloperMode
           ? ChainId.AVALANCHE_TESTNET_ID
           : ChainId.AVALANCHE_MAINNET_ID
@@ -142,7 +142,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     }
   }, [
     activeAccount,
-    balances,
+    tokens,
     btcAsset,
     isBitcoinBridge,
     isDeveloperMode,

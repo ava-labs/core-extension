@@ -26,6 +26,7 @@ import {
 } from './components/History/components/SentReceivedIndicators';
 import { HistoryItem } from './components/History/components/HistoryItem';
 import { PendingTransactionBridge } from './components/History/PendingTransactionBrigde';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 const StyledDropDownMenu = styled(DropDownMenu)`
   position: absolute;
@@ -62,9 +63,10 @@ export function WalletRecentTxs({
   isEmbedded = false,
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
+  const { getTransactionHistory } = useWalletContext();
+  const { activeAccount } = useAccountsContext();
   const [loading, setLoading] = useState<boolean>(false);
-  const { getTransactionHistory, addresses, recentTxHistory } =
-    useWalletContext();
+
   const yesterday = endOfYesterday();
   const today = endOfToday();
   const [unfilteredTxHistory, setUnfilteredTxHistory] = useState<
@@ -107,7 +109,7 @@ export function WalletRecentTxs({
       .finally(() => {
         setLoading(false);
       });
-  }, [network, addresses, recentTxHistory, getTransactionHistory]);
+  }, [network, activeAccount, getTransactionHistory]);
 
   const filteredTxHistory = useMemo(() => {
     function isPendingBridge(tx: TxHistoryItem) {

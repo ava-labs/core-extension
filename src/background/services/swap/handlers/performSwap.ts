@@ -1,5 +1,3 @@
-import { Big } from '@avalabs/avalanche-wallet-sdk';
-import { AVAX_TOKEN } from '@avalabs/wallet-react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   ExtensionConnectionMessage,
@@ -20,6 +18,7 @@ import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import { injectable } from 'tsyringe';
 import { ChainId } from '@avalabs/chains-sdk';
 import { AccountsService } from '../../accounts/AccountsService';
+import Big from 'big.js';
 
 @injectable()
 export class PerformSwapHandler implements ExtensionRequestHandler {
@@ -104,18 +103,21 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
       };
     }
 
-    const srcTokenAddress =
-      srcToken === AVAX_TOKEN.symbol ? ETHER_ADDRESS : srcToken;
-    const destTokenAddress =
-      destToken === AVAX_TOKEN.symbol ? ETHER_ADDRESS : destToken;
-    const defaultGasPrice = await this.networkFeeService.getNetworkFee();
-
-    if (!this.networkService.activeNetwork || !this.networkService.isMainnet) {
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    if (!activeNetwork || activeNetwork.isTestnet) {
       return {
         ...request,
         error: `Network Init Error: Wrong network`,
       };
     }
+
+    const srcTokenAddress =
+      srcToken === activeNetwork.networkToken.symbol ? ETHER_ADDRESS : srcToken;
+    const destTokenAddress =
+      destToken === activeNetwork.networkToken.symbol
+        ? ETHER_ADDRESS
+        : destToken;
+    const defaultGasPrice = await this.networkFeeService.getNetworkFee();
 
     if (!this.accountsService.activeAccount?.addressC) {
       return {
@@ -151,7 +153,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
 
     const provider = await this.networkService.getAvalancheProvider();
     // no need to approve AVAX
-    if (srcToken !== AVAX_TOKEN.symbol) {
+    if (srcToken !== activeNetwork.networkToken.symbol) {
       const contract = new ethers.Contract(
         srcTokenAddress,
         ERC20.abi,
@@ -231,8 +233,8 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
       partnerFeeBps,
       receiver,
       buildOptions,
-      AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals,
-      AVAX_TOKEN.symbol === destToken ? 18 : destDecimals,
+      activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals,
+      activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals,
       permit,
       deadline
     );
@@ -261,7 +263,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
         data: txBuildData.data,
         to: txBuildData.to,
         value:
-          srcToken === AVAX_TOKEN.symbol
+          srcToken === activeNetwork.networkToken.symbol
             ? `0x${new BN(sourceAmount).toString('hex')}`
             : undefined, // AVAX value needs to be sent with the transaction
       })

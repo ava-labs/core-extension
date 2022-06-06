@@ -6,23 +6,37 @@ import {
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
+import { TokenManagerService } from '../../tokens/TokenManagerService';
 import { SettingsService } from '../SettingsService';
 
 @injectable()
 export class AddCustomTokenHandler implements ExtensionRequestHandler {
   methods = [ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN];
 
-  constructor(private settingsService: SettingsService) {}
+  constructor(
+    private settingsService: SettingsService,
+    private tokenManagerService: TokenManagerService
+  ) {}
   handle = async (
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
     const [tokenAddress] = request.params || [];
-
-    const [, err] = await resolve(
-      this.settingsService.addCustomToken(tokenAddress)
+    const [tokenData, err] = await resolve(
+      this.tokenManagerService.getTokenData(tokenAddress)
     );
 
-    if (err) {
+    if (!tokenData || err) {
+      return {
+        ...request,
+        error: `ERC20 contract ${tokenAddress} does not exist.`,
+      };
+    }
+
+    const [, saveError] = await resolve(
+      this.settingsService.addCustomToken(tokenData)
+    );
+
+    if (saveError) {
       return {
         ...request,
         result: false,

@@ -25,7 +25,9 @@ export function Welcome({ onNext }: WelcomeProps) {
   return (
     <VerticalFlex width="100%" align="center">
       <VerticalFlex justify="center" align="center" margin="22px 0 36px">
-        <Lottie options={defaultOptions} height={260} width={260} />
+        <VerticalFlex height="260px">
+          <Lottie options={defaultOptions} height={260} width={260} />
+        </VerticalFlex>
         <HorizontalFlex justify="flex-end" width="100%">
           <BetaLabel />
         </HorizontalFlex>

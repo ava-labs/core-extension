@@ -5,12 +5,11 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import { Network } from '@avalabs/chains-sdk';
+import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
 
 export interface SwapExactTokensForAVAXData {
   amountOutMin: BigNumber;

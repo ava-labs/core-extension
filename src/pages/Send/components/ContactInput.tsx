@@ -9,13 +9,13 @@ import { useRef, useState } from 'react';
 import { ContactSelect } from './ContactSelect';
 import { Contact } from '@src/background/services/contacts/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import styled, { useTheme } from 'styled-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { isBech32Address } from '@avalabs/bridge-sdk';
+import { isAddress } from 'ethers/lib/utils';
 
 const RelativeContainer = styled.div`
   position: relative;
@@ -60,10 +60,7 @@ export const ContactInput = ({
 
   const isValidAddress = (): boolean => {
     if (network?.vmName === NetworkVMType.EVM) {
-      return contact
-        ? !!AddressHelper.validateAddress(contact.address) &&
-            AddressHelper.getAddressChain(contact.address) === 'C'
-        : false;
+      return contact ? isAddress(contact.address) : false;
     }
     if (network?.vmName === NetworkVMType.BITCOIN) {
       return contact ? isBech32Address(contact.address) : false;

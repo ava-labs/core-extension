@@ -14,8 +14,8 @@ import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTool
 import { SlippageToolTip } from './SlippageToolTip';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { BigNumber } from 'ethers';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -76,7 +76,7 @@ export function TransactionDetails({
   maxGasPrice,
   selectedGasFee,
 }: TransactionDetailsProps) {
-  const { avaxToken } = useWalletContext();
+  const tokenPrice = useNativeTokenPrice();
   const { currencyFormatter } = useSettingsContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
 
@@ -174,8 +174,8 @@ export function TransactionDetails({
               </Typography>
               <SubTextTypography size={12} height="15px" margin="4px 0 0">
                 {walletFee &&
-                  avaxToken.priceUSD &&
-                  currencyFormatter(Number(walletFee) * avaxToken.priceUSD)}
+                  tokenPrice &&
+                  currencyFormatter(Number(walletFee) * tokenPrice)}
               </SubTextTypography>
             </VerticalFlex>
           </DetailsRow>

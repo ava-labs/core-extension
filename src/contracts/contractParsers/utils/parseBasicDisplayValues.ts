@@ -2,9 +2,8 @@ import { txParams } from '@src/background/services/transactions/models';
 import { DisplayValueParserProps } from '../models';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import * as ethers from 'ethers';
-import { hexToBN } from '@src/utils/hexToBN';
-import { bnToBig, bigToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { Network } from '@avalabs/chains-sdk';
+import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
 
 export function parseBasicDisplayValues(
   network: Network,

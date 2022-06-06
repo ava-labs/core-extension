@@ -1,10 +1,12 @@
 import { HorizontalFlex, Typography } from '@avalabs/react-components';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 
 export function WalletBalances() {
   const { currency, currencyFormatter } = useSettingsContext();
-  const balanceTotalUSD = useBalanceTotalInCurrency();
+  const { activeAccount } = useAccountsContext();
+  const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount);
 
   return (
     <HorizontalFlex

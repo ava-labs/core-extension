@@ -22,7 +22,6 @@ import {
   DefaultBridgeState,
   TransferEventType,
 } from './models';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { TransactionResponse } from '@ethersproject/providers';
 import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
@@ -32,6 +31,7 @@ import {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
+import Big from 'big.js';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {

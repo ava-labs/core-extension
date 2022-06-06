@@ -133,6 +133,6 @@ export class HistoryServiceCChain {
 
     // Sort by timestamp
     const joined = [...filteredNormalTxs, ...erc20Hist];
-    return joined.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    return joined.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   }
 }

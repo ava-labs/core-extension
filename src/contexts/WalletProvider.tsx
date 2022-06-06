@@ -6,21 +6,18 @@ import {
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { LoadingIcon } from '@avalabs/react-components';
 import { filter, map } from 'rxjs';
-import {
-  isWalletLocked,
-  WalletLockedState,
-} from '@src/background/services/wallet/models';
+import { WalletType } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
-import { walletUpdatedEventListener } from '@src/background/services/wallet/events/walletStateUpdatesListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { WalletState } from '@avalabs/wallet-react-components';
-import { recastWalletState } from './utils/castWalletState';
 import { useLedgerSupportContext } from './LedgerSupportProvider';
 import { TxHistoryItem } from '@src/background/services/history/models';
+import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 
-type WalletStateAndMethods = WalletState & {
+type WalletStateAndMethods = {
+  isWalletLoading: boolean;
+  isWalletLocked: boolean;
+  walletType: WalletType | undefined;
   changeWalletPassword(
     newPassword: string,
     oldPassword: string
@@ -33,41 +30,44 @@ const WalletContext = createContext<WalletStateAndMethods>({} as any);
 export function WalletContextProvider({ children }: { children: any }) {
   const { initLedgerTransport } = useLedgerSupportContext();
   const { request, events } = useConnectionContext();
-  const [walletState, setWalletState] = useState<
-    WalletState | WalletLockedState
-  >();
-
-  function setWalletStateAndCast(state: WalletState | WalletLockedState) {
-    return isWalletLocked(state)
-      ? setWalletState(state)
-      : state && setWalletState(recastWalletState(state as WalletState));
-  }
+  const [walletType, setWalletType] = useState<WalletType | undefined>();
+  const [isWalletLocked, setIsWalletLocked] = useState<boolean>(true);
+  const [isWalletLoading, setIsWalletLoading] = useState<boolean>(true);
 
   // listen for wallet creation
   useEffect(() => {
     if (!request || !events) {
       return;
     }
+    setIsWalletLoading(true);
+    request<WalletType | undefined>({
+      method: ExtensionRequest.WALLET_GET_TYPE,
+    }).then(setWalletType);
 
-    request<WalletState>({ method: ExtensionRequest.WALLET_STATE })
-      .then((result) => {
-        return result;
-      })
-      .then(setWalletStateAndCast);
+    request<boolean>({
+      method: ExtensionRequest.LOCK_GET_STATE,
+    }).then((locked) => {
+      setIsWalletLocked(locked);
+      setIsWalletLoading(false);
+    });
 
-    events()
+    const subscription = events()
       .pipe(
-        filter(walletUpdatedEventListener),
+        filter(lockStateChangedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe(setWalletStateAndCast);
+      .subscribe(setIsWalletLocked);
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [events, request]);
 
   useEffect(() => {
-    if (!isWalletLocked(walletState) && walletState?.walletType === 'ledger') {
+    if (!isWalletLocked && walletType === WalletType.LEDGER) {
       initLedgerTransport();
     }
-  }, [initLedgerTransport, walletState]);
+  }, [initLedgerTransport, isWalletLocked, walletType]);
 
   const unlockWallet = useCallback(
     (password: string) => {
@@ -105,18 +105,16 @@ export function WalletContextProvider({ children }: { children: any }) {
     });
   }, [request]);
 
-  if (!walletState) {
-    return <LoadingIcon />;
-  }
-
-  if (isWalletLocked(walletState)) {
+  if (!isWalletLoading && isWalletLocked) {
     return <WalletLocked unlockWallet={unlockWallet} />;
   }
 
   return (
     <WalletContext.Provider
       value={{
-        ...walletState,
+        isWalletLoading,
+        isWalletLocked,
+        walletType,
         changeWalletPassword,
         getUnencryptedMnemonic,
         getTransactionHistory,

@@ -1,4 +1,3 @@
-import { Erc20TokenData } from '@avalabs/avalanche-wallet-sdk/dist/Asset/types';
 import {
   ComponentSize,
   PrimaryButton,
@@ -13,10 +12,11 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { TokenType } from '@src/background/services/balances/models';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -25,12 +25,15 @@ const AddressInput = styled(TextArea)`
 export function AddToken() {
   const { request } = useConnectionContext();
   const { network } = useNetworkContext();
-  const { erc20Tokens } = useWalletContext();
+  const tokens = useTokensWithBalances(true);
   const history = useHistory();
 
   const [addressInput, setAddressInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [tokenData, setTokenData] = useState<Erc20TokenData | null>(null);
+  const [tokenData, setTokenData] = useState<{
+    name: string;
+    symbol: string;
+  } | null>(null);
   const [error, setError] = useState<string>('');
   const { capture } = useAnalyticsContext();
 
@@ -59,8 +62,11 @@ export function AddToken() {
   const tokenAlreadyExists = useMemo(
     () =>
       addressInput?.length &&
-      erc20Tokens.some(({ address }) => address === addressInput),
-    [erc20Tokens, addressInput]
+      tokens.some(
+        (token) =>
+          token.type === TokenType.ERC20 && token.address === addressInput
+      ),
+    [tokens, addressInput]
   );
 
   useEffect(() => {

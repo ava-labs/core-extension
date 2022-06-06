@@ -40,6 +40,7 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { WalletType } from '@src/background/services/wallet/models';
 
 export function SendPage() {
   const theme = useTheme();
@@ -238,7 +239,7 @@ export function SendPage() {
       selectedGasFee,
     });
     let toastId: string;
-    if (walletType !== 'ledger') {
+    if (walletType !== WalletType.LEDGER) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -277,7 +278,7 @@ export function SendPage() {
       })
       .finally(() => {
         setShowTxInProgress(false);
-        if (walletType === 'ledger') history.push('/home');
+        if (walletType === WalletType.LEDGER) history.push('/home');
       });
   };
 

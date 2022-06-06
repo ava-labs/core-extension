@@ -71,9 +71,8 @@ import { ResetExtensionStateHandler } from '@src/background/services/storage/han
 import { GetSwapRateHandler } from '@src/background/services/swap/handlers/getSwapRate';
 import { TransactionFinalizedUpdateEvents } from '@src/background/services/transactions/events/transactionFinalizedUpdate';
 import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
-import { WalletUpdatedEvents } from '@src/background/services/wallet/events/walletStateUpdates';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
-import { GetWalletStateHandler } from '@src/background/services/wallet/handlers/getWalletState';
+import { GetWalletTypeHandler } from '@src/background/services/wallet/handlers/getWalletType';
 import { registry } from 'tsyringe';
 import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCurrencySelection';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
@@ -85,6 +84,8 @@ import { NetworksUpdatedEvents } from '@src/background/services/network/events/n
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
+import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
+import { LockStateChangedEvents } from '@src/background/services/lock/events/lockStateChangedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -139,6 +140,7 @@ import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/ha
   { token: 'ExtensionRequestHandler', useToken: LockChangePasswordHandler },
   { token: 'ExtensionRequestHandler', useToken: LockWalletHandler },
   { token: 'ExtensionRequestHandler', useToken: UnlockWalletHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetLockStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNavigationHistoryHandler },
   {
     token: 'ExtensionRequestHandler',
@@ -179,7 +181,7 @@ import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/ha
   { token: 'ExtensionRequestHandler', useToken: GetIsDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: GetSettingsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenDataHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetWalletStateHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetWalletTypeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetUnencryptedMnemonicHandler },
   { token: 'ExtensionRequestHandler', useToken: SetDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateShowNoBalanceHandler },
@@ -202,7 +204,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
-  { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
   {
     token: 'ExtensionEventEmitter',
     useToken: TransactionFinalizedUpdateEvents,
@@ -218,5 +219,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SettingsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: PermissionStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
+  { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

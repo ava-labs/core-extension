@@ -1,4 +1,3 @@
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import {
   Asset,
   BridgeSDKProvider,
@@ -21,6 +20,7 @@ import {
   deserializeBridgeState,
   filterBridgeStateToNetwork,
 } from '@src/background/services/bridge/utils';
+import Big from 'big.js';
 import {
   createContext,
   useCallback,

@@ -26,7 +26,7 @@ const NetworkListContainer = styled(HorizontalFlex)`
 export function NetworkList() {
   const { network, setNetwork, networks } = useNetworkContext();
   const theme = useTheme();
-  const { balances } = useBalancesContext();
+  const { tokens } = useBalancesContext();
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
 
@@ -45,7 +45,7 @@ export function NetworkList() {
                 (network?.vmName === NetworkVMType.EVM
                   ? activeAccount?.addressC
                   : activeAccount?.addressBTC) || '';
-              const networkBalances = balances[network.chainId];
+              const networkBalances = tokens.balances?.[network.chainId];
               const networkAssetList = networkBalances
                 ? tokensWithBalances(networkBalances[networkAddress])
                 : [];

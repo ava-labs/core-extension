@@ -1,5 +1,5 @@
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { Asset } from '@avalabs/bridge-sdk';
+import Big from 'big.js';
 
 export const BALANCE_REFRESH_INTERVAL = 1000 * 60;
 

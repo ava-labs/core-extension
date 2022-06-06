@@ -15,7 +15,6 @@ import styled from 'styled-components';
 import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SlippageToolTip } from '../SlippageToolTip';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
@@ -25,6 +24,8 @@ import { BigNumber } from 'ethers';
 import Big from 'big.js';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { TokenWithBalance } from '@src/background/services/balances/models';
+import { bnToLocaleString } from '@avalabs/utils-sdk';
+import { BN } from 'bn.js';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;

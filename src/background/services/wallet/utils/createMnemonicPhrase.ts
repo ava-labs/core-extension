@@ -1,5 +1,5 @@
-import { MnemonicWallet } from '@avalabs/avalanche-wallet-sdk';
+import { Wallet } from 'ethers';
 
 export function createNewMnemonic() {
-  return MnemonicWallet.generateMnemonicPhrase();
+  return Wallet.createRandom().mnemonic.phrase;
 }

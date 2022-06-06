@@ -6,7 +6,7 @@ import {
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { AddressDropdownList } from './AddressDropdownList';
 import { Contact } from '@src/background/services/contacts/models';
@@ -51,25 +51,28 @@ export const ContactSelect = ({
   selectedContact,
 }: ContactSelectProps) => {
   const identifyAddress = useIdentifyAddress();
-  const { recentTxHistory } = useWalletContext();
+  const { getTransactionHistory } = useWalletContext();
   const { accounts } = useAccountsContext();
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
   const [selectedTab, setSelectedTab] = useState<string>('recents');
+  const [historyContacts, setHistoryContacts] = useState<Contact[]>([]);
 
-  const formattedTxHistory = useMemo(() => {
-    return (
-      recentTxHistory
-        // filter out dupe to addresses
-        .filter((tx, index, self) => {
-          return (
-            index === self.findIndex((temp) => temp.to === tx.to) &&
-            tx.to !== '0x0000000000000000000000000000000000000000'
-          );
-        })
-        .map((tx) => identifyAddress(tx.to))
+  useEffect(() => {
+    getTransactionHistory().then((history) =>
+      setHistoryContacts(
+        history
+          // filter out dupe to addresses
+          .filter((tx, index, self) => {
+            return (
+              index === self.findIndex((temp) => temp.to === tx.to) &&
+              tx.to !== '0x0000000000000000000000000000000000000000'
+            );
+          })
+          .map((tx) => identifyAddress(tx.to))
+      )
     );
-  }, [recentTxHistory, identifyAddress]);
+  }, [getTransactionHistory, identifyAddress]);
 
   const formattedAccounts = useMemo(() => {
     return accounts.map(({ addressC, name, addressBTC }) => ({
@@ -126,7 +129,7 @@ export const ContactSelect = ({
       </Tabs>
       {selectedTab === 'recents' && (
         <AddressDropdownList
-          contacts={formattedTxHistory}
+          contacts={historyContacts}
           selectedContact={selectedContact}
           onChange={(contact) => onChange(contact, selectedTab)}
         />

@@ -7,11 +7,10 @@ import {
   LiquidityPoolToken,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
-import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import { Network } from '@avalabs/chains-sdk';
+import { bigToLocaleString, ethersBigNumberToBig } from '@avalabs/utils-sdk';
 
 export interface AddLiquidityData {
   amountAMin: BigNumber;
@@ -42,7 +41,7 @@ export async function addLiquidityHandler(
   const tokenB = await findToken(data.tokenB.toLowerCase());
 
   const firstTokenAmountDepositedDisplayValue = bigToLocaleString(
-    bnToBig(hexToBN(data.amountADesired.toHexString()), tokenA.decimals),
+    ethersBigNumberToBig(data.amountADesired, tokenA.decimals),
     4
   );
   const tokenA_AmountUSDValue =
@@ -56,7 +55,7 @@ export async function addLiquidityHandler(
   };
 
   const secondTokenAmountDepositedDisplayValue = bigToLocaleString(
-    bnToBig(hexToBN(data.amountBDesired.toString()), tokenB.decimals),
+    ethersBigNumberToBig(data.amountBDesired, tokenB.decimals),
     4
   );
   const tokenB_AmountUSDValue =

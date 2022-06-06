@@ -6,8 +6,8 @@ import {
 } from '@avalabs/react-components';
 import { useCallback, useEffect, useState } from 'react';
 import { Contact } from '@src/background/services/contacts/models';
-import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 import { isBech32Address } from '@avalabs/bridge-sdk';
+import { isAddress } from 'ethers/lib/utils';
 
 interface ContactFormProps {
   contact: Contact;
@@ -71,11 +71,7 @@ export const ContactForm = ({
   }, [showErrors, contact, validateForm]);
 
   const isValidAddress = (address: string) => {
-    return (
-      !!address.length &&
-      AddressHelper.validateAddress(address) &&
-      AddressHelper.getAddressChain(address) === 'C'
-    );
+    return !!address.length && isAddress(address);
   };
 
   const isValidBtcAddress = (address: string) => {

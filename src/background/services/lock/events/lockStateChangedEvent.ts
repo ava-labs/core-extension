@@ -2,24 +2,29 @@ import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
+import { LockEvents } from '../models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { WalletEvents } from '../models';
-import { WalletService } from '../WalletService';
+import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class WalletUpdatedEvents implements ExtensionEventEmitter {
+export class LockStateChangedEvents
+  implements ExtensionEventEmitter, OnLock, OnUnlock
+{
   private eventEmitter = new EventEmitter();
-  constructor(private walletService: WalletService) {
-    this.walletService.addListener(
-      WalletEvents.WALLET_STATE_UPDATE,
-      (state) => {
-        this.eventEmitter.emit('update', {
-          name: WalletEvents.WALLET_STATE_UPDATE,
-          value: state,
-        });
-      }
-    );
+
+  onLock(): void | Promise<void> {
+    this.eventEmitter.emit('update', {
+      name: LockEvents.LOCK_STATE_CHANGED,
+      value: true,
+    });
+  }
+
+  onUnlock(): void | Promise<void> {
+    this.eventEmitter.emit('update', {
+      name: LockEvents.LOCK_STATE_CHANGED,
+      value: false,
+    });
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

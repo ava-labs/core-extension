@@ -17,7 +17,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN, bnToLocaleString } from '@avalabs/utils-sdk';
+import { stringToBN, bnToLocaleString, hexToBN } from '@avalabs/utils-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
@@ -33,7 +33,6 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { hexToBN } from '@src/utils/hexToBN';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
@@ -48,9 +47,10 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
-import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import BN from 'bn.js';
+import { WalletType } from '@src/background/services/wallet/models';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 export interface Token {
   icon?: JSX.Element;
@@ -198,20 +198,20 @@ export function Swap() {
       const selectedFromToken = pageHistory.selectedFromToken
         ? {
             ...pageHistory.selectedFromToken,
-            balance: hexToBN(pageHistory.selectedFromToken.balance),
+            balance: hexToBN(pageHistory.selectedFromToken.balance.toString()),
           }
         : undefined;
       setSelectedFromToken(selectedFromToken);
       const selectedToToken = pageHistory.selectedToToken
         ? {
             ...pageHistory.selectedToToken,
-            balance: hexToBN(pageHistory.selectedToToken.balance),
+            balance: hexToBN(pageHistory.selectedToToken.balance.toString()),
           }
         : undefined;
       setSelectedToToken(selectedToToken);
       const tokenValueBN =
         pageHistory.tokenValue && pageHistory.tokenValue.bn
-          ? hexToBN(pageHistory.tokenValue.bn)
+          ? hexToBN(pageHistory.tokenValue.bn.toString())
           : new BN(0);
       if (pageHistory.destinationInputField === 'from') {
         setToTokenValue({
@@ -413,7 +413,7 @@ export function Swap() {
 
   async function onHandleSwap() {
     let toastId = '';
-    if (walletType !== 'ledger') {
+    if (walletType !== WalletType.LEDGER) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -477,7 +477,9 @@ export function Swap() {
         status="Swap Successful"
         type={TransactionToastType.SUCCESS}
         text="View in Explorer"
-        href={getTransactionLink(result.swapTxHash, !network?.isTestnet)}
+        href={
+          network && getExplorerAddressByNetwork(network, result.swapTxHash)
+        }
       />
     );
   }

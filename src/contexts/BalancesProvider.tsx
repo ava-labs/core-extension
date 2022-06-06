@@ -23,12 +23,16 @@ interface NftState {
   items?: NFT[];
   error?: string;
 }
+interface BalancesState {
+  loading: boolean;
+  balances?: Balances;
+}
 
 const BalancesContext = createContext<{
-  balances: Balances;
+  tokens: BalancesState;
   nfts: NftState;
 }>({
-  balances: {},
+  tokens: { loading: true },
   nfts: { loading: true },
 });
 
@@ -36,10 +40,13 @@ export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const { network } = useNetworkContext();
   const { activeAccount } = useAccountsContext();
-  const [balances, setBalances] = useState<Balances>({});
+  const [tokens, setTokens] = useState<BalancesState>({ loading: true });
   const [nfts, setNfts] = useState<NftState>({ loading: true });
 
   useEffect(() => {
+    setTokens({
+      loading: true,
+    });
     const subscription = concat(
       from(
         request({
@@ -51,7 +58,10 @@ export function BalancesProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
     ).subscribe((result: SerializedBalances) => {
-      setBalances(deserializeBalances(result ?? {}));
+      setTokens({
+        balances: deserializeBalances(result ?? {}),
+        loading: false,
+      });
     });
 
     // update balances every 2 seconds for the active network when the UI is open
@@ -110,7 +120,7 @@ export function BalancesProvider({ children }: { children: any }) {
   }, [request, network?.chainId, updateNftBalances]);
 
   return (
-    <BalancesContext.Provider value={{ balances, nfts }}>
+    <BalancesContext.Provider value={{ tokens, nfts }}>
       {children}
     </BalancesContext.Provider>
   );

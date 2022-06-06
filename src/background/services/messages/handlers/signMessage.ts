@@ -31,7 +31,7 @@ export class PersonalSignHandler implements DAppRequestHandler {
   };
 
   handleAuthenticated = async (request) => {
-    if (!this.walletService.walletState?.walletType) {
+    if (!this.walletService.walletType) {
       return {
         ...request,
         error: 'wallet undefined',

@@ -1,4 +1,4 @@
-import { Erc20Token, getErc20Token } from '@avalabs/avalanche-wallet-sdk';
+import { NetworkContractToken } from '@avalabs/chains-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import {
   TokenType,
@@ -6,8 +6,12 @@ import {
 } from '@src/background/services/balances/models';
 import { NetworkBalanceAggregatorService } from '@src/background/services/balances/NetworkBalanceAggregatorService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
+import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
 import BN from 'bn.js';
+import { ethers } from 'ethers';
 import { container } from 'tsyringe';
+import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
   address,
@@ -27,6 +31,7 @@ export async function findToken(
   const balancesService = container.resolve(NetworkBalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
   const accountsService = container.resolve(AccountsService);
+  const tokenManagerService = container.resolve(TokenManagerService);
   const activeNetwork = await networkService.activeNetwork.promisify();
   if (
     !balancesService.balances ||
@@ -49,18 +54,20 @@ export async function findToken(
   }
 
   // the token is unknown, fetch basic data
-  let tokenData: Erc20Token;
+  let tokenData: NetworkContractToken | null;
   try {
-    tokenData = await getErc20Token(address);
+    tokenData = await tokenManagerService.getTokenData(address);
   } catch (e) {
     return UNKNOWN_TOKEN(address);
   }
 
-  if (!tokenData) {
+  const provider = networkService.getProviderForNetwork(activeNetwork);
+  if (!tokenData || !(provider instanceof JsonRpcBatchInternal)) {
     return UNKNOWN_TOKEN(address);
   }
 
-  const balance = await tokenData.balanceOf(
+  const contract = new ethers.Contract(address, ERC20.abi, provider);
+  const balance = await contract.balanceOf(
     accountsService.activeAccount.addressC
   );
 

@@ -1,4 +1,3 @@
-import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 import {
   bnToEthersBigNumber,
   ethersBigNumberToBN,
@@ -24,6 +23,7 @@ import {
   TokenWithBalanceERC20,
   TokenWithBalanceERC721,
 } from '../balances/models';
+import { isAddress } from 'ethers/lib/utils';
 
 @singleton()
 export class SendServiceEVM implements SendServiceHelper {
@@ -82,11 +82,8 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!address)
       return this.getErrorState(newState, SendErrorMessage.ADDRESS_REQUIRED);
 
-    if (!AddressHelper.validateAddress(address))
+    if (!isAddress(address))
       return this.getErrorState(newState, SendErrorMessage.INVALID_ADDRESS);
-
-    if (AddressHelper.getAddressChain(address) !== 'C')
-      return this.getErrorState(newState, SendErrorMessage.C_CHAIN_REQUIRED);
 
     if (!gasPrice || gasPrice.isZero())
       return this.getErrorState(newState, SendErrorMessage.INVALID_NETWORK_FEE);

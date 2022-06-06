@@ -1,4 +1,3 @@
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import {
   AssetType,
   BIG_ZERO,
@@ -15,6 +14,7 @@ import { useBtcBridge } from './useBtcBridge';
 import { useEthBridge } from './useEthBridge';
 import { useAvalancheBridge } from './useAvalancheBridge';
 import { VsCurrencyType } from '@avalabs/coingecko-sdk';
+import Big from 'big.js';
 
 export interface BridgeAdapter {
   address?: string;

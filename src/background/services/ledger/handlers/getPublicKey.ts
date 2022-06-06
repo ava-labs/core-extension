@@ -1,5 +1,4 @@
-import { LedgerWallet } from '@avalabs/avalanche-wallet-sdk';
-import { ledgerTransport$ } from '@avalabs/wallet-react-components';
+import { getLedgerExtendedPublicKeyOfAccount } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   ExtensionConnectionMessage,
@@ -27,16 +26,10 @@ export class GetPublicKeyHandler implements ExtensionRequestHandler {
     }
 
     const [pubKey, pubKeyError] = await resolve(
-      LedgerWallet.getExtendedPublicKeyEthAccount(
-        this.ledgerService.recentTransport
-      )
+      getLedgerExtendedPublicKeyOfAccount(this.ledgerService.recentTransport)
     );
 
     if (pubKeyError) {
-      if (pubKeyError.message === 'The device was disconnected.') {
-        ledgerTransport$.next(null);
-      }
-
       return {
         ...request,
         error: `Error trying to derive public key: ${pubKeyError.message}`,

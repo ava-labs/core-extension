@@ -1,9 +1,4 @@
 import {
-  bigToLocaleString,
-  bnToBig,
-  bnToLocaleString,
-} from '@avalabs/avalanche-wallet-sdk';
-import {
   VerticalFlex,
   Typography,
   PrimaryButton,
@@ -15,7 +10,7 @@ import {
   Tooltip,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import { BN } from 'bn.js';
 import { Contact } from '@src/background/services/contacts/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -38,6 +33,11 @@ import {
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { SendState } from '@src/background/services/send/models';
 import { NetworkVMType } from '@avalabs/chains-sdk';
+import {
+  bigToLocaleString,
+  bnToBig,
+  bnToLocaleString,
+} from '@avalabs/utils-sdk';
 import { satoshiToBtc } from '@avalabs/bridge-sdk';
 
 const SummaryTokenIcon = styled(TokenIcon)`
@@ -194,7 +194,7 @@ export const SendConfirm = ({
 
   const networkFee =
     network?.vmName === NetworkVMType.BITCOIN
-      ? satoshiToBtc(sendState.sendFee?.toNumber() || 0).toLocaleString(8)
+      ? bigToLocaleString(satoshiToBtc(sendState.sendFee?.toNumber() || 0), 8)
       : gasPrice &&
         sendState?.gasLimit &&
         calculateGasAndFees({

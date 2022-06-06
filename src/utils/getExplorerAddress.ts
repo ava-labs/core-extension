@@ -34,6 +34,10 @@ export function getExplorerAddress(
   }
 }
 
-export function getExplorerAddressByNetwork(network: Network, txHash: string) {
-  return `${network.explorerUrl}/tx/${txHash}`;
+export function getExplorerAddressByNetwork(
+  network: Network,
+  hash: string,
+  hashType: 'address' | 'tx' = 'tx'
+) {
+  return `${network.explorerUrl}/${hashType}/${hash}`;
 }

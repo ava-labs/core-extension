@@ -5,7 +5,7 @@ import { ActionCompletedEvents } from '@src/background/services/actions/events/a
 import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/AvalancheBridgeAsset';
 import { AvalancheGetBridgeTransactionHandler } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
 import { AvalancheGetContactsHandler } from '@src/background/services/contacts/handlers/avalanche_getContacts';
-import { LockStateChangedEvents } from '@src/background/services/lock/events/unlockStateChangedEvent';
+import { LockStateChangedEvents } from '@src/background/services/lock/events/dAppUnlockStateChangedEvent';
 import { PersonalEcRecoverHandler } from '@src/background/services/messages/handlers/personal_ecRecover';
 import { PersonalSignHandler } from '@src/background/services/messages/handlers/signMessage';
 import { ChainChangedEvents } from '@src/background/services/network/events/chainChangedEvent';

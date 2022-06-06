@@ -1,18 +1,11 @@
-import {
-  clearWallet,
-  initWalletLedger,
-  initWalletMnemonic,
-  WalletState,
-  walletState$,
-} from '@avalabs/wallet-react-components';
 import { EventEmitter } from 'events';
-import { Subscription } from 'rxjs';
 import { container, singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
   SignTransactionRequest,
   WalletEvents,
   WalletSecretInStorage,
+  WalletType,
   WALLET_STORAGE_KEY,
 } from './models';
 import { MessageType } from '../messages/models';
@@ -29,7 +22,7 @@ import {
 import { NetworkService } from '../network/NetworkService';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { LockService } from '../lock/LockService';
-import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   personalSign,
   signTypedData,
@@ -42,21 +35,21 @@ import { AccountsService } from '../accounts/AccountsService';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 
 @singleton()
-export class WalletService implements OnLock {
+export class WalletService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
-  private _walletState: WalletState | undefined;
-  private walletStateSubscription?: Subscription;
+  private _walletType?: WalletType;
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService,
-    private ledgerService: LedgerService
+    private ledgerService: LedgerService,
+    private lockService: LockService
   ) {}
 
-  public get walletState(): WalletState | undefined {
-    return this._walletState;
+  public get walletType(): WalletType | undefined {
+    return this._walletType;
   }
 
-  async activate() {
+  async onUnlock(): Promise<void> {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
@@ -67,20 +60,12 @@ export class WalletService implements OnLock {
     }
 
     if (walletKeys.mnemonic) {
-      await initWalletMnemonic(walletKeys.mnemonic);
+      this._walletType = WalletType.MNEMONIC;
     } else if (walletKeys.xpub) {
-      await initWalletLedger(walletKeys.xpub);
+      this._walletType = WalletType.LEDGER;
     } else {
       throw new Error('Wallet initialization failed, no key found');
     }
-
-    this.walletStateSubscription = walletState$.subscribe((state) => {
-      this._walletState = state;
-      this.eventEmitter.emit(
-        WalletEvents.WALLET_STATE_UPDATE,
-        this._walletState
-      );
-    });
   }
 
   /**
@@ -96,13 +81,11 @@ export class WalletService implements OnLock {
       mnemonic,
       xpub,
     });
-    await this.activate();
+    await this.onUnlock();
   }
 
   onLock() {
-    clearWallet();
-    this.walletStateSubscription?.unsubscribe();
-    this._walletState = undefined;
+    this._walletType = undefined;
     this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, { locked: true });
   }
 
@@ -177,9 +160,7 @@ export class WalletService implements OnLock {
       WALLET_STORAGE_KEY
     );
 
-    // TODO Remove as soon as react-wallet-components is removed and circular dependency is fixed
-    const lockService = container.resolve(LockService);
-    if (!lockService.verifyPassword(password)) {
+    if (!this.lockService.verifyPassword(password)) {
       throw new Error('Password invalid');
     }
 

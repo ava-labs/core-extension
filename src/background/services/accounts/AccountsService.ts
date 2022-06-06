@@ -2,17 +2,11 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
-  activateAccount,
-  addAccount as addAccountSDK,
-} from '@avalabs/wallet-react-components';
-import { accounts$ as sdkAccount$ } from '@avalabs/wallet-react-components';
-import {
   Account,
   AccountsEvents,
   AccountStorageItem,
   ACCOUNTS_STORAGE_KEY,
 } from './models';
-import { firstValueFrom } from 'rxjs';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { WalletService } from '../wallet/WalletService';
 import { NetworkService } from '../network/NetworkService';
@@ -53,12 +47,7 @@ export class AccountsService implements OnLock, OnUnlock {
     if (accounts.length === 0) {
       return;
     }
-    const sdkAccounts = await firstValueFrom(sdkAccount$);
 
-    // add missing accounts
-    for (let i = sdkAccounts.length; i < accounts.length; i++) {
-      sdkAccounts.push(addAccountSDK());
-    }
     const activeIndex = accounts.find((a) => a.active)?.index || 0;
     this.accounts = [];
     for (const acc of accounts) {
@@ -72,23 +61,6 @@ export class AccountsService implements OnLock, OnUnlock {
       });
     }
 
-    // activate account
-    await this.activateAccount(activeIndex);
-    this.refreshBalances();
-  }
-
-  private async refreshBalances() {
-    const sdkAccounts = await firstValueFrom(sdkAccount$);
-    const accountsWithBallances: Account[] = [];
-    for (const account of this.accounts) {
-      const balance = await firstValueFrom(sdkAccounts[account.index].balance$);
-      accountsWithBallances.push({
-        ...account,
-        balance,
-      });
-    }
-
-    this.accounts = accountsWithBallances;
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
@@ -113,17 +85,15 @@ export class AccountsService implements OnLock, OnUnlock {
 
   async addAccount(name?: string) {
     const storageAccounts = await this.loadAccounts();
-
-    const newSDKAccount = addAccountSDK();
+    const lastAccount = this.accounts.at(-1);
+    const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
     const newAccount = {
-      index: newSDKAccount.index,
-      name: name || `Account ${newSDKAccount.index + 1}`,
+      index: nextIndex,
+      name: name || `Account ${nextIndex + 1}`,
       active: false,
     };
 
-    const balance = await firstValueFrom(newSDKAccount.balance$);
-
-    const addresses = await this.walletService.getAddress(newSDKAccount.index);
+    const addresses = await this.walletService.getAddress(nextIndex);
 
     this.accounts = [
       ...this.accounts,
@@ -131,7 +101,6 @@ export class AccountsService implements OnLock, OnUnlock {
         ...newAccount,
         addressC: addresses[NetworkVMType.EVM],
         addressBTC: addresses[NetworkVMType.BITCOIN],
-        balance,
       },
     ];
 
@@ -166,7 +135,6 @@ export class AccountsService implements OnLock, OnUnlock {
       active: acc.index === index,
     }));
 
-    await activateAccount(index);
     await this.saveAccounts(newAccounts);
 
     this.accounts = this.accounts.map((acc) => ({

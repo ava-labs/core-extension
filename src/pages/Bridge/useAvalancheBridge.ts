@@ -8,15 +8,15 @@ import {
   useBridgeSDK,
   useHasEnoughForGas,
 } from '@avalabs/bridge-sdk';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { BridgeAdapter } from '@src/pages/Bridge/useBridge';
 import { useAssetBalanceEVM } from '@src/pages/Bridge/useAssetBalanceEVM';
 import { useAssetBalancesEVM } from '@src/pages/Bridge/useAssetBalancesEVM';
 import { useCallback, useMemo, useState } from 'react';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import Big from 'big.js';
 
 /**
  * Hook for when the source is Avalanche
@@ -44,7 +44,7 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     Blockchain.AVALANCHE
   );
 
-  const { addresses } = useWalletContext();
+  const { activeAccount } = useAccountsContext();
   const { network } = useNetworkContext();
   const avalancheProvider = new JsonRpcBatchInternal(
     40,
@@ -52,7 +52,7 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     network?.chainId
   );
   const hasEnoughForNetworkFee = useHasEnoughForGas(
-    isAvalancheBridge ? addresses.addrC : undefined,
+    isAvalancheBridge ? activeAccount?.addressC : undefined,
     avalancheProvider
   );
 

@@ -7,7 +7,6 @@ export interface AccountStorageItem {
 export interface Account extends AccountStorageItem {
   addressBTC: string;
   addressC: string;
-  balance?: string;
 }
 
 export const ACCOUNTS_STORAGE_KEY = 'accounts';

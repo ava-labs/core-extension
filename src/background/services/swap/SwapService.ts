@@ -1,5 +1,4 @@
 import { ChainId } from '@avalabs/chains-sdk';
-import { AVAX_TOKEN } from '@avalabs/wallet-react-components';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import {
   ParaSwap,
@@ -13,8 +12,8 @@ import {
 import { OptimalRate } from 'paraswap-core';
 import { singleton } from 'tsyringe';
 import Web3 from 'web3';
+import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
-import { WalletService } from '../wallet/WalletService';
 
 const NETWORK_UNSUPPORTED_ERROR = new Error(
   'Fuji network is not supported by Paraswap'
@@ -33,8 +32,8 @@ export class SwapService {
   }
 
   constructor(
-    private walletService: WalletService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private accountsService: AccountsService
   ) {}
 
   async getSwapRate(
@@ -48,18 +47,25 @@ export class SwapService {
     if (!this.networkService.isMainnet) {
       throw NETWORK_UNSUPPORTED_ERROR;
     }
-    if (!this.walletService.walletState?.addresses.addrC) {
+    if (!this.accountsService.activeAccount) {
       throw new Error('Account address missing');
     }
+
+    const activeNetwork = await this.networkService.activeNetwork.promisify();
+
     const query = new URLSearchParams({
       srcToken,
       destToken,
       amount: srcAmount,
       side: swapSide || SwapSide.SELL,
       network: ChainId.AVALANCHE_MAINNET_ID.toString(),
-      srcDecimals: `${AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals}`,
-      destDecimals: `${AVAX_TOKEN.symbol === destToken ? 18 : destDecimals}`,
-      userAddress: this.walletService.walletState.addresses.addrC,
+      srcDecimals: `${
+        activeNetwork?.networkToken.symbol === srcToken ? 18 : srcDecimals
+      }`,
+      destDecimals: `${
+        activeNetwork?.networkToken.symbol === destToken ? 18 : destDecimals
+      }`,
+      userAddress: this.accountsService.activeAccount.addressC,
     });
 
     // apiURL is a private property

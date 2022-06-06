@@ -6,8 +6,8 @@ import {
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { Asset, Blockchain, fetchTokenBalances } from '@avalabs/bridge-sdk';
 import { NetworkService } from '../../network/NetworkService';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { injectable } from 'tsyringe';
+import Big from 'big.js';
 
 @injectable()
 export class BridgeGetEthereumBalanceHandler

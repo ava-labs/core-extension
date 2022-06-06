@@ -8,8 +8,8 @@ import { WalletService } from '../WalletService';
 import { injectable } from 'tsyringe';
 
 @injectable()
-export class GetWalletStateHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.WALLET_STATE];
+export class GetWalletTypeHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.WALLET_GET_TYPE];
 
   constructor(private walletService: WalletService) {}
   handle = async (
@@ -17,7 +17,7 @@ export class GetWalletStateHandler implements ExtensionRequestHandler {
   ): Promise<ExtensionConnectionMessageResponse> => {
     return {
       ...request,
-      result: this.walletService.walletState ?? { locked: true },
+      result: this.walletService.walletType,
     };
   };
 }

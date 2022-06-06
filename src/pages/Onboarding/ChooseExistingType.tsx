@@ -32,7 +32,9 @@ export function ChooseExistingType({
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader onBack={onBack} onClose={onCancel} />
       <VerticalFlex justify="center" align="center" margin="0 0 4px">
-        <StyledLogo src={'/images/OwlAnimation-still.svg'} />
+        <VerticalFlex height="260px">
+          <StyledLogo src={'/images/OwlAnimation-still.svg'} />
+        </VerticalFlex>
         <HorizontalFlex justify="flex-end" width="100%" margin="0 0 0">
           <BetaLabel />
         </HorizontalFlex>

@@ -5,9 +5,8 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { bigToLocaleString, bnToBig } from '@avalabs/utils-sdk';
+import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import BN from 'bn.js';

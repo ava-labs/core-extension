@@ -27,11 +27,6 @@ import {
 } from '@avalabs/wallets-sdk';
 import { resolve } from '@avalabs/utils-sdk';
 import { InfuraProvider } from '@ethersproject/providers';
-import {
-  FUJI_NETWORK,
-  MAINNET_NETWORK,
-  networkUpdates$,
-} from '@avalabs/wallet-react-components';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -96,9 +91,6 @@ export class NetworkService implements OnLock, OnStorageReady {
     );
 
     this._isDeveloperMode = network?.isDeveloperMode || false;
-    networkUpdates$.next(
-      this._isDeveloperMode ? FUJI_NETWORK : MAINNET_NETWORK
-    );
     this._activeNetwork.dispatch(
       chainlist[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID]
     );
@@ -146,9 +138,6 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async setDeveloperMode(status: boolean) {
     this._isDeveloperMode = status;
-    networkUpdates$.next(
-      this._isDeveloperMode ? FUJI_NETWORK : MAINNET_NETWORK
-    );
 
     const activeNetworks = await this.activeNetworks.promisify();
     const selectedNetwork =

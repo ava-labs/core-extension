@@ -1,4 +1,3 @@
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { Network } from '@avalabs/chains-sdk';
 import { DomainMetadata } from '@src/background/models';
 import {
@@ -10,6 +9,7 @@ import {
   TransactionDisplayValues,
   txParams,
 } from '@src/background/services/transactions/models';
+import BN from 'bn.js';
 import * as ethers from 'ethers';
 
 export type ContractParserHandler = (

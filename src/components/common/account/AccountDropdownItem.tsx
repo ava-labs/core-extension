@@ -13,6 +13,7 @@ import { Account } from '@src/background/services/accounts/models';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -89,6 +90,7 @@ export function AccountDropdownItem({
   const { renameAccount } = useAccountsContext();
   const theme = useTheme();
   const inEditMode = account.active && editing;
+  const totalBalance = useBalanceTotalInCurrency(account);
 
   const editAddress = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -195,8 +197,7 @@ export function AccountDropdownItem({
           height="15px"
           margin="4px 0 0 0"
         >
-          {account.balance !== undefined &&
-            currencyFormatter(Number(account.balance))}
+          {totalBalance !== null && currencyFormatter(totalBalance)}
         </Typography>
       </VerticalFlex>
     </AccountItem>

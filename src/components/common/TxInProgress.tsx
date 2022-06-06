@@ -1,4 +1,5 @@
 import { Overlay } from '@avalabs/react-components';
+import { WalletType } from '@src/background/services/wallet/models';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
@@ -22,7 +23,7 @@ export function TxInProgress({
 }: TxInProgressProps) {
   const { walletType } = useWalletContext();
 
-  if (walletType === 'ledger') {
+  if (walletType === WalletType.LEDGER) {
     return (
       <Overlay>
         <LedgerApprovalDialog
