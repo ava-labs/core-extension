@@ -14,13 +14,15 @@ import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import {
   NetworkTokenWithBalance,
-  NetworkContractTokenWithBalance,
+  TokenWithBalanceERC20,
   TokenWithBalance,
+  TokenType,
 } from './models';
 import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
 import { TokenManagerService } from '../tokens/TokenManagerService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { SettingsService } from '../settings/SettingsService';
+import BN from 'bn.js';
 
 @singleton()
 export class EVMBalancesService {
@@ -55,8 +57,7 @@ export class EVMBalancesService {
 
     return {
       ...network.networkToken,
-      isNetworkToken: true,
-      isERC20: false,
+      type: TokenType.NATIVE,
       balance,
       balanceDisplayValue: balanceToDisplayValue(balance, 18),
       priceUSD: tokenPrice,
@@ -76,32 +77,34 @@ export class EVMBalancesService {
       [address: string]: number;
     },
     userAddress: string
-  ): Promise<NetworkContractTokenWithBalance[]> {
-    const tokensBalances: NetworkContractTokenWithBalance[] =
-      await Promise.allSettled(
-        Object.values(activeTokenList).map(async (token) => {
-          const contract = new ethers.Contract(
-            token.address,
-            ERC20.abi,
-            provider
-          );
-          const balanceBig = await contract.balanceOf(userAddress);
-          const balance =
-            ethersBigNumberToBN(balanceBig) ||
-            numberToBN(0, token.decimals || 18);
+  ): Promise<TokenWithBalanceERC20[]> {
+    const tokensBalances = await Promise.allSettled(
+      Object.values(activeTokenList).map(async (token) => {
+        const contract = new ethers.Contract(
+          token.address,
+          ERC20.abi,
+          provider
+        );
+        const balanceBig = await contract.balanceOf(userAddress);
+        const balance =
+          ethersBigNumberToBN(balanceBig) ||
+          numberToBN(0, token.decimals || 18);
 
-          const tokenWithBalance = {
-            ...token,
-            balance,
-          };
+        const tokenWithBalance = {
+          ...token,
+          balance,
+        };
 
-          return tokenWithBalance;
-        })
-      ).then((res) => {
-        return res.reduce((acc: any[], result) => {
+        return tokenWithBalance;
+      })
+    ).then((res) => {
+      return res.reduce<(NetworkContractToken & { balance: BN })[]>(
+        (acc, result) => {
           return result.status === 'fulfilled' ? [...acc, result.value] : acc;
-        }, []);
-      });
+        },
+        []
+      );
+    });
 
     if (!tokensBalances) return [];
     return tokensBalances.map((token) => {
@@ -117,8 +120,7 @@ export class EVMBalancesService {
 
       return {
         ...token,
-        isNetworkToken: false,
-        isERC20: true,
+        type: TokenType.ERC20,
         balanceDisplayValue,
         priceUSD,
         balanceUSD,

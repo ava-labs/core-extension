@@ -17,7 +17,10 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { formatTokenAmount, useTokenInfoContext } from '@avalabs/bridge-sdk';
 import EthLogo from '@src/images/tokens/eth.png';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
 import Big from 'big.js';
@@ -281,7 +284,9 @@ export function TokenSelect({
                     .map((token) => (
                       <StyledDropdownMenuItem
                         key={
-                          token.isERC20 ? token.address : (token as any).symbol
+                          token.type === TokenType.ERC20
+                            ? token.address
+                            : token.symbol
                         }
                         onClick={() => {
                           onTokenChange(token);

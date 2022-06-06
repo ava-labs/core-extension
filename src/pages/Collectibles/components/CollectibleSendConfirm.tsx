@@ -15,15 +15,12 @@ import { Contact } from '@src/background/services/contacts/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory } from 'react-router-dom';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { BigNumber } from 'ethers';
-import { SendNftState } from '@src/background/services/send/models';
+import { SendState } from '@src/background/services/send/models';
+import { TokenWithBalanceERC721 } from '@src/background/services/balances/models';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -62,19 +59,11 @@ const ContactAddress = styled(Typography)`
 `;
 
 type CollectibleSendConfirmProps = {
-  sendState: SendNftState;
+  sendState: SendState<TokenWithBalanceERC721>;
   contact: Contact;
   nft: NFT;
   tokenId: string;
   onSubmit(): void;
-  onGasChanged(
-    gasLimit: number,
-    gasPrice: BigNumber,
-    feeType: GasFeeModifier
-  ): void;
-  maxGasPrice?: string;
-  gasPrice?: BigNumber;
-  selectedGasFee?: GasFeeModifier;
 };
 
 export const CollectibleSendConfirm = ({
@@ -83,14 +72,9 @@ export const CollectibleSendConfirm = ({
   nft,
   tokenId,
   onSubmit,
-  onGasChanged,
-  maxGasPrice,
-  gasPrice,
-  selectedGasFee,
 }: CollectibleSendConfirmProps) => {
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
-  const { networkFee } = useNetworkFeeContext();
 
   useLedgerDisconnectedDialog(history.goBack);
 
@@ -163,25 +147,6 @@ export const CollectibleSendConfirm = ({
               </HorizontalFlex>
             </VerticalFlex>
           </Card>
-
-          <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
-            <Typography size={12} height="15px" margin="0 8px 0 0">
-              Network Fee
-            </Typography>
-            <TransactionFeeTooltip
-              gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}
-              gasLimit={sendState?.gasLimit}
-            />
-          </HorizontalFlex>
-          <VerticalFlex width="100%">
-            <CustomFees
-              gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
-              limit={sendState?.gasLimit || 0}
-              onChange={onGasChanged}
-              maxGasPrice={maxGasPrice}
-              selectedGasFeeModifier={selectedGasFee}
-            />
-          </VerticalFlex>
 
           <VerticalFlex align="center" justify="flex-end" width="100%" grow="1">
             <HorizontalFlex width="100%" justify="space-between" align="center">

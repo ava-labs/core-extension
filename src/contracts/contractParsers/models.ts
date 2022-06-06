@@ -2,7 +2,7 @@ import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { Network } from '@avalabs/chains-sdk';
 import { DomainMetadata } from '@src/background/models';
 import {
-  NetworkContractTokenWithBalance,
+  TokenWithBalanceERC20,
   NetworkTokenWithBalance,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
@@ -57,7 +57,7 @@ export interface ApproveTransactionData extends TransactionDisplayValues {
 
 export interface DisplayValueParserProps {
   gasPrice: ethers.BigNumber;
-  erc20Tokens: NetworkContractTokenWithBalance[];
+  erc20Tokens: TokenWithBalanceERC20[];
   avaxToken: NetworkTokenWithBalance;
   avaxPrice: number;
   site: DomainMetadata;

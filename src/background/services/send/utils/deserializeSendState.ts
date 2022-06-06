@@ -21,9 +21,9 @@ type SerializedSendState = Omit<
 /**
  * Deserialize SendState after being passed to/from the background.
  */
-export function deserializeSendState(
-  serializedState: SerializedSendState
-): SendState {
+export function deserializeSendState<
+  T extends TokenWithBalance = TokenWithBalance
+>(serializedState: SerializedSendState): SendState<T> {
   return {
     ...serializedState,
     amount: maybeHexToBN(serializedState.amount),
@@ -34,7 +34,7 @@ export function deserializeSendState(
     sendFee: maybeHexToBN(serializedState.sendFee),
     token: serializedState.token
       ? {
-          ...(serializedState.token as any as TokenWithBalance),
+          ...(serializedState.token as any as T),
           balance: hexToBN(serializedState.token.balance),
         }
       : undefined,

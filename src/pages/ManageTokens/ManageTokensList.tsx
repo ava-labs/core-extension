@@ -8,7 +8,10 @@ import {
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 
 type ManageTokensListProps = {
   searchQuery: string;
@@ -22,7 +25,7 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
       {tokensWithBalances
         .filter(
           (token) =>
-            !token.isNetworkToken &&
+            token.type !== TokenType.NATIVE &&
             (searchQuery.length
               ? token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
@@ -30,7 +33,7 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
         )
         .map((token) => (
           <ManageTokensListItem
-            key={token.isERC20 ? token.address : token.symbol}
+            key={token.type === TokenType.ERC20 ? token.address : token.symbol}
             token={token}
           />
         ))}

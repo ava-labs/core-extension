@@ -19,7 +19,11 @@ import {
   SendState,
   ValidSendState,
 } from './models';
-import { NetworkContractTokenWithBalance } from '../balances/models';
+import {
+  TokenType,
+  TokenWithBalanceERC20,
+  TokenWithBalanceERC721,
+} from '../balances/models';
 
 @singleton()
 export class SendServiceEVM implements SendServiceHelper {
@@ -59,9 +63,10 @@ export class SendServiceEVM implements SendServiceHelper {
     const sendFee = gasPrice
       ? new BN(gasLimit).mul(ethersBigNumberToBN(gasPrice))
       : undefined;
-    const maxAmount = token.isNetworkToken
-      ? token.balance.sub(sendFee || new BN(0))
-      : token.balance;
+    const maxAmount =
+      token.type === TokenType.NATIVE
+        ? token.balance.sub(sendFee || new BN(0))
+        : token.balance;
 
     const newState: SendState = {
       ...sendState,
@@ -86,10 +91,10 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!gasPrice || gasPrice.isZero())
       return this.getErrorState(newState, SendErrorMessage.INVALID_NETWORK_FEE);
 
-    if (!amount || amount.isZero())
+    if (token.type !== TokenType.ERC721 && (!amount || amount.isZero()))
       return this.getErrorState(newState, SendErrorMessage.AMOUNT_REQUIRED);
 
-    if (amount.gt(maxAmount))
+    if (amount?.gt(maxAmount))
       return this.getErrorState(
         newState,
         SendErrorMessage.INSUFFICIENT_BALANCE
@@ -146,15 +151,16 @@ export class SendServiceEVM implements SendServiceHelper {
   ): Promise<TransactionRequest> {
     if (!sendState.token) throw new Error('Missing token');
 
-    if (sendState.token.isNetworkToken) {
+    if (sendState.token.type === TokenType.NATIVE) {
       return this.getUnsignedTxNative(sendState);
-    } else if (sendState.token.isERC20) {
+    } else if (sendState.token.type === TokenType.ERC20) {
       return this.getUnsignedTxERC20(
-        sendState as SendState<NetworkContractTokenWithBalance>
+        sendState as SendState<TokenWithBalanceERC20>
       );
-      // TODO ERC721
-      // } else if (sendState.token.isERC20) {
-      //   return this.getUnsignedTxERC721(sendState);
+    } else if (sendState.token.type === TokenType.ERC721) {
+      return this.getUnsignedTxERC721(
+        sendState as SendState<TokenWithBalanceERC721>
+      );
     } else {
       throw new Error('Unsupported token');
     }
@@ -172,7 +178,7 @@ export class SendServiceEVM implements SendServiceHelper {
   }
 
   private async getUnsignedTxERC20(
-    sendState: SendState<NetworkContractTokenWithBalance>
+    sendState: SendState<TokenWithBalanceERC20>
   ): Promise<TransactionRequest> {
     if (!sendState.address)
       throw new Error('Cannot create transaction without an address');
@@ -196,10 +202,8 @@ export class SendServiceEVM implements SendServiceHelper {
   }
 
   private async getUnsignedTxERC721(
-    sendState: SendState<NetworkContractTokenWithBalance>
+    sendState: SendState<TokenWithBalanceERC721>
   ): Promise<TransactionRequest> {
-    throw new Error('untested');
-
     const provider = await this.getProvider();
     const contract = new Contract(
       sendState.token?.address || '',
@@ -208,12 +212,7 @@ export class SendServiceEVM implements SendServiceHelper {
     );
     const populatedTransaction = await contract.populateTransaction[
       'safeTransferFrom(address,address,uint256)'
-    ](
-      sendState.address,
-      sendState.amount
-        ? bnToEthersBigNumber(sendState.amount || new BN(0))
-        : BigNumber.from(0)
-    );
+    ](this.fromAddress, sendState.address, sendState.token?.tokenId);
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction, // only includes `to` and `data`
       from: this.fromAddress,

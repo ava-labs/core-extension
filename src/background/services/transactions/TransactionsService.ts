@@ -7,9 +7,10 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import {
-  NetworkContractTokenWithBalance,
+  TokenWithBalanceERC20,
   NetworkTokenWithBalance,
   TokenWithBalance,
+  TokenType,
 } from '../balances/models';
 import { NetworkBalanceAggregatorService } from '../balances/NetworkBalanceAggregatorService';
 import { NetworkService } from '../network/NetworkService';
@@ -93,12 +94,12 @@ export class TransactionsService {
         this.balancesService.balances?.[activeNetwork?.chainId || '']?.[
           this.accountsService.activeAccount?.addressC || ''
         ] || [];
-      const nativeToken = tokens.filter((t) => t.isNetworkToken);
+      const nativeToken = tokens.filter((t) => t.type === TokenType.NATIVE);
       const displayValueProps: DisplayValueParserProps = {
         gasPrice: gasPrice?.low || BigNumber.from(0),
         erc20Tokens: tokens.filter(
-          (t) => t.isERC20
-        ) as NetworkContractTokenWithBalance[],
+          (t): t is TokenWithBalanceERC20 => t.type === TokenType.ERC20
+        ),
         avaxPrice: nativeToken[0].priceUSD || 0,
         avaxToken: nativeToken[0] as NetworkTokenWithBalance,
         site: site ?? {

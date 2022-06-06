@@ -1,7 +1,10 @@
 import { TokenIcon as TokenImage } from '@src/components/common/TokenImage';
 import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { APIError } from 'paraswap';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 
 interface GetTokenIconProps {
   token?: TokenWithBalance;
@@ -41,7 +44,7 @@ export const getMaxValue = (token?: TokenWithBalance, fee?: string) => {
     return;
   }
 
-  if (token.isNetworkToken) {
+  if (token.type === TokenType.NATIVE) {
     return token.balance.sub(stringToBN(fee, 18));
   }
   return token.balance;
@@ -55,5 +58,5 @@ export const getTokenAddress = (token?: TokenWithBalance) => {
   if (!token) {
     return undefined;
   }
-  return token.isNetworkToken ? token.symbol : token.address;
+  return token.type === TokenType.NATIVE ? token.symbol : token.address;
 };

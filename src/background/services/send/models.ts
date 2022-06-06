@@ -1,4 +1,4 @@
-import { BN } from '@avalabs/avalanche-wallet-sdk';
+import BN from 'bn.js';
 import { BigNumber } from 'ethers';
 import { TokenWithBalance } from '../balances/models';
 import { SignTransactionRequest } from '../wallet/models';
@@ -17,7 +17,7 @@ export const DEFAULT_SEND_HOOK_ERROR: SendError = {
   message: '',
 };
 
-export interface SendState<T = TokenWithBalance> {
+export interface SendState<T extends TokenWithBalance = TokenWithBalance> {
   maxAmount?: BN;
   amount?: BN;
   address?: string;
@@ -29,12 +29,6 @@ export interface SendState<T = TokenWithBalance> {
   loading?: boolean;
   token?: T;
   txId?: string;
-}
-
-export interface SendNftState extends SendState {
-  contractAddress: string;
-  tokenId: number;
-  sendFeeDisplayValue?: string;
 }
 
 export type ValidSendState = SendState &

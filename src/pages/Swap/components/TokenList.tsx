@@ -4,7 +4,10 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 
 interface TokenListProps {
   searchQuery?: string;
@@ -19,7 +22,7 @@ export function TokenList({
   onClick,
   onClose,
 }: TokenListProps) {
-  const AVAX_TOKEN = tokenList.find((token) => token.isNetworkToken);
+  const AVAX_TOKEN = tokenList.find((token) => token.type === TokenType.NATIVE);
   const { currency, currencyFormatter } = useSettingsContext();
   const { tokens, showAvax } = useMemo(() => {
     const tokens = searchQuery
@@ -68,7 +71,7 @@ export function TokenList({
           )}
 
           {tokens
-            ?.filter((token) => token.isNetworkToken)
+            ?.filter((token) => token.type === TokenType.NATIVE)
             .map((token, index) => {
               return (
                 <TokenCard
@@ -95,7 +98,7 @@ export function TokenList({
             })}
 
           {tokens
-            ?.filter((token) => token.isERC20)
+            ?.filter((token) => token.type === TokenType.ERC20)
             .map((token, index) => (
               <TokenCard
                 name={token.name}

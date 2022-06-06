@@ -31,7 +31,10 @@ import { BigNumber } from 'ethers';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { SendState } from '@src/background/services/send/models';
 import { NetworkVMType } from '@avalabs/chains-sdk';
@@ -162,7 +165,11 @@ export const SendConfirm = ({
 
   const balanceAfter = token?.balance
     .sub(sendState?.amount || new BN(0))
-    .sub(token.isNetworkToken ? sendState?.sendFee || new BN(0) : new BN(0));
+    .sub(
+      token.type === TokenType.NATIVE
+        ? sendState?.sendFee || new BN(0)
+        : new BN(0)
+    );
   const balanceAfterDisplay =
     balanceAfter &&
     bigToLocaleString(bnToBig(balanceAfter, token?.decimals), 4);

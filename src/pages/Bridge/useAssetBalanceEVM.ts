@@ -16,8 +16,9 @@ import { useInterval } from '@src/hooks/useInterval';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { bnToBig } from '@avalabs/utils-sdk';
 import {
-  NetworkContractTokenWithBalance,
+  TokenWithBalanceERC20,
   TokenWithBalance,
+  TokenType,
 } from '@src/background/services/balances/models';
 import Big from 'big.js';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -92,9 +93,9 @@ function getAvalancheBalance(
   erc20Tokens: TokenWithBalance[]
 ): Big {
   const erc20TokensByAddress = erc20Tokens.reduce<{
-    [address: string]: NetworkContractTokenWithBalance;
+    [address: string]: TokenWithBalanceERC20;
   }>((tokens, token) => {
-    if (!token.isERC20) {
+    if (token.type !== TokenType.ERC20) {
       return tokens;
     }
     // Need to convert the keys to lowercase because they are mixed case, and this messes up or comparison function

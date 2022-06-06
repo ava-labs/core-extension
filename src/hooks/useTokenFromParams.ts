@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { useTokensWithBalances } from './useTokensWithBalances';
 
 export function useTokenFromParams(withDefault?: true): TokenWithBalance;
@@ -26,9 +29,11 @@ export function useTokenFromParams(withDefault = true) {
 
   useEffect(() => {
     const targetToken = allTokens?.find((token) =>
-      token.isERC20
+      token.type === TokenType.ERC20
         ? token.address === tokenAddress
-        : token.symbol === tokenSymbol
+        : token.type === TokenType.NATIVE
+        ? token.symbol === tokenSymbol
+        : false
     );
     if (!targetToken && !withDefault) return;
     setSelectedToken(targetToken ?? allTokens[0]);

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   toast,
   ComponentSize,
@@ -15,12 +15,10 @@ import {
 } from '@avalabs/react-components';
 import { Contact } from '@src/background/services/contacts/models';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
-import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { GasFeeModifier } from '@src/components/common/CustomFees';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { ContactInput } from '../Send/components/ContactInput';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
@@ -29,30 +27,40 @@ import { useContactFromParams } from '../Send/hooks/useContactFromParams';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
 import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
-import { useSendNft } from '../Send/hooks/useSendNft';
 import { BigNumber } from 'ethers';
+import { TokenWithBalanceERC721 } from '@src/background/services/balances/models';
+import { useSend } from '../Send/hooks/useSend';
+import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { mapTokenFromNFT } from '@src/background/services/send/utils/mapTokenFromNFT';
 
 export function CollectibleSend() {
   const theme = useTheme();
-  const { network } = useNetworkContext();
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const { avaxToken, walletType } = useWalletContext();
   const { nft, tokenId } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
   const { sendState, resetSendState, submitSendState, updateSendState } =
-    useSendNft(nft?.contractAddress || '', Number(tokenId));
+    useSend<TokenWithBalanceERC721>();
   const history = useHistory();
+  const { network } = useNetworkContext();
 
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
-
   const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const [gasPriceState, setGasPrice] = useState<BigNumber>();
 
-  const isMainnet = useIsMainnet();
+  const nftItem = nft?.nftData.find((item) => item.tokenId === tokenId);
+
+  useEffect(() => {
+    if (nft && nftItem && !sendState.token) {
+      updateSendState({
+        token: mapTokenFromNFT(nft, nftItem),
+      });
+    }
+  }, [nft, nftItem, sendState.token, updateSendState]);
 
   const onContactChanged = (contact: Contact) => {
     setCollectibleParams({
@@ -70,16 +78,21 @@ export function CollectibleSend() {
 
   const onGasChanged = useCallback(
     (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
-      setGasPrice(gasPrice);
       updateSendState({
-        address: contactInput?.address,
         gasLimit,
         gasPrice,
       });
       setSelectedGasFee(feeType);
     },
-    [contactInput?.address, updateSendState]
+    [updateSendState]
   );
+
+  function getURL(hash: string | undefined): string {
+    if (hash && network) {
+      return getExplorerAddressByNetwork(network, hash);
+    }
+    return '';
+  }
 
   const onSubmit = () => {
     setShowTxInProgress(true);
@@ -107,7 +120,7 @@ export function CollectibleSend() {
             status="Transaction Successful"
             type={TransactionToastType.SUCCESS}
             text="View in Explorer"
-            href={txId ? getTransactionLink(txId, isMainnet) : ''}
+            href={getURL(txId)}
           />,
           { id: toastId }
         );
@@ -129,7 +142,6 @@ export function CollectibleSend() {
       });
   };
 
-  const nftItem = nft?.nftData.find((item) => item.tokenId === tokenId);
   if (!nft || !tokenId || !nftItem) {
     return <Redirect to={'/'} />;
   }
@@ -140,7 +152,7 @@ export function CollectibleSend() {
         <>
           {showTxInProgress && (
             <TxInProgress
-              address={sendState?.contractAddress}
+              address={sendState?.token?.address}
               nftName={nftItem.externalData?.name}
               fee={bnToLocaleString(
                 sendState?.sendFee || new BN(0),
@@ -155,10 +167,6 @@ export function CollectibleSend() {
             nft={nft}
             tokenId={tokenId}
             onSubmit={onSubmit}
-            onGasChanged={onGasChanged}
-            maxGasPrice={maxGasPrice}
-            gasPrice={gasPriceState}
-            selectedGasFee={selectedGasFee}
           />
         </>
       </Route>
@@ -197,6 +205,28 @@ export function CollectibleSend() {
                 </HorizontalFlex>
               </Card>
             </VerticalFlex>
+
+            <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
+              <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
+                <Typography size={12} height="15px" margin="0 8px 0 0">
+                  Network Fee
+                </Typography>
+                <TransactionFeeTooltip
+                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+                  gasLimit={sendState?.gasLimit}
+                />
+              </HorizontalFlex>
+              <VerticalFlex width="100%">
+                <CustomFees
+                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+                  limit={sendState?.gasLimit || 0}
+                  onChange={onGasChanged}
+                  maxGasPrice={maxGasPrice}
+                  selectedGasFeeModifier={selectedGasFee}
+                />
+              </VerticalFlex>
+            </VerticalFlex>
+
             <VerticalFlex
               align="center"
               justify="flex-end"

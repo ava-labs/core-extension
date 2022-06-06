@@ -1,4 +1,7 @@
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -24,7 +27,7 @@ export function useSetSendDataInParams() {
         pathname: options?.path ?? pathname,
         search: `?${new URLSearchParams({
           tokenSymbol: token?.symbol || network?.networkToken.symbol || '',
-          tokenAddress: token?.isERC20 ? token?.address : '',
+          tokenAddress: token?.type === TokenType.ERC20 ? token?.address : '',
           address: address ?? '',
         }).toString()}`,
       });

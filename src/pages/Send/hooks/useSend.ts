@@ -1,4 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { SendState } from '@src/background/services/send/models';
 import { deserializeSendState } from '@src/background/services/send/utils/deserializeSendState';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -10,15 +14,20 @@ import {
   useRef,
   useState,
 } from 'react';
-import { DEFAULT_SEND_FORM, SendStateWithActions } from '../models';
+import { getDefaultSendForm, SendStateWithActions } from '../models';
 
-export function useSend(): SendStateWithActions {
+export function useSend<
+  T extends TokenWithBalance = TokenWithBalance
+>(): SendStateWithActions<T> {
   const backgroundQueue = useRef(Queue({ autostart: true, concurrency: 1 }));
-  const [sendState, setSendState] = useState<SendState>(DEFAULT_SEND_FORM);
-  const stateRef = useRef<SendState>(sendState);
+  const [sendState, setSendState] = useState<SendState<T>>(getDefaultSendForm);
+  const stateRef = useRef<SendState<T>>(sendState);
   const { request } = useConnectionContext();
 
-  const resetSendState = useCallback(() => setSendState(DEFAULT_SEND_FORM), []);
+  const resetSendState = useCallback(
+    () => setSendState(getDefaultSendForm),
+    []
+  );
 
   // Keep a ref to the sendState so it doesn't need to be a dependency of
   // updateSendState, otherwise it causes infinite rerenders in Send.tsx.
@@ -28,13 +37,13 @@ export function useSend(): SendStateWithActions {
 
   useEffect(() => {
     // Get initial maxAmount, fees, etc.
-    if (!sendState.maxAmount) updateSendState(sendState);
+    if (sendState.loading) updateSendState(sendState);
     // ONLY run once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateSendState = useCallback(
-    (updates: Partial<SendState>) => {
+    (updates: Partial<SendState<T>>) => {
       // Updates are queued because the SEND_VALIDATE call may modify the state
       // and we want to ensure that subsequent updates have the latest state.
       backgroundQueue.current.push(async () => {
@@ -69,15 +78,22 @@ export function useSend(): SendStateWithActions {
   };
 }
 
-function getUpdatedState(
-  updates: Partial<SendState>,
-  current: SendState
-): SendState {
+function getUpdatedState<T extends TokenWithBalance>(
+  updates: Partial<SendState<T>>,
+  current: SendState<T>
+): SendState<T> {
   const newState = { ...current, ...updates };
 
-  // Reset gasLimit when the address changes because a different address can
-  // affect the gasLimit estimate.
-  if (updates.address && updates.address !== current.address) {
+  const shouldResetGasLimit =
+    // A different address can affect the gasLimit estimate
+    (updates.address && updates.address !== current.address) ||
+    // A different token will affect the gasLimit estimate
+    updates.token?.type !== current.token?.type ||
+    (updates.token?.type === TokenType.ERC20 &&
+      current.token?.type === TokenType.ERC20 &&
+      updates.token?.symbol !== current.token?.symbol);
+
+  if (shouldResetGasLimit) {
     delete newState.gasLimit;
   }
 

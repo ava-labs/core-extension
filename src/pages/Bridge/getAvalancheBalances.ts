@@ -7,8 +7,9 @@ import {
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { bnToBig } from '@avalabs/utils-sdk';
 import {
-  NetworkContractTokenWithBalance,
+  TokenWithBalanceERC20,
   TokenWithBalance,
+  TokenType,
 } from '@src/background/services/balances/models';
 
 /**
@@ -21,9 +22,9 @@ export function getAvalancheBalances(
   erc20Tokens: TokenWithBalance[]
 ): AssetBalance[] {
   const erc20TokensByAddress = erc20Tokens.reduce<{
-    [address: string]: NetworkContractTokenWithBalance;
+    [address: string]: TokenWithBalanceERC20;
   }>((tokens, token) => {
-    if (!token.isERC20) {
+    if (token.type !== TokenType.ERC20) {
       return tokens;
     }
     // Need to convert the keys to lowercase because they are mixed case, and this messes up or comparison function

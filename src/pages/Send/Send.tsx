@@ -35,7 +35,10 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { BigNumber } from 'ethers';
 import BN from 'bn.js';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 export function SendPage() {
@@ -125,7 +128,9 @@ export function SendPage() {
           options: { replace: true },
         });
       updateSendState({ token });
-      sendTokenSelectedAnalytics(token.isERC20 ? token.address : token.symbol);
+      sendTokenSelectedAnalytics(
+        token.type === TokenType.ERC20 ? token.address : token.symbol
+      );
     },
     [
       contactInput?.address,
@@ -201,10 +206,11 @@ export function SendPage() {
   ]);
 
   const maxGasPrice =
-    selectedToken?.isNetworkToken && amountInput
+    selectedToken?.type === TokenType.NATIVE && amountInput
       ? selectedToken.balance.sub(amountInput).toString()
-      : tokensWBalances.find((t) => t.isNetworkToken)?.balance.toString() ||
-        '0';
+      : tokensWBalances
+          .find((t) => t.type === TokenType.NATIVE)
+          ?.balance.toString() || '0';
 
   const onGasChanged = useCallback(
     (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
@@ -218,12 +224,13 @@ export function SendPage() {
     [updateSendState]
   );
 
-  function getURL(hash: string | undefined | void): string {
+  function getURL(hash: string | undefined): string {
     if (hash && network) {
       return getExplorerAddressByNetwork(network, hash);
     }
     return '';
   }
+
   const onSubmit = () => {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;

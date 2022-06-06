@@ -7,8 +7,7 @@ export enum BalanceServiceEvents {
 }
 
 interface TokenBalanceData {
-  isNetworkToken: boolean;
-  isERC20: boolean;
+  type: TokenType;
   balance: BN;
   balanceUSD?: number;
   balanceDisplayValue?: string;
@@ -17,23 +16,39 @@ interface TokenBalanceData {
   utxos?: BitcoinInputUTXO[];
 }
 
-export interface NetworkContractTokenWithBalance
+export enum TokenType {
+  NATIVE = 'NATIVE',
+  ERC20 = 'ERC20',
+  ERC721 = 'ERC721',
+}
+
+export interface TokenWithBalanceERC20
   extends TokenBalanceData,
     NetworkContractToken {
-  isERC20: true;
-  isNetworkToken: false;
+  type: TokenType.ERC20;
+}
+
+export interface TokenWithBalanceERC721 extends TokenBalanceData {
+  type: TokenType.ERC721;
+  address: string;
+  decimals: number;
+  description: string;
+  logoUri: string;
+  name: string;
+  symbol: string;
+  tokenId: string;
 }
 
 export interface NetworkTokenWithBalance
   extends TokenBalanceData,
     NetworkToken {
-  isERC20: false;
-  isNetworkToken: true;
+  type: TokenType.NATIVE;
 }
 
 export type TokenWithBalance =
   | NetworkTokenWithBalance
-  | NetworkContractTokenWithBalance;
+  | TokenWithBalanceERC20
+  | TokenWithBalanceERC721;
 
 export interface TokenListDict {
   [contract: string]: TokenWithBalance;

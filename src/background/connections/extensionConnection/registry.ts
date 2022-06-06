@@ -58,9 +58,6 @@ import { GetPermissionsForDomainHandler } from '@src/background/services/permiss
 import { SendTxDetailsEvents } from '@src/background/services/send/events/sendTxDetailsEvent';
 import { SendSubmitHandler } from '@src/background/services/send/handlers/SendSubmitHandler';
 import { SendValidateHandler } from '@src/background/services/send/handlers/SendValidateHandler';
-import { SendNftResetHandler } from '@src/background/services/send/sendNft/handlers/resetSendNftState';
-import { SendNftSubmitHandler } from '@src/background/services/send/sendNft/handlers/submitSendNftState';
-import { SendNftValidateHandler } from '@src/background/services/send/sendNft/handlers/validateSendNftState';
 import { SettingsUpdatedEvents } from '@src/background/services/settings/events/settingsUpdatedEvent';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
 import { GetIsDefaultExtensionHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
@@ -178,9 +175,6 @@ import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/ha
   },
   { token: 'ExtensionRequestHandler', useToken: SendSubmitHandler },
   { token: 'ExtensionRequestHandler', useToken: SendValidateHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendNftResetHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendNftSubmitHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendNftValidateHandler },
   { token: 'ExtensionRequestHandler', useToken: AddCustomTokenHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: GetSettingsHandler },

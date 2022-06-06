@@ -1,15 +1,17 @@
 import { Erc20Token, getErc20Token } from '@avalabs/avalanche-wallet-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { NetworkContractTokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalanceERC20,
+} from '@src/background/services/balances/models';
 import { NetworkBalanceAggregatorService } from '@src/background/services/balances/NetworkBalanceAggregatorService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import BN from 'bn.js';
 import { container } from 'tsyringe';
 
-const UNKNOWN_TOKEN = (address: string): NetworkContractTokenWithBalance => ({
+const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
   address,
-  isERC20: true,
-  isNetworkToken: false,
+  type: TokenType.ERC20,
   contractType: 'ERC-20',
   name: 'UNKNOWN TOKEN',
   symbol: '-',
@@ -20,7 +22,7 @@ const UNKNOWN_TOKEN = (address: string): NetworkContractTokenWithBalance => ({
 
 export async function findToken(
   address: string
-): Promise<NetworkContractTokenWithBalance> {
+): Promise<TokenWithBalanceERC20> {
   // TODO refactor to use contstructor / services instead of container.resolve
   const balancesService = container.resolve(NetworkBalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
@@ -36,9 +38,13 @@ export async function findToken(
 
   const token = balancesService.balances[activeNetwork.chainId]?.[
     accountsService.activeAccount.addressC
-  ].find((t) => t.isERC20 && t.address.toLowerCase() === address.toLowerCase());
+  ].find(
+    (t) =>
+      t.type === TokenType.ERC20 &&
+      t.address.toLowerCase() === address.toLowerCase()
+  );
 
-  if (token && token.isERC20) {
+  if (token && token.type === TokenType.ERC20) {
     return token;
   }
 
@@ -61,8 +67,7 @@ export async function findToken(
   return {
     ...tokenData,
     balance: balance,
-    isERC20: true,
-    isNetworkToken: false,
+    type: TokenType.ERC20,
     contractType: 'ERC-20',
     description: '',
   };

@@ -42,6 +42,7 @@ import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useSyncBridgeConfig } from './useSyncBridgeConfig';
 import BN from 'bn.js';
 import Big from 'big.js';
+import { TokenType } from '@src/background/services/balances/models';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -296,8 +297,7 @@ export function Bridge() {
                   isValueLoading={loading}
                   selectedToken={
                     sourceBalance && {
-                      isERC20: true,
-                      isNetworkToken: false,
+                      type: TokenType.ERC20,
                       balanceDisplayValue: formatBalance(sourceBalance.balance),
                       balance: bigToBN(
                         sourceBalance.balance || BIG_ZERO,

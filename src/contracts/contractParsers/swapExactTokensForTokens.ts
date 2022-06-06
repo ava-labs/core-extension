@@ -11,8 +11,8 @@ import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
-import { NetworkContractTokenWithBalance } from '@src/background/services/balances/models';
 import { Network } from '@avalabs/chains-sdk';
+import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 
 export interface SwapExactTokensForTokenData {
   amountInMin: BigNumber;
@@ -46,7 +46,7 @@ export async function swapExactTokensForTokenHandler(
   const lastTokenInPath = data.path[data.path.length - 1];
   const path: erc20PathToken[] = await Promise.all(
     data.path.map(async (address) => {
-      const pathToken: NetworkContractTokenWithBalance = await findToken(
+      const pathToken: TokenWithBalanceERC20 = await findToken(
         address.toLowerCase()
       );
 

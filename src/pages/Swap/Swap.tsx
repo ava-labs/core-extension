@@ -44,7 +44,10 @@ import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavaila
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { getTransactionLink } from '@avalabs/wallet-react-components';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import BN from 'bn.js';
@@ -231,7 +234,11 @@ export function Swap() {
   }, [calculateTokenValueToInput, pageHistory]);
 
   useEffect(() => {
-    if (customGasPrice && gasLimit && selectedFromToken?.isNetworkToken) {
+    if (
+      customGasPrice &&
+      gasLimit &&
+      selectedFromToken?.type === TokenType.NATIVE
+    ) {
       const newFees = calculateGasAndFees({
         gasPrice: customGasPrice,
         gasLimit,
@@ -498,10 +505,11 @@ export function Swap() {
   }
 
   const maxGasPrice =
-    selectedFromToken?.isNetworkToken && fromTokenValue
+    selectedFromToken?.type === TokenType.NATIVE && fromTokenValue
       ? selectedFromToken.balance.sub(fromTokenValue.bn).toString()
-      : tokensWBalances.find((t) => t.isNetworkToken)?.balance.toString() ||
-        '0';
+      : tokensWBalances
+          .find((t) => t.type === TokenType.NATIVE)
+          ?.balance.toString() || '0';
 
   const canSwap =
     !swapError.message &&
@@ -538,7 +546,7 @@ export function Swap() {
                 destinationInputField,
               });
               sendTokenSelectedAnalytics(
-                token.isERC20 ? token.address : token.symbol
+                token.type === TokenType.ERC20 ? token.address : token.symbol
               );
             }}
             onSelectToggle={() => {
@@ -572,7 +580,7 @@ export function Swap() {
               if (
                 maxFromValue &&
                 value.bn.eq(maxFromValue) &&
-                selectedFromToken?.isNetworkToken
+                selectedFromToken?.type === TokenType.NATIVE
               ) {
                 setIsCalculateAvaxMax(true);
               }
@@ -662,7 +670,7 @@ export function Swap() {
                 destinationInputField,
               });
               sendTokenSelectedAnalytics(
-                token.isERC20 ? token.address : token.symbol
+                token.type === TokenType.ERC20 ? token.address : token.symbol
               );
             }}
             onSelectToggle={() => {

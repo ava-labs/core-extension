@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { NetworkContractTokenWithBalance } from '@src/background/services/balances/models';
+import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -36,7 +36,7 @@ export function CustomSpendLimit({
   setSpendLimit,
   site,
 }: {
-  token: NetworkContractTokenWithBalance;
+  token: TokenWithBalanceERC20;
   setSpendLimit(limitData: SpendLimit): void;
   onClose(): void;
   spendLimit: SpendLimit;

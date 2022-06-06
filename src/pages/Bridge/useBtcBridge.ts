@@ -48,7 +48,6 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const { balances } = useBalancesContext();
   const { activeAccount } = useAccountsContext();
 
-  const [loading, setLoading] = useState(false);
   const [btcBalance, setBtcBalance] = useState<AssetBalance>();
   const [btcBalanceAvalanche, setBtcBalanceAvalanche] =
     useState<AssetBalance>();
@@ -78,6 +77,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   /** Minimum transfer amount (in BTC) */
   const [minimum, setMinimum] = useState<Big>();
 
+  const loading = !btcBalance || !btcBalanceAvalanche || !networkFee;
   const amountInSatoshis = btcToSatoshi(amountInBtc);
 
   const btcAsset = config && getBtcAsset(config);

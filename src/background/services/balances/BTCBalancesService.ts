@@ -5,7 +5,7 @@ import { TokenPricesService } from '@src/background/services/balances/TokenPrice
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { singleton } from 'tsyringe';
 import { SettingsService } from '../settings/SettingsService';
-import { TokenWithBalance } from './models';
+import { TokenType, TokenWithBalance } from './models';
 
 @singleton()
 export class BTCBalancesService {
@@ -47,8 +47,7 @@ export class BTCBalancesService {
     return [
       {
         ...network.networkToken,
-        isERC20: false,
-        isNetworkToken: true,
+        type: TokenType.NATIVE,
         balance,
         balanceDisplayValue: balanceToDisplayValue(balance, denomination),
         balanceUsdDisplayValue: tokenPrice

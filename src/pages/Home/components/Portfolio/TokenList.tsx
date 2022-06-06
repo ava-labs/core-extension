@@ -20,6 +20,7 @@ import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import styled, { useTheme } from 'styled-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
+import { TokenType } from '@src/background/services/balances/models';
 
 const LogoContainer = styled.div`
   margin: 0 16px;
@@ -123,10 +124,15 @@ export function TokenList({ searchQuery }: TokenListProps) {
                     options: { path: '/token' },
                   });
                   capture('TokenListTokenSelected', {
-                    selectedToken: token.isERC20 ? token.address : token.symbol,
+                    selectedToken:
+                      token.type === TokenType.ERC20
+                        ? token.address
+                        : token.symbol,
                   });
                 }}
-                key={token.isERC20 ? token.address : token.symbol}
+                key={
+                  token.type === TokenType.ERC20 ? token.address : token.symbol
+                }
                 name={token.name}
                 symbol={token.symbol}
                 balanceDisplayValue={token.balanceDisplayValue}
