@@ -5,6 +5,7 @@ import {
   ComponentSize,
   HorizontalFlex,
   HorizontalSeparator,
+  LoadingSpinnerIcon,
   PrimaryButton,
   TextButton,
   Typography,
@@ -37,9 +38,11 @@ export function AccountDropdownContent({
   const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
     null
   );
+  const [addAccountLoading, setAddAccountLoading] = useState<boolean>(false);
   const { capture } = useAnalyticsContext();
 
   const addAccountAndFocus = async () => {
+    setAddAccountLoading(true);
     try {
       await addAccount();
       const nextIndex = accounts.length;
@@ -50,6 +53,7 @@ export function AccountDropdownContent({
     } catch (e) {
       setHasError(true);
     }
+    setAddAccountLoading(false);
   };
 
   useEffect(() => {
@@ -143,6 +147,7 @@ export function AccountDropdownContent({
       >
         <PrimaryButton
           size={ComponentSize.LARGE}
+          disabled={addAccountLoading}
           width="100%"
           onClick={() => {
             capture('AccountSelectorAddAccount', {
@@ -151,7 +156,11 @@ export function AccountDropdownContent({
             addAccountAndFocus();
           }}
         >
-          Add Account
+          {addAccountLoading ? (
+            <LoadingSpinnerIcon color={theme.colors.icon1} height="24px" />
+          ) : (
+            'Add Account'
+          )}
         </PrimaryButton>
       </HorizontalFlex>
     </Card>
