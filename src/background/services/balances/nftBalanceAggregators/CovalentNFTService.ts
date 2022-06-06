@@ -2,6 +2,10 @@ import { ChainId, Network } from '@avalabs/chains-sdk';
 import { Covalent, GetAddressBalanceV2Item } from '@avalabs/covalent-sdk';
 import { singleton } from 'tsyringe';
 import { NFT, NFTAggregatorService } from './models';
+import {
+  convertIPFSResolver,
+  getSmallImageForNFT,
+} from './utils/convertIPFSResolver';
 
 @singleton()
 export class CovalentNFTService implements NFTAggregatorService {
@@ -43,8 +47,8 @@ export class CovalentNFTService implements NFTAggregatorService {
           externalData: nft.external_data && {
             name: nft.external_data.name,
             description: nft.external_data.description,
-            image: nft.external_data.image,
-            imageSmall: nft.external_data.image_256,
+            image: convertIPFSResolver(nft.external_data.image),
+            imageSmall: getSmallImageForNFT(nft.external_data.image),
             animationUrl: nft.external_data.animation_url,
             externalUrl: nft.external_data.external_url,
             owner: nft.external_data.owner,
