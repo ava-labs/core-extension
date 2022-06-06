@@ -1,7 +1,11 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DappRequestHandler } from '@src/background/connections/models';
+import { DAppRequestHandler } from '@src/background/connections/models';
+import { injectable } from 'tsyringe';
 
-class MetamaskSendDomainMetadataHandler implements DappRequestHandler {
+@injectable()
+export class MetamaskSendDomainMetadataHandler implements DAppRequestHandler {
+  methods = [DAppProviderRequest.DOMAIN_METADATA_METHOD];
+
   handleUnauthenticated = async (request) => {
     return { ...request, result: request.params };
   };
@@ -10,11 +14,3 @@ class MetamaskSendDomainMetadataHandler implements DappRequestHandler {
     return this.handleUnauthenticated(request);
   };
 }
-
-export const SetDomainMetadataRequest: [
-  DAppProviderRequest,
-  DappRequestHandler
-] = [
-  DAppProviderRequest.DOMAIN_METADATA_METHOD,
-  new MetamaskSendDomainMetadataHandler(),
-];

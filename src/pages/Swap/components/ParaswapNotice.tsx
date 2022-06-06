@@ -11,7 +11,7 @@ import { useTheme } from 'styled-components';
 const TooltipContent = (
   <VerticalFlex width="240px">
     <Typography size={12}>
-      You will interact directly with Paraswap&apos;s smart contracts
+      You will interact directly with Paraswap&apos;s smart contracts.
     </Typography>
   </VerticalFlex>
 );
@@ -25,7 +25,7 @@ export function ParaswapNotice() {
       </Typography>
       <ParaswapIcon color={theme.colors.text1} />
       <HorizontalFlex margin="0 0 0 6px">
-        <Tooltip  placement={'top'} content={TooltipContent}>
+        <Tooltip placement={'top'} content={TooltipContent}>
           <InfoIcon height="12px" color={theme.colors.text1} />
         </Tooltip>
       </HorizontalFlex>

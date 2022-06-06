@@ -1,6 +1,6 @@
-import { NFT } from '@avalabs/blizzard-sdk';
 import { TextButton } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
 import { CollectibleMedia } from './CollectibleMedia';
@@ -27,7 +27,7 @@ export function CollectibleGrid({
 }: {
   onClick: (nft: NFT, tokenId: string) => void;
 }) {
-  const { nfts } = useWalletContext();
+  const { nfts } = useBalancesContext();
   return (
     <StyledMasonry
       className="masonry"
@@ -43,7 +43,7 @@ export function CollectibleGrid({
             <CollectibleMedia
               width="164px"
               height="auto"
-              url={nft.externalData.image}
+              url={nft.externalData?.image}
               hover={false}
               margin="0 0 16px"
             />

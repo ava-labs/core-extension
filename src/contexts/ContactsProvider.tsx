@@ -1,12 +1,5 @@
-import { ExtensionRequest } from '@src/background/connections/models';
-import {
-  createContext,
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import {
@@ -18,8 +11,8 @@ import { contactsUpdatedEventListener } from '@src/background/services/contacts/
 type ContactsFromProvider = ContactsState & {
   createContact(contact: Contact): Promise<any>;
   removeContact(contact: Contact): Promise<any>;
-  editedContact: Contact;
-  setEditedContact: Dispatch<SetStateAction<Contact>>;
+  updateContact(contact: Contact): Promise<any>;
+  getContactById(contactId: string): Contact;
 };
 
 const ContactsContext = createContext<ContactsFromProvider>({} as any);
@@ -28,11 +21,6 @@ export function ContactsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [contacts, setContacts] = useState<ContactsState>({
     contacts: [],
-  });
-  const [editedContact, setEditedContact] = useState<Contact>({
-    id: '',
-    name: '',
-    address: '',
   });
 
   useEffect(() => {
@@ -58,6 +46,10 @@ export function ContactsContextProvider({ children }: { children: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getContactById = (contactId: string) => {
+    return contacts.contacts.filter((c) => c.id === contactId)[0];
+  };
+
   async function createContact(contact: Contact) {
     const contactCopy = {
       ...contact,
@@ -66,6 +58,13 @@ export function ContactsContextProvider({ children }: { children: any }) {
     await request({
       method: ExtensionRequest.CONTACTS_CREATE,
       params: [contactCopy],
+    });
+  }
+
+  async function updateContact(contact: Contact) {
+    await request({
+      method: ExtensionRequest.CONTACTS_UPDATE,
+      params: [contact],
     });
   }
 
@@ -81,9 +80,9 @@ export function ContactsContextProvider({ children }: { children: any }) {
       value={{
         ...contacts,
         createContact,
-        editedContact,
         removeContact,
-        setEditedContact,
+        updateContact,
+        getContactById,
       }}
     >
       {children}

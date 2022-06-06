@@ -1,14 +1,14 @@
-import { NFT } from '@avalabs/blizzard-sdk';
+import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
 import { TokenCard, VerticalFlex } from '@avalabs/react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { CollectibleMedia } from './CollectibleMedia';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 
 export function CollectibleList({
   onClick,
 }: {
   onClick: (nft: NFT, tokenId: string) => void;
 }) {
-  const { nfts } = useWalletContext();
+  const { nfts } = useBalancesContext();
   return (
     <VerticalFlex padding="0 16px 72px">
       {nfts.items?.map((collection, i) =>
@@ -24,7 +24,7 @@ export function CollectibleList({
               height="32px"
               width="auto"
               maxWidth="32px"
-              url={nft.externalData.imageSmall}
+              url={nft.externalData?.imageSmall}
               hover={false}
               margin="8px 0"
               showPlayIcon={false}

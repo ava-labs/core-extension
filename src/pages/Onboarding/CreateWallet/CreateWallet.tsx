@@ -23,9 +23,10 @@ export function CreateWallet({
   return isCopied ? (
     <ConfirmPhrase
       onBack={() => setIsCopied(false)}
-      onNext={() =>
-        setMnemonic(mnemonic).then(() => setNextPhase(OnboardingPhase.FINALIZE))
-      }
+      onNext={() => {
+        setMnemonic(mnemonic);
+        setNextPhase(OnboardingPhase.FINALIZE);
+      }}
       onCancel={onCancel}
       mnemonic={mnemonic}
     />

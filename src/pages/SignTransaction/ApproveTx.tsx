@@ -117,7 +117,7 @@ export function ApproveTx({
           <TransactionTabs
             byteStr={txParams.data}
             gasPrice={gasPrice}
-            limit={gasLimit?.toString() as string}
+            limit={gasLimit}
             onCustomFeeSet={onCustomFeeSet}
             selectedGasFee={selectedGasFee}
           />
@@ -125,7 +125,7 @@ export function ApproveTx({
           <SuccessFailTxInfo
             hash={hash}
             gasPrice={gasPrice}
-            gasLimit={gasLimit?.toString() ?? ''}
+            gasLimit={gasLimit ?? 0}
             error={error}
           />
         )}

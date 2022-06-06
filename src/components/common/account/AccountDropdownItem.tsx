@@ -1,4 +1,5 @@
 import {
+  AvaxTokenIcon,
   ComponentSize,
   HorizontalFlex,
   PencilIcon,
@@ -9,8 +10,10 @@ import {
   WordInput,
 } from '@avalabs/react-components';
 import { Account } from '@src/background/services/accounts/models';
+import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -31,6 +34,10 @@ const AccountName = styled(Typography)`
   line-height: 17px;
   font-weight: 500;
   margin: 0;
+`;
+
+const LogoContainer = styled.span`
+  margin-right: 8px;
 `;
 
 const AccountNameInput = styled(WordInput)`
@@ -57,7 +64,7 @@ const AccountItem = styled(HorizontalFlex)<{
   background-color: ${({ theme, selected }) =>
     selected ? theme.colors.stroke1 : 'auto'};
   width: 100%;
-  height: ${({ edit }) => (edit ? '57px' : '48px')};
+  height: ${({ edit }) => (edit ? '87px' : '78px')};
   padding: 8px 16px;
   z-index: ${({ selected }) => (selected ? 2 : 'unset')};
   margin-top: ${({ selected }) => (selected ? `-1px` : '0')};
@@ -83,6 +90,7 @@ export function AccountDropdownItem({
   const { renameAccount } = useAccountsContext();
   const theme = useTheme();
   const inEditMode = account.active && editing;
+  const totalBalance = useBalanceTotalInCurrency(account);
 
   const editAddress = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -145,19 +153,42 @@ export function AccountDropdownItem({
             </>
           )}
         </HorizontalFlex>
-        <SimpleAddress
-          address={account.addressC}
-          typographyProps={{
-            size: 12,
-            height: '15px',
-            color: theme.colors.text2,
-            margin: '0 8px 0 0',
-          }}
-          copyIconProps={{
-            height: '12px',
-            color: account.active ? theme.colors.icon1 : theme.colors.icon2,
-          }}
-        />
+        <HorizontalFlex margin="4px 0 0 0">
+          <LogoContainer>
+            <AvaxTokenIcon height="16" />
+          </LogoContainer>
+          <SimpleAddress
+            address={account.addressC}
+            typographyProps={{
+              size: 12,
+              height: '15px',
+              color: theme.colors.text2,
+              margin: '0 8px 0 0',
+            }}
+            copyIconProps={{
+              height: '12px',
+              color: account.active ? theme.colors.icon1 : theme.colors.icon2,
+            }}
+          />
+        </HorizontalFlex>
+        <HorizontalFlex margin="4px 0 0 0">
+          <LogoContainer>
+            <BitcoinLogo height="16" />
+          </LogoContainer>
+          <SimpleAddress
+            address={account.addressBTC}
+            typographyProps={{
+              size: 12,
+              height: '15px',
+              color: theme.colors.text2,
+              margin: '0 8px 0 0',
+            }}
+            copyIconProps={{
+              height: '12px',
+              color: account.active ? theme.colors.icon1 : theme.colors.icon2,
+            }}
+          />
+        </HorizontalFlex>
       </VerticalFlex>
       <VerticalFlex align="flex-end">
         <Typography
@@ -166,7 +197,7 @@ export function AccountDropdownItem({
           height="15px"
           margin="4px 0 0 0"
         >
-          {account.balance !== undefined && currencyFormatter(account.balance)}
+          {totalBalance !== null && currencyFormatter(totalBalance)}
         </Typography>
       </VerticalFlex>
     </AccountItem>

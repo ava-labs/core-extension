@@ -15,13 +15,10 @@ import {
 } from '@avalabs/react-components';
 import { Contact } from '@src/background/services/contacts/models';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
-import { getTransactionLink } from '@avalabs/wallet-react-components';
-import { GasPrice } from '@src/background/services/gas/models';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
-import { useIsMainnet } from '@src/hooks/useIsMainnet';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { GasFeeModifier } from '@src/components/common/CustomFees';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { ContactInput } from '../Send/components/ContactInput';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
@@ -29,39 +26,48 @@ import { CollectibleMedia } from './components/CollectibleMedia';
 import { useContactFromParams } from '../Send/hooks/useContactFromParams';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
-import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
-import { useSendNft } from '../Send/hooks/useSendNft';
+import { BigNumber } from 'ethers';
+import {
+  TokenType,
+  TokenWithBalanceERC721,
+} from '@src/background/services/balances/models';
+import { useSend } from '../Send/hooks/useSend';
+import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { mapTokenFromNFT } from '@src/background/services/send/utils/mapTokenFromNFT';
+import { WalletType } from '@src/background/services/wallet/models';
+import { bnToLocaleString } from '@avalabs/utils-sdk';
+import { BN } from 'bn.js';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 export function CollectibleSend() {
   const theme = useTheme();
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
-  const { avaxToken, walletType } = useWalletContext();
+  const { walletType } = useWalletContext();
   const { nft, tokenId } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
-  const sendState = useSendNft(nft?.contractAddress || '', Number(tokenId));
+  const { sendState, resetSendState, submitSendState, updateSendState } =
+    useSend<TokenWithBalanceERC721>();
   const history = useHistory();
+  const { network } = useNetworkContext();
+  const tokensWithBalances = useTokensWithBalances(true);
 
-  const setSendState = sendState.setValues;
-
-  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice>();
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
-
   const [showTxInProgress, setShowTxInProgress] = useState(false);
-  const [gasPriceState, setGasPrice] = useState<GasPrice>();
 
-  const isMainnet = useIsMainnet();
+  const nftItem = nft?.nftData.find((item) => item.tokenId === tokenId);
 
   useEffect(() => {
-    if (!defaultGasPrice && sendState.gasPrice) {
-      setDefaultGasPrice({
-        bn: sendState.gasPrice,
-        value: sendState.gasPrice.toString(),
+    if (nft && nftItem && !sendState.token) {
+      updateSendState({
+        token: mapTokenFromNFT(nft, nftItem),
       });
     }
-  }, [defaultGasPrice, sendState.gasPrice]);
+  }, [nft, nftItem, sendState.token, updateSendState]);
 
   const onContactChanged = (contact: Contact) => {
     setCollectibleParams({
@@ -70,32 +76,40 @@ export function CollectibleSend() {
       address: contact.address,
       options: { replace: true },
     });
-    setSendState({
+    updateSendState({
       address: contact.address,
     });
   };
 
-  const maxGasPrice = avaxToken.balance.toString();
+  const maxGasPrice =
+    tokensWithBalances
+      ?.find((t) => t.type === TokenType.NATIVE)
+      ?.balance.toString() || '0';
 
   const onGasChanged = useCallback(
-    (gasLimit: string, gasPrice: GasPrice, feeType: GasFeeModifier) => {
-      setGasPrice(gasPrice);
-      setSendState({
-        address: contactInput?.address,
-        gasLimit: Number(gasLimit),
+    (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
+      updateSendState({
+        gasLimit,
         gasPrice,
       });
       setSelectedGasFee(feeType);
     },
-    [contactInput?.address, setSendState]
+    [updateSendState]
   );
+
+  function getURL(hash: string | undefined): string {
+    if (hash && network) {
+      return getExplorerAddressByNetwork(network, hash);
+    }
+    return '';
+  }
 
   const onSubmit = () => {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
 
     let toastId: string;
-    if (walletType !== 'ledger') {
+    if (walletType !== WalletType.LEDGER) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -108,16 +122,15 @@ export function CollectibleSend() {
       );
     }
 
-    sendState
-      .submit()
+    submitSendState()
       .then((txId) => {
-        sendState.reset();
+        resetSendState();
         toast.custom(
           <TransactionToast
             status="Transaction Successful"
             type={TransactionToastType.SUCCESS}
             text="View in Explorer"
-            href={txId ? getTransactionLink(txId, isMainnet) : ''}
+            href={getURL(txId)}
           />,
           { id: toastId }
         );
@@ -135,11 +148,10 @@ export function CollectibleSend() {
       })
       .finally(() => {
         setShowTxInProgress(false);
-        if (walletType === 'ledger') history.push('/home');
+        if (walletType === WalletType.LEDGER) history.push('/home');
       });
   };
 
-  const nftItem = nft?.nftData.find((item) => item.tokenId === tokenId);
   if (!nft || !tokenId || !nftItem) {
     return <Redirect to={'/'} />;
   }
@@ -150,9 +162,13 @@ export function CollectibleSend() {
         <>
           {showTxInProgress && (
             <TxInProgress
-              address={sendState?.contractAddress}
-              nftName={nftItem.externalData.name}
-              fee={bnToLocaleString(sendState?.sendFee || new BN(0), 18)}
+              address={sendState?.token?.address}
+              nftName={nftItem.externalData?.name}
+              fee={bnToLocaleString(
+                sendState?.sendFee || new BN(0),
+                network?.networkToken.decimals ?? 18
+              )}
+              feeSymbol={network?.networkToken.symbol}
             />
           )}
           <CollectibleSendConfirm
@@ -161,17 +177,12 @@ export function CollectibleSend() {
             nft={nft}
             tokenId={tokenId}
             onSubmit={onSubmit}
-            onGasChanged={onGasChanged}
-            maxGasPrice={maxGasPrice}
-            gasPrice={gasPriceState}
-            defaultGasPrice={defaultGasPrice}
-            selectedGasFee={selectedGasFee}
           />
         </>
       </Route>
       <Route path="/collectible/send">
         <VerticalFlex height="100%" width="100%">
-          <PageTitleMiniMode>Send</PageTitleMiniMode>
+          <PageTitle>Send</PageTitle>
           <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
             <ContactInput
               contact={contactInput}
@@ -180,6 +191,7 @@ export function CollectibleSend() {
               toggleContactsDropdown={(to?: boolean) =>
                 setIsContactsOpen(to ?? !isContactsOpen)
               }
+              setIsOpen={setIsContactsOpen}
             />
             <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
               <Typography size={12} height="15px">
@@ -191,15 +203,40 @@ export function CollectibleSend() {
                     width="auto"
                     maxWidth="80px"
                     height="80px"
-                    url={nftItem?.externalData.imageSmall}
+                    url={
+                      nftItem?.externalData?.imageSmall ||
+                      nftItem?.externalData?.image
+                    }
                     hover={false}
                   />
                   <Typography size={14} height="17px" margin="0 0 0 16px">
-                    {nftItem.externalData.name}
+                    {nftItem.externalData?.name}
                   </Typography>
                 </HorizontalFlex>
               </Card>
             </VerticalFlex>
+
+            <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
+              <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
+                <Typography size={12} height="15px" margin="0 8px 0 0">
+                  Network Fee
+                </Typography>
+                <TransactionFeeTooltip
+                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+                  gasLimit={sendState?.gasLimit}
+                />
+              </HorizontalFlex>
+              <VerticalFlex width="100%">
+                <CustomFees
+                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+                  limit={sendState?.gasLimit || 0}
+                  onChange={onGasChanged}
+                  maxGasPrice={maxGasPrice}
+                  selectedGasFeeModifier={selectedGasFee}
+                />
+              </VerticalFlex>
+            </VerticalFlex>
+
             <VerticalFlex
               align="center"
               justify="flex-end"

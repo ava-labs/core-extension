@@ -4,7 +4,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { Message } from '@src/background/services/messages/models';
+import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 
 /**
@@ -12,7 +12,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
  * @param param0
  * @returns
  */
-export function SignDataV4({ message }: { message: Message }) {
+export function SignDataV4({ message }: { message: Action }) {
   const data = message.displayData.data;
 
   const renderRow = (data: any) => {

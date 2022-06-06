@@ -5,11 +5,11 @@ import {
   DisplayValueParserProps,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
+import { Network } from '@avalabs/chains-sdk';
+import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
 
 export interface SwapExactTokensForAVAXData {
   amountOutMin: BigNumber;
@@ -21,6 +21,7 @@ export interface SwapExactTokensForAVAXData {
 }
 
 export async function swapExactTokensForAvax(
+  network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -37,7 +38,7 @@ export async function swapExactTokensForAvax(
     (data.amountIn || data.amountOutMin).toHexString()
   );
   const amountValue = bigToLocaleString(
-    bnToBig(lastTokenAmountBN, firstTokenInPath.denomination),
+    bnToBig(lastTokenAmountBN, firstTokenInPath.decimals),
     4
   );
   const amountUSDValue =
@@ -68,7 +69,7 @@ export async function swapExactTokensForAvax(
   const result = {
     path: [tokenSwapped, avaxToken],
     contractType: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS,
-    ...parseBasicDisplayValues(request, props),
+    ...parseBasicDisplayValues(network, request, props),
   };
 
   return result;

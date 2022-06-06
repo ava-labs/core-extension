@@ -1,41 +1,46 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
-import { firstValueFrom } from 'rxjs';
-import { contacts$ } from '../contacts';
-import { saveContactsToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { ContactsService } from '../ContactsService';
 
-export async function createContact(request: ExtensionConnectionMessage) {
-  const [contact] = request.params || [];
+@injectable()
+export class CreateContactHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.CONTACTS_CREATE];
 
-  const contacts = await firstValueFrom(contacts$);
+  constructor(private contactsService: ContactsService) {}
 
-  const newContacts = {
-    ...contacts,
-    contacts: [...contacts.contacts, contact],
-  };
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [contact] = request.params || [];
 
-  const [, err] = await resolve(saveContactsToStorage(newContacts));
+    if (
+      !contact ||
+      !contact.name ||
+      (!contact.address && !contact.addressBTC) ||
+      !contact.id
+    ) {
+      return {
+        ...request,
+        error: 'contact name, address or id missing',
+      };
+    }
+    try {
+      await this.contactsService.addContact(contact);
+    } catch (e: any) {
+      return {
+        ...request,
+        error: e.toString(),
+      };
+    }
 
-  contacts$.next(newContacts);
-
-  if (err) {
     return {
       ...request,
-      error: err,
+      result: true,
     };
-  }
-
-  return {
-    ...request,
-    result: true,
   };
 }
-
-export const CreateContactStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.CONTACTS_CREATE, createContact];

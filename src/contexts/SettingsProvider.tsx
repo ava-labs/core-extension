@@ -1,12 +1,10 @@
 import { useThemeContext } from '@avalabs/react-components';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionConnectionMessageResponse } from '@src/background/connections/models';
 import {
-  ERC20WithBalance,
+  TokenType,
   TokenWithBalance,
-} from '@avalabs/wallet-react-components';
-import {
-  ExtensionConnectionMessageResponse,
-  ExtensionRequest,
-} from '@src/background/connections/models';
+} from '@src/background/services/balances/models';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
 import {
   SettingsState,
@@ -91,7 +89,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }, [settings?.currency]);
 
   function lockWallet() {
-    return request({ method: ExtensionRequest.SETTINGS_LOCK_WALLET });
+    return request({ method: ExtensionRequest.LOCK_WALLET });
   }
 
   function updateCurrencySetting(currency: string) {
@@ -109,7 +107,11 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }
 
   function toggleTokenVisibility(token: TokenWithBalance) {
-    const key = (token as ERC20WithBalance).address;
+    if (token.type !== TokenType.ERC20) {
+      return;
+    }
+
+    const key = token.address;
     const tokensVisibility = settings?.tokensVisibility ?? {};
     return request({
       method: ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
@@ -127,7 +129,11 @@ export function SettingsContextProvider({ children }: { children: any }) {
 
   const getTokenVisibility = useCallback(
     (token: TokenWithBalance) => {
-      const key = (token as ERC20WithBalance).address;
+      if (token.type !== TokenType.ERC20) {
+        return false;
+      }
+
+      const key = token.address;
       const tokensVisibility = settings?.tokensVisibility ?? {};
       return tokensVisibility[key] || tokensVisibility[key] === undefined;
     },

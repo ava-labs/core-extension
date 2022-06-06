@@ -1,21 +1,19 @@
 import { useMemo } from 'react';
 import { TokenCard, VerticalFlex } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import {
-  isAntToken,
-  isAvaxToken,
-  isERC20Token,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 
 interface TokenListProps {
   searchQuery?: string;
   onClick: any;
   onClose: any;
-  tokenList: any;
+  tokenList: TokenWithBalance[];
 }
 
 export function TokenList({
@@ -24,7 +22,7 @@ export function TokenList({
   onClick,
   onClose,
 }: TokenListProps) {
-  const AVAX_TOKEN = tokenList.find((token) => isAvaxToken(token));
+  const AVAX_TOKEN = tokenList.find((token) => token.type === TokenType.NATIVE);
   const { currency, currencyFormatter } = useSettingsContext();
   const { tokens, showAvax } = useMemo(() => {
     const tokens = searchQuery
@@ -73,7 +71,7 @@ export function TokenList({
           )}
 
           {tokens
-            ?.filter((token) => !isAvaxToken(token) && !isAntToken(token))
+            ?.filter((token) => token.type === TokenType.NATIVE)
             .map((token, index) => {
               return (
                 <TokenCard
@@ -92,7 +90,7 @@ export function TokenList({
                   <TokenIcon
                     width="32px"
                     height="32px"
-                    src={token.logoURI}
+                    src={token.logoUri}
                     name={token.name}
                   />
                 </TokenCard>
@@ -100,7 +98,7 @@ export function TokenList({
             })}
 
           {tokens
-            ?.filter((token) => !isAvaxToken(token) && !isERC20Token(token))
+            ?.filter((token) => token.type === TokenType.ERC20)
             .map((token, index) => (
               <TokenCard
                 name={token.name}
@@ -118,7 +116,7 @@ export function TokenList({
                 <TokenIcon
                   width="32px"
                   height="32px"
-                  src={token.logoURI}
+                  src={token.logoUri}
                   name={token.name}
                 />
               </TokenCard>

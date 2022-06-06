@@ -1,7 +1,13 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingIcon } from '@avalabs/react-components';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { resolve } from '@src/utils/promiseResolver';
@@ -9,25 +15,38 @@ import { delay, filter, of, retryWhen, switchMap } from 'rxjs';
 import { LedgerEvent } from '@src/background/services/ledger/events/models';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
-import { getAppAvax } from '@avalabs/avalanche-wallet-sdk';
+import AppAvax from '@obsidiansystems/hw-app-avalanche';
+import Btc from '@ledgerhq/hw-app-btc';
+import Transport from '@ledgerhq/hw-transport';
 
+export enum LedgerAppType {
+  AVALANCHE = 'AVALANCHE',
+  BITCOIN = 'BITCOIN',
+  UNKNOWN = 'UNKOWN',
+}
 export const SUPPORTED_LEDGER_VERSION = '0.5.9';
+const LEDGER_INSTANCE_UUID = crypto.randomUUID();
 
 const LedgerSupportContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
   getPublicKey(): Promise<string>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
+  appType: LedgerAppType;
 }>({} as any);
 
 export function LedgerSupportContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
-  const [app, setApp] = useState<any>();
+  const [app, setApp] = useState<Btc | AppAvax>();
+  const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
 
   useEffect(() => {
     const subscription = events()
-      .pipe(filter((evt) => evt.name === LedgerEvent.TRANSPORT_REQUEST))
+      .pipe(
+        filter((evt) => evt.name === LedgerEvent.TRANSPORT_REQUEST),
+        filter((evt) => evt.value.connectionUUID === LEDGER_INSTANCE_UUID)
+      )
       .subscribe(async (res) => {
         if (res.value.method === 'SEND') {
           try {
@@ -51,6 +70,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
               ],
             });
           } catch (e) {
+            console.error(e);
             request({
               method: ExtensionRequest.LEDGER_RESPONSE,
               params: [
@@ -67,7 +87,65 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [request, events, app?.transport]);
+  }, [request, events, app]);
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', (ev) => {
+      ev.preventDefault();
+      request({
+        method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
+        params: [LEDGER_INSTANCE_UUID],
+      });
+    });
+  });
+
+  const initLedgerApp = useCallback(
+    async (transport?: Transport): Promise<void> => {
+      if (!transport) {
+        throw new Error('Ledger not connected');
+      }
+
+      // first try to get the avalanche App instance
+      const avaxAppInstance = new AppAvax(transport);
+      if (avaxAppInstance) {
+        // double check it's really the avalanche app
+        // the btc app also initializes with AppAvax
+        const [, appVersionError] = await resolve(
+          avaxAppInstance.getAppConfiguration()
+        );
+
+        if (!appVersionError) {
+          setApp(avaxAppInstance);
+          setAppType(LedgerAppType.AVALANCHE);
+          avaxAppInstance.transport.on('disconnect', () => {
+            setApp(undefined);
+            setAppType(LedgerAppType.UNKNOWN);
+          });
+        }
+      }
+
+      // check if btc app is selected
+      const btcAppInstance = new Btc(transport);
+      if (btcAppInstance) {
+        // double check the app is really working
+        const [, publicKeyError] = await resolve(
+          btcAppInstance.getWalletPublicKey("44'/0'/0'/0/0")
+        );
+
+        if (!publicKeyError) {
+          setApp(btcAppInstance);
+          setAppType(LedgerAppType.BITCOIN);
+          btcAppInstance.transport.on('disconnect', () => {
+            setApp(undefined);
+            setAppType(LedgerAppType.UNKNOWN);
+          });
+        }
+      }
+
+      throw new Error('No compatible ledger app found');
+    },
+    []
+  );
 
   useEffect(() => {
     const subscription = of([initialized, app])
@@ -75,24 +153,15 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
         filter(([initialized, app]) => initialized && !app),
         switchMap(async () => {
           const transport = await getLedgerTransport();
-          if (!transport) {
-            throw new Error('Ledger not connected');
-          }
-          const appInstance = await getAppAvax(transport);
-          appInstance.transport.on('disconnect', () => {
-            setApp(undefined);
-          });
-          return appInstance;
+          return initLedgerApp(transport);
         }),
         retryWhen((errors) => errors.pipe(delay(2000)))
       )
-      .subscribe((appInstance) => {
-        setApp(appInstance);
-      });
+      .subscribe();
     return () => {
       subscription.unsubscribe();
     };
-  }, [initialized, app]);
+  }, [initialized, app, initLedgerApp]);
 
   /**
    *
@@ -116,31 +185,25 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
    *
    * @returns The transport object
    */
-  async function popDeviceSelection() {
+  const popDeviceSelection = useCallback(async () => {
     if (app) {
       return true;
     }
     const [hidTransport] = await resolve(TransportWebHID.request());
     if (hidTransport) {
-      // if connection was successfull immeditately close it to let the background script create the connection
-      await hidTransport.close();
       return true;
     }
     const [usbTransport] = await resolve(TransportWebUSB.request());
     if (usbTransport) {
-      // if connection was successfull immeditately close it to let the background script create the connection
-      await usbTransport.close();
       return true;
     }
     const [u2fTransport] = await resolve(TransportU2F.create());
     if (u2fTransport) {
-      // if connection was successfull immeditately close it to let the background script create the connection
-      await u2fTransport.close();
       return true;
     }
 
     throw Error('Ledger device selection failed');
-  }
+  }, [app]);
 
   async function initLedgerTransport() {
     if (initialized) {
@@ -149,7 +212,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
     setInialized(true);
     await request({
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
-      params: [],
+      params: [LEDGER_INSTANCE_UUID],
     });
   }
 
@@ -164,6 +227,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
         getPublicKey,
         initLedgerTransport,
         hasLedgerTransport: !!app,
+        appType,
       }}
     >
       {children}

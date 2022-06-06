@@ -6,12 +6,12 @@ import {
   erc20PathToken,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
-import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
+import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { ERC20WithBalance } from '@avalabs/wallet-react-components';
-import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
+import { Network } from '@avalabs/chains-sdk';
+import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 
 export interface SwapExactTokensForTokenData {
   amountInMin: BigNumber;
@@ -29,6 +29,7 @@ export interface SwapExactTokensForTokenData {
 }
 
 export async function swapExactTokensForTokenHandler(
+  network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -44,19 +45,19 @@ export async function swapExactTokensForTokenHandler(
   const lastTokenInPath = data.path[data.path.length - 1];
   const path: erc20PathToken[] = await Promise.all(
     data.path.map(async (address) => {
-      const pathToken: ERC20WithBalance = await findToken(
+      const pathToken: TokenWithBalanceERC20 = await findToken(
         address.toLowerCase()
       );
 
       if (
         pathToken.address.toLowerCase() === firstTokenInPath.toLowerCase() &&
-        pathToken.denomination
+        pathToken.decimals
       ) {
         const amount: BigNumber =
           data.amountIn || data.amountInMax || data.amountInMax;
         const bn = hexToBN(amount.toHexString());
         const amountValue = bigToLocaleString(
-          bnToBig(bn, pathToken.denomination),
+          bnToBig(bn, pathToken.decimals),
           4
         );
         const amountUSDValue =
@@ -74,12 +75,12 @@ export async function swapExactTokensForTokenHandler(
 
       if (
         pathToken.address.toLowerCase() === lastTokenInPath.toLowerCase() &&
-        pathToken.denomination
+        pathToken.decimals
       ) {
         const amount = data.amountOutMin || data.amountOut || data.amountOutMax;
         const bn = hexToBN(amount.toHexString());
         const amountValue = bigToLocaleString(
-          bnToBig(bn, pathToken.denomination),
+          bnToBig(bn, pathToken.decimals),
           4
         );
         const amountUSDValue =
@@ -101,7 +102,7 @@ export async function swapExactTokensForTokenHandler(
   const result = {
     path,
     contractType: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS,
-    ...parseBasicDisplayValues(request, props),
+    ...parseBasicDisplayValues(network, request, props),
   };
 
   return result;

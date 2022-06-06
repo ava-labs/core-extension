@@ -9,19 +9,20 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { useGetRequestId } from '../../hooks/useGetRequestId';
-import { SignData } from './components/SignData';
-import { SignDataV4 } from './components/SignDataV4';
-import { SignDataV3 } from './components/SignDataV3';
-import { PersonalSign } from './components/PersonalSign';
-import { EthSign } from './components/EthSign';
-import { useSignMessage } from './useSignMessage';
-import styled, { useTheme } from 'styled-components';
-import { TxStatus } from '@src/background/services/transactions/models';
-import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
+import { ActionStatus } from '@src/background/services/actions/models';
 import { MessageType } from '@src/background/services/messages/models';
-import Scrollbars from 'react-custom-scrollbars-2';
 import { TokenIcon } from '@src/components/common/TokenImage';
+import { useEffect } from 'react';
+import Scrollbars from 'react-custom-scrollbars-2';
+import styled, { useTheme } from 'styled-components';
+import { useApproveAction } from '../../hooks/useApproveAction';
+import { useGetRequestId } from '../../hooks/useGetRequestId';
+import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
+import { EthSign } from './components/EthSign';
+import { PersonalSign } from './components/PersonalSign';
+import { SignData } from './components/SignData';
+import { SignDataV3 } from './components/SignDataV3';
+import { SignDataV4 } from './components/SignDataV4';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -34,7 +35,25 @@ const SiteAvatar = styled(VerticalFlex)`
 export function SignMessage() {
   const theme = useTheme();
   const requestId = useGetRequestId();
-  const { message, updateMessage } = useSignMessage(requestId);
+  const { action: message, updateAction: updateMessage } =
+    useApproveAction(requestId);
+
+  function cancelHandler() {
+    updateMessage({
+      status: ActionStatus.ERROR_USER_CANCELED,
+      id: requestId,
+    });
+  }
+
+  useEffect(() => {
+    window.addEventListener('unload', cancelHandler);
+
+    return () => {
+      window.removeEventListener('unload', cancelHandler);
+    };
+    // This only needs to run once since this is a part of initializing process.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!message) {
     return (
@@ -130,7 +149,7 @@ export function SignMessage() {
               width="168px"
               onClick={() => {
                 updateMessage({
-                  status: TxStatus.ERROR_USER_CANCELED,
+                  status: ActionStatus.ERROR_USER_CANCELED,
                   id: message.id,
                 });
                 window.close();
@@ -143,7 +162,7 @@ export function SignMessage() {
               size={ComponentSize.LARGE}
               onClick={() => {
                 updateMessage({
-                  status: TxStatus.SUBMITTING,
+                  status: ActionStatus.SUBMITTING,
                   id: message.id,
                 });
               }}

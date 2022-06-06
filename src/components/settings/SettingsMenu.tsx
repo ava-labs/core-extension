@@ -13,11 +13,13 @@ import { SettingsPages } from './models';
 import { SecurityAndPrivacy } from './pages/SecurityAndPrivacy';
 import { ChangePassword } from './pages/ChangePassword';
 import { RecoveryPhrase } from './pages/RecoveryPhrase';
-import { Network } from './pages/Network';
 import { AddContact } from './pages/AddContact';
 import { ContactList } from './pages/ContactList';
+import { ContactProfile } from './components/ContactProfile';
 import { ConnectedSites } from './pages/ConnectedSites';
 import { Ledger } from './pages/Ledger';
+import { Legal } from './pages/Legal';
+import { Advanced } from './pages/Advanced';
 
 const OuterContainer = styled(SecondaryOverlay)`
   flex-direction: column;
@@ -138,6 +140,9 @@ export function SettingsMenu() {
     case SettingsPages.CONTACT_LIST:
       pageElement = <ContactList {...pageProps} />;
       break;
+    case SettingsPages.CONTACT_PROFILE:
+      pageElement = <ContactProfile {...pageProps} />;
+      break;
     case SettingsPages.ADD_CONTACT:
       pageElement = <AddContact {...pageProps} />;
       break;
@@ -150,14 +155,17 @@ export function SettingsMenu() {
     case SettingsPages.RECOVERY_PHRASE:
       pageElement = <RecoveryPhrase {...pageProps} />;
       break;
-    case SettingsPages.NETWORK:
-      pageElement = <Network {...pageProps} />;
-      break;
     case SettingsPages.CONNECTED_SITES:
       pageElement = <ConnectedSites {...pageProps} />;
       break;
     case SettingsPages.LEDGER:
       pageElement = <Ledger {...pageProps} />;
+      break;
+    case SettingsPages.LEGAL:
+      pageElement = <Legal {...pageProps} />;
+      break;
+    case SettingsPages.ADVANCED:
+      pageElement = <Advanced {...pageProps} />;
       break;
     default:
       pageElement = <MainPage {...pageProps} />;

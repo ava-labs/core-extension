@@ -20,7 +20,7 @@ export function TransactionHeader({
   showNetwork = true,
   transactionState,
 }: TransactionHeaderProps) {
-  const { isWalletReady } = useWalletContext();
+  const { isWalletLocked } = useWalletContext();
   const { network } = useNetworkContext();
 
   return (
@@ -40,10 +40,10 @@ export function TransactionHeader({
           <ConnectionIndicator
             disableTooltip={true}
             size={8}
-            connected={isWalletReady}
+            connected={!isWalletLocked}
           />
           <SubTextTypography margin={'0 0 0 8px'} size={16} height="24px">
-            {network?.name} C-Chain
+            {network?.chainName}
           </SubTextTypography>
         </HorizontalFlex>
       )}

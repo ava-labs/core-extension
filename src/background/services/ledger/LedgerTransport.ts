@@ -9,7 +9,8 @@ import { DeviceResponseData } from './models';
 export class LedgerTransport extends Transport {
   constructor(
     private deviceRequest: Subject<any>,
-    private deviceResponse: Subject<DeviceResponseData>
+    private deviceResponse: Subject<DeviceResponseData>,
+    private connectionUUID: string
   ) {
     super();
   }
@@ -33,6 +34,7 @@ export class LedgerTransport extends Transport {
     this.deviceRequest.next({
       method: 'SEND',
       requestId,
+      connectionUUID: this.connectionUUID,
       params: {
         cla,
         ins,

@@ -9,23 +9,31 @@ import {
   useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
-import { BrandName } from '@src/components/icons/BrandName';
-import { Logo } from '@src/components/icons/Logo';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
-import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
+import animationData from '@src/images/OwlAnimation-short.json';
+import Lottie from 'react-lottie';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
 `;
+
+const defaultOptions = {
+  loop: false,
+  autoplay: true,
+  animationData: animationData,
+};
 
 export function WalletLocked({
   unlockWallet,
 }: {
   unlockWallet(password: string): Promise<any>;
 }) {
+  const { request } = useConnectionContext();
   const dimensions = useAppDimensions();
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -42,7 +50,10 @@ export function WalletLocked({
       width: '343px',
       onConfirm: () => {
         clearDialog();
-        resetExtensionState(true);
+        request({
+          method: ExtensionRequest.RESET_EXTENSION_STATE,
+          params: [true],
+        });
       },
       cancelText: 'No',
       onCancel: () => {
@@ -77,9 +88,8 @@ export function WalletLocked({
       {...dimensions}
     >
       <VerticalFlex grow="1" justify="center" align="center">
-        <Logo height={132} />
-        <BrandName height={50} margin="24px 0 0 0" />
-        <HorizontalFlex justify="flex-end" width="100%" margin="10px 0 0 0">
+        <Lottie options={defaultOptions} height={260} width={260} />
+        <HorizontalFlex justify="flex-end" width="100%">
           <BetaLabel />
         </HorizontalFlex>
       </VerticalFlex>

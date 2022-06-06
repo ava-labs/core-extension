@@ -1,19 +1,12 @@
 import { useState } from 'react';
-import {
-  toast,
-  VerticalFlex,
-  Input,
-  ComponentSize,
-  TextArea,
-  TextButton,
-} from '@avalabs/react-components';
+import { toast, VerticalFlex, TextButton } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
+import { ContactForm } from '../components/ContactForm';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -32,17 +25,19 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
     id: '',
     name: '',
     address: '',
+    addressBTC: '',
   });
-  const [hasAddressError, setHasAddressError] = useState(false);
 
   const theme = useTheme();
   const { createContact } = useContactsContext();
-  const isValidAddress = (address: string) => {
-    return (
-      !!address.length &&
-      AddressHelper.validateAddress(address) &&
-      AddressHelper.getAddressChain(address) === 'C'
-    );
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+
+  const handleChange = (contact: Contact, formValid: boolean) => {
+    setContact({
+      ...contact,
+    });
+    setIsFormValid(formValid);
   };
 
   return (
@@ -51,15 +46,14 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'New Contact'}
+        title={'Add New Contact'}
         action={
           <TextButton
             onClick={() => {
-              if (!isValidAddress(contact.address)) {
-                setHasAddressError(true);
+              setShowErrors(true);
+              if (!isFormValid) {
                 return;
               }
-              setHasAddressError(false);
               createContact(contact);
               toast.success('Contact created!');
               goBack();
@@ -70,39 +64,12 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         }
       />
       <FlexScrollbars>
-        <VerticalFlex padding="16px">
-          <Input
-            autoFocus
-            onChange={(e) => {
-              setContact({
-                ...contact,
-                name: e.target.value,
-              });
-            }}
-            value={contact.name}
-            label="Name"
-            placeholder="Enter Address Name"
-            width="100%"
-          />
-
-          <TextArea
-            size={ComponentSize.SMALL}
-            margin="24px 0px 0px"
-            onChange={(e) => {
-              const address = e.target.value;
-              setContact({
-                ...contact,
-                address,
-              });
-            }}
-            value={contact.address}
-            label="Address"
-            error={hasAddressError}
-            errorMessage={
-              hasAddressError ? 'Not a valid 0x address' : undefined
-            }
-            placeholder="Enter the address"
-            width="100%"
+        <VerticalFlex padding="0 16px">
+          <ContactForm
+            contact={contact}
+            handleChange={handleChange}
+            showErrors={showErrors}
+            autoFocus={true}
           />
         </VerticalFlex>
       </FlexScrollbars>

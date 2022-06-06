@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { TokenWithBalance } from '@avalabs/wallet-react-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
+import { useTokensWithBalances } from './useTokensWithBalances';
 
-export function useTokenFromParams() {
+export function useTokenFromParams(
+  withDefault = true
+): TokenWithBalance | undefined {
   const { search } = useLocation();
-  const { erc20Tokens, avaxToken } = useWalletContext();
-  const [selectedToken, setSelectedToken] =
-    useState<TokenWithBalance>(avaxToken);
+  const allTokens = useTokensWithBalances(true);
+  const [selectedToken, setSelectedToken] = useState<
+    TokenWithBalance | undefined
+  >(withDefault ? allTokens?.[0] : undefined);
+  const { activeAccount } = useAccountsContext();
 
   const { tokenSymbol, tokenAddress } = useMemo(
     () =>
@@ -18,12 +26,16 @@ export function useTokenFromParams() {
   );
 
   useEffect(() => {
-    const targetToken =
-      tokenSymbol === 'AVAX'
-        ? avaxToken
-        : erc20Tokens?.find((token) => token.address === tokenAddress);
-    setSelectedToken(targetToken ?? avaxToken);
-  }, [tokenSymbol, tokenAddress, erc20Tokens, avaxToken]);
+    const targetToken = allTokens?.find((token) =>
+      token.type === TokenType.ERC20
+        ? token.address === tokenAddress
+        : token.type === TokenType.NATIVE
+        ? token.symbol === tokenSymbol
+        : false
+    );
+    if (!targetToken && !withDefault) return;
+    setSelectedToken(targetToken ?? allTokens?.[0]);
+  }, [tokenSymbol, tokenAddress, allTokens, activeAccount, withDefault]);
 
   return selectedToken;
 }

@@ -1,9 +1,6 @@
 import { LoadingIcon } from '@avalabs/react-components';
-import { ExtensionRequest } from '@src/background/connections/models';
-import {
-  onboardingPhaseUpdatedEventListener,
-  onboardingUpdatedEventListener,
-} from '@src/background/services/onboarding/events/listeners';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
 import {
   OnboardingPhase,
   OnboardingState,
@@ -20,25 +17,29 @@ import {
   lazy,
   useState,
   useCallback,
+  Dispatch,
+  SetStateAction,
 } from 'react';
 import { concat, filter, from, map } from 'rxjs';
 import { browser } from 'webextension-polyfill-ts';
 import { useConnectionContext } from './ConnectionProvider';
 
-const OnboardingFlow = lazy(() =>
-  import('../pages/Onboarding/OnboardingFlow').then((m) => ({
-    default: m.OnboardingFlow,
+const Onboarding = lazy(() =>
+  import('../pages/Onboarding/Onboarding').then((m) => ({
+    default: m.Onboarding,
   }))
 );
 
 const OnboardingContext = createContext<{
   onboardingState: OnboardingState;
-  onboardingPhase?: OnboardingPhase;
-  setNextPhase(phase: OnboardingPhase): Promise<void>;
-  setMnemonic(mnemonic: string): Promise<void>;
-  setAnalyticsConsent(consent: boolean): Promise<void>;
-  setPasswordAndName(password: string, accountName: string): Promise<void>;
-  setFinalized(): Promise<any>;
+  nextPhase?: OnboardingPhase;
+  submitInProgress: boolean;
+  setNextPhase: Dispatch<SetStateAction<OnboardingPhase | undefined>>;
+  setMnemonic: Dispatch<SetStateAction<string>>;
+  setPublicKey: Dispatch<SetStateAction<string>>;
+  setAnalyticsConsent: Dispatch<SetStateAction<boolean>>;
+  setPasswordAndName: (password: string, accountName: string) => void;
+  submit(): void;
   updateInitialOpen(): void;
 }>({} as any);
 
@@ -46,7 +47,27 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const isHome = useIsSpecificContextContainer(ContextContainer.HOME);
   const [onboardingState, setOnboardingState] = useState<OnboardingState>();
-  const [onboardingPhase, setOnboardingPhase] = useState<OnboardingPhase>();
+  const [nextPhase, setNextPhase] = useState<OnboardingPhase>();
+  const [mnemonic, setMnemonic] = useState('');
+  const [publicKey, setPublicKey] = useState('');
+  const [password, setPassword] = useState('');
+  const [accountName, setAccountName] = useState<string>('Account 1');
+  const [analyticsConsent, setAnalyticsConsent] = useState(false);
+  const [submitInProgress, setSubmitInProgress] = useState(false);
+
+  function resetStates() {
+    setMnemonic('');
+    setPublicKey('');
+    setPassword('');
+    setAccountName('Account 1');
+    setAnalyticsConsent(false);
+  }
+
+  useEffect(() => {
+    if (nextPhase === OnboardingPhase.RESTART) {
+      resetStates();
+    }
+  }, [nextPhase]);
 
   useEffect(() => {
     if (!request || !events) {
@@ -66,17 +87,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     ).subscribe((result) => {
       setOnboardingState(result as any);
     });
-
-    events()
-      .pipe(
-        filter(onboardingPhaseUpdatedEventListener),
-        map((evt) => evt.value)
-      )
-      .subscribe((phase) => {
-        setOnboardingPhase(phase);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [request]);
+  }, [request, events]);
 
   const updateInitialOpen = useCallback(
     () =>
@@ -100,49 +111,40 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     return <LoadingIcon />;
   }
 
-  function setNextPhase(phase: OnboardingPhase) {
-    return request({
-      method: ExtensionRequest.ONBOARDING_SET_PHASE,
-      params: [phase],
-    });
-  }
-
-  function setMnemonic(mnemonic: string) {
-    return request({
-      method: ExtensionRequest.ONBOARDING_SET_MNEMONIC,
-      params: [mnemonic],
-    });
-  }
-
   function setPasswordAndName(password: string, accountName: string) {
-    return request({
-      method: ExtensionRequest.ONBOARDING_SET_PASSWORD_AND_NAME,
-      params: [password, accountName],
-    });
+    setPassword(password);
+    setAccountName(accountName);
   }
 
-  function setAnalyticsConsent(consent: boolean) {
-    return request({
-      method: ExtensionRequest.ONBOARDING_SET_ANALYTICS_CONSENT,
-      params: [consent],
-    });
-  }
+  function submit() {
+    if (!mnemonic && !publicKey && !password) {
+      return;
+    }
 
-  function setFinalized() {
-    return request({
-      method: ExtensionRequest.ONBOARDING_SET_FINALIZED,
-    });
+    setSubmitInProgress(true);
+    request({
+      method: ExtensionRequest.ONBOARDING_SUBMIT,
+      params: [
+        { mnemonic, xpub: publicKey, password, accountName, analyticsConsent },
+      ],
+    })
+      .then(() => {
+        resetStates();
+      })
+      .finally(() => setSubmitInProgress(false));
   }
 
   return (
     <OnboardingContext.Provider
       value={{
         onboardingState,
-        onboardingPhase,
+        nextPhase,
+        submitInProgress,
         setNextPhase,
         setMnemonic,
+        setPublicKey,
         setPasswordAndName,
-        setFinalized,
+        submit,
         updateInitialOpen,
         setAnalyticsConsent,
       }}
@@ -154,7 +156,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
       {isHome ? (
         <Suspense fallback={<LoadingIcon />}>
-          <OnboardingFlow />
+          <Onboarding />
         </Suspense>
       ) : (
         children

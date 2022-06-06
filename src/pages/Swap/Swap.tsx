@@ -12,22 +12,12 @@ import {
   toast,
   WarningIcon,
 } from '@avalabs/react-components';
-import {
-  getTransactionLink,
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  BN,
-  stringToBN,
-  bnToLocaleString,
-  isMainnetNetwork,
-} from '@avalabs/avalanche-wallet-sdk';
+import { stringToBN, bnToLocaleString, hexToBN } from '@avalabs/utils-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
@@ -36,20 +26,31 @@ import { ReviewOrder } from './components/ReviewOrder';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { getMaxValue, getTokenAddress, isAPIError } from './utils';
 import { TxInProgress } from '@src/components/common/TxInProgress';
-import { GasPrice } from '@src/background/services/gas/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { hexToBN } from '@src/utils/hexToBN';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
+import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
+import { BigNumber } from 'ethers';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import BN from 'bn.js';
+import { WalletType } from '@src/background/services/wallet/models';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 export interface Token {
   icon?: JSX.Element;
@@ -82,15 +83,20 @@ const TryAgainButton = styled.span`
 `;
 
 export function Swap() {
-  const { flags } = useAnalyticsContext();
-  const { erc20Tokens, avaxToken, avaxPrice, walletType } = useWalletContext();
+  const { flags, capture } = useAnalyticsContext();
+  const { walletType } = useWalletContext();
   const { network } = useNetworkContext();
-  const { getRate, swap, gasPrice } = useSwapContext();
+  const { getRate, swap } = useSwapContext();
+  const { networkFee } = useNetworkFeeContext();
 
-  const swapIsAvaible = network ? isMainnetNetwork(network?.config) : false;
+  const { isFunctionAvailable: isSwapAvailable } =
+    useIsFunctionAvailable('Swap');
+
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
+  const allTokensOnNetwork = useTokensWithBalances(true);
+  const avaxPrice = useNativeTokenPrice();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const pageHistory: {
     selectedFromToken?: TokenWithBalance;
@@ -112,9 +118,9 @@ export function Swap() {
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
 
-  const [gasLimit, setGasLimit] = useState('');
-  const [customGasPrice, setCustomGasPrice] = useState<GasPrice | undefined>(
-    gasPrice
+  const [gasLimit, setGasLimit] = useState<number>(0);
+  const [customGasPrice, setCustomGasPrice] = useState<BigNumber | undefined>(
+    networkFee?.low
   );
 
   const [gasCost, setGasCost] = useState('');
@@ -139,6 +145,8 @@ export function Swap() {
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
+  const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
+    useSendAnalyticsData();
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
@@ -167,8 +175,8 @@ export function Swap() {
         ...setValuesDebouncedSubject.getValue(),
         fromTokenAddress: getTokenAddress(sourceToken),
         toTokenAddress: getTokenAddress(destinationToken),
-        fromTokenDecimals: sourceToken.denomination,
-        toTokenDecimals: destinationToken.denomination,
+        fromTokenDecimals: sourceToken.decimals,
+        toTokenDecimals: destinationToken.decimals,
         amount,
       });
     },
@@ -190,20 +198,20 @@ export function Swap() {
       const selectedFromToken = pageHistory.selectedFromToken
         ? {
             ...pageHistory.selectedFromToken,
-            balance: hexToBN(pageHistory.selectedFromToken.balance),
+            balance: hexToBN(pageHistory.selectedFromToken.balance.toString()),
           }
         : undefined;
       setSelectedFromToken(selectedFromToken);
       const selectedToToken = pageHistory.selectedToToken
         ? {
             ...pageHistory.selectedToToken,
-            balance: hexToBN(pageHistory.selectedToToken.balance),
+            balance: hexToBN(pageHistory.selectedToToken.balance.toString()),
           }
         : undefined;
       setSelectedToToken(selectedToToken);
       const tokenValueBN =
         pageHistory.tokenValue && pageHistory.tokenValue.bn
-          ? hexToBN(pageHistory.tokenValue.bn)
+          ? hexToBN(pageHistory.tokenValue.bn.toString())
           : new BN(0);
       if (pageHistory.destinationInputField === 'from') {
         setToTokenValue({
@@ -229,10 +237,14 @@ export function Swap() {
     if (
       customGasPrice &&
       gasLimit &&
-      selectedFromToken &&
-      isAvaxToken(selectedFromToken)
+      selectedFromToken?.type === TokenType.NATIVE
     ) {
-      const newFees = calculateGasAndFees(customGasPrice, gasLimit, avaxPrice);
+      const newFees = calculateGasAndFees({
+        gasPrice: customGasPrice,
+        gasLimit,
+        tokenPrice: avaxPrice,
+        tokenDecimals: network?.networkToken.decimals,
+      });
 
       setGasCost(newFees.fee);
       const max = getMaxValue(selectedFromToken, newFees.fee);
@@ -265,6 +277,7 @@ export function Swap() {
     selectedFromToken,
     selectedToToken,
     customGasPrice,
+    network,
   ]);
 
   useEffect(() => {
@@ -314,7 +327,7 @@ export function Swap() {
                 } else {
                   // Never modify the properies of the optimalRate since the swap API needs it unchanged
                   setOptimalRate(result.optimalRate);
-                  setGasLimit(result.optimalRate?.gasCost);
+                  setGasLimit(Number(result.optimalRate?.gasCost || 0));
                   const resultAmount =
                     destinationInputField === 'to'
                       ? result.optimalRate.destAmount
@@ -367,7 +380,7 @@ export function Swap() {
       amount: fromTokenValue?.amount || '0',
       bn: stringToBN(
         fromTokenValue?.amount || '0',
-        selectedFromToken.denomination || 18
+        selectedFromToken.decimals || 18
       ),
     };
     calculateTokenValueToInput(
@@ -400,7 +413,7 @@ export function Swap() {
 
   async function onHandleSwap() {
     let toastId = '';
-    if (walletType !== 'ledger') {
+    if (walletType !== WalletType.LEDGER) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -420,7 +433,7 @@ export function Swap() {
       fromTokenDecimals,
     } = setValuesDebouncedSubject.getValue();
     if (
-      !gasPrice ||
+      !networkFee ||
       !optimalRate?.gasCost ||
       !toTokenDecimals ||
       !toTokenAddress ||
@@ -441,7 +454,7 @@ export function Swap() {
         optimalRate,
         optimalRate.destAmount,
         gasLimit,
-        customGasPrice || gasPrice,
+        customGasPrice || networkFee.low,
         parseFloat(slippage)
       )
     );
@@ -464,16 +477,15 @@ export function Swap() {
         status="Swap Successful"
         type={TransactionToastType.SUCCESS}
         text="View in Explorer"
-        href={getTransactionLink(
-          result.swapTxHash,
-          network ? isMainnetNetwork(network.config) : true
-        )}
+        href={
+          network && getExplorerAddressByNetwork(network, result.swapTxHash)
+        }
       />
     );
   }
 
   const onGasChange = useCallback(
-    (limit: string, price: GasPrice, feeType: GasFeeModifier) => {
+    (limit: number, price: BigNumber, feeType: GasFeeModifier) => {
       setGasLimit(limit);
       setCustomGasPrice(price);
       setSelectedGasFee(feeType);
@@ -481,29 +493,12 @@ export function Swap() {
     []
   );
 
-  const maxGasPrice =
-    selectedFromToken && fromTokenValue && isAvaxToken(selectedFromToken)
-      ? avaxToken.balance.sub(fromTokenValue.bn).toString()
-      : avaxToken.balance.toString();
-
-  const canSwap =
-    !swapError.message &&
-    selectedFromToken &&
-    selectedToToken &&
-    optimalRate &&
-    gasLimit &&
-    gasPrice;
-
-  if (!swapIsAvaible) {
+  if (!isSwapAvailable) {
     return (
-      <VerticalFlex width="100%">
-        <PageTitleMiniMode>Swap</PageTitleMiniMode>
-        <VerticalFlex align="center" justify="center" grow="1">
-          <Typography size={16}>
-            Swap is not available on Fuji Testnet
-          </Typography>
-        </VerticalFlex>
-      </VerticalFlex>
+      <FunctionIsUnavailable
+        functionName="Swap"
+        network={network?.chainName || 'Testnet'}
+      />
     );
   }
 
@@ -511,9 +506,24 @@ export function Swap() {
     return <FunctionIsOffline functionName="Swap" />;
   }
 
+  const maxGasPrice =
+    selectedFromToken?.type === TokenType.NATIVE && fromTokenValue
+      ? selectedFromToken.balance.sub(fromTokenValue.bn).toString()
+      : tokensWBalances
+          .find((t) => t.type === TokenType.NATIVE)
+          ?.balance.toString() || '0';
+
+  const canSwap =
+    !swapError.message &&
+    selectedFromToken &&
+    selectedToToken &&
+    optimalRate &&
+    gasLimit &&
+    networkFee;
+
   return (
     <VerticalFlex width="100%">
-      <PageTitleMiniMode>Swap</PageTitleMiniMode>
+      <PageTitle>Swap</PageTitle>
       <VerticalFlex grow="1" margin="8px 0 0" padding="16px">
         <Scrollbars
           style={{
@@ -537,6 +547,9 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
+              sendTokenSelectedAnalytics(
+                token.type === TokenType.ERC20 ? token.address : token.symbol
+              );
             }}
             onSelectToggle={() => {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
@@ -569,8 +582,7 @@ export function Swap() {
               if (
                 maxFromValue &&
                 value.bn.eq(maxFromValue) &&
-                selectedFromToken &&
-                isAvaxToken(selectedFromToken)
+                selectedFromToken?.type === TokenType.NATIVE
               ) {
                 setIsCalculateAvaxMax(true);
               }
@@ -589,7 +601,9 @@ export function Swap() {
                 tokenValue: value,
                 destinationInputField: 'to',
               });
+              sendAmountEnteredAnalytics(value.amount);
             }}
+            setIsOpen={setIsFromTokenSelectOpen}
           />
 
           <HorizontalFlex
@@ -657,12 +671,15 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
+              sendTokenSelectedAnalytics(
+                token.type === TokenType.ERC20 ? token.address : token.symbol
+              );
             }}
             onSelectToggle={() => {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={[...erc20Tokens, avaxToken]}
+            tokensList={allTokensOnNetwork}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={
@@ -686,7 +703,9 @@ export function Swap() {
                 tokenValue: value,
                 destinationInputField: 'from',
               });
+              sendAmountEnteredAnalytics(value.amount);
             }}
+            setIsOpen={setIsToTokenSelectOpen}
           />
 
           {!isLoading && canSwap && (
@@ -697,8 +716,7 @@ export function Swap() {
               walletFee={optimalRate.partnerFee}
               onGasChange={onGasChange}
               gasLimit={gasLimit}
-              gasPrice={customGasPrice as any}
-              defaultGasPrice={gasPrice}
+              gasPrice={customGasPrice || networkFee.low}
               maxGasPrice={maxGasPrice}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
@@ -713,7 +731,14 @@ export function Swap() {
             <PrimaryButton
               width="100%"
               margin="16px 0 0 0"
-              onClick={() => setIsReviewOrderOpen(true)}
+              onClick={() => {
+                capture('SwapReviewOrder', {
+                  destinationInputField,
+                  slippageTolerance,
+                  customGasPrice: customGasPrice?.toString(),
+                });
+                setIsReviewOrderOpen(true);
+              }}
               size={ComponentSize.LARGE}
               disabled={isLoading || !canSwap}
             >
@@ -727,13 +752,20 @@ export function Swap() {
         <ReviewOrder
           fromToken={selectedFromToken}
           toToken={selectedToToken}
-          onClose={() => setIsReviewOrderOpen(false)}
-          onConfirm={() => onHandleSwap()}
+          onClose={() => {
+            capture('SwapCancelled');
+            setIsReviewOrderOpen(false);
+          }}
+          onConfirm={() => {
+            capture('SwapConfirmed');
+            onHandleSwap();
+          }}
           optimalRate={optimalRate}
           gasLimit={gasLimit}
-          gasPrice={customGasPrice || gasPrice}
+          gasPrice={customGasPrice || networkFee.low}
           slippage={slippageTolerance}
           onTimerExpire={() => {
+            capture('SwapReviewTimerRestarted');
             if (fromTokenValue) {
               const srcToken =
                 destinationInputField === 'to'
@@ -763,10 +795,13 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={bnToLocaleString(
-            (customGasPrice || gasPrice)?.bn.mul(new BN(gasLimit)) || new BN(0),
-            18
-          )}
+          fee={(
+            (customGasPrice || networkFee?.low)?.mul(gasLimit) ||
+            BigNumber.from(0)
+          )
+            .div(10 ** (network?.networkToken.decimals ?? 18))
+            .toString()}
+          feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}
           symbol={selectedFromToken?.symbol}
         />

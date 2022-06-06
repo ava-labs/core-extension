@@ -35,7 +35,7 @@ export function CopyPhrase({
       />
       <VerticalFlex align="center" grow="1">
         <Typography align="center" margin="8px 0 32px" size={14} height="17px">
-          This is your recovery phrase. Write it down and
+          This is your secret recovery phrase. Write it down, and
           <br />
           store it in a secure location.
         </Typography>
@@ -49,7 +49,7 @@ export function CopyPhrase({
       </VerticalFlex>
       <VerticalFlex align="center">
         <Checkbox
-          label={`I understand losing this phrase will result in lost funds.\nI have stored it in a secure location`}
+          label={`I understand losing this phrase will result in lost funds.\nI have stored it in a secure location.`}
           onChange={setTermsConfirmed}
         />
         <PrimaryButton

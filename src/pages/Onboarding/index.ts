@@ -1,1 +1,1 @@
-export * from './OnboardingFlow';
+export * from './Onboarding';

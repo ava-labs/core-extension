@@ -57,7 +57,7 @@ export function UnknownTx({
           <TransactionTabs
             byteStr={txParams?.data}
             gasPrice={gasPrice}
-            limit={gasLimit?.toString()}
+            limit={gasLimit ?? 0}
             onCustomFeeSet={onCustomFeeSet}
             selectedGasFee={selectedGasFee}
           />
@@ -65,7 +65,7 @@ export function UnknownTx({
           <SuccessFailTxInfo
             hash={hash}
             gasPrice={gasPrice}
-            gasLimit={gasLimit?.toString() ?? ''}
+            gasLimit={gasLimit ?? 0}
             error={error}
           />
         )}

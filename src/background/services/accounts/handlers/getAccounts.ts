@@ -1,30 +1,24 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { filter, firstValueFrom } from 'rxjs';
-import { accounts$ } from '../accounts';
-import { accounts$ as sdkAccount$ } from '@avalabs/wallet-react-components';
+import { injectable } from 'tsyringe';
+import { AccountsService } from '../AccountsService';
+@injectable()
+export class GetAccountsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ACCOUNT_GET_ACCOUNTS];
 
-export async function getAccounts(request: ExtensionConnectionMessage) {
-  const accounts = await firstValueFrom(accounts$);
-  const sdkAccounts = await firstValueFrom(
-    sdkAccount$.pipe(filter((acs) => !!(acs.length === accounts.length)))
-  );
+  constructor(private accountsService: AccountsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const accounts = await this.accountsService.getAccounts();
 
-  const addressesIndexed = sdkAccounts.reduce((acc, { wallet, index }) => {
-    return { ...acc, [index]: wallet.getAddressC() };
-  }, {});
-
-  return {
-    ...request,
-    result: accounts.map((acc) => ({
-      ...acc,
-      addressC: addressesIndexed[acc.index],
-    })),
+    return {
+      ...request,
+      result: accounts,
+    };
   };
 }
-
-export const GetAccountsRequest: [ExtensionRequest, ConnectionRequestHandler] =
-  [ExtensionRequest.ACCOUNT_GET_ACCOUNTS, getAccounts];

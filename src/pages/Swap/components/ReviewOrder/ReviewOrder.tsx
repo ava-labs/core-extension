@@ -12,18 +12,20 @@ import {
   SubTextTypography,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { TokenWithBalance } from '@avalabs/wallet-react-components';
 import { SwapRefreshTimer } from '../SwapRefreshTimer';
 import { ReviewLoading } from './ReviewLoading';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { GasPrice } from '@src/background/services/gas/models';
-import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SlippageToolTip } from '../SlippageToolTip';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { TokenIcon } from '../../utils';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { PageTitle } from '@src/components/common/PageTitle';
+import { BigNumber } from 'ethers';
+import Big from 'big.js';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { TokenWithBalance } from '@src/background/services/balances/models';
+import { bnToLocaleString } from '@avalabs/utils-sdk';
+import { BN } from 'bn.js';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;
@@ -31,8 +33,8 @@ export interface ReviewOrderProps {
   onClose: () => void;
   onConfirm: () => void;
   optimalRate: OptimalRate;
-  gasLimit: string;
-  gasPrice: GasPrice;
+  gasLimit: number;
+  gasPrice: BigNumber;
   slippage: string;
   onTimerExpire: () => void;
   isLoading: boolean;
@@ -80,10 +82,8 @@ export function ReviewOrder({
   rate,
 }: ReviewOrderProps) {
   const { currencyFormatter } = useSettingsContext();
-  const { avaxToken } = useWalletContext();
-  useLedgerDisconnectedDialog(() => {
-    onClose();
-  });
+  const tokenPrice = useNativeTokenPrice();
+  useLedgerDisconnectedDialog(onClose);
 
   return (
     <ReviewOrderOverlay>
@@ -93,9 +93,7 @@ export function ReviewOrder({
         align="center"
         padding="0 16px 0 0"
       >
-        <PageTitleMiniMode onBackClick={onClose}>
-          Review Order
-        </PageTitleMiniMode>
+        <PageTitle onBackClick={onClose}>Review Order</PageTitle>
         {onTimerExpire && (
           <SwapRefreshTimer secondsTimer={59} onExpire={onTimerExpire} />
         )}
@@ -160,14 +158,15 @@ export function ReviewOrder({
               <HorizontalFlex>
                 <DetailLabel margin="0 8px 0 0">Network Fee</DetailLabel>
                 <TransactionFeeTooltip
-                  gasPrice={gasPrice?.bn}
+                  gasPrice={gasPrice}
                   gasLimit={gasLimit as any}
                 />
               </HorizontalFlex>
               <DetailValue>
-                {Number(
-                  bnToLocaleString(gasPrice.bn.mul(new BN(gasLimit)), 18)
-                ).toFixed(6)}{' '}
+                {new Big(gasPrice.toString())
+                  .mul(gasLimit)
+                  .div(10 ** 18)
+                  .toFixed(6)}{' '}
                 AVAX
               </DetailValue>
             </DetailsRow>
@@ -177,9 +176,9 @@ export function ReviewOrder({
                 <DetailValue>{optimalRate.partnerFee} AVAX</DetailValue>
                 <SubTextTypography size={12} height="15px" margin="4px 0 0">
                   {optimalRate.partnerFee &&
-                    avaxToken.priceUSD &&
+                    tokenPrice &&
                     currencyFormatter(
-                      Number(optimalRate.partnerFee) * avaxToken.priceUSD
+                      Number(optimalRate.partnerFee) * tokenPrice
                     )}
                 </SubTextTypography>
               </VerticalFlex>

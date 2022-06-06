@@ -1,6 +1,3 @@
-import { isMainnetNetwork } from '@avalabs/avalanche-wallet-sdk';
-import { network$ } from '@avalabs/wallet-react-components';
-import { firstValueFrom } from 'rxjs';
 import * as ethers from 'ethers';
 import { Interface } from 'ethers/lib/utils';
 import {
@@ -8,6 +5,9 @@ import {
   getABIForContract,
   getSourceForContract,
 } from '@avalabs/snowtrace-sdk';
+import { NetworkService } from '../network/NetworkService';
+import { ChainId } from '@avalabs/chains-sdk';
+import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 
 export function isTxDescriptionError(
   desc: ethers.utils.TransactionDescription | { error: string }
@@ -16,9 +16,24 @@ export function isTxDescriptionError(
   return !!desc && !desc.hasOwnProperty('error');
 }
 
-export async function getTxInfo(address: string, data: string, value: string) {
-  const network = await firstValueFrom(network$);
-  const isMainnet = network?.config && isMainnetNetwork(network.config);
+function parseDataWithABI(
+  data: string,
+  value: string,
+  contractInterface: ethers.ethers.utils.Interface
+) {
+  try {
+    const finalResponse = contractInterface.parseTransaction({
+      data: data,
+      value: value,
+    });
+
+    return finalResponse;
+  } catch (e) {
+    return { error: 'error decoding with abi' };
+  }
+}
+
+async function getAvalancheABIFromSource(address: string, isMainnet: boolean) {
   let contractSource: ContractSourceCodeResponse;
   try {
     const response = await getSourceForContract(address, isMainnet);
@@ -27,29 +42,39 @@ export async function getTxInfo(address: string, data: string, value: string) {
     console.error(e);
     return { error: 'error decoding with abi' };
   }
+  const response = await (contractSource.Proxy === '1' &&
+  contractSource.Implementation.length > 0
+    ? getABIForContract(contractSource.Implementation, isMainnet)
+    : Promise.resolve(undefined));
 
-  let contractInterface: Interface;
-  if (
-    contractSource.Proxy === '1' &&
-    contractSource.Implementation.length > 0
-  ) {
-    // get the real contract's ABI since it's a proxy
-    try {
-      const response = await getABIForContract(
-        contractSource.Implementation,
-        isMainnet
-      );
-      contractInterface = new Interface(response.result);
-    } catch (e) {
-      console.error(e);
-      return { error: 'error decoding with abi' };
-    }
-  } else {
-    contractInterface = new Interface(contractSource.ABI);
+  return { result: response?.result, contractSource };
+}
+
+export async function getTxInfo(
+  address: string,
+  data: string,
+  value: string,
+  networkService: NetworkService
+) {
+  const isMainnet = await networkService.isMainnet();
+  const activeNetwork = await networkService.activeNetwork.promisify();
+
+  /**
+   * We already eliminate BTC as a tx requestor so we only need to verify if we are still on a
+   * avalanche net. At this point anything else would be a subnet
+   */
+  if (!isMainnet && activeNetwork?.chainId !== ChainId.AVALANCHE_TESTNET_ID) {
+    return parseDataWithABI(data, value, new Interface(ERC20.abi));
   }
 
-  return contractInterface.parseTransaction({
-    data: data,
-    value: value,
-  });
+  const { result, contractSource, error } = await getAvalancheABIFromSource(
+    address,
+    isMainnet
+  );
+
+  if (error) return { error };
+
+  const abi = result || contractSource?.ABI;
+  if (!abi) return { error: 'unable to get abi' };
+  return parseDataWithABI(data, value, new Interface(abi));
 }

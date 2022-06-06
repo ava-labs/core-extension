@@ -5,7 +5,7 @@ const { ProvidePlugin, BannerPlugin } = require('webpack');
 
 module.exports = {
   entry: {
-    backgroundPage: path.join(__dirname, 'src/backgroundPage.ts'),
+    backgroundPage: path.join(__dirname, 'src/background/index.ts'),
     popup: path.join(__dirname, 'src/popup/index.tsx'),
     contentscript: path.join(__dirname, 'src/contentscript.ts'),
   },
@@ -24,10 +24,22 @@ module.exports = {
           options: {
             presets: [
               '@babel/preset-typescript',
-              '@babel/preset-env',
+              [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    browsers: ['last 2 Chrome versions'],
+                  },
+                  modules: false,
+                },
+              ],
               '@babel/preset-react',
             ],
-            plugins: ['@babel/transform-runtime'],
+            plugins: [
+              'babel-plugin-transform-typescript-metadata',
+              '@babel/transform-runtime',
+              ['@babel/plugin-proposal-decorators', { legacy: true }],
+            ],
           },
         },
       },
@@ -66,9 +78,7 @@ module.exports = {
       'react-dom': path.resolve('./node_modules/react-dom'),
       'styled-components': path.resolve('./node_modules/styled-components'),
       // use alias for bn.js to prevent bundling it >23 times per output file (saves ~1.5MB)
-      'bn.js': path.resolve(
-        './node_modules/@avalabs/avalanche-wallet-sdk/node_modules/bn.js'
-      ),
+      'bn.js': path.resolve('./node_modules/bn.js'),
     },
     // We're using different node.js modules in our code,
     // this prevents WebPack from failing on them or embedding

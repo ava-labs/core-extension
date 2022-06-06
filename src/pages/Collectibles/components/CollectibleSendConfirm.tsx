@@ -11,23 +11,16 @@ import {
   SubTextTypography,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { BN } from '@avalabs/avalanche-wallet-sdk';
 import { Contact } from '@src/background/services/contacts/models';
-import { SendNftState } from '@avalabs/wallet-react-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory } from 'react-router-dom';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/gas/models';
-import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
-import {
-  PageTitleMiniMode,
-  PageTitleVariant,
-} from '@src/components/common/PageTitle';
+import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { SendStateWithActions } from '@src/pages/Send/models';
-import { NFT } from '@avalabs/blizzard-sdk';
+import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { SendState } from '@src/background/services/send/models';
+import { TokenWithBalanceERC721 } from '@src/background/services/balances/models';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -66,20 +59,11 @@ const ContactAddress = styled(Typography)`
 `;
 
 type CollectibleSendConfirmProps = {
-  sendState: SendStateWithActions & SendNftState;
+  sendState: SendState<TokenWithBalanceERC721>;
   contact: Contact;
   nft: NFT;
   tokenId: string;
   onSubmit(): void;
-  onGasChanged(
-    gasLimit: string,
-    gasPrice: GasPrice,
-    feeType: GasFeeModifier
-  ): void;
-  maxGasPrice?: string;
-  gasPrice?: GasPrice;
-  defaultGasPrice?: GasPrice;
-  selectedGasFee?: GasFeeModifier;
 };
 
 export const CollectibleSendConfirm = ({
@@ -88,18 +72,11 @@ export const CollectibleSendConfirm = ({
   nft,
   tokenId,
   onSubmit,
-  onGasChanged,
-  maxGasPrice,
-  gasPrice,
-  selectedGasFee,
-  defaultGasPrice,
 }: CollectibleSendConfirmProps) => {
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
 
-  useLedgerDisconnectedDialog(() => {
-    history.goBack();
-  });
+  useLedgerDisconnectedDialog(history.goBack);
 
   const nftItem = nft.nftData.find((data) => data.tokenId === tokenId);
 
@@ -111,9 +88,9 @@ export const CollectibleSendConfirm = ({
   return (
     <>
       <VerticalFlex height="100%" width="100%">
-        <PageTitleMiniMode variant={PageTitleVariant.PRIMARY}>
+        <PageTitle variant={PageTitleVariant.PRIMARY}>
           Confirm Transaction
-        </PageTitleMiniMode>
+        </PageTitle>
         <VerticalFlex
           grow="1"
           align="center"
@@ -128,7 +105,9 @@ export const CollectibleSendConfirm = ({
             <StyledCollectibleMedia
               width="auto"
               height="56px"
-              url={nftItem.externalData.imageSmall}
+              url={
+                nftItem.externalData?.imageSmall || nftItem.externalData?.image
+              }
             />
             <VerticalFlex width="100%" align="center">
               <SubTextTypography size={14} height="17px">
@@ -141,7 +120,7 @@ export const CollectibleSendConfirm = ({
                 margin="4px 0"
               >{`#${tokenId}`}</Typography>
               <SubTextTypography size={16} height="24px" weight={600}>
-                {nftItem?.externalData.name}
+                {nftItem?.externalData?.name}
               </SubTextTypography>
               <HorizontalFlex
                 margin="16px 0 0"
@@ -168,28 +147,6 @@ export const CollectibleSendConfirm = ({
               </HorizontalFlex>
             </VerticalFlex>
           </Card>
-
-          <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
-            <Typography size={12} height="15px" margin="0 8px 0 0">
-              Network Fee
-            </Typography>
-            <TransactionFeeTooltip
-              gasPrice={sendState?.gasPrice}
-              gasLimit={sendState?.gasLimit}
-            />
-          </HorizontalFlex>
-          <VerticalFlex width="100%">
-            <CustomFees
-              gasPrice={{
-                bn: gasPrice?.bn || defaultGasPrice?.bn || new BN(0),
-              }}
-              defaultGasPrice={defaultGasPrice}
-              limit={`${sendState?.gasLimit}`}
-              onChange={onGasChanged}
-              maxGasPrice={maxGasPrice}
-              selectedGasFeeModifier={selectedGasFee}
-            />
-          </VerticalFlex>
 
           <VerticalFlex align="center" justify="flex-end" width="100%" grow="1">
             <HorizontalFlex width="100%" justify="space-between" align="center">

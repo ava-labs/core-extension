@@ -13,6 +13,7 @@ interface LedgerApprovalDialogProps {
   amount?: string;
   symbol?: string;
   fee?: string;
+  feeSymbol?: string;
   nftName?: string;
 }
 
@@ -28,6 +29,7 @@ export function LedgerApprovalDialog({
   amount,
   symbol,
   fee,
+  feeSymbol,
   nftName,
 }: LedgerApprovalDialogProps) {
   const theme = useTheme();
@@ -74,7 +76,7 @@ export function LedgerApprovalDialog({
                 Fee
               </Typography>
               <Typography height="24px" weight={600}>
-                {fee} AVAX
+                {fee} {feeSymbol}
               </Typography>
             </VerticalFlex>
           )}

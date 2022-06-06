@@ -1,43 +1,34 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { SettingsState } from '../models';
-import { settings$ } from '../settings';
-import { saveSettingsToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { SettingsService } from '../SettingsService';
 
-export async function settingsUpdateCurrencySelection(
-  request: ExtensionConnectionMessage
-) {
-  const [currency] = request.params || [];
+@injectable()
+export class UpdateCurrencyHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SETTINGS_UPDATE_CURRENCY];
 
-  if (!currency) {
+  constructor(private settingsService: SettingsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [currency] = request.params || [];
+
+    if (!currency) {
+      return {
+        ...request,
+        error: 'currency undefined or malformed',
+      };
+    }
+
+    await this.settingsService.setCurrencty(currency);
+
     return {
       ...request,
-      error: 'currency undefined or malformed',
+      result: true,
     };
-  }
-
-  const settings = await firstValueFrom(settings$);
-
-  const newSettings: SettingsState = { ...settings, currency };
-
-  await saveSettingsToStorage(newSettings);
-
-  settings$.next(newSettings);
-
-  return {
-    ...request,
-    result: true,
   };
 }
-
-export const SettingsUpdateCurrencySelectionRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [
-  ExtensionRequest.SETTINGS_UPDATE_CURRENCY,
-  settingsUpdateCurrencySelection,
-];

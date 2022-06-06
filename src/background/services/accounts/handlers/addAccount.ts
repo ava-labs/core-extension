@@ -1,40 +1,33 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { addAccount as addAccountSDK } from '@avalabs/wallet-react-components';
-import { resolve } from '@src/utils/promiseResolver';
-import { saveAccountsToStorage } from '../storage';
-import { firstValueFrom } from 'rxjs';
-import { accounts$ } from '../accounts';
+import { injectable } from 'tsyringe';
+import { AccountsService } from '../AccountsService';
 
-export async function addAccount(accountName?: string) {
-  const accounts = await firstValueFrom(accounts$);
+@injectable()
+export class AddAccountHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ACCOUNT_ADD];
 
-  const newAccount = addAccountSDK();
-  accounts.push({
-    index: newAccount.index,
-    name: accountName || `Account ${newAccount.index + 1}`,
-    active: false,
-    addressC: newAccount.wallet.getAddressC() as string,
-  });
+  constructor(private accountsService: AccountsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    try {
+      await this.accountsService.addAccount();
+    } catch (e: any) {
+      return {
+        ...request,
+        result: 'error',
+        error: e.toString(),
+      };
+    }
 
-  accounts$.next(accounts);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, err] = await resolve(saveAccountsToStorage(accounts));
-
-  return {
-    result: 'success',
+    return {
+      ...request,
+      result: 'success',
+    };
   };
 }
-
-async function addAccountHandler(request: ExtensionConnectionMessage) {
-  const result = await addAccount();
-  return { ...request, ...result };
-}
-
-export const AddAccountRequest: [ExtensionRequest, ConnectionRequestHandler] = [
-  ExtensionRequest.ACCOUNT_ADD,
-  addAccountHandler,
-];

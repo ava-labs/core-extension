@@ -2,7 +2,6 @@ import {
   CaretIcon,
   CloseIcon,
   ComponentSize,
-  ConnectionIndicator,
   DropDownMenuItem,
   HorizontalFlex,
   HorizontalSeparator,
@@ -16,16 +15,15 @@ import {
 import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPageProps, SettingsPages } from '../models';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
+import { WalletType } from '@src/background/services/wallet/models';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const theme = useTheme();
-  const { isWalletReady, walletType } = useWalletContext();
-  const { network } = useNetworkContext();
+  const { walletType } = useWalletContext();
   const {
     showTokensWithoutBalances,
     lockWallet,
@@ -60,36 +58,6 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           <CloseIcon height="16px" color={theme.colors.icon1} />
         </TextButton>
       </HorizontalFlex>
-      <DropDownMenuItem
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        onClick={() => navigateTo(SettingsPages.NETWORK)}
-      >
-        <Typography size={14} height="17px">
-          Network
-        </Typography>
-        <HorizontalFlex align="center">
-          <ConnectionIndicator
-            disableTooltip={true}
-            size={8}
-            connected={isWalletReady}
-          />
-          <Typography
-            size={14}
-            height="17px"
-            margin="0 8px"
-            color={theme.colors.text2}
-          >
-            {network?.name?.replace('Avalanche', '')}
-          </Typography>
-          <CaretIcon
-            color={theme.colors.icon1}
-            height="14px"
-            direction={IconDirection.RIGHT}
-          />
-        </HorizontalFlex>
-      </DropDownMenuItem>
       <DropDownMenuItem
         justify="space-between"
         align="center"
@@ -130,7 +98,30 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           />
         </HorizontalFlex>
       </DropDownMenuItem>
-      {walletType === 'ledger' && (
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="10px 16px"
+        onClick={() => navigateTo(SettingsPages.ADVANCED)}
+      >
+        <Typography size={14} height="17px">
+          Advanced
+        </Typography>
+        <HorizontalFlex align="center">
+          <Typography
+            size={14}
+            height="17px"
+            margin="0 8px"
+            color={theme.colors.text2}
+          ></Typography>
+          <CaretIcon
+            color={theme.colors.icon1}
+            height="14px"
+            direction={IconDirection.RIGHT}
+          />
+        </HorizontalFlex>
+      </DropDownMenuItem>
+      {walletType === WalletType.LEDGER && (
         <DropDownMenuItem
           justify="space-between"
           align="center"
@@ -192,10 +183,33 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         padding="10px 16px"
         as="a"
         target="_blank"
-        href="https://wallet.avax.network/legal?core"
+        onClick={() => navigateTo(SettingsPages.LEGAL)}
       >
         <Typography size={14} height="17px">
           Legal
+        </Typography>
+        <CaretIcon
+          color={theme.colors.icon1}
+          height="14px"
+          direction={IconDirection.RIGHT}
+        />
+      </DropDownMenuItem>
+
+      <DropDownMenuItem
+        justify="space-between"
+        align="center"
+        padding="10px 16px"
+        as="a"
+        target="_blank"
+        onClick={() =>
+          window.open(
+            'https://support.avax.network/en/collections/3391518-core',
+            '_blank'
+          )
+        }
+      >
+        <Typography size={14} height="17px">
+          Help Center
         </Typography>
       </DropDownMenuItem>
 

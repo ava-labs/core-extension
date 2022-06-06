@@ -7,7 +7,6 @@ import {
 } from '@avalabs/react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
@@ -48,7 +47,6 @@ export function ConnectedSites({
 }: SettingsPageProps) {
   const theme = useTheme();
   const { updateAccountPermission, permissions } = usePermissionContext();
-  const { addresses } = useWalletContext();
   const { activeAccount } = useAccountsContext();
   const connectedSitesList = getAccountConnectedSites({
     list: permissions,
@@ -110,7 +108,7 @@ export function ConnectedSites({
                       cursor="pointer"
                       onClick={() => {
                         updateAccountPermission({
-                          addressC: addresses.addrC,
+                          addressC: activeAccount?.addressC,
                           hasPermission: false,
                           domain: site.domain,
                         });

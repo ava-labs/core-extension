@@ -1,39 +1,29 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { SettingsState } from '../models';
-import { settings$ } from '../settings';
-import { saveSettingsToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { SettingsService } from '../SettingsService';
 
-export async function settingsUpdateShowTokensNoBalance(
-  request: ExtensionConnectionMessage
-) {
-  const [showTokensWithoutBalances] = request.params || [];
+@injectable()
+export class UpdateShowNoBalanceHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SETTINGS_UPDATE_SHOW_NO_BALANCE];
 
-  const settings = await firstValueFrom(settings$);
+  constructor(private settingsService: SettingsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [showTokensWithoutBalances] = request.params || [];
 
-  const newSettings: SettingsState = {
-    ...settings,
-    showTokensWithoutBalances: !!showTokensWithoutBalances,
-  };
+    await this.settingsService.setShowTokensWithNoBalance(
+      !!showTokensWithoutBalances
+    );
 
-  await saveSettingsToStorage(newSettings);
-
-  settings$.next(newSettings);
-
-  return {
-    ...request,
-    result: true,
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const SettingsUpdateShowTokensWithBalanceRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [
-  ExtensionRequest.SETTINGS_UPDATE_SHOW_NO_BALANCE,
-  settingsUpdateShowTokensNoBalance,
-];

@@ -12,10 +12,12 @@ import {
 import { useTheme } from 'styled-components';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { resetExtensionState } from '@src/utils/resetExtensionState';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { WalletType } from '@src/background/services/wallet/models';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -27,6 +29,7 @@ export function SecurityAndPrivacy({
   const { walletType } = useWalletContext();
   const { analyticsConsent, setAnalyticsConsent } = useSettingsContext();
   const { stopDataCollection, initAnalyticsIds } = useAnalyticsContext();
+  const { request } = useConnectionContext();
 
   const onLogoutClick = () => {
     showDialog({
@@ -37,7 +40,10 @@ export function SecurityAndPrivacy({
       onConfirm: () => {
         clearDialog();
         stopDataCollection();
-        resetExtensionState();
+        request({
+          method: ExtensionRequest.RESET_EXTENSION_STATE,
+          params: [true],
+        });
       },
       cancelText: 'No',
       onCancel: () => {
@@ -93,7 +99,7 @@ export function SecurityAndPrivacy({
         />
       </SecondaryDropDownMenuItem>
 
-      {walletType === 'mnemonic' && (
+      {walletType === WalletType.MNEMONIC && (
         <SecondaryDropDownMenuItem
           justify="space-between"
           align="center"
@@ -126,7 +132,7 @@ export function SecurityAndPrivacy({
             if (analyticsConsent) {
               stopDataCollection();
             } else {
-              initAnalyticsIds();
+              initAnalyticsIds(true);
             }
           }}
         />

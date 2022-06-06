@@ -1,31 +1,29 @@
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { bridge$ } from '../bridge';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { BridgeService } from '../BridgeService';
+import { injectable } from 'tsyringe';
 
-export async function removeBridgeTransaction(
-  request: ExtensionConnectionMessage
-) {
-  const [bridgeTransaction] = request.params || [];
+@injectable()
+export class BridgeRemoveTransactionHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.BRIDGE_TRANSACTION_REMOVE];
 
-  const bridgeState = await firstValueFrom(bridge$);
+  constructor(private bridgeService: BridgeService) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { [bridgeTransaction.sourceTxHash]: unused, ...rest } =
-    bridgeState.bridgeTransactions;
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [txHash] = request.params || [];
+    if (!txHash) return { ...request, error: 'missing txHash' };
 
-  bridge$.next({ ...bridgeState, bridgeTransactions: rest });
+    await this.bridgeService.removeBridgeTransaction(txHash);
 
-  return {
-    ...request,
-    result: true,
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const RemoveBridgeTransactionStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.BRIDGE_TRANSACTION_REMOVE, removeBridgeTransaction];

@@ -21,12 +21,18 @@ export const useIdentifyAddress = () => {
       if (!address) return { ...UNSAVED_CONTACT_BASE, address: '' };
       const addressLowerCase = address.toLowerCase();
       for (const contact of contacts) {
-        if (contact.address.toLowerCase() === addressLowerCase) {
+        if (
+          contact.address.toLowerCase() === addressLowerCase ||
+          contact.addressBTC?.toLocaleLowerCase() === addressLowerCase
+        ) {
           return { id: contact.id, address, name: contact.name, isKnown: true };
         }
       }
       for (const account of accounts) {
-        if (account.addressC.toLowerCase() === addressLowerCase)
+        if (
+          account.addressC.toLowerCase() === addressLowerCase ||
+          account.addressBTC.toLocaleLowerCase() === addressLowerCase
+        )
           return { id: '', address, name: account.name, isKnown: true };
       }
       return {

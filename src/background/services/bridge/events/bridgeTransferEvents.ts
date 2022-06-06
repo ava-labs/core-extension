@@ -1,21 +1,34 @@
-import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { map } from 'rxjs';
-import { BridgeEvents, TransferEvent } from '../models';
-import { transferEvent$ } from '../transferEvent';
+import { BridgeEvents } from '../models';
+import {
+  ExtensionConnectionEvent,
+  ExtensionEventEmitter,
+} from '@src/background/connections/models';
+import { EventEmitter } from 'events';
+import { BridgeService } from '../BridgeService';
+import { singleton } from 'tsyringe';
 
-export function bridgeTransferEvent() {
-  return transferEvent$.pipe(
-    map((status) => {
-      return {
-        name: BridgeEvents.BRIDGE_TRANSFER_EVENT,
-        value: status,
-      };
-    })
-  );
-}
+@singleton()
+export class BridgeTransferEvents implements ExtensionEventEmitter {
+  private eventEmitter = new EventEmitter();
+  constructor(private bridgeService: BridgeService) {
+    this.bridgeService.addListener(
+      BridgeEvents.BRIDGE_TRANSFER_EVENT,
+      (status) => {
+        this.eventEmitter.emit('update', {
+          name: BridgeEvents.BRIDGE_TRANSFER_EVENT,
+          value: status,
+        });
+      }
+    );
+  }
 
-export function isBridgeTransferEventListener(
-  evt: ExtensionConnectionEvent
-): evt is ExtensionConnectionEvent<TransferEvent> {
-  return evt?.name === BridgeEvents.BRIDGE_TRANSFER_EVENT;
+  addListener(handler: (event: ExtensionConnectionEvent) => void): void {
+    this.eventEmitter.on('update', handler);
+  }
+
+  removeListener(
+    handler: (event: ExtensionConnectionEvent<any>) => void
+  ): void {
+    this.eventEmitter.off('update', handler);
+  }
 }

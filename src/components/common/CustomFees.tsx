@@ -8,29 +8,29 @@ import {
   SecondaryButton,
   Overlay,
 } from '@avalabs/react-components';
-import { GasPrice } from '@src/background/services/gas/models';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Big,
-  bnToLocaleString,
-  bigToBN,
-  BN,
-  stringToBN,
-} from '@avalabs/avalanche-wallet-sdk';
 import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
+import { BigNumber } from 'ethers';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNetworkContext } from '../../contexts/NetworkProvider';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { NetworkVMType } from '@avalabs/chains-sdk';
+import { formatUnits } from 'ethers/lib/utils';
 
 interface CustomGasFeesProps {
-  gasPrice: GasPrice;
-  limit: string;
-  onChange(gasLimit: string, gasPrice: GasPrice, feeType: GasFeeModifier): void;
+  gasPrice: BigNumber;
+  limit: number;
+  onChange(
+    gasLimit: number,
+    gasPrice: BigNumber,
+    feeType: GasFeeModifier
+  ): void;
   gasPriceEditDisabled?: boolean;
   maxGasPrice?: string;
   selectedGasFeeModifier?: GasFeeModifier;
-  defaultGasPrice?: GasPrice;
 }
 
 export enum GasFeeModifier {
@@ -96,6 +96,15 @@ const CustomLabel = styled.span`
   }
 `;
 
+function getUpToTwoDecimals(input: BigNumber, decimals: number) {
+  const result = input
+    .mul(100)
+    .div(10 ** decimals)
+    .toNumber();
+
+  return formatUnits(result, 2);
+}
+
 export function CustomFees({
   gasPrice,
   limit,
@@ -103,21 +112,35 @@ export function CustomFees({
   gasPriceEditDisabled = false,
   maxGasPrice,
   selectedGasFeeModifier,
-  defaultGasPrice,
 }: CustomGasFeesProps) {
-  const { avaxPrice } = useWalletContext();
+  const { network } = useNetworkContext();
+  const tokenPrice = useNativeTokenPrice();
   const { currencyFormatter, currency } = useSettingsContext();
-  const [customGasLimit, setCustomGasLimit] = useState<string>(limit);
-  const [customGasPrice, setCustomGasPrice] = useState<GasPrice>(gasPrice);
+  const { networkFee } = useNetworkFeeContext();
+  const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();
+  const gasLimit = customGasLimit || limit;
+  const [customGasPrice, setCustomGasPrice] = useState<BigNumber>(gasPrice);
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
-  >(calculateGasAndFees(gasPrice, limit, avaxPrice));
-  const [originalGas] = useState<GasPrice>(defaultGasPrice || gasPrice);
+  >(
+    calculateGasAndFees({
+      gasPrice,
+      tokenPrice,
+      tokenDecimals: network?.networkToken.decimals,
+      gasLimit,
+    })
+  );
 
   const [customGasInput, setCustomGasInput] = useState(
     selectedGasFeeModifier === GasFeeModifier.CUSTOM
-      ? parseInt(bnToLocaleString(gasPrice.bn, 9)).toString()
-      : parseInt(bnToLocaleString(originalGas.bn, 9)).toString()
+      ? getUpToTwoDecimals(
+          gasPrice,
+          networkFee?.displayDecimals ?? 9
+        ).toString()
+      : getUpToTwoDecimals(
+          networkFee?.low ?? BigNumber.from(0),
+          networkFee?.displayDecimals ?? 9
+        ).toString()
   );
 
   const [isGasPriceTooHigh, setIsGasPriceTooHigh] = useState(false);
@@ -126,96 +149,114 @@ export function CustomFees({
 
   const [showEditGasLimit, setShowEditGasLimit] = useState(false);
   const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
-    selectedGasFeeModifier || GasFeeModifier.NORMAL
+    networkFee?.isFixedFee
+      ? GasFeeModifier.NORMAL
+      : selectedGasFeeModifier || GasFeeModifier.NORMAL
   );
 
   const handleGasChange = useCallback(
-    (gas: GasPrice, modifier: GasFeeModifier): void => {
+    (gas: BigNumber, modifier: GasFeeModifier): void => {
       setIsGasPriceTooHigh(false);
 
       // update customGas
       setCustomGasPrice(gas);
       // update
-      const newFees = calculateGasAndFees(gas, customGasLimit, avaxPrice);
+      const newFees = calculateGasAndFees({
+        gasPrice: gas,
+        tokenPrice,
+        tokenDecimals: network?.networkToken.decimals,
+        gasLimit,
+      });
 
-      if (maxGasPrice && newFees.bnFee.gte(stringToBN(maxGasPrice, 0))) {
+      if (maxGasPrice && newFees.bnFee.gte(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
         return;
       }
-
       if (modifier === GasFeeModifier.CUSTOM) {
-        setCustomGasInput(gas.value || '0');
+        setCustomGasInput(
+          getUpToTwoDecimals(gas, networkFee?.displayDecimals || 0)
+        );
       }
 
       setNewFees(newFees);
       // call cb with limit and gas
-      onChange(customGasLimit, gas, modifier);
+      onChange(gasLimit, gas, modifier);
     },
-    [avaxPrice, customGasLimit, maxGasPrice, onChange]
-  );
-
-  const gasModifer = useCallback(
-    (amount: number): { bn: BN; value: string } => {
-      // take current GasPrice (BN) and add amount .05 | .15 | custom
-      const bigGas = new Big(bnToLocaleString(originalGas.bn, 9));
-      const newBigGas = bigGas.times(amount).plus(bigGas);
-
-      return {
-        bn: bigToBN(newBigGas, 9),
-        value: newBigGas.toString(),
-      };
-    },
-    [originalGas.bn]
+    [
+      tokenPrice,
+      network?.networkToken.decimals,
+      gasLimit,
+      maxGasPrice,
+      onChange,
+      networkFee?.displayDecimals,
+    ]
   );
 
   const updateGasFee = useCallback(
     (modifier?: GasFeeModifier) => {
-      if (!modifier) {
+      if (!modifier || !networkFee) {
         return;
       }
       setSelectedFee(modifier);
       switch (modifier) {
         case GasFeeModifier.FAST: {
-          handleGasChange(gasModifer(0.05), modifier);
+          handleGasChange(networkFee.medium, modifier);
           break;
         }
         case GasFeeModifier.INSTANT: {
-          handleGasChange(gasModifer(0.15), modifier);
+          handleGasChange(networkFee.high, modifier);
           break;
         }
         case GasFeeModifier.CUSTOM:
           handleGasChange(
-            {
-              bn: stringToBN(customGasInput, 9),
-              value: customGasInput,
-            },
+            BigNumber.from(customGasInput).mul(
+              10 ** networkFee.displayDecimals
+            ),
             modifier
           );
           break;
         default:
-          handleGasChange(originalGas, GasFeeModifier.NORMAL);
+          handleGasChange(networkFee.low, GasFeeModifier.NORMAL);
       }
     },
-    [customGasInput, gasModifer, handleGasChange, originalGas]
+    [customGasInput, handleGasChange, networkFee]
   );
 
-  // this should update the gas prices when there is a change (e.g. from hook)
   useEffect(() => {
-    updateGasFee(selectedGasFeeModifier);
-  }, [selectedGasFeeModifier, updateGasFee]);
+    if (networkFee) {
+      setCustomGasInput(
+        getUpToTwoDecimals(networkFee.low, networkFee.displayDecimals || 0)
+      );
+      // if the network fee is fixed, that means we only show Normal.
+      networkFee.isFixedFee
+        ? updateGasFee(GasFeeModifier.NORMAL)
+        : updateGasFee(selectedGasFeeModifier);
+    }
+  }, [networkFee, selectedGasFeeModifier, updateGasFee]);
 
-  if (showEditGasLimit && customGasPrice) {
+  if (
+    network?.vmName === NetworkVMType.EVM &&
+    showEditGasLimit &&
+    customGasPrice
+  ) {
     return (
       <CustomGasLimitOverlay>
         <CustomGasLimit
-          limit={customGasLimit}
+          limit={gasLimit}
           gasPrice={customGasPrice}
           onCancel={() => setShowEditGasLimit(false)}
           onSave={(limit) => {
             // update customGasLimit
             setCustomGasLimit(limit);
             // update newFees
-            setNewFees(calculateGasAndFees(customGasPrice, limit, avaxPrice));
+            setNewFees(
+              calculateGasAndFees({
+                gasPrice: customGasPrice,
+                tokenPrice,
+                tokenDecimals: network?.networkToken.decimals,
+                gasLimit: limit,
+              })
+            );
             // call cb with limit and gas
             onChange(
               limit,
@@ -226,6 +267,10 @@ export function CustomFees({
         />
       </CustomGasLimitOverlay>
     );
+  }
+
+  if (!networkFee) {
+    return null;
   }
 
   return (
@@ -244,7 +289,7 @@ export function CustomFees({
                 weight={600}
                 margin="0 8px 0 0"
               >
-                {newFees.fee} AVAX
+                {newFees.fee} {network?.networkToken.symbol}
               </Typography>
               <Typography height="15px" size={12}>
                 {!isNaN(Number(newFees.feeUSD))
@@ -252,9 +297,11 @@ export function CustomFees({
                   : ''}
               </Typography>
             </HorizontalFlex>
-            <TextButton onClick={() => setShowEditGasLimit(true)}>
-              <GearIcon height="16px" color={theme.colors.icon1} />
-            </TextButton>
+            {network?.vmName === NetworkVMType.EVM && (
+              <TextButton onClick={() => setShowEditGasLimit(true)}>
+                <GearIcon height="16px" color={theme.colors.icon1} />
+              </TextButton>
+            )}
           </HorizontalFlex>
           <HorizontalFlex justify="space-between">
             <FeeButton
@@ -266,75 +313,91 @@ export function CustomFees({
               width="65px"
             >
               Normal <br />
-              {parseInt(bnToLocaleString(originalGas.bn, 9))}
+              {getUpToTwoDecimals(networkFee.low, networkFee.displayDecimals)}
             </FeeButton>
-            <FeeButton
-              disabled={gasPriceEditDisabled}
-              className={selectedFee === GasFeeModifier.FAST ? 'focus' : ''}
-              onClick={() => {
-                updateGasFee(GasFeeModifier.FAST);
-              }}
-              width="65px"
-            >
-              Fast <br />
-              {parseInt(gasModifer(0.05).value)}
-            </FeeButton>
-            <FeeButton
-              disabled={gasPriceEditDisabled}
-              className={selectedFee === GasFeeModifier.INSTANT ? 'focus' : ''}
-              onClick={() => {
-                updateGasFee(GasFeeModifier.INSTANT);
-              }}
-              width="65px"
-            >
-              Instant <br />
-              {parseInt(gasModifer(0.15).value)}
-            </FeeButton>
-            <FeeButton
-              disabled={gasPriceEditDisabled}
-              className={selectedFee === GasFeeModifier.CUSTOM ? 'focus' : ''}
-              onClick={() => {
-                updateGasFee(GasFeeModifier.CUSTOM);
-                customInputRef?.current?.focus();
-              }}
-              width="65px"
-            >
-              <VerticalFlex>
-                <CustomLabel>Custom</CustomLabel>
-                <CustomInput
-                  ref={customInputRef}
-                  type={'number'}
-                  value={customGasInput}
-                  onChange={(e) => {
-                    if (e.target.value === '') {
-                      handleGasChange(
-                        {
-                          bn: stringToBN('0', 9),
-                          value: e.target.value,
-                        },
-                        GasFeeModifier.CUSTOM
-                      );
-                    } else {
-                      handleGasChange(
-                        {
-                          bn: stringToBN(e.target.value, 9),
-                          value: e.target.value,
-                        },
-                        GasFeeModifier.CUSTOM
-                      );
-                    }
+            {!networkFee.isFixedFee && (
+              <>
+                <FeeButton
+                  disabled={gasPriceEditDisabled}
+                  className={selectedFee === GasFeeModifier.FAST ? 'focus' : ''}
+                  onClick={() => {
+                    updateGasFee(GasFeeModifier.FAST);
                   }}
-                  onBlur={(e) => {
-                    if (e.target.value === '') {
-                      setCustomGasInput(
-                        parseInt(bnToLocaleString(originalGas.bn, 9)).toString()
-                      );
-                      handleGasChange(originalGas, GasFeeModifier.CUSTOM);
-                    }
+                  width="65px"
+                >
+                  Fast <br />
+                  {getUpToTwoDecimals(
+                    networkFee.medium,
+                    networkFee.displayDecimals
+                  )}
+                </FeeButton>
+                <FeeButton
+                  disabled={gasPriceEditDisabled}
+                  className={
+                    selectedFee === GasFeeModifier.INSTANT ? 'focus' : ''
+                  }
+                  onClick={() => {
+                    updateGasFee(GasFeeModifier.INSTANT);
                   }}
-                />
-              </VerticalFlex>
-            </FeeButton>
+                  width="65px"
+                >
+                  Instant <br />
+                  {getUpToTwoDecimals(
+                    networkFee.high,
+                    networkFee.displayDecimals
+                  )}
+                </FeeButton>
+                <FeeButton
+                  disabled={gasPriceEditDisabled}
+                  className={
+                    selectedFee === GasFeeModifier.CUSTOM ? 'focus' : ''
+                  }
+                  onClick={() => {
+                    updateGasFee(GasFeeModifier.CUSTOM);
+                    customInputRef?.current?.focus();
+                  }}
+                  width="65px"
+                >
+                  <VerticalFlex>
+                    <CustomLabel>Custom</CustomLabel>
+                    <CustomInput
+                      ref={customInputRef}
+                      type={'number'}
+                      value={customGasInput}
+                      onChange={(e) => {
+                        if (e.target.value === '') {
+                          handleGasChange(
+                            BigNumber.from(0),
+                            GasFeeModifier.CUSTOM
+                          );
+                        } else {
+                          handleGasChange(
+                            BigNumber.from(e.target.value).mul(
+                              10 ** networkFee.displayDecimals
+                            ),
+                            GasFeeModifier.CUSTOM
+                          );
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') {
+                          setCustomGasInput(
+                            getUpToTwoDecimals(
+                              networkFee.low,
+                              networkFee.displayDecimals
+                            ).toString()
+                          );
+                          handleGasChange(
+                            networkFee.low,
+                            GasFeeModifier.CUSTOM
+                          );
+                        }
+                      }}
+                    />
+                  </VerticalFlex>
+                </FeeButton>
+              </>
+            )}
           </HorizontalFlex>
         </VerticalFlex>
       </Card>

@@ -1,4 +1,4 @@
-import { NFT } from '@avalabs/blizzard-sdk';
+import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
 import { useHistory, useLocation } from 'react-router-dom';
 
 type SetCollectibleParams = {

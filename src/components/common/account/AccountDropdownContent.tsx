@@ -5,6 +5,7 @@ import {
   ComponentSize,
   HorizontalFlex,
   HorizontalSeparator,
+  LoadingSpinnerIcon,
   PrimaryButton,
   TextButton,
   Typography,
@@ -17,6 +18,7 @@ import {
   Scrollbars,
   ScrollbarsRef,
 } from '@src/components/common/scrollbars/Scrollbars';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
@@ -32,16 +34,26 @@ export function AccountDropdownContent({
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
 
   const [editing, isEditing] = useState<boolean>(false);
+  const [hasError, setHasError] = useState(false);
   const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
     null
   );
+  const [addAccountLoading, setAddAccountLoading] = useState<boolean>(false);
+  const { capture } = useAnalyticsContext();
 
   const addAccountAndFocus = async () => {
-    const nextIndex = accounts.length;
-    await addAccount();
-    await selectAccount(nextIndex);
-    isEditing(true);
-    scrollbarsRef.current?.scrollToBottom();
+    setAddAccountLoading(true);
+    try {
+      await addAccount();
+      const nextIndex = accounts.length;
+      await selectAccount(nextIndex);
+      isEditing(true);
+      scrollbarsRef.current?.scrollToBottom();
+      setHasError(false);
+    } catch (e) {
+      setHasError(true);
+    }
+    setAddAccountLoading(false);
   };
 
   useEffect(() => {
@@ -96,6 +108,11 @@ export function AccountDropdownContent({
         ref={scrollbarsRef}
       >
         <VerticalFlex padding="0 0 16px 0">
+          {hasError && (
+            <Typography color={theme.colors.error} size={12} margin="8px">
+              Some error occured, pleas try again later
+            </Typography>
+          )}
           {accounts.map((account, i) => {
             return (
               <VerticalFlex
@@ -114,7 +131,7 @@ export function AccountDropdownContent({
                   <HorizontalSeparator
                     color={`${theme.colors.bg3}80`}
                     margin="0 16px"
-                    width={327}
+                    width="auto"
                   />
                 )}
               </VerticalFlex>
@@ -130,10 +147,20 @@ export function AccountDropdownContent({
       >
         <PrimaryButton
           size={ComponentSize.LARGE}
+          disabled={addAccountLoading}
           width="100%"
-          onClick={() => addAccountAndFocus()}
+          onClick={() => {
+            capture('AccountSelectorAddAccount', {
+              accountNumber: accounts.length + 1,
+            });
+            addAccountAndFocus();
+          }}
         >
-          Add Account
+          {addAccountLoading ? (
+            <LoadingSpinnerIcon color={theme.colors.icon1} height="24px" />
+          ) : (
+            'Add Account'
+          )}
         </PrimaryButton>
       </HorizontalFlex>
     </Card>

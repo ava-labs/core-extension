@@ -7,10 +7,11 @@ import {
   TextButton,
   Typography,
 } from '@avalabs/react-components';
-import { getAddressLink } from '@avalabs/wallet-react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { openNewTab } from '@src/utils/extensionUtils';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useMemo } from 'react';
 import { useTheme } from 'styled-components';
@@ -23,8 +24,8 @@ export function AddressPaths({
   toAddress: string;
 }) {
   const { accounts } = useAccountsContext();
+  const { network } = useNetworkContext();
   const theme = useTheme();
-
   const account = useMemo(() => {
     return accounts.find((acc) => {
       return acc.addressC.toLowerCase() === fromAddress.toLowerCase();
@@ -56,7 +57,12 @@ export function AddressPaths({
         </HorizontalFlex>
         <HorizontalFlex justify="center">
           <TextButton
-            onClick={() => openNewTab({ url: getAddressLink(toAddress) })}
+            onClick={() =>
+              network &&
+              openNewTab({
+                url: getExplorerAddressByNetwork(network, toAddress, 'address'),
+              })
+            }
           >
             <HorizontalFlex align="center">
               <AvaxTokenIcon height="16px" />

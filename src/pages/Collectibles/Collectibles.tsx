@@ -1,4 +1,3 @@
-import { NFT } from '@avalabs/blizzard-sdk';
 import {
   GridIcon,
   HorizontalFlex,
@@ -8,14 +7,17 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
+
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CollectibleGrid } from './components/CollectibleGrid';
 import { CollectibleList } from './components/CollectibleList';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 
 enum ListType {
   GRID = 'GRID',
@@ -54,16 +56,34 @@ const GroupButton = styled(PrimaryButton)<{ active: boolean }>`
 
 export function Collectibles() {
   const theme = useTheme();
-  const { nfts } = useWalletContext();
+  const { nfts } = useBalancesContext();
   const setCollectibleParams = useSetCollectibleParams();
-  const [listType, setListType] = useState<ListType>(ListType.GRID);
+  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+  const { listType: historyListType }: { listType?: ListType } =
+    getPageHistoryData();
+  const [listType, setListType] = useState<ListType>(
+    historyListType || ListType.GRID
+  );
+
+  useEffect(() => {
+    if (historyListType) {
+      setListType(historyListType);
+    }
+  }, [historyListType]);
+
+  const handleClick = (listType: ListType) => {
+    setListType(listType);
+    setNavigationHistoryData({ listType: listType });
+  };
 
   return (
     <VerticalFlex grow="1">
       <ButtonGroup>
         <GroupButton
           active={listType === ListType.GRID}
-          onClick={() => setListType(ListType.GRID)}
+          onClick={() => {
+            handleClick(ListType.GRID);
+          }}
         >
           <GridIcon
             height="14px"
@@ -74,7 +94,9 @@ export function Collectibles() {
         </GroupButton>
         <GroupButton
           active={listType === ListType.LIST}
-          onClick={() => setListType(ListType.LIST)}
+          onClick={() => {
+            handleClick(ListType.LIST);
+          }}
         >
           <ListIcon
             height="16px"

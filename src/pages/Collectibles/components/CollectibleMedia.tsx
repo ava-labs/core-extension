@@ -61,7 +61,7 @@ const StyledPlayIcon = styled(PlayIcon)`
 `;
 
 interface CollectibleMediaProps {
-  url: string;
+  url?: string;
   width?: string;
   height?: string;
   maxWidth?: string;

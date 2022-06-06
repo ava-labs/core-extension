@@ -6,11 +6,13 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import { BN, bnToLocaleString } from '@avalabs/avalanche-wallet-sdk';
+import { BigNumber } from 'ethers';
+import Big from 'big.js';
+import { bigToLocaleString } from '@avalabs/utils-sdk';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: string | number;
-  gasPrice?: BN;
+  gasPrice?: BigNumber;
 }
 
 const StyledTooltip = styled(Tooltip)`
@@ -36,7 +38,10 @@ export function TransactionFeeTooltip({
       </HorizontalFlex>
       <HorizontalFlex width="100%" justify="space-between">
         <Typography size={12}>Gas Price</Typography>
-        <Typography size={12}>{bnToLocaleString(gasPrice, 9)} nAVAX</Typography>
+        <Typography size={12}>
+          {bigToLocaleString(new Big(gasPrice.toString()).div(10 ** 9), 0)}{' '}
+          nAVAX
+        </Typography>
       </HorizontalFlex>
     </VerticalFlex>
   );

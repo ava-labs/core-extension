@@ -2,6 +2,7 @@ import { Overlay, VerticalFlex } from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { LedgerApprovalDialog } from './LedgerApprovalDialog';
 import { TransactionDisplayValues } from '@src/background/services/transactions/models';
+import { WalletType } from '@src/background/services/wallet/models';
 
 interface LedgerApprovalOverlayProps {
   displayData: TransactionDisplayValues;
@@ -12,7 +13,7 @@ export function LedgerApprovalOverlay({
 }: LedgerApprovalOverlayProps) {
   const { walletType } = useWalletContext();
 
-  if (walletType !== 'ledger') {
+  if (walletType !== WalletType.LEDGER) {
     return null;
   }
 
@@ -28,6 +29,7 @@ export function LedgerApprovalOverlay({
         <LedgerApprovalDialog
           address={displayData.toAddress}
           fee={displayData.fee}
+          feeSymbol={displayData.feeSymbol}
         />
       </VerticalFlex>
     </Overlay>

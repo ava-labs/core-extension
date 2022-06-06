@@ -1,21 +1,31 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { settings$ } from '../settings';
+import { injectable } from 'tsyringe';
+import { SettingsService } from '../SettingsService';
+@injectable()
+export class GetSettingsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SETTINGS_GET];
 
-export async function getSettings(request: ExtensionConnectionMessage) {
-  const settings = await firstValueFrom(settings$);
+  constructor(private settingsService: SettingsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    try {
+      const settings = await this.settingsService.getSettings();
 
-  return {
-    ...request,
-    result: settings ?? {},
+      return {
+        ...request,
+        result: settings ?? {},
+      };
+    } catch (e: any) {
+      return {
+        ...request,
+        error: e?.toString() ?? {},
+      };
+    }
   };
 }
-
-export const GetSettingsStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.SETTINGS_GET, getSettings];

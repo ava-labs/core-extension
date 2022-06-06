@@ -1,40 +1,45 @@
-import { lazy, useMemo, Suspense, useEffect, useState } from 'react';
-import {
-  Switch,
-  Route,
-  Redirect,
-  useHistory,
-  useLocation,
-} from 'react-router-dom';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 import {
   DialogContextProvider,
   HorizontalFlex,
   LoadingIcon,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { HeaderFlow } from '@src/components/common/header/HeaderFlow';
+import { Header } from '@src/components/common/header/Header';
+import { WalletLoading } from '@src/components/common/WalletLoading';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
-import { WalletContextProvider } from '@src/contexts/WalletProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { BalancesProvider } from '@src/contexts/BalancesProvider';
+import { BridgeProvider } from '@src/contexts/BridgeProvider';
+import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
+import { LedgerSupportContextProvider } from '@src/contexts/LedgerSupportProvider';
+import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
+import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
 import { SwapContextProvider } from '@src/contexts/SwapProvider';
+import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
-import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
-import { Home } from '@src/pages/Home/Home';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import { BridgeProvider } from '@src/contexts/BridgeProvider';
+import { useOnline } from '@src/hooks/useOnline';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+import { ApproveAction } from '@src/pages/ApproveAction/ApproveAction';
+import { TokenList } from '@src/pages/Home/components/Portfolio/TokenList';
+import { Home } from '@src/pages/Home/Home';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
-import { LedgerSupportContextProvider } from '@src/contexts/LedgerSupportProvider';
-import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
-import { usePageHistory } from '@src/hooks/usePageHistory';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+} from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
-import { useOnline } from '@src/hooks/useOnline';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -55,14 +60,14 @@ const PermissionsPage = lazy(() => {
 });
 
 const SignTransactionPage = lazy(() => {
-  return import('../pages/SignTransaction/SignTransactionFlow').then((m) => ({
+  return import('../pages/SignTransaction/SignTransaction').then((m) => ({
     default: m.SignTransactionPage,
   }));
 });
 
 const TokenFlowPage = lazy(() => {
-  return import('../pages/Wallet/TokenFlow.minimode').then((m) => ({
-    default: m.TokenFlowMiniMode,
+  return import('../pages/Wallet/TokenFlow').then((m) => ({
+    default: m.TokenFlow,
   }));
 });
 
@@ -86,9 +91,9 @@ const BridgeTransactionStatus = lazy(() => {
   return import('../pages/Bridge/BridgeTransactionStatus');
 });
 
-const SendFlow = lazy(() => {
-  return import('../pages/Send/SendFlow').then((m) => ({
-    default: m.SendFlow,
+const SendPage = lazy(() => {
+  return import('../pages/Send/Send').then((m) => ({
+    default: m.SendPage,
   }));
 });
 
@@ -104,8 +109,13 @@ const CollectibleSend = lazy(() => {
   }));
 });
 
+const LedgerConnect = lazy(() => {
+  return import('../pages/Ledger/Connect').then((m) => ({
+    default: m.LedgerConnect,
+  }));
+});
+
 export function Popup() {
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
@@ -159,145 +169,165 @@ export function Popup() {
         <OnboardingContextProvider>
           <NetworkContextProvider>
             <AccountsContextProvider>
-              <WalletContextProvider>
-                <SwapContextProvider>
-                  <BridgeProvider>
-                    <ContactsContextProvider>
-                      <PermissionContextProvider>
-                        <VerticalFlex
-                          height={dimensions.height}
-                          width={dimensions.width}
-                          maxHeight={drawerOpen ? '100%' : 'auto'}
-                          overflow={drawerOpen ? 'hidden' : 'auto'}
-                          align="center"
-                          margin="auto"
-                        >
-                          {![
-                            '/tokens/manage',
-                            '/bridge/transaction-status',
-                            '/bridge/transaction-details',
-                            '/send/confirm',
-                            '/collectible/send/confirm',
-                          ].some((path) =>
-                            location.pathname.startsWith(path)
-                          ) && (
-                            <VerticalFlex width="100%">
-                              {!isConfirm && (
-                                <HeaderFlow
-                                  onDrawerStateChanged={setDrawerOpen}
-                                />
-                              )}
-                            </VerticalFlex>
-                          )}{' '}
-                          <HorizontalFlex
-                            flex={1}
-                            justify={'center'}
-                            margin={isMiniMode ? '' : '16px 0'}
-                            maxWidth="100%"
-                            width={appWidth}
-                          >
-                            <Switch>
-                              <Route path="/token/add">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <AddToken />
-                                </Suspense>
-                              </Route>
+              <BalancesProvider>
+                <NetworkFeeContextProvider>
+                  <WalletContextProvider>
+                    <SwapContextProvider>
+                      <BridgeProvider>
+                        <ContactsContextProvider>
+                          <PermissionContextProvider>
+                            <WalletLoading>
+                              <VerticalFlex
+                                height={dimensions.height}
+                                width={dimensions.width}
+                                maxHeight={'auto'}
+                                overflow={'auto'}
+                                align="center"
+                                margin="auto"
+                              >
+                                {![
+                                  '/tokens/manage',
+                                  '/bridge/transaction-status',
+                                  '/bridge/transaction-details',
+                                  '/send/confirm',
+                                  '/collectible/send/confirm',
+                                ].some((path) =>
+                                  location.pathname.startsWith(path)
+                                ) && (
+                                  <VerticalFlex width="100%">
+                                    {!isConfirm && <Header />}
+                                  </VerticalFlex>
+                                )}{' '}
+                                <HorizontalFlex
+                                  flex={1}
+                                  justify={'center'}
+                                  margin={isMiniMode ? '' : '16px 0'}
+                                  maxWidth="100%"
+                                  width={appWidth}
+                                >
+                                  <Switch>
+                                    <Route path="/token/add">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <AddToken />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/home">
-                                <Home />
-                              </Route>
+                                    <Route path="/home">
+                                      <Home />
+                                    </Route>
 
-                              <Route path="/sign/transaction">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <SignTxErrorBoundary>
-                                    <SignTransactionPage />
-                                  </SignTxErrorBoundary>
-                                </Suspense>
-                              </Route>
+                                    <Route path="/sign/transaction">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SignTxErrorBoundary>
+                                          <SignTransactionPage />
+                                        </SignTxErrorBoundary>
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/sign">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <SignMessage />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/ledger/connect">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <LedgerConnect />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/permissions">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <PermissionsPage />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/sign">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SignMessage />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/token">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <TokenFlowPage />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/approve">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <ApproveAction />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/collectible/send">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <CollectibleSend />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/permissions">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <PermissionsPage />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/collectible">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <CollectibleDetails />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/token">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <TokenFlowPage />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/receive">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <Receive />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/collectible/send">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <CollectibleSend />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/send">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <SendFlow />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/collectible">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <CollectibleDetails />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/swap">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <Swap />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/receive">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Receive />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/bridge/transaction-status/:sourceBlockchain/:txHash/:txTimestamp">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <BridgeTransactionStatus />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/send">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SendPage />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/bridge">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <Bridge />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/swap">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Swap />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/manage-tokens/add">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <AddToken />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/bridge/transaction-status/:sourceBlockchain/:txHash/:txTimestamp">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <BridgeTransactionStatus />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/manage-tokens">
-                                <Suspense fallback={<LoadingIcon />}>
-                                  <ManageTokensPage />
-                                </Suspense>
-                              </Route>
+                                    <Route path="/bridge">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Bridge />
+                                      </Suspense>
+                                    </Route>
 
-                              <Route path="/">
-                                <Redirect to="/home" />
-                              </Route>
-                            </Switch>
-                          </HorizontalFlex>
-                        </VerticalFlex>
-                      </PermissionContextProvider>
-                    </ContactsContextProvider>
-                  </BridgeProvider>
-                </SwapContextProvider>
-              </WalletContextProvider>
+                                    <Route path="/manage-tokens/add">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <AddToken />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/manage-tokens">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <ManageTokensPage />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/tokenlist">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <TokenList />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/">
+                                      <Redirect to="/home" />
+                                    </Route>
+                                  </Switch>
+                                </HorizontalFlex>
+                              </VerticalFlex>
+                            </WalletLoading>
+                          </PermissionContextProvider>
+                        </ContactsContextProvider>
+                      </BridgeProvider>
+                    </SwapContextProvider>
+                  </WalletContextProvider>
+                </NetworkFeeContextProvider>
+              </BalancesProvider>
             </AccountsContextProvider>
           </NetworkContextProvider>
         </OnboardingContextProvider>

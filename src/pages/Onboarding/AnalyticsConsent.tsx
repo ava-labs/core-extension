@@ -4,8 +4,7 @@ import {
   PrimaryButton,
   ComponentSize,
   HorizontalFlex,
-  SecondaryButton,
-  CloseIcon,
+  CheckmarkIcon,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
@@ -33,7 +32,7 @@ export const AnalyticsConsent = () => {
           <Typography
             as="a"
             target="_blank"
-            href="https://wallet.avax.network/legal?core"
+            href="https://www.avalabs.org/privacy-policy"
             color={theme.colors.secondary1}
           >
             Privacy Policy
@@ -61,7 +60,7 @@ export const AnalyticsConsent = () => {
             padding="0 6px"
             shrink={0}
           >
-            <CloseIcon height="18px" color={theme.colors.error} />
+            <CheckmarkIcon height="22px" color={theme.colors.success} />
           </HorizontalFlex>
           <Typography size={16} height="24px" margin="0 0 0 24px">
             <Typography size={16} height="24px" weight={700}>
@@ -77,7 +76,7 @@ export const AnalyticsConsent = () => {
             align="center"
             justify="center"
           >
-            <CloseIcon height="18px" color={theme.colors.error} />
+            <CheckmarkIcon height="22px" color={theme.colors.success} />
           </HorizontalFlex>
           <Typography size={16} height="24px" margin="0 0 0 24px">
             <Typography size={16} height="24px" weight={700}>
@@ -93,7 +92,7 @@ export const AnalyticsConsent = () => {
             align="center"
             justify="center"
           >
-            <CloseIcon height="18px" color={theme.colors.error} />
+            <CheckmarkIcon height="22px" color={theme.colors.success} />
           </HorizontalFlex>
           <Typography size={16} height="24px" margin="0 0 0 24px">
             <Typography size={16} height="24px" weight={700}>
@@ -110,28 +109,24 @@ export const AnalyticsConsent = () => {
           margin="0 16px 0 0"
           onClick={async () => {
             capture('OnboardingAnalyticsAccepted');
-            setAnalyticsConsent(true).then(() =>
-              setNextPhase(OnboardingPhase.PASSWORD)
-            );
+            setAnalyticsConsent(true);
+            setNextPhase(OnboardingPhase.PASSWORD);
           }}
         >
           I Agree
         </PrimaryButton>
-        <SecondaryButton
+        <PrimaryButton
           size={ComponentSize.LARGE}
           width="190px"
           onClick={async () => {
             capture('OnboardingAnalyticsRejected');
             stopDataCollection();
-            setAnalyticsConsent(false).then(() =>
-              setNextPhase(OnboardingPhase.PASSWORD)
-            );
+            setAnalyticsConsent(false);
+            setNextPhase(OnboardingPhase.PASSWORD);
           }}
         >
-          <Typography size={16} weight={600} color={theme.colors.text2}>
-            No thanks
-          </Typography>
-        </SecondaryButton>
+          No thanks
+        </PrimaryButton>
       </HorizontalFlex>
     </VerticalFlex>
   );

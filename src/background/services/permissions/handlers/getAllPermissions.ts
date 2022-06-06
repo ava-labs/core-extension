@@ -1,29 +1,24 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { permissions$ } from '../permissions';
+import { injectable } from 'tsyringe';
+import { PermissionsService } from '../PermissionsService';
+@injectable()
+export class GetAllPermissionsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.PERMISSIONS_GET_ALL_PERMISSIONS];
 
-async function getAllPermissions(request: ExtensionConnectionMessage) {
-  const params = request.params;
-  if (!params) {
+  constructor(private permissionsService: PermissionsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const currentPermissions = await this.permissionsService.getPermissions();
+
     return {
       ...request,
-      error: 'no params on request',
+      result: currentPermissions,
     };
-  }
-
-  const currentPermissions = await firstValueFrom(permissions$);
-
-  return {
-    ...request,
-    result: currentPermissions,
   };
 }
-
-export const GetAllPermissionsRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.PERMISSIONS_GET_ALL_PERMISSIONS, getAllPermissions];

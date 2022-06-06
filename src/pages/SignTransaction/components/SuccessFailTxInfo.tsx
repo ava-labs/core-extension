@@ -12,11 +12,12 @@ import {
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
-import { GasPrice } from '@src/background/services/gas/models';
-import { BN, bnToBig } from '@avalabs/avalanche-wallet-sdk';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+import { BigNumber } from 'ethers';
+import Big from 'big.js';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 
 export function SuccessFailTxInfo({
   hash,
@@ -25,16 +26,17 @@ export function SuccessFailTxInfo({
   error,
 }: {
   hash?: string;
-  gasPrice: GasPrice;
-  gasLimit: string;
+  gasPrice: BigNumber;
+  gasLimit: number;
   error?: string;
 }) {
   const theme = useTheme();
-  const { avaxToken } = useWalletContext();
+  const { network } = useNetworkContext();
+  const nativeTokenPrice = useNativeTokenPrice();
   const { currencyFormatter } = useSettingsContext();
 
-  const gasCost = bnToBig(gasPrice.bn.mul(new BN(gasLimit)), 18);
-  const gasCostUsd = gasCost.mul(avaxToken.priceUSD || 0);
+  const gasCost = new Big(gasPrice.toString()).mul(gasLimit).div(10 ** 18);
+  const gasCostUsd = gasCost.mul(nativeTokenPrice || 0);
 
   if (error) {
     return (
@@ -64,11 +66,11 @@ export function SuccessFailTxInfo({
           <Typography size={12} height="15px" margin="0 8px 0 0">
             Network Fee
           </Typography>
-          <TransactionFeeTooltip gasPrice={gasPrice?.bn} gasLimit={gasLimit} />
+          <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={gasLimit} />
         </HorizontalFlex>
         <VerticalFlex align="flex-end">
           <Typography size={12} height="15px" margin="0 0 4px 0">
-            {gasCost.toLocaleString(6)} AVAX
+            {gasCost.toLocaleString()} {network?.networkToken.symbol}
           </Typography>
           <SubTextTypography size={12} height="15px">
             {currencyFormatter(gasCostUsd.toNumber())}

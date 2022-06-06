@@ -1,23 +1,32 @@
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { navigationHistory$ } from '../navigationHistory';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { NavigationHistoryService } from '../NavigationHistoryService';
+import { injectable } from 'tsyringe';
+@injectable()
+export class GetNavigationHistoryHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.NAVIGATION_HISTORY_GET];
 
-export async function getNavigationHistory(
-  request: ExtensionConnectionMessage
-) {
-  const navigationHistory = await firstValueFrom(navigationHistory$);
+  constructor(private navigationHistoryService: NavigationHistoryService) {}
 
-  return {
-    ...request,
-    result: navigationHistory ?? {},
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    try {
+      const navigationHistory =
+        await this.navigationHistoryService.getHistory();
+      return {
+        ...request,
+        result: navigationHistory ?? {},
+      };
+    } catch (e) {
+      return {
+        ...request,
+        result: {},
+      };
+    }
   };
 }
-
-export const GetNavigationHistoryStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.NAVIGATION_HISTORY_GET, getNavigationHistory];

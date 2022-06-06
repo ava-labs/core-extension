@@ -6,11 +6,13 @@ import {
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { AddressDropdownList } from './AddressDropdownList';
 import { Contact } from '@src/background/services/contacts/models';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 
 const Tabs = styled(HorizontalFlex)`
   border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
@@ -39,50 +41,67 @@ const Tab = styled(HorizontalFlex)<{ selected?: boolean }>`
     selected ? `2px solid ${theme.colors.text1}` : '2px solid transparent'}; ;
 `;
 
-type ContactSelectProps = {
+interface ContactSelectProps {
   selectedContact?: Contact;
-  onChange(contact: Contact): void;
-};
+  onChange(contact: Contact, selectedTab: string): void;
+}
 
 export const ContactSelect = ({
   onChange,
   selectedContact,
 }: ContactSelectProps) => {
   const identifyAddress = useIdentifyAddress();
-  const { recentTxHistory } = useWalletContext();
+  const { getTransactionHistory } = useWalletContext();
   const { accounts } = useAccountsContext();
   const { contacts } = useContactsContext();
+  const { network } = useNetworkContext();
   const [selectedTab, setSelectedTab] = useState<string>('recents');
+  const [historyContacts, setHistoryContacts] = useState<Contact[]>([]);
 
-  const formattedTxHistory = useMemo(
-    () =>
-      recentTxHistory
-        // filter out dupe to addresses
-        .filter((tx, index, self) => {
-          return (
-            index === self.findIndex((temp) => temp.to === tx.to) &&
-            tx.to !== '0x0000000000000000000000000000000000000000'
-          );
-        })
-        .map((tx) => identifyAddress(tx.to)),
-    [recentTxHistory, identifyAddress]
-  );
+  useEffect(() => {
+    getTransactionHistory().then((history) =>
+      setHistoryContacts(
+        history
+          // filter out dupe to addresses
+          .filter((tx, index, self) => {
+            return (
+              index === self.findIndex((temp) => temp.to === tx.to) &&
+              tx.to !== '0x0000000000000000000000000000000000000000'
+            );
+          })
+          .map((tx) => identifyAddress(tx.to))
+      )
+    );
+  }, [getTransactionHistory, identifyAddress]);
 
-  const formattedAccounts = useMemo(
-    () =>
-      accounts.map(({ addressC, name }) => ({
-        id: '',
-        address: addressC,
-        name,
+  const formattedAccounts = useMemo(() => {
+    return accounts.map(({ addressC, name, addressBTC }) => ({
+      id: '',
+      address: network?.vmName == NetworkVMType.EVM ? addressC : '',
+      addressBTC: network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
+      name,
+      isKnown: true,
+    }));
+  }, [accounts, network]);
+
+  const formattedContacts = useMemo(() => {
+    return contacts
+      .filter((contact) => {
+        if (network?.vmName === NetworkVMType.EVM) {
+          return contact.address;
+        }
+        if (network?.vmName === NetworkVMType.BITCOIN) {
+          return contact.addressBTC;
+        }
+      })
+      .map((contact) => ({
+        ...contact,
+        address: network?.vmName == NetworkVMType.EVM ? contact.address : '',
+        addressBTC:
+          network?.vmName === NetworkVMType.BITCOIN ? contact.addressBTC : '',
         isKnown: true,
-      })),
-    [accounts]
-  );
-
-  const formattedContacts = useMemo(
-    () => contacts.map((contact) => ({ ...contact, isKnown: true })),
-    [contacts]
-  );
+      }));
+  }, [contacts, network]);
 
   return (
     <VerticalFlex margin="24px 0 0 0" grow="1">
@@ -110,22 +129,22 @@ export const ContactSelect = ({
       </Tabs>
       {selectedTab === 'recents' && (
         <AddressDropdownList
-          contacts={formattedTxHistory}
+          contacts={historyContacts}
           selectedContact={selectedContact}
-          onChange={onChange}
+          onChange={(contact) => onChange(contact, selectedTab)}
         />
       )}
       {selectedTab === 'addressBook' && (
         <AddressDropdownList
           contacts={formattedContacts}
-          onChange={onChange}
+          onChange={(contact) => onChange(contact, selectedTab)}
           selectedContact={selectedContact}
         />
       )}
       {selectedTab === 'accounts' && (
         <AddressDropdownList
           contacts={formattedAccounts}
-          onChange={onChange}
+          onChange={(contact) => onChange(contact, selectedTab)}
           selectedContact={selectedContact}
         />
       )}

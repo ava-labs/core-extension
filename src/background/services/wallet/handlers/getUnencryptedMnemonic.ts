@@ -1,41 +1,44 @@
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { decryptPhraseOrKeyInStorage } from '../storage';
+import { WalletService } from '../WalletService';
+import { injectable } from 'tsyringe';
 
-export async function getUnencryptedMnemonic(
-  request: ExtensionConnectionMessage
-) {
-  const [password] = request.params || [];
+@injectable()
+export class GetUnencryptedMnemonicHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC];
 
-  if (!password) {
+  constructor(private walletService: WalletService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [password] = request.params || [];
+
+    if (!password) {
+      return {
+        ...request,
+        error: 'password missing for request',
+      };
+    }
+
+    const [decryptedMnemonic, err] = await resolve(
+      this.walletService.getMnemonic(password)
+    );
+
+    if (err) {
+      return {
+        ...request,
+        error: err.toString(),
+      };
+    }
+
     return {
       ...request,
-      error: 'password missing for request',
+      result: decryptedMnemonic,
     };
-  }
-
-  const [decryptedMnemonic, err] = await resolve(
-    decryptPhraseOrKeyInStorage(password)
-  );
-
-  if (err) {
-    return {
-      ...request,
-      error: err.toString(),
-    };
-  }
-
-  return {
-    ...request,
-    result: decryptedMnemonic,
   };
 }
-
-export const GetUnencryptedMnemonicRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC, getUnencryptedMnemonic];

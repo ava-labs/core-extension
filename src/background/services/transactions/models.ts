@@ -2,7 +2,6 @@
 
 import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
-import { GasPrice } from '../gas/models';
 import * as ethers from 'ethers';
 
 export enum TxStatus {
@@ -10,16 +9,21 @@ export enum TxStatus {
   PENDING = 'pending',
   // user has approved and we are waiting on the background to confirm
   SUBMITTING = 'submitting',
-  // tx was submitted and returned succesfull
+  // tx was submitted and returned successful
   SIGNED = 'signed',
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
 
+export enum TransactionEvent {
+  TRANSACTIONS_UPDATED = 'transactions-updated',
+  TRANSACTION_FINALIZED = 'transaction-finalized',
+}
+
 export interface TransactionDisplayValues {
   fromAddress: string;
   toAddress: string;
-  gasPrice: GasPrice;
+  gasPrice: ethers.BigNumber;
   contractType: ContractCall;
   gasLimit?: number;
   fee?: string;
@@ -40,6 +44,7 @@ export interface Transaction {
   txHash?: string;
   displayValues: TransactionDisplayValues;
   error?: string;
+  tabId?: number;
 }
 
 export function isTxParams(params: Partial<txParams>): params is txParams {
@@ -55,7 +60,7 @@ export interface txParams {
   to: string;
   value?: string;
   data?: string;
-  gas?: string;
+  gas?: number;
   gasPrice?: string;
 }
 /**
@@ -64,6 +69,7 @@ export interface txParams {
 export interface txParamsUpdate {
   id: any;
   params: txParams;
+  tabId?: number;
 }
 /**
  * This is updating the result with the txHash or the status
@@ -73,6 +79,7 @@ export interface txStatusUpdate {
   id: Transaction['id'];
   result?: string;
   error?: string;
+  tabId?: number;
 }
 
 export function isTxParamsUpdate(
@@ -104,3 +111,5 @@ export function isTxFinalizedUpdate(
       (update as txStatusUpdate).status === TxStatus.SIGNED)
   );
 }
+
+export const TRANSACTIONS_STORAGE_KEY = 'transactions';

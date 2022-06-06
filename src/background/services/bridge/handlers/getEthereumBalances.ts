@@ -1,44 +1,48 @@
-import { Assets, Blockchain, fetchTokenBalances } from '@avalabs/bridge-sdk';
-import { network$ } from '@avalabs/wallet-react-components';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
-import { firstValueFrom } from 'rxjs';
-import { getEthereumProvider } from '../getEthereumProvider';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { Assets, Blockchain, fetchTokenBalances } from '@avalabs/bridge-sdk';
+import { NetworkService } from '../../network/NetworkService';
+import { injectable } from 'tsyringe';
+import Big from 'big.js';
 
-async function getEthereumBalances(request: ExtensionConnectionMessage) {
-  const [assets, account, deprecated] = (request.params || []) as [
-    assets: Assets,
-    account: string,
-    deprecated: boolean
-  ];
+@injectable()
+export class BridgeGetEthereumBalancesHandler
+  implements ExtensionRequestHandler
+{
+  methods = [ExtensionRequest.BRIDGE_GET_ETH_BALANCES];
 
-  const network = await firstValueFrom(network$);
-  const provider = getEthereumProvider(network);
-  const ethereumBalancesBySymbol = await fetchTokenBalances(
-    assets,
-    Blockchain.ETHEREUM,
-    provider,
-    account,
-    deprecated
-  );
+  constructor(private networkService: NetworkService) {}
 
-  const balances: Record<string, Big> = {};
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [assets, account, deprecated] = (request.params || []) as [
+      assets: Assets,
+      account: string,
+      deprecated: boolean
+    ];
+    const provider = await this.networkService.getEthereumProvider();
+    const ethereumBalancesBySymbol = await fetchTokenBalances(
+      assets,
+      Blockchain.ETHEREUM,
+      provider,
+      account,
+      deprecated
+    );
 
-  for (const symbol in assets) {
-    balances[symbol] = ethereumBalancesBySymbol?.[symbol];
-  }
+    const balances: Record<string, Big> = {};
 
-  return {
-    ...request,
-    result: balances,
+    for (const symbol in assets) {
+      balances[symbol] = ethereumBalancesBySymbol?.[symbol];
+    }
+
+    return {
+      ...request,
+      result: balances,
+    };
   };
 }
-
-export const GetEthereumBalancesRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler<Record<string, Big>>
-] = [ExtensionRequest.BRIDGE_GET_ETH_BALANCES, getEthereumBalances];

@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import {
-  Big,
-  BN,
-  bnToLocaleString,
-  numberToBN,
-} from '@avalabs/avalanche-wallet-sdk';
-import {
   VerticalFlex,
   HorizontalFlex,
   Typography,
@@ -15,19 +9,21 @@ import {
   SearchInput,
   DropDownMenuItem,
   HorizontalSeparator,
-  AvaxTokenIcon,
 } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import {
-  isERC20Token,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { formatTokenAmount, useTokenInfoContext } from '@avalabs/bridge-sdk';
 import EthLogo from '@src/images/tokens/eth.png';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
+import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
+import BN from 'bn.js';
+import Big from 'big.js';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -73,6 +69,7 @@ interface TokenSelectProps {
   onInputAmountChange?({ amount: string, bn: BN }): void;
   onSelectToggle?(): void;
   isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
   error?: string;
   margin?: string;
   padding?: string;
@@ -103,6 +100,7 @@ export function TokenSelect({
   onError,
   skipHandleMaxAmount,
   bridgeTokensList,
+  setIsOpen,
 }: TokenSelectProps) {
   const theme = useTheme();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -181,13 +179,11 @@ export function TokenSelect({
               selectedToken
                 ? {
                     name: selectedToken?.symbol,
-                    icon: selectedToken?.isAvax ? (
-                      <AvaxTokenIcon height="32px" />
-                    ) : (
+                    icon: (
                       <TokenIcon
                         width="32px"
                         height="32px"
-                        src={selectedToken?.logoURI}
+                        src={selectedToken?.logoUri}
                         name={selectedToken?.name}
                       />
                     ),
@@ -204,10 +200,11 @@ export function TokenSelect({
             max={
               !isValueLoading ? maxAmount || selectedToken?.balance : undefined
             }
-            denomination={selectedToken?.denomination || 9}
+            denomination={selectedToken?.decimals || 9}
             buttonContent={
               !isValueLoading &&
               maxAmount &&
+              selectedToken?.balance &&
               selectedToken?.balance.gt(new BN(0))
                 ? 'Max'
                 : ''
@@ -245,10 +242,7 @@ export function TokenSelect({
               <Typography size={12} color={theme.colors.text2}>
                 {currencyFormatter(
                   Number(
-                    bnToLocaleString(
-                      inputAmount,
-                      selectedToken?.denomination
-                    ) || 0
+                    bnToLocaleString(inputAmount, selectedToken?.decimals) || 0
                   ) * (selectedToken?.priceUSD ?? 0)
                 )}{' '}
                 {currency}
@@ -257,7 +251,11 @@ export function TokenSelect({
           </HorizontalFlex>
         )}
 
-        <ContainedDropdown anchorEl={selectButtonRef} isOpen={isOpen}>
+        <ContainedDropdown
+          anchorEl={selectButtonRef}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+        >
           <DropdownContents>
             <HorizontalSeparator margin="0" />
             <SearchInputContainer>
@@ -286,9 +284,9 @@ export function TokenSelect({
                     .map((token) => (
                       <StyledDropdownMenuItem
                         key={
-                          isERC20Token(token)
+                          token.type === TokenType.ERC20
                             ? token.address
-                            : (token as any).symbol
+                            : token.symbol
                         }
                         onClick={() => {
                           onTokenChange(token);
@@ -301,15 +299,11 @@ export function TokenSelect({
                           grow="1"
                         >
                           <HorizontalFlex align="center">
-                            {token?.isAvax ? (
-                              <AvaxTokenIcon height="32px" />
-                            ) : (
-                              <TokenIcon
-                                height="32px"
-                                src={token.logoURI}
-                                name={token.name}
-                              />
-                            )}
+                            <TokenIcon
+                              height="32px"
+                              src={token.logoUri}
+                              name={token.name}
+                            />
                             <Typography
                               size={16}
                               height="24px"
@@ -366,7 +360,7 @@ export function TokenSelect({
                                 margin={'0 0 0 16px'}
                                 weight={500}
                               >
-                                {token.asset.tokenName || token.symbol}
+                                {token.symbolOnNetwork || token.symbol}
                               </Typography>
                             </HorizontalFlex>
                             <Typography size={14} height="24px">

@@ -1,6 +1,5 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { PermissionEvents } from './models';
-import { Permissions } from '../models';
+import { PermissionEvents, Permissions } from '../models';
 
 export function permissionsUpdatedEventListener(
   evt: ExtensionConnectionEvent<Permissions>

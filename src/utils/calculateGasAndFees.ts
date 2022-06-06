@@ -1,18 +1,24 @@
-import { BN, bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
-import { GasPrice } from '@src/background/services/gas/models';
+import { bigToLocaleString, ethersBigNumberToBig } from '@avalabs/utils-sdk';
+import { BigNumber } from 'ethers';
 
-export function calculateGasAndFees(
-  gasPrice: GasPrice,
-  gasLimit: string,
-  avaxPrice: number
-) {
-  const bnFee = gasPrice.bn.mul(new BN(parseInt(gasLimit)));
-  const fee = bigToLocaleString(bnToBig(bnFee, 18), 4);
+export function calculateGasAndFees({
+  gasPrice,
+  tokenPrice,
+  tokenDecimals = 18,
+  gasLimit,
+}: {
+  gasPrice: BigNumber;
+  tokenPrice: number;
+  tokenDecimals?: number;
+  gasLimit?: number;
+}) {
+  const bnFee = gasLimit ? gasPrice.mul(gasLimit) : gasPrice;
+  const fee = bigToLocaleString(ethersBigNumberToBig(bnFee, tokenDecimals), 8);
   return {
     gasPrice: gasPrice,
-    gasLimit: parseInt(gasLimit),
+    gasLimit: gasLimit || 0,
     fee,
     bnFee,
-    feeUSD: parseFloat((parseFloat(fee) * avaxPrice).toFixed(4)),
+    feeUSD: parseFloat((parseFloat(fee) * tokenPrice).toFixed(4)),
   };
 }

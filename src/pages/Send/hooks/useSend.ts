@@ -1,53 +1,101 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  SendErrors,
+  TokenType,
   TokenWithBalance,
-  useErc20FormErrors,
-  useSendAvaxFormErrors,
-} from '@avalabs/wallet-react-components';
-import { useCallback } from 'react';
-import { SendStateWithActions, SetSendValuesParams } from '../models';
-import { useSendAvax } from './useSendAvax';
-import { useSendErc20 } from './useSendErc20';
+} from '@src/background/services/balances/models';
+import { SendState } from '@src/background/services/send/models';
+import { deserializeSendState } from '@src/background/services/send/utils/deserializeSendState';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import Queue from 'queue';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { getDefaultSendForm, SendStateWithActions } from '../models';
 
-export function useSend(
-  // selectedToken is only used to determine which sendState (AVAX vs ERC20) to return.
-  // When updating sendState, the token is passed in as a param to `setValues`
-  selectedToken?: TokenWithBalance
-):
-  | SendStateWithActions & {
-      errors: SendErrors;
-    } {
-  const { setValues: setAvaxValues, ...sendAvaxState } = useSendAvax();
-  const sendAvaxErrors = useSendAvaxFormErrors(sendAvaxState.error);
+export function useSend<
+  T extends TokenWithBalance = TokenWithBalance
+>(): SendStateWithActions<T> {
+  const backgroundQueue = useRef(Queue({ autostart: true, concurrency: 1 }));
+  const [sendState, setSendState] = useState<SendState<T>>(getDefaultSendForm);
+  const stateRef = useRef<SendState<T>>(sendState);
+  const { request } = useConnectionContext();
 
-  const { setValues: setErc20Values, ...sendERC20State } = useSendErc20();
-  const sendERC20Errors = useErc20FormErrors(sendERC20State?.error);
-
-  const setAvaxOrErc20Values = useCallback(
-    ({ token, ...rest }: SetSendValuesParams) => {
-      return token?.isErc20
-        ? setErc20Values({ token, ...rest })
-        : setAvaxValues({ ...rest });
-    },
-    [setAvaxValues, setErc20Values]
+  const resetSendState = useCallback(
+    () => setSendState(getDefaultSendForm),
+    []
   );
 
-  const reset = () => {
-    sendERC20State?.reset();
-    sendAvaxState.reset();
-  };
+  // Keep a ref to the sendState so it doesn't need to be a dependency of
+  // updateSendState, otherwise it causes infinite rerenders in Send.tsx.
+  useLayoutEffect(() => {
+    stateRef.current = sendState;
+  }, [sendState]);
 
-  return selectedToken?.isErc20
-    ? sendERC20State && {
-        ...sendERC20State,
-        reset,
-        setValues: setAvaxOrErc20Values,
-        errors: sendERC20Errors,
-      }
-    : sendAvaxState && {
-        ...sendAvaxState,
-        reset,
-        setValues: setAvaxOrErc20Values,
-        errors: sendAvaxErrors,
-      };
+  useEffect(() => {
+    // Get initial maxAmount, fees, etc.
+    if (sendState.loading) updateSendState(sendState);
+    // ONLY run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateSendState = useCallback(
+    (updates: Partial<SendState<T>>) => {
+      // Updates are queued because the SEND_VALIDATE call may modify the state
+      // and we want to ensure that subsequent updates have the latest state.
+      backgroundQueue.current.push(async () => {
+        const newState = getUpdatedState(updates, stateRef.current);
+        const validatedState = await request({
+          method: ExtensionRequest.SEND_VALIDATE,
+          params: [newState],
+        });
+        setSendState(deserializeSendState(validatedState));
+      });
+    },
+    [request]
+  );
+
+  const submitSendState = useCallback(async () => {
+    if (!sendState) return Promise.resolve('');
+
+    const txId = await request({
+      method: ExtensionRequest.SEND_SUBMIT,
+      params: [sendState],
+    });
+
+    setSendState((sendState) => ({ ...sendState, txId }));
+    return txId;
+  }, [sendState, request]);
+
+  return {
+    sendState,
+    resetSendState,
+    submitSendState,
+    updateSendState,
+  };
+}
+
+function getUpdatedState<T extends TokenWithBalance>(
+  updates: Partial<SendState<T>>,
+  current: SendState<T>
+): SendState<T> {
+  const newState = { ...current, ...updates };
+
+  const shouldResetGasLimit =
+    // A different address can affect the gasLimit estimate
+    (updates.address && updates.address !== current.address) ||
+    // A different token will affect the gasLimit estimate
+    updates.token?.type !== current.token?.type ||
+    (updates.token?.type === TokenType.ERC20 &&
+      current.token?.type === TokenType.ERC20 &&
+      updates.token?.symbol !== current.token?.symbol);
+
+  if (shouldResetGasLimit) {
+    delete newState.gasLimit;
+  }
+
+  return newState;
 }

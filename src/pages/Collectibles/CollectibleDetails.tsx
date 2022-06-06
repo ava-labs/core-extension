@@ -5,7 +5,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -39,13 +39,13 @@ export function CollectibleDetails() {
 
   return (
     <VerticalFlex width={'100%'} height="100%">
-      <PageTitleMiniMode>{nftItem.externalData.name}</PageTitleMiniMode>
+      <PageTitle>{nftItem.externalData?.name}</PageTitle>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <VerticalFlex padding="0 16px">
           <CollectibleMedia
             width="100%"
             height="auto"
-            url={nftItem.externalData.image}
+            url={nftItem.externalData?.image}
             hover={false}
             margin="8px 0"
             controls={true}
@@ -76,17 +76,18 @@ export function CollectibleDetails() {
             <HorizontalSeparator margin="16px 0" />
             <VerticalFlex>
               <AttributeLabel>Description</AttributeLabel>
-              <AttributeData>{nftItem.externalData.description}</AttributeData>
+              <AttributeData>{nftItem.externalData?.description}</AttributeData>
             </VerticalFlex>
           </VerticalFlex>
 
-          {nftItem.externalData.attributes.length > 0 && (
-            <Typography size={18} height="22px" weight={700}>
-              Properties
-            </Typography>
-          )}
+          {nftItem.externalData?.attributes &&
+            nftItem.externalData.attributes.length > 0 && (
+              <Typography size={18} height="22px" weight={700}>
+                Properties
+              </Typography>
+            )}
           <VerticalFlex margin="16px 0 32px">
-            {nftItem.externalData.attributes.map((attribute, i) => (
+            {nftItem.externalData?.attributes?.map((attribute, i) => (
               <VerticalFlex key={i}>
                 {i !== 0 && <HorizontalSeparator margin="16px 0" />}
                 <AttributeLabel>{attribute.name}</AttributeLabel>

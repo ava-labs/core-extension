@@ -1,4 +1,3 @@
-import { Erc20TokenData } from '@avalabs/avalanche-wallet-sdk/dist/Asset/types';
 import {
   ComponentSize,
   PrimaryButton,
@@ -7,15 +6,17 @@ import {
   VerticalFlex,
   toast,
 } from '@avalabs/react-components';
-import { ExtensionRequest } from '@src/background/connections/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useHistory } from 'react-router-dom';
-import { PageTitleMiniMode } from '@src/components/common/PageTitle';
+import { PageTitle } from '@src/components/common/PageTitle';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { TokenType } from '@src/background/services/balances/models';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -24,13 +25,17 @@ const AddressInput = styled(TextArea)`
 export function AddToken() {
   const { request } = useConnectionContext();
   const { network } = useNetworkContext();
-  const { erc20Tokens } = useWalletContext();
+  const tokens = useTokensWithBalances(true);
   const history = useHistory();
 
   const [addressInput, setAddressInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [tokenData, setTokenData] = useState<Erc20TokenData | null>(null);
+  const [tokenData, setTokenData] = useState<{
+    name: string;
+    symbol: string;
+  } | null>(null);
   const [error, setError] = useState<string>('');
+  const { capture } = useAnalyticsContext();
 
   const addCustomToken = async () => {
     if (!addressInput) return;
@@ -40,8 +45,16 @@ export function AddToken() {
         params: [addressInput],
       });
       success && toast.success('Added!');
+      capture('ManageTokensAddCustomToken', {
+        status: 'success',
+        address: addressInput,
+      });
       history.goBack();
     } catch (err) {
+      capture('ManageTokensAddCustomToken', {
+        status: 'failed',
+        address: addressInput,
+      });
       toast.error('Failed.');
     }
   };
@@ -49,8 +62,11 @@ export function AddToken() {
   const tokenAlreadyExists = useMemo(
     () =>
       addressInput?.length &&
-      erc20Tokens.some(({ address }) => address === addressInput),
-    [erc20Tokens, addressInput]
+      tokens.some(
+        (token) =>
+          token.type === TokenType.ERC20 && token.address === addressInput
+      ),
+    [tokens, addressInput]
   );
 
   useEffect(() => {
@@ -71,7 +87,7 @@ export function AddToken() {
 
       let errorMessage = '';
       if (!tokenData) {
-        errorMessage = 'Invalid ERC-20 token address.';
+        errorMessage = 'Not a valid ERC-20 token address.';
       }
       if (tokenAlreadyExists) {
         errorMessage = 'Token already exists in your wallet.';
@@ -84,7 +100,7 @@ export function AddToken() {
   return (
     <>
       <VerticalFlex flex={1} align="center">
-        <PageTitleMiniMode>Add Custom Token</PageTitleMiniMode>
+        <PageTitle>Add Custom Token</PageTitle>
         <VerticalFlex
           grow="1"
           align="center"

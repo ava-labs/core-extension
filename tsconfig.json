@@ -15,6 +15,7 @@
     "esModuleInterop": true,
     "lib": ["es2015", "dom"],
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,

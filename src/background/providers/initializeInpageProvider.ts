@@ -57,6 +57,7 @@ export function initializeProvider({
 
   if (shouldSetOnWindow) {
     setGlobalProvider(provider);
+    setAvalancheGlobalProvider(provider);
   }
 
   if (shouldShimWeb3) {
@@ -77,4 +78,17 @@ export function setGlobalProvider(
 ): void {
   (window as Record<string, any>).ethereum = providerInstance;
   window.dispatchEvent(new Event('ethereum#initialized'));
+}
+
+/**
+ * Sets the given provider instance as window.ethereum and dispatches the
+ * 'ethereum#initialized' event on window.
+ *
+ * @param providerInstance - The provider instance.
+ */
+export function setAvalancheGlobalProvider(
+  providerInstance: MetaMaskInpageProvider
+): void {
+  (window as Record<string, any>).avalanche = providerInstance;
+  window.dispatchEvent(new Event('avalanche#initialized'));
 }

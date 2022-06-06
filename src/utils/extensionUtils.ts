@@ -123,9 +123,7 @@ export const openExtensionNewWindow = (
   let left = 0;
 
   left =
-    (coords?.viewportWidth as number) +
-    (coords?.screenX as number) -
-    NOTIFICATION_WIDTH;
+    (coords?.viewportWidth || 0) + (coords?.screenX || 0) - NOTIFICATION_WIDTH;
 
   return openWindow({
     url: extensionURL,

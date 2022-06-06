@@ -33,7 +33,7 @@ export function WalletCreated() {
       position="relative"
     >
       <WalletCreatedCard>
-        <Logo height={34} />
+        <Logo height={34} darkMode={false} />
         <VerticalFlex margin="0 0 0 16px" justify="center">
           <Typography
             color={theme.palette.green[700]}

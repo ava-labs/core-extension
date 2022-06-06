@@ -1,3 +1,0 @@
-export enum BridgeEvents {
-  BRIDGE_TRANSACTIONS_UPDATED = 'BridgeEvents: BRIDGE_TRANSACTIONS_UPDATED',
-}

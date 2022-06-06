@@ -7,9 +7,9 @@ import {
   LiquidityPoolToken,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { bigToLocaleString, bnToBig } from '@avalabs/avalanche-wallet-sdk';
-import { hexToBN } from '@src/utils/hexToBN';
 import { BigNumber } from 'ethers';
+import { Network } from '@avalabs/chains-sdk';
+import { bigToLocaleString, ethersBigNumberToBig } from '@avalabs/utils-sdk';
 
 export interface AddLiquidityAvaxData {
   amountAVAXMin: BigNumber;
@@ -22,6 +22,7 @@ export interface AddLiquidityAvaxData {
 }
 
 export async function addLiquidityAvaxHandler(
+  network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
    */
@@ -40,7 +41,7 @@ export async function addLiquidityAvaxHandler(
 
   const token = erc20sIndexedByAddress[data.token.toLowerCase()];
   const firstTokenDeposited = bigToLocaleString(
-    bnToBig(hexToBN(data.amountAVAXMin.toString()), 18),
+    ethersBigNumberToBig(data.amountAVAXMin, 18),
     4
   );
   const firstToken_AmountUSDValue =
@@ -53,7 +54,7 @@ export async function addLiquidityAvaxHandler(
   };
 
   const secondTokenDeposited = bigToLocaleString(
-    bnToBig(hexToBN(data.amountTokenDesired.toHexString()), token.denomination),
+    ethersBigNumberToBig(data.amountTokenDesired, token.denomination),
     4
   );
   const secondToken_AmountUSDValue =
@@ -67,7 +68,7 @@ export async function addLiquidityAvaxHandler(
   const result = {
     poolTokens: [firstToken, secondToken],
     contractType: ContractCall.ADD_LIQUIDITY_AVAX,
-    ...parseBasicDisplayValues(request, props),
+    ...parseBasicDisplayValues(network, request, props),
   };
 
   return result;

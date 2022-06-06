@@ -1,14 +1,31 @@
-import { map } from 'rxjs';
-import { network$ } from '@avalabs/wallet-react-components';
-import { NetworkEvents } from './models';
+import {
+  ExtensionConnectionEvent,
+  ExtensionEventEmitter,
+} from '@src/background/connections/models';
+import { EventEmitter } from 'events';
+import { singleton } from 'tsyringe';
+import { NetworkEvents } from '../models';
+import { NetworkService } from '../NetworkService';
 
-export function networkUpdateEvents() {
-  return network$.pipe(
-    map((network) => {
-      return {
+@singleton()
+export class NetworkUpdatedEvents implements ExtensionEventEmitter {
+  private eventEmitter = new EventEmitter();
+  constructor(private networkService: NetworkService) {
+    this.networkService.activeNetwork.add((chain) => {
+      this.eventEmitter.emit('update', {
         name: NetworkEvents.NETWORK_UPDATE_EVENT,
-        value: network,
-      };
-    })
-  );
+        value: chain,
+      });
+    });
+  }
+
+  addListener(handler: (event: ExtensionConnectionEvent) => void): void {
+    this.eventEmitter.on('update', handler);
+  }
+
+  removeListener(
+    handler: (event: ExtensionConnectionEvent<any>) => void
+  ): void {
+    this.eventEmitter.off('update', handler);
+  }
 }

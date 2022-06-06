@@ -1,12 +1,10 @@
-import {
-  ERC20WithBalance,
-  isAvaxToken,
-  TokenWithBalance,
-} from '@avalabs/wallet-react-components';
 import { TokenIcon as TokenImage } from '@src/components/common/TokenImage';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import { stringToBN } from '@avalabs/avalanche-wallet-sdk';
 import { APIError } from 'paraswap';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
+import { stringToBN } from '@avalabs/utils-sdk';
 
 interface GetTokenIconProps {
   token?: TokenWithBalance;
@@ -16,14 +14,11 @@ export const TokenIcon = ({ token }: GetTokenIconProps) => {
   if (!token) {
     return null;
   }
-  if (token.isAvax) {
-    return <AvaxTokenIcon height="32px" />;
-  }
   return (
     <TokenImage
       width="32px"
       height="32px"
-      src={token.logoURI}
+      src={token.logoUri}
       name={token.name}
     />
   );
@@ -33,24 +28,15 @@ export const getTokenIcon = (token: TokenWithBalance) => {
   if (!token) {
     return null;
   }
-  if (token.isAvax) {
-    return <AvaxTokenIcon height="32px" />;
-  }
+
   return (
     <TokenImage
       width="32px"
       height="32px"
-      src={token.logoURI}
+      src={token.logoUri}
       name={token.name}
     />
   );
-};
-
-export const isAvax = (token?: TokenWithBalance) => {
-  if (!token || !isAvaxToken(token)) {
-    return false;
-  }
-  return true;
 };
 
 export const getMaxValue = (token?: TokenWithBalance, fee?: string) => {
@@ -58,7 +44,7 @@ export const getMaxValue = (token?: TokenWithBalance, fee?: string) => {
     return;
   }
 
-  if (isAvax(token)) {
+  if (token.type === TokenType.NATIVE) {
     return token.balance.sub(stringToBN(fee, 18));
   }
   return token.balance;
@@ -72,7 +58,5 @@ export const getTokenAddress = (token?: TokenWithBalance) => {
   if (!token) {
     return undefined;
   }
-  return isAvaxToken(token)
-    ? token.symbol
-    : (token as ERC20WithBalance).address;
+  return token.type === TokenType.NATIVE ? token.symbol : token.address;
 };

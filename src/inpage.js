@@ -3,6 +3,7 @@ import { WindowPostMessageStream } from '@metamask/post-message-stream';
 import {
   initializeProvider,
   setGlobalProvider,
+  setAvalancheGlobalProvider,
 } from './background/providers/initializeInpageProvider';
 import { CONTENT_SCRIPT, INPAGE_SCRIPT } from './common';
 import { timer } from 'rxjs';
@@ -35,5 +36,7 @@ timer(0, 1500).subscribe(async () => {
     params: [],
   });
 
-  doSetAsDefaultExtension && setGlobalProvider(provider);
+  doSetAsDefaultExtension &&
+    setGlobalProvider(provider) &&
+    setAvalancheGlobalProvider(provider);
 });

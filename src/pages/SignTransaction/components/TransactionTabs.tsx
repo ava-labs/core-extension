@@ -8,15 +8,15 @@ import {
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';
 import { Tabs } from '@src/components/common/Tabs';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { GasPrice } from '@src/background/services/gas/models';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import Scrollbars from 'react-custom-scrollbars-2';
+import { BigNumber } from 'ethers';
 
 interface TransactionTabsType {
   byteStr: string;
   children?: JSX.Element;
-  gasPrice?: GasPrice;
-  limit?: string;
+  gasPrice?: BigNumber;
+  limit?: number;
   selectedGasFee: GasFeeModifier;
   onCustomFeeSet?: () => void;
 }
@@ -36,7 +36,7 @@ export function TransactionTabs({
         <Typography size={12} height="15px" margin="0 8px 0 0">
           Network Fee
         </Typography>
-        <TransactionFeeTooltip gasPrice={gasPrice?.bn} gasLimit={limit} />
+        <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={limit} />
       </HorizontalFlex>
       {gasPrice && limit && onCustomFeeSet && (
         <CustomFees

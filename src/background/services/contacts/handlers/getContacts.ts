@@ -1,21 +1,25 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { contacts$ } from '../contacts';
+import { injectable } from 'tsyringe';
+import { ContactsService } from '../ContactsService';
 
-export async function getContacts(request: ExtensionConnectionMessage) {
-  const contacts = await firstValueFrom(contacts$);
+@injectable()
+export class GetContactsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.CONTACTS_GET];
 
-  return {
-    ...request,
-    result: contacts,
+  constructor(private contactsService: ContactsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const contacts = await this.contactsService.getContacts();
+
+    return {
+      ...request,
+      result: contacts,
+    };
   };
 }
-
-export const GetContactsStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.CONTACTS_GET, getContacts];

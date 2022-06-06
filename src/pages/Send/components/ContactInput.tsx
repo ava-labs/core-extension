@@ -9,10 +9,13 @@ import { useRef, useState } from 'react';
 import { ContactSelect } from './ContactSelect';
 import { Contact } from '@src/background/services/contacts/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import { AddressHelper } from '@avalabs/avalanche-wallet-sdk';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import styled, { useTheme } from 'styled-components';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { NetworkVMType } from '@avalabs/chains-sdk';
+import { isBech32Address } from '@avalabs/bridge-sdk';
+import { isAddress } from 'ethers/lib/utils';
 
 const RelativeContainer = styled.div`
   position: relative;
@@ -30,9 +33,10 @@ const truncateName = (name: string) => {
 
 type ContactInputProps = {
   contact?: Contact;
-  onChange(contact?: Contact): void;
+  onChange(contact?: Contact, selectedTab?: string): void;
   isContactsOpen: boolean;
   toggleContactsDropdown(to?: boolean): void;
+  setIsOpen: (isOpen: boolean) => void;
 };
 
 export const ContactInput = ({
@@ -40,22 +44,29 @@ export const ContactInput = ({
   onChange,
   isContactsOpen,
   toggleContactsDropdown,
+  setIsOpen,
 }: ContactInputProps) => {
   const theme = useTheme();
+  const { network } = useNetworkContext();
   const inputRef = useRef<HTMLDivElement>(null);
   const identifyAddress = useIdentifyAddress();
 
-  const changeAndCloseDropdown = (contact: Contact) => {
-    onChange(contact);
+  const changeAndCloseDropdown = (contact: Contact, selectedTab: string) => {
+    onChange(contact, selectedTab);
     toggleContactsDropdown();
   };
 
   const [inputFocused, setInputFocused] = useState<boolean>(true);
 
-  const isValidAddress = contact
-    ? AddressHelper.validateAddress(contact.address) &&
-      AddressHelper.getAddressChain(contact.address) === 'C'
-    : false;
+  const isValidAddress = (): boolean => {
+    if (network?.vmName === NetworkVMType.EVM) {
+      return contact ? isAddress(contact.address) : false;
+    }
+    if (network?.vmName === NetworkVMType.BITCOIN) {
+      return contact ? isBech32Address(contact.address) : false;
+    }
+    return false;
+  };
 
   const getInputDisplayValue = () => {
     if (!contact?.address) return '';
@@ -63,11 +74,16 @@ export const ContactInput = ({
     if (inputFocused) return contact.address || '';
     let displayStr = '';
     if (contact?.isKnown) displayStr += truncateName(contact.name) + '   ';
-    displayStr += isValidAddress
+    displayStr += isValidAddress()
       ? truncateAddress(contact.address)
       : contact.address; // user is typing in the address
     return displayStr;
   };
+
+  const inputPlaceholder =
+    network?.vmName === NetworkVMType.BITCOIN
+      ? 'Enter Bitcoin Address'
+      : 'Enter 0x Address';
 
   return (
     <RelativeContainer>
@@ -84,7 +100,7 @@ export const ContactInput = ({
           onBlur={() => setInputFocused(false)}
           value={getInputDisplayValue()}
           label="Send to"
-          placeholder="Enter 0x Address"
+          placeholder={inputPlaceholder}
           buttonContent={
             <HorizontalFlex align="center">
               <ContactsIcon height="20px" style={{ marginRight: 12 }} />
@@ -100,7 +116,11 @@ export const ContactInput = ({
           onButtonClicked={toggleContactsDropdown}
         />
       </InputContainer>
-      <ContainedDropdown anchorEl={inputRef} isOpen={isContactsOpen}>
+      <ContainedDropdown
+        anchorEl={inputRef}
+        isOpen={isContactsOpen}
+        setIsOpen={setIsOpen}
+      >
         <ContactSelect
           onChange={changeAndCloseDropdown}
           selectedContact={contact}

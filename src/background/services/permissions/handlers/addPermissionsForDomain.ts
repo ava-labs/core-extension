@@ -1,39 +1,41 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { addPermissionsForDomain } from '../permissions';
+import { injectable } from 'tsyringe';
+import { PermissionsService } from '../PermissionsService';
+@injectable()
+export class PermissionsAddDomainHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.PERMISSIONS_ADD_DOMAIN];
 
-export async function addDAppPermissionsForDomain(
-  request: ExtensionConnectionMessage
-) {
-  const params = request.params;
-  if (!params) {
+  constructor(private permissionsService: PermissionsService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const params = request.params;
+    if (!params) {
+      return {
+        ...request,
+        error: 'no params on request',
+      };
+    }
+
+    const permissions = params[0];
+
+    if (!permissions || !permissions.domain || !permissions.accounts) {
+      return {
+        ...request,
+        error: 'no permissions in params',
+      };
+    }
+
+    this.permissionsService.addPermission(permissions);
+
     return {
       ...request,
-      error: 'no params on request',
+      result: true,
     };
-  }
-
-  const permissions = params[0];
-
-  if (!permissions) {
-    return {
-      ...request,
-      error: 'no permissions in params',
-    };
-  }
-
-  addPermissionsForDomain.next(permissions);
-
-  return {
-    ...request,
-    result: true,
   };
 }
-
-export const AddPermissionsForDomainRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.PERMISSIONS_ADD_DOMAIN, addDAppPermissionsForDomain];

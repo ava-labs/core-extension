@@ -1,4 +1,5 @@
 import { Overlay } from '@avalabs/react-components';
+import { WalletType } from '@src/background/services/wallet/models';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
@@ -6,6 +7,7 @@ import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalD
 interface TxInProgressProps {
   address?: string;
   fee: string;
+  feeSymbol?: string;
   amount?: string;
   symbol?: string;
   nftName?: string;
@@ -13,6 +15,7 @@ interface TxInProgressProps {
 
 export function TxInProgress({
   fee,
+  feeSymbol,
   amount,
   symbol,
   address,
@@ -20,12 +23,13 @@ export function TxInProgress({
 }: TxInProgressProps) {
   const { walletType } = useWalletContext();
 
-  if (walletType === 'ledger') {
+  if (walletType === WalletType.LEDGER) {
     return (
       <Overlay>
         <LedgerApprovalDialog
           address={address}
           fee={fee}
+          feeSymbol={feeSymbol}
           amount={amount}
           symbol={symbol}
           nftName={nftName}

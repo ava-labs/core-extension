@@ -1,40 +1,35 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
-import { firstValueFrom } from 'rxjs';
-import { contacts$ } from '../contacts';
-import { saveContactsToStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { ContactsService } from '../ContactsService';
 
-export async function removeContact(request: ExtensionConnectionMessage) {
-  const [contact] = request.params || [];
+@injectable()
+export class RemoveContactHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.CONTACTS_REMOVE];
 
-  const contacts = await firstValueFrom(contacts$);
-  const newContacts = {
-    ...contacts,
-    contacts: contacts.contacts.filter((c) => c.id !== contact.id),
-  };
+  constructor(private contactsService: ContactsService) {}
 
-  const [, err] = await resolve(saveContactsToStorage(newContacts));
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [contact] = request.params || [];
 
-  contacts$.next(newContacts);
+    try {
+      await this.contactsService.remove(contact);
+    } catch (e: any) {
+      return {
+        ...request,
+        error: e.toString(),
+      };
+    }
 
-  if (err) {
     return {
       ...request,
-      error: err,
+      result: true,
     };
-  }
-
-  return {
-    ...request,
-    result: true,
   };
 }
-
-export const RemoveContactStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.CONTACTS_REMOVE, removeContact];

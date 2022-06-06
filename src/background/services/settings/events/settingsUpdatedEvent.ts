@@ -1,17 +1,34 @@
-import { filter, map, OperatorFunction } from 'rxjs';
-import { SettingsState } from '../models';
-import { settings$ } from '../settings';
-import { SettingsEvents } from './models';
+import { SettingsEvents } from '../models';
+import {
+  ExtensionConnectionEvent,
+  ExtensionEventEmitter,
+} from '@src/background/connections/models';
+import { EventEmitter } from 'events';
+import { SettingsService } from '../SettingsService';
+import { singleton } from 'tsyringe';
 
-export function settingsUpdatedEvent() {
-  return settings$.pipe(
-    filter((value) => value !== undefined) as OperatorFunction<
-      SettingsState | undefined,
-      SettingsState
-    >,
-    map((value) => ({
-      name: SettingsEvents.SETTINGS_UPDATED,
-      value,
-    }))
-  );
+@singleton()
+export class SettingsUpdatedEvents implements ExtensionEventEmitter {
+  private eventEmitter = new EventEmitter();
+  constructor(private settingsService: SettingsService) {
+    this.settingsService.addListener(
+      SettingsEvents.SETTINGS_UPDATED,
+      (settings) => {
+        this.eventEmitter.emit('update', {
+          name: SettingsEvents.SETTINGS_UPDATED,
+          value: settings,
+        });
+      }
+    );
+  }
+
+  addListener(handler: (event: ExtensionConnectionEvent) => void): void {
+    this.eventEmitter.on('update', handler);
+  }
+
+  removeListener(
+    handler: (event: ExtensionConnectionEvent<any>) => void
+  ): void {
+    this.eventEmitter.off('update', handler);
+  }
 }

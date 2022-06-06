@@ -1,39 +1,40 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
-  DappRequestHandler,
+  DAppRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { settings$ } from '../settings';
+import { injectable } from 'tsyringe';
+import { SettingsService } from '../SettingsService';
 
-export async function settingsGetDefaultExtension(
-  request: ExtensionConnectionMessage
-) {
-  const settings = await firstValueFrom(settings$);
+@injectable()
+export class GetIsDefaultExtensionHandler
+  implements ExtensionRequestHandler, DAppRequestHandler
+{
+  methods = [
+    ExtensionRequest.SETTINGS_GET_DEFAULT_EXTENSION,
+    DAppProviderRequest.GET_IS_DEFAULT_EXTENSION,
+  ];
 
-  return {
-    ...request,
-    result: !!settings.isDefaultExtension,
+  constructor(private settingsService: SettingsService) {}
+
+  handleAuthenticated = async (request: ExtensionConnectionMessage<any>) => {
+    return await this.handleUnauthenticated(request);
+  };
+  handleUnauthenticated = async (request: ExtensionConnectionMessage<any>) => {
+    const settings = await this.settingsService.getSettings();
+
+    return {
+      ...request,
+      result: !!settings.isDefaultExtension,
+    };
+  };
+
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    return await this.handleUnauthenticated(request);
   };
 }
-
-export const SettingsGetIsDefaultExtensionRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [
-  ExtensionRequest.SETTINGS_GET_DEFAULT_EXTENSION,
-  settingsGetDefaultExtension,
-];
-
-export const SettingsGetIsDefaultExtensionDappRequest: [
-  DAppProviderRequest,
-  DappRequestHandler
-] = [
-  DAppProviderRequest.GET_IS_DEFAULT_EXTENSION,
-  {
-    handleUnauthenticated: settingsGetDefaultExtension,
-    handleAuthenticated: settingsGetDefaultExtension,
-  },
-];

@@ -6,11 +6,9 @@ import {
   VerticalSeparator,
   Typography,
 } from '@avalabs/react-components';
-import { OnboardButton, TermsButton } from './components/OnboardButton';
-import { useTheme } from 'styled-components';
+import { OnboardButton } from './components/OnboardButton';
+import styled, { useTheme } from 'styled-components';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
-import { Logo } from '@src/components/icons/Logo';
-import { BrandName } from '@src/components/icons/BrandName';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 
 interface ChooseExistingTypeProps {
@@ -18,6 +16,10 @@ interface ChooseExistingTypeProps {
   onBack(): void;
   onCancel(): void;
 }
+
+const StyledLogo = styled.img`
+  width: 260px;
+`;
 
 export function ChooseExistingType({
   onNext,
@@ -29,10 +31,11 @@ export function ChooseExistingType({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader onBack={onBack} onClose={onCancel} />
-      <VerticalFlex justify="center" align="center" margin="36px 0 4px">
-        <Logo height={132} />
-        <BrandName height={50} margin="24px 0 0 0" />
-        <HorizontalFlex justify="flex-end" width="100%" margin="10px 0 0 0">
+      <VerticalFlex justify="center" align="center" margin="0 0 4px">
+        <VerticalFlex height="260px">
+          <StyledLogo src={'/images/OwlAnimation-still.svg'} />
+        </VerticalFlex>
+        <HorizontalFlex justify="flex-end" width="100%" margin="0 0 0">
           <BetaLabel />
         </HorizontalFlex>
       </VerticalFlex>
@@ -59,7 +62,6 @@ export function ChooseExistingType({
             <LedgerIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
         </HorizontalFlex>
-        <TermsButton />
       </VerticalFlex>
     </VerticalFlex>
   );

@@ -1,23 +1,24 @@
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { firstValueFrom } from 'rxjs';
-import { bridge$ } from '../bridge';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { BridgeService } from '../BridgeService';
+import { injectable } from 'tsyringe';
 
-export async function getBridgeTransactions(
-  request: ExtensionConnectionMessage
-) {
-  const bridge = await firstValueFrom(bridge$);
+@injectable()
+export class BridgeGetTransactionsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.BRIDGE_TRANSACTIONS_GET];
 
-  return {
-    ...request,
-    result: bridge,
+  constructor(private bridgeService: BridgeService) {}
+
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    return {
+      ...request,
+      result: this.bridgeService.bridgeState,
+    };
   };
 }
-
-export const GetBridgeTransactionsStateRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.BRIDGE_TRANSACTIONS_GET, getBridgeTransactions];

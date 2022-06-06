@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { Big } from '@avalabs/avalanche-wallet-sdk';
 import { TokenCard, VerticalFlex } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { formatTokenAmount, useTokenInfoContext } from '@avalabs/bridge-sdk';
 import EthLogo from './../../../images/tokens/eth.png';
+import Big from 'big.js';
 
 interface TokenListProps {
   searchQuery?: string;

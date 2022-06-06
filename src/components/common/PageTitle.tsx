@@ -18,20 +18,20 @@ export enum PageTitleVariant {
   PRIMARY, // Use this when the global header is hidden and this is the primary page header.
 }
 
-type PageTitleMiniModeProps = {
+type PageTitleProps = {
   onBackClick?(): void;
   showBackButton?: boolean;
   variant?: PageTitleVariant;
   buttonPadding?: string;
 };
 
-export const PageTitleMiniMode = ({
+export const PageTitle = ({
   children,
   onBackClick,
   showBackButton = true,
   variant = PageTitleVariant.SECONDARY,
   buttonPadding,
-}: PropsWithChildren<PageTitleMiniModeProps>) => {
+}: PropsWithChildren<PageTitleProps>) => {
   const theme = useTheme();
   const history = useHistory();
 

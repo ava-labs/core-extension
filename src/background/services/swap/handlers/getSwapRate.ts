@@ -1,113 +1,91 @@
-import { WalletType } from '@avalabs/avalanche-wallet-sdk';
-import { AVAX_TOKEN, wallet$ } from '@avalabs/wallet-react-components';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { resolve } from '@src/utils/promiseResolver';
-import { SwapSide, APIError } from 'paraswap';
-import { OptimalRate } from 'paraswap-core';
-import { firstValueFrom } from 'rxjs';
-import { paraSwap$ } from '../swap';
+import { injectable } from 'tsyringe';
+import { SwapService } from '../SwapService';
 
-const SERVER_BUSY_ERROR = 'Server too busy';
+@injectable()
+export class GetSwapRateHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.SWAP_GET_RATE];
 
-export async function getSwapRate(request: ExtensionConnectionMessage) {
-  const [srcToken, srcDecimals, destToken, destDecimals, srcAmount, swapSide] =
-    request.params || [];
+  constructor(private swapService: SwapService) {}
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    const [
+      srcToken,
+      srcDecimals,
+      destToken,
+      destDecimals,
+      srcAmount,
+      swapSide,
+    ] = request.params || [];
 
-  if (!srcToken) {
+    if (!srcToken) {
+      return {
+        ...request,
+        error: 'no source token on request',
+      };
+    }
+
+    if (!destToken) {
+      return {
+        ...request,
+        error: 'no destination token on request',
+      };
+    }
+
+    if (!srcAmount) {
+      return {
+        ...request,
+        error: 'no amount on request',
+      };
+    }
+
+    if (!srcDecimals) {
+      return {
+        ...request,
+        error: 'request requires the decimals for source token',
+      };
+    }
+
+    if (!destDecimals) {
+      return {
+        ...request,
+        error: 'request requires the decimals for destination token',
+      };
+    }
+
+    const [result, err] = await resolve(
+      this.swapService.getSwapRate(
+        srcToken,
+        srcDecimals,
+        destToken,
+        destDecimals,
+        srcAmount,
+        swapSide
+      )
+    );
+
+    if (err) {
+      return {
+        ...request,
+        error: err.toString(),
+      };
+    }
+
+    const destAmount = result.destAmount;
+
     return {
       ...request,
-      error: 'no source token on request',
+      result: {
+        optimalRate: result,
+        destAmount,
+      },
     };
-  }
-
-  if (!destToken) {
-    return {
-      ...request,
-      error: 'no destination token on request',
-    };
-  }
-
-  if (!srcAmount) {
-    return {
-      ...request,
-      error: 'no amount on request',
-    };
-  }
-
-  if (!srcDecimals) {
-    return {
-      ...request,
-      error: 'request requires the decimals for source token',
-    };
-  }
-
-  if (!destDecimals) {
-    return {
-      ...request,
-      error: 'request requires the decimals for destination token',
-    };
-  }
-
-  const [paraSwap, err] = await resolve(firstValueFrom(paraSwap$));
-  const [wallet, walletError] = await resolve(firstValueFrom(wallet$));
-
-  if (err) {
-    return {
-      ...request,
-      error: err,
-    };
-  }
-
-  if (walletError) {
-    return {
-      ...request,
-      error: walletError,
-    };
-  }
-
-  const query = new URLSearchParams({
-    srcToken,
-    destToken,
-    amount: srcAmount,
-    side: (swapSide as SwapSide) || SwapSide.SELL,
-    network: '43114',
-    srcDecimals: AVAX_TOKEN.symbol === srcToken ? 18 : srcDecimals,
-    destDecimals: AVAX_TOKEN.symbol === destToken ? 18 : destDecimals,
-    userAddress: (wallet as WalletType).getAddressC(),
-  });
-
-  const url = `${paraSwap.apiURL}/prices/?${query.toString()}`;
-
-  const optimalRates = async () => {
-    const response = await fetch(url);
-    const data = await response.json();
-    return data.priceRoute;
-  };
-
-  function checkForErrorsInResult(result: OptimalRate | APIError) {
-    return (result as APIError).message === SERVER_BUSY_ERROR;
-  }
-
-  const result = await incrementalPromiseResolve<OptimalRate | APIError>(
-    () => optimalRates(),
-    checkForErrorsInResult
-  );
-
-  const destAmount = result.destAmount;
-
-  return {
-    ...request,
-    result: {
-      optimalRate: result,
-      destAmount,
-    },
   };
 }
-
-export const GetSwapRateRequest: [ExtensionRequest, ConnectionRequestHandler] =
-  [ExtensionRequest.SWAP_GET_RATE, getSwapRate];

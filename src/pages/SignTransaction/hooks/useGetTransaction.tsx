@@ -2,30 +2,30 @@ import { useCallback, useMemo, useEffect, useState } from 'react';
 import { Transaction } from '@src/background/services/transactions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { filter, map, Subscription, take } from 'rxjs';
-import { ExtensionRequest } from '@src/background/connections/models';
-import { gasPriceTransactionUpdateListener } from '@src/background/services/transactions/events/gasPriceTransactionUpdateListener';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { GasPrice } from '@src/background/services/gas/models';
 import Web3 from 'web3';
-import ERC20_ABI from 'human-standard-token-abi';
+import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
-import { hexToBN } from '@src/utils/hexToBN';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import * as ethers from 'ethers';
-import { bnToLocaleString } from '@avalabs/utils-sdk';
+import { bnToLocaleString, hexToBN } from '@avalabs/utils-sdk';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
 export function useGetTransaction(requestId: string) {
   const { request, events } = useConnectionContext();
-  const { avaxPrice } = useWalletContext();
+  const tokenPrice = useNativeTokenPrice();
+  const { networkFee } = useNetworkFeeContext();
+  const { network } = useNetworkContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [defaultGasPrice, setDefaultGasPrice] = useState<GasPrice | null>(null);
   const [customGas, setCustomGas] = useState<{
-    gasLimit: string;
-    gasPrice: GasPrice;
+    gasLimit: number;
+    gasPrice: ethers.BigNumber;
   } | null>(null);
   const [hash, setHash] = useState<string>('');
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
@@ -51,24 +51,29 @@ export function useGetTransaction(requestId: string) {
   );
 
   const setCustomFee = useCallback(
-    (gasLimit: string, gasPrice: GasPrice, modifier: GasFeeModifier) => {
+    (
+      gasLimit: number,
+      gasPrice: ethers.BigNumber,
+      modifier: GasFeeModifier
+    ) => {
       setCustomGas({ gasLimit, gasPrice });
       setSelectedGasFee(modifier);
 
-      const feeDisplayValues = calculateGasAndFees(
+      const feeDisplayValues = calculateGasAndFees({
         gasPrice,
         gasLimit,
-        avaxPrice
-      );
+        tokenPrice,
+        tokenDecimals: network?.networkToken.decimals,
+      });
       updateTransaction({
         id: transaction?.id,
         params: {
           gas: feeDisplayValues.gasLimit.toString(),
-          gasPrice: feeDisplayValues.gasPrice.bn,
+          gasPrice: feeDisplayValues.gasPrice,
         },
       });
     },
-    [avaxPrice, transaction?.id, updateTransaction]
+    [network, tokenPrice, transaction?.id, updateTransaction]
   );
 
   const setSpendLimit = useCallback(
@@ -104,7 +109,7 @@ export function useGetTransaction(requestId: string) {
 
       // create hex string for approval amount
       const web3 = new Web3();
-      const contract = new web3.eth.Contract(ERC20_ABI as any, srcToken);
+      const contract = new web3.eth.Contract(ERC20.abi as any, srcToken);
 
       const hashedCustomSpend =
         limitAmount &&
@@ -123,44 +128,22 @@ export function useGetTransaction(requestId: string) {
       method: ExtensionRequest.TRANSACTIONS_GET,
       params: [requestId],
     }).then((tx: Transaction) => {
-      // the gasPrice.bn on the tx is a hex
-      // we convert it here to a BN
-
-      const gasPrice: GasPrice = {
-        ...tx.displayValues.gasPrice,
-        bn: hexToBN(tx.displayValues.gasPrice.bn),
-      };
-
-      setDefaultGasPrice(gasPrice);
       setTransaction({
         ...tx,
         displayValues: {
           ...tx.displayValues,
-          gasPrice,
+          gasPrice: ethers.BigNumber.from(tx.displayValues.gasPrice),
         },
       });
     });
     const subscriptions = new Subscription();
-    subscriptions.add(
-      events?.()
-        .pipe(filter(gasPriceTransactionUpdateListener))
-        .subscribe(function (evt) {
-          const gasPrice = {
-            ...evt.value,
-            bn: hexToBN(evt.value.bn),
-          } as any;
-          setDefaultGasPrice(gasPrice);
-        })
-    );
 
     subscriptions.add(
       events?.()
         .pipe(
           filter(transactionFinalizedUpdateListener),
-          map(({ value }) => {
-            return value.find((tx) => tx.id === Number(requestId));
-          }),
-          filter((tx) => !!tx),
+          map(({ value }) => value),
+          filter((tx) => tx.id === Number(requestId)),
           take(1)
         )
         .subscribe({
@@ -194,13 +177,14 @@ export function useGetTransaction(requestId: string) {
 
   return useMemo(() => {
     const feeDisplayValues =
-      defaultGasPrice &&
+      networkFee &&
       transaction?.displayValues.gasLimit &&
-      calculateGasAndFees(
-        customGas?.gasPrice ?? defaultGasPrice,
-        customGas?.gasLimit ?? transaction.displayValues.gasLimit.toString(),
-        avaxPrice
-      );
+      calculateGasAndFees({
+        gasPrice: customGas?.gasPrice ?? networkFee.low,
+        gasLimit: customGas?.gasLimit ?? transaction.displayValues.gasLimit,
+        tokenPrice,
+        tokenDecimals: network?.networkToken.decimals,
+      });
 
     return {
       ...transaction?.displayValues,
@@ -218,10 +202,11 @@ export function useGetTransaction(requestId: string) {
       selectedGasFee,
     };
   }, [
-    defaultGasPrice,
+    networkFee,
+    network,
     transaction,
     customGas,
-    avaxPrice,
+    tokenPrice,
     updateTransaction,
     hash,
     setCustomFee,

@@ -1,23 +1,26 @@
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  ConnectionRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionRequest,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
 } from '@src/background/connections/models';
-import { analyticsState$ } from '../analytics';
-import { clearAnalyticsStateFromStorage } from '../storage';
+import { injectable } from 'tsyringe';
+import { AnalyticsService } from '../AnalyticsService';
 
-export async function clearAnalyticsIds(request: ExtensionConnectionMessage) {
-  analyticsState$.next(undefined);
+@injectable()
+export class ClearAnalyticsIdsHandler implements ExtensionRequestHandler {
+  methods = [ExtensionRequest.ANALYTICS_CLEAR_IDS];
 
-  await clearAnalyticsStateFromStorage();
+  constructor(private analyticsService: AnalyticsService) {}
 
-  return {
-    ...request,
-    result: true,
+  handle = async (
+    request: ExtensionConnectionMessage
+  ): Promise<ExtensionConnectionMessageResponse> => {
+    await this.analyticsService.clearIds();
+
+    return {
+      ...request,
+      result: true,
+    };
   };
 }
-
-export const AnalyticsClearIdsRequest: [
-  ExtensionRequest,
-  ConnectionRequestHandler
-] = [ExtensionRequest.ANALYTICS_CLEAR_IDS, clearAnalyticsIds];
