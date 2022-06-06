@@ -80,6 +80,7 @@ function parseNetworkFee(networkFee: SerializedNetworkFee): NetworkFee {
     low: BigNumber.from(networkFee.low),
     medium: BigNumber.from(networkFee.medium),
     high: BigNumber.from(networkFee.high),
+    isFixedFee: networkFee.isFixedFee,
   };
 }
 

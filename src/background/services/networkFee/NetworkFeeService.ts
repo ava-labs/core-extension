@@ -4,6 +4,7 @@ import {
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { isSwimmer } from '@src/utils/isSwimmerNetwork';
 import Big from 'big.js';
 import { BigNumber, BigNumberish } from 'ethers';
 import { EventEmitter } from 'events';
@@ -63,6 +64,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
         low: price,
         medium: BigNumber.from(bigPrice.mul(1.05).toFixed(0)),
         high: BigNumber.from(bigPrice.mul(1.15).toFixed(0)),
+        isFixedFee: isSwimmer(network) ? true : false,
       };
     } else if (network.vmName === NetworkVMType.BITCOIN) {
       const rates = await (provider as BitcoinProviderAbstract).getFeeRates();
@@ -71,6 +73,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
         low: BigNumber.from(rates.low),
         medium: BigNumber.from(rates.medium),
         high: BigNumber.from(rates.high),
+        isFixedFee: isSwimmer(network) ? true : false,
       };
     }
 
