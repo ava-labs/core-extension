@@ -55,14 +55,14 @@ function isTxToAvalanche(tx: TxHistoryItem | BridgeTransaction): boolean {
 }
 
 function getTxBlockchain(tx: TxHistoryItem | BridgeTransaction) {
-  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.token.symbol;
+  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.token?.symbol;
   const ethereum = 'Ethereum';
   const bitcoin = 'Bitcoin';
 
   if (symbol === BITCOIN_NETWORK.networkToken.symbol) {
     return bitcoin;
   }
-  const symbolPostfix = symbol.split('.')[1];
+  const symbolPostfix = symbol?.split('.')[1];
 
   switch (symbolPostfix) {
     case 'e':

@@ -71,7 +71,7 @@ export function TransactionBridge({ item }: TransactionBridgeProps) {
               Bridge
             </Typography>
             <Typography size={14} height="24px">
-              {item.amount} {item.token.symbol}
+              {item.amount} {item.token?.symbol}
             </Typography>
           </HorizontalFlex>
           <SubTextTypography size={12} height="17px">

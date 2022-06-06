@@ -62,6 +62,7 @@ export function WalletRecentTxs({
   isEmbedded = false,
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
+  const [loading, setLoading] = useState<boolean>(false);
   const { getTransactionHistory, addresses, recentTxHistory } =
     useWalletContext();
   const yesterday = endOfYesterday();
@@ -95,12 +96,16 @@ export function WalletRecentTxs({
    * TODO: Replace recentTxHistory with data we will be getting from balance service
    */
   useEffect(() => {
+    setLoading(true);
     getTransactionHistory()
       .then((result) => {
         setUnfilteredTxHistory(result);
       })
       .catch(() => {
         setUnfilteredTxHistory([]);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [network, addresses, recentTxHistory, getTransactionHistory]);
 
@@ -136,7 +141,7 @@ export function WalletRecentTxs({
     return unfilteredTxHistory
       .filter((tx) => {
         if (tokenSymbolFilter) {
-          return tokenSymbolFilter === tx.token.symbol;
+          return tokenSymbolFilter === tx.token?.symbol;
         } else {
           return true;
         }
@@ -174,7 +179,7 @@ export function WalletRecentTxs({
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <VerticalFlex padding={isEmbedded ? '0' : '4px 16px 68px'}>
+      <VerticalFlex grow="1" padding={isEmbedded ? '0' : '4px 16px 68px'}>
         <StyledDropDownMenu
           coords={{ right: '0' }}
           icon={
@@ -200,7 +205,7 @@ export function WalletRecentTxs({
         </StyledDropDownMenu>
 
         {filteredTxHistory.length === 0 ? (
-          <NoTransactions />
+          <NoTransactions loading={loading} />
         ) : (
           <>
             {bridgeTransactions &&
@@ -271,11 +276,11 @@ export function WalletRecentTxs({
                           {tx.isContractCall ? (
                             <HistoryItem label={'Contract Call'} item={tx} />
                           ) : (
-                            <HistoryItem label={tx.token.name} item={tx}>
+                            <HistoryItem label={tx.token?.name || ''} item={tx}>
                               <VerticalFlex>
                                 <Typography size={14} height="24px">
                                   {tx.isSender ? '-' : '+'}
-                                  {tx.amount} {tx.token.symbol}
+                                  {tx.amount} {tx.token?.symbol}
                                 </Typography>
                               </VerticalFlex>
                             </HistoryItem>
