@@ -5,7 +5,9 @@ import { StorageService } from '../storage/StorageService';
 import {
   AnalyticsEvents,
   AnalyticsState,
+  AnalyticsUnencryptedState,
   ANALYTICS_STORAGE_KEY,
+  ANALYTICS_UNENCRYPTED_STORAGE_KEY,
 } from './models';
 
 @singleton()
@@ -45,10 +47,28 @@ export class AnalyticsService implements OnStorageReady {
   }
 
   async initIds(storeInStorage: boolean) {
+    const analyticsUnencryptedState: AnalyticsUnencryptedState | undefined =
+      await this.storageService.loadUnencrypted(
+        ANALYTICS_UNENCRYPTED_STORAGE_KEY
+      );
+    const savedDeviceId = analyticsUnencryptedState?.deviceId;
+
     const state = {
-      deviceId: crypto.randomUUID(),
+      deviceId: savedDeviceId || crypto.randomUUID(),
       userId: crypto.randomUUID(),
     };
+
+    if (!savedDeviceId) {
+      // we don't need to encrypt the device id it doesn't carry any sensible information
+      // we want to restore that id after the user logs out and it's possible if the data isn't encrypted
+      // this will persist the device id through sign outs
+      await this.storageService.saveUnencrypted(
+        ANALYTICS_UNENCRYPTED_STORAGE_KEY,
+        {
+          deviceId: state.deviceId,
+        }
+      );
+    }
 
     await this.cacheAnalyticsIds(state);
     if (storeInStorage) {
@@ -73,6 +93,24 @@ export class AnalyticsService implements OnStorageReady {
     await this.storageService.saveToSessionStorage(
       ANALYTICS_STORAGE_KEY,
       state
+    );
+  }
+
+  async getUnencryptedDeviceId() {
+    const analyticsUnencryptedState =
+      await this.storageService.loadUnencrypted<AnalyticsUnencryptedState>(
+        ANALYTICS_UNENCRYPTED_STORAGE_KEY
+      );
+
+    return analyticsUnencryptedState?.deviceId;
+  }
+
+  async setUnencryptedDeviceId(deviceId?: string) {
+    await this.storageService.saveUnencrypted<AnalyticsUnencryptedState>(
+      ANALYTICS_UNENCRYPTED_STORAGE_KEY,
+      {
+        deviceId,
+      }
     );
   }
 
