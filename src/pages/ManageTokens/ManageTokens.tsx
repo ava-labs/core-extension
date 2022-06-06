@@ -42,7 +42,7 @@ export const ManageTokens = () => {
             <PlusIcon color={theme.colors.text1} width="20px" height="20px" />
           </VerticalFlex>
           <Typography margin="0 16px" size={14} height="24px" weight={600}>
-            Add a custom token
+            Add a Custom Token
           </Typography>
         </TextButton>
         <Scrollbars>

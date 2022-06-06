@@ -57,7 +57,7 @@ export const Receive = () => {
   }
 
   function getName() {
-    return isBitcoinActive ? 'Bitcoin Address' : 'C-Chain Address';
+    return isBitcoinActive ? 'Bitcoin Address' : 'Avalanche (C-Chain) Address';
   }
 
   if (!address || !network) {

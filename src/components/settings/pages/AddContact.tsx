@@ -46,7 +46,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'New Contact'}
+        title={'Add New Contact'}
         action={
           <TextButton
             onClick={() => {

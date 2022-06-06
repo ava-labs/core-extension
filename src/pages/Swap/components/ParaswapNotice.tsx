@@ -11,7 +11,7 @@ import { useTheme } from 'styled-components';
 const TooltipContent = (
   <VerticalFlex width="240px">
     <Typography size={12}>
-      You will interact directly with Paraswap&apos;s smart contracts
+      You will interact directly with Paraswap&apos;s smart contracts.
     </Typography>
   </VerticalFlex>
 );

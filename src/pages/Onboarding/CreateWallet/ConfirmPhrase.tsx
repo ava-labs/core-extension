@@ -28,7 +28,7 @@ export function ConfirmPhrase({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
-        title="Verify Recovery Phrase"
+        title="Verify Secret Recovery Phrase"
         onBack={onBack}
         onClose={onCancel}
       />
@@ -36,7 +36,7 @@ export function ConfirmPhrase({
         <Typography align="center" margin="8px 0 32px" size={14} height="17px">
           Select the words below to verify your
           <br />
-          Recovery Phrase.
+          secret recovery phrase.
         </Typography>
         <Mnemonic
           phrase={mnemonic}

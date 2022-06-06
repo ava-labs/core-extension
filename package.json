@@ -23,7 +23,7 @@
     "@avalabs/coingecko-sdk": "2.4.0-alpha.43",
     "@avalabs/covalent-sdk": "2.4.0-alpha.43",
     "@avalabs/posthog-sdk": "2.4.0-alpha.43",
-    "@avalabs/react-components": "1.94.1",
+    "@avalabs/react-components": "1.94.2",
     "@avalabs/snowtrace-sdk": "2.4.0-alpha.43",
     "@avalabs/token-prices-sdk": "2.4.0-alpha.43",
     "@avalabs/utils-sdk": "2.4.0-alpha.43",

@@ -303,7 +303,7 @@ export const SendConfirm = ({
             width="100%"
           >
             <Typography size={12} height="15px">
-              Balance after transaction
+              Balance After Transaction
             </Typography>
             <VerticalFlex>
               <Typography align="right">

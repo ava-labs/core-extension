@@ -18,8 +18,8 @@ interface ContactFormProps {
 
 enum FormErrors {
   NAME_ERROR = 'Name is required',
-  ADDRESS_ERROR = 'Not a valid 0x address',
-  ADDRESS_BTC_ERROR = 'Not a valid BTC address',
+  ADDRESS_ERROR = 'Not a valid Avalanche (C-Chain) address. C-Chain addresses being with 0x',
+  ADDRESS_BTC_ERROR = 'Not a valid Bitcoin address',
   ADDRESS_REQUIRED_ERROR = 'At least one address required',
 }
 
@@ -114,7 +114,7 @@ export const ContactForm = ({
         label="Name"
         error={!!nameError}
         errorMessage={nameError}
-        placeholder="Enter Address Name"
+        placeholder="Enter address name"
         width="100%"
       />
 
@@ -126,10 +126,10 @@ export const ContactForm = ({
           handleUpdate('address', e.target.value);
         }}
         value={contact.address}
-        label="Address"
+        label="Avalanche (C-Chain) Address"
         error={!!addressError}
         errorMessage={addressError}
-        placeholder="Enter the address"
+        placeholder="Enter contact's Avalanche (C-Chain) address"
         width="100%"
       />
       <TextArea
@@ -142,8 +142,9 @@ export const ContactForm = ({
         label="Bitcoin Address"
         error={!!addressBtcError}
         errorMessage={addressBtcError}
-        placeholder="Bitcoin Address"
+        placeholder="Enter contact's Bitcoin address"
         width="100%"
+        margin="12px 0 0"
       />
     </VerticalFlex>
   );

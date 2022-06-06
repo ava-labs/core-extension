@@ -119,15 +119,15 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
     <VerticalFlex width="100%">
       {contact.address && (
         <>
-          <Typography size={12} height="15px" margin="0 0 4px 0">
-            Avalanche C-Chain Address
+          <Typography size={12} height="15px" margin="0 0 8px 0">
+            Avalanche (C-Chain) Address
           </Typography>
           <StyledAddress address={contact.address} isTruncated={false} />
         </>
       )}
       {contact.addressBTC && (
         <>
-          <Typography size={12} height="15px" margin="24px 0 4px 0">
+          <Typography size={12} height="15px" margin="24px 0 8px 0">
             Bitcoin Address
           </Typography>
           <StyledAddress address={contact.addressBTC} />

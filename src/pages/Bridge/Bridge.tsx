@@ -400,7 +400,7 @@ export function Bridge() {
               </HorizontalFlex>
               <HorizontalFlex justify="space-between" align="center">
                 <Typography color={theme.colors.text2} size={12}>
-                  Estimated (minus transfer fees)
+                  Estimated
                 </Typography>
 
                 <Typography color={theme.colors.text2} size={12}>

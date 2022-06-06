@@ -81,7 +81,7 @@ export function AddToken() {
 
       let errorMessage = '';
       if (!tokenData) {
-        errorMessage = 'Invalid ERC-20 token address.';
+        errorMessage = 'Not a valid ERC-20 token address.';
       }
       if (tokenAlreadyExists) {
         errorMessage = 'Token already exists in your wallet.';
