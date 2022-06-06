@@ -24,9 +24,9 @@ export class WalletSwitchEthereumChainHandler implements DAppRequestHandler {
   handleAuthenticated = async (request) => {
     const params = request.params;
 
-    const targetChainID = params?.[0]?.chainId;
+    const targetChainID = params?.[0]?.chainId; // chain ID is hex with 0x perfix
     const [, error] = await resolve(
-      this.networkService.setNetwork(targetChainID)
+      this.networkService.setNetwork(Number(targetChainID))
     );
 
     if (error) {

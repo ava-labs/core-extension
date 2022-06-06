@@ -19,10 +19,9 @@ export class MetamaskGetProviderState implements DAppRequestHandler {
       ...request,
       result: {
         isUnlocked: false,
-        // this needs to be changed to the network?
-        networkVersion: 'avax',
+        chainId: `0x${activeNetwork?.chainId.toString(16)}`,
+        networkVersion: `${activeNetwork?.chainId}`,
         accounts: [],
-        chainId: activeNetwork?.chainId,
       },
     };
   };
@@ -33,9 +32,8 @@ export class MetamaskGetProviderState implements DAppRequestHandler {
       ...request,
       result: {
         isUnlocked: true,
-        chainId: activeNetwork?.chainId,
-        // this needs to be changed to the network?
-        networkVersion: 'avax',
+        chainId: `0x${activeNetwork?.chainId.toString(16)}`,
+        networkVersion: `${activeNetwork?.chainId}`,
         accounts: this.accountsService.activeAccount
           ? [this.accountsService.activeAccount.addressC]
           : [],

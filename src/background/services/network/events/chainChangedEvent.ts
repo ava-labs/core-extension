@@ -23,8 +23,8 @@ export class ChainChangedEvents implements DAppEventEmitter {
       this.eventEmitter.emit('update', {
         method: Web3Event.CHAIN_CHANGED,
         params: {
-          chainId: chain.chainId,
-          networkVersion: chain.chainName,
+          chainId: `0x${chain.chainId.toString(16)}`,
+          networkVersion: `${chain.chainId}`,
         },
       });
     });
