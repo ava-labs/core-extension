@@ -42,6 +42,7 @@ export class BTCBalancesService {
     );
     const balanceBig = satoshiToBtc(balanceSatoshis);
     const balance = bigToBN(balanceBig, denomination);
+    const balanceUSD = tokenPrice ? balanceBig.times(tokenPrice).toNumber() : 0;
     // TODO: probably need to normalize the balance,
     // balanceDisplayValue and priceDisplayValue
     return [
@@ -50,6 +51,7 @@ export class BTCBalancesService {
         type: TokenType.NATIVE,
         balance,
         balanceDisplayValue: balanceToDisplayValue(balance, denomination),
+        balanceUSD,
         balanceUsdDisplayValue: tokenPrice
           ? balanceBig.mul(tokenPrice).toFixed(2)
           : undefined,
