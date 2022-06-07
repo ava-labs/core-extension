@@ -23,6 +23,8 @@ import {
 import Big from 'big.js';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { ChainId } from '@avalabs/chains-sdk';
+import { useIsMainnet } from '@src/hooks/useIsMainnet';
 
 /**
  * Get the balance of a bridge supported asset for the given blockchain.
@@ -33,7 +35,13 @@ export function useAssetBalanceEVM(
 ): AssetBalance | undefined {
   const { request } = useConnectionContext();
   const [ethBalance, setEthBalance] = useState<Big>();
-  const tokens = useTokensWithBalances(true);
+  const isMainnet = useIsMainnet();
+
+  const chainId = isMainnet
+    ? ChainId.AVALANCHE_MAINNET_ID
+    : ChainId.AVALANCHE_TESTNET_ID;
+
+  const tokens = useTokensWithBalances(true, chainId);
   const { activeAccount } = useAccountsContext();
   const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
 

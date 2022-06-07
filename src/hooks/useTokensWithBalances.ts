@@ -10,36 +10,39 @@ import { BN } from 'bn.js';
 const bnZero = new BN(0);
 
 export function useTokensWithBalances(
-  forceShowTokensWithoutBalances?: boolean
+  forceShowTokensWithoutBalances?: boolean,
+  chainId?: number
 ) {
   const { tokens } = useBalancesContext();
   const { showTokensWithoutBalances } = useSettingsContext();
   const { activeAccount } = useAccountsContext();
   const { network } = useNetworkContext();
 
+  const selectedChainId = chainId ? chainId : network?.chainId;
+
   return useMemo<TokenWithBalance[]>(() => {
-    if (!network || !activeAccount) {
+    if (!selectedChainId || !activeAccount) {
       return [];
     }
 
     const address =
-      network.chainId === ChainId.BITCOIN ||
-      network.chainId === ChainId.BITCOIN_TESTNET
+      selectedChainId === ChainId.BITCOIN ||
+      selectedChainId === ChainId.BITCOIN_TESTNET
         ? activeAccount.addressBTC
         : activeAccount.addressC;
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
-      return tokens.balances?.[network?.chainId]?.[address] || [];
+      return tokens.balances?.[selectedChainId]?.[address] || [];
     }
 
     return (
-      tokens.balances?.[network?.chainId]?.[address]?.filter((token) =>
+      tokens.balances?.[selectedChainId]?.[address]?.filter((token) =>
         token.balance.gt(bnZero)
       ) || []
     );
   }, [
     activeAccount,
     tokens,
-    network,
+    selectedChainId,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
   ]);

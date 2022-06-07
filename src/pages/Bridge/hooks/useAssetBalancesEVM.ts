@@ -10,6 +10,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { getEthereumBalances } from '../utils/getEthereumBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { ChainId } from '@avalabs/chains-sdk';
+import { useIsMainnet } from '@src/hooks/useIsMainnet';
 
 /**
  * Get for the current chain.
@@ -25,7 +27,13 @@ export function useAssetBalancesEVM(
   const { request } = useConnectionContext();
   const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
   const { activeAccount } = useAccountsContext();
-  const tokens = useTokensWithBalances(true);
+  const isMainnet = useIsMainnet();
+
+  const chainId = isMainnet
+    ? ChainId.AVALANCHE_MAINNET_ID
+    : ChainId.AVALANCHE_TESTNET_ID;
+
+  const tokens = useTokensWithBalances(true, chainId);
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
 
   const [loading, setLoading] = useState(false);
