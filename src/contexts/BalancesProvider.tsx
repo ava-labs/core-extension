@@ -75,7 +75,10 @@ export function BalancesProvider({ children }: { children: any }) {
         } else {
           request({
             method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-            params: [[activeAccount], [network]],
+            params: [
+              [activeAccount].filter((a) => a),
+              [network].filter((n) => n),
+            ],
           });
         }
       })

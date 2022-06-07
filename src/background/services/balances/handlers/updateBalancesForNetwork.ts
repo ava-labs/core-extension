@@ -35,7 +35,7 @@ export class UpdateBalancesForNetworkHandler
       ? accounts
       : this.accountsService.getAccounts();
 
-    if (!accountsToFetch?.[0]) {
+    if (Object.keys(accountsToFetch).length === 0) {
       return {
         ...request,
         error: 'accounts undefined or empty',
@@ -44,8 +44,8 @@ export class UpdateBalancesForNetworkHandler
 
     const networksToFetch: Network[] = networks?.length
       ? networks
-      : await this.networkSerice.activeNetworks.promisify();
-    if (!networksToFetch?.[0]) {
+      : Object.values(await this.networkSerice.activeNetworks.promisify());
+    if (Object.keys(networksToFetch).length === 0) {
       return {
         ...request,
         error: 'networks undefined or empty',
