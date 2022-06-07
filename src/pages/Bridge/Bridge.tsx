@@ -34,15 +34,16 @@ import styled, { useTheme } from 'styled-components';
 import { AddBtcPopup } from './components/AddBtcPopup';
 import { NetworkSelector } from './components/NetworkSelector';
 import { AssetBalance } from './models';
-import { useBridge } from './useBridge';
+import { useBridge } from './hooks/useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { bigToBN, bnToBig, resolve, stringToBN } from '@avalabs/utils-sdk';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
-import { useSyncBridgeConfig } from './useSyncBridgeConfig';
+import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
 import BN from 'bn.js';
 import Big from 'big.js';
 import { TokenType } from '@src/background/services/balances/models';
+import { useSetBridgeChainFromNetwork } from './hooks/useSetBridgeChainFromNetwork';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -54,7 +55,7 @@ function formatBalance(balance: Big | undefined) {
 
 export function Bridge() {
   useSyncBridgeConfig(); // keep bridge config up-to-date
-  const { flags } = useAnalyticsContext();
+  useSetBridgeChainFromNetwork();
   const {
     address,
     sourceBalance,
@@ -70,9 +71,6 @@ export function Bridge() {
     wrapStatus,
     transfer,
   } = useBridge();
-
-  const { currencyFormatter } = useSettingsContext();
-  const { error } = useBridgeConfig();
   const {
     currentAsset,
     setCurrentAsset,
@@ -81,7 +79,10 @@ export function Bridge() {
     targetBlockchain,
     targetChains,
   } = useBridgeSDK();
+  const { error } = useBridgeConfig();
 
+  const { flags } = useAnalyticsContext();
+  const { currencyFormatter } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
 
   const theme = useTheme();

@@ -8,9 +8,9 @@ import {
   useBridgeSDK,
   useHasEnoughForGas,
 } from '@avalabs/bridge-sdk';
-import { BridgeAdapter } from '@src/pages/Bridge/useBridge';
-import { useAssetBalanceEVM } from '@src/pages/Bridge/useAssetBalanceEVM';
-import { useAssetBalancesEVM } from '@src/pages/Bridge/useAssetBalancesEVM';
+import { BridgeAdapter } from './useBridge';
+import { useAssetBalanceEVM } from '@src/pages/Bridge/hooks/useAssetBalanceEVM';
+import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { useCallback, useMemo, useState } from 'react';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

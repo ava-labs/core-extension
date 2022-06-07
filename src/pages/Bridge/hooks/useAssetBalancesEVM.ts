@@ -3,11 +3,11 @@ import {
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/bridge-sdk';
-import { getAvalancheBalances } from './getAvalancheBalances';
-import { AssetBalance } from '@src/pages/Bridge/models';
+import { getAvalancheBalances } from '../utils/getAvalancheBalances';
+import { AssetBalance } from '../models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useMemo, useState } from 'react';
-import { getEthereumBalances } from '@src/pages/Bridge/getEthereumBalances';
+import { getEthereumBalances } from '../utils/getEthereumBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
