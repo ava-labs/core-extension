@@ -11,7 +11,7 @@ import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { getBtcTransaction } from '@avalabs/bridge-sdk';
-import { NetworkBalanceAggregatorService } from '../../balances/NetworkBalanceAggregatorService';
+import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { ChainId } from '@avalabs/chains-sdk';
 
 /**
@@ -26,7 +26,7 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
     private bridgeService: BridgeService,
     private networkService: NetworkService,
     private accountsService: AccountsService,
-    private balancesService: NetworkBalanceAggregatorService,
+    private balancesService: BalanceAggregatorService,
     private walletService: WalletService
   ) {}
 

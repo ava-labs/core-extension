@@ -1,4 +1,4 @@
-import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { NFT } from '@src/background/services/balances/nft/models';
 import { TokenCard, VerticalFlex } from '@avalabs/react-components';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';

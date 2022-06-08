@@ -4,11 +4,12 @@ import { balanceToDisplayValue, bigToBN } from '@avalabs/utils-sdk';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { singleton } from 'tsyringe';
+import { Account } from '../accounts/models';
 import { SettingsService } from '../settings/SettingsService';
 import { TokenType, TokenWithBalance } from './models';
 
 @singleton()
-export class BTCBalancesService {
+export class BalancesServiceBTC {
   constructor(
     private networkService: NetworkService,
     private tokenPricesService: TokenPricesService,
@@ -21,10 +22,15 @@ export class BTCBalancesService {
   }
 
   async getBalances(
-    userAddress: string,
+    account: Account,
     network: Network
-  ): Promise<TokenWithBalance[]> {
-    if (network.vmName !== NetworkVMType.BITCOIN) return [];
+  ): Promise<{ address: string; balances: TokenWithBalance[] }> {
+    if (network.vmName !== NetworkVMType.BITCOIN) {
+      return {
+        address: account.addressBTC,
+        balances: [],
+      };
+    }
 
     const provider = await this.networkService.getBitcoinProvider();
     const selectedCurrency = (await this.settingsService.getSettings())
@@ -38,28 +44,30 @@ export class BTCBalancesService {
       : undefined;
     const denomination = network.networkToken.decimals;
     const { balance: balanceSatoshis, utxos } = await provider.getUtxoBalance(
-      userAddress
+      account.addressBTC
     );
     const balanceBig = satoshiToBtc(balanceSatoshis);
     const balance = bigToBN(balanceBig, denomination);
     const balanceUSD = tokenPrice ? balanceBig.times(tokenPrice).toNumber() : 0;
-    // TODO: probably need to normalize the balance,
-    // balanceDisplayValue and priceDisplayValue
-    return [
-      {
-        ...network.networkToken,
-        type: TokenType.NATIVE,
-        balance,
-        balanceDisplayValue: balanceToDisplayValue(balance, denomination),
-        balanceUSD,
-        balanceUsdDisplayValue: tokenPrice
-          ? balanceBig.mul(tokenPrice).toFixed(2)
-          : undefined,
-        priceUSD: tokenPrice,
-        utxos,
-        logoUri:
-          'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
-      },
-    ];
+
+    return {
+      address: account.addressBTC,
+      balances: [
+        {
+          ...network.networkToken,
+          type: TokenType.NATIVE,
+          balance,
+          balanceDisplayValue: balanceToDisplayValue(balance, denomination),
+          balanceUSD,
+          balanceUsdDisplayValue: tokenPrice
+            ? balanceBig.mul(tokenPrice).toFixed(2)
+            : undefined,
+          priceUSD: tokenPrice,
+          utxos,
+          logoUri:
+            'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+        },
+      ],
+    };
   }
 }

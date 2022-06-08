@@ -16,7 +16,7 @@ import { CollectibleList } from './components/CollectibleList';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { NFT } from '@src/background/services/balances/nft/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 
 enum ListType {

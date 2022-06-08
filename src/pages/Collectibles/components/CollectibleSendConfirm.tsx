@@ -18,7 +18,7 @@ import { useHistory } from 'react-router-dom';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { NFT } from '@src/background/services/balances/nft/models';
 import { SendState } from '@src/background/services/send/models';
 import { TokenWithBalanceERC721 } from '@src/background/services/balances/models';
 

@@ -1,13 +1,13 @@
 import { injectAll, singleton } from 'tsyringe';
 import { Network } from '@avalabs/chains-sdk';
-import { NFTAggregatorService } from './nftBalanceAggregators/models';
-import './nftBalanceAggregators/registry';
+import { NFTService } from './models';
+import './registry';
 
 @singleton()
 export class NFTBalancesService {
   constructor(
-    @injectAll('NFTAggregatorService')
-    private aggregators: NFTAggregatorService[]
+    @injectAll('NFTService')
+    private services: NFTService[]
   ) {}
 
   async getNftBalances(address: string, network: Network) {
@@ -18,10 +18,8 @@ export class NFTBalancesService {
     return provider.getNFTBalances(address, network);
   }
 
-  private getNftProviderForNetwork(
-    network: Network
-  ): NFTAggregatorService | undefined {
-    return this.aggregators.find((aggregator) =>
+  private getNftProviderForNetwork(network: Network): NFTService | undefined {
+    return this.services.find((aggregator) =>
       aggregator.isAggregatorForChain(network.chainId)
     );
   }

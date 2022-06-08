@@ -12,7 +12,7 @@ import {
   TokenWithBalance,
   TokenType,
 } from '../balances/models';
-import { NetworkBalanceAggregatorService } from '../balances/NetworkBalanceAggregatorService';
+import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { StorageService } from '../storage/StorageService';
@@ -43,7 +43,7 @@ export class TransactionsService {
     private storageService: StorageService,
     private networkService: NetworkService,
     private networkFeeService: NetworkFeeService,
-    private balancesService: NetworkBalanceAggregatorService,
+    private balancesService: BalanceAggregatorService,
     private accountsService: AccountsService
   ) {}
 

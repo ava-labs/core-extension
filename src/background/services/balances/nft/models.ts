@@ -1,6 +1,6 @@
 import { Network } from '@avalabs/chains-sdk';
 
-export interface NFTAggregatorService {
+export interface NFTService {
   isAggregatorForChain(chainId: number): boolean;
   getNFTBalances(address: string, network: Network): Promise<NFT[]>;
 }

@@ -5,7 +5,7 @@ import {
   Balances,
   SerializedBalances,
 } from '@src/background/services/balances/models';
-import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { NFT } from '@src/background/services/balances/nft/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import {
   createContext,
