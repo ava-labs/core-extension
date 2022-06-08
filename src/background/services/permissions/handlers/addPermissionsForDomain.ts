@@ -1,3 +1,6 @@
+import { AccountsService } from '@src/background/services/accounts/AccountsService';
+import { ActionStatus } from './../../actions/models';
+import { ActionsService } from './../../actions/ActionsService';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   ExtensionConnectionMessage,
@@ -10,7 +13,11 @@ import { PermissionsService } from '../PermissionsService';
 export class PermissionsAddDomainHandler implements ExtensionRequestHandler {
   methods = [ExtensionRequest.PERMISSIONS_ADD_DOMAIN];
 
-  constructor(private permissionsService: PermissionsService) {}
+  constructor(
+    private permissionsService: PermissionsService,
+    private actionsService: ActionsService,
+    private accountsService: AccountsService
+  ) {}
   handle = async (
     request: ExtensionConnectionMessage
   ): Promise<ExtensionConnectionMessageResponse> => {
@@ -23,6 +30,7 @@ export class PermissionsAddDomainHandler implements ExtensionRequestHandler {
     }
 
     const permissions = params[0];
+    const id = params[1];
 
     if (!permissions || !permissions.domain || !permissions.accounts) {
       return {
@@ -32,6 +40,11 @@ export class PermissionsAddDomainHandler implements ExtensionRequestHandler {
     }
 
     this.permissionsService.addPermission(permissions);
+    this.actionsService.updateAction({
+      status: ActionStatus.COMPLETED,
+      id,
+      result: [this.accountsService.activeAccount?.addressC],
+    });
 
     return {
       ...request,

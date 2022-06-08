@@ -128,8 +128,15 @@ export class ActionsService {
     } else {
       if (status === ActionStatus.COMPLETED) {
         this.emitResult(id, pendingMessage, true, true);
+      } else if (status === ActionStatus.ERROR_USER_CANCELED) {
+        this.emitResult(id, pendingMessage, false, {
+          message: status,
+          code: 4001,
+        });
       } else {
-        this.emitResult(id, pendingMessage, false, status);
+        this.emitResult(id, pendingMessage, false, {
+          message: status,
+        });
       }
     }
   }
