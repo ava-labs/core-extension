@@ -1,22 +1,23 @@
-import { EVMBalancesService } from '@src/background/services/balances/EVMBalancesService';
+import { BalancesServiceEVM } from '@src/background/services/balances/BalancesServiceEVM';
 import { NetworkService } from '@src/background/services/network/NetworkService';
-import { BTCBalancesService } from '@src/background/services/balances/BTCBalancesService';
+import { BalancesServiceBTC } from '@src/background/services/balances/BalancesServiceBTC';
 import { singleton } from 'tsyringe';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { Account } from '../accounts/models';
 
 @singleton()
 export class BalancesService {
   constructor(
-    private evmBalancesService: EVMBalancesService,
-    private btcBalancesService: BTCBalancesService,
+    private balancesServiceEVM: BalancesServiceEVM,
+    private balancesServiceBTC: BalancesServiceBTC,
     private networkService: NetworkService
   ) {}
 
   private getBalanceServiceByProvider(provider: any) {
     const balanceService = [
-      this.evmBalancesService,
-      this.btcBalancesService,
+      this.balancesServiceEVM,
+      this.balancesServiceBTC,
     ].find((service) => {
       return !!service.getServiceForProvider(provider);
     });
@@ -27,8 +28,8 @@ export class BalancesService {
 
   async getBalanceForNetwork(
     network: Network,
-    userAddress: string
-  ): Promise<TokenWithBalance[]> {
+    account: Account
+  ): Promise<{ address: string; balances: TokenWithBalance[] }> {
     /**
      * At this point we need to call glacier
      *    1. check if its up and supports the current chain
@@ -39,7 +40,7 @@ export class BalancesService {
      */
     const getBalanceForProvider = (provider) => {
       const balanceService = this.getBalanceServiceByProvider(provider);
-      return balanceService.getBalances(userAddress, network);
+      return balanceService.getBalances(account, network);
     };
 
     const btcNetworks = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET];

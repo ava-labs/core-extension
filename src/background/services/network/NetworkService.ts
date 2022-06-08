@@ -200,7 +200,7 @@ export class NetworkService implements OnLock, OnStorageReady {
         'https://glacier-api.avax-test.network/proxy/blockcypher'
       );
     } else if (network.vmName === NetworkVMType.EVM) {
-      return new JsonRpcBatchInternal(
+      const provider = new JsonRpcBatchInternal(
         {
           maxCalls: 40,
           multiContractAddress: network.utilityAddresses?.multicall,
@@ -208,6 +208,10 @@ export class NetworkService implements OnLock, OnStorageReady {
         network.rpcUrl,
         network.chainId
       );
+
+      provider.pollingInterval = 2000;
+
+      return provider;
     } else {
       throw new Error('unsupported network');
     }

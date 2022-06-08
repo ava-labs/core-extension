@@ -20,7 +20,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useInterval } from '@src/hooks/useInterval';
 import Big from 'big.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AssetBalance, BALANCE_REFRESH_INTERVAL } from './models';
+import { AssetBalance, BALANCE_REFRESH_INTERVAL } from '../models';
 import { BridgeAdapter } from './useBridge';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';

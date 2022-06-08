@@ -48,13 +48,13 @@ export function AddBtcPopup({ onClose, address }: AddBtcPopupProps) {
         <VerticalFlex padding="16px" grow="1">
           <VerticalFlex grow="1" align="center">
             <Typography size={14} height="17px">
-              To bridge you will first need to send your bitcoin to your Core X
+              To bridge you will first need to send your bitcoin to your CORE
               address...
             </Typography>
             <HorizontalFlex margin="24px 0">
               <StyledNumberList>1.</StyledNumberList>
               <Typography size={12} height="15px">
-                Copy or scan your Core X bitcoin address below
+                Copy or scan your CORE bitcoin address below
               </Typography>
             </HorizontalFlex>
 
@@ -68,8 +68,8 @@ export function AddBtcPopup({ onClose, address }: AddBtcPopupProps) {
             <HorizontalFlex margin="0 0 24px">
               <StyledNumberList>3.</StyledNumberList>
               <Typography size={12} height="15px">
-                When the bitcoin arrives in your Core X address you will be
-                ready to bridge
+                When the bitcoin arrives in your CORE address you will be ready
+                to bridge
               </Typography>
             </HorizontalFlex>
             <QRCodeWithLogo size={148} value={address}>
@@ -77,7 +77,7 @@ export function AddBtcPopup({ onClose, address }: AddBtcPopupProps) {
             </QRCodeWithLogo>
           </VerticalFlex>
           <Typography size={12} height="15px" margin="0 0 4px">
-            Core X bitcoin Address
+            CORE bitcoin Address
           </Typography>
           <PrimaryAddress
             address={address}

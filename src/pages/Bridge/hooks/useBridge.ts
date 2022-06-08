@@ -9,7 +9,7 @@ import {
 } from '@avalabs/bridge-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useState } from 'react';
-import { AssetBalance } from './models';
+import { AssetBalance } from '../models';
 import { useBtcBridge } from './useBtcBridge';
 import { useEthBridge } from './useEthBridge';
 import { useAvalancheBridge } from './useAvalancheBridge';

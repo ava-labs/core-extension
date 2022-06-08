@@ -1,4 +1,4 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   ExtensionConnectionMessage,
@@ -9,7 +9,7 @@ import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { Account } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
-import { NetworkBalanceAggregatorService } from '../NetworkBalanceAggregatorService';
+import { BalanceAggregatorService } from '../BalanceAggregatorService';
 
 @injectable()
 export class UpdateBalancesForNetworkHandler
@@ -18,7 +18,7 @@ export class UpdateBalancesForNetworkHandler
   methods = [ExtensionRequest.NETWORK_BALANCES_UPDATE];
 
   constructor(
-    private networkBalancesService: NetworkBalanceAggregatorService,
+    private networkBalancesService: BalanceAggregatorService,
     private accountsService: AccountsService,
     private networkSerice: NetworkService
   ) {}
@@ -35,7 +35,7 @@ export class UpdateBalancesForNetworkHandler
       ? accounts
       : this.accountsService.getAccounts();
 
-    if (!accountsToFetch?.[0]) {
+    if (Object.keys(accountsToFetch).length === 0) {
       return {
         ...request,
         error: 'accounts undefined or empty',
@@ -44,32 +44,18 @@ export class UpdateBalancesForNetworkHandler
 
     const networksToFetch: Network[] = networks?.length
       ? networks
-      : await this.networkSerice.activeNetworks.promisify();
-    if (!networksToFetch?.[0]) {
+      : Object.values(await this.networkSerice.activeNetworks.promisify());
+    if (Object.keys(networksToFetch).length === 0) {
       return {
         ...request,
         error: 'networks undefined or empty',
       };
     }
 
-    const isBTCInUpdates = networksToFetch.some(
-      (net) => net.vmName === NetworkVMType.BITCOIN
+    this.networkBalancesService.updateBalancesForNetworks(
+      networksToFetch,
+      accountsToFetch
     );
-
-    const isEVMInUpdates = networksToFetch.some(
-      (net) => net.vmName === NetworkVMType.EVM
-    );
-
-    if (isBTCInUpdates) {
-      this.networkBalancesService.updateBTCBalancesForNetwork(accountsToFetch);
-    }
-
-    if (isEVMInUpdates) {
-      this.networkBalancesService.updateEVMBalancesForNetworks(
-        networksToFetch,
-        accountsToFetch
-      );
-    }
 
     /**
      * We dont return the balances here, the above kicks off an async event that is then

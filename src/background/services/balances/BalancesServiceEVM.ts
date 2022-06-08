@@ -23,9 +23,10 @@ import { TokenManagerService } from '../tokens/TokenManagerService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import BN from 'bn.js';
+import { Account } from '../accounts/models';
 
 @singleton()
-export class EVMBalancesService {
+export class BalancesServiceEVM {
   constructor(
     private networkService: NetworkService,
     private tokenPricesService: TokenPricesService,
@@ -134,9 +135,9 @@ export class EVMBalancesService {
   }
 
   async getBalances(
-    userAddress: string,
+    account: Account,
     network: Network
-  ): Promise<TokenWithBalance[]> {
+  ): Promise<{ address: string; balances: TokenWithBalance[] }> {
     const provider = this.networkService.getProviderForNetwork(network);
     const customTokens = await this.tokensManagerService.getTokensForNetwork(
       network
@@ -155,7 +156,7 @@ export class EVMBalancesService {
         : {};
     const nativeTok = await this.getNativeTokenBalance(
       provider as JsonRpcBatchInternal,
-      userAddress,
+      account.addressC,
       network
     );
 
@@ -166,9 +167,9 @@ export class EVMBalancesService {
         {}
       ),
       tokenPriceDict,
-      userAddress
+      account.addressC
     );
 
-    return [nativeTok, ...erc20Tokens];
+    return { address: account.addressC, balances: [nativeTok, ...erc20Tokens] };
   }
 }

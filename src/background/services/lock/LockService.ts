@@ -86,6 +86,7 @@ export class LockService {
   }
 
   lock() {
+    this._locked = true;
     this.storageService.clearSessionStorage();
     this.callbackManager.onLock();
   }

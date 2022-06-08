@@ -9,15 +9,46 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useHistory } from 'react-router-dom';
-import styled, { useTheme } from 'styled-components';
+import styled, { useTheme, keyframes } from 'styled-components';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
 }
 
+const ShowAnimation = keyframes`
+0% {
+  opacity: 0;
+}
+100% {
+  opacity: 1;
+}
+`;
+
+const HideAnimation = keyframes`
+0% {
+  opacity: 1;
+}
+100% {
+  opacity: 0;
+}
+`;
+
+const BalanceUSDField = styled(Typography)``;
+const BalanceField = styled(Typography)`
+  display: none;
+`;
+
 const AssetlistRow = styled(HorizontalFlex)`
   &:hover {
     background-color: ${({ theme }) => `${theme.palette.white}40`};
+    > ${BalanceField} {
+      display: block;
+      animation: 0.3s ease-in-out ${ShowAnimation};
+    }
+    > ${BalanceUSDField} {
+      display: none;
+      animation: 0.3s ease-in-out ${HideAnimation};
+    }
   }
 `;
 
@@ -70,9 +101,21 @@ export function Assetlist({ assetList }: AssetListProps) {
                 {token.symbol}
               </Typography>
             </HorizontalFlex>
-            <Typography color={theme.colors.text1} size={12}>
-              {currencyFormatter(token.balanceUSD || 0)}
-            </Typography>
+            {!!token.balanceUSD && (
+              <>
+                <BalanceUSDField color={theme.colors.text1} size={12}>
+                  {currencyFormatter(token.balanceUSD)}
+                </BalanceUSDField>
+                <BalanceField color={theme.colors.text1} size={12}>
+                  {token.balanceDisplayValue} {token.symbol}
+                </BalanceField>
+              </>
+            )}
+            {token.balanceUSD === 0 && (
+              <Typography color={theme.colors.text1} size={12}>
+                {token.balanceDisplayValue} {token.symbol}
+              </Typography>
+            )}
           </AssetlistRow>
         );
       })}

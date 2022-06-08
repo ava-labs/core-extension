@@ -1,5 +1,5 @@
 import { TextButton } from '@avalabs/react-components';
-import { NFT } from '@src/background/services/balances/nftBalanceAggregators/models';
+import { NFT } from '@src/background/services/balances/nft/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import Masonry from 'react-masonry-css';
 import styled from 'styled-components';

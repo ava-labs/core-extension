@@ -1,14 +1,14 @@
 import { ChainId, Network } from '@avalabs/chains-sdk';
 import { Covalent, GetAddressBalanceV2Item } from '@avalabs/covalent-sdk';
 import { singleton } from 'tsyringe';
-import { NFT, NFTAggregatorService } from './models';
+import { NFT, NFTService } from './models';
 import {
   convertIPFSResolver,
   getSmallImageForNFT,
 } from './utils/convertIPFSResolver';
 
 @singleton()
-export class CovalentNFTService implements NFTAggregatorService {
+export class NFTBalancesServiceCChain implements NFTService {
   private key = process.env.COVALENT_API_KEY;
   isAggregatorForChain(chainId: number) {
     return [

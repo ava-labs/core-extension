@@ -5,20 +5,20 @@ import {
   Environment,
   EthereumConfigAsset,
   fetchConfig,
+  getMinimumConfirmations,
   NativeAsset,
   setBridgeEnvironment,
   trackBridgeTransaction as trackBridgeTransactionSDK,
-  WrapStatus,
   transferAsset as transferAssetSDK,
-  getMinimumConfirmations,
+  WrapStatus,
 } from '@avalabs/bridge-sdk';
 import { EventEmitter } from 'events';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import {
+  BRIDGE_STORAGE_KEY,
   BridgeEvents,
   BridgeState,
-  BRIDGE_STORAGE_KEY,
   DefaultBridgeState,
   TransferEventType,
 } from './models';
@@ -183,6 +183,16 @@ export class BridgeService implements OnLock, OnStorageReady {
     const avalancheProvider = await this.networkService.getAvalancheProvider();
     const ethereumProvider = await this.networkService.getEthereumProvider();
 
+    // We have to get the network for the current blockchain
+    let network;
+    if (currentBlockchain === Blockchain.AVALANCHE) {
+      network = await this.networkService.getAvalancheNetwork();
+    } else if (currentBlockchain === Blockchain.BITCOIN) {
+      network = await this.networkService.getBitcoinNetwork();
+    } else if (currentBlockchain === Blockchain.ETHEREUM) {
+      network = await this.networkService.getEthereumNetwork();
+    }
+
     return await transferAssetSDK(
       currentBlockchain,
       amount,
@@ -202,7 +212,7 @@ export class BridgeService implements OnLock, OnStorageReady {
           txHash,
         }),
       async (txData) => {
-        return await this.walletService.sign(txData);
+        return await this.walletService.sign(txData, network);
       }
     );
   }

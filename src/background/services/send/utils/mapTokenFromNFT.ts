@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import { TokenType, TokenWithBalanceERC721 } from '../../balances/models';
-import { NFT, NFTData } from '../../balances/nftBalanceAggregators/models';
+import { NFT, NFTData } from '../../balances/nft/models';
 
 export function mapTokenFromNFT(
   nft: NFT,

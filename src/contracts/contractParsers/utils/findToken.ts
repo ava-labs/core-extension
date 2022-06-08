@@ -4,7 +4,7 @@ import {
   TokenType,
   TokenWithBalanceERC20,
 } from '@src/background/services/balances/models';
-import { NetworkBalanceAggregatorService } from '@src/background/services/balances/NetworkBalanceAggregatorService';
+import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
 import BN from 'bn.js';
@@ -28,7 +28,7 @@ export async function findToken(
   address: string
 ): Promise<TokenWithBalanceERC20> {
   // TODO refactor to use contstructor / services instead of container.resolve
-  const balancesService = container.resolve(NetworkBalanceAggregatorService);
+  const balancesService = container.resolve(BalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
   const accountsService = container.resolve(AccountsService);
   const tokenManagerService = container.resolve(TokenManagerService);

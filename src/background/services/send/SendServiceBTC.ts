@@ -8,7 +8,7 @@ import {
 import BN from 'bn.js';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
-import { NetworkBalanceAggregatorService } from '../balances/NetworkBalanceAggregatorService';
+import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { NetworkService } from '../network/NetworkService';
 import {
   SendErrorMessage,
@@ -22,7 +22,7 @@ export class SendServiceBTC implements SendServiceHelper {
   constructor(
     private accountsService: AccountsService,
     private networkService: NetworkService,
-    private networkBalancesService: NetworkBalanceAggregatorService
+    private networkBalancesService: BalanceAggregatorService
   ) {}
 
   async getTransactionRequest(sendState: ValidSendState): Promise<{

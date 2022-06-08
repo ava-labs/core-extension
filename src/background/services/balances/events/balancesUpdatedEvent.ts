@@ -5,14 +5,12 @@ import {
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { BalanceServiceEvents } from '../models';
-import { NetworkBalanceAggregatorService } from '../NetworkBalanceAggregatorService';
+import { BalanceAggregatorService } from '../BalanceAggregatorService';
 
 @singleton()
 export class BalancesUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
-  constructor(
-    private networkBalancesAggregator: NetworkBalanceAggregatorService
-  ) {
+  constructor(private networkBalancesAggregator: BalanceAggregatorService) {
     this.networkBalancesAggregator.balanceUpdates.add((balances) => {
       this.eventEmitter.emit('update', {
         name: BalanceServiceEvents.UPDATED,

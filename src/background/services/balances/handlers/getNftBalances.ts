@@ -7,7 +7,7 @@ import {
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { NetworkService } from '../../network/NetworkService';
-import { NFTBalancesService } from '../NFTBalancesService';
+import { NFTBalancesService } from '../nft/NFTBalancesService';
 
 @injectable()
 export class GetNftBalancesHandler implements ExtensionRequestHandler {

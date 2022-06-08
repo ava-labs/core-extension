@@ -5,15 +5,13 @@ import {
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { NetworkBalanceAggregatorService } from '../NetworkBalanceAggregatorService';
+import { BalanceAggregatorService } from '../BalanceAggregatorService';
 
 @injectable()
 export class GetBalancesHandler implements ExtensionRequestHandler {
   methods = [ExtensionRequest.BALANCES_GET];
 
-  constructor(
-    private networkBalancesService: NetworkBalanceAggregatorService
-  ) {}
+  constructor(private networkBalancesService: BalanceAggregatorService) {}
 
   handle = async (
     request: ExtensionConnectionMessage
