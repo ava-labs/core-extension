@@ -107,13 +107,13 @@ export function Assetlist({ assetList }: AssetListProps) {
                   {currencyFormatter(token.balanceUSD)}
                 </BalanceUSDField>
                 <BalanceField color={theme.colors.text1} size={12}>
-                  {token.balanceDisplayValue}
+                  {token.balanceDisplayValue} {token.symbol}
                 </BalanceField>
               </>
             )}
             {token.balanceUSD === 0 && (
               <Typography color={theme.colors.text1} size={12}>
-                {token.balanceDisplayValue}
+                {token.balanceDisplayValue} {token.symbol}
               </Typography>
             )}
           </AssetlistRow>
