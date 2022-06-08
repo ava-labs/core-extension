@@ -79,7 +79,10 @@ export class ConnectRequestHandler implements DAppRequestHandler {
             this.accountsService.activeAccount.addressC
           ]
         ) {
-          resolve(true);
+          resolve({
+            ...request,
+            result: [this.accountsService.activeAccount.addressC],
+          });
           return;
         }
         const listener = (newPermissions) => {
@@ -93,7 +96,10 @@ export class ConnectRequestHandler implements DAppRequestHandler {
               PermissionEvents.PERMISSIONS_STATE_UPDATE,
               listener
             );
-            resolve(true);
+            resolve({
+              ...request,
+              result: [this.accountsService.activeAccount.addressC],
+            });
           }
         };
         this.permissionsService.addListener(
