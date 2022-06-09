@@ -1,5 +1,6 @@
-import { Wallet } from 'ethers';
+import { entropyToMnemonic } from 'ethers/lib/utils';
 
 export function createNewMnemonic() {
-  return Wallet.createRandom().mnemonic.phrase;
+  const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+  return entropyToMnemonic(randomBytes);
 }
