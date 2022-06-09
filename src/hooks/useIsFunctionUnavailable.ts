@@ -13,6 +13,14 @@ const disabledFeatures = {
   [ChainId.AVALANCHE_TESTNET_ID]: ['Swap'],
 };
 
+const exclusiveFeatues = {
+  COLLECTIBLES: [
+    ChainId.AVALANCHE_MAINNET_ID,
+    ChainId.AVALANCHE_LOCAL_ID,
+    ChainId.AVALANCHE_TESTNET_ID,
+  ],
+};
+
 interface FunctionIsAvailable {
   isFunctionAvailable: boolean;
   checkIsFunctionAvailable: (functionName: string) => boolean;
@@ -23,6 +31,13 @@ export const useIsFunctionAvailable = (
   const { network } = useNetworkContext();
 
   const checkIsFunctionAvailable = (functionName: string) => {
+    if (
+      network &&
+      exclusiveFeatues[functionName] &&
+      !exclusiveFeatues[functionName].includes(network.chainId)
+    ) {
+      return false;
+    }
     if (
       network &&
       disabledFeatures[network.chainId] &&
