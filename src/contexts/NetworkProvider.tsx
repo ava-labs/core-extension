@@ -17,7 +17,7 @@ const NetworkContext = createContext<{
 
 /**
  * Network is being saved to chrome storage so we can share it across all contexts. With that when the
- * user changes the network we write that to storage, storage then fires an event and all contexts recieve that
+ * user changes the network we write that to storage, storage then fires an event and all contexts receive that
  * event. Thus updating all instances of the network provider and everything stays in sync.
  */
 export function NetworkContextProvider({ children }: { children: any }) {

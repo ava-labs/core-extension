@@ -50,7 +50,7 @@ export function ZeroWidget() {
           }}
         >
           <StyledQRCodeIcon color={theme.colors.icon1} />
-          Recieve
+          Receive
         </SecondaryButton>
       </HorizontalFlex>
     );
@@ -65,7 +65,7 @@ export function ZeroWidget() {
         }}
       >
         <StyledQRCodeIcon color={theme.colors.icon1} />
-        Recieve
+        Receive
       </SecondaryButton>
     </HorizontalFlex>
   );
