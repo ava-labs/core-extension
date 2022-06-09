@@ -24,10 +24,6 @@ export function ContactsContextProvider({ children }: { children: any }) {
   });
 
   useEffect(() => {
-    if (!events) {
-      return;
-    }
-
     request({
       method: ExtensionRequest.CONTACTS_GET,
     }).then((res) => {

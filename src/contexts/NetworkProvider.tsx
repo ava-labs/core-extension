@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { LoadingIcon } from '@avalabs/react-components';
 import { filter, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -27,10 +26,6 @@ export function NetworkContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
 
   useEffect(() => {
-    if (!request || !events) {
-      return;
-    }
-
     request({
       method: ExtensionRequest.NETWORK_GET_NETWORKS,
     }).then((networks) => {
@@ -69,10 +64,6 @@ export function NetworkContextProvider({ children }: { children: any }) {
         setIsDeveloperMode(result.isDeveloperMode);
       });
   }, [events, request]);
-
-  if (!request || !events) {
-    return <LoadingIcon />;
-  }
 
   return (
     <NetworkContext.Provider

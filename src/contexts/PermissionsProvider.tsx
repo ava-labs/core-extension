@@ -79,10 +79,6 @@ export function PermissionContextProvider({ children }: { children: any }) {
 
   // listen for permissions changes
   useEffect(() => {
-    if (!request || !events) {
-      return;
-    }
-
     request({
       method: ExtensionRequest.PERMISSIONS_GET_ALL_PERMISSIONS,
       params: [],

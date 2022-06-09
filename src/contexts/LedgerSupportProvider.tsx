@@ -6,7 +6,6 @@ import {
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { LoadingIcon } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
@@ -214,10 +213,6 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [LEDGER_INSTANCE_UUID],
     });
-  }
-
-  if (!request || !events) {
-    return <LoadingIcon />;
   }
 
   return (

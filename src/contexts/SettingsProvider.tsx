@@ -47,10 +47,6 @@ export function SettingsContextProvider({ children }: { children: any }) {
   const [settings, setSettings] = useState<SettingsState>();
 
   useEffect(() => {
-    if (!events) {
-      return;
-    }
-
     request({
       method: ExtensionRequest.SETTINGS_GET,
     }).then((res) => {
