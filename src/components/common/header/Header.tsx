@@ -15,6 +15,8 @@ import { AccountSelector } from '../account/AccountSelector';
 import { NetworkSwitcher } from './NetworkSwitcher';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useLocation } from 'react-router-dom';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -28,6 +30,11 @@ export function Header() {
     false;
   const location = useLocation();
   const showNetworkSwitcher = !location.pathname.startsWith('/bridge');
+  const { network } = useNetworkContext();
+  const address =
+    network?.vmName === NetworkVMType.BITCOIN
+      ? activeAccount?.addressBTC
+      : activeAccount?.addressC;
 
   return (
     <HorizontalFlex
@@ -77,12 +84,12 @@ export function Header() {
           </ConnectionIndicator>
           <AccountSelector />
         </HorizontalFlex>
-        {activeAccount?.addressC && (
+        {address && (
           <HorizontalFlex justify="center">
             <SimpleAddress
               copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
               typographyProps={{ color: 'text2', size: 12 }}
-              address={activeAccount.addressC}
+              address={address}
             />
           </HorizontalFlex>
         )}
