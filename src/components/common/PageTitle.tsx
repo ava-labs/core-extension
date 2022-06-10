@@ -7,10 +7,27 @@ import {
 } from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { useHistory } from 'react-router-dom';
-import styled, { useTheme } from 'styled-components';
+import styled, { useTheme, keyframes } from 'styled-components';
+
+const ShowThumbnailImageAnimation = keyframes`
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
 
 const BackButton = styled(TextButton)<{ padding?: string }>`
   padding: ${({ padding }) => padding ?? '4px 8px 4px 16px'};
+`;
+
+const ThumbnailImage = styled.img`
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  border-radius: 8px;
+  animation: 0.3s ease-in-out ${ShowThumbnailImageAnimation};
 `;
 
 export enum PageTitleVariant {
@@ -23,6 +40,7 @@ type PageTitleProps = {
   showBackButton?: boolean;
   variant?: PageTitleVariant;
   buttonPadding?: string;
+  thumbnailImage?: string;
 };
 
 export const PageTitle = ({
@@ -31,6 +49,7 @@ export const PageTitle = ({
   showBackButton = true,
   variant = PageTitleVariant.SECONDARY,
   buttonPadding,
+  thumbnailImage,
 }: PropsWithChildren<PageTitleProps>) => {
   const theme = useTheme();
   const history = useHistory();
@@ -62,6 +81,7 @@ export const PageTitle = ({
           />
         </BackButton>
       )}
+      {thumbnailImage && <ThumbnailImage src={thumbnailImage} />}
       <Typography
         weight={500}
         size={20}

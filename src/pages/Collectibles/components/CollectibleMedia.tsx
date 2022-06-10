@@ -1,6 +1,8 @@
 import { HorizontalFlex, PlayIcon } from '@avalabs/react-components';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { isVideo } from '../utils';
+import { ImageWrapper } from './ImageWrapper';
 
 const NftImage = styled.img<{
   width?: string;
@@ -8,6 +10,7 @@ const NftImage = styled.img<{
   maxWidth?: string;
   maxHeight?: string;
   hover?: boolean;
+  hasBorderRadius?: boolean;
 }>`
   width: ${({ width }) => width ?? '32px'};
   max-width: ${({ maxWidth }) => maxWidth ?? 'unset'};
@@ -17,7 +20,8 @@ const NftImage = styled.img<{
   box-sizing: border-box;
   filter: drop-shadow(0px 10px 25px ${({ theme }) => `${theme.colors.bg1}40`});
   backdrop-filter: blur(25px);
-  border-radius: 8px;
+  border-radius: ${({ hasBorderRadius }) => (hasBorderRadius ? '8px' : 'none')};
+  cursor: pointer;
 
   ${({ hover }) =>
     hover &&
@@ -85,6 +89,8 @@ export function CollectibleMedia({
   controls = false,
   className,
 }: CollectibleMediaProps) {
+  const [isImageFullScreen, setIsImageFullScreen] = useState(false);
+
   return (
     <HorizontalFlex margin={margin} className={className}>
       {isVideo(url) ? (
@@ -102,14 +108,21 @@ export function CollectibleMedia({
           {showPlayIcon && <StyledPlayIcon />}
         </HorizontalFlex>
       ) : (
-        <NftImage
-          width={width}
-          height={height}
-          maxWidth={maxWidth}
-          maxHeight={maxHeight}
-          hover={hover}
-          src={url}
-        />
+        <ImageWrapper
+          isOverlay={isImageFullScreen}
+          onClick={() => setIsImageFullScreen(true)}
+          onClose={() => setIsImageFullScreen(false)}
+        >
+          <NftImage
+            width={width}
+            height={height}
+            maxWidth={maxWidth}
+            maxHeight={maxHeight}
+            hover={hover}
+            src={url}
+            hasBorderRadius={!isImageFullScreen}
+          />
+        </ImageWrapper>
       )}
     </HorizontalFlex>
   );
