@@ -1,29 +1,31 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import { WalletType } from '@src/background/services/wallet/models';
-import {
-  LedgerAppType,
-  useLedgerSupportContext,
-} from '@src/contexts/LedgerSupportProvider';
+import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
   margin: 24px 0 0;
 `;
 
-export function useLedgerDisconnectedDialog(onCancel: () => void) {
+export function useLedgerDisconnectedDialog(
+  onCancel: () => void,
+  networkType?: NetworkVMType
+): boolean {
   const theme = useTheme();
   const { walletType } = useWalletContext();
-  const { hasLedgerTransport, appType } = useLedgerSupportContext();
+  const { hasLedgerTransport, appType } = useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
   const { network } = useNetworkContext();
+  const [hasCorrectApp, setHasCorrectApp] = useState(false);
 
   const showLedgerDisconnectedDialog = useCallback(() => {
-    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
+    const isBitcoin =
+      (networkType ?? network?.vmName) === NetworkVMType.BITCOIN;
     showDialog(
       {
         title: 'Ledger Disconnected',
@@ -44,10 +46,18 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
       },
       false
     );
-  }, [clearDialog, network?.vmName, onCancel, showDialog, theme.colors.icon1]);
+  }, [
+    clearDialog,
+    network?.vmName,
+    networkType,
+    onCancel,
+    showDialog,
+    theme.colors.icon1,
+  ]);
 
   const showIncorrectAppDialog = useCallback(() => {
-    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
+    const isBitcoin =
+      (networkType ?? network?.vmName) === NetworkVMType.BITCOIN;
     showDialog(
       {
         title: 'Wrong App',
@@ -72,7 +82,7 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
       },
       false
     );
-  }, [clearDialog, network?.vmName, onCancel, showDialog]);
+  }, [clearDialog, network?.vmName, networkType, onCancel, showDialog]);
 
   useEffect(() => {
     clearDialog();
@@ -81,7 +91,8 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
       return;
     }
 
-    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
+    const isBitcoin =
+      (networkType ?? network?.vmName) === NetworkVMType.BITCOIN;
     const hasCorrectApp =
       hasLedgerTransport &&
       ((appType === LedgerAppType.BITCOIN && isBitcoin) ||
@@ -91,6 +102,7 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
     } else if (!hasCorrectApp) {
       showIncorrectAppDialog();
     }
+    setHasCorrectApp(hasCorrectApp);
   }, [
     hasLedgerTransport,
     showLedgerDisconnectedDialog,
@@ -99,5 +111,8 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
     showIncorrectAppDialog,
     clearDialog,
     network?.vmName,
+    networkType,
   ]);
+
+  return hasCorrectApp;
 }

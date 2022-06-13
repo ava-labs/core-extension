@@ -36,13 +36,23 @@ import { AssetBalance } from './models';
 import { useBridge } from './hooks/useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { bigToBN, bnToBig, resolve, stringToBN } from '@avalabs/utils-sdk';
+import {
+  bigToBN,
+  bigToLocaleString,
+  bnToBig,
+  resolve,
+  stringToBN,
+} from '@avalabs/utils-sdk';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
 import BN from 'bn.js';
 import Big from 'big.js';
 import { TokenType } from '@src/background/services/balances/models';
 import { useSetBridgeChainFromNetwork } from './hooks/useSetBridgeChainFromNetwork';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { WalletType } from '@src/background/services/wallet/models';
+import { BridgeConfirmLedger } from './components/BridgeConfirm';
+import { TxInProgress } from '@src/components/common/TxInProgress';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -83,11 +93,13 @@ export function Bridge() {
   const { flags } = useAnalyticsContext();
   const { currencyFormatter } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
+  const { walletType } = useWalletContext();
 
   const theme = useTheme();
   const [bridgeError, setBridgeError] = useState<string>('');
 
   const [isPending, setIsPending] = useState<boolean>(false);
+  const [transferWithLedger, setTransferWithLedger] = useState<boolean>(false);
   const [addBitcoinModalOpen, setAddBitcoinModalOpen] =
     useState<boolean>(false);
   const denomination = sourceBalance?.asset.denomination || 0;
@@ -189,6 +201,14 @@ export function Bridge() {
     sendTokenSelectedAnalytics(symbol);
   };
 
+  const onTransferClicked = () => {
+    if (walletType === WalletType.LEDGER) {
+      setTransferWithLedger(true);
+    } else {
+      handleTransfer();
+    }
+  };
+
   const handleTransfer = async () => {
     if (BIG_ZERO.eq(amount)) return;
 
@@ -199,10 +219,16 @@ export function Bridge() {
 
     setIsPending(true);
     const [hash, error] = await resolve(transfer());
+    setTransferWithLedger(false);
     setIsPending(false);
 
     if (error) {
       console.error(error);
+      // do not show the error when the user denied the transfer
+      if (error === 'User declined the transaction') {
+        return;
+      }
+
       setBridgeError('The was a problem with the transfer');
       return;
     }
@@ -424,12 +450,13 @@ export function Bridge() {
           disabled={
             bridgeError.length > 0 ||
             loading ||
+            transferWithLedger ||
             isPending ||
             isAmountTooLow ||
             BIG_ZERO.eq(amount) ||
             !hasEnoughForNetworkFee
           }
-          onClick={handleTransfer}
+          onClick={onTransferClicked}
         >
           {isPending && (
             <StyledLoading height="16px" color={theme.colors.stroke2} />
@@ -445,6 +472,26 @@ export function Bridge() {
             onClose={() => setAddBitcoinModalOpen(false)}
           />
         )}
+      {transferWithLedger && (
+        <BridgeConfirmLedger
+          blockchain={currentBlockchain}
+          isTransactionPending={isPending}
+          onCancel={() => {
+            setTransferWithLedger(false);
+          }}
+          startTransfer={() => {
+            setTransferWithLedger(false);
+            handleTransfer();
+          }}
+        />
+      )}
+      {isPending && (
+        <TxInProgress
+          address={'Avalanche Bridge'}
+          amount={bigToLocaleString(amount)}
+          symbol={currentAsset}
+        />
+      )}
     </VerticalFlex>
   );
 }

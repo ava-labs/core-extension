@@ -1,4 +1,4 @@
-import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { Subject, Subscription } from 'rxjs';
 import { singleton } from 'tsyringe';
@@ -13,7 +13,7 @@ const ledgerTransportLRUCache = new LRU<string, LedgerTransport>({
   },
 });
 @singleton()
-export class LedgerService implements OnLock {
+export class LedgerService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
 
   private ledgerDeviceRequest$ = new Subject<DeviceRequestData>();
@@ -26,6 +26,13 @@ export class LedgerService implements OnLock {
         this.eventEmitter.emit(LedgerEvent.TRANSPORT_REQUEST, request);
       }
     );
+  }
+
+  onUnlock(): void | Promise<void> {
+    /**
+     * Request all active frontend LedgerProviders to notify the background after a background script restart.
+     */
+    this.eventEmitter.emit(LedgerEvent.DISCOVER_TRANSPORTS);
   }
 
   public getTransport(ledgerTransportUUID: string) {

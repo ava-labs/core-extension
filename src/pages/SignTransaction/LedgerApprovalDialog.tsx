@@ -71,26 +71,31 @@ export function LedgerApprovalDialog({
             </>
           )}
           {fee && (
-            <VerticalFlex>
-              <Typography height="17px" size={14} margin="0 0 4px 0">
-                Fee
-              </Typography>
-              <Typography height="24px" weight={600}>
-                {fee} {feeSymbol}
-              </Typography>
-            </VerticalFlex>
+            <>
+              <VerticalFlex>
+                <Typography height="17px" size={14} margin="0 0 4px 0">
+                  Fee
+                </Typography>
+                <Typography height="24px" weight={600}>
+                  {fee} {feeSymbol}
+                </Typography>
+              </VerticalFlex>
+              <HorizontalSeparator margin="16px 0" />
+            </>
           )}
           {nftName && (
-            <VerticalFlex>
-              <Typography height="17px" size={14} margin="0 0 4px 0">
-                Collectible
-              </Typography>
-              <Typography height="24px" weight={600}>
-                {nftName}
-              </Typography>
-            </VerticalFlex>
+            <>
+              <VerticalFlex>
+                <Typography height="17px" size={14} margin="0 0 4px 0">
+                  Collectible
+                </Typography>
+                <Typography height="24px" weight={600}>
+                  {nftName}
+                </Typography>
+              </VerticalFlex>
+              <HorizontalSeparator margin="16px 0" />
+            </>
           )}
-          <HorizontalSeparator margin="16px 0" />
           <VerticalFlex>
             <Typography height="17px" size={14} margin="0 0 4px 0">
               Status

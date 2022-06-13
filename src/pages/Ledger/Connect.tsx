@@ -8,17 +8,14 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { StyledNumberList } from '@src/components/common/StyledNumberList';
-import {
-  LedgerAppType,
-  useLedgerSupportContext,
-} from '@src/contexts/LedgerSupportProvider';
+import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useEffect } from 'react';
 import { useTheme } from 'styled-components';
 
 export function LedgerConnect() {
   const theme = useTheme();
   const { hasLedgerTransport, appType, popDeviceSelection } =
-    useLedgerSupportContext();
+    useLedgerContext();
 
   useEffect(() => {
     popDeviceSelection();

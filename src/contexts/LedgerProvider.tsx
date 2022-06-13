@@ -11,12 +11,13 @@ import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { resolve } from '@src/utils/promiseResolver';
 import { delay, filter, of, retryWhen, switchMap } from 'rxjs';
-import { LedgerEvent } from '@src/background/services/ledger/events/models';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
 import AppAvax from '@obsidiansystems/hw-app-avalanche';
 import Btc from '@ledgerhq/hw-app-btc';
 import Transport from '@ledgerhq/hw-transport';
+import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
+import { LedgerEvent } from '@src/background/services/ledger/models';
 
 export enum LedgerAppType {
   AVALANCHE = 'AVALANCHE',
@@ -26,7 +27,7 @@ export enum LedgerAppType {
 export const SUPPORTED_LEDGER_VERSION = '0.5.9';
 const LEDGER_INSTANCE_UUID = crypto.randomUUID();
 
-const LedgerSupportContext = createContext<{
+const LedgerContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
   getPublicKey(): Promise<string>;
   initLedgerTransport(): Promise<void>;
@@ -34,7 +35,7 @@ const LedgerSupportContext = createContext<{
   appType: LedgerAppType;
 }>({} as any);
 
-export function LedgerSupportContextProvider({ children }: { children: any }) {
+export function LedgerContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
   const [app, setApp] = useState<Btc | AppAvax>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
@@ -89,6 +90,23 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
   }, [request, events, app]);
 
   useEffect(() => {
+    const subscription = events()
+      .pipe(filter(ledgerDiscoverTransportsEventListener))
+      .subscribe(() => {
+        console.log('called', initialized, LEDGER_INSTANCE_UUID);
+        if (initialized) {
+          request({
+            method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
+            params: [LEDGER_INSTANCE_UUID],
+          });
+        }
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events, initialized, request]);
+
+  useEffect(() => {
     window.addEventListener('beforeunload', (ev) => {
       ev.preventDefault();
       request({
@@ -105,7 +123,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
       }
 
       // first try to get the avalanche App instance
-      const avaxAppInstance = new AppAvax(transport);
+      const avaxAppInstance = new AppAvax(transport, 'w0w');
       if (avaxAppInstance) {
         // double check it's really the avalanche app
         // the btc app also initializes with AppAvax
@@ -120,6 +138,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
             setApp(undefined);
             setAppType(LedgerAppType.UNKNOWN);
           });
+          return;
         }
       }
 
@@ -127,8 +146,9 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
       const btcAppInstance = new Btc(transport);
       if (btcAppInstance) {
         // double check the app is really working
+        // We are not doing anything with it's value
         const [, publicKeyError] = await resolve(
-          btcAppInstance.getWalletPublicKey("44'/0'/0'/0/0")
+          btcAppInstance.getWalletPublicKey("44'/60'/0'")
         );
 
         if (!publicKeyError) {
@@ -204,7 +224,7 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
     throw Error('Ledger device selection failed');
   }, [app]);
 
-  async function initLedgerTransport() {
+  const initLedgerTransport = useCallback(async () => {
     if (initialized) {
       return;
     }
@@ -213,10 +233,10 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [LEDGER_INSTANCE_UUID],
     });
-  }
+  }, [initialized, request]);
 
   return (
-    <LedgerSupportContext.Provider
+    <LedgerContext.Provider
       value={{
         popDeviceSelection,
         getPublicKey,
@@ -226,10 +246,10 @@ export function LedgerSupportContextProvider({ children }: { children: any }) {
       }}
     >
       {children}
-    </LedgerSupportContext.Provider>
+    </LedgerContext.Provider>
   );
 }
 
-export function useLedgerSupportContext() {
-  return useContext(LedgerSupportContext);
+export function useLedgerContext() {
+  return useContext(LedgerContext);
 }

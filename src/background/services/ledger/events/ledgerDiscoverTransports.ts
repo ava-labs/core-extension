@@ -6,14 +6,15 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
 import { LedgerEvent } from '../models';
+
 @singleton()
-export class LedgerTransportRequestEvents implements ExtensionEventEmitter {
+export class LedgerDiscoverTransportsEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   constructor(private ledgerService: LedgerService) {
-    this.ledgerService.addListener(LedgerEvent.TRANSPORT_REQUEST, (data) => {
+    this.ledgerService.addListener(LedgerEvent.DISCOVER_TRANSPORTS, () => {
       this.eventEmitter.emit('update', {
-        name: LedgerEvent.TRANSPORT_REQUEST,
-        value: data,
+        name: LedgerEvent.DISCOVER_TRANSPORTS,
+        value: {},
       });
     });
   }

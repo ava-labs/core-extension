@@ -6,7 +6,7 @@ import {
   HorizontalSeparator,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { SUPPORTED_LEDGER_VERSION } from '@src/contexts/LedgerSupportProvider';
+import { SUPPORTED_LEDGER_VERSION } from '@src/contexts/LedgerProvider';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { StyledNumberList } from '@src/components/common/StyledNumberList';
 

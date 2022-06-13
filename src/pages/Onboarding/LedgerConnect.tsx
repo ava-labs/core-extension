@@ -12,7 +12,7 @@ import {
   LedgerConnectCard,
   LedgerStatus,
 } from './components/LedgerConnectCard';
-import { useLedgerSupportContext } from '@src/contexts/LedgerSupportProvider';
+import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
@@ -49,7 +49,7 @@ export function LedgerConnect({
     popDeviceSelection,
     hasLedgerTransport,
     initLedgerTransport,
-  } = useLedgerSupportContext();
+  } = useLedgerContext();
   const { setPublicKey } = useOnboardingContext();
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
     LedgerStatus.LEDGER_LOADING

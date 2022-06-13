@@ -12,8 +12,8 @@ import { SettingsHeader } from '../SettingsHeader';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import {
   SUPPORTED_LEDGER_VERSION,
-  useLedgerSupportContext,
-} from '@src/contexts/LedgerSupportProvider';
+  useLedgerContext,
+} from '@src/contexts/LedgerProvider';
 
 const StyledNumberList = styled(Typography)`
   font-size: 14px;
@@ -31,7 +31,7 @@ const StyledNumberList = styled(Typography)`
 
 export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
-  const { hasLedgerTransport } = useLedgerSupportContext();
+  const { hasLedgerTransport } = useLedgerContext();
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
