@@ -3,8 +3,9 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { isVideo } from '../utils';
 import { ImageWrapper } from './ImageWrapper';
+import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
 
-const NftImage = styled.img<{
+const NftImage = styled(ImageWithFallback)<{
   width?: string;
   height?: string;
   maxWidth?: string;

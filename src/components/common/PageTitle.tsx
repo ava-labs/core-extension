@@ -8,6 +8,7 @@ import {
 import { PropsWithChildren } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme, keyframes } from 'styled-components';
+import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
 
 const ShowThumbnailImageAnimation = keyframes`
   0% {
@@ -22,7 +23,7 @@ const BackButton = styled(TextButton)<{ padding?: string }>`
   padding: ${({ padding }) => padding ?? '4px 8px 4px 16px'};
 `;
 
-const ThumbnailImage = styled.img`
+const ThumbnailImage = styled(ImageWithFallback)`
   width: 32px;
   height: 32px;
   margin-right: 8px;

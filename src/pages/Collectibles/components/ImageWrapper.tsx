@@ -47,5 +47,9 @@ export function ImageWrapper({
       </Overlay>
     );
   }
-  return <HorizontalFlex onClick={onClick}>{children}</HorizontalFlex>;
+  return (
+    <HorizontalFlex onClick={onClick} width="100%">
+      {children}
+    </HorizontalFlex>
+  );
 }
