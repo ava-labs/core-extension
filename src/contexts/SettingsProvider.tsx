@@ -125,11 +125,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
 
   const getTokenVisibility = useCallback(
     (token: TokenWithBalance) => {
-      if (token.type !== TokenType.ERC20) {
-        return false;
-      }
-
-      const key = token.address;
+      const key = token.type === TokenType.ERC20 ? token.address : token.symbol;
       const tokensVisibility = settings?.tokensVisibility ?? {};
       return tokensVisibility[key] || tokensVisibility[key] === undefined;
     },

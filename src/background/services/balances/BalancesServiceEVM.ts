@@ -43,16 +43,10 @@ export class BalancesServiceEVM {
   private async getNativeTokenBalance(
     provider: Provider,
     userAddress: string,
-    network: Network
+    network: Network,
+    tokenPrice?: number
   ): Promise<NetworkTokenWithBalance> {
     const balanceBig = await provider.getBalance(userAddress);
-    const coingeckoTokenId = network.pricingProviders?.coingecko.nativeTokenId;
-    const tokenPrice = coingeckoTokenId
-      ? await this.tokenPricesService.getPriceByCoinId(
-          coingeckoTokenId,
-          (await this.settingsService.getSettings()).currency || 'usd'
-        )
-      : undefined;
     const big = ethersBigNumberToBig(balanceBig, network.networkToken.decimals);
     const balance = bigToBN(big, network.networkToken.decimals);
 
@@ -135,9 +129,9 @@ export class BalancesServiceEVM {
   }
 
   async getBalances(
-    account: Account,
+    accounts: Account[],
     network: Network
-  ): Promise<{ address: string; balances: TokenWithBalance[] }> {
+  ): Promise<Record<string, TokenWithBalance[]>> {
     const provider = this.networkService.getProviderForNetwork(network);
     const customTokens = await this.tokensManagerService.getTokensForNetwork(
       network
@@ -154,22 +148,49 @@ export class BalancesServiceEVM {
             coingeckoTokenId
           )
         : {};
-    const nativeTok = await this.getNativeTokenBalance(
-      provider as JsonRpcBatchInternal,
-      account.addressC,
-      network
-    );
+    const nativeTokenPrice = coingeckoTokenId
+      ? await this.tokenPricesService.getPriceByCoinId(
+          coingeckoTokenId,
+          (await this.settingsService.getSettings()).currency || 'usd'
+        )
+      : undefined;
 
-    const erc20Tokens = await this.getErc20Balances(
-      provider as JsonRpcBatchInternal,
-      activeTokenList.reduce(
-        (acc, token) => ({ ...acc, [token.address]: token }),
-        {}
-      ),
-      tokenPriceDict,
-      account.addressC
-    );
+    const balances = (
+      await Promise.allSettled(
+        accounts.map(async (account) => {
+          const nativeTok = await this.getNativeTokenBalance(
+            provider as JsonRpcBatchInternal,
+            account.addressC,
+            network,
+            nativeTokenPrice
+          );
 
-    return { address: account.addressC, balances: [nativeTok, ...erc20Tokens] };
+          const erc20Tokens = await this.getErc20Balances(
+            provider as JsonRpcBatchInternal,
+            activeTokenList.reduce(
+              (acc, token) => ({ ...acc, [token.address]: token }),
+              {}
+            ),
+            tokenPriceDict,
+            account.addressC
+          );
+          return {
+            address: account.addressC,
+            balances: [nativeTok, ...erc20Tokens],
+          };
+        })
+      )
+    ).reduce((acc, result) => {
+      if (result.status === 'rejected') {
+        return acc;
+      }
+
+      return {
+        ...acc,
+        [result.value.address]: result.value.balances,
+      };
+    }, {});
+
+    return balances;
   }
 }

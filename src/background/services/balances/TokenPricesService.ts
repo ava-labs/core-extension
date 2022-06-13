@@ -3,6 +3,22 @@ import { SimplePriceInCurrency } from '@avalabs/coingecko-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import { getTokensPrice } from '@avalabs/token-prices-sdk';
 import { simplePrice, getBasicCoingeckoHttp } from '@avalabs/coingecko-sdk';
+import LRUCache from 'lru-cache';
+
+/**
+ * Keeping a cache of responses for ttl. This will allow future calls to utilize
+ * previous responses for a given amount of time. Coin gecko rate limits for users that
+ * have many accounts and this should help with the rate limiting
+ *
+ * Side note: A race condition can exist where multiple accounts are asking for the same
+ * prices up front. Right now we dont create a cache until the response is returned. However,
+ * the cache could hold a promise and this promise would handed to future requests. The issue
+ * right now is we dont store into the cache until we recieve a response which could allow several
+ *
+ *
+ */
+const tokenPriceResponseCache = new LRUCache({ max: 100, ttl: 60 * 1000 });
+
 @singleton()
 export class TokenPricesService {
   constructor(private settingsService: SettingsService) {}
@@ -17,11 +33,16 @@ export class TokenPricesService {
     selectedCurrency: string
   ): Promise<number | undefined> {
     const currencyCode = selectedCurrency.toLowerCase() as any;
+    const cacheKey = `getPriceByCoinId-${coinId}-${selectedCurrency}`;
+    const cacheResult = tokenPriceResponseCache.get<number>(cacheKey);
+    if (cacheResult) return cacheResult;
     const coinPriceResult = await simplePrice(getBasicCoingeckoHttp(), {
       coinIds: [coinId],
       currencies: [currencyCode],
     });
-    return coinPriceResult[coinId]?.[currencyCode]?.price;
+    const result = coinPriceResult[coinId]?.[currencyCode]?.price;
+    tokenPriceResponseCache.set(cacheKey, result);
+    return result;
   }
 
   /**
@@ -38,6 +59,10 @@ export class TokenPricesService {
   ): Promise<SimplePriceInCurrency> {
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
+    const cacheKey = `getTokenPriceByAddress-${coinId}-${selectedCurrency}-${address}`;
+    const cacheResult =
+      tokenPriceResponseCache.get<SimplePriceInCurrency>(cacheKey);
+    if (cacheResult) return cacheResult;
     const avaxPrice = await this.getPriceByCoinId(coinId, selectedCurrency);
     const tokenPriceRes = await getTokensPrice(
       [address],
@@ -45,8 +70,9 @@ export class TokenPricesService {
       avaxPrice || 0,
       assetPlatformId
     );
-
-    return tokenPriceRes[address][selectedCurrency.toLowerCase()];
+    const result = tokenPriceRes[address][selectedCurrency.toLowerCase()];
+    tokenPriceResponseCache.set(cacheKey, result);
+    return result;
   }
   /**
    *
@@ -62,14 +88,25 @@ export class TokenPricesService {
   ): Promise<Record<string, number>> {
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
-    const avaxPrice = await this.getPriceByCoinId(coinId, selectedCurrency);
+    const cacheKey = `getTokenPricesByAddresses-${coinId}-${selectedCurrency}-${assetPlatformId}-${tokens.map(
+      ({ address }) => address
+    )}`;
+    const cacheResult =
+      tokenPriceResponseCache.get<Record<string, number>>(cacheKey);
+    if (cacheResult) return cacheResult;
+    const nativeTokenPrice = await this.getPriceByCoinId(
+      coinId,
+      selectedCurrency
+    );
     const tokenAddys = tokens.map((token) => token.address);
     const currency = selectedCurrency.toLocaleLowerCase();
-    return await getTokensPrice(
+    const result = await getTokensPrice(
       tokenAddys,
       currency,
-      avaxPrice || 0,
+      nativeTokenPrice || 0,
       assetPlatformId
     );
+    tokenPriceResponseCache.set(cacheKey, result);
+    return result;
   }
 }
