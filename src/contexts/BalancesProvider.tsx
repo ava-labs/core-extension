@@ -147,9 +147,10 @@ export function useBalancesContext() {
 
 function deserializeBalances(balances: SerializedBalances): Balances {
   return Object.keys(balances).reduce<Balances>((deserialized, networkId) => {
-    deserialized[networkId] = Object.keys(balances[networkId]).reduce(
+    const balancesForNetwork = balances?.[networkId] || {};
+    deserialized[networkId] = Object.keys(balancesForNetwork).reduce(
       (acc, account) => {
-        acc[account] = balances[networkId][account].map((balance) => ({
+        acc[account] = balancesForNetwork[account].map((balance) => ({
           ...balance,
           balance: hexToBN(balance.balance),
         }));

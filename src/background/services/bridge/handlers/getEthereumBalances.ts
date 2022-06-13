@@ -8,6 +8,7 @@ import { Assets, Blockchain, fetchTokenBalances } from '@avalabs/bridge-sdk';
 import { NetworkService } from '../../network/NetworkService';
 import { injectable } from 'tsyringe';
 import Big from 'big.js';
+import { ChainId } from '@avalabs/chains-sdk';
 
 @injectable()
 export class BridgeGetEthereumBalancesHandler
@@ -33,11 +34,24 @@ export class BridgeGetEthereumBalancesHandler
       account,
       deprecated
     );
+    const logosBySymbol =
+      (await this.networkService.activeNetworks.promisify())[
+        // Just using mainnet because all we need are the logos
+        ChainId.AVALANCHE_MAINNET_ID
+      ].tokens?.reduce((acc, token) => {
+        acc[token.symbol] = token.logoUri;
+        return acc;
+      }, {}) || [];
 
-    const balances: Record<string, Big> = {};
+    const balances: {
+      [symbol: string]: { balance: Big; logoUri?: string } | undefined;
+    } = {};
 
     for (const symbol in assets) {
-      balances[symbol] = ethereumBalancesBySymbol?.[symbol];
+      balances[symbol] = {
+        balance: ethereumBalancesBySymbol?.[symbol],
+        logoUri: logosBySymbol[symbol],
+      };
     }
 
     return {

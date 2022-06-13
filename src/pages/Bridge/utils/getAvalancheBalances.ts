@@ -22,7 +22,7 @@ export function getAvalancheBalances(
   erc20Tokens: TokenWithBalance[]
 ): AssetBalance[] {
   const erc20TokensByAddress = erc20Tokens.reduce<{
-    [address: string]: TokenWithBalanceERC20;
+    [address: string]: TokenWithBalanceERC20 | undefined;
   }>((tokens, token) => {
     if (token.type !== TokenType.ERC20) {
       return tokens;
@@ -42,7 +42,8 @@ export function getAvalancheBalances(
       const symbol = asset.symbol;
       const token = erc20TokensByAddress[asset.wrappedContractAddress];
       const balance = token && bnToBig(token.balance, token.decimals);
+      const logoUri = token?.logoUri;
 
-      return { symbol, asset, balance };
+      return { symbol, asset, balance, logoUri };
     });
 }

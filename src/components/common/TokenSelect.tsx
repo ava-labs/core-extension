@@ -15,7 +15,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import { formatTokenAmount, useTokenInfoContext } from '@avalabs/bridge-sdk';
+import { formatTokenAmount } from '@avalabs/bridge-sdk';
 import EthLogo from '@src/images/tokens/eth.png';
 import {
   TokenType,
@@ -110,7 +110,6 @@ export function TokenSelect({
   const [bnError, setBNError] = useState('');
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
-  const tokenInfoData = useTokenInfoContext();
 
   // Stringify maxAmount for referential equality in useEffect
   const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
@@ -349,7 +348,7 @@ export function TokenSelect({
                                 src={
                                   token.symbol === 'ETH'
                                     ? EthLogo
-                                    : tokenInfoData?.[token.symbol]?.logo
+                                    : token.logoUri
                                 }
                                 name={token.asset.symbol}
                               />

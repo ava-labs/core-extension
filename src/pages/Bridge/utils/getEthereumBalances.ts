@@ -12,9 +12,9 @@ import Big from 'big.js';
  * @param deprecated
  */
 export async function getEthereumBalances(
-  request: (
-    message: Omit<ExtensionConnectionMessage<any>, 'id'>
-  ) => Promise<Record<string, string | undefined>>,
+  request: (message: Omit<ExtensionConnectionMessage<any>, 'id'>) => Promise<{
+    [symbol: string]: { balance: string; logoUri?: string } | undefined;
+  }>,
   assets: Assets,
   account: string,
   deprecated: boolean
@@ -25,9 +25,10 @@ export async function getEthereumBalances(
   });
 
   return Object.entries(assets).map(([symbol, asset]) => {
-    const balanceStr = ethereumBalancesBySymbol?.[symbol];
+    const { balance: balanceStr, logoUri } =
+      ethereumBalancesBySymbol[symbol] || {};
     const balance = balanceStr ? new Big(balanceStr) : undefined;
 
-    return { symbol, asset, balance };
+    return { symbol, asset, balance, logoUri };
   });
 }

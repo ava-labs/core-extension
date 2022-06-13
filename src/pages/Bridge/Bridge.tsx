@@ -4,7 +4,6 @@ import {
   formatTokenAmount,
   useBridgeConfig,
   useBridgeSDK,
-  useTokenInfoContext,
   WrapStatus,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/bridge-sdk';
@@ -91,7 +90,6 @@ export function Bridge() {
   const [isPending, setIsPending] = useState<boolean>(false);
   const [addBitcoinModalOpen, setAddBitcoinModalOpen] =
     useState<boolean>(false);
-  const tokenInfoData = useTokenInfoContext();
   const denomination = sourceBalance?.asset.denomination || 0;
   const history = useHistory();
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
@@ -130,9 +128,11 @@ export function Bridge() {
     setCurrentBlockchain,
   ]);
 
-  if (bridgePageHistoryData.selectedToken && !currentAsset) {
-    setCurrentAsset(bridgePageHistoryData.selectedToken);
-  }
+  useEffect(() => {
+    if (bridgePageHistoryData.selectedToken && !currentAsset) {
+      setCurrentAsset(bridgePageHistoryData.selectedToken);
+    }
+  }, [bridgePageHistoryData.selectedToken, currentAsset, setCurrentAsset]);
 
   const isAmountTooLow =
     amount && !amount.eq(BIG_ZERO) && amount.lt(minimum || BIG_ZERO);
@@ -306,8 +306,7 @@ export function Bridge() {
                       ),
                       decimals: sourceBalance.asset.denomination,
                       priceUSD: price?.toNumber(),
-                      logoUri:
-                        tokenInfoData?.[sourceBalance.asset.symbol]?.logo,
+                      logoUri: sourceBalance.logoUri,
                       name: sourceBalance.asset.symbol,
                       symbol: getTokenSymbolOnNetwork(
                         sourceBalance.asset.symbol,

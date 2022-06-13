@@ -81,15 +81,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const amountInSatoshis = btcToSatoshi(amountInBtc);
 
   const btcAsset = config && getBtcAsset(config);
-  const assetsWithBalances = btcAsset
-    ? [
-        {
-          symbol: btcAsset.symbol,
-          asset: btcAsset,
-          balance: btcBalance?.balance,
-        },
-      ]
-    : [];
+  const assetsWithBalances = btcBalance ? [btcBalance] : [];
 
   useEffect(() => {
     async function loadFeeRates() {
@@ -123,20 +115,22 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
           symbol: btcAsset.symbol,
           asset: btcAsset,
           balance: satoshiToBtc(btcBalance.balance.toNumber()),
+          logoUri: btcBalance.logoUri,
         });
       }
 
-      const btcAvalabcheBalance = tokens.balances?.[
+      const btcAvalancheBalance = tokens.balances?.[
         isDeveloperMode
           ? ChainId.AVALANCHE_TESTNET_ID
           : ChainId.AVALANCHE_MAINNET_ID
       ]?.[activeAccount.addressC].find((token) => token.symbol === 'BTC.b');
 
-      if (btcAvalabcheBalance) {
+      if (btcAvalancheBalance) {
         setBtcBalanceAvalanche({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(btcAvalabcheBalance?.balance.toNumber() || 0),
+          balance: satoshiToBtc(btcAvalancheBalance?.balance.toNumber() || 0),
+          logoUri: btcAvalancheBalance.logoUri,
         });
       }
     }

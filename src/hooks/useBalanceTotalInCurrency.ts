@@ -20,7 +20,7 @@ export function useBalanceTotalInCurrency(account?: Account) {
           : account.addressC;
       return (
         total +
-        (tokens.balances?.[network][address]?.reduce(
+        (tokens.balances?.[network]?.[address]?.reduce(
           (sum, token) => sum + (token.balanceUSD ?? 0),
           0
         ) || 0)

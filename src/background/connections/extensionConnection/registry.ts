@@ -19,7 +19,6 @@ import { BridgeTransferEvents } from '@src/background/services/bridge/events/bri
 import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';
 import { BridgeGetTransactionsHandler } from '@src/background/services/bridge/handlers/getBridgeTransactions';
-import { BridgeGetEthereumBalanceHandler } from '@src/background/services/bridge/handlers/getEthereumBalance';
 import { BridgeGetEthereumBalancesHandler } from '@src/background/services/bridge/handlers/getEthereumBalances';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
@@ -115,10 +114,6 @@ import { LockStateChangedEvents } from '@src/background/services/lock/events/loc
   { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetTransactionsHandler },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: BridgeGetEthereumBalanceHandler,
-  },
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeGetEthereumBalancesHandler,

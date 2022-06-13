@@ -18,7 +18,6 @@ import {
 } from '@avalabs/react-components';
 import {
   useBridgeSDK,
-  useTokenInfoContext,
   Blockchain,
   usePrice,
   BridgeTransaction,
@@ -40,6 +39,7 @@ import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
+import { useBridgeAvalancheTokens } from './hooks/useBridgeAvalancheTokens';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -49,6 +49,7 @@ const SummaryTokenIcon = styled(TokenIcon)`
   left: 0;
   right: 0;
   text-align: center;
+  background: ${({ theme }) => theme.colors.bg1};
   border: 8px solid;
   border-color: ${({ theme }) => theme.colors.bg1};
   border-radius: 50%;
@@ -120,10 +121,9 @@ const BridgeTransactionStatus = () => {
     txTimestamp: string;
   }>();
   const { currencyFormatter, currency } = useSettingsContext();
-  const tokenInfoData = useTokenInfoContext();
   const { showDialog, clearDialog } = useDialog();
   const { activeAccount } = useAccountsContext();
-  const { currentAsset, transactionDetails } = useBridgeSDK();
+  const { currentAsset } = useBridgeSDK();
   const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
   const [toastShown, setToastShown] = useState<boolean>();
@@ -131,6 +131,8 @@ const BridgeTransactionStatus = () => {
   const bridgeTransaction = bridgeTransactions[params.txHash] as
     | BridgeTransaction
     | undefined;
+  const tokens = useBridgeAvalancheTokens();
+  const token = tokens.find((t) => t.symbol === bridgeTransaction?.symbol);
 
   const assetPrice = usePrice(
     bridgeTransaction?.symbol || currentAsset,
@@ -240,14 +242,12 @@ const BridgeTransactionStatus = () => {
                   </SummaryAmountInCurrency>
                 </VerticalFlex>
               </HorizontalFlex>
-              {transactionDetails && (
-                <SummaryTokenIcon
-                  height="56px"
-                  width="56px"
-                  src={tokenInfoData?.[transactionDetails.tokenSymbol]?.logo}
-                  name={transactionDetails?.tokenSymbol}
-                />
-              )}
+              <SummaryTokenIcon
+                height="56px"
+                width="56px"
+                src={token?.logoUri}
+                name={bridgeTransaction.symbol}
+              />
             </Card>
             <StyledCard
               margin="16px 0 0 0"
