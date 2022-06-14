@@ -56,9 +56,7 @@ export function PermissionsPage() {
   const { permissions, updateAccountPermission } = usePermissionContext();
   const theme = useTheme();
   const { accounts, activeAccount, selectAccount } = useAccountsContext();
-  const [selectedAccount, setSelectedAccount] = useState<Account>(
-    activeAccount || accounts[0]
-  );
+  const [selectedAccount, setSelectedAccount] = useState<Account>();
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +68,12 @@ export function PermissionsPage() {
       id,
     });
   }, [updateAction, id]);
+
+  useEffect(() => {
+    if (!selectedAccount && activeAccount) {
+      setSelectedAccount(activeAccount);
+    }
+  }, [activeAccount, selectedAccount]);
 
   useEffect(() => {
     window.addEventListener('unload', cancelHandler);
@@ -89,6 +93,10 @@ export function PermissionsPage() {
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
   const onApproveClicked = async () => {
+    if (!selectedAccount) {
+      return;
+    }
+
     updateAccountPermission({
       addressC: selectedAccount.addressC,
       hasPermission: true,
@@ -168,9 +176,9 @@ export function PermissionsPage() {
                   width="100%"
                   key={account.index}
                   onClick={() => setSelectedAccount(account)}
-                  selected={account.index === selectedAccount.index}
+                  selected={account.index === selectedAccount?.index}
                   ref={
-                    selectedAccount.index === account.index
+                    selectedAccount?.index === account.index
                       ? selectedAccountRef
                       : undefined
                   }
@@ -182,17 +190,17 @@ export function PermissionsPage() {
                       align="center"
                     >
                       <AccountName
-                        selected={selectedAccount.index === account.index}
+                        selected={selectedAccount?.index === account.index}
                       >
                         {account.name}
                       </AccountName>
-                      {selectedAccount.index === account.index && (
+                      {selectedAccount?.index === account.index && (
                         <CheckmarkIcon
                           height="16px"
                           color={theme.colors.text1}
                         />
                       )}
-                      {selectedAccount.index !== account.index &&
+                      {selectedAccount?.index !== account.index &&
                         permissions[domain]?.accounts[account.addressC] && (
                           <CheckmarkIcon
                             height="16px"
