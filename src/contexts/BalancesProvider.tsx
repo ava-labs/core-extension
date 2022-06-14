@@ -132,7 +132,8 @@ export function BalancesProvider({ children }: { children: any }) {
       subscription.unsubscribe();
     };
     // trigger nft updates whenever the network has changed
-  }, [request, network?.chainId, updateNftBalances]);
+    // trigger nft updates whenever the account changes
+  }, [request, network?.chainId, updateNftBalances, activeAccount]);
 
   return (
     <BalancesContext.Provider value={{ tokens, nfts }}>
