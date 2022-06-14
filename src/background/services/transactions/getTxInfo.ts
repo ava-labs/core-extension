@@ -63,7 +63,10 @@ export async function getTxInfo(
    * We already eliminate BTC as a tx requestor so we only need to verify if we are still on a
    * avalanche net. At this point anything else would be a subnet
    */
-  if (!isMainnet && activeNetwork?.chainId !== ChainId.AVALANCHE_TESTNET_ID) {
+  if (
+    activeNetwork?.chainId !== ChainId.AVALANCHE_TESTNET_ID &&
+    activeNetwork?.chainId !== ChainId.AVALANCHE_MAINNET_ID
+  ) {
     return parseDataWithABI(data, value, new Interface(ERC20.abi));
   }
 
@@ -73,6 +76,10 @@ export async function getTxInfo(
   );
 
   if (error) return { error };
+
+  if (contractSource?.ABI === 'Contract source code not verified') {
+    return { error: 'Contract source code not verified' };
+  }
 
   const abi = result || contractSource?.ABI;
   if (!abi) return { error: 'unable to get abi' };
