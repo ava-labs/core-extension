@@ -8,6 +8,7 @@ import {
   SecondaryButton,
   PrimaryButton,
   ComponentSize,
+  CustomToast,
 } from '@avalabs/react-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { Component } from 'react';
@@ -77,7 +78,9 @@ export class SignTxRenderErrorBoundary extends Component<
               width="168px"
               onClick={() => {
                 navigator.clipboard.writeText(this.state.errorStack ?? '');
-                toast.success('Copied');
+                toast.custom(<CustomToast label="Copied!" />, {
+                  duration: 2000,
+                });
               }}
             >
               Copy

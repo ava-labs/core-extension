@@ -5,6 +5,7 @@ import {
   TokenCard,
   VerticalFlex,
   toast,
+  CustomToast,
 } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
@@ -44,7 +45,7 @@ export function AddToken() {
         method: ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
         params: [addressInput],
       });
-      success && toast.success('Added!');
+      success && toast.custom(<CustomToast label="Added!" />);
       capture('ManageTokensAddCustomToken', {
         status: 'success',
         address: addressInput,
