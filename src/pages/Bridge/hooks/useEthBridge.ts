@@ -110,6 +110,7 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     receiveAmount,
     maximum,
     minimum,
+    price: sourceBalance?.price,
     wrapStatus,
     txHash,
     transfer,

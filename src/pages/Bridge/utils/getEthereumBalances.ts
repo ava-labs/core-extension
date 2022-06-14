@@ -13,7 +13,9 @@ import Big from 'big.js';
  */
 export async function getEthereumBalances(
   request: (message: Omit<ExtensionConnectionMessage<any>, 'id'>) => Promise<{
-    [symbol: string]: { balance: string; logoUri?: string } | undefined;
+    [symbol: string]:
+      | { balance: string; logoUri?: string; price?: number }
+      | undefined;
   }>,
   assets: Assets,
   account: string,
@@ -25,10 +27,13 @@ export async function getEthereumBalances(
   });
 
   return Object.entries(assets).map(([symbol, asset]) => {
-    const { balance: balanceStr, logoUri } =
-      ethereumBalancesBySymbol[symbol] || {};
+    const {
+      balance: balanceStr,
+      logoUri,
+      price,
+    } = ethereumBalancesBySymbol[symbol] || {};
     const balance = balanceStr ? new Big(balanceStr) : undefined;
 
-    return { symbol, asset, balance, logoUri };
+    return { symbol, asset, balance, logoUri, price };
   });
 }

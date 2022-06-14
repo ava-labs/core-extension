@@ -9,4 +9,5 @@ export interface AssetBalance {
   balance: Big | undefined;
   symbolOnNetwork?: string;
   logoUri?: string;
+  price?: number;
 }

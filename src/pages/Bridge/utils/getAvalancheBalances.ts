@@ -43,7 +43,8 @@ export function getAvalancheBalances(
       const token = erc20TokensByAddress[asset.wrappedContractAddress];
       const balance = token && bnToBig(token.balance, token.decimals);
       const logoUri = token?.logoUri;
+      const price = token?.priceUSD;
 
-      return { symbol, asset, balance, logoUri };
+      return { symbol, asset, balance, logoUri, price };
     });
 }

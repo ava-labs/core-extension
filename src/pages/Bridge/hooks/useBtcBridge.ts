@@ -116,6 +116,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
           asset: btcAsset,
           balance: satoshiToBtc(btcBalance.balance.toNumber()),
           logoUri: btcBalance.logoUri,
+          price: btcBalance.priceUSD,
         });
       }
 
@@ -131,6 +132,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
           asset: btcAsset,
           balance: satoshiToBtc(btcAvalancheBalance?.balance.toNumber() || 0),
           logoUri: btcAvalancheBalance.logoUri,
+          price: btcAvalancheBalance.priceUSD,
         });
       }
     }
@@ -159,9 +161,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
       setNetworkFee(satoshiToBtc(fee));
       setReceiveAmount(satoshiToBtc(receiveAmount));
     } catch (error) {
-      const errMessage = (error as any)?.toString();
-      if (!errMessage.includes('Amount must be at least')) console.error(error);
-      // getBtcTransaction throws an error when the amount is too low
+      // getBtcTransaction throws an error when the amount is too low or too high
       // so set these to 0
       setNetworkFee(BIG_ZERO);
       setReceiveAmount(BIG_ZERO);
@@ -234,6 +234,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     receiveAmount,
     maximum,
     minimum,
+    price: btcBalance?.price,
     transfer,
   };
 }

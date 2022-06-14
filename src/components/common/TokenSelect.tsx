@@ -114,6 +114,7 @@ export function TokenSelect({
   // Stringify maxAmount for referential equality in useEffect
   const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
+
   const handleAmountChange = useCallback(
     ({ amount, bn }: { amount: string; bn: BN }) => {
       if (!maxAmountString) {
@@ -121,22 +122,26 @@ export function TokenSelect({
         return;
       }
       setIsMaxAmount(maxAmountString === amount);
-      setAmountInCurrency(
-        !bn.isZero() && selectedToken?.priceUSD
-          ? currencyFormatter(
-              Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
-            )
-          : ''
-      );
       onInputAmountChange && onInputAmountChange({ amount, bn });
     },
-    [
-      currencyFormatter,
-      onInputAmountChange,
-      selectedToken?.priceUSD,
-      maxAmountString,
-    ]
+    [onInputAmountChange, maxAmountString]
   );
+
+  useEffect(() => {
+    const formattedAmount =
+      inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
+        ? currencyFormatter(
+            Number(bnToLocaleString(inputAmount, selectedToken.decimals)) *
+              selectedToken.priceUSD
+          )
+        : undefined;
+    setAmountInCurrency(formattedAmount);
+  }, [
+    currencyFormatter,
+    inputAmount,
+    selectedToken?.decimals,
+    selectedToken?.priceUSD,
+  ]);
 
   // When setting to the max, pin the input value to the max value
   useEffect(() => {
@@ -232,21 +237,13 @@ export function TokenSelect({
             <Typography size={12} color={theme.colors.error}>
               {bnError || error}
             </Typography>
-            {amountInCurrency && (
-              <Typography size={12} color={theme.colors.text2}>
-                {amountInCurrency} {currency}
-              </Typography>
-            )}
-            {!amountInCurrency && inputAmount && (
-              <Typography size={12} color={theme.colors.text2}>
-                {currencyFormatter(
-                  Number(
-                    bnToLocaleString(inputAmount, selectedToken?.decimals) || 0
-                  ) * (selectedToken?.priceUSD ?? 0)
-                )}{' '}
-                {currency}
-              </Typography>
-            )}
+            <Typography size={12} color={theme.colors.text2}>
+              {amountInCurrency ? (
+                `${amountInCurrency} ${currency}`
+              ) : (
+                <>&nbsp;</>
+              )}
+            </Typography>
           </HorizontalFlex>
         )}
 

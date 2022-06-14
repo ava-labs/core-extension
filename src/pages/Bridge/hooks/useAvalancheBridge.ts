@@ -118,6 +118,7 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     receiveAmount,
     maximum,
     minimum,
+    price: sourceBalance?.price,
     txHash,
     transfer,
   };
