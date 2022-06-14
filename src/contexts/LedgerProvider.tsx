@@ -18,11 +18,13 @@ import Btc from '@ledgerhq/hw-app-btc';
 import Transport from '@ledgerhq/hw-transport';
 import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
 import { LedgerEvent } from '@src/background/services/ledger/models';
+import Eth from '@ledgerhq/hw-app-eth';
 
 export enum LedgerAppType {
-  AVALANCHE = 'AVALANCHE',
-  BITCOIN = 'BITCOIN',
-  UNKNOWN = 'UNKOWN',
+  AVALANCHE = 'Avalanche',
+  BITCOIN = 'Bitcoin',
+  ETHEREUM = 'Ethereum',
+  UNKNOWN = 'UNKNOWN',
 }
 export const SUPPORTED_LEDGER_VERSION = '0.5.9';
 const LEDGER_INSTANCE_UUID = crypto.randomUUID();
@@ -125,7 +127,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
       const avaxAppInstance = new AppAvax(transport, 'w0w');
       if (avaxAppInstance) {
         // double check it's really the avalanche app
-        // the btc app also initializes with AppAvax
+        // other apps also initialize with AppAvax
         const [, appVersionError] = await resolve(
           avaxAppInstance.getAppConfiguration()
         );
@@ -133,10 +135,22 @@ export function LedgerContextProvider({ children }: { children: any }) {
         if (!appVersionError) {
           setApp(avaxAppInstance);
           setAppType(LedgerAppType.AVALANCHE);
-          avaxAppInstance.transport.on('disconnect', () => {
-            setApp(undefined);
-            setAppType(LedgerAppType.UNKNOWN);
-          });
+          return;
+        }
+      }
+
+      // check if ethererum is selected
+      const ethAppInstance = new Eth(transport, 'w0w');
+      if (ethAppInstance) {
+        // double check it's really the ethereum app
+        // other apps also initialize with Eth
+        const [, appVersionError] = await resolve(
+          ethAppInstance.getAppConfiguration()
+        );
+
+        if (!appVersionError) {
+          setApp(ethAppInstance);
+          setAppType(LedgerAppType.ETHEREUM);
           return;
         }
       }
@@ -153,17 +167,21 @@ export function LedgerContextProvider({ children }: { children: any }) {
         if (!publicKeyError) {
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
-          btcAppInstance.transport.on('disconnect', () => {
-            setApp(undefined);
-            setAppType(LedgerAppType.UNKNOWN);
-          });
         }
+        return;
       }
 
       throw new Error('No compatible ledger app found');
     },
     []
   );
+
+  useEffect(() => {
+    app?.transport.on('disconnect', () => {
+      setApp(undefined);
+      setAppType(LedgerAppType.UNKNOWN);
+    });
+  }, [app]);
 
   useEffect(() => {
     const subscription = of([initialized, app])

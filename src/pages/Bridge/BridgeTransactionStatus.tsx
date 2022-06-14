@@ -27,7 +27,6 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory, useParams } from 'react-router-dom';
-import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useEffect, useState } from 'react';
@@ -147,8 +146,6 @@ const BridgeTransactionStatus = () => {
           networkPrice.mul(bridgeTransaction.sourceNetworkFee).toNumber()
         )
       : '-';
-
-  useLedgerDisconnectedDialog(history.goBack);
 
   useEffect(() => {
     if (bridgeTransaction?.complete && !toastShown) {

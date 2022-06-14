@@ -34,11 +34,12 @@ export class BridgeGetEthereumBalancesHandler
       account,
       deprecated
     );
+    const networks = await this.networkService.activeNetworks.promisify();
+    const tokens =
+      networks[ChainId.AVALANCHE_MAINNET_ID]?.tokens ||
+      networks[ChainId.AVALANCHE_TESTNET_ID]?.tokens;
     const logosBySymbol =
-      (await this.networkService.activeNetworks.promisify())[
-        // Just using mainnet because all we need are the logos
-        ChainId.AVALANCHE_MAINNET_ID
-      ].tokens?.reduce((acc, token) => {
+      tokens?.reduce((acc, token) => {
         acc[token.symbol] = token.logoUri;
         return acc;
       }, {}) || [];

@@ -32,6 +32,7 @@
     "@ethereumjs/tx": "3.4.0",
     "@ethersproject/providers": "5.6.2",
     "@ledgerhq/hw-app-btc": "6.27.1",
+    "@ledgerhq/hw-app-eth": "6.28.2",
     "@ledgerhq/hw-transport-u2f": "5.36.0-deprecated",
     "@ledgerhq/hw-transport-webhid": "6.20.0",
     "@ledgerhq/hw-transport-webusb": "6.7.0",

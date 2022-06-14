@@ -1,7 +1,7 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
-import { NetworkVMType } from '@avalabs/chains-sdk';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { useEffect } from 'react';
+import { getLedgerAppForBlockchain } from '../utils/getLedgerAppForBlockchain';
 
 interface BridgeConfirmLedgerProps {
   blockchain: Blockchain;
@@ -18,9 +18,7 @@ export function BridgeConfirmLedger({
 }: BridgeConfirmLedgerProps) {
   const hasCorrectApp = useLedgerDisconnectedDialog(
     onCancel,
-    blockchain === Blockchain.BITCOIN
-      ? NetworkVMType.BITCOIN
-      : NetworkVMType.EVM
+    getLedgerAppForBlockchain(blockchain)
   );
 
   useEffect(() => {
