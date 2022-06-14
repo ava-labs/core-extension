@@ -93,7 +93,6 @@ export function LedgerContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(filter(ledgerDiscoverTransportsEventListener))
       .subscribe(() => {
-        console.log('called', initialized, LEDGER_INSTANCE_UUID);
         if (initialized) {
           request({
             method: ExtensionRequest.LEDGER_INIT_TRANSPORT,

@@ -24,11 +24,11 @@ export function ContactsContextProvider({ children }: { children: any }) {
   });
 
   useEffect(() => {
+    let isMounted = true;
     request({
       method: ExtensionRequest.CONTACTS_GET,
     }).then((res) => {
-      setContacts(res);
-      return res;
+      isMounted && setContacts(res);
     });
 
     const subscription = events()
@@ -38,7 +38,10 @@ export function ContactsContextProvider({ children }: { children: any }) {
       )
       .subscribe((val) => setContacts(val));
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      isMounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

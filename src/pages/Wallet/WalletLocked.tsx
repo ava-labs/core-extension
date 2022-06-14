@@ -13,7 +13,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
@@ -41,6 +41,14 @@ export function WalletLocked({
   const [loggingIn, setLoggingIn] = useState<boolean>(false);
   const { showDialog, clearDialog } = useDialog();
   const theme = useTheme();
+
+  const isMounted = useRef(false);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const onImportClick = () => {
     showDialog({
@@ -71,9 +79,10 @@ export function WalletLocked({
       unlockWallet(password)
         .then(() => {
           // success!
-          setLoginSuccess(true);
+          isMounted.current && setLoginSuccess(true);
         })
         .catch(() => {
+          if (!isMounted.current) return;
           // error!
           setLoggingIn(false);
           setError('Invalid password');

@@ -38,6 +38,7 @@ export function TokenIcon({
   const [state, setState] = useState<{ success?: boolean; error?: boolean }>();
 
   useEffect(() => {
+    let isCancelled = false;
     new Promise((resolve, reject) => {
       if (!src) {
         reject('no source value');
@@ -54,11 +55,15 @@ export function TokenIcon({
       img.src = src;
     })
       .then(() => {
-        setState({ success: true });
+        !isCancelled && setState({ success: true });
       })
       .catch(() => {
-        setState({ error: true });
+        !isCancelled && setState({ error: true });
       });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [name, src]);
 
   if (!state) {

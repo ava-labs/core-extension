@@ -79,6 +79,8 @@ export function PermissionContextProvider({ children }: { children: any }) {
 
   // listen for permissions changes
   useEffect(() => {
+    let isCancelled = false;
+
     request({
       method: ExtensionRequest.PERMISSIONS_GET_ALL_PERMISSIONS,
       params: [],
@@ -87,7 +89,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
         return result;
       })
       .then((permissions) => {
-        setPermissionState(permissions);
+        !isCancelled && setPermissionState(permissions);
       });
 
     const subscription = events()
@@ -100,6 +102,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
       });
     return () => {
       subscription.unsubscribe();
+      isCancelled = true;
     };
   }, [events, request]);
 
