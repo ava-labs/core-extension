@@ -222,6 +222,7 @@ export function TokenSelect({
             onError={(errorMessage) =>
               onError ? onError(errorMessage) : setBNError(errorMessage)
             }
+            onKeyPress={preventMinus}
             style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
             hideErrorMessage
             isValueLoading={isValueLoading}
@@ -373,4 +374,10 @@ export function TokenSelect({
       </SelectContainer>
     </VerticalFlex>
   );
+}
+
+function preventMinus(e) {
+  if (e.code === 'Minus') {
+    e.preventDefault();
+  }
 }
