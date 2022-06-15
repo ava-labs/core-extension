@@ -38,7 +38,7 @@ import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
-import { useBridgeAvalancheTokens } from './hooks/useBridgeAvalancheTokens';
+import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -130,8 +130,7 @@ const BridgeTransactionStatus = () => {
   const bridgeTransaction = bridgeTransactions[params.txHash] as
     | BridgeTransaction
     | undefined;
-  const tokens = useBridgeAvalancheTokens();
-  const token = tokens.find((t) => t.symbol === bridgeTransaction?.symbol);
+  const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
 
   const assetPrice = usePrice(
     bridgeTransaction?.symbol || currentAsset,
@@ -242,7 +241,7 @@ const BridgeTransactionStatus = () => {
               <SummaryTokenIcon
                 height="56px"
                 width="56px"
-                src={token?.logoUri}
+                src={logoUri}
                 name={bridgeTransaction.symbol}
               />
             </Card>
