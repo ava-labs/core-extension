@@ -43,7 +43,7 @@ export function ChooseExistingType({
         weight="bold"
         color={theme.colors.text1}
         size={20}
-        margin="0 0 12px"
+        margin="0 0 24px"
       >
         Access using...
       </Typography>

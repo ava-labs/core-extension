@@ -4,12 +4,37 @@ import {
   WalletIcon,
   CreateWalletIcon,
   VerticalSeparator,
+  RecoveryLockIcon,
+  LedgerIcon,
 } from '@avalabs/react-components';
 import { OnboardButton } from './components/OnboardButton';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
+
+const ExistingWalletButton = styled(OnboardButton)`
+  .lock-ledger-icon-container {
+    display: none;
+    height: 100%;
+  }
+
+  .wallet-icon {
+    display: block;
+    height: 100%;
+  }
+
+  &:hover {
+    .lock-ledger-icon-container {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .wallet-icon {
+      display: none;
+    }
+  }
+`;
 
 interface WelcomeProps {
   onNext: (isImportFlow: boolean) => void;
@@ -41,12 +66,30 @@ export function Welcome({ onNext }: WelcomeProps) {
             <CreateWalletIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
           <VerticalSeparator margin="0 24px" />
-          <OnboardButton
+          <ExistingWalletButton
             title="Access Existing Wallet"
             onClick={() => onNext(true)}
+            className="access-existing-button"
           >
-            <WalletIcon color={theme.colors.icon1} height="56px" />
-          </OnboardButton>
+            <HorizontalFlex
+              justify="space-between"
+              width="160px"
+              className="lock-ledger-icon-container"
+            >
+              <RecoveryLockIcon color={theme.colors.icon1} height="56px" />
+              <LedgerIcon
+                color={theme.colors.icon1}
+                height="56px"
+                width="56px"
+              />
+            </HorizontalFlex>
+            <WalletIcon
+              color={theme.colors.icon1}
+              height="56px"
+              width="56px"
+              className="wallet-icon"
+            />
+          </ExistingWalletButton>
         </HorizontalFlex>
       </VerticalFlex>
     </VerticalFlex>

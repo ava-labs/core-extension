@@ -1,12 +1,10 @@
 import {
   VerticalFlex,
   Typography,
-  TextButton,
   HorizontalFlex,
   HorizontalSeparator,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { SUPPORTED_LEDGER_VERSION } from '@src/contexts/LedgerProvider';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { StyledNumberList } from '@src/components/common/StyledNumberList';
 
@@ -14,59 +12,53 @@ interface LedgerTroubleProps {
   onBack(): void;
 }
 
-const TermsButton = styled(TextButton)`
-  height: 48px;
-  font-size: 14px;
-`;
-
 const Link = styled(Typography)`
-  text-decoration: underline;
   font-weight: 600;
   font-size: 14px;
   line-height: 24px;
+  color: ${({ theme }) => theme.colors.secondary1};
 `;
 
 export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader title="Trouble Connecting" onClose={onBack} />
-      <VerticalFlex justify="center" margin="0 0 40px 0">
+      <VerticalFlex justify="center" margin="0 0 24px 0">
         <Typography align="center" margin="8px 0 0" size={14} height="17px">
-          We&apos;re having trouble connection to
+          We&apos;re having trouble connecting to
           <br />
           your device.
         </Typography>
       </VerticalFlex>
 
-      <VerticalFlex width="361px" margin="32px 0 0">
+      <VerticalFlex width="361px" margin="12px 0 0">
         <HorizontalFlex margin="0 0 24px 0">
           <StyledNumberList>1.</StyledNumberList>
           <Typography size={14} height="17px">
-            Connected the Ledger device to your computer.
+            Connect the Ledger device to your computer.
           </Typography>
         </HorizontalFlex>
 
         <HorizontalFlex margin="0 0 24px 0">
           <StyledNumberList>2.</StyledNumberList>
           <Typography size={14} height="17px">
-            Enter your PIN and access your device.
+            Enter your PIN.
           </Typography>
         </HorizontalFlex>
 
         <HorizontalFlex>
           <StyledNumberList>3.</StyledNumberList>
           <Typography size={14} height="17px">
-            Ensure you have installed the{' '}
-            <b>Avalanche App v{SUPPORTED_LEDGER_VERSION}</b> (or above) and open
-            it on your device.
+            Ensure you have installed the latest{' '}
+            <Typography weight="bold">Avalanche App</Typography> and open it on
+            your device.
           </Typography>
         </HorizontalFlex>
 
         <HorizontalSeparator margin="32px 0" />
 
         <Typography size={14} height="22px">
-          If you do not have the Avalanche app on your Ledger, please add it
-          through the{' '}
+          If you do not have the latest Avalanche App, please add it through the{' '}
           <Link
             as="a"
             href="https://www.ledger.com/ledger-live"
@@ -75,11 +67,13 @@ export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
           >
             Ledger Live
           </Link>{' '}
-          app manager. The minimum version requried to use the app is version{' '}
-          {SUPPORTED_LEDGER_VERSION}, more instructions can be found{' '}
+          app manager.
+        </Typography>
+        <Typography size={14} height="22px" margin="24px 0 0">
+          More instructions can be found{' '}
           <Link
             as="a"
-            href="https://docs.avax.network/learn/setup-your-ledger-nano-s-with-avalanche/"
+            href="https://support.avax.network/en/articles/6150237-how-to-use-a-ledger-nano-s-or-nano-x-with-avalanche"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -87,10 +81,6 @@ export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
           </Link>
           .
         </Typography>
-      </VerticalFlex>
-
-      <VerticalFlex align="center" flex={1} justify="flex-end">
-        <TermsButton as="a">Learn more on how to upgrade</TermsButton>
       </VerticalFlex>
     </VerticalFlex>
   );
