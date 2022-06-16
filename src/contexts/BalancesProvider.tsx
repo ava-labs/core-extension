@@ -62,6 +62,8 @@ export function BalancesProvider({ children }: { children: any }) {
     // update balances every 2 seconds for the active network when the UI is open
     // update balances for all networks and accounts every 30 seconds
     const subscription = interval(2000).subscribe((intervalCount) => {
+      if (!activeAccount || !network) return;
+
       if (intervalCount % 15 === 0) {
         request({
           method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
@@ -69,17 +71,14 @@ export function BalancesProvider({ children }: { children: any }) {
       } else {
         request({
           method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-          params: [
-            [activeAccount].filter((a) => a),
-            [network].filter((n) => n),
-          ],
+          params: [[activeAccount], [network]],
         });
       }
     });
     return () => {
       subscription.unsubscribe();
     };
-  });
+  }, [activeAccount, network, request]);
 
   useEffect(() => {
     const subscription = events()

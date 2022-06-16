@@ -21,7 +21,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
 
   constructor(private networkService: NetworkService) {}
 
-  private async updateFee() {
+  private updateFee = async () => {
     const newFee = await this.getNetworkFee();
     if (newFee && this.currentNetworkFee?.low.eq(newFee.low)) {
       return;
@@ -31,17 +31,17 @@ export class NetworkFeeService implements OnUnlock, OnLock {
       NetworkFeeEvents.NETWORK_FEE_UPDATED,
       this.currentNetworkFee
     );
-  }
+  };
 
   onUnlock(): void | Promise<void> {
-    this.networkService.activeNetwork.add(this.updateFee.bind(this));
+    this.networkService.activeNetwork.add(this.updateFee);
     this.intervalId = setInterval(async () => {
       this.updateFee();
     }, 30000);
   }
 
   onLock() {
-    this.networkService.activeNetwork.remove(this.updateFee.bind(this));
+    this.networkService.activeNetwork.remove(this.updateFee);
     this.intervalId && clearInterval(this.intervalId);
     this.currentNetworkFee = null;
   }

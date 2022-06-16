@@ -4,10 +4,7 @@ import {
   Blockchain,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/bridge-sdk';
-import {
-  AssetBalance,
-  BALANCE_REFRESH_INTERVAL,
-} from '@src/pages/Bridge/models';
+import { AssetBalance } from '@src/pages/Bridge/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { useInterval } from '@src/hooks/useInterval';
@@ -16,6 +13,8 @@ import { useBridgeAvalancheTokens } from './useBridgeAvalancheTokens';
 import { getEthereumBalances } from '../utils/getEthereumBalances';
 import { getAvalancheBalances } from '../utils/getAvalancheBalances';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+
+const ETH_BALANCE_REFRESH_INTERVAL = 10_000;
 
 /**
  * Get the balance of a bridge supported asset for the given blockchain.
@@ -29,7 +28,7 @@ export function useAssetBalanceEVM(
   const tokens = useBridgeAvalancheTokens();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
   const { activeAccount } = useAccountsContext();
-  const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
+  const refetchEthTrigger = useInterval(ETH_BALANCE_REFRESH_INTERVAL);
   const { network } = useNetworkContext();
 
   // TODO update this when adding support for /convert
@@ -59,6 +58,7 @@ export function useAssetBalanceEVM(
   useEffect(() => {
     if (
       !network ||
+      !refetchEthTrigger ||
       !activeAccount?.addressC ||
       !asset ||
       source !== Blockchain.ETHEREUM
@@ -83,8 +83,7 @@ export function useAssetBalanceEVM(
     source,
     request,
     showDeprecated,
-    // refetchInterval is here to ensure the balance is updated periodically
-    refetchInterval,
+    refetchEthTrigger, // update the balance periodically
     network, // update balance when the network changes
   ]);
 

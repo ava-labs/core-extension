@@ -20,10 +20,12 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useInterval } from '@src/hooks/useInterval';
 import Big from 'big.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AssetBalance, BALANCE_REFRESH_INTERVAL } from '../models';
+import { AssetBalance } from '../models';
 import { BridgeAdapter } from './useBridge';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
+
+const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
 /**
  * Hook for Bitcoin to Avalanche transactions
@@ -39,7 +41,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     currentBlockchain === Blockchain.BITCOIN ||
     targetBlockchain === Blockchain.BITCOIN;
 
-  const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
+  const refetchFeeTrigger = useInterval(NETWORK_FEE_REFRESH_INTERVAL);
   const { request } = useConnectionContext();
   const { isDeveloperMode } = useNetworkContext();
   const { getNetworkFeeForNetwork } = useNetworkFeeContext();
@@ -85,7 +87,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
   useEffect(() => {
     async function loadFeeRates() {
-      if (isBitcoinBridge && refetchInterval) {
+      if (isBitcoinBridge && refetchFeeTrigger) {
         const rates = await getNetworkFeeForNetwork(
           isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
         );
@@ -98,12 +100,12 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     getNetworkFeeForNetwork,
     isBitcoinBridge,
     isDeveloperMode,
-    refetchInterval,
+    refetchFeeTrigger,
   ]);
 
   // balances, utxos
   useEffect(() => {
-    if (isBitcoinBridge && btcAsset && activeAccount && refetchInterval) {
+    if (isBitcoinBridge && btcAsset && activeAccount) {
       const btcBalance =
         tokens.balances?.[
           isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
@@ -142,7 +144,6 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     btcAsset,
     isBitcoinBridge,
     isDeveloperMode,
-    refetchInterval,
     request,
   ]);
 

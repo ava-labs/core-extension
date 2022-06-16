@@ -32,16 +32,16 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.init();
 
     // refresh addresses so in case the user switches to testnet the BTC address gets updated
-    this.networkService.developerModeChanges.add(this.init.bind(this));
+    this.networkService.developerModeChanges.add(this.init);
   }
 
   onLock() {
     this.accounts = [];
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
-    this.networkService.developerModeChanges.remove(this.init.bind(this));
+    this.networkService.developerModeChanges.remove(this.init);
   }
 
-  private async init() {
+  private init = async () => {
     const accounts = await this.loadAccounts();
     // no accounts added yet, onboarding is not done yet
     if (accounts.length === 0) {
@@ -62,7 +62,7 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
-  }
+  };
 
   private async loadAccounts(): Promise<AccountStorageItem[]> {
     const accounts = await this.storageService.load<AccountStorageItem[]>(
