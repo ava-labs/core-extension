@@ -8,6 +8,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
@@ -24,6 +25,7 @@ const TooltipContent = (
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { setDeveloperMode, isDeveloperMode } = useNetworkContext();
+  const history = useHistory();
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
       <SettingsHeader
@@ -44,7 +46,10 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
         </HorizontalFlex>
         <Toggle
           isChecked={isDeveloperMode}
-          onChange={() => setDeveloperMode(!isDeveloperMode)}
+          onChange={() => {
+            setDeveloperMode(!isDeveloperMode);
+            history.push('/home');
+          }}
         />
       </DropDownMenuItem>
     </VerticalFlex>
