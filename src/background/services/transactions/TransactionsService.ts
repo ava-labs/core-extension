@@ -110,14 +110,23 @@ export class TransactionsService {
       /**
        * Some requests, revoke approval, dont have gasLimit on it so we make sure its there
        */
-      const gasLimit: any = await (txParams.gas
-        ? BigNumber.from(txParams.gas).toNumber()
-        : this.networkFeeService.estimateGasLimit(
-            txParams.from,
-            txParams.to,
-            txParams.data as string,
-            txParams.value
-          ));
+      let gasLimit: number | null;
+      try {
+        gasLimit = await (txParams.gas
+          ? BigNumber.from(txParams.gas).toNumber()
+          : this.networkFeeService.estimateGasLimit(
+              txParams.from,
+              txParams.to,
+              txParams.data as string,
+              txParams.value
+            ));
+      } catch (e: any) {
+        // handle gas estimation erros with the correct error message
+        if (e.error?.error) {
+          throw e.error.error;
+        }
+        throw e;
+      }
 
       const txParamsWithGasLimit = gasLimit
         ? { ...txParams, gas: gasLimit }
@@ -157,6 +166,7 @@ export class TransactionsService {
         ...currentPendingTxs,
         [`${tx.id}`]: {
           id: tx.id,
+          method: tx.method,
           time: now,
           status: TxStatus.PENDING,
           ...networkMetaData,

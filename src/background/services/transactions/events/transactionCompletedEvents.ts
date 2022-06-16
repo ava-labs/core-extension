@@ -6,7 +6,8 @@ import {
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
-import { TransactionEvent } from '../models';
+import { TransactionEvent, TxStatus } from '../models';
+import { ethErrors } from 'eth-rpc-errors';
 
 @injectable()
 export class TransactionCompletedEvents implements DAppEventEmitter {
@@ -23,9 +24,20 @@ export class TransactionCompletedEvents implements DAppEventEmitter {
       (response) => {
         if (response.tabId === this._connectionInfo?.tabId) {
           this.eventEmitter.emit('update', {
-            ...response,
+            id: `${response.id}`,
+            method: response.method,
+            params: [
+              {
+                ...response.txParams,
+                gasPrice:
+                  response.gasPrice && `0x${response.gasPrice?.toString(16)}`,
+              },
+            ],
             ...(response.txHash ? { result: response.txHash } : {}),
             ...(response.error ? { error: response.error } : {}),
+            ...(response.status === TxStatus.ERROR_USER_CANCELED
+              ? { error: ethErrors.provider.userRejectedRequest() }
+              : {}),
           });
         }
       }
