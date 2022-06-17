@@ -4,7 +4,12 @@ import { WalletType } from '@src/background/services/wallet/models';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { getWindowCoords } from '@src/utils/getWindowCoords';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -18,10 +23,12 @@ export function useLedgerDisconnectedDialog(
 ): boolean {
   const theme = useTheme();
   const { walletType } = useWalletContext();
-  const { hasLedgerTransport, appType } = useLedgerContext();
+  const { hasLedgerTransport, appType, popDeviceSelection } =
+    useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
   const { network } = useNetworkContext();
   const [hasCorrectApp, setHasCorrectApp] = useState(false);
+  const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
 
   const requiredAppType = useMemo(() => {
     if (requestedApp) {
@@ -60,7 +67,16 @@ export function useLedgerDisconnectedDialog(
             ? 'Connect Ledger'
             : undefined,
         onConfirm: () => {
-          openExtensionNewWindow(`ledger/connect?app=${requiredAppType}`, '');
+          if (isConfirm) {
+            popDeviceSelection();
+          } else {
+            openExtensionNewWindow(
+              `ledger/connect?app=${requiredAppType}`,
+              '',
+              getWindowCoords()
+            );
+            window.close();
+          }
         },
         cancelText: 'Cancel',
         onCancel: () => {
@@ -70,7 +86,15 @@ export function useLedgerDisconnectedDialog(
       },
       false
     );
-  }, [clearDialog, requiredAppType, onCancel, showDialog, theme.colors.icon1]);
+  }, [
+    showDialog,
+    requiredAppType,
+    theme.colors.icon1,
+    isConfirm,
+    popDeviceSelection,
+    onCancel,
+    clearDialog,
+  ]);
 
   const showIncorrectAppDialog = useCallback(() => {
     showDialog(
@@ -83,7 +107,16 @@ export function useLedgerDisconnectedDialog(
             ? 'Connect Ledger'
             : undefined,
         onConfirm: () => {
-          openExtensionNewWindow(`ledger/connect?app=${requiredAppType}`, '');
+          if (isConfirm) {
+            popDeviceSelection();
+          } else {
+            openExtensionNewWindow(
+              `ledger/connect?app=${requiredAppType}`,
+              '',
+              getWindowCoords()
+            );
+            window.close();
+          }
         },
         cancelText: 'Cancel',
         onCancel: () => {
@@ -93,7 +126,14 @@ export function useLedgerDisconnectedDialog(
       },
       false
     );
-  }, [clearDialog, requiredAppType, onCancel, showDialog]);
+  }, [
+    showDialog,
+    requiredAppType,
+    isConfirm,
+    popDeviceSelection,
+    onCancel,
+    clearDialog,
+  ]);
 
   useEffect(() => {
     clearDialog();
@@ -115,8 +155,8 @@ export function useLedgerDisconnectedDialog(
     walletType,
     appType,
     showIncorrectAppDialog,
-    clearDialog,
     requiredAppType,
+    clearDialog,
   ]);
 
   return hasCorrectApp;

@@ -7,11 +7,17 @@ import {
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { resolve } from '@src/utils/promiseResolver';
-import { delay, filter, of, retryWhen, switchMap } from 'rxjs';
-import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import {
+  delay,
+  filter,
+  fromEventPattern,
+  of,
+  retryWhen,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
 import AppAvax from '@obsidiansystems/hw-app-avalanche';
 import Btc from '@ledgerhq/hw-app-btc';
@@ -39,7 +45,7 @@ const LedgerContext = createContext<{
 
 export function LedgerContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
-  const [app, setApp] = useState<Btc | AppAvax>();
+  const [app, setApp] = useState<Btc | AppAvax | Eth>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
 
@@ -115,10 +121,10 @@ export function LedgerContextProvider({ children }: { children: any }) {
         params: [LEDGER_INSTANCE_UUID],
       });
     });
-  });
+  }, [request]);
 
   const initLedgerApp = useCallback(
-    async (transport?: Transport): Promise<void> => {
+    async (transport?: Transport | null): Promise<Btc | AppAvax | Eth> => {
       if (!transport) {
         throw new Error('Ledger not connected');
       }
@@ -135,7 +141,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
         if (!appVersionError) {
           setApp(avaxAppInstance);
           setAppType(LedgerAppType.AVALANCHE);
-          return;
+          return avaxAppInstance;
         }
       }
 
@@ -151,24 +157,24 @@ export function LedgerContextProvider({ children }: { children: any }) {
         if (!appVersionError) {
           setApp(ethAppInstance);
           setAppType(LedgerAppType.ETHEREUM);
-          return;
+          return ethAppInstance;
         }
       }
 
       // check if btc app is selected
       const btcAppInstance = new Btc(transport);
       if (btcAppInstance) {
-        // double check the app is really working
-        // We are not doing anything with it's value
         const [, publicKeyError] = await resolve(
-          btcAppInstance.getWalletPublicKey("44'/60'/0'")
+          // double check the app is really working
+          // We are not doing anything with the key
+          btcAppInstance.getWalletPublicKey("44'/0'/0'/0/0")
         );
 
         if (!publicKeyError) {
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
+          return btcAppInstance;
         }
-        return;
       }
 
       throw new Error('No compatible ledger app found');
@@ -177,27 +183,36 @@ export function LedgerContextProvider({ children }: { children: any }) {
   );
 
   useEffect(() => {
-    app?.transport.on('disconnect', () => {
-      setApp(undefined);
-      setAppType(LedgerAppType.UNKNOWN);
-    });
-  }, [app]);
-
-  useEffect(() => {
-    const subscription = of([initialized, app])
+    const subscription = of([initialized])
       .pipe(
-        filter(([initialized, app]) => initialized && !app),
-        switchMap(async () => {
-          const transport = await getLedgerTransport();
-          return initLedgerApp(transport);
-        }),
-        retryWhen((errors) => errors.pipe(delay(2000)))
+        filter(([initialized]) => initialized),
+        switchMap(() => getLedgerTransport()),
+        switchMap((transport) => initLedgerApp(transport)),
+        switchMap((ledgerApp) =>
+          fromEventPattern(
+            (handler) => {
+              ledgerApp?.transport.on('disconnect', handler);
+            },
+            (handler) => {
+              ledgerApp?.transport?.off('disconnect', handler);
+            }
+          ).pipe(
+            tap(() => {
+              setApp(undefined);
+              setAppType(LedgerAppType.UNKNOWN);
+              throw new Error('Ledger device disconnected');
+            })
+          )
+        ),
+        retryWhen((errors) => {
+          return errors.pipe(delay(2000));
+        })
       )
       .subscribe();
     return () => {
       subscription.unsubscribe();
     };
-  }, [initialized, app, initLedgerApp]);
+  }, [initialized, initLedgerApp]);
 
   /**
    *
@@ -225,16 +240,8 @@ export function LedgerContextProvider({ children }: { children: any }) {
     if (app) {
       return true;
     }
-    const [hidTransport] = await resolve(TransportWebHID.request());
-    if (hidTransport) {
-      return true;
-    }
     const [usbTransport] = await resolve(TransportWebUSB.request());
     if (usbTransport) {
-      return true;
-    }
-    const [u2fTransport] = await resolve(TransportU2F.create());
-    if (u2fTransport) {
       return true;
     }
 
