@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNetworkContext } from '../../contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
@@ -209,9 +209,7 @@ export function CustomFees({
         }
         case GasFeeModifier.CUSTOM:
           handleGasChange(
-            BigNumber.from(customGasInput).mul(
-              10 ** networkFee.displayDecimals
-            ),
+            utils.parseUnits(customGasInput, networkFee.displayDecimals),
             modifier
           );
           break;
@@ -399,8 +397,9 @@ export function CustomFees({
                           );
                         } else {
                           handleGasChange(
-                            BigNumber.from(e.target.value).mul(
-                              10 ** networkFee.displayDecimals
+                            utils.parseUnits(
+                              e.target.value,
+                              networkFee.displayDecimals
                             ),
                             GasFeeModifier.CUSTOM
                           );
