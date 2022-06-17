@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -24,6 +24,8 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
+import { useApproveAction } from '@src/hooks/useApproveAction';
+import { ActionStatus } from '@src/background/services/actions/models';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -50,14 +52,36 @@ export function PermissionsPage() {
   const domain = params.get('domainUrl') as string;
   const domainName = params.get('domainName') as string;
   const domainIcon = params.get('domainIcon') as string;
+  const id = params.get('id') as string;
   const { permissions, updateAccountPermission } = usePermissionContext();
   const theme = useTheme();
   const { accounts, activeAccount, selectAccount } = useAccountsContext();
-  const [selectedAccount, setSelectedAccount] = useState<Account>(
-    activeAccount || accounts[0]
-  );
+  const [selectedAccount, setSelectedAccount] = useState<Account>();
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
+
+  const { updateAction } = useApproveAction(id);
+
+  const cancelHandler = useCallback(() => {
+    updateAction({
+      status: ActionStatus.ERROR_USER_CANCELED,
+      id,
+    });
+  }, [updateAction, id]);
+
+  useEffect(() => {
+    if (!selectedAccount && activeAccount) {
+      setSelectedAccount(activeAccount);
+    }
+  }, [activeAccount, selectedAccount]);
+
+  useEffect(() => {
+    window.addEventListener('unload', cancelHandler);
+
+    return () => {
+      window.removeEventListener('unload', cancelHandler);
+    };
+  }, [cancelHandler]);
 
   useEffect(() => {
     if (!scrollbarsRef || !selectedAccountRef || !selectedAccount) {
@@ -69,6 +93,10 @@ export function PermissionsPage() {
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
   const onApproveClicked = async () => {
+    if (!selectedAccount) {
+      return;
+    }
+
     updateAccountPermission({
       addressC: selectedAccount.addressC,
       hasPermission: true,
@@ -148,9 +176,9 @@ export function PermissionsPage() {
                   width="100%"
                   key={account.index}
                   onClick={() => setSelectedAccount(account)}
-                  selected={account.index === selectedAccount.index}
+                  selected={account.index === selectedAccount?.index}
                   ref={
-                    selectedAccount.index === account.index
+                    selectedAccount?.index === account.index
                       ? selectedAccountRef
                       : undefined
                   }
@@ -162,17 +190,17 @@ export function PermissionsPage() {
                       align="center"
                     >
                       <AccountName
-                        selected={selectedAccount.index === account.index}
+                        selected={selectedAccount?.index === account.index}
                       >
                         {account.name}
                       </AccountName>
-                      {selectedAccount.index === account.index && (
+                      {selectedAccount?.index === account.index && (
                         <CheckmarkIcon
                           height="16px"
                           color={theme.colors.text1}
                         />
                       )}
-                      {selectedAccount.index !== account.index &&
+                      {selectedAccount?.index !== account.index &&
                         permissions[domain]?.accounts[account.addressC] && (
                           <CheckmarkIcon
                             height="16px"
@@ -200,7 +228,10 @@ export function PermissionsPage() {
         <HorizontalFlex justify="space-between">
           <SecondaryButton
             size={ComponentSize.LARGE}
-            onClick={() => window.close()}
+            onClick={() => {
+              cancelHandler();
+              window.close();
+            }}
             width="168px"
           >
             Reject

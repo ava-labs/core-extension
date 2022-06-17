@@ -1,19 +1,15 @@
 import {
-  AssetType,
   BIG_ZERO,
   Blockchain,
   useBridgeSDK,
   useBridgeFeeEstimate,
-  usePrice,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useState } from 'react';
 import { AssetBalance } from '../models';
 import { useBtcBridge } from './useBtcBridge';
 import { useEthBridge } from './useEthBridge';
 import { useAvalancheBridge } from './useAvalancheBridge';
-import { VsCurrencyType } from '@avalabs/coingecko-sdk';
 import Big from 'big.js';
 
 export interface BridgeAdapter {
@@ -30,6 +26,8 @@ export interface BridgeAdapter {
   maximum?: Big;
   /** Minimum transfer amount */
   minimum?: Big;
+  /** Price for the current asset & currency code */
+  price?: number;
   wrapStatus?: WrapStatus;
   txHash?: string;
   /**
@@ -43,23 +41,11 @@ interface Bridge extends BridgeAdapter {
   amount: Big;
   setAmount: (amount: Big) => void;
   bridgeFee?: Big;
-  /** Price for the current asset & currency code */
-  price?: Big;
 }
 
 export function useBridge(): Bridge {
-  const {
-    currentBlockchain: source,
-    currentAsset,
-    currentAssetData,
-  } = useBridgeSDK();
+  const { currentBlockchain: source } = useBridgeSDK();
   const [amount, setAmount] = useState<Big>(BIG_ZERO);
-  const { currency } = useSettingsContext();
-
-  const price = usePrice(
-    currentAssetData?.assetType === AssetType.BTC ? 'bitcoin' : currentAsset,
-    currency.toLowerCase() as VsCurrencyType
-  );
 
   const bridgeFee = useBridgeFeeEstimate(amount) || BIG_ZERO;
 
@@ -71,7 +57,6 @@ export function useBridge(): Bridge {
     amount,
     setAmount,
     bridgeFee,
-    price,
   };
 
   if (source === Blockchain.BITCOIN) {

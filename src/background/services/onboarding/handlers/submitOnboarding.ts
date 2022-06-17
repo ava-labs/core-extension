@@ -9,6 +9,7 @@ import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { LockService } from '../../lock/LockService';
+import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
@@ -23,7 +24,8 @@ export class SubmitOnboardingHandler implements ExtensionRequestHandler {
     private lockService: LockService,
     private analyticsService: AnalyticsService,
     private walletService: WalletService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private settingsService: SettingsService
   ) {}
 
   handle = async (
@@ -67,6 +69,7 @@ export class SubmitOnboardingHandler implements ExtensionRequestHandler {
     await this.accountsService.addAccount(accountName);
     await this.accountsService.activateAccount(0);
     await this.onboardingService.setIsOnboarded(true);
+    await this.settingsService.setAnalyticsConsent(analyticsConsent);
 
     await this.lockService.unlock(password);
 

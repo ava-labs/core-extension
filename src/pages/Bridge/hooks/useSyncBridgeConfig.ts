@@ -1,14 +1,7 @@
-import {
-  Environment,
-  setBridgeEnvironment,
-  useBridgeConfigUpdater,
-  useBridgeSDK,
-} from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
+import { useBridgeConfigUpdater, useBridgeSDK } from '@avalabs/bridge-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback, useEffect } from 'react';
 import { filter } from 'rxjs';
 
@@ -18,7 +11,6 @@ import { filter } from 'rxjs';
 export function useSyncBridgeConfig() {
   const { setBridgeConfig } = useBridgeSDK();
   const { events, request } = useConnectionContext();
-  const { network } = useNetworkContext();
 
   const fetchConfig = useCallback(
     () => request({ method: ExtensionRequest.BRIDGE_GET_CONFIG }),
@@ -27,14 +19,6 @@ export function useSyncBridgeConfig() {
 
   // periodically update the bridge config
   useBridgeConfigUpdater(fetchConfig);
-
-  useEffect(() => {
-    setBridgeEnvironment(
-      network?.chainId === ChainId.AVALANCHE_MAINNET_ID
-        ? Environment.PROD
-        : Environment.TEST
-    );
-  }, [network]);
 
   // update the bridge config when the network changes
   useEffect(() => {

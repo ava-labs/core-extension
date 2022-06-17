@@ -1,5 +1,6 @@
 import {
   ComponentSize,
+  CustomToast,
   PrimaryAddress,
   TextButton,
   toast,
@@ -76,7 +77,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
         clearDialog();
         goBack();
         await removeContact(contact);
-        toast.success('Contact deleted!');
+        toast.custom(<CustomToast label="Contact deleted!" />);
       },
       cancelText: 'Cancel',
       onCancel: () => {
@@ -104,7 +105,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
             return;
           }
           updateContact(contact);
-          toast.success('Contact updated!');
+          toast.custom(<CustomToast label="Contact updated!" />);
           setIsEdit(false);
         }}
       >

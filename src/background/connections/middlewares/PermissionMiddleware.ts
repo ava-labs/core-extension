@@ -71,6 +71,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'personal_ecRecover',
   'personal_sign',
   'wallet_switchEthereumChain',
+  'wallet_addEthereumChain',
   'wallet_watchAsset',
   'web3_clientVersion',
   'web3_sha3',

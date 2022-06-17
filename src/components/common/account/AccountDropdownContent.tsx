@@ -110,7 +110,7 @@ export function AccountDropdownContent({
         <VerticalFlex padding="0 0 16px 0">
           {hasError && (
             <Typography color={theme.colors.error} size={12} margin="8px">
-              Some error occured, pleas try again later
+              An error occurred, please try again later
             </Typography>
           )}
           {accounts.map((account, i) => {

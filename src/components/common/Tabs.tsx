@@ -6,7 +6,7 @@ import {
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { useTabFromParams } from '@src/hooks/useTabFromParams';
 import { ReactNode, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { Redirect, useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 const TabsContainer = styled(HorizontalFlex)`
@@ -87,6 +87,11 @@ export function Tabs({ tabs, margin }: TabsProps) {
         <TabsContainer>
           {tabs.map((tab) => {
             if (!checkIsFunctionAvailable(tab.id)) {
+              // if activeTab was Collectibles and then the network changes
+              // this will redirect to assets
+              if (activeTab === 'COLLECTIBLES') {
+                return <Redirect key={tab.id} to={'/'} />;
+              }
               return null;
             }
 

@@ -9,6 +9,7 @@ import {
   CopyIcon,
   toast,
   Card,
+  CustomToast,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
@@ -89,7 +90,9 @@ export function SuccessFailTxInfo({
             <TextButton
               onClick={() => {
                 navigator.clipboard.writeText(hash);
-                toast.success('Copied');
+                toast.custom(<CustomToast label="Copied!" />, {
+                  duration: 2000,
+                });
               }}
             >
               <CopyIcon color={theme.colors.icon1} height="16px" />

@@ -7,10 +7,12 @@ import {
 } from '@src/background/services/permissions/models';
 import { permissionsUpdatedEventListener } from '@src/background/services/permissions/events/permissionsStateUpdatesListener';
 import { filter, map } from 'rxjs';
+
 interface UpdateAccountPermission {
   addressC: string; // wallet c address
   hasPermission: boolean;
   domain: string;
+  requestId: string;
 }
 
 function updateAnAccount(
@@ -38,10 +40,13 @@ export function PermissionContextProvider({ children }: { children: any }) {
     {} as Permissions
   );
 
-  function addPermissionsForDomain(permissions: DappPermissions) {
+  function addPermissionsForDomain(
+    permissions: DappPermissions,
+    requestId: string
+  ) {
     return request({
       method: ExtensionRequest.PERMISSIONS_ADD_DOMAIN,
-      params: [permissions],
+      params: [permissions, requestId],
     });
   }
 
@@ -49,6 +54,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
     addressC, // wallet c address
     hasPermission,
     domain,
+    requestId,
   }: UpdateAccountPermission) {
     const newPermissions = updateAnAccount(domain, {
       [addressC]: hasPermission,
@@ -57,7 +63,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
     if (!newPermissions) {
       return;
     }
-    await addPermissionsForDomain(newPermissions);
+    await addPermissionsForDomain(newPermissions, requestId);
   }
 
   function isDomainConnectedToAccount(domain?: string, address?: string) {
@@ -73,9 +79,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
 
   // listen for permissions changes
   useEffect(() => {
-    if (!request || !events) {
-      return;
-    }
+    let isCancelled = false;
 
     request({
       method: ExtensionRequest.PERMISSIONS_GET_ALL_PERMISSIONS,
@@ -85,7 +89,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
         return result;
       })
       .then((permissions) => {
-        setPermissionState(permissions);
+        !isCancelled && setPermissionState(permissions);
       });
 
     const subscription = events()
@@ -98,6 +102,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
       });
     return () => {
       subscription.unsubscribe();
+      isCancelled = true;
     };
   }, [events, request]);
 

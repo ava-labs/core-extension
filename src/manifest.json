@@ -4,7 +4,7 @@
   "version": "0.0.3",
   "manifest_version": 3,
   "author": "AvaLabs",
-  "description": "Core Browser Extension",
+  "description": "Your all-in-one Web3 operating system for Avalanche",
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {

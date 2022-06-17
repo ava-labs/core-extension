@@ -9,9 +9,8 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { getEthereumBalances } from '../utils/getEthereumBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { ChainId } from '@avalabs/chains-sdk';
-import { useIsMainnet } from '@src/hooks/useIsMainnet';
+import { useBridgeAvalancheTokens } from './useBridgeAvalancheTokens';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 /**
  * Get for the current chain.
@@ -27,14 +26,9 @@ export function useAssetBalancesEVM(
   const { request } = useConnectionContext();
   const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
   const { activeAccount } = useAccountsContext();
-  const isMainnet = useIsMainnet();
-
-  const chainId = isMainnet
-    ? ChainId.AVALANCHE_MAINNET_ID
-    : ChainId.AVALANCHE_TESTNET_ID;
-
-  const tokens = useTokensWithBalances(true, chainId);
+  const tokens = useBridgeAvalancheTokens();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
+  const { network } = useNetworkContext();
 
   const [loading, setLoading] = useState(false);
   const [ethBalances, setEthBalances] = useState<AssetBalance[]>([]);
@@ -67,11 +61,13 @@ export function useAssetBalancesEVM(
   // Fetch balances from Ethereum (including native)
   useEffect(() => {
     if (
+      !network ||
       !activeAccount?.addressC ||
       chain !== Blockchain.ETHEREUM ||
       currentBlockchain !== Blockchain.ETHEREUM
     )
       return;
+
     setLoading(true);
 
     (async function getBalances() {
@@ -91,6 +87,7 @@ export function useAssetBalancesEVM(
     request,
     showDeprecated,
     currentBlockchain,
+    network, // update balances when the network changes
   ]);
 
   const assetsWithBalances = (

@@ -34,7 +34,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     this._balanceUpdates.dispatch(this._balances);
   }
 
-  async activate() {
+  private async activate() {
     this.accountsService.addListener<Account[]>(
       AccountsEvents.ACCOUNTS_UPDATED,
       async (accounts) => {
@@ -48,25 +48,10 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
   updateBalancesForNetworks(networks: Network[], accounts: Account[]) {
     networks.forEach(async (network) => {
-      const balances = (
-        await Promise.allSettled(
-          accounts.map(async (account) => {
-            return await this.balancesService.getBalanceForNetwork(
-              network,
-              account
-            );
-          })
-        )
-      ).reduce((acc, result) => {
-        if (result.status === 'rejected') {
-          return acc;
-        }
-
-        return {
-          ...acc,
-          [result.value.address]: result.value.balances,
-        };
-      }, {});
+      const balances = await this.balancesService.getBalancesForNetwork(
+        network,
+        accounts
+      );
       this.updateBalancesAndEmit(network.chainId, balances);
     });
   }

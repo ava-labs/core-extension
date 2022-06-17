@@ -34,6 +34,7 @@ export interface TransactionDisplayValues {
 }
 export interface Transaction {
   id: number | string | void;
+  method: string;
   time: number;
   status: TxStatus;
   metamaskNetworkId: string;

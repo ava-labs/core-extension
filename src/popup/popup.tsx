@@ -12,7 +12,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BalancesProvider } from '@src/contexts/BalancesProvider';
 import { BridgeProvider } from '@src/contexts/BridgeProvider';
 import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
-import { LedgerSupportContextProvider } from '@src/contexts/LedgerSupportProvider';
+import { LedgerContextProvider } from '@src/contexts/LedgerProvider';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
@@ -165,7 +165,7 @@ export function Popup() {
 
   return (
     <DialogContextProvider>
-      <LedgerSupportContextProvider>
+      <LedgerContextProvider>
         <OnboardingContextProvider>
           <NetworkContextProvider>
             <AccountsContextProvider>
@@ -331,7 +331,7 @@ export function Popup() {
             </AccountsContextProvider>
           </NetworkContextProvider>
         </OnboardingContextProvider>
-      </LedgerSupportContextProvider>
+      </LedgerContextProvider>
     </DialogContextProvider>
   );
 }

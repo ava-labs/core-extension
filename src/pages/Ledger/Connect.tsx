@@ -8,17 +8,16 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { StyledNumberList } from '@src/components/common/StyledNumberList';
-import {
-  LedgerAppType,
-  useLedgerSupportContext,
-} from '@src/contexts/LedgerSupportProvider';
+import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useEffect } from 'react';
 import { useTheme } from 'styled-components';
+import { useAppTypeFromParams } from './hooks/useAppTypeFromParams';
 
 export function LedgerConnect() {
   const theme = useTheme();
   const { hasLedgerTransport, appType, popDeviceSelection } =
-    useLedgerSupportContext();
+    useLedgerContext();
+  const requiredAppType = useAppTypeFromParams();
 
   useEffect(() => {
     popDeviceSelection();
@@ -27,7 +26,7 @@ export function LedgerConnect() {
   }, []);
 
   const connectedWithCorrectApp =
-    hasLedgerTransport && appType === LedgerAppType.BITCOIN;
+    hasLedgerTransport && appType === requiredAppType;
 
   return (
     <VerticalFlex height="100%" padding="0 16px">
@@ -73,7 +72,7 @@ export function LedgerConnect() {
                 color={theme.colors.text2}
                 margin="0 0 0 8px"
               >
-                {appType === LedgerAppType.BITCOIN ? 'Bitcoin' : 'Avalanche'}
+                {appType}
               </Typography>
             </HorizontalFlex>
           )}
@@ -143,15 +142,15 @@ export function LedgerConnect() {
                 <Typography size={14} height="17px">
                   Ensure you have installed the latest{' '}
                   <Typography weight={600} size={14} height="inherit">
-                    Bitcoin App
+                    {requiredAppType} App
                   </Typography>{' '}
                   and open it on your device.
                 </Typography>
               </HorizontalFlex>
 
               <Typography size={14} height="17px" margin="24px 0 0 ">
-                If you do not have the Bitcoin App on your Ledger, please add it
-                through the Ledger Live app manager.
+                If you do not have the {requiredAppType} App on your Ledger,
+                please add it through the Ledger Live app manager.
               </Typography>
             </VerticalFlex>
           )}

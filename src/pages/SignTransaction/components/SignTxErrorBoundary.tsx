@@ -8,6 +8,7 @@ import {
   VerticalFlex,
   toast,
   ComponentSize,
+  CustomToast,
 } from '@avalabs/react-components';
 import { Component } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
@@ -77,7 +78,9 @@ export class SignTxErrorBoundary extends Component<
               width="168px"
               onClick={() => {
                 navigator.clipboard.writeText(this.state.errorStack ?? '');
-                toast.success('Copied');
+                toast.custom(<CustomToast label="Copied!" />, {
+                  duration: 2000,
+                });
               }}
             >
               Copy

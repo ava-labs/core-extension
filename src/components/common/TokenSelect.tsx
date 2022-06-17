@@ -15,7 +15,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import { formatTokenAmount, useTokenInfoContext } from '@avalabs/bridge-sdk';
+import { formatTokenAmount } from '@avalabs/bridge-sdk';
 import EthLogo from '@src/images/tokens/eth.png';
 import {
   TokenType,
@@ -110,11 +110,11 @@ export function TokenSelect({
   const [bnError, setBNError] = useState('');
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
-  const tokenInfoData = useTokenInfoContext();
 
   // Stringify maxAmount for referential equality in useEffect
   const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
+
   const handleAmountChange = useCallback(
     ({ amount, bn }: { amount: string; bn: BN }) => {
       if (!maxAmountString) {
@@ -122,22 +122,27 @@ export function TokenSelect({
         return;
       }
       setIsMaxAmount(maxAmountString === amount);
-      setAmountInCurrency(
-        !bn.isZero() && selectedToken?.priceUSD
-          ? currencyFormatter(
-              Number(amount || 0) * (selectedToken?.priceUSD ?? 0)
-            )
-          : ''
-      );
       onInputAmountChange && onInputAmountChange({ amount, bn });
     },
-    [
-      currencyFormatter,
-      onInputAmountChange,
-      selectedToken?.priceUSD,
-      maxAmountString,
-    ]
+    [onInputAmountChange, maxAmountString]
   );
+  const hideTokenDropdown = bridgeTokensList && bridgeTokensList.length < 2;
+
+  useEffect(() => {
+    const formattedAmount =
+      inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
+        ? currencyFormatter(
+            Number(bnToLocaleString(inputAmount, selectedToken.decimals)) *
+              selectedToken.priceUSD
+          )
+        : undefined;
+    setAmountInCurrency(formattedAmount);
+  }, [
+    currencyFormatter,
+    inputAmount,
+    selectedToken?.decimals,
+    selectedToken?.priceUSD,
+  ]);
 
   // When setting to the max, pin the input value to the max value
   useEffect(() => {
@@ -190,6 +195,7 @@ export function TokenSelect({
                   }
                 : null
             }
+            hideCaretIcon={hideTokenDropdown}
           />
           <BNInput
             value={
@@ -218,6 +224,7 @@ export function TokenSelect({
             onError={(errorMessage) =>
               onError ? onError(errorMessage) : setBNError(errorMessage)
             }
+            onKeyPress={preventMinus}
             style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
             hideErrorMessage
             isValueLoading={isValueLoading}
@@ -233,105 +240,54 @@ export function TokenSelect({
             <Typography size={12} color={theme.colors.error}>
               {bnError || error}
             </Typography>
-            {amountInCurrency && (
-              <Typography size={12} color={theme.colors.text2}>
-                {amountInCurrency} {currency}
-              </Typography>
-            )}
-            {!amountInCurrency && inputAmount && (
-              <Typography size={12} color={theme.colors.text2}>
-                {currencyFormatter(
-                  Number(
-                    bnToLocaleString(inputAmount, selectedToken?.decimals) || 0
-                  ) * (selectedToken?.priceUSD ?? 0)
-                )}{' '}
-                {currency}
-              </Typography>
-            )}
+            <Typography size={12} color={theme.colors.text2}>
+              {amountInCurrency ? (
+                `${amountInCurrency} ${currency}`
+              ) : (
+                <>&nbsp;</>
+              )}
+            </Typography>
           </HorizontalFlex>
         )}
 
-        <ContainedDropdown
-          anchorEl={selectButtonRef}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        >
-          <DropdownContents>
-            <HorizontalSeparator margin="0" />
-            <SearchInputContainer>
-              <StyledSearchInput
-                searchTerm={searchQuery}
-                placeholder="Search"
-                width="100%"
-                onSearch={(term) => setSearchQuery(term)}
-                autoFocus={true}
-              />
-            </SearchInputContainer>
-            <VerticalFlex grow="1">
-              <Scrollbars>
-                {tokensList &&
-                  tokensList
-                    .filter((token) =>
-                      searchQuery.length
-                        ? token.name
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase()) ||
-                          token.symbol
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase())
-                        : true
-                    )
-                    .map((token) => (
-                      <StyledDropdownMenuItem
-                        key={
-                          token.type === TokenType.ERC20
-                            ? token.address
-                            : token.symbol
-                        }
-                        onClick={() => {
-                          onTokenChange(token);
-                          onSelectToggle && onSelectToggle();
-                        }}
-                      >
-                        <HorizontalFlex
-                          justify="space-between"
-                          align="center"
-                          grow="1"
-                        >
-                          <HorizontalFlex align="center">
-                            <TokenIcon
-                              height="32px"
-                              src={token.logoUri}
-                              name={token.name}
-                            />
-                            <Typography
-                              size={16}
-                              height="24px"
-                              margin={'0 0 0 16px'}
-                              weight={500}
-                            >
-                              {token.name}
-                            </Typography>
-                          </HorizontalFlex>
-                          <Typography size={14} height="24px">
-                            {token.balanceDisplayValue} {token.symbol}
-                          </Typography>
-                        </HorizontalFlex>
-                      </StyledDropdownMenuItem>
-                    ))}
-                {bridgeTokensList &&
-                  bridgeTokensList
-                    .filter((token) =>
-                      searchQuery.length
-                        ? token.symbol
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase())
-                        : true
-                    )
-                    .map((token) => {
-                      return (
+        {!hideTokenDropdown && (
+          <ContainedDropdown
+            anchorEl={selectButtonRef}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+          >
+            <DropdownContents>
+              <HorizontalSeparator margin="0" />
+              <SearchInputContainer>
+                <StyledSearchInput
+                  searchTerm={searchQuery}
+                  placeholder="Search"
+                  width="100%"
+                  onSearch={(term) => setSearchQuery(term)}
+                  autoFocus={true}
+                />
+              </SearchInputContainer>
+              <VerticalFlex grow="1">
+                <Scrollbars>
+                  {tokensList &&
+                    tokensList
+                      .filter((token) =>
+                        searchQuery.length
+                          ? token.name
+                              .toLowerCase()
+                              .includes(searchQuery.toLowerCase()) ||
+                            token.symbol
+                              .toLowerCase()
+                              .includes(searchQuery.toLowerCase())
+                          : true
+                      )
+                      .map((token) => (
                         <StyledDropdownMenuItem
-                          key={token.symbol}
+                          key={
+                            token.type === TokenType.ERC20
+                              ? token.address
+                              : token.symbol
+                          }
                           onClick={() => {
                             onTokenChange(token);
                             onSelectToggle && onSelectToggle();
@@ -344,37 +300,92 @@ export function TokenSelect({
                           >
                             <HorizontalFlex align="center">
                               <TokenIcon
-                                width="32px"
                                 height="32px"
                                 src={
                                   token.symbol === 'ETH'
                                     ? EthLogo
-                                    : tokenInfoData?.[token.symbol]?.logo
+                                    : token.logoUri
                                 }
-                                name={token.asset.symbol}
+                                name={token.name}
                               />
-
                               <Typography
                                 size={16}
                                 height="24px"
                                 margin={'0 0 0 16px'}
                                 weight={500}
                               >
-                                {token.symbolOnNetwork || token.symbol}
+                                {token.name}
                               </Typography>
                             </HorizontalFlex>
                             <Typography size={14} height="24px">
-                              {formatBalance(token.balance)} {token.symbol}
+                              {token.balanceDisplayValue} {token.symbol}
                             </Typography>
                           </HorizontalFlex>
                         </StyledDropdownMenuItem>
-                      );
-                    })}
-              </Scrollbars>
-            </VerticalFlex>
-          </DropdownContents>
-        </ContainedDropdown>
+                      ))}
+                  {bridgeTokensList &&
+                    bridgeTokensList
+                      .filter((token) =>
+                        searchQuery.length
+                          ? token.symbol
+                              .toLowerCase()
+                              .includes(searchQuery.toLowerCase())
+                          : true
+                      )
+                      .map((token) => {
+                        return (
+                          <StyledDropdownMenuItem
+                            key={token.symbol}
+                            onClick={() => {
+                              onTokenChange(token);
+                              onSelectToggle && onSelectToggle();
+                            }}
+                          >
+                            <HorizontalFlex
+                              justify="space-between"
+                              align="center"
+                              grow="1"
+                            >
+                              <HorizontalFlex align="center">
+                                <TokenIcon
+                                  width="32px"
+                                  height="32px"
+                                  src={
+                                    token.symbol === 'ETH'
+                                      ? EthLogo
+                                      : token.logoUri
+                                  }
+                                  name={token.asset.symbol}
+                                />
+
+                                <Typography
+                                  size={16}
+                                  height="24px"
+                                  margin={'0 0 0 16px'}
+                                  weight={500}
+                                >
+                                  {token.symbolOnNetwork || token.symbol}
+                                </Typography>
+                              </HorizontalFlex>
+                              <Typography size={14} height="24px">
+                                {formatBalance(token.balance)} {token.symbol}
+                              </Typography>
+                            </HorizontalFlex>
+                          </StyledDropdownMenuItem>
+                        );
+                      })}
+                </Scrollbars>
+              </VerticalFlex>
+            </DropdownContents>
+          </ContainedDropdown>
+        )}
       </SelectContainer>
     </VerticalFlex>
   );
+}
+
+function preventMinus(e) {
+  if (e.code === 'Minus') {
+    e.preventDefault();
+  }
 }

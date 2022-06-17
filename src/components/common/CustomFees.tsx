@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNetworkContext } from '../../contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
@@ -209,9 +209,7 @@ export function CustomFees({
         }
         case GasFeeModifier.CUSTOM:
           handleGasChange(
-            BigNumber.from(customGasInput).mul(
-              10 ** networkFee.displayDecimals
-            ),
+            utils.parseUnits(customGasInput, networkFee.displayDecimals),
             modifier
           );
           break;
@@ -221,6 +219,27 @@ export function CustomFees({
     },
     [customGasInput, handleGasChange, networkFee]
   );
+
+  const getGasFeeToDisplay = (fee: string) => {
+    // strings coming in are already decimal formatted from our getUpToTwoDecimals function
+    // If there is no network fee, return null
+    if (!networkFee) return undefined;
+    // If network fees are all the same, return decimals (fee arg)
+    if (
+      networkFee.high === networkFee.low &&
+      networkFee.high === networkFee?.medium
+    ) {
+      return fee;
+    }
+    // else if fee is less than or equal to 1, return decimals
+    else if (parseFloat(fee) <= 1) {
+      return fee;
+    }
+    // else, return rounded fee
+    else {
+      return Math.round(parseFloat(fee));
+    }
+  };
 
   useEffect(() => {
     if (networkFee) {
@@ -313,7 +332,9 @@ export function CustomFees({
               width="65px"
             >
               Normal <br />
-              {getUpToTwoDecimals(networkFee.low, networkFee.displayDecimals)}
+              {getGasFeeToDisplay(
+                getUpToTwoDecimals(networkFee.low, networkFee.displayDecimals)
+              )}
             </FeeButton>
             {!networkFee.isFixedFee && (
               <>
@@ -326,9 +347,11 @@ export function CustomFees({
                   width="65px"
                 >
                   Fast <br />
-                  {getUpToTwoDecimals(
-                    networkFee.medium,
-                    networkFee.displayDecimals
+                  {getGasFeeToDisplay(
+                    getUpToTwoDecimals(
+                      networkFee.medium,
+                      networkFee.displayDecimals
+                    )
                   )}
                 </FeeButton>
                 <FeeButton
@@ -342,9 +365,11 @@ export function CustomFees({
                   width="65px"
                 >
                   Instant <br />
-                  {getUpToTwoDecimals(
-                    networkFee.high,
-                    networkFee.displayDecimals
+                  {getGasFeeToDisplay(
+                    getUpToTwoDecimals(
+                      networkFee.high,
+                      networkFee.displayDecimals
+                    )
                   )}
                 </FeeButton>
                 <FeeButton
@@ -363,7 +388,7 @@ export function CustomFees({
                     <CustomInput
                       ref={customInputRef}
                       type={'number'}
-                      value={customGasInput}
+                      value={getGasFeeToDisplay(customGasInput)}
                       onChange={(e) => {
                         if (e.target.value === '') {
                           handleGasChange(
@@ -372,8 +397,9 @@ export function CustomFees({
                           );
                         } else {
                           handleGasChange(
-                            BigNumber.from(e.target.value).mul(
-                              10 ** networkFee.displayDecimals
+                            utils.parseUnits(
+                              e.target.value,
+                              networkFee.displayDecimals
                             ),
                             GasFeeModifier.CUSTOM
                           );

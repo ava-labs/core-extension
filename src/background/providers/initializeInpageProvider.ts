@@ -76,8 +76,21 @@ export function initializeProvider({
 export function setGlobalProvider(
   providerInstance: MetaMaskInpageProvider
 ): void {
-  (window as Record<string, any>).ethereum = providerInstance;
-  window.dispatchEvent(new Event('ethereum#initialized'));
+  try {
+    Object.defineProperty(window, 'ethereum', {
+      value: providerInstance,
+      writable: false,
+    });
+    if (!(window as any).web3) {
+      (window as any).web3 = {
+        currentProvider: (window as any).ethereum,
+      };
+    }
+    window.dispatchEvent(new Event('ethereum#initialized'));
+  } catch (e) {
+    // some browser was faster and defined the window.ethereum as non writable before us
+    console.error('Cannot set Core window.ethereum provider', e);
+  }
 }
 
 /**
@@ -89,6 +102,9 @@ export function setGlobalProvider(
 export function setAvalancheGlobalProvider(
   providerInstance: MetaMaskInpageProvider
 ): void {
-  (window as Record<string, any>).avalanche = providerInstance;
+  Object.defineProperty(window, 'avalanche', {
+    value: providerInstance,
+    writable: false,
+  });
   window.dispatchEvent(new Event('avalanche#initialized'));
 }

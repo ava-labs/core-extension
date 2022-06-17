@@ -20,7 +20,6 @@ export enum ExtensionRequest {
   TOKEN_PRICE_GET = 'token_price_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
-  BRIDGE_GET_ETH_BALANCE = 'bridge_get_eth_balance',
   BRIDGE_GET_ETH_BALANCES = 'bridge_get_eth_balances',
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
   BRIDGE_SIGN_ISSUE_BTC = 'bridge_sign_issue_btc',

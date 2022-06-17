@@ -2,33 +2,41 @@ import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
 } from '@src/background/connections/models';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Observable, Subject } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
 import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';
 import { LoadingIcon } from '@avalabs/react-components';
+import { Signal, ValueCache } from 'micro-signals';
 
-function request(engine: ReturnType<typeof requestEngine>) {
-  return function requestHandler<T = any>(
-    message: Omit<ExtensionConnectionMessage, 'id'>
-  ) {
-    return engine(message).then<T>((results) => {
-      return results.error ? Promise.reject(results.error) : results.result;
-    });
-  };
-}
+const requestEngineCache = new ValueCache<ReturnType<typeof requestEngine>>();
+const requestEngineSignal = new Signal<ReturnType<typeof requestEngine>>();
+const activeRequestEngine = requestEngineSignal
+  .cache(requestEngineCache)
+  .filter((value) => !!value)
+  .readOnly();
+const eventsHandler = new Subject<ExtensionConnectionEvent>();
+
+type RequestHandlerType = <T = any>(
+  message: Omit<ExtensionConnectionMessage, 'id'>
+) => Promise<T>;
 
 const ConnectionContext = createContext<{
-  request: ReturnType<typeof request>;
+  request: RequestHandlerType;
   events<V = any>(): Observable<ExtensionConnectionEvent<V>>;
   connection?: Runtime.Port;
 }>({} as any);
 
 export function ConnectionContextProvider({ children }: { children: any }) {
   const [connection, setConnection] = useState<Runtime.Port>();
-  const [eventsHandler, setEventsHandler] = useState<Subject<any>>();
 
   useEffect(() => {
     function getAndSetNewConnection() {
@@ -40,22 +48,27 @@ export function ConnectionContextProvider({ children }: { children: any }) {
         getAndSetNewConnection();
       });
       setConnection(newConnection);
+      requestEngineSignal.dispatch(requestEngine(newConnection, eventsHandler));
     }
 
-    if (!connection) {
-      getAndSetNewConnection();
-    }
-    setEventsHandler(new Subject<ExtensionConnectionEvent>());
-    // This is for initialization of states and needs to only run once.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getAndSetNewConnection();
   }, []);
 
-  const engine = useMemo(
-    () => connection && requestEngine(connection, eventsHandler),
-    [connection, eventsHandler]
+  const requestHandler: RequestHandlerType = useCallback(
+    async function requestHandler<T = any>(
+      message: Omit<ExtensionConnectionMessage, 'id'>
+    ) {
+      const activeEngine = await activeRequestEngine.promisify();
+      return activeEngine(message).then<T>((results) => {
+        return results.error ? Promise.reject(results.error) : results.result;
+      });
+    },
+    []
   );
 
-  if (!engine || !eventsHandler) {
+  const events = useCallback(() => eventsHandler.asObservable(), []);
+
+  if (!connection) {
     return <LoadingIcon />;
   }
 
@@ -63,8 +76,8 @@ export function ConnectionContextProvider({ children }: { children: any }) {
     <ConnectionContext.Provider
       value={{
         connection,
-        request: request(engine),
-        events: () => eventsHandler.asObservable(),
+        request: requestHandler,
+        events,
       }}
     >
       {children}

@@ -6,7 +6,7 @@ import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalD
 
 interface TxInProgressProps {
   address?: string;
-  fee: string;
+  fee?: string;
   feeSymbol?: string;
   amount?: string;
   symbol?: string;

@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { LoadingIcon } from '@avalabs/react-components';
 import { filter, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -17,7 +16,7 @@ const NetworkContext = createContext<{
 
 /**
  * Network is being saved to chrome storage so we can share it across all contexts. With that when the
- * user changes the network we write that to storage, storage then fires an event and all contexts recieve that
+ * user changes the network we write that to storage, storage then fires an event and all contexts receive that
  * event. Thus updating all instances of the network provider and everything stays in sync.
  */
 export function NetworkContextProvider({ children }: { children: any }) {
@@ -27,10 +26,6 @@ export function NetworkContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
 
   useEffect(() => {
-    if (!request || !events) {
-      return;
-    }
-
     request({
       method: ExtensionRequest.NETWORK_GET_NETWORKS,
     }).then((networks) => {
@@ -69,10 +64,6 @@ export function NetworkContextProvider({ children }: { children: any }) {
         setIsDeveloperMode(result.isDeveloperMode);
       });
   }, [events, request]);
-
-  if (!request || !events) {
-    return <LoadingIcon />;
-  }
 
   return (
     <NetworkContext.Provider

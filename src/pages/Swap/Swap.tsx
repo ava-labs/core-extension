@@ -585,12 +585,14 @@ export function Swap() {
                 selectedFromToken?.type === TokenType.NATIVE
               ) {
                 setIsCalculateAvaxMax(true);
+              } else {
+                setIsCalculateAvaxMax(false);
               }
               setSwapError({ message: '' });
               setSwapWarning('');
               setFromTokenValue(value as any);
               calculateTokenValueToInput(
-                value as any,
+                value,
                 'to',
                 selectedFromToken,
                 selectedToToken
@@ -624,10 +626,10 @@ export function Swap() {
                     onClick={() => {
                       const value =
                         destinationInputField === 'to'
-                          ? fromTokenValue
+                          ? fromTokenValue || { bn: new BN(0), amount: '0' }
                           : toTokenValue || { bn: new BN(0), amount: '0' };
                       calculateTokenValueToInput(
-                        value as any,
+                        value,
                         destinationInputField || 'to',
                         selectedFromToken,
                         selectedToToken

@@ -1,16 +1,22 @@
 import { ChainId } from '@avalabs/chains-sdk';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
-const bitcoin_disabled_features = [
-  'COLLECTIBLES',
-  'Swap',
-  'Buy',
-  'ManageTokens',
-];
+// The list we want to DISABLE features on certain networks (blacklist)
 const disabledFeatures = {
-  [ChainId.BITCOIN]: bitcoin_disabled_features,
-  [ChainId.BITCOIN_TESTNET]: bitcoin_disabled_features,
-  [ChainId.AVALANCHE_TESTNET_ID]: ['Swap'],
+  ManageTokens: [ChainId.BITCOIN],
+  Bridge: [
+    ChainId.DFK,
+    ChainId.DFK_TESTNET,
+    ChainId.SWIMMER,
+    ChainId.SWIMMER_TESTNET,
+  ],
+};
+
+// The list we want to ENABLE features on certain networks (whitelist)
+const enabledFeatues = {
+  COLLECTIBLES: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
+  Swap: [ChainId.AVALANCHE_MAINNET_ID],
+  Buy: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
 };
 
 interface FunctionIsAvailable {
@@ -23,10 +29,18 @@ export const useIsFunctionAvailable = (
   const { network } = useNetworkContext();
 
   const checkIsFunctionAvailable = (functionName: string) => {
+    if (!network) {
+      return false;
+    }
     if (
-      network &&
-      disabledFeatures[network.chainId] &&
-      disabledFeatures[network.chainId].includes(functionName)
+      enabledFeatues[functionName] &&
+      !enabledFeatues[functionName].includes(network.chainId)
+    ) {
+      return false;
+    }
+    if (
+      disabledFeatures[functionName] &&
+      disabledFeatures[functionName].includes(network.chainId)
     ) {
       return false;
     }

@@ -26,10 +26,10 @@ export class BalancesService {
     throw new Error('no balances service for this provider is supported');
   }
 
-  async getBalanceForNetwork(
+  async getBalancesForNetwork(
     network: Network,
-    account: Account
-  ): Promise<{ address: string; balances: TokenWithBalance[] }> {
+    accounts: Account[]
+  ): Promise<Record<string, TokenWithBalance[]>> {
     /**
      * At this point we need to call glacier
      *    1. check if its up and supports the current chain
@@ -40,7 +40,7 @@ export class BalancesService {
      */
     const getBalanceForProvider = (provider) => {
       const balanceService = this.getBalanceServiceByProvider(provider);
-      return balanceService.getBalances(account, network);
+      return balanceService.getBalances(accounts, network);
     };
 
     const btcNetworks = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET];

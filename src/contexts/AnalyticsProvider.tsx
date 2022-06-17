@@ -40,10 +40,11 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
   const [analyticsState, setAnalyticsState] = useState<AnalyticsState>();
 
   useEffect(() => {
+    let isCancelled = false;
     request({
       method: ExtensionRequest.ANALYTICS_GET_IDS,
     }).then((state) => {
-      if (state) {
+      if (state && !isCancelled) {
         setAnalyticsState(state);
       }
     });
@@ -55,7 +56,10 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       )
       .subscribe((val) => setAnalyticsState(val));
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      isCancelled = true;
+    };
   }, [events, request]);
 
   useEffect(() => {

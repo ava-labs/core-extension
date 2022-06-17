@@ -10,7 +10,7 @@ import { filter, map } from 'rxjs';
 import { WalletType } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { useLedgerSupportContext } from './LedgerSupportProvider';
+import { useLedgerContext } from './LedgerProvider';
 import { TxHistoryItem } from '@src/background/services/history/models';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 
@@ -28,7 +28,7 @@ type WalletStateAndMethods = {
 const WalletContext = createContext<WalletStateAndMethods>({} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
-  const { initLedgerTransport } = useLedgerSupportContext();
+  const { initLedgerTransport } = useLedgerContext();
   const { request, events } = useConnectionContext();
   const [walletType, setWalletType] = useState<WalletType | undefined>();
   const [isWalletLocked, setIsWalletLocked] = useState<boolean>(true);
@@ -56,7 +56,16 @@ export function WalletContextProvider({ children }: { children: any }) {
         filter(lockStateChangedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe(setIsWalletLocked);
+      .subscribe((locked) => {
+        setIsWalletLocked(locked);
+
+        // update wallet type when the extension gets unlocked
+        if (!locked) {
+          request<WalletType | undefined>({
+            method: ExtensionRequest.WALLET_GET_TYPE,
+          }).then(setWalletType);
+        }
+      });
 
     return () => {
       subscription.unsubscribe();

@@ -1,9 +1,12 @@
 import {
   Asset,
   BridgeSDKProvider,
+  Environment,
+  setBridgeEnvironment,
   useBridgeSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
+import { ChainId } from '@avalabs/chains-sdk';
 import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
@@ -47,6 +50,16 @@ interface BridgeContext {
 const bridgeContext = createContext<BridgeContext>({} as any);
 
 export function BridgeProvider({ children }: { children: any }) {
+  const { network } = useNetworkContext();
+
+  useEffect(() => {
+    setBridgeEnvironment(
+      network?.chainId === ChainId.AVALANCHE_MAINNET_ID
+        ? Environment.PROD
+        : Environment.TEST
+    );
+  }, [network]);
+
   return (
     <BridgeSDKProvider>
       <InnerBridgeProvider>{children}</InnerBridgeProvider>

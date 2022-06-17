@@ -20,10 +20,12 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useInterval } from '@src/hooks/useInterval';
 import Big from 'big.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AssetBalance, BALANCE_REFRESH_INTERVAL } from '../models';
+import { AssetBalance } from '../models';
 import { BridgeAdapter } from './useBridge';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
+
+const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
 /**
  * Hook for Bitcoin to Avalanche transactions
@@ -39,7 +41,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     currentBlockchain === Blockchain.BITCOIN ||
     targetBlockchain === Blockchain.BITCOIN;
 
-  const refetchInterval = useInterval(BALANCE_REFRESH_INTERVAL);
+  const refetchFeeTrigger = useInterval(NETWORK_FEE_REFRESH_INTERVAL);
   const { request } = useConnectionContext();
   const { isDeveloperMode } = useNetworkContext();
   const { getNetworkFeeForNetwork } = useNetworkFeeContext();
@@ -81,19 +83,11 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const amountInSatoshis = btcToSatoshi(amountInBtc);
 
   const btcAsset = config && getBtcAsset(config);
-  const assetsWithBalances = btcAsset
-    ? [
-        {
-          symbol: btcAsset.symbol,
-          asset: btcAsset,
-          balance: btcBalance?.balance,
-        },
-      ]
-    : [];
+  const assetsWithBalances = btcBalance ? [btcBalance] : [];
 
   useEffect(() => {
     async function loadFeeRates() {
-      if (isBitcoinBridge && refetchInterval) {
+      if (isBitcoinBridge && refetchFeeTrigger) {
         const rates = await getNetworkFeeForNetwork(
           isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
         );
@@ -106,12 +100,12 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     getNetworkFeeForNetwork,
     isBitcoinBridge,
     isDeveloperMode,
-    refetchInterval,
+    refetchFeeTrigger,
   ]);
 
   // balances, utxos
   useEffect(() => {
-    if (isBitcoinBridge && btcAsset && activeAccount && refetchInterval) {
+    if (isBitcoinBridge && btcAsset && activeAccount) {
       const btcBalance =
         tokens.balances?.[
           isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
@@ -123,20 +117,24 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
           symbol: btcAsset.symbol,
           asset: btcAsset,
           balance: satoshiToBtc(btcBalance.balance.toNumber()),
+          logoUri: btcBalance.logoUri,
+          price: btcBalance.priceUSD,
         });
       }
 
-      const btcAvalabcheBalance = tokens.balances?.[
+      const btcAvalancheBalance = tokens.balances?.[
         isDeveloperMode
           ? ChainId.AVALANCHE_TESTNET_ID
           : ChainId.AVALANCHE_MAINNET_ID
       ]?.[activeAccount.addressC].find((token) => token.symbol === 'BTC.b');
 
-      if (btcAvalabcheBalance) {
+      if (btcAvalancheBalance) {
         setBtcBalanceAvalanche({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(btcAvalabcheBalance?.balance.toNumber() || 0),
+          balance: satoshiToBtc(btcAvalancheBalance?.balance.toNumber() || 0),
+          logoUri: btcAvalancheBalance.logoUri,
+          price: btcAvalancheBalance.priceUSD,
         });
       }
     }
@@ -146,7 +144,6 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     btcAsset,
     isBitcoinBridge,
     isDeveloperMode,
-    refetchInterval,
     request,
   ]);
 
@@ -165,9 +162,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
       setNetworkFee(satoshiToBtc(fee));
       setReceiveAmount(satoshiToBtc(receiveAmount));
     } catch (error) {
-      const errMessage = (error as any)?.toString();
-      if (!errMessage.includes('Amount must be at least')) console.error(error);
-      // getBtcTransaction throws an error when the amount is too low
+      // getBtcTransaction throws an error when the amount is too low or too high
       // so set these to 0
       setNetworkFee(BIG_ZERO);
       setReceiveAmount(BIG_ZERO);
@@ -240,6 +235,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     receiveAmount,
     maximum,
     minimum,
+    price: btcBalance?.price,
     transfer,
   };
 }

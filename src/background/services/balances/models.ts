@@ -64,12 +64,18 @@ export interface TokenListERC20 {
 }
 
 // store balances in the structure of network ID -> address -> tokens
-export type Balances = Record<
-  number,
-  Record<string, TokenWithBalance[]> | undefined
->;
+export interface Balances {
+  [networkId: string | number]:
+    | { [address: string]: TokenWithBalance[] }
+    | undefined;
+}
 
-export type SerializedBalances = Record<
-  number,
-  Record<string, Omit<TokenWithBalance, 'balances'> & { balance: string }>
->;
+export interface SerializedBalances {
+  [networkId: string | number]:
+    | {
+        [address: string]: (Omit<TokenWithBalance, 'balance'> & {
+          balance: string;
+        })[];
+      }
+    | undefined;
+}

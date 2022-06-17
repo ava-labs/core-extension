@@ -27,8 +27,8 @@ export const AnalyticsConsent = () => {
           technologies to help us understand how our users interact with Core.
         </Typography>
         <Typography size={16} height="24px" margin="16px 0 0">
-          This enables us to develop improvements and enhance your experience.
-          To find out more you can read our{' '}
+          This enables us to develop improvements and enhance your experience,
+          to find out more you can read our{' '}
           <Typography
             as="a"
             target="_blank"
@@ -47,7 +47,7 @@ export const AnalyticsConsent = () => {
           height="22px"
           weight={700}
         >
-          Core will never...
+          Core will...
         </Typography>
       </VerticalFlex>
       <VerticalFlex align="flex-start" width="400px">
@@ -69,7 +69,7 @@ export const AnalyticsConsent = () => {
             collect keys, public addresses, balances, or hashes
           </Typography>
         </HorizontalFlex>
-        <HorizontalFlex margin="16px 0">
+        <HorizontalFlex margin="16px 0" align="center">
           <HorizontalFlex
             width="32px"
             height="32px"
@@ -85,7 +85,7 @@ export const AnalyticsConsent = () => {
             collect full IP addresses
           </Typography>
         </HorizontalFlex>
-        <HorizontalFlex>
+        <HorizontalFlex align="center">
           <HorizontalFlex
             width="32px"
             height="32px"
@@ -125,7 +125,7 @@ export const AnalyticsConsent = () => {
             setNextPhase(OnboardingPhase.PASSWORD);
           }}
         >
-          No thanks
+          No Thanks
         </PrimaryButton>
       </HorizontalFlex>
     </VerticalFlex>

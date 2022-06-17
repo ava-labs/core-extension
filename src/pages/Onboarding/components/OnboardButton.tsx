@@ -16,24 +16,28 @@ const TextButtonCard = styled(TextButton)`
 `;
 
 export function OnboardButton({
-  title,
   children,
-  onClick,
+  className,
   margin,
+  onClick,
+  title,
 }: {
-  title: string;
   children: any;
-  onClick: () => void;
+  className?: string;
   margin?: string;
+  onClick: () => void;
+  title: string;
 }) {
   return (
     <TextButtonCard onClick={onClick} margin={margin}>
       <VerticalFlex
         width="232px"
+        height="180px"
         padding="36px 0"
         align="center"
         justify="center"
         gap="24px"
+        className={className}
       >
         <Typography size={16} height="24px" weight={600}>
           {title}

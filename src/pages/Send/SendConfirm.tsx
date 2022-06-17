@@ -148,16 +148,10 @@ export const SendConfirm = ({
     token?.decimals
   );
 
-  // Need separate formatting for high-value (ETH/BTC) vs low-value (DOGE/SHIB) tokens
-  // For expensive tokens, display up to 4 decimals.
-  // For low value, fallback to CSS ellipsis
-  const amountDisplayValue =
-    token?.priceUSD && token.priceUSD > 1
-      ? bigToLocaleString(
-          bnToBig(sendState?.amount || new BN(0), token.decimals),
-          4
-        )
-      : fallbackAmountDisplayValue;
+  // Show actual send amount
+  const amountDisplayValue = token
+    ? bnToLocaleString(sendState?.amount || new BN(0), token.decimals)
+    : fallbackAmountDisplayValue;
 
   const amountInCurrency = currencyFormatter(
     Number(amount || 0) * (token?.priceUSD ?? 0)

@@ -9,7 +9,7 @@ import {
   WrapStatus,
 } from '@avalabs/bridge-sdk';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAssetBalanceEVM } from './useAssetBalanceEVM';
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { BridgeAdapter } from './useBridge';
@@ -42,9 +42,13 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const { activeAccount } = useAccountsContext();
   const { network } = useNetworkContext();
 
-  const ethereumProvider = new InfuraProvider(
-    network?.isTestnet ? 'rinkeby' : 'homestead',
-    process.env.INFURA_API_KEY
+  const ethereumProvider = useMemo(
+    () =>
+      new InfuraProvider(
+        network?.isTestnet ? 'rinkeby' : 'homestead',
+        process.env.INFURA_API_KEY
+      ),
+    [network?.isTestnet]
   );
   const hasEnoughForNetworkFee = useHasEnoughForGas(
     isEthereumBridge ? activeAccount?.addressC : undefined,
@@ -110,6 +114,7 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     receiveAmount,
     maximum,
     minimum,
+    price: sourceBalance?.price,
     wrapStatus,
     txHash,
     transfer,

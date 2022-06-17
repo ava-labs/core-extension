@@ -18,7 +18,6 @@ import {
 } from '@avalabs/react-components';
 import {
   useBridgeSDK,
-  useTokenInfoContext,
   Blockchain,
   usePrice,
   BridgeTransaction,
@@ -28,7 +27,6 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory, useParams } from 'react-router-dom';
-import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useEffect, useState } from 'react';
@@ -40,6 +38,7 @@ import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
+import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -49,6 +48,7 @@ const SummaryTokenIcon = styled(TokenIcon)`
   left: 0;
   right: 0;
   text-align: center;
+  background: ${({ theme }) => theme.colors.bg1};
   border: 8px solid;
   border-color: ${({ theme }) => theme.colors.bg1};
   border-radius: 50%;
@@ -120,10 +120,9 @@ const BridgeTransactionStatus = () => {
     txTimestamp: string;
   }>();
   const { currencyFormatter, currency } = useSettingsContext();
-  const tokenInfoData = useTokenInfoContext();
   const { showDialog, clearDialog } = useDialog();
   const { activeAccount } = useAccountsContext();
-  const { currentAsset, transactionDetails } = useBridgeSDK();
+  const { currentAsset } = useBridgeSDK();
   const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
   const [toastShown, setToastShown] = useState<boolean>();
@@ -131,6 +130,7 @@ const BridgeTransactionStatus = () => {
   const bridgeTransaction = bridgeTransactions[params.txHash] as
     | BridgeTransaction
     | undefined;
+  const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
 
   const assetPrice = usePrice(
     bridgeTransaction?.symbol || currentAsset,
@@ -145,8 +145,6 @@ const BridgeTransactionStatus = () => {
           networkPrice.mul(bridgeTransaction.sourceNetworkFee).toNumber()
         )
       : '-';
-
-  useLedgerDisconnectedDialog(history.goBack);
 
   useEffect(() => {
     if (bridgeTransaction?.complete && !toastShown) {
@@ -240,14 +238,12 @@ const BridgeTransactionStatus = () => {
                   </SummaryAmountInCurrency>
                 </VerticalFlex>
               </HorizontalFlex>
-              {transactionDetails && (
-                <SummaryTokenIcon
-                  height="56px"
-                  width="56px"
-                  src={tokenInfoData?.[transactionDetails.tokenSymbol]?.logo}
-                  name={transactionDetails?.tokenSymbol}
-                />
-              )}
+              <SummaryTokenIcon
+                height="56px"
+                width="56px"
+                src={logoUri}
+                name={bridgeTransaction.symbol}
+              />
             </Card>
             <StyledCard
               margin="16px 0 0 0"

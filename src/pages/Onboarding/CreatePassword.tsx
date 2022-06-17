@@ -105,7 +105,7 @@ export const CreatePassword = ({
               onChange={() => setTermsOfUseChecked(!termsOfUseChecked)}
             />
             <Typography margin="0 0 0 8px" size={12} height="15px">
-              I have read and agree to our{' '}
+              I agree to the{' '}
               <Typography
                 as="a"
                 target="_blank"
@@ -125,7 +125,7 @@ export const CreatePassword = ({
               onChange={() => setPrivacyPolicyChecked(!privacyPolicyChecked)}
             />
             <Typography margin="0 0 0 8px" size={12} height="15px">
-              I have read and agree to our{' '}
+              I acknowledge the{' '}
               <Typography
                 as="a"
                 target="_blank"

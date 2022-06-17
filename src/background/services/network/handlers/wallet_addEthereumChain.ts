@@ -19,12 +19,18 @@ export class WalletAddEthereumChainHandler implements DAppRequestHandler {
   };
 
   handleAuthenticated = async (request) => {
-    const params = request.params;
+    const requestedChain = request.params?.[0];
     const chains = await this.networkService.activeNetworks.promisify();
     const supportedChainIds = Object.keys(chains);
-    const chainsRequestedIsSupported = params?.every((chainRequested) =>
-      supportedChainIds.includes(chainRequested.chainId)
-    );
+
+    const requestedChainId = Number(requestedChain.chainId);
+    const chainsRequestedIsSupported =
+      requestedChain && supportedChainIds.includes(requestedChainId.toString());
+
+    if (chainsRequestedIsSupported) {
+      this.networkService.setNetwork(requestedChainId);
+    }
+
     return {
       ...request,
       ...(chainsRequestedIsSupported

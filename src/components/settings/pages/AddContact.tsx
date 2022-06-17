@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { toast, VerticalFlex, TextButton } from '@avalabs/react-components';
+import {
+  toast,
+  VerticalFlex,
+  TextButton,
+  CustomToast,
+} from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
@@ -55,7 +60,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
                 return;
               }
               createContact(contact);
-              toast.success('Contact created!');
+              toast.custom(<CustomToast label="Contact created!" />);
               goBack();
             }}
           >

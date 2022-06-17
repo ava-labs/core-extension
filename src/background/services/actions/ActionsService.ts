@@ -15,6 +15,7 @@ import {
   ActionUpdate,
 } from './models';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
+import { ethErrors } from 'eth-rpc-errors';
 
 @singleton()
 export class ActionsService {
@@ -128,8 +129,17 @@ export class ActionsService {
     } else {
       if (status === ActionStatus.COMPLETED) {
         this.emitResult(id, pendingMessage, true, true);
+      } else if (status === ActionStatus.ERROR_USER_CANCELED) {
+        this.emitResult(
+          id,
+          pendingMessage,
+          false,
+          ethErrors.provider.userRejectedRequest()
+        );
       } else {
-        this.emitResult(id, pendingMessage, false, status);
+        this.emitResult(id, pendingMessage, false, {
+          message: status,
+        });
       }
     }
   }

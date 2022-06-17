@@ -7,6 +7,7 @@ import {
 } from '@avalabs/react-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+import { useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { CollectibleMedia } from './components/CollectibleMedia';
@@ -30,6 +31,10 @@ export function CollectibleDetails() {
   const setCollectibleParams = useSetCollectibleParams();
   const { nft, tokenId } = useCollectibleFromParams();
 
+  const sendRef = useRef<HTMLButtonElement>(null);
+
+  const [showThumbnail, setShowThumbnail] = useState(false);
+
   const nftItem = nft?.nftData.find((data) => data.tokenId === tokenId);
 
   if (!nft || !nftItem) {
@@ -39,8 +44,22 @@ export function CollectibleDetails() {
 
   return (
     <VerticalFlex width={'100%'} height="100%">
-      <PageTitle>{nftItem.externalData?.name}</PageTitle>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+      <PageTitle
+        thumbnailImage={showThumbnail ? nftItem.externalData?.image : ''}
+      >
+        {nftItem.externalData?.name}
+      </PageTitle>
+      <Scrollbars
+        style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
+        onScrollFrame={({ scrollTop }) => {
+          // offsetTop corrected with margin
+          if (sendRef.current && scrollTop >= sendRef.current.offsetTop - 24) {
+            setShowThumbnail(true);
+          } else {
+            setShowThumbnail(false);
+          }
+        }}
+      >
         <VerticalFlex padding="0 16px">
           <CollectibleMedia
             width="100%"
@@ -62,6 +81,7 @@ export function CollectibleDetails() {
                 options: { path: '/collectible/send' },
               });
             }}
+            ref={sendRef}
           >
             Send
           </PrimaryButton>

@@ -1,40 +1,82 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import { WalletType } from '@src/background/services/wallet/models';
-import {
-  LedgerAppType,
-  useLedgerSupportContext,
-} from '@src/contexts/LedgerSupportProvider';
+import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { useCallback, useEffect } from 'react';
+import { getWindowCoords } from '@src/utils/getWindowCoords';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
   margin: 24px 0 0;
 `;
 
-export function useLedgerDisconnectedDialog(onCancel: () => void) {
+export function useLedgerDisconnectedDialog(
+  onCancel: () => void,
+  requestedApp?: LedgerAppType
+): boolean {
   const theme = useTheme();
   const { walletType } = useWalletContext();
-  const { hasLedgerTransport, appType } = useLedgerSupportContext();
+  const { hasLedgerTransport, appType, popDeviceSelection } =
+    useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
   const { network } = useNetworkContext();
+  const [hasCorrectApp, setHasCorrectApp] = useState(false);
+  const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
+
+  const requiredAppType = useMemo(() => {
+    if (requestedApp) {
+      return requestedApp;
+    }
+
+    if (network?.vmName === NetworkVMType.BITCOIN) {
+      return LedgerAppType.BITCOIN;
+    }
+
+    if (
+      network?.chainId === ChainId.AVALANCHE_MAINNET_ID ||
+      network?.chainId === ChainId.AVALANCHE_TESTNET_ID
+    ) {
+      return LedgerAppType.AVALANCHE;
+    }
+
+    return LedgerAppType.ETHEREUM;
+  }, [network, requestedApp]);
 
   const showLedgerDisconnectedDialog = useCallback(() => {
-    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
     showDialog(
       {
         title: 'Ledger Disconnected',
         body: 'Please connect your Ledger device to approve this transaction.',
         width: '343px',
-        component: !isBitcoin ? (
-          <StyledLoadingSpinnerIcon color={theme.colors.icon1} height="32px" />
-        ) : undefined,
-        confirmText: isBitcoin ? 'Connect Ledger' : undefined,
+        component:
+          requiredAppType !== LedgerAppType.AVALANCHE ? (
+            <StyledLoadingSpinnerIcon
+              color={theme.colors.icon1}
+              height="32px"
+            />
+          ) : undefined,
+        confirmText:
+          requiredAppType !== LedgerAppType.AVALANCHE
+            ? 'Connect Ledger'
+            : undefined,
         onConfirm: () => {
-          openExtensionNewWindow(`ledger/connect`, '');
+          if (isConfirm) {
+            popDeviceSelection();
+          } else {
+            openExtensionNewWindow(
+              `ledger/connect?app=${requiredAppType}`,
+              '',
+              getWindowCoords()
+            );
+            window.close();
+          }
         },
         cancelText: 'Cancel',
         onCancel: () => {
@@ -44,25 +86,37 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
       },
       false
     );
-  }, [clearDialog, network?.vmName, onCancel, showDialog, theme.colors.icon1]);
+  }, [
+    showDialog,
+    requiredAppType,
+    theme.colors.icon1,
+    isConfirm,
+    popDeviceSelection,
+    onCancel,
+    clearDialog,
+  ]);
 
   const showIncorrectAppDialog = useCallback(() => {
-    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
     showDialog(
       {
         title: 'Wrong App',
-        body: `Please switch to the ${
-          isBitcoin ? 'Bitcoin' : 'Avalanche'
-        } app on your Ledger`,
+        body: `Please switch to the ${requiredAppType} app on your Ledger`,
         width: '343px',
-        confirmText: isBitcoin ? 'Connect Ledger' : undefined,
+        confirmText:
+          requiredAppType !== LedgerAppType.AVALANCHE
+            ? 'Connect Ledger'
+            : undefined,
         onConfirm: () => {
-          openExtensionNewWindow(`ledger/connect`, '', {
-            screenX: window.screenX,
-            screenY: window.screenY,
-            viewPortHeight: window.innerHeight,
-            viewportWidth: window.innerWidth,
-          });
+          if (isConfirm) {
+            popDeviceSelection();
+          } else {
+            openExtensionNewWindow(
+              `ledger/connect?app=${requiredAppType}`,
+              '',
+              getWindowCoords()
+            );
+            window.close();
+          }
         },
         cancelText: 'Cancel',
         onCancel: () => {
@@ -72,7 +126,14 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
       },
       false
     );
-  }, [clearDialog, network?.vmName, onCancel, showDialog]);
+  }, [
+    showDialog,
+    requiredAppType,
+    isConfirm,
+    popDeviceSelection,
+    onCancel,
+    clearDialog,
+  ]);
 
   useEffect(() => {
     clearDialog();
@@ -81,23 +142,22 @@ export function useLedgerDisconnectedDialog(onCancel: () => void) {
       return;
     }
 
-    const isBitcoin = network?.vmName === NetworkVMType.BITCOIN;
-    const hasCorrectApp =
-      hasLedgerTransport &&
-      ((appType === LedgerAppType.BITCOIN && isBitcoin) ||
-        (appType === LedgerAppType.AVALANCHE && !isBitcoin));
+    const hasCorrectApp = hasLedgerTransport && appType === requiredAppType;
     if (!hasLedgerTransport) {
       showLedgerDisconnectedDialog();
     } else if (!hasCorrectApp) {
       showIncorrectAppDialog();
     }
+    setHasCorrectApp(hasCorrectApp);
   }, [
     hasLedgerTransport,
     showLedgerDisconnectedDialog,
     walletType,
     appType,
     showIncorrectAppDialog,
+    requiredAppType,
     clearDialog,
-    network?.vmName,
   ]);
+
+  return hasCorrectApp;
 }

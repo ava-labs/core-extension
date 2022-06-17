@@ -19,7 +19,6 @@ import { BridgeTransferEvents } from '@src/background/services/bridge/events/bri
 import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';
 import { BridgeGetTransactionsHandler } from '@src/background/services/bridge/handlers/getBridgeTransactions';
-import { BridgeGetEthereumBalanceHandler } from '@src/background/services/bridge/handlers/getEthereumBalance';
 import { BridgeGetEthereumBalancesHandler } from '@src/background/services/bridge/handlers/getEthereumBalances';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
@@ -86,6 +85,7 @@ import { GetNftBalancesHandler } from '@src/background/services/balances/handler
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { LockStateChangedEvents } from '@src/background/services/lock/events/lockStateChangedEvent';
+import { LedgerDiscoverTransportsEvents } from '@src/background/services/ledger/events/ledgerDiscoverTransports';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -115,10 +115,6 @@ import { LockStateChangedEvents } from '@src/background/services/lock/events/loc
   { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetTransactionsHandler },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: BridgeGetEthereumBalanceHandler,
-  },
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeGetEthereumBalancesHandler,
@@ -219,6 +215,7 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SettingsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: PermissionStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
+  { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

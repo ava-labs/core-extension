@@ -62,8 +62,11 @@ export const ContactSelect = ({
     getTransactionHistory().then((history) =>
       setHistoryContacts(
         history
-          // filter out dupe to addresses
           .filter((tx, index, self) => {
+            if (!tx.isSender || tx.isContractCall) {
+              return false;
+            }
+            // filter out dupe to addresses
             return (
               index === self.findIndex((temp) => temp.to === tx.to) &&
               tx.to !== '0x0000000000000000000000000000000000000000'

@@ -4,7 +4,6 @@ import {
   formatTokenAmount,
   useBridgeConfig,
   useBridgeSDK,
-  useTokenInfoContext,
   WrapStatus,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/bridge-sdk';
@@ -28,7 +27,7 @@ import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer'
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { AddBtcPopup } from './components/AddBtcPopup';
@@ -37,13 +36,22 @@ import { AssetBalance } from './models';
 import { useBridge } from './hooks/useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { bigToBN, bnToBig, resolve, stringToBN } from '@avalabs/utils-sdk';
+import {
+  bigToBN,
+  bigToLocaleString,
+  bnToBig,
+  resolve,
+} from '@avalabs/utils-sdk';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
 import BN from 'bn.js';
 import Big from 'big.js';
 import { TokenType } from '@src/background/services/balances/models';
 import { useSetBridgeChainFromNetwork } from './hooks/useSetBridgeChainFromNetwork';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { WalletType } from '@src/background/services/wallet/models';
+import { BridgeConfirmLedger } from './components/BridgeConfirm';
+import { TxInProgress } from '@src/components/common/TxInProgress';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -78,61 +86,75 @@ export function Bridge() {
     setCurrentBlockchain,
     targetBlockchain,
     targetChains,
+    sourceAssets,
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
 
   const { flags } = useAnalyticsContext();
   const { currencyFormatter } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
+  const { walletType } = useWalletContext();
 
   const theme = useTheme();
   const [bridgeError, setBridgeError] = useState<string>('');
 
   const [isPending, setIsPending] = useState<boolean>(false);
+  const [transferWithLedger, setTransferWithLedger] = useState<boolean>(false);
   const [addBitcoinModalOpen, setAddBitcoinModalOpen] =
     useState<boolean>(false);
-  const tokenInfoData = useTokenInfoContext();
-  const denomination = sourceBalance?.asset.denomination || 0;
   const history = useHistory();
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [isSwitched, setIsSwitched] = useState(false);
   const { capture } = useAnalyticsContext();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
-  const [defaultInputValue, setDefaultInputValue] = useState({
-    bn: new BN(0),
-    amount: '0',
-  });
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
+
+  const denomination = sourceBalance?.asset.denomination || 0;
+  const amountBN = useMemo(
+    () => bigToBN(amount, denomination),
+    [amount, denomination]
+  );
 
   const bridgePageHistoryData: {
     currentBlockchain?: Blockchain;
     selectedToken?: string;
-    inputAmount?: {
-      bn: BN;
-      amount: string;
-    };
+    inputAmount?: Big;
   } = getPageHistoryData();
 
+  // Set source blockchain & amount from page storage
   useEffect(() => {
     if (bridgePageHistoryData.currentBlockchain) {
       setCurrentBlockchain(bridgePageHistoryData.currentBlockchain);
     }
     if (bridgePageHistoryData.inputAmount) {
-      setDefaultInputValue({
-        bn: stringToBN(bridgePageHistoryData.inputAmount.amount, 9),
-        amount: bridgePageHistoryData.inputAmount.amount,
-      });
+      setAmount(new Big(bridgePageHistoryData.inputAmount));
     }
   }, [
     bridgePageHistoryData.currentBlockchain,
     bridgePageHistoryData.inputAmount,
+    setAmount,
     setCurrentBlockchain,
   ]);
 
-  if (bridgePageHistoryData.selectedToken && !currentAsset) {
-    setCurrentAsset(bridgePageHistoryData.selectedToken);
-  }
+  // Set token from page storage
+  useEffect(() => {
+    if (
+      bridgePageHistoryData.selectedToken &&
+      !currentAsset &&
+      Object.keys(sourceAssets).length
+    ) {
+      const symbol = bridgePageHistoryData.selectedToken;
+      // Workaround for a race condition with useEffect in BridgeSDKProvider
+      // that also calls setCurrentAsset :(
+      setTimeout(() => setCurrentAsset(symbol), 1);
+    }
+  }, [
+    bridgePageHistoryData.selectedToken,
+    currentAsset,
+    setCurrentAsset,
+    sourceAssets,
+  ]);
 
   const isAmountTooLow =
     amount && !amount.eq(BIG_ZERO) && amount.lt(minimum || BIG_ZERO);
@@ -144,17 +166,17 @@ export function Bridge() {
       : '-';
   const formattedReceiveAmountCurrency =
     hasValidAmount && price && receiveAmount
-      ? `~${currencyFormatter(price.mul(receiveAmount).toNumber())}`
+      ? `~${currencyFormatter(price * receiveAmount.toNumber())}`
       : '-';
 
   const handleAmountChanged = (value: { bn: BN; amount: string }) => {
+    const bigValue = bnToBig(value.bn, denomination);
     setNavigationHistoryData({
       currentBlockchain,
       selectedToken: currentAsset,
-      inputAmount: value,
+      inputAmount: bigValue,
     });
-    setDefaultInputValue(value);
-    setAmount(bnToBig(value.bn, denomination));
+    setAmount(bigValue);
     sendAmountEnteredAnalytics(value.amount);
   };
 
@@ -163,7 +185,7 @@ export function Bridge() {
       setNavigationHistoryData({
         currentBlockchain: targetBlockchain,
         selectedToken: currentAsset,
-        inputAmount: defaultInputValue,
+        inputAmount: amount,
       });
       setCurrentBlockchain(targetBlockchain);
       setIsSwitched(!isSwitched);
@@ -174,19 +196,29 @@ export function Bridge() {
     setNavigationHistoryData({
       currentBlockchain: blockchain,
       selectedToken: currentAsset,
-      inputAmount: defaultInputValue,
+      inputAmount: amount,
     });
     setCurrentBlockchain(blockchain);
+    // Reset because a denomination change will change its value
+    setAmount(BIG_ZERO);
   };
 
   const handleSelect = (symbol: string) => {
     setNavigationHistoryData({
       currentBlockchain,
       selectedToken: symbol,
-      inputAmount: defaultInputValue,
+      inputAmount: amount,
     });
     setCurrentAsset(symbol);
     sendTokenSelectedAnalytics(symbol);
+  };
+
+  const onTransferClicked = () => {
+    if (walletType === WalletType.LEDGER) {
+      setTransferWithLedger(true);
+    } else {
+      handleTransfer();
+    }
   };
 
   const handleTransfer = async () => {
@@ -199,10 +231,16 @@ export function Bridge() {
 
     setIsPending(true);
     const [hash, error] = await resolve(transfer());
+    setTransferWithLedger(false);
     setIsPending(false);
 
     if (error) {
       console.error(error);
+      // do not show the error when the user denied the transfer
+      if (error === 'User declined the transaction') {
+        return;
+      }
+
       setBridgeError('The was a problem with the transfer');
       return;
     }
@@ -297,26 +335,29 @@ export function Bridge() {
                   isOpen={isTokenSelectOpen}
                   isValueLoading={loading}
                   selectedToken={
-                    sourceBalance && {
-                      type: TokenType.ERC20,
-                      balanceDisplayValue: formatBalance(sourceBalance.balance),
-                      balance: bigToBN(
-                        sourceBalance.balance || BIG_ZERO,
-                        denomination
-                      ),
-                      decimals: sourceBalance.asset.denomination,
-                      priceUSD: price?.toNumber(),
-                      logoUri:
-                        tokenInfoData?.[sourceBalance.asset.symbol]?.logo,
-                      name: sourceBalance.asset.symbol,
-                      symbol: getTokenSymbolOnNetwork(
-                        sourceBalance.asset.symbol,
-                        currentBlockchain
-                      ),
-                      address: sourceBalance.asset.symbol,
-                      contractType: 'ERC-20',
-                      description: '',
-                    }
+                    currentAsset && sourceBalance
+                      ? {
+                          type: TokenType.ERC20,
+                          balanceDisplayValue: formatBalance(
+                            sourceBalance.balance
+                          ),
+                          balance: bigToBN(
+                            sourceBalance.balance || BIG_ZERO,
+                            denomination
+                          ),
+                          decimals: denomination,
+                          priceUSD: price,
+                          logoUri: sourceBalance.logoUri,
+                          name: sourceBalance.asset.symbol,
+                          symbol: getTokenSymbolOnNetwork(
+                            sourceBalance.asset.symbol,
+                            currentBlockchain
+                          ),
+                          address: sourceBalance.asset.symbol,
+                          contractType: 'ERC-20',
+                          description: '',
+                        }
+                      : undefined
                   }
                   onInputAmountChange={handleAmountChanged}
                   padding="8px 16px"
@@ -327,7 +368,10 @@ export function Bridge() {
                     setBridgeError(errorMessage);
                   }}
                   skipHandleMaxAmount
-                  inputAmount={defaultInputValue.bn}
+                  inputAmount={
+                    // Reset BNInput when programmatically setting the amount to zero
+                    !sourceBalance || amountBN.isZero() ? undefined : amountBN
+                  }
                   setIsOpen={setIsTokenSelectOpen}
                 />
               </HorizontalFlex>
@@ -425,12 +469,13 @@ export function Bridge() {
           disabled={
             bridgeError.length > 0 ||
             loading ||
+            transferWithLedger ||
             isPending ||
             isAmountTooLow ||
             BIG_ZERO.eq(amount) ||
             !hasEnoughForNetworkFee
           }
-          onClick={handleTransfer}
+          onClick={onTransferClicked}
         >
           {isPending && (
             <StyledLoading height="16px" color={theme.colors.stroke2} />
@@ -446,6 +491,26 @@ export function Bridge() {
             onClose={() => setAddBitcoinModalOpen(false)}
           />
         )}
+      {transferWithLedger && (
+        <BridgeConfirmLedger
+          blockchain={currentBlockchain}
+          isTransactionPending={isPending}
+          onCancel={() => {
+            setTransferWithLedger(false);
+          }}
+          startTransfer={() => {
+            setTransferWithLedger(false);
+            handleTransfer();
+          }}
+        />
+      )}
+      {isPending && (
+        <TxInProgress
+          address={'Avalanche Bridge'}
+          amount={bigToLocaleString(amount)}
+          symbol={currentAsset}
+        />
+      )}
     </VerticalFlex>
   );
 }

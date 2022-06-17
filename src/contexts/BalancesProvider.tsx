@@ -14,7 +14,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { concat, filter, from, interval, map, timer } from 'rxjs';
+import { filter, interval, map, timer } from 'rxjs';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 
@@ -47,47 +47,58 @@ export function BalancesProvider({ children }: { children: any }) {
     setTokens({
       loading: true,
     });
-    const subscription = concat(
-      from(
-        request({
-          method: ExtensionRequest.BALANCES_GET,
-        })
-      ),
-      events().pipe(
-        filter(balancesUpdatedEventListener),
-        map((evt) => evt.value)
-      )
-    ).subscribe((result: SerializedBalances) => {
+
+    request({
+      method: ExtensionRequest.BALANCES_GET,
+    }).then((result: SerializedBalances) => {
       setTokens({
         balances: deserializeBalances(result ?? {}),
         loading: false,
       });
     });
+  }, [request]);
 
+  useEffect(() => {
     // update balances every 2 seconds for the active network when the UI is open
     // update balances for all networks and accounts every 30 seconds
-    subscription.add(
-      interval(2000).subscribe((intervalCount) => {
-        if (intervalCount % 15 === 0) {
-          request({
-            method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-          });
-        } else {
-          request({
-            method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-            params: [
-              [activeAccount].filter((a) => a),
-              [network].filter((n) => n),
-            ],
-          });
-        }
-      })
-    );
+    const subscription = interval(2000).subscribe((intervalCount) => {
+      if (!activeAccount || !network) return;
 
+      if (intervalCount % 15 === 0) {
+        request({
+          method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
+        });
+      } else {
+        request({
+          method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
+          params: [[activeAccount], [network]],
+        });
+      }
+    });
     return () => {
       subscription.unsubscribe();
     };
-  }, [activeAccount, events, network, request]);
+  }, [activeAccount, network, request]);
+
+  useEffect(() => {
+    const subscription = events()
+      .pipe(
+        filter(balancesUpdatedEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe((result: SerializedBalances) => {
+        setTokens({
+          balances: {
+            ...tokens.balances,
+            ...deserializeBalances(result ?? {}),
+          },
+          loading: false,
+        });
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events, tokens.balances]);
 
   const updateNftBalances = useCallback(
     (resetPreviousState = true) => {
@@ -120,7 +131,8 @@ export function BalancesProvider({ children }: { children: any }) {
       subscription.unsubscribe();
     };
     // trigger nft updates whenever the network has changed
-  }, [request, network?.chainId, updateNftBalances]);
+    // trigger nft updates whenever the account changes
+  }, [request, network?.chainId, updateNftBalances, activeAccount]);
 
   return (
     <BalancesContext.Provider value={{ tokens, nfts }}>
@@ -135,9 +147,10 @@ export function useBalancesContext() {
 
 function deserializeBalances(balances: SerializedBalances): Balances {
   return Object.keys(balances).reduce<Balances>((deserialized, networkId) => {
-    deserialized[networkId] = Object.keys(balances[networkId]).reduce(
+    const balancesForNetwork = balances?.[networkId] || {};
+    deserialized[networkId] = Object.keys(balancesForNetwork).reduce(
       (acc, account) => {
-        acc[account] = balances[networkId][account].map((balance) => ({
+        acc[account] = balancesForNetwork[account].map((balance) => ({
           ...balance,
           balance: hexToBN(balance.balance),
         }));
