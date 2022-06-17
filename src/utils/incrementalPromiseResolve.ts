@@ -21,9 +21,14 @@ export async function incrementalPromiseResolve<T>(
   increment = 0,
   maxTries = 10
 ) {
-  const res = await incrementAndCall(prom(), 0);
+  const res = await incrementAndCall<T>(prom(), increment);
   if (maxTries === increment) return res;
   if (errorParser(res))
-    return incrementalPromiseResolve(() => prom(), errorParser, increment + 1);
+    return incrementalPromiseResolve(
+      prom,
+      errorParser,
+      increment + 1,
+      maxTries
+    );
   return res;
 }

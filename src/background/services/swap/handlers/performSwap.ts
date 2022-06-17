@@ -6,8 +6,7 @@ import {
 } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { BigNumber, ethers } from 'ethers';
-import { APIError, ETHER_ADDRESS } from 'paraswap';
-import { OptimalRate } from 'paraswap-core';
+import { APIError, ETHER_ADDRESS, Transaction } from 'paraswap';
 import { NetworkService } from '../../network/NetworkService';
 import { WalletService } from '../../wallet/WalletService';
 import { SwapService } from '../SwapService';
@@ -220,31 +219,40 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
       }
     }
 
-    const txData = this.swapService.buildTx(
-      ChainId.AVALANCHE_MAINNET_ID.toString(),
-      srcTokenAddress,
-      destTokenAddress,
-      sourceAmount,
-      destinationAmount,
-      priceRoute,
-      userAddress,
-      partner,
-      partnerAddress,
-      partnerFeeBps,
-      receiver,
-      buildOptions,
-      activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals,
-      activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals,
-      permit,
-      deadline
-    );
-
-    function checkForErrorsInResult(result: OptimalRate | APIError) {
-      return (result as APIError).message === 'Server too busy';
+    function checkForErrorsInResult(result: Transaction | APIError) {
+      return (
+        (result as APIError).message === 'Server too busy' ||
+        // paraswap returns responses like this: {error: 'Not enough 0x4f60a160d8c2dddaafe16fcc57566db84d674…}
+        // when they are too slow to detect the approval
+        (result as any).error
+      );
     }
 
     const [txBuildData, txBuildDataError] = await resolve(
-      incrementalPromiseResolve(() => txData, checkForErrorsInResult)
+      incrementalPromiseResolve(
+        () =>
+          this.swapService.buildTx(
+            ChainId.AVALANCHE_MAINNET_ID.toString(),
+            srcTokenAddress,
+            destTokenAddress,
+            sourceAmount,
+            destinationAmount,
+            priceRoute,
+            userAddress,
+            partner,
+            partnerAddress,
+            partnerFeeBps,
+            receiver,
+            buildOptions,
+            activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals,
+            activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals,
+            permit,
+            deadline
+          ),
+        checkForErrorsInResult,
+        0,
+        10
+      )
     );
 
     if (txBuildDataError) {
