@@ -6,6 +6,7 @@ export function ImageWithFallback({
   ...props
 }: ImgHTMLAttributes<HTMLImageElement>) {
   const [fallbackImage, setFallbackImage] = useState('');
+  const { width, height } = props;
 
   const imageOnErrorHandler = (
     event: React.SyntheticEvent<HTMLImageElement, Event>
@@ -14,6 +15,11 @@ export function ImageWithFallback({
     onError?.(event);
   };
   return (
-    <img src={fallbackImage || src} onError={imageOnErrorHandler} {...props} />
+    <img
+      src={fallbackImage || src}
+      onError={imageOnErrorHandler}
+      width={width}
+      height={height}
+    />
   );
 }
