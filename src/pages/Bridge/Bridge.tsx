@@ -416,7 +416,7 @@ export function Bridge() {
               >
                 <SwitchIcon
                   direction={IconDirection.UP}
-                  height="24px"
+                  height="20px"
                   color={theme.colors.text1}
                 />
               </SwitchIconContainer>
