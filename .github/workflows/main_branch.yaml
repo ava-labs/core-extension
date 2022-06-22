@@ -25,6 +25,7 @@ jobs:
           echo INFURA_API_KEY=${{ secrets.INFURA_KEY }} >> .env.production
           echo POSTHOG_KEY=${{ secrets.POSTHOG_DEV_KEY }} >> .env.production
           echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
+          echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
       - name: Install dependencies
         run: yarn
       - name: Build library

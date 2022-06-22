@@ -197,7 +197,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return new BlockCypherProvider(
         !network.isTestnet,
         undefined,
-        'https://glacier-api.avax-test.network/proxy/blockcypher'
+        `${process.env.GLACIER_URL}/proxy/blockcypher`
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(

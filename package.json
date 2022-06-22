@@ -15,7 +15,6 @@
     "zip": "node zipscript.js"
   },
   "dependencies": {
-    "@avalabs/blizzard-sdk": "2.4.0",
     "@avalabs/blockcypher-sdk": "2.4.0",
     "@avalabs/bridge-sdk": "2.4.0",
     "@avalabs/chains-sdk": "2.4.0",

@@ -19,11 +19,6 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@avalabs/blizzard-sdk@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/blizzard-sdk/-/blizzard-sdk-2.4.0.tgz#68d2863a87e49a5ef088dc502e2b7fb62a486d65"
-  integrity sha512-Zg7SS1scnWsFWP4rFbhicQZV4cYJ3+ua1/06RC+GXGsntiouXh+GtFwvteoiBHihqN2AOII6ENM9ZbJw8gnJyA==
-
 "@avalabs/blockcypher-sdk@2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@avalabs/blockcypher-sdk/-/blockcypher-sdk-2.4.0.tgz#07b2273e434afe1a423c1093c70a77e6617d7fd1"
