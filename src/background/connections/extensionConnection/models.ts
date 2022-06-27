@@ -21,8 +21,12 @@ export enum ExtensionRequest {
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
   BRIDGE_GET_ETH_BALANCES = 'bridge_get_eth_balances',
+  BRIDGE_GET_STATE = 'bridge_get_state',
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
   BRIDGE_SIGN_ISSUE_BTC = 'bridge_sign_issue_btc',
+  BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
+  BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
+  BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',
 
   WALLET_GET_TYPE = 'wallet_getType',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
@@ -61,10 +65,6 @@ export enum ExtensionRequest {
   CONTACTS_CREATE = 'contacts_create',
   CONTACTS_UPDATE = 'contacts_update',
   CONTACTS_REMOVE = 'contacts_remove',
-
-  BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
-  BRIDGE_TRANSACTIONS_GET = 'bridge_transaction_get',
-  BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
 
   FAVORITES_CREATE = 'favorites_create',
   FAVORITES_REMOVE = 'favorites_remove',

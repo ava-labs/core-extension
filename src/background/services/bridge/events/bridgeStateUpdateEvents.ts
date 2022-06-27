@@ -8,14 +8,14 @@ import { BridgeService } from '../BridgeService';
 import { singleton } from 'tsyringe';
 
 @singleton()
-export class BridgeTransactionUpdatedEvents implements ExtensionEventEmitter {
+export class BridgeStateUpdateEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   constructor(private bridgeService: BridgeService) {
     this.bridgeService.addListener(
-      BridgeEvents.BRIDGE_TRANSACTIONS_UPDATED,
+      BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
       (value) => {
         this.eventEmitter.emit('update', {
-          name: BridgeEvents.BRIDGE_TRANSACTIONS_UPDATED,
+          name: BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
           value: value,
         });
       }

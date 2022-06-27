@@ -17,7 +17,7 @@ import {
   responseLog,
 } from '@src/utils/logging';
 import { resolve } from '@avalabs/utils-sdk';
-import { isDevelopment } from '@src/utils/isDevelopment';
+import { isDevelopment } from '@src/utils/environment';
 import './registry';
 
 @injectable()

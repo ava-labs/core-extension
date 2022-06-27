@@ -71,35 +71,22 @@ export class BridgeService implements OnLock, OnStorageReady {
   }
 
   async activate() {
-    await this.updateBridgeConfig();
-
     this._bridgeState = deserializeBridgeState(
       (await this.storageService.load<BridgeState>(BRIDGE_STORAGE_KEY)) ??
         DefaultBridgeState
     );
     this.eventEmitter.emit(
-      BridgeEvents.BRIDGE_TRANSACTIONS_UPDATED,
+      BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
       this.bridgeState
     );
 
-    // Track bridgeTransactions from storage
-    const envs = Object.values(this.bridgeState.bridgeTransactions).map(
-      (bridgeTransaction) =>
-        this.getEnv(bridgeTransaction.environment === 'main')
-    );
-    const prodConfig = envs.includes(Environment.PROD)
-      ? await fetchConfig(Environment.PROD)
-      : undefined;
-    const testConfig = envs.includes(Environment.TEST)
-      ? await fetchConfig(Environment.TEST)
-      : undefined;
-    Object.values(this.bridgeState.bridgeTransactions).forEach(
-      (bridgeTransaction) => {
-        const config =
-          bridgeTransaction.environment === 'main' ? prodConfig : testConfig;
-        this.trackBridgeTransaction(bridgeTransaction, config);
-      }
-    );
+    await this.updateBridgeConfig();
+    this.trackBridgeTransactionsFromStorage();
+  }
+
+  async setIsDevEnv(enabled: boolean) {
+    this.saveBridgeState({ isDevEnv: enabled });
+    this.updateBridgeConfig();
   }
 
   async updateBridgeConfig() {
@@ -138,17 +125,22 @@ export class BridgeService implements OnLock, OnStorageReady {
   }
 
   private async saveBridgeTransaction(bridgeTransaction: BridgeTransaction) {
-    const nextBridgeState = {
-      ...this.bridgeState,
+    this.saveBridgeState({
       bridgeTransactions: {
         ...this.bridgeState.bridgeTransactions,
         [bridgeTransaction.sourceTxHash]: bridgeTransaction,
       },
+    });
+  }
+
+  private async saveBridgeState(updates: Partial<BridgeState>) {
+    this._bridgeState = {
+      ...this.bridgeState,
+      ...updates,
     };
-    this._bridgeState = nextBridgeState;
     await this.storageService.save(BRIDGE_STORAGE_KEY, this.bridgeState);
     this.eventEmitter.emit(
-      BridgeEvents.BRIDGE_TRANSACTIONS_UPDATED,
+      BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
       this.bridgeState
     );
   }
@@ -163,7 +155,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     this._bridgeState = { ...this.bridgeState, bridgeTransactions };
     await this.storageService.save(BRIDGE_STORAGE_KEY, this.bridgeState);
     this.eventEmitter.emit(
-      BridgeEvents.BRIDGE_TRANSACTIONS_UPDATED,
+      BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
       this.bridgeState
     );
   }
@@ -267,6 +259,29 @@ export class BridgeService implements OnLock, OnStorageReady {
   }
 
   private getEnv(isMainnet: boolean) {
-    return isMainnet ? Environment.PROD : Environment.TEST;
+    return isMainnet
+      ? Environment.PROD
+      : this.bridgeState.isDevEnv
+      ? Environment.DEV
+      : Environment.TEST;
+  }
+
+  /**
+   * Must be called after bridgeTransactions have been loaded from storage.
+   */
+  private async trackBridgeTransactionsFromStorage() {
+    const configs: { [env in Environment]?: BridgeConfig } = {};
+
+    Object.values(this.bridgeState.bridgeTransactions).forEach(
+      async (bridgeTransaction) => {
+        const env = this.getEnv(bridgeTransaction.environment === 'main');
+        let config = configs[env];
+        if (!config) {
+          config = await fetchConfig(env);
+          configs[env] = config;
+        }
+        this.trackBridgeTransaction(bridgeTransaction, config);
+      }
+    );
   }
 }

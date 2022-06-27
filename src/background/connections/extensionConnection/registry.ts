@@ -14,13 +14,14 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetTokenPriceHandler } from '@src/background/services/balances/handlers/getTokenPrice';
 import { BridgeConfigUpdatedEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
-import { BridgeTransactionUpdatedEvents } from '@src/background/services/bridge/events/bridgeTransactionsUpdateEvents';
+import { BridgeStateUpdateEvents } from '@src/background/services/bridge/events/bridgeStateUpdateEvents';
 import { BridgeTransferEvents } from '@src/background/services/bridge/events/bridgeTransferEvents';
 import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';
-import { BridgeGetTransactionsHandler } from '@src/background/services/bridge/handlers/getBridgeTransactions';
+import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
 import { BridgeGetEthereumBalancesHandler } from '@src/background/services/bridge/handlers/getEthereumBalances';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
+import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
 import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { ContactsUpdatedEvents } from '@src/background/services/contacts/events/contactsUpdatedEvent';
@@ -114,7 +115,8 @@ import { LedgerDiscoverTransportsEvents } from '@src/background/services/ledger/
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
-  { token: 'ExtensionRequestHandler', useToken: BridgeGetTransactionsHandler },
+  { token: 'ExtensionRequestHandler', useToken: BridgeGetStateHandler },
+  { token: 'ExtensionRequestHandler', useToken: BridgeSetIsDevEnvHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeGetEthereumBalancesHandler,
@@ -211,7 +213,7 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: NetworksUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: ContactsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeTransferEvents },
-  { token: 'ExtensionEventEmitter', useToken: BridgeTransactionUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: BridgeStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: SettingsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: PermissionStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },

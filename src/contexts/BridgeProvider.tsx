@@ -10,7 +10,7 @@ import { ChainId } from '@avalabs/chains-sdk';
 import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  bridgeTransactionsUpdatedEventListener,
+  isBridgeStateUpdateEventListener,
   isBridgeTransferEventListener,
 } from '@src/background/services/bridge/events/listeners';
 import {
@@ -45,6 +45,8 @@ interface BridgeContext {
     onStatusChange: (status: WrapStatus) => void,
     onTxHashChange: (txHash: string) => void
   ) => Promise<TransactionResponse>;
+  isBridgeDevEnv: boolean;
+  setIsBridgeDevEnv: (enabled: boolean) => void;
 }
 
 const bridgeContext = createContext<BridgeContext>({} as any);
@@ -82,20 +84,22 @@ function InnerBridgeProvider({ children }: { children: any }) {
   const [bridgeTransactions, setBridgeTransactions] = useState<
     BridgeState['bridgeTransactions']
   >({});
+  const [isBridgeDevEnv, setIsDevEnvInternal] = useState<boolean>(false);
+
   useEffect(() => {
     if (!events) {
       return;
     }
 
     request({
-      method: ExtensionRequest.BRIDGE_TRANSACTIONS_GET,
+      method: ExtensionRequest.BRIDGE_GET_STATE,
     }).then((txs) => {
       setBridgeState(deserializeBridgeState(txs));
     });
 
     const subscription = events()
       .pipe(
-        filter(bridgeTransactionsUpdatedEventListener),
+        filter(isBridgeStateUpdateEventListener),
         map((evt) => evt.value)
       )
       .subscribe((txs) => {
@@ -109,6 +113,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
     if (!network) return;
     const filteredState = filterBridgeStateToNetwork(bridgeState, network);
     setBridgeTransactions(filteredState.bridgeTransactions);
+    setIsDevEnvInternal(filteredState.isDevEnv);
   }, [bridgeState, network]);
 
   const createBridgeTransaction = useCallback<
@@ -134,6 +139,13 @@ function InnerBridgeProvider({ children }: { children: any }) {
     },
     [request]
   );
+
+  function setIsBridgeDevEnv(enabled: boolean) {
+    request({
+      method: ExtensionRequest.BRIDGE_SET_IS_DEV_ENV,
+      params: [enabled],
+    });
+  }
 
   async function transferAsset(
     amount: Big,
@@ -168,6 +180,8 @@ function InnerBridgeProvider({ children }: { children: any }) {
         transferAsset,
         removeBridgeTransaction,
         createBridgeTransaction,
+        isBridgeDevEnv,
+        setIsBridgeDevEnv,
       }}
     >
       {children}

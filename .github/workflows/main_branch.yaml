@@ -21,6 +21,7 @@ jobs:
       - name: Create env file
         run: |
           touch .env.production
+          echo RELEASE=alpha
           echo ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }} >> .env.production
           echo INFURA_API_KEY=${{ secrets.INFURA_KEY }} >> .env.production
           echo POSTHOG_KEY=${{ secrets.POSTHOG_DEV_KEY }} >> .env.production

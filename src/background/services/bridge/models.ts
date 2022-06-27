@@ -19,6 +19,7 @@ export interface BridgeState {
   bridgeTransactions: {
     [key: string]: BridgeTransaction;
   };
+  isDevEnv: boolean;
 }
 
 export type PartialBridgeTransaction = Pick<
@@ -33,7 +34,7 @@ export type PartialBridgeTransaction = Pick<
 
 export enum BridgeEvents {
   BRIDGE_CONFIG_UPDATE_EVENT = 'BRIDGE_CONFIG_UPDATE_EVENT',
-  BRIDGE_TRANSACTIONS_UPDATED = 'BRIDGE_TRANSACTIONS_UPDATED',
+  BRIDGE_STATE_UPDATE_EVENT = 'BRIDGE_STATE_UPDATE_EVENT',
   BRIDGE_TRANSFER_EVENT = 'BRIDGE_TRANSFER_EVENT',
 }
 
@@ -41,4 +42,5 @@ export const BRIDGE_STORAGE_KEY = 'bridge';
 
 export const DefaultBridgeState: BridgeState = {
   bridgeTransactions: {},
+  isDevEnv: false,
 };
