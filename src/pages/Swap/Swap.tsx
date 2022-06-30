@@ -547,9 +547,7 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
-              sendTokenSelectedAnalytics(
-                token.type === TokenType.ERC20 ? token.address : token.symbol
-              );
+              sendTokenSelectedAnalytics('Swap');
             }}
             onSelectToggle={() => {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
@@ -603,7 +601,7 @@ export function Swap() {
                 tokenValue: value,
                 destinationInputField: 'to',
               });
-              sendAmountEnteredAnalytics(value.amount);
+              sendAmountEnteredAnalytics('Swap');
             }}
             setIsOpen={setIsFromTokenSelectOpen}
           />
@@ -673,9 +671,7 @@ export function Swap() {
                 tokenValue: fromTokenValue,
                 destinationInputField,
               });
-              sendTokenSelectedAnalytics(
-                token.type === TokenType.ERC20 ? token.address : token.symbol
-              );
+              sendTokenSelectedAnalytics('Swap');
             }}
             onSelectToggle={() => {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
@@ -705,7 +701,7 @@ export function Swap() {
                 tokenValue: value,
                 destinationInputField: 'from',
               });
-              sendAmountEnteredAnalytics(value.amount);
+              sendAmountEnteredAnalytics('Swap');
             }}
             setIsOpen={setIsToTokenSelectOpen}
           />

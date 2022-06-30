@@ -177,7 +177,7 @@ export function Bridge() {
       inputAmount: bigValue,
     });
     setAmount(bigValue);
-    sendAmountEnteredAnalytics(value.amount);
+    sendAmountEnteredAnalytics('Bridge');
   };
 
   const handleBlockchainToggle = () => {
@@ -210,7 +210,7 @@ export function Bridge() {
       inputAmount: amount,
     });
     setCurrentAsset(symbol);
-    sendTokenSelectedAnalytics(symbol);
+    sendTokenSelectedAnalytics('Bridge');
   };
 
   const onTransferClicked = () => {

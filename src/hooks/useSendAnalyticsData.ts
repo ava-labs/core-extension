@@ -4,21 +4,18 @@ import { useCallback } from 'react';
 export function useSendAnalyticsData() {
   const { capture } = useAnalyticsContext();
   const sendTokenSelectedAnalytics = useCallback(
-    (token: string) => {
-      capture('_TokenSelected', {
-        selectedToken: token,
-      });
+    (functionality: string) => {
+      capture(`${functionality}_TokenSelected`);
     },
     [capture]
   );
   const sendAmountEnteredAnalytics = useCallback(
-    (amount: string) => {
-      capture('_AmountEntered', {
-        amount,
-      });
+    (functionality: string) => {
+      capture(`${functionality}_AmountEntered`);
     },
     [capture]
   );
+
   return {
     sendTokenSelectedAnalytics,
     sendAmountEnteredAnalytics,
