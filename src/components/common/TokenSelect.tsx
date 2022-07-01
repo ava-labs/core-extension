@@ -45,6 +45,7 @@ const DropdownContents = styled(VerticalFlex)`
   flex-grow: 1;
   background: ${({ theme }) => theme.swapCard.inputContainerBg};
   border-radius: 0 0 8px 8px;
+  z-index: 2;
 `;
 
 const SearchInputContainer = styled.div`
@@ -74,6 +75,7 @@ interface TokenSelectProps {
   margin?: string;
   padding?: string;
   label?: string;
+  selectorLabel?: string;
   tokensList?: TokenWithBalance[];
   bridgeTokensList?: AssetBalance[];
   isValueLoading?: boolean;
@@ -95,6 +97,7 @@ export function TokenSelect({
   margin,
   padding,
   label,
+  selectorLabel,
   isValueLoading,
   hideErrorMessage,
   onError,
@@ -171,9 +174,7 @@ export function TokenSelect({
           {label ?? 'Token'}
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
-          {selectedToken?.balanceDisplayValue &&
-            selectedToken &&
-            `Balance: ${selectedToken.balanceDisplayValue} ${selectedToken.symbol}`}
+          Balance: {selectedToken?.balanceDisplayValue ?? '0'}
         </Typography>
       </HorizontalFlex>
       <SelectContainer>
@@ -201,6 +202,7 @@ export function TokenSelect({
                 : null
             }
             hideCaretIcon={hideTokenDropdown}
+            label={selectorLabel ?? 'Select'}
           />
           <BNInput
             value={
@@ -220,7 +222,7 @@ export function TokenSelect({
                 ? 'Max'
                 : ''
             }
-            placeholder={'0.0'}
+            placeholder="0"
             width="180px"
             height="40px"
             disabled={!selectedToken || isValueLoading}

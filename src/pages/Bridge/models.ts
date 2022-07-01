@@ -1,4 +1,4 @@
-import { Asset } from '@avalabs/bridge-sdk';
+import { Asset, Blockchain } from '@avalabs/bridge-sdk';
 import Big from 'big.js';
 
 export interface AssetBalance {
@@ -9,3 +9,10 @@ export interface AssetBalance {
   logoUri?: string;
   price?: number;
 }
+
+export const blockchainDisplayNameMap = new Map([
+  [Blockchain.AVALANCHE, 'Avalanche C-Chain'],
+  [Blockchain.ETHEREUM, 'Ethereum'],
+  [Blockchain.BITCOIN, 'Bitcoin'],
+  [Blockchain.UNKNOWN, ''],
+]);
