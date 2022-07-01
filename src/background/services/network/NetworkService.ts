@@ -150,16 +150,18 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._developerModeChanges.dispatch(this._isDeveloperMode);
 
     this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
-      activeNetworkId: selectedNetwork.chainId || null,
+      activeNetworkId: selectedNetwork?.chainId || null,
       isDeveloperMode: this.isDeveloperMode,
     });
   }
 
   async getAvalancheNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
-    return this._isDeveloperMode
+    const network = this._isDeveloperMode
       ? activeNetworks[ChainId.AVALANCHE_TESTNET_ID]
       : activeNetworks[ChainId.AVALANCHE_MAINNET_ID];
+    if (!network) throw new Error('Avalanche network not found');
+    return network;
   }
 
   async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {

@@ -10,7 +10,7 @@ export function useCurrentDomain() {
       currentWindow: true,
     });
 
-    if (currentTab.url) {
+    if (currentTab?.url) {
       const { hostname } = new URL(currentTab.url);
       setDomain(hostname);
     } else {

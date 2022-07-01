@@ -70,7 +70,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
     if (!domain || !address) {
       return false;
     }
-    const domainData: DappPermissions = permissionState[domain];
+    const domainData = permissionState[domain];
     if (!domainData?.accounts) {
       return false;
     }

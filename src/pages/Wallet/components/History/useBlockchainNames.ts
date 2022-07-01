@@ -26,7 +26,7 @@ export function useBlockchainNames(item: TxHistoryItem | BridgeTransaction) {
 }
 
 function titleCase(name: string) {
-  return name[0].toUpperCase() + name.slice(1);
+  return (name[0] || '').toUpperCase() + name.slice(1);
 }
 
 function isBridgeTransaction(

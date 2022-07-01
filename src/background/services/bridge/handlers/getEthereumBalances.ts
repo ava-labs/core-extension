@@ -17,6 +17,7 @@ import Big from 'big.js';
 import { ChainId } from '@avalabs/chains-sdk';
 import { TokenPricesService } from '../../balances/TokenPricesService';
 import { SettingsService } from '../../settings/SettingsService';
+import { BIG_ZERO } from '@avalabs/utils-sdk';
 
 @injectable()
 export class BridgeGetEthereumBalancesHandler
@@ -79,8 +80,7 @@ export class BridgeGetEthereumBalancesHandler
         | undefined;
     } = {};
 
-    for (const symbol in assets) {
-      const asset = assets[symbol];
+    Object.entries(assets).forEach(([symbol, asset]) => {
       const price =
         asset.assetType === AssetType.NATIVE
           ? nativeTokenPrice
@@ -89,11 +89,11 @@ export class BridgeGetEthereumBalancesHandler
           : undefined;
 
       balances[symbol] = {
-        balance: ethereumBalancesBySymbol?.[symbol],
+        balance: ethereumBalancesBySymbol?.[symbol] || BIG_ZERO,
         logoUri: logosBySymbol[symbol],
         price,
       };
-    }
+    });
 
     return {
       ...request,

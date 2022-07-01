@@ -50,7 +50,7 @@ export async function swapExactTokensForTokenHandler(
       );
 
       if (
-        pathToken.address.toLowerCase() === firstTokenInPath.toLowerCase() &&
+        pathToken.address.toLowerCase() === firstTokenInPath?.toLowerCase() &&
         pathToken.decimals
       ) {
         const amount: BigNumber =
@@ -74,7 +74,7 @@ export async function swapExactTokensForTokenHandler(
       }
 
       if (
-        pathToken.address.toLowerCase() === lastTokenInPath.toLowerCase() &&
+        pathToken.address.toLowerCase() === lastTokenInPath?.toLowerCase() &&
         pathToken.decimals
       ) {
         const amount = data.amountOutMin || data.amountOut || data.amountOutMax;

@@ -185,7 +185,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   useEffect(() => {
     const subscription = of([initialized])
       .pipe(
-        filter(([initialized]) => initialized),
+        filter(([initialized]) => !!initialized),
         switchMap(() => getLedgerTransport()),
         switchMap((transport) => initLedgerApp(transport)),
         switchMap((ledgerApp) =>

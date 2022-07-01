@@ -172,10 +172,16 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
 
       if ((allowance as BigNumber).lt(sourceAmount)) {
         const [approveGasLimit] = await resolve(
-          contract.estimateGas.approve(spender, sourceAmount)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          contract.estimateGas.approve!(spender, sourceAmount)
         );
 
         if (!(allowance as BigNumber).gte(sourceAmount)) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const { data } = await contract.populateTransaction.approve!(
+            spender,
+            sourceAmount
+          );
           const [signedTx, signError] = await resolve(
             this.walletService.sign({
               nonce: await provider.getTransactionCount(userAddress),
@@ -184,12 +190,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
               gasLimit: approveGasLimit
                 ? approveGasLimit.toNumber()
                 : Number(gasLimit),
-              data: (
-                await contract.populateTransaction.approve(
-                  spender,
-                  sourceAmount
-                )
-              ).data,
+              data,
               to: srcTokenAddress,
             })
           );

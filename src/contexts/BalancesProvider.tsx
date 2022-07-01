@@ -145,12 +145,13 @@ export function useBalancesContext() {
   return useContext(BalancesContext);
 }
 
+// TODO remove after serialization layer is in place
 function deserializeBalances(balances: SerializedBalances): Balances {
   return Object.keys(balances).reduce<Balances>((deserialized, networkId) => {
     const balancesForNetwork = balances?.[networkId] || {};
     deserialized[networkId] = Object.keys(balancesForNetwork).reduce(
       (acc, account) => {
-        acc[account] = balancesForNetwork[account].map((balance) => ({
+        acc[account] = balancesForNetwork[account]?.map((balance) => ({
           ...balance,
           balance: hexToBN(balance.balance),
         }));

@@ -63,6 +63,13 @@ export class UpdateTransactionHandler implements ExtensionRequestHandler {
       await this.transactionsService.getTransactions();
     const pendingTx = currentPendingTransactions[update.id];
 
+    if (!pendingTx) {
+      return {
+        ...request,
+        error: 'Cannot find transaction',
+      };
+    }
+
     if (update.status === TxStatus.SUBMITTING) {
       const gasPrice = await this.networkFeeService.getNetworkFee();
       const network = await this.networkService.activeNetwork.promisify();

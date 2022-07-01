@@ -12,7 +12,7 @@ type ContactsFromProvider = ContactsState & {
   createContact(contact: Contact): Promise<any>;
   removeContact(contact: Contact): Promise<any>;
   updateContact(contact: Contact): Promise<any>;
-  getContactById(contactId: string): Contact;
+  getContactById(contactId: string): Contact | undefined;
 };
 
 const ContactsContext = createContext<ContactsFromProvider>({} as any);

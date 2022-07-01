@@ -111,8 +111,12 @@ export function TokenSelect({
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
 
+  const decimals = selectedToken?.decimals || 18;
+
   // Stringify maxAmount for referential equality in useEffect
-  const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
+  const maxAmountString = maxAmount
+    ? bnToLocaleString(maxAmount, decimals)
+    : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
 
   const handleAmountChange = useCallback(
@@ -132,26 +136,27 @@ export function TokenSelect({
     const formattedAmount =
       inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
         ? currencyFormatter(
-            Number(bnToLocaleString(inputAmount, selectedToken.decimals)) *
+            Number(bnToLocaleString(inputAmount, decimals)) *
               selectedToken.priceUSD
           )
         : undefined;
     setAmountInCurrency(formattedAmount);
-  }, [
-    currencyFormatter,
-    inputAmount,
-    selectedToken?.decimals,
-    selectedToken?.priceUSD,
-  ]);
+  }, [currencyFormatter, inputAmount, decimals, selectedToken?.priceUSD]);
 
   // When setting to the max, pin the input value to the max value
   useEffect(() => {
     if (!isMaxAmount || !maxAmountString || skipHandleMaxAmount) return;
     handleAmountChange({
       amount: maxAmountString,
-      bn: numberToBN(maxAmountString, 18),
+      bn: numberToBN(maxAmountString, decimals),
     });
-  }, [maxAmountString, handleAmountChange, isMaxAmount, skipHandleMaxAmount]);
+  }, [
+    maxAmountString,
+    handleAmountChange,
+    isMaxAmount,
+    skipHandleMaxAmount,
+    decimals,
+  ]);
 
   return (
     <VerticalFlex width="100%" style={{ margin }}>
@@ -206,7 +211,7 @@ export function TokenSelect({
             max={
               !isValueLoading ? maxAmount || selectedToken?.balance : undefined
             }
-            denomination={selectedToken?.decimals || 9}
+            denomination={decimals}
             buttonContent={
               !isValueLoading &&
               maxAmount &&

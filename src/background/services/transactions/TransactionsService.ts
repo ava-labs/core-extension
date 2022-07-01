@@ -100,7 +100,7 @@ export class TransactionsService {
         erc20Tokens: tokens.filter(
           (t): t is TokenWithBalanceERC20 => t.type === TokenType.ERC20
         ),
-        avaxPrice: nativeToken[0].priceUSD || 0,
+        avaxPrice: nativeToken[0]?.priceUSD || 0,
         avaxToken: nativeToken[0] as NetworkTokenWithBalance,
         site: site ?? {
           domain: '',
@@ -185,11 +185,14 @@ export class TransactionsService {
     const tx = currentPendingTxs[update.id];
 
     if (isTxParamsUpdate(update)) {
-      await this.saveTransactions({
-        ...currentPendingTxs,
-        ...updatePendingTxParams(update, tx),
-      });
+      if (tx) {
+        await this.saveTransactions({
+          ...currentPendingTxs,
+          ...updatePendingTxParams(update, tx),
+        });
+      }
     } else if (
+      tx &&
       isTxStatusUpdate(tx) &&
       update.status !== TxStatus.SIGNED &&
       update.status !== TxStatus.ERROR &&
@@ -199,7 +202,7 @@ export class TransactionsService {
         ...currentPendingTxs,
         ...updateTxStatus(update, tx),
       });
-    } else if (isTxFinalizedUpdate({ ...tx, ...update })) {
+    } else if (tx && isTxFinalizedUpdate({ ...tx, ...update })) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [`${update.id}`]: _removed, ...txs } = currentPendingTxs;
       await this.saveTransactions(txs);

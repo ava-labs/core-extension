@@ -43,7 +43,7 @@ export async function findToken(
 
   const token = balancesService.balances[activeNetwork.chainId]?.[
     accountsService.activeAccount.addressC
-  ].find(
+  ]?.find(
     (t) =>
       t.type === TokenType.ERC20 &&
       t.address.toLowerCase() === address.toLowerCase()

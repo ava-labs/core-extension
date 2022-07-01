@@ -236,11 +236,13 @@ export function WalletRecentTxs({
               )}
 
             {filteredTxHistory.map((tx, index) => {
+              const previousTx = filteredTxHistory[index - 1];
               const isNewDay =
                 index === 0 ||
+                !previousTx ||
                 !isSameDay(
                   new Date(tx.timestamp),
-                  new Date(filteredTxHistory[index - 1]?.timestamp)
+                  new Date(previousTx.timestamp)
                 );
               return (
                 <Fragment key={index}>

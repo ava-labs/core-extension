@@ -109,14 +109,16 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async setAccountName(index: number, name: string) {
-    if (!this.accounts[index]) {
-      throw new Error(`Account widh index ${index} not found`);
+    const account = this.accounts[index];
+    if (!account) {
+      throw new Error(`Account with index ${index} not found`);
     }
 
     const storageAccounts = await this.loadAccounts();
 
-    storageAccounts[index].name = name;
-    this.accounts[index].name = name;
+    const storedAccount = storageAccounts[index];
+    if (storedAccount) storedAccount.name = name;
+    account.name = name;
 
     await this.saveAccounts(storageAccounts);
 

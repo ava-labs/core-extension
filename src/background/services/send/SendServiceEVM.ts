@@ -185,7 +185,8 @@ export class SendServiceEVM implements SendServiceHelper {
       ERC20.abi,
       provider
     );
-    const populatedTransaction = await contract.populateTransaction.transfer(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const populatedTransaction = await contract.populateTransaction.transfer!(
       sendState.address,
       sendState.amount
         ? bnToEthersBigNumber(sendState.amount)
@@ -207,9 +208,10 @@ export class SendServiceEVM implements SendServiceHelper {
       ERC721.abi,
       provider
     );
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const populatedTransaction = await contract.populateTransaction[
       'safeTransferFrom(address,address,uint256)'
-    ](this.fromAddress, sendState.address, sendState.token?.tokenId);
+    ]!(this.fromAddress, sendState.address, sendState.token?.tokenId);
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction, // only includes `to` and `data`
       from: this.fromAddress,
