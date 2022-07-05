@@ -14,8 +14,8 @@ const NftImage = styled(ImageWithFallback)<{
   hasBorderRadius?: boolean;
 }>`
   width: ${({ width }) => width ?? '32px'};
-  max-width: ${({ maxWidth }) => maxWidth ?? 'unset'};
   height: ${({ height }) => height ?? '32px'};
+  max-width: ${({ maxWidth }) => maxWidth ?? 'unset'};
   max-height: ${({ maxHeight }) => maxHeight ?? 'unset'};
   border: 1px solid ${({ theme }) => `${theme.colors.bg1}1A`};
   box-sizing: border-box;
@@ -117,10 +117,10 @@ export function CollectibleMedia({
           <NftImage
             width={width}
             height={height}
+            src={url}
             maxWidth={maxWidth}
             maxHeight={maxHeight}
             hover={hover}
-            src={url}
             hasBorderRadius={!isImageFullScreen}
           />
         </ImageWrapper>
