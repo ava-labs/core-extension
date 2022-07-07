@@ -52,7 +52,7 @@ export function WalletLocked({
 
   const onImportClick = () => {
     showDialog({
-      title: 'Have you written down your recovery phrase?',
+      title: 'Have you Written Down your Recovery Phrase?',
       body: 'Pressing yes will terminate this session, without your phrase you will not be able to access the current wallet',
       confirmText: 'Yes',
       width: '343px',
@@ -133,7 +133,7 @@ export function WalletLocked({
       </PrimaryButton>
       <HorizontalSeparator margin="24px 0 8px" />
       <TextButton height="40px" onClick={() => onImportClick()}>
-        Import a wallet using recovery phrase
+        Reset Secret Recovery Phrase
       </TextButton>
     </VerticalFlex>
   );

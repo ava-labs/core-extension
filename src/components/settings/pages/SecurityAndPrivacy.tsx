@@ -149,7 +149,7 @@ export function SecurityAndPrivacy({
         onClick={() => onLogoutClick()}
       >
         <Typography color={theme.colors.primary1} size={14} height="17px">
-          Sign Out
+          Reset Secret Recovery Phrase
         </Typography>
       </SecondaryDropDownMenuItem>
     </VerticalFlex>
