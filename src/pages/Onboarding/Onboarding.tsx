@@ -8,7 +8,6 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { Card, HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { Logo } from '@src/components/icons/Logo';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
-import { ChooseExistingType } from './ChooseExistingType';
 import { LedgerConnect } from './LedgerConnect';
 import { LedgerTrouble } from './LedgerTrouble';
 import { BrandName } from '@src/components/icons/BrandName';
@@ -27,7 +26,7 @@ export function Onboarding() {
   async function handleOnCancel() {
     capture('OnboardingCancelled', { step: nextPhase });
     setIsImportFlow(false);
-    await setNextPhase(OnboardingPhase.RESTART);
+    setNextPhase(OnboardingPhase.RESTART);
   }
   useEffect(() => {
     if (
@@ -52,17 +51,27 @@ export function Onboarding() {
 
   let content = (
     <Welcome
-      onNext={(isExisting) => {
-        capture(
-          isExisting
-            ? 'OnboardingImportWalletSelected'
-            : 'OnboardingCreateNewWalletSelected'
-        );
-        setNextPhase(
-          isExisting
-            ? OnboardingPhase.EXISTING
-            : OnboardingPhase.ANALYTICS_CONSENT
-        );
+      onNext={(nextPhase) => {
+        const eventNames = {
+          [OnboardingPhase.ANALYTICS_CONSENT]:
+            'OnboardingCreateNewWalletSelected',
+          [OnboardingPhase.IMPORT_WALLET]: 'OnboardingImportMnemonicSelected',
+          [OnboardingPhase.LEDGER]: 'OnboardingImportLedgerSelected',
+        };
+        capture(eventNames[nextPhase]);
+        setNextPhase(nextPhase);
+        if (nextPhase === OnboardingPhase.ANALYTICS_CONSENT) {
+          setIsImportFlow(false);
+          setIsLedgerFlow(false);
+          return;
+        }
+        if (nextPhase === OnboardingPhase.LEDGER) {
+          setIsLedgerFlow(true);
+          setIsImportFlow(false);
+          return;
+        }
+        setIsLedgerFlow(false);
+        setIsImportFlow(true);
       }}
     />
   );
@@ -76,35 +85,8 @@ export function Onboarding() {
         />
       );
       break;
-    case OnboardingPhase.EXISTING:
-      content = (
-        <ChooseExistingType
-          onNext={(isRecovery) => {
-            capture(
-              isRecovery
-                ? 'OnboardingImportMnemonicSelected'
-                : 'OnboardingImportLedgerSelected'
-            );
-            setIsImportFlow(isRecovery);
-            setNextPhase(
-              isRecovery
-                ? OnboardingPhase.IMPORT_WALLET
-                : OnboardingPhase.LEDGER
-            );
-            setIsLedgerFlow(!isRecovery);
-          }}
-          onBack={handleOnCancel}
-          onCancel={handleOnCancel}
-        />
-      );
-      break;
     case OnboardingPhase.IMPORT_WALLET:
-      content = (
-        <Import
-          onCancel={handleOnCancel}
-          onBack={() => setNextPhase(OnboardingPhase.EXISTING)}
-        />
-      );
+      content = <Import onCancel={handleOnCancel} onBack={handleOnCancel} />;
       break;
     case OnboardingPhase.PASSWORD:
       content = (
@@ -119,7 +101,7 @@ export function Onboarding() {
       content = (
         <LedgerConnect
           onCancel={handleOnCancel}
-          onBack={() => setNextPhase(OnboardingPhase.EXISTING)}
+          onBack={handleOnCancel}
           onNext={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
           onError={() => setNextPhase(OnboardingPhase.LEDGER_TROUBLE)}
         />

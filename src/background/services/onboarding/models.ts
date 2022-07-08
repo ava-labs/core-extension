@@ -12,7 +12,6 @@ export enum OnboardingPhase {
   FINALIZE = 'finalize',
   RESTART = 'restart',
   LEDGER = 'ledger',
-  EXISTING = 'existing',
   LEDGER_TROUBLE = 'ledger_trouble',
   ANALYTICS_CONSENT = 'analytics_consent',
 }
