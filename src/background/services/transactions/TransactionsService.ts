@@ -153,10 +153,8 @@ export class TransactionsService {
 
       const networkMetaData = this.networkService.activeNetwork
         ? {
-            metamaskNetworkId:
-              // not sure this is the right value as it was networkId, let me know in the PR
-              activeNetwork.platformChainId,
-            chainId: activeNetwork.chainId as any,
+            metamaskNetworkId: activeNetwork.chainId.toString(),
+            chainId: activeNetwork.chainId.toString(),
           }
         : { metamaskNetworkId: '', chainId: '' };
 
