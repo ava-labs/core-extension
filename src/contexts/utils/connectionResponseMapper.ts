@@ -1,3 +1,4 @@
+import { isDevelopment } from '@src/utils/environment';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { firstValueFrom, Subject } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
@@ -54,10 +55,10 @@ export function requestEngine(
       id: `${request.method}-${Math.floor(Math.random() * 10000000)}`,
     };
     const response = connectionRequest(requestWithId);
-    requestLog('Extension Request', requestWithId);
+    isDevelopment() && requestLog('Extension Request', requestWithId);
     connection.postMessage(requestWithId);
     response.then((res) => {
-      responseLog('Extension Response', res);
+      isDevelopment() && responseLog('Extension Response', res);
       return res;
     });
     return response;

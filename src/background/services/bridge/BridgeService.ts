@@ -61,16 +61,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     });
   }
 
-  onStorageReady(): void {
-    this.activate();
-  }
-
-  onLock() {
-    this._bridgeState = DefaultBridgeState;
-    this.config = undefined;
-  }
-
-  async activate() {
+  async onStorageReady(): Promise<void> {
     this._bridgeState = deserializeBridgeState(
       (await this.storageService.load<BridgeState>(BRIDGE_STORAGE_KEY)) ??
         DefaultBridgeState
@@ -82,6 +73,11 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     await this.updateBridgeConfig();
     this.trackBridgeTransactionsFromStorage();
+  }
+
+  onLock() {
+    this._bridgeState = DefaultBridgeState;
+    this.config = undefined;
   }
 
   async setIsDevEnv(enabled: boolean) {

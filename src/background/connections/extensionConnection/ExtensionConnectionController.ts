@@ -91,7 +91,9 @@ export class ExtensionConnectionController implements ConnectionController {
   }
 
   private onEvent(evt: ExtensionConnectionEvent) {
-    eventLog(`extension event (${evt.name})`, evt);
+    if (isDevelopment()) {
+      eventLog(`extension event (${evt.name})`, evt);
+    }
     try {
       this.connection?.postMessage(evt);
     } catch (e) {

@@ -14,7 +14,7 @@ export async function encrypt(
   encryptionKey: string,
   derive = true
 ): Promise<{ cypher: Uint8Array; nonce: Uint8Array; salt: Uint8Array }> {
-  const salt = window.crypto.getRandomValues(new Uint8Array(16));
+  const salt = crypto.getRandomValues(new Uint8Array(16));
   const key =
     derive || encryptionKey.length !== 32
       ? await deriveKey(encryptionKey, salt)
@@ -54,6 +54,6 @@ export async function decrypt(
 }
 
 export async function generateKey(password: string) {
-  const salt = window.crypto.getRandomValues(new Uint8Array(16));
+  const salt = crypto.getRandomValues(new Uint8Array(16));
   return await deriveKey(password, salt);
 }

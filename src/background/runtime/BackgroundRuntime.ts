@@ -23,7 +23,6 @@ export class BackgroundRuntime {
     this.connectionService.activate();
     this.lockService.activate();
     this.onboardingService.activate();
-    this.bridgeService.activate();
   }
 
   private onInstalled() {
