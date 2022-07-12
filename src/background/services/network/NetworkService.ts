@@ -26,7 +26,7 @@ import {
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 import { resolve } from '@avalabs/utils-sdk';
-import { InfuraProvider } from '@ethersproject/providers';
+import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -177,10 +177,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getEthereumProvider() {
     const network = await this.getEthereumNetwork();
-    return new InfuraProvider(
-      network.isTestnet ? 'rinkeby' : 'homestead',
-      process.env.INFURA_API_KEY
-    );
+    return this.getProviderForNetwork(network) as JsonRpcBatchInternal;
   }
 
   async getBitcoinNetwork(): Promise<Network> {
@@ -198,7 +195,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     if (network.vmName === NetworkVMType.BITCOIN) {
       return new BlockCypherProvider(
         !network.isTestnet,
-        undefined,
+        process.env.GLACIER_API_KEY,
         `${process.env.GLACIER_URL}/proxy/blockcypher`
       );
     } else if (network.vmName === NetworkVMType.EVM) {
@@ -207,7 +204,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           maxCalls: 40,
           multiContractAddress: network.utilityAddresses?.multicall,
         },
-        network.rpcUrl,
+        addGlacierAPIKeyIfNeeded(network.rpcUrl),
         network.chainId
       );
 
