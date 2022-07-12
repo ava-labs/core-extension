@@ -79,9 +79,14 @@ export function SettingsContextProvider({ children }: { children: any }) {
     const formatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: settings?.currency ?? 'USD',
+      currencyDisplay: 'narrowSymbol',
     });
 
-    return formatter.format.bind(formatter);
+    return (amount: number) =>
+      formatter
+        .format(amount)
+        .replace(settings?.currency || '', '')
+        .trim() + ` ${settings?.currency}`;
   }, [settings?.currency]);
 
   function lockWallet() {
