@@ -1,7 +1,7 @@
 import * as H from 'history';
 
 export interface NavigationHistoryDataState {
-  [key: string]: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export type NavigationHistoryState = H.History<unknown> | Record<string, never>;

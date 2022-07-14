@@ -1,3 +1,5 @@
+import { deserialize } from '@src/background/serialization/deserialize';
+import { serialize } from '@src/background/serialization/serialize';
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
 import {
   decrypt,
@@ -63,7 +65,7 @@ export class StorageService {
     }
 
     const encryptedData = await encrypt(
-      JSON.stringify(data),
+      JSON.stringify(serialize(data)),
       encryptionKey,
       !!customEncryptionKey
     );
@@ -104,7 +106,7 @@ export class StorageService {
       Uint8Array.from(encryptedData.nonce)
     );
 
-    return JSON.parse(data) as T;
+    return deserialize(JSON.parse(data)) as T;
   }
 
   async saveUnencrypted<T>(key: string, data: T) {

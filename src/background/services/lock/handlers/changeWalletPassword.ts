@@ -1,37 +1,23 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { LockService } from '../LockService';
 import { injectable } from 'tsyringe';
+import { LockService } from '../LockService';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.LOCK_CHANGE_PASSWORD,
+  true,
+  [newPassword: string, oldPassword: string]
+>;
 
 @injectable()
-export class LockChangePasswordHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.LOCK_CHANGE_PASSWORD];
+export class LockChangePasswordHandler implements HandlerType {
+  method = ExtensionRequest.LOCK_CHANGE_PASSWORD as const;
 
   constructor(private lockService: LockService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const [newPassword, oldPassword] = request.params || [];
-
-    if (!newPassword) {
-      return {
-        ...request,
-        error: 'new password missing for request',
-      };
-    }
-
-    if (!oldPassword) {
-      return {
-        ...request,
-        error: 'old password missing for request',
-      };
-    }
+  handle: HandlerType['handle'] = async (request) => {
+    const [newPassword, oldPassword] = request.params;
 
     if (oldPassword === newPassword) {
       return {

@@ -1,25 +1,28 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
+import { DeviceResponseData } from '../models';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.LEDGER_RESPONSE,
+  true,
+  [response: DeviceResponseData]
+>;
 
 @injectable()
-export class LedgerResponseHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.LEDGER_RESPONSE];
+export class LedgerResponseHandler implements HandlerType {
+  method = ExtensionRequest.LEDGER_RESPONSE as const;
 
   constructor(private ledgerService: LedgerService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const params = request.params;
-    this.ledgerService.ledgerResponse(params?.[0]);
+
+  handle: HandlerType['handle'] = async (request) => {
+    const [response] = request.params;
+    this.ledgerService.ledgerResponse(response);
 
     return {
       ...request,
+      result: true,
     };
   };
 }

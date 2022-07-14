@@ -1,18 +1,20 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { browser } from 'webextension-polyfill-ts';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { OnboardingService } from '../../onboarding/OnboardingService';
 import { StorageService } from '../StorageService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.RESET_EXTENSION_STATE,
+  true,
+  [openOnboarding: boolean]
+>;
+
 @injectable()
-export class ResetExtensionStateHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.RESET_EXTENSION_STATE];
+export class ResetExtensionStateHandler implements HandlerType {
+  method = ExtensionRequest.RESET_EXTENSION_STATE as const;
 
   constructor(
     private storageService: StorageService,
@@ -20,10 +22,8 @@ export class ResetExtensionStateHandler implements ExtensionRequestHandler {
     private analyticsService: AnalyticsService
   ) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const [openOnboarding] = request.params || [];
+  handle: HandlerType['handle'] = async (request) => {
+    const [openOnboarding] = request.params;
 
     const deviceId = await this.analyticsService.getUnencryptedDeviceId();
 

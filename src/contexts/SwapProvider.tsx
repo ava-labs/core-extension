@@ -4,6 +4,8 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { APIError } from 'paraswap';
 import { BigNumber } from 'ethers';
+import { PerformSwapHandler } from '@src/background/services/swap/handlers/performSwap';
+import { GetSwapRateHandler } from '@src/background/services/swap/handlers/getSwapRate';
 
 const SwapContext = createContext<{
   getRate(
@@ -11,8 +13,8 @@ const SwapContext = createContext<{
     srcDecimals: number,
     destTokenAddress: string,
     destDecimals: number,
-    amount?: string,
-    swapSide?: SwapSide
+    amount: string,
+    swapSide: SwapSide
   ): Promise<{
     optimalRate: OptimalRate | APIError;
     destAmount: string | undefined;
@@ -28,7 +30,10 @@ const SwapContext = createContext<{
     gasLimit: number,
     gasPrice: BigNumber,
     slippage: number
-  ): Promise<string>;
+  ): Promise<{
+    swapTxHash: string;
+    approveTxHash: string;
+  }>;
 }>({} as any);
 
 export function SwapContextProvider({ children }: { children: any }) {
@@ -40,10 +45,10 @@ export function SwapContextProvider({ children }: { children: any }) {
       srcDecimals: number,
       destTokenAddress: string,
       destDecimals: number,
-      amount?: string,
-      swapSide?: SwapSide
+      amount: string,
+      swapSide: SwapSide
     ) => {
-      return request({
+      return request<GetSwapRateHandler>({
         method: ExtensionRequest.SWAP_GET_RATE,
         params: [
           srcTokenAddr,
@@ -71,7 +76,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       gasPrice: BigNumber,
       slippage: number
     ) => {
-      return request({
+      return request<PerformSwapHandler>({
         method: ExtensionRequest.SWAP_PERFORM,
         params: [
           srcTokenAddr,

@@ -1,6 +1,6 @@
 import {
   ExtensionConnectionEvent,
-  ExtensionConnectionMessage,
+  RequestHandlerType,
 } from '@src/background/connections/models';
 import {
   createContext,
@@ -25,15 +25,18 @@ const activeRequestEngine = requestEngineSignal
   .readOnly();
 const eventsHandler = new Subject<ExtensionConnectionEvent>();
 
-type RequestHandlerType = <T = any>(
-  message: Omit<ExtensionConnectionMessage, 'id'>
-) => Promise<T>;
-
-const ConnectionContext = createContext<{
+export interface ConnectionContextType {
+  /**
+   * Make a call to the background service worker.
+   * The `Handler` type argument is required and must be a reference to a class
+   * that implements `ExtensionRequestHandler`.
+   */
   request: RequestHandlerType;
   events<V = any>(): Observable<ExtensionConnectionEvent<V>>;
   connection?: Runtime.Port;
-}>({} as any);
+}
+
+const ConnectionContext = createContext<ConnectionContextType>({} as any);
 
 export function ConnectionContextProvider({ children }: { children: any }) {
   const [connection, setConnection] = useState<Runtime.Port>();
@@ -55,11 +58,9 @@ export function ConnectionContextProvider({ children }: { children: any }) {
   }, []);
 
   const requestHandler: RequestHandlerType = useCallback(
-    async function requestHandler<T = any>(
-      message: Omit<ExtensionConnectionMessage, 'id'>
-    ) {
+    async function requestHandler(message) {
       const activeEngine = await activeRequestEngine.promisify();
-      return activeEngine(message).then<T>((results) => {
+      return activeEngine(message).then<any>((results) => {
         return results.error ? Promise.reject(results.error) : results.result;
       });
     },

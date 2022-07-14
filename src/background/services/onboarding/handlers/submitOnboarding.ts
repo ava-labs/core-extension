@@ -1,10 +1,6 @@
 import { getXpubFromMnemonic } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -14,9 +10,23 @@ import { StorageService } from '../../storage/StorageService';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.ONBOARDING_SUBMIT,
+  true,
+  [
+    {
+      mnemonic: string | undefined;
+      xpub: string | undefined;
+      password: string;
+      accountName: string;
+      analyticsConsent: boolean;
+    }
+  ]
+>;
+
 @injectable()
-export class SubmitOnboardingHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.ONBOARDING_SUBMIT];
+export class SubmitOnboardingHandler implements HandlerType {
+  method = ExtensionRequest.ONBOARDING_SUBMIT as const;
 
   constructor(
     private onboardingService: OnboardingService,
@@ -28,23 +38,14 @@ export class SubmitOnboardingHandler implements ExtensionRequestHandler {
     private settingsService: SettingsService
   ) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const params = request.params;
-    if (!params) {
-      return {
-        ...request,
-        error: 'params missing from request',
-      };
-    }
+  handle: HandlerType['handle'] = async (request) => {
     const {
       mnemonic,
       xpub: xPubFromLedger,
       password,
       accountName,
       analyticsConsent,
-    } = params[0];
+    } = request.params[0];
 
     if (!mnemonic && !xPubFromLedger) {
       return {
@@ -55,7 +56,8 @@ export class SubmitOnboardingHandler implements ExtensionRequestHandler {
 
     await this.storageService.createStorageKey(password);
 
-    const xpub = xPubFromLedger || (await getXpubFromMnemonic(mnemonic));
+    const xpub =
+      xPubFromLedger || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
 
     if (xpub) {
       await this.walletService.init({ mnemonic, xpub });

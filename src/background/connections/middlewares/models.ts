@@ -13,7 +13,10 @@ export type Context = {
   request: ExtensionConnectionMessage;
   domainMetadata?: DomainMetadata;
   authenticated: boolean;
-  response?: ExtensionConnectionMessageResponse | typeof DEFERRED_RESPONSE;
+  response?:
+    | ExtensionConnectionMessage // DAPP requests
+    | ExtensionConnectionMessageResponse<any, any> // Connection requests
+    | typeof DEFERRED_RESPONSE;
 };
 
 export type Middleware = (

@@ -13,16 +13,18 @@ import {
   isBridgeStateUpdateEventListener,
   isBridgeTransferEventListener,
 } from '@src/background/services/bridge/events/listeners';
+import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
+import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
+import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
+import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
+import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import {
   BridgeState,
   DefaultBridgeState,
   PartialBridgeTransaction,
   TransferEventType,
 } from '@src/background/services/bridge/models';
-import {
-  deserializeBridgeState,
-  filterBridgeStateToNetwork,
-} from '@src/background/services/bridge/utils';
+import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
 import Big from 'big.js';
 import {
   createContext,
@@ -91,10 +93,10 @@ function InnerBridgeProvider({ children }: { children: any }) {
       return;
     }
 
-    request({
+    request<BridgeGetStateHandler>({
       method: ExtensionRequest.BRIDGE_GET_STATE,
     }).then((txs) => {
-      setBridgeState(deserializeBridgeState(txs));
+      setBridgeState(txs);
     });
 
     const subscription = events()
@@ -103,7 +105,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe((txs) => {
-        setBridgeState(deserializeBridgeState(txs));
+        setBridgeState(txs);
       });
 
     return () => subscription.unsubscribe();
@@ -119,10 +121,10 @@ function InnerBridgeProvider({ children }: { children: any }) {
   const createBridgeTransaction = useCallback<
     BridgeContext['createBridgeTransaction']
   >(
-    async (params) => {
-      await request({
+    async (bridgeTransaction) => {
+      await request<BridgeCreateTransactionHandler>({
         method: ExtensionRequest.BRIDGE_TRANSACTION_CREATE,
-        params: [params],
+        params: bridgeTransaction,
       });
     },
     [request]
@@ -132,7 +134,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
     BridgeContext['removeBridgeTransaction']
   >(
     async (txHash) => {
-      await request({
+      await request<BridgeRemoveTransactionHandler>({
         method: ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,
         params: [txHash],
       });
@@ -141,7 +143,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
   );
 
   function setIsBridgeDevEnv(enabled: boolean) {
-    request({
+    request<BridgeSetIsDevEnvHandler>({
       method: ExtensionRequest.BRIDGE_SET_IS_DEV_ENV,
       params: [enabled],
     });
@@ -164,7 +166,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
           : onTxHashChange(event.txHash);
       });
 
-    const result = await request({
+    const result = await request<BridgeTransferAssetHandler>({
       method: ExtensionRequest.BRIDGE_TRANSFER_ASSET,
       params: [currentBlockchain, amount, asset],
     });

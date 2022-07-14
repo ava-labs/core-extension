@@ -3,20 +3,14 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import {
   DAppRequestHandler,
   ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
 @injectable()
-export class GetIsDefaultExtensionHandler
-  implements ExtensionRequestHandler, DAppRequestHandler
-{
-  methods = [
-    ExtensionRequest.SETTINGS_GET_DEFAULT_EXTENSION,
-    DAppProviderRequest.GET_IS_DEFAULT_EXTENSION,
-  ];
+export class GetIsDefaultExtensionDAppHandler implements DAppRequestHandler {
+  methods = [DAppProviderRequest.GET_IS_DEFAULT_EXTENSION];
 
   constructor(private settingsService: SettingsService) {}
 
@@ -31,10 +25,20 @@ export class GetIsDefaultExtensionHandler
       result: !!settings.isDefaultExtension,
     };
   };
+}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    return await this.handleUnauthenticated(request);
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.SETTINGS_GET_DEFAULT_EXTENSION,
+  boolean
+>;
+
+@injectable()
+export class GetIsDefaultExtensionHandler implements HandlerType {
+  method = ExtensionRequest.SETTINGS_GET_DEFAULT_EXTENSION as const;
+
+  constructor(private dappHandler: GetIsDefaultExtensionDAppHandler) {}
+
+  handle: HandlerType['handle'] = async (request) => {
+    return await this.dappHandler.handleUnauthenticated(request);
   };
 }

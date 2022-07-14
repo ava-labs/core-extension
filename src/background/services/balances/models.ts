@@ -69,13 +69,3 @@ export interface Balances {
     | { [address: string]: TokenWithBalance[] }
     | undefined;
 }
-
-export interface SerializedBalances {
-  [networkId: string | number]:
-    | {
-        [address: string]: (Omit<TokenWithBalance, 'balance'> & {
-          balance: string;
-        })[];
-      }
-    | undefined;
-}

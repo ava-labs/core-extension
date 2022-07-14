@@ -1,29 +1,37 @@
 import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
   Assets,
   AssetType,
   Blockchain,
   EthereumConfigAsset,
   fetchTokenBalances,
 } from '@avalabs/bridge-sdk';
-import { NetworkService } from '../../network/NetworkService';
-import { injectable } from 'tsyringe';
-import Big from 'big.js';
 import { ChainId } from '@avalabs/chains-sdk';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
+import Big from 'big.js';
+import { injectable } from 'tsyringe';
 import { TokenPricesService } from '../../balances/TokenPricesService';
+import { NetworkService } from '../../network/NetworkService';
 import { SettingsService } from '../../settings/SettingsService';
 import { BIG_ZERO } from '@avalabs/utils-sdk';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.BRIDGE_GET_ETH_BALANCES,
+  {
+    [symbol: string]:
+      | {
+          balance: Big;
+          logoUri?: string | undefined;
+          price?: number | undefined;
+        }
+      | undefined;
+  },
+  [assets: Assets, account: string, deprecated: boolean]
+>;
+
 @injectable()
-export class BridgeGetEthereumBalancesHandler
-  implements ExtensionRequestHandler
-{
-  methods = [ExtensionRequest.BRIDGE_GET_ETH_BALANCES];
+export class BridgeGetEthereumBalancesHandler implements HandlerType {
+  method = ExtensionRequest.BRIDGE_GET_ETH_BALANCES as const;
 
   constructor(
     private networkService: NetworkService,
@@ -31,9 +39,7 @@ export class BridgeGetEthereumBalancesHandler
     private tokenPricesService: TokenPricesService
   ) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     const [assets, account, deprecated] = (request.params || []) as [
       assets: Assets,
       account: string,

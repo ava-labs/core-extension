@@ -1,30 +1,22 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { ActionsService } from '../ActionsService';
 import { ActionUpdate } from '../models';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.ACTION_UPDATE,
+  true,
+  [ActionUpdate]
+>;
+
 @injectable()
-export class UpdateActionHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.ACTION_UPDATE];
+export class UpdateActionHandler implements HandlerType {
+  method = ExtensionRequest.ACTION_UPDATE as const;
 
   constructor(private actionsService: ActionsService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const params = request.params;
-    if (!params) {
-      return {
-        ...request,
-        error: 'no params on request',
-      };
-    }
-
-    const { id, ...updates } = params[0] as ActionUpdate;
+  handle: HandlerType['handle'] = async (request) => {
+    const { id, ...updates } = request.params[0];
 
     if (!id) {
       return {

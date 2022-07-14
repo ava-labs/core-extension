@@ -14,6 +14,8 @@ import { bnToLocaleString, hexToBN } from '@avalabs/utils-sdk';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { UpdateTransactionHandler } from '@src/background/services/transactions/handlers/updateTransaction';
+import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -42,7 +44,7 @@ export function useGetTransaction(requestId: string) {
 
   const updateTransaction = useCallback(
     (update) => {
-      return request({
+      return request<UpdateTransactionHandler>({
         method: ExtensionRequest.TRANSACTIONS_UPDATE,
         params: [update],
       });
@@ -124,17 +126,11 @@ export function useGetTransaction(requestId: string) {
   );
 
   useEffect(() => {
-    request({
+    request<GetTransactionHandler>({
       method: ExtensionRequest.TRANSACTIONS_GET,
       params: [requestId],
-    }).then((tx: Transaction) => {
-      setTransaction({
-        ...tx,
-        displayValues: {
-          ...tx.displayValues,
-          gasPrice: ethers.BigNumber.from(tx.displayValues.gasPrice),
-        },
-      });
+    }).then((tx) => {
+      setTransaction(tx || null);
     });
     const subscriptions = new Subscription();
 

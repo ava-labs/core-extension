@@ -7,6 +7,10 @@ import {
   ContactsState,
 } from '@src/background/services/contacts/models';
 import { contactsUpdatedEventListener } from '@src/background/services/contacts/events/listeners';
+import { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
+import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
+import { UpdateContactHandler } from '@src/background/services/contacts/handlers/updateContact';
+import { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
 
 type ContactsFromProvider = ContactsState & {
   createContact(contact: Contact): Promise<any>;
@@ -25,11 +29,11 @@ export function ContactsContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     let isMounted = true;
-    request({
-      method: ExtensionRequest.CONTACTS_GET,
-    }).then((res) => {
-      isMounted && setContacts(res);
-    });
+    request<GetContactsHandler>({ method: ExtensionRequest.CONTACTS_GET }).then(
+      (res) => {
+        isMounted && setContacts(res);
+      }
+    );
 
     const subscription = events()
       .pipe(
@@ -54,21 +58,21 @@ export function ContactsContextProvider({ children }: { children: any }) {
       ...contact,
       id: crypto.randomUUID(),
     };
-    await request({
+    await request<CreateContactHandler>({
       method: ExtensionRequest.CONTACTS_CREATE,
       params: [contactCopy],
     });
   }
 
   async function updateContact(contact: Contact) {
-    await request({
+    await request<UpdateContactHandler>({
       method: ExtensionRequest.CONTACTS_UPDATE,
       params: [contact],
     });
   }
 
   async function removeContact(contact: Contact) {
-    await request({
+    await request<RemoveContactHandler>({
       method: ExtensionRequest.CONTACTS_REMOVE,
       params: [contact],
     });

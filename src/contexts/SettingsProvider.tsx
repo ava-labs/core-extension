@@ -1,11 +1,18 @@
 import { useThemeContext } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionConnectionMessageResponse } from '@src/background/connections/models';
 import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
+import { LockWalletHandler } from '@src/background/services/lock/handlers/lockWallet';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
+import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
+import { SetAnalyticsConsentHandler } from '@src/background/services/settings/handlers/setAnalyticsConsent';
+import { SetDefaultExtensionHandler } from '@src/background/services/settings/handlers/setAsDefaultExtension';
+import { UpdateCurrencyHandler } from '@src/background/services/settings/handlers/updateCurrencySelection';
+import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
+import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
+import { UpdateTokensVisiblityHandler } from '@src/background/services/settings/handlers/updateTokensVisibility';
 import {
   SettingsState,
   ThemeVariant,
@@ -22,16 +29,10 @@ import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 
 type SettingsFromProvider = SettingsState & {
-  lockWallet(): Promise<ExtensionConnectionMessageResponse<any>>;
-  updateCurrencySetting(
-    currency: string
-  ): Promise<ExtensionConnectionMessageResponse<any>>;
-  toggleShowTokensWithoutBalanceSetting(): Promise<
-    ExtensionConnectionMessageResponse<any>
-  >;
-  toggleTokenVisibility(
-    token: TokenWithBalance
-  ): Promise<ExtensionConnectionMessageResponse<any>>;
+  lockWallet(): Promise<true>;
+  updateCurrencySetting(currency: string): Promise<true>;
+  toggleShowTokensWithoutBalanceSetting(): Promise<true>;
+  toggleTokenVisibility(token: TokenWithBalance): Promise<true | undefined>;
   getTokenVisibility(token: TokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
   currencyFormatter(value: number): string;
@@ -47,7 +48,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   const [settings, setSettings] = useState<SettingsState>();
 
   useEffect(() => {
-    request({
+    request<GetSettingsHandler>({
       method: ExtensionRequest.SETTINGS_GET,
     }).then((res) => {
       setSettings(res);
@@ -90,31 +91,31 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }, [settings?.currency]);
 
   function lockWallet() {
-    return request({ method: ExtensionRequest.LOCK_WALLET });
+    return request<LockWalletHandler>({ method: ExtensionRequest.LOCK_WALLET });
   }
 
   function updateCurrencySetting(currency: string) {
-    return request({
+    return request<UpdateCurrencyHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_CURRENCY,
       params: [currency],
     });
   }
 
   function toggleShowTokensWithoutBalanceSetting() {
-    return request({
+    return request<UpdateShowNoBalanceHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_SHOW_NO_BALANCE,
       params: [!settings?.showTokensWithoutBalances],
     });
   }
 
-  function toggleTokenVisibility(token: TokenWithBalance) {
+  async function toggleTokenVisibility(token: TokenWithBalance) {
     if (token.type !== TokenType.ERC20) {
       return;
     }
 
     const key = token.address;
     const tokensVisibility = settings?.tokensVisibility ?? {};
-    return request({
+    return request<UpdateTokensVisiblityHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
       params: [
         {
@@ -138,7 +139,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   );
 
   function updateTheme(theme: ThemeVariant) {
-    return request({
+    return request<UpdateThemeHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
       params: [theme],
     });
@@ -149,14 +150,13 @@ export function SettingsContextProvider({ children }: { children: any }) {
    * @returns boolean state of isDefaultExtenion in settings state
    */
   function toggleIsDefaultExtension() {
-    return request({
+    return request<SetDefaultExtensionHandler>({
       method: ExtensionRequest.SETTINGS_SET_DEFAULT_EXTENSION,
-      params: [],
     });
   }
 
   function setAnalyticsConsent(consent: boolean) {
-    return request({
+    return request<SetAnalyticsConsentHandler>({
       method: ExtensionRequest.SETTINGS_SET_ANALYTICS_CONSENT,
       params: [consent],
     });

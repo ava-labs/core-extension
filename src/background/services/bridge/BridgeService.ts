@@ -25,7 +25,6 @@ import {
 import { TransactionResponse } from '@ethersproject/providers';
 import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
-import { deserializeBridgeState } from './utils';
 import { singleton } from 'tsyringe';
 import {
   OnLock,
@@ -62,10 +61,9 @@ export class BridgeService implements OnLock, OnStorageReady {
   }
 
   async onStorageReady(): Promise<void> {
-    this._bridgeState = deserializeBridgeState(
+    this._bridgeState =
       (await this.storageService.load<BridgeState>(BRIDGE_STORAGE_KEY)) ??
-        DefaultBridgeState
-    );
+      DefaultBridgeState;
     this.eventEmitter.emit(
       BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
       this.bridgeState

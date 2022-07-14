@@ -1,24 +1,23 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
+import { NavigationHistoryDataState } from '../models';
 import { NavigationHistoryService } from '../NavigationHistoryService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.NAVIGATION_HISTORY_DATA_SET,
+  NavigationHistoryDataState,
+  [NavigationHistoryDataState]
+>;
+
 @injectable()
-export class SetNavigationHistoryDataHandler
-  implements ExtensionRequestHandler
-{
-  methods = [ExtensionRequest.NAVIGATION_HISTORY_DATA_SET];
+export class SetNavigationHistoryDataHandler implements HandlerType {
+  method = ExtensionRequest.NAVIGATION_HISTORY_DATA_SET as const;
 
   constructor(private navigationHistoryService: NavigationHistoryService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const newData = request.params ? request.params[0] : {};
+  handle: HandlerType['handle'] = async (request) => {
+    const [newData] = request.params;
 
     await this.navigationHistoryService.setHistoryData(newData);
 

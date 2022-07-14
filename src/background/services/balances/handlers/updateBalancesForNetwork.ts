@@ -1,21 +1,21 @@
 import { Network } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { Account } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.NETWORK_BALANCES_UPDATE,
+  true,
+  [accounts?: Account[], networks?: Network[]] | undefined
+>;
+
 @injectable()
-export class UpdateBalancesForNetworkHandler
-  implements ExtensionRequestHandler
-{
-  methods = [ExtensionRequest.NETWORK_BALANCES_UPDATE];
+export class UpdateBalancesForNetworkHandler implements HandlerType {
+  method = ExtensionRequest.NETWORK_BALANCES_UPDATE as const;
 
   constructor(
     private networkBalancesService: BalanceAggregatorService,
@@ -23,15 +23,13 @@ export class UpdateBalancesForNetworkHandler
     private networkSerice: NetworkService
   ) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     const params = request.params || [];
 
     // if no account or network is defined default to the currently active one
     const [accounts, networks] = params;
 
-    const accountsToFetch: Account[] = accounts?.length
+    const accountsToFetch = accounts?.length
       ? accounts
       : this.accountsService.getAccounts();
 
@@ -42,7 +40,7 @@ export class UpdateBalancesForNetworkHandler
       };
     }
 
-    const networksToFetch: Network[] = networks?.length
+    const networksToFetch = networks?.length
       ? networks
       : Object.values(await this.networkSerice.activeNetworks.promisify());
     if (Object.keys(networksToFetch).length === 0) {

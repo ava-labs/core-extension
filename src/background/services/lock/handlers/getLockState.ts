@@ -1,21 +1,20 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { LockService } from '../LockService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.LOCK_GET_STATE,
+  boolean
+>;
+
 @injectable()
-export class GetLockStateHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.LOCK_GET_STATE];
+export class GetLockStateHandler implements HandlerType {
+  method = ExtensionRequest.LOCK_GET_STATE as const;
 
   constructor(private lockService: LockService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     return {
       ...request,
       result: this.lockService.locked,

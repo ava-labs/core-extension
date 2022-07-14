@@ -2,7 +2,14 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useEffect, useState } from 'react';
 import * as H from 'history';
-import { NavigationHistoryState } from '@src/background/services/navigationHistory/models';
+import {
+  NavigationHistoryDataState,
+  NavigationHistoryState,
+} from '@src/background/services/navigationHistory/models';
+import { SetNavigationHistoryDataHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistoryData';
+import { GetNavigationHistoryHandler } from '@src/background/services/navigationHistory/handlers/getNavigationHistory';
+import { SetNavigationHistoryHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistory';
+import { GetNavigationHistoryDataHandler } from '@src/background/services/navigationHistory/handlers/getNavigationHistoryData';
 
 export function usePageHistory() {
   const { request } = useConnectionContext();
@@ -10,8 +17,8 @@ export function usePageHistory() {
   const [historyState, setHistoryState] = useState<NavigationHistoryState>({});
 
   const setNavigationHistoryData = useCallback(
-    (data: Record<string, unknown>) => {
-      request({
+    (data: NavigationHistoryDataState) => {
+      request<SetNavigationHistoryDataHandler>({
         method: ExtensionRequest.NAVIGATION_HISTORY_DATA_SET,
         params: [data],
       });
@@ -20,7 +27,7 @@ export function usePageHistory() {
   );
 
   const getNavigationHistoryData = useCallback(() => {
-    request({
+    request<GetNavigationHistoryDataHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_DATA_GET,
     }).then((result) => {
       setHistoryDataState(result);
@@ -29,7 +36,7 @@ export function usePageHistory() {
 
   const setNavigationHistory = useCallback(
     (history: H.History<unknown>) => {
-      request({
+      request<SetNavigationHistoryHandler>({
         method: ExtensionRequest.NAVIGATION_HISTORY_SET,
         params: [history],
       });
@@ -38,7 +45,7 @@ export function usePageHistory() {
   );
 
   const getNavigationHistory = useCallback(() => {
-    request({
+    request<GetNavigationHistoryHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_GET,
     }).then((result) => {
       setHistoryState(result);

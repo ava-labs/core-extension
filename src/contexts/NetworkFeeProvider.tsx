@@ -8,12 +8,9 @@ import {
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { concat, filter, from, map } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  NetworkFee,
-  SerializedNetworkFee,
-} from '@src/background/services/networkFee/models';
+import { NetworkFee } from '@src/background/services/networkFee/models';
 import { networkFeeUpdatedEventListener } from '@src/background/services/networkFee/events/listeners';
-import { BigNumber } from 'ethers';
+import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
@@ -30,7 +27,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     }
     const subscription = concat(
       from(
-        request({
+        request<GetNetworkFeeHandler>({
           method: ExtensionRequest.NETWORK_FEE_GET,
         })
       ),
@@ -38,11 +35,11 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         filter(networkFeeUpdatedEventListener),
         map((evt) => evt.value)
       )
-    ).subscribe((result: SerializedNetworkFee) => {
+    ).subscribe((result) => {
       if (!result) {
         setNetworkFee(null);
       } else {
-        setNetworkFee(parseNetworkFee(result));
+        setNetworkFee(result);
       }
     });
 
@@ -53,11 +50,11 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
 
   const getNetworkFeeForNetwork = useCallback(
     async (chainId: number) => {
-      const result = await request({
+      const result = await request<GetNetworkFeeHandler>({
         method: ExtensionRequest.NETWORK_FEE_GET,
         params: [chainId],
       });
-      return result && parseNetworkFee(result);
+      return result;
     },
     [request]
   );
@@ -72,16 +69,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       {children}
     </NetworkFeeContext.Provider>
   );
-}
-
-function parseNetworkFee(networkFee: SerializedNetworkFee): NetworkFee {
-  return {
-    displayDecimals: networkFee.displayDecimals,
-    low: BigNumber.from(networkFee.low),
-    medium: BigNumber.from(networkFee.medium),
-    high: BigNumber.from(networkFee.high),
-    isFixedFee: networkFee.isFixedFee,
-  };
 }
 
 export function useNetworkFeeContext() {

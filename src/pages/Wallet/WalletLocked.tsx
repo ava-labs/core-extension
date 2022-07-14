@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
+import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -58,7 +59,7 @@ export function WalletLocked({
       width: '343px',
       onConfirm: () => {
         clearDialog();
-        request({
+        request<ResetExtensionStateHandler>({
           method: ExtensionRequest.RESET_EXTENSION_STATE,
           params: [true],
         });

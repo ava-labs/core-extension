@@ -1,20 +1,19 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { OnboardingService } from '../OnboardingService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
+import { OnboardingService } from '../OnboardingService';
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN,
+  true
+>;
+
 @injectable()
-export class UpdateInitialOpenHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN];
+export class UpdateInitialOpenHandler implements HandlerType {
+  method = ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN as const;
 
   constructor(private onboardingService: OnboardingService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     await this.onboardingService.setInitialOpen(false);
     return {
       ...request,

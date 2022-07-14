@@ -1,10 +1,9 @@
-import { hexToBN } from '@avalabs/utils-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { balancesUpdatedEventListener } from '@src/background/services/balances/events/balancesUpdatedEventListener';
-import {
-  Balances,
-  SerializedBalances,
-} from '@src/background/services/balances/models';
+import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
+import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
+import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
+import { Balances } from '@src/background/services/balances/models';
 import { NFT } from '@src/background/services/balances/nft/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import {
@@ -48,13 +47,10 @@ export function BalancesProvider({ children }: { children: any }) {
       loading: true,
     });
 
-    request({
+    request<GetBalancesHandler>({
       method: ExtensionRequest.BALANCES_GET,
-    }).then((result: SerializedBalances) => {
-      setTokens({
-        balances: deserializeBalances(result ?? {}),
-        loading: false,
-      });
+    }).then((balances) => {
+      setTokens({ balances, loading: false });
     });
   }, [request]);
 
@@ -65,11 +61,11 @@ export function BalancesProvider({ children }: { children: any }) {
       if (!activeAccount || !network) return;
 
       if (intervalCount % 15 === 0) {
-        request({
+        request<UpdateBalancesForNetworkHandler>({
           method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
         });
       } else {
-        request({
+        request<UpdateBalancesForNetworkHandler>({
           method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
           params: [[activeAccount], [network]],
         });
@@ -86,11 +82,11 @@ export function BalancesProvider({ children }: { children: any }) {
         filter(balancesUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((result: SerializedBalances) => {
+      .subscribe((result) => {
         setTokens({
           balances: {
             ...tokens.balances,
-            ...deserializeBalances(result ?? {}),
+            ...result,
           },
           loading: false,
         });
@@ -105,7 +101,7 @@ export function BalancesProvider({ children }: { children: any }) {
       if (resetPreviousState) {
         setNfts({ loading: true });
       }
-      request({
+      request<GetNftBalancesHandler>({
         method: ExtensionRequest.NFT_BALANCES_GET,
       })
         .then((result) => {
@@ -143,22 +139,4 @@ export function BalancesProvider({ children }: { children: any }) {
 
 export function useBalancesContext() {
   return useContext(BalancesContext);
-}
-
-// TODO remove after serialization layer is in place
-function deserializeBalances(balances: SerializedBalances): Balances {
-  return Object.keys(balances).reduce<Balances>((deserialized, networkId) => {
-    const balancesForNetwork = balances?.[networkId] || {};
-    deserialized[networkId] = Object.keys(balancesForNetwork).reduce(
-      (acc, account) => {
-        acc[account] = balancesForNetwork[account]?.map((balance) => ({
-          ...balance,
-          balance: hexToBN(balance.balance),
-        }));
-        return acc;
-      },
-      {}
-    );
-    return deserialized;
-  }, {});
 }

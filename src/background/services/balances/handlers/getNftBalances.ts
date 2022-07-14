@@ -1,17 +1,19 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { NetworkService } from '../../network/NetworkService';
+import { NFT } from '../nft/models';
 import { NFTBalancesService } from '../nft/NFTBalancesService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.NFT_BALANCES_GET,
+  NFT[]
+>;
+
 @injectable()
-export class GetNftBalancesHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.NFT_BALANCES_GET];
+export class GetNftBalancesHandler implements HandlerType {
+  method = ExtensionRequest.NFT_BALANCES_GET as const;
 
   constructor(
     private nftBalancesService: NFTBalancesService,
@@ -19,9 +21,7 @@ export class GetNftBalancesHandler implements ExtensionRequestHandler {
     private accountsService: AccountsService
   ) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     const currentNetwork = await this.networkService.activeNetwork.promisify();
     if (!currentNetwork) {
       return {

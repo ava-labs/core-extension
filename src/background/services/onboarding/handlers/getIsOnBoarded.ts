@@ -1,20 +1,20 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { OnboardingService } from '../OnboardingService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
+import { OnboardingState } from '../models';
+import { OnboardingService } from '../OnboardingService';
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.ONBOARDING_GET_STATE,
+  OnboardingState
+>;
+
 @injectable()
-export class GetIsOnboardedHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.ONBOARDING_GET_STATE];
+export class GetIsOnboardedHandler implements HandlerType {
+  method = ExtensionRequest.ONBOARDING_GET_STATE as const;
 
   constructor(private onboardingService: OnboardingService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     return {
       ...request,
       result: await this.onboardingService.getState(),

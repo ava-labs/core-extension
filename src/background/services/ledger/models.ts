@@ -2,7 +2,7 @@ export interface DeviceResponseData {
   requestId: string;
   method: string;
   error?: any;
-  result: any;
+  result?: any;
 }
 
 export interface DeviceRequestData {

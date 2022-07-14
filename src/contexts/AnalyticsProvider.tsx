@@ -6,6 +6,9 @@ import {
 } from '@avalabs/posthog-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { analyticsStateUpdatedEventListener } from '@src/background/services/analytics/events/listeners';
+import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
+import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
+import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
 import { AnalyticsState } from '@src/background/services/analytics/models';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
@@ -41,7 +44,7 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     let isCancelled = false;
-    request({
+    request<GetAnalyticsIdsHandler>({
       method: ExtensionRequest.ANALYTICS_GET_IDS,
     }).then((state) => {
       if (state && !isCancelled) {
@@ -127,8 +130,8 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     posthogInstance.capture(eventName, properties);
   };
 
-  const initAnalyticsIds = (storeInStorage: boolean) => {
-    return request({
+  const initAnalyticsIds = async (storeInStorage: boolean): Promise<void> => {
+    await request<InitAnalyticsIdsHandler>({
       method: ExtensionRequest.ANALYTICS_INIT_IDS,
       params: [storeInStorage],
     });
@@ -139,9 +142,8 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       posthogInstance.opt_out_capturing();
       posthogInstance.reset();
     }
-    request({
+    request<ClearAnalyticsIdsHandler>({
       method: ExtensionRequest.ANALYTICS_CLEAR_IDS,
-      params: [],
     });
   };
 

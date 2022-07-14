@@ -1,39 +1,23 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { LockService } from '../LockService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
+import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
+import { LockService } from '../LockService';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.UNLOCK_WALLET,
+  true,
+  [password: string]
+>;
 
 @injectable()
-export class UnlockWalletHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.UNLOCK_WALLET];
+export class UnlockWalletHandler implements HandlerType {
+  method = ExtensionRequest.UNLOCK_WALLET as const;
 
   constructor(private lockService: LockService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const params = request.params;
-
-    if (!params) {
-      return {
-        ...request,
-        error: 'params missing from request',
-      };
-    }
-
-    const password = params.pop();
-
-    if (!password) {
-      return {
-        ...request,
-        error: 'password missing for request',
-      };
-    }
+  handle: HandlerType['handle'] = async (request) => {
+    const [password] = request.params;
 
     const [, err] = await resolve(this.lockService.unlock(password));
 
