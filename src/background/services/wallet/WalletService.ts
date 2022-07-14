@@ -159,8 +159,9 @@ export class WalletService implements OnLock, OnUnlock {
     const secrets = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
+    const validPassword = await this.lockService.verifyPassword(password);
 
-    if (!this.lockService.verifyPassword(password)) {
+    if (!validPassword) {
       throw new Error('Password invalid');
     }
 
