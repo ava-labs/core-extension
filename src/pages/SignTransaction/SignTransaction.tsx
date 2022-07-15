@@ -65,9 +65,16 @@ export function SignTransactionPage() {
   }
   useEffect(() => {
     window.addEventListener('unload', cancelHandler);
+    // If window is no longer focused, we will cancel the action
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        cancelHandler();
+      }
+    });
 
     return () => {
       window.removeEventListener('unload', cancelHandler);
+      window.removeEventListener('visibilitychange', cancelHandler);
     };
     // This only needs to run once since this is a part of initializing process.
     // eslint-disable-next-line react-hooks/exhaustive-deps
