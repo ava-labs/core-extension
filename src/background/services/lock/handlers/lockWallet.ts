@@ -1,21 +1,17 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { LockService } from '../LockService';
 
+type HandlerType = ExtensionRequestHandler<ExtensionRequest.LOCK_WALLET, true>;
+
 @injectable()
-export class LockWalletHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.LOCK_WALLET];
+export class LockWalletHandler implements HandlerType {
+  method = ExtensionRequest.LOCK_WALLET as const;
 
   constructor(private lockService: LockService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     this.lockService.lock();
 
     return {

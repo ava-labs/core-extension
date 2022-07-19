@@ -5,7 +5,10 @@ import {
   isTxFinalizedUpdate,
   isTxParamsUpdate,
   isTxStatusUpdate,
+  Transaction,
+  txParamsUpdate,
   TxStatus,
+  txStatusUpdate,
 } from '../models';
 import { injectable } from 'tsyringe';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
@@ -15,9 +18,15 @@ import { NetworkService } from '../../network/NetworkService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { BigNumber } from 'ethers';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.TRANSACTIONS_UPDATE,
+  Transaction | string,
+  [update: txParamsUpdate | txStatusUpdate]
+>;
+
 @injectable()
-export class UpdateTransactionHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.TRANSACTIONS_UPDATE];
+export class UpdateTransactionHandler implements HandlerType {
+  method = ExtensionRequest.TRANSACTIONS_UPDATE as const;
 
   constructor(
     private transactionsService: TransactionsService,
@@ -26,23 +35,8 @@ export class UpdateTransactionHandler implements ExtensionRequestHandler {
     private networkService: NetworkService
   ) {}
 
-  handle = async (request) => {
-    const params = request.params;
-    if (!params) {
-      return {
-        ...request,
-        error: 'no params on request',
-      };
-    }
-
-    const update = params[0];
-
-    if (!update) {
-      return {
-        ...request,
-        error: 'no updates found in params',
-      };
-    }
+  handle: HandlerType['handle'] = async (request) => {
+    const [update] = request.params;
 
     const isKnownTxType = [
       isTxStatusUpdate(update),
@@ -63,7 +57,14 @@ export class UpdateTransactionHandler implements ExtensionRequestHandler {
       await this.transactionsService.getTransactions();
     const pendingTx = currentPendingTransactions[update.id];
 
-    if (update.status === TxStatus.SUBMITTING) {
+    if (!pendingTx) {
+      return {
+        ...request,
+        error: 'Cannot find transaction',
+      };
+    }
+
+    if ('status' in update && update.status === TxStatus.SUBMITTING) {
       const gasPrice = await this.networkFeeService.getNetworkFee();
       const network = await this.networkService.activeNetwork.promisify();
       if (!network) {

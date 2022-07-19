@@ -1,12 +1,17 @@
-import { ImgHTMLAttributes, useState } from 'react';
+import { ReactEventHandler, useState } from 'react';
+
+interface ImageWithFallbackProps {
+  src?: string;
+  onError?: ReactEventHandler;
+  className?: string;
+}
 
 export function ImageWithFallback({
   src,
   onError,
-  ...props
-}: ImgHTMLAttributes<HTMLImageElement>) {
+  className,
+}: ImageWithFallbackProps) {
   const [fallbackImage, setFallbackImage] = useState('');
-  const { width, height } = props;
 
   const imageOnErrorHandler = (
     event: React.SyntheticEvent<HTMLImageElement, Event>
@@ -18,8 +23,7 @@ export function ImageWithFallback({
     <img
       src={fallbackImage || src}
       onError={imageOnErrorHandler}
-      width={width}
-      height={height}
+      className={className}
     />
   );
 }

@@ -3,8 +3,9 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
+import { SendSubmitHandler } from '@src/background/services/send/handlers/SendSubmitHandler';
+import { SendValidateHandlerType } from '@src/background/services/send/handlers/SendValidateHandler';
 import { SendState } from '@src/background/services/send/models';
-import { deserializeSendState } from '@src/background/services/send/utils/deserializeSendState';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import Queue from 'queue';
 import {
@@ -48,11 +49,11 @@ export function useSend<
       // and we want to ensure that subsequent updates have the latest state.
       backgroundQueue.current.push(async () => {
         const newState = getUpdatedState(updates, stateRef.current);
-        const validatedState = await request({
+        const validatedState = await request<SendValidateHandlerType<T>>({
           method: ExtensionRequest.SEND_VALIDATE,
-          params: [newState],
+          params: newState,
         });
-        setSendState(deserializeSendState(validatedState));
+        setSendState(validatedState);
       });
     },
     [request]
@@ -61,9 +62,9 @@ export function useSend<
   const submitSendState = useCallback(async () => {
     if (!sendState) return Promise.resolve('');
 
-    const txId = await request({
+    const txId = await request<SendSubmitHandler>({
       method: ExtensionRequest.SEND_SUBMIT,
-      params: [sendState],
+      params: sendState,
     });
 
     setSendState((sendState) => ({ ...sendState, txId }));

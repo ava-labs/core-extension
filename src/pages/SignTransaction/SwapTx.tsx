@@ -26,8 +26,10 @@ export function SwapTx({
   error,
   selectedGasFee,
 }: SwapExactTokensForTokenDisplayValues & TransactionProgressData) {
-  const [sentToken] = path;
-  const receivingToken = path[path.length - 1];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const sentToken = path[0]!;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const receivingToken = path[path.length - 1]!;
 
   const theme = useTheme();
 

@@ -1,5 +1,7 @@
 import { useBridgeConfigUpdater, useBridgeSDK } from '@avalabs/bridge-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
+import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useEffect } from 'react';
@@ -13,19 +15,26 @@ export function useSyncBridgeConfig() {
   const { events, request } = useConnectionContext();
 
   const fetchConfig = useCallback(
-    () => request({ method: ExtensionRequest.BRIDGE_GET_CONFIG }),
+    () =>
+      request<BridgeGetConfigHandler>({
+        method: ExtensionRequest.BRIDGE_GET_CONFIG,
+      }),
     [request]
   );
 
-  // periodically update the bridge config
+  // Periodically update the bridge config
   useBridgeConfigUpdater(fetchConfig);
 
-  // update the bridge config when the network changes
+  // Update the bridge config when either the network or bridge state changes
   useEffect(() => {
-    if (!events) return;
-
     const subscription = events()
-      .pipe(filter(networkUpdatedEventListener))
+      .pipe(
+        filter(
+          (event) =>
+            networkUpdatedEventListener(event) ||
+            isBridgeStateUpdateEventListener(event)
+        )
+      )
       .subscribe(async () => {
         const newConfig = await fetchConfig();
         setBridgeConfig(newConfig);

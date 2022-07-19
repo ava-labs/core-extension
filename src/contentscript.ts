@@ -41,7 +41,7 @@ const suffixCheck = () => {
   const prohibitedTypes = [/\.xml$/u, /\.pdf$/u];
   const currentUrl = window.location.pathname;
   for (let i = 0; i < prohibitedTypes.length; i++) {
-    if (prohibitedTypes[i].test(currentUrl)) {
+    if (prohibitedTypes[i]?.test(currentUrl)) {
       return false;
     }
   }
@@ -73,7 +73,7 @@ const blockedDomainCheck = () => {
   const currentUrl = window.location.href;
   let currentRegex;
   for (let i = 0; i < blockedDomains.length; i++) {
-    const blockedDomain = blockedDomains[i].replace('.', '\\.');
+    const blockedDomain = blockedDomains[i]?.replace('.', '\\.');
     currentRegex = new RegExp(
       `(?:https?:\\/\\/)(?:(?!${blockedDomain}).)*$`,
       'u'
@@ -91,7 +91,7 @@ const injectScript = (path: string) => {
     const scriptTag = document.createElement('script');
     scriptTag.setAttribute('async', 'false');
     scriptTag.src = path;
-    container.insertBefore(scriptTag, container.children[0]);
+    container.insertBefore(scriptTag, container.children[0] || null);
     container.removeChild(scriptTag);
   } catch (error) {
     console.error(' Provider injection failed.', error);

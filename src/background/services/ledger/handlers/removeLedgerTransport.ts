@@ -1,25 +1,25 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
+  true,
+  [ledgerTransportUUID: string]
+>;
+
 @injectable()
-export class RemoveLedgerTransportHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.LEDGER_REMOVE_TRANSPORT];
+export class RemoveLedgerTransportHandler implements HandlerType {
+  method = ExtensionRequest.LEDGER_REMOVE_TRANSPORT as const;
 
   constructor(private ledgerService: LedgerService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const params = request.params || [];
-    const [LEDGER_INIT_UUID] = params;
-    if (this.ledgerService.getTransport(LEDGER_INIT_UUID)) {
-      this.ledgerService.removeTransportFromCache(LEDGER_INIT_UUID);
+  handle: HandlerType['handle'] = async (request) => {
+    const [ledgerTransportUUID] = request.params;
+
+    if (this.ledgerService.getTransport(ledgerTransportUUID)) {
+      this.ledgerService.removeTransportFromCache(ledgerTransportUUID);
     }
 
     return {

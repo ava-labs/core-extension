@@ -1,27 +1,24 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
-import { NavigationHistoryService } from '../NavigationHistoryService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import * as H from 'history';
 import { injectable } from 'tsyringe';
+import { NavigationHistoryState } from '../models';
+import { NavigationHistoryService } from '../NavigationHistoryService';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.NAVIGATION_HISTORY_SET,
+  NavigationHistoryState,
+  [newNavigationHistory: H.History<unknown>]
+>;
 
 @injectable()
-export class SetNavigationHistoryHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.NAVIGATION_HISTORY_SET];
+export class SetNavigationHistoryHandler implements HandlerType {
+  method = ExtensionRequest.NAVIGATION_HISTORY_SET as const;
 
   constructor(private navigationHistoryService: NavigationHistoryService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    if (!request?.params?.length) {
-      return { ...request, error: 'history object is missing' };
-    }
-
-    const newNavigationHistory: H.History<unknown> = request.params[0];
+  handle: HandlerType['handle'] = async (request) => {
+    const [newNavigationHistory] = request.params;
 
     return {
       ...request,

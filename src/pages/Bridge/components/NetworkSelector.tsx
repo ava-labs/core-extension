@@ -13,7 +13,8 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useState } from 'react';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
+import { blockchainDisplayNameMap } from '../models';
 import EthLogo from './../../../images/tokens/eth.png';
 
 interface NetworkSelectorProps {
@@ -32,6 +33,16 @@ const EthereumLogo = () => (
   />
 );
 
+const NetworkOption = styled(SecondaryDropDownMenuItem)`
+  background-color: ${({ theme }) => theme.dropdown.secondary.itemBgHover};
+  padding: 8px 16px;
+  width: 240px;
+`;
+
+const Caret = styled(CaretIcon)`
+  margin-left: 12px;
+`;
+
 export function NetworkSelector({
   disabled,
   selected,
@@ -40,6 +51,8 @@ export function NetworkSelector({
 }: NetworkSelectorProps) {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+
+  const selectedDisplayValue = blockchainDisplayNameMap.get(selected);
 
   const getBlockChainLogo = (blockchain: Blockchain) => {
     switch (blockchain) {
@@ -57,16 +70,16 @@ export function NetworkSelector({
   return (
     <SecondaryDropDownMenu
       onMenuToggle={setIsOpen}
-      coords={{ top: `32px`, right: `0px` }}
+      coords={{ top: `32px`, right: `-8px` }}
       disabled={disabled || chains.length <= 1}
       icon={
         <HorizontalFlex width="100%" align={'center'} justify="space-between">
           {getBlockChainLogo(selected)}
-          <Typography margin={'0 16px 0 8px'} transform="capitalize">
-            {selected}
+          <Typography margin={'0 0 0 8px'} transform="capitalize">
+            {selectedDisplayValue}
           </Typography>
           {chains.length > 1 && (
-            <CaretIcon
+            <Caret
               height={'9px'}
               color={theme.colors.text1}
               direction={isOpen ? IconDirection.UP : IconDirection.DOWN}
@@ -77,50 +90,71 @@ export function NetworkSelector({
     >
       {chains.includes(Blockchain.AVALANCHE) && (
         <>
-          <SecondaryDropDownMenuItem
+          <NetworkOption
             onClick={() => {
               onSelect?.(Blockchain.AVALANCHE);
             }}
           >
-            <AvaxTokenIcon height="24" />
-            <Typography margin="0 16px 0 8px">Avalanche</Typography>
-            {selected === Blockchain.AVALANCHE && (
-              <CheckmarkIcon height="16px" color={theme.colors.text1} />
-            )}
-          </SecondaryDropDownMenuItem>
+            <HorizontalFlex justify="space-between" align="center" width="100%">
+              <HorizontalFlex align="center">
+                <AvaxTokenIcon height="24px" />
+                <Typography margin="4px 12px 0 8px">
+                  {blockchainDisplayNameMap.get(Blockchain.AVALANCHE)}
+                </Typography>
+              </HorizontalFlex>
+
+              {selected === Blockchain.AVALANCHE && (
+                <CheckmarkIcon height="16px" color={theme.colors.text1} />
+              )}
+            </HorizontalFlex>
+          </NetworkOption>
           <HorizontalSeparator margin="0" />
         </>
       )}
 
       {chains.includes(Blockchain.ETHEREUM) && (
         <>
-          <SecondaryDropDownMenuItem
+          <NetworkOption
             onClick={() => {
               onSelect?.(Blockchain.ETHEREUM);
             }}
           >
-            <EthereumLogo />
-            <Typography margin="0 16px 0 8px">Ethereum</Typography>
-            {selected === Blockchain.ETHEREUM && (
-              <CheckmarkIcon height="16px" color={theme.colors.text1} />
-            )}
-          </SecondaryDropDownMenuItem>
+            <HorizontalFlex justify="space-between" align="center" width="100%">
+              <HorizontalFlex align="center">
+                <EthereumLogo />
+                <Typography margin="0 12px 0 8px">
+                  {blockchainDisplayNameMap.get(Blockchain.ETHEREUM)}
+                </Typography>
+              </HorizontalFlex>
+
+              {selected === Blockchain.ETHEREUM && (
+                <CheckmarkIcon height="16px" color={theme.colors.text1} />
+              )}
+            </HorizontalFlex>
+          </NetworkOption>
           <HorizontalSeparator margin="0" />
         </>
       )}
 
       {chains.includes(Blockchain.BITCOIN) && (
-        <SecondaryDropDownMenuItem
+        <NetworkOption
           onClick={() => {
             onSelect?.(Blockchain.BITCOIN);
           }}
         >
-          <BitcoinLogo height="24px" />
-          <Typography margin="0 16px 0 8px">Bitcoin</Typography>
-          {selected === Blockchain.BITCOIN && (
-            <CheckmarkIcon height="16px" color={theme.colors.text1} />
-          )}
-        </SecondaryDropDownMenuItem>
+          <HorizontalFlex justify="space-between" align="center" width="100%">
+            <HorizontalFlex align="center">
+              <BitcoinLogo height="24px" />
+              <Typography margin="0 12px 0 8px">
+                {blockchainDisplayNameMap.get(Blockchain.BITCOIN)}
+              </Typography>
+            </HorizontalFlex>
+
+            {selected === Blockchain.BITCOIN && (
+              <CheckmarkIcon height="16px" color={theme.colors.text1} />
+            )}
+          </HorizontalFlex>
+        </NetworkOption>
       )}
     </SecondaryDropDownMenu>
   );

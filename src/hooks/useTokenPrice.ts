@@ -1,4 +1,5 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { GetTokenPriceHandler } from '@src/background/services/balances/handlers/getTokenPrice';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useState } from 'react';
@@ -9,16 +10,18 @@ export function useNativeTokenPrice() {
   const [price, setPrice] = useState<number>(0);
 
   useEffect(() => {
-    request({
-      method: ExtensionRequest.TOKEN_PRICE_GET,
-      params: [network?.pricingProviders?.coingecko.nativeTokenId],
-    })
-      .then((p) => {
-        setPrice(p || 0);
+    const tokenId = network?.pricingProviders?.coingecko.nativeTokenId;
+
+    if (tokenId) {
+      request<GetTokenPriceHandler>({
+        method: ExtensionRequest.TOKEN_PRICE_GET,
+        params: [tokenId],
       })
-      .catch(() => {
-        setPrice(0);
-      });
+        .then((p) => setPrice(p || 0))
+        .catch(() => setPrice(0));
+    } else {
+      setPrice(0);
+    }
   }, [network, request]);
 
   return price;

@@ -42,7 +42,7 @@ export class SwapService {
     destToken: string,
     destDecimals: number,
     srcAmount: string,
-    swapSide: SwapSide
+    swapSide?: SwapSide
   ) {
     if (!this.networkService.isMainnet) {
       throw NETWORK_UNSUPPORTED_ERROR;

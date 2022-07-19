@@ -37,7 +37,7 @@ export function parseBasicDisplayValues(
     }),
     site: props.site,
     description,
-    name: name ? name[0].toUpperCase() + name.slice(1) : '',
+    name: name ? (name[0] || '').toUpperCase() + name.slice(1) : '',
     displayValue,
   };
 }

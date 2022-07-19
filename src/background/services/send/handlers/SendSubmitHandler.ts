@@ -1,25 +1,24 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
+import { SendState } from '../models';
 import { SendService } from '../SendService';
-import { deserializeSendState } from '../utils/deserializeSendState';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.SEND_SUBMIT,
+  string,
+  SendState
+>;
 
 @injectable()
-export class SendSubmitHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.SEND_SUBMIT];
+export class SendSubmitHandler implements HandlerType {
+  method = ExtensionRequest.SEND_SUBMIT as const;
 
   constructor(private sendService: SendService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const [serializedState] = request.params || [];
-    const sendState = deserializeSendState(serializedState);
+  handle: HandlerType['handle'] = async (request) => {
+    const sendState = request.params;
 
     if (!sendState) {
       return { ...request, error: 'missing sendState' };

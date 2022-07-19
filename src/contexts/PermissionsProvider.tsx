@@ -7,6 +7,8 @@ import {
 } from '@src/background/services/permissions/models';
 import { permissionsUpdatedEventListener } from '@src/background/services/permissions/events/permissionsStateUpdatesListener';
 import { filter, map } from 'rxjs';
+import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
+import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
 
 interface UpdateAccountPermission {
   addressC: string; // wallet c address
@@ -44,7 +46,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
     permissions: DappPermissions,
     requestId: string
   ) {
-    return request({
+    return request<PermissionsAddDomainHandler>({
       method: ExtensionRequest.PERMISSIONS_ADD_DOMAIN,
       params: [permissions, requestId],
     });
@@ -70,7 +72,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
     if (!domain || !address) {
       return false;
     }
-    const domainData: DappPermissions = permissionState[domain];
+    const domainData = permissionState[domain];
     if (!domainData?.accounts) {
       return false;
     }
@@ -81,9 +83,8 @@ export function PermissionContextProvider({ children }: { children: any }) {
   useEffect(() => {
     let isCancelled = false;
 
-    request({
+    request<GetAllPermissionsHandler>({
       method: ExtensionRequest.PERMISSIONS_GET_ALL_PERMISSIONS,
-      params: [],
     })
       .then((result) => {
         return result;

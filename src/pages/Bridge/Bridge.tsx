@@ -13,14 +13,14 @@ import {
   ComponentSize,
   HorizontalFlex,
   HorizontalSeparator,
-  IconDirection,
   LoadingSpinnerIcon,
   PrimaryButton,
-  SwitchIcon,
-  TextButton,
+  SwapArrowsIcon,
+  TertiaryCard,
   Tooltip,
   Typography,
   VerticalFlex,
+  WarningIcon,
 } from '@avalabs/react-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
@@ -30,7 +30,6 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
-import { AddBtcPopup } from './components/AddBtcPopup';
 import { NetworkSelector } from './components/NetworkSelector';
 import { AssetBalance } from './models';
 import { useBridge } from './hooks/useBridge';
@@ -53,8 +52,32 @@ import { WalletType } from '@src/background/services/wallet/models';
 import { BridgeConfirmLedger } from './components/BridgeConfirm';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 
+const ErrorSection = styled(HorizontalFlex)`
+  position: relative;
+  top: -25px;
+`;
+
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
+`;
+
+const SwitchButton = styled(SwitchIconContainer)<{ useHigherZIndex: boolean }>`
+  z-index: ${({ useHigherZIndex }) => (useHigherZIndex ? '1' : '0')};
+  background-color: ${({ theme }) => theme.buttons.primary.bg};
+  &[disabled] {
+    background-color: ${({ theme }) => theme.buttons.primary.bg};
+  }
+  &:hover {
+    background-color: ${({ theme }) => theme.buttons.primary.bg};
+  }
+`;
+
+const CardClearBg = styled(Card)`
+  background: none;
+`;
+
+const SeparatorForToSection = styled(HorizontalSeparator)`
+  color: ${({ theme }) => theme.colors.text2};
 `;
 
 function formatBalance(balance: Big | undefined) {
@@ -65,7 +88,6 @@ export function Bridge() {
   useSyncBridgeConfig(); // keep bridge config up-to-date
   useSetBridgeChainFromNetwork();
   const {
-    address,
     sourceBalance,
     amount,
     setAmount,
@@ -100,8 +122,6 @@ export function Bridge() {
 
   const [isPending, setIsPending] = useState<boolean>(false);
   const [transferWithLedger, setTransferWithLedger] = useState<boolean>(false);
-  const [addBitcoinModalOpen, setAddBitcoinModalOpen] =
-    useState<boolean>(false);
   const history = useHistory();
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [isSwitched, setIsSwitched] = useState(false);
@@ -162,7 +182,7 @@ export function Bridge() {
 
   const formattedReceiveAmount =
     hasValidAmount && receiveAmount
-      ? `~${receiveAmount.toFixed(9)} ${currentAsset}`
+      ? `${receiveAmount.toFixed(9)} ${currentAsset}`
       : '-';
   const formattedReceiveAmountCurrency =
     hasValidAmount && price && receiveAmount
@@ -177,7 +197,7 @@ export function Bridge() {
       inputAmount: bigValue,
     });
     setAmount(bigValue);
-    sendAmountEnteredAnalytics(value.amount);
+    sendAmountEnteredAnalytics('Bridge');
   };
 
   const handleBlockchainToggle = () => {
@@ -210,7 +230,7 @@ export function Bridge() {
       inputAmount: amount,
     });
     setCurrentAsset(symbol);
-    sendTokenSelectedAnalytics(symbol);
+    sendTokenSelectedAnalytics('Bridge');
   };
 
   const onTransferClicked = () => {
@@ -294,166 +314,188 @@ export function Bridge() {
       <PageTitle>Bridge</PageTitle>
       <VerticalFlex padding="0 16px 0 16px" style={{ flex: 1 }}>
         <VerticalFlex style={{ flex: 1 }}>
-          <Card padding="0">
+          <TertiaryCard padding="0">
             <VerticalFlex width="100%">
-              <HorizontalFlex
-                justify="space-between"
-                align="center"
-                padding="16px 16px 0 16px"
-              >
-                <Typography>From</Typography>
-                <VerticalFlex align="flex-end">
-                  <NetworkSelector
-                    selected={currentBlockchain}
-                    onSelect={handleBlockchainSwitchFrom}
-                    chains={filterChains(sourceChains)}
-                  />
-                  {currentBlockchain === Blockchain.BITCOIN && (
-                    <TextButton
-                      margin="8px 0 0"
-                      size={ComponentSize.SMALL}
-                      onClick={() => {
-                        setAddBitcoinModalOpen(true);
+              {/* From section */}
+              <Card padding="0">
+                <VerticalFlex width="100%">
+                  <HorizontalFlex
+                    justify="space-between"
+                    align="center"
+                    padding="16px 16px 0 16px"
+                  >
+                    <Typography>From</Typography>
+                    <VerticalFlex align="flex-end" width="100%">
+                      <NetworkSelector
+                        selected={currentBlockchain}
+                        onSelect={handleBlockchainSwitchFrom}
+                        chains={filterChains(sourceChains)}
+                      />
+                    </VerticalFlex>
+                  </HorizontalFlex>
+                  <HorizontalSeparator margin="16px" width="100%" />
+                  <HorizontalFlex>
+                    <TokenSelect
+                      onSelectToggle={() => {
+                        setIsTokenSelectOpen(!isTokenSelectOpen);
                       }}
-                    >
-                      Add bitcoin
-                    </TextButton>
-                  )}
-                </VerticalFlex>
-              </HorizontalFlex>
-              <HorizontalSeparator margin="16px 0 16px 0" />
-              <HorizontalFlex padding="0">
-                <TokenSelect
-                  onSelectToggle={() => {
-                    setIsTokenSelectOpen(!isTokenSelectOpen);
-                  }}
-                  bridgeTokensList={assetsWithBalances}
-                  maxAmount={maximum && bigToBN(maximum, denomination)}
-                  onTokenChange={(token: AssetBalance) => {
-                    handleSelect(token.symbol);
-                  }}
-                  isOpen={isTokenSelectOpen}
-                  isValueLoading={loading}
-                  selectedToken={
-                    currentAsset && sourceBalance
-                      ? {
-                          type: TokenType.ERC20,
-                          balanceDisplayValue: formatBalance(
-                            sourceBalance.balance
-                          ),
-                          balance: bigToBN(
-                            sourceBalance.balance || BIG_ZERO,
-                            denomination
-                          ),
-                          decimals: denomination,
-                          priceUSD: price,
-                          logoUri: sourceBalance.logoUri,
-                          name: sourceBalance.asset.symbol,
-                          symbol: getTokenSymbolOnNetwork(
-                            sourceBalance.asset.symbol,
-                            currentBlockchain
-                          ),
-                          address: sourceBalance.asset.symbol,
-                          contractType: 'ERC-20',
-                          description: '',
+                      bridgeTokensList={assetsWithBalances}
+                      maxAmount={maximum && bigToBN(maximum, denomination)}
+                      onTokenChange={(token: AssetBalance) => {
+                        handleSelect(token.symbol);
+                      }}
+                      isOpen={isTokenSelectOpen}
+                      isValueLoading={loading}
+                      selectedToken={
+                        currentAsset && sourceBalance
+                          ? {
+                              type: TokenType.ERC20,
+                              balanceDisplayValue: formatBalance(
+                                sourceBalance.balance
+                              ),
+                              balance: bigToBN(
+                                sourceBalance.balance || BIG_ZERO,
+                                denomination
+                              ),
+                              decimals: denomination,
+                              priceUSD: price,
+                              logoUri: sourceBalance.logoUri,
+                              name: sourceBalance.asset.symbol,
+                              symbol: getTokenSymbolOnNetwork(
+                                sourceBalance.asset.symbol,
+                                currentBlockchain
+                              ),
+                              address: sourceBalance.asset.symbol,
+                              contractType: 'ERC-20',
+                              description: '',
+                            }
+                          : undefined
+                      }
+                      onInputAmountChange={handleAmountChanged}
+                      padding="8px 16px"
+                      onError={(errorMessage) => {
+                        capture('BridgeTokenSelectError', {
+                          errorMessage,
+                        });
+                        setBridgeError(errorMessage);
+                      }}
+                      skipHandleMaxAmount
+                      inputAmount={
+                        // Reset BNInput when programmatically setting the amount to zero
+                        !sourceBalance || amountBN.isZero()
+                          ? undefined
+                          : amountBN
+                      }
+                      setIsOpen={setIsTokenSelectOpen}
+                      label=""
+                      selectorLabel="Select Token"
+                    />
+                  </HorizontalFlex>
+                  <ErrorSection height="28px">
+                    {(bridgeError ||
+                      isAmountTooLow ||
+                      !hasEnoughForNetworkFee) && (
+                      <Tooltip
+                        placement="bottom-start"
+                        content={
+                          <VerticalFlex rowGap="16px" padding="8px">
+                            {!hasEnoughForNetworkFee && (
+                              <Typography size={12}>
+                                Insufficient balance to cover gas costs. <br />
+                                Please add{' '}
+                                {currentBlockchain === Blockchain.AVALANCHE
+                                  ? 'AVAX'
+                                  : 'ETH'}
+                                .
+                              </Typography>
+                            )}
+                            {isAmountTooLow && (
+                              <Typography size={12}>
+                                {`Amount too low -- minimum is ${minimum?.toFixed(
+                                  9
+                                )}`}
+                              </Typography>
+                            )}
+                            {bridgeError && (
+                              <Typography size={12}>{bridgeError}</Typography>
+                            )}
+                          </VerticalFlex>
                         }
-                      : undefined
-                  }
-                  onInputAmountChange={handleAmountChanged}
-                  padding="8px 16px"
-                  onError={(errorMessage) => {
-                    capture('BridgeTokenSelectError', {
-                      errorMessage,
-                    });
-                    setBridgeError(errorMessage);
-                  }}
-                  skipHandleMaxAmount
-                  inputAmount={
-                    // Reset BNInput when programmatically setting the amount to zero
-                    !sourceBalance || amountBN.isZero() ? undefined : amountBN
-                  }
-                  setIsOpen={setIsTokenSelectOpen}
-                />
-              </HorizontalFlex>
-            </VerticalFlex>
-          </Card>
+                      >
+                        <HorizontalFlex align="center">
+                          <Typography
+                            size={12}
+                            padding="0 5px 0 16px"
+                            color={theme.colors.error}
+                          >
+                            Error
+                          </Typography>
+                          <WarningIcon
+                            height="12px"
+                            color={theme.colors.error}
+                          />
+                        </HorizontalFlex>
+                      </Tooltip>
+                    )}
+                  </ErrorSection>
+                </VerticalFlex>
+              </Card>
 
-          <HorizontalFlex
-            justify={
-              bridgeError || isAmountTooLow || !hasEnoughForNetworkFee
-                ? 'space-between'
-                : 'flex-end'
-            }
-            align="center"
-            margin="8px 0 8px 0"
-          >
-            {!hasEnoughForNetworkFee && (
-              <Typography size={12} color={theme.colors.error}>
-                Insufficient balance to cover gas costs. <br />
-                Please add{' '}
-                {currentBlockchain === Blockchain.AVALANCHE ? 'AVAX' : 'ETH'}.
-              </Typography>
-            )}
-            {isAmountTooLow && (
-              <Typography size={12} color={theme.colors.error}>
-                {`Amount too low -- minimum is ${minimum?.toFixed(9)}`}
-              </Typography>
-            )}
-            {bridgeError && (
-              <Typography size={12} color={theme.colors.error}>
-                {bridgeError}
-              </Typography>
-            )}
-
-            <Tooltip
-              placement="left"
-              content={<Typography size={12}>Switch</Typography>}
-            >
-              <SwitchIconContainer
-                onClick={handleBlockchainToggle}
-                disabled={false}
-                isSwapped={isSwitched}
-              >
-                <SwitchIcon
-                  direction={IconDirection.UP}
-                  height="24px"
-                  color={theme.colors.text1}
-                />
-              </SwitchIconContainer>
-            </Tooltip>
-          </HorizontalFlex>
-
-          <Card>
-            <VerticalFlex width="100%">
-              <HorizontalFlex justify="space-between" align="center">
-                <Typography>To</Typography>
-                <NetworkSelector
-                  selected={targetBlockchain}
-                  disabled={true}
-                  chains={filterChains(targetChains)}
-                />
-              </HorizontalFlex>
-              <HorizontalSeparator margin="16px 0 16px 0" />
-              <HorizontalFlex
-                justify="space-between"
+              {/* Switch to swap from and to */}
+              <VerticalFlex
                 align="center"
-                margin="0 0 8px 0"
+                margin="-20px 0 0 0"
+                paddingBottom="8px"
               >
-                <Typography size={14}>Receive</Typography>
+                <Tooltip
+                  placement="auto"
+                  content={<Typography size={12}>Switch</Typography>}
+                >
+                  <SwitchButton
+                    useHigherZIndex={!isTokenSelectOpen}
+                    onClick={handleBlockchainToggle}
+                    isSwapped={isSwitched}
+                    disabled={!targetBlockchain}
+                  >
+                    <SwapArrowsIcon height="18px" color={theme.colors.bg1} />
+                  </SwitchButton>
+                </Tooltip>
+              </VerticalFlex>
 
-                <Typography size={14}>{formattedReceiveAmount}</Typography>
-              </HorizontalFlex>
-              <HorizontalFlex justify="space-between" align="center">
-                <Typography color={theme.colors.text2} size={12}>
-                  Estimated
-                </Typography>
+              {/* To section */}
+              <CardClearBg>
+                <VerticalFlex width="100%">
+                  <HorizontalFlex justify="space-between" align="center">
+                    <Typography>To</Typography>
+                    <NetworkSelector
+                      selected={targetBlockchain}
+                      disabled={true}
+                      chains={filterChains(targetChains)}
+                    />
+                  </HorizontalFlex>
+                  <SeparatorForToSection margin="16px 0 16px 0" />
+                  <HorizontalFlex
+                    justify="space-between"
+                    align="center"
+                    margin="0 0 8px 0"
+                  >
+                    <Typography size={14}>Receive</Typography>
 
-                <Typography color={theme.colors.text2} size={12}>
-                  {formattedReceiveAmountCurrency}
-                </Typography>
-              </HorizontalFlex>
+                    <Typography size={14}>{formattedReceiveAmount}</Typography>
+                  </HorizontalFlex>
+                  <HorizontalFlex justify="space-between" align="center">
+                    <Typography color={theme.colors.text2} size={12}>
+                      Estimated
+                    </Typography>
+
+                    <Typography color={theme.colors.text2} size={12}>
+                      {formattedReceiveAmountCurrency}
+                    </Typography>
+                  </HorizontalFlex>
+                </VerticalFlex>
+              </CardClearBg>
             </VerticalFlex>
-          </Card>
+          </TertiaryCard>
         </VerticalFlex>
 
         {wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT && (
@@ -483,14 +525,6 @@ export function Bridge() {
           Transfer
         </PrimaryButton>
       </VerticalFlex>
-      {addBitcoinModalOpen &&
-        address &&
-        currentBlockchain === Blockchain.BITCOIN && (
-          <AddBtcPopup
-            address={address}
-            onClose={() => setAddBitcoinModalOpen(false)}
-          />
-        )}
       {transferWithLedger && (
         <BridgeConfirmLedger
           blockchain={currentBlockchain}

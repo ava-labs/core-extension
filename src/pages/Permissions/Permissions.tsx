@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -25,7 +25,6 @@ import { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import { ActionStatus } from '@src/background/services/actions/models';
 
 const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
   width: 80px;
@@ -60,28 +59,13 @@ export function PermissionsPage() {
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
-  const { updateAction } = useApproveAction(id);
-
-  const cancelHandler = useCallback(() => {
-    updateAction({
-      status: ActionStatus.ERROR_USER_CANCELED,
-      id,
-    });
-  }, [updateAction, id]);
+  const { cancelHandler } = useApproveAction(id);
 
   useEffect(() => {
     if (!selectedAccount && activeAccount) {
       setSelectedAccount(activeAccount);
     }
   }, [activeAccount, selectedAccount]);
-
-  useEffect(() => {
-    window.addEventListener('unload', cancelHandler);
-
-    return () => {
-      window.removeEventListener('unload', cancelHandler);
-    };
-  }, [cancelHandler]);
 
   useEffect(() => {
     if (!scrollbarsRef || !selectedAccountRef || !selectedAccount) {

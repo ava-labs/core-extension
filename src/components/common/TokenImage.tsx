@@ -9,12 +9,16 @@ import { useTheme } from 'styled-components';
 const TOKEN_IMAGE_BORDER_RADIUS = '50%';
 const TOKEN_IMAGE_DFEAULT_SIZE = '32px';
 
-const getTokenIconInitials = (name: string) => {
-  const names = name?.split(' ');
+const getTokenIconInitials = (name: string | undefined) => {
+  const names = (name || '').split(' ');
+  const firstName = names[0];
+  const lastName = names[names.length - 1];
   const initials =
-    names.length > 1
-      ? names[0].substring(0, 1) + names[names.length - 1].substring(0, 1)
-      : names[0].substring(0, 1);
+    firstName && lastName
+      ? firstName.substring(0, 1) + lastName.substring(0, 1)
+      : firstName
+      ? firstName.substring(0, 1)
+      : '';
 
   return initials;
 };
@@ -98,7 +102,7 @@ export function TokenIcon({
   }
 
   if (state.error) {
-    const logoText = name ? getTokenIconInitials(name) : '';
+    const logoText = getTokenIconInitials(name);
     return (
       /** Children here is so that a custom fallback element can be used */
       children ?? (

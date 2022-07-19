@@ -46,7 +46,9 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   const { removeContact, updateContact, getContactById } = useContactsContext();
   const { showDialog, clearDialog } = useDialog();
 
-  const [contact, setContact] = useState<Contact>(getContactById(contactId));
+  const [contact, setContact] = useState<Contact>(
+    getContactById(contactId) || { id: '', name: '', address: '' }
+  );
   const [isEdit, setIsEdit] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
   const [showErrors, setShowErrors] = useState(false);

@@ -1,4 +1,3 @@
-const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const { DefinePlugin } = require('webpack');
@@ -11,6 +10,7 @@ module.exports = merge(common, {
     new Dotenv({
       ignoreStub: true,
       safe: true, // load '.env.example' to verify the '.env' variables are all set
+      allowEmptyValues: true,
     }),
     new DefinePlugin({
       'process.env': {

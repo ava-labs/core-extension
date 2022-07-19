@@ -56,7 +56,7 @@ export class TokenPricesService {
     address: string,
     assetPlatformId: string,
     coinId: string
-  ): Promise<SimplePriceInCurrency> {
+  ): Promise<Record<string, number>> {
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
     const cacheKey = `getTokenPriceByAddress-${coinId}-${selectedCurrency}-${address}`;
@@ -64,13 +64,12 @@ export class TokenPricesService {
       tokenPriceResponseCache.get<SimplePriceInCurrency>(cacheKey);
     if (cacheResult) return cacheResult;
     const avaxPrice = await this.getPriceByCoinId(coinId, selectedCurrency);
-    const tokenPriceRes = await getTokensPrice(
+    const result = await getTokensPrice(
       [address],
       selectedCurrency.toLowerCase(),
       avaxPrice || 0,
       assetPlatformId
     );
-    const result = tokenPriceRes[address][selectedCurrency.toLowerCase()];
     tokenPriceResponseCache.set(cacheKey, result);
     return result;
   }

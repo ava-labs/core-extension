@@ -1,27 +1,44 @@
+import { ChainId } from '@avalabs/chains-sdk';
+import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
+import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { resolve } from '@src/utils/promiseResolver';
+import Big from 'big.js';
+import { BN } from 'bn.js';
 import { BigNumber, ethers } from 'ethers';
+import { OptimalRate } from 'paraswap-core';
 import { APIError, ETHER_ADDRESS, Transaction } from 'paraswap';
+import { injectable } from 'tsyringe';
+import { AccountsService } from '../../accounts/AccountsService';
 import { NetworkService } from '../../network/NetworkService';
+import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import { WalletService } from '../../wallet/WalletService';
 import { SwapService } from '../SwapService';
-import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
-import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
-import { BN } from 'bn.js';
-import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
-import { injectable } from 'tsyringe';
-import { ChainId } from '@avalabs/chains-sdk';
-import { AccountsService } from '../../accounts/AccountsService';
-import Big from 'big.js';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.SWAP_PERFORM,
+  {
+    swapTxHash: string;
+    approveTxHash: string;
+  },
+  [
+    srcToken: string,
+    destToken: string,
+    srcDecimals: number,
+    destDecimals: number,
+    srcAmount: string,
+    priceRoute: OptimalRate,
+    destAmount: string,
+    gasLimit: number,
+    gasPrice: BigNumber,
+    slippage: number
+  ]
+>;
 
 @injectable()
-export class PerformSwapHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.SWAP_PERFORM];
+export class PerformSwapHandler implements HandlerType {
+  method = ExtensionRequest.SWAP_PERFORM as const;
 
   constructor(
     private swapService: SwapService,
@@ -30,9 +47,8 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
     private networkFeeService: NetworkFeeService,
     private accountsService: AccountsService
   ) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+
+  handle: HandlerType['handle'] = async (request) => {
     const [
       srcToken,
       destToken,
@@ -172,10 +188,16 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
 
       if ((allowance as BigNumber).lt(sourceAmount)) {
         const [approveGasLimit] = await resolve(
-          contract.estimateGas.approve(spender, sourceAmount)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          contract.estimateGas.approve!(spender, sourceAmount)
         );
 
         if (!(allowance as BigNumber).gte(sourceAmount)) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const { data } = await contract.populateTransaction.approve!(
+            spender,
+            sourceAmount
+          );
           const [signedTx, signError] = await resolve(
             this.walletService.sign({
               nonce: await provider.getTransactionCount(userAddress),
@@ -184,12 +206,7 @@ export class PerformSwapHandler implements ExtensionRequestHandler {
               gasLimit: approveGasLimit
                 ? approveGasLimit.toNumber()
                 : Number(gasLimit),
-              data: (
-                await contract.populateTransaction.approve(
-                  spender,
-                  sourceAmount
-                )
-              ).data,
+              data,
               to: srcTokenAddress,
             })
           );

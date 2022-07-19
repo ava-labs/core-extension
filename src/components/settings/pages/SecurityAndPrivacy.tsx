@@ -18,6 +18,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { WalletType } from '@src/background/services/wallet/models';
+import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -40,7 +41,7 @@ export function SecurityAndPrivacy({
       onConfirm: () => {
         clearDialog();
         stopDataCollection();
-        request({
+        request<ResetExtensionStateHandler>({
           method: ExtensionRequest.RESET_EXTENSION_STATE,
           params: [true],
         });
@@ -149,7 +150,7 @@ export function SecurityAndPrivacy({
         onClick={() => onLogoutClick()}
       >
         <Typography color={theme.colors.primary1} size={14} height="17px">
-          Sign Out
+          Reset Secret Recovery Phrase
         </Typography>
       </SecondaryDropDownMenuItem>
     </VerticalFlex>

@@ -1,22 +1,23 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
+import { Contact } from '../models';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.CONTACTS_REMOVE,
+  true,
+  [Contact]
+>;
 
 @injectable()
-export class RemoveContactHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.CONTACTS_REMOVE];
+export class RemoveContactHandler implements HandlerType {
+  method = ExtensionRequest.CONTACTS_REMOVE as const;
 
   constructor(private contactsService: ContactsService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const [contact] = request.params || [];
+  handle: HandlerType['handle'] = async (request) => {
+    const [contact] = request.params;
 
     try {
       await this.contactsService.remove(contact);

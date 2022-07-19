@@ -13,6 +13,12 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { useLedgerContext } from './LedgerProvider';
 import { TxHistoryItem } from '@src/background/services/history/models';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
+import { UnlockWalletHandler } from '@src/background/services/lock/handlers/unlockWalletState';
+import { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
+import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
+import { GetWalletTypeHandler } from '@src/background/services/wallet/handlers/getWalletType';
+import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
+import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;
@@ -40,11 +46,11 @@ export function WalletContextProvider({ children }: { children: any }) {
       return;
     }
     setIsWalletLoading(true);
-    request<WalletType | undefined>({
+    request<GetWalletTypeHandler>({
       method: ExtensionRequest.WALLET_GET_TYPE,
     }).then(setWalletType);
 
-    request<boolean>({
+    request<GetLockStateHandler>({
       method: ExtensionRequest.LOCK_GET_STATE,
     }).then((locked) => {
       setIsWalletLocked(locked);
@@ -61,7 +67,7 @@ export function WalletContextProvider({ children }: { children: any }) {
 
         // update wallet type when the extension gets unlocked
         if (!locked) {
-          request<WalletType | undefined>({
+          request<GetWalletTypeHandler>({
             method: ExtensionRequest.WALLET_GET_TYPE,
           }).then(setWalletType);
         }
@@ -80,7 +86,7 @@ export function WalletContextProvider({ children }: { children: any }) {
 
   const unlockWallet = useCallback(
     (password: string) => {
-      return request({
+      return request<UnlockWalletHandler>({
         method: ExtensionRequest.UNLOCK_WALLET,
         params: [password],
       });
@@ -90,7 +96,7 @@ export function WalletContextProvider({ children }: { children: any }) {
 
   const changeWalletPassword = useCallback(
     (newPassword: string, oldPassword: string) => {
-      return request({
+      return request<LockChangePasswordHandler>({
         method: ExtensionRequest.LOCK_CHANGE_PASSWORD,
         params: [newPassword, oldPassword],
       });
@@ -100,7 +106,7 @@ export function WalletContextProvider({ children }: { children: any }) {
 
   const getUnencryptedMnemonic = useCallback(
     (password: string) => {
-      return request({
+      return request<GetUnencryptedMnemonicHandler>({
         method: ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,
         params: [password],
       });
@@ -109,7 +115,7 @@ export function WalletContextProvider({ children }: { children: any }) {
   );
 
   const getTransactionHistory = useCallback(() => {
-    return request({
+    return request<GetHistoryHandler>({
       method: ExtensionRequest.HISTORY_GET,
     });
   }, [request]);

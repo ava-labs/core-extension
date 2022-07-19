@@ -19,8 +19,8 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,
-    "types": ["chrome"],
-    "typeRoots": ["node_modules/@types/*", "src/types/*"]
+    "noUncheckedIndexedAccess": true,
+    "types": ["chrome", "jest"]
   },
   "exclude": ["**/node_modules/*"]
 }

@@ -12,7 +12,9 @@ import { MenuItem, menuItems } from './MenuItems';
 import { NavLink } from 'react-router-dom';
 
 const Link = styled(TextButton)<{ isHighlighted?: boolean; level?: number }>`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) =>
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    theme.mediaWidth.upToSmall!`
     margin: 8px 0;
     border-radius: ${theme.borderRadius};
   `};
@@ -31,7 +33,9 @@ const Link = styled(TextButton)<{ isHighlighted?: boolean; level?: number }>`
         text-shadow: 0px 0px 0.5px ${props.theme.colors.text1};
       }
 
-      ${props.theme.mediaWidth.upToSmall`
+      ${
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        props.theme.mediaWidth.upToSmall!`
         background: ${
           props.isHighlighted
             ? props.theme.dropdown.secondary.itemBgHover
@@ -39,7 +43,8 @@ const Link = styled(TextButton)<{ isHighlighted?: boolean; level?: number }>`
         };
         padding: ${props.level === 0 ? '16px 8px' : '8px'};
         justify-content: flex-start;
-      `};
+      `
+      };
     `};
 `;
 
@@ -56,7 +61,9 @@ const DropDownContent = styled(VerticalFlex)`
   border: ${({ theme }) => theme.dropdown.secondary.border};
   border-radius: ${({ theme }) => theme.borderRadius};
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) =>
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    theme.mediaWidth.upToSmall!`
     background: none;
     width: 100%;
     padding: 0 0 0 44px;
@@ -70,9 +77,12 @@ const StyledCaretIcon = styled(CaretIcon)`
   transition: transform 0.3s;
 
   ${(props) => `
-    ${props.theme.mediaWidth.upToSmall`
+    ${
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      props.theme.mediaWidth.upToSmall!`
       transform: rotate(-90deg);
-    `}
+    `
+    }
   `};
 `;
 
@@ -83,10 +93,12 @@ const DropDown = styled(HorizontalFlex)<{
   position: relative;
   cursor: pointer;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) =>
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    theme.mediaWidth.upToSmall!`
     width: 100%;
     filter: none;
- 
+
     &:hover > ${DropDownContent} {
       display: inital;
     }
@@ -131,7 +143,9 @@ const DropDownText = styled(Typography)`
   padding: 12px 0 12px 40px;
   cursor: pointer;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) =>
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    theme.mediaWidth.upToSmall!`
     width: 100%;
     padding: 16px 4px 16px 8px;
     justify-content: space-between;
@@ -161,8 +175,7 @@ export function Menu() {
     const margin = level === 0 ? '5px 0 5px 40px' : '0';
     const padding = level === 0 ? '0' : '12px 32px';
 
-    for (let i = 0; i < menuItems.length; i++) {
-      const item = menuItems[i];
+    menuItems.forEach((item, i) => {
       if (item.href) {
         elements.push(
           <Link
@@ -221,7 +234,7 @@ export function Menu() {
           </Link>
         );
       }
-    }
+    });
 
     return elements;
   };

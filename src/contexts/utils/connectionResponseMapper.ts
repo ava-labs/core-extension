@@ -1,3 +1,6 @@
+import { deserialize } from '@src/background/serialization/deserialize';
+import { serialize } from '@src/background/serialization/serialize';
+import { isDevelopment } from '@src/utils/environment';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { firstValueFrom, Subject } from 'rxjs';
 import { Runtime } from 'webextension-polyfill-ts';
@@ -27,7 +30,9 @@ export function connectionResponseHandler(
     message: ExtensionConnectionMessageResponse | ExtensionConnectionEvent
   ) => {
     if (isConnectionEvent(message)) {
-      eventHandler && eventHandler.next(message);
+      if (!eventHandler) return;
+      message.value = deserialize(message.value);
+      eventHandler.next(message);
     } else if (isConnectionResponse(message)) {
       const responseHandler = responseMap.get(message.id);
       responseHandler?.next(message);
@@ -53,11 +58,13 @@ export function requestEngine(
       ...request,
       id: `${request.method}-${Math.floor(Math.random() * 10000000)}`,
     };
+    requestWithId.params = serialize(requestWithId.params);
     const response = connectionRequest(requestWithId);
-    requestLog('Extension Request', requestWithId);
+    isDevelopment() && requestLog('Extension Request', requestWithId);
     connection.postMessage(requestWithId);
     response.then((res) => {
-      responseLog('Extension Response', res);
+      isDevelopment() && responseLog('Extension Response', res);
+      res.result = deserialize(res.result);
       return res;
     });
     return response;

@@ -1,28 +1,21 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.ACCOUNT_SELECT,
+  'success',
+  [selectedIndex: number]
+>;
+
 @injectable()
-export class SelectAccountHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.ACCOUNT_SELECT];
+export class SelectAccountHandler implements HandlerType {
+  method = ExtensionRequest.ACCOUNT_SELECT as const;
 
   constructor(private accountsService: AccountsService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const selectedIndex = request.params?.pop();
-
-    if (selectedIndex === undefined) {
-      return {
-        ...request,
-        error: 'account index missing in params',
-      };
-    }
+  handle: HandlerType['handle'] = async (request) => {
+    const [selectedIndex] = request.params;
 
     try {
       await this.accountsService.activateAccount(selectedIndex);

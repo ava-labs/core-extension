@@ -24,6 +24,7 @@ import { AssetBalance } from '../models';
 import { BridgeAdapter } from './useBridge';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
+import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
 
 const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
@@ -109,7 +110,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
       const btcBalance =
         tokens.balances?.[
           isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-        ]?.[activeAccount.addressBTC][0];
+        ]?.[activeAccount.addressBTC]?.[0];
 
       if (btcBalance) {
         setUtxos(btcBalance.utxos);
@@ -126,7 +127,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         isDeveloperMode
           ? ChainId.AVALANCHE_TESTNET_ID
           : ChainId.AVALANCHE_MAINNET_ID
-      ]?.[activeAccount.addressC].find((token) => token.symbol === 'BTC.b');
+      ]?.[activeAccount.addressC]?.find((token) => token.symbol === 'BTC.b');
 
       if (btcAvalancheBalance) {
         setBtcBalanceAvalanche({
@@ -190,7 +191,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     const timestamp = Date.now();
     const symbol = currentAsset || '';
 
-    const result = await request({
+    const result = await request<BridgeSignIssueBtcHandler>({
       method: ExtensionRequest.BRIDGE_SIGN_ISSUE_BTC,
       params: [amountInSatoshis, feeRate],
     });

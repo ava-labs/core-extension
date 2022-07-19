@@ -1,22 +1,21 @@
+import { resolve } from '@avalabs/utils-sdk';
 import { getLedgerExtendedPublicKeyOfAccount } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.LEDGER_GET_PUBLIC,
+  string
+>;
+
 @injectable()
-export class GetPublicKeyHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.LEDGER_GET_PUBLIC];
+export class GetPublicKeyHandler implements HandlerType {
+  method = ExtensionRequest.LEDGER_GET_PUBLIC as const;
 
   constructor(private ledgerService: LedgerService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     if (!this.ledgerService.recentTransport) {
       return {
         ...request,
@@ -29,7 +28,7 @@ export class GetPublicKeyHandler implements ExtensionRequestHandler {
       getLedgerExtendedPublicKeyOfAccount(this.ledgerService.recentTransport)
     );
 
-    if (pubKeyError) {
+    if (pubKeyError instanceof Error) {
       return {
         ...request,
         error: `Error trying to derive public key: ${pubKeyError.message}`,

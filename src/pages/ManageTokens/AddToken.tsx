@@ -18,6 +18,8 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
+import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
+import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -41,7 +43,7 @@ export function AddToken() {
   const addCustomToken = async () => {
     if (!addressInput) return;
     try {
-      const success = await request({
+      const success = await request<AddCustomTokenHandler>({
         method: ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
         params: [addressInput],
       });
@@ -79,7 +81,7 @@ export function AddToken() {
 
     const getTokenData = async () => {
       setIsLoading(true);
-      const tokenData = await request({
+      const tokenData = await request<GetTokenDataHandler>({
         method: ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
         params: [addressInput],
       });

@@ -2,23 +2,22 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { TransactionsService } from '../TransactionsService';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { injectable } from 'tsyringe';
+import { Transaction } from '../models';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.TRANSACTIONS_GET,
+  Transaction | undefined,
+  [txId: string]
+>;
 
 @injectable()
-export class GetTransactionHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.TRANSACTIONS_GET];
+export class GetTransactionHandler implements HandlerType {
+  method = ExtensionRequest.TRANSACTIONS_GET as const;
 
   constructor(private transactionsService: TransactionsService) {}
 
-  handle = async (request) => {
-    const params = request.params;
-    if (!params) {
-      return {
-        ...request,
-        error: 'no params on request',
-      };
-    }
-
-    const txId = params[0];
+  handle: HandlerType['handle'] = async (request) => {
+    const [txId] = request.params;
 
     if (!txId) {
       return {

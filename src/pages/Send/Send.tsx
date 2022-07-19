@@ -129,9 +129,7 @@ export function SendPage() {
           options: { replace: true },
         });
       updateSendState({ token });
-      sendTokenSelectedAnalytics(
-        token.type === TokenType.ERC20 ? token.address : token.symbol
-      );
+      sendTokenSelectedAnalytics('Send');
     },
     [
       contactInput?.address,
@@ -168,7 +166,7 @@ export function SendPage() {
           return;
         }
         updateSendState({ amount: bn });
-        sendAmountEnteredAnalytics(amount);
+        sendAmountEnteredAnalytics('Send');
       }
     },
     [

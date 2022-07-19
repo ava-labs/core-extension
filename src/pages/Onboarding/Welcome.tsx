@@ -12,6 +12,7 @@ import styled, { useTheme } from 'styled-components';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
+import { OnboardingPhase } from '@src/background/services/onboarding/models';
 
 const ExistingWalletButton = styled(OnboardButton)`
   .lock-ledger-icon-container {
@@ -23,21 +24,27 @@ const ExistingWalletButton = styled(OnboardButton)`
     display: block;
     height: 100%;
   }
+`;
 
-  &:hover {
-    .lock-ledger-icon-container {
-      display: flex;
-      justify-content: space-between;
-    }
+const ButtonsWrapper = styled(VerticalFlex)`
+  display: none;
+  height: 100%;
+  width: 234px;
+`;
 
-    .wallet-icon {
+const ExistingButtonsWrapper = styled.div`
+  :hover {
+    ${ExistingWalletButton} {
       display: none;
+    }
+    ${ButtonsWrapper} {
+      display: flex;
     }
   }
 `;
 
 interface WelcomeProps {
-  onNext: (isImportFlow: boolean) => void;
+  onNext: (isImportFlow: OnboardingPhase) => void;
 }
 const defaultOptions = {
   loop: false,
@@ -61,35 +68,40 @@ export function Welcome({ onNext }: WelcomeProps) {
         <HorizontalFlex>
           <OnboardButton
             title="Create a New Wallet"
-            onClick={() => onNext(false)}
+            onClick={() => onNext(OnboardingPhase.ANALYTICS_CONSENT)}
           >
             <CreateWalletIcon color={theme.colors.icon1} height="56px" />
           </OnboardButton>
           <VerticalSeparator margin="0 24px" />
-          <ExistingWalletButton
-            title="Access Existing Wallet"
-            onClick={() => onNext(true)}
-            className="access-existing-button"
-          >
-            <HorizontalFlex
-              justify="space-between"
-              width="160px"
-              className="lock-ledger-icon-container"
-            >
-              <RecoveryLockIcon color={theme.colors.icon1} height="56px" />
-              <LedgerIcon
+          <ExistingButtonsWrapper>
+            <ExistingWalletButton title="Access Existing Wallet">
+              <WalletIcon
                 color={theme.colors.icon1}
                 height="56px"
                 width="56px"
+                className="wallet-icon"
               />
-            </HorizontalFlex>
-            <WalletIcon
-              color={theme.colors.icon1}
-              height="56px"
-              width="56px"
-              className="wallet-icon"
-            />
-          </ExistingWalletButton>
+            </ExistingWalletButton>
+            <ButtonsWrapper justify="space-evenly">
+              <OnboardButton
+                title="Recovery Phrase"
+                onClick={() => onNext(OnboardingPhase.IMPORT_WALLET)}
+                variant="small"
+              >
+                <RecoveryLockIcon color={theme.colors.icon1} height="35px" />
+              </OnboardButton>
+              <VerticalSeparator margin="0 24px" />
+              <OnboardButton
+                title="Ledger"
+                onClick={() => {
+                  onNext(OnboardingPhase.LEDGER);
+                }}
+                variant="small"
+              >
+                <LedgerIcon color={theme.colors.icon1} height="35px" />
+              </OnboardButton>
+            </ButtonsWrapper>
+          </ExistingButtonsWrapper>
         </HorizontalFlex>
       </VerticalFlex>
     </VerticalFlex>

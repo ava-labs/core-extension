@@ -32,14 +32,21 @@ export class PermissionsService implements OnLock {
         (await this.storageService.load<Permissions>(PERMISSION_STORAGE_KEY)) ??
         {};
     } catch (e) {
-      this.permissions = {};
+      /**
+       * If permissions arent pulled then dont set permissions to an empty object
+       * since permissions is requested when the extension opens and the password may not have
+       * not have been set yet. If you set permissions to an empty object at this point then it will
+       * not try to retrieve them again once the password has been input and thus permissions wont be
+       * set properly after retart
+       */
     }
 
     this.eventEmitter.emit(
       PermissionEvents.PERMISSIONS_STATE_UPDATE,
       this.permissions
     );
-    return this.permissions;
+
+    return this.permissions || {};
   }
 
   async getPermissionsForDomain(domain: string) {

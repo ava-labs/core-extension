@@ -1,32 +1,37 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { Asset, AssetType, Blockchain } from '@avalabs/bridge-sdk';
+import { TransactionResponse } from '@ethersproject/providers';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { BridgeService } from '../BridgeService';
-import { WalletService } from '../../wallet/WalletService';
-import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
+import Big from 'big.js';
 import { injectable } from 'tsyringe';
+import { BridgeService } from '../BridgeService';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.BRIDGE_TRANSFER_ASSET,
+  TransactionResponse,
+  [currentBlockchain: Blockchain, amountStr: Big, asset: Asset]
+>;
 
 @injectable()
-export class BridgeTransferAssetHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.BRIDGE_TRANSFER_ASSET];
+export class BridgeTransferAssetHandler implements HandlerType {
+  method = ExtensionRequest.BRIDGE_TRANSFER_ASSET as const;
 
-  constructor(
-    private bridgeService: BridgeService,
-    private walletService: WalletService
-  ) {}
+  constructor(private bridgeService: BridgeService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const [currentBlockchain, amountStr, asset] = request.params || [];
+  handle: HandlerType['handle'] = async (request) => {
+    const [currentBlockchain, amount, asset] = request.params;
 
-    const amount = bnToBig(
-      stringToBN(amountStr, asset.denomination),
-      asset.denomination
-    );
+    if (
+      !(
+        asset.assetType === AssetType.ERC20 ||
+        asset.assetType === AssetType.NATIVE
+      )
+    ) {
+      return {
+        ...request,
+        error: `Cannot transfer asset type ${asset.assetType}`,
+      };
+    }
 
     try {
       const result = await this.bridgeService.transferAsset(
@@ -34,6 +39,8 @@ export class BridgeTransferAssetHandler implements ExtensionRequestHandler {
         amount,
         asset
       );
+
+      if (!result) return { ...request, error: 'Unknown error' };
 
       return {
         ...request,

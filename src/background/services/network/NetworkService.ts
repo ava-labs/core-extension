@@ -26,7 +26,7 @@ import {
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 import { resolve } from '@avalabs/utils-sdk';
-import { InfuraProvider } from '@ethersproject/providers';
+import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -150,16 +150,18 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._developerModeChanges.dispatch(this._isDeveloperMode);
 
     this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
-      activeNetworkId: selectedNetwork.chainId || null,
+      activeNetworkId: selectedNetwork?.chainId || null,
       isDeveloperMode: this.isDeveloperMode,
     });
   }
 
   async getAvalancheNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
-    return this._isDeveloperMode
+    const network = this._isDeveloperMode
       ? activeNetworks[ChainId.AVALANCHE_TESTNET_ID]
       : activeNetworks[ChainId.AVALANCHE_MAINNET_ID];
+    if (!network) throw new Error('Avalanche network not found');
+    return network;
   }
 
   async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
@@ -175,10 +177,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getEthereumProvider() {
     const network = await this.getEthereumNetwork();
-    return new InfuraProvider(
-      network.isTestnet ? 'rinkeby' : 'homestead',
-      process.env.INFURA_API_KEY
-    );
+    return this.getProviderForNetwork(network) as JsonRpcBatchInternal;
   }
 
   async getBitcoinNetwork(): Promise<Network> {
@@ -196,8 +195,8 @@ export class NetworkService implements OnLock, OnStorageReady {
     if (network.vmName === NetworkVMType.BITCOIN) {
       return new BlockCypherProvider(
         !network.isTestnet,
-        undefined,
-        'https://glacier-api.avax-test.network/proxy/blockcypher'
+        process.env.GLACIER_API_KEY,
+        `${process.env.GLACIER_URL}/proxy/blockcypher`
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(
@@ -205,7 +204,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           maxCalls: 40,
           multiContractAddress: network.utilityAddresses?.multicall,
         },
-        network.rpcUrl,
+        addGlacierAPIKeyIfNeeded(network.rpcUrl),
         network.chainId
       );
 

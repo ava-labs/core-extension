@@ -1,6 +1,9 @@
 import { LoadingIcon } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
+import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
+import { SubmitOnboardingHandler } from '@src/background/services/onboarding/handlers/submitOnboarding';
+import { UpdateInitialOpenHandler } from '@src/background/services/onboarding/handlers/updateInitialOpen';
 import {
   OnboardingPhase,
   OnboardingState,
@@ -76,7 +79,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
     concat(
       from(
-        request<OnboardingState>({
+        request<GetIsOnboardedHandler>({
           method: ExtensionRequest.ONBOARDING_GET_STATE,
         })
       ),
@@ -91,7 +94,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const updateInitialOpen = useCallback(
     () =>
-      request({
+      request<UpdateInitialOpenHandler>({
         method: ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN,
       }),
     [request]
@@ -122,7 +125,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     }
 
     setSubmitInProgress(true);
-    request({
+    request<SubmitOnboardingHandler>({
       method: ExtensionRequest.ONBOARDING_SUBMIT,
       params: [
         { mnemonic, xpub: publicKey, password, accountName, analyticsConsent },
@@ -149,8 +152,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setAnalyticsConsent,
       }}
     >
-      {/* 
-        Always show the onbording in full screen since the full screen mode is not supported. 
+      {/*
+        Always show the onbording in full screen since the full screen mode is not supported.
         Change this to !onboardingState.isOnBoarded to re-activate full screen mode
       */}
 

@@ -1,35 +1,21 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.ACCOUNT_RENAME,
+  'success',
+  [index: number, name: string]
+>;
+
 @injectable()
-export class RenameAccountHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.ACCOUNT_RENAME];
+export class RenameAccountHandler implements HandlerType {
+  method = ExtensionRequest.ACCOUNT_RENAME as const;
 
   constructor(private accountsService: AccountsService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const [index, name] = request.params || [];
-
-    if (index === undefined) {
-      return {
-        ...request,
-        error: 'account index missing in params',
-      };
-    }
-
-    if (!name) {
-      return {
-        ...request,
-        error: 'account name missing in params',
-      };
-    }
+  handle: HandlerType['handle'] = async (request) => {
+    const [index, name] = request.params;
 
     try {
       await this.accountsService.setAccountName(index, name);

@@ -1,20 +1,19 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.NETWORK_GET_DEVELOPER_MODE,
+  boolean
+>;
+
 @injectable()
-export class GetDevelopermodeNetworkHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.NETWORK_GET_DEVELOPER_MODE];
+export class GetDevelopermodeNetworkHandler implements HandlerType {
+  method = ExtensionRequest.NETWORK_GET_DEVELOPER_MODE as const;
 
   constructor(private networkService: NetworkService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     return {
       ...request,
       result: this.networkService.isDeveloperMode,

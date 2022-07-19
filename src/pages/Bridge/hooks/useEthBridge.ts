@@ -14,8 +14,13 @@ import { useAssetBalanceEVM } from './useAssetBalanceEVM';
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { BridgeAdapter } from './useBridge';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { InfuraProvider } from '@ethersproject/providers';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import {
+  ETHEREUM_NETWORK,
+  ETHEREUM_TEST_NETWORK_RINKEBY,
+} from '@avalabs/chains-sdk';
+import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 
 /**
  * Hook for when the bridge source chain is Ethereum
@@ -42,14 +47,19 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const { activeAccount } = useAccountsContext();
   const { network } = useNetworkContext();
 
-  const ethereumProvider = useMemo(
-    () =>
-      new InfuraProvider(
-        network?.isTestnet ? 'rinkeby' : 'homestead',
-        process.env.INFURA_API_KEY
-      ),
-    [network?.isTestnet]
-  );
+  const ethereumProvider = useMemo(() => {
+    const ethNetwork = network?.isTestnet
+      ? ETHEREUM_TEST_NETWORK_RINKEBY
+      : ETHEREUM_NETWORK;
+    return new JsonRpcBatchInternal(
+      {
+        maxCalls: 40,
+        multiContractAddress: ethNetwork.utilityAddresses?.multicall,
+      },
+      addGlacierAPIKeyIfNeeded(ethNetwork.rpcUrl),
+      ethNetwork.chainId
+    );
+  }, [network]);
   const hasEnoughForNetworkFee = useHasEnoughForGas(
     isEthereumBridge ? activeAccount?.addressC : undefined,
     ethereumProvider

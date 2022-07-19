@@ -219,7 +219,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           size={ComponentSize.LARGE}
           onClick={lockWallet}
         >
-          Lock Account
+          Lock Core
         </SecondaryButton>
       </VerticalFlex>
     </VerticalFlex>

@@ -45,6 +45,7 @@ const DropdownContents = styled(VerticalFlex)`
   flex-grow: 1;
   background: ${({ theme }) => theme.swapCard.inputContainerBg};
   border-radius: 0 0 8px 8px;
+  z-index: 2;
 `;
 
 const SearchInputContainer = styled.div`
@@ -74,6 +75,7 @@ interface TokenSelectProps {
   margin?: string;
   padding?: string;
   label?: string;
+  selectorLabel?: string;
   tokensList?: TokenWithBalance[];
   bridgeTokensList?: AssetBalance[];
   isValueLoading?: boolean;
@@ -95,6 +97,7 @@ export function TokenSelect({
   margin,
   padding,
   label,
+  selectorLabel,
   isValueLoading,
   hideErrorMessage,
   onError,
@@ -111,8 +114,12 @@ export function TokenSelect({
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
 
+  const decimals = selectedToken?.decimals || 18;
+
   // Stringify maxAmount for referential equality in useEffect
-  const maxAmountString = maxAmount ? bnToLocaleString(maxAmount, 18) : null;
+  const maxAmountString = maxAmount
+    ? bnToLocaleString(maxAmount, decimals)
+    : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
 
   const handleAmountChange = useCallback(
@@ -132,26 +139,27 @@ export function TokenSelect({
     const formattedAmount =
       inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
         ? currencyFormatter(
-            Number(bnToLocaleString(inputAmount, selectedToken.decimals)) *
+            Number(bnToLocaleString(inputAmount, decimals)) *
               selectedToken.priceUSD
           )
         : undefined;
     setAmountInCurrency(formattedAmount);
-  }, [
-    currencyFormatter,
-    inputAmount,
-    selectedToken?.decimals,
-    selectedToken?.priceUSD,
-  ]);
+  }, [currencyFormatter, inputAmount, decimals, selectedToken?.priceUSD]);
 
   // When setting to the max, pin the input value to the max value
   useEffect(() => {
     if (!isMaxAmount || !maxAmountString || skipHandleMaxAmount) return;
     handleAmountChange({
       amount: maxAmountString,
-      bn: numberToBN(maxAmountString, 18),
+      bn: numberToBN(maxAmountString, decimals),
     });
-  }, [maxAmountString, handleAmountChange, isMaxAmount, skipHandleMaxAmount]);
+  }, [
+    maxAmountString,
+    handleAmountChange,
+    isMaxAmount,
+    skipHandleMaxAmount,
+    decimals,
+  ]);
 
   return (
     <VerticalFlex width="100%" style={{ margin }}>
@@ -166,9 +174,7 @@ export function TokenSelect({
           {label ?? 'Token'}
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
-          {selectedToken?.balanceDisplayValue &&
-            selectedToken &&
-            `Balance: ${selectedToken.balanceDisplayValue} ${selectedToken.symbol}`}
+          Balance: {selectedToken?.balanceDisplayValue ?? '0'}
         </Typography>
       </HorizontalFlex>
       <SelectContainer>
@@ -196,6 +202,7 @@ export function TokenSelect({
                 : null
             }
             hideCaretIcon={hideTokenDropdown}
+            label={selectorLabel ?? 'Select'}
           />
           <BNInput
             value={
@@ -206,7 +213,7 @@ export function TokenSelect({
             max={
               !isValueLoading ? maxAmount || selectedToken?.balance : undefined
             }
-            denomination={selectedToken?.decimals || 9}
+            denomination={decimals}
             buttonContent={
               !isValueLoading &&
               maxAmount &&
@@ -215,7 +222,7 @@ export function TokenSelect({
                 ? 'Max'
                 : ''
             }
-            placeholder={'0.0'}
+            placeholder="0"
             width="180px"
             height="40px"
             disabled={!selectedToken || isValueLoading}

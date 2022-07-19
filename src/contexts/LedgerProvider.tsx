@@ -25,6 +25,10 @@ import Transport from '@ledgerhq/hw-transport';
 import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
 import { LedgerEvent } from '@src/background/services/ledger/models';
 import Eth from '@ledgerhq/hw-app-eth';
+import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
+import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
+import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
+import { GetPublicKeyHandler } from '@src/background/services/ledger/handlers/getPublicKey';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -67,7 +71,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
               Buffer.from(data),
               statusList
             );
-            request({
+            request<LedgerResponseHandler>({
               method: ExtensionRequest.LEDGER_RESPONSE,
               params: [
                 {
@@ -79,7 +83,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
             });
           } catch (e) {
             console.error(e);
-            request({
+            request<LedgerResponseHandler>({
               method: ExtensionRequest.LEDGER_RESPONSE,
               params: [
                 {
@@ -102,7 +106,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
       .pipe(filter(ledgerDiscoverTransportsEventListener))
       .subscribe(() => {
         if (initialized) {
-          request({
+          request<InitLedgerTransportHandler>({
             method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
             params: [LEDGER_INSTANCE_UUID],
           });
@@ -116,7 +120,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   useEffect(() => {
     window.addEventListener('beforeunload', (ev) => {
       ev.preventDefault();
-      request({
+      request<RemoveLedgerTransportHandler>({
         method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
         params: [LEDGER_INSTANCE_UUID],
       });
@@ -185,7 +189,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   useEffect(() => {
     const subscription = of([initialized])
       .pipe(
-        filter(([initialized]) => initialized),
+        filter(([initialized]) => !!initialized),
         switchMap(() => getLedgerTransport()),
         switchMap((transport) => initLedgerApp(transport)),
         switchMap((ledgerApp) =>
@@ -219,9 +223,8 @@ export function LedgerContextProvider({ children }: { children: any }) {
    * @returns Promise<public key>
    */
   function getPublicKey() {
-    return request({
+    return request<GetPublicKeyHandler>({
       method: ExtensionRequest.LEDGER_GET_PUBLIC,
-      params: [],
     });
   }
 
@@ -253,7 +256,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
       return;
     }
     setInialized(true);
-    await request({
+    await request<InitLedgerTransportHandler>({
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [LEDGER_INSTANCE_UUID],
     });

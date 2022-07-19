@@ -1,27 +1,28 @@
 import { Network } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
+import { NetworkFee } from '../models';
 import { NetworkFeeService } from '../NetworkFeeService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.NETWORK_FEE_GET,
+  NetworkFee | null,
+  [chainId: number] | undefined
+>;
+
 @injectable()
-export class GetNetworkFeeHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.NETWORK_FEE_GET];
+export class GetNetworkFeeHandler implements HandlerType {
+  method = ExtensionRequest.NETWORK_FEE_GET as const;
 
   constructor(
     private networkFeeService: NetworkFeeService,
     private networkService: NetworkService
   ) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const [chainId] = (request.params || []) as [number | undefined];
+  handle: HandlerType['handle'] = async (request) => {
+    const [chainId] = request.params || [];
 
     let network: Network | undefined;
 

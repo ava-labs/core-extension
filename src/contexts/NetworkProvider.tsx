@@ -5,6 +5,11 @@ import { networkUpdatedEventListener } from '@src/background/services/network/ev
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { Network } from '@avalabs/chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
+import { GetNetworksHandler } from '@src/background/services/network/handlers/getNetworks';
+import { GetSelectedNetworkHandler } from '@src/background/services/network/handlers/getSelectedNetwork';
+import { GetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/getDeveloperMode';
+import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
+import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
 
 const NetworkContext = createContext<{
   network?: Network;
@@ -26,19 +31,19 @@ export function NetworkContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
 
   useEffect(() => {
-    request({
+    request<GetNetworksHandler>({
       method: ExtensionRequest.NETWORK_GET_NETWORKS,
     }).then((networks) => {
       setNetworks(networks);
     });
 
-    request({
+    request<GetSelectedNetworkHandler>({
       method: ExtensionRequest.NETWORK_GET_SELECTED,
     }).then((network) => {
       setNetwork(network);
     });
 
-    request({
+    request<GetDevelopermodeNetworkHandler>({
       method: ExtensionRequest.NETWORK_GET_DEVELOPER_MODE,
     }).then((result) => {
       setIsDeveloperMode(result);
@@ -70,13 +75,13 @@ export function NetworkContextProvider({ children }: { children: any }) {
       value={{
         network,
         setNetwork: (network: Network) =>
-          request({
+          request<SetSelectedNetworkHandler>({
             method: ExtensionRequest.NETWORK_SET_SELECTED,
             params: [network.chainId],
           }),
         networks,
         setDeveloperMode: (status: boolean) =>
-          request({
+          request<SetDevelopermodeNetworkHandler>({
             method: ExtensionRequest.NETWORK_SET_DEVELOPER_MODE,
             params: [status],
           }),

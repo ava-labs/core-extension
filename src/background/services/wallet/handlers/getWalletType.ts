@@ -1,20 +1,20 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { WalletService } from '../WalletService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
+import { WalletType } from '../models';
+import { WalletService } from '../WalletService';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.WALLET_GET_TYPE,
+  WalletType | undefined
+>;
 
 @injectable()
-export class GetWalletTypeHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.WALLET_GET_TYPE];
+export class GetWalletTypeHandler implements HandlerType {
+  method = ExtensionRequest.WALLET_GET_TYPE as const;
 
   constructor(private walletService: WalletService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     return {
       ...request,
       result: this.walletService.walletType,

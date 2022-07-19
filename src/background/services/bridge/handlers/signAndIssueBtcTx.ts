@@ -1,26 +1,28 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { getBtcTransaction } from '@avalabs/bridge-sdk';
+import { ChainId } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { BridgeService } from '../BridgeService';
-import { WalletService } from '../../wallet/WalletService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import { NetworkService } from '../../network/NetworkService';
 import { AccountsService } from '../../accounts/AccountsService';
-import { getBtcTransaction } from '@avalabs/bridge-sdk';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
-import { ChainId } from '@avalabs/chains-sdk';
+import { NetworkService } from '../../network/NetworkService';
+import { WalletService } from '../../wallet/WalletService';
+import { BridgeService } from '../BridgeService';
 
 /**
  * FYI: the input UTXOs to the unsignedTxHex must be owned by the wallet
  * (i.e. the C-chain derived bitcoin address)
  */
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.BRIDGE_SIGN_ISSUE_BTC,
+  { hash: string },
+  [amountInSatoshis: number, feeRate: number]
+>;
+
 @injectable()
-export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.BRIDGE_SIGN_ISSUE_BTC];
+export class BridgeSignIssueBtcHandler implements HandlerType {
+  method = ExtensionRequest.BRIDGE_SIGN_ISSUE_BTC as const;
 
   constructor(
     private bridgeService: BridgeService,
@@ -30,9 +32,7 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
     private walletService: WalletService
   ) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse<{ hash: string }>> => {
+  handle: HandlerType['handle'] = async (request) => {
     const { config } = await this.bridgeService.updateBridgeConfig();
     const bitcoinNetwork = await this.networkService.getBitcoinNetwork();
 
@@ -43,12 +43,7 @@ export class BridgeSignIssueBtcHandler implements ExtensionRequestHandler {
       };
     }
 
-    const [amountInSatoshis, feeRate] = request.params || [];
-
-    if (typeof amountInSatoshis !== 'number')
-      return { ...request, error: 'Missing amountInSatoshis' };
-    if (typeof feeRate !== 'number')
-      return { ...request, error: 'Missing feeRate' };
+    const [amountInSatoshis, feeRate] = request.params;
 
     const { inputs, outputs } = getBtcTransaction(
       config,

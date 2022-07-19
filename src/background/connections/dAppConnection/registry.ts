@@ -13,7 +13,7 @@ import { WalletAddEthereumChainHandler } from '@src/background/services/network/
 import { WalletSwitchEthereumChainHandler } from '@src/background/services/network/handlers/wallet_switchEthereumChain';
 import { WalletGetPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_getPermissions';
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
-import { GetIsDefaultExtensionHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
+import { GetIsDefaultExtensionDAppHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
 import { ConnectRequestHandler } from '@src/background/services/web3/handlers/connect';
@@ -41,7 +41,7 @@ import { registry } from 'tsyringe';
   { token: 'DAppRequestHandler', useToken: WalletSwitchEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },
-  { token: 'DAppRequestHandler', useToken: GetIsDefaultExtensionHandler },
+  { token: 'DAppRequestHandler', useToken: GetIsDefaultExtensionDAppHandler },
   { token: 'DAppRequestHandler', useToken: EthSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },
   { token: 'DAppRequestHandler', useToken: MetamaskGetProviderState },

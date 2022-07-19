@@ -37,6 +37,8 @@ async function getAvalancheABIFromSource(address: string, isMainnet: boolean) {
   let contractSource: ContractSourceCodeResponse;
   try {
     const response = await getSourceForContract(address, isMainnet);
+    if (!response.result[0])
+      throw new Error('Missing ContractSourceCodeResponse');
     contractSource = response.result[0];
   } catch (e) {
     console.error(e);

@@ -1,35 +1,28 @@
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { BridgeService } from '../BridgeService';
 import { PartialBridgeTransaction } from '../models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import Big from 'big.js';
+
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.BRIDGE_TRANSACTION_CREATE,
+  true,
+  PartialBridgeTransaction
+>;
 
 /**
  * Add a new pending bridge transaction to the background state and start the
  * transaction tracking process.
  */
 @injectable()
-export class BridgeCreateTransactionHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.BRIDGE_TRANSACTION_CREATE];
+export class BridgeCreateTransactionHandler implements HandlerType {
+  method = ExtensionRequest.BRIDGE_TRANSACTION_CREATE as const;
 
   constructor(private bridgeService: BridgeService) {}
 
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
-    const partialBridgeTransaction = (request.params?.[0] || {}) as Omit<
-      PartialBridgeTransaction,
-      'amount'
-    > & {
-      // amount is serialized when coming from the request
-      amount: string;
-    };
+  handle: HandlerType['handle'] = async (request) => {
+    const partialBridgeTransaction = request.params;
     const {
       sourceChain,
       sourceTxHash,
@@ -52,7 +45,7 @@ export class BridgeCreateTransactionHandler implements ExtensionRequestHandler {
         sourceTxHash,
         sourceStartedAt,
         targetChain,
-        new Big(amount),
+        amount,
         symbol
       )
     );

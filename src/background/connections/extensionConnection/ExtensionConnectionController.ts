@@ -17,8 +17,11 @@ import {
   responseLog,
 } from '@src/utils/logging';
 import { resolve } from '@avalabs/utils-sdk';
-import { isDevelopment } from '@src/utils/isDevelopment';
+import { isDevelopment } from '@src/utils/environment';
 import './registry';
+import { ExtensionRequestDeserializeMiddleware } from '../middlewares/ExtensionRequestDeserializeMiddleware';
+import { ExtensionRequestSerializeMiddleware } from '../middlewares/ExtensionRequestSerializeMiddleware';
+import { serialize } from '@src/background/serialization/serialize';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
@@ -27,7 +30,7 @@ export class ExtensionConnectionController implements ConnectionController {
 
   constructor(
     @injectAll('ExtensionRequestHandler')
-    private handlers: ExtensionRequestHandler[],
+    private handlers: ExtensionRequestHandler<any, any>[],
     @injectAll('ExtensionEventEmitter')
     private eventEmitters: ExtensionEventEmitter[]
   ) {
@@ -39,7 +42,9 @@ export class ExtensionConnectionController implements ConnectionController {
   connect(connection: Runtime.Port) {
     this.connection = connection;
     this.pipeline = RequestProcessorPipeline(
-      ExtensionRequestHandlerMiddleware(this.handlers)
+      ExtensionRequestDeserializeMiddleware(),
+      ExtensionRequestHandlerMiddleware(this.handlers),
+      ExtensionRequestSerializeMiddleware()
     );
 
     connectionLog('Extension Provider');
@@ -91,8 +96,11 @@ export class ExtensionConnectionController implements ConnectionController {
   }
 
   private onEvent(evt: ExtensionConnectionEvent) {
-    eventLog(`extension event (${evt.name})`, evt);
+    if (isDevelopment()) {
+      eventLog(`extension event (${evt.name})`, evt);
+    }
     try {
+      evt.value = serialize(evt.value);
       this.connection?.postMessage(evt);
     } catch (e) {
       console.error(e);

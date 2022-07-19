@@ -1,21 +1,33 @@
+import { resolve } from '@avalabs/utils-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-  ExtensionRequestHandler,
-} from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
+import { OptimalRate, SwapSide } from 'paraswap-core';
+import { APIError } from 'paraswap';
 import { injectable } from 'tsyringe';
 import { SwapService } from '../SwapService';
 
+type HandlerType = ExtensionRequestHandler<
+  ExtensionRequest.SWAP_GET_RATE,
+  {
+    optimalRate: OptimalRate | APIError;
+    destAmount: string | undefined;
+  },
+  [
+    srcToken: string,
+    srcDecimals: number,
+    destToken: string,
+    destDecimals: number,
+    srcAmount: string,
+    swapSide: SwapSide
+  ]
+>;
+
 @injectable()
-export class GetSwapRateHandler implements ExtensionRequestHandler {
-  methods = [ExtensionRequest.SWAP_GET_RATE];
+export class GetSwapRateHandler implements HandlerType {
+  method = ExtensionRequest.SWAP_GET_RATE as const;
 
   constructor(private swapService: SwapService) {}
-  handle = async (
-    request: ExtensionConnectionMessage
-  ): Promise<ExtensionConnectionMessageResponse> => {
+  handle: HandlerType['handle'] = async (request) => {
     const [
       srcToken,
       srcDecimals,
@@ -23,7 +35,7 @@ export class GetSwapRateHandler implements ExtensionRequestHandler {
       destDecimals,
       srcAmount,
       swapSide,
-    ] = request.params || [];
+    ] = request.params;
 
     if (!srcToken) {
       return {
@@ -74,7 +86,7 @@ export class GetSwapRateHandler implements ExtensionRequestHandler {
     if (err) {
       return {
         ...request,
-        error: err.toString(),
+        error: (err as any).toString(),
       };
     }
 

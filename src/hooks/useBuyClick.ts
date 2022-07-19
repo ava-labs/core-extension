@@ -1,10 +1,10 @@
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { Moonpay } from '@avalabs/blizzard-sdk';
 import { useDialog } from '@avalabs/react-components';
 
-const moonpayURL = async (address: string) => {
-  const moonAPI = new Moonpay({ baseUrl: 'https://blizzard.avax.network' });
-  return await moonAPI.getUrl(address);
+const moonpayURL = async (address: string): Promise<{ url: string }> => {
+  return await fetch(`${process.env.GLACIER_URL}/moonpay/${address}`).then(
+    (response) => response.json()
+  );
 };
 
 const openMiniWindow = (url: string) => {
@@ -29,7 +29,7 @@ export const useBuyClick = () => {
     activeAccount &&
       moonpayURL(activeAccount?.addressC)
         .then((res) => {
-          const moonpayBuyURL = res.data.url;
+          const moonpayBuyURL = res.url;
           showDialog({
             title: 'Attention',
             body: "Clicking “Continue” will take you to a page powered by our partner MoonPay, use is subject to MoonPay's terms and policies",
