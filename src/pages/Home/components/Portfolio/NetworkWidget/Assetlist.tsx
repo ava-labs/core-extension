@@ -72,12 +72,13 @@ export function Assetlist({ assetList }: AssetListProps) {
             margin="0 -16px"
             padding="4px 16px"
             key={token.symbol}
-            onClick={() =>
+            onClick={(e) => {
+              e.stopPropagation();
               setSendDataInParams({
                 token: token,
                 options: { path: '/token' },
-              })
-            }
+              });
+            }}
           >
             <HorizontalFlex align="center">
               <TokenIcon

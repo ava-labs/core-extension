@@ -43,16 +43,21 @@ export function ActiveNetworkWidget({
     return null;
   }
 
+  const handleCardClick = (e) => {
+    e.stopPropagation();
+    history.push('/tokenlist');
+  };
+
   return (
     <>
-      <NetworkCard display="block">
+      <NetworkCard display="block" onClick={handleCardClick}>
         <VerticalFlex>
           <HorizontalFlex
             justify="space-between"
             align="flex-start"
             width="100%"
           >
-            <HorizontalFlex onClick={() => history.push('/tokenlist')}>
+            <HorizontalFlex>
               <LogoContainer>
                 <TokenIcon
                   width="32px"
