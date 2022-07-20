@@ -51,6 +51,9 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletType } from '@src/background/services/wallet/models';
 import { BridgeConfirmLedger } from './components/BridgeConfirm';
 import { TxInProgress } from '@src/components/common/TxInProgress';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { BridgeSanctions } from './components/BridgeSanctions';
+import { isAddressWhitelisted } from './utils/isAddressWhitelisted';
 
 const ErrorSection = styled(HorizontalFlex)`
   position: relative;
@@ -102,6 +105,7 @@ export function Bridge() {
     transfer,
   } = useBridge();
   const {
+    bridgeConfig,
     currentAsset,
     setCurrentAsset,
     currentBlockchain,
@@ -129,6 +133,8 @@ export function Bridge() {
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
+
+  const { activeAccount } = useAccountsContext();
 
   const denomination = sourceBalance?.asset.denomination || 0;
   const amountBN = useMemo(
@@ -308,6 +314,10 @@ export function Bridge() {
     Blockchain.ETHEREUM,
     Blockchain.BITCOIN,
   ];
+
+  if (activeAccount && isAddressWhitelisted(activeAccount, bridgeConfig)) {
+    return <BridgeSanctions />;
+  }
 
   return (
     <VerticalFlex height="100%" width="100%">
