@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: yarn
       - name: Build library
-        run: yarn build
+        run: yarn build:alpha
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

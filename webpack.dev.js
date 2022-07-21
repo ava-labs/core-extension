@@ -2,6 +2,7 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const { DefinePlugin } = require('webpack');
 const Dotenv = require('dotenv-webpack');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'development',
@@ -15,6 +16,24 @@ module.exports = merge(common, {
     new DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('development'),
+      },
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'src/manifest.json',
+          to: '../manifest.json',
+          transform: (content) =>
+            content
+              .toString()
+              .replace('__NAME__', 'Core Dev')
+              .replace('__SHORT_NAME__', 'Core Dev')
+              .replace('__DEFAULT_TITLE__', 'Core Dev Browser Extension'),
+          force: true,
+        },
+      ],
+      options: {
+        concurrency: 100,
       },
     }),
   ],

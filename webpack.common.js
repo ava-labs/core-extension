@@ -100,7 +100,6 @@ module.exports = {
         { from: 'src/index.html', to: '../popup.html' },
         { from: 'src/index.html', to: '../home.html' },
         { from: 'src/index.html', to: '../confirm.html' },
-        { from: 'src/manifest.json', to: '../manifest.json' },
         { from: 'src/images', to: '../images' },
       ],
       options: {
