@@ -120,29 +120,15 @@ export class HistoryServiceETH {
     page = 0,
     offset = 0
   ) {
-    if (!process.env.ETHERSCAN_API_KEY) {
-      throw new Error('API key is missing.');
-    }
     const normalHist = (
-      await getNormalTxs(
-        userAddress,
-        !network.isTestnet,
-        process.env.ETHERSCAN_API_KEY,
-        { page, offset }
-      )
+      await getNormalTxs(userAddress, !network.isTestnet, { page, offset })
     ).map((tx) => this.convertTransactionNormal(tx, network));
 
     const erc20Hist = (
-      await getErc20Txs(
-        userAddress,
-        !network.isTestnet,
-        process.env.ETHERSCAN_API_KEY,
-        undefined,
-        {
-          page,
-          offset,
-        }
-      )
+      await getErc20Txs(userAddress, !network.isTestnet, undefined, {
+        page,
+        offset,
+      })
     ).map((tx) => this.convertTransactionERC20(tx, network));
 
     // Filter erc20 transactions from normal tx list
