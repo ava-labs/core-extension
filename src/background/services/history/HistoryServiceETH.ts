@@ -1,21 +1,23 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
+import { Network } from '@avalabs/chains-sdk';
 
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
 import { TxHistoryItem } from './models';
+
+import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { BN } from 'bn.js';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import {
   Erc20Tx,
   getErc20Txs,
   getNormalTxs,
   NormalTx,
-} from '@avalabs/snowtrace-sdk';
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
-import { BN } from 'bn.js';
-import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+} from '@avalabs/etherscan-sdk';
 
 @singleton()
-export class HistoryServiceCChain {
+export class HistoryServiceETH {
   constructor(
     private bridgeHistoryHelperService: HistoryServiceBridgeHelper,
     private accountsService: AccountsService
@@ -99,7 +101,7 @@ export class HistoryServiceCChain {
   }
 
   async getHistory(network: Network) {
-    if (network?.vmName !== NetworkVMType.EVM) {
+    if (!network?.chainId || !isEthereumChainId(network.chainId)) {
       return [];
     }
 
@@ -118,14 +120,29 @@ export class HistoryServiceCChain {
     page = 0,
     offset = 0
   ) {
+    if (!process.env.ETHERSCAN_API_KEY) {
+      throw new Error('API key is missing.');
+    }
     const normalHist = (
-      await getNormalTxs(userAddress, !network.isTestnet, { page, offset })
+      await getNormalTxs(
+        userAddress,
+        !network.isTestnet,
+        process.env.ETHERSCAN_API_KEY,
+        { page, offset }
+      )
     ).map((tx) => this.convertTransactionNormal(tx, network));
+
     const erc20Hist = (
-      await getErc20Txs(userAddress, !network.isTestnet, undefined, {
-        page,
-        offset,
-      })
+      await getErc20Txs(
+        userAddress,
+        !network.isTestnet,
+        process.env.ETHERSCAN_API_KEY,
+        undefined,
+        {
+          page,
+          offset,
+        }
+      )
     ).map((tx) => this.convertTransactionERC20(tx, network));
 
     // Filter erc20 transactions from normal tx list

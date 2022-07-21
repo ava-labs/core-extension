@@ -15,8 +15,6 @@ import {
   ChainList,
   ChainId,
   NetworkVMType,
-  ETHEREUM_TEST_NETWORK_RINKEBY,
-  ETHEREUM_NETWORK,
   BITCOIN_TEST_NETWORK,
   BITCOIN_NETWORK,
 } from '@avalabs/chains-sdk';
@@ -98,7 +96,14 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async setChainListOrFallback() {
-    const [result] = await resolve(getChainsAndTokens());
+    // getChainsAndTokens has default URL (It changes based on the environment being used) to fetch the chains and tokens.
+    // If the URL needs to be overridden, please use TOKENLIST_OVERRIDE to do so.
+    const [result] = await resolve(
+      getChainsAndTokens(
+        process.env.RELEASE === 'production',
+        process.env.TOKENLIST_OVERRIDE || ''
+      )
+    );
 
     if (result) {
       const withBitcoin = {
@@ -170,9 +175,12 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async getEthereumNetwork(): Promise<Network> {
-    return this._isDeveloperMode
-      ? ETHEREUM_TEST_NETWORK_RINKEBY
-      : ETHEREUM_NETWORK;
+    const activeNetworks = await this.activeNetworks.promisify();
+    const network = this._isDeveloperMode
+      ? activeNetworks[ChainId.ETHEREUM_TEST_RINKEBY]
+      : activeNetworks[ChainId.ETHEREUM_HOMESTEAD];
+    if (!network) throw new Error('Ethereum network not found');
+    return network;
   }
 
   async getEthereumProvider() {

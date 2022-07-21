@@ -15,6 +15,8 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BtcQRCodeLogo } from '@src/components/icons/BtcQRCodeLogo';
 import { NetworkVMType } from '@avalabs/chains-sdk';
+import { EthereumQRCodeLogo } from '@src/components/icons/EthereumQRCodeLogo';
+import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   width: 100%;
@@ -49,15 +51,33 @@ export const Receive = () => {
       return (
         <BtcQRCodeLogo position={'absolute'} text={'Bitcoin'} size={102} />
       );
+    } else if (network?.chainId && isEthereumChainId(network.chainId)) {
+      return (
+        <EthereumQRCodeLogo
+          position={'absolute'}
+          text={'Ethereum'}
+          size={102}
+        />
+      );
+    } else {
+      return (
+        <AvalancheQRCodeLogo
+          position={'absolute'}
+          text={'C-Chain'}
+          size={102}
+        />
+      );
     }
-
-    return (
-      <AvalancheQRCodeLogo position={'absolute'} text={'C-Chain'} size={102} />
-    );
   }
 
   function getName() {
-    return isBitcoinActive ? 'Bitcoin Address' : 'Avalanche (C-Chain) Address';
+    if (isBitcoinActive) {
+      return 'Bitcoin Address';
+    } else if (network?.chainId && isEthereumChainId(network.chainId)) {
+      return 'Ethereum Address';
+    } else {
+      return 'Avalanche (C-Chain) Address';
+    }
   }
 
   if (!address || !network) {

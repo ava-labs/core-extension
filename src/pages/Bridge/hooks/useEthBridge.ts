@@ -1,3 +1,4 @@
+import { ChainId } from '@avalabs/chains-sdk';
 import Big from 'big.js';
 import {
   AssetType,
@@ -16,10 +17,6 @@ import { BridgeAdapter } from './useBridge';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
-import {
-  ETHEREUM_NETWORK,
-  ETHEREUM_TEST_NETWORK_RINKEBY,
-} from '@avalabs/chains-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 
 /**
@@ -45,12 +42,16 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   );
 
   const { activeAccount } = useAccountsContext();
-  const { network } = useNetworkContext();
+  const { network, networks } = useNetworkContext();
 
   const ethereumProvider = useMemo(() => {
     const ethNetwork = network?.isTestnet
-      ? ETHEREUM_TEST_NETWORK_RINKEBY
-      : ETHEREUM_NETWORK;
+      ? networks[ChainId.ETHEREUM_TEST_RINKEBY]
+      : networks[ChainId.ETHEREUM_HOMESTEAD];
+
+    if (!ethNetwork) {
+      throw Error('Network not found.');
+    }
     return new JsonRpcBatchInternal(
       {
         maxCalls: 40,
@@ -59,7 +60,8 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
       addGlacierAPIKeyIfNeeded(ethNetwork.rpcUrl),
       ethNetwork.chainId
     );
-  }, [network]);
+  }, [network, networks]);
+
   const hasEnoughForNetworkFee = useHasEnoughForGas(
     isEthereumBridge ? activeAccount?.addressC : undefined,
     ethereumProvider

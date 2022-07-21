@@ -8,12 +8,13 @@ import {
 } from './utils/convertIPFSResolver';
 
 @singleton()
-export class NFTBalancesServiceCChain implements NFTService {
+export class NFTBalancesServiceCovalent implements NFTService {
   private key = process.env.COVALENT_API_KEY;
   isAggregatorForChain(chainId: number) {
     return [
       ChainId.AVALANCHE_MAINNET_ID,
       ChainId.AVALANCHE_TESTNET_ID,
+      ChainId.ETHEREUM_HOMESTEAD,
     ].includes(chainId);
   }
 
@@ -47,8 +48,12 @@ export class NFTBalancesServiceCChain implements NFTService {
           externalData: nft.external_data && {
             name: nft.external_data.name,
             description: nft.external_data.description,
-            image: convertIPFSResolver(nft.external_data.image),
-            imageSmall: getSmallImageForNFT(nft.external_data.image),
+            image: nft.external_data.image
+              ? convertIPFSResolver(nft.external_data.image)
+              : '',
+            imageSmall: nft.external_data.image
+              ? getSmallImageForNFT(nft.external_data.image)
+              : '',
             animationUrl: nft.external_data.animation_url,
             externalUrl: nft.external_data.external_url,
             owner: nft.external_data.owner,

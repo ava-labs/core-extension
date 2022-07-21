@@ -14,7 +14,11 @@ const disabledFeatures = {
 
 // The list we want to ENABLE features on certain networks (whitelist)
 const enabledFeatues = {
-  COLLECTIBLES: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
+  COLLECTIBLES: [
+    ChainId.AVALANCHE_MAINNET_ID,
+    ChainId.AVALANCHE_TESTNET_ID,
+    ChainId.ETHEREUM_HOMESTEAD,
+  ],
   Swap: [ChainId.AVALANCHE_MAINNET_ID],
   Buy: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
 };

@@ -3,6 +3,8 @@ import { BridgeService } from '../bridge/BridgeService';
 import { BitcoinHistoryTx } from '@avalabs/wallets-sdk';
 import { singleton } from 'tsyringe';
 import { Erc20Tx } from '@avalabs/snowtrace-sdk';
+import { Network } from '@avalabs/chains-sdk';
+import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 
 @singleton()
 export class HistoryServiceBridgeHelper {
@@ -18,7 +20,7 @@ export class HistoryServiceBridgeHelper {
    * If the tx is BitcoinHistoryTx
    * it should be false since we currently do not support bridge between Bitcoin and Ethereum
    */
-  isBridgeTransactionEVM(tx: Erc20Tx): boolean {
+  isBridgeTransactionEVM(tx: Erc20Tx, network: Network): boolean {
     const config = this.bridgeService.bridgeConfig;
     const ethereumAssets = config?.config?.critical.assets;
     const bitcoinAssets = config?.config?.criticalBitcoin?.bitcoinAssets;
@@ -27,20 +29,28 @@ export class HistoryServiceBridgeHelper {
       return false;
     }
 
-    return (
-      Object.values(ethereumAssets).some(({ wrappedContractAddress }) => {
-        return (
-          wrappedContractAddress.toLowerCase() ===
-            tx.contractAddress.toLowerCase() &&
-          (tx.to === ETHEREUM_ADDRESS || tx.from === ETHEREUM_ADDRESS)
-        );
-      }) ||
-      Object.values(bitcoinAssets).some(
-        ({ wrappedContractAddress }) =>
-          wrappedContractAddress.toLowerCase() ===
-          tx.contractAddress.toLowerCase()
-      )
-    );
+    if (isEthereumNetwork(network)) {
+      const ethBridgeAddress = config.config?.critical.walletAddresses.ethereum;
+      return (
+        tx.to.toLowerCase() === ethBridgeAddress ||
+        tx.from.toLowerCase() === ethBridgeAddress
+      );
+    } else {
+      return (
+        Object.values(ethereumAssets).some(({ wrappedContractAddress }) => {
+          return (
+            wrappedContractAddress.toLowerCase() ===
+              tx.contractAddress.toLowerCase() &&
+            (tx.to === ETHEREUM_ADDRESS || tx.from === ETHEREUM_ADDRESS)
+          );
+        }) ||
+        Object.values(bitcoinAssets).some(
+          ({ wrappedContractAddress }) =>
+            wrappedContractAddress.toLowerCase() ===
+            tx.contractAddress.toLowerCase()
+        )
+      );
+    }
   }
 
   /**

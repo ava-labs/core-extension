@@ -1,5 +1,5 @@
 import { registry } from 'tsyringe';
-import { NFTBalancesServiceCChain } from './NFTBalancesServiceCChain';
+import { NFTBalancesServiceCovalent } from './NFTBalancesServiceCovalent';
 
-@registry([{ token: 'NFTService', useToken: NFTBalancesServiceCChain }])
+@registry([{ token: 'NFTService', useToken: NFTBalancesServiceCovalent }])
 export class NFTAggregatorRegistry {}
