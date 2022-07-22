@@ -25,9 +25,13 @@ export class NetworksUpdatedEvents implements ExtensionEventEmitter {
       this.eventEmitter.emit('update', {
         name: NetworkEvents.NETWORKS_UPDATED_EVENT,
         value: {
-          networks: Object.values<Network>(networks),
+          networks: Object.values<Network>(networks).sort((a, b) =>
+            a.chainName.localeCompare(b.chainName)
+          ),
           isDeveloperMode: this.networkService.isDeveloperMode,
           activeNetwork,
+          favoriteNetworks: this.networkService.favoriteNetworks,
+          customNetworks: this.networkService.customNetworks,
         },
       });
     });

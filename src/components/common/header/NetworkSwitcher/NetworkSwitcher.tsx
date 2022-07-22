@@ -5,6 +5,7 @@ import {
   HorizontalFlex,
   CheckmarkIcon,
   Typography,
+  GearIcon,
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled from 'styled-components';
@@ -12,6 +13,8 @@ import { useRef, useState } from 'react';
 import { useTheme } from 'styled-components';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { ChainId } from '@avalabs/chains-sdk';
+import { useHistory } from 'react-router-dom';
+import { NetworkLogo } from '../../NetworkLogo';
 
 const NetworkSwitcherButton = styled(HorizontalFlex)`
   border-radius: 100px;
@@ -49,16 +52,36 @@ const SelectContainer = styled.div`
   position: relative;
 `;
 
-const NetworkLogo = styled.img`
-  width: 16px;
-`;
+const defaultNetworks = [
+  ChainId.AVALANCHE_MAINNET_ID,
+  ChainId.BITCOIN,
+  ChainId.AVALANCHE_TESTNET_ID,
+];
 
 export function NetworkSwitcher() {
-  const { network, setNetwork, networks } = useNetworkContext();
+  const { network, setNetwork, favoriteNetworks, networks } =
+    useNetworkContext();
+  const networkList = [
+    ...networks.filter(
+      (networkItem) =>
+        defaultNetworks.includes(networkItem.chainId) &&
+        networkItem.chainId !== network?.chainId
+    ),
+    ...favoriteNetworks.filter(
+      (networkItem) =>
+        !defaultNetworks.includes(networkItem.chainId) &&
+        networkItem.chainId !== network?.chainId
+    ),
+  ];
+
+  const isActiveInList = networkList.find(
+    (networkItem) => networkItem?.chainId === network?.chainId
+  );
 
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
   const selectButtonRef = useRef<HTMLDivElement>(null);
+  const history = useHistory();
 
   return (
     <SelectContainer>
@@ -68,7 +91,8 @@ export function NetworkSwitcher() {
         onClick={() => setIsOpen(!isOpen)}
         ref={selectButtonRef}
       >
-        <NetworkLogo src={network?.logoUri} />
+        <NetworkLogo src={network?.logoUri} width="16px" height="16px" />
+
         <CaretIcon
           height={'12px'}
           color={theme.colors.text1}
@@ -86,11 +110,35 @@ export function NetworkSwitcher() {
       >
         <DropdownContents>
           <VerticalFlex>
-            {networks
+            {!isActiveInList && network && (
+              <NetworkSwitcherItem
+                key={network.chainId}
+                onClick={() => {
+                  setNetwork(network);
+                }}
+              >
+                <HorizontalFlex align="center">
+                  <NetworkLogo
+                    src={network.logoUri}
+                    width="16px"
+                    height="16px"
+                  />
+
+                  <Typography margin="0 0 0 8px" weight={600} size={14}>
+                    {network.chainName}
+                  </Typography>
+                </HorizontalFlex>
+                <CheckmarkIcon height="16px" color={theme.colors.text1} />
+              </NetworkSwitcherItem>
+            )}
+            {networkList
               .filter((network) => {
                 return network.chainId !== ChainId.AVALANCHE_LOCAL_ID;
               })
               .map((networkItem) => {
+                if (!networkItem) {
+                  return null;
+                }
                 return (
                   <NetworkSwitcherItem
                     key={networkItem.chainId}
@@ -99,7 +147,12 @@ export function NetworkSwitcher() {
                     }}
                   >
                     <HorizontalFlex align="center">
-                      <NetworkLogo src={networkItem.logoUri} />
+                      <NetworkLogo
+                        src={networkItem.logoUri}
+                        width="16px"
+                        height="16px"
+                      />
+
                       <Typography margin="0 0 0 8px" weight={600} size={14}>
                         {networkItem.chainName}
                       </Typography>
@@ -110,6 +163,20 @@ export function NetworkSwitcher() {
                   </NetworkSwitcherItem>
                 );
               })}
+            <NetworkSwitcherItem
+              key="NetworksPage"
+              onClick={() => {
+                history.push('/networks');
+                setIsOpen(false);
+              }}
+            >
+              <HorizontalFlex align="center">
+                <GearIcon color={theme.colors.text1} />
+                <Typography margin="0 0 0 8px" weight={600} size={14}>
+                  Manage Networks
+                </Typography>
+              </HorizontalFlex>
+            </NetworkSwitcherItem>
           </VerticalFlex>
         </DropdownContents>
       </ContainedDropdown>

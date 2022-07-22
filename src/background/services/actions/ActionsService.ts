@@ -16,6 +16,7 @@ import {
 } from './models';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { ethErrors } from 'eth-rpc-errors';
+import { NetworkService } from '../network/NetworkService';
 
 @singleton()
 export class ActionsService {
@@ -23,7 +24,8 @@ export class ActionsService {
   constructor(
     private storageService: StorageService,
     private walletService: WalletService,
-    private bridgeService: BridgeService
+    private bridgeService: BridgeService,
+    private networkService: NetworkService
   ) {}
 
   async getActions(): Promise<Actions> {
@@ -74,43 +76,68 @@ export class ActionsService {
   async updateAction({ status, id, result, error }: ActionUpdate) {
     const currentPendingActions = await this.getActions();
     const pendingMessage = currentPendingActions[id];
-
     if (!pendingMessage) {
       return;
     }
 
     if (status === ActionStatus.SUBMITTING) {
-      if (
-        pendingMessage.method === DAppProviderRequest.AVALANCHE_BRIDGE_ASSET
-      ) {
-        const { currentBlockchain, amountStr, asset } =
-          pendingMessage.displayData;
-        const denomination = asset.denomination;
-
-        this.bridgeService
-          .transferAsset(
-            currentBlockchain,
-            bnToBig(stringToBN(amountStr, denomination), denomination),
-            asset
-          )
-          .then(async (result) => {
-            this.emitResult(id, pendingMessage, true, result);
-          })
-          .catch((error) => {
-            this.emitResult(id, pendingMessage, false, error);
-          });
-      } else {
-        this.walletService
-          .signMessage(
-            pendingMessage.method as MessageType,
-            pendingMessage.displayData.data
-          )
-          .then(async (result) => {
-            this.emitResult(id, pendingMessage, true, result);
-          })
-          .catch(async (err) => {
-            this.emitResult(id, pendingMessage, false, err);
-          });
+      switch (pendingMessage.method) {
+        case DAppProviderRequest.AVALANCHE_BRIDGE_ASSET: {
+          const currentBlockchain =
+            pendingMessage?.displayData.currentBlockchain;
+          const amountStr = pendingMessage?.displayData.amountStr;
+          const asset = pendingMessage?.displayData.asset;
+          const denomination = asset.denomination;
+          this.bridgeService
+            .transferAsset(
+              currentBlockchain,
+              bnToBig(stringToBN(amountStr, denomination), denomination),
+              asset
+            )
+            .then(async (result) => {
+              this.emitResult(id, pendingMessage, true, result);
+            })
+            .catch((error) => {
+              this.emitResult(id, pendingMessage, false, error);
+            });
+          break;
+        }
+        case DAppProviderRequest.WALLET_ADD_CHAIN: {
+          this.networkService
+            .saveCustomNetwork(pendingMessage.displayData)
+            .then(async () => {
+              this.emitResult(id, pendingMessage, true, null);
+            })
+            .catch(async (err) => {
+              this.emitResult(id, pendingMessage, false, err);
+            });
+          break;
+        }
+        case DAppProviderRequest.WALLET_SWITCH_ETHEREUM_CHAIN: {
+          this.networkService
+            .setNetwork(pendingMessage.displayData.chainId)
+            .then(async () => {
+              this.emitResult(id, pendingMessage, true, null);
+            })
+            .catch(async (err) => {
+              this.emitResult(id, pendingMessage, false, err);
+            });
+          break;
+        }
+        default: {
+          this.walletService
+            .signMessage(
+              pendingMessage.method as MessageType,
+              pendingMessage.displayData.data
+            )
+            .then(async (result) => {
+              this.emitResult(id, pendingMessage, true, result);
+            })
+            .catch(async (err) => {
+              this.emitResult(id, pendingMessage, false, err);
+            });
+          break;
+        }
       }
     } else if (
       status !== ActionStatus.COMPLETED &&

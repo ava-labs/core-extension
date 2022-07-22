@@ -34,7 +34,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _activeNetwork = new Signal<Network | undefined>();
   private _developerModeChanges = new Signal<boolean>();
   private _isDeveloperMode = false;
+  private _customNetworks: Record<number, Network> = {};
+  private _favoriteNetworks: number[] = [];
   public developerModeChanges = this._developerModeChanges.readOnly();
+
   public activeNetworks = this._activeNetworks
     .cache(this._chainActiveNetworks)
     .filter((value) => !!value)
@@ -63,9 +66,41 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._isDeveloperMode;
   }
 
-  // dispatching a default value so that the
-  // `await networkService.activeNetwork.promisfy()` can resolve immediately
+  public get favoriteNetworks() {
+    return this._favoriteNetworks;
+  }
+
+  public get customNetworks() {
+    return this._customNetworks;
+  }
+
+  async addFavoriteNetwork(chainId?: number) {
+    const storedFavoriteNetworks = this.favoriteNetworks;
+    if (
+      !chainId ||
+      storedFavoriteNetworks.find(
+        (storedNetworkChainId) => storedNetworkChainId === chainId
+      )
+    ) {
+      return storedFavoriteNetworks;
+    }
+    this._favoriteNetworks = [...storedFavoriteNetworks, chainId];
+    this.updateNetworkState();
+    return this._favoriteNetworks;
+  }
+
+  async removeFavoriteNetwork(chainId: number) {
+    const storedFavoriteNetworks = this.favoriteNetworks;
+    this._favoriteNetworks = storedFavoriteNetworks.filter(
+      (storedFavoriteNetworkChainId) => storedFavoriteNetworkChainId !== chainId
+    );
+    this.updateNetworkState();
+    return this._favoriteNetworks;
+  }
+
   constructor(private storageService: StorageService) {
+    // dispatching a default value so that the
+    // `await networkService.activeNetwork.promisfy()` can resolve immediately
     this._activeNetwork.dispatch(undefined);
   }
 
@@ -78,24 +113,46 @@ export class NetworkService implements OnLock, OnStorageReady {
   onLock(): void {
     this._activeNetwork.dispatch(undefined);
     this._activeNetworks.dispatch(undefined);
+    this._customNetworks = {};
+    this._favoriteNetworks = [];
   }
 
   onStorageReady(): void {
     this.init();
   }
 
+  async updateNetworkState() {
+    const currentActiveNetwork = await this.activeNetwork
+      .promisify()
+      .then((network) => network);
+    this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
+      isDeveloperMode: this.isDeveloperMode,
+      activeNetworkId: currentActiveNetwork?.chainId || null,
+      customNetworks: this._customNetworks,
+      favoriteNetworks: this._favoriteNetworks,
+    });
+  }
+
   async init() {
-    const chainlist = await this.setChainListOrFallback();
-    if (!chainlist) throw new Error('chainlist failed to load');
     const network = await this.storageService.load<NetworkStorage>(
       NETWORK_STORAGE_KEY
     );
 
+    const chainlist = await this.setChainListOrFallback();
+    if (!chainlist) throw new Error('chainlist failed to load');
+
+    const allNetworks = { ...chainlist, ...network?.customNetworks };
+    this._customNetworks = network?.customNetworks || {};
+    this._activeNetworks.dispatch(allNetworks);
     this._isDeveloperMode = network?.isDeveloperMode || false;
     this._activeNetwork.dispatch(
-      chainlist[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID]
+      allNetworks[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID]
     );
     this._developerModeChanges.dispatch(this._isDeveloperMode);
+
+    this._favoriteNetworks = network?.favoriteNetworks || [
+      ChainId.AVALANCHE_MAINNET_ID,
+    ];
   }
 
   async setChainListOrFallback() {
@@ -115,13 +172,11 @@ export class NetworkService implements OnLock, OnStorageReady {
         [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
       };
       this.storageService.save(NETWORK_LIST_STORAGE_KEY, withBitcoin);
-      this._activeNetworks.dispatch(withBitcoin);
       return withBitcoin;
     } else {
       const chainlist = await this.storageService.load<ChainList>(
         NETWORK_LIST_STORAGE_KEY
       );
-      this._activeNetworks.dispatch(chainlist);
       return chainlist;
     }
   }
@@ -138,16 +193,14 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
 
     this._activeNetwork.dispatch(selectedNetwork);
-    this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
-      isDeveloperMode: this.isDeveloperMode,
-      activeNetworkId: selectedNetwork.chainId,
-    });
+    this.updateNetworkState();
   }
 
   async setDeveloperMode(status: boolean) {
     this._isDeveloperMode = status;
 
     const activeNetworks = await this.activeNetworks.promisify();
+
     const selectedNetwork =
       activeNetworks[
         this.isDeveloperMode
@@ -156,11 +209,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       ];
     this._activeNetwork.dispatch(selectedNetwork);
     this._developerModeChanges.dispatch(this._isDeveloperMode);
-
-    this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
-      activeNetworkId: selectedNetwork?.chainId || null,
-      isDeveloperMode: this.isDeveloperMode,
-    });
+    this.updateNetworkState();
   }
 
   async getAvalancheNetwork(): Promise<Network> {
@@ -246,5 +295,60 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
 
     throw new Error('No provider found');
+  }
+
+  async isValidRPCUrl(chainId: number, url: string): Promise<boolean> {
+    const provider = new JsonRpcBatchInternal(
+      {
+        maxCalls: 40,
+      },
+      url,
+      chainId
+    );
+
+    try {
+      const detectedNetwork = await provider.getNetwork();
+      return detectedNetwork.chainId === chainId;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async saveCustomNetwork(customNetwork: Network) {
+    // some cases the chainId comes in a hex value, and there will be a duplicated broken entry in the list
+    const convertedChainId = parseInt(customNetwork?.chainId.toString(16), 16);
+    const chainlist = await this.setChainListOrFallback();
+    const isCustomNetworkExist =
+      !!this._customNetworks[convertedChainId] &&
+      chainlist &&
+      !!chainlist[convertedChainId];
+    if (isCustomNetworkExist) {
+      this.setNetwork(convertedChainId);
+      return;
+    }
+    this._customNetworks = {
+      ...this._customNetworks,
+      [convertedChainId]: customNetwork,
+    };
+    if (!chainlist) throw new Error('chainlist failed to load');
+    this._activeNetworks.dispatch({
+      ...chainlist,
+      ...this._customNetworks,
+    });
+
+    this.setDeveloperMode(false);
+    this.setNetwork(convertedChainId);
+  }
+
+  async removeCustomNetwork(chainID: number) {
+    delete this._customNetworks[chainID];
+    const chainlist = await this.setChainListOrFallback();
+    this._activeNetworks.dispatch({ ...chainlist, ...this._customNetworks });
+    const activeNetwork = await this.activeNetwork.promisify();
+    if (activeNetwork?.chainId === chainID) {
+      this.setNetwork(ChainId.AVALANCHE_MAINNET_ID);
+    }
+    this.removeFavoriteNetwork(chainID);
+    this.updateNetworkState();
   }
 }

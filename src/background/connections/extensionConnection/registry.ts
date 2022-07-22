@@ -42,8 +42,9 @@ import { GetNavigationHistoryDataHandler } from '@src/background/services/naviga
 import { SetNavigationHistoryHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistory';
 import { SetNavigationHistoryDataHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistoryData';
 import { NetworkUpdatedEvents } from '@src/background/services/network/events/networkUpdatedEvent';
-import { GetSelectedNetworkHandler } from '@src/background/services/network/handlers/getSelectedNetwork';
 import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
+import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
+import { RemoveCustomNetworkHandler } from '@src/background/services/network/handlers/removeCustomNetwork';
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
 import { NetworkFeeUpdateEvents } from '@src/background/services/networkFee/events/networkFeeUpdate';
 import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
@@ -78,8 +79,6 @@ import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCu
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
 import { PerformSwapHandler } from '../../services/swap/handlers/performSwap';
 import { UpdateTransactionHandler } from '../../services/transactions/handlers/updateTransaction';
-import { GetNetworksHandler } from '@src/background/services/network/handlers/getNetworks';
-import { GetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/getDeveloperMode';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -87,6 +86,9 @@ import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/ha
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { LockStateChangedEvents } from '@src/background/services/lock/events/lockStateChangedEvent';
 import { LedgerDiscoverTransportsEvents } from '@src/background/services/ledger/events/ledgerDiscoverTransports';
+import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
+import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
+import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -149,19 +151,24 @@ import { LedgerDiscoverTransportsEvents } from '@src/background/services/ledger/
     token: 'ExtensionRequestHandler',
     useToken: SetNavigationHistoryDataHandler,
   },
-  { token: 'ExtensionRequestHandler', useToken: GetSelectedNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: SetSelectedNetworkHandler },
+  { token: 'ExtensionRequestHandler', useToken: SaveCustomNetworkHandler },
+  { token: 'ExtensionRequestHandler', useToken: RemoveCustomNetworkHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDevelopermodeNetworkHandler,
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: GetDevelopermodeNetworkHandler,
+    useToken: AddFavoriteNetworkHandler,
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: GetNetworksHandler,
+    useToken: RemoveFavoriteNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetNetworksStateHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
