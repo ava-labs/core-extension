@@ -1,4 +1,4 @@
-import { Asset, AssetType, Blockchain } from '@avalabs/bridge-sdk';
+import { Asset, Blockchain } from '@avalabs/bridge-sdk';
 import { TransactionResponse } from '@ethersproject/providers';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
@@ -20,24 +20,25 @@ export class BridgeTransferAssetHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async (request) => {
     const [currentBlockchain, amount, asset] = request.params;
-
-    if (
-      !(
-        asset.assetType === AssetType.ERC20 ||
-        asset.assetType === AssetType.NATIVE
-      )
-    ) {
-      return {
-        ...request,
-        error: `Cannot transfer asset type ${asset.assetType}`,
-      };
-    }
+    // BTC.b has AssetType = BTC and this check prevents it from bridging that
+    // if (
+    //   !(
+    //     asset.assetType === AssetType.ERC20 ||
+    //     asset.assetType === AssetType.NATIVE
+    //   )
+    // ) {
+    //   return {
+    //     ...request,
+    //     error: `Cannot transfer asset type ${asset.assetType}`,
+    //   };
+    // }
 
     try {
       const result = await this.bridgeService.transferAsset(
         currentBlockchain,
         amount,
-        asset
+        // This is needed for the bridge to work currently
+        asset as any
       );
 
       if (!result) return { ...request, error: 'Unknown error' };
