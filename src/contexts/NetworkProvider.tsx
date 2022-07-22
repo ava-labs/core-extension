@@ -12,7 +12,7 @@ import { SetSelectedNetworkHandler } from '@src/background/services/network/hand
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
 
 const NetworkContext = createContext<{
-  network?: Network;
+  network?: Network | undefined;
   setNetwork(network: Network): void;
   networks: Network[];
   setDeveloperMode(status: boolean): void;
@@ -25,7 +25,7 @@ const NetworkContext = createContext<{
  * event. Thus updating all instances of the network provider and everything stays in sync.
  */
 export function NetworkContextProvider({ children }: { children: any }) {
-  const [network, setNetwork] = useState<Network>();
+  const [network, setNetwork] = useState<Network | undefined>();
   const [networks, setNetworks] = useState<Network[]>([]);
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const { request, events } = useConnectionContext();

@@ -39,19 +39,20 @@ export class ConnectRequestHandler implements DAppRequestHandler {
   };
 
   handleUnauthenticated = async (request) => {
-    if (!this.accountsService.activeAccount) {
-      return {
-        ...request,
-        error: 'wallet locked, undefined or malformed',
-      };
-    }
-
     if (!request.site?.domain) {
       return {
         ...request,
         error: 'domain unknown',
       };
     }
+
+    // By having this extension window render here, we are popping the extension window before we send the completed request
+    // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
+    await openExtensionNewWindow(
+      `permissions`,
+      `domainName=${request.site?.name}&domainUrl=${request.site?.domain}&domainIcon=${request.site?.icon}&id=${request.id}`,
+      request.meta?.coords
+    );
 
     const actionData = {
       ...request,
@@ -63,12 +64,6 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       tabId: request.site.tabId,
     };
     await this.actionsService.addAction(actionData);
-
-    await openExtensionNewWindow(
-      `permissions`,
-      `domainName=${request.site?.name}&domainUrl=${request.site?.domain}&domainIcon=${request.site?.icon}&id=${request.id}`,
-      request.meta?.coords
-    );
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

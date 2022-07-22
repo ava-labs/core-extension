@@ -57,14 +57,17 @@ export class NetworkService implements OnLock, OnStorageReady {
     .readOnly();
   public activeNetwork = this._activeNetwork
     .cache(this._activeNetworkCache)
-    .filter((value?: Network) => !!value)
     .readOnly();
 
   public get isDeveloperMode() {
     return this._isDeveloperMode;
   }
 
-  constructor(private storageService: StorageService) {}
+  // dispatching a default value so that the
+  // `await networkService.activeNetwork.promisfy()` can resolve immediately
+  constructor(private storageService: StorageService) {
+    this._activeNetwork.dispatch(undefined);
+  }
 
   public async isMainnet() {
     return await this.activeNetwork
