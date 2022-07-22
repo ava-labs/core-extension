@@ -13,7 +13,7 @@ import {
   Card,
   HorizontalFlex,
 } from '@avalabs/react-components';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTheme } from 'styled-components';

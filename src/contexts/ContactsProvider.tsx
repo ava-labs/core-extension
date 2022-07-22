@@ -2,10 +2,8 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { createContext, useContext, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
-import {
-  Contact,
-  ContactsState,
-} from '@src/background/services/contacts/models';
+import { ContactsState } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { contactsUpdatedEventListener } from '@src/background/services/contacts/events/listeners';
 import { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
 import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';

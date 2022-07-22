@@ -5,7 +5,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useCallback, useEffect, useState } from 'react';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers/lib/utils';
 

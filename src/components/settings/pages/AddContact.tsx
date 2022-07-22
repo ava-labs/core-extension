@@ -10,7 +10,7 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { ContactForm } from '../components/ContactForm';
 
 const FlexScrollbars = styled(Scrollbars)`

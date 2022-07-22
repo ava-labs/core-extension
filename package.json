@@ -28,6 +28,7 @@
     "@avalabs/token-prices-sdk": "2.5.0-alpha.1",
     "@avalabs/utils-sdk": "2.5.0-alpha.1",
     "@avalabs/wallets-sdk": "2.5.0-alpha.1",
+    "@avalabs/types": "2.5.0-alpha.1",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
     "@ethereumjs/tx": "3.4.0",

@@ -116,6 +116,11 @@
     graphql "16.5.0"
     graphql-request "4.2.0"
 
+"@avalabs/types@2.5.0-alpha.1":
+  version "2.5.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-2.5.0-alpha.1.tgz#9e42da9fc73b57cabc5fea279ae3c925fe4a4181"
+  integrity sha512-AXowB4w0+YFhYBjnuSfqbUFwY7aVvbksUgRYwxhmT5P5hV615JMNGg/2dsQvcLwgIrPYmUXeYqxhiC66ou6F6g==
+
 "@avalabs/utils-sdk@2.4.1-alpha.8":
   version "2.4.1-alpha.8"
   resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.4.1-alpha.8.tgz#bee5c96e3a9edcf260d5d8938bc691ede038adde"

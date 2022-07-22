@@ -1,10 +1,4 @@
-export interface Contact {
-  id: string; // uuid
-  name: string;
-  address: string;
-  isKnown?: boolean;
-  addressBTC?: string;
-}
+import type { Contact } from '@avalabs/types';
 
 export interface ContactsState {
   contacts: Contact[];

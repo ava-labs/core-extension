@@ -1,12 +1,8 @@
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
-import {
-  Contact,
-  ContactsEvents,
-  ContactsState,
-  CONTACTS_STORAGE_KEY,
-} from './models';
+import { ContactsEvents, CONTACTS_STORAGE_KEY, ContactsState } from './models';
+import type { Contact } from '@avalabs/types';
 
 @singleton()
 export class ContactsService {

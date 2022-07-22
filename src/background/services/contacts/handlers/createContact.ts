@@ -2,7 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
-import { Contact } from '../models';
+import type { Contact } from '@avalabs/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.CONTACTS_CREATE,
