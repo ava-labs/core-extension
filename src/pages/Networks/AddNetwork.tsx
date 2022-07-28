@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import {
   VerticalFlex,
   PrimaryButton,
@@ -19,6 +19,7 @@ import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { usePageHistory } from '@src/hooks/usePageHistory';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -34,23 +35,40 @@ const FlexScrollbars = styled(Scrollbars)`
 
 export const AddNetwork = () => {
   const { saveCustomNetwork } = useNetworkContext();
+  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+
   const history = useHistory();
   const theme = useTheme();
-  const [network, setNetwork] = useState<Network>({
-    chainName: '',
-    chainId: 0,
-    vmName: NetworkVMType.EVM,
-    rpcUrl: '',
-    networkToken: {
-      name: '',
-      symbol: '',
-      description: '',
-      decimals: 18,
+  const defaultNetworkValues = useMemo(
+    () => ({
+      chainName: '',
+      chainId: 0,
+      vmName: NetworkVMType.EVM,
+      rpcUrl: '',
+      networkToken: {
+        name: '',
+        symbol: '',
+        description: '',
+        decimals: 18,
+        logoUri: '',
+      },
       logoUri: '',
-    },
-    logoUri: '',
-    explorerUrl: '',
-  });
+      explorerUrl: '',
+    }),
+    []
+  );
+  const [network, setNetwork] = useState<Network>(defaultNetworkValues);
+
+  const pageHistoryData = useMemo(
+    () => ({
+      ...getPageHistoryData(),
+    }),
+    [getPageHistoryData]
+  );
+
+  useEffect(() => {
+    setNetwork({ ...defaultNetworkValues, ...pageHistoryData });
+  }, [defaultNetworkValues, pageHistoryData]);
 
   const [isFormValid, setIsFormValid] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
@@ -81,6 +99,7 @@ export const AddNetwork = () => {
     setNetwork({
       ...network,
     });
+    setNavigationHistoryData({ ...network });
     setIsFormValid(formValid);
   };
 
