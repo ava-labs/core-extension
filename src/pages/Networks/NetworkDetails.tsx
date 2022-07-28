@@ -214,7 +214,6 @@ export const NetworkDetails = () => {
               <VerticalFlex>
                 <NetworkSwitcherItem
                   onClick={() => {
-                    console.log('edit');
                     setIsOpen(false);
                     setIsEdit(true);
                   }}
@@ -284,7 +283,9 @@ export const NetworkDetails = () => {
           <PrimaryButton
             size={ComponentSize.LARGE}
             width="100%"
-            onClick={() => setNetwork(networkData)}
+            onClick={() => {
+              setNetwork(networkData);
+            }}
           >
             Connect
           </PrimaryButton>

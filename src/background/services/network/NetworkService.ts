@@ -319,13 +319,8 @@ export class NetworkService implements OnLock, OnStorageReady {
     const convertedChainId = parseInt(customNetwork?.chainId.toString(16), 16);
     const chainlist = await this.setChainListOrFallback();
     const isCustomNetworkExist =
-      !!this._customNetworks[convertedChainId] &&
-      chainlist &&
-      !!chainlist[convertedChainId];
-    if (isCustomNetworkExist) {
-      this.setNetwork(convertedChainId);
-      return;
-    }
+      !!this._customNetworks[convertedChainId] ||
+      (chainlist && !!chainlist[convertedChainId]);
     this._customNetworks = {
       ...this._customNetworks,
       [convertedChainId]: customNetwork,
@@ -335,9 +330,10 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...chainlist,
       ...this._customNetworks,
     });
-
-    this.setDeveloperMode(false);
-    this.setNetwork(convertedChainId);
+    if (!isCustomNetworkExist) {
+      this.setDeveloperMode(false);
+      this.setNetwork(convertedChainId);
+    }
   }
 
   async removeCustomNetwork(chainID: number) {
