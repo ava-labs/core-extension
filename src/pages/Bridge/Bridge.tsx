@@ -117,7 +117,7 @@ export function Bridge() {
   const { error } = useBridgeConfig();
 
   const { flags } = useAnalyticsContext();
-  const { currencyFormatter } = useSettingsContext();
+  const { currencyFormatter, currency } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
   const { walletType } = useWalletContext();
 
@@ -192,7 +192,10 @@ export function Bridge() {
       : '-';
   const formattedReceiveAmountCurrency =
     hasValidAmount && price && receiveAmount
-      ? `~${currencyFormatter(price * receiveAmount.toNumber())}`
+      ? `~${currencyFormatter(price * receiveAmount.toNumber()).replace(
+          currency,
+          ''
+        )} ${currency}`
       : '-';
 
   const handleAmountChanged = (value: { bn: BN; amount: string }) => {

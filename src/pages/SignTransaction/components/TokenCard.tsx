@@ -43,7 +43,10 @@ export function TokenCard({
           <SubTextTypography size={12} height="15px">
             {isNaN(Number(amount))
               ? ''
-              : `${currencyFormatter(Number(amount))} ${currency}`}
+              : `${currencyFormatter(Number(amount)).replace(
+                  currency,
+                  ''
+                )} ${currency}`}
           </SubTextTypography>
         </VerticalFlex>
       </HorizontalFlex>
