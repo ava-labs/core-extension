@@ -58,10 +58,8 @@ export class SettingsService implements OnStorageReady {
 
   async addCustomToken(token: NetworkContractToken) {
     const network = await this.networkService.activeNetwork.promisify();
-    if (!network?.tokens) {
-      throw new Error('No ERC20 tokens found in wallet.');
-    }
-    const tokenAlreadyExists = network.tokens.reduce(
+
+    const tokenAlreadyExists = network?.tokens?.reduce(
       (exists, existingToken) =>
         exists ||
         existingToken.address.toLowerCase() === token.address.toLowerCase(),
@@ -69,15 +67,15 @@ export class SettingsService implements OnStorageReady {
     );
     const settings = await this.getSettings();
 
+    if (!network?.chainId) {
+      throw new Error('Unable to detect current network selection.');
+    }
+
     if (
       tokenAlreadyExists ||
       settings.customTokens?.[network.chainId]?.[token.address.toLowerCase()]
     ) {
       throw new Error('Token already exists in the wallet.');
-    }
-
-    if (!network?.chainId) {
-      throw new Error('Unable to detect current network selection.');
     }
 
     const newSettings: SettingsState = {
