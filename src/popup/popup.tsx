@@ -118,6 +118,12 @@ const LedgerConnect = lazy(() => {
   }));
 });
 
+const SelectWallet = lazy(() => {
+  return import('../pages/Wallet/SelectWallet').then((m) => ({
+    default: m.SelectWallet,
+  }));
+});
+
 const AddCustomNetworkPopup = lazy(() => {
   return import('../pages/Network/AddCustomNetworkPopup').then((m) => ({
     default: m.AddCustomNetworkPopup,
@@ -329,11 +335,18 @@ export function Popup() {
                                       </Suspense>
                                     </Route>
 
+                                    <Route path="/selectWallet">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SelectWallet />
+                                      </Suspense>
+                                    </Route>
+
                                     <Route exact path="/networks">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <Networks />
                                       </Suspense>
                                     </Route>
+
                                     <Route path="/networks/add">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <AddNetwork />

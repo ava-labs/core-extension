@@ -16,6 +16,7 @@ import { WalletRequestPermissionsHandler } from '@src/background/services/permis
 import { GetIsDefaultExtensionDAppHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
+import { AvalancheSelectWalletHandler } from '@src/background/services/web3/handlers/avalanche_selectWallet';
 import { ConnectRequestHandler } from '@src/background/services/web3/handlers/connect';
 import { MetamaskGetProviderState } from '@src/background/services/web3/handlers/metamask_getProviderState';
 import { MetamaskSendDomainMetadataHandler } from '@src/background/services/web3/handlers/metamask_sendDomainMetadata';
@@ -35,6 +36,7 @@ import { registry } from 'tsyringe';
   },
   { token: 'DAppRequestHandler', useToken: AvalancheBridgeAsset },
   { token: 'DAppRequestHandler', useToken: AvalancheGetContactsHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSelectWalletHandler },
   { token: 'DAppRequestHandler', useToken: PersonalEcRecoverHandler },
   { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },

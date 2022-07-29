@@ -118,13 +118,17 @@ export function LedgerContextProvider({ children }: { children: any }) {
   }, [events, initialized, request]);
 
   useEffect(() => {
-    window.addEventListener('beforeunload', (ev) => {
+    const handler = (ev) => {
       ev.preventDefault();
       request<RemoveLedgerTransportHandler>({
         method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
         params: [LEDGER_INSTANCE_UUID],
       });
-    });
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => {
+      window.removeEventListener('beforeunload', handler);
+    };
   }, [request]);
 
   const initLedgerApp = useCallback(

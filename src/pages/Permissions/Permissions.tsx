@@ -25,14 +25,7 @@ import { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
-
-const SiteAvatar = styled(VerticalFlex)<{ margin: string }>`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg3};
-  border-radius: 50%;
-  margin: ${({ margin }) => margin ?? '0px'};
-`;
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 const AccountName = styled(Typography)<{ selected: boolean }>`
   max-width: 165px;

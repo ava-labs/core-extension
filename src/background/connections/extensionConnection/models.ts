@@ -33,6 +33,7 @@ export enum ExtensionRequest {
   WALLET_GET_TYPE = 'wallet_getType',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
   GET_WALLET_HISTORY = 'wallet_getHistory',
+  WALLET_SELECT_WALLET_FOR_DAPP = 'wallet_selectWalletForDapp',
 
   LOCK_WALLET = 'lock_lock',
   UNLOCK_WALLET = 'lock_unlock',

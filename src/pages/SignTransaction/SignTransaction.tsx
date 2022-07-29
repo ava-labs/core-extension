@@ -17,7 +17,7 @@ import {
   TxStatus,
 } from '@src/background/services/transactions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ApproveTx } from './ApproveTx';
 import { SwapTx } from './SwapTx';
 import { UnknownTx } from './UnknownTx';
@@ -31,6 +31,7 @@ import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog
 import { TransactionProgressState } from './models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -57,28 +58,14 @@ export function SignTransactionPage() {
   const explorerUrl = network && getExplorerAddressByNetwork(network, hash);
   useLedgerDisconnectedDialog(window.close);
 
-  function cancelHandler() {
+  const cancelHandler = useCallback(() => {
     updateTransaction({
       status: TxStatus.ERROR_USER_CANCELED,
       id: id,
     });
-  }
-  useEffect(() => {
-    window.addEventListener('unload', cancelHandler);
-    // If window is no longer focused, we will cancel the action
-    window.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        cancelHandler();
-      }
-    });
+  }, [id, updateTransaction]);
 
-    return () => {
-      window.removeEventListener('unload', cancelHandler);
-      window.removeEventListener('visibilitychange', cancelHandler);
-    };
-    // This only needs to run once since this is a part of initializing process.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useWindowGetsClosedOrHidden(cancelHandler);
 
   const displayData: TransactionDisplayValues = { ...params } as any;
 

@@ -4,6 +4,7 @@ import { UpdateActionHandler } from '@src/background/services/actions/handlers/u
 import { Action, ActionUpdate } from '@src/background/services/actions/models';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useCallback, useEffect, useState } from 'react';
 
 export function useApproveAction(actionId: string) {
@@ -35,20 +36,7 @@ export function useApproveAction(actionId: string) {
     }).then(setAction);
   }, [actionId, request]);
 
-  useEffect(() => {
-    window.addEventListener('unload', cancelHandler);
-    // If window is no longer focused, we will cancel the action
-    window.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        cancelHandler();
-      }
-    });
-
-    return () => {
-      window.removeEventListener('unload', cancelHandler);
-      window.removeEventListener('visibilitychange', cancelHandler);
-    };
-  }, [cancelHandler]);
+  useWindowGetsClosedOrHidden(cancelHandler);
 
   return { action, updateAction, error, cancelHandler };
 }

@@ -11,21 +11,14 @@ import {
 } from '@avalabs/react-components';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ActionStatus } from '@src/background/services/actions/models';
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import Scrollbars from 'react-custom-scrollbars-2';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
 import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
 import { BridgeTransferAsset } from './BridgeTransferAsset';
-
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 50%;
-  margin: 8px 0;
-`;
 
 export function ApproveAction() {
   const theme = useTheme();

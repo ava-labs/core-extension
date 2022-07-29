@@ -76,6 +76,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'web3_clientVersion',
   'web3_sha3',
   'avalanche_getIsDefaultExtensionState',
+  'avalanche_selectWallet',
 ]);
 
 const COREX_METHODS = Object.freeze([

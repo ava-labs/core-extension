@@ -6,7 +6,7 @@ import {
   TextButton,
   ComponentSize,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { ApproveTransactionData } from '@src/contracts/contractParsers/models';
 import { TransactionTabs } from './components/TransactionTabs';
 import { truncateAddress } from '@src/utils/truncateAddress';
@@ -14,14 +14,7 @@ import { TransactionHeader } from './components/TransactionHeader';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { TransactionProgressData, TransactionProgressState } from './models';
 import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
-
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 50%;
-  margin: 8px 0;
-`;
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 export function ApproveTx({
   site,
