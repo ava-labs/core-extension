@@ -78,20 +78,7 @@ class MultiWalletProviderProxy {
       this.providers[selectedIndex] || this._defaultProvider;
   }
 
-  constructor(private coreProvider: any) {
-    this._defaultProvider = coreProvider;
-    this._providers.push(coreProvider);
-  }
-
-  async enable(): Promise<string[]> {
-    await this.toggleWalletSelection();
-
-    return this._defaultProvider.enable();
-  }
-
-  // implement request to intercept `eth_requestAccounts`
-  // so that users can select which provider they want to use
-  async request<T>(args: RequestArguments): Promise<Maybe<T>> {
+  private async _request<T>(args: RequestArguments): Promise<Maybe<T>> {
     if (!args || typeof args !== 'object' || Array.isArray(args)) {
       throw ethErrors.rpc.invalidRequest({
         message: messages.errors.invalidRequestArgs(),
@@ -111,6 +98,28 @@ class MultiWalletProviderProxy {
 
     // default provider is selected, let call through
     return this.defaultProvider.request(args);
+  }
+
+  constructor(private coreProvider: any) {
+    this._defaultProvider = coreProvider;
+    this._providers.push(coreProvider);
+  }
+
+  async enable(): Promise<string[]> {
+    await this.toggleWalletSelection();
+
+    return this._defaultProvider.enable();
+  }
+
+  // implement request to intercept `eth_requestAccounts`
+  // so that users can select which provider they want to use
+  async request<T>(args: RequestArguments): Promise<Maybe<T>> {
+    return this._request(args);
+  }
+
+  // this is needed because there are multiple dApps which love to use an old deprecated method
+  async send<T>(args: RequestArguments): Promise<Maybe<T>> {
+    return this._request(args);
   }
 }
 
