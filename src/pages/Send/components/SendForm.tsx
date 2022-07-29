@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { ContactInput } from './ContactInput';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import {
   HorizontalFlex,
   Typography,

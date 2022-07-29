@@ -38,7 +38,10 @@ export class HistoryServiceCChain {
     const amountDisplayValue = balanceToDisplayValue(amountBN, decimals);
 
     return {
-      isBridge: this.bridgeHistoryHelperService.isBridgeTransactionEVM(tx),
+      isBridge: this.bridgeHistoryHelperService.isBridgeTransactionEVM(
+        tx,
+        network
+      ),
       isIncoming: !isSender,
       isOutgoing: isSender,
       isContractCall: false,

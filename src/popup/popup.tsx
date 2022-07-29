@@ -29,6 +29,9 @@ import { usePageHistory } from '@src/hooks/usePageHistory';
 import { ApproveAction } from '@src/pages/ApproveAction/ApproveAction';
 import { TokenList } from '@src/pages/Home/components/Portfolio/TokenList';
 import { Home } from '@src/pages/Home/Home';
+import { Networks } from '@src/pages/Networks';
+import { AddNetwork } from '@src/pages/Networks/AddNetwork';
+import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
 import { lazy, Suspense, useEffect, useMemo } from 'react';
@@ -115,6 +118,24 @@ const LedgerConnect = lazy(() => {
   }));
 });
 
+const SelectWallet = lazy(() => {
+  return import('../pages/Wallet/SelectWallet').then((m) => ({
+    default: m.SelectWallet,
+  }));
+});
+
+const AddCustomNetworkPopup = lazy(() => {
+  return import('../pages/Network/AddCustomNetworkPopup').then((m) => ({
+    default: m.AddCustomNetworkPopup,
+  }));
+});
+
+const SwitchActiveNetwork = lazy(() => {
+  return import('../pages/Network/SwitchActiveNetwork').then((m) => ({
+    default: m.SwitchActiveNetwork,
+  }));
+});
+
 export function Popup() {
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
@@ -167,8 +188,8 @@ export function Popup() {
     <DialogContextProvider>
       <LedgerContextProvider>
         <OnboardingContextProvider>
-          <NetworkContextProvider>
-            <AccountsContextProvider>
+          <AccountsContextProvider>
+            <NetworkContextProvider>
               <BalancesProvider>
                 <NetworkFeeContextProvider>
                   <WalletContextProvider>
@@ -314,6 +335,42 @@ export function Popup() {
                                       </Suspense>
                                     </Route>
 
+                                    <Route path="/selectWallet">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SelectWallet />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route exact path="/networks">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Networks />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/networks/add">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <AddNetwork />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/networks/details/:networkId">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <NetworkDetails />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/networks/add-popup">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <AddCustomNetworkPopup />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/network/switch">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SwitchActiveNetwork />
+                                      </Suspense>
+                                    </Route>
+
                                     <Route path="/">
                                       <Redirect to="/home" />
                                     </Route>
@@ -328,8 +385,8 @@ export function Popup() {
                   </WalletContextProvider>
                 </NetworkFeeContextProvider>
               </BalancesProvider>
-            </AccountsContextProvider>
-          </NetworkContextProvider>
+            </NetworkContextProvider>
+          </AccountsContextProvider>
         </OnboardingContextProvider>
       </LedgerContextProvider>
     </DialogContextProvider>

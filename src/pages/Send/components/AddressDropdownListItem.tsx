@@ -8,7 +8,7 @@ import {
 } from '@avalabs/react-components';
 import React from 'react';
 import styled, { useTheme } from 'styled-components';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 
 const RowContainer = styled(VerticalFlex)`

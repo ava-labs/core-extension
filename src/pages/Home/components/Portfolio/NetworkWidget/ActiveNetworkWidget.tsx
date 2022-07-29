@@ -13,6 +13,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { NetworkLogo } from '@src/components/common/NetworkLogo';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -64,7 +65,9 @@ export function ActiveNetworkWidget({
                   height="32px"
                   src={network.logoUri}
                   name={network.chainName}
-                />
+                >
+                  <NetworkLogo width="40px" height="40px" padding="8px" />
+                </TokenIcon>
               </LogoContainer>
               <VerticalFlex>
                 <Typography

@@ -67,7 +67,8 @@ export function AddToken() {
       addressInput?.length &&
       tokens.some(
         (token) =>
-          token.type === TokenType.ERC20 && token.address === addressInput
+          token.type === TokenType.ERC20 &&
+          token.address.toLowerCase() === addressInput.toLowerCase()
       ),
     [tokens, addressInput]
   );

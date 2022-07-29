@@ -3,11 +3,13 @@ export enum ExtensionRequest {
   ONBOARDING_SUBMIT = 'onboarding_submit',
   ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',
 
-  NETWORK_GET_SELECTED = 'network_getSelectedNetwork',
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
-  NETWORK_GET_NETWORKS = 'network_getNetworks',
   NETWORK_SET_DEVELOPER_MODE = 'network_setDeveloperMode',
-  NETWORK_GET_DEVELOPER_MODE = 'network_getDeveloperMode',
+  NETWORK_ADD_FAVORITE_NETWORK = 'network_add_favorite_networks',
+  NETWORK_REMOVE_FAVORITE_NETWORK = 'network_remove_favorite_network',
+  NETWORK_SAVE_CUSTOM = 'network_saveCustomNetwork',
+  NETWORK_REMOVE_CUSTOM = 'network_removeCustomNetwork',
+  NETWORKS_GET_STATE = 'networks_get_state',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',
@@ -31,6 +33,7 @@ export enum ExtensionRequest {
   WALLET_GET_TYPE = 'wallet_getType',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
   GET_WALLET_HISTORY = 'wallet_getHistory',
+  WALLET_SELECT_WALLET_FOR_DAPP = 'wallet_selectWalletForDapp',
 
   LOCK_WALLET = 'lock_lock',
   UNLOCK_WALLET = 'lock_unlock',

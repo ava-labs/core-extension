@@ -20,6 +20,7 @@ export enum DAppProviderRequest {
   AVALANCHE_GET_ACCOUNTS = 'avalanche_getAccounts',
   AVALANCHE_BRIDGE_ASSET = 'avalanche_bridgeAsset',
   AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
+  AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
 }
 
 export enum Web3Event {

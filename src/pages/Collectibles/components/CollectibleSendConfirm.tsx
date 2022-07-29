@@ -11,7 +11,7 @@ import {
   SubTextTypography,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory } from 'react-router-dom';

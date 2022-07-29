@@ -9,7 +9,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { AddressDropdownList } from './AddressDropdownList';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';

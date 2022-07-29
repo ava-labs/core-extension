@@ -1,7 +1,10 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { DAppRequestHandler } from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
+import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
+import { ActionsService } from '../../actions/ActionsService';
 import { NetworkService } from '../NetworkService';
 
 /**
@@ -12,7 +15,10 @@ import { NetworkService } from '../NetworkService';
 export class WalletSwitchEthereumChainHandler implements DAppRequestHandler {
   methods = [DAppProviderRequest.WALLET_SWITCH_ETHEREUM_CHAIN];
 
-  constructor(private networkService: NetworkService) {}
+  constructor(
+    private networkService: NetworkService,
+    private actionsService: ActionsService
+  ) {}
 
   handleUnauthenticated = async (request) => {
     return {
@@ -23,20 +29,53 @@ export class WalletSwitchEthereumChainHandler implements DAppRequestHandler {
 
   handleAuthenticated = async (request) => {
     const params = request.params;
-
     const targetChainID = params?.[0]?.chainId; // chain ID is hex with 0x perfix
-    const [, error] = await resolve(
-      this.networkService.setNetwork(Number(targetChainID))
+    const supportedNetwork = await this.networkService.getNetwork(
+      Number(targetChainID)
     );
+    const currentActiveNetwork =
+      await this.networkService.activeNetwork.promisify();
 
-    if (error) {
+    // If switch ethereum network is called, we need to verify the wallet
+    // is not currently on the requested network. If it is, we just need to return early
+    // to prevent an unnecessary UX
+    if (Number(targetChainID) === currentActiveNetwork?.chainId) {
       return {
         ...request,
-        error: {
-          code: 0,
-          message:
-            'One or more chains requested are not supported by this extension',
-        } as any,
+        result: null,
+      };
+    }
+    // If the network is not currently on the requested network and we currently support the network
+    // then we need to show a confirmation popup to confirm user wants to switch to the requested network
+    // from the dApp they are on.
+    if (supportedNetwork?.chainId) {
+      const actionData = {
+        ...request,
+        displayData: supportedNetwork,
+        tabId: request.site.tabId,
+      };
+
+      await this.actionsService.addAction(actionData);
+
+      await openExtensionNewWindow(
+        `network/switch?id=${request.id}`,
+        '',
+        request.meta?.coords
+      );
+
+      return { ...request, result: DEFERRED_RESPONSE };
+    } else {
+      // If the user is not already on the requested network, and we currently do not support
+      // the network, then we need to pop a confirmation window asking them if they want to add
+      // the custom network to storage for them to use. For now, we will just return an error message,
+      // until we have an internal tool for getting indexed network info. Because for now, the swithEthereumChain
+      // request only provides a chainId, with no other info.
+      return {
+        ...request,
+        error: ethErrors.provider.custom({
+          code: 4902, // To-be-standardized "unrecognized chain ID" error
+          message: `Unrecognized chain ID "${targetChainID}". Try adding the chain using ${DAppProviderRequest.WALLET_ADD_CHAIN} first.`,
+        }),
       };
     }
 

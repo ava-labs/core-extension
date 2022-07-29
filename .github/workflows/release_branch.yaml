@@ -23,7 +23,6 @@ jobs:
         run: |
           touch .env.production
           echo RELEASE=production
-          echo ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }} >> .env.production
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
           echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
           echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production

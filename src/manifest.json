@@ -1,7 +1,7 @@
 {
-  "name": "Core",
-  "short_name": "Core",
-  "version": "0.0.3",
+  "name": "__NAME__",
+  "short_name": "__SHORT_NAME__",
+  "version": "0.0.0",
   "manifest_version": 3,
   "author": "AvaLabs",
   "description": "Your all-in-one Web3 command center for Avalanche",
@@ -27,7 +27,7 @@
       "16": "images/icon-16.png",
       "32": "images/icon-32.png"
     },
-    "default_title": "Core Browser Extension",
+    "default_title": "__DEFAULT_TITLE__",
     "default_popup": "popup.html"
   },
   "permissions": ["storage", "unlimitedStorage", "activeTab", "contextMenus"],

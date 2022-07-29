@@ -1,6 +1,6 @@
 import { VerticalFlex } from '@avalabs/react-components';
 import { AddressDropdownListItem } from './AddressDropdownListItem';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 
 type AddressDropdownListProps = {

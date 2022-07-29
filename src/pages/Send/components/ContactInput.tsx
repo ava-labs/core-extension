@@ -7,7 +7,7 @@ import {
 } from '@avalabs/react-components';
 import { useRef, useState } from 'react';
 import { ContactSelect } from './ContactSelect';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';

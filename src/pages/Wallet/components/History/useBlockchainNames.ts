@@ -1,6 +1,7 @@
 import { Blockchain, BridgeTransaction } from '@avalabs/bridge-sdk';
 import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
 import { TxHistoryItem } from '@src/background/services/history/models';
+import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import {
   ETHEREUM_ADDRESS,
   isPendingBridgeTransaction,
@@ -62,6 +63,11 @@ function getTxBlockchain(tx: TxHistoryItem | BridgeTransaction) {
   if (symbol === BITCOIN_NETWORK.networkToken.symbol) {
     return bitcoin;
   }
+
+  if (!isBridgeTransaction(tx) && isEthereumChainId(Number(tx.chainId))) {
+    return ethereum;
+  }
+
   const symbolPostfix = symbol?.split('.')[1];
 
   switch (symbolPostfix) {

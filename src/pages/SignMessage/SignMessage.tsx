@@ -11,9 +11,10 @@ import {
 } from '@avalabs/react-components';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { MessageType } from '@src/background/services/messages/models';
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import Scrollbars from 'react-custom-scrollbars-2';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
 import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
@@ -22,14 +23,6 @@ import { PersonalSign } from './components/PersonalSign';
 import { SignData } from './components/SignData';
 import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
-
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 50%;
-  margin: 8px 0;
-`;
 
 export function SignMessage() {
   const theme = useTheme();
@@ -61,7 +54,7 @@ export function SignMessage() {
           </VerticalFlex>
 
           <VerticalFlex align="center" margin="0 0 24px">
-            <SiteAvatar margin="8px 0" justify="center" align="center">
+            <SiteAvatar justify="center" align="center">
               <TokenIcon height="48px" width="48px" src={message.site?.icon}>
                 <GlobeIcon
                   height="48px"

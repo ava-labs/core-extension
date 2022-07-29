@@ -14,7 +14,7 @@ import {
 } from '@avalabs/react-components';
 import { SendForm } from './components/SendForm';
 import { bnToLocaleString, stringToBN } from '@avalabs/utils-sdk';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { SendConfirm } from './SendConfirm';
 import { useSend } from './hooks/useSend';
 import { Route, Switch, useHistory } from 'react-router-dom';

@@ -41,7 +41,7 @@ export class AddCustomTokenHandler implements HandlerType {
       return {
         ...request,
         result: false,
-        error: (err as any).toString(),
+        error: (saveError as any).toString(),
       };
     }
 

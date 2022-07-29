@@ -8,7 +8,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { SettingsPages } from '../models';
 import { useHistory, useLocation } from 'react-router-dom';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';

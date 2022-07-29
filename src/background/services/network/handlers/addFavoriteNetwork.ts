@@ -1,23 +1,26 @@
-import { Network } from '@avalabs/chains-sdk';
-import { resolve } from '@avalabs/utils-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
+import { resolve } from '@src/utils/promiseResolver';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.NETWORK_GET_NETWORKS,
-  Network[]
+  ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
+  number[],
+  [number]
 >;
 
 @injectable()
-export class GetNetworksHandler implements HandlerType {
-  method = ExtensionRequest.NETWORK_GET_NETWORKS as const;
+export class AddFavoriteNetworkHandler implements HandlerType {
+  method = ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK as const;
 
   constructor(private networkService: NetworkService) {}
   handle: HandlerType['handle'] = async (request) => {
-    const [networks, err] = await resolve(
-      this.networkService.activeNetworks.promisify()
+    const { params } = request;
+    const [network] = params || [];
+
+    const [favoriteNetworks, err] = await resolve(
+      this.networkService.addFavoriteNetwork(network)
     );
 
     if (err) {
@@ -27,11 +30,9 @@ export class GetNetworksHandler implements HandlerType {
       };
     }
 
-    const result = Object.values(networks || {});
-
     return {
       ...request,
-      result,
+      result: favoriteNetworks,
     };
   };
 }

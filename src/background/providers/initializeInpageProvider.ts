@@ -3,6 +3,7 @@ import {
   MetaMaskInpageProvider,
   MetaMaskInpageProviderOptions,
 } from './MetaMaskInpageProvider';
+import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { shimWeb3 } from './shimWeb3';
 
 interface InitializeProviderOptions extends MetaMaskInpageProviderOptions {
@@ -77,9 +78,21 @@ export function setGlobalProvider(
   providerInstance: MetaMaskInpageProvider
 ): void {
   try {
+    const multiWalletProxy = createMultiWalletProxy(providerInstance);
+
+    // if we already have a wallet lets add it
+    if ((window as any).ethereum) {
+      multiWalletProxy.addProvider((window as any).ethereum);
+    }
+
     Object.defineProperty(window, 'ethereum', {
-      value: providerInstance,
-      writable: false,
+      get: () => {
+        return multiWalletProxy;
+      },
+      // in case a wallet tries to overwrite us lets add them to the list
+      set: (value) => {
+        multiWalletProxy.addProvider(value);
+      },
     });
     if (!(window as any).web3) {
       (window as any).web3 = {
@@ -90,6 +103,9 @@ export function setGlobalProvider(
   } catch (e) {
     // some browser was faster and defined the window.ethereum as non writable before us
     console.error('Cannot set Core window.ethereum provider', e);
+
+    // try to set the providerInstance in case it's a proxy like we are
+    (window as any).ethereum = providerInstance;
   }
 }
 

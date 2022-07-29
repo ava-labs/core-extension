@@ -5,6 +5,7 @@ import { HistoryServiceBTC } from './HistoryServiceBTC';
 import { HistoryServiceCChain } from './HistoryServiceCChain';
 import { HistoryServiceSubnet } from './HistoryServiceSubnet';
 import { resolve } from '@avalabs/utils-sdk';
+import { HistoryServiceETH } from './HistoryServiceETH';
 
 @singleton()
 export class HistoryService {
@@ -12,7 +13,8 @@ export class HistoryService {
     private networkService: NetworkService,
     private btcHistoryService: HistoryServiceBTC,
     private cChainHistorySerive: HistoryServiceCChain,
-    private subnetHistoryService: HistoryServiceSubnet
+    private subnetHistoryService: HistoryServiceSubnet,
+    private ethHistoryService: HistoryServiceETH
   ) {}
 
   async getTxHistory() {
@@ -21,6 +23,11 @@ export class HistoryService {
     if (network) {
       if (network.vmName === NetworkVMType.BITCOIN) {
         return await this.btcHistoryService.getHistory(network);
+      } else if (
+        ChainId.ETHEREUM_HOMESTEAD === network.chainId ||
+        ChainId.ETHEREUM_TEST_RINKEBY === network.chainId
+      ) {
+        return await this.ethHistoryService.getHistory(network);
       } else if (
         ChainId.AVALANCHE_MAINNET_ID === network.chainId ||
         ChainId.AVALANCHE_TESTNET_ID === network.chainId

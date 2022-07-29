@@ -68,7 +68,7 @@ export class MetaMaskInpageProvider extends BaseProvider {
   /**
    * Indicating that this provider is a MetaMask provider.
    */
-  public readonly isMetaMask: true;
+  public readonly isMetaMask: false;
   public readonly isAvalanche: true;
 
   /**
@@ -94,7 +94,7 @@ export class MetaMaskInpageProvider extends BaseProvider {
     super(connectionStream, { jsonRpcStreamName, logger, maxEventListeners });
 
     this.networkVersion = null;
-    this.isMetaMask = true;
+    this.isMetaMask = false;
     this.isAvalanche = true;
 
     this._sendSync = this._sendSync.bind(this);

@@ -1,4 +1,4 @@
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useIdentifyAddress } from './useIdentifyAddress';

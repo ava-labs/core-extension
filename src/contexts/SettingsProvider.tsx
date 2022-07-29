@@ -83,11 +83,25 @@ export function SettingsContextProvider({ children }: { children: any }) {
       currencyDisplay: 'narrowSymbol',
     });
 
-    return (amount: number) =>
-      formatter
-        .format(amount)
-        .replace(settings?.currency || '', '')
-        .trim() + ` ${settings?.currency}`;
+    return (amount: number) => {
+      const parts = formatter.formatToParts(amount);
+      /**
+       *  This formats the currency to return
+       *  <symbol><amount>
+       *  ex. $10.00, €10.00
+       * if the (ie. CHF) matches the the it returns
+       * <amount><symbol>
+       * ex. 10 CHF
+       */
+
+      if (parts[0]?.value === settings?.currency) {
+        const flatArray = parts.map((x) => x.value);
+        flatArray.push(` ${flatArray.shift() || ''}`);
+        return flatArray.join('').trim();
+      }
+
+      return formatter.format(amount);
+    };
   }, [settings?.currency]);
 
   function lockWallet() {

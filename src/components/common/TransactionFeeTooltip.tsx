@@ -9,6 +9,10 @@ import styled, { useTheme } from 'styled-components';
 import { BigNumber } from 'ethers';
 import Big from 'big.js';
 import { bigToLocaleString } from '@avalabs/utils-sdk';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useEffect, useState } from 'react';
+import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
+import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: string | number;
@@ -25,6 +29,19 @@ export function TransactionFeeTooltip({
   gasPrice,
 }: TransactionFeeTooltipProps) {
   const theme = useTheme();
+  const { network } = useNetworkContext();
+  const nanoAvax = 'nAVAX';
+  const [gasPriceUnit, setGasPriceUnit] = useState(nanoAvax);
+
+  useEffect(() => {
+    if (network?.chainId && isEthereumChainId(network?.chainId)) {
+      setGasPriceUnit('gwei');
+    } else if (network?.chainId && isBitcoinChainId(network?.chainId)) {
+      setGasPriceUnit('Satoshi');
+    } else {
+      setGasPriceUnit(nanoAvax);
+    }
+  }, [network]);
 
   if (!gasLimit || !gasPrice) {
     return null;
@@ -40,7 +57,7 @@ export function TransactionFeeTooltip({
         <Typography size={12}>Gas Price</Typography>
         <Typography size={12}>
           {bigToLocaleString(new Big(gasPrice.toString()).div(10 ** 9), 0)}{' '}
-          nAVAX
+          {gasPriceUnit}
         </Typography>
       </HorizontalFlex>
     </VerticalFlex>

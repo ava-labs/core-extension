@@ -115,7 +115,7 @@ export function CustomFees({
 }: CustomGasFeesProps) {
   const { network } = useNetworkContext();
   const tokenPrice = useNativeTokenPrice();
-  const { currencyFormatter, currency } = useSettingsContext();
+  const { currencyFormatter } = useSettingsContext();
   const { networkFee } = useNetworkFeeContext();
   const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();
   const gasLimit = customGasLimit || limit;
@@ -312,7 +312,7 @@ export function CustomFees({
               </Typography>
               <Typography height="15px" size={12}>
                 {!isNaN(Number(newFees.feeUSD))
-                  ? `${currencyFormatter(Number(newFees.feeUSD))} ${currency}`
+                  ? `${currencyFormatter(Number(newFees.feeUSD))}`
                   : ''}
               </Typography>
             </HorizontalFlex>

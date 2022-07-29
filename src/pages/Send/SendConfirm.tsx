@@ -11,7 +11,7 @@ import {
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { BN } from 'bn.js';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

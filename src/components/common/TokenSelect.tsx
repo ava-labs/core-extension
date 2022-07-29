@@ -249,7 +249,7 @@ export function TokenSelect({
             </Typography>
             <Typography size={12} color={theme.colors.text2}>
               {amountInCurrency ? (
-                `${amountInCurrency} ${currency}`
+                `${amountInCurrency.replace(currency, '')} ${currency}`
               ) : (
                 <>&nbsp;</>
               )}

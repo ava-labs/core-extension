@@ -11,7 +11,7 @@ import {
 } from '@avalabs/react-components';
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { Contact } from '@src/background/services/contacts/models';
+import type { Contact } from '@avalabs/types';
 import { SettingsHeader } from '../SettingsHeader';
 import { useContactIdFromParams } from '@src/hooks/useContactIdFromParams';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
