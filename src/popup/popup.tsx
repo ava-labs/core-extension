@@ -183,10 +183,10 @@ export function Popup() {
       <LedgerContextProvider>
         <OnboardingContextProvider>
           <AccountsContextProvider>
-            <BalancesProvider>
-              <NetworkFeeContextProvider>
-                <WalletContextProvider>
-                  <NetworkContextProvider>
+            <NetworkContextProvider>
+              <BalancesProvider>
+                <NetworkFeeContextProvider>
+                  <WalletContextProvider>
                     <SwapContextProvider>
                       <BridgeProvider>
                         <ContactsContextProvider>
@@ -369,10 +369,10 @@ export function Popup() {
                         </ContactsContextProvider>
                       </BridgeProvider>
                     </SwapContextProvider>
-                  </NetworkContextProvider>
-                </WalletContextProvider>
-              </NetworkFeeContextProvider>
-            </BalancesProvider>
+                  </WalletContextProvider>
+                </NetworkFeeContextProvider>
+              </BalancesProvider>
+            </NetworkContextProvider>
           </AccountsContextProvider>
         </OnboardingContextProvider>
       </LedgerContextProvider>
