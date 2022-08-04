@@ -21,7 +21,7 @@ jobs:
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
       - name: Install dependencies
-        run: yarn
+        run: yarn setup
       - name: Lint
         run: yarn lint
       - name: Build extension

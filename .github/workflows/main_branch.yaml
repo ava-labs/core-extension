@@ -27,7 +27,7 @@ jobs:
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
           echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
       - name: Install dependencies
-        run: yarn
+        run: yarn setup
       - name: Build library
         run: yarn build:alpha
       - name: Release
