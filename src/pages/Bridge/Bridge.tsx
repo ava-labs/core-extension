@@ -54,6 +54,7 @@ import { TxInProgress } from '@src/components/common/TxInProgress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BridgeSanctions } from './components/BridgeSanctions';
 import { isAddressWhitelisted } from './utils/isAddressWhitelisted';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 const ErrorSection = styled(HorizontalFlex)`
   position: relative;
@@ -115,8 +116,8 @@ export function Bridge() {
     sourceAssets,
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
+  const { featureFlags } = useFeatureFlagContext();
 
-  const { flags } = useAnalyticsContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
   const { walletType } = useWalletContext();
@@ -282,7 +283,7 @@ export function Bridge() {
     );
   };
 
-  if (error || !flags[FeatureGates.BRIDGE]) {
+  if (error || !featureFlags[FeatureGates.BRIDGE]) {
     return (
       <FunctionIsOffline functionName="Bridge">
         <PrimaryButton
@@ -304,9 +305,9 @@ export function Bridge() {
     chains.filter((chain) => {
       switch (chain) {
         case Blockchain.BITCOIN:
-          return flags[FeatureGates.BRIDGE_BTC];
+          return featureFlags[FeatureGates.BRIDGE_BTC];
         case Blockchain.ETHEREUM:
-          return flags[FeatureGates.BRIDGE_ETH];
+          return featureFlags[FeatureGates.BRIDGE_ETH];
         default:
           return true;
       }

@@ -8,10 +8,10 @@ import {
 import { Header } from '@src/components/common/header/Header';
 import { WalletLoading } from '@src/components/common/WalletLoading';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BalancesProvider } from '@src/contexts/BalancesProvider';
 import { BridgeProvider } from '@src/contexts/BridgeProvider';
 import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { LedgerContextProvider } from '@src/contexts/LedgerProvider';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
@@ -145,7 +145,7 @@ export function Popup() {
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistoryState = getNavigationHistoryState();
   const { isOnline } = useOnline();
-  const { flags } = useAnalyticsContext();
+  const { featureFlags } = useFeatureFlagContext();
 
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm ? '100%' : '1280px'),
@@ -178,7 +178,7 @@ export function Popup() {
     );
   }
 
-  if (!flags[FeatureGates.EVERYTHING]) {
+  if (!featureFlags[FeatureGates.EVERYTHING]) {
     return (
       <OfflineContent message="Sorry, Core is currently unavailable. Please check back later. Thanks." />
     );

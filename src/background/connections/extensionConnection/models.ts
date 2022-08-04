@@ -94,6 +94,8 @@ export enum ExtensionRequest {
   ANALYTICS_CLEAR_IDS = 'analytics_clear_ids',
   ANALYTICS_GET_IDS = 'analytics_get_ids',
 
+  FEATURE_FLAGS_GET = 'feature_flags_get',
+
   RESET_EXTENSION_STATE = 'reset_extension_state',
 
   HISTORY_GET = 'history_get',

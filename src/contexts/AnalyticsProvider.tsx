@@ -1,6 +1,5 @@
 import {
   initPosthog,
-  initFeatureFlags,
   FeatureGates,
   useCapturePageview,
 } from '@avalabs/posthog-sdk';
@@ -13,31 +12,19 @@ import { AnalyticsState } from '@src/background/services/analytics/models';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
+import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { useSettingsContext } from './SettingsProvider';
 
 const AnalyticsContext = createContext<{
-  flags: Record<FeatureGates, boolean>;
   initAnalyticsIds: (storeInStorage: boolean) => Promise<void>;
   stopDataCollection: () => void;
   capture: (eventName: string, properties?: Record<string, any>) => void;
 }>({} as any);
 
-const DefaultFeatureFlagConfig = {
-  [FeatureGates.EVERYTHING]: true,
-  [FeatureGates.BRIDGE]: true,
-  [FeatureGates.BRIDGE_BTC]: true,
-  [FeatureGates.BRIDGE_ETH]: true,
-  [FeatureGates.EVENTS]: true,
-  [FeatureGates.SEND]: true,
-  [FeatureGates.SWAP]: true,
-};
-
 export function AnalyticsContextProvider({ children }: { children: any }) {
   const [posthogInstance, setPosthogInstance] = useState<any>();
   const { request, events } = useConnectionContext();
-  const [flags, setFlags] = useState<Record<FeatureGates, boolean>>(
-    DefaultFeatureFlagConfig
-  );
+  const { featureFlags } = useFeatureFlagContext();
   const { analyticsConsent } = useSettingsContext();
   const [analyticsState, setAnalyticsState] = useState<AnalyticsState>();
 
@@ -95,11 +82,6 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
           } else {
             hog.opt_out_capturing();
           }
-          // we need to use feature flags even if we opt out analytics
-          const { listen } = initFeatureFlags(hog);
-          listen.add((flags: any) => {
-            setFlags(flags);
-          });
           setPosthogInstance(hog);
         },
       },
@@ -122,7 +104,11 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     eventName: string,
     properties?: Record<string, any>
   ) => {
-    if (!analyticsConsent || !flags[FeatureGates.EVENTS] || !posthogInstance) {
+    if (
+      !analyticsConsent ||
+      !featureFlags[FeatureGates.EVENTS] ||
+      !posthogInstance
+    ) {
       return;
     }
 
@@ -151,7 +137,6 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
   return (
     <AnalyticsContext.Provider
       value={{
-        flags,
         capture: captureEvent,
         initAnalyticsIds,
         stopDataCollection,

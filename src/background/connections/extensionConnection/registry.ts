@@ -90,6 +90,8 @@ import { SelectWalletExtensionForDappHandler } from '@src/background/services/ac
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
+import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
+import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -206,6 +208,7 @@ import { GetNetworksStateHandler } from '@src/background/services/network/handle
   { token: 'ExtensionRequestHandler', useToken: UpdateTransactionHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -231,5 +234,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
+  { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
 ])
 export class ExtensionEventEmitterRegistry {}
