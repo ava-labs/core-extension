@@ -4,6 +4,7 @@ jobs:
   lint:
     name: Lint and build
     runs-on: ubuntu-latest
+    environment: alpha
     steps:
       - name: Checkout
         uses: actions/checkout@v2
