@@ -1,3 +1,4 @@
+import { CaptureAnalyticsEventHandler } from '../../services/analytics/handlers/captureAnalyticsEvent';
 import { AccountsUpdatedEvents } from '@src/background/services/accounts/events/accountsUpdatedEvent';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
 import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
@@ -109,6 +110,8 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
   { token: 'ExtensionRequestHandler', useToken: GetAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: InitAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: StoreAnalyticsIdsHandler },
+  { token: 'ExtensionRequestHandler', useToken: CaptureAnalyticsEventHandler },
+
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeCreateTransactionHandler,

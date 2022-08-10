@@ -4,8 +4,10 @@ import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
   AnalyticsEvents,
+  AnalyticsSessionState,
   AnalyticsState,
   AnalyticsUnencryptedState,
+  ANALYTICS_SESSION_KEY,
   ANALYTICS_STORAGE_KEY,
   ANALYTICS_UNENCRYPTED_STORAGE_KEY,
 } from './models';
@@ -21,10 +23,33 @@ export class AnalyticsService implements OnStorageReady {
     if (state) {
       this.eventEmitter.emit(AnalyticsEvents.ANALYTICS_STATE_UPDATED, state);
     }
+
+    this.getSessionId();
   }
 
   async clearIds() {
     await this.storageService.removeFromStorage(ANALYTICS_STORAGE_KEY);
+  }
+
+  async getSessionId() {
+    const session =
+      await this.storageService.loadFromSessionStorage<AnalyticsSessionState>(
+        ANALYTICS_SESSION_KEY
+      );
+
+    if (session) {
+      return session.sessionId;
+    }
+
+    const newSession: AnalyticsSessionState = {
+      sessionId: crypto.randomUUID(),
+    };
+    await this.storageService.saveToSessionStorage(
+      ANALYTICS_SESSION_KEY,
+      newSession
+    );
+
+    return newSession.sessionId;
   }
 
   async getIds(): Promise<AnalyticsState | undefined> {
@@ -53,7 +78,7 @@ export class AnalyticsService implements OnStorageReady {
       );
     const savedDeviceId = analyticsUnencryptedState?.deviceId;
 
-    const state = {
+    const state: AnalyticsState = {
       deviceId: savedDeviceId || crypto.randomUUID(),
       userId: crypto.randomUUID(),
     };

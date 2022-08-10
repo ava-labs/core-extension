@@ -93,6 +93,7 @@ export enum ExtensionRequest {
   ANALYTICS_STORE_IDS = 'analytics_store_ids',
   ANALYTICS_CLEAR_IDS = 'analytics_clear_ids',
   ANALYTICS_GET_IDS = 'analytics_get_ids',
+  ANALYTICS_CAPTURE_EVENT = 'analytics_capture_event',
 
   FEATURE_FLAGS_GET = 'feature_flags_get',
 
