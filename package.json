@@ -13,7 +13,8 @@
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "setup": "yarn install && yarn allow-scripts",
     "test": "yarn cypress open",
-    "zip": "node zipscript.js"
+    "zip": "node zipscript.js",
+    "changelog": "yarn conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
     "@avalabs/blockcypher-sdk": "2.5.0-alpha.10",
@@ -26,9 +27,9 @@
     "@avalabs/react-components": "1.104.1",
     "@avalabs/snowtrace-sdk": "2.5.0-alpha.10",
     "@avalabs/token-prices-sdk": "2.5.0-alpha.10",
+    "@avalabs/types": "2.5.0-alpha.10",
     "@avalabs/utils-sdk": "2.5.0-alpha.10",
     "@avalabs/wallets-sdk": "2.5.0-alpha.10",
-    "@avalabs/types": "2.5.0-alpha.10",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
     "@ethereumjs/tx": "3.4.0",
@@ -92,6 +93,9 @@
     "@babel/preset-env": "7.16.11",
     "@babel/preset-react": "7.16.7",
     "@babel/preset-typescript": "7.16.7",
+    "@commitlint/cli": "17.0.3",
+    "@commitlint/config-angular": "17.0.3",
+    "@commitlint/config-conventional": "17.0.3",
     "@cypress/react": "5.3.4",
     "@cypress/webpack-dev-server": "1.1.4",
     "@google/semantic-release-replace-plugin": "1.1.0",
@@ -129,6 +133,7 @@
     "babel-plugin-transform-typescript-metadata": "0.3.2",
     "base64-loader": "1.0.0",
     "bestzip": "2.2.0",
+    "conventional-changelog-cli": "2.2.2",
     "css-loader": "5.2.4",
     "cypress": "7.1.0",
     "dotenv-webpack": "7.0.3",

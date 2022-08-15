@@ -36,3 +36,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_BRANCH: main
         run: yarn run semantic-release
+      - name: Changelog
+        run: yarn changelog
