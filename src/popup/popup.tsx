@@ -68,6 +68,12 @@ const SignTransactionPage = lazy(() => {
   }));
 });
 
+const WatchAssetApprovalPopup = lazy(() => {
+  return import('../pages/ManageTokens/AddTokenApproval').then((m) => ({
+    default: m.AddTokenApproval,
+  }));
+});
+
 const TokenFlowPage = lazy(() => {
   return import('../pages/Wallet/TokenFlow').then((m) => ({
     default: m.TokenFlow,
@@ -254,6 +260,12 @@ export function Popup() {
                                     <Route path="/sign">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SignMessage />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/watch-asset">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <WatchAssetApprovalPopup />
                                       </Suspense>
                                     </Route>
 

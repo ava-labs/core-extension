@@ -17,6 +17,7 @@ import {
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import { NetworkService } from '../network/NetworkService';
+import { SettingsService } from '../settings/SettingsService';
 
 @singleton()
 export class ActionsService {
@@ -25,7 +26,8 @@ export class ActionsService {
     private storageService: StorageService,
     private walletService: WalletService,
     private bridgeService: BridgeService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private settingsService: SettingsService
   ) {}
 
   async getActions(): Promise<Actions> {
@@ -117,6 +119,17 @@ export class ActionsService {
           this.networkService
             .setNetwork(pendingMessage.displayData.chainId)
             .then(async () => {
+              this.emitResult(id, pendingMessage, true, null);
+            })
+            .catch(async (err) => {
+              this.emitResult(id, pendingMessage, false, err);
+            });
+          break;
+        }
+        case DAppProviderRequest.WALLET_WATCH_ASSET: {
+          this.settingsService
+            .addCustomToken(pendingMessage.displayData)
+            .then(() => {
               this.emitResult(id, pendingMessage, true, null);
             })
             .catch(async (err) => {
