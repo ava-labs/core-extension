@@ -1,3 +1,4 @@
+import { TokenType } from '@src/background/services/balances/models';
 import { ChainId, Network } from '@avalabs/chains-sdk';
 import { Covalent, GetAddressBalanceV2Item } from '@avalabs/covalent-sdk';
 import { singleton } from 'tsyringe';
@@ -29,6 +30,13 @@ export class NFTBalancesServiceCovalent implements NFTService {
         ? agg
         : [...agg, this.mapCovalentNFTData(data)];
     }, []);
+  }
+
+  private getType(supportedErc: string[]) {
+    if (supportedErc.includes('erc1155')) {
+      return TokenType.ERC1155;
+    }
+    return TokenType.ERC721;
   }
 
   private mapCovalentNFTData(item: GetAddressBalanceV2Item): NFT {
@@ -64,6 +72,9 @@ export class NFTBalancesServiceCovalent implements NFTService {
           },
           owner: nft.owner,
         })) || [],
+      type: item.supports_erc
+        ? this.getType(item.supports_erc)
+        : TokenType.ERC721,
     };
   }
 }

@@ -20,6 +20,7 @@ export enum TokenType {
   NATIVE = 'NATIVE',
   ERC20 = 'ERC20',
   ERC721 = 'ERC721',
+  ERC1155 = 'ERC1155',
 }
 
 export interface TokenWithBalanceERC20
@@ -28,8 +29,8 @@ export interface TokenWithBalanceERC20
   type: TokenType.ERC20;
 }
 
-export interface TokenWithBalanceERC721 extends TokenBalanceData {
-  type: TokenType.ERC721;
+export interface NftTokenWithBalance extends TokenBalanceData {
+  type: TokenType.ERC721 | TokenType.ERC1155;
   address: string;
   decimals: number;
   description: string;
@@ -48,7 +49,7 @@ export interface NetworkTokenWithBalance
 export type TokenWithBalance =
   | NetworkTokenWithBalance
   | TokenWithBalanceERC20
-  | TokenWithBalanceERC721;
+  | NftTokenWithBalance;
 
 export interface TokenListDict {
   [contract: string]: TokenWithBalance;

@@ -1,13 +1,13 @@
 import BN from 'bn.js';
-import { TokenType, TokenWithBalanceERC721 } from '../../balances/models';
+import { NftTokenWithBalance } from '../../balances/models';
 import { NFT, NFTData } from '../../balances/nft/models';
 
 export function mapTokenFromNFT(
   nft: NFT,
   nftItem: NFTData
-): TokenWithBalanceERC721 {
+): NftTokenWithBalance {
   return {
-    type: TokenType.ERC721,
+    type: nft.type,
     address: nft.contractAddress,
     // balance is unused but included to conform to TokenBalanceData
     balance: new BN(0),

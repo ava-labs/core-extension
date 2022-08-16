@@ -1,4 +1,5 @@
 import { Network } from '@avalabs/chains-sdk';
+import { TokenType } from '../models';
 
 export interface NFTService {
   isAggregatorForChain(chainId: number): boolean;
@@ -36,4 +37,5 @@ export interface NFT {
   lastTransferredAt: string;
   balance: string;
   nftData: NFTData[];
+  type: TokenType.ERC721 | TokenType.ERC1155;
 }

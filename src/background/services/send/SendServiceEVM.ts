@@ -9,6 +9,7 @@ import BN from 'bn.js';
 import { BigNumber, Contract } from 'ethers';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
+import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
@@ -20,10 +21,11 @@ import {
 } from './models';
 import {
   TokenType,
+  NftTokenWithBalance,
   TokenWithBalanceERC20,
-  TokenWithBalanceERC721,
 } from '../balances/models';
 import { isAddress } from 'ethers/lib/utils';
+import { isNFT } from '../balances/nft/utils/isNFT';
 
 @singleton()
 export class SendServiceEVM implements SendServiceHelper {
@@ -88,7 +90,7 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!gasPrice || gasPrice.isZero())
       return this.getErrorState(newState, SendErrorMessage.INVALID_NETWORK_FEE);
 
-    if (token.type !== TokenType.ERC721 && (!amount || amount.isZero()))
+    if (!isNFT(token.type) && (!amount || amount.isZero()))
       return this.getErrorState(newState, SendErrorMessage.AMOUNT_REQUIRED);
 
     if (amount?.gt(maxAmount))
@@ -156,7 +158,11 @@ export class SendServiceEVM implements SendServiceHelper {
       );
     } else if (sendState.token.type === TokenType.ERC721) {
       return this.getUnsignedTxERC721(
-        sendState as SendState<TokenWithBalanceERC721>
+        sendState as SendState<NftTokenWithBalance>
+      );
+    } else if (sendState.token.type === TokenType.ERC1155) {
+      return this.getUnsignedTxERC1155(
+        sendState as SendState<NftTokenWithBalance>
       );
     } else {
       throw new Error('Unsupported token');
@@ -200,7 +206,7 @@ export class SendServiceEVM implements SendServiceHelper {
   }
 
   private async getUnsignedTxERC721(
-    sendState: SendState<TokenWithBalanceERC721>
+    sendState: SendState<NftTokenWithBalance>
   ): Promise<TransactionRequest> {
     const provider = await this.getProvider();
     const contract = new Contract(
@@ -214,6 +220,27 @@ export class SendServiceEVM implements SendServiceHelper {
     ]!(this.fromAddress, sendState.address, sendState.token?.tokenId);
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction, // only includes `to` and `data`
+      from: this.fromAddress,
+    };
+    return unsignedTx;
+  }
+
+  private async getUnsignedTxERC1155(
+    sendState: SendState<NftTokenWithBalance>
+  ): Promise<TransactionRequest> {
+    const provider = await this.getProvider();
+    const contract = new Contract(
+      sendState.token?.address || '',
+      ERC1155.abi,
+      provider
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const populatedTransaction = await contract.populateTransaction[
+      'safeTransferFrom(address,address,uint256,uint256,bytes)'
+    ]!(this.fromAddress, sendState.address, sendState.token?.tokenId, 1, []);
+    const unsignedTx: TransactionRequest = {
+      ...populatedTransaction,
       from: this.fromAddress,
     };
     return unsignedTx;
