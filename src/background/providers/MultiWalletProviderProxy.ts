@@ -39,7 +39,7 @@ class MultiWalletProviderProxy {
     }
   }
 
-  public getWalletExtensionType(provider) {
+  private getWalletExtensionType(provider) {
     if (provider.isAvalanche) {
       return WalletExtensionType.CORE;
     }
@@ -57,6 +57,11 @@ class MultiWalletProviderProxy {
   }
 
   private async toggleWalletSelection(): Promise<void> {
+    // no need to select a wallet when there is only one
+    if (this.providers.length === 1) {
+      return;
+    }
+
     // get users wallet selection
     const selectedIndex = await this.coreProvider.request({
       method: 'avalanche_selectWallet',
