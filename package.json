@@ -24,7 +24,7 @@
     "@avalabs/covalent-sdk": "2.5.0-alpha.10",
     "@avalabs/etherscan-sdk": "2.5.0-alpha.10",
     "@avalabs/posthog-sdk": "2.5.0-alpha.10",
-    "@avalabs/react-components": "1.104.1",
+    "@avalabs/react-components": "1.105.0",
     "@avalabs/snowtrace-sdk": "2.5.0-alpha.10",
     "@avalabs/token-prices-sdk": "2.5.0-alpha.10",
     "@avalabs/types": "2.5.0-alpha.10",

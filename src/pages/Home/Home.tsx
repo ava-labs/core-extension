@@ -26,8 +26,14 @@ export function Home() {
           status="You've entered your Core wallet!"
           type={TransactionToastType.SUCCESS}
           text="Set as your default wallet?"
-          onClick={() => toggleIsDefaultExtension()}
+          onClick={() => {
+            toggleIsDefaultExtension();
+            updateInitialOpen();
+          }}
           buttonText="Yes"
+          onClose={() => {
+            updateInitialOpen();
+          }}
         />,
         {
           // Toast will show until user clicks X icon or yes button
@@ -36,11 +42,8 @@ export function Home() {
           id: 'default_extension_toast',
         }
       );
-      setIsSetAsDefaultDisplayed(true);
     }
-    if (onboardingState.initialOpen) {
-      updateInitialOpen();
-    }
+    setIsSetAsDefaultDisplayed(true);
   }, [
     onboardingState,
     isDefaultExtension,
