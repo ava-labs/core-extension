@@ -101,6 +101,18 @@ const gitSetting = [
   },
 ];
 
+/**
+ * This is used to publish to npm, however, we set that flag false and thus the
+ * plugin acts as a package.json version updater.
+ */
+const npmRelease = [
+  '@semantic-release/npm',
+  {
+    npmPublish: false,
+    tarballDir: false,
+  },
+];
+
 let plugins;
 if (process.env && process.env.RELEASE_BRANCH === 'release') {
   plugins = [
@@ -109,6 +121,7 @@ if (process.env && process.env.RELEASE_BRANCH === 'release') {
     execSetting,
     githubSetting,
     gitSetting,
+    npmRelease,
   ];
 } else {
   plugins = [
@@ -116,6 +129,7 @@ if (process.env && process.env.RELEASE_BRANCH === 'release') {
     execSettingPatchAnyCommits,
     githubSetting,
     gitSetting,
+    npmRelease,
   ];
 }
 
