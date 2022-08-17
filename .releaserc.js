@@ -109,7 +109,6 @@ const npmRelease = [
   '@semantic-release/npm',
   {
     npmPublish: false,
-    tarballDir: false,
   },
 ];
 
