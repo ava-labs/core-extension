@@ -5,6 +5,7 @@ import {
   SecondaryButton,
   ComponentSize,
   LoadingSpinnerIcon,
+  Typography,
 } from '@avalabs/react-components';
 import {
   AddLiquidityDisplayData,
@@ -17,7 +18,7 @@ import {
   TxStatus,
 } from '@src/background/services/transactions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ApproveTx } from './ApproveTx';
 import { SwapTx } from './SwapTx';
 import { UnknownTx } from './UnknownTx';
@@ -32,6 +33,12 @@ import { TransactionProgressState } from './models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
+import { TransactionTabs } from './components/TransactionTabs';
+import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
+import { BigNumber } from 'ethers';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { TokenType } from '@src/background/services/balances/models';
+import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -56,7 +63,19 @@ export function SignTransactionPage() {
   const theme = useTheme();
   const [txFailedError, setTxFailedError] = useState<string>();
   const explorerUrl = network && getExplorerAddressByNetwork(network, hash);
+  const tokens = useTokensWithBalances();
   useLedgerDisconnectedDialog(window.close);
+
+  const hasEnoughForNetworkFee = useMemo(() => {
+    return tokens
+      .find((t) => t.type === TokenType.NATIVE)
+      ?.balance.gte(
+        ethersBigNumberToBN(
+          params.gasPrice?.mul(params.gasLimit || BigNumber.from(0)) ??
+            BigNumber.from(0)
+        )
+      );
+  }, [tokens, params.gasPrice, params.gasLimit]);
 
   const cancelHandler = useCallback(() => {
     updateTransaction({
@@ -67,7 +86,10 @@ export function SignTransactionPage() {
 
   useWindowGetsClosedOrHidden(cancelHandler);
 
-  const displayData: TransactionDisplayValues = { ...params } as any;
+  const displayData: TransactionDisplayValues = {
+    ...params,
+    contractType,
+  };
 
   const onApproveClick = () => {
     setTransactionProgressState(TransactionProgressState.PENDING);
@@ -101,7 +123,7 @@ export function SignTransactionPage() {
   if (showCustomSpendLimit) {
     return (
       <CustomSpendLimit
-        site={displayData.site}
+        site={displayData.site || { domain: 'unkown' }}
         spendLimit={customSpendLimit}
         token={displayData.tokenToBeApproved}
         onClose={() => setShowCustomSpendLimit(false)}
@@ -134,46 +156,57 @@ export function SignTransactionPage() {
                 <ApproveTx
                   {...(displayData as ApproveTransactionData)}
                   transactionState={transactionProgressState}
-                  hash={hash}
-                  error={txFailedError}
                   setShowCustomSpendLimit={setShowCustomSpendLimit}
                   displaySpendLimit={displaySpendLimit}
-                  onCustomFeeSet={setCustomFee}
-                  selectedGasFee={selectedGasFee}
                 />
               ),
               [ContractCall.ADD_LIQUIDITY]: (
                 <AddLiquidityTx
                   {...(displayData as AddLiquidityDisplayData)}
                   transactionState={transactionProgressState}
-                  hash={hash}
-                  error={txFailedError}
-                  onCustomFeeSet={setCustomFee}
-                  selectedGasFee={selectedGasFee}
                 />
               ),
               [ContractCall.ADD_LIQUIDITY_AVAX]: (
                 <AddLiquidityTx
                   {...(displayData as AddLiquidityDisplayData)}
                   transactionState={transactionProgressState}
-                  hash={hash}
-                  error={txFailedError}
-                  onCustomFeeSet={setCustomFee}
-                  selectedGasFee={selectedGasFee}
                 />
               ),
               ['unknown']: (
                 <UnknownTx
                   {...(displayData as TransactionDisplayValues)}
                   transactionState={transactionProgressState}
-                  hash={hash}
-                  error={txFailedError}
-                  onCustomFeeSet={setCustomFee}
-                  selectedGasFee={selectedGasFee}
                 />
               ),
             }[contractType || 'unknown']
           }
+
+          {/* Tabs */}
+          {transactionProgressState ===
+          TransactionProgressState.NOT_APPROVED ? (
+            <TransactionTabs
+              byteStr={displayData.txParams?.data}
+              gasPrice={displayData.gasPrice}
+              limit={displayData.gasLimit ?? 0}
+              onCustomFeeSet={setCustomFee}
+              selectedGasFee={selectedGasFee}
+            />
+          ) : (
+            <SuccessFailTxInfo
+              hash={hash}
+              gasPrice={displayData.gasPrice ?? BigNumber.from(0)}
+              gasLimit={displayData.gasLimit ?? 0}
+              error={displayData.error}
+            />
+          )}
+          {!hasEnoughForNetworkFee && (
+            <VerticalFlex padding="16px 0" width="100%" align="flex-start">
+              <Typography color="error" size={12}>
+                Insufficient balance to cover gas costs. <br />
+                Please add {network?.networkToken.symbol}.
+              </Typography>
+            </VerticalFlex>
+          )}
         </SignTxRenderErrorBoundary>
 
         {/* Action Buttons */}
@@ -202,6 +235,7 @@ export function SignTransactionPage() {
                 Reject
               </SecondaryButton>
               <PrimaryButton
+                disabled={!hasEnoughForNetworkFee}
                 width="168px"
                 size={ComponentSize.LARGE}
                 onClick={onApproveClick}

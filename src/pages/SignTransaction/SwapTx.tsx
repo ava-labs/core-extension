@@ -7,24 +7,15 @@ import {
 import { SwapExactTokensForTokenDisplayValues } from '@src/contracts/contractParsers/models';
 import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
-import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 import { TokenCard } from './components/TokenCard';
 import { TransactionHeader } from './components/TransactionHeader';
-import { TransactionTabs } from './components/TransactionTabs';
-import { TransactionProgressData, TransactionProgressState } from './models';
+import { TransactionProgressData } from './models';
 
 export function SwapTx({
   path,
   toAddress,
   fromAddress,
-  txParams,
-  gasPrice,
-  gasLimit,
-  onCustomFeeSet,
   transactionState,
-  hash,
-  error,
-  selectedGasFee,
 }: SwapExactTokensForTokenDisplayValues & TransactionProgressData) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const sentToken = path[0]!;
@@ -41,7 +32,10 @@ export function SwapTx({
       />
 
       <VerticalFlex>
-        <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
+        <AddressPaths
+          toAddress={toAddress || ''}
+          fromAddress={fromAddress || ''}
+        />
         {/* Top Token */}
         <TokenCard
           token={sentToken}
@@ -65,24 +59,6 @@ export function SwapTx({
           displayValue={receivingToken.amountOut?.value}
           amount={receivingToken.amountUSDValue}
         />
-
-        {/* Tabs */}
-        {transactionState === TransactionProgressState.NOT_APPROVED ? (
-          <TransactionTabs
-            byteStr={txParams?.data}
-            gasPrice={gasPrice}
-            limit={gasLimit}
-            onCustomFeeSet={onCustomFeeSet}
-            selectedGasFee={selectedGasFee}
-          />
-        ) : (
-          <SuccessFailTxInfo
-            hash={hash}
-            gasPrice={gasPrice}
-            gasLimit={gasLimit ?? 0}
-            error={error}
-          />
-        )}
       </VerticalFlex>
     </VerticalFlex>
   );

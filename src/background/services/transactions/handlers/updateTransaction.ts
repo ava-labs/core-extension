@@ -112,7 +112,7 @@ export class UpdateTransactionHandler implements HandlerType {
             });
             return {
               ...request,
-              error: err,
+              error: err instanceof Error ? err.message : err.toString(),
             };
           });
       });
