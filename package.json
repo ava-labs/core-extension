@@ -17,19 +17,19 @@
     "changelog": "yarn conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
-    "@avalabs/blockcypher-sdk": "2.5.0-alpha.10",
-    "@avalabs/bridge-sdk": "2.5.0-alpha.10",
-    "@avalabs/chains-sdk": "2.5.0-alpha.10",
-    "@avalabs/coingecko-sdk": "2.5.0-alpha.10",
-    "@avalabs/covalent-sdk": "2.5.0-alpha.10",
-    "@avalabs/etherscan-sdk": "2.5.0-alpha.10",
-    "@avalabs/posthog-sdk": "2.5.0-alpha.10",
+    "@avalabs/blockcypher-sdk": "2.5.0",
+    "@avalabs/bridge-sdk": "2.5.0",
+    "@avalabs/chains-sdk": "2.5.0",
+    "@avalabs/coingecko-sdk": "2.5.0",
+    "@avalabs/covalent-sdk": "2.5.0",
+    "@avalabs/etherscan-sdk": "2.5.0",
+    "@avalabs/posthog-sdk": "2.5.0",
     "@avalabs/react-components": "1.105.0",
-    "@avalabs/snowtrace-sdk": "2.5.0-alpha.10",
-    "@avalabs/token-prices-sdk": "2.5.0-alpha.10",
-    "@avalabs/types": "2.5.0-alpha.10",
-    "@avalabs/utils-sdk": "2.5.0-alpha.10",
-    "@avalabs/wallets-sdk": "2.5.0-alpha.10",
+    "@avalabs/snowtrace-sdk": "2.5.0",
+    "@avalabs/token-prices-sdk": "2.5.0",
+    "@avalabs/types": "2.5.0",
+    "@avalabs/utils-sdk": "2.5.0",
+    "@avalabs/wallets-sdk": "2.5.0",
     "@babel/runtime": "7.16.7",
     "@ethereumjs/common": "2.6.2",
     "@ethereumjs/tx": "3.4.0",
@@ -207,7 +207,10 @@
       "postinstall-postinstall": false,
       "react-lottie>babel-runtime>core-js": false,
       "react-scripts>@pmmmwh/react-refresh-webpack-plugin>core-js-pure": false,
-      "react-scripts>react-app-polyfill>core-js": false
+      "react-scripts>react-app-polyfill>core-js": false,
+      "web3": false,
+      "web3>web3-bzz": false,
+      "web3>web3-shh": false
     }
   }
 }
