@@ -73,7 +73,7 @@ export class SendServiceEVM implements SendServiceHelper {
     const newState: SendState = {
       ...sendState,
       canSubmit: true,
-      loading: !maxAmount || !gasPrice,
+      loading: token.balance.gt(new BN(0)) ? !maxAmount || !gasPrice : false,
       error: undefined,
       gasLimit,
       gasPrice,
