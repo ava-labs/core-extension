@@ -50,7 +50,5 @@ jobs:
           signoff: false
           branch: chore/version-update
           delete-branch: true
-          title: '[Example] Update version'
-          body: |
-            Update report
+          title: '[CI/CD] Update version and create changelog if applicable'
           draft: false
