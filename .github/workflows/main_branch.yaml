@@ -46,7 +46,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore(version): update package.json version and changelog'
           committer: GitHub <noreply@github.com>
-          author: github-actions[bot] github-actions[bot]@users.noreply.github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           signoff: false
           branch: chore/version-update
           delete-branch: true
