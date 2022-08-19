@@ -54,8 +54,10 @@ export async function addLiquidityAvaxHandler(
   };
 
   const secondTokenDeposited = bigToLocaleString(
-    ethersBigNumberToBig(data.amountTokenDesired, token.denomination),
-    4
+    ethersBigNumberToBig(
+      data.amountTokenDesired,
+      token.decimals || token.denomination
+    )
   );
   const secondToken_AmountUSDValue =
     (Number(token.priceUSD) * Number(secondTokenDeposited)).toFixed(2) ?? '';
