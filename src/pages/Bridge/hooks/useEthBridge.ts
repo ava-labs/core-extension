@@ -11,7 +11,6 @@ import {
 } from '@avalabs/bridge-sdk';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useCallback, useMemo, useState } from 'react';
-import { useAssetBalanceEVM } from './useAssetBalanceEVM';
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { BridgeAdapter } from './useBridge';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -33,13 +32,12 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const isEthereumBridge = currentBlockchain === Blockchain.ETHEREUM;
 
   const { createBridgeTransaction, transferAsset } = useBridgeContext();
-  const sourceBalance = useAssetBalanceEVM(
-    isEthereumBridge ? currentAssetData : undefined,
-    Blockchain.ETHEREUM
+  const { assetsWithBalances: selectedAssetWithBalances } = useAssetBalancesEVM(
+    Blockchain.ETHEREUM,
+    isEthereumBridge ? currentAssetData : undefined
   );
-  const { assetsWithBalances, loading } = useAssetBalancesEVM(
-    Blockchain.ETHEREUM
-  );
+  const sourceBalance = selectedAssetWithBalances[0];
+  const { assetsWithBalances } = useAssetBalancesEVM(Blockchain.ETHEREUM);
 
   const { activeAccount } = useAccountsContext();
   const { network, networks } = useNetworkContext();
@@ -122,7 +120,6 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     sourceBalance,
     assetsWithBalances,
     hasEnoughForNetworkFee,
-    loading,
     receiveAmount,
     maximum,
     minimum,

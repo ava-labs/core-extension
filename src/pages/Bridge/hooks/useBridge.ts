@@ -45,12 +45,14 @@ interface Bridge extends BridgeAdapter {
 
 export function useBridge(): Bridge {
   const { currentBlockchain: source } = useBridgeSDK();
+
   const [amount, setAmount] = useState<Big>(BIG_ZERO);
 
   const bridgeFee = useBridgeFeeEstimate(amount) || BIG_ZERO;
 
   const btc = useBtcBridge(amount);
   const eth = useEthBridge(amount, bridgeFee);
+
   const avalanche = useAvalancheBridge(amount, bridgeFee);
 
   const defaults = {
