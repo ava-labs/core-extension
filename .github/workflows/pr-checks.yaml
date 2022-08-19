@@ -4,6 +4,7 @@ jobs:
   lint:
     name: Lint and build
     runs-on: ubuntu-latest
+    if: github.event.pull_request.title != '[CI/CD] Update version and create changelog if applicable'
     environment: alpha
     steps:
       - name: Checkout
