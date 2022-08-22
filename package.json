@@ -14,8 +14,7 @@
     "setup": "yarn install && yarn allow-scripts",
     "test": "yarn jest",
     "test:watch": "yarn jest --watch",
-    "zip": "node zipscript.js",
-    "changelog": "yarn conventional-changelog -p angular -i CHANGELOG.md -s"
+    "zip": "node zipscript.js"
   },
   "dependencies": {
     "@avalabs/blockcypher-sdk": "2.5.0",
@@ -100,11 +99,13 @@
     "@google/semantic-release-replace-plugin": "1.1.0",
     "@lavamoat/allow-scripts": "2.0.0",
     "@lavamoat/preinstall-always-fail": "1.0.0",
+    "@semantic-release/changelog": "6.0.1",
     "@semantic-release/commit-analyzer": "9.0.2",
     "@semantic-release/exec": "6.0.3",
     "@semantic-release/git": "10.0.1",
     "@semantic-release/github": "8.0.2",
     "@semantic-release/npm": "9.0.1",
+    "@semantic-release/release-notes-generator": "10.0.3",
     "@types/big.js": "6.1.1",
     "@types/bn.js": "5.1.0",
     "@types/chrome": "0.0.180",

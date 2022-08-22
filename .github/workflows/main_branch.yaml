@@ -38,19 +38,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_BRANCH: main
         run: yarn run semantic-release
-      - name: Changelog
-        run: yarn changelog
-      - name: Stage Version Updates
-        run: git add .
-      - name: Pull Request
-        uses: peter-evans/create-pull-request@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore(version): update package.json version and changelog'
-          committer: GitHub <noreply@github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-          signoff: false
-          branch: chore/version-update
-          delete-branch: true
-          title: '[CI/CD] Update version and create changelog if applicable'
-          draft: false
