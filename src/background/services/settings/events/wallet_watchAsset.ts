@@ -2,25 +2,25 @@ import { SettingsService } from './../SettingsService';
 import { resolve } from '@avalabs/utils-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { injectable } from 'tsyringe';
-import { ActionsService } from '../../actions/ActionsService';
 import { TokenManagerService } from '../../tokens/TokenManagerService';
 import xss from 'xss';
 import { isTokenSupported } from '../../tokens/utils/isTokenSupported';
 import { NetworkService } from '../../network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
+import { Action } from '../../actions/models';
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 
 @injectable()
-export class WalletWatchAssetHandler implements DAppRequestHandler {
+export class WalletWatchAssetHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.WALLET_WATCH_ASSET];
   constructor(
     private tokenManagerService: TokenManagerService,
-    private actionsService: ActionsService,
-    private settingService: SettingsService,
+    private settingsService: SettingsService,
     private networkService: NetworkService
-  ) {}
+  ) {
+    super();
+  }
 
   handleUnauthenticated = async (request) => {
     const tokenAddress = request.params.options.address;
@@ -36,7 +36,7 @@ export class WalletWatchAssetHandler implements DAppRequestHandler {
       };
     }
 
-    const settings = await this.settingService.getSettings();
+    const settings = await this.settingsService.getSettings();
 
     try {
       const tokenAlreadyExists = await isTokenSupported(
@@ -76,12 +76,10 @@ export class WalletWatchAssetHandler implements DAppRequestHandler {
       displayData: { ...tokenData, logoUri: imageUrl },
       tabId: request.site.tabId,
     };
-    await this.actionsService.addAction(actionData);
 
-    await openExtensionNewWindow(
-      `approve/watch-asset?id=${request.id}`,
-      '',
-      request.meta?.coords
+    await this.openApprovalWindow(
+      actionData,
+      `approve/watch-asset?id=${request.id}`
     );
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -89,5 +87,19 @@ export class WalletWatchAssetHandler implements DAppRequestHandler {
 
   handleAuthenticated = async (request) => {
     return this.handleUnauthenticated(request);
+  };
+
+  onActionApproved = async (
+    pendingAction: Action,
+    result,
+    onSuccess,
+    onError
+  ) => {
+    try {
+      await this.settingsService.addCustomToken(pendingAction.displayData);
+      onSuccess(null);
+    } catch (e) {
+      onError(e);
+    }
   };
 }

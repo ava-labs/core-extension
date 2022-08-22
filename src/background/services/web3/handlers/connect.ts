@@ -1,10 +1,11 @@
-import { ActionsService } from './../../actions/ActionsService';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { PermissionsService } from '../../permissions/PermissionsService';
+import { ethErrors } from 'eth-rpc-errors';
+import { Action } from '../../actions/models';
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -16,19 +17,21 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
  */
 
 @injectable()
-export class ConnectRequestHandler implements DAppRequestHandler {
+export class ConnectRequestHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.CONNECT_METHOD];
 
   constructor(
     private accountsService: AccountsService,
-    private actionsService: ActionsService
-  ) {}
+    private permissionsService: PermissionsService
+  ) {
+    super();
+  }
 
   handleAuthenticated = async (request) => {
     if (!this.accountsService.activeAccount) {
       return {
         ...request,
-        error: 'wallet locked, undefined or malformed',
+        error: ethErrors.rpc.internal('wallet locked, undefined or malformed'),
       };
     }
 
@@ -42,29 +45,53 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     if (!request.site?.domain) {
       return {
         ...request,
-        error: 'domain unknown',
+        error: ethErrors.rpc.invalidRequest('domain unknown'),
       };
     }
 
-    // By having this extension window render here, we are popping the extension window before we send the completed request
-    // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
-    await openExtensionNewWindow(
-      `permissions`,
-      `domainName=${request.site?.name}&domainUrl=${request.site?.domain}&domainIcon=${request.site?.icon}&id=${request.id}`,
-      request.meta?.coords
+    await this.openApprovalWindow(
+      {
+        ...request,
+        displayData: {
+          domainName: request.site?.name,
+          domainUrl: request.site?.domain,
+          domainIcon: request.site?.icon,
+        },
+        tabId: request.site.tabId,
+      },
+      `permissions?id=${request.id}`
     );
 
-    const actionData = {
-      ...request,
-      displayData: {
-        domainName: request.site?.name,
-        domainUrl: request.site?.domain,
-        domainIcon: request.site?.icon,
-      },
-      tabId: request.site.tabId,
-    };
-    await this.actionsService.addAction(actionData);
-
     return { ...request, result: DEFERRED_RESPONSE };
+  };
+
+  onActionApproved = async (
+    pendingAction: Action,
+    result,
+    onSuccess,
+    onError
+  ) => {
+    const accounts = this.accountsService.getAccounts();
+    const selectedAccount = accounts.find((a) => a.index === result);
+
+    if (!selectedAccount) {
+      onError(ethErrors.rpc.internal('Selected account not found'));
+      return;
+    }
+
+    if (!pendingAction?.site?.domain) {
+      onError(ethErrors.rpc.internal('Domain not set'));
+      return;
+    }
+
+    await this.permissionsService.setAccountPermissionForDomain(
+      pendingAction.site.domain,
+      selectedAccount.addressC,
+      true
+    );
+
+    await this.accountsService.activateAccount(selectedAccount.index);
+
+    onSuccess([selectedAccount.addressC]);
   };
 }

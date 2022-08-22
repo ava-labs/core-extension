@@ -1,15 +1,15 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
 
 @injectable()
-export class AvalancheGetBridgeTransactionHandler
-  implements DAppRequestHandler
-{
+export class AvalancheGetBridgeTransactionHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_GET_BRIDGE_STATE];
 
-  constructor(private bridgeService: BridgeService) {}
+  constructor(private bridgeService: BridgeService) {
+    super();
+  }
 
   handleAuthenticated = async (request) => {
     return {

@@ -1,7 +1,7 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
-  DAppRequestHandler,
   ExtensionConnectionMessage,
   ExtensionRequestHandler,
 } from '@src/background/connections/models';
@@ -9,10 +9,12 @@ import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
 @injectable()
-export class GetIsDefaultExtensionDAppHandler implements DAppRequestHandler {
+export class GetIsDefaultExtensionDAppHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.GET_IS_DEFAULT_EXTENSION];
 
-  constructor(private settingsService: SettingsService) {}
+  constructor(private settingsService: SettingsService) {
+    super();
+  }
 
   handleAuthenticated = async (request: ExtensionConnectionMessage<any>) => {
     return await this.handleUnauthenticated(request);

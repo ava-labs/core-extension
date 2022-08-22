@@ -1,11 +1,10 @@
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { ActionsService } from '../../actions/ActionsService';
+import { Action } from '../../actions/models';
 import { AddEthereumChainParameter } from '../models';
 import { NetworkService } from '../NetworkService';
 
@@ -14,12 +13,11 @@ import { NetworkService } from '../NetworkService';
  * @param data
  */
 @injectable()
-export class WalletAddEthereumChainHandler implements DAppRequestHandler {
+export class WalletAddEthereumChainHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.WALLET_ADD_CHAIN];
-  constructor(
-    private networkService: NetworkService,
-    private actionsService: ActionsService
-  ) {}
+  constructor(private networkService: NetworkService) {
+    super();
+  }
 
   handleUnauthenticated = async (request) => {
     const requestedChain: AddEthereumChainParameter = request.params?.[0];
@@ -45,12 +43,9 @@ export class WalletAddEthereumChainHandler implements DAppRequestHandler {
         tabId: request.site.tabId,
       };
 
-      await this.actionsService.addAction(actionData);
-
-      await openExtensionNewWindow(
-        `network/switch?id=${request.id}`,
-        '',
-        request.meta?.coords
+      await this.openApprovalWindow(
+        actionData,
+        `network/switch?id=${request.id}`
       );
 
       return { ...request, result: DEFERRED_RESPONSE };
@@ -108,12 +103,9 @@ export class WalletAddEthereumChainHandler implements DAppRequestHandler {
       displayData: customNetwork,
       tabId: request.site.tabId,
     };
-    await this.actionsService.addAction(actionData);
-
-    await openExtensionNewWindow(
-      `networks/add-popup?id=${request.id}`,
-      '',
-      request.meta?.coords
+    await this.openApprovalWindow(
+      actionData,
+      `networks/add-popup?id=${request.id}`
     );
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -121,5 +113,21 @@ export class WalletAddEthereumChainHandler implements DAppRequestHandler {
 
   handleAuthenticated = async (request) => {
     return this.handleUnauthenticated(request);
+  };
+
+  onActionApproved = async (
+    pendingAction: Action,
+    result,
+    onSuccess,
+    onError
+  ) => {
+    try {
+      const result = await this.networkService.saveCustomNetwork(
+        pendingAction.displayData
+      );
+      onSuccess(result);
+    } catch (e) {
+      onError(e);
+    }
   };
 }

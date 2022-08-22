@@ -3,6 +3,7 @@
 import { Runtime } from 'webextension-polyfill-ts';
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 import { DomainMetadata } from '../models';
+import { Action } from '../services/actions/models';
 import { ExtensionRequest } from './extensionConnection/models';
 
 export interface ExtensionMessageMetaData {
@@ -97,16 +98,6 @@ export function isConnectionResponse(
     !message.hasOwnProperty('name') &&
     !message.hasOwnProperty('value')
   );
-}
-
-export interface DAppRequestHandler<T extends ExtensionRequest = any> {
-  methods: string[];
-  handleAuthenticated: (
-    request: ExtensionConnectionMessage
-  ) => Promise<ExtensionConnectionMessageResponse<T, any>>;
-  handleUnauthenticated: (
-    request: ExtensionConnectionMessage
-  ) => Promise<ExtensionConnectionMessageResponse<T, any>>;
 }
 
 /**

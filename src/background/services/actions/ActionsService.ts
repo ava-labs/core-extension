@@ -1,9 +1,5 @@
-import { BridgeService } from '@src/background/services/bridge/BridgeService';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { WalletService } from '@src/background/services/wallet/WalletService';
 import { EventEmitter } from 'events';
-import { singleton } from 'tsyringe';
-import { MessageType } from '../messages/models';
+import { injectAll, singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
   Action,
@@ -14,35 +10,63 @@ import {
   ACTIONS_STORAGE_KEY,
   ActionUpdate,
 } from './models';
-import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { NetworkService } from '../network/NetworkService';
-import { SettingsService } from '../settings/SettingsService';
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
+import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
+import { LockService } from '../lock/LockService';
 
 @singleton()
-export class ActionsService {
+export class ActionsService implements OnStorageReady {
   private eventEmitter = new EventEmitter();
   constructor(
+    @injectAll('DAppRequestHandler')
+    private dAppRequestHandlers: DAppRequestHandler[],
     private storageService: StorageService,
-    private walletService: WalletService,
-    private bridgeService: BridgeService,
-    private networkService: NetworkService,
-    private settingsService: SettingsService
+    private lockService: LockService
   ) {}
 
+  async onStorageReady() {
+    const acionsInSession =
+      await this.storageService.loadFromSessionStorage<Actions>(
+        ACTIONS_STORAGE_KEY
+      );
+    const actionsInStorage = await this.getActions();
+    this.storageService.removeFromSessionStorage(ACTIONS_STORAGE_KEY);
+    this.saveActions({ ...acionsInSession, ...actionsInStorage });
+  }
+
   async getActions(): Promise<Actions> {
-    return (await this.storageService.load<Actions>(ACTIONS_STORAGE_KEY)) ?? {};
+    if (this.lockService.locked) {
+      return (
+        (await this.storageService.loadFromSessionStorage<Actions>(
+          ACTIONS_STORAGE_KEY
+        )) ?? {}
+      );
+    } else {
+      return (
+        (await this.storageService.load<Actions>(ACTIONS_STORAGE_KEY)) ?? {}
+      );
+    }
   }
 
   async saveActions(actions: Actions) {
-    await this.storageService.save<Actions>(ACTIONS_STORAGE_KEY, actions);
+    // when the wallet is locked, temporarily save actions to the session storage
+    // temporary actions get moved to the permament storage on unlock
+    if (this.lockService.locked) {
+      await this.storageService.saveToSessionStorage<Actions>(
+        ACTIONS_STORAGE_KEY,
+        actions
+      );
+    } else {
+      await this.storageService.save<Actions>(ACTIONS_STORAGE_KEY, actions);
+    }
     this.eventEmitter.emit(ActionsEvent.ACTION_UPDATED, actions);
   }
 
   async addAction(action: Action): Promise<Action> {
     const pendingAction: Action = {
       ...action,
-      time: new Date().getTime(),
+      time: Date.now(),
       status: ActionStatus.PENDING,
     };
 
@@ -60,11 +84,16 @@ export class ActionsService {
     const currentPendingActions = await this.getActions();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { [`${id}`]: _removed, ...txs } = currentPendingActions;
-    this.saveActions(txs);
+    await this.saveActions(txs);
   }
 
-  emitResult(id: string, action: Action, isSuccess: boolean, result: any) {
-    this.removeAction(id);
+  async emitResult(
+    id: string,
+    action: Action,
+    isSuccess: boolean,
+    result: any
+  ) {
+    await this.removeAction(id);
 
     this.eventEmitter.emit(ActionsEvent.ACTION_COMPLETED, {
       type: isSuccess
@@ -83,81 +112,48 @@ export class ActionsService {
     }
 
     if (status === ActionStatus.SUBMITTING) {
-      switch (pendingMessage.method) {
-        case DAppProviderRequest.AVALANCHE_BRIDGE_ASSET: {
-          const currentBlockchain =
-            pendingMessage?.displayData.currentBlockchain;
-          const amountStr = pendingMessage?.displayData.amountStr;
-          const asset = pendingMessage?.displayData.asset;
-          const denomination = asset.denomination;
-          this.bridgeService
-            .transferAsset(
-              currentBlockchain,
-              bnToBig(stringToBN(amountStr, denomination), denomination),
-              asset
-            )
-            .then(async (result) => {
-              this.emitResult(id, pendingMessage, true, result);
-            })
-            .catch((error) => {
-              this.emitResult(id, pendingMessage, false, error);
-            });
-          break;
-        }
-        case DAppProviderRequest.WALLET_ADD_CHAIN: {
-          this.networkService
-            .saveCustomNetwork(pendingMessage.displayData)
-            .then(async () => {
-              this.emitResult(id, pendingMessage, true, null);
-            })
-            .catch(async (err) => {
-              this.emitResult(id, pendingMessage, false, err);
-            });
-          break;
-        }
-        case DAppProviderRequest.WALLET_SWITCH_ETHEREUM_CHAIN: {
-          this.networkService
-            .setNetwork(pendingMessage.displayData.chainId)
-            .then(async () => {
-              this.emitResult(id, pendingMessage, true, null);
-            })
-            .catch(async (err) => {
-              this.emitResult(id, pendingMessage, false, err);
-            });
-          break;
-        }
-        case DAppProviderRequest.WALLET_WATCH_ASSET: {
-          this.settingsService
-            .addCustomToken(pendingMessage.displayData)
-            .then(() => {
-              this.emitResult(id, pendingMessage, true, null);
-            })
-            .catch(async (err) => {
-              this.emitResult(id, pendingMessage, false, err);
-            });
-          break;
-        }
-        default: {
-          this.walletService
-            .signMessage(
-              pendingMessage.method as MessageType,
-              pendingMessage.displayData.data
-            )
-            .then(async (result) => {
-              this.emitResult(id, pendingMessage, true, result);
-            })
-            .catch(async (err) => {
-              this.emitResult(id, pendingMessage, false, err);
-            });
-          break;
-        }
+      const handler = this.dAppRequestHandlers.find((h) =>
+        h.methods.includes(pendingMessage.method)
+      );
+
+      if (!handler || !handler.onActionApproved) {
+        await this.emitResult(
+          id,
+          pendingMessage,
+          false,
+          ethErrors.rpc.internal('Request handler not found')
+        );
+        return;
       }
-    } else if (
-      status !== ActionStatus.COMPLETED &&
-      status !== ActionStatus.ERROR &&
-      status !== ActionStatus.ERROR_USER_CANCELED
-    ) {
-      this.saveActions({
+
+      await handler.onActionApproved(
+        pendingMessage,
+        result,
+        async (result) => {
+          await this.emitResult(id, pendingMessage, true, result);
+        },
+        async (error) => {
+          await this.emitResult(id, pendingMessage, false, error);
+        }
+      );
+    } else if (status === ActionStatus.ERROR) {
+      await this.emitResult(
+        id,
+        pendingMessage,
+        false,
+        ethErrors.rpc.internal(error)
+      );
+    } else if (status === ActionStatus.COMPLETED) {
+      await this.emitResult(id, pendingMessage, true, result ?? true);
+    } else if (status === ActionStatus.ERROR_USER_CANCELED) {
+      await this.emitResult(
+        id,
+        pendingMessage,
+        false,
+        ethErrors.provider.userRejectedRequest()
+      );
+    } else {
+      await this.saveActions({
         ...currentPendingActions,
         [id]: {
           ...pendingMessage,
@@ -166,21 +162,6 @@ export class ActionsService {
           error,
         },
       });
-    } else {
-      if (status === ActionStatus.COMPLETED) {
-        this.emitResult(id, pendingMessage, true, true);
-      } else if (status === ActionStatus.ERROR_USER_CANCELED) {
-        this.emitResult(
-          id,
-          pendingMessage,
-          false,
-          ethErrors.provider.userRejectedRequest()
-        );
-      } else {
-        this.emitResult(id, pendingMessage, false, {
-          message: status,
-        });
-      }
     }
   }
 

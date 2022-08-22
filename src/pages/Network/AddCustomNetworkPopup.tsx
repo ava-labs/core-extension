@@ -99,7 +99,7 @@ export function AddCustomNetworkPopup() {
               color={theme.colors.text2}
               align="center"
             >
-              {request.site.domain}
+              {request?.site?.domain}
             </Typography>
           </HorizontalFlex>
         </VerticalFlex>

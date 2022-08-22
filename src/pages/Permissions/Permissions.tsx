@@ -26,6 +26,8 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
+import { ActionStatus } from '@src/background/services/actions/models';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
 
 const AccountName = styled(Typography)<{ selected: boolean }>`
   max-width: 165px;
@@ -40,19 +42,19 @@ const AccountName = styled(Typography)<{ selected: boolean }>`
 `;
 
 export function PermissionsPage() {
-  const params = new URLSearchParams(window.location.search);
-  const domain = params.get('domainUrl') as string;
-  const domainName = params.get('domainName') as string;
-  const domainIcon = params.get('domainIcon') as string;
-  const id = params.get('id') as string;
-  const { permissions, updateAccountPermission } = usePermissionContext();
+  const requestId = useGetRequestId();
+  const { permissions } = usePermissionContext();
   const theme = useTheme();
-  const { accounts, activeAccount, selectAccount } = useAccountsContext();
+  const { accounts, activeAccount } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>();
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
 
-  const { cancelHandler } = useApproveAction(id);
+  const {
+    action: request,
+    cancelHandler,
+    updateAction,
+  } = useApproveAction(requestId);
 
   useEffect(() => {
     if (!selectedAccount && activeAccount) {
@@ -74,17 +76,14 @@ export function PermissionsPage() {
       return;
     }
 
-    updateAccountPermission({
-      addressC: selectedAccount.addressC,
-      hasPermission: true,
-      domain,
+    updateAction({
+      status: ActionStatus.SUBMITTING,
+      id: requestId,
+      result: selectedAccount.index,
     });
-    await selectAccount(selectedAccount.index);
-
-    window.close();
   };
 
-  if (!permissions) {
+  if (!permissions || !request) {
     return <LoadingIcon />;
   }
 
@@ -101,12 +100,16 @@ export function PermissionsPage() {
         </Typography>
       </HorizontalFlex>
       <SiteAvatar margin="8px 0 16px" justify="center" align="center">
-        <TokenIcon height="48px" width="48px" src={domainIcon}>
+        <TokenIcon
+          height="48px"
+          width="48px"
+          src={request.displayData.domainIcon}
+        >
           <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
         </TokenIcon>
       </SiteAvatar>
       <Typography as="h2" weight="bold" size={18} height="22px">
-        {domainName}
+        {request.displayData.domainName}
       </Typography>
       <Typography
         margin="2px 0 0 0"
@@ -114,7 +117,7 @@ export function PermissionsPage() {
         height="15px"
         color={theme.colors.text2}
       >
-        {domain}
+        {request.displayData.domainUrl}
       </Typography>
       <VerticalFlex margin="24px 0 0 0" flex={1} width="100%">
         <Typography size={12} height="15px" margin="0 0 4px">
@@ -178,7 +181,9 @@ export function PermissionsPage() {
                         />
                       )}
                       {selectedAccount?.index !== account.index &&
-                        permissions[domain]?.accounts[account.addressC] && (
+                        permissions[request.displayData.domainUrl]?.accounts[
+                          account.addressC
+                        ] && (
                           <CheckmarkIcon
                             height="16px"
                             color={theme.colors.success}

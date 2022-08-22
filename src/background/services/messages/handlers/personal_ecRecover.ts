@@ -1,10 +1,10 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { personalSigRecovery } from '../utils/personalSigRecovery';
 
 @injectable()
-export class PersonalEcRecoverHandler implements DAppRequestHandler {
+export class PersonalEcRecoverHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.PERSONAL_EC_RECOVER];
 
   handleUnauthenticated = async (request) => {

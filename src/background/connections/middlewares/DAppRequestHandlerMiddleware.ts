@@ -2,8 +2,8 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
 import { engine } from '@src/utils/jsonRpcEngine';
-import { DAppRequestHandler } from '../models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
+import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],

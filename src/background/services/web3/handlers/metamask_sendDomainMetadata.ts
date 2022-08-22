@@ -1,9 +1,9 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 
 @injectable()
-export class MetamaskSendDomainMetadataHandler implements DAppRequestHandler {
+export class MetamaskSendDomainMetadataHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.DOMAIN_METADATA_METHOD];
 
   handleUnauthenticated = async (request) => {

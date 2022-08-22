@@ -1,15 +1,14 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { injectable } from 'tsyringe';
-import { ActionsService } from '../../actions/ActionsService';
+import { Action } from '../../actions/models';
 import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 
 @injectable()
-export class PersonalSignHandler implements DAppRequestHandler {
+export class PersonalSignHandler extends DAppRequestHandler {
   methods = [
     MessageType.ETH_SIGN,
     MessageType.SIGN_TYPED_DATA,
@@ -18,10 +17,9 @@ export class PersonalSignHandler implements DAppRequestHandler {
     DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
     MessageType.PERSONAL_SIGN,
   ];
-  constructor(
-    private actionsService: ActionsService,
-    private walletService: WalletService
-  ) {}
+  constructor(private walletService: WalletService) {
+    super();
+  }
 
   handleUnauthenticated = async (request) => {
     return {
@@ -42,14 +40,26 @@ export class PersonalSignHandler implements DAppRequestHandler {
       displayData: paramsToMessageParams(request),
       tabId: request.site.tabId,
     };
-    await this.actionsService.addAction(actionData);
 
-    await openExtensionNewWindow(
-      `sign?id=${request.id}`,
-      '',
-      request.meta?.coords
-    );
+    this.openApprovalWindow(actionData, `sign?id=${request.id}`);
 
     return { ...request, result: DEFERRED_RESPONSE };
+  };
+
+  onActionApproved = async (
+    pendingAction: Action,
+    result,
+    onSuccess,
+    onError
+  ) => {
+    try {
+      const result = await this.walletService.signMessage(
+        pendingAction.method as MessageType,
+        pendingAction.displayData.data
+      );
+      onSuccess(result);
+    } catch (e) {
+      onError(e);
+    }
   };
 }

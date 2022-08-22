@@ -1,3 +1,4 @@
+import { ExtensionMessageMetaData } from '@src/background/connections/models';
 import { DomainMetadata } from '@src/background/models';
 import { JsonRpcRequest } from 'json-rpc-engine';
 export enum ActionStatus {
@@ -17,8 +18,9 @@ export interface Action extends JsonRpcRequest<any> {
   error?: string;
   displayData: any;
   method: string;
-  site: DomainMetadata;
+  site?: DomainMetadata;
   tabId?: number;
+  meta?: ExtensionMessageMetaData;
 }
 
 export interface Actions {

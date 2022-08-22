@@ -70,6 +70,40 @@ export class PermissionsService implements OnLock {
     );
   }
 
+  async setAccountPermissionForDomain(
+    domain: string,
+    address: string,
+    hasPermission: boolean
+  ) {
+    const currentPermissions = await this.getPermissions();
+
+    const permissionsForDomain: DappPermissions = currentPermissions[
+      domain
+    ] || {
+      domain,
+      accounts: {},
+    };
+
+    this.permissions = {
+      ...currentPermissions,
+      [domain]: {
+        ...permissionsForDomain,
+        accounts: {
+          ...permissionsForDomain.accounts,
+          [address]: hasPermission,
+        },
+      },
+    };
+    this.storageService.save<Permissions>(
+      PERMISSION_STORAGE_KEY,
+      this.permissions
+    );
+    this.eventEmitter.emit(
+      PermissionEvents.PERMISSIONS_STATE_UPDATE,
+      this.permissions
+    );
+  }
+
   addListener(event: PermissionEvents, callback: (data: unknown) => void) {
     this.eventEmitter.addListener(event, callback);
   }
