@@ -229,7 +229,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   async getEthereumNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
     const network = this._isDeveloperMode
-      ? activeNetworks[ChainId.ETHEREUM_TEST_RINKEBY]
+      ? activeNetworks[ChainId.ETHEREUM_TEST_GOERLY]
       : activeNetworks[ChainId.ETHEREUM_HOMESTEAD];
     if (!network) throw new Error('Ethereum network not found');
     return network;

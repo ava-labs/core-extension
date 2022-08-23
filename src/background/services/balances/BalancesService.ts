@@ -5,6 +5,7 @@ import { singleton } from 'tsyringe';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { Account } from '../accounts/models';
+import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 
 @singleton()
 export class BalancesService {
@@ -44,15 +45,11 @@ export class BalancesService {
     };
 
     const btcNetworks = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET];
-    const ethNetworks = [
-      ChainId.ETHEREUM_HOMESTEAD,
-      ChainId.ETHEREUM_TEST_RINKEBY,
-    ];
 
     if (btcNetworks.includes(network.chainId)) {
       const provider = await this.networkService.getBitcoinProvider();
       return getBalanceForProvider(provider);
-    } else if (ethNetworks.includes(network.chainId)) {
+    } else if (isEthereumNetwork(network)) {
       const provider = await this.networkService.getEthereumProvider();
       return getBalanceForProvider(provider);
     } else if (network.vmName === NetworkVMType.EVM) {
