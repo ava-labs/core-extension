@@ -84,6 +84,7 @@ const COREX_METHODS = Object.freeze([
   'avalanche_getAccounts',
   'avalanche_bridgeAsset',
   'avalanche_getBridgeState',
+  'avalanche_selectAccount',
 ]);
 
 export function PermissionMiddleware(

@@ -34,6 +34,7 @@ import { AddNetwork } from '@src/pages/Networks/AddNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
+
 import { lazy, Suspense, useEffect, useMemo } from 'react';
 import {
   Redirect,
@@ -139,6 +140,12 @@ const AddCustomNetworkPopup = lazy(() => {
 const SwitchActiveNetwork = lazy(() => {
   return import('../pages/Network/SwitchActiveNetwork').then((m) => ({
     default: m.SwitchActiveNetwork,
+  }));
+});
+
+const SwitchAccount = lazy(() => {
+  return import('../pages/Wallet/SwitchAccount').then((m) => ({
+    default: m.SwitchAccount,
   }));
 });
 
@@ -350,6 +357,12 @@ export function Popup() {
                                     <Route path="/selectWallet">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SelectWallet />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/switchAccount">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SwitchAccount />
                                       </Suspense>
                                     </Route>
 

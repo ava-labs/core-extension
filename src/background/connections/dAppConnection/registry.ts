@@ -1,5 +1,6 @@
 import { AccountsChangedEvents } from '@src/background/services/accounts/events/accountsChangedEvent';
 import { AvalancheGetAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_getAccounts';
+import { AvalancheSelectAccountHandler } from '@src/background/services/accounts/handlers/avalanche_selectAccount';
 import { EthAccountsHandler } from '@src/background/services/accounts/handlers/eth_accounts';
 import { ActionCompletedEvents } from '@src/background/services/actions/events/actionCompletedEvents';
 import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/AvalancheBridgeAsset';
@@ -38,6 +39,7 @@ import { registry } from 'tsyringe';
   { token: 'DAppRequestHandler', useToken: AvalancheBridgeAsset },
   { token: 'DAppRequestHandler', useToken: AvalancheGetContactsHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectWalletHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: PersonalEcRecoverHandler },
   { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },
