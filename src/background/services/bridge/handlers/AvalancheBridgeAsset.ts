@@ -6,7 +6,7 @@ import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { BridgeService } from '../BridgeService';
 
-// this is used for coreX web
+// this is used for core web
 @injectable()
 export class AvalancheBridgeAsset extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_BRIDGE_ASSET];
