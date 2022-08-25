@@ -44,7 +44,7 @@
     "@metamask/providers": "8.1.1",
     "@noble/hashes": "1.0.0",
     "@obsidiansystems/hw-app-avalanche": "0.2.2",
-    "@openzeppelin/contracts": "4.7.2",
+    "@openzeppelin/contracts": "4.7.3",
     "@pangolindex/exchange-contracts": "1.0.2",
     "@sentry/browser": "7.3.0",
     "abi-decoder": "2.4.0",
