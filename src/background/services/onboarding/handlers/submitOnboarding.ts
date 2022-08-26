@@ -1,3 +1,4 @@
+import { ChainId } from '@avalabs/chains-sdk';
 import { getXpubFromMnemonic } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
@@ -5,6 +6,7 @@ import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { LockService } from '../../lock/LockService';
+import { NetworkService } from '../../network/NetworkService';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
 import { WalletService } from '../../wallet/WalletService';
@@ -35,7 +37,8 @@ export class SubmitOnboardingHandler implements HandlerType {
     private analyticsService: AnalyticsService,
     private walletService: WalletService,
     private accountsService: AccountsService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private networkService: NetworkService
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
@@ -72,6 +75,9 @@ export class SubmitOnboardingHandler implements HandlerType {
     await this.accountsService.activateAccount(0);
     await this.onboardingService.setIsOnboarded(true);
     await this.settingsService.setAnalyticsConsent(analyticsConsent);
+
+    await this.networkService.addFavoriteNetwork(ChainId.BITCOIN);
+    await this.networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
 
     await this.lockService.unlock(password);
 
