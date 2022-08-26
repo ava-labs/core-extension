@@ -26,12 +26,14 @@ import {
 } from '../balances/models';
 import { isAddress } from 'ethers/lib/utils';
 import { isNFT } from '../balances/nft/utils/isNFT';
+import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 
 @singleton()
 export class SendServiceEVM implements SendServiceHelper {
   constructor(
     private accountsService: AccountsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private networkBalancesService: BalanceAggregatorService
   ) {}
 
   async getTransactionRequest(
@@ -62,9 +64,11 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!token) return this.getErrorState(sendState, 'Invalid token');
 
     const gasLimit = await this.getGasLimit(sendState);
+
     const sendFee = gasPrice
       ? new BN(gasLimit).mul(ethersBigNumberToBN(gasPrice))
       : undefined;
+
     const maxAmount =
       token.type === TokenType.NATIVE
         ? token.balance.sub(sendFee || new BN(0))
@@ -99,6 +103,15 @@ export class SendServiceEVM implements SendServiceHelper {
         SendErrorMessage.INSUFFICIENT_BALANCE
       );
 
+    if (
+      token.type !== TokenType.NATIVE &&
+      sendFee &&
+      !(await this.hasEnoughBalanceForGasForNonNative(sendFee))
+    )
+      return this.getErrorState(
+        newState,
+        SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE
+      );
     return newState;
   }
 
@@ -135,6 +148,20 @@ export class SendServiceEVM implements SendServiceHelper {
     // add 20% padding to ensure the tx will be accepted
     const paddedGasLimit = Math.round((gasLimit?.toNumber() || 0) * 1.2);
     return paddedGasLimit;
+  }
+
+  private async hasEnoughBalanceForGasForNonNative(sendFee: BN) {
+    const tokens = this.networkBalancesService.balances;
+    const network = await this.networkService.activeNetwork.promisify();
+    const address = this.fromAddress;
+    if (!network?.chainId || !address || !tokens) {
+      return false;
+    }
+    const nativeToken = tokens[network.chainId]?.[address]?.find(
+      (token) => token.type === TokenType.NATIVE
+    );
+
+    return nativeToken?.balance.gte(sendFee) ? true : false;
   }
 
   private getErrorState(sendState: SendState, errorMessage: string): SendState {

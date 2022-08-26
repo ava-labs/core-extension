@@ -13,7 +13,10 @@ import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import BN from 'bn.js';
-import { SendState } from '@src/background/services/send/models';
+import {
+  SendErrorMessage,
+  SendState,
+} from '@src/background/services/send/models';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -84,7 +87,13 @@ export const SendForm = ({
           onSelectToggle={toggleTokenDropdown}
           isOpen={isTokenSelectOpen}
           isValueLoading={sendState.loading}
-          error={sendState.error?.message}
+          error={
+            // INSUFFICIENT_BALANCE_FOR_FEE has special error in CustomFees
+            sendState.error?.message ===
+            SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE
+              ? undefined
+              : sendState.error?.message
+          }
           margin="24px 0"
           setIsOpen={setIsTokenSelectOpen}
         />
