@@ -229,7 +229,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   async getEthereumNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
     const network = this._isDeveloperMode
-      ? activeNetworks[ChainId.ETHEREUM_TEST_RINKEBY]
+      ? activeNetworks[ChainId.ETHEREUM_TEST_GOERLY]
       : activeNetworks[ChainId.ETHEREUM_HOMESTEAD];
     if (!network) throw new Error('Ethereum network not found');
     return network;
@@ -318,9 +318,11 @@ export class NetworkService implements OnLock, OnStorageReady {
     // some cases the chainId comes in a hex value, and there will be a duplicated broken entry in the list
     const convertedChainId = parseInt(customNetwork?.chainId.toString(16), 16);
     const chainlist = await this.setChainListOrFallback();
-    const isCustomNetworkExist =
-      !!this._customNetworks[convertedChainId] ||
-      (chainlist && !!chainlist[convertedChainId]);
+    const isCustomNetworkExist = !!this._customNetworks[convertedChainId];
+    const isChainListNetwork = chainlist && !!chainlist[convertedChainId];
+    if (isChainListNetwork) {
+      return;
+    }
     this._customNetworks = {
       ...this._customNetworks,
       [convertedChainId]: customNetwork,

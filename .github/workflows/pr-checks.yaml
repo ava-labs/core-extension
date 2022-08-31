@@ -4,6 +4,7 @@ jobs:
   lint:
     name: Lint and build
     runs-on: ubuntu-latest
+    environment: alpha
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -21,8 +22,10 @@ jobs:
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
       - name: Install dependencies
-        run: yarn
+        run: yarn setup
       - name: Lint
         run: yarn lint
+      - name: Test
+        run: yarn test
       - name: Build extension
         run: yarn build

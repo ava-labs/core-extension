@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
+import { isTokenSupported } from '../tokens/utils/isTokenSupported';
 import { SettingsEvents, TokensVisibility } from './models';
 import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
 
@@ -59,22 +60,19 @@ export class SettingsService implements OnStorageReady {
   async addCustomToken(token: NetworkContractToken) {
     const network = await this.networkService.activeNetwork.promisify();
 
-    const tokenAlreadyExists = network?.tokens?.reduce(
-      (exists, existingToken) =>
-        exists ||
-        existingToken.address.toLowerCase() === token.address.toLowerCase(),
-      false
-    );
-    const settings = await this.getSettings();
-
-    if (!network?.chainId) {
+    if (!network) {
       throw new Error('Unable to detect current network selection.');
     }
 
-    if (
-      tokenAlreadyExists ||
-      settings.customTokens?.[network.chainId]?.[token.address.toLowerCase()]
-    ) {
+    const settings = await this.getSettings();
+
+    const tokenAlreadyExists = await isTokenSupported(
+      token.address,
+      network,
+      settings
+    );
+
+    if (tokenAlreadyExists) {
       throw new Error('Token already exists in the wallet.');
     }
 

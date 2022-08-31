@@ -19,7 +19,6 @@ import { SiteMetadataMiddleware } from '../middlewares/SiteMetadataMiddleware';
 import {
   ConnectionController,
   DAppEventEmitter,
-  DAppRequestHandler,
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
 } from '../models';
@@ -31,6 +30,7 @@ import { AccountsService } from '@src/background/services/accounts/AccountsServi
 import './registry';
 import { RPCCallsMiddleware } from '../middlewares/RPCCallsMiddleware';
 import { NetworkService } from '@src/background/services/network/NetworkService';
+import { DAppRequestHandler } from './DAppRequestHandler';
 
 /**
  * This needs to be a controller per dApp, to separate messages

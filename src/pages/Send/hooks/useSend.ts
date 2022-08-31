@@ -89,14 +89,14 @@ function getUpdatedState<T extends TokenWithBalance>(
     // A different address can affect the gasLimit estimate
     (updates.address && updates.address !== current.address) ||
     // A different token will affect the gasLimit estimate
-    updates.token?.type !== current.token?.type ||
-    (updates.token?.type === TokenType.ERC20 &&
+    (updates.token && updates.token?.type !== current.token?.type) ||
+    (updates.token &&
+      updates.token?.type === TokenType.ERC20 &&
       current.token?.type === TokenType.ERC20 &&
       updates.token?.symbol !== current.token?.symbol);
 
   if (shouldResetGasLimit) {
     delete newState.gasLimit;
   }
-
   return newState;
 }

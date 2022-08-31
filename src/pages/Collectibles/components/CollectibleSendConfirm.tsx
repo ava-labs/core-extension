@@ -20,7 +20,7 @@ import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { NFT } from '@src/background/services/balances/nft/models';
 import { SendState } from '@src/background/services/send/models';
-import { TokenWithBalanceERC721 } from '@src/background/services/balances/models';
+import { NftTokenWithBalance } from '@src/background/services/balances/models';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -59,7 +59,7 @@ const ContactAddress = styled(Typography)`
 `;
 
 type CollectibleSendConfirmProps = {
-  sendState: SendState<TokenWithBalanceERC721>;
+  sendState: SendState<NftTokenWithBalance>;
   contact: Contact;
   nft: NFT;
   tokenId: string;

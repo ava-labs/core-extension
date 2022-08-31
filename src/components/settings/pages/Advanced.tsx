@@ -38,7 +38,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
         title="Advanced"
       />
 
-      <DropDownMenuItem justify="space-between" padding="10px 16px">
+      <DropDownMenuItem data-testid="test-net-mode-menu-item" justify="space-between" padding="10px 16px">
         <HorizontalFlex margin="0 0 0 6px" align="center">
           <Typography size={14} height="17px" margin="0 8px 0 0">
             Testnet Mode
@@ -62,7 +62,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
       </DropDownMenuItem>
 
       {!isProductionBuild() ? (
-        <DropDownMenuItem justify="space-between" padding="10px 16px">
+        <DropDownMenuItem data-testid="bridge-dev-env-menu-item" justify="space-between" padding="10px 16px">
           <HorizontalFlex margin="0 0 0 6px" align="center">
             <Typography size={14} height="17px" margin="0 8px 0 0">
               Bridge DEV Environment

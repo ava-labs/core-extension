@@ -8,6 +8,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -29,7 +30,7 @@ jobs:
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
           echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
       - name: Install dependencies
-        run: yarn
+        run: yarn setup
       - name: Build library
         run: yarn build
       - name: Release

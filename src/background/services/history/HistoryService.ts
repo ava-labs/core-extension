@@ -6,6 +6,7 @@ import { HistoryServiceCChain } from './HistoryServiceCChain';
 import { HistoryServiceSubnet } from './HistoryServiceSubnet';
 import { resolve } from '@avalabs/utils-sdk';
 import { HistoryServiceETH } from './HistoryServiceETH';
+import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 
 @singleton()
 export class HistoryService {
@@ -23,10 +24,7 @@ export class HistoryService {
     if (network) {
       if (network.vmName === NetworkVMType.BITCOIN) {
         return await this.btcHistoryService.getHistory(network);
-      } else if (
-        ChainId.ETHEREUM_HOMESTEAD === network.chainId ||
-        ChainId.ETHEREUM_TEST_RINKEBY === network.chainId
-      ) {
+      } else if (isEthereumNetwork(network)) {
         return await this.ethHistoryService.getHistory(network);
       } else if (
         ChainId.AVALANCHE_MAINNET_ID === network.chainId ||

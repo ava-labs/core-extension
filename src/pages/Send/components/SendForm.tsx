@@ -13,7 +13,11 @@ import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import BN from 'bn.js';
-import { SendState } from '@src/background/services/send/models';
+import {
+  SendErrorMessage,
+  SendState,
+} from '@src/background/services/send/models';
+import { useTheme } from 'styled-components';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -53,6 +57,12 @@ export const SendForm = ({
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const { networkFee } = useNetworkFeeContext();
+  const theme = useTheme();
+
+  const errorsToExcludeForTokenSelect: string[] = [
+    SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE,
+    SendErrorMessage.ADDRESS_REQUIRED,
+  ];
 
   const toggleContactsDropdown = (to?: boolean) => {
     setIsContactsOpen(to === undefined ? !isContactsOpen : to);
@@ -73,6 +83,19 @@ export const SendForm = ({
         toggleContactsDropdown={toggleContactsDropdown}
         setIsOpen={setIsContactsOpen}
       />
+      <HorizontalFlex
+        marginTop="4px"
+        paddingLeft="16px"
+        width="100%"
+        height="16px"
+      >
+        {sendState?.error?.message === SendErrorMessage.ADDRESS_REQUIRED && (
+          <Typography size={12} color={theme.colors.error}>
+            {sendState.error.message}.
+          </Typography>
+        )}
+      </HorizontalFlex>
+
       <HorizontalFlex padding="0 16px" width="100%">
         <TokenSelect
           maxAmount={sendState.maxAmount || FALLBACK_MAX}
@@ -84,7 +107,12 @@ export const SendForm = ({
           onSelectToggle={toggleTokenDropdown}
           isOpen={isTokenSelectOpen}
           isValueLoading={sendState.loading}
-          error={sendState.error?.message}
+          error={
+            sendState.error?.message &&
+            errorsToExcludeForTokenSelect.includes(sendState.error.message)
+              ? undefined
+              : sendState.error?.message
+          }
           margin="24px 0"
           setIsOpen={setIsTokenSelectOpen}
         />

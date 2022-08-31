@@ -9,7 +9,6 @@ import {
   useHasEnoughForGas,
 } from '@avalabs/bridge-sdk';
 import { BridgeAdapter } from './useBridge';
-import { useAssetBalanceEVM } from '@src/pages/Bridge/hooks/useAssetBalanceEVM';
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { useCallback, useMemo, useState } from 'react';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
@@ -35,14 +34,13 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const isAvalancheBridge = currentBlockchain === Blockchain.AVALANCHE;
   const [txHash, setTxHash] = useState<string>();
 
-  const sourceBalance = useAssetBalanceEVM(
-    isAvalancheBridge ? currentAssetData : undefined,
-    Blockchain.AVALANCHE
+  const { assetsWithBalances: selectedAssetWithBalances } = useAssetBalancesEVM(
+    Blockchain.ETHEREUM,
+    isAvalancheBridge ? currentAssetData : undefined
   );
+  const sourceBalance = selectedAssetWithBalances[0];
 
-  const { assetsWithBalances, loading } = useAssetBalancesEVM(
-    Blockchain.AVALANCHE
-  );
+  const { assetsWithBalances } = useAssetBalancesEVM(Blockchain.AVALANCHE);
 
   const { activeAccount } = useAccountsContext();
   const { network } = useNetworkContext();
@@ -114,7 +112,6 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     sourceBalance,
     assetsWithBalances,
     hasEnoughForNetworkFee,
-    loading,
     receiveAmount,
     maximum,
     minimum,

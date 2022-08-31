@@ -54,7 +54,6 @@ const SelectContainer = styled.div`
 
 const defaultNetworks = [
   ChainId.AVALANCHE_MAINNET_ID,
-  ChainId.BITCOIN,
   ChainId.AVALANCHE_TESTNET_ID,
 ];
 

@@ -100,7 +100,7 @@ export function SwitchActiveNetwork() {
               color={theme.colors.text2}
               align="center"
             >
-              {request.site.domain || 'This website'} is requesting to switch
+              {request?.site?.domain || 'This website'} is requesting to switch
               your active network to {network?.chainName}
             </Typography>
           </HorizontalFlex>

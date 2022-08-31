@@ -1,132 +1,44 @@
-import {
-  initPosthog,
-  initFeatureFlags,
-  FeatureGates,
-  useCapturePageview,
-} from '@avalabs/posthog-sdk';
+import { FeatureGates, useCapturePageview } from '@avalabs/posthog-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { analyticsStateUpdatedEventListener } from '@src/background/services/analytics/events/listeners';
+import { CaptureAnalyticsEventHandler } from '@src/background/services/analytics/handlers/captureAnalyticsEvent';
 import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
-import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
 import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
-import { AnalyticsState } from '@src/background/services/analytics/models';
-import { createContext, useContext, useEffect, useState } from 'react';
-import { filter, map } from 'rxjs';
+import { createContext, useContext } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
+import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { useSettingsContext } from './SettingsProvider';
 
 const AnalyticsContext = createContext<{
-  flags: Record<FeatureGates, boolean>;
   initAnalyticsIds: (storeInStorage: boolean) => Promise<void>;
   stopDataCollection: () => void;
   capture: (eventName: string, properties?: Record<string, any>) => void;
 }>({} as any);
 
-const DefaultFeatureFlagConfig = {
-  [FeatureGates.EVERYTHING]: true,
-  [FeatureGates.BRIDGE]: true,
-  [FeatureGates.BRIDGE_BTC]: true,
-  [FeatureGates.BRIDGE_ETH]: true,
-  [FeatureGates.EVENTS]: true,
-  [FeatureGates.SEND]: true,
-  [FeatureGates.SWAP]: true,
-};
+const windowId = crypto.randomUUID();
 
 export function AnalyticsContextProvider({ children }: { children: any }) {
-  const [posthogInstance, setPosthogInstance] = useState<any>();
-  const { request, events } = useConnectionContext();
-  const [flags, setFlags] = useState<Record<FeatureGates, boolean>>(
-    DefaultFeatureFlagConfig
-  );
+  const { request } = useConnectionContext();
   const { analyticsConsent } = useSettingsContext();
-  const [analyticsState, setAnalyticsState] = useState<AnalyticsState>();
-
-  useEffect(() => {
-    let isCancelled = false;
-    request<GetAnalyticsIdsHandler>({
-      method: ExtensionRequest.ANALYTICS_GET_IDS,
-    }).then((state) => {
-      if (state && !isCancelled) {
-        setAnalyticsState(state);
-      }
-    });
-
-    const subscription = events()
-      .pipe(
-        filter(analyticsStateUpdatedEventListener),
-        map((evt) => evt.value)
-      )
-      .subscribe((val) => setAnalyticsState(val));
-
-    return () => {
-      subscription.unsubscribe();
-      isCancelled = true;
-    };
-  }, [events, request]);
-
-  useEffect(() => {
-    if (
-      posthogInstance ||
-      // wait for consent state
-      analyticsConsent === undefined ||
-      // Analytics state is empty when there is no consent.
-      // When users opt out we delete all of the tracking IDs
-      (!analyticsState && analyticsConsent === true)
-    ) {
-      return;
-    }
-    initPosthog(
-      process.env.POSTHOG_KEY ?? '',
-      {
-        opt_out_capturing_by_default: false,
-        api_host:
-          process.env.POSTHOG_URL || 'https://data-posthog.avax-test.network',
-        ip: false,
-        disable_persistence: true,
-        disable_cookie: true,
-        loaded: (hog) => {
-          if (analyticsConsent === true && analyticsState) {
-            // register_once does not work for $device_id
-            hog.register({
-              $ip: '',
-              $device_id: analyticsState.deviceId,
-            });
-            hog.identify(analyticsState.userId);
-          } else {
-            hog.opt_out_capturing();
-          }
-          // we need to use feature flags even if we opt out analytics
-          const { listen } = initFeatureFlags(hog);
-          listen.add((flags: any) => {
-            setFlags(flags);
-          });
-          setPosthogInstance(hog);
-        },
-      },
-      'browser-extension-posthog'
-    );
-  }, [analyticsConsent, analyticsState, posthogInstance]);
-
-  useEffect(() => {
-    if (!posthogInstance) {
-      return;
-    }
-    if (analyticsConsent) {
-      posthogInstance.opt_in_capturing();
-    } else {
-      posthogInstance.opt_out_capturing();
-    }
-  }, [analyticsConsent, posthogInstance]);
+  const { featureFlags } = useFeatureFlagContext();
 
   const captureEvent = (
     eventName: string,
     properties?: Record<string, any>
   ) => {
-    if (!analyticsConsent || !flags[FeatureGates.EVENTS] || !posthogInstance) {
+    if (!analyticsConsent || !featureFlags[FeatureGates.EVENTS]) {
       return;
     }
 
-    posthogInstance.capture(eventName, properties);
+    request<CaptureAnalyticsEventHandler>({
+      method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
+      params: [
+        {
+          name: eventName,
+          windowId,
+          properties: { ...properties },
+        },
+      ],
+    });
   };
 
   const initAnalyticsIds = async (storeInStorage: boolean): Promise<void> => {
@@ -137,10 +49,6 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
   };
 
   const stopDataCollection = () => {
-    if (posthogInstance) {
-      posthogInstance.opt_out_capturing();
-      posthogInstance.reset();
-    }
     request<ClearAnalyticsIdsHandler>({
       method: ExtensionRequest.ANALYTICS_CLEAR_IDS,
     });
@@ -151,7 +59,6 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
   return (
     <AnalyticsContext.Provider
       value={{
-        flags,
         capture: captureEvent,
         initAnalyticsIds,
         stopDataCollection,

@@ -7,24 +7,14 @@ import { AddLiquidityDisplayData } from '@src/contracts/contractParsers/models';
 import { Fragment } from 'react';
 import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
-import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 import { TokenCard } from './components/TokenCard';
 import { TransactionHeader } from './components/TransactionHeader';
-import { TransactionTabs } from './components/TransactionTabs';
-import { TransactionProgressState } from './models';
 
 export function AddLiquidityTx({
   poolTokens,
   toAddress,
   fromAddress,
-  txParams,
-  gasPrice,
-  gasLimit,
-  onCustomFeeSet,
   transactionState,
-  hash,
-  error,
-  selectedGasFee,
 }: AddLiquidityDisplayData) {
   const theme = useTheme();
 
@@ -43,7 +33,10 @@ export function AddLiquidityTx({
 
       <VerticalFlex>
         {/* Account */}
-        <AddressPaths toAddress={toAddress} fromAddress={fromAddress} />
+        <AddressPaths
+          toAddress={toAddress || ''}
+          fromAddress={fromAddress || ''}
+        />
 
         {/* Tokens */}
         {poolTokens.map((token, index) => (
@@ -57,24 +50,6 @@ export function AddLiquidityTx({
             {!index && plusIcon}
           </Fragment>
         ))}
-
-        {/* Tabs */}
-        {transactionState === TransactionProgressState.NOT_APPROVED ? (
-          <TransactionTabs
-            byteStr={txParams?.data}
-            gasPrice={gasPrice}
-            limit={gasLimit}
-            onCustomFeeSet={onCustomFeeSet}
-            selectedGasFee={selectedGasFee}
-          />
-        ) : (
-          <SuccessFailTxInfo
-            hash={hash}
-            gasPrice={gasPrice}
-            gasLimit={gasLimit ?? 0}
-            error={error}
-          />
-        )}
       </VerticalFlex>
     </VerticalFlex>
   );

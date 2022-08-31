@@ -29,7 +29,7 @@ import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
 import { BigNumber } from 'ethers';
 import {
   TokenType,
-  TokenWithBalanceERC721,
+  NftTokenWithBalance,
 } from '@src/background/services/balances/models';
 import { useSend } from '../Send/hooks/useSend';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
@@ -48,7 +48,7 @@ export function CollectibleSend() {
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
   const { sendState, resetSendState, submitSendState, updateSendState } =
-    useSend<TokenWithBalanceERC721>();
+    useSend<NftTokenWithBalance>();
   const history = useHistory();
   const { network } = useNetworkContext();
   const tokensWithBalances = useTokensWithBalances(true);

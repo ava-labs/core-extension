@@ -8,10 +8,10 @@ import {
 import { Header } from '@src/components/common/header/Header';
 import { WalletLoading } from '@src/components/common/WalletLoading';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BalancesProvider } from '@src/contexts/BalancesProvider';
 import { BridgeProvider } from '@src/contexts/BridgeProvider';
 import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { LedgerContextProvider } from '@src/contexts/LedgerProvider';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
@@ -34,6 +34,7 @@ import { AddNetwork } from '@src/pages/Networks/AddNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
+
 import { lazy, Suspense, useEffect, useMemo } from 'react';
 import {
   Redirect,
@@ -65,6 +66,12 @@ const PermissionsPage = lazy(() => {
 const SignTransactionPage = lazy(() => {
   return import('../pages/SignTransaction/SignTransaction').then((m) => ({
     default: m.SignTransactionPage,
+  }));
+});
+
+const WatchAssetApprovalPopup = lazy(() => {
+  return import('../pages/ManageTokens/AddTokenApproval').then((m) => ({
+    default: m.AddTokenApproval,
   }));
 });
 
@@ -136,6 +143,12 @@ const SwitchActiveNetwork = lazy(() => {
   }));
 });
 
+const SwitchAccount = lazy(() => {
+  return import('../pages/Wallet/SwitchAccount').then((m) => ({
+    default: m.SwitchAccount,
+  }));
+});
+
 export function Popup() {
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
@@ -145,7 +158,7 @@ export function Popup() {
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistoryState = getNavigationHistoryState();
   const { isOnline } = useOnline();
-  const { flags } = useAnalyticsContext();
+  const { featureFlags } = useFeatureFlagContext();
 
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm ? '100%' : '1280px'),
@@ -178,7 +191,7 @@ export function Popup() {
     );
   }
 
-  if (!flags[FeatureGates.EVERYTHING]) {
+  if (!featureFlags[FeatureGates.EVERYTHING]) {
     return (
       <OfflineContent message="Sorry, Core is currently unavailable. Please check back later. Thanks." />
     );
@@ -254,6 +267,12 @@ export function Popup() {
                                     <Route path="/sign">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SignMessage />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/watch-asset">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <WatchAssetApprovalPopup />
                                       </Suspense>
                                     </Route>
 
@@ -338,6 +357,12 @@ export function Popup() {
                                     <Route path="/selectWallet">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SelectWallet />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/switchAccount">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SwitchAccount />
                                       </Suspense>
                                     </Route>
 

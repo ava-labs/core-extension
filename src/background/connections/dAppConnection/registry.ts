@@ -1,5 +1,6 @@
 import { AccountsChangedEvents } from '@src/background/services/accounts/events/accountsChangedEvent';
 import { AvalancheGetAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_getAccounts';
+import { AvalancheSelectAccountHandler } from '@src/background/services/accounts/handlers/avalanche_selectAccount';
 import { EthAccountsHandler } from '@src/background/services/accounts/handlers/eth_accounts';
 import { ActionCompletedEvents } from '@src/background/services/actions/events/actionCompletedEvents';
 import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/AvalancheBridgeAsset';
@@ -13,6 +14,7 @@ import { WalletAddEthereumChainHandler } from '@src/background/services/network/
 import { WalletSwitchEthereumChainHandler } from '@src/background/services/network/handlers/wallet_switchEthereumChain';
 import { WalletGetPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_getPermissions';
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
+import { WalletWatchAssetHandler } from '@src/background/services/settings/events/wallet_watchAsset';
 import { GetIsDefaultExtensionDAppHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
@@ -37,12 +39,14 @@ import { registry } from 'tsyringe';
   { token: 'DAppRequestHandler', useToken: AvalancheBridgeAsset },
   { token: 'DAppRequestHandler', useToken: AvalancheGetContactsHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectWalletHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: PersonalEcRecoverHandler },
   { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletSwitchEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },
+  { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
   { token: 'DAppRequestHandler', useToken: GetIsDefaultExtensionDAppHandler },
   { token: 'DAppRequestHandler', useToken: EthSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },

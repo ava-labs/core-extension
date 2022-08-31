@@ -168,8 +168,10 @@ export function CustomFees({
         gasLimit,
       });
 
-      if (maxGasPrice && newFees.bnFee.gte(maxGasPrice)) {
+      if (maxGasPrice && newFees.bnFee.gt(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
+        // call cb with limit and gas
+        onChange(gasLimit, gas, modifier);
         return;
       }
       if (modifier === GasFeeModifier.CUSTOM) {
@@ -177,7 +179,6 @@ export function CustomFees({
           getUpToTwoDecimals(gas, networkFee?.displayDecimals || 0)
         );
       }
-
       setNewFees(newFees);
       // call cb with limit and gas
       onChange(gasLimit, gas, modifier);
@@ -430,7 +431,8 @@ export function CustomFees({
       {isGasPriceTooHigh && (
         <VerticalFlex padding="4px 0">
           <Typography size={12} color={theme.colors.error}>
-            Insufficient balance
+            Insufficient balance to cover gas costs. <br />
+            Please add {network?.networkToken.symbol}.
           </Typography>
         </VerticalFlex>
       )}

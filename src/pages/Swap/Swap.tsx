@@ -51,6 +51,7 @@ import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import BN from 'bn.js';
 import { WalletType } from '@src/background/services/wallet/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 export interface Token {
   icon?: JSX.Element;
@@ -83,7 +84,8 @@ const TryAgainButton = styled.span`
 `;
 
 export function Swap() {
-  const { flags, capture } = useAnalyticsContext();
+  const { featureFlags } = useFeatureFlagContext();
+  const { capture } = useAnalyticsContext();
   const { walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const { getRate, swap } = useSwapContext();
@@ -502,7 +504,7 @@ export function Swap() {
     );
   }
 
-  if (!flags[FeatureGates.SWAP]) {
+  if (!featureFlags[FeatureGates.SWAP]) {
     return <FunctionIsOffline functionName="Swap" />;
   }
 

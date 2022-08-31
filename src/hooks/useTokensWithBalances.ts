@@ -4,7 +4,10 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { ChainId } from '@avalabs/chains-sdk';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { BN } from 'bn.js';
 
 const bnZero = new BN(0);
@@ -34,11 +37,23 @@ export function useTokensWithBalances(
       return tokens.balances?.[selectedChainId]?.[address] || [];
     }
 
-    return (
-      tokens.balances?.[selectedChainId]?.[address]?.filter((token) =>
-        token.balance.gt(bnZero)
-      ) || []
+    const unfilteredTokens = tokens.balances?.[selectedChainId]?.[address];
+
+    if (!unfilteredTokens) {
+      return [];
+    }
+
+    const nativeToken = unfilteredTokens.find(
+      (token) => token.type === TokenType.NATIVE
     );
+
+    const defaultResult = nativeToken ? [nativeToken] : [];
+
+    const filteredTokens = unfilteredTokens.filter((token) => {
+      return token.balance.gt(bnZero);
+    });
+
+    return filteredTokens.length ? filteredTokens : defaultResult;
   }, [
     activeAccount,
     tokens,

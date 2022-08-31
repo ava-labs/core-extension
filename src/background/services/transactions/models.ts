@@ -21,14 +21,14 @@ export enum TransactionEvent {
 }
 
 export interface TransactionDisplayValues {
-  fromAddress: string;
-  toAddress: string;
-  gasPrice: ethers.BigNumber;
-  contractType: ContractCall;
+  fromAddress?: string;
+  toAddress?: string;
+  gasPrice?: ethers.BigNumber;
+  contractType?: ContractCall;
   gasLimit?: number;
   fee?: string;
   feeUSD?: number;
-  site: DomainMetadata;
+  site?: DomainMetadata;
   description?: ethers.utils.TransactionDescription;
   [key: string]: any;
 }

@@ -1,13 +1,15 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
 
 @injectable()
-export class AvalancheGetAccountsHandler implements DAppRequestHandler {
+export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_GET_ACCOUNTS];
 
-  constructor(private accountsService: AccountsService) {}
+  constructor(private accountsService: AccountsService) {
+    super();
+  }
 
   handleAuthenticated = async (request) => {
     const accounts = this.accountsService.getAccounts();

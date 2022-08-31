@@ -7,6 +7,7 @@ export enum DAppProviderRequest {
   WALLET_GET_PERMISSIONS = 'wallet_getPermissions',
   WALLET_ADD_CHAIN = 'wallet_addEthereumChain',
   WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
+  WALLET_WATCH_ASSET = 'wallet_watchAsset',
   ETH_SEND_TX = 'eth_sendTransaction',
   PERSONAL_EC_RECOVER = 'personal_ecRecover',
   PERSONAL_SIGN = 'personal_sign',
@@ -21,6 +22,7 @@ export enum DAppProviderRequest {
   AVALANCHE_BRIDGE_ASSET = 'avalanche_bridgeAsset',
   AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
+  ACCOUNT_SELECT = 'avalanche_selectAccount',
 }
 
 export enum Web3Event {

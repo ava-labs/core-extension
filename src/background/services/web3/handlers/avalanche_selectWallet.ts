@@ -1,11 +1,11 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { injectable } from 'tsyringe';
 
 @injectable()
-export class AvalancheSelectWalletHandler implements DAppRequestHandler {
+export class AvalancheSelectWalletHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_SELECT_WALLET];
 
   handleUnauthenticated = async (request) => {

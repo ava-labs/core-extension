@@ -1,9 +1,9 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 
 @injectable()
-export class WalletGetPermissionsHandler implements DAppRequestHandler {
+export class WalletGetPermissionsHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.WALLET_GET_PERMISSIONS];
 
   handleUnauthenticated = async (request) => {

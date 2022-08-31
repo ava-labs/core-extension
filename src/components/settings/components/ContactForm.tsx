@@ -101,6 +101,7 @@ export const ContactForm = ({
   return (
     <VerticalFlex width="100%">
       <Input
+        data-testid="address-name-input"
         autoFocus={autoFocus}
         onChange={(e) => {
           e.stopPropagation();
@@ -115,6 +116,7 @@ export const ContactForm = ({
       />
 
       <TextArea
+        data-testid="ava-address-textarea"
         size={ComponentSize.SMALL}
         margin="24px 0px 0px"
         onChange={(e) => {
@@ -129,6 +131,7 @@ export const ContactForm = ({
         width="100%"
       />
       <TextArea
+        data-testid="btc-address-textarea"
         size={ComponentSize.SMALL}
         onChange={(e) => {
           e.stopPropagation();

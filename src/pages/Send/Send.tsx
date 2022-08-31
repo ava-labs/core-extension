@@ -41,10 +41,11 @@ import {
 } from '@src/background/services/balances/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { WalletType } from '@src/background/services/wallet/models';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 export function SendPage() {
   const theme = useTheme();
-  const { flags } = useAnalyticsContext();
+  const { featureFlags } = useFeatureFlagContext();
   const { walletType } = useWalletContext();
   const selectedToken = useTokenFromParams(false);
   const contactInput = useContactFromParams();
@@ -280,7 +281,7 @@ export function SendPage() {
       });
   };
 
-  if (!flags[FeatureGates.SEND]) {
+  if (!featureFlags[FeatureGates.SEND]) {
     return <FunctionIsOffline functionName="Send" />;
   }
 

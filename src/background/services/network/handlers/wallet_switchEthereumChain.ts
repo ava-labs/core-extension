@@ -1,10 +1,9 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { ActionsService } from '../../actions/ActionsService';
+import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 
 /**
@@ -12,13 +11,12 @@ import { NetworkService } from '../NetworkService';
  * @param data
  */
 @injectable()
-export class WalletSwitchEthereumChainHandler implements DAppRequestHandler {
+export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.WALLET_SWITCH_ETHEREUM_CHAIN];
 
-  constructor(
-    private networkService: NetworkService,
-    private actionsService: ActionsService
-  ) {}
+  constructor(private networkService: NetworkService) {
+    super();
+  }
 
   handleUnauthenticated = async (request) => {
     return {
@@ -55,12 +53,9 @@ export class WalletSwitchEthereumChainHandler implements DAppRequestHandler {
         tabId: request.site.tabId,
       };
 
-      await this.actionsService.addAction(actionData);
-
-      await openExtensionNewWindow(
-        `network/switch?id=${request.id}`,
-        '',
-        request.meta?.coords
+      await this.openApprovalWindow(
+        actionData,
+        `network/switch?id=${request.id}`
       );
 
       return { ...request, result: DEFERRED_RESPONSE };
@@ -83,5 +78,19 @@ export class WalletSwitchEthereumChainHandler implements DAppRequestHandler {
       ...request,
       result: null,
     };
+  };
+
+  onActionApproved = async (
+    pendingAction: Action,
+    result,
+    onSuccess,
+    onError
+  ) => {
+    try {
+      await this.networkService.setNetwork(pendingAction.displayData.chainId);
+      onSuccess(null);
+    } catch (e) {
+      onError(e);
+    }
   };
 }

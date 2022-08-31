@@ -1,3 +1,4 @@
+import { CaptureAnalyticsEventHandler } from '../../services/analytics/handlers/captureAnalyticsEvent';
 import { AccountsUpdatedEvents } from '@src/background/services/accounts/events/accountsUpdatedEvent';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
 import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
@@ -19,7 +20,6 @@ import { BridgeTransferEvents } from '@src/background/services/bridge/events/bri
 import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';
 import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
-import { BridgeGetEthereumBalancesHandler } from '@src/background/services/bridge/handlers/getEthereumBalances';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
 import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
@@ -90,6 +90,8 @@ import { SelectWalletExtensionForDappHandler } from '@src/background/services/ac
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
+import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
+import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -107,6 +109,8 @@ import { GetNetworksStateHandler } from '@src/background/services/network/handle
   { token: 'ExtensionRequestHandler', useToken: GetAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: InitAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: StoreAnalyticsIdsHandler },
+  { token: 'ExtensionRequestHandler', useToken: CaptureAnalyticsEventHandler },
+
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeCreateTransactionHandler,
@@ -120,10 +124,6 @@ import { GetNetworksStateHandler } from '@src/background/services/network/handle
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetStateHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeSetIsDevEnvHandler },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: BridgeGetEthereumBalancesHandler,
-  },
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeRemoveTransactionHandler,
@@ -206,6 +206,7 @@ import { GetNetworksStateHandler } from '@src/background/services/network/handle
   { token: 'ExtensionRequestHandler', useToken: UpdateTransactionHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -231,5 +232,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
+  { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
 ])
 export class ExtensionEventEmitterRegistry {}

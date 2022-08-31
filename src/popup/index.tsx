@@ -15,6 +15,7 @@ import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { AnalyticsContextProvider } from '@src/contexts/AnalyticsProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 import { LoadingContent } from './LoadingContent';
+import { FeatureFlagsContextProvider } from '@src/contexts/FeatureFlagsProvider';
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
@@ -31,12 +32,14 @@ browser.tabs.query({ active: true }).then(() => {
       >
         <ConnectionContextProvider>
           <SettingsContextProvider>
-            <AnalyticsContextProvider>
-              <Toaster />
-              <Suspense fallback={<LoadingContent />}>
-                <App />
-              </Suspense>
-            </AnalyticsContextProvider>
+            <FeatureFlagsContextProvider>
+              <AnalyticsContextProvider>
+                <Toaster />
+                <Suspense fallback={<LoadingContent />}>
+                  <App />
+                </Suspense>
+              </AnalyticsContextProvider>
+            </FeatureFlagsContextProvider>
           </SettingsContextProvider>
         </ConnectionContextProvider>
       </ThemeContextProvider>

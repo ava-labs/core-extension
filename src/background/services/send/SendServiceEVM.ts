@@ -9,6 +9,7 @@ import BN from 'bn.js';
 import { BigNumber, Contract } from 'ethers';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
+import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
@@ -20,16 +21,19 @@ import {
 } from './models';
 import {
   TokenType,
+  NftTokenWithBalance,
   TokenWithBalanceERC20,
-  TokenWithBalanceERC721,
 } from '../balances/models';
 import { isAddress } from 'ethers/lib/utils';
+import { isNFT } from '../balances/nft/utils/isNFT';
+import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 
 @singleton()
 export class SendServiceEVM implements SendServiceHelper {
   constructor(
     private accountsService: AccountsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private networkBalancesService: BalanceAggregatorService
   ) {}
 
   async getTransactionRequest(
@@ -60,9 +64,11 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!token) return this.getErrorState(sendState, 'Invalid token');
 
     const gasLimit = await this.getGasLimit(sendState);
+
     const sendFee = gasPrice
       ? new BN(gasLimit).mul(ethersBigNumberToBN(gasPrice))
       : undefined;
+
     const maxAmount =
       token.type === TokenType.NATIVE
         ? token.balance.sub(sendFee || new BN(0))
@@ -71,7 +77,7 @@ export class SendServiceEVM implements SendServiceHelper {
     const newState: SendState = {
       ...sendState,
       canSubmit: true,
-      loading: !maxAmount || !gasPrice,
+      loading: token.balance.gt(new BN(0)) ? !maxAmount || !gasPrice : false,
       error: undefined,
       gasLimit,
       gasPrice,
@@ -88,7 +94,7 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!gasPrice || gasPrice.isZero())
       return this.getErrorState(newState, SendErrorMessage.INVALID_NETWORK_FEE);
 
-    if (token.type !== TokenType.ERC721 && (!amount || amount.isZero()))
+    if (!isNFT(token.type) && (!amount || amount.isZero()))
       return this.getErrorState(newState, SendErrorMessage.AMOUNT_REQUIRED);
 
     if (amount?.gt(maxAmount))
@@ -97,6 +103,15 @@ export class SendServiceEVM implements SendServiceHelper {
         SendErrorMessage.INSUFFICIENT_BALANCE
       );
 
+    if (
+      token.type !== TokenType.NATIVE &&
+      sendFee &&
+      !(await this.hasEnoughBalanceForGasForNonNative(sendFee))
+    )
+      return this.getErrorState(
+        newState,
+        SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE
+      );
     return newState;
   }
 
@@ -135,6 +150,20 @@ export class SendServiceEVM implements SendServiceHelper {
     return paddedGasLimit;
   }
 
+  private async hasEnoughBalanceForGasForNonNative(sendFee: BN) {
+    const tokens = this.networkBalancesService.balances;
+    const network = await this.networkService.activeNetwork.promisify();
+    const address = this.fromAddress;
+    if (!network?.chainId || !address || !tokens) {
+      return false;
+    }
+    const nativeToken = tokens[network.chainId]?.[address]?.find(
+      (token) => token.type === TokenType.NATIVE
+    );
+
+    return nativeToken?.balance.gte(sendFee) ? true : false;
+  }
+
   private getErrorState(sendState: SendState, errorMessage: string): SendState {
     return {
       ...sendState,
@@ -156,7 +185,11 @@ export class SendServiceEVM implements SendServiceHelper {
       );
     } else if (sendState.token.type === TokenType.ERC721) {
       return this.getUnsignedTxERC721(
-        sendState as SendState<TokenWithBalanceERC721>
+        sendState as SendState<NftTokenWithBalance>
+      );
+    } else if (sendState.token.type === TokenType.ERC1155) {
+      return this.getUnsignedTxERC1155(
+        sendState as SendState<NftTokenWithBalance>
       );
     } else {
       throw new Error('Unsupported token');
@@ -200,7 +233,7 @@ export class SendServiceEVM implements SendServiceHelper {
   }
 
   private async getUnsignedTxERC721(
-    sendState: SendState<TokenWithBalanceERC721>
+    sendState: SendState<NftTokenWithBalance>
   ): Promise<TransactionRequest> {
     const provider = await this.getProvider();
     const contract = new Contract(
@@ -214,6 +247,27 @@ export class SendServiceEVM implements SendServiceHelper {
     ]!(this.fromAddress, sendState.address, sendState.token?.tokenId);
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction, // only includes `to` and `data`
+      from: this.fromAddress,
+    };
+    return unsignedTx;
+  }
+
+  private async getUnsignedTxERC1155(
+    sendState: SendState<NftTokenWithBalance>
+  ): Promise<TransactionRequest> {
+    const provider = await this.getProvider();
+    const contract = new Contract(
+      sendState.token?.address || '',
+      ERC1155.abi,
+      provider
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const populatedTransaction = await contract.populateTransaction[
+      'safeTransferFrom(address,address,uint256,uint256,bytes)'
+    ]!(this.fromAddress, sendState.address, sendState.token?.tokenId, 1, []);
+    const unsignedTx: TransactionRequest = {
+      ...populatedTransaction,
       from: this.fromAddress,
     };
     return unsignedTx;

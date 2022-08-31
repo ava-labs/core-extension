@@ -15,7 +15,7 @@ export function BridgeTransferAsset({ action }: { action: Action }) {
         margin="0 8px 16px"
         align="center"
       >
-        CoreX wants to bridge
+        Core wants to bridge
       </Typography>
       <Typography size={12} height="15px" margin="0 0 8px 0">
         Message:

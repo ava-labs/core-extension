@@ -31,6 +31,7 @@ interface NetworkListProps {
 
 export function NetworkList({ networkList }: NetworkListProps) {
   const {
+    network,
     setNetwork,
     removeFavoriteNetwork,
     isFavoriteNetwork,
@@ -62,6 +63,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
                       <CustomToast label="Active Network has changed!" />
                     );
                   }}
+                  isActive={networkItem.chainId === network?.chainId}
                 >
                   <HorizontalFlex align="center">
                     <NetworkLogoContainer>

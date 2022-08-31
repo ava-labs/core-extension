@@ -1,6 +1,6 @@
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
-import { COREX_DOMAINS } from '../models';
+import { CORE_DOMAINS } from '../models';
 import { Middleware } from './models';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);
@@ -79,11 +79,12 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'avalanche_selectWallet',
 ]);
 
-const COREX_METHODS = Object.freeze([
+const CORE_METHODS = Object.freeze([
   'avalanche_getContacts',
   'avalanche_getAccounts',
   'avalanche_bridgeAsset',
   'avalanche_getBridgeState',
+  'avalanche_selectAccount',
 ]);
 
 export function PermissionMiddleware(
@@ -114,12 +115,12 @@ export function PermissionMiddleware(
       return;
     }
 
-    if (COREX_METHODS.includes(context.request.data.method)) {
+    if (CORE_METHODS.includes(context.request.data.method)) {
       const domain = context.domainMetadata?.domain
         ? context.domainMetadata.domain
         : '';
 
-      if (context.authenticated === true && COREX_DOMAINS.includes(domain)) {
+      if (context.authenticated === true && CORE_DOMAINS.includes(domain)) {
         next();
       } else {
         error(new Error('No permission to access requested method.'));

@@ -8,27 +8,19 @@ import {
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { ApproveTransactionData } from '@src/contracts/contractParsers/models';
-import { TransactionTabs } from './components/TransactionTabs';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { TransactionHeader } from './components/TransactionHeader';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { TransactionProgressData, TransactionProgressState } from './models';
-import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 export function ApproveTx({
   site,
   tokenToBeApproved,
-  txParams,
   setShowCustomSpendLimit,
   displaySpendLimit,
-  gasPrice,
-  gasLimit,
-  onCustomFeeSet,
   transactionState,
   hash,
-  error,
-  selectedGasFee,
   ...rest
 }: ApproveTransactionData & TransactionProgressData) {
   const theme = useTheme();
@@ -100,28 +92,10 @@ export function ApproveTx({
               To
             </Typography>
             <Typography weight={600} size={16} height="24px">
-              {truncateAddress(rest.toAddress)}
+              {truncateAddress(rest.toAddress || '')}
             </Typography>
           </HorizontalFlex>
         </VerticalFlex>
-
-        {/* Tabs */}
-        {transactionState === TransactionProgressState.NOT_APPROVED ? (
-          <TransactionTabs
-            byteStr={txParams.data}
-            gasPrice={gasPrice}
-            limit={gasLimit}
-            onCustomFeeSet={onCustomFeeSet}
-            selectedGasFee={selectedGasFee}
-          />
-        ) : (
-          <SuccessFailTxInfo
-            hash={hash}
-            gasPrice={gasPrice}
-            gasLimit={gasLimit ?? 0}
-            error={error}
-          />
-        )}
       </VerticalFlex>
     </VerticalFlex>
   );

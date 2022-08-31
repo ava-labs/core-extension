@@ -5,7 +5,6 @@ import { RequestArguments } from './BaseProvider';
 import { messages } from './messages';
 import { MetaMaskInpageProvider } from './MetaMaskInpageProvider';
 import { Maybe } from './utils';
-import { includes } from 'lodash';
 
 class MultiWalletProviderProxy {
   private _providers: unknown[] = [];
@@ -23,7 +22,7 @@ class MultiWalletProviderProxy {
     // the COINBASE collects here the wallets
     if (provider.providerMap) {
       for (const providerProxy of provider.providerMap.values()) {
-        if (!includes(this._providers, providerProxy)) {
+        if (!this._providers.includes(providerProxy)) {
           this._providers.push(providerProxy);
         }
       }
@@ -34,12 +33,12 @@ class MultiWalletProviderProxy {
     if (provider.coinbaseWalletInstalls) {
       return;
     }
-    if (!includes(this._providers, provider)) {
+    if (!this._providers.includes(provider)) {
       this._providers.push(provider);
     }
   }
 
-  public getWalletExtensionType(provider) {
+  private getWalletExtensionType(provider) {
     if (provider.isAvalanche) {
       return WalletExtensionType.CORE;
     }
@@ -57,6 +56,11 @@ class MultiWalletProviderProxy {
   }
 
   private async toggleWalletSelection(): Promise<void> {
+    // no need to select a wallet when there is only one
+    if (this.providers.length === 1) {
+      return;
+    }
+
     // get users wallet selection
     const selectedIndex = await this.coreProvider.request({
       method: 'avalanche_selectWallet',

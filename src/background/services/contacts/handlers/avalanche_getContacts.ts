@@ -1,12 +1,14 @@
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
 @injectable()
-export class AvalancheGetContactsHandler implements DAppRequestHandler {
+export class AvalancheGetContactsHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_GET_CONTACTS];
 
-  constructor(private contactsService: ContactsService) {}
+  constructor(private contactsService: ContactsService) {
+    super();
+  }
 
   handleAuthenticated = async (request) => {
     const contacts = await this.contactsService.getContacts();

@@ -40,3 +40,6 @@ dist
 builds
 .DS_Store
 todo.*
+
+# snyk
+.dccache
