@@ -68,6 +68,7 @@ export function SecurityAndPrivacy({
       />
 
       <SecondaryDropDownMenuItem
+        data-testid="connected-sites-menu-item"
         justify="space-between"
         align="center"
         onClick={() => navigateTo(SettingsPages.CONNECTED_SITES)}
@@ -85,6 +86,7 @@ export function SecurityAndPrivacy({
       </SecondaryDropDownMenuItem>
 
       <SecondaryDropDownMenuItem
+        data-testid="change-password-menu-item"
         justify="space-between"
         align="center"
         onClick={() => navigateTo(SettingsPages.CHANGE_PASSWORD)}
@@ -102,6 +104,7 @@ export function SecurityAndPrivacy({
 
       {walletType === WalletType.MNEMONIC && (
         <SecondaryDropDownMenuItem
+          data-testid="show-recovery-phrase-menu-item"
           justify="space-between"
           align="center"
           onClick={() => navigateTo(SettingsPages.RECOVERY_PHRASE)}
@@ -119,6 +122,7 @@ export function SecurityAndPrivacy({
       )}
 
       <SecondaryDropDownMenuItem
+        data-testid="participate-core-analytics-menu-item"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -144,6 +148,7 @@ export function SecurityAndPrivacy({
       </HorizontalFlex>
 
       <SecondaryDropDownMenuItem
+        data-testid="reset-recovery-phrase-menu-item"
         justify="space-between"
         align="center"
         padding="10px 16px"

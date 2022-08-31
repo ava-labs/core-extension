@@ -17,10 +17,10 @@ export function WalletBalances() {
     >
       {balanceTotalUSD !== null && (
         <>
-          <Typography size={32} height="44px" weight={500}>
+          <Typography data-testid="wallet-balance" size={32} height="44px" weight={500}>
             {currencyFormatter(balanceTotalUSD).replace(currency, '')}
           </Typography>
-          <Typography weight={500} margin={'0 0 10px 6px'} color="text2">
+          <Typography data-testid="wallet-currency" weight={500} margin={'0 0 10px 6px'} color="text2">
             {currency}
           </Typography>
         </>

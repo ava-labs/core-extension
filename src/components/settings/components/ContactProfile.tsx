@@ -90,7 +90,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
 
   const renderEditAction = (
     <Tooltip content={<Typography size={12}>Edit Contact</Typography>}>
-      <TextButton onClick={() => setIsEdit(true)}>
+      <TextButton data-testid="profile-edit-contact" onClick={() => setIsEdit(true)}>
         <Typography size={14} height="24px" color={theme.colors.secondary1}>
           Edit
         </Typography>
@@ -101,6 +101,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   const renderSaveAction = (
     <Tooltip content={<Typography size={12}>Save Contact</Typography>}>
       <TextButton
+        data-testid="profile-save-contact-button"
         onClick={() => {
           setShowErrors(true);
           if (!isFormValid) {
@@ -179,7 +180,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
           align="center"
           padding="0 16px"
         >
-          <DeleteButton size={ComponentSize.LARGE} onClick={() => onDelete()}>
+          <DeleteButton data-testid="profile-delete-contact-button" size={ComponentSize.LARGE} onClick={() => onDelete()}>
             Delete Contact
           </DeleteButton>
         </VerticalFlex>

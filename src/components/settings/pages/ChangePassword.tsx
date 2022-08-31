@@ -79,6 +79,7 @@ export function ChangePassword({
           <VerticalFlex align="center" padding="16px 16px 0">
             <HorizontalFlex height="88px" width="100%">
               <Input
+                data-testid="old-password-input"
                 onChange={(e) => {
                   setOldPassword(e.target.value);
                 }}
@@ -93,6 +94,7 @@ export function ChangePassword({
             </HorizontalFlex>
             <VerticalFlex width="100%">
               <Input
+                data-testid="new-password-input"
                 onChange={(e) => {
                   setNewPassword(e.target.value);
                 }}
@@ -110,6 +112,7 @@ export function ChangePassword({
             </VerticalFlex>
             <HorizontalFlex margin="16px 0 0" height="88px" width="100%">
               <Input
+                data-testid="confirm-new-password-input"
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                 }}
@@ -134,6 +137,7 @@ export function ChangePassword({
             margin="16px 16px 24px"
           >
             <PrimaryButton
+              data-testid="save-password-button"
               width="100%"
               size={ComponentSize.LARGE}
               onClick={handleChangePassword}

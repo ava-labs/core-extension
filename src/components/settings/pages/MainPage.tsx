@@ -59,6 +59,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         </TextButton>
       </HorizontalFlex>
       <DropDownMenuItem
+        data-testid="address-book-option"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -74,6 +75,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         />
       </DropDownMenuItem>
       <DropDownMenuItem
+        data-testid="currency-option"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -99,6 +101,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         </HorizontalFlex>
       </DropDownMenuItem>
       <DropDownMenuItem
+        data-testid="advanced-option"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -138,7 +141,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           />
         </DropDownMenuItem>
       )}
-      <DropDownMenuItem justify="space-between" padding="10px 16px">
+      <DropDownMenuItem data-testid="show-tokens-without-balance-option" justify="space-between" padding="10px 16px">
         <Typography size={14} height="17px">
           Show Tokens Without Balance
         </Typography>
@@ -148,7 +151,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         />
       </DropDownMenuItem>
 
-      <DropDownMenuItem justify="space-between" padding="12px 16px">
+      <DropDownMenuItem data-testid="set-default-extension-option" justify="space-between" padding="12px 16px">
         <Typography size={14} height="17px">
           Set as Default Extension
         </Typography>
@@ -163,6 +166,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
       </HorizontalFlex>
 
       <DropDownMenuItem
+        data-testid="security-privacy-option"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -178,6 +182,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         />
       </DropDownMenuItem>
       <DropDownMenuItem
+        data-testid="legal-option"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -196,6 +201,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
       </DropDownMenuItem>
 
       <DropDownMenuItem
+        data-testid="help-center-option"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -215,6 +221,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
 
       <VerticalFlex grow="1" justify="flex-end" align="center" padding="0 16px">
         <SecondaryButton
+          data-testid="lock-core-wallet-button"
           width="100%"
           size={ComponentSize.LARGE}
           onClick={lockWallet}

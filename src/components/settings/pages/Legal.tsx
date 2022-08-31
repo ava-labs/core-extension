@@ -22,6 +22,7 @@ export function Legal({ goBack, navigateTo, width }) {
         title={'Legal'}
       />
       <DropDownMenuItem
+        data-testid="terms-of-use-link"
         justify="space-between"
         align="center"
         padding="10px 16px"
@@ -34,6 +35,7 @@ export function Legal({ goBack, navigateTo, width }) {
         </Typography>
       </DropDownMenuItem>
       <DropDownMenuItem
+        data-testid="privacy-policy-link"
         justify="space-between"
         align="center"
         padding="10px 16px"

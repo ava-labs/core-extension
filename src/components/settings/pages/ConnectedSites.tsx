@@ -74,9 +74,10 @@ export function ConnectedSites({
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         {!!connectedSitesList.length && (
           <VerticalFlex padding="8px">
-            {connectedSitesList.map((site: any) => {
+            {connectedSitesList.map((site: any, index) => {
               return (
                 <SecondaryDropDownMenuItem
+                  data-testid={`connected-site-${index}`}
                   justify="space-between"
                   align="center"
                   key={site.domain}
@@ -101,7 +102,7 @@ export function ConnectedSites({
                       {site.domain}
                     </Typography>
                   </HorizontalFlex>
-                  <HorizontalFlex justify={'flex-end'} align={'center'}>
+                  <HorizontalFlex data-testid={`connected-site-${index}-trash`} justify={'flex-end'} align={'center'}>
                     <TrashIcon
                       height="16px"
                       color={theme.colors.icon1}

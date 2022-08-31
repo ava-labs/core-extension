@@ -89,6 +89,7 @@ export function RecoveryPhrase({
           <>
             <HorizontalFlex height="100px" padding="0 16px" width="100%">
               <Input
+                data-testid="recovery-phrase-password-input"
                 label="Enter Password to Continue"
                 error={!!errorMessage}
                 errorMessage={errorMessage}
@@ -110,6 +111,7 @@ export function RecoveryPhrase({
               align="center"
             >
               <PrimaryButton
+                data-testid="show-recovery-phrase-button"
                 size={ComponentSize.LARGE}
                 onClick={handleShowRecoveryPhrase}
                 width="100%"

@@ -54,6 +54,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         title={'Add New Contact'}
         action={
           <TextButton
+            data-testid="add-new-contact-button"
             onClick={() => {
               setShowErrors(true);
               if (!isFormValid) {

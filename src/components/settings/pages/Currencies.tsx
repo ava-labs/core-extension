@@ -35,6 +35,7 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
       />
       <VerticalFlex padding="16px 16px 24px">
         <SearchInput
+          data-testid="currency-search-input"
           placeholder="Search"
           onSearch={setSearchTerm}
           autoFocus={true}
@@ -43,6 +44,7 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         {filteredCurrencies.map((c) => (
           <SecondaryDropDownMenuItem
+            data-testid={`currency-menu-item-${c.symbol}`.toLowerCase()}
             selected={currency === c.symbol}
             padding="10px 16px"
             key={c.symbol}

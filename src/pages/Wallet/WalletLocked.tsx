@@ -106,6 +106,7 @@ export function WalletLocked({
 
       <VerticalFlex align="center" height="88px">
         <Input
+          data-testid="wallet-locked-password-input"
           type="password"
           label="Password"
           onChange={(e) => setPassword(e.currentTarget.value.trim())}
@@ -122,6 +123,7 @@ export function WalletLocked({
         />
       </VerticalFlex>
       <PrimaryButton
+        data-testid="wallet-locked-login-button"
         size={ComponentSize.LARGE}
         width="100%"
         disabled={!password || loggingIn || loginSuccess}
@@ -133,7 +135,7 @@ export function WalletLocked({
         Login
       </PrimaryButton>
       <HorizontalSeparator margin="24px 0 8px" />
-      <TextButton height="40px" onClick={() => onImportClick()}>
+      <TextButton data-testid="wallet-locked-reset-phrase-button" height="40px" onClick={() => onImportClick()}>
         Reset Secret Recovery Phrase
       </TextButton>
     </VerticalFlex>

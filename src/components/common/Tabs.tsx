@@ -97,6 +97,7 @@ export function Tabs({ tabs, margin }: TabsProps) {
 
             return (
               <Tab
+                data-testid={`${tab.title.toLowerCase()}-tab-button`}
                 key={tab.id}
                 selected={selectedTab === tab.id}
                 onClick={() => {

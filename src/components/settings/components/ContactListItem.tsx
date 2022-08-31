@@ -69,6 +69,7 @@ export const ContactListItem = ({
   return (
     <>
       <StyledSecondaryDropDownMenuItem
+        data-testid={`contact-li-${index}`}
         height="64px"
         justify="space-between"
         align="center"
@@ -88,13 +89,13 @@ export const ContactListItem = ({
             <ContactName title={contact.name}>{contact.name}</ContactName>
             <VerticalFlex>
               {contact.address && (
-                <HorizontalFlex align="center">
+                <HorizontalFlex data-testid="contact-li-copy-ava-address" align="center">
                   <StyledAvaxIcon height="16px" />
                   <SimpleAddress address={contact.address} />
                 </HorizontalFlex>
               )}
               {contact.addressBTC && (
-                <HorizontalFlex align="center">
+                <HorizontalFlex data-testid="contact-li-copy-btc-address" align="center">
                   <StyleBitcoinIcon height="16px" />
                   <SimpleAddress address={contact.addressBTC} />
                 </HorizontalFlex>
