@@ -35,7 +35,7 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const [txHash, setTxHash] = useState<string>();
 
   const { assetsWithBalances: selectedAssetWithBalances } = useAssetBalancesEVM(
-    Blockchain.ETHEREUM,
+    Blockchain.AVALANCHE,
     isAvalancheBridge ? currentAssetData : undefined
   );
   const sourceBalance = selectedAssetWithBalances[0];
