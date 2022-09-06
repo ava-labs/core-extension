@@ -1,6 +1,7 @@
 import type { Contact } from '@avalabs/types';
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import xss from 'xss';
 import { useIdentifyAddress } from './useIdentifyAddress';
 
 export const useContactFromParams = () => {
@@ -8,13 +9,14 @@ export const useContactFromParams = () => {
   const [contact, setContact] = useState<Contact>();
   const identifyAddress = useIdentifyAddress();
 
-  const { address } = useMemo(
-    () =>
-      (Object as any).fromEntries(
-        (new URLSearchParams(search) as any).entries()
-      ),
-    [search]
-  );
+  const { address } = useMemo(() => {
+    const { address } = (Object as any).fromEntries(
+      (new URLSearchParams(search) as any).entries()
+    );
+    return {
+      address: xss(address),
+    };
+  }, [search]);
 
   useEffect(() => {
     setContact(address ? identifyAddress(address) : undefined);

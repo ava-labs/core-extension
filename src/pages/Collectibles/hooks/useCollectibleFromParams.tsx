@@ -1,6 +1,7 @@
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import xss from 'xss';
 
 export const useCollectibleFromParams = () => {
   const { search } = useLocation();
@@ -11,9 +12,11 @@ export const useCollectibleFromParams = () => {
       (new URLSearchParams(search) as any).entries()
     );
 
+    const filteredAddress = xss(nft);
+
     return {
-      nft: nfts.items?.find((item) => item.contractAddress === nft),
-      tokenId: tokenId,
+      nft: nfts.items?.find((item) => item.contractAddress === filteredAddress),
+      tokenId: xss(tokenId),
     };
   }, [nfts, search]);
 };
