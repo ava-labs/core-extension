@@ -10,7 +10,7 @@ import { PermissionsService } from '../../permissions/PermissionsService';
 import { ConnectRequestHandler } from './connect';
 
 jest.mock('@src/utils/extensionUtils', () => ({
-  openExtensionNewWindow: jest.fn(),
+  openExtensionNewWindow: jest.fn().mockReturnValue({ id: 123 }),
 }));
 
 describe('background/services/web3/handlers/connect.ts', () => {
@@ -104,13 +104,13 @@ describe('background/services/web3/handlers/connect.ts', () => {
           domainUrl: 'example.com',
         },
         tabId: 111,
+        popupWindowId: 123,
       });
 
       expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
       expect(openExtensionNewWindow).toHaveBeenCalledWith(
         `permissions?id=1235`,
-        '',
-        undefined
+        ''
       );
     });
   });

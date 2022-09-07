@@ -1,4 +1,8 @@
 import 'reflect-metadata';
-import { chrome } from 'jest-chrome';
 
-(global as any).chrome = chrome;
+global.chrome = {
+  runtime: {
+    id: 'testid',
+    getManifest: () => ({ manifest_version: 3 }),
+  },
+} as any;

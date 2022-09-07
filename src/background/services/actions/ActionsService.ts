@@ -14,6 +14,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
+import { filterStaleActions } from './utils';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -32,7 +33,11 @@ export class ActionsService implements OnStorageReady {
       );
     const actionsInStorage = await this.getActions();
     this.storageService.removeFromSessionStorage(ACTIONS_STORAGE_KEY);
-    this.saveActions({ ...acionsInSession, ...actionsInStorage });
+
+    this.saveActions({
+      ...acionsInSession,
+      ...(await filterStaleActions(actionsInStorage)),
+    });
   }
 
   async getActions(): Promise<Actions> {

@@ -86,7 +86,6 @@ import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/ha
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { LockStateChangedEvents } from '@src/background/services/lock/events/lockStateChangedEvent';
 import { LedgerDiscoverTransportsEvents } from '@src/background/services/ledger/events/ledgerDiscoverTransports';
-import { SelectWalletExtensionForDappHandler } from '@src/background/services/actions/handlers/selectWallet';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
@@ -188,10 +187,6 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
   { token: 'ExtensionRequestHandler', useToken: GetSettingsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenDataHandler },
   { token: 'ExtensionRequestHandler', useToken: GetWalletTypeHandler },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: SelectWalletExtensionForDappHandler,
-  },
   { token: 'ExtensionRequestHandler', useToken: GetUnencryptedMnemonicHandler },
   { token: 'ExtensionRequestHandler', useToken: SetDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateShowNoBalanceHandler },

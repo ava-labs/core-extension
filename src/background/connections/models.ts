@@ -5,20 +5,6 @@ import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 import { DomainMetadata } from '../models';
 import { ExtensionRequest } from './extensionConnection/models';
 
-export interface ExtensionMessageMetaData {
-  coords?: {
-    /**
-     * These are added in the inpage file. Before forwarding the
-     * request it attaches the window height and width so we can
-     * pass this info to confirm popups and place them on the screen correctly
-     */
-    viewPortHeight: number;
-    viewportWidth: number;
-    screenX: number;
-    screenY: number;
-  };
-}
-
 interface ExtensionConnectionMessageBase<
   Method extends ExtensionRequest,
   Data
@@ -31,7 +17,6 @@ interface ExtensionConnectionMessageBase<
    * dAppConnection -> providerController to see injection point
    */
   site?: DomainMetadata;
-  meta?: ExtensionMessageMetaData;
   data?: Data;
   tabId?: number;
 }

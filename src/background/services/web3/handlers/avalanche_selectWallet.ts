@@ -1,8 +1,9 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
+import { Action } from '../../actions/models';
 
 @injectable()
 export class AvalancheSelectWalletHandler extends DAppRequestHandler {
@@ -18,18 +19,15 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
       };
     }
 
-    const options = availableExtensions.map((ext) => ['options', ext.type]);
-    const queryParams = new URLSearchParams([
-      ...options,
-      ['id', request.id],
-      ['domain', request.site.domain],
-      ['tabId', request.site.tabId],
-    ]);
-
-    await openExtensionNewWindow(
-      `selectWallet`,
-      queryParams.toString(),
-      request.meta?.coords
+    await this.openApprovalWindow(
+      {
+        ...request,
+        displayData: {
+          options: availableExtensions.map((o) => o.type),
+        },
+        tabId: request.site.tabId,
+      },
+      `approve/select-wallet?id=${request.id}`
     );
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -37,5 +35,18 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
 
   handleAuthenticated = async (request) => {
     return this.handleUnauthenticated(request);
+  };
+
+  onActionApproved = async (
+    pendingAction: Action,
+    result,
+    onSuccess,
+    onError
+  ) => {
+    if (result >= 0) {
+      onSuccess(result);
+    } else {
+      onError(ethErrors.provider.userRejectedRequest());
+    }
   };
 }

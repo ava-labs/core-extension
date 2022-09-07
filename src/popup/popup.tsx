@@ -126,7 +126,7 @@ const LedgerConnect = lazy(() => {
 });
 
 const SelectWallet = lazy(() => {
-  return import('../pages/Wallet/SelectWallet').then((m) => ({
+  return import('../pages/ApproveAction/SelectWallet').then((m) => ({
     default: m.SelectWallet,
   }));
 });
@@ -276,6 +276,12 @@ export function Popup() {
                                       </Suspense>
                                     </Route>
 
+                                    <Route path="/approve/select-wallet">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SelectWallet />
+                                      </Suspense>
+                                    </Route>
+
                                     <Route path="/approve/createContact">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <UpdateContacts method="create" />
@@ -375,12 +381,6 @@ export function Popup() {
                                     <Route path="/tokenlist">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <TokenList />
-                                      </Suspense>
-                                    </Route>
-
-                                    <Route path="/selectWallet">
-                                      <Suspense fallback={<LoadingIcon />}>
-                                        <SelectWallet />
                                       </Suspense>
                                     </Route>
 

@@ -4,7 +4,6 @@ import {
   MetaMaskInpageProviderOptions,
 } from './MetaMaskInpageProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
-import { shimWeb3 } from './shimWeb3';
 
 interface InitializeProviderOptions extends MetaMaskInpageProviderOptions {
   /**
@@ -37,15 +36,12 @@ interface InitializeProviderOptions extends MetaMaskInpageProviderOptions {
  */
 export function initializeProvider({
   connectionStream,
-  jsonRpcStreamName,
   logger = console,
   maxEventListeners = 100,
   shouldSendMetadata = true,
   shouldSetOnWindow = true,
-  shouldShimWeb3 = false,
 }: InitializeProviderOptions): MetaMaskInpageProvider {
   let provider = new MetaMaskInpageProvider(connectionStream, {
-    jsonRpcStreamName,
     logger,
     maxEventListeners,
     shouldSendMetadata,
@@ -59,10 +55,6 @@ export function initializeProvider({
   if (shouldSetOnWindow) {
     setGlobalProvider(provider);
     setAvalancheGlobalProvider(provider);
-  }
-
-  if (shouldShimWeb3) {
-    shimWeb3(provider, logger);
   }
 
   return provider;
@@ -94,11 +86,18 @@ export function setGlobalProvider(
         multiWalletProxy.addProvider(value);
       },
     });
-    if (!(window as any).web3) {
-      (window as any).web3 = {
-        currentProvider: (window as any).ethereum,
-      };
-    }
+
+    Object.defineProperty(window, 'web3', {
+      get: () => {
+        return {
+          currentProvider: multiWalletProxy,
+        };
+      },
+      // in case a wallet tries to overwrite us lets add them to the list
+      set: () => {
+        return true;
+      },
+    });
     window.dispatchEvent(new Event('ethereum#initialized'));
   } catch (e) {
     // some browser was faster and defined the window.ethereum as non writable before us

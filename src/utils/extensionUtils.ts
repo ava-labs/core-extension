@@ -3,7 +3,6 @@ import extension from 'extensionizer';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
-import { ExtensionMessageMetaData } from '@src/background/connections/models';
 
 const NOTIFICATION_WIDTH = 375;
 const NOTIFICATION_HEIGHT = 628;
@@ -105,12 +104,22 @@ export const openExtensionInBrowser = (route = null, queryString = null) => {
   return openNewTab({ url: extensionURL });
 };
 
-export const openExtensionNewWindow = (
+export const openExtensionNewWindow = async (
   route?: string,
-  queryString?: string,
-  coords?: ExtensionMessageMetaData['coords']
+  queryString?: string
 ) => {
   let extensionURL = extension.runtime.getURL(contextToOpenIn);
+
+  let left = 0;
+  let top = 0;
+  try {
+    const lastFocused = await extension.windows.getLastFocused();
+    // Position window in top right corner of lastFocused window.
+    top = lastFocused.top;
+    left = lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH);
+  } catch (_) {
+    // do nothing, don't know where the last window is so let's just place it to 0,0
+  }
 
   if (queryString) {
     extensionURL += `?${queryString}`;
@@ -120,19 +129,14 @@ export const openExtensionNewWindow = (
     extensionURL += `#/${route}`;
   }
 
-  let left = 0;
-
-  left =
-    (coords?.viewportWidth || 0) + (coords?.screenX || 0) - NOTIFICATION_WIDTH;
-
   return openWindow({
     url: extensionURL,
     focused: true,
     type: 'popup',
     height: NOTIFICATION_HEIGHT,
     width: NOTIFICATION_WIDTH,
-    left: parseInt(`${left}`),
-    top: coords?.screenY ?? 0,
+    left,
+    top,
   });
 };
 

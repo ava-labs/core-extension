@@ -23,11 +23,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler {
   handleAuthenticated = async (request) => {
     await this.transactionsService.addTransaction(request);
 
-    await openExtensionNewWindow(
-      `sign/transaction?id=${request.id}`,
-      '',
-      request.meta?.coords
-    );
+    await openExtensionNewWindow(`sign/transaction?id=${request.id}`, '');
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

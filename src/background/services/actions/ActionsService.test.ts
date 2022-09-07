@@ -10,9 +10,13 @@ import {
   ActionStatus,
   ACTIONS_STORAGE_KEY,
 } from './models';
+import { filterStaleActions } from './utils';
 
 jest.mock('../storage/StorageService');
 jest.mock('../lock/LockService');
+jest.mock('./utils', () => ({
+  filterStaleActions: jest.fn(),
+}));
 
 describe('background/services/actions/ActionsService.ts', () => {
   const handlerWithCallback: DAppRequestHandler = {
@@ -57,6 +61,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       storageService,
       lockService
     );
+    (filterStaleActions as jest.Mock).mockImplementation((a) => a);
   });
 
   describe('getActions', () => {

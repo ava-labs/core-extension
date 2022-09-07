@@ -49,7 +49,7 @@ export function SwitchAccount() {
   }
 
   return (
-    <VerticalFlex>
+    <VerticalFlex padding="0 16px">
       <VerticalFlex grow="1" align="center" justify="center">
         <SiteAvatar justify="center" align="center">
           <WalletIcon height="48px" width="48px" color={theme.colors.icon1} />
