@@ -50,6 +50,7 @@ const ManageTokensListItem = ({ token }: ManageTokensListItemProps) => {
 
   return (
     <HorizontalFlex
+      data-testid={`${token.symbol.toLowerCase()}-token-list-item`}
       width="100%"
       justify="space-between"
       align="center"

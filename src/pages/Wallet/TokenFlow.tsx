@@ -46,26 +46,28 @@ export function TokenFlow() {
           name={token.name}
         />
         <VerticalFlex flex={1} margin={'0 0 0 16px'}>
-          <Typography size={18} weight={'bold'} height="22px">
+          <Typography data-testid="token-details-name" size={18} weight={'bold'} height="22px">
             {token.name}
           </Typography>
-          <SubTextTypography size={14} height="17px" margin={'4px 0 0'}>
+          <SubTextTypography data-testid="token-details-balance" size={14} height="17px" margin={'4px 0 0'}>
             {token.balanceDisplayValue} {token.symbol}
           </SubTextTypography>
         </VerticalFlex>
-        <Typography size={14} height="24px">
+        <Typography data-testid="token-details-currency-balance" size={14} height="24px">
           {balanceCurrencyValue &&
             currencyFormatter(Number(balanceCurrencyValue))}
         </Typography>
       </HorizontalFlex>
       <HorizontalFlex justify="center" margin="24px 16px">
         <SecondaryButton
+          data-testid="token-details-receive-button"
           size={ComponentSize.LARGE}
           onClick={() => history.push('/receive')}
         >
           Receive
         </SecondaryButton>
         <SecondaryButton
+          data-testid="token-details-send-button"
           size={ComponentSize.LARGE}
           margin="0 0 0 16px"
           onClick={() =>

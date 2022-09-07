@@ -127,7 +127,7 @@ export const SendForm = ({
             gasLimit={sendState?.gasLimit}
           />
         </HorizontalFlex>
-        <VerticalFlex width="100%">
+        <VerticalFlex data-testid="send-custom-fees-section" width="100%">
           <CustomFees
             gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
             limit={sendState?.gasLimit || 0}

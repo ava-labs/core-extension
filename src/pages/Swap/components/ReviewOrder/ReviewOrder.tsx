@@ -145,7 +145,7 @@ export function ReviewOrder({
                 1 {fromToken?.symbol} ≈ {rate?.toFixed(4)} {toToken?.symbol}
               </DetailValue>
             </DetailsRow>
-            <DetailsRow>
+            <DetailsRow data-testid="swap-review-slippage">
               <HorizontalFlex>
                 <DetailLabel margin="0 8px 0 0">Slippage tolerance</DetailLabel>
                 <SlippageToolTip />
@@ -154,7 +154,7 @@ export function ReviewOrder({
                 {slippage || 0}%
               </DetailValue>
             </DetailsRow>
-            <DetailsRow>
+            <DetailsRow data-testid="swap-review-network-fee">
               <HorizontalFlex>
                 <DetailLabel margin="0 8px 0 0">Network Fee</DetailLabel>
                 <TransactionFeeTooltip
@@ -170,7 +170,7 @@ export function ReviewOrder({
                 AVAX
               </DetailValue>
             </DetailsRow>
-            <DetailsRow>
+            <DetailsRow data-testid="swap-review-wallet-fee">
               <DetailLabel>Avalanche Wallet Fee</DetailLabel>
               <VerticalFlex align="flex-end">
                 <DetailValue>{optimalRate.partnerFee} AVAX</DetailValue>
@@ -191,6 +191,7 @@ export function ReviewOrder({
             width="100%"
           >
             <SecondaryButton
+              data-testid="swap-cancel-button"
               width="168px"
               onClick={onClose}
               size={ComponentSize.LARGE}
@@ -198,6 +199,7 @@ export function ReviewOrder({
               Cancel
             </SecondaryButton>
             <PrimaryButton
+              data-testid="swap-now-button"
               width="168px"
               size={ComponentSize.LARGE}
               onClick={onConfirm}

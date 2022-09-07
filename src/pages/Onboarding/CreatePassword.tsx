@@ -65,6 +65,7 @@ export const CreatePassword = ({
           and password.
         </Typography>
         <Input
+          data-testid="wallet-name-input"
           margin="32px 0 0"
           label="Wallet Name"
           onChange={(e) => setAccountName(e.target.value)}
@@ -72,6 +73,7 @@ export const CreatePassword = ({
           autoFocus
         />
         <Input
+          data-testid="wallet-password-input"
           margin="24px 0"
           label="Password"
           onChange={(e) => setPassword(e.target.value)}
@@ -88,6 +90,7 @@ export const CreatePassword = ({
         />
         <HorizontalFlex width="100%" height="84px">
           <Input
+            data-testid="wallet-confirm-password-input"
             label="Confirm Password"
             onChange={(e) => setConfirmPasswordVal(e.target.value)}
             placeholder="Enter a Password"
@@ -99,7 +102,7 @@ export const CreatePassword = ({
           />
         </HorizontalFlex>
         <VerticalFlex justify="flex-start" width="100%">
-          <HorizontalFlex margin="8px 0 0">
+          <HorizontalFlex data-testid="terms-of-use-checkbox" margin="8px 0 0">
             <Checkbox
               isChecked={termsOfUseChecked}
               onChange={() => setTermsOfUseChecked(!termsOfUseChecked)}
@@ -119,7 +122,7 @@ export const CreatePassword = ({
               </Typography>
             </Typography>
           </HorizontalFlex>
-          <HorizontalFlex margin="8px 0 0">
+          <HorizontalFlex data-testid="privacy-policy-checkbox" margin="8px 0 0">
             <Checkbox
               isChecked={privacyPolicyChecked}
               onChange={() => setPrivacyPolicyChecked(!privacyPolicyChecked)}
@@ -142,6 +145,7 @@ export const CreatePassword = ({
         </VerticalFlex>
       </VerticalFlex>
       <PrimaryButton
+        data-testid="save-button"
         size={ComponentSize.LARGE}
         width="343px"
         disabled={!canSubmit}

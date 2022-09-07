@@ -85,7 +85,7 @@ export function FAB() {
   const { onBuyClick } = useBuyClick();
 
   const ActionButton = ({ icon, text, ...rest }) => (
-    <ActionButtonWrapper {...rest}>
+    <ActionButtonWrapper data-testid={`${text.toLowerCase()}-action-button`} {...rest}>
       <HorizontalFlex align="center" justify="flex-start" width="100%">
         <HorizontalFlex
           width="24px"
@@ -160,6 +160,7 @@ export function FAB() {
       {isOpen && <InvisibleOverlay onClick={() => setIsOpen(false)} />}
       <FabContainer open={isOpen}>
         <FabButton
+          data-testid="action-menu-button"
           open={isOpen}
           onClick={() => {
             setIsOpen(!isOpen);

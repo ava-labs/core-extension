@@ -33,7 +33,7 @@ export function AccountSelectorButton({ onClick }: AccountSelectorButtonProps) {
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
 
   return (
-    <TextButton margin={isMiniMode ? '0' : '0 32px 0 0'} onClick={onClick}>
+    <TextButton data-testid="account-selector-open-button" margin={isMiniMode ? '0' : '0 32px 0 0'} onClick={onClick}>
       <HorizontalFlex align={'center'} padding="0 0 0 8px">
         <AccountName>{activeAccount?.name}</AccountName>
         <CaretIcon

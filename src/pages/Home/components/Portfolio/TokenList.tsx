@@ -106,7 +106,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
         margin="0 16px 8px 16px"
       >
         {checkIsFunctionAvailable('ManageTokens') && tokens.length && (
-          <TextButton onClick={toggleManageTokensPage}>
+          <TextButton data-testid="manage-tokens-button" onClick={toggleManageTokensPage}>
             <Typography color="inherit" size={12} weight={500}>
               Manage
             </Typography>
@@ -118,6 +118,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           {tokens?.map((token) => {
             return (
               <TokenListItem
+                data-testid={`${token.symbol}-token-list-item-test2`}
                 onClick={() => {
                   setSendDataInParams({
                     token: token,

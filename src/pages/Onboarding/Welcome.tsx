@@ -67,6 +67,7 @@ export function Welcome({ onNext }: WelcomeProps) {
       <VerticalFlex align="center">
         <HorizontalFlex>
           <OnboardButton
+            testId="create-new-wallet"
             title="Create a New Wallet"
             onClick={() => onNext(OnboardingPhase.ANALYTICS_CONSENT)}
           >
@@ -74,7 +75,7 @@ export function Welcome({ onNext }: WelcomeProps) {
           </OnboardButton>
           <VerticalSeparator margin="0 24px" />
           <ExistingButtonsWrapper>
-            <ExistingWalletButton title="Access Existing Wallet">
+            <ExistingWalletButton testId="access-existing-wallet" title="Access Existing Wallet">
               <WalletIcon
                 color={theme.colors.icon1}
                 height="56px"
@@ -84,6 +85,7 @@ export function Welcome({ onNext }: WelcomeProps) {
             </ExistingWalletButton>
             <ButtonsWrapper justify="space-evenly">
               <OnboardButton
+                testId="recovery-phrase"
                 title="Recovery Phrase"
                 onClick={() => onNext(OnboardingPhase.IMPORT_WALLET)}
                 variant="small"
@@ -92,6 +94,7 @@ export function Welcome({ onNext }: WelcomeProps) {
               </OnboardButton>
               <VerticalSeparator margin="0 24px" />
               <OnboardButton
+                testId="ledger"
                 title="Ledger"
                 onClick={() => {
                   onNext(OnboardingPhase.LEDGER);

@@ -110,12 +110,14 @@ export const ContactSelect = ({
     <VerticalFlex margin="24px 0 0 0" grow="1">
       <Tabs justify="center" padding="0 16px 0 16px">
         <Tab
+          data-testid="send-recent-contact-tab"
           selected={selectedTab === 'recents'}
           onClick={() => setSelectedTab('recents')}
         >
           <TabText $selected={selectedTab === 'recents'}>Recents</TabText>
         </Tab>
         <Tab
+          data-testid="send-address-book-tab"
           selected={selectedTab === 'addressBook'}
           onClick={() => setSelectedTab('addressBook')}
         >
@@ -124,6 +126,7 @@ export const ContactSelect = ({
           </TabText>
         </Tab>
         <Tab
+          data-testid="send-my-accounts-tab"
           selected={selectedTab === 'accounts'}
           onClick={() => setSelectedTab('accounts')}
         >

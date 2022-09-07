@@ -53,7 +53,7 @@ export function SwapRefreshTimer({
     </VerticalFlex>
   );
   return (
-    <TimerContainer>
+    <TimerContainer data-testid="swap-refresh-timer">
       <Card padding="4px 8px">
         <Typography size={12} height="16px" margin=" 0 7px 0 0 " width="34px">
           {displayedMinutes}:{displayedSeconds}

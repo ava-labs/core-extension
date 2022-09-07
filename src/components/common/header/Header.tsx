@@ -85,7 +85,7 @@ export function Header() {
           <AccountSelector />
         </HorizontalFlex>
         {address && (
-          <HorizontalFlex justify="center">
+          <HorizontalFlex data-testid="header-copy-address" justify="center">
             <SimpleAddress
               copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
               typographyProps={{ color: 'text2', size: 12 }}

@@ -647,6 +647,7 @@ export function Swap() {
               </Typography>
             )}
             <SwitchIconContainer
+              data-testid="swap-switch-token-button"
               onClick={swapTokens}
               disabled={!selectedFromToken || !selectedToToken}
               isSwapped={isSwapped}
@@ -729,6 +730,7 @@ export function Swap() {
           >
             <ParaswapNotice />
             <PrimaryButton
+              data-testid="swap-review-order-button"
               width="100%"
               margin="16px 0 0 0"
               onClick={() => {

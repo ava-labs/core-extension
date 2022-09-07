@@ -67,6 +67,7 @@ export function Assetlist({ assetList }: AssetListProps) {
       {assetList.slice(0, maxAssetCount).map((token) => {
         return (
           <AssetlistRow
+            data-testid={`${token.symbol.toLowerCase()}-token-list-row`}
             align="center"
             justify="space-between"
             margin="0 -16px"
@@ -88,6 +89,7 @@ export function Assetlist({ assetList }: AssetListProps) {
                 name={token.name}
               />
               <Typography
+                data-testid="token-row-name"
                 margin="0 0 0 8px"
                 color={theme.colors.text1}
                 size={12}
@@ -104,10 +106,10 @@ export function Assetlist({ assetList }: AssetListProps) {
             </HorizontalFlex>
             {!!token.balanceUSD && (
               <>
-                <BalanceUSDField color={theme.colors.text1} size={12}>
+                <BalanceUSDField data-testid="token-row-currency-balance" color={theme.colors.text1} size={12}>
                   {currencyFormatter(token.balanceUSD)}
                 </BalanceUSDField>
-                <BalanceField color={theme.colors.text1} size={12}>
+                <BalanceField data-testid="token-row-token-balance" color={theme.colors.text1} size={12}>
                   {token.balanceDisplayValue} {token.symbol}
                 </BalanceField>
               </>

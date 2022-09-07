@@ -217,7 +217,7 @@ export const SendConfirm = ({
           >
             <HorizontalFlex justify="space-between" grow="1" paddingTop="16px">
               <CardLabel>Sending</CardLabel>
-              <VerticalFlex>
+              <VerticalFlex data-testid="token-send-amount">
                 <Typography align="right">
                   <SummaryAmount>{amountDisplayValue}</SummaryAmount>{' '}
                   <SummaryToken>{token?.symbol}</SummaryToken>
@@ -243,7 +243,7 @@ export const SendConfirm = ({
             <VerticalFlex width="100%">
               <HorizontalFlex justify="space-between" width="100%">
                 <CardLabel>From</CardLabel>
-                <VerticalFlex>
+                <VerticalFlex data-testid="send-from-contact">
                   <ContactName>{activeAccount?.name}</ContactName>
                   <ContactAddress>
                     {truncateAddress(
@@ -257,7 +257,7 @@ export const SendConfirm = ({
               <HorizontalSeparator margin="8px 0" />
               <HorizontalFlex justify="space-between" width="100%">
                 <CardLabel>To</CardLabel>
-                <VerticalFlex>
+                <VerticalFlex data-testid="send-to-contact">
                   <ContactName>{contact?.name}</ContactName>
                   <ContactAddress>
                     {truncateAddress(contact?.address || '')}
@@ -282,6 +282,7 @@ export const SendConfirm = ({
               />
             </HorizontalFlex>
             <Typography
+              data-testid="send-network-fee-amount"
               size={14}
               height="15px"
               color={theme.colors.text2}
@@ -299,7 +300,7 @@ export const SendConfirm = ({
             <Typography size={12} height="15px">
               Balance After Transaction
             </Typography>
-            <VerticalFlex>
+            <VerticalFlex data-testid="balance-after-send-amount">
               <Typography align="right">
                 <SummaryAmount>{balanceAfterDisplay}</SummaryAmount>{' '}
                 <SummaryToken>{token?.symbol}</SummaryToken>
@@ -320,6 +321,7 @@ export const SendConfirm = ({
           <VerticalFlex align="center" justify="flex-end" width="100%" grow="1">
             <HorizontalFlex width="100%" justify="space-between" align="center">
               <SecondaryButton
+                data-testid="send-cancel-button"
                 width="168px"
                 size={ComponentSize.LARGE}
                 onClick={() => {
@@ -338,6 +340,7 @@ export const SendConfirm = ({
                 disabled={!sendState?.error?.error}
               >
                 <PrimaryButton
+                  data-testid="send-now-button"
                   width="168px"
                   size={ComponentSize.LARGE}
                   onClick={onSubmit}

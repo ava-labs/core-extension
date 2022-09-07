@@ -120,6 +120,7 @@ export function AccountDropdownItem({
           {inEditMode ? (
             <>
               <AccountNameInput
+                data-testid="account-name-edit-input"
                 value={accountName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setAccountName(e.target.value);
@@ -135,6 +136,7 @@ export function AccountDropdownItem({
                 autoFocus
               />
               <TextButton
+                data-testid="account-name-save-button"
                 size={ComponentSize.SMALL}
                 margin="0 0 0 8px"
                 onClick={onSaveClicked}
@@ -144,16 +146,16 @@ export function AccountDropdownItem({
             </>
           ) : (
             <>
-              <AccountName>{accountName}</AccountName>
+              <AccountName data-testid="account-name">{accountName}</AccountName>
               {account.active && (
-                <TextButton onClick={editAddress} margin="0 0 0 8px">
+                <TextButton data-testid="account-name-edit-button" onClick={editAddress} margin="0 0 0 8px">
                   <PencilIcon color={theme.colors.icon1} height="12px" />
                 </TextButton>
               )}
             </>
           )}
         </HorizontalFlex>
-        <HorizontalFlex margin="4px 0 0 0">
+        <HorizontalFlex data-testid="account-selector-copy-ava-address" margin="4px 0 0 0">
           <LogoContainer>
             <AvaxTokenIcon height="16" />
           </LogoContainer>
@@ -171,7 +173,7 @@ export function AccountDropdownItem({
             }}
           />
         </HorizontalFlex>
-        <HorizontalFlex margin="4px 0 0 0">
+        <HorizontalFlex data-testid="account-selector-copy-btc-address" margin="4px 0 0 0">
           <LogoContainer>
             <BitcoinLogo height="16" />
           </LogoContainer>
@@ -190,7 +192,7 @@ export function AccountDropdownItem({
           />
         </HorizontalFlex>
       </VerticalFlex>
-      <VerticalFlex align="flex-end">
+      <VerticalFlex data-testid="account-balance" align="flex-end">
         <Typography
           color={theme.colors.text2}
           size={12}

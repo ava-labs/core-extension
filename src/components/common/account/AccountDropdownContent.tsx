@@ -92,7 +92,7 @@ export function AccountDropdownContent({
         <Typography size={20} weight={600} height="29px">
           Accounts
         </Typography>
-        <TextButton onClick={() => onClose?.()}>
+        <TextButton data-testid="account-selector-close-button" onClick={() => onClose?.()}>
           <CloseIcon height="18px" color={theme.colors.icon1} />
         </TextButton>
       </HorizontalFlex>
@@ -116,6 +116,7 @@ export function AccountDropdownContent({
           {accounts.map((account, i) => {
             return (
               <VerticalFlex
+                data-testid={`account-${i}`}
                 key={account.addressC}
                 onClick={() => !editing && onAccountClicked(account.index)}
                 width="100%"
@@ -146,6 +147,7 @@ export function AccountDropdownContent({
         width="100%"
       >
         <PrimaryButton
+          data-testid="add-account-button"
           size={ComponentSize.LARGE}
           disabled={addAccountLoading}
           width="100%"

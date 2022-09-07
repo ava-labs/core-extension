@@ -85,6 +85,7 @@ export function NetworkSwitcher() {
   return (
     <SelectContainer>
       <NetworkSwitcherButton
+        data-testid="network-switcher-button"
         align="center"
         justify="space-between"
         onClick={() => setIsOpen(!isOpen)}
@@ -111,6 +112,7 @@ export function NetworkSwitcher() {
           <VerticalFlex>
             {!isActiveInList && network && (
               <NetworkSwitcherItem
+                data-testid={`active-network-${network.chainId}-button`}
                 key={network.chainId}
                 onClick={() => {
                   setNetwork(network);
@@ -140,6 +142,7 @@ export function NetworkSwitcher() {
                 }
                 return (
                   <NetworkSwitcherItem
+                    data-testid={`select-network-${networkItem.chainId}-button`}
                     key={networkItem.chainId}
                     onClick={() => {
                       setNetwork(networkItem);
@@ -163,6 +166,7 @@ export function NetworkSwitcher() {
                 );
               })}
             <NetworkSwitcherItem
+              data-testid="manage-networks-button"
               key="NetworksPage"
               onClick={() => {
                 history.push('/networks');

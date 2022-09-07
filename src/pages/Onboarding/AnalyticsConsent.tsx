@@ -104,6 +104,7 @@ export const AnalyticsConsent = () => {
       </VerticalFlex>
       <HorizontalFlex grow="1" align="flex-end">
         <PrimaryButton
+          data-testid="consent-agree-button"
           size={ComponentSize.LARGE}
           width="190px"
           margin="0 16px 0 0"
@@ -116,6 +117,7 @@ export const AnalyticsConsent = () => {
           I Agree
         </PrimaryButton>
         <PrimaryButton
+          data-testid="no-thanks-button"
           size={ComponentSize.LARGE}
           width="190px"
           onClick={async () => {
