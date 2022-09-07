@@ -304,6 +304,7 @@ export function CustomFees({
           >
             <HorizontalFlex align="center">
               <Typography
+                data-testid="network-fee-token-amount"
                 size={14}
                 height="17px"
                 weight={600}
@@ -311,20 +312,21 @@ export function CustomFees({
               >
                 {newFees.fee} {network?.networkToken.symbol}
               </Typography>
-              <Typography height="15px" size={12}>
+              <Typography data-testid="network-fee-currency-amount" height="15px" size={12}>
                 {!isNaN(Number(newFees.feeUSD))
                   ? `${currencyFormatter(Number(newFees.feeUSD))}`
                   : ''}
               </Typography>
             </HorizontalFlex>
             {network?.vmName === NetworkVMType.EVM && (
-              <TextButton onClick={() => setShowEditGasLimit(true)}>
+              <TextButton data-testid="edit-gas-limit-button" onClick={() => setShowEditGasLimit(true)}>
                 <GearIcon height="16px" color={theme.colors.icon1} />
               </TextButton>
             )}
           </HorizontalFlex>
           <HorizontalFlex justify="space-between">
             <FeeButton
+              data-testid="gas-fee-normal-button"
               disabled={gasPriceEditDisabled}
               className={selectedFee === GasFeeModifier.NORMAL ? 'focus' : ''}
               onClick={() => {
@@ -340,6 +342,7 @@ export function CustomFees({
             {!networkFee.isFixedFee && (
               <>
                 <FeeButton
+                  data-testid="gas-fee-fast-button"
                   disabled={gasPriceEditDisabled}
                   className={selectedFee === GasFeeModifier.FAST ? 'focus' : ''}
                   onClick={() => {
@@ -356,6 +359,7 @@ export function CustomFees({
                   )}
                 </FeeButton>
                 <FeeButton
+                  data-testid="gas-fee-instant-button"
                   disabled={gasPriceEditDisabled}
                   className={
                     selectedFee === GasFeeModifier.INSTANT ? 'focus' : ''
@@ -374,6 +378,7 @@ export function CustomFees({
                   )}
                 </FeeButton>
                 <FeeButton
+                  data-testid="gas-fee-custom-button"
                   disabled={gasPriceEditDisabled}
                   className={
                     selectedFee === GasFeeModifier.CUSTOM ? 'focus' : ''

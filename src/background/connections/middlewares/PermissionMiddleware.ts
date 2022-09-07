@@ -81,6 +81,9 @@ export const UNRESTRICTED_METHODS = Object.freeze([
 
 const CORE_METHODS = Object.freeze([
   'avalanche_getContacts',
+  'avalanche_createContact',
+  'avalanche_updateContact',
+  'avalanche_removeContact',
   'avalanche_getAccounts',
   'avalanche_bridgeAsset',
   'avalanche_getBridgeState',

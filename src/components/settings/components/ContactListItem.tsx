@@ -1,17 +1,13 @@
 import {
-  AvaxTokenIcon,
-  HorizontalFlex,
   HorizontalSeparator,
   SecondaryDropDownMenuItem,
-  SimpleAddress,
-  Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
 import type { Contact } from '@avalabs/types';
 import { SettingsPages } from '../models';
 import { useHistory, useLocation } from 'react-router-dom';
-import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
+import { ContactInfo } from './ContactInfo';
 
 interface ContactListItemProps {
   contact: Contact;
@@ -19,16 +15,6 @@ interface ContactListItemProps {
   index: number;
   length: number;
 }
-
-const ContactName = styled(Typography)`
-  max-width: 95%;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`;
 
 const StyledHR = styled(HorizontalSeparator)`
   margin: 0 16px;
@@ -47,14 +33,6 @@ const StyledSecondaryDropDownMenuItem = styled(SecondaryDropDownMenuItem)`
   :hover + ${StyledHR} {
     visibility: hidden;
   }
-`;
-
-const StyledAvaxIcon = styled(AvaxTokenIcon)`
-  margin: 0 4px 0 0;
-`;
-
-const StyleBitcoinIcon = styled(BitcoinLogo)`
-  margin: 0 4px 0 0;
 `;
 
 export const ContactListItem = ({
@@ -85,23 +63,7 @@ export const ContactListItem = ({
         }}
       >
         <VerticalFlex align="flex-start" justify="space-between" width="100%">
-          <HorizontalFlex justify="space-between" width={'100%'} align="center">
-            <ContactName title={contact.name}>{contact.name}</ContactName>
-            <VerticalFlex>
-              {contact.address && (
-                <HorizontalFlex data-testid="contact-li-copy-ava-address" align="center">
-                  <StyledAvaxIcon height="16px" />
-                  <SimpleAddress address={contact.address} />
-                </HorizontalFlex>
-              )}
-              {contact.addressBTC && (
-                <HorizontalFlex data-testid="contact-li-copy-btc-address" align="center">
-                  <StyleBitcoinIcon height="16px" />
-                  <SimpleAddress address={contact.addressBTC} />
-                </HorizontalFlex>
-              )}
-            </VerticalFlex>
-          </HorizontalFlex>
+          <ContactInfo contact={contact} />
         </VerticalFlex>
       </StyledSecondaryDropDownMenuItem>
       {!(length - 1 === index) && <StyledHR />}

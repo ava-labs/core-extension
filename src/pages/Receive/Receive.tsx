@@ -87,12 +87,12 @@ export const Receive = () => {
   return (
     <VerticalFlex width="100%" align="center">
       <PageTitle>Receive</PageTitle>
-      <VerticalFlex width={'100%'} grow="1" align="center" justify="center">
+      <VerticalFlex data-testid="receive-qr-code" width={'100%'} grow="1" align="center" justify="center">
         <QRCodeWithLogo size={256} value={address}>
           {getLogo()}
         </QRCodeWithLogo>
       </VerticalFlex>
-      <VerticalFlex padding="0 16px 24px" width="100%">
+      <VerticalFlex data-testid="receive-address" padding="0 16px 24px" width="100%">
         <Typography size={12} height="15px" margin="0 0 4px">
           {getName()}
         </Typography>

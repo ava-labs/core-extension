@@ -175,7 +175,7 @@ export function SettingsMenu() {
 
   return (
     <>
-      <TextButton onClick={() => setOpen(true)}>
+      <TextButton data-testid="hamburger-menu-button" onClick={() => setOpen(true)}>
         <HamburgerIcon color={theme.colors.text1} />
       </TextButton>
       <CSSTransition

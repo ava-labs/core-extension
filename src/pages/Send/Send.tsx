@@ -355,6 +355,7 @@ export function SendPage() {
                 disabled={!sendState.error?.error}
               >
                 <PrimaryButton
+                  data-testid="send-next-button"
                   size={ComponentSize.LARGE}
                   width="343px"
                   onClick={() => {

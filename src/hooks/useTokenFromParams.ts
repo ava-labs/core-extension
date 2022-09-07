@@ -6,6 +6,7 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import { useTokensWithBalances } from './useTokensWithBalances';
+import xss from 'xss';
 
 export function useTokenFromParams(
   withDefault = true
@@ -17,13 +18,16 @@ export function useTokenFromParams(
   >(withDefault ? allTokens?.[0] : undefined);
   const { activeAccount } = useAccountsContext();
 
-  const { tokenSymbol, tokenAddress } = useMemo(
-    () =>
-      (Object as any).fromEntries(
-        (new URLSearchParams(search) as any).entries()
-      ),
-    [search]
-  );
+  const { tokenSymbol, tokenAddress } = useMemo(() => {
+    const { tokenSymbol, tokenAddress } = (Object as any).fromEntries(
+      (new URLSearchParams(search) as any).entries()
+    );
+
+    return {
+      tokenSymbol: xss(tokenSymbol),
+      tokenAddress: xss(tokenAddress),
+    };
+  }, [search]);
 
   useEffect(() => {
     const targetToken = allTokens?.find((token) =>

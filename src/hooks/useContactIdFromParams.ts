@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import xss from 'xss';
 
 export const useContactIdFromParams = () => {
   const { search } = useLocation();
@@ -10,7 +11,7 @@ export const useContactIdFromParams = () => {
     );
 
     return {
-      contactId,
+      contactId: xss(contactId),
     };
   }, [search]);
 };

@@ -58,6 +58,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           recovery phrase.
         </Typography>
         <Input
+          data-testid="recovery-phrase-input"
           type="password"
           autoFocus
           margin="32px 0 0 0"
@@ -68,6 +69,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
         />
       </VerticalFlex>
       <PrimaryButton
+        data-testid="recovery-phrase-next-button"
         size={ComponentSize.LARGE}
         width="343px"
         disabled={nextButtonDisabled}

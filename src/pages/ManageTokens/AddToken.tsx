@@ -112,6 +112,7 @@ export function AddToken() {
           padding="8px 16px 24px 16px"
         >
           <AddressInput
+            data-testid="add-custom-token-address-input"
             size={ComponentSize.SMALL}
             margin="12px 0 10px 0"
             label={'Custom Token Address'}
@@ -130,6 +131,7 @@ export function AddToken() {
           )}
           <VerticalFlex grow="1" justify="flex-end" align="center">
             <PrimaryButton
+              data-testid="add-custom-token-button"
               size={ComponentSize.LARGE}
               onClick={addCustomToken}
               disabled={isLoading || !!error?.length || !tokenData}

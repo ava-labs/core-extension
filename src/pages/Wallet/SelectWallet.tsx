@@ -11,6 +11,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useCallback, useMemo } from 'react';
 import { useTheme } from 'styled-components';
+import xss from 'xss';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { WalletExtensionButton } from './components/WalletExtensionButton';
 
@@ -21,10 +22,12 @@ export function SelectWallet() {
     const params = new URLSearchParams(window.location.search);
 
     return {
-      options: params.getAll('options') as WalletExtensionType[] | null,
-      requestId: params.get('id'),
-      domain: params.get('domain'),
-      tabId: params.get('tabId'),
+      options: params.getAll('options')?.map((o) => xss(o)) as
+        | WalletExtensionType[]
+        | null,
+      requestId: xss(params.get('id') || ''),
+      domain: xss(params.get('domain') || ''),
+      tabId: xss(params.get('tabId') || ''),
     };
   }, []);
 

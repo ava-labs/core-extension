@@ -89,6 +89,7 @@ export const ContactInput = ({
     <RelativeContainer>
       <InputContainer ref={inputRef}>
         <Input
+          data-testid="send-address-input"
           autoFocus
           onChange={(e) => {
             onChange(identifyAddress(e.target.value));
@@ -102,7 +103,7 @@ export const ContactInput = ({
           label="Send to"
           placeholder={inputPlaceholder}
           buttonContent={
-            <HorizontalFlex align="center">
+            <HorizontalFlex data-testid="send-address-book" align="center">
               <ContactsIcon height="20px" style={{ marginRight: 12 }} />
               <CaretIcon
                 color={theme.colors.icon1}

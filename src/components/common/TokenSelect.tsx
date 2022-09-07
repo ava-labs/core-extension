@@ -179,6 +179,7 @@ export function TokenSelect({
       </HorizontalFlex>
       <SelectContainer>
         <InputContainer
+          data-testid="token-selector-dropdown"
           ref={selectButtonRef}
           style={{ borderRadius: isOpen ? '8px 8px 0 0' : 8 }}
           onClick={() => onSelectToggle && onSelectToggle()}
@@ -222,6 +223,7 @@ export function TokenSelect({
                 ? 'Max'
                 : ''
             }
+            data-testid="token-amount-input"
             placeholder="0"
             width="180px"
             height="40px"
@@ -268,6 +270,7 @@ export function TokenSelect({
               <SearchInputContainer>
                 <StyledSearchInput
                   searchTerm={searchQuery}
+                  data-testid="token-search-input"
                   placeholder="Search"
                   width="100%"
                   onSearch={(term) => setSearchQuery(term)}
@@ -288,8 +291,9 @@ export function TokenSelect({
                               .includes(searchQuery.toLowerCase())
                           : true
                       )
-                      .map((token) => (
+                      .map((token, index) => (
                         <StyledDropdownMenuItem
+                          data-testid={`token-search-menu-item-${index}`}
                           key={
                             token.type === TokenType.ERC20
                               ? token.address
@@ -339,9 +343,10 @@ export function TokenSelect({
                               .includes(searchQuery.toLowerCase())
                           : true
                       )
-                      .map((token) => {
+                      .map((token, index) => {
                         return (
                           <StyledDropdownMenuItem
+                            data-testid={`token-bridge-menu-item-${index}`}
                             key={token.symbol}
                             onClick={() => {
                               onTokenChange(token);

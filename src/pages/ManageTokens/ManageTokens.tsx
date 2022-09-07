@@ -22,6 +22,7 @@ export const ManageTokens = () => {
       <PageTitle>Manage Token List</PageTitle>
       <VerticalFlex grow="1" width="100%" padding="8px 16px">
         <SearchInput
+          data-testid="search-token-list-input"
           searchTerm={searchQuery}
           placeholder="Search"
           width="100%"
@@ -29,6 +30,7 @@ export const ManageTokens = () => {
           autoFocus={true}
         />
         <TextButton
+          data-testid="add-custom-token-button"
           color={theme.colors.text1}
           onClick={() => history.push('/manage-tokens/add')}
           margin="16px 0 24px 0"

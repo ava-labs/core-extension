@@ -186,6 +186,7 @@ export function WalletRecentTxs({
           coords={{ right: '0' }}
           icon={
             <HorizontalFlex
+              data-testid="filter-activity-menu"
               padding={'10px'}
               align={'center'}
               justify="space-between"
@@ -197,7 +198,7 @@ export function WalletRecentTxs({
             </HorizontalFlex>
           }
         >
-          <VerticalFlex width="200px">
+          <VerticalFlex data-testid="filter-activity-options" width="200px">
             <FilterItem keyName="All" />
             <FilterItem keyName="Contract Call" />
             <FilterItem keyName="Bridge" />
@@ -258,6 +259,7 @@ export function WalletRecentTxs({
                   )}
 
                   <Card
+                    data-testid={`activity-tx-card-${index}`}
                     key={tx.hash}
                     padding={'8px 12px 8px 16px'}
                     margin={'0 0 8px 0'}

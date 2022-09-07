@@ -3,6 +3,7 @@ import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import { ContactsEvents, CONTACTS_STORAGE_KEY, ContactsState } from './models';
 import type { Contact } from '@avalabs/types';
+import { isContactValid } from '@src/utils/isContactValid';
 
 @singleton()
 export class ContactsService {
@@ -23,6 +24,10 @@ export class ContactsService {
   }
 
   async addContact(contact: Contact) {
+    if (!isContactValid(contact).valid) {
+      return;
+    }
+
     const contacts = await this.getContacts();
 
     const newContacts = {
@@ -35,6 +40,10 @@ export class ContactsService {
   }
 
   async updateContact(contact: Contact) {
+    if (!isContactValid(contact).valid) {
+      return;
+    }
+
     const contacts = await this.getContacts();
 
     const updatedContacts = {

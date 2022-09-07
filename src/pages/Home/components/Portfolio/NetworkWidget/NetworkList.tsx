@@ -54,6 +54,7 @@ export function NetworkList() {
             : 0;
           return (
             <NetworkCard
+              data-testid={`network-card-${network.chainId}-button`}
               width="164px"
               display="inline-block"
               key={network.chainId}
@@ -82,6 +83,7 @@ export function NetworkList() {
                     {network.chainName}
                   </Typography>
                   <Typography
+                    data-testid={`network-card-${network.chainId}-balance`}
                     size={14}
                     color={theme.colors.text2}
                     height="17px"
@@ -95,6 +97,7 @@ export function NetworkList() {
         })}
         {!isAllNetworksLinkFullWidth ? (
           <NetworkCard
+            data-testid="see-all-networks-button"
             width="164px"
             display="inline-block"
             margin="0 0 16px 0"
@@ -109,6 +112,7 @@ export function NetworkList() {
           </NetworkCard>
         ) : (
           <SecondaryButton
+            data-testid="see-all-networks-button"
             width={'100%'}
             onClick={(e) => {
               e.stopPropagation();

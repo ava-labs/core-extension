@@ -51,7 +51,7 @@ export function ActiveNetworkWidget({
 
   return (
     <>
-      <NetworkCard display="block" onClick={handleCardClick}>
+      <NetworkCard data-testid="active-network-card" display="block" onClick={handleCardClick}>
         <VerticalFlex>
           <HorizontalFlex
             justify="space-between"
@@ -71,6 +71,7 @@ export function ActiveNetworkWidget({
               </LogoContainer>
               <VerticalFlex>
                 <Typography
+                  data-testid="active-network-name"
                   color={theme.colors.text1}
                   weight={600}
                   height="24px"
@@ -79,6 +80,7 @@ export function ActiveNetworkWidget({
                   {network?.chainName}
                 </Typography>
                 <Typography
+                  data-testid="active-network-total-balance"
                   color={theme.colors.text1}
                   weight={600}
                   height="24px"

@@ -466,6 +466,7 @@ export function Bridge() {
                   content={<Typography size={12}>Switch</Typography>}
                 >
                   <SwitchButton
+                    data-testid="bridge-switch-button"
                     useHigherZIndex={!isTokenSelectOpen}
                     onClick={handleBlockchainToggle}
                     isSwapped={isSwitched}
@@ -519,6 +520,7 @@ export function Bridge() {
         )}
 
         <PrimaryButton
+          data-testid="bridger-transfer-button"
           width="100%"
           margin="16px 0 24px 0"
           size={ComponentSize.LARGE}

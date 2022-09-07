@@ -124,6 +124,7 @@ export function TransactionDetails({
             </HorizontalFlex>
             <HorizontalFlex align="center">
               <Input
+                data-testid="swap-slippage-tolerance-input"
                 size={ComponentSize.SMALL}
                 value={slippage}
                 width="66px"
