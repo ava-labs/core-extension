@@ -37,7 +37,10 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         title={'Address Book'}
         action={
           <Tooltip content={<Typography size={12}>Add New Contact</Typography>}>
-            <TextButton data-testid="add-contact-plus-button" onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}>
+            <TextButton
+              data-testid="add-contact-plus-button"
+              onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}
+            >
               <PlusIcon height="18px" color={theme.colors.text1} />
             </TextButton>
           </Tooltip>

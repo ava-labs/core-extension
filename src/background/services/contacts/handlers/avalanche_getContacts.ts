@@ -1,5 +1,6 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
 @injectable()
@@ -22,7 +23,7 @@ export class AvalancheGetContactsHandler extends DAppRequestHandler {
   handleUnauthenticated = (request) => {
     return {
       ...request,
-      error: 'account not connected',
+      error: ethErrors.provider.unauthorized(),
     };
   };
 }

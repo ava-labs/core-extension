@@ -149,6 +149,12 @@ const SwitchAccount = lazy(() => {
   }));
 });
 
+const UpdateContacts = lazy(() => {
+  return import('../pages/ApproveAction/UpdateContacts').then((m) => ({
+    default: m.UpdateContacts,
+  }));
+});
+
 export function Popup() {
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
@@ -267,6 +273,24 @@ export function Popup() {
                                     <Route path="/sign">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SignMessage />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/createContact">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <UpdateContacts method="create" />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/updateContact">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <UpdateContacts method="update" />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/removeContact">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <UpdateContacts method="remove" />
                                       </Suspense>
                                     </Route>
 

@@ -6,6 +6,9 @@ import { ActionCompletedEvents } from '@src/background/services/actions/events/a
 import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/AvalancheBridgeAsset';
 import { AvalancheGetBridgeTransactionHandler } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
 import { AvalancheGetContactsHandler } from '@src/background/services/contacts/handlers/avalanche_getContacts';
+import { AvalancheCreateContactHandler } from '@src/background/services/contacts/handlers/avalanche_createContact';
+import { AvalancheUpdateContactHandler } from '@src/background/services/contacts/handlers/avalanche_updateContact';
+import { AvalancheRemoveContactHandler } from '@src/background/services/contacts/handlers/avalanche_removeContact';
 import { LockStateChangedEvents } from '@src/background/services/lock/events/dAppUnlockStateChangedEvent';
 import { PersonalEcRecoverHandler } from '@src/background/services/messages/handlers/personal_ecRecover';
 import { PersonalSignHandler } from '@src/background/services/messages/handlers/signMessage';
@@ -38,6 +41,9 @@ import { registry } from 'tsyringe';
   },
   { token: 'DAppRequestHandler', useToken: AvalancheBridgeAsset },
   { token: 'DAppRequestHandler', useToken: AvalancheGetContactsHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheCreateContactHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheUpdateContactHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheRemoveContactHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectWalletHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: PersonalEcRecoverHandler },
