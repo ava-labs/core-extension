@@ -9,18 +9,30 @@ import { AnalyticsEvents } from '../analytics/models';
 export class FeatureFlagService {
   private eventEmitter = new EventEmitter();
   private _featureFlags = DEFAULT_FLAGS;
-  private listeningInProgress = false;
   public get featureFlags(): Record<FeatureGates, boolean> {
     return this._featureFlags;
   }
+  private featureFlagsListener?: ReturnType<typeof initFeatureFlags>;
 
   constructor(private analyticsService: AnalyticsService) {
+    // start fetching feature as early as possible
+    // update requests with unique id after it's available
+    // if analytics is disabled `ANALYTICS_STATE_UPDATED` will never be fired
+    this.initFeatureFlags().catch((e) => {
+      console.error(e);
+    });
+
+    // subscribe to analytics event updates so that we can set
+    // the userId in case the user has opted in for feature flags
     this.analyticsService.addListener(
       AnalyticsEvents.ANALYTICS_STATE_UPDATED,
       () => {
-        if (!this.listeningInProgress) {
-          this.initFeatureFlags();
+        if (this.featureFlagsListener) {
+          this.featureFlagsListener.unsubscribe();
         }
+        this.initFeatureFlags().catch((e) => {
+          console.error(e);
+        });
       }
     );
   }
@@ -29,19 +41,19 @@ export class FeatureFlagService {
     const analyticsState = await this.analyticsService.getIds();
 
     if (!process.env.POSTHOG_KEY) {
-      throw new Error('Analytic token missing');
+      throw new Error('POSTHOG_KEY missing');
     }
 
-    const { listen } = initFeatureFlags(
+    this.featureFlagsListener = initFeatureFlags(
       process.env.POSTHOG_KEY,
       analyticsState?.userId ?? '',
-      process.env.POSTHOG_URL ?? 'https://data-posthog.avax.network'
+      process.env.POSTHOG_URL ?? 'https://data-posthog.avax.network',
+      5000
     );
-    listen.add((flags) => {
-      this._featureFlags == flags;
+    this.featureFlagsListener.listen.add((flags) => {
+      this._featureFlags = flags as Record<FeatureGates, boolean>;
       this.eventEmitter.emit(FeatureFlagEvents.FEATURE_FLAG_UPDATED, flags);
     });
-    this.listeningInProgress = true;
   }
 
   addListener(event: FeatureFlagEvents, callback: (data: unknown) => void) {
