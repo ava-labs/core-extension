@@ -25,6 +25,7 @@ export enum DAppProviderRequest {
   AVALANCHE_BRIDGE_ASSET = 'avalanche_bridgeAsset',
   AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
+  AVALANCHE_SET_DEVELOPER_MODE = 'avalanche_setDeveloperMode',
   ACCOUNT_SELECT = 'avalanche_selectAccount',
 }
 

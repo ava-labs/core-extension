@@ -149,6 +149,12 @@ const SwitchAccount = lazy(() => {
   }));
 });
 
+const SetDeveloperMode = lazy(() => {
+  return import('../pages/ApproveAction/SetDeveloperMode').then((m) => ({
+    default: m.SetDeveloperMode,
+  }));
+});
+
 const UpdateContacts = lazy(() => {
   return import('../pages/ApproveAction/UpdateContacts').then((m) => ({
     default: m.UpdateContacts,
@@ -303,6 +309,12 @@ export function Popup() {
                                     <Route path="/approve/watch-asset">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <WatchAssetApprovalPopup />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/set-developer-mode">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <SetDeveloperMode />
                                       </Suspense>
                                     </Route>
 

@@ -88,6 +88,7 @@ const CORE_METHODS = Object.freeze([
   'avalanche_bridgeAsset',
   'avalanche_getBridgeState',
   'avalanche_selectAccount',
+  'avalanche_setDeveloperMode',
 ]);
 
 export function PermissionMiddleware(

@@ -15,6 +15,7 @@ import { PersonalSignHandler } from '@src/background/services/messages/handlers/
 import { ChainChangedEvents } from '@src/background/services/network/events/chainChangedEvent';
 import { WalletAddEthereumChainHandler } from '@src/background/services/network/handlers/wallet_addEthereumChain';
 import { WalletSwitchEthereumChainHandler } from '@src/background/services/network/handlers/wallet_switchEthereumChain';
+import { AvalancheSetDeveloperModeHandler } from '@src/background/services/network/handlers/avalanche_setDeveloperMode';
 import { WalletGetPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_getPermissions';
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
 import { WalletWatchAssetHandler } from '@src/background/services/settings/events/wallet_watchAsset';
@@ -50,6 +51,7 @@ import { registry } from 'tsyringe';
   { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletSwitchEthereumChainHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSetDeveloperModeHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
