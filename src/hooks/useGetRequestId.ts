@@ -12,8 +12,7 @@ export function useGetRequestId() {
   const history = useHistory();
 
   return useMemo(() => {
-    return (
-      history.location.search && history.location.search.replace('?id=', '')
-    );
+    const searchParams = new URLSearchParams(history.location.search ?? '');
+    return searchParams.get('id') ?? '';
   }, [history.location.search]);
 }

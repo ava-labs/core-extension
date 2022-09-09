@@ -25,7 +25,12 @@ export function EmptyContent({ text }: EmptyContentProps) {
         grow="1"
         height="100%"
       >
-        <Typography size={16} align="center" height="24px">
+        <Typography
+          data-testid="empty-list-text"
+          size={16}
+          align="center"
+          height="24px"
+        >
           {text}
         </Typography>
       </EmptyListContainer>
