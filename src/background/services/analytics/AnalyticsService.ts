@@ -1,4 +1,7 @@
-import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
+import {
+  OnLock,
+  OnStorageReady,
+} from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
@@ -13,7 +16,7 @@ import {
 } from './models';
 
 @singleton()
-export class AnalyticsService implements OnStorageReady {
+export class AnalyticsService implements OnStorageReady, OnLock {
   private eventEmitter = new EventEmitter();
 
   constructor(private storageService: StorageService) {}
@@ -25,6 +28,11 @@ export class AnalyticsService implements OnStorageReady {
     }
 
     this.getSessionId();
+  }
+
+  onLock(): void {
+    // clear cache on lock
+    this.storageService.removeFromSessionStorage(ANALYTICS_STORAGE_KEY);
   }
 
   async clearIds() {
@@ -62,13 +70,18 @@ export class AnalyticsService implements OnStorageReady {
       return cachedState;
     }
 
-    const state = await this.storageService.load<AnalyticsState>(
-      ANALYTICS_STORAGE_KEY
-    );
-    if (state) {
-      await this.cacheAnalyticsIds(state);
+    try {
+      const state = await this.storageService.load<AnalyticsState>(
+        ANALYTICS_STORAGE_KEY
+      );
+      if (state) {
+        await this.cacheAnalyticsIds(state);
+      }
+      return state;
+    } catch (_) {
+      // catch storage not ready errors
+      return;
     }
-    return state;
   }
 
   async initIds(storeInStorage: boolean) {

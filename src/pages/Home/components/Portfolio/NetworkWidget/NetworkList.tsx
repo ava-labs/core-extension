@@ -14,6 +14,7 @@ import { getNetworkBalance, tokensWithBalances } from './NetworksWidget';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const LogoContainer = styled.div`
   margin-top: 4px;
@@ -26,6 +27,7 @@ const NetworkListContainer = styled(HorizontalFlex)`
 `;
 
 export function NetworkList() {
+  const { capture } = useAnalyticsContext();
   const { network, setNetwork, favoriteNetworks } = useNetworkContext();
   const theme = useTheme();
   const { tokens } = useBalancesContext();
@@ -61,6 +63,9 @@ export function NetworkList() {
               margin="0 0 16px 0"
               padding="16px"
               onClick={() => {
+                capture('PortfolioNetworkSelected', {
+                  chainId: network.chainId,
+                });
                 setNetwork(network);
               }}
             >
