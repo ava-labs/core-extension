@@ -29,6 +29,7 @@ import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/
 import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 import { GetPublicKeyHandler } from '@src/background/services/ledger/handlers/getPublicKey';
+import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -37,6 +38,10 @@ export enum LedgerAppType {
   UNKNOWN = 'UNKNOWN',
 }
 export const SUPPORTED_LEDGER_VERSION = '0.5.9';
+/**
+ * Run this here since each new window will have a different id
+ * this is used to track the transport and close on window close
+ */
 const LEDGER_INSTANCE_UUID = crypto.randomUUID();
 
 const LedgerContext = createContext<{
@@ -53,6 +58,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
 
+  /**
+   * Listen for send events to a ledger instance
+   */
   useEffect(() => {
     const subscription = events()
       .pipe(
@@ -101,6 +109,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
     };
   }, [request, events, app]);
 
+  /**
+   * Create instance for a given UUID
+   */
   useEffect(() => {
     const subscription = events()
       .pipe(filter(ledgerDiscoverTransportsEventListener))
@@ -117,6 +128,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
     };
   }, [events, initialized, request]);
 
+  /**
+   * Remove an instance by UUID when a window is about to unload
+   */
   useEffect(() => {
     const handler = (ev) => {
       ev.preventDefault();
@@ -194,6 +208,12 @@ export function LedgerContextProvider({ children }: { children: any }) {
     const subscription = of([initialized])
       .pipe(
         filter(([initialized]) => !!initialized),
+        switchMap(() =>
+          request<CloseLedgerTransportHandler>({
+            method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
+            params: [],
+          })
+        ),
         switchMap(() => getLedgerTransport()),
         switchMap((transport) => initLedgerApp(transport)),
         switchMap((ledgerApp) =>
@@ -220,7 +240,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [initialized, initLedgerApp]);
+  }, [initialized, initLedgerApp, request]);
 
   /**
    *
@@ -265,6 +285,28 @@ export function LedgerContextProvider({ children }: { children: any }) {
       params: [LEDGER_INSTANCE_UUID],
     });
   }, [initialized, request]);
+
+  useEffect(() => {
+    const subscription = events()
+      .pipe(
+        filter((evt) => evt.name === LedgerEvent.TRANSPORT_CLOSE_REQUEST),
+        filter(() =>
+          // check if there if the window is claiming interface index 2. We should close the window
+          // which would clean up the claimed interfaces, thereby releasing it to the new window
+
+          // In windows where this interface wasnt claimed the values here will be false
+          app?.transport?.device.configuration.interfaces.some(
+            (i) => i.claimed && i.interfaceNumber === 2
+          )
+        )
+      )
+      .subscribe(() => {
+        window.close();
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  });
 
   return (
     <LedgerContext.Provider

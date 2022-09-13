@@ -91,6 +91,8 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
 import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
 import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
+import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
+import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -142,6 +144,7 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
   { token: 'ExtensionRequestHandler', useToken: UnlockWalletHandler },
   { token: 'ExtensionRequestHandler', useToken: GetLockStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNavigationHistoryHandler },
+  { token: 'ExtensionRequestHandler', useToken: CloseLedgerTransportHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetNavigationHistoryDataHandler,
@@ -228,5 +231,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
+  { token: 'ExtensionEventEmitter', useToken: LedgerCloseTransportEvent },
 ])
 export class ExtensionEventEmitterRegistry {}
