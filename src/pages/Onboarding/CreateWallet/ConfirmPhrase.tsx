@@ -28,6 +28,7 @@ export function ConfirmPhrase({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
+        testId="confirm-phrase"
         title="Verify Secret Recovery Phrase"
         onBack={onBack}
         onClose={onCancel}

@@ -117,6 +117,7 @@ export function LedgerConnect({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
+        testId="connect-ledger"
         title="Connect your Ledger"
         onBack={onBack}
         onClose={onCancel}

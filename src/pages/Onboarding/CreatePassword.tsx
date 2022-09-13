@@ -54,6 +54,7 @@ export const CreatePassword = ({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
+        testId="name-and-password"
         title="Create a Name and Password"
         onBack={onBack}
         onClose={onCancel}
@@ -122,7 +123,10 @@ export const CreatePassword = ({
               </Typography>
             </Typography>
           </HorizontalFlex>
-          <HorizontalFlex data-testid="privacy-policy-checkbox" margin="8px 0 0">
+          <HorizontalFlex
+            data-testid="privacy-policy-checkbox"
+            margin="8px 0 0"
+          >
             <Checkbox
               isChecked={privacyPolicyChecked}
               onChange={() => setPrivacyPolicyChecked(!privacyPolicyChecked)}
