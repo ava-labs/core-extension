@@ -9,7 +9,6 @@ import {
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
-import { getWindowCoords } from '@src/utils/getWindowCoords';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -70,11 +69,7 @@ export function useLedgerDisconnectedDialog(
           if (isConfirm) {
             popDeviceSelection();
           } else {
-            openExtensionNewWindow(
-              `ledger/connect?app=${requiredAppType}`,
-              '',
-              getWindowCoords()
-            );
+            openExtensionNewWindow(`ledger/connect?app=${requiredAppType}`, '');
             window.close();
           }
         },
@@ -110,11 +105,7 @@ export function useLedgerDisconnectedDialog(
           if (isConfirm) {
             popDeviceSelection();
           } else {
-            openExtensionNewWindow(
-              `ledger/connect?app=${requiredAppType}`,
-              '',
-              getWindowCoords()
-            );
+            openExtensionNewWindow(`ledger/connect?app=${requiredAppType}`, '');
             window.close();
           }
         },

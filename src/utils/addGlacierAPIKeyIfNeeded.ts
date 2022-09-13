@@ -3,9 +3,10 @@ export function addGlacierAPIKeyIfNeeded(url: string): string {
   if (
     process.env.GLACIER_API_KEY &&
     (urlObject.host === 'glacier-api.avax-test.network' ||
-      urlObject.host === 'https://glacier-api.avax.network')
+      urlObject.host === 'glacier-api.avax.network')
   ) {
-    return `${url}?token=${process.env.GLACIER_API_KEY}`;
+    urlObject.searchParams.append('token', process.env.GLACIER_API_KEY);
+    return urlObject.toString();
   }
 
   return url;

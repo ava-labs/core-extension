@@ -3,8 +3,12 @@ import {
   TextButton,
   Typography,
 } from '@avalabs/react-components';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -53,6 +57,7 @@ const AssetlistRow = styled(HorizontalFlex)`
 `;
 
 export function Assetlist({ assetList }: AssetListProps) {
+  const { capture } = useAnalyticsContext();
   const tokensWithBalances = useTokensWithBalances();
   const { currencyFormatter } = useSettingsContext();
   const theme = useTheme();
@@ -75,6 +80,10 @@ export function Assetlist({ assetList }: AssetListProps) {
             key={token.symbol}
             onClick={(e) => {
               e.stopPropagation();
+              capture('PortfolioTokenSelected', {
+                selectedToken:
+                  token.type === TokenType.ERC20 ? token.address : token.symbol,
+              });
               setSendDataInParams({
                 token: token,
                 options: { path: '/token' },
@@ -106,10 +115,18 @@ export function Assetlist({ assetList }: AssetListProps) {
             </HorizontalFlex>
             {!!token.balanceUSD && (
               <>
-                <BalanceUSDField data-testid="token-row-currency-balance" color={theme.colors.text1} size={12}>
+                <BalanceUSDField
+                  data-testid="token-row-currency-balance"
+                  color={theme.colors.text1}
+                  size={12}
+                >
                   {currencyFormatter(token.balanceUSD)}
                 </BalanceUSDField>
-                <BalanceField data-testid="token-row-token-balance" color={theme.colors.text1} size={12}>
+                <BalanceField
+                  data-testid="token-row-token-balance"
+                  color={theme.colors.text1}
+                  size={12}
+                >
                   {token.balanceDisplayValue} {token.symbol}
                 </BalanceField>
               </>

@@ -3,9 +3,10 @@
 module.exports = {
   clearMocks: true,
   preset: 'ts-jest',
-  testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  testEnvironment: 'jest-environment-jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/tests/setupTests.ts'],
   moduleNameMapper: {
     '^@src/(.*)': '<rootDir>/src/$1',
+    '\\.(css|less|scss)$': 'identity-obj-proxy',
   },
 };

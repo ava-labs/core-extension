@@ -1,19 +1,19 @@
 import {
   ComponentSize,
+  GlobeIcon,
   HorizontalFlex,
   LoadingSpinnerIcon,
-  PrimaryAddress,
   PrimaryButton,
   SecondaryButton,
   Typography,
   VerticalFlex,
-  WalletIcon,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
-import { Account } from '@src/background/services/accounts/models';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { TokenIcon } from '@src/components/common/TokenImage';
+import styled, { useTheme } from 'styled-components';
+import { Network } from '@avalabs/chains-sdk';
+import { useApproveAction } from '../../hooks/useApproveAction';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -23,7 +23,7 @@ const SiteAvatar = styled(VerticalFlex)`
   margin: 8px 0;
 `;
 
-export function SwitchAccount() {
+export function SetDeveloperMode() {
   const theme = useTheme();
   const requestId = useGetRequestId();
 
@@ -33,7 +33,7 @@ export function SwitchAccount() {
     cancelHandler,
   } = useApproveAction(requestId);
 
-  const request = action as Action & { selectedAccount: Account };
+  const request = action as Action;
 
   if (!request) {
     return (
@@ -48,11 +48,14 @@ export function SwitchAccount() {
     );
   }
 
+  const network: Network = request?.displayData;
   return (
-    <VerticalFlex padding="0 16px">
+    <VerticalFlex>
       <VerticalFlex grow="1" align="center" justify="center">
-        <SiteAvatar justify="center" align="center">
-          <WalletIcon height="48px" width="48px" color={theme.colors.icon1} />
+        <SiteAvatar margin="8px 0" justify="center" align="center">
+          <TokenIcon height="48px" width="48px" src={network?.logoUri}>
+            <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
+          </TokenIcon>
         </SiteAvatar>
         <HorizontalFlex align="center" width="100%" justify="center">
           <Typography
@@ -62,7 +65,8 @@ export function SwitchAccount() {
             height="29px"
             weight={700}
           >
-            Switch to {request.selectedAccount?.name}?
+            {request?.displayData?.isTestmode ? 'Activate' : 'Deactivate'}{' '}
+            Testnet Mode?
           </Typography>
         </HorizontalFlex>
         <HorizontalFlex>
@@ -72,21 +76,14 @@ export function SwitchAccount() {
             color={theme.colors.text2}
             align="center"
           >
-            {request.site?.domain || 'This website'} is requesting to switch
-            your active account.
+            {request?.site?.domain || 'This website'} is requesting to turn
+            Testnet Mode {request?.displayData?.isTestmode ? 'ON' : 'OFF'}.
           </Typography>
-        </HorizontalFlex>
-
-        <HorizontalFlex marginTop="16px">
-          <PrimaryAddress
-            name={request.selectedAccount?.name}
-            address={request.selectedAccount?.addressC}
-          />
         </HorizontalFlex>
       </VerticalFlex>
 
       <VerticalFlex width="100%" justify="space-between">
-        <HorizontalFlex justify="space-between">
+        <HorizontalFlex justify="space-between" gap="16px">
           <SecondaryButton
             size={ComponentSize.LARGE}
             onClick={() => {

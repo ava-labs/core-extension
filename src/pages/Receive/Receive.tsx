@@ -31,7 +31,9 @@ export const Receive = () => {
 
   useEffect(() => {
     capture('ReceivePageVisited');
-  }, [capture]);
+    // the event should be captured exactly once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setIsBitcoinActive(network?.vmName === NetworkVMType.BITCOIN);
@@ -87,12 +89,22 @@ export const Receive = () => {
   return (
     <VerticalFlex width="100%" align="center">
       <PageTitle>Receive</PageTitle>
-      <VerticalFlex data-testid="receive-qr-code" width={'100%'} grow="1" align="center" justify="center">
+      <VerticalFlex
+        data-testid="receive-qr-code"
+        width={'100%'}
+        grow="1"
+        align="center"
+        justify="center"
+      >
         <QRCodeWithLogo size={256} value={address}>
           {getLogo()}
         </QRCodeWithLogo>
       </VerticalFlex>
-      <VerticalFlex data-testid="receive-address" padding="0 16px 24px" width="100%">
+      <VerticalFlex
+        data-testid="receive-address"
+        padding="0 16px 24px"
+        width="100%"
+      >
         <Typography size={12} height="15px" margin="0 0 4px">
           {getName()}
         </Typography>

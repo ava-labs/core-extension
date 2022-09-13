@@ -33,13 +33,23 @@ export abstract class DAppRequestHandler<T extends ExtensionRequest = any> {
     request: ExtensionConnectionMessage
   ) => Promise<ExtensionConnectionMessageResponse<T, any>>;
 
+  /**
+   * Opens approval window with the specified url and saves the action info to the Actions service
+   * When singleton is true, it makes sure there is only one approval window at a time for the given domain with the requested method
+   * @param action The action requiring approval
+   * @param url The url of the approval window. Withouth a leading `/`
+   */
   async openApprovalWindow(action: Action, url: string) {
-    // By having this extension window render here, we are popping the extension window before we send the completed request
-    // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
-    await openExtensionNewWindow(url, '', action.meta?.coords);
-
     // using direct injection instead of the constructor to prevent circular dependencies
     const actionsService = container.resolve(ActionsService);
-    await actionsService.addAction(action);
+
+    // By having this extension window render here, we are popping the extension window before we send the completed request
+    // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
+    const windowData = await openExtensionNewWindow(url, '');
+
+    await actionsService.addAction({
+      ...action,
+      popupWindowId: windowData.id,
+    });
   }
 }

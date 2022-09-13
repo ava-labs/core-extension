@@ -21,7 +21,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
   handleUnauthenticated = async (request) => {
     return {
       ...request,
-      error: 'account not connected',
+      error: ethErrors.provider.unauthorized(),
     };
   };
 
@@ -87,7 +87,9 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     onError
   ) => {
     try {
-      await this.networkService.setNetwork(pendingAction.displayData.chainId);
+      await this.networkService.setNetwork(
+        Number(pendingAction.displayData.chainId)
+      );
       onSuccess(null);
     } catch (e) {
       onError(e);

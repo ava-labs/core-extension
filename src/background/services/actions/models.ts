@@ -1,4 +1,3 @@
-import { ExtensionMessageMetaData } from '@src/background/connections/models';
 import { DomainMetadata } from '@src/background/models';
 import { JsonRpcRequest } from 'json-rpc-engine';
 export enum ActionStatus {
@@ -20,7 +19,9 @@ export interface Action extends JsonRpcRequest<any> {
   method: string;
   site?: DomainMetadata;
   tabId?: number;
-  meta?: ExtensionMessageMetaData;
+  // we store the window ID of the confirmation popup so
+  // that we can clean up stale actions later
+  popupWindowId?: number;
 }
 
 export interface Actions {

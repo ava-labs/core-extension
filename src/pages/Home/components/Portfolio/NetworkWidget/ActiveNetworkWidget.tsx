@@ -51,7 +51,11 @@ export function ActiveNetworkWidget({
 
   return (
     <>
-      <NetworkCard data-testid="active-network-card" display="block" onClick={handleCardClick}>
+      <NetworkCard
+        data-testid="active-network-card"
+        display="block"
+        onClick={handleCardClick}
+      >
         <VerticalFlex>
           <HorizontalFlex
             justify="space-between"

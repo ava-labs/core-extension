@@ -36,21 +36,6 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         result: null,
       };
 
-    if (chainRequestedIsSupported) {
-      const actionData = {
-        ...request,
-        displayData: requestedChain,
-        tabId: request.site.tabId,
-      };
-
-      await this.openApprovalWindow(
-        actionData,
-        `network/switch?id=${request.id}`
-      );
-
-      return { ...request, result: DEFERRED_RESPONSE };
-    }
-
     const rpcUrl = requestedChain.rpcUrls?.[0];
     if (!rpcUrl) {
       return {
@@ -85,6 +70,22 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       logoUri: requestedChain.iconUrls?.[0] || '',
       explorerUrl: requestedChain.blockExplorerUrls?.[0] || '',
     };
+
+    if (chainRequestedIsSupported) {
+      const actionData = {
+        ...request,
+        displayData: customNetwork,
+        tabId: request.site?.tabId,
+      };
+
+      await this.openApprovalWindow(
+        actionData,
+        `network/switch?id=${request.id}`
+      );
+
+      return { ...request, result: DEFERRED_RESPONSE };
+    }
+
     const isValid = await this.networkService.isValidRPCUrl(
       customNetwork.chainId,
       customNetwork.rpcUrl
@@ -101,7 +102,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     const actionData = {
       ...request,
       displayData: customNetwork,
-      tabId: request.site.tabId,
+      tabId: request.site?.tabId,
     };
     await this.openApprovalWindow(
       actionData,
@@ -122,10 +123,16 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     onError
   ) => {
     try {
-      const result = await this.networkService.saveCustomNetwork(
-        pendingAction.displayData
-      );
-      onSuccess(result);
+      const chains = await this.networkService.activeNetworks.promisify();
+      const supportedChainIds = Object.keys(chains);
+      if (
+        supportedChainIds.includes(pendingAction.displayData.chainId.toString())
+      ) {
+        await this.networkService.setNetwork(pendingAction.displayData.chainId);
+      } else {
+        await this.networkService.saveCustomNetwork(pendingAction.displayData);
+      }
+      onSuccess(null);
     } catch (e) {
       onError(e);
     }
