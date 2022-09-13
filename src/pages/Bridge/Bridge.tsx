@@ -27,11 +27,11 @@ import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer'
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { NetworkSelector } from './components/NetworkSelector';
-import { AssetBalance } from './models';
+import { AssetBalance, SUPPORTED_CHAINS } from './models';
 import { useBridge } from './hooks/useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
@@ -117,6 +117,8 @@ export function Bridge() {
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
   const { featureFlags } = useFeatureFlagContext();
+  const [availableBlockchains, setAvailableBlockchains] =
+    useState<Blockchain[]>(SUPPORTED_CHAINS);
 
   const { currencyFormatter, currency } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
@@ -183,6 +185,47 @@ export function Bridge() {
     sourceAssets,
   ]);
 
+  const handleBlockchainSwitchFrom = useCallback(
+    (blockchain: Blockchain) => {
+      setNavigationHistoryData({
+        currentBlockchain: blockchain,
+        selectedToken: currentAsset,
+        inputAmount: amount,
+      });
+      setCurrentBlockchain(blockchain);
+      // Reset because a denomination change will change its value
+      setAmount(BIG_ZERO);
+    },
+    [
+      amount,
+      currentAsset,
+      setAmount,
+      setCurrentBlockchain,
+      setNavigationHistoryData,
+    ]
+  );
+
+  // Remove chains turned off by the feature flags and
+  // switch chain in case the selected one is not available
+  useEffect(() => {
+    const availableChains = SUPPORTED_CHAINS.filter((chain) => {
+      switch (chain) {
+        case Blockchain.BITCOIN:
+          return featureFlags[FeatureGates.BRIDGE_BTC];
+        case Blockchain.ETHEREUM:
+          return featureFlags[FeatureGates.BRIDGE_ETH];
+        default:
+          return true;
+      }
+    });
+
+    setAvailableBlockchains(availableChains);
+
+    if (!availableChains.includes(currentBlockchain) && availableChains[0]) {
+      handleBlockchainSwitchFrom(availableChains[0]);
+    }
+  }, [currentBlockchain, featureFlags, handleBlockchainSwitchFrom]);
+
   const isAmountTooLow =
     amount && !amount.eq(BIG_ZERO) && amount.lt(minimum || BIG_ZERO);
   const hasValidAmount = !isAmountTooLow && amount.gt(BIG_ZERO);
@@ -220,17 +263,6 @@ export function Bridge() {
       setCurrentBlockchain(targetBlockchain);
       setIsSwitched(!isSwitched);
     }
-  };
-
-  const handleBlockchainSwitchFrom = (blockchain: Blockchain) => {
-    setNavigationHistoryData({
-      currentBlockchain: blockchain,
-      selectedToken: currentAsset,
-      inputAmount: amount,
-    });
-    setCurrentBlockchain(blockchain);
-    // Reset because a denomination change will change its value
-    setAmount(BIG_ZERO);
   };
 
   const handleSelect = (symbol: string) => {
@@ -283,7 +315,11 @@ export function Bridge() {
     );
   };
 
-  if (error || !featureFlags[FeatureGates.BRIDGE]) {
+  if (
+    error ||
+    !featureFlags[FeatureGates.BRIDGE] ||
+    availableBlockchains.length < 2 // we need at least to blockchains to bridge between
+  ) {
     return (
       <FunctionIsOffline functionName="Bridge">
         <PrimaryButton
@@ -299,25 +335,6 @@ export function Bridge() {
       </FunctionIsOffline>
     );
   }
-
-  // Remove chains turned off by the feature flags
-  const filterChains = (chains: Blockchain[]) =>
-    chains.filter((chain) => {
-      switch (chain) {
-        case Blockchain.BITCOIN:
-          return featureFlags[FeatureGates.BRIDGE_BTC];
-        case Blockchain.ETHEREUM:
-          return featureFlags[FeatureGates.BRIDGE_ETH];
-        default:
-          return true;
-      }
-    });
-
-  const sourceChains = [
-    Blockchain.AVALANCHE,
-    Blockchain.ETHEREUM,
-    Blockchain.BITCOIN,
-  ];
 
   if (activeAccount && isAddressWhitelisted(activeAccount, bridgeConfig)) {
     return <BridgeSanctions />;
@@ -343,7 +360,7 @@ export function Bridge() {
                       <NetworkSelector
                         selected={currentBlockchain}
                         onSelect={handleBlockchainSwitchFrom}
-                        chains={filterChains(sourceChains)}
+                        chains={availableBlockchains}
                       />
                     </VerticalFlex>
                   </HorizontalFlex>
@@ -485,7 +502,7 @@ export function Bridge() {
                     <NetworkSelector
                       selected={targetBlockchain}
                       disabled={true}
-                      chains={filterChains(targetChains)}
+                      chains={targetChains}
                     />
                   </HorizontalFlex>
                   <SeparatorForToSection margin="16px 0 16px 0" />

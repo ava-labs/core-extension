@@ -171,4 +171,30 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     expect(eventSubscription).toHaveBeenCalledWith(newFlags);
     expect(featureFlagsService.featureFlags).toBe(newFlags);
   });
+
+  it('only updates feature flags when flag values change', async () => {
+    const eventSubscription = jest.fn();
+    const newFlags = {
+      ...DEFAULT_FLAGS,
+      newflag: true,
+    };
+
+    const featureFlagsService = new FeatureFlagService(analyticsServiceMock);
+    await new Promise(process.nextTick);
+    featureFlagsService.addListener(
+      FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+      eventSubscription
+    );
+
+    expect(featureFlagsService.featureFlags).toBe(DEFAULT_FLAGS);
+    expect(eventSubscription).not.toHaveBeenCalled();
+
+    initFeatureFlagsMock.listen.add.mock.calls[0][0](newFlags);
+
+    expect(eventSubscription).toHaveBeenCalledTimes(1);
+    expect(featureFlagsService.featureFlags).toBe(newFlags);
+
+    initFeatureFlagsMock.listen.add.mock.calls[0][0]({ ...newFlags }); // new object with the same values should not trigger an update
+    expect(eventSubscription).toHaveBeenCalledTimes(1);
+  });
 });

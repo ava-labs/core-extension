@@ -161,6 +161,17 @@ export function TokenSelect({
     decimals,
   ]);
 
+  // when only one token is present, auto select it
+  useEffect(() => {
+    if (
+      bridgeTokensList?.length === 1 &&
+      bridgeTokensList[0] &&
+      bridgeTokensList[0].asset.symbol !== selectedToken?.symbol
+    ) {
+      onTokenChange(bridgeTokensList[0]);
+    }
+  }, [bridgeTokensList, onTokenChange, selectedToken]);
+
   return (
     <VerticalFlex width="100%" style={{ margin }}>
       <HorizontalFlex

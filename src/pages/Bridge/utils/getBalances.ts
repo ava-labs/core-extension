@@ -1,9 +1,4 @@
-import {
-  AssetType,
-  BitcoinConfigAsset,
-  EthereumConfigAsset,
-  NativeAsset,
-} from '@avalabs/bridge-sdk';
+import { Asset, AssetType } from '@avalabs/bridge-sdk';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { bnToBig } from '@avalabs/utils-sdk';
 import {
@@ -12,18 +7,13 @@ import {
   TokenType,
 } from '@src/background/services/balances/models';
 
-type BalancesAssets = Record<
-  string,
-  NativeAsset | BitcoinConfigAsset | EthereumConfigAsset
->;
-
 /**
  * Get balances of wrapped erc20 tokens on Avalanche
  * @param assets
  * @param tokens
  */
 export function getBalances(
-  assets: BalancesAssets,
+  assets: Asset[],
   tokens: TokenWithBalance[]
 ): AssetBalance[] {
   const tokensByAddress = tokens.reduce<{
@@ -39,7 +29,7 @@ export function getBalances(
     return tokens;
   }, {});
 
-  return Object.values(assets).map((asset) => {
+  return assets.map((asset) => {
     const symbol = asset.symbol;
     const token =
       asset.assetType === AssetType.NATIVE

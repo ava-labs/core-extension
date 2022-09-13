@@ -9,6 +9,8 @@ import { AssetBalance } from '../models';
 import { useMemo } from 'react';
 import { useBridgeAvalancheTokens } from './useBridgeAvalancheTokens';
 import { useBridgeEthereumTokens } from './useBridgeEthereumTokens';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 
 /**
  * Get for the current chain.
@@ -21,6 +23,7 @@ export function useAssetBalancesEVM(
 ): {
   assetsWithBalances: AssetBalance[];
 } {
+  const { featureFlags } = useFeatureFlagContext();
   const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
 
   const avalancheTokens = useBridgeAvalancheTokens();
@@ -47,7 +50,31 @@ export function useAssetBalancesEVM(
       : isAvalanche
       ? avalancheAssets
       : ethereumAssets;
-    return getBalances(assets, tokens).map((token) => {
+
+    // filter out assets for networks not available
+    const availableAssets = Object.values(assets).filter((asset) => {
+      if (chain === Blockchain.AVALANCHE) {
+        if (
+          asset.nativeNetwork === Blockchain.ETHEREUM &&
+          !featureFlags[FeatureGates.BRIDGE_ETH]
+        ) {
+          // BTC is not available filter btc tokens out
+          return false;
+        }
+        if (
+          asset.nativeNetwork === Blockchain.BITCOIN &&
+          !featureFlags[FeatureGates.BRIDGE_BTC]
+        ) {
+          // BTC is not available filter btc tokens out
+          return false;
+        }
+      }
+
+      // no further filtering is needed since it's not possible to bridge between eth and btc
+      return true;
+    });
+
+    return getBalances(availableAssets, tokens).map((token) => {
       return {
         ...token,
         symbolOnNetwork: getTokenSymbolOnNetwork(token.symbol, chain),
@@ -60,6 +87,7 @@ export function useAssetBalancesEVM(
     avalancheAssets,
     ethereumAssets,
     tokens,
+    featureFlags,
     getTokenSymbolOnNetwork,
   ]);
 
