@@ -29,6 +29,7 @@ export enum ExtensionRequest {
   BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
   BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
   BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',
+  BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT = 'bridge_get_eth_max_transfer_amount',
 
   WALLET_GET_TYPE = 'wallet_getType',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',

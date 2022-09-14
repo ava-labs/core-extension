@@ -14,7 +14,6 @@ import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
 import { NetworkSwitcher } from './NetworkSwitcher';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useLocation } from 'react-router-dom';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 
@@ -28,8 +27,6 @@ export function Header() {
     (isDomainConnectedToAccount &&
       isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||
     false;
-  const location = useLocation();
-  const showNetworkSwitcher = !location.pathname.startsWith('/bridge');
   const { network } = useNetworkContext();
   const address =
     network?.vmName === NetworkVMType.BITCOIN
@@ -94,12 +91,7 @@ export function Header() {
           </HorizontalFlex>
         )}
       </VerticalFlex>
-
-      {showNetworkSwitcher ? (
-        <NetworkSwitcher />
-      ) : (
-        <div style={{ width: 52 }} />
-      )}
+      <NetworkSwitcher />
     </HorizontalFlex>
   );
 }

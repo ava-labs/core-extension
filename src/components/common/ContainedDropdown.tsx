@@ -36,7 +36,7 @@ const Dropdown = styled.div<{
   overflow-y: hidden;
   width: ${({ width }) => `${width ?? '100%'}`};
   background: ${({ theme }) => theme.colors.bg1};
-  z-index: 1;
+  z-index: 2;
   transition: height 0.15s ease, opacity 0.15s ease;
   border-radius: ${({ borderRadius }) => borderRadius ?? '0 0 8px 8px'};
   margin: ${({ margin }) => margin ?? '0'};

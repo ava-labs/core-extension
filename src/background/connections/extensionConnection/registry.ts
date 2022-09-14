@@ -91,6 +91,7 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
 import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
 import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
+import { GetEthMaxTransferAmountHandler } from '@src/background/services/bridge/handlers/getEthMaxTransferAmount';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
 
@@ -131,6 +132,10 @@ import { LedgerCloseTransportEvent } from '@src/background/services/ledger/event
   },
   { token: 'ExtensionRequestHandler', useToken: BridgeSignIssueBtcHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeTransferAssetHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetEthMaxTransferAmountHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: CreateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateContactHandler },
