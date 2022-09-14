@@ -123,8 +123,13 @@ export function PermissionMiddleware(
       const domain = context.domainMetadata?.domain
         ? context.domainMetadata.domain
         : '';
+      const [, ...domainWithoutSubdomain] = domain.split('.'); // support any subdomains of core-web.pages.dev
 
-      if (context.authenticated === true && CORE_DOMAINS.includes(domain)) {
+      if (
+        context.authenticated === true &&
+        (CORE_DOMAINS.includes(domain) ||
+          CORE_DOMAINS.includes(domainWithoutSubdomain.join('.')))
+      ) {
         next();
       } else {
         error(new Error('No permission to access requested method.'));
