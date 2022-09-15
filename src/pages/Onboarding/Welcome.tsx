@@ -75,7 +75,10 @@ export function Welcome({ onNext }: WelcomeProps) {
           </OnboardButton>
           <VerticalSeparator margin="0 24px" />
           <ExistingButtonsWrapper>
-            <ExistingWalletButton testId="access-existing-wallet" title="Access Existing Wallet">
+            <ExistingWalletButton
+              testId="access-existing-wallet"
+              title="Access Existing Wallet"
+            >
               <WalletIcon
                 color={theme.colors.icon1}
                 height="56px"

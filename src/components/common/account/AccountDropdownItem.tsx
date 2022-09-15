@@ -146,16 +146,25 @@ export function AccountDropdownItem({
             </>
           ) : (
             <>
-              <AccountName data-testid="account-name">{accountName}</AccountName>
+              <AccountName data-testid="account-name">
+                {accountName}
+              </AccountName>
               {account.active && (
-                <TextButton data-testid="account-name-edit-button" onClick={editAddress} margin="0 0 0 8px">
+                <TextButton
+                  data-testid="account-name-edit-button"
+                  onClick={editAddress}
+                  margin="0 0 0 8px"
+                >
                   <PencilIcon color={theme.colors.icon1} height="12px" />
                 </TextButton>
               )}
             </>
           )}
         </HorizontalFlex>
-        <HorizontalFlex data-testid="account-selector-copy-ava-address" margin="4px 0 0 0">
+        <HorizontalFlex
+          data-testid="account-selector-copy-ava-address"
+          margin="4px 0 0 0"
+        >
           <LogoContainer>
             <AvaxTokenIcon height="16" />
           </LogoContainer>
@@ -173,7 +182,10 @@ export function AccountDropdownItem({
             }}
           />
         </HorizontalFlex>
-        <HorizontalFlex data-testid="account-selector-copy-btc-address" margin="4px 0 0 0">
+        <HorizontalFlex
+          data-testid="account-selector-copy-btc-address"
+          margin="4px 0 0 0"
+        >
           <LogoContainer>
             <BitcoinLogo height="16" />
           </LogoContainer>

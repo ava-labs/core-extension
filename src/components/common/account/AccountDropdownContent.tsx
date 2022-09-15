@@ -92,7 +92,10 @@ export function AccountDropdownContent({
         <Typography size={20} weight={600} height="29px">
           Accounts
         </Typography>
-        <TextButton data-testid="account-selector-close-button" onClick={() => onClose?.()}>
+        <TextButton
+          data-testid="account-selector-close-button"
+          onClick={() => onClose?.()}
+        >
           <CloseIcon height="18px" color={theme.colors.icon1} />
         </TextButton>
       </HorizontalFlex>

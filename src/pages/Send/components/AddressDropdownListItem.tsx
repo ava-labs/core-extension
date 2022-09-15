@@ -66,7 +66,12 @@ export const AddressDropdownListItem = ({
           onChange(contact);
         }}
       >
-        <VerticalFlex data-testid="send-address-list-item" align="flex-start" justify="space-between" width="100%">
+        <VerticalFlex
+          data-testid="send-address-list-item"
+          align="flex-start"
+          justify="space-between"
+          width="100%"
+        >
           <HorizontalFlex justify="space-between" width={'100%'} align="center">
             <ContactName color={color} title={contact.name}>
               {contact.name}

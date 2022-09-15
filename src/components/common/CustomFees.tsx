@@ -312,14 +312,21 @@ export function CustomFees({
               >
                 {newFees.fee} {network?.networkToken.symbol}
               </Typography>
-              <Typography data-testid="network-fee-currency-amount" height="15px" size={12}>
+              <Typography
+                data-testid="network-fee-currency-amount"
+                height="15px"
+                size={12}
+              >
                 {!isNaN(Number(newFees.feeUSD))
                   ? `${currencyFormatter(Number(newFees.feeUSD))}`
                   : ''}
               </Typography>
             </HorizontalFlex>
             {network?.vmName === NetworkVMType.EVM && (
-              <TextButton data-testid="edit-gas-limit-button" onClick={() => setShowEditGasLimit(true)}>
+              <TextButton
+                data-testid="edit-gas-limit-button"
+                onClick={() => setShowEditGasLimit(true)}
+              >
                 <GearIcon height="16px" color={theme.colors.icon1} />
               </TextButton>
             )}

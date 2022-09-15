@@ -10,7 +10,12 @@ export function useBalanceTotalInCurrency(account?: Account) {
 
   return useMemo(() => {
     // don't freak users out by display falsely a 0 balance when we just don't know the usd value
-    if (!account || !tokens.balances) {
+    if (
+      !account ||
+      !tokens.balances ||
+      networks.length === 0 ||
+      Object.keys(tokens.balances).length !== networks.length // waits for all chains/balances are added
+    ) {
       return null;
     }
 

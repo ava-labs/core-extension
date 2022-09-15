@@ -85,7 +85,10 @@ export function FAB() {
   const { onBuyClick } = useBuyClick();
 
   const ActionButton = ({ icon, text, ...rest }) => (
-    <ActionButtonWrapper data-testid={`${text.toLowerCase()}-action-button`} {...rest}>
+    <ActionButtonWrapper
+      data-testid={`${text.toLowerCase()}-action-button`}
+      {...rest}
+    >
       <HorizontalFlex align="center" justify="flex-start" width="100%">
         <HorizontalFlex
           width="24px"
