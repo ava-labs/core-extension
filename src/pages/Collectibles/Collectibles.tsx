@@ -16,8 +16,8 @@ import { CollectibleList } from './components/CollectibleList';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { NFT } from '@src/background/services/balances/nft/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { NftTokenWithBalance } from '@src/background/services/balances/models';
 
 enum ListType {
   GRID = 'GRID',
@@ -110,20 +110,18 @@ export function Collectibles() {
         <Scrollbars>
           {listType === ListType.LIST ? (
             <CollectibleList
-              onClick={(nft: NFT, tokenId: string) =>
+              onClick={(nft: NftTokenWithBalance) =>
                 setCollectibleParams({
                   nft,
-                  tokenId,
                   options: { path: '/collectible' },
                 })
               }
             />
           ) : (
             <CollectibleGrid
-              onClick={(nft: NFT, tokenId: string) =>
+              onClick={(nft: NftTokenWithBalance) =>
                 setCollectibleParams({
                   nft,
-                  tokenId,
                   options: { path: '/collectible' },
                 })
               }

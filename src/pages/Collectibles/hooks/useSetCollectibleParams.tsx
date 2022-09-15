@@ -1,9 +1,8 @@
-import { NFT } from '@src/background/services/balances/nft/models';
+import { NftTokenWithBalance } from '@src/background/services/balances/models';
 import { useHistory, useLocation } from 'react-router-dom';
 
 type SetCollectibleParams = {
-  nft?: NFT;
-  tokenId?: string;
+  nft?: NftTokenWithBalance;
   address?: string;
   options?: {
     path?: string;
@@ -15,13 +14,13 @@ export function useSetCollectibleParams() {
   const { pathname } = useLocation();
   const history = useHistory();
 
-  return ({ nft, tokenId, address, options }: SetCollectibleParams) => {
+  return ({ nft, address, options }: SetCollectibleParams) => {
     const pushOrReplace = options?.replace ? history.replace : history.push;
     pushOrReplace({
       pathname: options?.path ?? pathname,
       search: `?${new URLSearchParams({
-        nft: nft?.contractAddress ?? '',
-        tokenId: tokenId ?? '',
+        nft: nft?.address ?? '',
+        tokenId: nft?.tokenId ?? '',
         address: address ?? '',
       }).toString()}`,
     });

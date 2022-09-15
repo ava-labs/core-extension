@@ -15,7 +15,9 @@ export const useCollectibleFromParams = () => {
     const filteredAddress = xss(nft);
 
     return {
-      nft: nfts.items?.find((item) => item.contractAddress === filteredAddress),
+      nft: nfts.items?.find(
+        (item) => item.address === filteredAddress && item.tokenId === tokenId
+      ),
       tokenId: xss(tokenId),
     };
   }, [nfts, search]);

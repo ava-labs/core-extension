@@ -57,6 +57,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
 
     if (network.vmName === NetworkVMType.EVM) {
       const price = await (provider as JsonRpcBatchInternal).getGasPrice();
+
       const bigPrice = new Big(price.toString());
 
       return {

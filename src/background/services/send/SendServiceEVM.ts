@@ -21,8 +21,8 @@ import {
 } from './models';
 import {
   TokenType,
-  NftTokenWithBalance,
   TokenWithBalanceERC20,
+  NftTokenWithBalance,
 } from '../balances/models';
 import { isAddress } from 'ethers/lib/utils';
 import { isNFT } from '../balances/nft/utils/isNFT';
@@ -72,7 +72,7 @@ export class SendServiceEVM implements SendServiceHelper {
     const maxAmount =
       token.type === TokenType.NATIVE
         ? token.balance.sub(sendFee || new BN(0))
-        : token.balance;
+        : (token as TokenWithBalanceERC20).balance;
 
     const newState: SendState = {
       ...sendState,

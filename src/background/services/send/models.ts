@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import { BigNumber } from 'ethers';
-import { TokenWithBalance } from '../balances/models';
+import { SendableToken } from '../balances/models';
 import { SignTransactionRequest } from '../wallet/models';
 
 export enum SendEvent {
@@ -17,7 +17,7 @@ export const DEFAULT_SEND_HOOK_ERROR: SendError = {
   message: '',
 };
 
-export interface SendState<T extends TokenWithBalance = TokenWithBalance> {
+export interface SendState<T extends SendableToken = SendableToken> {
   maxAmount?: BN;
   amount?: BN;
   address?: string;

@@ -6,13 +6,17 @@ import { TokenWithBalance } from '@src/background/services/balances/models';
 import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { Account } from '../accounts/models';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
+import { BalancesServiceGlacier } from './BalancesServiceGlacier';
+import { GlacierService } from '../glacier/GlacierService';
 
 @singleton()
 export class BalancesService {
   constructor(
     private balancesServiceEVM: BalancesServiceEVM,
     private balancesServiceBTC: BalancesServiceBTC,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private balanceServiceGlacier: BalancesServiceGlacier,
+    private glacierService: GlacierService
   ) {}
 
   private getBalanceServiceByProvider(provider: any) {
@@ -31,14 +35,16 @@ export class BalancesService {
     network: Network,
     accounts: Account[]
   ): Promise<Record<string, TokenWithBalance[]>> {
-    /**
-     * At this point we need to call glacier
-     *    1. check if its up and supports the current chain
-     *    2. if it supports it we need to get the balances and tokens from there
-     *    3. polling will be against the glacier api
-     *
-     * Otherwise the code below should run
-     */
+    const isSupportedNetwork = await this.glacierService.isNetworkSupported(
+      network.chainId
+    );
+
+    if (isSupportedNetwork) {
+      return await this.balanceServiceGlacier.getBalances(accounts, network);
+    }
+
+    // if the above fails in anyway we simply fallback to making the calls oursleves
+
     const getBalanceForProvider = (provider) => {
       const balanceService = this.getBalanceServiceByProvider(provider);
       return balanceService.getBalances(accounts, network);

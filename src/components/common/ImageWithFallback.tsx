@@ -21,6 +21,7 @@ export function ImageWithFallback({
   };
   return (
     <img
+      crossOrigin="anonymous"
       src={fallbackImage || src}
       onError={imageOnErrorHandler}
       className={className}

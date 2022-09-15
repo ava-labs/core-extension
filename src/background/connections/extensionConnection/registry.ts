@@ -11,7 +11,6 @@ import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/han
 import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
 import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
 import { StoreAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/storeAnalyticsIds';
-import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetTokenPriceHandler } from '@src/background/services/balances/handlers/getTokenPrice';
 import { BridgeConfigUpdatedEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
@@ -216,7 +215,6 @@ export class ExtensionRequestHandlerRegistry {}
 @registry([
   { token: 'ExtensionEventEmitter', useToken: AccountsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
-  { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
   {
     token: 'ExtensionEventEmitter',

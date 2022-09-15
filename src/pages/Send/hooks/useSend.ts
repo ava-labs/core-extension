@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
+  SendableToken,
   TokenType,
-  TokenWithBalance,
 } from '@src/background/services/balances/models';
 import { SendSubmitHandler } from '@src/background/services/send/handlers/SendSubmitHandler';
 import { SendValidateHandlerType } from '@src/background/services/send/handlers/SendValidateHandler';
@@ -18,7 +18,7 @@ import {
 import { getDefaultSendForm, SendStateWithActions } from '../models';
 
 export function useSend<
-  T extends TokenWithBalance = TokenWithBalance
+  T extends SendableToken = SendableToken
 >(): SendStateWithActions<T> {
   const backgroundQueue = useRef(Queue({ autostart: true, concurrency: 1 }));
   const [sendState, setSendState] = useState<SendState<T>>(getDefaultSendForm);
@@ -79,7 +79,7 @@ export function useSend<
   };
 }
 
-function getUpdatedState<T extends TokenWithBalance>(
+function getUpdatedState<T extends SendableToken>(
   updates: Partial<SendState<T>>,
   current: SendState<T>
 ): SendState<T> {

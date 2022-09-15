@@ -1,4 +1,3 @@
-import { Network } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
@@ -6,11 +5,12 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { Account } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
+import { Balances } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,
-  true,
-  [accounts?: Account[], networks?: Network[]] | undefined
+  Balances,
+  [accounts?: Account[], networks?: number[]] | undefined
 >;
 
 @injectable()
@@ -42,7 +42,9 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
 
     const networksToFetch = networks?.length
       ? networks
-      : Object.values(await this.networkSerice.activeNetworks.promisify());
+      : Object.values(await this.networkSerice.activeNetworks.promisify()).map(
+          (n) => n.chainId
+        );
     if (Object.keys(networksToFetch).length === 0) {
       return {
         ...request,
@@ -50,20 +52,15 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
       };
     }
 
-    this.networkBalancesService.updateBalancesForNetworks(
-      networksToFetch,
-      accountsToFetch
-    );
+    const balances =
+      await this.networkBalancesService.updateBalancesForNetworks(
+        networksToFetch,
+        accountsToFetch
+      );
 
-    /**
-     * We dont return the balances here, the above kicks off an async event that is then
-     * emitted out to the UI once all balances have been obtained for a given account and network.
-     *
-     * So we are just returning true here to indicate we have kicked off this process
-     */
     return {
       ...request,
-      result: true,
+      result: balances,
     };
   };
 }

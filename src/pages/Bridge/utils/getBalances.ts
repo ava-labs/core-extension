@@ -19,7 +19,6 @@ export function getBalances(
   const tokensByAddress = tokens.reduce<{
     [address: string]: TokenWithBalanceERC20 | TokenWithBalance | undefined;
   }>((tokens, token) => {
-    // console.log('erc20TokensByAddress token: ', token);
     if (token.type !== TokenType.ERC20) {
       tokens[token.symbol.toLowerCase()] = token;
       return tokens;
