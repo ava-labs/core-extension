@@ -1,26 +1,32 @@
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { Account, AccountsEvents } from '../accounts/models';
-import { Balances } from './models';
+import { Balances, BalanceServiceEvents } from './models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
+import { EventEmitter } from 'events';
+import _ from 'lodash';
 
 @singleton()
-export class BalanceAggregatorService implements OnLock, OnUnlock {
+export class BalanceAggregatorService implements OnLock {
+  private eventEmitter = new EventEmitter();
   private _balances: Balances = {};
 
   get balances() {
     return this._balances;
   }
 
+  private set balances(balances: Balances) {
+    this._balances = balances;
+    this.eventEmitter.emit(BalanceServiceEvents.UPDATED, balances);
+  }
+
   constructor(
     private accountsService: AccountsService,
     private balancesService: BalancesService,
     private networkService: NetworkService
-  ) {}
-
-  private async activate() {
+  ) {
     this.accountsService.addListener<Account[]>(
       AccountsEvents.ACCOUNTS_UPDATED,
       async (accounts) => {
@@ -48,7 +54,10 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         accounts
       );
 
-      this._balances[network.chainId] = balances;
+      // use deep merge to make sure we keep all accounts in there, even after a partial update
+      this.balances = _.merge(this.balances, {
+        [network.chainId]: balances,
+      });
     }
     return networks.reduce(
       (acc, network) => ({
@@ -60,10 +69,13 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   }
 
   onLock() {
-    this._balances = {};
+    this.balances = {};
   }
 
-  onUnlock() {
-    this.activate();
+  addListener<T = unknown>(
+    event: BalanceServiceEvents,
+    callback: (data: T) => void
+  ) {
+    this.eventEmitter.on(event, callback);
   }
 }

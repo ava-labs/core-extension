@@ -15,10 +15,12 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { timer } from 'rxjs';
+import { filter, map, timer } from 'rxjs';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { getNetworkIdsToUpdate } from './utils/getNetworkIdsToUpdate';
+import { balancesUpdatedEventListener } from '@src/background/services/balances/events/balancesUpdatedEventListener';
+import _ from 'lodash';
 
 interface NftState {
   loading: boolean;
@@ -57,10 +59,8 @@ function balancesReducer(
       return {
         ...state,
         loading: false,
-        balances: {
-          ...state.balances,
-          ...action.payload,
-        },
+        // use deep merge to make sure we keep all accounts in there, even after a partial update
+        balances: _.merge(state.balances, action.payload),
       };
     default:
       throw new Error();
@@ -68,7 +68,7 @@ function balancesReducer(
 }
 
 export function BalancesProvider({ children }: { children: any }) {
-  const { request } = useConnectionContext();
+  const { request, events } = useConnectionContext();
   const { network, networks } = useNetworkContext();
   const { activeAccount } = useAccountsContext();
   const [tokens, dispatch] = useReducer(balancesReducer, {
@@ -77,11 +77,28 @@ export function BalancesProvider({ children }: { children: any }) {
   const [nfts, setNfts] = useState<NftState>({ loading: true });
 
   useEffect(() => {
+    const subscription = events()
+      .pipe(
+        filter(balancesUpdatedEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe((balances) => {
+        dispatch({
+          type: BalanceActionType.UPDATE_BALANCES,
+          payload: balances,
+        });
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events]);
+
+  useEffect(() => {
     dispatch({
       type: BalanceActionType.SET_LOADING,
       payload: true,
     });
-
     request<GetBalancesHandler>({
       method: ExtensionRequest.BALANCES_GET,
     }).then((balances) => {

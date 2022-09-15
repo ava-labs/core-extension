@@ -93,6 +93,7 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
 import { GetEthMaxTransferAmountHandler } from '@src/background/services/bridge/handlers/getEthMaxTransferAmount';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
+import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -235,5 +236,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
   { token: 'ExtensionEventEmitter', useToken: LedgerCloseTransportEvent },
+  { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}
