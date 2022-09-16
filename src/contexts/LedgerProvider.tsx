@@ -50,10 +50,12 @@ const LedgerContext = createContext<{
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
   appType: LedgerAppType;
+  wasTransportAttempted: boolean;
 }>({} as any);
 
 export function LedgerContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
+  const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [app, setApp] = useState<Btc | AppAvax | Eth>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
@@ -216,6 +218,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
         ),
         switchMap(() => getLedgerTransport()),
         switchMap((transport) => initLedgerApp(transport)),
+        tap(() => {
+          setWasTransportAttempted(true);
+        }),
         switchMap((ledgerApp) =>
           fromEventPattern(
             (handler) => {
@@ -233,6 +238,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
           )
         ),
         retryWhen((errors) => {
+          setWasTransportAttempted(true);
           return errors.pipe(delay(2000));
         })
       )
@@ -315,6 +321,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
         getPublicKey,
         initLedgerTransport,
         hasLedgerTransport: !!app,
+        wasTransportAttempted,
         appType,
       }}
     >
