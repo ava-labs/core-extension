@@ -277,7 +277,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   getProviderForNetwork(
-    network: Network
+    network: Network,
+    useMulticall = false
   ): BlockCypherProvider | JsonRpcBatchInternal {
     if (network.vmName === NetworkVMType.BITCOIN) {
       return new BlockCypherProvider(
@@ -287,10 +288,12 @@ export class NetworkService implements OnLock, OnStorageReady {
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(
-        {
-          maxCalls: 40,
-          multiContractAddress: network.utilityAddresses?.multicall,
-        },
+        useMulticall
+          ? {
+              maxCalls: 40,
+              multiContractAddress: network.utilityAddresses?.multicall,
+            }
+          : 40,
         addGlacierAPIKeyIfNeeded(network.rpcUrl),
         network.chainId
       );

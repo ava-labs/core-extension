@@ -132,7 +132,7 @@ export class BalancesServiceEVM {
     accounts: Account[],
     network: Network
   ): Promise<Record<string, TokenWithBalance[]>> {
-    const provider = this.networkService.getProviderForNetwork(network);
+    const provider = this.networkService.getProviderForNetwork(network, true);
     const customTokens = await this.tokensManagerService.getTokensForNetwork(
       network
     );

@@ -59,7 +59,10 @@ export class BalancesService {
       const provider = await this.networkService.getEthereumProvider();
       return getBalanceForProvider(provider);
     } else if (network.vmName === NetworkVMType.EVM) {
-      const provider = await this.networkService.getProviderForNetwork(network);
+      const provider = await this.networkService.getProviderForNetwork(
+        network,
+        true
+      );
       return getBalanceForProvider(provider);
     } else {
       throw new Error('unsupported network');
