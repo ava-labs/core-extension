@@ -173,6 +173,10 @@ export function BalancesProvider({ children }: { children: any }) {
   );
 
   useEffect(() => {
+    if (!activeAccount || !network?.chainId) {
+      setNfts({ loading: true });
+      return;
+    }
     updateNftBalances();
     // update nfts every 10 seconds, revisit this later
     const subscription = timer(10000).subscribe(() => {

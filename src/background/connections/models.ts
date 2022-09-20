@@ -67,11 +67,7 @@ export interface ExtensionConnectionEvent<V = any> {
 export function isConnectionEvent(
   message: ExtensionConnectionMessageResponse | ExtensionConnectionEvent
 ): message is ExtensionConnectionEvent {
-  return (
-    !message.hasOwnProperty('id') &&
-    message.hasOwnProperty('name') &&
-    message.hasOwnProperty('value')
-  );
+  return !message.hasOwnProperty('id') && message.hasOwnProperty('name');
 }
 
 export function isConnectionResponse(
