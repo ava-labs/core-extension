@@ -17,6 +17,8 @@ import { WalletService } from '../../wallet/WalletService';
 import { NetworkService } from '../../network/NetworkService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { BigNumber } from 'ethers';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { browser } from 'webextension-polyfill-ts';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.TRANSACTIONS_UPDATE,
@@ -100,6 +102,42 @@ export class UpdateTransactionHandler implements HandlerType {
               tabId: pendingTx.tabId,
               result,
             });
+
+            const notificationId = Date.now().toString();
+            browser.notifications.create(notificationId, {
+              type: 'basic',
+              iconUrl: '../../../../images/icon-32.png',
+              title: 'Confirmed transaction',
+              message: `Transaction confirmed! View on the explorer.`,
+              priority: 2,
+            });
+
+            const openTab = (id: string) => {
+              if (id === notificationId) {
+                const explorerUrl = getExplorerAddressByNetwork(
+                  network,
+                  result
+                );
+                browser.tabs.create({ url: explorerUrl });
+              }
+            };
+            browser.notifications.onClicked.addListener(openTab);
+            browser.notifications.onClosed.addListener((id: string) => {
+              if (id === notificationId) {
+                browser.notifications.onClicked.removeListener(openTab);
+              }
+            });
+
+            /*
+						notifications.onClosed is only triggered when a user close the notification.
+            And the notification is automatically closed 5 secs if user does not close it.
+            To mimic onClosed for system, using setTimeout.
+             */
+            setTimeout(() => {
+              browser.notifications.onClicked.removeListener(openTab);
+              browser.notifications.clear(notificationId);
+            }, 5000);
+
             return { ...request, result };
           })
           .catch((err) => {
@@ -110,9 +148,21 @@ export class UpdateTransactionHandler implements HandlerType {
               tabId: pendingTx.tabId,
               error: err?.message ?? err,
             });
+
+            const errorMessage: string =
+              err instanceof Error ? err.message : err.toString();
+
+            browser.notifications.create({
+              type: 'basic',
+              iconUrl: '../../../../images/icon-32.png',
+              title: 'Failed transaction',
+              message: `Transaction failed! ${errorMessage}`,
+              priority: 2,
+            });
+
             return {
               ...request,
-              error: err instanceof Error ? err.message : err.toString(),
+              error: errorMessage,
             };
           });
       });

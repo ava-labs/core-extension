@@ -14,7 +14,6 @@ export function AddLiquidityTx({
   poolTokens,
   toAddress,
   fromAddress,
-  transactionState,
 }: AddLiquidityDisplayData) {
   const theme = useTheme();
 
@@ -26,10 +25,7 @@ export function AddLiquidityTx({
 
   return (
     <VerticalFlex width={'100%'}>
-      <TransactionHeader
-        title="Adding Liquidity to Pool"
-        transactionState={transactionState}
-      />
+      <TransactionHeader title="Adding Liquidity to Pool" />
 
       <VerticalFlex>
         {/* Account */}

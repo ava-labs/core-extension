@@ -9,14 +9,12 @@ import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
 import { TokenCard } from './components/TokenCard';
 import { TransactionHeader } from './components/TransactionHeader';
-import { TransactionProgressData } from './models';
 
 export function SwapTx({
   path,
   toAddress,
   fromAddress,
-  transactionState,
-}: SwapExactTokensForTokenDisplayValues & TransactionProgressData) {
+}: SwapExactTokensForTokenDisplayValues) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const sentToken = path[0]!;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -26,10 +24,7 @@ export function SwapTx({
 
   return (
     <VerticalFlex width="100%">
-      <TransactionHeader
-        title="Approve Swap"
-        transactionState={transactionState}
-      />
+      <TransactionHeader title="Approve Swap" />
 
       <VerticalFlex>
         <AddressPaths

@@ -30,7 +30,14 @@
     "default_title": "__DEFAULT_TITLE__",
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "unlimitedStorage", "activeTab", "contextMenus"],
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "activeTab",
+    "contextMenus",
+    "notifications",
+    "tabs"
+  ],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
