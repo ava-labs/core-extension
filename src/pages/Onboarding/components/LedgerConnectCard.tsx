@@ -22,7 +22,7 @@ const LedgerCard = styled(Card)<{
 }>`
   background-color: ${({ theme }) => `${theme.colors.bg3}80`};
   border-radius: 8px;
-  padding: 24px;
+  padding: 16px;
   width: 343px;
   ${({ clickable }) => clickable && `cursor: pointer;`};
 `;
@@ -48,14 +48,14 @@ export function LedgerConnectCard({
   const isErrorStatus = LedgerStatus.LEDGER_CONNECTION_FAILED === status;
 
   return (
-    <>
+    <VerticalFlex margin="16px 0 0 0">
+      <SubTextTypography size={12} height="24px">
+        Derivation Path
+      </SubTextTypography>
       <LedgerCard onClick={onClick} clickable={isErrorStatus}>
         <HorizontalFlex width="100%" align="center" justify="space-between">
           <VerticalFlex>
-            <SubTextTypography size={16} height="24px">
-              Derivation Path
-            </SubTextTypography>
-            <Typography margin="4px 0 0" size={24} height="29px" weight={700}>
+            <Typography margin="4px 0 0" size={18} height="29px" weight={700}>
               {path}
             </Typography>
           </VerticalFlex>
@@ -90,6 +90,6 @@ export function LedgerConnectCard({
           </TroubleshootLink>
         </HorizontalFlex>
       )}
-    </>
+    </VerticalFlex>
   );
 }

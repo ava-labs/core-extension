@@ -12,9 +12,11 @@ export interface WalletLockedState {
 }
 
 export interface WalletSecretInStorage {
+  derivationType?: DerivationType;
   mnemonic?: string;
   // Extended public key of m/44'/60'/0'
-  xpub: string;
+  xpub?: string;
+  pubKeys?: PubKeyType[];
 }
 
 export enum WalletEvents {
@@ -22,7 +24,13 @@ export enum WalletEvents {
 }
 
 export const WALLET_STORAGE_KEY = 'wallet';
+export enum DerivationType {
+  BIP44 = 'BIP44',
+  LEDGER_LIVE = 'LEDGER_LIVE',
+}
 export enum WalletType {
   MNEMONIC = 'MNEMONIC',
   LEDGER = 'LEDGER',
 }
+
+export type PubKeyType = { evm: string };

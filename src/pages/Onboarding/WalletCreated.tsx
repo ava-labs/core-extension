@@ -8,6 +8,8 @@ import {
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { BrandName } from '@src/components/icons/BrandName';
 import { Logo } from '@src/components/icons/Logo';
+import { useLedgerContext } from '@src/contexts/LedgerProvider';
+import { useEffect } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 const WalletCreatedCard = styled(HorizontalFlex)`
@@ -23,6 +25,13 @@ const WalletCreatedCard = styled(HorizontalFlex)`
 
 export function WalletCreated() {
   const theme = useTheme();
+  const { closeTransport } = useLedgerContext();
+
+  // we must close the transport otherwise the ledger will be used by the WalletCreated page and the extension
+  // so the LedgerProvider will close both of tabs after we open the extension
+  useEffect(() => {
+    closeTransport();
+  }, [closeTransport]);
 
   return (
     <VerticalFlex

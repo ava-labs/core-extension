@@ -31,7 +31,11 @@ export function SettingsHeader({
       justify="space-between"
     >
       <HorizontalFlex align="center">
-        <TextButton data-testid="go-back-button" onClick={goBack} margin="0 12px 0 0">
+        <TextButton
+          data-testid="go-back-button"
+          onClick={goBack}
+          margin="0 12px 0 0"
+        >
           <CaretIcon
             height="18px"
             direction={IconDirection.LEFT}

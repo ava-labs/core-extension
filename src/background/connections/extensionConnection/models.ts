@@ -10,6 +10,7 @@ export enum ExtensionRequest {
   NETWORK_SAVE_CUSTOM = 'network_saveCustomNetwork',
   NETWORK_REMOVE_CUSTOM = 'network_removeCustomNetwork',
   NETWORKS_GET_STATE = 'networks_get_state',
+  NETWORK_AVALANCHE_GET = 'network_avalanche_get',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',
@@ -20,6 +21,7 @@ export enum ExtensionRequest {
   NETWORK_BALANCES_UPDATE = 'network_balances_update',
   NFT_BALANCES_GET = 'nft_balances_get',
   TOKEN_PRICE_GET = 'token_price_get',
+  BALANCE_AVAX_GET = 'balance_avax_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
 

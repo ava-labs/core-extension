@@ -102,7 +102,11 @@ export function ConnectedSites({
                       {site.domain}
                     </Typography>
                   </HorizontalFlex>
-                  <HorizontalFlex data-testid={`connected-site-${index}-trash`} justify={'flex-end'} align={'center'}>
+                  <HorizontalFlex
+                    data-testid={`connected-site-${index}-trash`}
+                    justify={'flex-end'}
+                    align={'center'}
+                  >
                     <TrashIcon
                       height="16px"
                       color={theme.colors.icon1}

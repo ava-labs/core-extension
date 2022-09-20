@@ -135,7 +135,11 @@ export function WalletLocked({
         Login
       </PrimaryButton>
       <HorizontalSeparator margin="24px 0 8px" />
-      <TextButton data-testid="wallet-locked-reset-phrase-button" height="40px" onClick={() => onImportClick()}>
+      <TextButton
+        data-testid="wallet-locked-reset-phrase-button"
+        height="40px"
+        onClick={() => onImportClick()}
+      >
         Reset Secret Recovery Phrase
       </TextButton>
     </VerticalFlex>

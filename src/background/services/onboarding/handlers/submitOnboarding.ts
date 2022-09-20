@@ -9,6 +9,7 @@ import { LockService } from '../../lock/LockService';
 import { NetworkService } from '../../network/NetworkService';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
+import { PubKeyType } from '../../wallet/models';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
 
@@ -22,6 +23,7 @@ type HandlerType = ExtensionRequestHandler<
       password: string;
       accountName: string;
       analyticsConsent: boolean;
+      pubKeys: PubKeyType[] | undefined;
     }
   ]
 >;
@@ -48,9 +50,10 @@ export class SubmitOnboardingHandler implements HandlerType {
       password,
       accountName,
       analyticsConsent,
+      pubKeys,
     } = request.params[0];
 
-    if (!mnemonic && !xPubFromLedger) {
+    if (!mnemonic && !xPubFromLedger && !pubKeys) {
       return {
         ...request,
         error: 'unable to create a wallet, mnemonic or public key required',
@@ -61,24 +64,33 @@ export class SubmitOnboardingHandler implements HandlerType {
 
     const xpub =
       xPubFromLedger || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
-
     if (xpub) {
       await this.walletService.init({ mnemonic, xpub });
-    } else {
+    }
+    if (pubKeys?.length) {
+      await this.walletService.init({ pubKeys });
+    }
+
+    if (!xpub && !pubKeys) {
       return {
         ...request,
         error: 'unable to create a wallet',
       };
     }
-
-    await this.accountsService.addAccount(accountName);
+    if (pubKeys?.length) {
+      for (let i = 0; i < pubKeys.length; i++) {
+        const newAccountName = i === 0 ? accountName : '';
+        await this.accountsService.addAccount(newAccountName);
+      }
+    } else {
+      await this.accountsService.addAccount(accountName);
+    }
     await this.accountsService.activateAccount(0);
     await this.onboardingService.setIsOnboarded(true);
     await this.settingsService.setAnalyticsConsent(analyticsConsent);
 
     await this.networkService.addFavoriteNetwork(ChainId.BITCOIN);
     await this.networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
-
     await this.lockService.unlock(password);
 
     if (analyticsConsent) {

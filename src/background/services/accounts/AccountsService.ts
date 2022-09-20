@@ -104,7 +104,7 @@ export class AccountsService implements OnLock, OnUnlock {
       active: false,
     };
 
-    const addresses = await this.walletService.getAddress(nextIndex);
+    const addresses = await this.walletService.addAddress(nextIndex);
 
     await this.saveAccounts([...storageAccounts, newAccount]);
 

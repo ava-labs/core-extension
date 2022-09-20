@@ -40,7 +40,7 @@ export class BalancesServiceEVM {
     if (!!provider && !!(provider as any).getEtherPrice) return this;
   }
 
-  private async getNativeTokenBalance(
+  public async getNativeTokenBalance(
     provider: Provider,
     userAddress: string,
     network: Network,
