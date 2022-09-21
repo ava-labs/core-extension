@@ -135,6 +135,10 @@ export function NetworkContextProvider({ children }: { children: any }) {
         setNetworks(result.networks);
         setNetwork(result.activeNetwork);
         setIsDeveloperMode(result.isDeveloperMode);
+        setFavoriteNetworks(result.favoriteNetworks);
+        setCustomNetworks(
+          Object.values(result.customNetworks).map((network) => network.chainId)
+        );
       });
   }, [events, getNetworkState, request]);
 

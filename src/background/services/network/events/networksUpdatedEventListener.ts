@@ -7,6 +7,8 @@ export function networksUpdatedEventListener(
     networks: Network[];
     activeNetwork: Network;
     isDeveloperMode: boolean;
+    favoriteNetworks: number[];
+    customNetworks: Record<number, Network>;
   }>
 ) {
   return evt.name === NetworkEvents.NETWORKS_UPDATED_EVENT;
