@@ -64,7 +64,13 @@ const isValidURL = (text: string) => {
   } catch (_) {
     return false;
   }
-  return url.protocol === 'https:' || url.protocol === 'ipfs:';
+  if (
+    url.protocol === 'https:' ||
+    url.protocol === 'ipfs:' ||
+    url.protocol === 'http:'
+  ) {
+    return true;
+  }
 };
 
 export const NetworkForm = ({
@@ -112,18 +118,6 @@ export const NetworkForm = ({
 
       if (!updatedNetwork.networkToken.symbol) {
         setTokenSymbolError(FormErrors.TOKEN_SYMBOL_ERROR);
-        valid = false;
-      }
-
-      if (!updatedNetwork.explorerUrl) {
-        setExplorerUrlError(FormErrors.EXPLORER_URL_ERROR);
-        valid = false;
-      }
-      if (
-        updatedNetwork.explorerUrl &&
-        !isValidURL(updatedNetwork.explorerUrl)
-      ) {
-        setExplorerUrlError(FormErrors.INVALID_URL);
         valid = false;
       }
 
