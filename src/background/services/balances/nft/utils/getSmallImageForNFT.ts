@@ -1,7 +1,5 @@
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
-import { CLOUDFLARE_IPFS_URL } from '../../models';
 
-// const CLOUDFLARE_IPFS_URL = 'https://cloudflare-ipfs.com/ipfs';
 const COVALENT_IMG_SIZER =
   'https://image-proxy.svc.prod.covalenthq.com/cdn-cgi/image';
 
@@ -17,6 +15,6 @@ export function getSmallImageForNFT(
   imgUrl: string,
   imageSize: '256' | '512' | '1024' = '256'
 ) {
-  const url = ipfsResolverWithFallback(imgUrl, CLOUDFLARE_IPFS_URL);
+  const url = ipfsResolverWithFallback(imgUrl);
   return `${COVALENT_IMG_SIZER}/width=${imageSize},fit/${url}`;
 }

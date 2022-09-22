@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { isVideo } from '../utils';
 import { ImageWrapper } from './ImageWrapper';
 import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 
 const NftImage = styled(ImageWithFallback)<{
   width?: string;
@@ -104,7 +105,7 @@ export function CollectibleMedia({
             hover={hover}
             controls={controls}
           >
-            <source src={url} />
+            <source src={ipfsResolverWithFallback(url)} />
           </NftVideo>
           {showPlayIcon && <StyledPlayIcon />}
         </HorizontalFlex>

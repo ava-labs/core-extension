@@ -52,11 +52,7 @@ export function AddTokenApproval() {
 
         <VerticalFlex align="center" margin="0 0 24px">
           <SiteAvatar justify="center" align="center">
-            <TokenIcon
-              height="48px"
-              width="48px"
-              src={customToken.logoUri ?? ''}
-            >
+            <TokenIcon height="48px" width="48px" src={customToken.logoUri}>
               <GlobeIcon
                 height="48px"
                 width="48px"

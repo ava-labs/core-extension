@@ -18,7 +18,6 @@ import {
   NftTokenWithBalance,
   ERC721Metadata,
   TokenAttributeERC721,
-  CLOUDFLARE_IPFS_URL,
 } from './models';
 import { BN } from 'bn.js';
 import { Account } from '../accounts/models';
@@ -241,9 +240,7 @@ export class BalancesServiceGlacier {
           ).toString();
           data = JSON.parse(json);
         } else {
-          data = await fetch(
-            ipfsResolverWithFallback(token.tokenUri, CLOUDFLARE_IPFS_URL)
-          )
+          data = await fetch(ipfsResolverWithFallback(token.tokenUri))
             .then((r) => r.json())
             .catch(() => ({}));
         }
@@ -283,9 +280,7 @@ export class BalancesServiceGlacier {
       collectionName: token.name ?? 'Unknown',
       ...token,
       type: TokenType.ERC721,
-      logoUri: metadata.image
-        ? ipfsResolverWithFallback(metadata.image, CLOUDFLARE_IPFS_URL)
-        : '',
+      logoUri: ipfsResolverWithFallback(metadata.image),
       logoSmall: metadata.image ? getSmallImageForNFT(metadata.image) : '',
       description: metadata.description ?? '',
       address: token.address,

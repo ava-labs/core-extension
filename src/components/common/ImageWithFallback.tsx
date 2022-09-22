@@ -1,3 +1,4 @@
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { ReactEventHandler, useState } from 'react';
 
 interface ImageWithFallbackProps {
@@ -22,7 +23,7 @@ export function ImageWithFallback({
   return (
     <img
       crossOrigin="anonymous"
-      src={fallbackImage || src}
+      src={fallbackImage || ipfsResolverWithFallback(src)}
       onError={imageOnErrorHandler}
       className={className}
     />

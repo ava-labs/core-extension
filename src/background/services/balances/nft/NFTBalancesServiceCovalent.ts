@@ -3,7 +3,7 @@ import { Network } from '@avalabs/chains-sdk';
 import { Covalent, GetAddressBalanceV2Item } from '@avalabs/covalent-sdk';
 import { singleton } from 'tsyringe';
 import { SettingsService } from '../../settings/SettingsService';
-import { TokenType, NftTokenWithBalance, CLOUDFLARE_IPFS_URL } from '../models';
+import { TokenType, NftTokenWithBalance } from '../models';
 import { NFTService } from './models';
 import { getSmallImageForNFT } from './utils/getSmallImageForNFT';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
@@ -70,12 +70,7 @@ export class NFTBalancesServiceCovalent implements NFTService {
             : TokenType.ERC721,
           name: nft.external_data.name,
           description: nft.external_data.description,
-          logoUri: nft.external_data.image
-            ? ipfsResolverWithFallback(
-                nft.external_data.image,
-                CLOUDFLARE_IPFS_URL
-              )
-            : '',
+          logoUri: ipfsResolverWithFallback(nft.external_data.image),
           logoSmall: nft.external_data.image
             ? getSmallImageForNFT(nft.external_data.image)
             : '',
