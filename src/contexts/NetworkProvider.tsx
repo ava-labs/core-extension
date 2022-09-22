@@ -45,6 +45,7 @@ const NetworkContext = createContext<{
  */
 export function NetworkContextProvider({ children }: { children: any }) {
   const [network, setNetwork] = useState<Network | undefined>();
+
   const [networks, setNetworks] = useState<Network[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
   const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
@@ -85,12 +86,12 @@ export function NetworkContextProvider({ children }: { children: any }) {
       const {
         networks,
         isDeveloperMode,
-        network,
+        activeNetwork,
         favoriteNetworks,
         customNetworks,
       } = result;
       setNetworks(networks);
-      setNetwork(network);
+      setNetwork(activeNetwork);
       setIsDeveloperMode(isDeveloperMode);
       setFavoriteNetworks(favoriteNetworks);
       setCustomNetworks(customNetworks);

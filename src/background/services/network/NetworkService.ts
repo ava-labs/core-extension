@@ -45,7 +45,6 @@ export class NetworkService implements OnLock, OnStorageReady {
     .readOnly();
   public allNetworks = this._allNetworks
     .cache(this._allNetworksCache)
-    .filter((value) => !!value)
     .readOnly();
   public activeNetworks = this._allNetworks
     .cache(this._activeNetworksCache)
