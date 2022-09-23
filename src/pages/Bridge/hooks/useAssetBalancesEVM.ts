@@ -45,11 +45,20 @@ export function useAssetBalancesEVM(
     if (!isAvalanche && !isEthereum) {
       return [];
     }
+
+    // do not allow BUSD.e onboardings
+    const filteredEthereumAssets = Object.keys(ethereumAssets)
+      .filter((key) => ethereumAssets[key]?.symbol !== 'BUSD')
+      .reduce((obj, key) => {
+        obj[key] = ethereumAssets[key];
+        return obj;
+      }, {});
+
     const assets = asset
       ? { [asset.symbol]: asset }
       : isAvalanche
       ? avalancheAssets
-      : ethereumAssets;
+      : filteredEthereumAssets;
 
     // filter out assets for networks not available
     const availableAssets = Object.values(assets).filter((asset) => {

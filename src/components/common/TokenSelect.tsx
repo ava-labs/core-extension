@@ -161,12 +161,23 @@ export function TokenSelect({
     decimals,
   ]);
 
-  // when only one token is present, auto select it
   useEffect(() => {
+    // when only one token is present, auto select it
     if (
       bridgeTokensList?.length === 1 &&
       bridgeTokensList[0] &&
       bridgeTokensList[0].asset.symbol !== selectedToken?.symbol
+    ) {
+      onTokenChange(bridgeTokensList[0]);
+    }
+    // when selected token is not supported, clear it
+    else if (
+      bridgeTokensList &&
+      bridgeTokensList[0] &&
+      selectedToken &&
+      !bridgeTokensList
+        .map((t) => t.symbolOnNetwork)
+        .includes(selectedToken.symbol)
     ) {
       onTokenChange(bridgeTokensList[0]);
     }
