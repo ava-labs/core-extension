@@ -22,11 +22,11 @@ interface TransactionDetailsProps {
   toTokenSymbol: string;
   rate: number;
   walletFee: number | null;
-  onGasChange: (
-    gasLimit: number,
-    gasPrice: BigNumber,
-    feeType: GasFeeModifier
-  ) => void;
+  onGasChange: (values: {
+    customGasLimit?: number;
+    gasPrice: BigNumber;
+    feeType: GasFeeModifier;
+  }) => void;
   gasLimit: number;
   gasPrice: BigNumber;
   slippage: string;

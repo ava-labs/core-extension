@@ -25,6 +25,7 @@ export interface SendState<T extends SendableToken = SendableToken> {
   sendFee?: BN;
   gasPrice?: BigNumber;
   gasLimit?: number;
+  customGasLimit?: number;
   canSubmit?: boolean;
   loading?: boolean;
   token?: T;

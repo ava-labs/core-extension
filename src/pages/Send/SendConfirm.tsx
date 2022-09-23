@@ -114,11 +114,6 @@ type SendConfirmProps = {
   token: TokenWithBalance | undefined;
   fallbackAmountDisplayValue?: string;
   onSubmit(): void;
-  onGasChanged(
-    gasLimit: number,
-    gasPrice: BigNumber,
-    feeType: GasFeeModifier
-  ): void;
   maxGasPrice?: string;
   gasPrice?: BigNumber;
   selectedGasFee?: GasFeeModifier;
@@ -185,17 +180,17 @@ export const SendConfirm = ({
     history.push('/home');
     return null;
   }
-
+  const gasLimit = sendState.customGasLimit || sendState.gasLimit;
   const networkFee =
     network?.vmName === NetworkVMType.BITCOIN
       ? bigToLocaleString(satoshiToBtc(sendState.sendFee?.toNumber() || 0), 8)
       : gasPrice &&
-        sendState?.gasLimit &&
+        gasLimit &&
         calculateGasAndFees({
           gasPrice,
           tokenPrice: nativeTokenPrice,
           tokenDecimals: network?.networkToken.decimals,
-          gasLimit: sendState?.gasLimit,
+          gasLimit,
         }).fee;
 
   return (
@@ -276,10 +271,7 @@ export const SendConfirm = ({
               <Typography size={12} height="15px" margin="0 8px 0 0">
                 Network Fee
               </Typography>
-              <TransactionFeeTooltip
-                gasPrice={gasPrice}
-                gasLimit={sendState?.gasLimit}
-              />
+              <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={gasLimit} />
             </HorizontalFlex>
             <Typography
               data-testid="send-network-fee-amount"

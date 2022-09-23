@@ -18,11 +18,11 @@ interface TransactionTabsType {
   gasPrice?: BigNumber;
   limit?: number;
   selectedGasFee: GasFeeModifier;
-  onCustomFeeSet?: (
-    gasLimit: number,
-    gasPrice: BigNumber,
-    feeType: GasFeeModifier
-  ) => void;
+  onCustomFeeSet?: (values: {
+    customGasLimit?: number;
+    gasPrice: BigNumber;
+    feeType: GasFeeModifier;
+  }) => void;
 }
 
 export function TransactionTabs({

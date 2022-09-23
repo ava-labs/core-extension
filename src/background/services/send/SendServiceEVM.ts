@@ -49,7 +49,7 @@ export class SendServiceEVM implements SendServiceHelper {
     return {
       ...unsignedTx,
       chainId,
-      gasLimit,
+      gasLimit: sendState.customGasLimit ?? gasLimit,
       gasPrice: sendState.gasPrice,
       nonce,
     };
@@ -131,9 +131,6 @@ export class SendServiceEVM implements SendServiceHelper {
   }
 
   private async getGasLimit(sendState: SendState): Promise<number> {
-    const { gasLimit: customGasLimit } = sendState;
-    if (customGasLimit) return customGasLimit;
-
     if (!sendState.address) return 0;
 
     const provider = await this.getProvider();

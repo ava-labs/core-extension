@@ -487,10 +487,16 @@ export function Swap() {
   }
 
   const onGasChange = useCallback(
-    (limit: number, price: BigNumber, feeType: GasFeeModifier) => {
-      setGasLimit(limit);
-      setCustomGasPrice(price);
-      setSelectedGasFee(feeType);
+    (values: {
+      customGasLimit?: number;
+      gasPrice: BigNumber;
+      feeType: GasFeeModifier;
+    }) => {
+      if (values.customGasLimit) {
+        setGasLimit(values.customGasLimit);
+      }
+      setCustomGasPrice(values.gasPrice);
+      setSelectedGasFee(values.feeType);
     },
     []
   );

@@ -28,13 +28,13 @@ type SendFormProps = {
   selectedToken: TokenWithBalance | undefined;
   onTokenChange(token: TokenWithBalance): void;
   amountInput?: BN;
-  onAmountInputChange({ amount: string, bn: BN }): void;
+  onAmountInputChange(data: { amount: string; bn: BN }): void;
   tokensWBalances: TokenWithBalance[];
-  onGasChanged(
-    gasLimit: number,
-    gasPrice: BigNumber,
-    feeType: GasFeeModifier
-  ): void;
+  onGasChanged(values: {
+    customGasLimit?: number;
+    gasPrice: BigNumber;
+    feeType: GasFeeModifier;
+  }): void;
   maxGasPrice?: string;
   gasPrice?: BigNumber;
   selectedGasFee?: GasFeeModifier;
@@ -124,13 +124,13 @@ export const SendForm = ({
           </Typography>
           <TransactionFeeTooltip
             gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}
-            gasLimit={sendState?.gasLimit}
+            gasLimit={sendState.customGasLimit || sendState?.gasLimit}
           />
         </HorizontalFlex>
         <VerticalFlex data-testid="send-custom-fees-section" width="100%">
           <CustomFees
             gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
-            limit={sendState?.gasLimit || 0}
+            limit={sendState.customGasLimit || sendState.gasLimit || 0}
             onChange={onGasChanged}
             maxGasPrice={maxGasPrice}
             selectedGasFeeModifier={selectedGasFee}
