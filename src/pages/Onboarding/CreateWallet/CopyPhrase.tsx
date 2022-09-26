@@ -29,11 +29,12 @@ export function CopyPhrase({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
+        testId="copy-phrase"
         title="Secret Recovery Phrase"
         onBack={onBack}
         onClose={onCancel}
       />
-      <VerticalFlex align="center" grow="1">
+      <VerticalFlex align="center" grow="1" data-testid="copy-phrase-section">
         <Typography align="center" margin="8px 0 32px" size={14} height="17px">
           This is your secret recovery phrase. Write it down, and
           <br />
@@ -47,12 +48,16 @@ export function CopyPhrase({
           }}
         />
       </VerticalFlex>
-      <VerticalFlex align="center">
+      <VerticalFlex
+        align="center"
+        data-testid="recovery-phrase-continue-section"
+      >
         <Checkbox
           label={`I understand losing this phrase will result in lost funds.\nI have stored it in a secure location.`}
           onChange={setTermsConfirmed}
         />
         <PrimaryButton
+          data-testid="recovery-phrase-next-button"
           width="343px"
           margin="16px 0 0 0"
           size={ComponentSize.LARGE}

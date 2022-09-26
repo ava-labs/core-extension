@@ -5,6 +5,7 @@ import {
   truncateAddress,
   Typography,
   VerticalFlex,
+  HorizontalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 
@@ -97,14 +98,21 @@ export function LedgerApprovalDialog({
             </>
           )}
           <VerticalFlex>
-            <Typography height="17px" size={14} margin="0 0 4px 0">
+            <Typography
+              height="17px"
+              size={14}
+              margin="0 0 4px 0"
+              align="center"
+            >
               Status
             </Typography>
-            <LoadingSpinnerIcon
-              color={theme.colors.icon1}
-              height="32px"
-              width="32px"
-            />
+            <HorizontalFlex justify="center" margin="8px 0 0 0">
+              <LoadingSpinnerIcon
+                color={theme.colors.icon1}
+                height="32px"
+                width="32px"
+              />
+            </HorizontalFlex>
           </VerticalFlex>
         </VerticalFlex>
       </StyledCard>

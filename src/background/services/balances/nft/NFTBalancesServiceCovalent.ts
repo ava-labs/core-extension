@@ -1,34 +1,47 @@
-import { TokenType } from '@src/background/services/balances/models';
-import { ChainId, Network } from '@avalabs/chains-sdk';
+import { BN } from 'bn.js';
+import { Network } from '@avalabs/chains-sdk';
 import { Covalent, GetAddressBalanceV2Item } from '@avalabs/covalent-sdk';
 import { singleton } from 'tsyringe';
-import { NFT, NFTService } from './models';
-import {
-  convertIPFSResolver,
-  getSmallImageForNFT,
-} from './utils/convertIPFSResolver';
+import { SettingsService } from '../../settings/SettingsService';
+import { TokenType, NftTokenWithBalance } from '../models';
+import { NFTService } from './models';
+import { getSmallImageForNFT } from './utils/getSmallImageForNFT';
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 
 @singleton()
 export class NFTBalancesServiceCovalent implements NFTService {
   private key = process.env.COVALENT_API_KEY;
-  isAggregatorForChain(chainId: number) {
-    return [
-      ChainId.AVALANCHE_MAINNET_ID,
-      ChainId.AVALANCHE_TESTNET_ID,
-      ChainId.ETHEREUM_HOMESTEAD,
-    ].includes(chainId);
+  constructor(private settingsService: SettingsService) {}
+
+  /**
+   * This will serve 2 purposes, one if Glacier is down for subnets and two
+   * for eth. Covalent supposedly as good eth support so we are going to find out
+   *
+   * @param _chainId the chain we want NFTs for
+   * @returns boolean
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async isAggregatorForChain(_chainId: number) {
+    // not sure of the eth chain id sources here, I assume this is going to come
+    return false;
   }
 
-  async getNFTBalances(address: string, network: Network): Promise<NFT[]> {
+  async getNFTBalances(
+    address: string,
+    network: Network
+  ): Promise<NftTokenWithBalance[]> {
+    const selectedCurrency: any = (await this.settingsService.getSettings())
+      .currency;
+
     const balances = await new Covalent(
       network.chainId,
       this.key
-    ).getAddressBalancesV2(address, true);
+    ).getAddressBalancesV2(address, true, selectedCurrency);
 
-    return balances.data.items.reduce((agg: NFT[], data) => {
+    return balances.data.items.reduce((agg: NftTokenWithBalance[], data) => {
       return data.type !== 'nft'
         ? agg
-        : [...agg, this.mapCovalentNFTData(data)];
+        : [...agg, ...this.mapCovalentNFTData(data)];
     }, []);
   }
 
@@ -39,42 +52,33 @@ export class NFTBalancesServiceCovalent implements NFTService {
     return TokenType.ERC721;
   }
 
-  private mapCovalentNFTData(item: GetAddressBalanceV2Item): NFT {
-    return {
-      contractName: item.contract_name,
-      contractTickerSymbol: item.contract_ticker_symbol,
-      contractAddress: item.contract_address,
-      logoUrl: item.logo_url,
-      lastTransferredAt: item.last_transferred_at || '',
-      balance: item.balance,
-      nftData:
-        item.nft_data?.map((nft) => ({
+  private mapCovalentNFTData(
+    item: GetAddressBalanceV2Item
+  ): NftTokenWithBalance[] {
+    return (
+      item.nft_data?.map((nft) => {
+        return {
+          collectionName: item.contract_name || 'Unknown',
           tokenId: nft.token_id,
-          tokenBalance: nft.token_balance,
-          tokenUrl: nft.token_url,
-          originalOwner: nft.token_url || '',
-          externalData: nft.external_data && {
-            name: nft.external_data.name,
-            description: nft.external_data.description,
-            image: nft.external_data.image
-              ? convertIPFSResolver(nft.external_data.image)
-              : '',
-            imageSmall: nft.external_data.image
-              ? getSmallImageForNFT(nft.external_data.image)
-              : '',
-            animationUrl: nft.external_data.animation_url,
-            externalUrl: nft.external_data.external_url,
-            owner: nft.external_data.owner,
-            attributes: nft.external_data.attributes?.map((attr) => ({
-              name: attr.trait_type,
-              value: attr.value,
-            })),
-          },
-          owner: nft.owner,
-        })) || [],
-      type: item.supports_erc
-        ? this.getType(item.supports_erc)
-        : TokenType.ERC721,
-    };
+          attributes: nft.external_data.attributes?.map((attr) => ({
+            name: attr.trait_type,
+            value: attr.value,
+          })),
+          address: item.contract_address,
+          type: item.supports_erc
+            ? this.getType(item.supports_erc)
+            : TokenType.ERC721,
+          name: nft.external_data.name,
+          description: nft.external_data.description,
+          logoUri: ipfsResolverWithFallback(nft.external_data.image),
+          logoSmall: nft.external_data.image
+            ? getSmallImageForNFT(nft.external_data.image)
+            : '',
+          decimals: 18,
+          symbol: '',
+          balance: new BN(item.balance),
+        };
+      }) || []
+    );
   }
 }

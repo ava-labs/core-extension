@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { container, singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
+  PubKeyType,
   SignTransactionRequest,
   WalletEvents,
   WalletSecretInStorage,
@@ -13,8 +14,14 @@ import {
   BitcoinLedgerWallet,
   BitcoinProviderAbstract,
   BitcoinWallet,
+  DerivationPath,
+  getAddressDerivationPath,
   getAddressFromXPub,
+  getAddressPublicKeyFromXPub,
   getBech32AddressFromXPub,
+  getBtcAddressFromPubKey,
+  getEvmAddressFromPubKey,
+  getPubKeyFromTransport,
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
@@ -56,12 +63,13 @@ export class WalletService implements OnLock, OnUnlock {
 
     if (!walletKeys) {
       // wallet is not initialized
+
       return;
     }
 
     if (walletKeys.mnemonic) {
       this._walletType = WalletType.MNEMONIC;
-    } else if (walletKeys.xpub) {
+    } else if (walletKeys.xpub || walletKeys.pubKeys?.length) {
       this._walletType = WalletType.LEDGER;
     } else {
       throw new Error('Wallet initialization failed, no key found');
@@ -72,14 +80,23 @@ export class WalletService implements OnLock, OnUnlock {
    * Called during the onboarding flow.
    * Responsible for saving the mnemonic/pubkey and activating the wallet.
    */
-  async init({ mnemonic, xpub }: { xpub: string; mnemonic?: string }) {
-    if (!mnemonic && !xpub) {
-      throw new Error('Mnemonic or xpub is required');
+  async init({
+    mnemonic,
+    xpub,
+    pubKeys,
+  }: {
+    xpub?: string;
+    pubKeys?: PubKeyType[];
+    mnemonic?: string;
+  }) {
+    if (!mnemonic && !xpub && !pubKeys?.length) {
+      throw new Error('Mnemonic, pubKeys or xpub is required');
     }
 
     await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
       mnemonic,
       xpub,
+      pubKeys,
     });
     await this.onUnlock();
   }
@@ -103,7 +120,7 @@ export class WalletService implements OnLock, OnUnlock {
 
     if (
       !walletKeys ||
-      !walletKeys.xpub ||
+      (!walletKeys.xpub && !walletKeys.pubKeys) ||
       !activeNetwork ||
       !accountsService?.activeAccount
     ) {
@@ -115,7 +132,8 @@ export class WalletService implements OnLock, OnUnlock {
       if (walletKeys.mnemonic) {
         const wallet = getWalletFromMnemonic(
           walletKeys.mnemonic,
-          accountsService.activeAccount.index
+          accountsService.activeAccount.index,
+          DerivationPath.BIP44
         );
         return wallet.connect(provider as JsonRpcBatchInternal);
       } else if (walletKeys.xpub) {
@@ -126,6 +144,18 @@ export class WalletService implements OnLock, OnUnlock {
         return new LedgerSigner(
           accountsService.activeAccount.index,
           this.ledgerService.recentTransport,
+          DerivationPath.BIP44, // Extended public keys are always m/44'/60'/0'
+          provider as JsonRpcBatchInternal
+        );
+      } else if (walletKeys.pubKeys?.length) {
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+
+        return new LedgerSigner(
+          accountsService.activeAccount.index,
+          this.ledgerService.recentTransport,
+          DerivationPath.LedgerLive, // Use LedgerLive derivation paths for address public keys (m/44'/60'/n'/0/0) in storage
           provider as JsonRpcBatchInternal
         );
       }
@@ -141,9 +171,40 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Ledger transport not available');
         }
 
-        return new BitcoinLedgerWallet(
+        // Use BIP44 derivation paths for extended public key of m/44'/60'/0'
+        const addressPublicKey = getAddressPublicKeyFromXPub(
           walletKeys.xpub,
-          accountsService.activeAccount.index,
+          accountsService.activeAccount.index
+        );
+
+        return new BitcoinLedgerWallet(
+          addressPublicKey,
+          getAddressDerivationPath(
+            accountsService.activeAccount.index,
+            DerivationPath.BIP44
+          ),
+          provider as BitcoinProviderAbstract,
+          this.ledgerService.recentTransport
+        );
+      } else if (walletKeys.pubKeys?.length) {
+        // Use LedgerLive derivation paths for address public keys (m/44'/60'/n'/0/0) in storage
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+
+        const addressPublicKey =
+          walletKeys.pubKeys[accountsService.activeAccount.index];
+
+        if (!addressPublicKey) {
+          throw new Error('Account public key not available');
+        }
+
+        return new BitcoinLedgerWallet(
+          Buffer.from(addressPublicKey.evm, 'hex'),
+          getAddressDerivationPath(
+            accountsService.activeAccount.index,
+            DerivationPath.LedgerLive
+          ),
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport
         );
@@ -259,23 +320,81 @@ export class WalletService implements OnLock, OnUnlock {
     this.eventEmitter.on(event, callback);
   }
 
+  async addAddress(index: number): Promise<Record<NetworkVMType, string>> {
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (
+      !secrets?.mnemonic &&
+      !secrets?.xpub &&
+      secrets?.pubKeys &&
+      !secrets.pubKeys[index]
+    ) {
+      // Since we don't have xPub or Mnemonic we need to get the new address pubkey from the Ledger
+      if (!this.ledgerService.recentTransport) {
+        throw new Error('Ledger transport not available');
+      }
+
+      const addressPublicKey = await getPubKeyFromTransport(
+        this.ledgerService.recentTransport,
+        index,
+        DerivationPath.LedgerLive
+      );
+
+      if (!addressPublicKey || !addressPublicKey.byteLength) {
+        throw new Error('Failed to get public key from device.');
+      }
+
+      const pubKeys = [...(secrets?.pubKeys || [])];
+      pubKeys[index] = { evm: addressPublicKey.toString('hex') };
+
+      await this.storageService.save<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY,
+        {
+          ...secrets,
+          pubKeys: pubKeys,
+        }
+      );
+    }
+
+    return this.getAddress(index);
+  }
+
   async getAddress(index: number): Promise<Record<NetworkVMType, string>> {
     const secrets = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
     const isMainnet = await this.networkService.isMainnet();
 
-    if (!secrets?.xpub) {
-      throw new Error('No xpub found');
+    if (secrets?.xpub) {
+      return {
+        [NetworkVMType.EVM]: getAddressFromXPub(secrets.xpub, index),
+        [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
+          secrets.xpub,
+          index,
+          isMainnet ? networks.bitcoin : networks.testnet
+        ),
+      };
+    } else if (secrets?.pubKeys) {
+      // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
+      const addressPublicKey = secrets.pubKeys[index];
+
+      if (!addressPublicKey?.evm) {
+        throw new Error('Account not added');
+      }
+
+      const pubKeyBuffer = Buffer.from(addressPublicKey.evm, 'hex');
+
+      return {
+        [NetworkVMType.EVM]: getEvmAddressFromPubKey(pubKeyBuffer),
+        [NetworkVMType.BITCOIN]: getBtcAddressFromPubKey(
+          pubKeyBuffer,
+          isMainnet ? networks.bitcoin : networks.testnet
+        ),
+      };
     }
 
-    return {
-      [NetworkVMType.EVM]: getAddressFromXPub(secrets.xpub, index),
-      [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
-        secrets.xpub,
-        index,
-        isMainnet ? networks.bitcoin : networks.testnet
-      ),
-    };
+    throw new Error('No public key available');
   }
 }

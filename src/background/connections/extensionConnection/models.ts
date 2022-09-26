@@ -10,6 +10,7 @@ export enum ExtensionRequest {
   NETWORK_SAVE_CUSTOM = 'network_saveCustomNetwork',
   NETWORK_REMOVE_CUSTOM = 'network_removeCustomNetwork',
   NETWORKS_GET_STATE = 'networks_get_state',
+  NETWORK_AVALANCHE_GET = 'network_avalanche_get',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',
@@ -20,6 +21,7 @@ export enum ExtensionRequest {
   NETWORK_BALANCES_UPDATE = 'network_balances_update',
   NFT_BALANCES_GET = 'nft_balances_get',
   TOKEN_PRICE_GET = 'token_price_get',
+  BALANCE_AVAX_GET = 'balance_avax_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
 
@@ -29,6 +31,7 @@ export enum ExtensionRequest {
   BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
   BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
   BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',
+  BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT = 'bridge_get_eth_max_transfer_amount',
 
   WALLET_GET_TYPE = 'wallet_getType',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
@@ -82,6 +85,7 @@ export enum ExtensionRequest {
   LEDGER_GET_PUBLIC = 'ledger_get_public',
   LEDGER_RESPONSE = 'ledger_response',
   LEDGER_REMOVE_TRANSPORT = 'ledger_remove_transport',
+  LEDGER_CLOSE_TRANSPORT = 'ledger_close_transport',
 
   NAVIGATION_HISTORY_GET = 'navigation_history_get',
   NAVIGATION_HISTORY_SET = 'navigation_history_set',

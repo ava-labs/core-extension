@@ -9,8 +9,22 @@ import { AnalyticsEvents } from '../analytics/models';
 export class FeatureFlagService {
   private eventEmitter = new EventEmitter();
   private _featureFlags = DEFAULT_FLAGS;
+
   public get featureFlags(): Record<FeatureGates, boolean> {
     return this._featureFlags;
+  }
+
+  private set featureFlags(newFlags: Record<FeatureGates, boolean>) {
+    if (JSON.stringify(this._featureFlags) === JSON.stringify(newFlags)) {
+      // do nothing since flags are the same
+      // do not trigger new update cycles within the app
+      return;
+    }
+    this._featureFlags = newFlags;
+    this.eventEmitter.emit(
+      FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+      this._featureFlags
+    );
   }
   private featureFlagsListener?: ReturnType<typeof initFeatureFlags>;
 
@@ -51,8 +65,7 @@ export class FeatureFlagService {
       5000
     );
     this.featureFlagsListener.listen.add((flags) => {
-      this._featureFlags = flags as Record<FeatureGates, boolean>;
-      this.eventEmitter.emit(FeatureFlagEvents.FEATURE_FLAG_UPDATED, flags);
+      this.featureFlags = flags as Record<FeatureGates, boolean>;
     });
   }
 

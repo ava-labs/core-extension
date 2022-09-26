@@ -22,7 +22,11 @@ const Link = styled(Typography)`
 export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
   return (
     <VerticalFlex width="100%" align="center">
-      <OnboardingStepHeader title="Trouble Connecting" onClose={onBack} />
+      <OnboardingStepHeader
+        testId="ledger-trouble"
+        title="Trouble Connecting"
+        onClose={onBack}
+      />
       <VerticalFlex justify="center" margin="0 0 24px 0">
         <Typography align="center" margin="8px 0 0" size={14} height="17px">
           We&apos;re having trouble connecting to

@@ -24,6 +24,7 @@ import { ChainId, Network } from '@avalabs/chains-sdk';
 import { useHistory } from 'react-router-dom';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 
 interface NetworkListProps {
   networkList: Network[];
@@ -77,7 +78,9 @@ export function NetworkList({ networkList }: NetworkListProps) {
                         >
                           {networkItem.logoUri ? (
                             <AnimatedNetworkLogo
-                              src={networkItem.logoUri}
+                              src={ipfsResolverWithFallback(
+                                networkItem.logoUri
+                              )}
                               position={index + 1}
                               isFavorited={index === favoritedItem}
                             />

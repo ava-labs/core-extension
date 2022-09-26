@@ -29,25 +29,20 @@ const AttributeData = styled(Typography)`
 export function CollectibleDetails() {
   const history = useHistory();
   const setCollectibleParams = useSetCollectibleParams();
-  const { nft, tokenId } = useCollectibleFromParams();
+  const { nft } = useCollectibleFromParams();
 
   const sendRef = useRef<HTMLButtonElement>(null);
 
   const [showThumbnail, setShowThumbnail] = useState(false);
 
-  const nftItem = nft?.nftData.find((data) => data.tokenId === tokenId);
-
-  if (!nft || !nftItem) {
+  if (!nft) {
     history.goBack();
     return null;
   }
-
   return (
     <VerticalFlex width={'100%'} height="100%">
-      <PageTitle
-        thumbnailImage={showThumbnail ? nftItem.externalData?.image : ''}
-      >
-        {nftItem.externalData?.name}
+      <PageTitle thumbnailImage={showThumbnail ? nft?.logoUri : ''}>
+        {nft?.name}
       </PageTitle>
       <Scrollbars
         style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
@@ -64,7 +59,7 @@ export function CollectibleDetails() {
           <CollectibleMedia
             width="100%"
             height="auto"
-            url={nftItem.externalData?.image}
+            url={nft?.logoUri}
             hover={false}
             margin="8px 0"
             controls={true}
@@ -77,7 +72,6 @@ export function CollectibleDetails() {
             onClick={() => {
               setCollectibleParams({
                 nft,
-                tokenId,
                 options: { path: '/collectible/send' },
               });
             }}
@@ -91,23 +85,22 @@ export function CollectibleDetails() {
           <VerticalFlex margin="16px 0 32px">
             <VerticalFlex>
               <AttributeLabel>Collection name</AttributeLabel>
-              <AttributeData>{nft.contractName}</AttributeData>
+              <AttributeData>{nft.collectionName}</AttributeData>
             </VerticalFlex>
             <HorizontalSeparator margin="16px 0" />
             <VerticalFlex>
               <AttributeLabel>Description</AttributeLabel>
-              <AttributeData>{nftItem.externalData?.description}</AttributeData>
+              <AttributeData>{nft?.description}</AttributeData>
             </VerticalFlex>
           </VerticalFlex>
 
-          {nftItem.externalData?.attributes &&
-            nftItem.externalData.attributes.length > 0 && (
-              <Typography size={18} height="22px" weight={700}>
-                Properties
-              </Typography>
-            )}
+          {nft?.attributes && nft.attributes.length > 0 && (
+            <Typography size={18} height="22px" weight={700}>
+              Properties
+            </Typography>
+          )}
           <VerticalFlex margin="16px 0 32px">
-            {nftItem.externalData?.attributes?.map((attribute, i) => (
+            {nft?.attributes?.map((attribute, i) => (
               <VerticalFlex key={i}>
                 {i !== 0 && <HorizontalSeparator margin="16px 0" />}
                 <AttributeLabel>{attribute.name}</AttributeLabel>

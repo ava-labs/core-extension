@@ -11,7 +11,6 @@ import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/han
 import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
 import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
 import { StoreAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/storeAnalyticsIds';
-import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetTokenPriceHandler } from '@src/background/services/balances/handlers/getTokenPrice';
 import { BridgeConfigUpdatedEvents } from '@src/background/services/bridge/events/bridgeConfigUpdateEvents';
@@ -91,6 +90,12 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
 import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
 import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
+import { GetEthMaxTransferAmountHandler } from '@src/background/services/bridge/handlers/getEthMaxTransferAmount';
+import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
+import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
+import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
+import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
+import { GetAvalancheNetworkHandler } from '@src/background/services/network/handlers/getAvalancheNetwork';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -129,6 +134,10 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
   },
   { token: 'ExtensionRequestHandler', useToken: BridgeSignIssueBtcHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeTransferAssetHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetEthMaxTransferAmountHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: CreateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateContactHandler },
@@ -142,6 +151,7 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
   { token: 'ExtensionRequestHandler', useToken: UnlockWalletHandler },
   { token: 'ExtensionRequestHandler', useToken: GetLockStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNavigationHistoryHandler },
+  { token: 'ExtensionRequestHandler', useToken: CloseLedgerTransportHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetNavigationHistoryDataHandler,
@@ -202,13 +212,14 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetAvaxBalanceHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetAvalancheNetworkHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
 @registry([
   { token: 'ExtensionEventEmitter', useToken: AccountsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
-  { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
   {
     token: 'ExtensionEventEmitter',
@@ -228,5 +239,7 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
+  { token: 'ExtensionEventEmitter', useToken: LedgerCloseTransportEvent },
+  { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

@@ -13,14 +13,10 @@ export function UnknownTx({
   toAddress,
   displayValue,
   name,
-  transactionState,
 }: TransactionDisplayValues) {
   return (
     <VerticalFlex width="100%">
-      <TransactionHeader
-        title="Transaction Summary"
-        transactionState={transactionState}
-      />
+      <TransactionHeader title="Transaction Summary" />
 
       <VerticalFlex>
         {displayValue ? (

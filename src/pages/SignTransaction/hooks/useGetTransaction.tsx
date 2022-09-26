@@ -9,13 +9,13 @@ import Web3 from 'web3';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
-import * as ethers from 'ethers';
 import { bnToLocaleString, hexToBN } from '@avalabs/utils-sdk';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { UpdateTransactionHandler } from '@src/background/services/transactions/handlers/updateTransaction';
 import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
+import { BigNumber, constants } from 'ethers';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -26,8 +26,8 @@ export function useGetTransaction(requestId: string) {
   const { network } = useNetworkContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [customGas, setCustomGas] = useState<{
-    gasLimit: number;
-    gasPrice: ethers.BigNumber;
+    gasLimit?: number;
+    gasPrice: BigNumber;
   } | null>(null);
   const [hash, setHash] = useState<string>('');
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
@@ -53,17 +53,20 @@ export function useGetTransaction(requestId: string) {
   );
 
   const setCustomFee = useCallback(
-    (
-      gasLimit: number,
-      gasPrice: ethers.BigNumber,
-      modifier: GasFeeModifier
-    ) => {
-      setCustomGas({ gasLimit, gasPrice });
-      setSelectedGasFee(modifier);
+    (values: {
+      customGasLimit?: number;
+      gasPrice: BigNumber;
+      feeType: GasFeeModifier;
+    }) => {
+      setCustomGas({
+        gasLimit: values.customGasLimit,
+        gasPrice: values.gasPrice,
+      });
+      setSelectedGasFee(values.feeType);
 
       const feeDisplayValues = calculateGasAndFees({
-        gasPrice,
-        gasLimit,
+        gasPrice: values.gasPrice,
+        gasLimit: values.customGasLimit ?? transaction?.displayValues.gasLimit,
         tokenPrice,
         tokenDecimals: network?.networkToken.decimals,
       });
@@ -75,7 +78,13 @@ export function useGetTransaction(requestId: string) {
         },
       });
     },
-    [network, tokenPrice, transaction?.id, updateTransaction]
+    [
+      network?.networkToken.decimals,
+      tokenPrice,
+      transaction?.displayValues.gasLimit,
+      transaction?.id,
+      updateTransaction,
+    ]
   );
 
   const setSpendLimit = useCallback(
@@ -91,7 +100,7 @@ export function useGetTransaction(requestId: string) {
           ...customSpendData,
           value: undefined,
         });
-        limitAmount = ethers.constants.MaxUint256.toHexString();
+        limitAmount = constants.MaxUint256.toHexString();
         setDisplaySpendLimit(UNLIMITED_SPEND_LIMIT_LABEL);
       } else {
         setCustomSpendLimit(customSpendData);
@@ -159,9 +168,7 @@ export function useGetTransaction(requestId: string) {
   useEffect(() => {
     if (transaction?.displayValues?.approveData?.limit) {
       setDisplaySpendLimit(
-        ethers.constants.MaxUint256.eq(
-          transaction.displayValues.approveData.limit
-        )
+        constants.MaxUint256.eq(transaction.displayValues.approveData.limit)
           ? UNLIMITED_SPEND_LIMIT_LABEL
           : bnToLocaleString(
               hexToBN(transaction.displayValues.approveData.limit),

@@ -31,14 +31,14 @@ import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundar
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { TransactionTabs } from './components/TransactionTabs';
-import { SuccessFailTxInfo } from './components/SuccessFailTxInfo';
 import { BigNumber } from 'ethers';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
 import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { WalletType } from '@src/background/services/wallet/models';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -61,9 +61,9 @@ export function SignTransactionPage() {
   );
   const { network } = useNetworkContext();
   const theme = useTheme();
-  const [txFailedError, setTxFailedError] = useState<string>();
-  const explorerUrl = network && getExplorerAddressByNetwork(network, hash);
   const tokens = useTokensWithBalances();
+  const { walletType } = useWalletContext();
+
   useLedgerDisconnectedDialog(window.close);
 
   const hasEnoughForNetworkFee = useMemo(() => {
@@ -97,14 +97,15 @@ export function SignTransactionPage() {
       updateTransaction({
         status: TxStatus.SUBMITTING,
         id: id,
-      })
-        .then(() => {
-          setTransactionProgressState(TransactionProgressState.SUCCESS);
-        })
-        .catch((err) => {
-          setTransactionProgressState(TransactionProgressState.ERROR);
-          setTxFailedError(err);
-        });
+      }).finally(() => window.close());
+
+    /*
+		When wallet type is ledger, we need to show to the user that the interaction with ledger is needed. 
+		In this case, the popup will stay open until the promise from updateTransaction is resolved. 
+     */
+    if (walletType !== WalletType.LEDGER) {
+      window.close();
+    }
   };
 
   if (!Object.keys(displayData).length) {
@@ -145,9 +146,7 @@ export function SignTransactionPage() {
               [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
                 <SwapTx
                   {...(displayData as SwapExactTokensForTokenDisplayValues)}
-                  transactionState={transactionProgressState}
                   hash={hash}
-                  error={txFailedError}
                   onCustomFeeSet={setCustomFee}
                   selectedGasFee={selectedGasFee}
                 />
@@ -155,48 +154,31 @@ export function SignTransactionPage() {
               [ContractCall.APPROVE]: (
                 <ApproveTx
                   {...(displayData as ApproveTransactionData)}
-                  transactionState={transactionProgressState}
                   setShowCustomSpendLimit={setShowCustomSpendLimit}
                   displaySpendLimit={displaySpendLimit}
                 />
               ),
               [ContractCall.ADD_LIQUIDITY]: (
-                <AddLiquidityTx
-                  {...(displayData as AddLiquidityDisplayData)}
-                  transactionState={transactionProgressState}
-                />
+                <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
               ),
               [ContractCall.ADD_LIQUIDITY_AVAX]: (
-                <AddLiquidityTx
-                  {...(displayData as AddLiquidityDisplayData)}
-                  transactionState={transactionProgressState}
-                />
+                <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
               ),
               ['unknown']: (
-                <UnknownTx
-                  {...(displayData as TransactionDisplayValues)}
-                  transactionState={transactionProgressState}
-                />
+                <UnknownTx {...(displayData as TransactionDisplayValues)} />
               ),
             }[contractType || 'unknown']
           }
 
           {/* Tabs */}
           {transactionProgressState ===
-          TransactionProgressState.NOT_APPROVED ? (
+            TransactionProgressState.NOT_APPROVED && (
             <TransactionTabs
               byteStr={displayData.txParams?.data}
               gasPrice={displayData.gasPrice}
               limit={displayData.gasLimit ?? 0}
               onCustomFeeSet={setCustomFee}
               selectedGasFee={selectedGasFee}
-            />
-          ) : (
-            <SuccessFailTxInfo
-              hash={hash}
-              gasPrice={displayData.gasPrice ?? BigNumber.from(0)}
-              gasLimit={displayData.gasLimit ?? 0}
-              error={displayData.error}
             />
           )}
           {!hasEnoughForNetworkFee && (
@@ -243,28 +225,6 @@ export function SignTransactionPage() {
                 Approve
               </PrimaryButton>
             </>
-          )}
-          {(transactionProgressState === TransactionProgressState.PENDING ||
-            hash) && (
-            <SecondaryButton
-              size={ComponentSize.LARGE}
-              width="100%"
-              as="a"
-              onClick={(e) => {
-                if (!hash) {
-                  e.preventDefault();
-                }
-              }}
-              href={explorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {transactionProgressState === TransactionProgressState.PENDING ? (
-                <LoadingSpinnerIcon color={theme.colors.icon1} height="24px" />
-              ) : (
-                'View on Explorer'
-              )}
-            </SecondaryButton>
           )}
         </HorizontalFlex>
       </VerticalFlex>

@@ -11,12 +11,15 @@ import { BalanceAggregatorService } from '../BalanceAggregatorService';
 export class BalancesUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   constructor(private networkBalancesAggregator: BalanceAggregatorService) {
-    this.networkBalancesAggregator.balanceUpdates.add((balances) => {
-      this.eventEmitter.emit('update', {
-        name: BalanceServiceEvents.UPDATED,
-        value: balances,
-      });
-    });
+    this.networkBalancesAggregator.addListener(
+      BalanceServiceEvents.UPDATED,
+      (balances) => {
+        this.eventEmitter.emit('update', {
+          name: BalanceServiceEvents.UPDATED,
+          value: balances,
+        });
+      }
+    );
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

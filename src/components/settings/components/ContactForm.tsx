@@ -33,35 +33,45 @@ export const ContactForm = ({
   const [addressError, setAddressError] = useState<string>();
   const [addressBtcError, setAddressBtcError] = useState<string>();
 
-  const validateForm = useCallback((updatedContact: Contact) => {
-    let valid = true;
-    // no name -> error
-    if (!updatedContact.name) {
-      setNameError(FormErrors.NAME_ERROR);
-      valid = false;
-    }
-    // no address or btc address -> error
-    if (!updatedContact.address && !updatedContact.addressBTC) {
-      setAddressError(FormErrors.ADDRESS_REQUIRED_ERROR);
-      setAddressBtcError(FormErrors.ADDRESS_REQUIRED_ERROR);
-      return false;
-    }
-    // no valid address -> error
-    if (updatedContact.address && !isValidAddress(updatedContact.address)) {
-      setAddressError(FormErrors.ADDRESS_ERROR);
-      valid = false;
-    }
-    // no valid btc address -> error
-    if (
-      updatedContact.addressBTC &&
-      !isValidBtcAddress(updatedContact.addressBTC)
-    ) {
-      setAddressBtcError(FormErrors.ADDRESS_BTC_ERROR);
-      valid = false;
-    }
+  const validateForm = useCallback(
+    (updatedContact: Contact) => {
+      const nameExists = !!updatedContact.name;
+      const addressExists = !!updatedContact.address;
+      const btcExists = !!updatedContact.addressBTC;
 
-    return valid;
-  }, []);
+      let valid = true;
+      // no name -> error
+      if (!nameExists && showErrors) {
+        setNameError(FormErrors.NAME_ERROR);
+        valid = false;
+      }
+      // no address or btc address -> error
+      if (!addressExists && !btcExists && showErrors) {
+        setAddressError(FormErrors.ADDRESS_REQUIRED_ERROR);
+        setAddressBtcError(FormErrors.ADDRESS_REQUIRED_ERROR);
+        return false;
+      }
+      // no valid address -> error
+      if (addressExists && !isValidAddress(updatedContact.address)) {
+        setAddressError(FormErrors.ADDRESS_ERROR);
+        valid = false;
+      }
+      // no valid btc address -> error
+      if (
+        updatedContact.addressBTC &&
+        !isValidBtcAddress(updatedContact.addressBTC)
+      ) {
+        setAddressBtcError(FormErrors.ADDRESS_BTC_ERROR);
+        valid = false;
+      }
+      if (!nameExists || (!btcExists && !addressExists)) {
+        valid = false;
+      }
+
+      return valid;
+    },
+    [showErrors]
+  );
 
   // Used when "Save" is clicked on New Contact when no iputs filled out.
   useEffect(() => {

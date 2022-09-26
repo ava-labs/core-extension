@@ -11,7 +11,6 @@ import { ApproveTransactionData } from '@src/contracts/contractParsers/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { TransactionHeader } from './components/TransactionHeader';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import { TransactionProgressData, TransactionProgressState } from './models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 export function ApproveTx({
@@ -19,24 +18,16 @@ export function ApproveTx({
   tokenToBeApproved,
   setShowCustomSpendLimit,
   displaySpendLimit,
-  transactionState,
-  hash,
   ...rest
-}: ApproveTransactionData & TransactionProgressData) {
+}: ApproveTransactionData) {
   const theme = useTheme();
 
   const hideEdit: boolean =
-    (displaySpendLimit === '0' && setShowCustomSpendLimit) ||
-    (transactionState === TransactionProgressState.PENDING && !hash) ||
-    transactionState === TransactionProgressState.SUCCESS;
+    displaySpendLimit === '0' && setShowCustomSpendLimit;
 
   return (
     <VerticalFlex width="100%">
-      <TransactionHeader
-        title="Approval Summary"
-        transactionState={transactionState}
-        showNetwork={false}
-      />
+      <TransactionHeader title="Approval Summary" showNetwork={false} />
 
       <VerticalFlex align="center">
         <SiteAvatar justify="center" align="center">
@@ -72,7 +63,7 @@ export function ApproveTx({
           </HorizontalFlex>
 
           {/* 
-            Hides Edit button if its a Revoke approval or PENDING or SUCCESS
+            Hides Edit button if its a Revoke approval
           */}
 
           {!hideEdit && (

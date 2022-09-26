@@ -35,7 +35,11 @@ export function OnboardButton({
 }) {
   if (variant === 'small') {
     return (
-      <TextButtonCard data-testid={`${testId}-button`} onClick={onClick} margin={margin}>
+      <TextButtonCard
+        data-testid={`${testId}-button`}
+        onClick={onClick}
+        margin={margin}
+      >
         <HorizontalFlex
           width="227px"
           height="56px"
@@ -55,7 +59,11 @@ export function OnboardButton({
   }
 
   return (
-    <TextButtonCard data-testid={`${testId}-button`} onClick={onClick} margin={margin}>
+    <TextButtonCard
+      data-testid={`${testId}-button`}
+      onClick={onClick}
+      margin={margin}
+    >
       <VerticalFlex
         width="232px"
         height="180px"

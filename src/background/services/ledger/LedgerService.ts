@@ -56,6 +56,36 @@ export class LedgerService implements OnLock, OnUnlock {
     ledgerTransportLRUCache.delete(ledgerTransportUUID);
   }
 
+  /**
+   * Before a new transport is requested the window requests that all
+   * other previously opened transports close if they are claiming interface
+   * index 2. We cant know which one that is from the new window or the background
+   * so we simply ask all of the open windows to do so.
+   *
+   * This gets called by the CloseLedgerTransportHandler when a new confirm window
+   * is being requested open
+   */
+  async closeOpenedTransport() {
+    this.eventEmitter.emit(LedgerEvent.TRANSPORT_CLOSE_REQUEST, {});
+    /**
+     * Avoiding a Possibly race condition here, we are requesting that a window close and simultaneously
+     * requesting that another window open. The latter requires that the first has happened since
+     * the whole point is to release the claimed interface.
+     *
+     * We cant simply listen for a response cause another window may not even be open, so we
+     * would get stuck in a holding pattern if we did so.
+     *
+     * I put a setTimeout here but that is shitty. If there is a better way im open though. The
+     * issue is all of these windows and events are in separate contexts and thus there is nothing to
+     * sync all of this up.
+     *
+     * One other idea is to check through the background if there is an open window with the claimed interface first.
+     * Then if we find that to be true to listen for a response to it being closed. Once the response is received
+     * we can close the previous window. Is this worth the tradeoff of a setimeout being removed though?
+     */
+    return new Promise((res) => setTimeout(() => res(true), 100));
+  }
+
   onLock() {
     ledgerTransportLRUCache.clear();
     this.ledgerRequestSubscription?.unsubscribe();

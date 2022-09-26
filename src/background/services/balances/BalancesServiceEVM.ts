@@ -40,7 +40,7 @@ export class BalancesServiceEVM {
     if (!!provider && !!(provider as any).getEtherPrice) return this;
   }
 
-  private async getNativeTokenBalance(
+  public async getNativeTokenBalance(
     provider: Provider,
     userAddress: string,
     network: Network,
@@ -132,7 +132,7 @@ export class BalancesServiceEVM {
     accounts: Account[],
     network: Network
   ): Promise<Record<string, TokenWithBalance[]>> {
-    const provider = this.networkService.getProviderForNetwork(network);
+    const provider = this.networkService.getProviderForNetwork(network, true);
     const customTokens = await this.tokensManagerService.getTokensForNetwork(
       network
     );

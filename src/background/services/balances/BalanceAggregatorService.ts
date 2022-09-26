@@ -1,66 +1,81 @@
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { Account, AccountsEvents } from '../accounts/models';
-import { Signal } from 'micro-signals';
-import { Balances, TokenWithBalance } from './models';
-import { Network } from '@avalabs/chains-sdk';
+import { Balances, BalanceServiceEvents } from './models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
+import { EventEmitter } from 'events';
+import _ from 'lodash';
 
 @singleton()
-export class BalanceAggregatorService implements OnLock, OnUnlock {
+export class BalanceAggregatorService implements OnLock {
+  private eventEmitter = new EventEmitter();
   private _balances: Balances = {};
-  private _balanceUpdates = new Signal<Balances>();
-  public get balanceUpdates() {
-    return this._balanceUpdates.readOnly();
-  }
 
   get balances() {
     return this._balances;
+  }
+
+  private set balances(balances: Balances) {
+    this._balances = balances;
+    this.eventEmitter.emit(BalanceServiceEvents.UPDATED, balances);
   }
 
   constructor(
     private accountsService: AccountsService,
     private balancesService: BalancesService,
     private networkService: NetworkService
-  ) {}
-
-  private updateBalancesAndEmit(
-    networkId: number,
-    value: Record<string, TokenWithBalance[]>
   ) {
-    this._balances[networkId] = value;
-    this._balanceUpdates.dispatch(this._balances);
-  }
-
-  private async activate() {
     this.accountsService.addListener<Account[]>(
       AccountsEvents.ACCOUNTS_UPDATED,
       async (accounts) => {
         this.updateBalancesForNetworks(
-          Object.values(await this.networkService.activeNetworks.promisify()),
+          Object.values(
+            await this.networkService.activeNetworks.promisify()
+          ).map((n) => n.chainId),
           accounts
         );
       }
     );
   }
 
-  updateBalancesForNetworks(networks: Network[], accounts: Account[]) {
-    networks.forEach(async (network) => {
+  async updateBalancesForNetworks(
+    chainIds: number[],
+    accounts: Account[]
+  ): Promise<Balances> {
+    const networks = Object.values(
+      await this.networkService.activeNetworks.promisify()
+    ).filter((network) => chainIds.includes(network.chainId));
+
+    for (const network of networks) {
       const balances = await this.balancesService.getBalancesForNetwork(
         network,
         accounts
       );
-      this.updateBalancesAndEmit(network.chainId, balances);
-    });
+
+      // use deep merge to make sure we keep all accounts in there, even after a partial update
+      this.balances = _.merge(this.balances, {
+        [network.chainId]: balances,
+      });
+    }
+    return networks.reduce(
+      (acc, network) => ({
+        ...acc,
+        [network.chainId]: this._balances[network.chainId],
+      }),
+      {}
+    );
   }
 
   onLock() {
-    this._balances = {};
+    this.balances = {};
   }
 
-  onUnlock() {
-    this.activate();
+  addListener<T = unknown>(
+    event: BalanceServiceEvents,
+    callback: (data: T) => void
+  ) {
+    this.eventEmitter.on(event, callback);
   }
 }

@@ -28,18 +28,26 @@ import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
-  private _chainActiveNetworks = new ValueCache<ChainList>();
+  private _allNetworksCache = new ValueCache<ChainList>();
+  private _activeNetworksCache = new ValueCache<ChainList>();
   private _activeNetworkCache = new ValueCache<Network>();
-  private _activeNetworks = new Signal<ChainList | undefined>();
+  private _allNetworks = new Signal<ChainList | undefined>();
   private _activeNetwork = new Signal<Network | undefined>();
   private _developerModeChanges = new Signal<boolean>();
   private _isDeveloperMode = false;
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
+  private _initChainListResolved = new Signal<boolean>();
+  private _initChainListResolvedCache = new ValueCache<boolean>();
   public developerModeChanges = this._developerModeChanges.readOnly();
-
-  public activeNetworks = this._activeNetworks
-    .cache(this._chainActiveNetworks)
+  public initChainListResolved = this._initChainListResolved
+    .cache(this._initChainListResolvedCache)
+    .readOnly();
+  public allNetworks = this._allNetworks
+    .cache(this._allNetworksCache)
+    .readOnly();
+  public activeNetworks = this._allNetworks
+    .cache(this._activeNetworksCache)
     .filter((value) => !!value)
     .map<ChainList>((chainList) =>
       /**
@@ -102,6 +110,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     // dispatching a default value so that the
     // `await networkService.activeNetwork.promisfy()` can resolve immediately
     this._activeNetwork.dispatch(undefined);
+    this._initChainList();
   }
 
   public async isMainnet() {
@@ -112,9 +121,10 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   onLock(): void {
     this._activeNetwork.dispatch(undefined);
-    this._activeNetworks.dispatch(undefined);
+    this._allNetworks.dispatch(undefined);
     this._customNetworks = {};
     this._favoriteNetworks = [];
+    this._initChainListResolved.dispatch(false);
   }
 
   onStorageReady(): void {
@@ -143,10 +153,17 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     const allNetworks = { ...chainlist, ...network?.customNetworks };
     this._customNetworks = network?.customNetworks || {};
-    this._activeNetworks.dispatch(allNetworks);
+    this._allNetworks.dispatch(allNetworks);
     this._isDeveloperMode = network?.isDeveloperMode || false;
+
+    // make sure we load a testnet network when in devmode
+    const activeNetwork =
+      allNetworks[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID];
+
     this._activeNetwork.dispatch(
-      allNetworks[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID]
+      this._isDeveloperMode && !activeNetwork.isTestnet
+        ? allNetworks[ChainId.AVALANCHE_TESTNET_ID]
+        : activeNetwork
     );
     this._developerModeChanges.dispatch(this._isDeveloperMode);
 
@@ -155,30 +172,39 @@ export class NetworkService implements OnLock, OnStorageReady {
     ];
   }
 
-  async setChainListOrFallback() {
-    // getChainsAndTokens has default URL (It changes based on the environment being used) to fetch the chains and tokens.
-    // If the URL needs to be overridden, please use TOKENLIST_OVERRIDE to do so.
+  private async _initChainList() {
     const [result] = await resolve(
       getChainsAndTokens(
         process.env.RELEASE === 'production',
         process.env.TOKENLIST_OVERRIDE || ''
       )
     );
-
     if (result) {
       const withBitcoin = {
         ...result,
         [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
         [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
       };
-      this.storageService.save(NETWORK_LIST_STORAGE_KEY, withBitcoin);
-      return withBitcoin;
-    } else {
+      this._allNetworks.dispatch(withBitcoin);
+    }
+
+    this._initChainListResolved.dispatch(true);
+  }
+
+  async setChainListOrFallback() {
+    // getChainsAndTokens has default URL (It changes based on the environment being used) to fetch the chains and tokens.
+    // If the URL needs to be overridden, please use TOKENLIST_OVERRIDE to do so.
+    await this.initChainListResolved.promisify();
+
+    const allNetworks = await this.allNetworks.promisify();
+    if (!allNetworks) {
       const chainlist = await this.storageService.load<ChainList>(
         NETWORK_LIST_STORAGE_KEY
       );
       return chainlist;
     }
+    this.storageService.save(NETWORK_LIST_STORAGE_KEY, allNetworks);
+    return allNetworks;
   }
 
   async getNetwork(networkId: number): Promise<Network | undefined> {
@@ -250,7 +276,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   getProviderForNetwork(
-    network: Network
+    network: Network,
+    useMulticall = false
   ): BlockCypherProvider | JsonRpcBatchInternal {
     if (network.vmName === NetworkVMType.BITCOIN) {
       return new BlockCypherProvider(
@@ -260,10 +287,12 @@ export class NetworkService implements OnLock, OnStorageReady {
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(
-        {
-          maxCalls: 40,
-          multiContractAddress: network.utilityAddresses?.multicall,
-        },
+        useMulticall
+          ? {
+              maxCalls: 40,
+              multiContractAddress: network.utilityAddresses?.multicall,
+            }
+          : 40,
         addGlacierAPIKeyIfNeeded(network.rpcUrl),
         network.chainId
       );
@@ -328,7 +357,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       [convertedChainId]: customNetwork,
     };
     if (!chainlist) throw new Error('chainlist failed to load');
-    this._activeNetworks.dispatch({
+    this._allNetworks.dispatch({
       ...chainlist,
       ...this._customNetworks,
     });
@@ -341,7 +370,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   async removeCustomNetwork(chainID: number) {
     delete this._customNetworks[chainID];
     const chainlist = await this.setChainListOrFallback();
-    this._activeNetworks.dispatch({ ...chainlist, ...this._customNetworks });
+    this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
     const activeNetwork = await this.activeNetwork.promisify();
     if (activeNetwork?.chainId === chainID) {
       this.setNetwork(ChainId.AVALANCHE_MAINNET_ID);

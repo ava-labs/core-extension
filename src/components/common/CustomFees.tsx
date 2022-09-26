@@ -23,11 +23,11 @@ import { formatUnits } from 'ethers/lib/utils';
 interface CustomGasFeesProps {
   gasPrice: BigNumber;
   limit: number;
-  onChange(
-    gasLimit: number,
-    gasPrice: BigNumber,
-    feeType: GasFeeModifier
-  ): void;
+  onChange(values: {
+    customGasLimit?: number;
+    gasPrice: BigNumber;
+    feeType: GasFeeModifier;
+  }): void;
   gasPriceEditDisabled?: boolean;
   maxGasPrice?: string;
   selectedGasFeeModifier?: GasFeeModifier;
@@ -171,7 +171,7 @@ export function CustomFees({
       if (maxGasPrice && newFees.bnFee.gt(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
         // call cb with limit and gas
-        onChange(gasLimit, gas, modifier);
+        onChange({ customGasLimit, gasPrice: gas, feeType: modifier });
         return;
       }
       if (modifier === GasFeeModifier.CUSTOM) {
@@ -181,12 +181,13 @@ export function CustomFees({
       }
       setNewFees(newFees);
       // call cb with limit and gas
-      onChange(gasLimit, gas, modifier);
+      onChange({ customGasLimit, gasPrice: gas, feeType: modifier });
     },
     [
       tokenPrice,
       network?.networkToken.decimals,
       gasLimit,
+      customGasLimit,
       maxGasPrice,
       onChange,
       networkFee?.displayDecimals,
@@ -278,11 +279,11 @@ export function CustomFees({
               })
             );
             // call cb with limit and gas
-            onChange(
-              limit,
-              customGasPrice,
-              selectedGasFeeModifier || GasFeeModifier.NORMAL
-            );
+            onChange({
+              customGasLimit: limit,
+              gasPrice: customGasPrice,
+              feeType: selectedGasFeeModifier || GasFeeModifier.NORMAL,
+            });
           }}
         />
       </CustomGasLimitOverlay>
@@ -312,14 +313,21 @@ export function CustomFees({
               >
                 {newFees.fee} {network?.networkToken.symbol}
               </Typography>
-              <Typography data-testid="network-fee-currency-amount" height="15px" size={12}>
+              <Typography
+                data-testid="network-fee-currency-amount"
+                height="15px"
+                size={12}
+              >
                 {!isNaN(Number(newFees.feeUSD))
                   ? `${currencyFormatter(Number(newFees.feeUSD))}`
                   : ''}
               </Typography>
             </HorizontalFlex>
             {network?.vmName === NetworkVMType.EVM && (
-              <TextButton data-testid="edit-gas-limit-button" onClick={() => setShowEditGasLimit(true)}>
+              <TextButton
+                data-testid="edit-gas-limit-button"
+                onClick={() => setShowEditGasLimit(true)}
+              >
                 <GearIcon height="16px" color={theme.colors.icon1} />
               </TextButton>
             )}

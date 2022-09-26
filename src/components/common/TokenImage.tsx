@@ -3,6 +3,7 @@ import {
   LoadingIcon,
   Typography,
 } from '@avalabs/react-components';
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
 
@@ -56,7 +57,7 @@ export function TokenIcon({
       img.onload = () => {
         resolve(img);
       };
-      img.src = src;
+      img.src = ipfsResolverWithFallback(src);
     })
       .then(() => {
         !isCancelled && setState({ success: true });
@@ -91,7 +92,7 @@ export function TokenIcon({
     return (
       <HorizontalFlex
         as="img"
-        src={src}
+        src={ipfsResolverWithFallback(src)}
         width={width || TOKEN_IMAGE_DFEAULT_SIZE}
         height={height || TOKEN_IMAGE_DFEAULT_SIZE}
         radius={TOKEN_IMAGE_BORDER_RADIUS}

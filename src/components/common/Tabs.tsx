@@ -69,9 +69,10 @@ interface TabsProps {
     onClick?: () => void;
   }[];
   margin?: string;
+  loading?: boolean;
 }
 
-export function Tabs({ tabs, margin }: TabsProps) {
+export function Tabs({ tabs, margin, loading }: TabsProps) {
   const history = useHistory();
   const { pathname } = useLocation();
   const { activeTab } = useTabFromParams();
@@ -86,6 +87,15 @@ export function Tabs({ tabs, margin }: TabsProps) {
       <VerticalFlex margin={margin}>
         <TabsContainer>
           {tabs.map((tab) => {
+            if (loading) {
+              return (
+                <Tab key={tab.id}>
+                  <TabLabel selected={selectedTab === tab.id}>
+                    {tab.title}
+                  </TabLabel>
+                </Tab>
+              );
+            }
             if (!checkIsFunctionAvailable(tab.id)) {
               // if activeTab was Collectibles and then the network changes
               // this will redirect to assets

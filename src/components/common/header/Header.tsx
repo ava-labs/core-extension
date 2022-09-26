@@ -4,6 +4,7 @@ import {
   HorizontalSeparator,
   SecondaryButton,
   SimpleAddress,
+  Skeleton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -14,7 +15,6 @@ import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
 import { NetworkSwitcher } from './NetworkSwitcher';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useLocation } from 'react-router-dom';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 
@@ -28,8 +28,6 @@ export function Header() {
     (isDomainConnectedToAccount &&
       isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||
     false;
-  const location = useLocation();
-  const showNetworkSwitcher = !location.pathname.startsWith('/bridge');
   const { network } = useNetworkContext();
   const address =
     network?.vmName === NetworkVMType.BITCOIN
@@ -43,63 +41,73 @@ export function Header() {
       padding="16px 16px 0 16px"
     >
       <SettingsMenu />
-      <VerticalFlex>
-        <HorizontalFlex align="center" justify="center">
-          <ConnectionIndicator connected={isConnected}>
-            <Typography
-              weight={600}
-              size={12}
-              height="16px"
-              margin="0 16px 8px"
-            >
-              {domain}
-            </Typography>
-            {isConnected ? (
-              <>
-                <HorizontalSeparator margin="0" />
-                <SecondaryButton
-                  margin="8px auto"
-                  width="210px"
-                  onClick={() => {
-                    updateAccountPermission({
-                      addressC: activeAccount?.addressC,
-                      hasPermission: false,
-                      domain,
-                    });
-                  }}
+      {activeAccount ? (
+        <VerticalFlex>
+          <>
+            <HorizontalFlex align="center" justify="center">
+              <ConnectionIndicator connected={isConnected}>
+                <Typography
+                  weight={600}
+                  size={12}
+                  height="16px"
+                  margin="0 16px 8px"
                 >
-                  Disconnect
-                </SecondaryButton>
-              </>
-            ) : (
-              <Typography
-                weight={500}
-                size={12}
-                height="15px"
-                margin="0 16px 8px"
+                  {domain}
+                </Typography>
+                {isConnected ? (
+                  <>
+                    <HorizontalSeparator margin="0" />
+                    <SecondaryButton
+                      margin="8px auto"
+                      width="210px"
+                      onClick={() => {
+                        updateAccountPermission({
+                          addressC: activeAccount?.addressC,
+                          hasPermission: false,
+                          domain,
+                        });
+                      }}
+                    >
+                      Disconnect
+                    </SecondaryButton>
+                  </>
+                ) : (
+                  <Typography
+                    weight={500}
+                    size={12}
+                    height="15px"
+                    margin="0 16px 8px"
+                  >
+                    To connect, locate the connect button on their site.
+                  </Typography>
+                )}
+              </ConnectionIndicator>
+              <AccountSelector />
+            </HorizontalFlex>
+            {address && (
+              <HorizontalFlex
+                data-testid="header-copy-address"
+                justify="center"
               >
-                To connect, locate the connect button on their site.
-              </Typography>
+                <SimpleAddress
+                  copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
+                  typographyProps={{ color: 'text2', size: 12 }}
+                  address={address}
+                />
+              </HorizontalFlex>
             )}
-          </ConnectionIndicator>
-          <AccountSelector />
-        </HorizontalFlex>
-        {address && (
-          <HorizontalFlex data-testid="header-copy-address" justify="center">
-            <SimpleAddress
-              copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
-              typographyProps={{ color: 'text2', size: 12 }}
-              address={address}
-            />
-          </HorizontalFlex>
-        )}
-      </VerticalFlex>
-
-      {showNetworkSwitcher ? (
-        <NetworkSwitcher />
+          </>
+        </VerticalFlex>
       ) : (
-        <div style={{ width: 52 }} />
+        <Skeleton
+          width="102px"
+          height="40px"
+          margin="0 0 8px 30px"
+          delay={250}
+        />
       )}
+
+      <NetworkSwitcher />
     </HorizontalFlex>
   );
 }

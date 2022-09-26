@@ -1,7 +1,7 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import {
   HorizontalFlex,
-  SecondaryButton,
+  Skeleton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -12,9 +12,9 @@ import styled, { useTheme } from 'styled-components';
 import { NetworkCard } from './common/NetworkCard';
 import { getNetworkBalance, tokensWithBalances } from './NetworksWidget';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useHistory } from 'react-router-dom';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { SeeAllNetworksButton } from './SeeAllNetworksButton';
 
 const LogoContainer = styled.div`
   margin-top: 4px;
@@ -28,21 +28,30 @@ const NetworkListContainer = styled(HorizontalFlex)`
 
 export function NetworkList() {
   const { capture } = useAnalyticsContext();
-  const { network, setNetwork, favoriteNetworks } = useNetworkContext();
+  const { network, networks, setNetwork, favoriteNetworks } =
+    useNetworkContext();
   const theme = useTheme();
   const { tokens } = useBalancesContext();
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
-  const history = useHistory();
-  const networkList = favoriteNetworks.filter(
+  const favoriteNetworksWithoutActive = favoriteNetworks.filter(
     (networkItem) => networkItem.chainId !== network?.chainId
   );
-  const isAllNetworksLinkFullWidth = networkList.length % 2 === 0;
+
+  // we don't know the network list yet. Lets show the placeholder tiles instead
+  if (!networks.length) {
+    return (
+      <NetworkListContainer justify="space-between">
+        <Skeleton height="83px" width="164px" margin="0 0 16px 0" delay={250} />
+        <Skeleton height="83px" width="164px" margin="0 0 16px 0" delay={250} />
+      </NetworkListContainer>
+    );
+  }
 
   return (
     <>
       <NetworkListContainer justify="space-between">
-        {networkList.map((network) => {
+        {favoriteNetworksWithoutActive.map((network) => {
           const networkAddress =
             (network?.vmName === NetworkVMType.EVM
               ? activeAccount?.addressC
@@ -50,11 +59,20 @@ export function NetworkList() {
           const networkBalances = tokens.balances?.[network.chainId];
           const networkAssetList = networkBalances
             ? tokensWithBalances(networkBalances[networkAddress])
-            : [];
+            : null;
           const networkBalance = networkAssetList
             ? getNetworkBalance(networkAssetList)
             : 0;
-          return (
+          // show loading skeleton for each tile till we have the balance for them
+          return !networkBalances ? (
+            <Skeleton
+              key={network.chainId}
+              height="83px"
+              width="164px"
+              margin="0 0 16px 0"
+              delay={250}
+            />
+          ) : (
             <NetworkCard
               data-testid={`network-card-${network.chainId}-button`}
               width="164px"
@@ -100,32 +118,10 @@ export function NetworkList() {
             </NetworkCard>
           );
         })}
-        {!isAllNetworksLinkFullWidth ? (
-          <NetworkCard
-            data-testid="see-all-networks-button"
-            width="164px"
-            display="inline-block"
-            margin="0 0 16px 0"
-            padding="16px"
-            onClick={() => history.push('/networks?activeTab=NETWORKS')}
-          >
-            <VerticalFlex justify="center" align="center" height="100%">
-              <Typography color={theme.colors.text1} size={14} weight="bold">
-                See all networks
-              </Typography>
-            </VerticalFlex>
-          </NetworkCard>
-        ) : (
-          <SecondaryButton
-            data-testid="see-all-networks-button"
-            width={'100%'}
-            onClick={(e) => {
-              e.stopPropagation();
-              history.push('/networks?activeTab=NETWORKS');
-            }}
-          >
-            See all networks
-          </SecondaryButton>
+        {networks.length && (
+          <SeeAllNetworksButton
+            isFullWidth={favoriteNetworksWithoutActive.length % 2 === 0}
+          />
         )}
       </NetworkListContainer>
     </>

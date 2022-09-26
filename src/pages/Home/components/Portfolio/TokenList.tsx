@@ -106,7 +106,10 @@ export function TokenList({ searchQuery }: TokenListProps) {
         margin="0 16px 8px 16px"
       >
         {checkIsFunctionAvailable('ManageTokens') && tokens.length && (
-          <TextButton data-testid="manage-tokens-button" onClick={toggleManageTokensPage}>
+          <TextButton
+            data-testid="manage-tokens-button"
+            onClick={toggleManageTokensPage}
+          >
             <Typography color="inherit" size={12} weight={500}>
               Manage
             </Typography>

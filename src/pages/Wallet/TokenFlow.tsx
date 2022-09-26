@@ -46,14 +46,28 @@ export function TokenFlow() {
           name={token.name}
         />
         <VerticalFlex flex={1} margin={'0 0 0 16px'}>
-          <Typography data-testid="token-details-name" size={18} weight={'bold'} height="22px">
+          <Typography
+            data-testid="token-details-name"
+            size={18}
+            weight={'bold'}
+            height="22px"
+          >
             {token.name}
           </Typography>
-          <SubTextTypography data-testid="token-details-balance" size={14} height="17px" margin={'4px 0 0'}>
+          <SubTextTypography
+            data-testid="token-details-balance"
+            size={14}
+            height="17px"
+            margin={'4px 0 0'}
+          >
             {token.balanceDisplayValue} {token.symbol}
           </SubTextTypography>
         </VerticalFlex>
-        <Typography data-testid="token-details-currency-balance" size={14} height="24px">
+        <Typography
+          data-testid="token-details-currency-balance"
+          size={14}
+          height="24px"
+        >
           {balanceCurrencyValue &&
             currencyFormatter(Number(balanceCurrencyValue))}
         </Typography>

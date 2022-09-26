@@ -213,13 +213,17 @@ export function SendPage() {
           ?.balance.toString() || '0';
 
   const onGasChanged = useCallback(
-    (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
-      setGasPrice(gasPrice);
+    (values: {
+      customGasLimit?: number;
+      gasPrice: BigNumber;
+      feeType: GasFeeModifier;
+    }) => {
+      setGasPrice(values.gasPrice);
       updateSendState({
-        gasLimit,
-        gasPrice,
+        customGasLimit: values.customGasLimit,
+        gasPrice: values.gasPrice,
       });
-      setSelectedGasFee(feeType);
+      setSelectedGasFee(values.feeType);
     },
     [updateSendState]
   );
@@ -307,7 +311,6 @@ export function SendPage() {
             token={selectedToken}
             fallbackAmountDisplayValue={amountInputDisplay}
             onSubmit={onSubmit}
-            onGasChanged={onGasChanged}
             maxGasPrice={maxGasPrice}
             gasPrice={gasPriceState}
             selectedGasFee={selectedGasFee}

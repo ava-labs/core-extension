@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
@@ -28,7 +29,12 @@ import Eth from '@ledgerhq/hw-app-eth';
 import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
 import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
-import { GetPublicKeyHandler } from '@src/background/services/ledger/handlers/getPublicKey';
+import {
+  DerivationPath,
+  getLedgerExtendedPublicKeyOfAccount,
+  getPubKeyFromTransport,
+} from '@avalabs/wallets-sdk';
+import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -37,22 +43,34 @@ export enum LedgerAppType {
   UNKNOWN = 'UNKNOWN',
 }
 export const SUPPORTED_LEDGER_VERSION = '0.5.9';
+/**
+ * Run this here since each new window will have a different id
+ * this is used to track the transport and close on window close
+ */
 const LEDGER_INSTANCE_UUID = crypto.randomUUID();
 
 const LedgerContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
-  getPublicKey(): Promise<string>;
+  getExtendedPublicKey(): Promise<string>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
   appType: LedgerAppType;
+  wasTransportAttempted: boolean;
+  getPublicKey(accountIndex: number, pathType: DerivationPath): Promise<Buffer>;
+  closeTransport: () => void;
 }>({} as any);
 
 export function LedgerContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
+  const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [app, setApp] = useState<Btc | AppAvax | Eth>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
+  const transportRef = useRef<Transport | null>(null);
 
+  /**
+   * Listen for send events to a ledger instance
+   */
   useEffect(() => {
     const subscription = events()
       .pipe(
@@ -82,7 +100,6 @@ export function LedgerContextProvider({ children }: { children: any }) {
               ],
             });
           } catch (e) {
-            console.error(e);
             request<LedgerResponseHandler>({
               method: ExtensionRequest.LEDGER_RESPONSE,
               params: [
@@ -101,6 +118,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
     };
   }, [request, events, app]);
 
+  /**
+   * Create instance for a given UUID
+   */
   useEffect(() => {
     const subscription = events()
       .pipe(filter(ledgerDiscoverTransportsEventListener))
@@ -117,6 +137,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
     };
   }, [events, initialized, request]);
 
+  /**
+   * Remove an instance by UUID when a window is about to unload
+   */
   useEffect(() => {
     const handler = (ev) => {
       ev.preventDefault();
@@ -194,8 +217,20 @@ export function LedgerContextProvider({ children }: { children: any }) {
     const subscription = of([initialized])
       .pipe(
         filter(([initialized]) => !!initialized),
+        switchMap(() =>
+          request<CloseLedgerTransportHandler>({
+            method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
+            params: [],
+          })
+        ),
         switchMap(() => getLedgerTransport()),
-        switchMap((transport) => initLedgerApp(transport)),
+        switchMap((transport) => {
+          transportRef.current = transport;
+          return initLedgerApp(transport);
+        }),
+        tap(() => {
+          setWasTransportAttempted(true);
+        }),
         switchMap((ledgerApp) =>
           fromEventPattern(
             (handler) => {
@@ -213,6 +248,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
           )
         ),
         retryWhen((errors) => {
+          setWasTransportAttempted(true);
           return errors.pipe(delay(2000));
         })
       )
@@ -220,16 +256,38 @@ export function LedgerContextProvider({ children }: { children: any }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [initialized, initLedgerApp]);
+  }, [initialized, initLedgerApp, request]);
+
+  const closeTransport = () => {
+    if (app && initialized) {
+      setInialized(false);
+      app.transport.close();
+      setApp(undefined);
+    }
+  };
 
   /**
    *
    * @returns Promise<public key>
    */
-  function getPublicKey() {
-    return request<GetPublicKeyHandler>({
-      method: ExtensionRequest.LEDGER_GET_PUBLIC,
-    });
+  async function getExtendedPublicKey() {
+    if (!transportRef.current) {
+      throw new Error('no device detected');
+    }
+    const [pubKey, pubKeyError] = await resolve(
+      getLedgerExtendedPublicKeyOfAccount(transportRef.current)
+    );
+    if (pubKeyError) {
+      throw new Error(pubKeyError);
+    }
+    return pubKey;
+  }
+
+  async function getPublicKey(accountIndex: number, pathType: DerivationPath) {
+    if (!transportRef.current) {
+      throw new Error('no device detected');
+    }
+    return getPubKeyFromTransport(transportRef.current, accountIndex, pathType);
   }
 
   /**
@@ -266,14 +324,39 @@ export function LedgerContextProvider({ children }: { children: any }) {
     });
   }, [initialized, request]);
 
+  useEffect(() => {
+    const subscription = events()
+      .pipe(
+        filter((evt) => evt.name === LedgerEvent.TRANSPORT_CLOSE_REQUEST),
+        filter(() =>
+          // check if there if the window is claiming interface index 2. We should close the window
+          // which would clean up the claimed interfaces, thereby releasing it to the new window
+
+          // In windows where this interface wasnt claimed the values here will be false
+          app?.transport?.device.configuration.interfaces.some(
+            (i) => i.claimed && i.interfaceNumber === 2
+          )
+        )
+      )
+      .subscribe(() => {
+        window.close();
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  });
+
   return (
     <LedgerContext.Provider
       value={{
         popDeviceSelection,
-        getPublicKey,
+        getExtendedPublicKey,
         initLedgerTransport,
         hasLedgerTransport: !!app,
+        wasTransportAttempted,
         appType,
+        getPublicKey,
+        closeTransport,
       }}
     >
       {children}

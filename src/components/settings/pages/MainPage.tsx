@@ -141,7 +141,11 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           />
         </DropDownMenuItem>
       )}
-      <DropDownMenuItem data-testid="show-tokens-without-balance-option" justify="space-between" padding="10px 16px">
+      <DropDownMenuItem
+        data-testid="show-tokens-without-balance-option"
+        justify="space-between"
+        padding="10px 16px"
+      >
         <Typography size={14} height="17px">
           Show Tokens Without Balance
         </Typography>
@@ -151,7 +155,11 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         />
       </DropDownMenuItem>
 
-      <DropDownMenuItem data-testid="set-default-extension-option" justify="space-between" padding="12px 16px">
+      <DropDownMenuItem
+        data-testid="set-default-extension-option"
+        justify="space-between"
+        padding="12px 16px"
+      >
         <Typography size={14} height="17px">
           Set as Default Extension
         </Typography>

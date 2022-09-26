@@ -77,7 +77,7 @@ export function CustomGasLimit({
         >
           {newFees.fee}
           <SubTextTypography padding="0 0 0 4px" weight={500} height="24px">
-            AVAX
+            {network?.networkToken.symbol}
           </SubTextTypography>
         </Typography>
         <Input

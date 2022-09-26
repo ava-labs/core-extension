@@ -47,6 +47,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
+        testId="enter-recovery-phrase"
         title="Enter Secret Recovery Phrase"
         onBack={onBack}
         onClose={onCancel}

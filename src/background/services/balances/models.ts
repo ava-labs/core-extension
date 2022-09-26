@@ -29,15 +29,33 @@ export interface TokenWithBalanceERC20
   type: TokenType.ERC20;
 }
 
+export interface TokenAttributeERC721 {
+  name: string;
+  value: string;
+}
+
+export interface ERC721Metadata {
+  attributes?: {
+    key?: string;
+    trait_type: string;
+    value: string;
+  }[];
+  name?: string;
+  image?: string;
+  description?: string;
+}
+
 export interface NftTokenWithBalance extends TokenBalanceData {
   type: TokenType.ERC721 | TokenType.ERC1155;
   address: string;
-  decimals: number;
   description: string;
   logoUri: string;
+  logoSmall: string;
   name: string;
   symbol: string;
   tokenId: string;
+  attributes: TokenAttributeERC721[];
+  collectionName: string;
 }
 
 export interface NetworkTokenWithBalance
@@ -46,10 +64,8 @@ export interface NetworkTokenWithBalance
   type: TokenType.NATIVE;
 }
 
-export type TokenWithBalance =
-  | NetworkTokenWithBalance
-  | TokenWithBalanceERC20
-  | NftTokenWithBalance;
+export type TokenWithBalance = NetworkTokenWithBalance | TokenWithBalanceERC20;
+export type SendableToken = TokenWithBalance | NftTokenWithBalance;
 
 export interface TokenListDict {
   [contract: string]: TokenWithBalance;
@@ -70,3 +86,5 @@ export interface Balances {
     | { [address: string]: TokenWithBalance[] }
     | undefined;
 }
+
+export const CLOUDFLARE_IPFS_URL = 'https://cloudflare-ipfs.com';

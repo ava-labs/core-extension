@@ -22,8 +22,12 @@ export function useLedgerDisconnectedDialog(
 ): boolean {
   const theme = useTheme();
   const { walletType } = useWalletContext();
-  const { hasLedgerTransport, appType, popDeviceSelection } =
-    useLedgerContext();
+  const {
+    hasLedgerTransport,
+    wasTransportAttempted,
+    appType,
+    popDeviceSelection,
+  } = useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
   const { network } = useNetworkContext();
   const [hasCorrectApp, setHasCorrectApp] = useState(false);
@@ -128,8 +132,9 @@ export function useLedgerDisconnectedDialog(
 
   useEffect(() => {
     clearDialog();
-
-    if (walletType !== WalletType.LEDGER) {
+    // only show dialogs for ledger wallets and
+    // wait for transport to be attempted at least once
+    if (walletType !== WalletType.LEDGER || !wasTransportAttempted) {
       return;
     }
 
@@ -141,6 +146,7 @@ export function useLedgerDisconnectedDialog(
     }
     setHasCorrectApp(hasCorrectApp);
   }, [
+    wasTransportAttempted,
     hasLedgerTransport,
     showLedgerDisconnectedDialog,
     walletType,

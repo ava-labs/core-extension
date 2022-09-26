@@ -18,7 +18,6 @@ import { useHistory } from 'react-router-dom';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { NFT } from '@src/background/services/balances/nft/models';
 import { SendState } from '@src/background/services/send/models';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
 
@@ -61,8 +60,7 @@ const ContactAddress = styled(Typography)`
 type CollectibleSendConfirmProps = {
   sendState: SendState<NftTokenWithBalance>;
   contact: Contact;
-  nft: NFT;
-  tokenId: string;
+  nft: NftTokenWithBalance;
   onSubmit(): void;
 };
 
@@ -70,7 +68,6 @@ export const CollectibleSendConfirm = ({
   sendState,
   contact,
   nft,
-  tokenId,
   onSubmit,
 }: CollectibleSendConfirmProps) => {
   const history = useHistory();
@@ -78,9 +75,7 @@ export const CollectibleSendConfirm = ({
 
   useLedgerDisconnectedDialog(history.goBack);
 
-  const nftItem = nft.nftData.find((data) => data.tokenId === tokenId);
-
-  if (!activeAccount || !nftItem) {
+  if (!activeAccount) {
     history.push('/home');
     return null;
   }
@@ -105,9 +100,7 @@ export const CollectibleSendConfirm = ({
             <StyledCollectibleMedia
               width="auto"
               height="56px"
-              url={
-                nftItem.externalData?.imageSmall || nftItem.externalData?.image
-              }
+              url={nft?.logoSmall || nft?.logoUri}
             />
             <VerticalFlex width="100%" align="center">
               <SubTextTypography size={14} height="17px">
@@ -118,9 +111,9 @@ export const CollectibleSendConfirm = ({
                 height="22px"
                 weight={700}
                 margin="4px 0"
-              >{`#${tokenId}`}</Typography>
+              >{`#${nft.tokenId}`}</Typography>
               <SubTextTypography size={16} height="24px" weight={600}>
-                {nftItem?.externalData?.name}
+                {nft?.name}
               </SubTextTypography>
               <HorizontalFlex
                 margin="16px 0 0"

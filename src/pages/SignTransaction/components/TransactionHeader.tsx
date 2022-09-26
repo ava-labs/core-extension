@@ -7,18 +7,15 @@ import {
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { TransactionProgressState } from '../models';
 
 interface TransactionHeaderProps {
   title: string;
   showNetwork?: boolean;
-  transactionState: TransactionProgressState;
 }
 
 export function TransactionHeader({
   title,
   showNetwork = true,
-  transactionState,
 }: TransactionHeaderProps) {
   const { isWalletLocked } = useWalletContext();
   const { network } = useNetworkContext();
@@ -26,14 +23,7 @@ export function TransactionHeader({
   return (
     <VerticalFlex padding="12px 0">
       <Typography as="h1" size={20} height="29px" weight={600}>
-        {
-          {
-            [TransactionProgressState.PENDING]: 'Transaction Pending...',
-            [TransactionProgressState.ERROR]: 'Transaction Failed',
-            [TransactionProgressState.SUCCESS]: 'Transaction Successful',
-            [TransactionProgressState.NOT_APPROVED]: title,
-          }[transactionState]
-        }
+        {title}
       </Typography>
       {showNetwork && (
         <HorizontalFlex margin="6px 0 0" align="center">

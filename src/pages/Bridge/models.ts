@@ -16,3 +16,9 @@ export const blockchainDisplayNameMap = new Map([
   [Blockchain.BITCOIN, 'Bitcoin'],
   [Blockchain.UNKNOWN, ''],
 ]);
+
+export const SUPPORTED_CHAINS = [
+  Blockchain.AVALANCHE,
+  Blockchain.ETHEREUM,
+  Blockchain.BITCOIN,
+];

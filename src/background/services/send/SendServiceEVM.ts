@@ -21,8 +21,8 @@ import {
 } from './models';
 import {
   TokenType,
-  NftTokenWithBalance,
   TokenWithBalanceERC20,
+  NftTokenWithBalance,
 } from '../balances/models';
 import { isAddress } from 'ethers/lib/utils';
 import { isNFT } from '../balances/nft/utils/isNFT';
@@ -49,7 +49,7 @@ export class SendServiceEVM implements SendServiceHelper {
     return {
       ...unsignedTx,
       chainId,
-      gasLimit,
+      gasLimit: sendState.customGasLimit ?? gasLimit,
       gasPrice: sendState.gasPrice,
       nonce,
     };
@@ -72,7 +72,7 @@ export class SendServiceEVM implements SendServiceHelper {
     const maxAmount =
       token.type === TokenType.NATIVE
         ? token.balance.sub(sendFee || new BN(0))
-        : token.balance;
+        : (token as TokenWithBalanceERC20).balance;
 
     const newState: SendState = {
       ...sendState,
@@ -131,9 +131,6 @@ export class SendServiceEVM implements SendServiceHelper {
   }
 
   private async getGasLimit(sendState: SendState): Promise<number> {
-    const { gasLimit: customGasLimit } = sendState;
-    if (customGasLimit) return customGasLimit;
-
     if (!sendState.address) return 0;
 
     const provider = await this.getProvider();

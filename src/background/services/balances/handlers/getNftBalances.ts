@@ -3,12 +3,12 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { NetworkService } from '../../network/NetworkService';
-import { NFT } from '../nft/models';
+import { NftTokenWithBalance } from '../models';
 import { NFTBalancesService } from '../nft/NFTBalancesService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NFT_BALANCES_GET,
-  NFT[]
+  NftTokenWithBalance[]
 >;
 
 @injectable()
@@ -45,6 +45,7 @@ export class GetNftBalancesHandler implements HandlerType {
         ),
       };
     } catch (e) {
+      console.error(e);
       return {
         ...request,
         error: (e as any).toString(),

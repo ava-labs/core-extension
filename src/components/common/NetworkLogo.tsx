@@ -1,4 +1,5 @@
 import { GlobeIcon } from '@avalabs/react-components';
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import styled, { useTheme } from 'styled-components';
 
 export const GlobeIconContainer = styled.div<NetworkLogoProps>`
@@ -46,7 +47,7 @@ export function NetworkLogo({
       {src ? (
         <NetworkLogoImage
           height={height}
-          src={src}
+          src={ipfsResolverWithFallback(src)}
           position={position}
         ></NetworkLogoImage>
       ) : (

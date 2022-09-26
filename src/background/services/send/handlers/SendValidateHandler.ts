@@ -1,17 +1,16 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { TokenWithBalance } from '../../balances/models';
+import { SendableToken } from '../../balances/models';
 import { SendState } from '../models';
 import { SendService } from '../SendService';
 
-export type SendValidateHandlerType<
-  T extends TokenWithBalance = TokenWithBalance
-> = ExtensionRequestHandler<
-  ExtensionRequest.SEND_VALIDATE,
-  SendState<T>,
-  SendState<T>
->;
+export type SendValidateHandlerType<T extends SendableToken = SendableToken> =
+  ExtensionRequestHandler<
+    ExtensionRequest.SEND_VALIDATE,
+    SendState<T>,
+    SendState<T>
+  >;
 
 @injectable()
 export class SendValidateHandler implements SendValidateHandlerType {

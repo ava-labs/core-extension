@@ -1,10 +1,9 @@
-import { LoadingSpinnerIcon, VerticalFlex } from '@avalabs/react-components';
+import { VerticalFlex } from '@avalabs/react-components';
 import { Tabs } from '@src/components/common/Tabs';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { Activity } from '@src/pages/Activity/Activity';
-import { useTheme } from 'styled-components';
 import { Collectibles } from '../../../Collectibles/Collectibles';
 import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
@@ -16,28 +15,17 @@ enum PortfolioTabs {
 }
 
 export function Portfolio() {
-  const theme = useTheme();
-  const { tokens } = useBalancesContext();
   const { bridgeTransactions } = useBridgeContext();
   const { capture } = useAnalyticsContext();
-
-  if (tokens.loading) {
-    return (
-      <VerticalFlex justify="center" align="center" height="100%">
-        <LoadingSpinnerIcon
-          width="32px"
-          height="32px"
-          color={theme.colors.primary1}
-        />
-      </VerticalFlex>
-    );
-  }
+  const { network } = useNetworkContext();
+  const loading = !network ? true : false;
 
   return (
     <>
       <VerticalFlex grow="1">
         <WalletBalances />
         <Tabs
+          loading={loading}
           margin="14px 0 0"
           tabs={[
             {

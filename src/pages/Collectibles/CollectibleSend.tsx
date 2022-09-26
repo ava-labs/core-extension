@@ -30,12 +30,12 @@ import { BigNumber } from 'ethers';
 import {
   TokenType,
   NftTokenWithBalance,
+  NetworkTokenWithBalance,
 } from '@src/background/services/balances/models';
 import { useSend } from '../Send/hooks/useSend';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { mapTokenFromNFT } from '@src/background/services/send/utils/mapTokenFromNFT';
 import { WalletType } from '@src/background/services/wallet/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
@@ -44,7 +44,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 export function CollectibleSend() {
   const theme = useTheme();
   const { walletType } = useWalletContext();
-  const { nft, tokenId } = useCollectibleFromParams();
+  const { nft } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
   const { sendState, resetSendState, submitSendState, updateSendState } =
@@ -59,20 +59,17 @@ export function CollectibleSend() {
   );
   const [showTxInProgress, setShowTxInProgress] = useState(false);
 
-  const nftItem = nft?.nftData.find((item) => item.tokenId === tokenId);
-
   useEffect(() => {
-    if (nft && nftItem && !sendState.token) {
+    if (nft && !sendState.token) {
       updateSendState({
-        token: mapTokenFromNFT(nft, nftItem),
+        token: nft,
       });
     }
-  }, [nft, nftItem, sendState.token, updateSendState]);
+  }, [nft, sendState.token, updateSendState]);
 
   const onContactChanged = (contact: Contact) => {
     setCollectibleParams({
       nft: nft,
-      tokenId,
       address: contact.address,
       options: { replace: true },
     });
@@ -80,19 +77,21 @@ export function CollectibleSend() {
       address: contact.address,
     });
   };
-
+  const gasToken = tokensWithBalances?.find((t) => t.type === TokenType.NATIVE);
   const maxGasPrice =
-    tokensWithBalances
-      ?.find((t) => t.type === TokenType.NATIVE)
-      ?.balance.toString() || '0';
+    (gasToken as NetworkTokenWithBalance)?.balance.toString() || '0';
 
   const onGasChanged = useCallback(
-    (gasLimit: number, gasPrice: BigNumber, feeType: GasFeeModifier) => {
+    (values: {
+      customGasLimit?: number;
+      gasPrice: BigNumber;
+      feeType: GasFeeModifier;
+    }) => {
       updateSendState({
-        gasLimit,
-        gasPrice,
+        customGasLimit: values.customGasLimit,
+        gasPrice: values.gasPrice,
       });
-      setSelectedGasFee(feeType);
+      setSelectedGasFee(values.feeType);
     },
     [updateSendState]
   );
@@ -152,7 +151,7 @@ export function CollectibleSend() {
       });
   };
 
-  if (!nft || !tokenId || !nftItem) {
+  if (!nft) {
     return <Redirect to={'/'} />;
   }
 
@@ -163,7 +162,7 @@ export function CollectibleSend() {
           {showTxInProgress && (
             <TxInProgress
               address={sendState?.token?.address}
-              nftName={nftItem.externalData?.name}
+              nftName={nft?.name}
               fee={bnToLocaleString(
                 sendState?.sendFee || new BN(0),
                 network?.networkToken.decimals ?? 18
@@ -175,7 +174,6 @@ export function CollectibleSend() {
             sendState={sendState}
             contact={contactInput as Contact}
             nft={nft}
-            tokenId={tokenId}
             onSubmit={onSubmit}
           />
         </>
@@ -203,14 +201,11 @@ export function CollectibleSend() {
                     width="auto"
                     maxWidth="80px"
                     height="80px"
-                    url={
-                      nftItem?.externalData?.imageSmall ||
-                      nftItem?.externalData?.image
-                    }
+                    url={nft?.logoSmall || nft.logoUri}
                     hover={false}
                   />
                   <Typography size={14} height="17px" margin="0 0 0 16px">
-                    {nftItem.externalData?.name}
+                    {nft?.name}
                   </Typography>
                 </HorizontalFlex>
               </Card>
@@ -223,13 +218,13 @@ export function CollectibleSend() {
                 </Typography>
                 <TransactionFeeTooltip
                   gasPrice={sendState?.gasPrice || BigNumber.from(0)}
-                  gasLimit={sendState?.gasLimit}
+                  gasLimit={sendState.customGasLimit || sendState?.gasLimit}
                 />
               </HorizontalFlex>
               <VerticalFlex width="100%">
                 <CustomFees
                   gasPrice={sendState?.gasPrice || BigNumber.from(0)}
-                  limit={sendState?.gasLimit || 0}
+                  limit={sendState.customGasLimit || sendState?.gasLimit || 0}
                   onChange={onGasChanged}
                   maxGasPrice={maxGasPrice}
                   selectedGasFeeModifier={selectedGasFee}
@@ -256,7 +251,6 @@ export function CollectibleSend() {
                   onClick={() => {
                     setCollectibleParams({
                       nft,
-                      tokenId,
                       address: contactInput?.address,
                       options: { path: '/collectible/send/confirm' },
                     });

@@ -16,7 +16,19 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 export class AccountsService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
 
-  private accounts: Account[] = [];
+  private _accounts: Account[] = [];
+
+  private set accounts(acc: Account[]) {
+    if (JSON.stringify(this._accounts) === JSON.stringify(acc)) {
+      return;
+    }
+    this._accounts = acc;
+    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
+  }
+
+  private get accounts(): Account[] {
+    return this._accounts;
+  }
 
   public get activeAccount(): Account | undefined {
     return this.accounts.find((a) => a.active);
@@ -37,7 +49,6 @@ export class AccountsService implements OnLock, OnUnlock {
 
   onLock() {
     this.accounts = [];
-    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
     this.networkService.developerModeChanges.remove(this.init);
   }
 
@@ -49,11 +60,11 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     const activeIndex = accounts.find((a) => a.active)?.index || 0;
-    this.accounts = [];
+    const accountsWithAddresses: Account[] = [];
     for (const acc of accounts) {
       const addresses = await this.walletService.getAddress(acc.index);
 
-      this.accounts.push({
+      accountsWithAddresses.push({
         ...acc,
         active: acc.index === activeIndex,
         addressC: addresses[NetworkVMType.EVM],
@@ -61,7 +72,7 @@ export class AccountsService implements OnLock, OnUnlock {
       });
     }
 
-    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
+    this.accounts = accountsWithAddresses;
   };
 
   private async loadAccounts(): Promise<AccountStorageItem[]> {
@@ -93,7 +104,9 @@ export class AccountsService implements OnLock, OnUnlock {
       active: false,
     };
 
-    const addresses = await this.walletService.getAddress(nextIndex);
+    const addresses = await this.walletService.addAddress(nextIndex);
+
+    await this.saveAccounts([...storageAccounts, newAccount]);
 
     this.accounts = [
       ...this.accounts,
@@ -103,9 +116,6 @@ export class AccountsService implements OnLock, OnUnlock {
         addressBTC: addresses[NetworkVMType.BITCOIN],
       },
     ];
-
-    await this.saveAccounts([...storageAccounts, newAccount]);
-    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
   async setAccountName(index: number, name: string) {
@@ -121,8 +131,7 @@ export class AccountsService implements OnLock, OnUnlock {
     account.name = name;
 
     await this.saveAccounts(storageAccounts);
-
-    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
+    this.accounts = [...this.accounts];
   }
 
   async activateAccount(index: number) {
@@ -143,8 +152,6 @@ export class AccountsService implements OnLock, OnUnlock {
       ...acc,
       active: acc.index === index,
     }));
-
-    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
   addListener<T = unknown>(event: AccountsEvents, callback: (data: T) => void) {

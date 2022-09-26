@@ -1,5 +1,5 @@
 import { TextButton } from '@avalabs/react-components';
-import { NFT } from '@src/background/services/balances/nft/models';
+import { NftTokenWithBalance } from '@src/background/services/balances/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
@@ -25,7 +25,7 @@ const StyledMasonry = styled(Masonry)`
 export function CollectibleGrid({
   onClick,
 }: {
-  onClick: (nft: NFT, tokenId: string) => void;
+  onClick: (nft: NftTokenWithBalance) => void;
 }) {
   const { nfts } = useBalancesContext();
   return (
@@ -34,22 +34,20 @@ export function CollectibleGrid({
       breakpointCols={2}
       columnClassName="masonryColumn"
     >
-      {nfts.items?.map((collection, i) =>
-        collection.nftData?.map((nft, j) => (
-          <TextButton
-            key={`${i}-${j}`}
-            onClick={() => onClick(collection, nft.tokenId)}
-          >
-            <CollectibleMedia
-              width="164px"
-              height="auto"
-              url={nft.externalData?.image}
-              hover={false}
-              margin="0 0 16px"
-            />
-          </TextButton>
-        ))
-      )}
+      {nfts.items?.map((nft) => (
+        <TextButton
+          key={`${nft.address}-${nft.tokenId}`}
+          onClick={() => onClick(nft)}
+        >
+          <CollectibleMedia
+            width="164px"
+            height="auto"
+            url={nft?.logoUri}
+            hover={false}
+            margin="0 0 16px"
+          />
+        </TextButton>
+      ))}
     </StyledMasonry>
   );
 }

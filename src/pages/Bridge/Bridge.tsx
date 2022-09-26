@@ -27,7 +27,7 @@ import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer'
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { NetworkSelector } from './components/NetworkSelector';
@@ -54,7 +54,14 @@ import { TxInProgress } from '@src/components/common/TxInProgress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BridgeSanctions } from './components/BridgeSanctions';
 import { isAddressWhitelisted } from './utils/isAddressWhitelisted';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import {
+  blockchainToNetwork,
+  networkToBlockchain,
+} from './utils/blockchainConversion';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
+import { useAvailableBlockchains } from './hooks/useAvailableBlockchains';
 
 const ErrorSection = styled(HorizontalFlex)`
   position: relative;
@@ -117,6 +124,7 @@ export function Bridge() {
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
   const { featureFlags } = useFeatureFlagContext();
+  const availableBlockchains = useAvailableBlockchains();
 
   const { currencyFormatter, currency } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
@@ -136,6 +144,7 @@ export function Bridge() {
     useSendAnalyticsData();
 
   const { activeAccount } = useAccountsContext();
+  const { network, setNetwork, networks } = useNetworkContext();
 
   const denomination = sourceBalance?.asset.denomination || 0;
   const amountBN = useMemo(
@@ -144,34 +153,35 @@ export function Bridge() {
   );
 
   const bridgePageHistoryData: {
-    currentBlockchain?: Blockchain;
     selectedToken?: string;
     inputAmount?: Big;
   } = getPageHistoryData();
 
+  // derive blockchain/network from network
+  useEffect(() => {
+    const networkBlockchain = networkToBlockchain(network);
+    if (currentBlockchain !== networkBlockchain) {
+      setCurrentBlockchain(networkBlockchain);
+    }
+  }, [network, currentBlockchain, setCurrentBlockchain]);
+
   // Set source blockchain & amount from page storage
   useEffect(() => {
-    if (bridgePageHistoryData.currentBlockchain) {
-      setCurrentBlockchain(bridgePageHistoryData.currentBlockchain);
-    }
     if (bridgePageHistoryData.inputAmount) {
       setAmount(new Big(bridgePageHistoryData.inputAmount));
     }
-  }, [
-    bridgePageHistoryData.currentBlockchain,
-    bridgePageHistoryData.inputAmount,
-    setAmount,
-    setCurrentBlockchain,
-  ]);
+  }, [bridgePageHistoryData.inputAmount, setAmount, networks, setNetwork]);
 
   // Set token from page storage
   useEffect(() => {
+    const sourceSymbols = Object.keys(sourceAssets);
+    const symbol = bridgePageHistoryData.selectedToken;
     if (
-      bridgePageHistoryData.selectedToken &&
+      symbol &&
       !currentAsset &&
-      Object.keys(sourceAssets).length
+      sourceSymbols.length &&
+      sourceSymbols.includes(symbol) // make sure we have the selected token available on the network to prevent an infinite loop
     ) {
-      const symbol = bridgePageHistoryData.selectedToken;
       // Workaround for a race condition with useEffect in BridgeSDKProvider
       // that also calls setCurrentAsset :(
       setTimeout(() => setCurrentAsset(symbol), 1);
@@ -182,6 +192,32 @@ export function Bridge() {
     setCurrentAsset,
     sourceAssets,
   ]);
+
+  const handleBlockchainSwitchFrom = useCallback(
+    (blockchain: Blockchain) => {
+      setNavigationHistoryData({
+        selectedToken: currentAsset,
+        inputAmount: amount,
+      });
+      const blockChainNetwork = blockchainToNetwork(
+        blockchain,
+        networks,
+        bridgeConfig
+      );
+      blockChainNetwork && setNetwork(blockChainNetwork);
+      // Reset because a denomination change will change its value
+      setAmount(BIG_ZERO);
+    },
+    [
+      amount,
+      bridgeConfig,
+      currentAsset,
+      networks,
+      setAmount,
+      setNavigationHistoryData,
+      setNetwork,
+    ]
+  );
 
   const isAmountTooLow =
     amount && !amount.eq(BIG_ZERO) && amount.lt(minimum || BIG_ZERO);
@@ -202,7 +238,6 @@ export function Bridge() {
   const handleAmountChanged = (value: { bn: BN; amount: string }) => {
     const bigValue = bnToBig(value.bn, denomination);
     setNavigationHistoryData({
-      currentBlockchain,
       selectedToken: currentAsset,
       inputAmount: bigValue,
     });
@@ -213,32 +248,27 @@ export function Bridge() {
   const handleBlockchainToggle = () => {
     if (targetBlockchain) {
       setNavigationHistoryData({
-        currentBlockchain: targetBlockchain,
         selectedToken: currentAsset,
-        inputAmount: amount,
+        inputAmount: undefined,
       });
-      setCurrentBlockchain(targetBlockchain);
+      // convert blockChain to Network
+      const blockChainNetwork = blockchainToNetwork(
+        targetBlockchain,
+        networks,
+        bridgeConfig
+      );
+      setAmount(BIG_ZERO);
+      blockChainNetwork && setNetwork(blockChainNetwork);
       setIsSwitched(!isSwitched);
     }
   };
 
-  const handleBlockchainSwitchFrom = (blockchain: Blockchain) => {
-    setNavigationHistoryData({
-      currentBlockchain: blockchain,
-      selectedToken: currentAsset,
-      inputAmount: amount,
-    });
-    setCurrentBlockchain(blockchain);
-    // Reset because a denomination change will change its value
-    setAmount(BIG_ZERO);
-  };
-
   const handleSelect = (symbol: string) => {
     setNavigationHistoryData({
-      currentBlockchain,
       selectedToken: symbol,
-      inputAmount: amount,
+      inputAmount: undefined,
     });
+    setAmount(BIG_ZERO);
     setCurrentAsset(symbol);
     sendTokenSelectedAnalytics('Bridge');
   };
@@ -283,7 +313,11 @@ export function Bridge() {
     );
   };
 
-  if (error || !featureFlags[FeatureGates.BRIDGE]) {
+  if (
+    error ||
+    !featureFlags[FeatureGates.BRIDGE] ||
+    availableBlockchains.length < 2 // we need at least to blockchains to bridge between
+  ) {
     return (
       <FunctionIsOffline functionName="Bridge">
         <PrimaryButton
@@ -300,24 +334,12 @@ export function Bridge() {
     );
   }
 
-  // Remove chains turned off by the feature flags
-  const filterChains = (chains: Blockchain[]) =>
-    chains.filter((chain) => {
-      switch (chain) {
-        case Blockchain.BITCOIN:
-          return featureFlags[FeatureGates.BRIDGE_BTC];
-        case Blockchain.ETHEREUM:
-          return featureFlags[FeatureGates.BRIDGE_ETH];
-        default:
-          return true;
-      }
-    });
-
-  const sourceChains = [
-    Blockchain.AVALANCHE,
-    Blockchain.ETHEREUM,
-    Blockchain.BITCOIN,
-  ];
+  if (
+    currentBlockchain === Blockchain.UNKNOWN ||
+    !availableBlockchains.includes(currentBlockchain)
+  ) {
+    return <BridgeUnknownNetwork onSelect={handleBlockchainSwitchFrom} />;
+  }
 
   if (activeAccount && isAddressWhitelisted(activeAccount, bridgeConfig)) {
     return <BridgeSanctions />;
@@ -343,7 +365,7 @@ export function Bridge() {
                       <NetworkSelector
                         selected={currentBlockchain}
                         onSelect={handleBlockchainSwitchFrom}
-                        chains={filterChains(sourceChains)}
+                        chains={availableBlockchains}
                       />
                     </VerticalFlex>
                   </HorizontalFlex>
@@ -485,7 +507,7 @@ export function Bridge() {
                     <NetworkSelector
                       selected={targetBlockchain}
                       disabled={true}
-                      chains={filterChains(targetChains)}
+                      chains={targetChains}
                     />
                   </HorizontalFlex>
                   <SeparatorForToSection margin="16px 0 16px 0" />

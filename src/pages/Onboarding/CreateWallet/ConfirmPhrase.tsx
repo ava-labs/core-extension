@@ -28,11 +28,16 @@ export function ConfirmPhrase({
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
+        testId="confirm-phrase"
         title="Verify Secret Recovery Phrase"
         onBack={onBack}
         onClose={onCancel}
       />
-      <VerticalFlex align="center" grow="1">
+      <VerticalFlex
+        data-testid="confirm-phrase-section"
+        align="center"
+        grow="1"
+      >
         <Typography align="center" margin="8px 0 32px" size={14} height="17px">
           Select the words below to verify your
           <br />
@@ -48,6 +53,7 @@ export function ConfirmPhrase({
       </VerticalFlex>
       <VerticalFlex align="center">
         <PrimaryButton
+          data-testid="confirm-phrase-next-button"
           width="343px"
           size={ComponentSize.LARGE}
           disabled={!termsConfirmed}

@@ -2,6 +2,7 @@ import { Assetlist } from './Assetlist';
 import {
   HorizontalFlex,
   HorizontalSeparator,
+  Skeleton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -40,8 +41,9 @@ export function ActiveNetworkWidget({
   const history = useHistory();
   const { network } = useNetworkContext();
   const { currencyFormatter } = useSettingsContext();
-  if (!network) {
-    return null;
+
+  if (!network || !assetList?.length) {
+    return <Skeleton height="234px" delay={250} />;
   }
 
   const handleCardClick = (e) => {
