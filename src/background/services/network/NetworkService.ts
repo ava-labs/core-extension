@@ -370,6 +370,9 @@ export class NetworkService implements OnLock, OnStorageReady {
   async removeCustomNetwork(chainID: number) {
     delete this._customNetworks[chainID];
     const chainlist = await this.setChainListOrFallback();
+    if (chainlist && chainlist[chainID]) {
+      delete chainlist[chainID];
+    }
     this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
     const activeNetwork = await this.activeNetwork.promisify();
     if (activeNetwork?.chainId === chainID) {
