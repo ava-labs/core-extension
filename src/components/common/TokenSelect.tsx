@@ -67,7 +67,7 @@ interface TokenSelectProps {
   onTokenChange(token: TokenWithBalance | AssetBalance): void;
   maxAmount?: BN;
   inputAmount?: BN;
-  onInputAmountChange?({ amount: string, bn: BN }): void;
+  onInputAmountChange?(data: { amount: string; bn: BN }): void;
   onSelectToggle?(): void;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -176,7 +176,7 @@ export function TokenSelect({
       bridgeTokensList[0] &&
       selectedToken &&
       !bridgeTokensList
-        .map((t) => t.symbolOnNetwork)
+        .map((t) => t.symbolOnNetwork ?? t.symbol) // BTC does not have symbolOnNetwork defined
         .includes(selectedToken.symbol)
     ) {
       onTokenChange(bridgeTokensList[0]);
