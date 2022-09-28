@@ -158,7 +158,7 @@ export const NetworkForm = ({
           }}
           value={customNetwork.rpcUrl}
           label="Network RPC URL"
-          placeholder="https://URL"
+          placeholder="http(s)://URL"
           margin="0 0 16px 0"
           width="100%"
           readOnly={readOnly}
@@ -292,7 +292,7 @@ export const NetworkForm = ({
             });
           }}
           value={customNetwork.explorerUrl}
-          label="Explorer URL"
+          label="Explorer URL (Optional)"
           placeholder="Enter URL"
           margin="0 0 16px 0"
           width="100%"

@@ -39,3 +39,49 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_BRANCH: main
         run: yarn run semantic-release
+  e2e:
+    needs: release
+    name: Run E2E Smoke Tests
+    runs-on: ubuntu-latest
+    environment: e2e
+    env:
+      LOG_LEVEL: ${{secrets.LOG_LEVEL}}
+      RECOVERY_PHRASE: ${{secrets.RECOVERY_PHRASE}}
+      METAMASK_RECOVERY_PHRASE: ${{secrets.METAMASK_RECOVERY_PHRASE}}
+    steps:
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - name: Checkout automation repo
+        uses: actions/checkout@v3
+        with:
+          repository: 'ava-labs/wdio-cucumber-e2e-test'
+          path: './'
+          ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
+      - name: Install automation repo dependencies
+        run: npm install
+      - name: Get latest release tag for browser extension
+        uses: rez0n/actions-github-release@main
+        id: latest_ext_tag
+        env:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: 'ava-labs/extension-avalanche'
+          type: 'prerelease'
+      - name: Output latest release tag
+        run: echo ${{ steps.latest_ext_tag.outputs.release }}
+      - name: Get latest extension zip
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: 'ava-labs/extension-avalanche'
+          version: 'tags/${{ steps.latest_ext_tag.outputs.release }}'
+          regex: true
+          file: 'Avalanche-wallet-extension'
+          target: './'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Output extension file version before renaming
+        run: ls *.zip
+      - name: Rename extension file
+        run: mv *.zip extension.zip
+      - name: Running smoke tests against latest zip
+        run: npm run test:smoke
