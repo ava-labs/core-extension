@@ -84,4 +84,4 @@ jobs:
       - name: Rename extension file
         run: mv *.zip extension.zip
       - name: Running smoke tests against latest zip
-        run: npm run test:smoke
+        run: npm run ext:testnet-smoke
