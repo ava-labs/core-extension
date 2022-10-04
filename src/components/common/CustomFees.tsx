@@ -157,7 +157,6 @@ export function CustomFees({
   const handleGasChange = useCallback(
     (gas: BigNumber, modifier: GasFeeModifier): void => {
       setIsGasPriceTooHigh(false);
-
       // update customGas
       setCustomGasPrice(gas);
       // update
@@ -196,7 +195,7 @@ export function CustomFees({
 
   const updateGasFee = useCallback(
     (modifier?: GasFeeModifier) => {
-      if (!modifier || !networkFee) {
+      if (!modifier || !networkFee || !customGasInput) {
         return;
       }
       setSelectedFee(modifier);
@@ -223,6 +222,9 @@ export function CustomFees({
   );
 
   const getGasFeeToDisplay = (fee: string) => {
+    if (fee === '') {
+      return fee;
+    }
     // strings coming in are already decimal formatted from our getUpToTwoDecimals function
     // If there is no network fee, return null
     if (!networkFee) return undefined;
@@ -244,7 +246,7 @@ export function CustomFees({
   };
 
   useEffect(() => {
-    if (networkFee) {
+    if (networkFee && customGasInput !== '') {
       setCustomGasInput(
         getUpToTwoDecimals(networkFee.low, networkFee.displayDecimals || 0)
       );
@@ -253,7 +255,7 @@ export function CustomFees({
         ? updateGasFee(GasFeeModifier.NORMAL)
         : updateGasFee(selectedGasFeeModifier);
     }
-  }, [networkFee, selectedGasFeeModifier, updateGasFee]);
+  }, [customGasInput, networkFee, selectedGasFeeModifier, updateGasFee]);
 
   if (
     network?.vmName === NetworkVMType.EVM &&
@@ -405,10 +407,7 @@ export function CustomFees({
                       value={getGasFeeToDisplay(customGasInput)}
                       onChange={(e) => {
                         if (e.target.value === '') {
-                          handleGasChange(
-                            BigNumber.from(0),
-                            GasFeeModifier.CUSTOM
-                          );
+                          setCustomGasInput(e.target.value);
                         } else {
                           handleGasChange(
                             utils.parseUnits(
