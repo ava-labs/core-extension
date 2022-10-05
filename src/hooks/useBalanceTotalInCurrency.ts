@@ -8,7 +8,6 @@ import { useMemo } from 'react';
 function getAddressForChain(chainId: number, account: Account) {
   return isBitcoinChainId(chainId) ? account.addressBTC : account.addressC;
 }
-
 export function useBalanceTotalInCurrency(
   account?: Account,
   onlyFavoritesAndActive = false
@@ -37,7 +36,6 @@ export function useBalanceTotalInCurrency(
     if (!areAllNetworksLoaded) {
       return null;
     }
-
     return chainIdsToSum.reduce((total, network) => {
       const address = getAddressForChain(network, account);
       return (

@@ -12,8 +12,6 @@ import {
 import { Account } from '@src/background/services/accounts/models';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
@@ -86,11 +84,9 @@ export function AccountDropdownItem({
   onSave,
 }: AccountDropdownItemProps) {
   const [accountName, setAccountName] = useState<string>(account.name);
-  const { currencyFormatter } = useSettingsContext();
   const { renameAccount } = useAccountsContext();
   const theme = useTheme();
   const inEditMode = account.active && editing;
-  const totalBalance = useBalanceTotalInCurrency(account);
 
   const editAddress = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -203,16 +199,6 @@ export function AccountDropdownItem({
             }}
           />
         </HorizontalFlex>
-      </VerticalFlex>
-      <VerticalFlex data-testid="account-balance" align="flex-end">
-        <Typography
-          color={theme.colors.text2}
-          size={12}
-          height="15px"
-          margin="4px 0 0 0"
-        >
-          {totalBalance !== null && currencyFormatter(totalBalance)}
-        </Typography>
       </VerticalFlex>
     </AccountItem>
   );
