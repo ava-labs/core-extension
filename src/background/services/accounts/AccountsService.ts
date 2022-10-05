@@ -24,7 +24,10 @@ export class AccountsService implements OnLock, OnUnlock {
     }
     this._accounts = acc;
 
-    this.saveAccounts(this._accounts);
+    // do not save empty list of accounts to storage
+    if (this._accounts.length > 0) {
+      this.saveAccounts(this._accounts);
+    }
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
@@ -87,7 +90,6 @@ export class AccountsService implements OnLock, OnUnlock {
         });
       }
     }
-
     this.accounts = accountsWithAddresses;
   };
 
