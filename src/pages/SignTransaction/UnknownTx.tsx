@@ -16,7 +16,9 @@ export function UnknownTx({
 }: TransactionDisplayValues) {
   return (
     <VerticalFlex width="100%">
-      <TransactionHeader title="Transaction Summary" />
+      <TransactionHeader
+        title={toAddress ? 'Transaction Summary' : 'Contract Deployment'}
+      />
 
       <VerticalFlex>
         {displayValue ? (
@@ -33,7 +35,7 @@ export function UnknownTx({
         <Card margin="16px 0 0" padding="16px 0 16px" direction="column">
           <HorizontalFlex justify="space-between" padding="0 16px">
             <Typography size={12} height="15px">
-              Transaction
+              {toAddress ? 'Transaction' : 'Contract Deployment'}
             </Typography>
             <Typography size={12} height="15px">
               {name}

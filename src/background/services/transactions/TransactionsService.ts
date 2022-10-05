@@ -70,7 +70,7 @@ export class TransactionsService {
     const txParams = (params || [])[0];
 
     const txDescription = await getTxInfo(
-      txParams.to.toLocaleLowerCase(),
+      txParams.to?.toLocaleLowerCase() || '',
       txParams.data,
       txParams.value,
       this.networkService
