@@ -203,6 +203,7 @@ export function SignTransactionPage() {
             TransactionProgressState.NOT_APPROVED && (
             <>
               <SecondaryButton
+                data-testid="transaction-reject-btn"
                 size={ComponentSize.LARGE}
                 width="168px"
                 onClick={() => {
@@ -217,6 +218,7 @@ export function SignTransactionPage() {
                 Reject
               </SecondaryButton>
               <PrimaryButton
+                data-testid="transaction-approve-btn"
                 disabled={!hasEnoughForNetworkFee}
                 width="168px"
                 size={ComponentSize.LARGE}

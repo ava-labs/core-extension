@@ -88,6 +88,7 @@ export function SwitchAccount() {
       <VerticalFlex width="100%" justify="space-between">
         <HorizontalFlex justify="space-between">
           <SecondaryButton
+            data-testid="switch-account-reject-btn"
             size={ComponentSize.LARGE}
             onClick={() => {
               cancelHandler();
@@ -98,6 +99,7 @@ export function SwitchAccount() {
             Reject
           </SecondaryButton>
           <PrimaryButton
+            data-testid="switch-account-approve-btn"
             size={ComponentSize.LARGE}
             onClick={() => {
               updateMessage({

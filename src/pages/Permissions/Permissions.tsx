@@ -125,7 +125,12 @@ export function PermissionsPage() {
         </Typography>
         <SecondaryDropDownMenu
           icon={
-            <Card padding="11px 16px" margin="0 0 8px" width="100%">
+            <Card
+              data-testid="connect-account-dropdown"
+              padding="11px 16px"
+              margin="0 0 8px"
+              width="100%"
+            >
               <HorizontalFlex
                 width="100%"
                 justify="space-between"
@@ -152,6 +157,7 @@ export function PermissionsPage() {
             >
               {accounts.map((account) => (
                 <DropDownMenuItem
+                  data-testid="connect-account-menu-item"
                   padding="11px 16px"
                   width="100%"
                   key={account.index}
@@ -209,6 +215,7 @@ export function PermissionsPage() {
         </Typography>
         <HorizontalFlex justify="space-between">
           <SecondaryButton
+            data-testid="connect-reject-btn"
             size={ComponentSize.LARGE}
             onClick={() => {
               cancelHandler();
@@ -219,6 +226,7 @@ export function PermissionsPage() {
             Reject
           </SecondaryButton>
           <PrimaryButton
+            data-testid="connect-approve-btn"
             size={ComponentSize.LARGE}
             onClick={() => onApproveClicked()}
             width="168px"
