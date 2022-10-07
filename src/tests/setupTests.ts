@@ -8,6 +8,7 @@ global.TextDecoder = TextDecoder as any;
 
 global.crypto = {
   randomUUID: jest.fn().mockReturnValue('00000000-0000-0000-0000-000000000000'),
+  getRandomValues: (arr) => arr.map(() => 1),
 } as any;
 
 global.chrome = {

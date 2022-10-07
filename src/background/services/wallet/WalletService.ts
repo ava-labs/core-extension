@@ -270,6 +270,7 @@ export class WalletService implements OnLock, OnUnlock {
 
   async signMessage(messageType: MessageType, data: any) {
     const wallet = await this.getWallet();
+
     if (!wallet || !(wallet instanceof Wallet)) {
       throw new Error(
         wallet
@@ -284,33 +285,42 @@ export class WalletService implements OnLock, OnUnlock {
 
     const key = Buffer.from(privateKey, 'hex');
 
+    let result;
+
     if (data) {
       switch (messageType) {
         case MessageType.ETH_SIGN:
         case MessageType.PERSONAL_SIGN:
-          return await personalSign({ privateKey: key, data });
+          result = await personalSign({ privateKey: key, data });
+          break;
         case MessageType.SIGN_TYPED_DATA:
         case MessageType.SIGN_TYPED_DATA_V1:
-          return await signTypedData({
+          result = await signTypedData({
             privateKey: key,
             data,
             version: SignTypedDataVersion.V1,
           });
+          break;
         case MessageType.SIGN_TYPED_DATA_V3:
-          return await signTypedData({
+          result = await signTypedData({
             privateKey: key,
             data,
             version: SignTypedDataVersion.V3,
           });
+          break;
         case MessageType.SIGN_TYPED_DATA_V4:
-          return await signTypedData({
+          result = await signTypedData({
             privateKey: key,
             data,
             version: SignTypedDataVersion.V4,
           });
+          break;
         default:
+          key.fill(0);
           throw new Error('unknown method');
       }
+      key.fill(0);
+      return result;
     } else {
       throw new Error('no message to sign');
     }

@@ -15,6 +15,7 @@ export async function encrypt(
   derive = true
 ): Promise<{ cypher: Uint8Array; nonce: Uint8Array; salt: Uint8Array }> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
+
   const key =
     derive || encryptionKey.length !== 32
       ? await deriveKey(encryptionKey, salt)
@@ -24,6 +25,8 @@ export async function encrypt(
   const nonce = crypto.getRandomValues(new Uint8Array(24));
 
   const cypher = nacl.secretbox(new TextEncoder().encode(secret), nonce, key);
+
+  key.fill(0);
 
   return {
     cypher,
@@ -43,14 +46,18 @@ export async function decrypt(
     derive || encryptionKey.length !== 32
       ? await deriveKey(encryptionKey, salt)
       : Buffer.from(encryptionKey);
-  // throws error when using the wrong key
-  const bytes = nacl.secretbox.open(cypher, nonce, key);
+  try {
+    // throws error when using the wrong key
+    const bytes = nacl.secretbox.open(cypher, nonce, key);
 
-  if (bytes === null) {
-    throw Error('decryption failed');
+    if (bytes === null) {
+      throw Error('decryption failed');
+    }
+
+    return new TextDecoder().decode(bytes);
+  } finally {
+    key.fill(0);
   }
-
-  return new TextDecoder().decode(bytes);
 }
 
 export async function generateKey(password: string) {
