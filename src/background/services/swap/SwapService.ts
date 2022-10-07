@@ -51,7 +51,7 @@ export class SwapService {
       throw new Error('Account address missing');
     }
 
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
 
     const query = new URLSearchParams({
       srcToken,

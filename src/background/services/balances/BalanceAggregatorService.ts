@@ -33,8 +33,7 @@ export class BalanceAggregatorService implements OnLock {
       AccountsEvents.ACCOUNTS_UPDATED,
       async (accounts) => {
         const activeAccount = accounts.find((a) => a.active);
-        const activeNetwork =
-          await this.networkService.activeNetwork.promisify();
+        const activeNetwork = this.networkService.activeNetwork;
         if (!activeAccount || !activeNetwork) {
           return;
         }

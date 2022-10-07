@@ -35,7 +35,7 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
   handle: HandlerType['handle'] = async (request) => {
     const [currentAsset] = request.params;
 
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
     const balances = this.balanceAggregatorService.balances;
     const activeAccount = this.accountsService.activeAccount;
     const currentBlockchain = networkToBlockchain(activeNetwork);

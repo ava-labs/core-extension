@@ -10,7 +10,6 @@ type HandlerType = ExtensionRequestHandler<
   {
     networks: Network[];
     activeNetwork?: Network;
-    isDeveloperMode: boolean;
     favoriteNetworks: number[];
     customNetworks: number[];
   }
@@ -37,9 +36,7 @@ export class GetNetworksStateHandler implements HandlerType {
       a.chainName.localeCompare(b.chainName)
     );
 
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
-
-    const isDeveloperMode = this.networkService.isDeveloperMode;
+    const activeNetwork = this.networkService.activeNetwork;
 
     const favoriteNetworks = this.networkService.favoriteNetworks;
 
@@ -52,7 +49,6 @@ export class GetNetworksStateHandler implements HandlerType {
       result: {
         networks: networkList,
         activeNetwork,
-        isDeveloperMode,
         favoriteNetworks,
         customNetworks,
       },

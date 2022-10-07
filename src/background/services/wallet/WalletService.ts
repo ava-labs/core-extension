@@ -115,8 +115,7 @@ export class WalletService implements OnLock, OnUnlock {
     // getting accounts service on the fly instead of via constructor
     const accountsService = container.resolve(AccountsService);
 
-    const activeNetwork =
-      network || (await this.networkService.activeNetwork.promisify());
+    const activeNetwork = network || this.networkService.activeNetwork;
 
     if (
       !walletKeys ||

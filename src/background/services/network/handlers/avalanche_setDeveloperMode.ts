@@ -5,6 +5,7 @@ import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
+import { ChainId } from '@avalabs/chains-sdk';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
@@ -59,7 +60,9 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
         isTestmode: boolean;
       };
 
-      await this.networkService.setDeveloperMode(isTestmode);
+      await this.networkService.setNetwork(
+        isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
+      );
       onSuccess(null);
     } catch (e) {
       onError(e);

@@ -32,7 +32,7 @@ export async function findToken(
   const networkService = container.resolve(NetworkService);
   const accountsService = container.resolve(AccountsService);
   const tokenManagerService = container.resolve(TokenManagerService);
-  const activeNetwork = await networkService.activeNetwork.promisify();
+  const activeNetwork = networkService.activeNetwork;
   if (
     !balancesService.balances ||
     !activeNetwork ||

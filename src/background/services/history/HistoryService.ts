@@ -19,7 +19,7 @@ export class HistoryService {
   ) {}
 
   async getTxHistory() {
-    const network = await this.networkService.activeNetwork.promisify();
+    const network = this.networkService.activeNetwork;
 
     if (network) {
       if (network.vmName === NetworkVMType.BITCOIN) {

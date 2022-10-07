@@ -30,16 +30,13 @@ import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 export class NetworkService implements OnLock, OnStorageReady {
   private _allNetworksCache = new ValueCache<ChainList>();
   private _activeNetworksCache = new ValueCache<ChainList>();
-  private _activeNetworkCache = new ValueCache<Network>();
   private _allNetworks = new Signal<ChainList | undefined>();
-  private _activeNetwork = new Signal<Network | undefined>();
-  private _developerModeChanges = new Signal<boolean>();
-  private _isDeveloperMode = false;
+  private _activeNetwork: Network | undefined = undefined;
+  public activeNetworkChanged = new Signal<Network | undefined>();
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
   private _initChainListResolved = new Signal<boolean>();
   private _initChainListResolvedCache = new ValueCache<boolean>();
-  public developerModeChanges = this._developerModeChanges.readOnly();
   public initChainListResolved = this._initChainListResolved
     .cache(this._initChainListResolvedCache)
     .readOnly();
@@ -49,29 +46,28 @@ export class NetworkService implements OnLock, OnStorageReady {
   public activeNetworks = this._allNetworks
     .cache(this._activeNetworksCache)
     .filter((value) => !!value)
-    .map<ChainList>((chainList) =>
+    .map<ChainList>((chainList) => {
       /**
-       * Basically if in developer mode we only want to return the testnet
+       * Basically if in testnet mode we only want to return the testnet
        * networks. Otherwise we want only mainnet networks
-       *
-       * The logic here allows the consumer to listen for developer mode changed events
-       * promisify this data and get the latest expected network set
        */
-      Object.values(chainList || {})
+      return Object.values(chainList || {})
         .filter((network) =>
-          this._isDeveloperMode ? network.isTestnet : !network.isTestnet
+          this.activeNetwork?.isTestnet ? network.isTestnet : !network.isTestnet
         )
         .reduce((acc: ChainList, network) => {
           return { ...acc, [network.chainId]: network };
-        }, {})
-    )
-    .readOnly();
-  public activeNetwork = this._activeNetwork
-    .cache(this._activeNetworkCache)
+        }, {});
+    })
     .readOnly();
 
-  public get isDeveloperMode() {
-    return this._isDeveloperMode;
+  public get activeNetwork() {
+    return this._activeNetwork;
+  }
+
+  private set activeNetwork(network: Network | undefined) {
+    this._activeNetwork = network;
+    this.activeNetworkChanged.dispatch(this._activeNetwork);
   }
 
   public get favoriteNetworks() {
@@ -107,21 +103,16 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   constructor(private storageService: StorageService) {
-    // dispatching a default value so that the
-    // `await networkService.activeNetwork.promisfy()` can resolve immediately
-    this._activeNetwork.dispatch(undefined);
     this._initChainList();
   }
 
-  public async isMainnet() {
-    return await this.activeNetwork
-      .promisify()
-      .then((network) => !network?.isTestnet);
+  public isMainnet(): boolean {
+    return !!this.activeNetwork?.isTestnet;
   }
 
   onLock(): void {
-    this._activeNetwork.dispatch(undefined);
     this._allNetworks.dispatch(undefined);
+    this.activeNetwork = undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
     this._initChainListResolved.dispatch(false);
@@ -132,12 +123,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async updateNetworkState() {
-    const currentActiveNetwork = await this.activeNetwork
-      .promisify()
-      .then((network) => network);
     this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
-      isDeveloperMode: this.isDeveloperMode,
-      activeNetworkId: currentActiveNetwork?.chainId || null,
+      activeNetworkId: this.activeNetwork?.chainId || null,
       customNetworks: this._customNetworks,
       favoriteNetworks: this._favoriteNetworks,
     });
@@ -154,18 +141,12 @@ export class NetworkService implements OnLock, OnStorageReady {
     const allNetworks = { ...chainlist, ...network?.customNetworks };
     this._customNetworks = network?.customNetworks || {};
     this._allNetworks.dispatch(allNetworks);
-    this._isDeveloperMode = network?.isDeveloperMode || false;
 
     // make sure we load a testnet network when in devmode
     const activeNetwork =
       allNetworks[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID];
 
-    this._activeNetwork.dispatch(
-      this._isDeveloperMode && !activeNetwork.isTestnet
-        ? allNetworks[ChainId.AVALANCHE_TESTNET_ID]
-        : activeNetwork
-    );
-    this._developerModeChanges.dispatch(this._isDeveloperMode);
+    this.activeNetwork = activeNetwork;
 
     this._favoriteNetworks = network?.favoriteNetworks || [
       ChainId.AVALANCHE_MAINNET_ID,
@@ -208,8 +189,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async getNetwork(networkId: number): Promise<Network | undefined> {
-    const activeNetworks = await this.activeNetworks.promisify();
-    return activeNetworks[networkId];
+    const activeNetworks = await this.allNetworks.promisify();
+    return activeNetworks?.[networkId];
   }
 
   async setNetwork(networkId: number) {
@@ -218,31 +199,15 @@ export class NetworkService implements OnLock, OnStorageReady {
       throw new Error('selected network not supported');
     }
 
-    this._activeNetwork.dispatch(selectedNetwork);
-    this.updateNetworkState();
-  }
-
-  async setDeveloperMode(status: boolean) {
-    this._isDeveloperMode = status;
-
-    const activeNetworks = await this.activeNetworks.promisify();
-
-    const selectedNetwork =
-      activeNetworks[
-        this.isDeveloperMode
-          ? ChainId.AVALANCHE_TESTNET_ID
-          : ChainId.AVALANCHE_MAINNET_ID
-      ];
-    this._activeNetwork.dispatch(selectedNetwork);
-    this._developerModeChanges.dispatch(this._isDeveloperMode);
+    this.activeNetwork = selectedNetwork;
     this.updateNetworkState();
   }
 
   async getAvalancheNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
-    const network = this._isDeveloperMode
-      ? activeNetworks[ChainId.AVALANCHE_TESTNET_ID]
-      : activeNetworks[ChainId.AVALANCHE_MAINNET_ID];
+    const network =
+      activeNetworks[ChainId.AVALANCHE_TESTNET_ID] ??
+      activeNetworks[ChainId.AVALANCHE_MAINNET_ID];
     if (!network) throw new Error('Avalanche network not found');
     return network;
   }
@@ -254,9 +219,9 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getEthereumNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
-    const network = this._isDeveloperMode
-      ? activeNetworks[ChainId.ETHEREUM_TEST_GOERLY]
-      : activeNetworks[ChainId.ETHEREUM_HOMESTEAD];
+    const network =
+      activeNetworks[ChainId.ETHEREUM_TEST_GOERLY] ??
+      activeNetworks[ChainId.ETHEREUM_HOMESTEAD];
     if (!network) throw new Error('Ethereum network not found');
     return network;
   }
@@ -267,7 +232,12 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async getBitcoinNetwork(): Promise<Network> {
-    return this._isDeveloperMode ? BITCOIN_TEST_NETWORK : BITCOIN_NETWORK;
+    const activeNetworks = await this.activeNetworks.promisify();
+    const network =
+      activeNetworks[ChainId.BITCOIN] ??
+      activeNetworks[ChainId.BITCOIN_TESTNET];
+    if (!network) throw new Error('Bitcoin network not found');
+    return network;
   }
 
   async getBitcoinProvider(): Promise<BlockCypherProvider> {
@@ -310,7 +280,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    * @returns the transaction hash
    */
   async sendTransaction(signedTx: string, network?: Network): Promise<string> {
-    const activeNetwork = network || (await this.activeNetwork.promisify());
+    const activeNetwork = network || this.activeNetwork;
     if (!activeNetwork) {
       throw new Error('No active network');
     }
@@ -362,7 +332,6 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...this._customNetworks,
     });
     if (!isCustomNetworkExist) {
-      this.setDeveloperMode(false);
       this.setNetwork(convertedChainId);
     }
   }
@@ -374,8 +343,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       delete chainlist[chainID];
     }
     this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
-    const activeNetwork = await this.activeNetwork.promisify();
-    if (activeNetwork?.chainId === chainID) {
+
+    if (this.activeNetwork?.chainId === chainID) {
       this.setNetwork(ChainId.AVALANCHE_MAINNET_ID);
     }
     this.removeFavoriteNetwork(chainID);

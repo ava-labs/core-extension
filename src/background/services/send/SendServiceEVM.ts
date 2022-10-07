@@ -40,7 +40,7 @@ export class SendServiceEVM implements SendServiceHelper {
     sendState: ValidSendState
   ): Promise<TransactionRequest> {
     const unsignedTx = await this.getUnsignedTx(sendState);
-    const network = await this.networkService.activeNetwork.promisify();
+    const network = this.networkService.activeNetwork;
     const chainId = network?.chainId;
     const provider = await this.getProvider();
     const nonce = await provider.getTransactionCount(this.fromAddress);
@@ -122,7 +122,7 @@ export class SendServiceEVM implements SendServiceHelper {
   }
 
   private async getProvider() {
-    const network = await this.networkService.activeNetwork.promisify();
+    const network = this.networkService.activeNetwork;
     if (!network) throw new Error('No active network');
     const provider = this.networkService.getProviderForNetwork(network);
     if (!(provider instanceof JsonRpcBatchInternal))
@@ -149,7 +149,7 @@ export class SendServiceEVM implements SendServiceHelper {
 
   private async hasEnoughBalanceForGasForNonNative(sendFee: BN) {
     const tokens = this.networkBalancesService.balances;
-    const network = await this.networkService.activeNetwork.promisify();
+    const network = this.networkService.activeNetwork;
     const address = this.fromAddress;
     if (!network?.chainId || !address || !tokens) {
       return false;

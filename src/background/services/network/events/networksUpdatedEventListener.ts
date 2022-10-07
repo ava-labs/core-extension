@@ -6,7 +6,6 @@ export function networksUpdatedEventListener(
   evt: ExtensionConnectionEvent<{
     networks: Network[];
     activeNetwork: Network;
-    isDeveloperMode: boolean;
     favoriteNetworks: number[];
     customNetworks: Record<number, Network>;
   }>

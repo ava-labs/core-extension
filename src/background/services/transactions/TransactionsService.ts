@@ -65,7 +65,7 @@ export class TransactionsService {
 
   async addTransaction(tx: ExtensionConnectionMessage) {
     const { params, site } = tx;
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
     const now = new Date().getTime();
     const txParams = (params || [])[0];
 

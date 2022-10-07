@@ -31,8 +31,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     const supportedNetwork = await this.networkService.getNetwork(
       Number(targetChainID)
     );
-    const currentActiveNetwork =
-      await this.networkService.activeNetwork.promisify();
+    const currentActiveNetwork = this.networkService.activeNetwork;
 
     // If switch ethereum network is called, we need to verify the wallet
     // is not currently on the requested network. If it is, we just need to return early
@@ -73,11 +72,6 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
         }),
       };
     }
-
-    return {
-      ...request,
-      result: null,
-    };
   };
 
   onActionApproved = async (

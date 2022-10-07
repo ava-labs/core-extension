@@ -18,7 +18,7 @@ export class ChainChangedEvents implements DAppEventEmitter {
   }
 
   constructor(private networkService: NetworkService) {
-    this.networkService.activeNetwork.add((chain) => {
+    this.networkService.activeNetworkChanged.add((chain) => {
       if (!chain) return;
       this.eventEmitter.emit('update', {
         method: Web3Event.CHAIN_CHANGED,

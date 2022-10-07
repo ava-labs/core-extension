@@ -29,9 +29,7 @@ export function DAppRequestHandlerMiddleware(
         ? handler.handleAuthenticated(params)
         : handler.handleUnauthenticated(params);
     } else {
-      // Since we aren't using the activeNetwork until here, this was hanging the request on get activeNetwork
-      // since we aren't logged in. The promisify never resolves and never allows the request to continue.
-      const activeNetwork = await networkService.activeNetwork.promisify();
+      const activeNetwork = networkService.activeNetwork;
 
       if (!activeNetwork) throw new Error('active network undefined');
       promise = engine(activeNetwork).then((e) =>

@@ -4,7 +4,7 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 
 export function RPCCallsMiddleware(networkService: NetworkService): Middleware {
   return async (context, next, error) => {
-    const network = await networkService.activeNetwork.promisify();
+    const network = networkService.activeNetwork;
     const { method } = context.request.data;
     const declineMethodsPattern = /(^eth_|_watchAsset$)/;
     if (

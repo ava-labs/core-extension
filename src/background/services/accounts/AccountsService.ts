@@ -49,12 +49,12 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.init();
 
     // refresh addresses so in case the user switches to testnet the BTC address gets updated
-    this.networkService.developerModeChanges.add(this.onDeveloperModeChanged);
+    this.networkService.activeNetworkChanged.add(this.onDeveloperModeChanged);
   }
 
   onLock() {
     this.accounts = [];
-    this.networkService.developerModeChanges.remove(
+    this.networkService.activeNetworkChanged.remove(
       this.onDeveloperModeChanged
     );
   }
