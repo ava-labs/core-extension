@@ -34,10 +34,14 @@ export function useTokensWithBalances(
         ? activeAccount.addressBTC
         : activeAccount.addressC;
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
-      return tokens.balances?.[selectedChainId]?.[address] || [];
+      return (
+        Object.values(tokens.balances?.[selectedChainId]?.[address] ?? {}) || []
+      );
     }
 
-    const unfilteredTokens = tokens.balances?.[selectedChainId]?.[address];
+    const unfilteredTokens = Object.values(
+      tokens.balances?.[selectedChainId]?.[address] ?? {}
+    );
 
     if (!unfilteredTokens) {
       return [];

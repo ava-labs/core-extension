@@ -110,7 +110,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
       const btcBalance =
         tokens.balances?.[
           isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-        ]?.[activeAccount.addressBTC]?.[0];
+        ]?.[activeAccount.addressBTC]?.['BTC'];
 
       if (btcBalance) {
         setUtxos(btcBalance.utxos);
@@ -123,11 +123,13 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         });
       }
 
-      const btcAvalancheBalance = tokens.balances?.[
-        isDeveloperMode
-          ? ChainId.AVALANCHE_TESTNET_ID
-          : ChainId.AVALANCHE_MAINNET_ID
-      ]?.[activeAccount.addressC]?.find((token) => token.symbol === 'BTC.b');
+      const btcAvalancheBalance = Object.values(
+        tokens.balances?.[
+          isDeveloperMode
+            ? ChainId.AVALANCHE_TESTNET_ID
+            : ChainId.AVALANCHE_MAINNET_ID
+        ]?.[activeAccount.addressC] ?? {}
+      )?.find((token) => token.symbol === 'BTC.b');
 
       if (btcAvalancheBalance) {
         setBtcBalanceAvalanche({

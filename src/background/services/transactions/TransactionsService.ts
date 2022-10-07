@@ -91,9 +91,11 @@ export class TransactionsService {
       }
 
       const tokens: TokenWithBalance[] =
-        this.balancesService.balances?.[activeNetwork?.chainId || '']?.[
-          this.accountsService.activeAccount?.addressC || ''
-        ] || [];
+        Object.values(
+          this.balancesService.balances?.[activeNetwork?.chainId || '']?.[
+            this.accountsService.activeAccount?.addressC || ''
+          ] ?? {}
+        ) || [];
       const nativeToken = tokens.filter((t) => t.type === TokenType.NATIVE);
       const displayValueProps: DisplayValueParserProps = {
         gasPrice: gasPrice?.low || BigNumber.from(0),

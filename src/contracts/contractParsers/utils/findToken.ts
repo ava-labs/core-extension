@@ -41,13 +41,10 @@ export async function findToken(
     return UNKNOWN_TOKEN(address);
   }
 
-  const token = balancesService.balances[activeNetwork.chainId]?.[
-    accountsService.activeAccount.addressC
-  ]?.find(
-    (t) =>
-      t.type === TokenType.ERC20 &&
-      t.address.toLowerCase() === address.toLowerCase()
-  );
+  const token =
+    balancesService.balances[activeNetwork.chainId]?.[
+      accountsService.activeAccount.addressC
+    ]?.[address.toLowerCase()];
 
   if (token && token.type === TokenType.ERC20) {
     return token;

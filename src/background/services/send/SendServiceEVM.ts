@@ -154,9 +154,9 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!network?.chainId || !address || !tokens) {
       return false;
     }
-    const nativeToken = tokens[network.chainId]?.[address]?.find(
-      (token) => token.type === TokenType.NATIVE
-    );
+    const nativeToken = Object.values(
+      tokens[network.chainId]?.[address] ?? {}
+    )?.find((token) => token.type === TokenType.NATIVE);
 
     return nativeToken?.balance.gte(sendFee) ? true : false;
   }

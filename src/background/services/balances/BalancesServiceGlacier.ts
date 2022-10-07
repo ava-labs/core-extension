@@ -37,7 +37,7 @@ export class BalancesServiceGlacier {
   async getBalances(
     accounts: Account[],
     network: Network
-  ): Promise<Record<string, TokenWithBalance[]>> {
+  ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const selectedCurrency: any = (await this.settingsService.getSettings())
       .currency;
     const results = await Promise.allSettled(
@@ -52,11 +52,13 @@ export class BalancesServiceGlacier {
           this.getErc20BalanceForNetwork(network, address, selectedCurrency),
         ])
           .then(([nativeBalance, erc20Balances]) => {
-            let results: TokenWithBalance[] =
-              nativeBalance.status === 'fulfilled' ? [nativeBalance.value] : [];
+            let results: Record<string, TokenWithBalance> =
+              nativeBalance.status === 'fulfilled'
+                ? { [nativeBalance.value.symbol]: nativeBalance.value }
+                : {};
 
             if (erc20Balances.status === 'fulfilled') {
-              results = [...results, ...erc20Balances.value];
+              results = { ...results, ...erc20Balances.value };
             }
             return { [address]: results };
           })
@@ -70,7 +72,7 @@ export class BalancesServiceGlacier {
           (
             item
           ): item is PromiseFulfilledResult<
-            Record<string, TokenWithBalance[]>
+            Record<string, Record<string, TokenWithBalance>>
           > => item.status === 'fulfilled'
         )
         .map((item) => item.value);
@@ -155,14 +157,12 @@ export class BalancesServiceGlacier {
      * from our own list of tokens. We just set the balance to 0, these zero balance
      * tokens are only used for swap, bridge and tx parsing.
      */
-    return Object.values<TokenWithBalanceERC20>(
-      [
-        ...this.convertNetworkTokenToTokenWithBalance(activeTokenList),
-        ...tokensWithBalance, // this needs to be second in the list so it overwrites its zero balance counterpart if there is one
-      ].reduce((acc, token) => {
-        return { ...acc, [token.address]: token };
-      }, {})
-    );
+    return [
+      ...this.convertNetworkTokenToTokenWithBalance(activeTokenList),
+      ...tokensWithBalance, // this needs to be second in the list so it overwrites its zero balance counterpart if there is one
+    ].reduce((acc, token) => {
+      return { ...acc, [token.address.toLowerCase()]: token };
+    }, {});
   }
 
   private convertNetworkTokenToTokenWithBalance(

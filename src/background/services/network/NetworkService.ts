@@ -107,7 +107,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   public isMainnet(): boolean {
-    return !!this.activeNetwork?.isTestnet;
+    return !this.activeNetwork?.isTestnet;
   }
 
   onLock(): void {

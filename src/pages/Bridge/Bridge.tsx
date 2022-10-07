@@ -437,22 +437,22 @@ export function Bridge() {
                         placement="bottom-start"
                         content={
                           <VerticalFlex rowGap="16px" padding="8px">
-                            <Trans
-                              i18nKey="Insufficient balance to cover gas costs. <br />Please add {{token}}."
-                              token={
-                                currentBlockchain === Blockchain.AVALANCHE
-                                  ? 'AVAX'
-                                  : 'ETH'
-                              }
-                            />
+                            <Typography size={12}>
+                              <Trans
+                                i18nKey="Insufficient balance to cover gas costs. <br />Please add {{token}}."
+                                values={{
+                                  token:
+                                    currentBlockchain === Blockchain.AVALANCHE
+                                      ? 'AVAX'
+                                      : 'ETH',
+                                }}
+                              />
+                            </Typography>
                             {isAmountTooLow && (
                               <Typography size={12}>
-                                {
-                                  (t(
-                                    `Amount too low -- minimum is {{minimum}}`
-                                  ),
-                                  { minimum: minimum?.toFixed(9) })
-                                }
+                                {t(`Amount too low -- minimum is {{minimum}}`, {
+                                  minimum: minimum?.toFixed(9) ?? 0,
+                                })}
                               </Typography>
                             )}
                             {bridgeError && (

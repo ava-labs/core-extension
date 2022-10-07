@@ -34,7 +34,7 @@ export class BalancesService {
   async getBalancesForNetwork(
     network: Network,
     accounts: Account[]
-  ): Promise<Record<string, TokenWithBalance[]>> {
+  ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const isSupportedNetwork = await this.glacierService.isNetworkSupported(
       network.chainId
     );

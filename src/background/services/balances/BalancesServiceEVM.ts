@@ -12,12 +12,7 @@ import {
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
-import {
-  NetworkTokenWithBalance,
-  TokenWithBalanceERC20,
-  TokenWithBalance,
-  TokenType,
-} from './models';
+import { NetworkTokenWithBalance, TokenWithBalance, TokenType } from './models';
 import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
 import { TokenManagerService } from '../tokens/TokenManagerService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
@@ -72,7 +67,7 @@ export class BalancesServiceEVM {
       [address: string]: number;
     },
     userAddress: string
-  ): Promise<TokenWithBalanceERC20[]> {
+  ): Promise<Record<string, TokenWithBalance>> {
     const tokensBalances = await Promise.allSettled(
       Object.values(activeTokenList).map(async (token) => {
         const contract = new ethers.Contract(
@@ -101,8 +96,8 @@ export class BalancesServiceEVM {
       );
     });
 
-    if (!tokensBalances) return [];
-    return tokensBalances.map((token) => {
+    if (!tokensBalances) return {};
+    return tokensBalances.reduce((acc, token) => {
       const priceUSD = tokenPriceDict[token.address.toLowerCase()];
 
       const balanceNum = bnToBig(token.balance, token.decimals);
@@ -114,24 +109,27 @@ export class BalancesServiceEVM {
       );
 
       return {
-        ...token,
-        type: TokenType.ERC20,
-        balanceDisplayValue,
-        priceUSD,
-        balanceUSD,
-        balanceUsdDisplayValue: priceUSD
-          ? isNaN(balanceUSD)
-            ? ''
-            : balanceUSD.toFixed(2)
-          : '0',
+        ...acc,
+        [token.address.toLowerCase()]: {
+          ...token,
+          type: TokenType.ERC20,
+          balanceDisplayValue,
+          priceUSD,
+          balanceUSD,
+          balanceUsdDisplayValue: priceUSD
+            ? isNaN(balanceUSD)
+              ? ''
+              : balanceUSD.toFixed(2)
+            : '0',
+        },
       };
-    });
+    }, {} as Record<string, TokenWithBalance>);
   }
 
   async getBalances(
     accounts: Account[],
     network: Network
-  ): Promise<Record<string, TokenWithBalance[]>> {
+  ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const provider = this.networkService.getProviderForNetwork(network, true);
     const customTokens = await this.tokensManagerService.getTokensForNetwork(
       network
@@ -176,7 +174,10 @@ export class BalancesServiceEVM {
           );
           return {
             address: account.addressC,
-            balances: [nativeTok, ...erc20Tokens],
+            balances: {
+              [nativeTok.symbol]: nativeTok,
+              ...erc20Tokens,
+            },
           };
         })
       )
@@ -189,7 +190,7 @@ export class BalancesServiceEVM {
         ...acc,
         [result.value.address]: result.value.balances,
       };
-    }, {});
+    }, {} as Record<string, Record<string, TokenWithBalance>>);
 
     return balances;
   }
