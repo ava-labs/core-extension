@@ -39,6 +39,8 @@ import { TokenType } from '@src/background/services/balances/models';
 import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletType } from '@src/background/services/wallet/models';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 export function SignTransactionPage() {
   const requestId = useGetRequestId();
@@ -184,8 +186,10 @@ export function SignTransactionPage() {
           {!hasEnoughForNetworkFee && (
             <VerticalFlex padding="16px 0" width="100%" align="flex-start">
               <Typography color="error" size={12}>
-                Insufficient balance to cover gas costs. <br />
-                Please add {network?.networkToken.symbol}.
+                <Trans
+                  i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
+                  symbol={network?.networkToken.symbol}
+                />
               </Typography>
             </VerticalFlex>
           )}
@@ -215,7 +219,7 @@ export function SignTransactionPage() {
                   window.close();
                 }}
               >
-                Reject
+                {t('Reject')}
               </SecondaryButton>
               <PrimaryButton
                 data-testid="transaction-approve-btn"
@@ -224,7 +228,7 @@ export function SignTransactionPage() {
                 size={ComponentSize.LARGE}
                 onClick={onApproveClick}
               >
-                Approve
+                {t('Approve')}
               </PrimaryButton>
             </>
           )}

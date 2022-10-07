@@ -20,6 +20,7 @@ import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { SendState } from '@src/background/services/send/models';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
+import { t } from 'i18next';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -84,7 +85,7 @@ export const CollectibleSendConfirm = ({
     <>
       <VerticalFlex height="100%" width="100%">
         <PageTitle variant={PageTitleVariant.PRIMARY}>
-          Confirm Transaction
+          {t('Confirm Transaction')}
         </PageTitle>
         <VerticalFlex
           grow="1"
@@ -104,7 +105,7 @@ export const CollectibleSendConfirm = ({
             />
             <VerticalFlex width="100%" align="center">
               <SubTextTypography size={14} height="17px">
-                Collectible
+                {t('Collectible')}
               </SubTextTypography>
               <Typography
                 size={18}
@@ -120,7 +121,7 @@ export const CollectibleSendConfirm = ({
                 justify="space-between"
                 width="100%"
               >
-                <CardLabel>From</CardLabel>
+                <CardLabel>{t('From')}</CardLabel>
                 <VerticalFlex>
                   <ContactName>{activeAccount.name}</ContactName>
                   <ContactAddress>
@@ -130,7 +131,7 @@ export const CollectibleSendConfirm = ({
               </HorizontalFlex>
               <HorizontalSeparator margin="8px 0" />
               <HorizontalFlex justify="space-between" width="100%">
-                <CardLabel>To</CardLabel>
+                <CardLabel>{t('To')}</CardLabel>
                 <VerticalFlex>
                   <ContactName>{contact?.name}</ContactName>
                   <ContactAddress>
@@ -148,7 +149,7 @@ export const CollectibleSendConfirm = ({
                 size={ComponentSize.LARGE}
                 onClick={() => history.goBack()}
               >
-                Cancel
+                {t('Cancel')}
               </SecondaryButton>
               <Tooltip
                 content={
@@ -162,7 +163,7 @@ export const CollectibleSendConfirm = ({
                   onClick={onSubmit}
                   disabled={!sendState?.canSubmit}
                 >
-                  Send Now
+                  {t('Send Now')}
                 </PrimaryButton>
               </Tooltip>
             </HorizontalFlex>

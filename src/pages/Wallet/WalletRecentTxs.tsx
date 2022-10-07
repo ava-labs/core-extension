@@ -27,6 +27,7 @@ import {
 import { HistoryItem } from './components/History/components/HistoryItem';
 import { PendingTransactionBridge } from './components/History/PendingTransactionBrigde';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { t } from 'i18next';
 
 const StyledDropDownMenu = styled(DropDownMenu)`
   position: absolute;
@@ -63,6 +64,14 @@ export function WalletRecentTxs({
   isEmbedded = false,
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
+  const FilterItems = {
+    [FilterType.ALL]: t('All'),
+    [FilterType.BRIDGE]: t('Bridge'),
+    [FilterType.INCOMING]: t('Incoming'),
+    [FilterType.OUTGOING]: t('Outgoing'),
+    [FilterType.CONTRACT_CALL]: t('Contract Call'),
+  };
+
   const { getTransactionHistory } = useWalletContext();
   const { activeAccount } = useAccountsContext();
   const [loading, setLoading] = useState<boolean>(false);
@@ -162,16 +171,16 @@ export function WalletRecentTxs({
     const isYesterday = isSameDay(yesterday, date);
 
     return isToday
-      ? 'Today'
+      ? t('Today')
       : isYesterday
-      ? 'Yesterday'
+      ? t('Yesterday')
       : format(date, 'MMMM do');
   };
 
   const FilterItem = ({ keyName }) => (
     <StyledDropdownMenuItem onClick={() => setSelectedFilter(keyName)}>
       <HorizontalFlex justify="space-between" align="center" width="100%">
-        <Typography margin="0 16px 0 0">{keyName}</Typography>
+        <Typography margin="0 16px 0 0">{FilterItems[keyName]}</Typography>
         {selectedFilter === keyName && (
           <CheckmarkIcon color={theme.colors.text1} height="12px" />
         )}
@@ -192,18 +201,18 @@ export function WalletRecentTxs({
               justify="space-between"
             >
               <Typography size={12} margin={'0 8px 0 5px'}>
-                Display: {selectedFilter}
+                {t('Display')}: {FilterItems[selectedFilter]}
               </Typography>
               <CaretIcon height={'12px'} color={theme.colors.text1} />
             </HorizontalFlex>
           }
         >
           <VerticalFlex data-testid="filter-activity-options" width="200px">
-            <FilterItem keyName="All" />
-            <FilterItem keyName="Contract Call" />
-            <FilterItem keyName="Bridge" />
-            <FilterItem keyName="Incoming" />
-            <FilterItem keyName="Outgoing" />
+            <FilterItem keyName={FilterType.ALL} />
+            <FilterItem keyName={FilterType.CONTRACT_CALL} />
+            <FilterItem keyName={FilterType.BRIDGE} />
+            <FilterItem keyName={FilterType.INCOMING} />
+            <FilterItem keyName={FilterType.OUTGOING} />
           </VerticalFlex>
         </StyledDropDownMenu>
 
@@ -221,7 +230,7 @@ export function WalletRecentTxs({
                     weight={500}
                     margin={'8px 0 13px'}
                   >
-                    Pending
+                    {t('Pending')}
                   </Typography>
 
                   {Object.values(filteredBridgeTransactions).map((tx, i) => (

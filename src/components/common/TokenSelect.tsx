@@ -24,6 +24,7 @@ import {
 import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
 import Big from 'big.js';
+import { t } from 'i18next';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -193,10 +194,10 @@ export function TokenSelect({
         padding={padding}
       >
         <Typography size={12} color={theme.inputs.colorLabel}>
-          {label ?? 'Token'}
+          {label ?? t('Token')}
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
-          Balance: {selectedToken?.balanceDisplayValue ?? '0'}
+          {t('Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
         </Typography>
       </HorizontalFlex>
       <SelectContainer>
@@ -242,7 +243,7 @@ export function TokenSelect({
               maxAmount &&
               selectedToken?.balance &&
               selectedToken?.balance.gt(new BN(0))
-                ? 'Max'
+                ? t('Max')
                 : ''
             }
             data-testid="token-amount-input"

@@ -7,6 +7,7 @@ import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { StyledQRCodeIcon } from './NetworkWidget/common/StyledQRCodeIcon';
+import { t } from 'i18next';
 
 export function WalletIsEmpty() {
   const history = useHistory();
@@ -17,10 +18,10 @@ export function WalletIsEmpty() {
       {checkIsFunctionAvailable('ManageTokens') ? (
         <>
           <Typography size={18} height="22px" weight={600} margin="0 0 16px">
-            No assets
+            {t('No assets')}
           </Typography>
           <Typography size={14} align="center" height="17px" margin="0 0 24px">
-            Add assets by clicking the button below
+            {t('Add assets by clicking the button below')}
           </Typography>
           <PrimaryButton
             width="100%"
@@ -29,16 +30,16 @@ export function WalletIsEmpty() {
               history.push('/manage-tokens');
             }}
           >
-            Add assets
+            {t('Add assets')}
           </PrimaryButton>
         </>
       ) : (
         <>
           <Typography size={18} height="22px" weight={600} margin="0 0 16px">
-            No assets
+            {t('No assets')}
           </Typography>
           <Typography size={14} align="center" height="17px" margin="0 0 24px">
-            Receive assets by clicking the button below
+            {t('Receive assets by clicking the button below')}
           </Typography>
           <PrimaryButton
             width="100%"
@@ -48,7 +49,7 @@ export function WalletIsEmpty() {
             }}
           >
             <StyledQRCodeIcon color={theme.colors.icon1} />
-            Receive
+            {t('Receive')}
           </PrimaryButton>
         </>
       )}

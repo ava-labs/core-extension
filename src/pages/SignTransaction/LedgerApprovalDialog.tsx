@@ -8,6 +8,7 @@ import {
   HorizontalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 interface LedgerApprovalDialogProps {
   address?: string;
@@ -43,14 +44,14 @@ export function LedgerApprovalDialog({
       background={theme.colors.bg2}
     >
       <Typography weight={600} size={18} height="22px">
-        Approve on your Ledger
+        {t('Approve on your Ledger')}
       </Typography>
       <StyledCard>
         <VerticalFlex width="100%">
           {address && (
             <VerticalFlex>
               <Typography height="17px" size={14} margin="0 0 4px 0">
-                To
+                {t('To')}
               </Typography>
               <Typography height="24px" weight={600}>
                 {truncateAddress(address, 24)}
@@ -62,7 +63,7 @@ export function LedgerApprovalDialog({
             <>
               <VerticalFlex>
                 <Typography height="17px" size={14} margin="0 0 4px 0">
-                  Amount
+                  {t('Amount')}
                 </Typography>
                 <Typography height="24px" weight={600}>
                   {amount} {symbol}
@@ -75,7 +76,7 @@ export function LedgerApprovalDialog({
             <>
               <VerticalFlex>
                 <Typography height="17px" size={14} margin="0 0 4px 0">
-                  Fee
+                  {t('Fee')}
                 </Typography>
                 <Typography height="24px" weight={600}>
                   {fee} {feeSymbol}
@@ -88,7 +89,7 @@ export function LedgerApprovalDialog({
             <>
               <VerticalFlex>
                 <Typography height="17px" size={14} margin="0 0 4px 0">
-                  Collectible
+                  {t('Collectible')}
                 </Typography>
                 <Typography height="24px" weight={600}>
                   {nftName}
@@ -104,7 +105,7 @@ export function LedgerApprovalDialog({
               margin="0 0 4px 0"
               align="center"
             >
-              Status
+              {t('Status')}
             </Typography>
             <HorizontalFlex justify="center" margin="8px 0 0 0">
               <LoadingSpinnerIcon

@@ -9,6 +9,7 @@ import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
 import { TokenCard } from './components/TokenCard';
 import { TransactionHeader } from './components/TransactionHeader';
+import { t } from 'i18next';
 
 export function SwapTx({
   path,
@@ -24,7 +25,7 @@ export function SwapTx({
 
   return (
     <VerticalFlex width="100%">
-      <TransactionHeader title="Approve Swap" />
+      <TransactionHeader title={t('Approve Swap')} />
 
       <VerticalFlex>
         <AddressPaths

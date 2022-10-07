@@ -19,6 +19,7 @@ import { useNetworkContext } from '../../contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { formatUnits } from 'ethers/lib/utils';
+import { t } from 'i18next';
 
 interface CustomGasFeesProps {
   gasPrice: BigNumber;
@@ -400,7 +401,7 @@ export function CustomFees({
                   width="65px"
                 >
                   <VerticalFlex>
-                    <CustomLabel>Custom</CustomLabel>
+                    <CustomLabel>{t('Custom')}</CustomLabel>
                     <CustomInput
                       ref={customInputRef}
                       type={'number'}

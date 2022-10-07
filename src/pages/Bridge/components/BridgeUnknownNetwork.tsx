@@ -8,6 +8,7 @@ import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAvailableBlockchains } from '../hooks/useAvailableBlockchains';
 import { blockchainToNetwork } from '../utils/blockchainConversion';
+import { t } from 'i18next';
 
 export const BridgeUnknownNetwork = ({ onSelect }) => {
   const availableBlockchains = useAvailableBlockchains();
@@ -20,10 +21,10 @@ export const BridgeUnknownNetwork = ({ onSelect }) => {
 
   return (
     <VerticalFlex height="100%" width="100%">
-      <PageTitle variant={PageTitleVariant.PRIMARY}>Back</PageTitle>
+      <PageTitle variant={PageTitleVariant.PRIMARY}>{t('Back')}</PageTitle>
       <VerticalFlex align="center" justify="center" grow="1" margin="0 16px">
         <Typography size={18} align="center" height="24px" weight={600}>
-          Network not supported.
+          {t(' Network not supported.')}
         </Typography>
         <Typography
           size={16}
@@ -31,11 +32,14 @@ export const BridgeUnknownNetwork = ({ onSelect }) => {
           height="24px"
           margin="8px 0 24px 0"
         >
-          Network is not supported. Change network to supported network to
-          continue.
+          {t(
+            'Network is not supported. Change network to supported network to continue.'
+          )}
         </Typography>
         <PrimaryButton width="100%" onClick={() => onSelect(blockchain)}>
-          Switch to {network?.chainName}
+          {t('Switch to {{chainName}}', {
+            chainName: network?.chainName,
+          })}
         </PrimaryButton>
       </VerticalFlex>
     </VerticalFlex>

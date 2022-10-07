@@ -10,6 +10,8 @@ import {
   TextButton,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 const TroubleshootLink = styled(TextButton)`
   cursor: pointer;
@@ -50,7 +52,7 @@ export function LedgerConnectCard({
   return (
     <VerticalFlex margin="16px 0 0 0">
       <SubTextTypography size={12} height="24px">
-        Derivation Path
+        {t('Derivation Path')}
       </SubTextTypography>
       <LedgerCard onClick={onClick} clickable={isErrorStatus}>
         <HorizontalFlex width="100%" align="center" justify="space-between">
@@ -76,18 +78,21 @@ export function LedgerConnectCard({
       {isErrorStatus && (
         <HorizontalFlex margin="6px 0 0" align="center">
           <Typography size={12} height="16px" color={theme.colors.primary1}>
-            Unable to connect, view the troubleshoot guide
+            <Trans
+              i18nKey="Unable to connect, view the troubleshoot guide <troubleshoot><link>here</link></troubleshoot>"
+              components={{
+                troubleshoot: <TroubleshootLink onClick={onError} />,
+                link: (
+                  <Typography
+                    size={12}
+                    height="16px"
+                    color={theme.colors.primary1}
+                    margin="0 0 0 4px"
+                  />
+                ),
+              }}
+            />
           </Typography>
-          <TroubleshootLink onClick={onError}>
-            <Typography
-              size={12}
-              height="16px"
-              color={theme.colors.primary1}
-              margin="0 0 0 4px"
-            >
-              here
-            </Typography>
-          </TroubleshootLink>
         </HorizontalFlex>
       )}
     </VerticalFlex>

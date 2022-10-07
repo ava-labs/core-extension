@@ -10,6 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { ChainId } from '@avalabs/chains-sdk';
 import { useBuyClick } from '@src/hooks/useBuyClick';
 import { StyledQRCodeIcon } from './common/StyledQRCodeIcon';
+import { t } from 'i18next';
 
 const StyledBuyIcon = styled(BuyIcon)`
   width: 16px;
@@ -34,7 +35,7 @@ export function ZeroWidget() {
           }}
         >
           <StyledBuyIcon color={theme.colors.icon1} />
-          Buy
+          {t('Buy')}
         </SecondaryButton>
         <SecondaryButton
           width={'150px'}
@@ -44,7 +45,7 @@ export function ZeroWidget() {
           }}
         >
           <StyledQRCodeIcon color={theme.colors.icon1} />
-          Receive
+          {t('Receive')}
         </SecondaryButton>
       </HorizontalFlex>
     );
@@ -59,7 +60,7 @@ export function ZeroWidget() {
         }}
       >
         <StyledQRCodeIcon color={theme.colors.icon1} />
-        Receive
+        {t('Receive')}
       </SecondaryButton>
     </HorizontalFlex>
   );

@@ -9,6 +9,7 @@ import { Portfolio } from './components/Portfolio/Portfolio';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useEffect, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { t } from 'i18next';
 
 export function Home() {
   const { toggleIsDefaultExtension, isDefaultExtension } = useSettingsContext();
@@ -23,14 +24,14 @@ export function Home() {
     ) {
       toast.custom(
         <TransactionToast
-          status="You've entered your Core wallet!"
+          status={t("You've entered your Core wallet!")}
           type={TransactionToastType.SUCCESS}
-          text="Set as your default wallet?"
+          text={t('Set as your default wallet?')}
           onClick={() => {
             toggleIsDefaultExtension();
             updateInitialOpen();
           }}
-          buttonText="Yes"
+          buttonText={t('Yes')}
           onClose={() => {
             updateInitialOpen();
           }}

@@ -14,6 +14,8 @@ import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ContactInfo } from '@src/components/settings/components/ContactInfo';
 import { Contact } from '@avalabs/types';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -54,9 +56,11 @@ export function UpdateContacts({
     );
   }
 
-  const titlePrefix = method
-    ? method.slice(0, 1).toUpperCase() + method.slice(1).toLowerCase()
-    : '';
+  const translatedMethod = {
+    create: t('Create'),
+    update: t('Update'),
+    remove: t('Remove'),
+  };
 
   return (
     <VerticalFlex>
@@ -72,7 +76,7 @@ export function UpdateContacts({
             height="29px"
             weight={700}
           >
-            {titlePrefix} Contact?
+            {translatedMethod[method]} {t('Contact?')}
           </Typography>
         </HorizontalFlex>
         <HorizontalFlex>
@@ -82,8 +86,11 @@ export function UpdateContacts({
             color={theme.colors.text2}
             align="center"
           >
-            {request.site?.domain || 'This website'} is requesting to {method} a
-            contact:
+            <Trans
+              i18nKey="{{domain}} is requesting to {{method}} a contact:"
+              domain={request.site?.domain || t('This website')}
+              method={translatedMethod[method].toLowerCase()}
+            />
           </Typography>
         </HorizontalFlex>
 
@@ -98,14 +105,14 @@ export function UpdateContacts({
             <>
               <VerticalFlex>
                 <Typography size={14} color={theme.colors.text2}>
-                  From:
+                  {t('From:')}
                 </Typography>
               </VerticalFlex>
               <ContactInfo contact={request.displayData?.existing} />
 
               <VerticalFlex marginTop="16px">
                 <Typography size={14} color={theme.colors.text2}>
-                  To:
+                  {t('To:')}
                 </Typography>
               </VerticalFlex>
               <ContactInfo contact={request.displayData?.contact} />
@@ -126,7 +133,7 @@ export function UpdateContacts({
             }}
             width="168px"
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
             size={ComponentSize.LARGE}
@@ -140,7 +147,7 @@ export function UpdateContacts({
             }}
             width="168px"
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

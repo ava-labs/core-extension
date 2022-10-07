@@ -16,6 +16,7 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 export function AddTokenApproval() {
   const theme = useTheme();
@@ -46,7 +47,7 @@ export function AddTokenApproval() {
       <VerticalFlex width="100%" padding="0 16px">
         <VerticalFlex padding="12px 0" align="flex-start">
           <Typography as="h1" size={24} height="29px" weight={700} align="left">
-            Add New Asset?
+            {t('Add New Asset?')}
           </Typography>
         </VerticalFlex>
 
@@ -94,7 +95,7 @@ export function AddTokenApproval() {
                 weight={400}
                 color={theme.colors.text1}
               >
-                Name
+                {t('Name')}
               </Typography>
 
               <Typography
@@ -113,7 +114,7 @@ export function AddTokenApproval() {
                 weight={400}
                 color={theme.colors.text1}
               >
-                Symbol
+                {t('Symbol')}
               </Typography>
 
               <Typography
@@ -132,7 +133,7 @@ export function AddTokenApproval() {
                 weight={400}
                 color={theme.colors.text1}
               >
-                Address
+                {t('Address')}
               </Typography>
 
               <Typography
@@ -151,7 +152,7 @@ export function AddTokenApproval() {
                 weight={400}
                 color={theme.colors.text1}
               >
-                Decimals
+                {t('Decimals')}
               </Typography>
 
               <Typography
@@ -170,7 +171,7 @@ export function AddTokenApproval() {
                 weight={400}
                 color={theme.colors.text1}
               >
-                Contract Type
+                {t('Contract Type')}
               </Typography>
 
               <Typography
@@ -199,7 +200,7 @@ export function AddTokenApproval() {
               window.close();
             }}
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
             width="168px"
@@ -211,7 +212,7 @@ export function AddTokenApproval() {
               });
             }}
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

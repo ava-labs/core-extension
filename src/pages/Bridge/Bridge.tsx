@@ -62,6 +62,8 @@ import {
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useAvailableBlockchains } from './hooks/useAvailableBlockchains';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 const ErrorSection = styled(HorizontalFlex)`
   position: relative;
@@ -301,7 +303,7 @@ export function Bridge() {
         return;
       }
 
-      setBridgeError('The was a problem with the transfer');
+      setBridgeError(t('The was a problem with the transfer'));
       return;
     }
 
@@ -328,7 +330,7 @@ export function Bridge() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Go to the status page
+          {t('Go to the status page')}
         </PrimaryButton>
       </FunctionIsOffline>
     );
@@ -347,7 +349,7 @@ export function Bridge() {
 
   return (
     <VerticalFlex height="100%" width="100%">
-      <PageTitle>Bridge</PageTitle>
+      <PageTitle>{t('Bridge')}</PageTitle>
       <VerticalFlex padding="0 16px 0 16px" style={{ flex: 1 }}>
         <VerticalFlex style={{ flex: 1 }}>
           <TertiaryCard padding="0">
@@ -360,7 +362,7 @@ export function Bridge() {
                     align="center"
                     padding="16px 16px 0 16px"
                   >
-                    <Typography>From</Typography>
+                    <Typography>{t('From')}</Typography>
                     <VerticalFlex align="flex-end" width="100%">
                       <NetworkSelector
                         selected={currentBlockchain}
@@ -424,7 +426,7 @@ export function Bridge() {
                       }
                       setIsOpen={setIsTokenSelectOpen}
                       label=""
-                      selectorLabel="Select Token"
+                      selectorLabel={t('Select Token')}
                     />
                   </HorizontalFlex>
                   <ErrorSection height="28px">
@@ -435,21 +437,22 @@ export function Bridge() {
                         placement="bottom-start"
                         content={
                           <VerticalFlex rowGap="16px" padding="8px">
-                            {!hasEnoughForNetworkFee && (
-                              <Typography size={12}>
-                                Insufficient balance to cover gas costs. <br />
-                                Please add{' '}
-                                {currentBlockchain === Blockchain.AVALANCHE
+                            <Trans
+                              i18nKey="Insufficient balance to cover gas costs. <br />Please add {{token}}."
+                              token={
+                                currentBlockchain === Blockchain.AVALANCHE
                                   ? 'AVAX'
-                                  : 'ETH'}
-                                .
-                              </Typography>
-                            )}
+                                  : 'ETH'
+                              }
+                            />
                             {isAmountTooLow && (
                               <Typography size={12}>
-                                {`Amount too low -- minimum is ${minimum?.toFixed(
-                                  9
-                                )}`}
+                                {
+                                  (t(
+                                    `Amount too low -- minimum is {{minimum}}`
+                                  ),
+                                  { minimum: minimum?.toFixed(9) })
+                                }
                               </Typography>
                             )}
                             {bridgeError && (
@@ -464,7 +467,7 @@ export function Bridge() {
                             padding="0 5px 0 16px"
                             color={theme.colors.error}
                           >
-                            Error
+                            {t('Error')}
                           </Typography>
                           <WarningIcon
                             height="12px"
@@ -485,7 +488,7 @@ export function Bridge() {
               >
                 <Tooltip
                   placement="auto"
-                  content={<Typography size={12}>Switch</Typography>}
+                  content={<Typography size={12}>{t('Switch')}</Typography>}
                 >
                   <SwitchButton
                     data-testid="bridge-switch-button"
@@ -503,7 +506,7 @@ export function Bridge() {
               <CardClearBg>
                 <VerticalFlex width="100%">
                   <HorizontalFlex justify="space-between" align="center">
-                    <Typography>To</Typography>
+                    <Typography>{t('To')}</Typography>
                     <NetworkSelector
                       selected={targetBlockchain}
                       disabled={true}
@@ -516,13 +519,13 @@ export function Bridge() {
                     align="center"
                     margin="0 0 8px 0"
                   >
-                    <Typography size={14}>Receive</Typography>
+                    <Typography size={14}>{t('Receive')}</Typography>
 
                     <Typography size={14}>{formattedReceiveAmount}</Typography>
                   </HorizontalFlex>
                   <HorizontalFlex justify="space-between" align="center">
                     <Typography color={theme.colors.text2} size={12}>
-                      Estimated
+                      {t('Estimated')}
                     </Typography>
 
                     <Typography color={theme.colors.text2} size={12}>
@@ -537,7 +540,7 @@ export function Bridge() {
 
         {wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT && (
           <Typography size={14} align="center">
-            Waiting for deposit confirmation
+            {t('Waiting for deposit confirmation')}
           </Typography>
         )}
 
@@ -560,7 +563,7 @@ export function Bridge() {
           {isPending && (
             <StyledLoading height="16px" color={theme.colors.stroke2} />
           )}
-          Transfer
+          {t('Transfer')}
         </PrimaryButton>
       </VerticalFlex>
       {transferWithLedger && (
@@ -578,7 +581,7 @@ export function Bridge() {
       )}
       {isPending && (
         <TxInProgress
-          address={'Avalanche Bridge'}
+          address={t('Avalanche Bridge')}
           amount={bigToLocaleString(amount)}
           symbol={currentAsset}
         />

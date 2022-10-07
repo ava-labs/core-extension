@@ -12,6 +12,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CURRENCIES } from '@src/background/services/settings/models';
+import { t } from 'i18next';
 
 export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
@@ -31,12 +32,12 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Currency'}
+        title={t('Currency')}
       />
       <VerticalFlex padding="16px 16px 24px">
         <SearchInput
           data-testid="currency-search-input"
-          placeholder="Search"
+          placeholder={t('Search')}
           onSearch={setSearchTerm}
           autoFocus={true}
         />

@@ -19,6 +19,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { WalletType } from '@src/background/services/wallet/models';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
+import { t } from 'i18next';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -34,9 +35,11 @@ export function SecurityAndPrivacy({
 
   const onLogoutClick = () => {
     showDialog({
-      title: 'Have you recorded your recovery phrase?',
-      body: 'Without it you will not be able to sign back in to your account.',
-      confirmText: 'Yes',
+      title: t('Have you recorded your recovery phrase?'),
+      body: t(
+        'Without it you will not be able to sign back in to your account.'
+      ),
+      confirmText: t('Yes'),
       width: '343px',
       onConfirm: () => {
         clearDialog();
@@ -46,7 +49,7 @@ export function SecurityAndPrivacy({
           params: [true],
         });
       },
-      cancelText: 'No',
+      cancelText: t('No'),
       onCancel: () => {
         clearDialog();
       },
@@ -64,7 +67,7 @@ export function SecurityAndPrivacy({
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Security & Privacy'}
+        title={t('Security & Privacy')}
       />
 
       <SecondaryDropDownMenuItem
@@ -76,7 +79,7 @@ export function SecurityAndPrivacy({
         margin="16px 0 0"
       >
         <Typography size={14} height="17px">
-          Connected Sites
+          {t('Connected Sites')}
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -93,7 +96,7 @@ export function SecurityAndPrivacy({
         padding="10px 16px"
       >
         <Typography size={14} height="17px">
-          Change Password
+          {t('Change Password')}
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -111,7 +114,7 @@ export function SecurityAndPrivacy({
           padding="10px 16px"
         >
           <Typography size={14} height="17px">
-            Show Recovery Phrase
+            {t('Show Recovery Phrase')}
           </Typography>
           <CaretIcon
             color={theme.colors.icon1}
@@ -128,7 +131,7 @@ export function SecurityAndPrivacy({
         padding="10px 16px"
       >
         <Typography size={14} height="17px">
-          Participate in CoreAnalytics
+          {t('Participate in CoreAnalytics')}
         </Typography>
         <Toggle
           isChecked={analyticsConsent}
@@ -155,7 +158,7 @@ export function SecurityAndPrivacy({
         onClick={() => onLogoutClick()}
       >
         <Typography color={theme.colors.primary1} size={14} height="17px">
-          Reset Secret Recovery Phrase
+          {t('Reset Secret Recovery Phrase')}
         </Typography>
       </SecondaryDropDownMenuItem>
     </VerticalFlex>

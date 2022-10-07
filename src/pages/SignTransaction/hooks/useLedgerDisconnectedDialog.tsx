@@ -11,6 +11,7 @@ import {
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
   margin: 24px 0 0;
@@ -55,8 +56,10 @@ export function useLedgerDisconnectedDialog(
   const showLedgerDisconnectedDialog = useCallback(() => {
     showDialog(
       {
-        title: 'Ledger Disconnected',
-        body: 'Please connect your Ledger device to approve this transaction.',
+        title: t('Ledger Disconnected'),
+        body: t(
+          'Please connect your Ledger device to approve this transaction.'
+        ),
         width: '343px',
         component:
           requiredAppType !== LedgerAppType.AVALANCHE ? (
@@ -67,7 +70,7 @@ export function useLedgerDisconnectedDialog(
           ) : undefined,
         confirmText:
           requiredAppType !== LedgerAppType.AVALANCHE
-            ? 'Connect Ledger'
+            ? t('Connect Ledger')
             : undefined,
         onConfirm: () => {
           if (isConfirm) {
@@ -77,7 +80,7 @@ export function useLedgerDisconnectedDialog(
             window.close();
           }
         },
-        cancelText: 'Cancel',
+        cancelText: t('Cancel'),
         onCancel: () => {
           onCancel();
           clearDialog();
@@ -98,12 +101,14 @@ export function useLedgerDisconnectedDialog(
   const showIncorrectAppDialog = useCallback(() => {
     showDialog(
       {
-        title: 'Wrong App',
-        body: `Please switch to the ${requiredAppType} app on your Ledger`,
+        title: t('Wrong App'),
+        body: t('Please switch to the {{requiredAppType}} app on your Ledger', {
+          requiredAppType,
+        }),
         width: '343px',
         confirmText:
           requiredAppType !== LedgerAppType.AVALANCHE
-            ? 'Connect Ledger'
+            ? t('Connect Ledger')
             : undefined,
         onConfirm: () => {
           if (isConfirm) {
@@ -113,7 +118,7 @@ export function useLedgerDisconnectedDialog(
             window.close();
           }
         },
-        cancelText: 'Cancel',
+        cancelText: t('Cancel'),
         onCancel: () => {
           onCancel();
           clearDialog();

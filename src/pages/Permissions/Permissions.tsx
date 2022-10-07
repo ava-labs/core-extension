@@ -28,6 +28,7 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { t } from 'i18next';
 
 const AccountName = styled(Typography)<{ selected: boolean }>`
   max-width: 165px;
@@ -96,7 +97,7 @@ export function PermissionsPage() {
     >
       <HorizontalFlex padding="12px 0" width="100%">
         <Typography as="h1" size={20} height="29px" weight={600}>
-          Connect Wallet to site?
+          {t('Connect Wallet to site?')}
         </Typography>
       </HorizontalFlex>
       <SiteAvatar margin="8px 0 16px" justify="center" align="center">
@@ -121,7 +122,7 @@ export function PermissionsPage() {
       </Typography>
       <VerticalFlex margin="24px 0 0 0" flex={1} width="100%">
         <Typography size={12} height="15px" margin="0 0 4px">
-          Selected Account
+          {t('Selected Account')}
         </Typography>
         <SecondaryDropDownMenu
           icon={
@@ -211,7 +212,7 @@ export function PermissionsPage() {
           color={theme.colors.text2}
           align="center"
         >
-          Only connect to sites that you trust.
+          {t('Only connect to sites that you trust.')}
         </Typography>
         <HorizontalFlex justify="space-between">
           <SecondaryButton
@@ -223,7 +224,7 @@ export function PermissionsPage() {
             }}
             width="168px"
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
             data-testid="connect-approve-btn"
@@ -231,7 +232,7 @@ export function PermissionsPage() {
             onClick={() => onApproveClicked()}
             width="168px"
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

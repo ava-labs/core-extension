@@ -5,6 +5,7 @@ import {
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { SettingsHeader } from '../SettingsHeader';
+import { t } from 'i18next';
 
 export function Legal({ goBack, navigateTo, width }) {
   const theme = useTheme();
@@ -19,7 +20,7 @@ export function Legal({ goBack, navigateTo, width }) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Legal'}
+        title={t('Legal')}
       />
       <DropDownMenuItem
         data-testid="terms-of-use-link"
@@ -31,7 +32,7 @@ export function Legal({ goBack, navigateTo, width }) {
         href="https://wallet.avax.network/legal?core"
       >
         <Typography size={14} height="17px">
-          Terms of Use
+          {t('Terms of Use')}
         </Typography>
       </DropDownMenuItem>
       <DropDownMenuItem
@@ -44,7 +45,7 @@ export function Legal({ goBack, navigateTo, width }) {
         href="https://www.avalabs.org/privacy-policy"
       >
         <Typography size={14} height="17px">
-          Privacy Policy
+          {t('Privacy Policy')}
         </Typography>
       </DropDownMenuItem>
     </VerticalFlex>

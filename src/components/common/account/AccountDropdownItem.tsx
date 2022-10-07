@@ -14,6 +14,7 @@ import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 interface AccountDropdownItemProps {
   account: Account;
@@ -137,7 +138,7 @@ export function AccountDropdownItem({
                 margin="0 0 0 8px"
                 onClick={onSaveClicked}
               >
-                Save
+                {t('Save')}
               </TextButton>
             </>
           ) : (

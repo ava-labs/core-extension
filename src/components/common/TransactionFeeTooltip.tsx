@@ -13,6 +13,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useState } from 'react';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { t } from 'i18next';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: string | number;
@@ -50,11 +51,11 @@ export function TransactionFeeTooltip({
   const Content = (
     <VerticalFlex width="330px" padding="4px">
       <HorizontalFlex width="100%" justify="space-between" margin="0 0 8px 0">
-        <Typography size={12}>Gas Limit</Typography>
+        <Typography size={12}>{t('Gas Limit')}</Typography>
         <Typography size={12}>{gasLimit}</Typography>
       </HorizontalFlex>
       <HorizontalFlex width="100%" justify="space-between">
-        <Typography size={12}>Gas Price</Typography>
+        <Typography size={12}>{t('Gas Price')}</Typography>
         <Typography size={12}>
           {bigToLocaleString(new Big(gasPrice.toString()).div(10 ** 9), 0)}{' '}
           {gasPriceUnit}

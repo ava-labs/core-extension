@@ -19,6 +19,7 @@ import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { IconCircle } from './TransactionBridge';
 import { useBlockchainNames } from './useBlockchainNames';
+import { t } from 'i18next';
 
 type PendingTransactionBridgeProps = {
   item: BridgeTransaction;
@@ -36,9 +37,12 @@ export function PendingTransactionBridge({
     if (item?.complete) {
       toast.custom(
         <TransactionToast
-          status="Bridge Successful!"
+          status={t('Bridge Successful!')}
           type={TransactionToastType.SUCCESS}
-          text={`You transferred ${item.amount} ${item.symbol}!`}
+          text={t(`You transferred {{amount}} {{symbol}}!`, {
+            amount: item.amount,
+            symbol: item.symbol,
+          })}
         />,
         { id: item.sourceTxHash, duration: Infinity }
       );
@@ -60,7 +64,7 @@ export function PendingTransactionBridge({
         <VerticalFlex width="100%">
           <HorizontalFlex justify="space-between" width="100%">
             <Typography size={16} weight={500} height="24px">
-              Bridging...
+              {t('Bridging...')}
             </Typography>
           </HorizontalFlex>
           <SubTextTypography size={12} height="17px">
@@ -106,7 +110,7 @@ export function PendingTransactionBridge({
                 );
               }}
             >
-              View
+              {t('View')}
             </TextButton>
           </VerticalFlex>
         </HorizontalFlex>

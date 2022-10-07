@@ -8,6 +8,7 @@ import {
 } from '@avalabs/react-components';
 import { useTimer } from 'react-timer-hook';
 import styled, { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 const TimerContainer = styled.div`
   border-radius: 100px;
@@ -48,7 +49,7 @@ export function SwapRefreshTimer({
   const Content = (
     <VerticalFlex width="240px">
       <Typography size={12}>
-        Quotes are refreshed to reflect current market prices
+        {t('Quotes are refreshed to reflect current market prices')}
       </Typography>
     </VerticalFlex>
   );

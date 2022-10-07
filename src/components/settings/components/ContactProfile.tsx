@@ -16,6 +16,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useContactIdFromParams } from '@src/hooks/useContactIdFromParams';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { ContactForm } from '@src/components/settings/components/ContactForm';
+import { t } from 'i18next';
 
 interface ContactProfileProps {
   goBack: () => void;
@@ -71,17 +72,17 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
 
   const onDelete = () => {
     showDialog({
-      title: 'Delete Contact?',
-      body: 'Are you sure you want to delete this contact?',
-      confirmText: 'Delete',
+      title: t('Delete Contact?'),
+      body: t('Are you sure you want to delete this contact?'),
+      confirmText: t('Delete'),
       width: '343px',
       onConfirm: async () => {
         clearDialog();
         goBack();
         await removeContact(contact);
-        toast.custom(<CustomToast label="Contact deleted!" />);
+        toast.custom(<CustomToast label={t('Contact deleted!')} />);
       },
-      cancelText: 'Cancel',
+      cancelText: t('Cancel'),
       onCancel: () => {
         clearDialog();
       },
@@ -89,20 +90,20 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   };
 
   const renderEditAction = (
-    <Tooltip content={<Typography size={12}>Edit Contact</Typography>}>
+    <Tooltip content={<Typography size={12}>{t('Edit Contact')}</Typography>}>
       <TextButton
         data-testid="profile-edit-contact"
         onClick={() => setIsEdit(true)}
       >
         <Typography size={14} height="24px" color={theme.colors.secondary1}>
-          Edit
+          {t('Edit')}
         </Typography>
       </TextButton>
     </Tooltip>
   );
 
   const renderSaveAction = (
-    <Tooltip content={<Typography size={12}>Save Contact</Typography>}>
+    <Tooltip content={<Typography size={12}>{t('Save Contact')}</Typography>}>
       <TextButton
         data-testid="profile-save-contact-button"
         onClick={() => {
@@ -111,12 +112,12 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
             return;
           }
           updateContact(contact);
-          toast.custom(<CustomToast label="Contact updated!" />);
+          toast.custom(<CustomToast label={t('Contact updated!')} />);
           setIsEdit(false);
         }}
       >
         <Typography size={14} height="24px" color={theme.colors.secondary1}>
-          Save
+          {t('Save')}
         </Typography>
       </TextButton>
     </Tooltip>
@@ -127,7 +128,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
       {contact.address && (
         <>
           <Typography size={12} height="15px" margin="0 0 8px 0">
-            Avalanche (C-Chain) Address
+            {t('Avalanche (C-Chain) Address')}
           </Typography>
           <StyledAddress address={contact.address} isTruncated={false} />
         </>
@@ -135,7 +136,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
       {contact.addressBTC && (
         <>
           <Typography size={12} height="15px" margin="24px 0 8px 0">
-            Bitcoin Address
+            {t('Bitcoin Address')}
           </Typography>
           <StyledAddress address={contact.addressBTC} />
         </>
@@ -188,7 +189,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
             size={ComponentSize.LARGE}
             onClick={() => onDelete()}
           >
-            Delete Contact
+            {t('Delete Contact')}
           </DeleteButton>
         </VerticalFlex>
       )}

@@ -4,6 +4,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 export function NoTransactions({ loading = false }: { loading: boolean }) {
   const theme = useTheme();
@@ -14,10 +15,10 @@ export function NoTransactions({ loading = false }: { loading: boolean }) {
       ) : (
         <>
           <Typography size={18} height="22px" weight={600}>
-            No recent activity
+            {t('No recent activity')}
           </Typography>
           <Typography size={14} height="17px" margin="8px 0">
-            New transactions will show here.
+            {t('New transactions will show here.')}
           </Typography>
         </>
       )}

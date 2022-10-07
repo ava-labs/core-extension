@@ -7,6 +7,7 @@ import {
 import { TransactionDisplayValues } from '@src/background/services/transactions/models';
 import { AddressPaths } from './components/AddressPaths';
 import { TransactionHeader } from './components/TransactionHeader';
+import { t } from 'i18next';
 
 export function UnknownTx({
   fromAddress,
@@ -17,7 +18,7 @@ export function UnknownTx({
   return (
     <VerticalFlex width="100%">
       <TransactionHeader
-        title={toAddress ? 'Transaction Summary' : 'Contract Deployment'}
+        title={toAddress ? t('Transaction Summary') : t('Contract Deployment')}
       />
 
       <VerticalFlex>
@@ -35,7 +36,7 @@ export function UnknownTx({
         <Card margin="16px 0 0" padding="16px 0 16px" direction="column">
           <HorizontalFlex justify="space-between" padding="0 16px">
             <Typography size={12} height="15px">
-              {toAddress ? 'Transaction' : 'Contract Deployment'}
+              {toAddress ? t('Transaction') : t('Contract Deployment')}
             </Typography>
             <Typography size={12} height="15px">
               {name}

@@ -23,6 +23,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { AddAccountError } from './AddAccountError';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
+import { t } from 'i18next';
 
 interface AccountDropdownContentProps {
   onClose?: () => void;
@@ -101,7 +102,7 @@ export function AccountDropdownContent({
           padding="0 16px"
         >
           <Typography size={20} weight={600} height="29px">
-            Accounts
+            {t('Accounts')}
           </Typography>
           <TextButton
             data-testid="account-selector-close-button"
@@ -171,7 +172,7 @@ export function AccountDropdownContent({
             {addAccountLoading ? (
               <LoadingSpinnerIcon color={theme.colors.icon1} height="24px" />
             ) : (
-              'Add Account'
+              t('Add Account')
             )}
           </PrimaryButton>
         </HorizontalFlex>

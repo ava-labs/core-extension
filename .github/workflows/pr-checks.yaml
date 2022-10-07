@@ -27,5 +27,7 @@ jobs:
         run: yarn lint
       - name: Test
         run: yarn test
+      - name: generate localisation
+        run: yarn scanner
       - name: Build extension
         run: yarn build

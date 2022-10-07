@@ -14,6 +14,7 @@ import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme, keyframes } from 'styled-components';
+import { t } from 'i18next';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -145,7 +146,7 @@ export function Assetlist({ assetList }: AssetListProps) {
             onClick={() => history.push('/tokenlist')}
             margin="8px 0 0 0"
           >
-            + {restAssetCount} more
+            {t('+ {{restAssetCount}} more', { restAssetCount })}
           </TextButton>
         )}
       </HorizontalFlex>

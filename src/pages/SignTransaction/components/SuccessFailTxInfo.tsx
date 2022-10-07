@@ -19,6 +19,7 @@ import { BigNumber } from 'ethers';
 import Big from 'big.js';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { t } from 'i18next';
 
 export function SuccessFailTxInfo({
   hash,
@@ -43,7 +44,7 @@ export function SuccessFailTxInfo({
     return (
       <VerticalFlex margin="16px 0 0 0" width={'100%'}>
         <Typography size={12} height="15px" margin="0 0 8px 0">
-          Error:
+          {t('Error')}:
         </Typography>
         <Card height="105px" padding="16px 0">
           <Scrollbars
@@ -65,7 +66,7 @@ export function SuccessFailTxInfo({
       <HorizontalFlex width={'100%'} justify="space-between">
         <HorizontalFlex align="center">
           <Typography size={12} height="15px" margin="0 8px 0 0">
-            Network Fee
+            {t('Network Fee')}
           </Typography>
           <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={gasLimit} />
         </HorizontalFlex>
@@ -80,7 +81,7 @@ export function SuccessFailTxInfo({
       </HorizontalFlex>
       <HorizontalFlex width={'100%'} justify="space-between" margin="16px 0 0">
         <Typography size={12} height="15px" margin="0 8px 0 0">
-          Transaction Hash
+          {t('Transaction Hash')}
         </Typography>
         {hash ? (
           <HorizontalFlex align="cetner">
@@ -90,7 +91,7 @@ export function SuccessFailTxInfo({
             <TextButton
               onClick={() => {
                 navigator.clipboard.writeText(hash);
-                toast.custom(<CustomToast label="Copied!" />, {
+                toast.custom(<CustomToast label={t('Copied!')} />, {
                   duration: 2000,
                 });
               }}

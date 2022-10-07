@@ -12,6 +12,8 @@ import { truncateAddress } from '@src/utils/truncateAddress';
 import { TransactionHeader } from './components/TransactionHeader';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 export function ApproveTx({
   site,
@@ -37,16 +39,18 @@ export function ApproveTx({
         </SiteAvatar>
 
         <Typography align="center" size={14} height="17px">
-          Allow {site?.domain} to
-          <br />
-          spend your {tokenToBeApproved?.name || 'Unknown Token'}?
+          <Trans
+            i18nKey="Allow {{domain}} to <br /> spend your {{name}}?"
+            domain={site?.domain}
+            name={tokenToBeApproved?.name || 'Unknown Token'}
+          />
         </Typography>
 
         {/* Approval Amnt */}
         <VerticalFlex width="100%" margin="24px 0 0 0">
           <HorizontalFlex justify="space-between" align="center">
             <Typography size={12} height="15px">
-              Approval amount
+              {t('Approval amount')}
             </Typography>
             <Typography weight={700} size={18} height="22px">
               {displaySpendLimit}
@@ -57,7 +61,7 @@ export function ApproveTx({
                 height="24px"
                 color={theme.colors.text2}
               >
-                {tokenToBeApproved?.symbol || 'Unknown Symbol'}
+                {tokenToBeApproved?.symbol || t('Unknown Symbol')}
               </Typography>
             </Typography>
           </HorizontalFlex>
@@ -73,14 +77,14 @@ export function ApproveTx({
                 size={ComponentSize.SMALL}
                 height="16px"
               >
-                Edit
+                {t('Edit')}
               </TextButton>
             </HorizontalFlex>
           )}
 
           <HorizontalFlex justify="space-between" align="center">
             <Typography size={12} height="15px">
-              To
+              {t('To')}
             </Typography>
             <Typography weight={600} size={16} height="24px">
               {truncateAddress(rest.toAddress || '')}

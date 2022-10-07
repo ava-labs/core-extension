@@ -11,6 +11,7 @@ import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars-2';
+import { t } from 'i18next';
 
 type ConnectedListType = {
   [key: string]: {
@@ -58,16 +59,18 @@ export function ConnectedSites({
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Connected Sites'}
+        title={t('Connected Sites')}
       />
       <HorizontalFlex padding="16px">
         {connectedSitesList.length ? (
           <Typography size={14} height="17px">
-            {activeAccount?.name} is connected to these sites.
+            {t('{{name}} is connected to these sites.', {
+              name: activeAccount?.name,
+            })}
           </Typography>
         ) : (
           <Typography size={14} height="17px">
-            There are no connected sites.
+            {t('There are no connected sites.')}
           </Typography>
         )}
       </HorizontalFlex>

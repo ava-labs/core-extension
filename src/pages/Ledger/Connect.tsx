@@ -12,6 +12,8 @@ import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useEffect } from 'react';
 import { useTheme } from 'styled-components';
 import { useAppTypeFromParams } from './hooks/useAppTypeFromParams';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 export function LedgerConnect() {
   const theme = useTheme();
@@ -31,14 +33,14 @@ export function LedgerConnect() {
   return (
     <VerticalFlex height="100%" padding="0 16px">
       <Typography margin="12px" weight={700} height="29px" size={24}>
-        Ledger Status
+        {t('Ledger Status')}
       </Typography>
 
       <Card padding="16px" margin="8px 0">
         <VerticalFlex grow="1">
           <HorizontalFlex width="100%" justify="space-between" align="center">
             <Typography size={14} height="17px">
-              Status
+              {t('Status')}
             </Typography>
             <HorizontalFlex align="center">
               <ConnectionIndicator
@@ -52,7 +54,7 @@ export function LedgerConnect() {
                 color={theme.colors.text2}
                 margin="0 0 0 8px"
               >
-                {hasLedgerTransport ? 'Connected' : 'Disconnected'}
+                {hasLedgerTransport ? t('Connected') : t('Disconnected')}
               </Typography>
             </HorizontalFlex>
           </HorizontalFlex>
@@ -64,7 +66,7 @@ export function LedgerConnect() {
               align="center"
             >
               <Typography size={14} height="17px">
-                Application
+                {t('Application')}
               </Typography>
               <Typography
                 size={14}
@@ -89,26 +91,26 @@ export function LedgerConnect() {
                 height="17px"
                 weight={600}
               >
-                To Continue:
+                {t('To Continue:')}
               </Typography>
               <HorizontalFlex>
-                <StyledNumberList>1.</StyledNumberList>
+                <StyledNumberList>{t('1.')}</StyledNumberList>
                 <Typography size={14} height="17px" margin="0 0 24px 0">
-                  Click close below.
+                  {t('Click close below.')}
                 </Typography>
               </HorizontalFlex>
 
               <HorizontalFlex>
-                <StyledNumberList>2.</StyledNumberList>
+                <StyledNumberList>{t('2.')}</StyledNumberList>
                 <Typography size={14} height="17px" margin="0 0 24px 0">
-                  Open Core in your browser.
+                  {t('Open Core in your browser.')}
                 </Typography>
               </HorizontalFlex>
 
               <HorizontalFlex>
-                <StyledNumberList>3.</StyledNumberList>
+                <StyledNumberList>{t('3.')}</StyledNumberList>
                 <Typography size={14} height="17px">
-                  Reenter the transaction details and try again.
+                  {t('Reenter the transaction details and try again.')}
                 </Typography>
               </HorizontalFlex>
             </VerticalFlex>
@@ -121,36 +123,44 @@ export function LedgerConnect() {
                 height="17px"
                 weight={600}
               >
-                To Connect:
+                {t('To Connect:')}
               </Typography>
               <HorizontalFlex>
-                <StyledNumberList>1.</StyledNumberList>
+                <StyledNumberList>{t('1.')}</StyledNumberList>
                 <Typography size={14} height="17px" margin="0 0 24px 0">
-                  Connect the Ledger device to your computer.
+                  {t('Connect the Ledger device to your computer.')}
                 </Typography>
               </HorizontalFlex>
 
               <HorizontalFlex>
-                <StyledNumberList>2.</StyledNumberList>
+                <StyledNumberList>{t('2.')}</StyledNumberList>
                 <Typography size={14} height="17px" margin="0 0 24px 0">
-                  Enter your PIN and access your device.
+                  {t('Enter your PIN and access your device.')}
                 </Typography>
               </HorizontalFlex>
 
               <HorizontalFlex>
-                <StyledNumberList>3.</StyledNumberList>
+                <StyledNumberList>{t('3.')}</StyledNumberList>
                 <Typography size={14} height="17px">
-                  Ensure you have installed the latest{' '}
-                  <Typography weight={600} size={14} height="inherit">
-                    {requiredAppType} App
-                  </Typography>{' '}
-                  and open it on your device.
+                  <Trans
+                    i18nKey="Ensure you have installed the latest <typography>{{requiredAppType}} App</typography> and open it on your device."
+                    requiredAppType={requiredAppType}
+                    components={{
+                      typography: (
+                        <Typography weight={600} size={14} height="inherit" />
+                      ),
+                    }}
+                  />
                 </Typography>
               </HorizontalFlex>
 
               <Typography size={14} height="17px" margin="24px 0 0 ">
-                If you do not have the {requiredAppType} App on your Ledger,
-                please add it through the Ledger Live app manager.
+                {
+                  (t(
+                    'If you do not have the {{requiredAppType}} App on your Ledger, please add it through the Ledger Live app manager.'
+                  ),
+                  { requiredAppType })
+                }
               </Typography>
             </VerticalFlex>
           )}
@@ -168,7 +178,7 @@ export function LedgerConnect() {
           }}
           width="100%"
         >
-          {connectedWithCorrectApp ? 'Close' : 'Retry'}
+          {connectedWithCorrectApp ? t('Close') : t('Retry')}
         </PrimaryButton>
       </VerticalFlex>
     </VerticalFlex>

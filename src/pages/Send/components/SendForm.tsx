@@ -18,6 +18,7 @@ import {
   SendState,
 } from '@src/background/services/send/models';
 import { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -120,7 +121,7 @@ export const SendForm = ({
       <VerticalFlex width="100%" padding="0 16px">
         <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
           <Typography size={12} height="15px" margin="0 8px 0 0">
-            Network Fee
+            {t('Network Fee')}
           </Typography>
           <TransactionFeeTooltip
             gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}

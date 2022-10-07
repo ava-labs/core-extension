@@ -25,6 +25,7 @@ import { useHistory } from 'react-router-dom';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
+import { t } from 'i18next';
 
 interface NetworkListProps {
   networkList: Network[];
@@ -61,7 +62,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
                   onClick={() => {
                     setNetwork(networkItem);
                     toast.custom(
-                      <CustomToast label="Active Network has changed!" />
+                      <CustomToast label={t('Active Network has changed!')} />
                     );
                   }}
                   isActive={networkItem.chainId === network?.chainId}

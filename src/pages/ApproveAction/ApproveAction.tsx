@@ -19,6 +19,8 @@ import { useTheme } from 'styled-components';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
 import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
 import { BridgeTransferAsset } from './BridgeTransferAsset';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 export function ApproveAction() {
   const theme = useTheme();
@@ -60,9 +62,10 @@ export function ApproveAction() {
             </SiteAvatar>
 
             <Typography align="center" size={14} height="17px">
-              {action.site?.domain} wants to perform
-              <br />
-              the following action
+              <Trans
+                i18nKey="{{domain}} wants to perform <br /> the following action"
+                domain={action.site?.domain}
+              />
             </Typography>
           </VerticalFlex>
 
@@ -77,7 +80,7 @@ export function ApproveAction() {
           {action.error && (
             <VerticalFlex margin="16px 0 0 0" width={'100%'}>
               <Typography size={12} height="15px" margin="0 0 8px 0">
-                Error:
+                {t('Error:')}
               </Typography>
               <Card height="105px" padding="16px 0">
                 <Scrollbars
@@ -112,7 +115,7 @@ export function ApproveAction() {
                 window.close();
               }}
             >
-              Reject
+              {t('Reject')}
             </SecondaryButton>
             <PrimaryButton
               width="168px"
@@ -124,7 +127,7 @@ export function ApproveAction() {
                 });
               }}
             >
-              Approve
+              {t('Approve')}
             </PrimaryButton>
           </HorizontalFlex>
         </SignTxRenderErrorBoundary>

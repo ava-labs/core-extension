@@ -6,6 +6,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { NetworkCard } from './common/NetworkCard';
+import { t } from 'i18next';
 
 interface SeeAllNetworksButtonProps {
   isFullWidth: boolean;
@@ -26,7 +27,7 @@ export function SeeAllNetworksButton({
         history.push('/networks?activeTab=NETWORKS');
       }}
     >
-      See all networks
+      {t('See all networks')}
     </SecondaryButton>
   ) : (
     <NetworkCard
@@ -39,7 +40,7 @@ export function SeeAllNetworksButton({
     >
       <VerticalFlex justify="center" align="center" height="100%">
         <Typography color={theme.colors.text1} size={14} weight="bold">
-          See all networks
+          {t('See all networks')}
         </Typography>
       </VerticalFlex>
     </NetworkCard>

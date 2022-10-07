@@ -11,6 +11,7 @@ import { useCallback } from 'react';
 import { useTheme } from 'styled-components';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { WalletExtensionButton } from '../Wallet/components/WalletExtensionButton';
+import { Trans } from 'react-i18next';
 
 export function SelectWallet() {
   const requestId = useGetRequestId();
@@ -46,12 +47,10 @@ export function SelectWallet() {
           height="29px"
           weight={700}
         >
-          Which wallet would <br />
-          you like to use?
+          <Trans i18nKey="Which wallet would <br /> you like to use?'" />
         </Typography>
         <Typography align="center" size={14} height="17px">
-          It looks like multiple wallets are installed. <br />
-          Select which one you would like to connect.
+          <Trans i18nKey="It looks like multiple wallets are installed. <br /> Select which one you would like to connect." />
         </Typography>
       </VerticalFlex>
       <VerticalFlex width="100%" align="center">

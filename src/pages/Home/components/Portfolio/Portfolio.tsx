@@ -7,6 +7,7 @@ import { Activity } from '@src/pages/Activity/Activity';
 import { Collectibles } from '../../../Collectibles/Collectibles';
 import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
+import { t } from 'i18next';
 
 enum PortfolioTabs {
   ASSETS = 'ASSETS',
@@ -29,19 +30,19 @@ export function Portfolio() {
           margin="14px 0 0"
           tabs={[
             {
-              title: 'Assets',
+              title: t('Assets'),
               id: PortfolioTabs.ASSETS,
               component: <NetworksWidget />,
               onClick: () => capture('PortfolioAssetsClicked'),
             },
             {
-              title: 'Collectibles',
+              title: t('Collectibles'),
               id: PortfolioTabs.COLLECTIBLES,
               component: <Collectibles />,
               onClick: () => capture('PortfolioCollectiblesClicked'),
             },
             {
-              title: 'Activity',
+              title: t('Activity'),
               id: PortfolioTabs.ACTIVITY,
               component: <Activity />,
               badgeAmount:

@@ -18,6 +18,7 @@ import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
+import { t } from 'i18next';
 
 enum ListType {
   GRID = 'GRID',
@@ -172,10 +173,10 @@ export function Collectibles() {
           justify="center"
         >
           <Typography size={18} height="22px" weight={600}>
-            Error
+            {t('Error')}
           </Typography>
           <Typography size={14} align="center" height="17px" margin="8px 0">
-            Failed to load collectibles
+            {t('Failed to load collectibles')}
           </Typography>
         </VerticalFlex>
       )}

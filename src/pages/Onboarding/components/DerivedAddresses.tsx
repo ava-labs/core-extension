@@ -12,6 +12,7 @@ import { truncateAddress } from '@src/utils/truncateAddress';
 import { AddressType } from '../LedgerConnect';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { Network } from '@avalabs/chains-sdk';
+import { t } from 'i18next';
 
 const AddressField = styled(HorizontalFlex)<{ padding?: string }>`
   color: ${({ theme }) => theme.colors.text1};
@@ -33,7 +34,7 @@ export function DerivedAddresses({
   return (
     <VerticalFlex margin="24px 0 0 0">
       {!hideLoadinSkeleton && (
-        <Typography size={12}>Your Derived Addresses</Typography>
+        <Typography size={12}>{t('Your Derived Addresses')}</Typography>
       )}
       <VerticalFlex color={theme.colors.text1} align="flex-start" justify="">
         {addresses.map((addressData, index) => {

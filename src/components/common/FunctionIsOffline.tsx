@@ -1,10 +1,17 @@
 import { Typography, VerticalFlex } from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
+import { t } from 'i18next';
 
 interface FunctionIsOfflineProps {
-  functionName: string;
+  functionName: 'Bridge' | 'Send' | 'Swap';
 }
+
+export const FunctionNames = {
+  Bridge: t('Bridge'),
+  Swap: t('Swap'),
+  Send: t('Send'),
+};
 
 export function FunctionIsOffline({
   functionName,
@@ -12,13 +19,15 @@ export function FunctionIsOffline({
 }: PropsWithChildren<FunctionIsOfflineProps>) {
   return (
     <VerticalFlex height="100%" width="100%">
-      <PageTitle variant={PageTitleVariant.PRIMARY}>Sorry</PageTitle>
+      <PageTitle variant={PageTitleVariant.PRIMARY}>{t('Sorry')}</PageTitle>
       <VerticalFlex align="center" justify="center" grow="1">
         <Typography size={16} align="center" height="24px">
-          Sorry, {functionName} is currently unavailable.
+          {t('Sorry, {{functionName}} is currently unavailable.', {
+            functionName: FunctionNames[functionName] || functionName,
+          })}
         </Typography>
         <Typography size={16} align="center" height="24px">
-          Please check back later.
+          {t('Please check back later.')}
         </Typography>
         {children}
       </VerticalFlex>

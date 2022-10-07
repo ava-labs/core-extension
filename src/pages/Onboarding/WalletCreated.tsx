@@ -11,6 +11,8 @@ import { Logo } from '@src/components/icons/Logo';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useEffect } from 'react';
 import styled, { useTheme } from 'styled-components';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 const WalletCreatedCard = styled(HorizontalFlex)`
   width: 450px;
@@ -51,7 +53,7 @@ export function WalletCreated() {
             height="22px"
             margin="0 0 4px 0"
           >
-            Wallet created!
+            {t('Wallet created!')}
           </Typography>
           <Typography
             color={theme.palette.grey[900]}
@@ -60,12 +62,18 @@ export function WalletCreated() {
             height="24px"
             margin="0 0 4px 0"
           >
-            Pin the Core extension
+            {t('Pin the Core extension')}
           </Typography>
           <Typography color={theme.palette.grey[900]} size={16} height="24px">
-            Click <PuzzleIcon color={theme.colors.bg1} height="18px" /> and then{' '}
-            <PinIcon color={theme.colors.bg1} height="18px" /> for easy wallet
-            access.
+            <Trans
+              i18nKey="Click <puzzleIcon /> and then <pinIcon /> for easy wallet access."
+              components={{
+                puzzleIcon: (
+                  <PuzzleIcon color={theme.colors.bg1} height="18px" />
+                ),
+                pinIcon: <PinIcon color={theme.colors.bg1} height="18px" />,
+              }}
+            />
           </Typography>
         </VerticalFlex>
       </WalletCreatedCard>

@@ -14,6 +14,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
+import { t } from 'i18next';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -54,13 +55,13 @@ export function CustomSpendLimit({
 
   return (
     <VerticalFlex width="100%">
-      <PageTitle onBackClick={() => onClose()}>Edit Limit</PageTitle>
+      <PageTitle onBackClick={() => onClose()}>{t('Edit Limit')}</PageTitle>
 
       {/* Content middle */}
       <VerticalFlex padding="8px 16px 0">
         {/* Balance */}
         <Typography size={12} height="15px" padding="0 0 4px 0">
-          Balance
+          {t('Balance')}
         </Typography>
         <SecondaryCard padding="16px" direction="column">
           <Typography height="24px" padding="0 0 8px 0">
@@ -73,10 +74,15 @@ export function CustomSpendLimit({
 
         {/* Spending Limit */}
         <Typography weight={500} size={14} height="24px" margin="24px 0 0">
-          Spending limit
+          {t('Spending limit')}
         </Typography>
         <SubTextTypography size={12} height="15px" margin="4px 0 0">
-          Set a limit that you will allow {site.domain} to withdraw and spend.
+          {
+            (t(
+              'Set a limit that you will allow {{site.domain}} to withdraw and spend.'
+            ),
+            { site })
+          }
         </SubTextTypography>
 
         {/* Radio */}
@@ -95,7 +101,7 @@ export function CustomSpendLimit({
               checked={customSpendLimit.limitType === Limit.DEFAULT}
             />
             <Typography margin="0 0 0 16px" weight={600}>
-              Default
+              {t('Default')}
             </Typography>
           </HorizontalFlex>
           <HorizontalFlex align="center" margin="24px 0 0 8px">
@@ -112,7 +118,7 @@ export function CustomSpendLimit({
               checked={customSpendLimit.limitType === Limit.UNLIMITED}
             />
             <Typography margin="0 0 0 16px" weight={600}>
-              Unlimited
+              {t('Unlimited')}
             </Typography>
           </HorizontalFlex>
           <HorizontalFlex align="center" margin="24px 0 0 8px">
@@ -129,7 +135,7 @@ export function CustomSpendLimit({
               checked={customSpendLimit.limitType === Limit.CUSTOM}
             />
             <Typography margin="0 0 0 16px" weight={600}>
-              Custom Spend Limit
+              {t('Custom Spend Limit')}
             </Typography>
           </HorizontalFlex>
           <VerticalFlex width="100%" padding="16px 0 0 48px">
@@ -142,7 +148,7 @@ export function CustomSpendLimit({
                 });
               }}
               denomination={token.decimals}
-              placeholder="Maximum Limit"
+              placeholder={t('Maximum Limit')}
               value={customSpendLimit.value?.bn}
               width="100%"
             />
@@ -161,7 +167,7 @@ export function CustomSpendLimit({
           width="100%"
           onClick={handleOnSave}
         >
-          Save
+          {t('Save')}
         </PrimaryButton>
       </HorizontalFlex>
     </VerticalFlex>

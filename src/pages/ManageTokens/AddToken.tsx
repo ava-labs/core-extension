@@ -20,6 +20,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
 import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
+import { t } from 'i18next';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -91,10 +92,10 @@ export function AddToken() {
 
       let errorMessage = '';
       if (!tokenData) {
-        errorMessage = 'Not a valid ERC-20 token address.';
+        errorMessage = t('Not a valid ERC-20 token address.');
       }
       if (tokenAlreadyExists) {
-        errorMessage = 'Token already exists in your wallet.';
+        errorMessage = t('Token already exists in your wallet.');
       }
       setError(errorMessage);
     };
@@ -104,7 +105,7 @@ export function AddToken() {
   return (
     <>
       <VerticalFlex flex={1} align="center">
-        <PageTitle>Add Custom Token</PageTitle>
+        <PageTitle>{t('Add Custom Token')}</PageTitle>
         <VerticalFlex
           grow="1"
           align="center"
@@ -115,9 +116,9 @@ export function AddToken() {
             data-testid="add-custom-token-address-input"
             size={ComponentSize.SMALL}
             margin="12px 0 10px 0"
-            label={'Custom Token Address'}
+            label={t('Custom Token Address')}
             value={addressInput}
-            placeholder="Enter an address"
+            placeholder={t('Enter an address')}
             onChange={(e) =>
               setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
             }
@@ -136,7 +137,7 @@ export function AddToken() {
               onClick={addCustomToken}
               disabled={isLoading || !!error?.length || !tokenData}
             >
-              Add Token
+              {t('Add Token')}
             </PrimaryButton>
           </VerticalFlex>
         </VerticalFlex>

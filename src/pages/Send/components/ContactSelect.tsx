@@ -13,6 +13,7 @@ import type { Contact } from '@avalabs/types';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
+import { t } from 'i18next';
 
 const Tabs = styled(HorizontalFlex)`
   border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
@@ -114,7 +115,9 @@ export const ContactSelect = ({
           selected={selectedTab === 'recents'}
           onClick={() => setSelectedTab('recents')}
         >
-          <TabText $selected={selectedTab === 'recents'}>Recents</TabText>
+          <TabText $selected={selectedTab === 'recents'}>
+            {t('Recents')}
+          </TabText>
         </Tab>
         <Tab
           data-testid="send-address-book-tab"
@@ -122,7 +125,7 @@ export const ContactSelect = ({
           onClick={() => setSelectedTab('addressBook')}
         >
           <TabText $selected={selectedTab === 'addressBook'}>
-            Address Book
+            {t('Address Book')}
           </TabText>
         </Tab>
         <Tab
@@ -130,7 +133,9 @@ export const ContactSelect = ({
           selected={selectedTab === 'accounts'}
           onClick={() => setSelectedTab('accounts')}
         >
-          <TabText $selected={selectedTab === 'accounts'}>My Accounts</TabText>
+          <TabText $selected={selectedTab === 'accounts'}>
+            {t('My Accounts')}
+          </TabText>
         </Tab>
       </Tabs>
       {selectedTab === 'recents' && (

@@ -11,6 +11,7 @@ import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { BigNumber } from 'ethers';
+import { t } from 'i18next';
 
 interface TransactionTabsType {
   byteStr: string;
@@ -38,7 +39,7 @@ export function TransactionTabs({
     <VerticalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
       <HorizontalFlex margin="0 0 8px">
         <Typography size={12} height="15px" margin="0 8px 0 0">
-          Network Fee
+          {t('Network Fee')}
         </Typography>
         <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={limit} />
       </HorizontalFlex>
@@ -65,7 +66,7 @@ export function TransactionTabs({
     <VerticalFlex margin="16px 0 0 0" width={'100%'}>
       <HorizontalFlex justify="space-between" margin="0 0 8px 0">
         <Typography size={12} height="15px">
-          Hex Data:
+          {t('Hex Data:')}
         </Typography>
         <Typography size={12} height="15px">
           {getHexStringToBytes(byteStr)} Bytes
@@ -88,8 +89,8 @@ export function TransactionTabs({
       {/* Tabs */}
       <Tabs
         tabs={[
-          { id: 'Details', title: 'Details', component: Details },
-          { id: 'Data', title: 'Data', component: TxData },
+          { id: 'Details', title: t('Details'), component: Details },
+          { id: 'Data', title: t('Data'), component: TxData },
         ]}
       />
     </VerticalFlex>

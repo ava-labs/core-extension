@@ -20,6 +20,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { usePageHistory } from '@src/hooks/usePageHistory';
+import { t } from 'i18next';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -78,7 +79,7 @@ export const AddNetwork = () => {
 
   const onSuccess = () => {
     capture('CustomNetworkAdded');
-    toast.custom(<CustomToast label="Custom network added!" />);
+    toast.custom(<CustomToast label={t('Custom network added!')} />);
     history.push('/networks?activeTab=NETWORKS');
   };
 
@@ -106,7 +107,7 @@ export const AddNetwork = () => {
   return (
     <VerticalFlex width="100%">
       <HorizontalFlex marginBottom="12px">
-        <PageTitle>Add Network</PageTitle>
+        <PageTitle>{t('Add Network')}</PageTitle>
       </HorizontalFlex>
       <FlexScrollbars ref={scrollbarRef}>
         <VerticalFlex padding="0 16px">
@@ -144,7 +145,7 @@ export const AddNetwork = () => {
             }
           }}
         >
-          Save
+          {t('Save')}
         </PrimaryButton>
       </VerticalFlex>
     </VerticalFlex>

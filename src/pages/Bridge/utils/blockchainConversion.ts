@@ -1,5 +1,6 @@
 import { Blockchain, BridgeConfig } from '@avalabs/bridge-sdk';
 import { ChainId, Network } from '@avalabs/chains-sdk';
+import { t } from 'i18next';
 
 export const blockchainToNetwork = (
   blockChain: Blockchain,
@@ -26,7 +27,7 @@ export const blockchainToNetwork = (
           network.chainId === ChainId.BITCOIN_TESTNET
       );
     default:
-      throw new Error('Blockchain not supported');
+      throw new Error(t('Blockchain not supported'));
   }
 };
 

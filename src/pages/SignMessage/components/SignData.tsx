@@ -1,6 +1,7 @@
 import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
 import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+import { t } from 'i18next';
 
 /**
  * This is in support of of EIP-712
@@ -16,7 +17,7 @@ export function SignData({ message }: { message: Action }) {
   return (
     <VerticalFlex width={'100%'}>
       <Typography size={12} height="15px" margin="0 0 8px 0">
-        Message:
+        {t('Message:')}
       </Typography>
       <Card height="250px" padding="16px 0">
         <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
