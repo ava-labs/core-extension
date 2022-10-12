@@ -2,7 +2,6 @@ import {
   GridIcon,
   HorizontalFlex,
   ListIcon,
-  LoadingSpinnerIcon,
   PrimaryButton,
   Typography,
   VerticalFlex,
@@ -19,6 +18,7 @@ import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
 import { t } from 'i18next';
+import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 
 enum ListType {
   GRID = 'GRID',
@@ -153,15 +153,9 @@ export function Collectibles() {
         </VerticalFlex>
       )}
       {nfts.loading && (
-        <VerticalFlex
-          grow="1"
-          padding="0 0 72px"
-          width="100%"
-          align="center"
-          justify="center"
-        >
-          <LoadingSpinnerIcon color={theme.colors.primary1} />
-        </VerticalFlex>
+        <Scrollbars>
+          <CollectibleSkeleton />
+        </Scrollbars>
       )}
       {nfts.error && (
         <VerticalFlex
