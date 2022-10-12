@@ -16,7 +16,6 @@ import styled, { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Network } from '@avalabs/chains-sdk';
 import { t } from 'i18next';
-import { Trans } from 'react-i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -92,10 +91,9 @@ export function SwitchActiveNetwork() {
               align="center"
               margin="0 0 16px"
             >
-              {
-                (t('Switch to {{chainName}} Network?'),
-                { chainName: network?.chainName })
-              }
+              {t('Switch to {{chainName}} Network?', {
+                chainName: network?.chainName,
+              })}
             </Typography>
           </HorizontalFlex>
           <HorizontalFlex>
@@ -105,11 +103,13 @@ export function SwitchActiveNetwork() {
               color={theme.colors.text2}
               align="center"
             >
-              <Trans
-                i18nKey="{{domain}} is requesting to switch your active network to {{chainName}}"
-                chainName={network?.chainName}
-                domain={request?.site?.domain || t('This website')}
-              />
+              {t(
+                '{{domain}} is requesting to switch your active network to {{chainName}}',
+                {
+                  chainName: network?.chainName,
+                  domain: request?.site?.domain || t('This website'),
+                }
+              )}
             </Typography>
           </HorizontalFlex>
         </VerticalFlex>
