@@ -4,6 +4,7 @@ import { resolve } from '@src/utils/promiseResolver';
 import { engine } from '@src/utils/jsonRpcEngine';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
+import { ethErrors } from 'eth-rpc-errors';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
@@ -31,10 +32,13 @@ export function DAppRequestHandlerMiddleware(
     } else {
       const activeNetwork = networkService.activeNetwork;
 
-      if (!activeNetwork) throw new Error('active network undefined');
-      promise = engine(activeNetwork).then((e) =>
-        e.handle(context.request.data)
-      );
+      if (!activeNetwork) {
+        promise = Promise.reject(ethErrors.provider.disconnected());
+      } else {
+        promise = engine(activeNetwork).then((e) =>
+          e.handle(context.request.data)
+        );
+      }
     }
 
     context.response = await resolve(promise).then(([result, error]) => {
