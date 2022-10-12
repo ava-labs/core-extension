@@ -61,8 +61,10 @@ export function Collectibles() {
   const setCollectibleParams = useSetCollectibleParams();
   const { getPageHistoryData, setNavigationHistoryData, isHistoryLoading } =
     usePageHistory();
+
   const { listType: historyListType }: { listType?: ListType } =
     getPageHistoryData();
+
   const [listType, setListType] = useState<ListType | undefined>(
     historyListType
   );
@@ -82,43 +84,40 @@ export function Collectibles() {
     setListType(listType);
     setNavigationHistoryData({ listType: listType });
   };
+  if (isHistoryLoading && !listType) {
+    return null;
+  }
 
   return (
     <VerticalFlex grow="1">
-      {!isHistoryLoading && (
-        <ButtonGroup>
-          <GroupButton
-            active={listType === ListType.GRID}
-            onClick={() => {
-              handleClick(ListType.GRID);
-            }}
-          >
-            <GridIcon
-              height="14px"
-              color={
-                listType === ListType.GRID
-                  ? theme.colors.bg1
-                  : theme.colors.icon2
-              }
-            />
-          </GroupButton>
-          <GroupButton
-            active={listType === ListType.LIST}
-            onClick={() => {
-              handleClick(ListType.LIST);
-            }}
-          >
-            <ListIcon
-              height="16px"
-              color={
-                listType === ListType.LIST
-                  ? theme.colors.bg1
-                  : theme.colors.icon2
-              }
-            />
-          </GroupButton>
-        </ButtonGroup>
-      )}
+      <ButtonGroup>
+        <GroupButton
+          active={listType === ListType.GRID}
+          onClick={() => {
+            handleClick(ListType.GRID);
+          }}
+        >
+          <GridIcon
+            height="14px"
+            color={
+              listType === ListType.GRID ? theme.colors.bg1 : theme.colors.icon2
+            }
+          />
+        </GroupButton>
+        <GroupButton
+          active={listType === ListType.LIST}
+          onClick={() => {
+            handleClick(ListType.LIST);
+          }}
+        >
+          <ListIcon
+            height="16px"
+            color={
+              listType === ListType.LIST ? theme.colors.bg1 : theme.colors.icon2
+            }
+          />
+        </GroupButton>
+      </ButtonGroup>
       {!nfts.loading && nfts.items?.length && (
         <Scrollbars>
           {listType === ListType.LIST ? (

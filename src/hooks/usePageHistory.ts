@@ -27,15 +27,11 @@ export function usePageHistory() {
     [request]
   );
 
-  const getNavigationHistoryData = useCallback(() => {
-    setIsLoading(true);
-    request<GetNavigationHistoryDataHandler>({
+  const getNavigationHistoryData = useCallback(async () => {
+    const result = await request<GetNavigationHistoryDataHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_DATA_GET,
-    })
-      .then((result) => {
-        setHistoryDataState(result);
-      })
-      .finally(() => setIsLoading(false));
+    });
+    setHistoryDataState(result);
   }, [request]);
 
   const setNavigationHistory = useCallback(
@@ -48,20 +44,21 @@ export function usePageHistory() {
     [request]
   );
 
-  const getNavigationHistory = useCallback(() => {
-    setIsLoading(true);
-    request<GetNavigationHistoryHandler>({
+  const getNavigationHistory = useCallback(async () => {
+    const result = await request<GetNavigationHistoryHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_GET,
-    })
-      .then((result) => {
-        setHistoryState(result);
-      })
-      .finally(() => setIsLoading(false));
+    });
+    setHistoryState(result);
   }, [request]);
 
   useEffect(() => {
-    getNavigationHistory();
-    getNavigationHistoryData();
+    const getHistory = async () => {
+      setIsLoading(true);
+      await getNavigationHistory();
+      await getNavigationHistoryData();
+      setIsLoading(false);
+    };
+    getHistory();
   }, [getNavigationHistory, getNavigationHistoryData]);
 
   const getPageHistoryData = useCallback(() => {
