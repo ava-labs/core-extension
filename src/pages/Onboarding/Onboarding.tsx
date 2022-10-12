@@ -14,7 +14,6 @@ import { BrandName } from '@src/components/icons/BrandName';
 import { AnalyticsConsent } from './AnalyticsConsent';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
-import { WalletCreated } from './WalletCreated';
 
 export function Onboarding() {
   const { nextPhase, onboardingState, setNextPhase, submit, submitInProgress } =
@@ -123,7 +122,7 @@ export function Onboarding() {
   }
 
   if (nextPhase === OnboardingPhase.FINALIZE) {
-    return <WalletCreated />;
+    window.location.replace(`${process.env.CORE_WEB_URL}/endcap`);
   }
 
   return (
