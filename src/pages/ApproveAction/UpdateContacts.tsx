@@ -15,7 +15,6 @@ import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ContactInfo } from '@src/components/settings/components/ContactInfo';
 import { Contact } from '@avalabs/types';
 import { t } from 'i18next';
-import { Trans } from 'react-i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -86,11 +85,10 @@ export function UpdateContacts({
             color={theme.colors.text2}
             align="center"
           >
-            <Trans
-              i18nKey="{{domain}} is requesting to {{method}} a contact:"
-              domain={request.site?.domain || t('This website')}
-              method={translatedMethod[method].toLowerCase()}
-            />
+            {t('{{domain}} is requesting to {{method}} a contact:', {
+              domain: request.site?.domain || t('This website'),
+              method: translatedMethod[method].toLowerCase(),
+            })}
           </Typography>
         </HorizontalFlex>
 
