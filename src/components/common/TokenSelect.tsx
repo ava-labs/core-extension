@@ -140,8 +140,9 @@ export function TokenSelect({
     const formattedAmount =
       inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
         ? currencyFormatter(
-            Number(bnToLocaleString(inputAmount, decimals)) *
-              selectedToken.priceUSD
+            parseFloat(
+              bnToLocaleString(inputAmount, decimals).replace(/,/g, '')
+            ) * selectedToken.priceUSD
           )
         : undefined;
     setAmountInCurrency(formattedAmount);
