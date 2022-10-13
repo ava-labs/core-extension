@@ -27,6 +27,7 @@ jobs:
           echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
           echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
+          echo CORE_WEB_URL=${{ secrets.CORE_WEB_URL }} >> .env.production
           echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
       - name: Install dependencies
         run: yarn setup

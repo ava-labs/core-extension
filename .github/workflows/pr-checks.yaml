@@ -21,6 +21,7 @@ jobs:
           touch .env.production
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
+          echo CORE_WEB_URL=${{ secrets.CORE_WEB_URL }} >> .env.production
       - name: Install dependencies
         run: yarn setup
       - name: Lint
