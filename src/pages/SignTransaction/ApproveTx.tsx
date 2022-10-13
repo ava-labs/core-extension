@@ -41,8 +41,10 @@ export function ApproveTx({
         <Typography align="center" size={14} height="17px">
           <Trans
             i18nKey="Allow {{domain}} to <br /> spend your {{name}}?"
-            domain={site?.domain}
-            name={tokenToBeApproved?.name || 'Unknown Token'}
+            values={{
+              domain: site?.domain,
+              name: tokenToBeApproved?.name || 'Unknown Token',
+            }}
           />
         </Typography>
 
