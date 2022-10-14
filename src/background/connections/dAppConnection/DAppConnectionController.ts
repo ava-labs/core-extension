@@ -31,6 +31,7 @@ import './registry';
 import { RPCCallsMiddleware } from '../middlewares/RPCCallsMiddleware';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from './DAppRequestHandler';
+import { LockService } from '@src/background/services/lock/LockService';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -46,7 +47,8 @@ export class DAppConnectionController implements ConnectionController {
     @injectAll('DAppEventEmitter') private eventEmitters: DAppEventEmitter[],
     private permissionsService: PermissionsService,
     private accountsService: AccountsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private lockService: LockService
   ) {
     this.onMessage = this.onMessage.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -59,7 +61,11 @@ export class DAppConnectionController implements ConnectionController {
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
       RPCCallsMiddleware(this.networkService),
-      PermissionMiddleware(this.permissionsService, this.accountsService),
+      PermissionMiddleware(
+        this.permissionsService,
+        this.accountsService,
+        this.lockService
+      ),
       DAppRequestHandlerMiddleware(this.handlers, this.networkService),
       LoggerMiddleware(SideToLog.RESPONSE)
     );

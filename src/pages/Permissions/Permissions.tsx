@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -29,6 +29,10 @@ import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { t } from 'i18next';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 const AccountName = styled(Typography)<{ selected: boolean }>`
   max-width: 165px;
@@ -44,12 +48,15 @@ const AccountName = styled(Typography)<{ selected: boolean }>`
 
 export function PermissionsPage() {
   const requestId = useGetRequestId();
-  const { permissions } = usePermissionContext();
+  const { permissions, isDomainConnectedToAccount } = usePermissionContext();
   const theme = useTheme();
   const { accounts, activeAccount } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>();
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
+  const isConfirmContainer = useIsSpecificContextContainer(
+    ContextContainer.CONFIRM
+  );
 
   const {
     action: request,
@@ -72,7 +79,7 @@ export function PermissionsPage() {
     }
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
-  const onApproveClicked = async () => {
+  const onApproveClicked = useCallback(async () => {
     if (!selectedAccount) {
       return;
     }
@@ -82,9 +89,36 @@ export function PermissionsPage() {
       id: requestId,
       result: selectedAccount.index,
     });
-  };
+  }, [selectedAccount, updateAction, requestId]);
 
-  if (!permissions || !request) {
+  const isAccountPermissionGranted = useMemo(
+    () =>
+      request &&
+      activeAccount &&
+      isDomainConnectedToAccount(
+        request.displayData.domainUrl,
+        activeAccount.addressC
+      ) &&
+      isConfirmContainer &&
+      onApproveClicked,
+    [
+      request,
+      activeAccount,
+      isDomainConnectedToAccount,
+      isConfirmContainer,
+      onApproveClicked,
+    ]
+  );
+
+  // If the domain already has permissions for the active account, close the popup
+  useEffect(() => {
+    if (isAccountPermissionGranted) {
+      onApproveClicked();
+    }
+  }, [isAccountPermissionGranted, onApproveClicked]);
+
+  // Must also wait for isAccountPermissionGranted since `onApproveClicked` is async
+  if (!permissions || !request || isAccountPermissionGranted) {
     return <LoadingIcon />;
   }
 

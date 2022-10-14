@@ -6,10 +6,10 @@ import {
 import { EventEmitter } from 'events';
 import { AccountsService } from '../../accounts/AccountsService';
 import { Web3Event } from '@src/background/connections/dAppConnection/models';
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 
-@injectable()
+@singleton()
 export class LockStateChangedEvents
   implements DAppEventEmitter, OnLock, OnUnlock
 {
@@ -25,14 +25,17 @@ export class LockStateChangedEvents
   onLock() {
     this.eventEmitter.emit('update', {
       method: Web3Event.UNLOCK_STATE_CHANGED,
-      params: [],
+      params: { accounts: [], isUnlocked: false },
     });
   }
 
   onUnlock() {
     this.eventEmitter.emit('update', {
       method: Web3Event.UNLOCK_STATE_CHANGED,
-      params: [this.accountsService.activeAccount?.addressC],
+      params: {
+        accounts: this.accountsService.activeAccount?.addressC,
+        isUnlocked: true,
+      },
     });
   }
 
