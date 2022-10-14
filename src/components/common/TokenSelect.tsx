@@ -185,6 +185,13 @@ export function TokenSelect({
     }
   }, [bridgeTokensList, onTokenChange, selectedToken]);
 
+  const onBNError = useCallback(
+    (errorMessage) => {
+      onError ? onError(errorMessage) : setBNError(errorMessage);
+    },
+    [onError]
+  );
+
   return (
     <VerticalFlex width="100%" style={{ margin }}>
       <HorizontalFlex
@@ -254,9 +261,7 @@ export function TokenSelect({
             disabled={!selectedToken || isValueLoading}
             onChange={handleAmountChange}
             onClick={(e) => e.stopPropagation()}
-            onError={(errorMessage) =>
-              onError ? onError(errorMessage) : setBNError(errorMessage)
-            }
+            onError={onBNError}
             onKeyPress={preventMinus}
             style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
             hideErrorMessage

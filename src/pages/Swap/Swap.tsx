@@ -186,6 +186,10 @@ export function Swap() {
     [setValuesDebouncedSubject]
   );
 
+  const onSwapError = useCallback((errorMessage) => {
+    setSwapError({ message: errorMessage });
+  }, []);
+
   const calculateRate = (optimalRate: OptimalRate) => {
     const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
     const destAmountNumber =
@@ -583,9 +587,7 @@ export function Swap() {
             }
             isValueLoading={destinationInputField === 'from' && isLoading}
             hideErrorMessage
-            onError={(errorMessage) => {
-              setSwapError({ message: errorMessage });
-            }}
+            onError={onSwapError}
             onInputAmountChange={(value) => {
               if (value.bn.toString() === '0') {
                 setSwapError({ message: t('Please enter an amount') });
