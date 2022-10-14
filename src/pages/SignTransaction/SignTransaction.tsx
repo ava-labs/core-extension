@@ -188,7 +188,7 @@ export function SignTransactionPage() {
               <Typography color="error" size={12}>
                 <Trans
                   i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
-                  symbol={network?.networkToken.symbol}
+                  values={{ symbol: network?.networkToken.symbol }}
                 />
               </Typography>
             </VerticalFlex>
