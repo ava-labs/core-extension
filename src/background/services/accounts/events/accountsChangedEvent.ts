@@ -7,7 +7,11 @@ import { AccountsEvents } from '../models';
 import { EventEmitter } from 'events';
 import { AccountsService } from '../AccountsService';
 import { PermissionsService } from '../../permissions/PermissionsService';
-import { PermissionEvents } from '../../permissions/models';
+import {
+  DappPermissions,
+  PermissionEvents,
+  Permissions,
+} from '../../permissions/models';
 import { Web3Event } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
 
@@ -26,25 +30,28 @@ export class AccountsChangedEvents implements DAppEventEmitter {
   ) {
     this.permissionsService.addListener(
       PermissionEvents.PERMISSIONS_STATE_UPDATE,
-      async () => {
-        this.emitAccountsChanged();
+      async (permissions: unknown) => {
+        const currentPermissions =
+          permissions && this._connectionInfo?.domain
+            ? (permissions as Permissions)[this._connectionInfo.domain]
+            : undefined;
+        this.emitAccountsChanged(currentPermissions);
       }
     );
     this.accountsService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
       async () => {
-        this.emitAccountsChanged();
+        const currentPermissions = this._connectionInfo?.domain
+          ? await this.permissionsService.getPermissionsForDomain(
+              this._connectionInfo.domain
+            )
+          : undefined;
+        this.emitAccountsChanged(currentPermissions);
       }
     );
   }
 
-  async emitAccountsChanged() {
-    const currentPermissions =
-      this._connectionInfo?.domain &&
-      (await this.permissionsService.getPermissionsForDomain(
-        this._connectionInfo.domain
-      ));
-
+  async emitAccountsChanged(currentPermissions?: DappPermissions) {
     const hasAccessTodApp =
       currentPermissions &&
       this.accountsService.activeAccount?.addressC &&
