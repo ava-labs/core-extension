@@ -64,7 +64,7 @@ export function ApproveAction() {
             <Typography align="center" size={14} height="17px">
               <Trans
                 i18nKey="{{domain}} wants to perform <br /> the following action"
-                domain={action.site?.domain}
+                values={{ domain: action.site?.domain }}
               />
             </Typography>
           </VerticalFlex>
