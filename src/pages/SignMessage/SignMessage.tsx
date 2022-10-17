@@ -69,7 +69,7 @@ export function SignMessage() {
             <Typography align="center" size={14} height="17px">
               <Trans
                 i18nKey="{{domain}} requests you to <br />sign the following message"
-                domain={message.site?.domain || 'A site'}
+                values={{ domain: message.site?.domain || 'A site' }}
               />
             </Typography>
           </VerticalFlex>
