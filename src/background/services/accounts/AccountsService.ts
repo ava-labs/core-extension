@@ -134,13 +134,17 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async setAccountName(index: number, name: string) {
-    const account = this.accounts[index];
-    if (!account) {
+    const accountToChange = this.accounts[index];
+
+    if (!accountToChange) {
       throw new Error(`Account with index ${index} not found`);
     }
+    // create copy of the object to prevent updating this.accounts
+    const accountWithNewName = { ...accountToChange, name };
+    const newAccounts = [...this.accounts];
+    newAccounts[index] = accountWithNewName;
 
-    account.name = name;
-    this.accounts = [...this.accounts];
+    this.accounts = newAccounts;
   }
 
   async activateAccount(index: number) {
