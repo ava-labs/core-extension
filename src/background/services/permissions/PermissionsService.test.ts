@@ -143,6 +143,68 @@ describe('background/services/permissions/PermissionsService.ts', () => {
     });
   });
 
+  describe('hasDomainPermissionForAccount', () => {
+    it('returns true if the account has permission', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        ...mockPermissionData,
+      });
+
+      const result = await permissionService.hasDomainPermissionForAccount(
+        'oneaccount.example',
+        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+      );
+
+      expect(result).toEqual(true);
+    });
+
+    it('returns false if the account has no permission', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        ...mockPermissionData,
+      });
+
+      const result = await permissionService.hasDomainPermissionForAccount(
+        'oneaccount.example',
+        '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      );
+
+      expect(result).toEqual(false);
+    });
+
+    it('returns false if the account is not found', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        ...mockPermissionData,
+      });
+
+      const result = await permissionService.hasDomainPermissionForAccount(
+        'oneaccount.example',
+        '0xnonexistentaccount'
+      );
+
+      expect(result).toEqual(false);
+    });
+
+    it('returns false if the domain is not found', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        ...mockPermissionData,
+      });
+
+      const result = await permissionService.hasDomainPermissionForAccount(
+        'unkown.domain',
+        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+      );
+
+      expect(result).toEqual(false);
+    });
+  });
+
   describe('addPermission', () => {
     it('adds new permission for new domain and saves it to storage', async () => {
       const permissionService = new PermissionsService(storageService);

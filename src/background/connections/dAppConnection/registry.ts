@@ -63,6 +63,15 @@ import { registry } from 'tsyringe';
 ])
 export class DappRequestHandlerRegistry {}
 
+/**
+ * Make sure these event emitter are NOT singletons.
+ * Always use @injectable unless it's absolutely necessary.
+ * Using singletons would broadcast events to every webpage,
+ * as opposed to the ones connected.
+ *
+ * Note: Lifecycle callbacks (onLock, onUnlock, etc...) don't work with @injectable classes
+ * since the DI framework does not keep count of the created objects
+ */
 @registry([
   { token: 'DAppEventEmitter', useToken: AccountsChangedEvents },
   { token: 'DAppEventEmitter', useToken: LockStateChangedEvents },
