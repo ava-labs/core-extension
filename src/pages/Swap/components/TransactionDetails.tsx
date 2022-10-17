@@ -16,6 +16,7 @@ import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { BigNumber } from 'ethers';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { t } from 'i18next';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -93,7 +94,7 @@ export function TransactionDetails({
         <DetailsRow>
           <VerticalFlex>
             <Typography size={14} height="24px" weight={500}>
-              Transaction details
+              {t('Transaction details')}
             </Typography>
           </VerticalFlex>
           <VerticalFlex width="24px">
@@ -109,7 +110,7 @@ export function TransactionDetails({
         <DetailsContainer>
           <DetailsRow>
             <Typography size={12} height="15px">
-              Rate
+              {t('Rate')}
             </Typography>
             <Typography size={14} height="17px" weight={600}>
               1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
@@ -118,7 +119,7 @@ export function TransactionDetails({
           <DetailsRow>
             <HorizontalFlex>
               <Typography size={12} height="15px" margin="0 8px 0 0">
-                Slippage tolerance
+                {t('Slippage tolerance')}
               </Typography>
               <SlippageToolTip />
             </HorizontalFlex>
@@ -139,7 +140,7 @@ export function TransactionDetails({
                 }}
               ></Input>
               <Typography margin="0 0 0 8px" size={12} height="15px">
-                %
+                {t('%')}
               </Typography>
             </HorizontalFlex>
           </DetailsRow>
@@ -147,7 +148,7 @@ export function TransactionDetails({
             <VerticalFlex width="100%">
               <HorizontalFlex marginBottom="8px">
                 <Typography size={12} height="15px" margin="0 8px 0 0">
-                  Network Fee
+                  {t('Network Fee')}
                 </Typography>
                 <TransactionFeeTooltip
                   gasPrice={gasPrice}
@@ -167,7 +168,7 @@ export function TransactionDetails({
           </DetailsRow>
           <DetailsRow>
             <Typography size={12} height="15px">
-              Avalanche Wallet Fee
+              {t('Avalanche Wallet Fee')}
             </Typography>
             <VerticalFlex justify="flex-end">
               <Typography size={14} height="17px" weight={600}>

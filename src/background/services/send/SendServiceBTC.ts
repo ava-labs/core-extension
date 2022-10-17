@@ -145,7 +145,7 @@ export class SendServiceBTC implements SendServiceHelper {
         (await this.networkService.isMainnet())
           ? ChainId.BITCOIN
           : ChainId.BITCOIN_TESTNET
-      ]?.[this.address]?.[0];
+      ]?.[this.address]?.['BTC'];
 
     return {
       balance: token?.balance.toNumber() || 0,

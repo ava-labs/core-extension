@@ -16,6 +16,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
+import { t } from 'i18next';
 
 export function TokenFlow() {
   const history = useHistory();
@@ -37,7 +38,7 @@ export function TokenFlow() {
 
   return (
     <VerticalFlex width={'100%'} position="relative">
-      <PageTitle>Token Details</PageTitle>
+      <PageTitle>{t('Token Details')}</PageTitle>
       <HorizontalFlex width={'100%'} padding="8px 16px" justify={'center'}>
         <TokenIcon
           height={'40px'}
@@ -78,7 +79,7 @@ export function TokenFlow() {
           size={ComponentSize.LARGE}
           onClick={() => history.push('/receive')}
         >
-          Receive
+          {t('Receive')}
         </SecondaryButton>
         <SecondaryButton
           data-testid="token-details-send-button"
@@ -88,7 +89,7 @@ export function TokenFlow() {
             setSendDataInParams({ token, options: { path: '/send' } })
           }
         >
-          Send
+          {t('Send')}
         </SecondaryButton>
       </HorizontalFlex>
       <VerticalFlex grow="1" padding="0 16px">

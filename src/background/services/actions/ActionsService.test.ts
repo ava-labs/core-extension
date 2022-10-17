@@ -65,19 +65,27 @@ describe('background/services/actions/ActionsService.ts', () => {
   });
 
   describe('getActions', () => {
-    it('gets actions from storage when unlocked', async () => {
+    it('gets actions from storage and session when unlocked', async () => {
       const actions = {
         1: mockAction,
         2: { ...mockAction, id: 2 },
       };
+      const actions2 = {
+        3: { ...mockAction, id: 3 },
+      };
       (storageService.load as jest.Mock).mockResolvedValue(actions);
-
+      (storageService.loadFromSessionStorage as jest.Mock).mockResolvedValue(
+        actions2
+      );
       const result = await actionsService.getActions();
 
-      expect(result).toEqual(actions);
+      expect(result).toEqual({ ...actions, ...actions2 });
       expect(storageService.load).toHaveBeenCalledTimes(1);
       expect(storageService.load).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY);
-      expect(storageService.loadFromSessionStorage).not.toHaveBeenCalled();
+      expect(storageService.loadFromSessionStorage).toHaveBeenCalledTimes(1);
+      expect(storageService.loadFromSessionStorage).toHaveBeenCalledWith(
+        ACTIONS_STORAGE_KEY
+      );
     });
 
     it('gets actions from session storage when locked', async () => {

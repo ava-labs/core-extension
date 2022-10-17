@@ -9,6 +9,7 @@ import { TxHistoryItem } from '@src/background/services/history/models';
 import styled, { useTheme } from 'styled-components';
 import { HistoryItemLink } from './components/HistoryItemLink';
 import { useBlockchainNames } from './useBlockchainNames';
+import { t } from 'i18next';
 
 export const IconCircle = styled(HorizontalFlex)<{ pending: boolean }>`
   width: 32px;
@@ -68,7 +69,7 @@ export function TransactionBridge({ item }: TransactionBridgeProps) {
         <VerticalFlex width="100%">
           <HorizontalFlex justify="space-between" width="100%">
             <Typography size={16} weight={500} height="24px">
-              Bridge
+              {t('Bridge')}
             </Typography>
             <Typography size={14} height="24px">
               {item.amount} {item.token?.symbol}

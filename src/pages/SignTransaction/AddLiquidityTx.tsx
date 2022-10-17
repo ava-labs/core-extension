@@ -9,6 +9,7 @@ import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
 import { TokenCard } from './components/TokenCard';
 import { TransactionHeader } from './components/TransactionHeader';
+import { t } from 'i18next';
 
 export function AddLiquidityTx({
   poolTokens,
@@ -25,7 +26,7 @@ export function AddLiquidityTx({
 
   return (
     <VerticalFlex width={'100%'}>
-      <TransactionHeader title="Adding Liquidity to Pool" />
+      <TransactionHeader title={t('Adding Liquidity to Pool')} />
 
       <VerticalFlex>
         {/* Account */}

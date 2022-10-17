@@ -58,7 +58,9 @@ export function NetworkList() {
               : activeAccount?.addressBTC) || '';
           const networkBalances = tokens.balances?.[network.chainId];
           const networkAssetList = networkBalances
-            ? tokensWithBalances(networkBalances[networkAddress])
+            ? tokensWithBalances(
+                Object.values(networkBalances[networkAddress] ?? {})
+              )
             : null;
           const networkBalance = networkAssetList
             ? getNetworkBalance(networkAssetList)

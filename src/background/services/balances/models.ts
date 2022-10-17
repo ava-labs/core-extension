@@ -83,7 +83,11 @@ export interface TokenListERC20 {
 // store balances in the structure of network ID -> address -> tokens
 export interface Balances {
   [networkId: string | number]:
-    | { [address: string]: TokenWithBalance[] }
+    | {
+        [accountAddress: string]: {
+          [tokenAddressOrSymbol: string]: TokenWithBalance;
+        };
+      }
     | undefined;
 }
 

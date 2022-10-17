@@ -11,6 +11,8 @@ import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { isValidMnemonic } from 'ethers/lib/utils';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 interface ImportProps {
   onCancel(): void;
@@ -36,7 +38,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
     setRecoveryPhrase(phrase);
 
     if (!isPhraseValid(phrase)) {
-      setError('Invalid mnemonic phrase');
+      setError(t('Invalid mnemonic phrase'));
     } else {
       setError('');
     }
@@ -48,15 +50,13 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
         testId="enter-recovery-phrase"
-        title="Enter Secret Recovery Phrase"
+        title={t('Enter Secret Recovery Phrase')}
         onBack={onBack}
         onClose={onCancel}
       />
       <VerticalFlex align="center" grow="1">
         <Typography align="center" margin="8px 0 0" size={14} height="17px">
-          Access an existing wallet with your secret
-          <br />
-          recovery phrase.
+          <Trans i18nKey="Access an existing wallet with your secret <br/>recovery phrase." />
         </Typography>
         <Input
           data-testid="recovery-phrase-input"
@@ -65,7 +65,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           margin="32px 0 0 0"
           error={!!error}
           errorMessage={error}
-          placeholder="Type your recovery phrase"
+          placeholder={t('Type your recovery phrase')}
           onChange={onPhraseChanged}
         />
       </VerticalFlex>
@@ -80,7 +80,7 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
           setNextPhase(OnboardingPhase.ANALYTICS_CONSENT);
         }}
       >
-        Next
+        {t('Next')}
       </PrimaryButton>
     </VerticalFlex>
   );

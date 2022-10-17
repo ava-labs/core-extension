@@ -52,6 +52,7 @@ import BN from 'bn.js';
 import { WalletType } from '@src/background/services/wallet/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { t } from 'i18next';
 
 export interface Token {
   icon?: JSX.Element;
@@ -185,6 +186,10 @@ export function Swap() {
     [setValuesDebouncedSubject]
   );
 
+  const onSwapError = useCallback((errorMessage) => {
+    setSwapError({ message: errorMessage });
+  }, []);
+
   const calculateRate = (optimalRate: OptimalRate) => {
     const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
     const destAmountNumber =
@@ -302,7 +307,7 @@ export function Swap() {
           ) {
             const amountString = amount.bn.toString();
             if (amountString === '0') {
-              setSwapError({ message: 'Please enter an amount' });
+              setSwapError({ message: t('Please enter an amount') });
               setIsLoading(false);
               return;
             }
@@ -324,7 +329,10 @@ export function Swap() {
                  */
                 if (isAPIError(result.optimalRate)) {
                   throw new Error(
-                    `paraswap error message while get rate: ${result.optimalRate.message}`
+                    t(
+                      'paraswap error message while get rate: {{result.optimalRate.message}}',
+                      { message: result.optimalRate.message }
+                    )
                   );
                 } else {
                   // Never modify the properies of the optimalRate since the swap API needs it unchanged
@@ -341,7 +349,7 @@ export function Swap() {
               .catch(() => {
                 setOptimalRate(undefined);
                 setSwapError({
-                  message: 'Something went wrong, ',
+                  message: t('Something went wrong, '),
                   hasTryAgain: true,
                 });
               })
@@ -402,7 +410,9 @@ export function Swap() {
       )
     ) {
       setSwapWarning(
-        `You don't have any ${selectedToToken?.symbol} token for swap`
+        t(`You don't have any {{symbol}} token for swap`, {
+          symbol: selectedToToken?.symbol,
+        })
       );
       return;
     }
@@ -420,7 +430,7 @@ export function Swap() {
       toastId = toast.custom(
         <TransactionToast
           type={TransactionToastType.PENDING}
-          text="Swap pending..."
+          text={t('Swap pending...')}
           startIcon={
             <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
           }
@@ -465,7 +475,7 @@ export function Swap() {
       toast.custom(
         <TransactionToast
           type={TransactionToastType.ERROR}
-          text="Swap Failed"
+          text={t('Swap Failed')}
           startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
         />,
         { id: toastId, duration: Infinity }
@@ -476,9 +486,9 @@ export function Swap() {
     }
     toast.custom(
       <TransactionToast
-        status="Swap Successful"
+        status={t('Swap Successful')}
         type={TransactionToastType.SUCCESS}
-        text="View in Explorer"
+        text={t('View in Explorer')}
         href={
           network && getExplorerAddressByNetwork(network, result.swapTxHash)
         }
@@ -531,7 +541,7 @@ export function Swap() {
 
   return (
     <VerticalFlex width="100%">
-      <PageTitle>Swap</PageTitle>
+      <PageTitle>{t('Swap')}</PageTitle>
       <VerticalFlex grow="1" margin="8px 0 0" padding="16px">
         <Scrollbars
           style={{
@@ -541,7 +551,7 @@ export function Swap() {
           }}
         >
           <TokenSelect
-            label="From"
+            label={t('From')}
             onTokenChange={(token: TokenWithBalance) => {
               setSelectedFromToken(token);
               setSwapWarning('');
@@ -577,12 +587,10 @@ export function Swap() {
             }
             isValueLoading={destinationInputField === 'from' && isLoading}
             hideErrorMessage
-            onError={(errorMessage) => {
-              setSwapError({ message: errorMessage });
-            }}
+            onError={onSwapError}
             onInputAmountChange={(value) => {
               if (value.bn.toString() === '0') {
-                setSwapError({ message: 'Please enter an amount' });
+                setSwapError({ message: t('Please enter an amount') });
                 return;
               }
               if (
@@ -642,7 +650,7 @@ export function Swap() {
                       );
                     }}
                   >
-                    <TryAgainButton>try again</TryAgainButton>
+                    <TryAgainButton>{t('try again')}</TryAgainButton>
                   </Typography>
                 )}
               </div>
@@ -666,7 +674,7 @@ export function Swap() {
             </SwitchIconContainer>
           </HorizontalFlex>
           <TokenSelect
-            label="To"
+            label={t('To')}
             onTokenChange={(token: TokenWithBalance) => {
               setSelectedToToken(token);
               setSwapWarning('');
@@ -750,7 +758,7 @@ export function Swap() {
               size={ComponentSize.LARGE}
               disabled={isLoading || !canSwap}
             >
-              Review Order
+              {t('Review Order')}
             </PrimaryButton>
           </ReviewOrderButtonContainer>
         </Scrollbars>

@@ -26,6 +26,7 @@ import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
+import { t } from 'i18next';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;
@@ -93,7 +94,7 @@ export function ReviewOrder({
         align="center"
         padding="0 16px 0 0"
       >
-        <PageTitle onBackClick={onClose}>Review Order</PageTitle>
+        <PageTitle onBackClick={onClose}>{t('Review Order')}</PageTitle>
         {onTimerExpire && (
           <SwapRefreshTimer secondsTimer={59} onExpire={onTimerExpire} />
         )}
@@ -107,7 +108,7 @@ export function ReviewOrder({
       {!isLoading && (
         <VerticalFlex padding="0 16px" grow="1" width="100%">
           <Typography size={14} height="24px">
-            From
+            {t('From')}
           </Typography>
           <TokenCard
             name={fromToken.symbol}
@@ -123,7 +124,7 @@ export function ReviewOrder({
           </TokenCard>
 
           <Typography size={14} height="24px">
-            To
+            {t('To')}
           </Typography>
           <TokenCard
             name={toToken.symbol}
@@ -140,14 +141,16 @@ export function ReviewOrder({
           <HorizontalSeparator margin="16px 0" />
           <VerticalFlex grow="1" width="100%">
             <DetailsRow>
-              <DetailLabel>Rate</DetailLabel>
+              <DetailLabel>{t('Rate')}</DetailLabel>
               <DetailValue size={14} height="17px" weight={600}>
                 1 {fromToken?.symbol} ≈ {rate?.toFixed(4)} {toToken?.symbol}
               </DetailValue>
             </DetailsRow>
             <DetailsRow data-testid="swap-review-slippage">
               <HorizontalFlex>
-                <DetailLabel margin="0 8px 0 0">Slippage tolerance</DetailLabel>
+                <DetailLabel margin="0 8px 0 0">
+                  {t('Slippage tolerance')}
+                </DetailLabel>
                 <SlippageToolTip />
               </HorizontalFlex>
               <DetailValue size={14} height="17px" weight={600}>
@@ -156,7 +159,7 @@ export function ReviewOrder({
             </DetailsRow>
             <DetailsRow data-testid="swap-review-network-fee">
               <HorizontalFlex>
-                <DetailLabel margin="0 8px 0 0">Network Fee</DetailLabel>
+                <DetailLabel margin="0 8px 0 0">{t('Network Fee')}</DetailLabel>
                 <TransactionFeeTooltip
                   gasPrice={gasPrice}
                   gasLimit={gasLimit as any}
@@ -171,7 +174,7 @@ export function ReviewOrder({
               </DetailValue>
             </DetailsRow>
             <DetailsRow data-testid="swap-review-wallet-fee">
-              <DetailLabel>Avalanche Wallet Fee</DetailLabel>
+              <DetailLabel>{t('Avalanche Wallet Fee')}</DetailLabel>
               <VerticalFlex align="flex-end">
                 <DetailValue>{optimalRate.partnerFee} AVAX</DetailValue>
                 <SubTextTypography size={12} height="15px" margin="4px 0 0">
@@ -196,7 +199,7 @@ export function ReviewOrder({
               onClick={onClose}
               size={ComponentSize.LARGE}
             >
-              Cancel
+              {t('Cancel')}
             </SecondaryButton>
             <PrimaryButton
               data-testid="swap-now-button"
@@ -204,7 +207,7 @@ export function ReviewOrder({
               size={ComponentSize.LARGE}
               onClick={onConfirm}
             >
-              Swap Now
+              {t('Swap Now')}
             </PrimaryButton>
           </HorizontalFlex>
         </VerticalFlex>

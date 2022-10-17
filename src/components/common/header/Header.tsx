@@ -17,6 +17,7 @@ import { NetworkSwitcher } from './NetworkSwitcher';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
+import { t } from 'i18next';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -68,7 +69,7 @@ export function Header() {
                         });
                       }}
                     >
-                      Disconnect
+                      {t('Disconnect')}
                     </SecondaryButton>
                   </>
                 ) : (
@@ -78,7 +79,7 @@ export function Header() {
                     height="15px"
                     margin="0 16px 8px"
                   >
-                    To connect, locate the connect button on their site.
+                    {t('To connect, locate the connect button on their site.')}
                   </Typography>
                 )}
               </ConnectionIndicator>

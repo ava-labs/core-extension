@@ -7,6 +7,11 @@ import { AccountsEvents } from '../models';
 import { EventEmitter } from 'events';
 import { AccountsService } from '../AccountsService';
 import { PermissionsService } from '../../permissions/PermissionsService';
+import {
+  DappPermissions,
+  PermissionEvents,
+  Permissions,
+} from '../../permissions/models';
 import { Web3Event } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
 
@@ -23,30 +28,43 @@ export class AccountsChangedEvents implements DAppEventEmitter {
     private accountsService: AccountsService,
     private permissionsService: PermissionsService
   ) {
+    this.permissionsService.addListener(
+      PermissionEvents.PERMISSIONS_STATE_UPDATE,
+      async (permissions: unknown) => {
+        const currentPermissions =
+          permissions && this._connectionInfo?.domain
+            ? (permissions as Permissions)[this._connectionInfo.domain]
+            : undefined;
+        this.emitAccountsChanged(currentPermissions);
+      }
+    );
     this.accountsService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
       async () => {
-        const currentPermissions =
-          this._connectionInfo?.domain &&
-          (await this.permissionsService.getPermissionsForDomain(
-            this._connectionInfo.domain
-          ));
-
-        const hasAccessTodApp =
-          currentPermissions &&
-          this.accountsService.activeAccount?.addressC &&
-          currentPermissions?.accounts?.[
-            this.accountsService.activeAccount.addressC
-          ];
-
-        this.eventEmitter.emit('update', {
-          method: Web3Event.ACCOUNTS_CHANGED,
-          params: hasAccessTodApp
-            ? [this.accountsService.activeAccount?.addressC]
-            : [],
-        });
+        const currentPermissions = this._connectionInfo?.domain
+          ? await this.permissionsService.getPermissionsForDomain(
+              this._connectionInfo.domain
+            )
+          : undefined;
+        this.emitAccountsChanged(currentPermissions);
       }
     );
+  }
+
+  async emitAccountsChanged(currentPermissions?: DappPermissions) {
+    const hasAccessTodApp =
+      currentPermissions &&
+      this.accountsService.activeAccount?.addressC &&
+      currentPermissions?.accounts?.[
+        this.accountsService.activeAccount.addressC
+      ];
+
+    this.eventEmitter.emit('update', {
+      method: Web3Event.ACCOUNTS_CHANGED,
+      params: hasAccessTodApp
+        ? [this.accountsService.activeAccount?.addressC]
+        : [],
+    });
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

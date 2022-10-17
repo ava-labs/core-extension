@@ -1,3 +1,4 @@
+import { ChainId } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
@@ -17,9 +18,15 @@ export class SetDevelopermodeNetworkHandler implements HandlerType {
   constructor(private networkService: NetworkService) {}
 
   handle: HandlerType['handle'] = async (request) => {
-    const [status] = request.params;
+    const [enableDeveloperMode] = request.params;
 
-    const [, err] = await resolve(this.networkService.setDeveloperMode(status));
+    const [, err] = await resolve(
+      this.networkService.setNetwork(
+        enableDeveloperMode
+          ? ChainId.AVALANCHE_TESTNET_ID
+          : ChainId.AVALANCHE_MAINNET_ID
+      )
+    );
 
     if (err) {
       return {

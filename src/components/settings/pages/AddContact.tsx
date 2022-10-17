@@ -12,6 +12,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import type { Contact } from '@avalabs/types';
 import { ContactForm } from '../components/ContactForm';
+import { t } from 'i18next';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -51,7 +52,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Add New Contact'}
+        title={t('Add New Contact')}
         action={
           <TextButton
             data-testid="add-new-contact-button"
@@ -61,7 +62,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
                 return;
               }
               createContact(contact);
-              toast.custom(<CustomToast label="Contact created!" />);
+              toast.custom(<CustomToast label={t('Contact created!')} />);
               goBack();
             }}
           >

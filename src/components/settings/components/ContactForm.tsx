@@ -8,19 +8,12 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Contact } from '@avalabs/types';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers/lib/utils';
-
+import { t } from 'i18next';
 interface ContactFormProps {
   contact: Contact;
   handleChange: (contact: Contact, formValid: boolean) => void;
   showErrors?: boolean;
   autoFocus?: boolean;
-}
-
-enum FormErrors {
-  NAME_ERROR = 'Name is required',
-  ADDRESS_ERROR = 'Not a valid Avalanche (C-Chain) address. C-Chain addresses being with 0x',
-  ADDRESS_BTC_ERROR = 'Not a valid Bitcoin address',
-  ADDRESS_REQUIRED_ERROR = 'At least one address required',
 }
 
 export const ContactForm = ({
@@ -32,6 +25,15 @@ export const ContactForm = ({
   const [nameError, setNameError] = useState<string>();
   const [addressError, setAddressError] = useState<string>();
   const [addressBtcError, setAddressBtcError] = useState<string>();
+
+  const FormErrors = {
+    NAME_ERROR: t('Name is required'),
+    ADDRESS_ERROR: t(
+      'Not a valid Avalanche (C-Chain) address. C-Chain addresses being with 0x'
+    ),
+    ADDRESS_BTC_ERROR: t('Not a valid Bitcoin address'),
+    ADDRESS_REQUIRED_ERROR: t('At least one address required'),
+  };
 
   const validateForm = useCallback(
     (updatedContact: Contact) => {
@@ -70,7 +72,13 @@ export const ContactForm = ({
 
       return valid;
     },
-    [showErrors]
+    [
+      FormErrors.ADDRESS_BTC_ERROR,
+      FormErrors.ADDRESS_ERROR,
+      FormErrors.ADDRESS_REQUIRED_ERROR,
+      FormErrors.NAME_ERROR,
+      showErrors,
+    ]
   );
 
   // Used when "Save" is clicked on New Contact when no iputs filled out.
@@ -118,10 +126,10 @@ export const ContactForm = ({
           handleUpdate('name', e.target.value);
         }}
         value={contact.name}
-        label="Name"
+        label={t('Name')}
         error={!!nameError}
         errorMessage={nameError}
-        placeholder="Enter address name"
+        placeholder={t('Enter address name')}
         width="100%"
       />
 
@@ -134,10 +142,10 @@ export const ContactForm = ({
           handleUpdate('address', e.target.value);
         }}
         value={contact.address}
-        label="Avalanche (C-Chain) Address"
+        label={t('Avalanche (C-Chain) Address')}
         error={!!addressError}
         errorMessage={addressError}
-        placeholder="Enter contact's Avalanche (C-Chain) address"
+        placeholder={t(`Enter contact's Avalanche (C-Chain) address`)}
         width="100%"
       />
       <TextArea
@@ -148,10 +156,10 @@ export const ContactForm = ({
           handleUpdate('addressBTC', e.target.value);
         }}
         value={contact.addressBTC}
-        label="Bitcoin Address"
+        label={t('Bitcoin Address')}
         error={!!addressBtcError}
         errorMessage={addressBtcError}
-        placeholder="Enter contact's Bitcoin address"
+        placeholder={t(`Enter contact's Bitcoin address`)}
         width="100%"
         margin="12px 0 0"
       />

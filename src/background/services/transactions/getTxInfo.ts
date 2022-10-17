@@ -59,7 +59,7 @@ export async function getTxInfo(
   networkService: NetworkService
 ) {
   const isMainnet = await networkService.isMainnet();
-  const activeNetwork = await networkService.activeNetwork.promisify();
+  const activeNetwork = networkService.activeNetwork;
 
   /**
    * We already eliminate BTC as a tx requestor so we only need to verify if we are still on a

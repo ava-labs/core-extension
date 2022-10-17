@@ -13,6 +13,7 @@ import { BetaLabel } from '@src/components/icons/BetaLabel';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
+import { t } from 'i18next';
 
 const ExistingWalletButton = styled(OnboardButton)`
   .lock-ledger-icon-container {
@@ -68,7 +69,7 @@ export function Welcome({ onNext }: WelcomeProps) {
         <HorizontalFlex>
           <OnboardButton
             testId="create-new-wallet"
-            title="Create a New Wallet"
+            title={t('Create a New Wallet')}
             onClick={() => onNext(OnboardingPhase.ANALYTICS_CONSENT)}
           >
             <CreateWalletIcon color={theme.colors.icon1} height="56px" />
@@ -77,7 +78,7 @@ export function Welcome({ onNext }: WelcomeProps) {
           <ExistingButtonsWrapper>
             <ExistingWalletButton
               testId="access-existing-wallet"
-              title="Access Existing Wallet"
+              title={t('Access Existing Wallet')}
             >
               <WalletIcon
                 color={theme.colors.icon1}
@@ -89,7 +90,7 @@ export function Welcome({ onNext }: WelcomeProps) {
             <ButtonsWrapper justify="space-evenly">
               <OnboardButton
                 testId="recovery-phrase"
-                title="Recovery Phrase"
+                title={t('Recovery Phrase')}
                 onClick={() => onNext(OnboardingPhase.IMPORT_WALLET)}
                 variant="small"
               >
@@ -98,7 +99,7 @@ export function Welcome({ onNext }: WelcomeProps) {
               <VerticalSeparator margin="0 24px" />
               <OnboardButton
                 testId="ledger"
-                title="Ledger"
+                title={t('Ledger')}
                 onClick={() => {
                   onNext(OnboardingPhase.LEDGER);
                 }}

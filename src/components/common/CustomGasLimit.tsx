@@ -13,6 +13,7 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
 import { PageTitle } from './PageTitle';
+import { t } from 'i18next';
 
 interface CustomGasLimitProps {
   limit: number;
@@ -67,7 +68,7 @@ export function CustomGasLimit({
 
   return (
     <VerticalFlex padding="16px 0 24px 0" height="100%">
-      <PageTitle onBackClick={onCancel}>Edit Gas Limit</PageTitle>
+      <PageTitle onBackClick={onCancel}>{t('Edit Gas Limit')}</PageTitle>
       <VerticalFlex padding="8px 16px 0">
         <Typography
           size={32}

@@ -23,6 +23,8 @@ import { PersonalSign } from './components/PersonalSign';
 import { SignData } from './components/SignData';
 import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 export function SignMessage() {
   const theme = useTheme();
@@ -49,7 +51,7 @@ export function SignMessage() {
         <SignTxRenderErrorBoundary>
           <VerticalFlex padding="12px 0">
             <Typography as="h1" size={20} height="29px" weight={600}>
-              {message.error ? 'Signing Failed' : 'Sign Message'}
+              {message.error ? t('Signing Failed') : t('Sign Message')}
             </Typography>
           </VerticalFlex>
 
@@ -65,9 +67,10 @@ export function SignMessage() {
             </SiteAvatar>
 
             <Typography align="center" size={14} height="17px">
-              {message.site?.domain} requests you to
-              <br />
-              sign the following message
+              <Trans
+                i18nKey="{{domain}} requests you to <br />sign the following message"
+                values={{ domain: message.site?.domain || 'A site' }}
+              />
             </Typography>
           </VerticalFlex>
 
@@ -86,7 +89,7 @@ export function SignMessage() {
               ),
               ['unknown']: (
                 <Typography color={theme.colors.error} size={14} margin="8px 0">
-                  Unknown sign type
+                  {t('Unknown sign type')}
                 </Typography>
               ),
             }[message.method || 'unknown']
@@ -95,7 +98,7 @@ export function SignMessage() {
           {message.error && (
             <VerticalFlex margin="16px 0 0 0" width={'100%'}>
               <Typography size={12} height="15px" margin="0 0 8px 0">
-                Error:
+                {t('Error:')}
               </Typography>
               <Card height="105px" padding="16px 0">
                 <Scrollbars
@@ -130,7 +133,7 @@ export function SignMessage() {
                 window.close();
               }}
             >
-              Reject
+              {t('Reject')}
             </SecondaryButton>
             <PrimaryButton
               width="168px"
@@ -142,7 +145,7 @@ export function SignMessage() {
                 });
               }}
             >
-              Sign
+              {t('Sign')}
             </PrimaryButton>
           </HorizontalFlex>
         </SignTxRenderErrorBoundary>

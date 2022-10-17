@@ -14,6 +14,8 @@ import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 function TooltipContent({ text }: { text: React.ReactNode }) {
   return (
@@ -35,7 +37,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title="Advanced"
+        title={t('Advanced')}
       />
 
       <DropDownMenuItem
@@ -45,12 +47,16 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
       >
         <HorizontalFlex margin="0 0 0 6px" align="center">
           <Typography size={14} height="17px" margin="0 8px 0 0">
-            Testnet Mode
+            {t('Testnet Mode')}
           </Typography>
           <Tooltip
             placement={'bottom'}
             content={
-              <TooltipContent text="Testnet mode changes the interface to allow you to interact with supported testnets." />
+              <TooltipContent
+                text={t(
+                  'Testnet mode changes the interface to allow you to interact with supported testnets.'
+                )}
+              />
             }
           >
             <InfoIcon height="12px" color={theme.colors.text1} />
@@ -73,7 +79,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
         >
           <HorizontalFlex margin="0 0 0 6px" align="center">
             <Typography size={14} height="17px" margin="0 8px 0 0">
-              Bridge DEV Environment
+              {t('Bridge DEV Environment')}
             </Typography>
             <Tooltip
               placement={'bottom'}
@@ -81,11 +87,9 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
                 <TooltipContent
                   text={
                     <>
-                      When both this AND Testnet Mode are enabled then the
-                      Bridge will use the DEV warden config.
-                      <br />
-                      <br />
-                      Only available for internal builds.
+                      {
+                        <Trans i18nKey="When both this AND Testnet Mode are enabled then the Bridge will use the DEV warden config.<br /><br />Only available for internal builds." />
+                      }
                     </>
                   }
                 />

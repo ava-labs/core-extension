@@ -8,6 +8,8 @@ import {
 } from '@avalabs/react-components';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 interface ConfirmPhraseProps {
   mnemonic: string;
@@ -29,7 +31,7 @@ export function ConfirmPhrase({
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
         testId="confirm-phrase"
-        title="Verify Secret Recovery Phrase"
+        title={t('Verify Secret Recovery Phrase')}
         onBack={onBack}
         onClose={onCancel}
       />
@@ -39,9 +41,7 @@ export function ConfirmPhrase({
         grow="1"
       >
         <Typography align="center" margin="8px 0 32px" size={14} height="17px">
-          Select the words below to verify your
-          <br />
-          secret recovery phrase.
+          <Trans i18nKey="Select the words below to verify your <br />secret recovery phrase." />
         </Typography>
         <Mnemonic
           phrase={mnemonic}
@@ -62,7 +62,7 @@ export function ConfirmPhrase({
             onNext();
           }}
         >
-          Next
+          {t('Next')}
         </PrimaryButton>
       </VerticalFlex>
     </VerticalFlex>

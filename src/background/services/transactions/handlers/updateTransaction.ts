@@ -68,7 +68,7 @@ export class UpdateTransactionHandler implements HandlerType {
 
     if ('status' in update && update.status === TxStatus.SUBMITTING) {
       const gasPrice = await this.networkFeeService.getNetworkFee();
-      const network = await this.networkService.activeNetwork.promisify();
+      const network = this.networkService.activeNetwork;
       if (!network) {
         return {
           ...request,

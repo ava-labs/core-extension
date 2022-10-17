@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -28,6 +28,11 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { t } from 'i18next';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 const AccountName = styled(Typography)<{ selected: boolean }>`
   max-width: 165px;
@@ -43,12 +48,15 @@ const AccountName = styled(Typography)<{ selected: boolean }>`
 
 export function PermissionsPage() {
   const requestId = useGetRequestId();
-  const { permissions } = usePermissionContext();
+  const { permissions, isDomainConnectedToAccount } = usePermissionContext();
   const theme = useTheme();
   const { accounts, activeAccount } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>();
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
+  const isConfirmContainer = useIsSpecificContextContainer(
+    ContextContainer.CONFIRM
+  );
 
   const {
     action: request,
@@ -71,7 +79,7 @@ export function PermissionsPage() {
     }
   }, [selectedAccount, selectedAccountRef, scrollbarsRef]);
 
-  const onApproveClicked = async () => {
+  const onApproveClicked = useCallback(async () => {
     if (!selectedAccount) {
       return;
     }
@@ -81,9 +89,36 @@ export function PermissionsPage() {
       id: requestId,
       result: selectedAccount.index,
     });
-  };
+  }, [selectedAccount, updateAction, requestId]);
 
-  if (!permissions || !request) {
+  const isAccountPermissionGranted = useMemo(
+    () =>
+      request &&
+      activeAccount &&
+      isDomainConnectedToAccount(
+        request.displayData.domainUrl,
+        activeAccount.addressC
+      ) &&
+      isConfirmContainer &&
+      onApproveClicked,
+    [
+      request,
+      activeAccount,
+      isDomainConnectedToAccount,
+      isConfirmContainer,
+      onApproveClicked,
+    ]
+  );
+
+  // If the domain already has permissions for the active account, close the popup
+  useEffect(() => {
+    if (isAccountPermissionGranted) {
+      onApproveClicked();
+    }
+  }, [isAccountPermissionGranted, onApproveClicked]);
+
+  // Must also wait for isAccountPermissionGranted since `onApproveClicked` is async
+  if (!permissions || !request || isAccountPermissionGranted) {
     return <LoadingIcon />;
   }
 
@@ -96,7 +131,7 @@ export function PermissionsPage() {
     >
       <HorizontalFlex padding="12px 0" width="100%">
         <Typography as="h1" size={20} height="29px" weight={600}>
-          Connect Wallet to site?
+          {t('Connect Wallet to site?')}
         </Typography>
       </HorizontalFlex>
       <SiteAvatar margin="8px 0 16px" justify="center" align="center">
@@ -121,11 +156,16 @@ export function PermissionsPage() {
       </Typography>
       <VerticalFlex margin="24px 0 0 0" flex={1} width="100%">
         <Typography size={12} height="15px" margin="0 0 4px">
-          Selected Account
+          {t('Selected Account')}
         </Typography>
         <SecondaryDropDownMenu
           icon={
-            <Card padding="11px 16px" margin="0 0 8px" width="100%">
+            <Card
+              data-testid="connect-account-dropdown"
+              padding="11px 16px"
+              margin="0 0 8px"
+              width="100%"
+            >
               <HorizontalFlex
                 width="100%"
                 justify="space-between"
@@ -152,6 +192,7 @@ export function PermissionsPage() {
             >
               {accounts.map((account) => (
                 <DropDownMenuItem
+                  data-testid="connect-account-menu-item"
                   padding="11px 16px"
                   width="100%"
                   key={account.index}
@@ -205,10 +246,11 @@ export function PermissionsPage() {
           color={theme.colors.text2}
           align="center"
         >
-          Only connect to sites that you trust.
+          {t('Only connect to sites that you trust.')}
         </Typography>
         <HorizontalFlex justify="space-between">
           <SecondaryButton
+            data-testid="connect-reject-btn"
             size={ComponentSize.LARGE}
             onClick={() => {
               cancelHandler();
@@ -216,14 +258,15 @@ export function PermissionsPage() {
             }}
             width="168px"
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
+            data-testid="connect-approve-btn"
             size={ComponentSize.LARGE}
             onClick={() => onApproveClicked()}
             width="168px"
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

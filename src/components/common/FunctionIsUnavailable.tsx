@@ -1,7 +1,8 @@
 import { Typography, VerticalFlex } from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
-
+import { t } from 'i18next';
+import { FunctionNames } from './FunctionIsOffline';
 interface FunctionIsOfflineProps {
   functionName: string;
   network: string;
@@ -17,7 +18,15 @@ export function FunctionIsUnavailable({
       <PageTitle variant={PageTitleVariant.PRIMARY}>{functionName}</PageTitle>
       <VerticalFlex align="center" justify="center" grow="1">
         <Typography size={16} align="center" height="24px">
-          Sorry, {functionName} is unavailable on {network} network.
+          {
+            (t(
+              'Sorry, {{functionName}} is unavailable on {{network}} network.'
+            ),
+            {
+              functionName: FunctionNames[functionName] || functionName,
+              network,
+            })
+          }
         </Typography>
         {children}
       </VerticalFlex>

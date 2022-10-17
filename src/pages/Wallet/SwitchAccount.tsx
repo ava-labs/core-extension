@@ -14,6 +14,7 @@ import { Account } from '@src/background/services/accounts/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { t } from 'i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -62,7 +63,9 @@ export function SwitchAccount() {
             height="29px"
             weight={700}
           >
-            Switch to {request.selectedAccount?.name}?
+            {t('Switch to {{name}}?', {
+              name: request.selectedAccount?.name,
+            })}
           </Typography>
         </HorizontalFlex>
         <HorizontalFlex>
@@ -72,8 +75,9 @@ export function SwitchAccount() {
             color={theme.colors.text2}
             align="center"
           >
-            {request.site?.domain || 'This website'} is requesting to switch
-            your active account.
+            {t('{{domain}} is requesting to switch your active account.', {
+              domain: request.site?.domain || 'This website',
+            })}
           </Typography>
         </HorizontalFlex>
 
@@ -88,6 +92,7 @@ export function SwitchAccount() {
       <VerticalFlex width="100%" justify="space-between">
         <HorizontalFlex justify="space-between">
           <SecondaryButton
+            data-testid="switch-account-reject-btn"
             size={ComponentSize.LARGE}
             onClick={() => {
               cancelHandler();
@@ -95,9 +100,10 @@ export function SwitchAccount() {
             }}
             width="168px"
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
+            data-testid="switch-account-approve-btn"
             size={ComponentSize.LARGE}
             onClick={() => {
               updateMessage({
@@ -109,7 +115,7 @@ export function SwitchAccount() {
             }}
             width="168px"
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

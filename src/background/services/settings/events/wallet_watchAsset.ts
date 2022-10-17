@@ -26,7 +26,7 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
     const tokenAddress = request.params.options.address;
     const imageUrl = xss(request.params.options.image);
 
-    const network = await this.networkService.activeNetwork.promisify();
+    const network = this.networkService.activeNetwork;
     if (!network) {
       return {
         ...request,

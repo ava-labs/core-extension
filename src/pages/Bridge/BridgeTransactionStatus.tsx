@@ -39,6 +39,7 @@ import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
+import { t } from 'i18next';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -150,9 +151,12 @@ const BridgeTransactionStatus = () => {
     if (bridgeTransaction?.complete && !toastShown) {
       toast.custom(
         <TransactionToast
-          status="Bridge Successful!"
+          status={t('Bridge Successful!')}
           type={TransactionToastType.SUCCESS}
-          text={`You transferred ${bridgeTransaction.amount} ${bridgeTransaction.symbol}!`}
+          text={t(`You transferred {{amount}} {{symbol}}!`, {
+            amount: bridgeTransaction.amount,
+            symbol: bridgeTransaction.symbol,
+          })}
         />,
         { id: bridgeTransaction.sourceTxHash, duration: Infinity }
       );
@@ -171,7 +175,7 @@ const BridgeTransactionStatus = () => {
     <VerticalFlex height="100%" width="100%">
       <PageTitle showBackButton={false} variant={PageTitleVariant.PRIMARY}>
         <HorizontalFlex justify="space-between" align="center">
-          Transaction Status
+          {t('Transaction Status')}
           <TextButton
             margin="0 24px 0 0"
             onClick={() => {
@@ -181,16 +185,18 @@ const BridgeTransactionStatus = () => {
                 clearDialog();
               } else {
                 showDialog({
-                  title: 'Hide Transaction',
-                  body: 'Your transaction is processing. Go to Activity to see the current status.',
-                  confirmText: 'Hide',
+                  title: t('Hide Transaction'),
+                  body: t(
+                    'Your transaction is processing. Go to Activity to see the current status.'
+                  ),
+                  confirmText: t('Hide'),
                   width: '343px',
                   onConfirm: async () => {
                     capture('BridgeTransactionHide');
                     history.replace('/home');
                     clearDialog();
                   },
-                  cancelText: 'Back',
+                  cancelText: t('Back'),
                   onCancel: () => {
                     capture('BridgeTransactionHideCancel');
                     clearDialog();
@@ -199,7 +205,7 @@ const BridgeTransactionStatus = () => {
               }
             }}
           >
-            Hide
+            {t('Hide')}
           </TextButton>
         </HorizontalFlex>
       </PageTitle>
@@ -221,7 +227,7 @@ const BridgeTransactionStatus = () => {
                 grow="1"
                 paddingTop="16px"
               >
-                <CardLabel>Sending Amount</CardLabel>
+                <CardLabel>{t('Sending Amount')}</CardLabel>
                 <VerticalFlex>
                   <Typography align="right">
                     <SummaryAmount>
@@ -255,7 +261,7 @@ const BridgeTransactionStatus = () => {
               <VerticalFlex width="100%">
                 <HorizontalFlex justify="space-between" grow="1">
                   <Typography color={theme.colors.text2} size={14}>
-                    From
+                    {t('From')}
                   </Typography>
 
                   <HorizontalFlex>
@@ -266,7 +272,9 @@ const BridgeTransactionStatus = () => {
                       <Tooltip
                         placement="left"
                         content={
-                          <Typography size={14}>View on explorer</Typography>
+                          <Typography size={14}>
+                            {t('View on explorer')}
+                          </Typography>
                         }
                       >
                         <PopOutButton
@@ -294,7 +302,7 @@ const BridgeTransactionStatus = () => {
                     <HorizontalSeparator margin="16px 0 16px 0" />
                     <HorizontalFlex justify="space-between" grow="1">
                       <Typography color={theme.colors.text2} size={14}>
-                        Network fee
+                        {t('Network fee')}
                       </Typography>
 
                       <VerticalFlex justify="flex-end">
@@ -318,7 +326,7 @@ const BridgeTransactionStatus = () => {
                 <HorizontalSeparator margin="16px 0 16px 0" />
                 <HorizontalFlex justify="space-between" grow="1" align="center">
                   <Typography color={theme.colors.text2} size={14}>
-                    Confirmations
+                    {t('Confirmations')}
                   </Typography>
                   <div>
                     <Typography size={14}>
@@ -374,7 +382,7 @@ const BridgeTransactionStatus = () => {
               <VerticalFlex width="100%">
                 <HorizontalFlex justify="space-between" grow="1">
                   <Typography color={theme.colors.text2} size={14}>
-                    To
+                    {t('To')}
                   </Typography>
 
                   <HorizontalFlex>
@@ -385,7 +393,9 @@ const BridgeTransactionStatus = () => {
                       <Tooltip
                         placement="left"
                         content={
-                          <Typography size={14}>View on explorer</Typography>
+                          <Typography size={14}>
+                            {t('View on explorer')}
+                          </Typography>
                         }
                       >
                         <PopOutButton
@@ -411,7 +421,7 @@ const BridgeTransactionStatus = () => {
                 <HorizontalSeparator margin="16px 0 16px 0" />
                 <HorizontalFlex justify="space-between" grow="1" align="center">
                   <Typography color={theme.colors.text2} size={14}>
-                    Confirmations
+                    {t('Confirmations')}
                   </Typography>
                   <div>
                     <Typography size={14}>

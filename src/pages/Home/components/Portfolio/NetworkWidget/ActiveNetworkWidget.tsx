@@ -15,6 +15,7 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
+import { t } from 'i18next';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -102,7 +103,7 @@ export function ActiveNetworkWidget({
                 size={10}
                 height="17px"
               >
-                Active
+                {t('Active')}
               </Typography>
             </Badge>
           </HorizontalFlex>

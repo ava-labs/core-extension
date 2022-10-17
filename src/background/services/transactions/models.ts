@@ -49,7 +49,7 @@ export interface Transaction {
 }
 
 export function isTxParams(params: Partial<txParams>): params is txParams {
-  return !!(params.to && params.from);
+  return !!params.from;
 }
 
 export type PendingTransactions = {

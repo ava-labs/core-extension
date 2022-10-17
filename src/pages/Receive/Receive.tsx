@@ -17,6 +17,7 @@ import { BtcQRCodeLogo } from '@src/components/icons/BtcQRCodeLogo';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { EthereumQRCodeLogo } from '@src/components/icons/EthereumQRCodeLogo';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
+import { t } from 'i18next';
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   width: 100%;
@@ -74,11 +75,11 @@ export const Receive = () => {
 
   function getName() {
     if (isBitcoinActive) {
-      return 'Bitcoin Address';
+      return t('Bitcoin Address');
     } else if (network?.chainId && isEthereumChainId(network.chainId)) {
-      return 'Ethereum Address';
+      return t('Ethereum Address');
     } else {
-      return 'Avalanche (C-Chain) Address';
+      return t('Avalanche (C-Chain) Address');
     }
   }
 
@@ -88,7 +89,7 @@ export const Receive = () => {
 
   return (
     <VerticalFlex width="100%" align="center">
-      <PageTitle>Receive</PageTitle>
+      <PageTitle>{t('Receive')}</PageTitle>
       <VerticalFlex
         data-testid="receive-qr-code"
         width={'100%'}

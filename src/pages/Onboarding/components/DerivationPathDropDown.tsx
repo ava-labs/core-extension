@@ -11,6 +11,7 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { DerivationPath } from '@avalabs/wallets-sdk';
 import { Dispatch, SetStateAction, useState } from 'react';
+import { t } from 'i18next';
 
 const StyledVerticalFlex = styled(VerticalFlex)`
   width: 100%;
@@ -60,7 +61,7 @@ export function DerivationPathDropdown({
     <>
       <StyledVerticalFlex>
         <Typography size={12} color={theme.inputs.colorLabel}>
-          Select Derivation Path
+          {t('Select Derivation Path')}
         </Typography>
         <DropDownMenu
           onMenuToggle={(val) => setSelectingPath(!val)}
@@ -68,13 +69,15 @@ export function DerivationPathDropdown({
             <StyledHorizontalFlex>
               {!pathSpec && (
                 <Typography color={theme.colors.text1} weight={400}>
-                  Select path
+                  {t('Select path')}
                 </Typography>
               )}
               {pathSpec && pathSpec === DerivationPath.LedgerLive && (
                 <Typography color={theme.colors.text1} weight={400}>
                   Ledger Live{' '}
-                  <Typography color={theme.colors.text2}>(Default)</Typography>
+                  <Typography color={theme.colors.text2}>
+                    {t('(Default)')}
+                  </Typography>
                 </Typography>
               )}
 
@@ -101,7 +104,9 @@ export function DerivationPathDropdown({
               <HorizontalFlex justify="space-between" width="100%">
                 <Typography color={theme.colors.text1} weight={400}>
                   Ledger Live{' '}
-                  <Typography color={theme.colors.text2}>(Default)</Typography>
+                  <Typography color={theme.colors.text2}>
+                    {t('(Default)')}
+                  </Typography>
                 </Typography>
                 {pathSpec === DerivationPath.LedgerLive && (
                   <CheckmarkIcon height={'16px'} color={theme.colors.text1} />
@@ -114,7 +119,7 @@ export function DerivationPathDropdown({
                 onPathSelected(DerivationPath.BIP44);
               }}
             >
-              <Typography>BIP44</Typography>
+              <Typography>{t('BIP44')}</Typography>
               {pathSpec === DerivationPath.BIP44 && (
                 <CheckmarkIcon height={'16px'} color={theme.colors.text1} />
               )}

@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import { CollectibleMedia } from './components/CollectibleMedia';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
+import { t } from 'i18next';
 
 const AttributeLabel = styled(Typography)`
   font-size: 14px;
@@ -77,26 +78,26 @@ export function CollectibleDetails() {
             }}
             ref={sendRef}
           >
-            Send
+            {t('Send')}
           </PrimaryButton>
           <Typography size={18} height="22px" weight={700}>
-            Description
+            {t('Description')}
           </Typography>
           <VerticalFlex margin="16px 0 32px">
             <VerticalFlex>
-              <AttributeLabel>Collection name</AttributeLabel>
+              <AttributeLabel>{t('Collection name')}</AttributeLabel>
               <AttributeData>{nft.collectionName}</AttributeData>
             </VerticalFlex>
             <HorizontalSeparator margin="16px 0" />
             <VerticalFlex>
-              <AttributeLabel>Description</AttributeLabel>
+              <AttributeLabel>{t('Description')}</AttributeLabel>
               <AttributeData>{nft?.description}</AttributeData>
             </VerticalFlex>
           </VerticalFlex>
 
           {nft?.attributes && nft.attributes.length > 0 && (
             <Typography size={18} height="22px" weight={700}>
-              Properties
+              {t('Properties')}
             </Typography>
           )}
           <VerticalFlex margin="16px 0 32px">

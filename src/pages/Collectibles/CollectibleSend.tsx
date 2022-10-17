@@ -40,6 +40,7 @@ import { WalletType } from '@src/background/services/wallet/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { t } from 'i18next';
 
 export function CollectibleSend() {
   const theme = useTheme();
@@ -113,7 +114,7 @@ export function CollectibleSend() {
       toastId = toast.custom(
         <TransactionToast
           type={TransactionToastType.PENDING}
-          text="Transaction pending..."
+          text={t('Transaction pending...')}
           startIcon={
             <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
           }
@@ -126,9 +127,9 @@ export function CollectibleSend() {
         resetSendState();
         toast.custom(
           <TransactionToast
-            status="Transaction Successful"
+            status={t('Transaction Successful')}
             type={TransactionToastType.SUCCESS}
-            text="View in Explorer"
+            text={t('View in Explorer')}
             href={getURL(txId)}
           />,
           { id: toastId }
@@ -139,7 +140,7 @@ export function CollectibleSend() {
         toast.custom(
           <TransactionToast
             type={TransactionToastType.ERROR}
-            text="Transaction Failed"
+            text={t('Transaction Failed')}
             startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
           />,
           { id: toastId, duration: Infinity }
@@ -180,7 +181,7 @@ export function CollectibleSend() {
       </Route>
       <Route path="/collectible/send">
         <VerticalFlex height="100%" width="100%">
-          <PageTitle>Send</PageTitle>
+          <PageTitle>{t('Send')}</PageTitle>
           <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
             <ContactInput
               contact={contactInput}
@@ -193,7 +194,7 @@ export function CollectibleSend() {
             />
             <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
               <Typography size={12} height="15px">
-                Collectible
+                {t('Collectible')}
               </Typography>
               <Card padding="16px" margin="8px 0 0" height="auto">
                 <HorizontalFlex>
@@ -214,7 +215,7 @@ export function CollectibleSend() {
             <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
               <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
                 <Typography size={12} height="15px" margin="0 8px 0 0">
-                  Network Fee
+                  {t('Network Fee')}
                 </Typography>
                 <TransactionFeeTooltip
                   gasPrice={sendState?.gasPrice || BigNumber.from(0)}
@@ -257,7 +258,7 @@ export function CollectibleSend() {
                   }}
                   disabled={!sendState.canSubmit}
                 >
-                  Next
+                  {t('Next')}
                 </PrimaryButton>
               </Tooltip>
             </VerticalFlex>

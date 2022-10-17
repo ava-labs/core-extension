@@ -65,12 +65,12 @@ export class TransactionsService {
 
   async addTransaction(tx: ExtensionConnectionMessage) {
     const { params, site } = tx;
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
     const now = new Date().getTime();
     const txParams = (params || [])[0];
 
     const txDescription = await getTxInfo(
-      txParams.to.toLocaleLowerCase(),
+      txParams.to?.toLocaleLowerCase() || '',
       txParams.data,
       txParams.value,
       this.networkService
@@ -91,9 +91,11 @@ export class TransactionsService {
       }
 
       const tokens: TokenWithBalance[] =
-        this.balancesService.balances?.[activeNetwork?.chainId || '']?.[
-          this.accountsService.activeAccount?.addressC || ''
-        ] || [];
+        Object.values(
+          this.balancesService.balances?.[activeNetwork?.chainId || '']?.[
+            this.accountsService.activeAccount?.addressC || ''
+          ] ?? {}
+        ) || [];
       const nativeToken = tokens.filter((t) => t.type === TokenType.NATIVE);
       const displayValueProps: DisplayValueParserProps = {
         gasPrice: gasPrice?.low || BigNumber.from(0),

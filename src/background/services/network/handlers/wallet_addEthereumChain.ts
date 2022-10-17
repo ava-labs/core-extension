@@ -21,10 +21,9 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
 
   handleUnauthenticated = async (request) => {
     const requestedChain: AddEthereumChainParameter = request.params?.[0];
-    const chains = await this.networkService.activeNetworks.promisify();
-    const currentActiveNetwork =
-      await this.networkService.activeNetwork.promisify();
-    const supportedChainIds = Object.keys(chains);
+    const chains = await this.networkService.allNetworks.promisify();
+    const currentActiveNetwork = this.networkService.activeNetwork;
+    const supportedChainIds = Object.keys(chains ?? {});
     const requestedChainId = Number(requestedChain.chainId);
     const chainRequestedIsSupported =
       requestedChain && supportedChainIds.includes(requestedChainId.toString());
@@ -123,7 +122,12 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     onError
   ) => {
     try {
-      const chains = await this.networkService.activeNetworks.promisify();
+      const chains = await this.networkService.allNetworks.promisify();
+      if (!chains) {
+        onError('networks not found');
+        return;
+      }
+
       const supportedChainIds = Object.keys(chains);
       if (
         supportedChainIds.includes(pendingAction.displayData.chainId.toString())

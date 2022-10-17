@@ -4,6 +4,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
+import { t } from 'i18next';
 
 type ActivityProps = {
   isEmbedded?: boolean;
@@ -19,7 +20,7 @@ export function Activity({
       {isEmbedded && (
         <HorizontalFlex width="100%">
           <Typography size={14} height="24px" as="h1">
-            Activity
+            {t('Activity')}
           </Typography>
         </HorizontalFlex>
       )}

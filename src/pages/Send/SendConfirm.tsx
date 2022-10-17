@@ -39,6 +39,7 @@ import {
   bnToLocaleString,
 } from '@avalabs/utils-sdk';
 import { satoshiToBtc } from '@avalabs/bridge-sdk';
+import { t } from 'i18next';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -197,7 +198,7 @@ export const SendConfirm = ({
     <>
       <VerticalFlex height="100%" width="100%">
         <PageTitle variant={PageTitleVariant.PRIMARY}>
-          Confirm Transaction
+          {t('Confirm Transaction')}
         </PageTitle>
         <VerticalFlex
           grow="1"
@@ -211,7 +212,7 @@ export const SendConfirm = ({
             padding="16px"
           >
             <HorizontalFlex justify="space-between" grow="1" paddingTop="16px">
-              <CardLabel>Sending</CardLabel>
+              <CardLabel>{t('Sending')}</CardLabel>
               <VerticalFlex data-testid="token-send-amount">
                 <Typography align="right">
                   <SummaryAmount>{amountDisplayValue}</SummaryAmount>{' '}
@@ -237,7 +238,7 @@ export const SendConfirm = ({
           <Card padding="16px" margin="16px 0 0 0">
             <VerticalFlex width="100%">
               <HorizontalFlex justify="space-between" width="100%">
-                <CardLabel>From</CardLabel>
+                <CardLabel>{t('From')}</CardLabel>
                 <VerticalFlex data-testid="send-from-contact">
                   <ContactName>{activeAccount?.name}</ContactName>
                   <ContactAddress>
@@ -251,7 +252,7 @@ export const SendConfirm = ({
               </HorizontalFlex>
               <HorizontalSeparator margin="8px 0" />
               <HorizontalFlex justify="space-between" width="100%">
-                <CardLabel>To</CardLabel>
+                <CardLabel>{t('To')}</CardLabel>
                 <VerticalFlex data-testid="send-to-contact">
                   <ContactName>{contact?.name}</ContactName>
                   <ContactAddress>
@@ -269,7 +270,7 @@ export const SendConfirm = ({
           >
             <HorizontalFlex>
               <Typography size={12} height="15px" margin="0 8px 0 0">
-                Network Fee
+                {t('Network Fee')}
               </Typography>
               <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={gasLimit} />
             </HorizontalFlex>
@@ -290,7 +291,7 @@ export const SendConfirm = ({
             width="100%"
           >
             <Typography size={12} height="15px">
-              Balance After Transaction
+              {t('Balance After Transaction')}
             </Typography>
             <VerticalFlex data-testid="balance-after-send-amount">
               <Typography align="right">
@@ -323,7 +324,7 @@ export const SendConfirm = ({
                   history.goBack();
                 }}
               >
-                Cancel
+                {t('Cancel')}
               </SecondaryButton>
               <Tooltip
                 content={
@@ -338,7 +339,7 @@ export const SendConfirm = ({
                   onClick={onSubmit}
                   disabled={!sendState?.canSubmit}
                 >
-                  Send Now
+                  {t('Send Now')}
                 </PrimaryButton>
               </Tooltip>
             </HorizontalFlex>

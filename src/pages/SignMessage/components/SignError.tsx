@@ -1,3 +1,5 @@
+import { t } from 'i18next';
+
 export function SignError() {
-  return <>Error, malformed request data</>;
+  return <>{t('Error, malformed request data')}</>;
 }

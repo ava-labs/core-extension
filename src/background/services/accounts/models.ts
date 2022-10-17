@@ -2,6 +2,8 @@ export interface AccountStorageItem {
   index: number;
   name: string;
   active: boolean;
+  addressBTC?: string;
+  addressC?: string;
 }
 
 export interface Account extends AccountStorageItem {

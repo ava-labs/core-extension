@@ -16,6 +16,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers/lib/utils';
+import { t } from 'i18next';
 
 const RelativeContainer = styled.div`
   position: relative;
@@ -82,8 +83,8 @@ export const ContactInput = ({
 
   const inputPlaceholder =
     network?.vmName === NetworkVMType.BITCOIN
-      ? 'Enter Bitcoin Address'
-      : 'Enter 0x Address';
+      ? t('Enter Bitcoin Address')
+      : t('Enter 0x Address');
 
   return (
     <RelativeContainer>
@@ -100,7 +101,7 @@ export const ContactInput = ({
           }}
           onBlur={() => setInputFocused(false)}
           value={getInputDisplayValue()}
-          label="Send to"
+          label={t('Send to')}
           placeholder={inputPlaceholder}
           buttonContent={
             <HorizontalFlex data-testid="send-address-book" align="center">

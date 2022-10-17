@@ -5,6 +5,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 export function SlippageToolTip() {
   const theme = useTheme();
@@ -12,8 +13,9 @@ export function SlippageToolTip() {
   const Content = (
     <VerticalFlex width="280px">
       <Typography size={12}>
-        Suggested slippage – your transaction will fail if the price changes
-        unfavorably more than this percentage
+        {t(
+          'Suggested slippage – your transaction will fail if the price changes unfavorably more than this percentage'
+        )}
       </Typography>
     </VerticalFlex>
   );

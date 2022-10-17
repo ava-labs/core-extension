@@ -17,6 +17,7 @@ import styled, { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Network } from '@avalabs/chains-sdk';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+import { t } from 'i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -65,7 +66,7 @@ export function AddCustomNetworkPopup() {
       <VerticalFlex width="100%" padding="0 16px">
         <VerticalFlex padding="12px 0" align="flex-start">
           <Typography as="h1" size={24} height="29px" weight={700} align="left">
-            Add New Network?
+            {t('Add New Network?')}
           </Typography>
         </VerticalFlex>
 
@@ -114,7 +115,7 @@ export function AddCustomNetworkPopup() {
                   weight={400}
                   color={theme.colors.text1}
                 >
-                  Chain ID
+                  {t('Chain ID')}
                 </Typography>
 
                 <Typography
@@ -133,7 +134,7 @@ export function AddCustomNetworkPopup() {
                   weight={400}
                   color={theme.colors.text1}
                 >
-                  Chain Name
+                  {t('Chain Name')}
                 </Typography>
 
                 <Typography
@@ -152,7 +153,7 @@ export function AddCustomNetworkPopup() {
                   weight={400}
                   color={theme.colors.text1}
                 >
-                  RPC URL
+                  {t('RPC URL')}
                 </Typography>
 
                 <Typography
@@ -171,7 +172,7 @@ export function AddCustomNetworkPopup() {
                   weight={400}
                   color={theme.colors.text1}
                 >
-                  Explorer URL
+                  {t('Explorer URL')}
                 </Typography>
 
                 <Typography
@@ -190,7 +191,7 @@ export function AddCustomNetworkPopup() {
                   weight={400}
                   color={theme.colors.text1}
                 >
-                  Network Symbol
+                  {t('Network Symbol')}
                 </Typography>
 
                 <Typography
@@ -209,7 +210,7 @@ export function AddCustomNetworkPopup() {
                   weight={400}
                   color={theme.colors.text1}
                 >
-                  Token Name
+                  {t('Token Name')}
                 </Typography>
 
                 <Typography
@@ -228,7 +229,7 @@ export function AddCustomNetworkPopup() {
                   weight={400}
                   color={theme.colors.text1}
                 >
-                  Token Decimals
+                  {t('Token Decimals')}
                 </Typography>
 
                 <Typography
@@ -261,7 +262,7 @@ export function AddCustomNetworkPopup() {
               window.close();
             }}
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
             width="168px"
@@ -273,7 +274,7 @@ export function AddCustomNetworkPopup() {
               });
             }}
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

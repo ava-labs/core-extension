@@ -9,6 +9,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback, useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CSSTransition } from 'react-transition-group';
+import { t } from 'i18next';
 
 export enum NetworkFormAction {
   Add = 'add',
@@ -20,16 +21,6 @@ interface NetworkFormProps {
   readOnly?: boolean;
   showErrors?: boolean;
   action?: NetworkFormAction;
-}
-
-enum FormErrors {
-  RPC_ERROR = 'RPC required',
-  CHAIN_NAME_ERROR = 'Network Name is required',
-  CHAIN_ID_ERROR = 'Chain ID is required',
-  TOKEN_SYMBOL_ERROR = 'Network Token Symbol is required',
-  EXPLORER_URL_ERROR = 'Explorer URL is requried',
-  CHAIN_ID_EXISTS = 'This Chan ID has been added already',
-  INVALID_URL = 'This URL is invalid',
 }
 
 const StyledInput = styled(Input)`
@@ -88,6 +79,16 @@ export const NetworkForm = ({
   const [explorerUrlError, setExplorerUrlError] = useState<string>();
   const theme = useTheme();
 
+  const FormErrors = {
+    RPC_ERROR: t('RPC required'),
+    CHAIN_NAME_ERROR: t('Network Name is required'),
+    CHAIN_ID_ERROR: t('Chain ID is required'),
+    TOKEN_SYMBOL_ERROR: t('Network Token Symbol is required'),
+    EXPLORER_URL_ERROR: t('Explorer URL is requried'),
+    CHAIN_ID_EXISTS: t('This Chan ID has been added already'),
+    INVALID_URL: t('This URL is invalid'),
+  };
+
   const validateForm = useCallback(
     (updatedNetwork: Network) => {
       let valid = true;
@@ -123,7 +124,16 @@ export const NetworkForm = ({
 
       return valid;
     },
-    [action, isChainIdExist]
+    [
+      FormErrors.CHAIN_ID_ERROR,
+      FormErrors.CHAIN_ID_EXISTS,
+      FormErrors.CHAIN_NAME_ERROR,
+      FormErrors.INVALID_URL,
+      FormErrors.RPC_ERROR,
+      FormErrors.TOKEN_SYMBOL_ERROR,
+      action,
+      isChainIdExist,
+    ]
   );
 
   useEffect(() => {
@@ -157,7 +167,7 @@ export const NetworkForm = ({
             });
           }}
           value={customNetwork.rpcUrl}
-          label="Network RPC URL"
+          label={t('Network RPC URL')}
           placeholder="http(s)://URL"
           margin="0 0 16px 0"
           width="100%"
@@ -183,8 +193,8 @@ export const NetworkForm = ({
             });
           }}
           value={customNetwork.chainName}
-          label="Network Name"
-          placeholder="Enter Name"
+          label={t('Network Name')}
+          placeholder={t('Enter Name')}
           margin="0 0 16px 0"
           width="100%"
           readOnly={readOnly}
@@ -209,8 +219,8 @@ export const NetworkForm = ({
             });
           }}
           value={isNaN(customNetwork.chainId) ? '' : customNetwork.chainId}
-          label="Chain ID"
-          placeholder="Enter Chain ID"
+          label={t('Chain ID')}
+          placeholder={t('Enter Chain ID')}
           margin="0 0 16px 0"
           width="100%"
           readOnly={readOnly}
@@ -239,8 +249,8 @@ export const NetworkForm = ({
             });
           }}
           value={customNetwork.networkToken.symbol}
-          label="Network Token Symbol"
-          placeholder="Enter Token Symbol"
+          label={t('Network Token Symbol')}
+          placeholder={t('Enter Token Symbol')}
           margin="0 0 16px 0"
           width="100%"
           readOnly={readOnly}
@@ -268,8 +278,8 @@ export const NetworkForm = ({
             });
           }}
           value={customNetwork.networkToken.name}
-          label="Network Token Name (Optional)"
-          placeholder="Enter Token"
+          label={t('Network Token Name (Optional)')}
+          placeholder={t('Enter Token')}
           margin="0 0 16px 0"
           width="100%"
           readOnly={readOnly}
@@ -292,8 +302,8 @@ export const NetworkForm = ({
             });
           }}
           value={customNetwork.explorerUrl}
-          label="Explorer URL (Optional)"
-          placeholder="Enter URL"
+          label={t('Explorer URL (Optional)')}
+          placeholder={t('Enter URL')}
           margin="0 0 16px 0"
           width="100%"
           readOnly={readOnly}
@@ -318,8 +328,8 @@ export const NetworkForm = ({
             });
           }}
           value={customNetwork.logoUri}
-          label="Logo URL (Optional)"
-          placeholder="Enter URL"
+          label={t('Logo URL (Optional)')}
+          placeholder={t('Enter URL')}
           margin="0 0 16px 0"
           width="100%"
           readOnly={readOnly}

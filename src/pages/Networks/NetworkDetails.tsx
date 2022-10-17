@@ -28,6 +28,7 @@ import { useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { NetworkForm, NetworkFormAction } from './NetworkForm';
+import { t } from 'i18next';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -113,12 +114,12 @@ export const NetworkDetails = () => {
 
   const onDeleteSuccess = () => {
     capture('CustomNetworkDeleted');
-    toast.custom(<CustomToast label="Custom Network Deleted!" />);
+    toast.custom(<CustomToast label={t('Custom Network Deleted!')} />);
     history.push('/networks?activeTab=NETWORKS');
   };
   const onEditSuccess = () => {
     capture('CustomNetworkEdited');
-    toast.custom(<CustomToast label="Custom Network Edited!" />);
+    toast.custom(<CustomToast label={t('Custom Network Edited!')} />);
     setIsEdit(false);
     setErrorMessage('');
   };
@@ -138,9 +139,9 @@ export const NetworkDetails = () => {
 
   const onDelete = () => {
     showDialog({
-      title: 'Delete Network?',
-      body: 'Are you sure you want to delete this network?',
-      confirmText: 'Delete',
+      title: t('Delete Network?'),
+      body: t('Are you sure you want to delete this network?'),
+      confirmText: t('Delete'),
       width: '343px',
       onConfirm: () => {
         clearDialog();
@@ -151,7 +152,7 @@ export const NetworkDetails = () => {
           })
           .catch((e) => onError(e));
       },
-      cancelText: 'Cancel',
+      cancelText: t('Cancel'),
       onCancel: () => {
         clearDialog();
       },
@@ -219,7 +220,7 @@ export const NetworkDetails = () => {
                   }}
                 >
                   <Typography weight={600} size={14}>
-                    Edit
+                    {t('Edit')}
                   </Typography>
                 </NetworkSwitcherItem>
                 <NetworkSwitcherItem
@@ -229,7 +230,7 @@ export const NetworkDetails = () => {
                   }}
                 >
                   <Typography weight={600} size={14}>
-                    Delete
+                    {t('Delete')}
                   </Typography>
                 </NetworkSwitcherItem>
               </VerticalFlex>
@@ -287,7 +288,7 @@ export const NetworkDetails = () => {
               setNetwork(networkData);
             }}
           >
-            Connect
+            {t('Connect')}
           </PrimaryButton>
         </VerticalFlex>
       )}
@@ -310,14 +311,14 @@ export const NetworkDetails = () => {
                 setNetworkState(networkData);
               }}
             >
-              Cancel
+              {t('Cancel')}
             </SecondaryButton>
             <PrimaryButton
               size={ComponentSize.LARGE}
               width="100%"
               onClick={handleEdit}
             >
-              Save
+              {t('Save')}
             </PrimaryButton>
           </HorizontalFlex>
         </VerticalFlex>

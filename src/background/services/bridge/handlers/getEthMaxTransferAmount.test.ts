@@ -25,9 +25,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
   } as any;
   const mockProvider = new JsonRpcBatchInternal(1);
   const networkServiceMock = {
-    activeNetwork: {
-      promisify: jest.fn(),
-    },
+    activeNetwork: activeNetworkMock,
     getProviderForNetwork: jest.fn(),
   } as any;
   const bridgeServiceMock = {
@@ -65,14 +63,12 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    networkServiceMock.activeNetwork.promisify.mockResolvedValue(
-      activeNetworkMock
-    );
+    networkServiceMock.activeNetwork = activeNetworkMock;
     networkServiceMock.getProviderForNetwork.mockReturnValue(mockProvider);
   });
 
   it('returns error when network is not set', async () => {
-    networkServiceMock.activeNetwork.promisify.mockResolvedValue(undefined);
+    networkServiceMock.activeNetwork = undefined;
 
     const handler = new GetEthMaxTransferAmountHandler(
       bridgeServiceMock,
@@ -114,9 +110,9 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
   });
 
   it('returns error when not on ethereum network', async () => {
-    networkServiceMock.activeNetwork.promisify.mockResolvedValue({
+    networkServiceMock.activeNetwork = {
       chainId: 1234,
-    });
+    };
 
     const handler = new GetEthMaxTransferAmountHandler(
       bridgeServiceMock,

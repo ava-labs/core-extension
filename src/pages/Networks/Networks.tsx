@@ -14,6 +14,7 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { useTheme } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { useState } from 'react';
+import { t } from 'i18next';
 
 enum NetworkTabs {
   FAVORITES = 'FAVORITES',
@@ -37,7 +38,7 @@ export function Networks() {
     <VerticalFlex grow="1">
       <HorizontalFlex align="center" padding="0 16px 0 0 ">
         <PageTitle onBackClick={() => history.push('/home')}>
-          Networks
+          {t('Networks')}
         </PageTitle>
         <TextButton>
           <PlusIcon
@@ -59,19 +60,19 @@ export function Networks() {
         margin="14px 0 0"
         tabs={[
           {
-            title: 'Favorites',
+            title: t('Favorites'),
             id: NetworkTabs.FAVORITES,
             component: <FavoritesTab searchTerm={term} />,
             onClick: () => capture('NetworkFavoritesTabClicked'),
           },
           {
-            title: 'Networks',
+            title: t('Networks'),
             id: NetworkTabs.NETWORKS,
             component: <NetworksTab searchTerm={term} />,
             onClick: () => capture('NetworkNetworksTabClicked'),
           },
           {
-            title: 'Custom',
+            title: t('Custom'),
             id: NetworkTabs.CUSTOM,
             component: <CustomsTab searchTerm={term} />,
             onClick: () => capture('NetworkCustomTabClicked'),

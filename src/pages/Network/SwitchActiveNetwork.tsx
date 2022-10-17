@@ -15,6 +15,7 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import styled, { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Network } from '@avalabs/chains-sdk';
+import { t } from 'i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -90,7 +91,9 @@ export function SwitchActiveNetwork() {
               align="center"
               margin="0 0 16px"
             >
-              Switch to {network?.chainName} Network?
+              {t('Switch to {{chainName}} Network?', {
+                chainName: network?.chainName,
+              })}
             </Typography>
           </HorizontalFlex>
           <HorizontalFlex>
@@ -100,8 +103,13 @@ export function SwitchActiveNetwork() {
               color={theme.colors.text2}
               align="center"
             >
-              {request?.site?.domain || 'This website'} is requesting to switch
-              your active network to {network?.chainName}
+              {t(
+                '{{domain}} is requesting to switch your active network to {{chainName}}',
+                {
+                  chainName: network?.chainName,
+                  domain: request?.site?.domain || t('This website'),
+                }
+              )}
             </Typography>
           </HorizontalFlex>
         </VerticalFlex>
@@ -122,7 +130,7 @@ export function SwitchActiveNetwork() {
               window.close();
             }}
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
             width="168px"
@@ -134,7 +142,7 @@ export function SwitchActiveNetwork() {
               });
             }}
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

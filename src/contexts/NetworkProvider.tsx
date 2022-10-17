@@ -49,7 +49,6 @@ export function NetworkContextProvider({ children }: { children: any }) {
   const [networks, setNetworks] = useState<Network[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
   const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
-  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
 
@@ -57,12 +56,13 @@ export function NetworkContextProvider({ children }: { children: any }) {
     () =>
       networks
         .filter((networkItem) => favoriteNetworks.includes(networkItem.chainId))
-        .filter(
-          (network) =>
-            (!isDeveloperMode && !network.isTestnet) ||
-            (isDeveloperMode && network.isTestnet)
-        ),
-    [favoriteNetworks, isDeveloperMode, networks]
+        .filter((n) => {
+          return (
+            (!network?.isTestnet && !n.isTestnet) ||
+            (network?.isTestnet && n.isTestnet)
+          );
+        }),
+    [favoriteNetworks, network, networks]
   );
 
   const getCustomNetworks = useMemo(
@@ -83,16 +83,10 @@ export function NetworkContextProvider({ children }: { children: any }) {
     request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
-      const {
-        networks,
-        isDeveloperMode,
-        activeNetwork,
-        favoriteNetworks,
-        customNetworks,
-      } = result;
+      const { networks, activeNetwork, favoriteNetworks, customNetworks } =
+        result;
       setNetworks(networks);
       setNetwork(activeNetwork);
-      setIsDeveloperMode(isDeveloperMode);
       setFavoriteNetworks(favoriteNetworks);
       setCustomNetworks(customNetworks);
     });
@@ -124,7 +118,8 @@ export function NetworkContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe((result) => {
-        setNetwork(result);
+        getNetworkState();
+        setNetwork((currentNetwork) => result ?? currentNetwork); // do not delete currently set network
       });
 
     events()
@@ -134,8 +129,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
       )
       .subscribe((result) => {
         setNetworks(result.networks);
-        setNetwork(result.activeNetwork);
-        setIsDeveloperMode(result.isDeveloperMode);
+        setNetwork((currentNetwork) => result.activeNetwork ?? currentNetwork); // do not delete currently set network
         setFavoriteNetworks(result.favoriteNetworks);
         setCustomNetworks(
           Object.values(result.customNetworks).map((network) => network.chainId)
@@ -160,7 +154,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
           }),
         saveCustomNetwork,
         removeCustomNetwork,
-        isDeveloperMode,
+        isDeveloperMode: !!network?.isTestnet,
         favoriteNetworks: getFavoriteNetworks,
         addFavoriteNetwork: (chainId: number) => {
           request<AddFavoriteNetworkHandler>({

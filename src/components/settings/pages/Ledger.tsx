@@ -14,6 +14,8 @@ import {
   SUPPORTED_LEDGER_VERSION,
   useLedgerContext,
 } from '@src/contexts/LedgerProvider';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 const StyledNumberList = styled(Typography)`
   font-size: 14px;
@@ -39,7 +41,7 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Ledger'}
+        title={t('Ledger')}
       />
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         <SecondaryDropDownMenuItem
@@ -51,7 +53,7 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
           background={theme.colors.bg3}
         >
           <Typography size={14} height="17px">
-            Status
+            {t('Status')}
           </Typography>
           <HorizontalFlex align="center">
             <ConnectionIndicator
@@ -65,7 +67,7 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
               color={theme.colors.text2}
               margin="0 0 0 8px"
             >
-              {hasLedgerTransport ? 'Connected' : 'Disconnected'}
+              {hasLedgerTransport ? t('Connected') : t('Disconnected')}
             </Typography>
           </HorizontalFlex>
         </SecondaryDropDownMenuItem>
@@ -77,37 +79,36 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
               size={14}
               height="17px"
             >
-              To Connect:
+              {t('To Connect:')}
             </Typography>
             <HorizontalFlex>
-              <StyledNumberList>1.</StyledNumberList>
+              <StyledNumberList>{t('1.')}</StyledNumberList>
               <Typography size={14} height="17px" margin="0 0 24px 0">
-                Connect the Ledger device to your computer.
+                {t('Connect the Ledger device to your computer.')}
               </Typography>
             </HorizontalFlex>
 
             <HorizontalFlex>
-              <StyledNumberList>2.</StyledNumberList>
+              <StyledNumberList>{t('2.')}</StyledNumberList>
               <Typography size={14} height="17px" margin="0 0 24px 0">
-                Enter your PIN and access your device.
+                {t('Enter your PIN and access your device.')}
               </Typography>
             </HorizontalFlex>
 
             <HorizontalFlex>
-              <StyledNumberList>3.</StyledNumberList>
+              <StyledNumberList>{t('3.')}</StyledNumberList>
               <Typography size={14} height="17px">
-                Ensure you have installed the{' '}
-                <strong>Avalanche App v{SUPPORTED_LEDGER_VERSION}</strong> (or
-                above) and open it on your device.
+                <Trans
+                  i18nKey="Ensure you have installed the <strong>Avalanche App v{{SUPPORTED_LEDGER_VERSION}}</strong> (or above) and open it on your device."
+                  SUPPORTED_LEDGER_VERSION={SUPPORTED_LEDGER_VERSION}
+                />
               </Typography>
             </HorizontalFlex>
 
             <HorizontalSeparator margin="24px 0" />
 
             <Typography size={14} height="17px">
-              If you do not have the Avalanche app on your Ledger, please add it
-              through the Ledger Live app manager. More instructions can be
-              found here.
+              <Trans i18nKey="If you do not have the Avalanche app on your Ledger, please add it through the Ledger Live app manager. More instructions can be found here." />
             </Typography>
           </VerticalFlex>
         )}

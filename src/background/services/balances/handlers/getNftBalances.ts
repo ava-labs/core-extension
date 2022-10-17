@@ -22,7 +22,7 @@ export class GetNftBalancesHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
-    const currentNetwork = await this.networkService.activeNetwork.promisify();
+    const currentNetwork = this.networkService.activeNetwork;
     if (!currentNetwork) {
       return {
         ...request,

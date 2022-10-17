@@ -15,6 +15,7 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { ChainId } from '@avalabs/chains-sdk';
 import { useHistory } from 'react-router-dom';
 import { NetworkLogo } from '../../NetworkLogo';
+import { t } from 'i18next';
 
 const NetworkSwitcherButton = styled(HorizontalFlex)`
   border-radius: 100px;
@@ -176,7 +177,7 @@ export function NetworkSwitcher() {
               <HorizontalFlex align="center">
                 <GearIcon color={theme.colors.text1} />
                 <Typography margin="0 0 0 8px" weight={600} size={14}>
-                  Manage Networks
+                  {t('Manage Networks')}
                 </Typography>
               </HorizontalFlex>
             </NetworkSwitcherItem>

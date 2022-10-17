@@ -13,6 +13,8 @@ import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useTheme } from 'styled-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -55,22 +57,20 @@ export const CreatePassword = ({
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
         testId="name-and-password"
-        title="Create a Name and Password"
+        title={t('Create a Name and Password')}
         onBack={onBack}
         onClose={onCancel}
       />
       <VerticalFlex align="center" grow="1">
         <Typography align="center" margin="8px 0 0" size={14} height="17px">
-          For your security, please create a new name
-          <br />
-          and password.
+          <Trans i18nKey="For your security, please create a new name <br />and password." />
         </Typography>
         <Input
           data-testid="wallet-name-input"
           margin="32px 0 0"
           label="Wallet Name"
           onChange={(e) => setAccountName(e.target.value)}
-          placeholder="Enter a Name"
+          placeholder={t('Enter a Name')}
           autoFocus
         />
         <Input
@@ -78,27 +78,27 @@ export const CreatePassword = ({
           margin="24px 0"
           label="Password"
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter a Password"
+          placeholder={t('Enter a Password')}
           type="password"
           error={!!passwordLengthError}
-          helperText="Must be at least 8 characters"
+          helperText={t('Must be at least 8 characters')}
           onBlur={() => {
             setIsPasswordInputFilled(true);
           }}
           errorMessage={
-            passwordLengthError ? 'Must be at least 8 characters' : ''
+            passwordLengthError ? t('Must be at least 8 characters') : ''
           }
         />
         <HorizontalFlex width="100%" height="84px">
           <Input
             data-testid="wallet-confirm-password-input"
-            label="Confirm Password"
+            label={t('Confirm Password')}
             onChange={(e) => setConfirmPasswordVal(e.target.value)}
-            placeholder="Enter a Password"
+            placeholder={t('Enter a Password')}
             type="password"
             error={confirmationError}
             errorMessage={
-              confirmationError ? 'Passwords do not match' : undefined
+              confirmationError ? t('Passwords do not match') : undefined
             }
           />
         </HorizontalFlex>
@@ -109,18 +109,22 @@ export const CreatePassword = ({
               onChange={() => setTermsOfUseChecked(!termsOfUseChecked)}
             />
             <Typography margin="0 0 0 8px" size={12} height="15px">
-              I agree to the{' '}
-              <Typography
-                as="a"
-                target="_blank"
-                href="https://wallet.avax.network/legal?core"
-                color={theme.colors.secondary1}
-                size={12}
-                height="15px"
-                weight={500}
-              >
-                Terms of Use
-              </Typography>
+              <Trans
+                i18nKey="I agree to the <typography>Terms of Use</typography>"
+                components={{
+                  typography: (
+                    <Typography
+                      as="a"
+                      target="_blank"
+                      href="https://wallet.avax.network/legal?core"
+                      color={theme.colors.secondary1}
+                      size={12}
+                      height="15px"
+                      weight={500}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </HorizontalFlex>
           <HorizontalFlex
@@ -132,18 +136,22 @@ export const CreatePassword = ({
               onChange={() => setPrivacyPolicyChecked(!privacyPolicyChecked)}
             />
             <Typography margin="0 0 0 8px" size={12} height="15px">
-              I acknowledge the{' '}
-              <Typography
-                as="a"
-                target="_blank"
-                href="https://www.avalabs.org/privacy-policy"
-                color={theme.colors.secondary1}
-                size={12}
-                height="15px"
-                weight={500}
-              >
-                Privacy Policy
-              </Typography>
+              <Trans
+                i18nKey="I acknowledge the  <typography>Privacy Policy'</typography>"
+                components={{
+                  typography: (
+                    <Typography
+                      as="a"
+                      target="_blank"
+                      href="https://www.avalabs.org/privacy-policy"
+                      color={theme.colors.secondary1}
+                      size={12}
+                      height="15px"
+                      weight={500}
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </HorizontalFlex>
         </VerticalFlex>
@@ -165,7 +173,7 @@ export const CreatePassword = ({
           );
         }}
       >
-        Save
+        {t('Save')}
       </PrimaryButton>
     </VerticalFlex>
   );

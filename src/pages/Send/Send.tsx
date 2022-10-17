@@ -42,6 +42,7 @@ import {
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { WalletType } from '@src/background/services/wallet/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { t } from 'i18next';
 
 export function SendPage() {
   const theme = useTheme();
@@ -247,7 +248,7 @@ export function SendPage() {
       toastId = toast.custom(
         <TransactionToast
           type={TransactionToastType.PENDING}
-          text="Transaction pending..."
+          text={t('Transaction pending...')}
           startIcon={
             <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
           }
@@ -260,9 +261,9 @@ export function SendPage() {
         resetSendState();
         toast.custom(
           <TransactionToast
-            status="Transaction Successful"
+            status={t('Transaction Successful')}
             type={TransactionToastType.SUCCESS}
-            text="View in Explorer"
+            text={t('View in Explorer')}
             href={getURL(txId)}
           />,
           { id: toastId }
@@ -273,7 +274,7 @@ export function SendPage() {
         toast.custom(
           <TransactionToast
             type={TransactionToastType.ERROR}
-            text="Transaction Failed"
+            text={t('Transaction Failed')}
             startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
           />,
           { id: toastId, duration: Infinity }
@@ -319,7 +320,7 @@ export function SendPage() {
       </Route>
       <Route path="/send">
         <VerticalFlex height="100%" width="100%">
-          <PageTitle>Send</PageTitle>
+          <PageTitle>{t('Send')}</PageTitle>
           <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
             <SendForm
               contactInput={contactInput}
@@ -370,7 +371,7 @@ export function SendPage() {
                   }}
                   disabled={!sendState.canSubmit}
                 >
-                  Next
+                  {t('Next')}
                 </PrimaryButton>
               </Tooltip>
             </VerticalFlex>

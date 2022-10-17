@@ -1,4 +1,5 @@
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
+import { LockService } from '@src/background/services/lock/LockService';
 import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
 import { CORE_DOMAINS } from '../models';
 import { Middleware } from './models';
@@ -93,9 +94,16 @@ const CORE_METHODS = Object.freeze([
 
 export function PermissionMiddleware(
   permissionService: PermissionsService,
-  accountsService: AccountsService
+  accountsService: AccountsService,
+  lockService: LockService
 ): Middleware {
   return async (context, next, error) => {
+    if (lockService.locked) {
+      context.authenticated = false;
+      next();
+      return;
+    }
+
     // check if domain has permission
     const permissions = await permissionService.getPermissions();
     const accounts = await accountsService.getAccounts();

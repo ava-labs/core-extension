@@ -24,6 +24,7 @@ import {
 import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
 import Big from 'big.js';
+import { t } from 'i18next';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -139,8 +140,9 @@ export function TokenSelect({
     const formattedAmount =
       inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
         ? currencyFormatter(
-            Number(bnToLocaleString(inputAmount, decimals)) *
-              selectedToken.priceUSD
+            parseFloat(
+              bnToLocaleString(inputAmount, decimals).replace(/,/g, '')
+            ) * selectedToken.priceUSD
           )
         : undefined;
     setAmountInCurrency(formattedAmount);
@@ -183,6 +185,13 @@ export function TokenSelect({
     }
   }, [bridgeTokensList, onTokenChange, selectedToken]);
 
+  const onBNError = useCallback(
+    (errorMessage) => {
+      onError ? onError(errorMessage) : setBNError(errorMessage);
+    },
+    [onError]
+  );
+
   return (
     <VerticalFlex width="100%" style={{ margin }}>
       <HorizontalFlex
@@ -193,10 +202,10 @@ export function TokenSelect({
         padding={padding}
       >
         <Typography size={12} color={theme.inputs.colorLabel}>
-          {label ?? 'Token'}
+          {label ?? t('Token')}
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
-          Balance: {selectedToken?.balanceDisplayValue ?? '0'}
+          {t('Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
         </Typography>
       </HorizontalFlex>
       <SelectContainer>
@@ -242,7 +251,7 @@ export function TokenSelect({
               maxAmount &&
               selectedToken?.balance &&
               selectedToken?.balance.gt(new BN(0))
-                ? 'Max'
+                ? t('Max')
                 : ''
             }
             data-testid="token-amount-input"
@@ -252,9 +261,7 @@ export function TokenSelect({
             disabled={!selectedToken || isValueLoading}
             onChange={handleAmountChange}
             onClick={(e) => e.stopPropagation()}
-            onError={(errorMessage) =>
-              onError ? onError(errorMessage) : setBNError(errorMessage)
-            }
+            onError={onBNError}
             onKeyPress={preventMinus}
             style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
             hideErrorMessage

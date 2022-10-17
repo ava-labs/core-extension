@@ -9,6 +9,8 @@ import {
 } from '@avalabs/react-components';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 interface CopyPhraseProps {
   mnemonic: string;
@@ -30,15 +32,13 @@ export function CopyPhrase({
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader
         testId="copy-phrase"
-        title="Secret Recovery Phrase"
+        title={t('Secret Recovery Phrase')}
         onBack={onBack}
         onClose={onCancel}
       />
       <VerticalFlex align="center" grow="1" data-testid="copy-phrase-section">
         <Typography align="center" margin="8px 0 32px" size={14} height="17px">
-          This is your secret recovery phrase. Write it down, and
-          <br />
-          store it in a secure location.
+          <Trans i18nKey="This is your secret recovery phrase. Write it down, and <br />store it in a secure location." />
         </Typography>
         <Mnemonic
           phrase={mnemonic}
@@ -53,7 +53,9 @@ export function CopyPhrase({
         data-testid="recovery-phrase-continue-section"
       >
         <Checkbox
-          label={`I understand losing this phrase will result in lost funds.\nI have stored it in a secure location.`}
+          label={t(
+            `I understand losing this phrase will result in lost funds.\nI have stored it in a secure location.`
+          )}
           onChange={setTermsConfirmed}
         />
         <PrimaryButton
@@ -67,7 +69,7 @@ export function CopyPhrase({
             onNext();
           }}
         >
-          Next
+          {t('Next')}
         </PrimaryButton>
       </VerticalFlex>
     </VerticalFlex>

@@ -13,6 +13,7 @@ import { GetNavigationHistoryDataHandler } from '@src/background/services/naviga
 
 export function usePageHistory() {
   const { request } = useConnectionContext();
+  const [isLoading, setIsLoading] = useState(true);
   const [historyDataState, setHistoryDataState] = useState({});
   const [historyState, setHistoryState] = useState<NavigationHistoryState>({});
 
@@ -26,12 +27,11 @@ export function usePageHistory() {
     [request]
   );
 
-  const getNavigationHistoryData = useCallback(() => {
-    request<GetNavigationHistoryDataHandler>({
+  const getNavigationHistoryData = useCallback(async () => {
+    const result = await request<GetNavigationHistoryDataHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_DATA_GET,
-    }).then((result) => {
-      setHistoryDataState(result);
     });
+    setHistoryDataState(result);
   }, [request]);
 
   const setNavigationHistory = useCallback(
@@ -44,17 +44,21 @@ export function usePageHistory() {
     [request]
   );
 
-  const getNavigationHistory = useCallback(() => {
-    request<GetNavigationHistoryHandler>({
+  const getNavigationHistory = useCallback(async () => {
+    const result = await request<GetNavigationHistoryHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_GET,
-    }).then((result) => {
-      setHistoryState(result);
     });
+    setHistoryState(result);
   }, [request]);
 
   useEffect(() => {
-    getNavigationHistory();
-    getNavigationHistoryData();
+    const getHistory = async () => {
+      setIsLoading(true);
+      await getNavigationHistory();
+      await getNavigationHistoryData();
+      setIsLoading(false);
+    };
+    getHistory();
   }, [getNavigationHistory, getNavigationHistoryData]);
 
   const getPageHistoryData = useCallback(() => {
@@ -72,5 +76,6 @@ export function usePageHistory() {
     getPageHistoryData,
     setNavigationHistory,
     getNavigationHistoryState,
+    isHistoryLoading: isLoading,
   };
 }

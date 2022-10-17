@@ -20,6 +20,7 @@ import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { WalletType } from '@src/background/services/wallet/models';
+import { t } from 'i18next';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const theme = useTheme();
@@ -66,7 +67,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
       >
         <Typography size={14} height="17px">
-          Address Book
+          {t('Address Book')}
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -82,7 +83,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.CURRENCIES)}
       >
         <Typography size={14} height="17px">
-          Currency
+          {t('Currency')}
         </Typography>
         <HorizontalFlex align="center">
           <Typography
@@ -108,7 +109,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.ADVANCED)}
       >
         <Typography size={14} height="17px">
-          Advanced
+          {t('Advanced')}
         </Typography>
         <HorizontalFlex align="center">
           <Typography
@@ -132,7 +133,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           onClick={() => navigateTo(SettingsPages.LEDGER)}
         >
           <Typography size={14} height="17px">
-            Ledger
+            {t('Ledger')}
           </Typography>
           <CaretIcon
             color={theme.colors.icon1}
@@ -147,7 +148,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         padding="10px 16px"
       >
         <Typography size={14} height="17px">
-          Show Tokens Without Balance
+          {t('Show Tokens Without Balance')}
         </Typography>
         <Toggle
           isChecked={showTokensWithoutBalances}
@@ -161,7 +162,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         padding="12px 16px"
       >
         <Typography size={14} height="17px">
-          Set as Default Extension
+          {t('Set as Default Extension')}
         </Typography>
         <Toggle
           isChecked={isDefaultExtension}
@@ -181,7 +182,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
       >
         <Typography size={14} height="17px">
-          Security &amp; Privacy
+          {t('Security & Privacy')}
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -199,7 +200,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         onClick={() => navigateTo(SettingsPages.LEGAL)}
       >
         <Typography size={14} height="17px">
-          Legal
+          {t('Legal')}
         </Typography>
         <CaretIcon
           color={theme.colors.icon1}
@@ -223,7 +224,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         }
       >
         <Typography size={14} height="17px">
-          Help Center
+          {t('Help Center')}
         </Typography>
       </DropDownMenuItem>
 
@@ -234,7 +235,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           size={ComponentSize.LARGE}
           onClick={lockWallet}
         >
-          Lock Core
+          {t('Lock Core')}
         </SecondaryButton>
       </VerticalFlex>
     </VerticalFlex>

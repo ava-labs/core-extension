@@ -11,6 +11,7 @@ import { useTheme } from 'styled-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
+import { t } from 'i18next';
 
 export const ManageTokens = () => {
   const theme = useTheme();
@@ -19,7 +20,7 @@ export const ManageTokens = () => {
 
   return (
     <VerticalFlex flex={1}>
-      <PageTitle>Manage Token List</PageTitle>
+      <PageTitle>{t('Manage Token List')}</PageTitle>
       <VerticalFlex grow="1" width="100%" padding="8px 16px">
         <SearchInput
           data-testid="search-token-list-input"
@@ -44,7 +45,7 @@ export const ManageTokens = () => {
             <PlusIcon color={theme.colors.text1} width="20px" height="20px" />
           </VerticalFlex>
           <Typography margin="0 16px" size={14} height="24px" weight={600}>
-            Add a Custom Token
+            {t('Add a Custom Token')}
           </Typography>
         </TextButton>
         <Scrollbars>

@@ -13,6 +13,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { ContactListItem } from '../components/ContactListItem';
+import { t } from 'i18next';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
@@ -36,7 +37,9 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         navigateTo={navigateTo}
         title={'Address Book'}
         action={
-          <Tooltip content={<Typography size={12}>Add New Contact</Typography>}>
+          <Tooltip
+            content={<Typography size={12}>{t('Add New Contact')}</Typography>}
+          >
             <TextButton
               data-testid="add-contact-plus-button"
               onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}
@@ -49,7 +52,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
       <VerticalFlex padding="16px">
         <SearchInput
           data-testid="contact-search-input"
-          placeholder="Search"
+          placeholder={t('Search')}
           onSearch={setSearchTerm}
           autoFocus={true}
         />
@@ -57,7 +60,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
       <Scrollbars>
         {filteredContacts.length === 0 && (
           <Typography margin="16px" size={14} as="p" align="center">
-            No contacts found
+            {t('No contacts found')}
           </Typography>
         )}
         {filteredContacts.map((contact, index) => (

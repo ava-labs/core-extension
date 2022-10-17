@@ -34,21 +34,20 @@ export class NetworkFeeService implements OnUnlock, OnLock {
   };
 
   onUnlock(): void | Promise<void> {
-    this.networkService.activeNetwork.add(this.updateFee);
+    this.networkService.activeNetworkChanged.add(this.updateFee);
     this.intervalId = setInterval(async () => {
       this.updateFee();
     }, 30000);
   }
 
   onLock() {
-    this.networkService.activeNetwork.remove(this.updateFee);
+    this.networkService.activeNetworkChanged.remove(this.updateFee);
     this.intervalId && clearInterval(this.intervalId);
     this.currentNetworkFee = null;
   }
 
   async getNetworkFee(otherNetwork?: Network): Promise<NetworkFee | null> {
-    const network =
-      otherNetwork || (await this.networkService.activeNetwork.promisify());
+    const network = otherNetwork || this.networkService.activeNetwork;
 
     if (!network) {
       return null;
@@ -87,7 +86,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     data: string,
     value?: BigNumberish
   ): Promise<number | null> {
-    const network = await this.networkService.activeNetwork.promisify();
+    const network = this.networkService.activeNetwork;
     if (network?.vmName !== NetworkVMType.EVM) {
       return null;
     }

@@ -24,7 +24,7 @@ export class BalancesServiceBTC {
   async getBalances(
     accounts: Account[],
     network: Network
-  ): Promise<Record<string, TokenWithBalance[]>> {
+  ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const provider = await this.networkService.getBitcoinProvider();
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
@@ -56,8 +56,8 @@ export class BalancesServiceBTC {
             : 0;
           return {
             address: account.addressBTC,
-            balances: [
-              {
+            balances: {
+              [network.networkToken.symbol]: {
                 ...network.networkToken,
                 type: TokenType.NATIVE,
                 balance,
@@ -74,7 +74,7 @@ export class BalancesServiceBTC {
                 logoUri:
                   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
               },
-            ],
+            },
           };
         })
       )

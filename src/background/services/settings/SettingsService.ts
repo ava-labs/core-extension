@@ -26,7 +26,7 @@ export class SettingsService implements OnStorageReady {
     private networkService: NetworkService
   ) {
     this.applySettings();
-    this.networkService.activeNetwork.add(() => {
+    this.networkService.activeNetworkChanged.add(() => {
       this.applySettings();
     });
   }
@@ -58,7 +58,7 @@ export class SettingsService implements OnStorageReady {
   }
 
   async addCustomToken(token: NetworkContractToken) {
-    const network = await this.networkService.activeNetwork.promisify();
+    const network = this.networkService.activeNetwork;
 
     if (!network) {
       throw new Error('Unable to detect current network selection.');

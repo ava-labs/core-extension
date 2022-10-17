@@ -12,6 +12,8 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import styled, { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 const RecoveryPhraseContainer = styled(HorizontalFlex)`
   width: 100%;
@@ -58,7 +60,7 @@ export function RecoveryPhrase({
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Show Recovery Phrase'}
+        title={t('Show Recovery Phrase')}
       />
       <VerticalFlex
         width="100%"
@@ -67,10 +69,7 @@ export function RecoveryPhrase({
         padding="16px 0 0"
       >
         <Typography padding="0 16px" size={14} height="17px" align="center">
-          If you ever change browsers or move computers, you will need this
-          Secret Recovery Phrase to access your accounts.
-          <br />
-          Save them somewhere safe and secret.
+          <Trans i18nKey="If you ever change browsers or move computers, you will need this Secret Recovery Phrase to access your accounts. <br /> Save them somewhere safe and secret." />
         </Typography>
         <HorizontalFlex
           margin="24px 0 16px"
@@ -80,9 +79,7 @@ export function RecoveryPhrase({
         >
           <WarningIcon height="48px" color={theme.colors.error} />
           <Typography margin="0 0 0 8px" height="20px">
-            DO NOT <br />
-            share this phrase with anyone! These words can be used to steal all
-            your accounts.
+            <Trans i18nKey="DO NOT <br /> share this phrase with anyone! These words can be used to steal all your accounts." />
           </Typography>
         </HorizontalFlex>
         {!recoveryValue ? (
@@ -90,7 +87,7 @@ export function RecoveryPhrase({
             <HorizontalFlex height="100px" padding="0 16px" width="100%">
               <Input
                 data-testid="recovery-phrase-password-input"
-                label="Enter Password to Continue"
+                label={t('Enter Password to Continue')}
                 error={!!errorMessage}
                 errorMessage={errorMessage}
                 onChange={(e) => {
@@ -98,7 +95,7 @@ export function RecoveryPhrase({
                   setErrorMessage('');
                 }}
                 value={passwordValue}
-                placeholder="Password"
+                placeholder={t('Password')}
                 type="password"
                 width="100%"
               />
@@ -116,7 +113,7 @@ export function RecoveryPhrase({
                 onClick={handleShowRecoveryPhrase}
                 width="100%"
               >
-                Show Recovery Phrase
+                {t('Show Recovery Phrase')}
               </PrimaryButton>
             </VerticalFlex>
           </>

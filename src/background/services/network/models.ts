@@ -10,7 +10,6 @@ export const NETWORK_LIST_STORAGE_KEY = 'NETWORK_LIST_STORAGE_KEY';
 
 export interface NetworkStorage {
   activeNetworkId: number | null;
-  isDeveloperMode: boolean;
   favoriteNetworks: number[];
   customNetworks: Record<number, Network>;
 }

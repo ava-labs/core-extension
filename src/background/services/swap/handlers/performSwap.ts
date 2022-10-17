@@ -118,7 +118,7 @@ export class PerformSwapHandler implements HandlerType {
       };
     }
 
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
     if (!activeNetwork || activeNetwork.isTestnet) {
       return {
         ...request,

@@ -44,6 +44,8 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
+import '@src/localization/init';
+import { t } from 'i18next';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -199,13 +201,19 @@ export function Popup() {
 
   if (!isOnline) {
     return (
-      <OfflineContent message="Ooops... It seems you don't have internet connection" />
+      <OfflineContent
+        message={t("Ooops... It seems you don't have internet connection")}
+      />
     );
   }
 
   if (!featureFlags[FeatureGates.EVERYTHING]) {
     return (
-      <OfflineContent message="Sorry, Core is currently unavailable. Please check back later. Thanks." />
+      <OfflineContent
+        message={t(
+          'Sorry, Core is currently unavailable. Please check back later. Thanks.'
+        )}
+      />
     );
   }
 

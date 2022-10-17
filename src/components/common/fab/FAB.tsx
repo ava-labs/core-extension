@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { useBuyClick } from '@src/hooks/useBuyClick';
+import { t } from 'i18next';
 
 const ActionButtonWrapper = styled(TextButton)`
   padding: 8px;
@@ -113,7 +114,7 @@ export function FAB() {
 
   const FABMenuItems = [
     {
-      text: 'Send',
+      text: t('Send'),
       route: '/send',
       name: 'Send',
       icon: (
@@ -127,19 +128,19 @@ export function FAB() {
       ),
     },
     {
-      text: 'Receive',
+      text: t('Receive'),
       route: '/receive',
       name: 'Receive',
       icon: <QRCodeIcon height="24px" color={theme.colors.bg1} />,
     },
     {
-      text: 'Buy',
+      text: t('Buy'),
       route: '',
       name: 'Buy',
       icon: <BuyIcon height="21px" color={theme.colors.bg1} />,
     },
     {
-      text: 'Swap',
+      text: t('Swap'),
       route: '/swap',
       name: 'Swap',
       icon: (
@@ -151,7 +152,7 @@ export function FAB() {
       ),
     },
     {
-      text: 'Bridge',
+      text: t('Bridge'),
       route: '/bridge',
       name: 'Bridge',
       icon: <BridgeIcon height="24px" color={theme.colors.bg1} />,

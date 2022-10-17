@@ -1,3 +1,4 @@
+import { t } from 'i18next';
 export interface MenuItem {
   name: string;
   href?: string;
@@ -9,34 +10,34 @@ export interface MenuItem {
 
 export const menuItems = [
   {
-    name: 'Ecosystem',
+    name: t('Ecosystem'),
     href: 'https://ecosystem.avax.network/',
   },
   {
-    name: 'Bridge',
+    name: t('Bridge'),
     href: 'https://bridge.avax.network/',
   },
   {
-    name: 'Explorer',
+    name: t('Explorer'),
     href: 'https://explorer.avax.network/',
   },
   {
-    name: 'Community',
+    name: t('Community'),
     items: [
       {
-        name: 'Developer Docs',
+        name: t('Developer Docs'),
         href: 'https://docs.avax.network/',
       },
       {
-        name: 'Forum',
+        name: t('Forum'),
         href: 'https://forum.avax.network/',
       },
       {
-        name: 'About Avalanche',
+        name: t('About Avalanche'),
         href: 'https://www.avax.network/',
       },
       {
-        name: 'About Ava Labs',
+        name: t('About Ava Labs'),
         href: 'https://www.avalabs.org/',
       },
     ],

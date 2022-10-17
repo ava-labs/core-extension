@@ -18,6 +18,7 @@ import styled, { useTheme } from 'styled-components';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
+import { t } from 'i18next';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -53,9 +54,11 @@ export function WalletLocked({
 
   const onImportClick = () => {
     showDialog({
-      title: 'Have you Written Down your Recovery Phrase?',
-      body: 'Pressing yes will terminate this session, without your phrase you will not be able to access the current wallet',
-      confirmText: 'Yes',
+      title: t('Have you Written Down your Recovery Phrase?'),
+      body: t(
+        'Pressing yes will terminate this session, without your phrase you will not be able to access the current wallet'
+      ),
+      confirmText: t('Yes'),
       width: '343px',
       onConfirm: () => {
         clearDialog();
@@ -64,7 +67,7 @@ export function WalletLocked({
           params: [true],
         });
       },
-      cancelText: 'No',
+      cancelText: t('No'),
       onCancel: () => {
         clearDialog();
       },
@@ -108,9 +111,9 @@ export function WalletLocked({
         <Input
           data-testid="wallet-locked-password-input"
           type="password"
-          label="Password"
+          label={t('Password')}
           onChange={(e) => setPassword(e.currentTarget.value.trim())}
-          placeholder="Password"
+          placeholder={t('Password')}
           error={!!error}
           errorMessage={error}
           onKeyPress={(e) => {
@@ -132,7 +135,7 @@ export function WalletLocked({
         {(loggingIn || loginSuccess) && (
           <StyledLoading height="16px" color={theme.colors.stroke2} />
         )}
-        Login
+        {t('Login')}
       </PrimaryButton>
       <HorizontalSeparator margin="24px 0 8px" />
       <TextButton
@@ -140,7 +143,7 @@ export function WalletLocked({
         height="40px"
         onClick={() => onImportClick()}
       >
-        Reset Secret Recovery Phrase
+        {t('Reset Secret Recovery Phrase')}
       </TextButton>
     </VerticalFlex>
   );

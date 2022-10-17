@@ -28,6 +28,8 @@ import { Network } from '@avalabs/chains-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { useGetAvalancheNetwork } from '@src/hooks/useGetAvalancheNetwork';
 import { PubKeyType } from '@src/background/services/wallet/models';
+import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 interface LedgerConnectProps {
   onCancel(): void;
@@ -61,11 +63,17 @@ const getConfirmAccountLabel = (
     return;
   }
   if (pathSpec === DerivationPath.BIP44) {
-    return 'Please confirm the action on your ledger device.';
+    return t('Please confirm the action on your ledger device.');
   }
   const confirmActoinsLeft = 3 - confirmedAccountCount;
   const plural = 3 - confirmedAccountCount <= 1 ? 'time' : 'times';
-  return `Please confirm the action ${confirmActoinsLeft} more ${plural} on your ledger device.`;
+  return t(
+    `Please confirm the action {{count}} more {{plural}} on your ledger device.`,
+    {
+      count: confirmActoinsLeft,
+      plural,
+    }
+  );
 };
 
 export function LedgerConnect({
@@ -265,9 +273,10 @@ export function LedgerConnect({
         onClose={onCancel}
       />
       <Typography align="center" margin="8px 0 32px" size={14} height="17px">
-        Please confirm these actions in the <br />
-        <Typography weight="bold">Avalanche App</Typography> on your Ledger
-        device
+        <Trans
+          i18nKey="Please confirm these actions in the <br/><typography>Avalanche App</typography> on your Ledger device"
+          components={{ typography: <Typography weight="bold" /> }}
+        />
         <StyledTooltip content={Content}>
           <InfoIcon height="12px" color={theme.colors.icon2} />
         </StyledTooltip>
@@ -312,7 +321,7 @@ export function LedgerConnect({
           width="343px"
           size={ComponentSize.LARGE}
         >
-          Retry
+          {t('Retry')}
         </PrimaryButton>
       )}
       {hasPublicKeys && (
@@ -322,7 +331,7 @@ export function LedgerConnect({
           size={ComponentSize.LARGE}
           margin="16px"
         >
-          Next
+          {t('Next')}
         </PrimaryButton>
       )}
     </VerticalFlex>

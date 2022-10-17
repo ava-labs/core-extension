@@ -15,6 +15,7 @@ import {
   PasswordStrength,
   getPasswordErrorMessage,
 } from '@src/components/common/PasswordStrength';
+import { t } from 'i18next';
 
 const SERVER_SUCCESS = 'Your password has been changed succesfully.';
 const SERVER_ERROR = 'Something went wrong.';
@@ -72,7 +73,7 @@ export function ChangePassword({
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Change Password'}
+        title={t('Change Password')}
       />
       {!serverResponse ? (
         <>
@@ -84,8 +85,8 @@ export function ChangePassword({
                   setOldPassword(e.target.value);
                 }}
                 value={oldPassword}
-                label="Old Password"
-                placeholder="Old password"
+                label={t('Old Password')}
+                placeholder={t('Old password')}
                 type="password"
                 error={!!serverError}
                 errorMessage={serverError}
@@ -99,8 +100,8 @@ export function ChangePassword({
                   setNewPassword(e.target.value);
                 }}
                 value={newPassword}
-                label="Create New Password"
-                placeholder="New Password"
+                label={t('Create New Password')}
+                placeholder={t('New Password')}
                 type="password"
                 error={!!error}
                 width="100%"
@@ -116,9 +117,9 @@ export function ChangePassword({
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                 }}
-                label="Confirm New Password"
+                label={t('Confirm New Password')}
                 value={confirmPassword}
-                placeholder="Confirm Password"
+                placeholder={t('Confirm Password')}
                 type="password"
                 error={!!error}
                 errorMessage={error}
@@ -126,8 +127,9 @@ export function ChangePassword({
               />
             </HorizontalFlex>
             <Typography size={12} height="15px" padding="0 16px" align="center">
-              Avoid using a password that you use with other websites or that
-              might be easy for someone to guess.
+              {t(
+                'Avoid using a password that you use with other websites or that might be easy for someone to guess.'
+              )}
             </Typography>
           </VerticalFlex>
           <VerticalFlex
@@ -143,7 +145,7 @@ export function ChangePassword({
               onClick={handleChangePassword}
               disabled={!canSubmit}
             >
-              Save
+              {t('Save')}
             </PrimaryButton>
           </VerticalFlex>
         </>

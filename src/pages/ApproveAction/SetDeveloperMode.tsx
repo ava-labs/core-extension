@@ -14,6 +14,7 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import styled, { useTheme } from 'styled-components';
 import { Network } from '@avalabs/chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
+import { t } from 'i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -65,8 +66,8 @@ export function SetDeveloperMode() {
             height="29px"
             weight={700}
           >
-            {request?.displayData?.isTestmode ? 'Activate' : 'Deactivate'}{' '}
-            Testnet Mode?
+            {request?.displayData?.isTestmode ? t('Activate') : t('Deactivate')}{' '}
+            {t('Testnet Mode?')}
           </Typography>
         </HorizontalFlex>
         <HorizontalFlex>
@@ -76,8 +77,10 @@ export function SetDeveloperMode() {
             color={theme.colors.text2}
             align="center"
           >
-            {request?.site?.domain || 'This website'} is requesting to turn
-            Testnet Mode {request?.displayData?.isTestmode ? 'ON' : 'OFF'}.
+            {t('{{domain}} is requesting to turn Testnet Mode {{mode}}', {
+              mode: request?.displayData?.isTestmode ? t('ON') : t('OFF'),
+              domain: request?.site?.domain || t('This website'),
+            })}
           </Typography>
         </HorizontalFlex>
       </VerticalFlex>
@@ -92,7 +95,7 @@ export function SetDeveloperMode() {
             }}
             width="168px"
           >
-            Reject
+            {t('Reject')}
           </SecondaryButton>
           <PrimaryButton
             size={ComponentSize.LARGE}
@@ -106,7 +109,7 @@ export function SetDeveloperMode() {
             }}
             width="168px"
           >
-            Approve
+            {t('Approve')}
           </PrimaryButton>
         </HorizontalFlex>
       </VerticalFlex>

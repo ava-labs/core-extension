@@ -1,10 +1,19 @@
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
+import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
-import { LOCK_TIMEOUT, SessionAuthData, SESSION_AUTH_DATA_KEY } from './models';
+import {
+  LockEvents,
+  LockStateChangedEventPayload,
+  LOCK_TIMEOUT,
+  SessionAuthData,
+  SESSION_AUTH_DATA_KEY,
+} from './models';
 
 @singleton()
 export class LockService {
+  private eventEmitter = new EventEmitter();
+
   private _locked = true;
 
   private lockCheckInterval?: any;
@@ -49,6 +58,9 @@ export class LockService {
 
       this._locked = false;
       this.callbackManager.onUnlock();
+      this.eventEmitter.emit(LockEvents.LOCK_STATE_CHANGED, {
+        isUnlocked: true,
+      });
     } catch (e) {
       throw new Error('invalid password');
     }
@@ -89,5 +101,22 @@ export class LockService {
     this._locked = true;
     this.storageService.clearSessionStorage();
     this.callbackManager.onLock();
+    this.eventEmitter.emit(LockEvents.LOCK_STATE_CHANGED, {
+      isUnlocked: false,
+    });
+  }
+
+  addListener(
+    event: LockEvents.LOCK_STATE_CHANGED,
+    callback: (data: LockStateChangedEventPayload) => void
+  ) {
+    this.eventEmitter.addListener(event, callback);
+  }
+
+  removeListener(
+    event: LockEvents.LOCK_STATE_CHANGED,
+    callback: (data: LockStateChangedEventPayload) => void
+  ) {
+    this.eventEmitter.removeListener(event, callback);
   }
 }

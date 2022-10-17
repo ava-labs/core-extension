@@ -54,6 +54,14 @@ export class PermissionsService implements OnLock {
     return permissions[domain];
   }
 
+  async hasDomainPermissionForAccount(
+    domain: string,
+    address: string
+  ): Promise<boolean> {
+    const domainPermissions = await this.getPermissionsForDomain(domain);
+    return !!domainPermissions?.accounts[address];
+  }
+
   async addPermission(dappPermissions: DappPermissions) {
     const currentPermissions = await this.getPermissions();
     this.permissions = {

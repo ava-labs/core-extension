@@ -69,7 +69,7 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { network, networks } = useNetworkContext();
+  const { network, favoriteNetworks } = useNetworkContext();
   const { activeAccount } = useAccountsContext();
   const [tokens, dispatch] = useReducer(balancesReducer, {
     loading: true,
@@ -114,7 +114,7 @@ export function BalancesProvider({ children }: { children: any }) {
     // update balances for all networks and accounts every 30 seconds
     if (!activeAccount || !network) return;
 
-    const nonActiveChainIds = networks
+    const nonActiveChainIds = favoriteNetworks
       .map((n) => n.chainId)
       .filter((id) => id !== network?.chainId);
 
@@ -150,7 +150,7 @@ export function BalancesProvider({ children }: { children: any }) {
     return () => {
       clearInterval(intervalId);
     };
-  }, [activeAccount, network, networks, request]);
+  }, [activeAccount, network, favoriteNetworks, request]);
 
   const updateNftBalances = useCallback(
     (resetPreviousState = true) => {

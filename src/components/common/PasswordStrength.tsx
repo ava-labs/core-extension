@@ -1,11 +1,12 @@
 import { lazy } from 'react';
 import { useTheme, DefaultTheme } from 'styled-components';
 import { useThemeContext } from '@avalabs/react-components';
+import { t } from 'i18next';
 
 const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'));
 
-export const PASSWORD_STRENGTH_ERROR = 'The new password is too weak';
-export const PASSWORDS_MATCH_ERROR = 'Passwords do not match';
+export const PASSWORD_STRENGTH_ERROR = t('The new password is too weak');
+export const PASSWORDS_MATCH_ERROR = t('Passwords do not match');
 const REQUIRED_PASSWORD_STRENTGH = 3; // can be 0-4
 
 const verifyPasswordsMatch = (pass1?: string, pass2?: string) => {
@@ -72,13 +73,13 @@ export function PasswordStrength({
         color: theme.colors.text2,
       }}
       scoreWords={[
-        'Password strength: Too weak',
-        'Password strength: Too weak',
-        'Password strength: Weak',
-        'Password strength: Good enough',
-        'Password strength: Strong',
+        t('Password strength: Too weak'),
+        t('Password strength: Too weak'),
+        t('Password strength: Weak'),
+        t('Password strength: Good enough'),
+        t('Password strength: Strong'),
       ]}
-      shortScoreWord="Password must be at least 8 characters."
+      shortScoreWord={t('Password must be at least 8 characters.')}
       onChangeScore={(score) => {
         setPasswordStrength(score);
       }}

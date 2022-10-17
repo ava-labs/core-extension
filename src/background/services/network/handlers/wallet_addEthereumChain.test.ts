@@ -44,10 +44,8 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
     mockNetworkService = new NetworkService({} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
-    mockNetworkService.activeNetwork = {
-      promisify: () => Promise.resolve({ ...mockActiveNetwork }),
-    } as any;
-    mockNetworkService.activeNetworks = {
+    (mockNetworkService as any).activeNetwork = { ...mockActiveNetwork };
+    mockNetworkService.allNetworks = {
       promisify: () =>
         Promise.resolve({
           [mockActiveNetwork.chainId]: { ...mockActiveNetwork },

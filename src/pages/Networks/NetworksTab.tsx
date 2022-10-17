@@ -3,6 +3,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkTabProps } from './Networks';
 import { EmptyContent } from '@src/components/common/EmptyContent';
 import { NetworkList } from './common/NetworkList';
+import { t } from 'i18next';
 
 export function NetworksTab({ searchTerm }: NetworkTabProps) {
   const { networks } = useNetworkContext();
@@ -14,7 +15,7 @@ export function NetworksTab({ searchTerm }: NetworkTabProps) {
   return (
     <VerticalFlex padding="0px 0px 8px 0px" height="100%">
       {!filteredNetworks.length && (
-        <EmptyContent text="There is no search result." />
+        <EmptyContent text={t('There is no search result.')} />
       )}
       <NetworkList networkList={filteredNetworks} />
     </VerticalFlex>

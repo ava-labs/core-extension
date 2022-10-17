@@ -8,7 +8,6 @@ import { useMemo } from 'react';
 function getAddressForChain(chainId: number, account: Account) {
   return isBitcoinChainId(chainId) ? account.addressBTC : account.addressC;
 }
-
 export function useBalanceTotalInCurrency(
   account?: Account,
   onlyFavoritesAndActive = false
@@ -29,20 +28,20 @@ export function useBalanceTotalInCurrency(
     );
 
     const areAllNetworksLoaded = chainIdsToSum.every((chainId) => {
-      return !!tokens?.balances?.[chainId]?.[
-        getAddressForChain(chainId, account)
-      ]?.length;
+      return !!Object.keys(
+        tokens?.balances?.[chainId]?.[getAddressForChain(chainId, account)] ??
+          {}
+      )?.length;
     });
 
     if (!areAllNetworksLoaded) {
       return null;
     }
-
     return chainIdsToSum.reduce((total, network) => {
       const address = getAddressForChain(network, account);
       return (
         total +
-        (tokens.balances?.[network]?.[address]?.reduce(
+        (Object.values(tokens.balances?.[network]?.[address] ?? {})?.reduce(
           (sum, token) => sum + (token.balanceUSD ?? 0),
           0
         ) || 0)

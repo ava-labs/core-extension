@@ -49,7 +49,7 @@ export class SendService {
   async validateStateAndCalculateFees(
     sendState: SendState
   ): Promise<SendState> {
-    const service = await this.getService();
+    const service = this.getService();
     return service.validateStateAndCalculateFees(sendState);
   }
 
@@ -57,8 +57,8 @@ export class SendService {
     this.eventEmitter.on(event, callback);
   }
 
-  private async getService(): Promise<SendServiceHelper> {
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+  private getService(): SendServiceHelper {
+    const activeNetwork = this.networkService.activeNetwork;
     switch (activeNetwork?.vmName) {
       case NetworkVMType.BITCOIN:
         return this.sendServiceBTC;

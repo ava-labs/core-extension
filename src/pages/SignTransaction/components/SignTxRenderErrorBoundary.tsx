@@ -13,6 +13,7 @@ import {
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { Component } from 'react';
 import styled from 'styled-components';
+import { t } from 'i18next';
 
 const Header = styled(Typography)`
   color: ${({ theme }) => theme.colors.primary1};
@@ -43,12 +44,11 @@ export class SignTxRenderErrorBoundary extends Component<
     if (this.state.hasError) {
       return (
         <VerticalFlex width={'100%'} grow="1" align="center">
-          <Header>Render Error</Header>
+          <Header>{t('Render Error')}</Header>
           <SubTextTypography margin={'8px 0 0'} align="center">
-            Something went wrong while attempting to show the info for this
-            transaction. Please copy the below error and post it in our discord,
-            telegram or one of our social channels so our developers can address
-            it as soon as possible. We apologize for the inconvenience.
+            {t(
+              'Something went wrong while attempting to show the info for this transaction. Please copy the below error and post it in our discord, telegram or one of our social channels so our developers can address it as soon as possible. We apologize for the inconvenience.'
+            )}
           </SubTextTypography>
           <Card margin={'24px 0 0'} height="340px" padding="16px 0">
             <Scrollbars>
@@ -71,19 +71,19 @@ export class SignTxRenderErrorBoundary extends Component<
               width="168px"
               onClick={() => window.close()}
             >
-              Close
+              {t('Close')}
             </SecondaryButton>
             <PrimaryButton
               size={ComponentSize.LARGE}
               width="168px"
               onClick={() => {
                 navigator.clipboard.writeText(this.state.errorStack ?? '');
-                toast.custom(<CustomToast label="Copied!" />, {
+                toast.custom(<CustomToast label={t('Copied!')} />, {
                   duration: 2000,
                 });
               }}
             >
-              Copy
+              {t('Copy')}
             </PrimaryButton>
           </HorizontalFlex>
         </VerticalFlex>

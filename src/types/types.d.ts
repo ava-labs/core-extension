@@ -5,6 +5,7 @@
 declare global {
   interface Crypto {
     randomUUID: () => string;
+    getRandomValues: <T extends ArrayBufferView | null>(array: T) => T;
   }
 }
 

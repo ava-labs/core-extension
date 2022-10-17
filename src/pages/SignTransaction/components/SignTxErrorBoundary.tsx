@@ -13,6 +13,7 @@ import {
 import { Component } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import styled from 'styled-components';
+import { t } from 'i18next';
 
 const Header = styled(Typography)`
   color: ${({ theme }) => theme.colors.primary1};
@@ -43,12 +44,11 @@ export class SignTxErrorBoundary extends Component<
     if (this.state.hasError) {
       return (
         <VerticalFlex width={'100%'} align="center" padding="0 16px">
-          <Header>Error</Header>
+          <Header>{t('Error')}</Header>
           <SubTextTypography margin={'8px 0 0'} align="center">
-            Something went wrong while opening the confirm for this transaction.
-            Copy the below error and post it in our discord, telegram or one of
-            our social channels so our developers can address it as soon as
-            possible. We apologize for the inconvenience.
+            {t(
+              'Something went wrong while opening the confirm for this transaction. Copy the below error and post it in our discord, telegram or one of our social channels so our developers can address it as soon as possible. We apologize for the inconvenience.'
+            )}
           </SubTextTypography>
           <Card margin={'24px 0 0'} height="340px" padding="16px 0">
             <Scrollbars>
@@ -71,19 +71,19 @@ export class SignTxErrorBoundary extends Component<
               width="168px"
               onClick={() => window.close()}
             >
-              Close
+              {t('Close')}
             </SecondaryButton>
             <PrimaryButton
               size={ComponentSize.LARGE}
               width="168px"
               onClick={() => {
                 navigator.clipboard.writeText(this.state.errorStack ?? '');
-                toast.custom(<CustomToast label="Copied!" />, {
+                toast.custom(<CustomToast label={t('Copied!')} />, {
                   duration: 2000,
                 });
               }}
             >
-              Copy
+              {t('Copy')}
             </PrimaryButton>
           </HorizontalFlex>
         </VerticalFlex>

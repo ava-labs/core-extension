@@ -101,6 +101,7 @@ module.exports = {
         { from: 'src/index.html', to: '../home.html' },
         { from: 'src/index.html', to: '../confirm.html' },
         { from: 'src/images', to: '../images' },
+        { from: 'src/localization/locales', to: '../locales', force: true },
       ],
       options: {
         concurrency: 100,

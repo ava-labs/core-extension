@@ -41,16 +41,19 @@ export class ActionsService implements OnStorageReady {
   }
 
   async getActions(): Promise<Actions> {
+    const sessionStorageActions =
+      (await this.storageService.loadFromSessionStorage<Actions>(
+        ACTIONS_STORAGE_KEY
+      )) ?? {};
     if (this.lockService.locked) {
-      return (
-        (await this.storageService.loadFromSessionStorage<Actions>(
-          ACTIONS_STORAGE_KEY
-        )) ?? {}
-      );
+      return sessionStorageActions;
     } else {
-      return (
-        (await this.storageService.load<Actions>(ACTIONS_STORAGE_KEY)) ?? {}
-      );
+      // When unlocked, we need to get actions from sessionStorage and storage because when wallet is locked, we store action in sessionStorage
+      return {
+        ...sessionStorageActions,
+        ...((await this.storageService.load<Actions>(ACTIONS_STORAGE_KEY)) ??
+          {}),
+      };
     }
   }
 

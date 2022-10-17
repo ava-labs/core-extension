@@ -23,6 +23,11 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
     this._accounts = acc;
+
+    // do not save empty list of accounts to storage
+    if (this._accounts.length > 0) {
+      this.saveAccounts(this._accounts);
+    }
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
@@ -44,34 +49,47 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.init();
 
     // refresh addresses so in case the user switches to testnet the BTC address gets updated
-    this.networkService.developerModeChanges.add(this.init);
+    this.networkService.activeNetworkChanged.add(this.onDeveloperModeChanged);
   }
 
   onLock() {
     this.accounts = [];
-    this.networkService.developerModeChanges.remove(this.init);
+    this.networkService.activeNetworkChanged.remove(
+      this.onDeveloperModeChanged
+    );
   }
 
-  private init = async () => {
+  private onDeveloperModeChanged = () => {
+    this.init(true);
+  };
+
+  private init = async (updateAddresses?: boolean) => {
     const accounts = await this.loadAccounts();
     // no accounts added yet, onboarding is not done yet
     if (accounts.length === 0) {
       return;
     }
 
-    const activeIndex = accounts.find((a) => a.active)?.index || 0;
     const accountsWithAddresses: Account[] = [];
+
     for (const acc of accounts) {
-      const addresses = await this.walletService.getAddress(acc.index);
+      // use cached addresses unless they need to be updated due to testnet switches
+      if (!updateAddresses && acc.addressC && acc.addressBTC) {
+        accountsWithAddresses.push({
+          ...acc,
+          addressC: acc.addressC,
+          addressBTC: acc.addressBTC,
+        });
+      } else {
+        const addresses = await this.walletService.getAddress(acc.index);
 
-      accountsWithAddresses.push({
-        ...acc,
-        active: acc.index === activeIndex,
-        addressC: addresses[NetworkVMType.EVM],
-        addressBTC: addresses[NetworkVMType.BITCOIN],
-      });
+        accountsWithAddresses.push({
+          ...acc,
+          addressC: addresses[NetworkVMType.EVM],
+          addressBTC: addresses[NetworkVMType.BITCOIN],
+        });
+      }
     }
-
     this.accounts = accountsWithAddresses;
   };
 
@@ -95,7 +113,6 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async addAccount(name?: string) {
-    const storageAccounts = await this.loadAccounts();
     const lastAccount = this.accounts.at(-1);
     const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
     const newAccount = {
@@ -105,8 +122,6 @@ export class AccountsService implements OnLock, OnUnlock {
     };
 
     const addresses = await this.walletService.addAddress(nextIndex);
-
-    await this.saveAccounts([...storageAccounts, newAccount]);
 
     this.accounts = [
       ...this.accounts,
@@ -119,35 +134,20 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async setAccountName(index: number, name: string) {
-    const account = this.accounts[index];
-    if (!account) {
+    const accountToChange = this.accounts[index];
+
+    if (!accountToChange) {
       throw new Error(`Account with index ${index} not found`);
     }
+    // create copy of the object to prevent updating this.accounts
+    const accountWithNewName = { ...accountToChange, name };
+    const newAccounts = [...this.accounts];
+    newAccounts[index] = accountWithNewName;
 
-    const storageAccounts = await this.loadAccounts();
-
-    const storedAccount = storageAccounts[index];
-    if (storedAccount) storedAccount.name = name;
-    account.name = name;
-
-    await this.saveAccounts(storageAccounts);
-    this.accounts = [...this.accounts];
+    this.accounts = newAccounts;
   }
 
   async activateAccount(index: number) {
-    let accounts: AccountStorageItem[] = [];
-    try {
-      accounts = await this.loadAccounts();
-    } catch (e) {
-      console.error(e);
-    }
-    const newAccounts = accounts.map((acc) => ({
-      ...acc,
-      active: acc.index === index,
-    }));
-
-    await this.saveAccounts(newAccounts);
-
     this.accounts = this.accounts.map((acc) => ({
       ...acc,
       active: acc.index === index,

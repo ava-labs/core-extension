@@ -26,7 +26,7 @@ export class TokenManagerService {
   async getTokenData(
     tokenAddress: string
   ): Promise<NetworkContractToken | null> {
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
     if (!activeNetwork || activeNetwork.vmName !== NetworkVMType.EVM) {
       throw new Error('No network');
     }

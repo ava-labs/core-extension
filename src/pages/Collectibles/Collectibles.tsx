@@ -2,7 +2,6 @@ import {
   GridIcon,
   HorizontalFlex,
   ListIcon,
-  LoadingSpinnerIcon,
   PrimaryButton,
   Typography,
   VerticalFlex,
@@ -18,6 +17,8 @@ import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
+import { t } from 'i18next';
+import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 
 enum ListType {
   GRID = 'GRID',
@@ -58,23 +59,34 @@ export function Collectibles() {
   const theme = useTheme();
   const { nfts } = useBalancesContext();
   const setCollectibleParams = useSetCollectibleParams();
-  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+  const { getPageHistoryData, setNavigationHistoryData, isHistoryLoading } =
+    usePageHistory();
+
   const { listType: historyListType }: { listType?: ListType } =
     getPageHistoryData();
-  const [listType, setListType] = useState<ListType>(
-    historyListType || ListType.GRID
+
+  const [listType, setListType] = useState<ListType | undefined>(
+    historyListType
   );
 
   useEffect(() => {
+    if (isHistoryLoading) {
+      return;
+    }
     if (historyListType) {
       setListType(historyListType);
+      return;
     }
-  }, [historyListType]);
+    setListType(ListType.GRID);
+  }, [historyListType, isHistoryLoading]);
 
   const handleClick = (listType: ListType) => {
     setListType(listType);
     setNavigationHistoryData({ listType: listType });
   };
+  if (isHistoryLoading && !listType) {
+    return null;
+  }
 
   return (
     <VerticalFlex grow="1">
@@ -141,15 +153,9 @@ export function Collectibles() {
         </VerticalFlex>
       )}
       {nfts.loading && (
-        <VerticalFlex
-          grow="1"
-          padding="0 0 72px"
-          width="100%"
-          align="center"
-          justify="center"
-        >
-          <LoadingSpinnerIcon color={theme.colors.primary1} />
-        </VerticalFlex>
+        <Scrollbars>
+          <CollectibleSkeleton />
+        </Scrollbars>
       )}
       {nfts.error && (
         <VerticalFlex
@@ -160,10 +166,10 @@ export function Collectibles() {
           justify="center"
         >
           <Typography size={18} height="22px" weight={600}>
-            Error
+            {t('Error')}
           </Typography>
           <Typography size={14} align="center" height="17px" margin="8px 0">
-            Failed to load collectibles
+            {t('Failed to load collectibles')}
           </Typography>
         </VerticalFlex>
       )}

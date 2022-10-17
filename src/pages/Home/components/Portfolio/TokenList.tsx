@@ -21,6 +21,7 @@ import styled, { useTheme } from 'styled-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
 import { TokenType } from '@src/background/services/balances/models';
+import { t } from 'i18next';
 
 const LogoContainer = styled.div`
   margin: 0 16px;
@@ -111,7 +112,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
             onClick={toggleManageTokensPage}
           >
             <Typography color="inherit" size={12} weight={500}>
-              Manage
+              {t('Manage')}
             </Typography>
           </TextButton>
         )}

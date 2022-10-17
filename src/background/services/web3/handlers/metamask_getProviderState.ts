@@ -16,7 +16,7 @@ export class MetamaskGetProviderState extends DAppRequestHandler {
   }
 
   handleUnauthenticated = async (request) => {
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
     return {
       ...request,
       result: {
@@ -29,7 +29,7 @@ export class MetamaskGetProviderState extends DAppRequestHandler {
   };
 
   handleAuthenticated = async (request) => {
-    const activeNetwork = await this.networkService.activeNetwork.promisify();
+    const activeNetwork = this.networkService.activeNetwork;
     return {
       ...request,
       result: {

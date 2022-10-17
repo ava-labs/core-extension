@@ -8,6 +8,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
+import { t } from 'i18next';
 
 interface TokenSearchProps {
   query: string;
@@ -53,15 +54,15 @@ export function TokenSearch({
           />
         </StyledTextButton>
         <Typography as="h1" size={24} height="29px" weight={700}>
-          Send
+          {t('Send')}
         </Typography>
       </HorizontalFlex>
       <Typography height="24px" margin="8px 0 32px">
-        Choose asset to continue
+        {t('Choose asset to continue')}
       </Typography>
       <SearchInput
         searchTerm={query}
-        placeholder="Search"
+        placeholder={t('Search')}
         width="343px"
         onSearch={(query) => onSearch(query)}
         autoFocus={true}

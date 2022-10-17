@@ -10,6 +10,8 @@ import {
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
 import { ChainId } from '@avalabs/chains-sdk';
+import { t } from 'i18next';
+
 const ConnectedDot = styled.div<{
   color: string;
 }>`
@@ -68,7 +70,7 @@ export function WalletConnection() {
     >
       <VerticalFlex width="260px" padding="12px 0">
         <Typography margin="12px 24px" size={18} weight={700}>
-          Networks
+          {t('Networks')}
         </Typography>
         {/* Filtering local network until we support this in the background */}
         {networks
