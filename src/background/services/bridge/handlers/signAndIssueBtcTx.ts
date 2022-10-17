@@ -86,7 +86,7 @@ export class BridgeSignIssueBtcHandler implements HandlerType {
         (await this.networkService.isMainnet())
           ? ChainId.BITCOIN
           : ChainId.BITCOIN_TESTNET
-      ]?.[this.addressBTC]?.[0];
+      ]?.[this.addressBTC]?.['BTC'];
     return token?.utxos || [];
   }
 }
