@@ -29,7 +29,7 @@ export function Legal({ goBack, navigateTo, width }) {
         padding="10px 16px"
         as="a"
         target="_blank"
-        href="https://wallet.avax.network/legal?core"
+        href="https://core.app/terms/core"
       >
         <Typography size={14} height="17px">
           {t('Terms of Use')}
