@@ -150,10 +150,8 @@ export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
 export const CORE_DOMAINS = [
   'localhost',
   'core-web.pages.dev',
-  'core.avax.network',
   'core.app',
-  'core-test.app',
-  'core-test.avax.network',
+  'test.core.app',
 ];
 
 export interface ConnectionController {
