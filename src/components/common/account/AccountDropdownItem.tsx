@@ -4,6 +4,7 @@ import {
   HorizontalFlex,
   PencilIcon,
   SimpleAddress,
+  Skeleton,
   TextButton,
   Typography,
   VerticalFlex,
@@ -15,6 +16,9 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { t } from 'i18next';
+import { AccountBalance } from './AccountBalance';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 
 interface AccountDropdownItemProps {
   account: Account;
@@ -87,6 +91,11 @@ export function AccountDropdownItem({
   const [accountName, setAccountName] = useState<string>(account.name);
   const { renameAccount } = useAccountsContext();
   const theme = useTheme();
+  const { updateBalanceOnAllNetworks } = useBalancesContext();
+  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+  const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
+  const hasBalance = balanceTotalUSD !== null;
+
   const inEditMode = account.active && editing;
 
   const editAddress = (e: React.MouseEvent) => {
@@ -103,6 +112,15 @@ export function AccountDropdownItem({
       onSave();
       renameAccount(account.index, accountName);
     }
+  };
+
+  const getBalance = async () => {
+    if (!updateBalanceOnAllNetworks) {
+      return;
+    }
+    setIsBalanceLoading(true);
+    await updateBalanceOnAllNetworks(account);
+    setIsBalanceLoading(false);
   };
 
   return (
@@ -201,6 +219,37 @@ export function AccountDropdownItem({
           />
         </HorizontalFlex>
       </VerticalFlex>
+      {!inEditMode && (
+        <>
+          {/* BALANCE */}
+          {isBalanceLoading && !hasBalance && (
+            <Skeleton width="60px" height="12px" />
+          )}
+          {hasBalance && (
+            <AccountBalance
+              refreshBalance={getBalance}
+              balanceTotalUSD={balanceTotalUSD}
+              isBalanceLoading={isBalanceLoading}
+            />
+          )}
+          {/* BUTTON */}
+          {!hasBalance && !isBalanceLoading && (
+            <VerticalFlex>
+              <TextButton
+                data-testid="account-name-save-button"
+                size={ComponentSize.SMALL}
+                margin="0 0 0 8px"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  getBalance();
+                }}
+              >
+                {t('View Balance')}
+              </TextButton>
+            </VerticalFlex>
+          )}
+        </>
+      )}
     </AccountItem>
   );
 }

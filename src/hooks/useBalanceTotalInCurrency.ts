@@ -13,6 +13,7 @@ export function useBalanceTotalInCurrency(
   onlyFavoritesAndActive = false
 ) {
   const { tokens } = useBalancesContext();
+
   const { networks, network, favoriteNetworks } = useNetworkContext();
 
   return useMemo(() => {

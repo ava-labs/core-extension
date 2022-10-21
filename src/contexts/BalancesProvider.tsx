@@ -21,6 +21,7 @@ import { useNetworkContext } from './NetworkProvider';
 import { getNetworkIdsToUpdate } from './utils/getNetworkIdsToUpdate';
 import { balancesUpdatedEventListener } from '@src/background/services/balances/events/balancesUpdatedEventListener';
 import _ from 'lodash';
+import { Account } from '@src/background/services/accounts/models';
 
 interface NftState {
   loading: boolean;
@@ -43,6 +44,7 @@ type BalanceAction =
 const BalancesContext = createContext<{
   tokens: BalancesState;
   nfts: NftState;
+  updateBalanceOnAllNetworks?: (account: Account) => Promise<void>;
 }>({
   tokens: { loading: true },
   nfts: { loading: true },
@@ -69,7 +71,7 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { network, favoriteNetworks } = useNetworkContext();
+  const { network, favoriteNetworks, networks } = useNetworkContext();
   const { activeAccount } = useAccountsContext();
   const [tokens, dispatch] = useReducer(balancesReducer, {
     loading: true,
@@ -172,6 +174,20 @@ export function BalancesProvider({ children }: { children: any }) {
     [request]
   );
 
+  const updateBalanceOnAllNetworks = async (account: Account) => {
+    const networkIds = networks.map((network) => network.chainId);
+
+    const balances = await request<UpdateBalancesForNetworkHandler>({
+      method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
+      params: [[account], networkIds],
+    });
+
+    dispatch({
+      type: BalanceActionType.UPDATE_BALANCES,
+      payload: balances,
+    });
+  };
+
   useEffect(() => {
     if (!activeAccount || !network?.chainId) {
       setNfts({ loading: true });
@@ -191,7 +207,9 @@ export function BalancesProvider({ children }: { children: any }) {
   }, [request, network?.chainId, updateNftBalances, activeAccount]);
 
   return (
-    <BalancesContext.Provider value={{ tokens, nfts }}>
+    <BalancesContext.Provider
+      value={{ tokens, nfts, updateBalanceOnAllNetworks }}
+    >
       {children}
     </BalancesContext.Provider>
   );
