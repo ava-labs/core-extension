@@ -18,6 +18,7 @@ import {
   retryWhen,
   switchMap,
   tap,
+  map,
 } from 'rxjs';
 import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
 import AppAvax from '@obsidiansystems/hw-app-avalanche';
@@ -35,6 +36,9 @@ import {
   getPubKeyFromTransport,
 } from '@avalabs/wallets-sdk';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
+import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
+import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
+import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -42,7 +46,7 @@ export enum LedgerAppType {
   ETHEREUM = 'Ethereum',
   UNKNOWN = 'UNKNOWN',
 }
-export const SUPPORTED_LEDGER_VERSION = '0.5.9';
+export const REQUIRED_LEDGER_VERSION = '0.5.9';
 /**
  * Run this here since each new window will have a different id
  * this is used to track the transport and close on window close
@@ -58,6 +62,9 @@ const LedgerContext = createContext<{
   wasTransportAttempted: boolean;
   getPublicKey(accountIndex: number, pathType: DerivationPath): Promise<Buffer>;
   closeTransport: () => void;
+  avaxAppVersion: string | null;
+  updateLedgerVersionWarningClosed(): Promise<void>;
+  ledgerVersionWarningClosed: boolean | undefined;
 }>({} as any);
 
 export function LedgerContextProvider({ children }: { children: any }) {
@@ -67,6 +74,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
+  const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
+  const [ledgerVersionWarningClosed, setLedgerVersionWarningClosed] =
+    useState<boolean>();
 
   /**
    * Listen for send events to a ledger instance
@@ -165,11 +175,12 @@ export function LedgerContextProvider({ children }: { children: any }) {
       if (avaxAppInstance) {
         // double check it's really the avalanche app
         // other apps also initialize with AppAvax
-        const [, appVersionError] = await resolve(
+        const [config, appVersionError] = await resolve(
           avaxAppInstance.getAppConfiguration()
         );
 
         if (!appVersionError) {
+          setAvaxAppVersion(config.version);
           setApp(avaxAppInstance);
           setAppType(LedgerAppType.AVALANCHE);
           return avaxAppInstance;
@@ -346,6 +357,39 @@ export function LedgerContextProvider({ children }: { children: any }) {
     };
   });
 
+  useEffect(() => {
+    request<GetLedgerVersionWarningHandler>({
+      method: ExtensionRequest.SHOW_LEDGER_VERSION_WARNING,
+    }).then((result) => {
+      setLedgerVersionWarningClosed(result);
+    });
+
+    const subscription = events()
+      .pipe(
+        filter(lockStateChangedEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe((locked) => {
+        if (locked) {
+          // No need to requery ExtensionRequest.SHOW_LEDGER_VERSION_WARNING
+          // because it will always be false when locked because the session
+          // storage is emptied on lock.
+          setLedgerVersionWarningClosed(false);
+        }
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events, request]);
+
+  const updateLedgerVersionWarningClosed = useCallback(async () => {
+    const result = await request<LedgerVersionWarningClosedHandler>({
+      method: ExtensionRequest.LEDGER_VERSION_WARNING_CLOSED,
+    });
+    setLedgerVersionWarningClosed(result);
+  }, [request]);
+
   return (
     <LedgerContext.Provider
       value={{
@@ -357,6 +401,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
         appType,
         getPublicKey,
         closeTransport,
+        avaxAppVersion,
+        updateLedgerVersionWarningClosed,
+        ledgerVersionWarningClosed,
       }}
     >
       {children}

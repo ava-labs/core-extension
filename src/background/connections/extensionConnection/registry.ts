@@ -96,6 +96,8 @@ import { LedgerCloseTransportEvent } from '@src/background/services/ledger/event
 import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
 import { GetAvalancheNetworkHandler } from '@src/background/services/network/handlers/getAvalancheNetwork';
+import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
+import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -214,6 +216,14 @@ import { GetAvalancheNetworkHandler } from '@src/background/services/network/han
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAvaxBalanceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAvalancheNetworkHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetLedgerVersionWarningHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: LedgerVersionWarningClosedHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
