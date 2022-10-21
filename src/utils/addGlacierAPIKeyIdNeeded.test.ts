@@ -6,6 +6,7 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
     process.env = {
       ...env,
       GLACIER_API_KEY: 'glacierapikey',
+      GLACIER_URL: 'https://glacier-api-dev.avax.network',
     };
   });
 
@@ -13,23 +14,23 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
     process.env = env;
   });
 
-  it('adds key on `glacier-api.avax-test.network` domain', () => {
-    expect(
-      addGlacierAPIKeyIfNeeded(
-        'https://glacier-api.avax-test.network/somethingsomething'
-      )
-    ).toBe(
-      'https://glacier-api.avax-test.network/somethingsomething?token=glacierapikey'
-    );
-  });
-
-  it('adds key on `glacier-api.avax.network` domain', () => {
+  it('adds key on the production `glacier-api.avax.network` domain', () => {
     expect(
       addGlacierAPIKeyIfNeeded(
         'https://glacier-api.avax.network/somethingsomething'
       )
     ).toBe(
       'https://glacier-api.avax.network/somethingsomething?token=glacierapikey'
+    );
+  });
+
+  it('adds key on the domain from the env var', () => {
+    expect(
+      addGlacierAPIKeyIfNeeded(
+        `https://glacier-api-dev.avax.network/somethingsomething`
+      )
+    ).toBe(
+      'https://glacier-api-dev.avax.network/somethingsomething?token=glacierapikey'
     );
   });
 
@@ -44,7 +45,17 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
   });
 
   it('does nothing when no glacier key is present', () => {
-    process.env = { ...env };
+    process.env = { ...env, GLACIER_URL: 'https://glacier-api.avax.network' };
+
+    expect(
+      addGlacierAPIKeyIfNeeded(
+        'https://glacier-api.avax.network/somethingsomething'
+      )
+    ).toBe('https://glacier-api.avax.network/somethingsomething');
+  });
+
+  it('does nothing when no glacier url is present', () => {
+    process.env = { ...env, GLACIER_API_KEY: 'glacierapikey' };
 
     expect(
       addGlacierAPIKeyIfNeeded(
@@ -54,8 +65,8 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
   });
 
   it('does nothing for non glacier domains', () => {
-    expect(addGlacierAPIKeyIfNeeded('https://somerandomdomain.example')).toBe(
-      'https://somerandomdomain.example'
-    );
+    expect(
+      addGlacierAPIKeyIfNeeded('https://glacier-api.avax-test.network')
+    ).toBe('https://glacier-api.avax-test.network');
   });
 });
