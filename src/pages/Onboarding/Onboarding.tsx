@@ -122,7 +122,9 @@ export function Onboarding() {
   }
 
   if (nextPhase === OnboardingPhase.FINALIZE) {
-    window.location.replace(`${process.env.CORE_WEB_URL}/welcome`);
+    window.location.replace(
+      `${process.env.CORE_EXTENSION_LANDING_URL}/welcome`
+    );
   }
 
   return (
