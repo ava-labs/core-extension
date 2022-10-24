@@ -236,7 +236,7 @@ export function AccountDropdownItem({
           {!hasBalance && !isBalanceLoading && (
             <VerticalFlex>
               <TextButton
-                data-testid="account-name-save-button"
+                data-testid="view-balance-button"
                 size={ComponentSize.SMALL}
                 margin="0 0 0 8px"
                 onClick={(e) => {
