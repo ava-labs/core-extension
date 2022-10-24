@@ -16,4 +16,12 @@ global.chrome = {
     id: 'testid',
     getManifest: () => ({ manifest_version: 3 }),
   },
+  windows: {
+    onRemoved: {
+      addListener: jest.fn(),
+    },
+    onFocusChanged: {
+      addListener: jest.fn(),
+    },
+  },
 } as any;
