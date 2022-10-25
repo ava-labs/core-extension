@@ -85,12 +85,15 @@ export class SubmitOnboardingHandler implements HandlerType {
     } else {
       await this.accountsService.addAccount(accountName);
     }
+
+    // add favorite networks before account activation so they can be loaded by the balances service
+    await this.networkService.addFavoriteNetwork(ChainId.BITCOIN);
+    await this.networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
+
     await this.accountsService.activateAccount(0);
     await this.onboardingService.setIsOnboarded(true);
     await this.settingsService.setAnalyticsConsent(analyticsConsent);
 
-    await this.networkService.addFavoriteNetwork(ChainId.BITCOIN);
-    await this.networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
     await this.lockService.unlock(password);
 
     if (analyticsConsent) {

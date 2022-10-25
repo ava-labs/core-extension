@@ -17,9 +17,6 @@ import {
 } from '@src/components/common/PasswordStrength';
 import { t } from 'i18next';
 
-const SERVER_SUCCESS = 'Your password has been changed succesfully.';
-const SERVER_ERROR = 'Something went wrong.';
-
 export function ChangePassword({
   goBack,
   navigateTo,
@@ -32,6 +29,9 @@ export function ChangePassword({
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [serverResponse, setServerResponse] = useState<string>('');
   const [serverError, setServerError] = useState<string>('');
+
+  const SERVER_SUCCESS = t('Your password has been changed succesfully.');
+  const SERVER_ERROR = t('Something went wrong.');
 
   useEffect(() => {
     setServerError('');

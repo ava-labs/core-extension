@@ -27,7 +27,7 @@ jobs:
           echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
           echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
-          echo CORE_WEB_URL=${{ secrets.CORE_WEB_URL }} >> .env.production
+          echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
           echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
       - name: Install dependencies
         run: yarn setup
@@ -86,3 +86,29 @@ jobs:
         run: mv *.zip extension.zip
       - name: Running smoke tests against latest zip
         run: npm run ext:testnet-smoke
+      - name: Success slack notification
+        if: success()
+        uses: slackapi/slack-github-action@v1.22.0
+        with:
+          payload: |
+            {
+              "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
+              "GH_RUN_STATUS": "PASSED",
+              "STATUS_EMOJI": ":white_check_mark:",
+              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Failure slack notification
+        if: failure()
+        uses: slackapi/slack-github-action@v1.22.0
+        with:
+          payload: |
+            {
+              "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
+              "GH_RUN_STATUS": "FAILED",
+              "STATUS_EMOJI": ":alert:",
+              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

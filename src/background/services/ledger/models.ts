@@ -16,3 +16,6 @@ export enum LedgerEvent {
   DISCOVER_TRANSPORTS = 'LedgerEvent:discover_transports',
   TRANSPORT_CLOSE_REQUEST = 'LedgerEvent:transport_close',
 }
+
+export const LEDGER_VERSION_WARNING_WAS_CLOSED =
+  'LEDGER_VERSION_WARNING_WAS_CLOSED';

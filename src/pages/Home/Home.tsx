@@ -10,6 +10,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useEffect, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { t } from 'i18next';
+import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 
 export function Home() {
   const { toggleIsDefaultExtension, isDefaultExtension } = useSettingsContext();
@@ -54,11 +55,14 @@ export function Home() {
   ]);
 
   return (
-    <VerticalFlex width={'100%'}>
-      <VerticalFlex flex={1}>
-        <Portfolio />
+    <>
+      <VerticalFlex width={'100%'}>
+        <VerticalFlex flex={1}>
+          <Portfolio />
+        </VerticalFlex>
+        <FAB />
       </VerticalFlex>
-      <FAB />
-    </VerticalFlex>
+      <LedgerWrongVersionOverlay />
+    </>
   );
 }

@@ -30,6 +30,7 @@ import { useGetAvalancheNetwork } from '@src/hooks/useGetAvalancheNetwork';
 import { PubKeyType } from '@src/background/services/wallet/models';
 import { t } from 'i18next';
 import { Trans } from 'react-i18next';
+import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 
 interface LedgerConnectProps {
   onCancel(): void;
@@ -334,6 +335,7 @@ export function LedgerConnect({
           {t('Next')}
         </PrimaryButton>
       )}
+      <LedgerWrongVersionOverlay onClose={() => onCancel()} />
     </VerticalFlex>
   );
 }

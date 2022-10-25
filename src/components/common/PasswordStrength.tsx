@@ -5,12 +5,11 @@ import { t } from 'i18next';
 
 const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'));
 
-export const PASSWORD_STRENGTH_ERROR = t('The new password is too weak');
-export const PASSWORDS_MATCH_ERROR = t('Passwords do not match');
-const REQUIRED_PASSWORD_STRENTGH = 3; // can be 0-4
+const REQUIRED_PASSWORD_STRENTGH = 2; // can be 0-4
 
 const verifyPasswordsMatch = (pass1?: string, pass2?: string) => {
-  return !!(pass1 && pass2 && pass1 === pass2);
+  const isVerified = !!(pass1 && pass2 && pass1 === pass2);
+  return isVerified;
 };
 
 export const getPasswordErrorMessage = (
@@ -20,17 +19,17 @@ export const getPasswordErrorMessage = (
   passwordStrength: number,
   considerStrength = true
 ) => {
+  const PASSWORD_STRENGTH_ERROR = t('The new password is too weak');
+  const PASSWORDS_MATCH_ERROR = t('Passwords do not match');
+  if (isFieldsFilled && !verifyPasswordsMatch(newPassword, confirmPassword)) {
+    return PASSWORDS_MATCH_ERROR;
+  }
   if (
     considerStrength &&
     isFieldsFilled &&
     passwordStrength < REQUIRED_PASSWORD_STRENTGH
   ) {
     return PASSWORD_STRENGTH_ERROR;
-  } else if (
-    isFieldsFilled &&
-    !verifyPasswordsMatch(newPassword, confirmPassword)
-  ) {
-    return PASSWORDS_MATCH_ERROR;
   }
   return '';
 };

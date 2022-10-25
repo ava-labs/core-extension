@@ -32,6 +32,7 @@ import { RPCCallsMiddleware } from '../middlewares/RPCCallsMiddleware';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from './DAppRequestHandler';
 import { LockService } from '@src/background/services/lock/LockService';
+import { RateLimitMiddleware } from '../middlewares/RateLimitMiddleware';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -60,6 +61,7 @@ export class DAppConnectionController implements ConnectionController {
     this.pipeline = RequestProcessorPipeline(
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
+      RateLimitMiddleware(),
       RPCCallsMiddleware(this.networkService),
       PermissionMiddleware(
         this.permissionsService,

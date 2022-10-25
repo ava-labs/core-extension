@@ -116,7 +116,7 @@ export const CreatePassword = ({
                     <Typography
                       as="a"
                       target="_blank"
-                      href="https://wallet.avax.network/legal?core"
+                      href="https://core.app/terms/core"
                       color={theme.colors.secondary1}
                       size={12}
                       height="15px"

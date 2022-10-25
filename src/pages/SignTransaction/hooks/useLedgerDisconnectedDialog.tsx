@@ -1,7 +1,11 @@
 import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import { WalletType } from '@src/background/services/wallet/models';
-import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
+import {
+  LedgerAppType,
+  REQUIRED_LEDGER_VERSION,
+  useLedgerContext,
+} from '@src/contexts/LedgerProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import {
@@ -12,6 +16,8 @@ import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { t } from 'i18next';
+import { LedgerWrongVersion } from '@src/pages/Ledger/LedgerWrongVersion';
+import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
   margin: 24px 0 0;
@@ -28,6 +34,7 @@ export function useLedgerDisconnectedDialog(
     wasTransportAttempted,
     appType,
     popDeviceSelection,
+    avaxAppVersion,
   } = useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
   const { network } = useNetworkContext();
@@ -135,6 +142,25 @@ export function useLedgerDisconnectedDialog(
     clearDialog,
   ]);
 
+  const showIncorrectAvaxVersionDialog = useCallback(() => {
+    showDialog(
+      {
+        title: '',
+        width: '343px',
+        component: (
+          <LedgerWrongVersion
+            className="dialog"
+            onClose={() => {
+              onCancel();
+              clearDialog();
+            }}
+          />
+        ),
+      },
+      false
+    );
+  }, [showDialog, onCancel, clearDialog]);
+
   useEffect(() => {
     clearDialog();
     // only show dialogs for ledger wallets and
@@ -148,6 +174,11 @@ export function useLedgerDisconnectedDialog(
       showLedgerDisconnectedDialog();
     } else if (!hasCorrectApp) {
       showIncorrectAppDialog();
+    } else if (
+      avaxAppVersion &&
+      !isLedgerVersionCompatible(avaxAppVersion, REQUIRED_LEDGER_VERSION)
+    ) {
+      showIncorrectAvaxVersionDialog();
     }
     setHasCorrectApp(hasCorrectApp);
   }, [
@@ -159,6 +190,8 @@ export function useLedgerDisconnectedDialog(
     showIncorrectAppDialog,
     requiredAppType,
     clearDialog,
+    avaxAppVersion,
+    showIncorrectAvaxVersionDialog,
   ]);
 
   return hasCorrectApp;
