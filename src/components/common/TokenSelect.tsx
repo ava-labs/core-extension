@@ -369,7 +369,10 @@ export function TokenSelect({
                         searchQuery.length
                           ? token.symbol
                               .toLowerCase()
-                              .includes(searchQuery.toLowerCase())
+                              .includes(searchQuery.toLowerCase()) ||
+                            token.symbolOnNetwork
+                              ?.toLowerCase()
+                              .includes(searchQuery.toLocaleLowerCase())
                           : true
                       )
                       .map((token, index) => {
