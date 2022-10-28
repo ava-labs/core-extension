@@ -41,6 +41,7 @@ import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { t } from 'i18next';
+import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 
 export function CollectibleSend() {
   const theme = useTheme();
@@ -153,7 +154,7 @@ export function CollectibleSend() {
   };
 
   if (!nft) {
-    return <Redirect to={'/'} />;
+    return <Redirect to={`/home?activeTab=${PortfolioTabs.COLLECTIBLES}`} />;
   }
 
   return (

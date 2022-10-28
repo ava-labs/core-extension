@@ -12,7 +12,11 @@ export class NFTBalancesService {
     private covalentService: NFTBalancesServiceCovalent
   ) {}
 
-  async getNftBalances(address: string, network: Network) {
+  async getNftBalances(
+    address: string,
+    network: Network,
+    pageToken: string | undefined
+  ) {
     const networksWithNFTSupport = [
       ChainId.AVALANCHE_MAINNET_ID,
       ChainId.AVALANCHE_TESTNET_ID,
@@ -22,7 +26,7 @@ export class NFTBalancesService {
     if (!provider || !networksWithNFTSupport.includes(network.chainId)) {
       throw new Error('NFTs not supported on the network');
     }
-    return provider.getNFTBalances(address, network);
+    return provider.getNFTBalances(address, network, pageToken);
   }
 
   private async getNftProviderForNetwork(

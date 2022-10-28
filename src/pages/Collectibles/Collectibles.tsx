@@ -8,7 +8,7 @@ import {
 } from '@avalabs/react-components';
 
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CollectibleGrid } from './components/CollectibleGrid';
 import { CollectibleList } from './components/CollectibleList';
@@ -19,6 +19,7 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
 import { t } from 'i18next';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
+import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
 
 enum ListType {
   GRID = 'GRID',
@@ -57,7 +58,7 @@ const GroupButton = styled(PrimaryButton)<{ active: boolean }>`
 
 export function Collectibles() {
   const theme = useTheme();
-  const { nfts } = useBalancesContext();
+  const { nfts, updateNftBalances } = useBalancesContext();
   const setCollectibleParams = useSetCollectibleParams();
   const { getPageHistoryData, setNavigationHistoryData, isHistoryLoading } =
     usePageHistory();
@@ -68,6 +69,18 @@ export function Collectibles() {
   const [listType, setListType] = useState<ListType | undefined>(
     historyListType
   );
+  const [loading, setLoading] = useState(false);
+
+  const update = useCallback(() => {
+    if (loading || !updateNftBalances) {
+      return;
+    }
+
+    setLoading(true);
+    if (nfts.pageToken) {
+      updateNftBalances(nfts.pageToken, () => setLoading(false));
+    }
+  }, [loading, updateNftBalances, nfts.pageToken]);
 
   useEffect(() => {
     if (isHistoryLoading) {
@@ -85,7 +98,21 @@ export function Collectibles() {
     setNavigationHistoryData({ listType: listType });
   };
   if (isHistoryLoading && !listType) {
-    return null;
+    return (
+      <VerticalFlex grow="1">
+        <ButtonGroup>
+          <GroupButton active={true}>
+            <GridIcon height="14px" color={theme.colors.icon2} />
+          </GroupButton>
+          <GroupButton active={false}>
+            <ListIcon height="16px" color={theme.colors.icon2} />
+          </GroupButton>
+        </ButtonGroup>
+        <Scrollbars>
+          <CollectibleSkeleton />
+        </Scrollbars>
+      </VerticalFlex>
+    );
   }
 
   return (
@@ -119,7 +146,12 @@ export function Collectibles() {
         </GroupButton>
       </ButtonGroup>
       {!nfts.loading && nfts.items?.length && (
-        <Scrollbars>
+        <InfiniteScroll
+          loadMore={update}
+          hasMore={!!nfts.pageToken}
+          loading={loading}
+          error={nfts.error?.toString()}
+        >
           {listType === ListType.LIST ? (
             <CollectibleList
               onClick={(nft: NftTokenWithBalance) =>
@@ -139,7 +171,7 @@ export function Collectibles() {
               }
             />
           )}
-        </Scrollbars>
+        </InfiniteScroll>
       )}
       {!nfts.loading && nfts.items?.length === 0 && (
         <VerticalFlex

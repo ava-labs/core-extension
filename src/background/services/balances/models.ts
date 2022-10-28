@@ -58,6 +58,11 @@ export interface NftTokenWithBalance extends TokenBalanceData {
   collectionName: string;
 }
 
+export interface NftBalanceResponse {
+  list: NftTokenWithBalance[];
+  pageToken?: string;
+}
+
 export interface NetworkTokenWithBalance
   extends TokenBalanceData,
     NetworkToken {

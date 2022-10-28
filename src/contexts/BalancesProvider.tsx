@@ -15,7 +15,7 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { filter, map, timer } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { getNetworkIdsToUpdate } from './utils/getNetworkIdsToUpdate';
@@ -26,6 +26,7 @@ import { Account } from '@src/background/services/accounts/models';
 interface NftState {
   loading: boolean;
   items?: NftTokenWithBalance[];
+  pageToken?: string;
   error?: string;
 }
 interface BalancesState {
@@ -44,10 +45,11 @@ type BalanceAction =
 const BalancesContext = createContext<{
   tokens: BalancesState;
   nfts: NftState;
+  updateNftBalances?: (pageToken?: string, callback?: () => void) => void;
   updateBalanceOnAllNetworks?: (account: Account) => Promise<void>;
 }>({
   tokens: { loading: true },
-  nfts: { loading: true },
+  nfts: { loading: false },
 });
 
 function balancesReducer(
@@ -155,24 +157,49 @@ export function BalancesProvider({ children }: { children: any }) {
   }, [activeAccount, network, favoriteNetworks, request]);
 
   const updateNftBalances = useCallback(
-    (resetPreviousState = true) => {
-      if (resetPreviousState) {
+    async (pageToken?: string, callback?: () => void) => {
+      if (!pageToken) {
         setNfts({ loading: true });
       }
+
       request<GetNftBalancesHandler>({
         method: ExtensionRequest.NFT_BALANCES_GET,
+        params: [pageToken],
       })
         .then((result) => {
-          setNfts({ items: result, loading: false });
+          setNfts((prevState) => {
+            return {
+              items: pageToken
+                ? [...(prevState.items ?? []), ...result.list]
+                : result.list,
+              pageToken: result.pageToken,
+              loading: false,
+            };
+          });
         })
         .catch((e) => {
-          if (resetPreviousState) {
-            setNfts({ loading: false, error: e });
+          setNfts((prevState) => {
+            return { ...prevState, ...{ loading: false, error: e } };
+          });
+        })
+        .finally(() => {
+          if (callback) {
+            callback();
           }
         });
     },
     [request]
   );
+
+  useEffect(() => {
+    if (!activeAccount?.addressC || !network?.chainId) {
+      return;
+    }
+    updateNftBalances();
+
+    // trigger nft updates whenever the network has changed
+    // trigger nft updates whenever the account changes
+  }, [network?.chainId, activeAccount?.addressC, updateNftBalances]);
 
   const updateBalanceOnAllNetworks = async (account: Account) => {
     const networkIds = networks.map((network) => network.chainId);
@@ -188,27 +215,9 @@ export function BalancesProvider({ children }: { children: any }) {
     });
   };
 
-  useEffect(() => {
-    if (!activeAccount || !network?.chainId) {
-      setNfts({ loading: true });
-      return;
-    }
-    updateNftBalances();
-    // update nfts every 10 seconds, revisit this later
-    const subscription = timer(10000).subscribe(() => {
-      updateNftBalances(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-    // trigger nft updates whenever the network has changed
-    // trigger nft updates whenever the account changes
-  }, [request, network?.chainId, updateNftBalances, activeAccount]);
-
   return (
     <BalancesContext.Provider
-      value={{ tokens, nfts, updateBalanceOnAllNetworks }}
+      value={{ tokens, nfts, updateNftBalances, updateBalanceOnAllNetworks }}
     >
       {children}
     </BalancesContext.Provider>

@@ -3,7 +3,7 @@ import { Network } from '@avalabs/chains-sdk';
 import { Covalent, GetAddressBalanceV2Item } from '@avalabs/covalent-sdk';
 import { singleton } from 'tsyringe';
 import { SettingsService } from '../../settings/SettingsService';
-import { TokenType, NftTokenWithBalance } from '../models';
+import { TokenType, NftTokenWithBalance, NftBalanceResponse } from '../models';
 import { NFTService } from './models';
 import { getSmallImageForNFT } from './utils/getSmallImageForNFT';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
@@ -29,7 +29,7 @@ export class NFTBalancesServiceCovalent implements NFTService {
   async getNFTBalances(
     address: string,
     network: Network
-  ): Promise<NftTokenWithBalance[]> {
+  ): Promise<NftBalanceResponse> {
     const selectedCurrency: any = (await this.settingsService.getSettings())
       .currency;
 
@@ -38,11 +38,18 @@ export class NFTBalancesServiceCovalent implements NFTService {
       this.key
     ).getAddressBalancesV2(address, true, selectedCurrency);
 
-    return balances.data.items.reduce((agg: NftTokenWithBalance[], data) => {
-      return data.type !== 'nft'
-        ? agg
-        : [...agg, ...this.mapCovalentNFTData(data)];
-    }, []);
+    const items = balances.data.items.reduce(
+      (agg: NftTokenWithBalance[], data) => {
+        return data.type !== 'nft'
+          ? agg
+          : [...agg, ...this.mapCovalentNFTData(data)];
+      },
+      []
+    );
+
+    return {
+      list: items,
+    };
   }
 
   private getType(supportedErc: string[]) {

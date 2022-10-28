@@ -18,7 +18,11 @@ export class NFTBalancesServiceGlacier implements NFTService {
     return this.glacierService.isNetworkSupported(chainId);
   }
 
-  async getNFTBalances(address: string, network: Network) {
+  async getNFTBalances(
+    address: string,
+    network: Network,
+    pageToken: string | undefined
+  ) {
     const selectedCurrency = (
       await this.settingsService.getSettings()
     ).currency.toLowerCase() as CurrencyCode;
@@ -26,7 +30,8 @@ export class NFTBalancesServiceGlacier implements NFTService {
     return this.balancesServiceGlacier.getNFTBalanceForNetwork(
       network,
       address,
-      selectedCurrency
+      selectedCurrency,
+      pageToken
     );
   }
 }

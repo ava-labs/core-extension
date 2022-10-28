@@ -9,7 +9,7 @@ import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
 import { t } from 'i18next';
 
-enum PortfolioTabs {
+export enum PortfolioTabs {
   ASSETS = 'ASSETS',
   COLLECTIBLES = 'COLLECTIBLES',
   ACTIVITY = 'ACTIVITY',

@@ -18,6 +18,7 @@ import {
   NftTokenWithBalance,
   ERC721Metadata,
   TokenAttributeERC721,
+  NftBalanceResponse,
 } from './models';
 import { BN } from 'bn.js';
 import { Account } from '../accounts/models';
@@ -209,29 +210,31 @@ export class BalancesServiceGlacier {
   async getNFTBalanceForNetwork(
     network: Network,
     address: string,
-    selectedCurrency: CurrencyCode
-  ): Promise<NftTokenWithBalance[]> {
-    const nftList: Erc721TokenBalance[] = [];
+    selectedCurrency: CurrencyCode,
+    pageToken: string | undefined
+  ): Promise<NftBalanceResponse> {
+    const query: {
+      pageSize?: number;
+      pageToken?: string;
+      currency?: CurrencyCode;
+    } = {
+      currency: selectedCurrency,
+      // glacier has a cap on page size of 100
+      pageSize: 25,
+      ...(pageToken ? { pageToken } : {}),
+    };
 
-    let nextPageToken: string | undefined = undefined;
-    do {
-      const response = await this.glacierSdkInstance.listErc721Balances(
-        network.chainId.toString(),
-        address,
-        {
-          currency: selectedCurrency,
-          // glacier has a cap on page size of 100
-          pageSize: 100,
-          pageToken: nextPageToken,
-        }
-      );
-
-      nftList.push(...response.erc721TokenBalances);
-      nextPageToken = response.nextPageToken;
-    } while (nextPageToken);
+    const response = await this.glacierSdkInstance.listErc721Balances(
+      network.chainId.toString(),
+      address,
+      query
+    );
 
     return Promise.allSettled(
-      nftList.map(async (token) => {
+      response.erc721TokenBalances.map(async (token) => {
+        if (token.metadata.indexStatus === 'INDEXED') {
+          return this.convertNFTToTokenWithBalance(token);
+        }
         let data: ERC721Metadata = {};
         if (token.tokenUri.startsWith('data:application/json;base64,')) {
           const json = Buffer.from(
@@ -244,19 +247,24 @@ export class BalancesServiceGlacier {
             .then((r) => r.json())
             .catch(() => ({}));
         }
-        return this.convertNFTToTokenWithBalance(token, data);
+        return this.convertNFTToTokenWithBalanceWithMetadata(token, data);
       })
     ).then((results) => {
-      return results
+      const items = results
         .filter(
           (item): item is PromiseFulfilledResult<NftTokenWithBalance> =>
             item.status === 'fulfilled'
         )
         .map((item) => item.value);
+
+      return {
+        list: items,
+        pageToken: response.nextPageToken,
+      };
     });
   }
 
-  private convertNFTToTokenWithBalance(
+  private convertNFTToTokenWithBalanceWithMetadata(
     token: Erc721TokenBalance,
     metadata: ERC721Metadata
   ): NftTokenWithBalance {
@@ -285,6 +293,30 @@ export class BalancesServiceGlacier {
       description: metadata.description ?? '',
       address: token.address,
       attributes,
+      balance: new BN(0),
+    };
+  }
+  private convertNFTToTokenWithBalance(
+    token: Erc721TokenBalance
+  ): NftTokenWithBalance {
+    return {
+      /**
+       * Collection name doesnt come back in details of attributes
+       * so not sure where this is going to come from. But for now will just
+       * say unknown unless token has it eventually
+       */
+      collectionName: token.name ?? 'Unknown',
+      ...token,
+      type: TokenType.ERC721,
+      logoUri: ipfsResolverWithFallback(token.metadata.imageUri),
+      logoSmall: token.metadata.imageUri
+        ? getSmallImageForNFT(token.metadata.imageUri)
+        : '',
+      description: token.metadata.description ?? '',
+      address: token.address,
+      attributes: token.metadata.attributes
+        ? JSON.parse(token.metadata.attributes)
+        : [],
       balance: new BN(0),
     };
   }
