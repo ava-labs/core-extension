@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/browser';
+import { addExtensionMethods, Integrations } from '@sentry/tracing';
 import { browser } from 'webextension-polyfill-ts';
 
 if (process.env.SENTRY_DSN) {
@@ -7,6 +8,7 @@ if (process.env.SENTRY_DSN) {
     environment: process.env.RELEASE || 'dev',
     release: `core-extension@${browser.runtime.getManifest().version}`,
     debug: process.env.NODE_ENV === 'development',
+    tracesSampleRate: 0.003,
     integrations: [
       /**
        * eliminating dom and history from the breadcrumbs. This should eliminate
@@ -16,6 +18,8 @@ if (process.env.SENTRY_DSN) {
        * done in the sentry options beforeBreadcrumbs function.
        */
       new Sentry.Integrations.Breadcrumbs({ dom: false, history: false }),
+      new Integrations.Express(),
     ],
   });
 }
+addExtensionMethods();

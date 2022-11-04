@@ -7,6 +7,7 @@ import { TokenType, NftTokenWithBalance, NftBalanceResponse } from '../models';
 import { NFTService } from './models';
 import { getSmallImageForNFT } from './utils/getSmallImageForNFT';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
+import * as Sentry from '@sentry/browser';
 
 @singleton()
 export class NFTBalancesServiceCovalent implements NFTService {
@@ -30,6 +31,10 @@ export class NFTBalancesServiceCovalent implements NFTService {
     address: string,
     network: Network
   ): Promise<NftBalanceResponse> {
+    const sentryTracker = Sentry.startTransaction({
+      name: `NFTBalancesServiceCovalent: getNFTBalances for ${network.chainName}`,
+      op: 'getNFTBalanceForNetwork',
+    });
     const selectedCurrency: any = (await this.settingsService.getSettings())
       .currency;
 
@@ -46,6 +51,7 @@ export class NFTBalancesServiceCovalent implements NFTService {
       },
       []
     );
+    sentryTracker.finish();
 
     return {
       list: items,
