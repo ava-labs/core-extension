@@ -35,6 +35,7 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
     this.toggleWalletSelection = this.toggleWalletSelection.bind(this);
 
     this._defaultProvider = coreProvider;
+
     this.#_providers.push(coreProvider);
 
     // Listen for new event subscriptions on the multi wallet provider.
@@ -51,8 +52,11 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
     // the COINBASE collects here the wallets
     if (provider.providerMap) {
       for (const providerProxy of provider.providerMap.values()) {
-        if (!this.#providers.includes(providerProxy)) {
-          this.#providers.push(providerProxy);
+        if (
+          !providerProxy.isAvalanche && // we exclude Core being duplicated
+          !this.#_providers.includes(providerProxy)
+        ) {
+          this.#_providers.push(providerProxy);
         }
       }
       return;
@@ -64,7 +68,7 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
     }
 
     if (!this.#providers.includes(provider)) {
-      this.#providers.push(provider);
+      this.#_providers.push(provider);
     }
   }
 

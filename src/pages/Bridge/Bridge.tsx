@@ -365,6 +365,7 @@ export function Bridge() {
                     <Typography>{t('From')}</Typography>
                     <VerticalFlex align="flex-end" width="100%">
                       <NetworkSelector
+                        testId="bridge-from-chain-selector"
                         selected={currentBlockchain}
                         onSelect={handleBlockchainSwitchFrom}
                         chains={availableBlockchains}
@@ -508,6 +509,7 @@ export function Bridge() {
                   <HorizontalFlex justify="space-between" align="center">
                     <Typography>{t('To')}</Typography>
                     <NetworkSelector
+                      testId="bridge-to-chain-selector"
                       selected={targetBlockchain}
                       disabled={true}
                       chains={targetChains}

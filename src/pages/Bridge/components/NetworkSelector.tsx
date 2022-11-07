@@ -18,6 +18,7 @@ import { blockchainDisplayNameMap } from '../models';
 import EthLogo from './../../../images/tokens/eth.png';
 
 interface NetworkSelectorProps {
+  testId?: string;
   disabled?: boolean;
   selected: Blockchain;
   onSelect?: (blockchain: Blockchain) => void;
@@ -44,6 +45,7 @@ const Caret = styled(CaretIcon)`
 `;
 
 export function NetworkSelector({
+  testId,
   disabled,
   selected,
   onSelect,
@@ -73,7 +75,12 @@ export function NetworkSelector({
       coords={{ top: `32px`, right: `-8px` }}
       disabled={disabled || chains.length <= 1}
       icon={
-        <HorizontalFlex width="100%" align={'center'} justify="space-between">
+        <HorizontalFlex
+          data-testid={testId}
+          width="100%"
+          align={'center'}
+          justify="space-between"
+        >
           {getBlockChainLogo(selected)}
           <Typography margin={'0 0 0 8px'} transform="capitalize">
             {selectedDisplayValue}
@@ -91,6 +98,7 @@ export function NetworkSelector({
       {chains.includes(Blockchain.AVALANCHE) && (
         <>
           <NetworkOption
+            data-testid="bridge-avax-chain-option"
             onClick={() => {
               onSelect?.(Blockchain.AVALANCHE);
             }}
@@ -115,6 +123,7 @@ export function NetworkSelector({
       {chains.includes(Blockchain.ETHEREUM) && (
         <>
           <NetworkOption
+            data-testid="bridge-eth-chain-option"
             onClick={() => {
               onSelect?.(Blockchain.ETHEREUM);
             }}
@@ -138,6 +147,7 @@ export function NetworkSelector({
 
       {chains.includes(Blockchain.BITCOIN) && (
         <NetworkOption
+          data-testid="bridge-btc-chain-option"
           onClick={() => {
             onSelect?.(Blockchain.BITCOIN);
           }}

@@ -3,12 +3,13 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { NetworkService } from '../../network/NetworkService';
-import { NftTokenWithBalance } from '../models';
+import { NftBalanceResponse } from '../models';
 import { NFTBalancesService } from '../nft/NFTBalancesService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NFT_BALANCES_GET,
-  NftTokenWithBalance[]
+  NftBalanceResponse,
+  [pageToken: string | undefined]
 >;
 
 @injectable()
@@ -22,7 +23,10 @@ export class GetNftBalancesHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
+    const params = request.params;
+    const [pageToken] = params;
     const currentNetwork = this.networkService.activeNetwork;
+
     if (!currentNetwork) {
       return {
         ...request,
@@ -41,7 +45,8 @@ export class GetNftBalancesHandler implements HandlerType {
         ...request,
         result: await this.nftBalancesService.getNftBalances(
           this.accountsService.activeAccount.addressC, // using evm address directly since btc will never support nfts
-          currentNetwork
+          currentNetwork,
+          pageToken
         ),
       };
     } catch (e) {

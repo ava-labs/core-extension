@@ -8,12 +8,13 @@ import {
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import { CollectibleMedia } from './components/CollectibleMedia';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { t } from 'i18next';
+import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 
 const AttributeLabel = styled(Typography)`
   font-size: 14px;
@@ -28,7 +29,6 @@ const AttributeData = styled(Typography)`
 `;
 
 export function CollectibleDetails() {
-  const history = useHistory();
   const setCollectibleParams = useSetCollectibleParams();
   const { nft } = useCollectibleFromParams();
 
@@ -37,8 +37,7 @@ export function CollectibleDetails() {
   const [showThumbnail, setShowThumbnail] = useState(false);
 
   if (!nft) {
-    history.goBack();
-    return null;
+    return <Redirect to={`/home?activeTab=${PortfolioTabs.COLLECTIBLES}`} />;
   }
   return (
     <VerticalFlex width={'100%'} height="100%">

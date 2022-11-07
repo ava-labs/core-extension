@@ -6,6 +6,7 @@ import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 const NOTIFICATION_WIDTH = 375;
 const NOTIFICATION_HEIGHT = 628;
+const WINDOWS_SCROLLBAR_WIDTH = 26;
 const contextToOpenIn = ContextContainer.CONFIRM;
 /**
  * Fired when a window is removed (closed).
@@ -110,6 +111,10 @@ export const openExtensionNewWindow = async (
 ) => {
   let extensionURL = extension.runtime.getURL(contextToOpenIn);
 
+  const platform = await extension.runtime.getPlatformInfo();
+
+  const isPlatformWindows = platform?.os === 'win';
+
   let left = 0;
   let top = 0;
   try {
@@ -133,8 +138,12 @@ export const openExtensionNewWindow = async (
     url: extensionURL,
     focused: true,
     type: 'popup',
-    height: NOTIFICATION_HEIGHT,
-    width: NOTIFICATION_WIDTH,
+    height: !isPlatformWindows
+      ? NOTIFICATION_HEIGHT
+      : NOTIFICATION_HEIGHT + WINDOWS_SCROLLBAR_WIDTH,
+    width: !isPlatformWindows
+      ? NOTIFICATION_WIDTH
+      : NOTIFICATION_WIDTH + WINDOWS_SCROLLBAR_WIDTH,
     left,
     top,
   });

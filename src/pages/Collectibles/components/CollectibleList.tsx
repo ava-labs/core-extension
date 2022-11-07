@@ -10,7 +10,7 @@ export function CollectibleList({
 }) {
   const { nfts } = useBalancesContext();
   return (
-    <VerticalFlex padding="0 16px 72px">
+    <VerticalFlex padding="0 16px 16px">
       {nfts.items?.map((nft) => (
         <TokenCard
           name={nft.name}

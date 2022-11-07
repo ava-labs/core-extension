@@ -87,14 +87,23 @@ export function setGlobalProvider(
       },
     });
 
+    let windowWeb3Obj = {
+      currentProvider: multiWalletProxy,
+    };
+
     Object.defineProperty(window, 'web3', {
       get: () => {
-        return {
+        return windowWeb3Obj;
+      },
+      // let dApps define window.web3.eth and similar extensions to the window.web3 object
+      set: (value) => {
+        if (value.__isMetaMaskShim__) return;
+
+        windowWeb3Obj = {
+          ...value,
           currentProvider: multiWalletProxy,
         };
-      },
-      // in case a wallet tries to overwrite us lets add them to the list
-      set: () => {
+
         return true;
       },
     });

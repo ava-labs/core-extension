@@ -28,7 +28,9 @@ jobs:
         run: yarn lint
       - name: Test
         run: yarn test
-      - name: generate localisation
-        run: yarn scanner
+      - name: Check if localization was updated
+        run: |
+          yarn scanner
+          if [[ $(git status --short) == '' ]]; then exit 0; else exit 1; fi
       - name: Build extension
         run: yarn build
