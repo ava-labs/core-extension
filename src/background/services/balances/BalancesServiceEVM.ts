@@ -19,7 +19,6 @@ import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import BN from 'bn.js';
 import { Account } from '../accounts/models';
-import * as Sentry from '@sentry/browser';
 
 @singleton()
 export class BalancesServiceEVM {
@@ -131,9 +130,6 @@ export class BalancesServiceEVM {
     accounts: Account[],
     network: Network
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
-    const sentryTracker = Sentry.startTransaction({
-      name: 'BalancesServiceGlacier: getBalances',
-    });
     const provider = this.networkService.getProviderForNetwork(network, true);
     const customTokens = await this.tokensManagerService.getTokensForNetwork(
       network
@@ -196,7 +192,6 @@ export class BalancesServiceEVM {
       };
     }, {} as Record<string, Record<string, TokenWithBalance>>);
 
-    sentryTracker.finish();
     return balances;
   }
 }

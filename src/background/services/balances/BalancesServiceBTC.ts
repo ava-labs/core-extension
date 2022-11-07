@@ -7,7 +7,6 @@ import { singleton } from 'tsyringe';
 import { Account } from '../accounts/models';
 import { SettingsService } from '../settings/SettingsService';
 import { TokenType, TokenWithBalance } from './models';
-import * as Sentry from '@sentry/browser';
 
 @singleton()
 export class BalancesServiceBTC {
@@ -26,9 +25,6 @@ export class BalancesServiceBTC {
     accounts: Account[],
     network: Network
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
-    const sentryTracker = Sentry.startTransaction({
-      name: 'BalancesServiceBTC: getBalances',
-    });
     const provider = await this.networkService.getBitcoinProvider();
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
@@ -92,7 +88,7 @@ export class BalancesServiceBTC {
         [result.value.address]: result.value.balances,
       };
     }, {});
-    sentryTracker.finish();
+
     return balances;
   }
 }

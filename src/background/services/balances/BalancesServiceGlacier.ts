@@ -24,7 +24,6 @@ import { BN } from 'bn.js';
 import { Account } from '../accounts/models';
 import { getSmallImageForNFT } from './nft/utils/getSmallImageForNFT';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
-import * as Sentry from '@sentry/browser';
 
 @singleton()
 export class BalancesServiceGlacier {
@@ -40,9 +39,6 @@ export class BalancesServiceGlacier {
     accounts: Account[],
     network: Network
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
-    const sentryTracker = Sentry.startTransaction({
-      name: 'BalancesServiceGlacier: getBalances',
-    });
     const selectedCurrency: any = (await this.settingsService.getSettings())
       .currency;
     const results = await Promise.allSettled(
@@ -83,11 +79,9 @@ export class BalancesServiceGlacier {
         .map((item) => item.value);
     });
 
-    const result = results.reduce((acc, account) => {
+    return results.reduce((acc, account) => {
       return { ...account, ...acc };
     }, {});
-    sentryTracker.finish();
-    return result;
   }
 
   getNativeTokenBalanceForNetwork(
@@ -213,92 +207,61 @@ export class BalancesServiceGlacier {
     );
   }
 
-  async convertUnindexedNftToTokenWithBalance(token: Erc721TokenBalance) {
-    const sentryTracker = Sentry.startTransaction({
-      name: `Get NFT metadata for unindexed NFT and convert`,
-      op: 'convertUnindexedNftToTokenWithBalance',
-    });
-    let data: ERC721Metadata = {};
-    if (token.tokenUri.startsWith('data:application/json;base64,')) {
-      const json = Buffer.from(
-        token.tokenUri.substring(29),
-        'base64'
-      ).toString();
-      data = JSON.parse(json);
-    } else {
-      data = await fetch(ipfsResolverWithFallback(token.tokenUri))
-        .then((r) => r.json())
-        .catch(() => ({}));
-    }
-    const result = this.convertNFTToTokenWithBalanceWithMetadata(token, data);
-    sentryTracker.finish();
-    return result;
-  }
-
   async getNFTBalanceForNetwork(
     network: Network,
     address: string,
     selectedCurrency: CurrencyCode,
     pageToken: string | undefined
   ): Promise<NftBalanceResponse> {
-    const sentryTracker = Sentry.startTransaction({
-      name: `BalancesServiceGlacier: getNFTBalanceForNetwork for ${network.chainName}`,
-      op: 'getNFTBalanceForNetwork',
-    });
-    const query = {
+    const query: {
+      pageSize?: number;
+      pageToken?: string;
+      currency?: CurrencyCode;
+    } = {
       currency: selectedCurrency,
       // glacier has a cap on page size of 100
       pageSize: 25,
       ...(pageToken ? { pageToken } : {}),
     };
 
-    const glacierSentryTracker = Sentry.startTransaction({
-      name: `Glacier: Get NFTs for ${network.chainName}`,
-      op: 'listErc721Balances',
-    });
     const response = await this.glacierSdkInstance.listErc721Balances(
       network.chainId.toString(),
       address,
       query
     );
-    glacierSentryTracker.finish();
-
-    const metadataSentryTracker = Sentry.startTransaction({
-      name: `Get NFT metadata and convert for ${network.chainName}`,
-      op: 'listErc721Balances',
-    });
 
     return Promise.allSettled(
       response.erc721TokenBalances.map(async (token) => {
         if (token.metadata.indexStatus === 'INDEXED') {
           return this.convertNFTToTokenWithBalance(token);
         }
-        return this.convertUnindexedNftToTokenWithBalance(token);
+        let data: ERC721Metadata = {};
+        if (token.tokenUri.startsWith('data:application/json;base64,')) {
+          const json = Buffer.from(
+            token.tokenUri.substring(29),
+            'base64'
+          ).toString();
+          data = JSON.parse(json);
+        } else {
+          data = await fetch(ipfsResolverWithFallback(token.tokenUri))
+            .then((r) => r.json())
+            .catch(() => ({}));
+        }
+        return this.convertNFTToTokenWithBalanceWithMetadata(token, data);
       })
-    )
-      .then((results) => {
-        metadataSentryTracker.finish();
-        const items = results
-          .filter(
-            (item): item is PromiseFulfilledResult<NftTokenWithBalance> =>
-              item.status === 'fulfilled'
-          )
-          .map((item) => item.value);
+    ).then((results) => {
+      const items = results
+        .filter(
+          (item): item is PromiseFulfilledResult<NftTokenWithBalance> =>
+            item.status === 'fulfilled'
+        )
+        .map((item) => item.value);
 
-        return {
-          list: items,
-          pageToken: response.nextPageToken,
-        };
-      })
-      .catch((error) => {
-        metadataSentryTracker.setStatus('internal_error');
-        metadataSentryTracker.finish();
-        sentryTracker.setStatus('internal_error');
-        throw error;
-      })
-      .finally(() => {
-        sentryTracker.finish();
-      });
+      return {
+        list: items,
+        pageToken: response.nextPageToken,
+      };
+    });
   }
 
   private convertNFTToTokenWithBalanceWithMetadata(

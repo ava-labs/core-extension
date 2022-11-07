@@ -41,15 +41,13 @@ export class GetNftBalancesHandler implements HandlerType {
     }
 
     try {
-      const result = await this.nftBalancesService.getNftBalances(
-        this.accountsService.activeAccount.addressC, // using evm address directly since btc will never support nfts
-        currentNetwork,
-        pageToken
-      );
-
       return {
         ...request,
-        result,
+        result: await this.nftBalancesService.getNftBalances(
+          this.accountsService.activeAccount.addressC, // using evm address directly since btc will never support nfts
+          currentNetwork,
+          pageToken
+        ),
       };
     } catch (e) {
       console.error(e);

@@ -32,6 +32,7 @@ export class BridgeTransferAssetHandler implements HandlerType {
     //     error: `Cannot transfer asset type ${asset.assetType}`,
     //   };
     // }
+
     try {
       const result = await this.bridgeService.transferAsset(
         currentBlockchain,

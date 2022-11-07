@@ -24,6 +24,7 @@ export class UpdateActionHandler implements HandlerType {
         error: 'no message id in params',
       };
     }
+
     const actions = await this.actionsService.getActions();
 
     if (!actions) {

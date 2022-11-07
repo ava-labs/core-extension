@@ -57,6 +57,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
         networksToFetch,
         accountsToFetch
       );
+
     return {
       ...request,
       result: balances,

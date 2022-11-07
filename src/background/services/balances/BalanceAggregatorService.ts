@@ -7,7 +7,6 @@ import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
 import _ from 'lodash';
-import * as Sentry from '@sentry/browser';
 
 @singleton()
 export class BalanceAggregatorService implements OnLock {
@@ -51,14 +50,11 @@ export class BalanceAggregatorService implements OnLock {
     chainIds: number[],
     accounts: Account[]
   ): Promise<Balances> {
-    const sentryTracker = Sentry.startTransaction({
-      name: 'BalanceAggregatorService: updateBalancesForNetworks',
-    });
     const networks = Object.values(
       await this.networkService.activeNetworks.promisify()
     ).filter((network) => chainIds.includes(network.chainId));
 
-    const results = await Promise.allSettled(
+    return Promise.allSettled(
       networks.map(async (network) => {
         const balances = await this.balancesService.getBalancesForNetwork(
           network,
@@ -79,9 +75,6 @@ export class BalanceAggregatorService implements OnLock {
         {}
       );
     });
-
-    sentryTracker.finish();
-    return results;
   }
 
   onLock() {
