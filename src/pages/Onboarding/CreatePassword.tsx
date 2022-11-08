@@ -137,7 +137,7 @@ export const CreatePassword = ({
             />
             <Typography margin="0 0 0 8px" size={12} height="15px">
               <Trans
-                i18nKey="I acknowledge the  <typography>Privacy Policy'</typography>"
+                i18nKey="I acknowledge the  <typography>Privacy Policy</typography>"
                 components={{
                   typography: (
                     <Typography
