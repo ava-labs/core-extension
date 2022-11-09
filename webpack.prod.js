@@ -25,9 +25,9 @@ module.exports = merge(common, {
           transform: (content) =>
             content
               .toString()
-              .replace('__NAME__', 'Core')
+              .replace('__NAME__', 'Core | Crypto Wallet Extension')
               .replace('__SHORT_NAME__', 'Core')
-              .replace('__DEFAULT_TITLE__', 'Core Browser Extension'),
+              .replace('__DEFAULT_TITLE__', 'Core | Crypto Wallet Extension'),
           force: true,
         },
       ],

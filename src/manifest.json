@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "manifest_version": 3,
   "author": "AvaLabs",
-  "description": "Your all-in-one command center for Web3, supporting Avalanche, Bitcoin, Ethereum, and all EVM-compatible blockchains.",
+  "description": "A better way to connect to Web3",
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
