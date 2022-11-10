@@ -157,7 +157,7 @@ export function LedgerConnect({
       return;
     }
     await initLedgerTransport();
-    const path = getAddressDerivationPath(0, pathSpec);
+    const path = getAddressDerivationPath(0, pathSpec, 'EVM');
 
     setDerivationPath(path);
   };
@@ -183,7 +183,11 @@ export function LedgerConnect({
     pubKeys: PubKeyType[] = []
   ) => {
     try {
-      const derivationPath = getAddressDerivationPath(accountIndex, pathSpec);
+      const derivationPath = getAddressDerivationPath(
+        accountIndex,
+        pathSpec,
+        'EVM'
+      );
       setDerivationPath(derivationPath);
 
       const pubKey = await getPublicKey(accountIndex, pathSpec);
