@@ -9,6 +9,7 @@ import {
   SearchInput,
   DropDownMenuItem,
   HorizontalSeparator,
+  TokenEllipsis,
 } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
@@ -25,6 +26,8 @@ import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
 import Big from 'big.js';
 import { t } from 'i18next';
+import { BalanceColumn } from '@src/components/common/BalanceColumn';
+import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -354,12 +357,21 @@ export function TokenSelect({
                                 margin={'0 0 0 16px'}
                                 weight={500}
                               >
-                                {token.name}
+                                <TokenEllipsis
+                                  text={token.name}
+                                  maxLength={14}
+                                />
                               </Typography>
                             </HorizontalFlex>
-                            <Typography size={14} height="24px">
-                              {token.balanceDisplayValue} {token.symbol}
-                            </Typography>
+                            <BalanceColumn>
+                              <Typography size={14} height="24px">
+                                {token.balanceDisplayValue}{' '}
+                                <InlineTokenEllipsis
+                                  text={token.symbol}
+                                  maxLength={8}
+                                />
+                              </Typography>
+                            </BalanceColumn>
                           </HorizontalFlex>
                         </StyledDropdownMenuItem>
                       ))}
@@ -411,9 +423,12 @@ export function TokenSelect({
                                   {token.symbolOnNetwork || token.symbol}
                                 </Typography>
                               </HorizontalFlex>
-                              <Typography size={14} height="24px">
-                                {formatBalance(token.balance)} {token.symbol}
-                              </Typography>
+
+                              <BalanceColumn>
+                                <Typography size={14} height="24px">
+                                  {formatBalance(token.balance)} {token.symbol}
+                                </Typography>
+                              </BalanceColumn>
                             </HorizontalFlex>
                           </StyledDropdownMenuItem>
                         );
