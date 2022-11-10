@@ -197,7 +197,7 @@
     "*.{ts,tsx}": "eslint --fix --max-warnings 0"
   },
   "volta": {
-    "node": "16.10.0",
+    "node": "16.18.1",
     "yarn": "1.22.10"
   },
   "lavamoat": {
