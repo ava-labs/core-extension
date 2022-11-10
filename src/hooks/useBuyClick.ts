@@ -2,7 +2,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useDialog } from '@avalabs/react-components';
 
 const moonpayURL = async (address: string): Promise<{ url: string }> => {
-  return await fetch(`${process.env.GLACIER_URL}/moonpay/${address}`).then(
+  return await fetch(`${process.env.PROXY_URL}/moonpay/${address}`).then(
     (response) => response.json()
   );
 };

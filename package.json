@@ -14,6 +14,7 @@
     "setup": "yarn install && yarn allow-scripts",
     "test": "yarn jest",
     "test:watch": "yarn jest --watch",
+    "test:path": "yarn jest --watch --testPathPattern",
     "zip": "node zipscript.js",
     "scanner": "i18next-scanner --config i18next-scanner.config.js"
   },

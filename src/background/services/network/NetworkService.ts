@@ -253,7 +253,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return new BlockCypherProvider(
         !network.isTestnet,
         process.env.GLACIER_API_KEY,
-        `${process.env.GLACIER_URL}/proxy/blockcypher`
+        `${process.env.PROXY_URL}/proxy/blockcypher`
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(

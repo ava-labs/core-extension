@@ -4,6 +4,7 @@ import {
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
+import { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
 
 jest.mock('@avalabs/wallets-sdk', () => {
@@ -36,26 +37,31 @@ const mockEVMNetwork = {
 
 describe('background/services/network/NetworkService', () => {
   const env = process.env;
-  beforeEach(() => {
-    jest.resetAllMocks();
+
+  beforeAll(() => {
     process.env = {
       ...env,
       GLACIER_API_KEY: 'glacierapikey',
-      GLACIER_URL: 'https://glacierurl.example',
+      PROXY_URL: 'https://proxyurl.example',
     };
   });
 
-  afterEach(() => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
     process.env = env;
   });
 
   describe('getProviderForNetwork', () => {
-    let mockJsonRpcBatchInternalInstance = {};
-    let mockBlockCypherProviderInstance = {};
+    const mockJsonRpcBatchInternalInstance = {};
+    const mockBlockCypherProviderInstance = {};
+
+    const networkService = new NetworkService({} as unknown as StorageService);
+
     beforeEach(() => {
       (addGlacierAPIKeyIfNeeded as jest.Mock).mockImplementation((v) => v);
-      mockJsonRpcBatchInternalInstance = {};
-      mockBlockCypherProviderInstance = {};
       (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
         mockJsonRpcBatchInternalInstance
       );
@@ -65,22 +71,19 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('returns a json rpc provider for evm chains', () => {
-      const networkService = new NetworkService({} as any);
-
       const provider = networkService.getProviderForNetwork(mockEVMNetwork);
 
       expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
       expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
         40,
-        'https://rpcurl.example',
-        123
+        mockEVMNetwork.rpcUrl,
+        mockEVMNetwork.chainId
       );
-      expect((provider as any).pollingInterval).toEqual(2000);
+      expect((provider as JsonRpcBatchInternal).pollingInterval).toEqual(2000);
       expect(provider).toBe(mockJsonRpcBatchInternalInstance);
     });
 
     it('uses multicall when requested', () => {
-      const networkService = new NetworkService({} as any);
       const provider = networkService.getProviderForNetwork(
         {
           ...mockEVMNetwork,
@@ -98,8 +101,8 @@ describe('background/services/network/NetworkService', () => {
           maxCalls: 40,
           multiContractAddress: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         },
-        'https://rpcurl.example',
-        123
+        mockEVMNetwork.rpcUrl,
+        mockEVMNetwork.chainId
       );
     });
 
@@ -107,40 +110,38 @@ describe('background/services/network/NetworkService', () => {
       (addGlacierAPIKeyIfNeeded as jest.Mock).mockReturnValue(
         'https://urlwithglacierkey.example'
       );
-      const networkService = new NetworkService({} as any);
 
       const provider = networkService.getProviderForNetwork(mockEVMNetwork);
 
       expect(provider).toBe(mockJsonRpcBatchInternalInstance);
+      expect(addGlacierAPIKeyIfNeeded).toHaveBeenCalledWith(
+        mockEVMNetwork.rpcUrl
+      );
       expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
       expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
         40,
         'https://urlwithglacierkey.example',
-        123
+        mockEVMNetwork.chainId
       );
     });
 
     it('returns blockcypher provider for BTC networks', () => {
-      const networkService = new NetworkService({} as any);
-
       const provider = networkService.getProviderForNetwork(BITCOIN_NETWORK);
 
       expect(provider).toBe(mockBlockCypherProviderInstance);
       expect(BlockCypherProvider).toHaveBeenCalledTimes(1);
       expect(BlockCypherProvider).toHaveBeenCalledWith(
         true,
-        'glacierapikey',
-        'https://glacierurl.example/proxy/blockcypher'
+        process.env.GLACIER_API_KEY,
+        `${process.env.PROXY_URL}/proxy/blockcypher`
       );
     });
 
     it('returns error when VM is not supported', () => {
-      const networkService = new NetworkService({} as any);
-
       expect(() => {
         networkService.getProviderForNetwork({
           ...mockEVMNetwork,
-          vmName: 'CRAPPYVM' as any,
+          vmName: 'CRAPPYVM' as unknown as NetworkVMType,
         });
       }).toThrowError(new Error('unsupported network'));
     });
