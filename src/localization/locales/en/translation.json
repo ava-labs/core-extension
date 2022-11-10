@@ -122,7 +122,7 @@
   "Core wants to bridge": "Core wants to bridge",
   "Message:": "Message:",
   "You are about to bridge {{amountStr}} {{symbol}} on {{currentBlockchain}} Network": "You are about to bridge {{amountStr}} {{symbol}} on {{currentBlockchain}} Network",
-  "Which wallet would <br /> you like to use?'": "Which wallet would <br /> you like to use?'",
+  "Which wallet would <br /> you like to use?": "Which wallet would <br /> you like to use?",
   "It looks like multiple wallets are installed. <br /> Select which one you would like to connect.": "It looks like multiple wallets are installed. <br /> Select which one you would like to connect.",
   "Activate": "Activate",
   "Deactivate": "Deactivate",
