@@ -42,6 +42,7 @@ type PageTitleProps = {
   variant?: PageTitleVariant;
   buttonPadding?: string;
   thumbnailImage?: string;
+  margin?: string;
 };
 
 export const PageTitle = ({
@@ -51,6 +52,7 @@ export const PageTitle = ({
   variant = PageTitleVariant.SECONDARY,
   buttonPadding,
   thumbnailImage,
+  margin = '8px 0',
 }: PropsWithChildren<PageTitleProps>) => {
   const theme = useTheme();
   const history = useHistory();
@@ -65,14 +67,15 @@ export const PageTitle = ({
     <HorizontalFlex
       align="center"
       position="relative"
-      height="53px"
       width="100%"
       paddingTop={variant === PageTitleVariant.PRIMARY ? '16px' : undefined}
+      margin={margin}
     >
       {showBackButton && (
         <BackButton
           onClick={() => (onBackClick ? onBackClick() : goBack())}
           padding={buttonPadding}
+          data-testid="page-title-back-button"
         >
           <CaretIcon
             height="20px"

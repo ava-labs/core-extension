@@ -1,27 +1,15 @@
-import { SecondaryOverlay } from '@avalabs/react-components';
-import { useState } from 'react';
-import { AccountDropdownContent } from './AccountDropdownContent';
+import { useHistory } from 'react-router-dom';
 import { AccountSelectorButton } from './AccountSelectorButton';
 
 export function AccountSelector() {
-  const [open, setOpen] = useState<boolean>(false);
+  const history = useHistory();
 
   return (
-    <>
-      <AccountSelectorButton
-        onClick={() => {
-          setOpen(true);
-        }}
-      />
-      {open && (
-        <SecondaryOverlay padding="24px 16px" onClick={() => setOpen(false)}>
-          <AccountDropdownContent
-            onClose={() => {
-              setOpen(false);
-            }}
-          />
-        </SecondaryOverlay>
-      )}
-    </>
+    <AccountSelectorButton
+      data-testid="account-selector-button"
+      onClick={() => {
+        history.push('/accounts');
+      }}
+    />
   );
 }

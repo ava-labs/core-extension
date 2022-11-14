@@ -49,6 +49,7 @@ export function AccountBalance({
         e.stopPropagation();
         refreshBalance();
       }}
+      data-testid="account-balance-refresh"
     >
       {isBalanceLoading ? (
         <Skeleton width="60px" height="12px" />

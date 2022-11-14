@@ -34,6 +34,7 @@ import { AddNetwork } from '@src/pages/Networks/AddNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
+import { Accounts } from '@src/pages/Accounts/Accounts';
 
 import { lazy, Suspense, useEffect, useMemo } from 'react';
 import {
@@ -245,6 +246,7 @@ export function Popup() {
                                   '/bridge/transaction-details',
                                   '/send/confirm',
                                   '/collectible/send/confirm',
+                                  '/accounts',
                                 ].some((path) =>
                                   location.pathname.startsWith(path)
                                 ) && (
@@ -437,6 +439,12 @@ export function Popup() {
                                     <Route path="/network/switch">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SwitchActiveNetwork />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/accounts">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Accounts />
                                       </Suspense>
                                     </Route>
 

@@ -20,7 +20,7 @@ import { AccountBalance } from './AccountBalance';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 
-interface AccountDropdownItemProps {
+interface AccountItemProps {
   account: Account;
   editing: boolean;
   onEdit: () => void;
@@ -60,7 +60,7 @@ const AccountNameInput = styled(WordInput)`
   }
 `;
 
-const AccountItem = styled(HorizontalFlex)<{
+const StyledAccountItem = styled(HorizontalFlex)<{
   selected?: boolean;
   edit?: boolean;
 }>`
@@ -82,12 +82,12 @@ const AccountItem = styled(HorizontalFlex)<{
   transition: 0.2s ease-in-out;
 `;
 
-export function AccountDropdownItem({
+export function AccountItem({
   account,
   editing,
   onEdit,
   onSave,
-}: AccountDropdownItemProps) {
+}: AccountItemProps) {
   const [accountName, setAccountName] = useState<string>(account.name);
   const { renameAccount } = useAccountsContext();
   const theme = useTheme();
@@ -124,7 +124,7 @@ export function AccountDropdownItem({
   };
 
   return (
-    <AccountItem selected={account.active} edit={inEditMode}>
+    <StyledAccountItem selected={account.active} edit={inEditMode}>
       <VerticalFlex align="flex-start">
         <HorizontalFlex
           width={inEditMode ? '100%' : 'auto'}
@@ -250,6 +250,6 @@ export function AccountDropdownItem({
           )}
         </>
       )}
-    </AccountItem>
+    </StyledAccountItem>
   );
 }
