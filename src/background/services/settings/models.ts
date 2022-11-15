@@ -5,6 +5,18 @@ export enum ThemeVariant {
   DARK = 'DARK',
 }
 
+export enum Languages {
+  EN = 'en',
+  DE = 'de',
+  HI = 'hi',
+  KO = 'ko',
+  RU = 'ru',
+  TR = 'tr',
+  ZH = 'zh',
+  ES = 'es',
+  JA = 'ja',
+}
+
 export type TokensVisibility = {
   [key: string]: boolean;
 };
@@ -21,6 +33,7 @@ export interface SettingsState {
   tokensVisibility: TokensVisibility;
   isDefaultExtension: boolean;
   analyticsConsent: boolean;
+  language: Languages;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

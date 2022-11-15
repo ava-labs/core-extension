@@ -5,8 +5,9 @@ import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
-import { SettingsEvents, TokensVisibility } from './models';
+import { Languages, SettingsEvents, TokensVisibility } from './models';
 import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
+import { changeLanguage } from 'i18next';
 
 const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',
@@ -16,6 +17,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   tokensVisibility: {},
   isDefaultExtension: false,
   analyticsConsent: true,
+  language: Languages.EN,
 };
 
 @singleton()
@@ -39,6 +41,7 @@ export class SettingsService implements OnStorageReady {
     let settings: SettingsState;
     try {
       settings = await this.getSettings();
+      changeLanguage(settings.language);
     } catch (e) {
       return;
     }
@@ -51,8 +54,14 @@ export class SettingsService implements OnStorageReady {
       SETTINGS_STORAGE_KEY
     );
 
+    const unEncryptedState =
+      await this.storageService.loadUnencrypted<SettingsState>(
+        SETTINGS_STORAGE_KEY
+      );
+
     return {
       ...DEFAULT_SETTINGS_STATE,
+      ...unEncryptedState,
       ...state,
     };
   }
@@ -138,9 +147,27 @@ export class SettingsService implements OnStorageReady {
     });
   }
 
+  async setLanguage(language: Languages) {
+    changeLanguage(language);
+    const settings = await this.getSettings();
+    const newSettings = {
+      ...settings,
+      language,
+    };
+    await this.saveSettings(newSettings);
+  }
+
   private async saveSettings(state: SettingsState) {
-    await this.storageService.save(SETTINGS_STORAGE_KEY, state);
-    this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, state);
+    const language = state.language;
+    await this.storageService.saveUnencrypted(SETTINGS_STORAGE_KEY, {
+      language: state.language,
+    });
+    try {
+      await this.storageService.save(SETTINGS_STORAGE_KEY, state);
+      this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, state);
+    } catch {
+      this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, { language });
+    }
   }
 
   addListener(event: SettingsEvents, callback: (data: unknown) => void) {

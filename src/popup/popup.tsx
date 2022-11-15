@@ -45,8 +45,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
-import '@src/localization/init';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -165,6 +164,7 @@ const UpdateContacts = lazy(() => {
 });
 
 export function Popup() {
+  const { t } = useTranslation();
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);

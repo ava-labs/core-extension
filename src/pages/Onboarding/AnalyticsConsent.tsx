@@ -10,13 +10,13 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { useTheme } from 'styled-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export const AnalyticsConsent = () => {
   const theme = useTheme();
   const { setNextPhase, setAnalyticsConsent } = useOnboardingContext();
   const { capture, stopDataCollection } = useAnalyticsContext();
+  const { t } = useTranslation();
 
   return (
     <VerticalFlex width="100%" height="100%" align="center">

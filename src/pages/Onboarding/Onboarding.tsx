@@ -14,6 +14,7 @@ import { BrandName } from '@src/components/icons/BrandName';
 import { AnalyticsConsent } from './AnalyticsConsent';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
+import { LanguageSelector } from './components/LanguageSelector';
 
 export function Onboarding() {
   const { nextPhase, onboardingState, setNextPhase, submit, submitInProgress } =
@@ -134,12 +135,16 @@ export function Onboarding() {
         padding="16px 0"
         width="1200px"
         align="center"
+        justify="space-between"
       >
-        <Logo height={29} />
-        <BrandName height={15} margin="0 0 0 8px" />
-        <HorizontalFlex width="auto" margin="0 0 0 16px">
-          <BetaLabel />
+        <HorizontalFlex>
+          <Logo height={29} />
+          <BrandName height={15} margin="0 0 0 8px" />
+          <HorizontalFlex width="auto" margin="0 0 0 16px">
+            <BetaLabel />
+          </HorizontalFlex>
         </HorizontalFlex>
+        <LanguageSelector />
       </HorizontalFlex>
       <VerticalFlex align="center" justify="center" grow="1">
         <Card width="568px" minHeight="540px" height="639px" padding="40px">

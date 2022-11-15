@@ -12,7 +12,7 @@ import { truncateAddress } from '@src/utils/truncateAddress';
 import { AddressType } from '../LedgerConnect';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { Network } from '@avalabs/chains-sdk';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const AddressField = styled(HorizontalFlex)<{ padding?: string }>`
   color: ${({ theme }) => theme.colors.text1};
@@ -30,6 +30,7 @@ export function DerivedAddresses({
   hideLoadinSkeleton,
 }: DerivedAddressesProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <VerticalFlex margin="24px 0 0 0">

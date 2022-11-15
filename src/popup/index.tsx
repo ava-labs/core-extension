@@ -16,6 +16,8 @@ import { AnalyticsContextProvider } from '@src/contexts/AnalyticsProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
 import { LoadingContent } from './LoadingContent';
 import { FeatureFlagsContextProvider } from '@src/contexts/FeatureFlagsProvider';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@src/localization/init';
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
@@ -30,18 +32,20 @@ browser.tabs.query({ active: true }).then(() => {
         lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
         darkTheme={walletThemeDark}
       >
-        <ConnectionContextProvider>
-          <SettingsContextProvider>
-            <FeatureFlagsContextProvider>
-              <AnalyticsContextProvider>
-                <Toaster />
-                <Suspense fallback={<LoadingContent />}>
-                  <App />
-                </Suspense>
-              </AnalyticsContextProvider>
-            </FeatureFlagsContextProvider>
-          </SettingsContextProvider>
-        </ConnectionContextProvider>
+        <I18nextProvider i18n={i18n}>
+          <ConnectionContextProvider>
+            <SettingsContextProvider>
+              <FeatureFlagsContextProvider>
+                <AnalyticsContextProvider>
+                  <Toaster />
+                  <Suspense fallback={<LoadingContent />}>
+                    <App />
+                  </Suspense>
+                </AnalyticsContextProvider>
+              </FeatureFlagsContextProvider>
+            </SettingsContextProvider>
+          </ConnectionContextProvider>
+        </I18nextProvider>
       </ThemeContextProvider>
     </Router>,
     document.getElementById('popup')

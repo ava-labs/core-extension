@@ -7,8 +7,7 @@ import {
 import styled from 'styled-components';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { StyledNumberList } from '@src/components/common/StyledNumberList';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 interface LedgerTroubleProps {
   onBack(): void;
@@ -22,6 +21,8 @@ const Link = styled(Typography)`
 `;
 
 export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
+  const { t } = useTranslation();
+
   return (
     <VerticalFlex width="100%" align="center">
       <OnboardingStepHeader

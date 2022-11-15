@@ -13,8 +13,7 @@ import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useTheme } from 'styled-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -37,6 +36,7 @@ export const CreatePassword = ({
   const [termsOfUseChecked, setTermsOfUseChecked] = useState<boolean>(false);
 
   const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
+  const { t } = useTranslation();
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(

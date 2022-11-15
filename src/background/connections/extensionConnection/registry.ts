@@ -98,6 +98,7 @@ import { GetAvaxBalanceHandler } from '@src/background/services/balances/handler
 import { GetAvalancheNetworkHandler } from '@src/background/services/network/handlers/getAvalancheNetwork';
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
+import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -224,6 +225,7 @@ import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledg
     token: 'ExtensionRequestHandler',
     useToken: LedgerVersionWarningClosedHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: SetLanguageHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
