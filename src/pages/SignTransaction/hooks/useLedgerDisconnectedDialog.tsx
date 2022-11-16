@@ -1,4 +1,4 @@
-import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import { WalletType } from '@src/background/services/wallet/models';
 import {
@@ -52,14 +52,7 @@ export function useLedgerDisconnectedDialog(
       return LedgerAppType.BITCOIN;
     }
 
-    if (
-      network?.chainId === ChainId.AVALANCHE_MAINNET_ID ||
-      network?.chainId === ChainId.AVALANCHE_TESTNET_ID
-    ) {
-      return LedgerAppType.AVALANCHE;
-    }
-
-    return LedgerAppType.ETHEREUM;
+    return LedgerAppType.AVALANCHE;
   }, [network, requestedApp]);
 
   const showLedgerDisconnectedDialog = useCallback(() => {
