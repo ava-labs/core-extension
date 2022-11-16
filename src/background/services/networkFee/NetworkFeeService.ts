@@ -84,14 +84,16 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     from: string,
     to: string,
     data: string,
-    value?: BigNumberish
+    value?: BigNumberish,
+    otherNetwork?: Network
   ): Promise<number | null> {
-    const network = this.networkService.activeNetwork;
+    const network = otherNetwork ?? this.networkService.activeNetwork;
+
     if (network?.vmName !== NetworkVMType.EVM) {
       return null;
     }
-    const provider = this.networkService.getProviderForNetwork(network);
 
+    const provider = this.networkService.getProviderForNetwork(network);
     const nonce = await (provider as JsonRpcBatchInternal).getTransactionCount(
       from
     );

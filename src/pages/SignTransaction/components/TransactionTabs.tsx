@@ -12,6 +12,8 @@ import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTool
 import Scrollbars from 'react-custom-scrollbars-2';
 import { BigNumber } from 'ethers';
 import { t } from 'i18next';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetTransaction } from '../hooks/useGetTransaction';
 
 interface TransactionTabsType {
   byteStr: string;
@@ -34,6 +36,9 @@ export function TransactionTabs({
   selectedGasFee,
   onCustomFeeSet,
 }: TransactionTabsType) {
+  const requestId = useGetRequestId();
+  const { network, networkFee } = useGetTransaction(requestId);
+
   // Details Tab
   const Details = (
     <VerticalFlex margin="16px 0 0 0" width={'100%'} justify="space-between">
@@ -41,7 +46,11 @@ export function TransactionTabs({
         <Typography size={12} height="15px" margin="0 8px 0 0">
           {t('Network Fee')}
         </Typography>
-        <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={limit} />
+        <TransactionFeeTooltip
+          gasPrice={gasPrice}
+          gasLimit={limit}
+          network={network}
+        />
       </HorizontalFlex>
       {gasPrice && limit && onCustomFeeSet && (
         <CustomFees
@@ -49,6 +58,8 @@ export function TransactionTabs({
           limit={limit}
           onChange={onCustomFeeSet}
           selectedGasFeeModifier={selectedGasFee}
+          network={network}
+          networkFee={networkFee}
         />
       )}
 

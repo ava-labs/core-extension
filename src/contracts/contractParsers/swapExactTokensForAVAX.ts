@@ -33,7 +33,10 @@ export async function swapExactTokensForAvax(
   data: SwapExactTokensForAVAXData,
   props: DisplayValueParserProps
 ): Promise<SwapExactTokensForTokenDisplayValues> {
-  const firstTokenInPath = await findToken(data.path[0]?.toLowerCase() || '');
+  const firstTokenInPath = await findToken(
+    data.path[0]?.toLowerCase() || '',
+    network
+  );
   const lastTokenAmountBN = hexToBN(
     (data.amountIn || data.amountOutMin).toHexString()
   );

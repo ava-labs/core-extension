@@ -24,16 +24,15 @@ export class TokenManagerService {
   }
 
   async getTokenData(
-    tokenAddress: string
+    tokenAddress: string,
+    otherNetwork?: Network
   ): Promise<NetworkContractToken | null> {
-    const activeNetwork = this.networkService.activeNetwork;
-    if (!activeNetwork || activeNetwork.vmName !== NetworkVMType.EVM) {
+    const network = otherNetwork ?? this.networkService.activeNetwork;
+    if (!network || network.vmName !== NetworkVMType.EVM) {
       throw new Error('No network');
     }
 
-    const provider = await this.networkService.getProviderForNetwork(
-      activeNetwork
-    );
+    const provider = await this.networkService.getProviderForNetwork(network);
     if (!provider || !(provider instanceof JsonRpcBatchInternal)) {
       throw new Error('No provider');
     }

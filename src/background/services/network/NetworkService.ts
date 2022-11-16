@@ -110,6 +110,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     return !this.activeNetwork?.isTestnet;
   }
 
+  public isActiveNetwork(chainId: number) {
+    return this.activeNetwork?.chainId === chainId;
+  }
+
   onLock(): void {
     this._allNetworks.dispatch(undefined);
     this.activeNetwork = undefined;

@@ -7,19 +7,20 @@ import {
   SubTextTypography,
   ComponentSize,
 } from '@avalabs/react-components';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
 import { PageTitle } from './PageTitle';
 import { t } from 'i18next';
+import { Network } from '@avalabs/chains-sdk';
 
 interface CustomGasLimitProps {
   limit: number;
   gasPrice: BigNumber;
   onSave(gasLimit: number): void;
   onCancel(): void;
+  network?: Network;
 }
 
 export function CustomGasLimit({
@@ -27,9 +28,9 @@ export function CustomGasLimit({
   gasPrice,
   onSave,
   onCancel,
+  network,
 }: CustomGasLimitProps) {
-  const tokenPrice = useNativeTokenPrice();
-  const { network } = useNetworkContext();
+  const tokenPrice = useNativeTokenPrice(network);
   const [customGasLimit, setCustomGasLimit] = useState<number>(limit);
   const [calculateGasAndFeesError, setCalculateGasAndFeesError] =
     useState<string>('');

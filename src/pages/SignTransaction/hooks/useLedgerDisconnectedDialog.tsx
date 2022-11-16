@@ -1,4 +1,4 @@
-import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import { WalletType } from '@src/background/services/wallet/models';
 import {
@@ -25,7 +25,8 @@ const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
 
 export function useLedgerDisconnectedDialog(
   onCancel: () => void,
-  requestedApp?: LedgerAppType
+  requestedApp?: LedgerAppType,
+  otherNetwork?: Network
 ): boolean {
   const theme = useTheme();
   const { walletType } = useWalletContext();
@@ -37,9 +38,10 @@ export function useLedgerDisconnectedDialog(
     avaxAppVersion,
   } = useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
-  const { network } = useNetworkContext();
+  const { network: activeNetwork } = useNetworkContext();
   const [hasCorrectApp, setHasCorrectApp] = useState(false);
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
+  const network = otherNetwork ?? activeNetwork;
 
   const requiredAppType = useMemo(() => {
     if (requestedApp) {

@@ -37,8 +37,8 @@ export async function addLiquidityHandler(
   data: AddLiquidityData,
   props: DisplayValueParserProps
 ): Promise<AddLiquidityDisplayData> {
-  const tokenA = await findToken(data.tokenA.toLowerCase());
-  const tokenB = await findToken(data.tokenB.toLowerCase());
+  const tokenA = await findToken(data.tokenA.toLowerCase(), network);
+  const tokenB = await findToken(data.tokenB.toLowerCase(), network);
 
   const firstTokenAmountDepositedDisplayValue = bigToLocaleString(
     ethersBigNumberToBig(data.amountADesired, tokenA.decimals),

@@ -36,6 +36,7 @@ const NetworkContext = createContext<{
   customNetworks: Network[];
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
+  getNetwork(chainId: number): Network | undefined;
 }>({} as any);
 
 /**
@@ -73,9 +74,20 @@ export function NetworkContextProvider({ children }: { children: any }) {
     [customNetworks, networks]
   );
 
-  const isChainIdExist = useMemo(
-    () => (chainId: number) =>
-      networks && !!networks.find((network) => network.chainId === chainId),
+  const isChainIdExist = useCallback(
+    (chainId: number) =>
+      (networks ?? []).some((network) => network.chainId === chainId),
+    [networks]
+  );
+
+  const getNetwork = useCallback(
+    (chainId: number) => {
+      if (isNaN(chainId)) {
+        return;
+      }
+
+      return networks.find((network) => network.chainId === chainId);
+    },
     [networks]
   );
 
@@ -183,6 +195,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         customNetworks: getCustomNetworks,
         isCustomNetwork: (chainId: number) => customNetworks.includes(chainId),
         isChainIdExist,
+        getNetwork,
       }}
     >
       {children}

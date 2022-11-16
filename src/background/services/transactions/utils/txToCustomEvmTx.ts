@@ -2,7 +2,7 @@ import { Transaction } from '../models';
 import { BigNumber } from 'ethers';
 import { NetworkFee } from '../../networkFee/models';
 
-export async function txToCustomEvmTx(
+export function txToCustomEvmTx(
   tx?: Transaction,
   networkFee?: NetworkFee | null
 ) {

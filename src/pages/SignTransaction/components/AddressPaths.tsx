@@ -9,12 +9,13 @@ import {
 } from '@avalabs/react-components';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useMemo } from 'react';
 import { useTheme } from 'styled-components';
+import { useGetTransaction } from '../hooks/useGetTransaction';
 
 export function AddressPaths({
   fromAddress,
@@ -23,8 +24,9 @@ export function AddressPaths({
   fromAddress: string;
   toAddress: string;
 }) {
+  const requestId = useGetRequestId();
+  const { network } = useGetTransaction(requestId);
   const { accounts } = useAccountsContext();
-  const { network } = useNetworkContext();
   const theme = useTheme();
   const account = useMemo(() => {
     return accounts.find((acc) => {

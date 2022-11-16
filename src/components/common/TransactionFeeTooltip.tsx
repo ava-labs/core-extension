@@ -9,15 +9,16 @@ import styled, { useTheme } from 'styled-components';
 import { BigNumber } from 'ethers';
 import Big from 'big.js';
 import { bigToLocaleString } from '@avalabs/utils-sdk';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useState } from 'react';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { t } from 'i18next';
+import { Network } from '@avalabs/chains-sdk';
 
 interface TransactionFeeTooltipProps {
   gasLimit?: string | number;
   gasPrice?: BigNumber;
+  network?: Network;
 }
 
 const StyledTooltip = styled(Tooltip)`
@@ -28,9 +29,9 @@ const StyledTooltip = styled(Tooltip)`
 export function TransactionFeeTooltip({
   gasLimit,
   gasPrice,
+  network,
 }: TransactionFeeTooltipProps) {
   const theme = useTheme();
-  const { network } = useNetworkContext();
   const nanoAvax = 'nAVAX';
   const [gasPriceUnit, setGasPriceUnit] = useState(nanoAvax);
 

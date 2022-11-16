@@ -24,7 +24,7 @@ export async function approveTxHandler(
   _data: any,
   props: DisplayValueParserProps
 ): Promise<TransactionDisplayValues> {
-  const tokenToBeApproved = await findToken(request.to.toLowerCase());
+  const tokenToBeApproved = await findToken(request.to.toLowerCase(), network);
 
   const result = {
     tokenToBeApproved,

@@ -1,12 +1,11 @@
+import { Network } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetTokenPriceHandler } from '@src/background/services/balances/handlers/getTokenPrice';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useState } from 'react';
 
-export function useNativeTokenPrice() {
+export function useNativeTokenPrice(network?: Network) {
   const { request } = useConnectionContext();
-  const { network } = useNetworkContext();
   const [price, setPrice] = useState<number>(0);
 
   useEffect(() => {

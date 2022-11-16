@@ -135,7 +135,7 @@ export const SendConfirm = ({
   const { currencyFormatter, currency } = useSettingsContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
-  const nativeTokenPrice = useNativeTokenPrice();
+  const nativeTokenPrice = useNativeTokenPrice(network);
 
   useLedgerDisconnectedDialog(history.goBack);
 
@@ -272,7 +272,11 @@ export const SendConfirm = ({
               <Typography size={12} height="15px" margin="0 8px 0 0">
                 {t('Network Fee')}
               </Typography>
-              <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={gasLimit} />
+              <TransactionFeeTooltip
+                gasPrice={gasPrice}
+                gasLimit={gasLimit}
+                network={network}
+              />
             </HorizontalFlex>
             <Typography
               data-testid="send-network-fee-amount"

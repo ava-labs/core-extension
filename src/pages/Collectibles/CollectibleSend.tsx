@@ -42,6 +42,7 @@ import { BN } from 'bn.js';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { t } from 'i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 export function CollectibleSend() {
   const theme = useTheme();
@@ -53,6 +54,7 @@ export function CollectibleSend() {
     useSend<NftTokenWithBalance>();
   const history = useHistory();
   const { network } = useNetworkContext();
+  const { networkFee } = useNetworkFeeContext();
   const tokensWithBalances = useTokensWithBalances(true);
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
@@ -221,6 +223,7 @@ export function CollectibleSend() {
                 <TransactionFeeTooltip
                   gasPrice={sendState?.gasPrice || BigNumber.from(0)}
                   gasLimit={sendState.customGasLimit || sendState?.gasLimit}
+                  network={network}
                 />
               </HorizontalFlex>
               <VerticalFlex width="100%">
@@ -230,6 +233,8 @@ export function CollectibleSend() {
                   onChange={onGasChanged}
                   maxGasPrice={maxGasPrice}
                   selectedGasFeeModifier={selectedGasFee}
+                  network={network}
+                  networkFee={networkFee}
                 />
               </VerticalFlex>
             </VerticalFlex>

@@ -19,6 +19,8 @@ import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { BigNumber } from 'ethers';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { browser } from 'webextension-polyfill-ts';
+import getTargetNetworkForTx from '../utils/getTargetNetworkForTx';
+import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.TRANSACTIONS_UPDATE,
@@ -34,7 +36,8 @@ export class UpdateTransactionHandler implements HandlerType {
     private transactionsService: TransactionsService,
     private networkFeeService: NetworkFeeService,
     private walletService: WalletService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private featureFlagService: FeatureFlagService
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
@@ -67,105 +70,119 @@ export class UpdateTransactionHandler implements HandlerType {
     }
 
     if ('status' in update && update.status === TxStatus.SUBMITTING) {
-      const gasPrice = await this.networkFeeService.getNetworkFee();
-      const network = this.networkService.activeNetwork;
-      if (!network) {
-        return {
-          ...request,
-          error: 'network not found',
-        };
-      }
-      const nonce = await (
-        this.networkService.getProviderForNetwork(
-          network
-        ) as JsonRpcBatchInternal
-      ).getTransactionCount(pendingTx.txParams.from);
+      try {
+        const network = await getTargetNetworkForTx(
+          pendingTx,
+          this.networkService,
+          this.featureFlagService
+        );
 
-      return txToCustomEvmTx(pendingTx, gasPrice).then((params) => {
-        return this.walletService
-          .sign({
+        const calculatedGasPrice = await this.networkFeeService.getNetworkFee(
+          network
+        );
+
+        if (!network) {
+          return {
+            ...request,
+            error: 'network not found',
+          };
+        }
+
+        const nonce = await (
+          this.networkService.getProviderForNetwork(
+            network
+          ) as JsonRpcBatchInternal
+        ).getTransactionCount(pendingTx.txParams.from);
+
+        const { gasPrice, gasLimit, data, to, value } = txToCustomEvmTx(
+          pendingTx,
+          calculatedGasPrice
+        );
+
+        const signedTx = await this.walletService.sign(
+          {
             nonce,
             chainId: BigNumber.from(pendingTx.chainId).toNumber(),
-            gasPrice: params.gasPrice,
-            gasLimit: params.gasLimit,
-            data: params.data,
-            to: params.to,
-            value: params.value,
-          })
-          .then((signedTx) => {
-            return this.networkService.sendTransaction(signedTx);
-          })
-          .then((result) => {
-            this.transactionsService.updateTransaction({
-              status: TxStatus.SIGNED,
-              id: update.id,
-              tabId: pendingTx.tabId,
-              result,
-            });
+            gasPrice: gasPrice,
+            gasLimit: gasLimit,
+            data: data,
+            to: to,
+            value: value,
+          },
+          network
+        );
 
-            const notificationId = Date.now().toString();
-            browser.notifications.create(notificationId, {
-              type: 'basic',
-              iconUrl: '../../../../images/icon-32.png',
-              title: 'Confirmed transaction',
-              message: `Transaction confirmed! View on the explorer.`,
-              priority: 2,
-            });
+        const result = await this.networkService.sendTransaction(
+          signedTx,
+          network
+        );
 
-            const openTab = (id: string) => {
-              if (id === notificationId) {
-                const explorerUrl = getExplorerAddressByNetwork(
-                  network,
-                  result
-                );
-                browser.tabs.create({ url: explorerUrl });
-              }
-            };
-            browser.notifications.onClicked.addListener(openTab);
-            browser.notifications.onClosed.addListener((id: string) => {
-              if (id === notificationId) {
-                browser.notifications.onClicked.removeListener(openTab);
-              }
-            });
+        await this.transactionsService.updateTransaction({
+          status: TxStatus.SIGNED,
+          id: update.id,
+          tabId: pendingTx.tabId,
+          result,
+        });
 
-            /*
-						notifications.onClosed is only triggered when a user close the notification.
-            And the notification is automatically closed 5 secs if user does not close it.
-            To mimic onClosed for system, using setTimeout.
-             */
-            setTimeout(() => {
-              browser.notifications.onClicked.removeListener(openTab);
-              browser.notifications.clear(notificationId);
-            }, 5000);
+        const notificationId = Date.now().toString();
+        await browser.notifications.create(notificationId, {
+          type: 'basic',
+          iconUrl: '../../../../images/icon-32.png',
+          title: 'Confirmed transaction',
+          message: `Transaction confirmed! View on the explorer.`,
+          priority: 2,
+        });
 
-            return { ...request, result };
-          })
-          .catch((err) => {
-            console.error(err);
-            this.transactionsService.updateTransaction({
-              status: TxStatus.ERROR,
-              id: update.id,
-              tabId: pendingTx.tabId,
-              error: err?.message ?? err,
-            });
+        const openTab = async (id: string) => {
+          if (id === notificationId) {
+            const explorerUrl = getExplorerAddressByNetwork(network, result);
+            await browser.tabs.create({ url: explorerUrl });
+          }
+        };
 
-            const errorMessage: string =
-              err instanceof Error ? err.message : err.toString();
+        browser.notifications.onClicked.addListener(openTab);
+        browser.notifications.onClosed.addListener((id: string) => {
+          if (id === notificationId) {
+            browser.notifications.onClicked.removeListener(openTab);
+          }
+        });
 
-            browser.notifications.create({
-              type: 'basic',
-              iconUrl: '../../../../images/icon-32.png',
-              title: 'Failed transaction',
-              message: `Transaction failed! ${errorMessage}`,
-              priority: 2,
-            });
+        /*
+          notifications.onClosed is only triggered when a user close the notification.
+          And the notification is automatically closed 5 secs if user does not close it.
+          To mimic onClosed for system, using setTimeout.
+        */
+        setTimeout(async () => {
+          browser.notifications.onClicked.removeListener(openTab);
+          await browser.notifications.clear(notificationId);
+        }, 5000);
 
-            return {
-              ...request,
-              error: errorMessage,
-            };
-          });
-      });
+        return { ...request, result };
+      } catch (err: any) {
+        console.error(err);
+        await this.transactionsService.updateTransaction({
+          status: TxStatus.ERROR,
+          id: update.id,
+          tabId: pendingTx.tabId,
+          error: err?.message ?? err,
+        });
+
+        const errorMessage: string =
+          err instanceof Error ? err.message : err.toString();
+
+        await browser.notifications.create({
+          type: 'basic',
+          iconUrl: '../../../../images/icon-32.png',
+          title: 'Failed transaction',
+          message: `Transaction failed! ${errorMessage}`,
+          priority: 2,
+        });
+
+        return {
+          ...request,
+          error: errorMessage,
+        };
+      }
     }
 
     return {

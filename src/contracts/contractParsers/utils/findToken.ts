@@ -1,4 +1,4 @@
-import { NetworkContractToken } from '@avalabs/chains-sdk';
+import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import {
   TokenType,
@@ -25,24 +25,22 @@ const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
 });
 
 export async function findToken(
-  address: string
+  address: string,
+  otherNetwork?: Network
 ): Promise<TokenWithBalanceERC20> {
   // TODO refactor to use contstructor / services instead of container.resolve
   const balancesService = container.resolve(BalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
   const accountsService = container.resolve(AccountsService);
   const tokenManagerService = container.resolve(TokenManagerService);
-  const activeNetwork = networkService.activeNetwork;
-  if (
-    !balancesService.balances ||
-    !activeNetwork ||
-    !accountsService.activeAccount
-  ) {
+  const network = otherNetwork ?? networkService.activeNetwork;
+
+  if (!balancesService.balances || !network || !accountsService.activeAccount) {
     return UNKNOWN_TOKEN(address);
   }
 
   const token =
-    balancesService.balances[activeNetwork.chainId]?.[
+    balancesService.balances[network.chainId]?.[
       accountsService.activeAccount.addressC
     ]?.[address.toLowerCase()];
 
@@ -53,12 +51,12 @@ export async function findToken(
   // the token is unknown, fetch basic data
   let tokenData: NetworkContractToken | null;
   try {
-    tokenData = await tokenManagerService.getTokenData(address);
+    tokenData = await tokenManagerService.getTokenData(address, network);
   } catch (e) {
     return UNKNOWN_TOKEN(address);
   }
 
-  const provider = networkService.getProviderForNetwork(activeNetwork);
+  const provider = networkService.getProviderForNetwork(network);
   if (!tokenData || !(provider instanceof JsonRpcBatchInternal)) {
     return UNKNOWN_TOKEN(address);
   }

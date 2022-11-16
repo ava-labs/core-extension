@@ -99,7 +99,7 @@ export function Swap() {
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
-  const avaxPrice = useNativeTokenPrice();
+  const avaxPrice = useNativeTokenPrice(network);
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const pageHistory: {
     selectedFromToken?: TokenWithBalance;

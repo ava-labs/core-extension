@@ -1,5 +1,8 @@
 import { useCallback, useMemo, useEffect, useState } from 'react';
-import { Transaction } from '@src/background/services/transactions/models';
+import {
+  Transaction,
+  TxStatus,
+} from '@src/background/services/transactions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { filter, map, Subscription, take } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -16,14 +19,24 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { UpdateTransactionHandler } from '@src/background/services/transactions/handlers/updateTransaction';
 import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
 import { BigNumber, constants } from 'ethers';
+import { NetworkFee } from '@src/background/services/networkFee/models';
+import { Network } from '@avalabs/chains-sdk';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
+import { useDialog } from '@avalabs/react-components';
+import { t } from 'i18next';
 
 const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
-export function useGetTransaction(requestId: string) {
+export function useGetTransaction(requestId: string, onError?: () => void) {
+  // Target network of the transaction defined by the chainId param. May differ from the active one.
+  const [network, setNetwork] = useState<Network | undefined>(undefined);
+  const [networkFee, setNetworkFee] = useState<NetworkFee | null>(null);
   const { request, events } = useConnectionContext();
-  const tokenPrice = useNativeTokenPrice();
-  const { networkFee } = useNetworkFeeContext();
-  const { network } = useNetworkContext();
+  const tokenPrice = useNativeTokenPrice(network);
+  const { getNetworkFeeForNetwork } = useNetworkFeeContext();
+  const { getNetwork, network: activeNetwork } = useNetworkContext();
+  const { featureFlags } = useFeatureFlagContext();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [customGas, setCustomGas] = useState<{
     gasLimit?: number;
@@ -41,6 +54,7 @@ export function useGetTransaction(requestId: string) {
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
+  const { showDialog, clearDialog } = useDialog();
 
   const updateTransaction = useCallback(
     (update) => {
@@ -178,6 +192,64 @@ export function useGetTransaction(requestId: string) {
     }
   }, [transaction]);
 
+  useEffect(() => {
+    const updateNetworkAndFees = async () => {
+      if (network?.chainId) {
+        const networkFee = await getNetworkFeeForNetwork(network?.chainId);
+        setNetworkFee(networkFee);
+      }
+    };
+
+    updateNetworkAndFees();
+  }, [getNetworkFeeForNetwork, network?.chainId]);
+
+  useEffect(() => {
+    const chainId = parseInt(transaction?.chainId ?? '');
+
+    if (!featureFlags[FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]) {
+      if (transaction && activeNetwork && chainId !== activeNetwork?.chainId) {
+        showDialog(
+          {
+            title: t('Transaction Error'),
+            body: t(
+              'The provided chainID does not match the selected network. Pressing “Continue” will reject the transaction. Please switch networks and try again.'
+            ),
+            width: '343px',
+            confirmText: t('Continue'),
+            onConfirm: async () => {
+              updateTransaction({
+                status: TxStatus.ERROR,
+                id: transaction?.id,
+                error: 'Invalid param: chainId',
+              });
+
+              clearDialog();
+
+              if (onError) {
+                onError();
+              }
+            },
+          },
+          false
+        );
+      } else {
+        setNetwork(activeNetwork);
+      }
+    } else {
+      const network = getNetwork(chainId);
+      setNetwork(network);
+    }
+  }, [
+    getNetwork,
+    showDialog,
+    clearDialog,
+    featureFlags,
+    activeNetwork,
+    transaction,
+    updateTransaction,
+    onError,
+  ]);
+
   return useMemo(() => {
     const feeDisplayValues =
       networkFee &&
@@ -203,6 +275,8 @@ export function useGetTransaction(requestId: string) {
       displaySpendLimit,
       customSpendLimit,
       selectedGasFee,
+      network,
+      networkFee,
     };
   }, [
     networkFee,

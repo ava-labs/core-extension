@@ -27,6 +27,7 @@ import { TokenWithBalance } from '@src/background/services/balances/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
 import { t } from 'i18next';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;
@@ -82,8 +83,9 @@ export function ReviewOrder({
   isLoading,
   rate,
 }: ReviewOrderProps) {
+  const { network } = useNetworkContext();
   const { currencyFormatter } = useSettingsContext();
-  const tokenPrice = useNativeTokenPrice();
+  const tokenPrice = useNativeTokenPrice(network);
   useLedgerDisconnectedDialog(onClose);
 
   return (
@@ -162,7 +164,8 @@ export function ReviewOrder({
                 <DetailLabel margin="0 8px 0 0">{t('Network Fee')}</DetailLabel>
                 <TransactionFeeTooltip
                   gasPrice={gasPrice}
-                  gasLimit={gasLimit as any}
+                  gasLimit={gasLimit}
+                  network={network}
                 />
               </HorizontalFlex>
               <DetailValue>

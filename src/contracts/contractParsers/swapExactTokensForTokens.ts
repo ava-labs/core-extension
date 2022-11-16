@@ -46,7 +46,8 @@ export async function swapExactTokensForTokenHandler(
   const path: erc20PathToken[] = await Promise.all(
     data.path.map(async (address) => {
       const pathToken: TokenWithBalanceERC20 = await findToken(
-        address.toLowerCase()
+        address.toLowerCase(),
+        network
       );
 
       if (

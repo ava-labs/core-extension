@@ -17,6 +17,8 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { BigNumber } from 'ethers';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { t } from 'i18next';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -77,7 +79,9 @@ export function TransactionDetails({
   maxGasPrice,
   selectedGasFee,
 }: TransactionDetailsProps) {
-  const tokenPrice = useNativeTokenPrice();
+  const { network } = useNetworkContext();
+  const { networkFee } = useNetworkFeeContext();
+  const tokenPrice = useNativeTokenPrice(network);
   const { currencyFormatter } = useSettingsContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
 
@@ -153,6 +157,7 @@ export function TransactionDetails({
                 <TransactionFeeTooltip
                   gasPrice={gasPrice}
                   gasLimit={gasLimit}
+                  network={network}
                 />
               </HorizontalFlex>
               {gasLimit && gasPrice && (
@@ -162,6 +167,8 @@ export function TransactionDetails({
                   onChange={onGasChange}
                   maxGasPrice={maxGasPrice}
                   selectedGasFeeModifier={selectedGasFee}
+                  network={network}
+                  networkFee={networkFee}
                 />
               )}
             </VerticalFlex>

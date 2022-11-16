@@ -19,6 +19,7 @@ import {
 } from '@src/background/services/send/models';
 import { useTheme } from 'styled-components';
 import { t } from 'i18next';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -58,6 +59,7 @@ export const SendForm = ({
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const { networkFee } = useNetworkFeeContext();
+  const { network } = useNetworkContext();
   const theme = useTheme();
 
   const errorsToExcludeForTokenSelect: string[] = [
@@ -126,6 +128,7 @@ export const SendForm = ({
           <TransactionFeeTooltip
             gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}
             gasLimit={sendState.customGasLimit || sendState?.gasLimit}
+            network={network}
           />
         </HorizontalFlex>
         <VerticalFlex data-testid="send-custom-fees-section" width="100%">
@@ -135,6 +138,8 @@ export const SendForm = ({
             onChange={onGasChanged}
             maxGasPrice={maxGasPrice}
             selectedGasFeeModifier={selectedGasFee}
+            network={network}
+            networkFee={networkFee}
           />
         </VerticalFlex>
       </VerticalFlex>
