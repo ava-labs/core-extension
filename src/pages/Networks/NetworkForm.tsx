@@ -9,7 +9,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback, useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CSSTransition } from 'react-transition-group';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export enum NetworkFormAction {
   Add = 'add',
@@ -71,6 +71,7 @@ export const NetworkForm = ({
   showErrors = false,
   action,
 }: NetworkFormProps) => {
+  const { t } = useTranslation();
   const { isChainIdExist } = useNetworkContext();
   const [rpcError, setRpcError] = useState<string>();
   const [chainNameError, setChainNameError] = useState<string>();

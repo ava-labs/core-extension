@@ -6,7 +6,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { NetworkCard } from './common/NetworkCard';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 interface SeeAllNetworksButtonProps {
   isFullWidth: boolean;
@@ -15,6 +15,7 @@ interface SeeAllNetworksButtonProps {
 export function SeeAllNetworksButton({
   isFullWidth,
 }: SeeAllNetworksButtonProps) {
+  const { t } = useTranslation();
   const history = useHistory();
   const theme = useTheme();
 

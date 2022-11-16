@@ -15,7 +15,7 @@ import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme, keyframes } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 
@@ -61,6 +61,7 @@ const AssetlistRow = styled(HorizontalFlex)`
 `;
 
 export function Assetlist({ assetList }: AssetListProps) {
+  const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const tokensWithBalances = useTokensWithBalances();
   const { currencyFormatter } = useSettingsContext();

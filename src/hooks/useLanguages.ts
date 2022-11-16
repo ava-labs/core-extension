@@ -14,6 +14,16 @@ export function useLanguage() {
       originalName: 'English',
     },
     {
+      code: Languages.ZHZN,
+      name: t('Chinese - Simplified'),
+      originalName: '简体中文',
+    },
+    {
+      code: Languages.ZHTW,
+      name: t('Chinese - Traditional'),
+      originalName: '繁體中文',
+    },
+    {
       code: Languages.DE,
       name: t('German'),
       originalName: 'Deutsch',
@@ -22,6 +32,11 @@ export function useLanguage() {
       code: Languages.HI,
       name: t('Hindi'),
       originalName: 'हिन्दी',
+    },
+    {
+      code: Languages.JA,
+      name: t('Japanese'),
+      originalName: '日本',
     },
     {
       code: Languages.KO,
@@ -34,25 +49,15 @@ export function useLanguage() {
       originalName: 'Русский',
     },
     {
-      code: Languages.TR,
-      name: t('Turkish'),
-      originalName: 'Türk',
-    },
-    {
-      code: Languages.ZH,
-      name: t('Chinese'),
-      originalName: '简体中文',
-    },
-    {
       code: Languages.ES,
       name: t('Spanish'),
       originalName: 'Español',
     },
-    // {
-    //   code: Languages.JA,
-    //   label: 'Japanese (日本)',
-    //   name: '日本',
-    // },
+    {
+      code: Languages.TR,
+      name: t('Turkish'),
+      originalName: 'Türk',
+    },
   ];
 
   const currentLanguage = availableLanguages.find(

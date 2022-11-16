@@ -15,7 +15,7 @@ import {
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { LedgerWrongVersion } from '@src/pages/Ledger/LedgerWrongVersion';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 
@@ -28,6 +28,7 @@ export function useLedgerDisconnectedDialog(
   requestedApp?: LedgerAppType,
   otherNetwork?: Network
 ): boolean {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { walletType } = useWalletContext();
   const {
@@ -92,6 +93,7 @@ export function useLedgerDisconnectedDialog(
     );
   }, [
     showDialog,
+    t,
     requiredAppType,
     theme.colors.icon1,
     isConfirm,
@@ -130,6 +132,7 @@ export function useLedgerDisconnectedDialog(
     );
   }, [
     showDialog,
+    t,
     requiredAppType,
     isConfirm,
     popDeviceSelection,

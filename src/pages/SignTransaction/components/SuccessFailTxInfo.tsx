@@ -18,7 +18,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { BigNumber } from 'ethers';
 import Big from 'big.js';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useGetTransaction } from '../hooks/useGetTransaction';
 
@@ -33,6 +33,7 @@ export function SuccessFailTxInfo({
   gasLimit: number;
   error?: string;
 }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
   const { network } = useGetTransaction(requestId);

@@ -17,7 +17,7 @@ import { NetworkSwitcher } from './NetworkSwitcher';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -25,6 +25,8 @@ export function Header() {
   const { updateAccountPermission, isDomainConnectedToAccount } =
     usePermissionContext();
   const { activeAccount } = useAccountsContext();
+  const { t } = useTranslation();
+
   const isConnected =
     (isDomainConnectedToAccount &&
       isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||

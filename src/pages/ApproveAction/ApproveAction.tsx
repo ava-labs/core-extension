@@ -19,10 +19,10 @@ import { useTheme } from 'styled-components';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
 import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
 import { BridgeTransferAsset } from './BridgeTransferAsset';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function ApproveAction() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
   const { action, updateAction } = useApproveAction(requestId);

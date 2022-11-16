@@ -12,7 +12,7 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
 import { PageTitle } from './PageTitle';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Network } from '@avalabs/chains-sdk';
 
 interface CustomGasLimitProps {
@@ -30,6 +30,7 @@ export function CustomGasLimit({
   onCancel,
   network,
 }: CustomGasLimitProps) {
+  const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
   const [customGasLimit, setCustomGasLimit] = useState<number>(limit);
   const [calculateGasAndFeesError, setCalculateGasAndFeesError] =

@@ -5,9 +5,10 @@ import {
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
 import { SettingsHeader } from '../SettingsHeader';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function Legal({ goBack, navigateTo, width }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   return (
     <VerticalFlex

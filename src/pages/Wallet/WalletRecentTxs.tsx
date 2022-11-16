@@ -29,7 +29,7 @@ import {
 import { HistoryItem } from './components/History/components/HistoryItem';
 import { PendingTransactionBridge } from './components/History/PendingTransactionBrigde';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
@@ -68,6 +68,7 @@ export function WalletRecentTxs({
   isEmbedded = false,
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
+  const { t } = useTranslation();
   const FilterItems = {
     [FilterType.ALL]: t('All'),
     [FilterType.BRIDGE]: t('Bridge'),

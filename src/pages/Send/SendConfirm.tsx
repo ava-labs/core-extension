@@ -39,7 +39,7 @@ import {
   bnToLocaleString,
 } from '@avalabs/utils-sdk';
 import { satoshiToBtc } from '@avalabs/bridge-sdk';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -129,6 +129,7 @@ export const SendConfirm = ({
   gasPrice,
   selectedGasFee,
 }: SendConfirmProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
   const { activeAccount } = useAccountsContext();

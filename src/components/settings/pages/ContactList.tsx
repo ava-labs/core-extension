@@ -13,9 +13,10 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { ContactListItem } from '../components/ContactListItem';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { contacts } = useContactsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');

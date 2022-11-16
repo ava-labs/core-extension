@@ -62,8 +62,7 @@ import {
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useAvailableBlockchains } from './hooks/useAvailableBlockchains';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const ErrorSection = styled(HorizontalFlex)`
   position: relative;
@@ -125,6 +124,7 @@ export function Bridge() {
     sourceAssets,
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
+  const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
   const availableBlockchains = useAvailableBlockchains();
 

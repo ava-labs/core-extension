@@ -11,7 +11,7 @@ import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 type ConnectedListType = {
   [key: string]: {
@@ -46,6 +46,7 @@ export function ConnectedSites({
   navigateTo,
   width,
 }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { updateAccountPermission, permissions } = usePermissionContext();
   const { activeAccount } = useAccountsContext();

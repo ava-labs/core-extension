@@ -14,8 +14,7 @@ import {
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
 } from '@src/contexts/LedgerProvider';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const StyledNumberList = styled(Typography)`
   font-size: 14px;
@@ -32,6 +31,7 @@ const StyledNumberList = styled(Typography)`
 `;
 
 export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { hasLedgerTransport } = useLedgerContext();
 

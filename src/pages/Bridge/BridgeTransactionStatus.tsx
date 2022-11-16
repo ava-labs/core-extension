@@ -39,7 +39,7 @@ import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -112,6 +112,7 @@ const StyledCard = styled(Card)<{
 `;
 
 const BridgeTransactionStatus = () => {
+  const { t } = useTranslation();
   const history = useHistory();
   const theme = useTheme();
   const params = useParams<{

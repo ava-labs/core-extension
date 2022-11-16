@@ -14,7 +14,7 @@ import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ContactInfo } from '@src/components/settings/components/ContactInfo';
 import { Contact } from '@avalabs/types';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -29,6 +29,7 @@ export function UpdateContacts({
 }: {
   method: 'create' | 'update' | 'remove';
 }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
 

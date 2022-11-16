@@ -16,7 +16,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useContactIdFromParams } from '@src/hooks/useContactIdFromParams';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { ContactForm } from '@src/components/settings/components/ContactForm';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 interface ContactProfileProps {
   goBack: () => void;
@@ -42,6 +42,7 @@ const DeleteButton = styled(TextButton)`
 `;
 
 export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { contactId } = useContactIdFromParams();
   const { removeContact, updateContact, getContactById } = useContactsContext();

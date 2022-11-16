@@ -11,7 +11,7 @@ import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { BigNumber } from 'ethers';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useGetTransaction } from '../hooks/useGetTransaction';
 
@@ -36,6 +36,7 @@ export function TransactionTabs({
   selectedGasFee,
   onCustomFeeSet,
 }: TransactionTabsType) {
+  const { t } = useTranslation();
   const requestId = useGetRequestId();
   const { network, networkFee } = useGetTransaction(requestId);
 

@@ -8,7 +8,7 @@ import {
 } from '@avalabs/react-components';
 import { useTimer } from 'react-timer-hook';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const TimerContainer = styled.div`
   border-radius: 100px;
@@ -23,6 +23,7 @@ export function SwapRefreshTimer({
   secondsTimer,
   onExpire,
 }: SwapRefreshTimerProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const time = new Date();
   time.setSeconds(time.getSeconds() + secondsTimer);

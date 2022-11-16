@@ -8,7 +8,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 interface TokenSearchProps {
   query: string;
@@ -29,6 +29,7 @@ export function TokenSearch({
   className,
 }: TokenSearchProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <VerticalFlex

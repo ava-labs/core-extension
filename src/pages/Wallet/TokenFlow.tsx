@@ -16,9 +16,10 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function TokenFlow() {
+  const { t } = useTranslation();
   const history = useHistory();
   const { currencyFormatter } = useSettingsContext();
   const token = useTokenFromParams();

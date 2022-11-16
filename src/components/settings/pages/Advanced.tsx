@@ -14,8 +14,7 @@ import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 function TooltipContent({ text }: { text: React.ReactNode }) {
   return (
@@ -26,6 +25,7 @@ function TooltipContent({ text }: { text: React.ReactNode }) {
 }
 
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { setDeveloperMode, isDeveloperMode } = useNetworkContext();
   const { isBridgeDevEnv, setIsBridgeDevEnv } = useBridgeContext();

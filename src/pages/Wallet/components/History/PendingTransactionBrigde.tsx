@@ -19,7 +19,7 @@ import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { IconCircle } from './TransactionBridge';
 import { useBlockchainNames } from './useBlockchainNames';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 type PendingTransactionBridgeProps = {
   item: BridgeTransaction;
@@ -28,6 +28,7 @@ type PendingTransactionBridgeProps = {
 export function PendingTransactionBridge({
   item,
 }: PendingTransactionBridgeProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
   const { removeBridgeTransaction } = useBridgeContext();

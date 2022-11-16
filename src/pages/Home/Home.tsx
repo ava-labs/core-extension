@@ -9,10 +9,11 @@ import { Portfolio } from './components/Portfolio/Portfolio';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useEffect, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 
 export function Home() {
+  const { t } = useTranslation();
   const { toggleIsDefaultExtension, isDefaultExtension } = useSettingsContext();
   const { updateInitialOpen, onboardingState } = useOnboardingContext();
   const [isSetAsDefaultDisplayed, setIsSetAsDefaultDisplayed] = useState(false);
@@ -52,6 +53,7 @@ export function Home() {
     toggleIsDefaultExtension,
     updateInitialOpen,
     isSetAsDefaultDisplayed,
+    t,
   ]);
 
   return (

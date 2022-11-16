@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Contact } from '@avalabs/types';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers/lib/utils';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 interface ContactFormProps {
   contact: Contact;
   handleChange: (contact: Contact, formValid: boolean) => void;
@@ -22,6 +22,7 @@ export const ContactForm = ({
   showErrors = false,
   autoFocus,
 }: ContactFormProps) => {
+  const { t } = useTranslation();
   const [nameError, setNameError] = useState<string>();
   const [addressError, setAddressError] = useState<string>();
   const [addressBtcError, setAddressBtcError] = useState<string>();

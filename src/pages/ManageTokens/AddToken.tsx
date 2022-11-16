@@ -20,13 +20,14 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
 import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
 `;
 
 export function AddToken() {
+  const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { network } = useNetworkContext();
   const tokens = useTokensWithBalances(true);
@@ -100,7 +101,7 @@ export function AddToken() {
       setError(errorMessage);
     };
     getTokenData();
-  }, [request, addressInput, network, tokenAlreadyExists]);
+  }, [request, addressInput, network, tokenAlreadyExists, t]);
 
   return (
     <>

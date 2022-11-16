@@ -14,7 +14,7 @@ import { Account } from '@src/background/services/accounts/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -25,6 +25,7 @@ const SiteAvatar = styled(VerticalFlex)`
 `;
 
 export function SwitchAccount() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
 

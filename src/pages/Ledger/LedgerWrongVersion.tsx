@@ -7,8 +7,7 @@ import {
 } from '@avalabs/react-components';
 import { LedgerNano } from '@src/components/common/LedgerNano';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const CloseButton = styled(TextButton)`
   align-self: flex-end;
@@ -32,6 +31,7 @@ export function LedgerWrongVersion({
   onClose: () => void;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   return (
     <StyledCard className={className}>

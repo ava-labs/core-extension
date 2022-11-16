@@ -15,7 +15,7 @@ import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { AccountBalance } from './AccountBalance';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
@@ -94,6 +94,7 @@ export function AccountItem({
   const { updateBalanceOnAllNetworks } = useBalancesContext();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
+  const { t } = useTranslation();
   const hasBalance = balanceTotalUSD !== null;
 
   const inEditMode = account.active && editing;

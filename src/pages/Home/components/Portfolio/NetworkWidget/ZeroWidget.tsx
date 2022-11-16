@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { ChainId } from '@avalabs/chains-sdk';
 import { useBuyClick } from '@src/hooks/useBuyClick';
 import { StyledQRCodeIcon } from './common/StyledQRCodeIcon';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const StyledBuyIcon = styled(BuyIcon)`
   width: 16px;
@@ -18,6 +18,7 @@ const StyledBuyIcon = styled(BuyIcon)`
 `;
 
 export function ZeroWidget() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { network } = useNetworkContext();
   const { onBuyClick } = useBuyClick();

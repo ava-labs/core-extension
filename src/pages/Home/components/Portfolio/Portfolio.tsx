@@ -7,7 +7,7 @@ import { Activity } from '@src/pages/Activity/Activity';
 import { Collectibles } from '../../../Collectibles/Collectibles';
 import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export enum PortfolioTabs {
   ASSETS = 'ASSETS',
@@ -16,6 +16,7 @@ export enum PortfolioTabs {
 }
 
 export function Portfolio() {
+  const { t } = useTranslation();
   const { bridgeTransactions } = useBridgeContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();

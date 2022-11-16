@@ -12,10 +12,10 @@ import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useEffect } from 'react';
 import { useTheme } from 'styled-components';
 import { useAppTypeFromParams } from './hooks/useAppTypeFromParams';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function LedgerConnect() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { hasLedgerTransport, appType, popDeviceSelection } =
     useLedgerContext();

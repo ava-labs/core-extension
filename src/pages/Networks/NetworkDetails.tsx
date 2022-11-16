@@ -28,7 +28,7 @@ import { useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { NetworkForm, NetworkFormAction } from './NetworkForm';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -68,6 +68,7 @@ const NetworkLogoContainer = styled.div`
 `;
 
 export const NetworkDetails = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
   const { networkId } = useParams<{ networkId: string }>();

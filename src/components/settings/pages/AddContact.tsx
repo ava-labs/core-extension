@@ -12,7 +12,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import type { Contact } from '@avalabs/types';
 import { ContactForm } from '../components/ContactForm';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -27,6 +27,7 @@ const FlexScrollbars = styled(Scrollbars)`
 `;
 
 export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
+  const { t } = useTranslation();
   const [contact, setContact] = useState<Contact>({
     id: '',
     name: '',

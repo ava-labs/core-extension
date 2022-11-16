@@ -12,7 +12,7 @@ import { bigToLocaleString } from '@avalabs/utils-sdk';
 import { useEffect, useState } from 'react';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Network } from '@avalabs/chains-sdk';
 
 interface TransactionFeeTooltipProps {
@@ -31,6 +31,7 @@ export function TransactionFeeTooltip({
   gasPrice,
   network,
 }: TransactionFeeTooltipProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const nanoAvax = 'nAVAX';
   const [gasPriceUnit, setGasPriceUnit] = useState(nanoAvax);

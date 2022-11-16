@@ -17,7 +17,7 @@ import styled, { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Network } from '@avalabs/chains-sdk';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -28,6 +28,7 @@ const SiteAvatar = styled(VerticalFlex)`
 `;
 
 export function AddCustomNetworkPopup() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
   const { action: request, updateAction: updateMessage } =

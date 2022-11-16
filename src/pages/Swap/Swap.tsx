@@ -52,7 +52,7 @@ import BN from 'bn.js';
 import { WalletType } from '@src/background/services/wallet/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export interface Token {
   icon?: JSX.Element;
@@ -85,6 +85,7 @@ const TryAgainButton = styled.span`
 `;
 
 export function Swap() {
+  const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
   const { walletType } = useWalletContext();
@@ -374,6 +375,7 @@ export function Swap() {
     getRate,
     setValuesDebouncedSubject,
     isCalculateAvaxMax,
+    t,
   ]);
 
   const calculateSwapValue = ({

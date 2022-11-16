@@ -12,8 +12,7 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import styled, { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const RecoveryPhraseContainer = styled(HorizontalFlex)`
   width: 100%;
@@ -32,6 +31,7 @@ export function RecoveryPhrase({
   navigateTo,
   width,
 }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const [passwordValue, setPasswordValue] = useState<string>('');
   const [recoveryValue, setRecoveryValue] = useState<string>('');

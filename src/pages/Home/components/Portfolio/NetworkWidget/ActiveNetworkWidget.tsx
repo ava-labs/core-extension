@@ -15,7 +15,7 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -38,6 +38,7 @@ export function ActiveNetworkWidget({
   assetList,
   activeNetworkBalance,
 }: ActiveNetworkWidgetProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
   const { network } = useNetworkContext();

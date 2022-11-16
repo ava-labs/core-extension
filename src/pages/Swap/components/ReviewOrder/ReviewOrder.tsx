@@ -26,7 +26,7 @@ import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export interface ReviewOrderProps {
@@ -83,6 +83,7 @@ export function ReviewOrder({
   isLoading,
   rate,
 }: ReviewOrderProps) {
+  const { t } = useTranslation();
   const { network } = useNetworkContext();
   const { currencyFormatter } = useSettingsContext();
   const tokenPrice = useNativeTokenPrice(network);

@@ -1,7 +1,7 @@
 import { Typography, VerticalFlex } from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { FunctionNames } from './FunctionIsOffline';
 interface FunctionIsOfflineProps {
   functionName: string;
@@ -13,6 +13,7 @@ export function FunctionIsUnavailable({
   network,
   children,
 }: PropsWithChildren<FunctionIsOfflineProps>) {
+  const { t } = useTranslation();
   return (
     <VerticalFlex height="100%" width="100%">
       <PageTitle variant={PageTitleVariant.PRIMARY}>{functionName}</PageTitle>

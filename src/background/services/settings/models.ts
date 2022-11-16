@@ -7,14 +7,15 @@ export enum ThemeVariant {
 
 export enum Languages {
   EN = 'en',
-  DE = 'de',
-  HI = 'hi',
-  KO = 'ko',
-  RU = 'ru',
-  TR = 'tr',
-  ZH = 'zh',
-  ES = 'es',
-  JA = 'ja',
+  DE = 'de-DE',
+  ES = 'es-EM',
+  JA = 'ja-JP',
+  HI = 'hi-IN',
+  KO = 'ko-KR',
+  RU = 'ru-RU',
+  TR = 'tr-TR',
+  ZHZN = 'zh-ZN',
+  ZHTW = 'zh-TW',
 }
 
 export type TokensVisibility = {
@@ -37,6 +38,7 @@ export interface SettingsState {
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';
+export const SETTINGS_UNENCRYPTED_STORAGE_KEY = 'setting_unencrypted';
 
 export enum SettingsEvents {
   SETTINGS_UPDATED = 'SettingsEvents: SETTINGS_UPDATED',

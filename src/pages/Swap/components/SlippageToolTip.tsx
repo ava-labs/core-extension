@@ -5,9 +5,10 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function SlippageToolTip() {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const Content = (

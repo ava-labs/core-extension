@@ -11,6 +11,7 @@ export enum SettingsPages {
   LEDGER = 'LEDGER',
   LEGAL = 'LEGAL',
   ADVANCED = 'ADVANCED',
+  LANGUAGE = 'LANGUAGE',
 }
 
 export interface SettingsPageProps {

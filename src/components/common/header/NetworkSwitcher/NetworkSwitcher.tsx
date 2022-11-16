@@ -15,7 +15,7 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { ChainId } from '@avalabs/chains-sdk';
 import { useHistory } from 'react-router-dom';
 import { NetworkLogo } from '../../NetworkLogo';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const NetworkSwitcherButton = styled(HorizontalFlex)`
   border-radius: 100px;
@@ -82,6 +82,7 @@ export function NetworkSwitcher() {
   const theme = useTheme();
   const selectButtonRef = useRef<HTMLDivElement>(null);
   const history = useHistory();
+  const { t } = useTranslation();
 
   return (
     <SelectContainer>

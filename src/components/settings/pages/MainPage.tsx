@@ -20,9 +20,11 @@ import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { WalletType } from '@src/background/services/wallet/models';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@src/hooks/useLanguages';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { walletType } = useWalletContext();
   const {
@@ -33,6 +35,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
     isDefaultExtension,
     toggleIsDefaultExtension,
   } = useSettingsContext();
+  const { currentLanguage } = useLanguage();
 
   return (
     <VerticalFlex
@@ -93,6 +96,32 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
             color={theme.colors.text2}
           >
             {currency}
+          </Typography>
+          <CaretIcon
+            color={theme.colors.icon1}
+            height="14px"
+            direction={IconDirection.RIGHT}
+          />
+        </HorizontalFlex>
+      </DropDownMenuItem>
+      <DropDownMenuItem
+        data-testid="language-option"
+        justify="space-between"
+        align="center"
+        padding="10px 16px"
+        onClick={() => navigateTo(SettingsPages.LANGUAGE)}
+      >
+        <Typography size={14} height="17px">
+          {t('Language')}
+        </Typography>
+        <HorizontalFlex align="center">
+          <Typography
+            size={14}
+            height="17px"
+            margin="0 8px"
+            color={theme.colors.text2}
+          >
+            {currentLanguage?.name}
           </Typography>
           <CaretIcon
             color={theme.colors.icon1}

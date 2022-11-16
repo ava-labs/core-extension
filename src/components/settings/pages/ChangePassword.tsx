@@ -15,13 +15,14 @@ import {
   PasswordStrength,
   getPasswordErrorMessage,
 } from '@src/components/common/PasswordStrength';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function ChangePassword({
   goBack,
   navigateTo,
   width,
 }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const [oldPassword, setOldPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');

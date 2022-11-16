@@ -38,10 +38,10 @@ import { TokenType } from '@src/background/services/balances/models';
 import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletType } from '@src/background/services/wallet/models';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function SignTransactionPage() {
+  const { t } = useTranslation();
   const requestId = useGetRequestId();
   const onTxError = useCallback(() => {
     window.close();

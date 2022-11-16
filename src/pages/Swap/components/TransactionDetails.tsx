@@ -16,7 +16,7 @@ import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { BigNumber } from 'ethers';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
@@ -79,6 +79,7 @@ export function TransactionDetails({
   maxGasPrice,
   selectedGasFee,
 }: TransactionDetailsProps) {
+  const { t } = useTranslation();
   const { network } = useNetworkContext();
   const { networkFee } = useNetworkFeeContext();
   const tokenPrice = useNativeTokenPrice(network);

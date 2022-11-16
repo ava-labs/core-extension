@@ -40,11 +40,12 @@ import { WalletType } from '@src/background/services/wallet/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 export function CollectibleSend() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { walletType } = useWalletContext();
   const { nft } = useCollectibleFromParams();

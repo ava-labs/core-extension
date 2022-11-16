@@ -1,4 +1,3 @@
-import { useThemeContext } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   TokenType,
@@ -48,7 +47,6 @@ const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
 export function SettingsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { darkMode, toggleDarkTheme } = useThemeContext();
   const [settings, setSettings] = useState<SettingsState>();
 
   useEffect(() => {
@@ -60,13 +58,6 @@ export function SettingsContextProvider({ children }: { children: any }) {
       method: ExtensionRequest.SETTINGS_GET,
     }).then((res) => {
       setSettings(res);
-      // set theme to the saved value
-      if (
-        (darkMode && res.theme === ThemeVariant.LIGHT) ||
-        (!darkMode && res.theme === ThemeVariant.DARK)
-      ) {
-        toggleDarkTheme();
-      }
     });
 
     const subscription = events()
@@ -77,8 +68,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
       .subscribe((val) => setSettings(val));
 
     return () => subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [events, request]);
 
   const currencyFormatter = useMemo(() => {
     /**

@@ -17,7 +17,7 @@ import { BigNumber, utils } from 'ethers';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { formatUnits } from 'ethers/lib/utils';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 
 interface CustomGasFeesProps {
@@ -117,6 +117,7 @@ export function CustomFees({
   network,
   networkFee,
 }: CustomGasFeesProps) {
+  const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
   const { currencyFormatter } = useSettingsContext();
   const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();

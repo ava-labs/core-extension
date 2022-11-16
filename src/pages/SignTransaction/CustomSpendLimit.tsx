@@ -14,7 +14,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -43,6 +43,7 @@ export function CustomSpendLimit({
   spendLimit: SpendLimit;
   site: DomainMetadata;
 }) {
+  const { t } = useTranslation();
   const { activeAccount } = useAccountsContext();
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
     ...spendLimit,

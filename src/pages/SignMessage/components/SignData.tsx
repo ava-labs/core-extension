@@ -1,7 +1,7 @@
 import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
 import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 /**
  * This is in support of of EIP-712
@@ -13,6 +13,7 @@ import { t } from 'i18next';
  * @returns
  */
 export function SignData({ message }: { message: Action }) {
+  const { t } = useTranslation();
   const data = message.displayData.data;
   return (
     <VerticalFlex width={'100%'}>

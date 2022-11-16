@@ -25,7 +25,7 @@ import {
 import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
 import Big from 'big.js';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 
@@ -109,6 +109,7 @@ export function TokenSelect({
   bridgeTokensList,
   setIsOpen,
 }: TokenSelectProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { currencyFormatter, currency } = useSettingsContext();
 

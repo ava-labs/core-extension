@@ -7,7 +7,7 @@ import {
 import { TransactionDisplayValues } from '@src/background/services/transactions/models';
 import { AddressPaths } from './components/AddressPaths';
 import { TransactionHeader } from './components/TransactionHeader';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function UnknownTx({
   fromAddress,
@@ -15,6 +15,7 @@ export function UnknownTx({
   displayValue,
   name,
 }: TransactionDisplayValues) {
+  const { t } = useTranslation();
   return (
     <VerticalFlex width="100%">
       <TransactionHeader

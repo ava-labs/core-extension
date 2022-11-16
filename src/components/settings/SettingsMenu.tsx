@@ -20,6 +20,7 @@ import { ConnectedSites } from './pages/ConnectedSites';
 import { Ledger } from './pages/Ledger';
 import { Legal } from './pages/Legal';
 import { Advanced } from './pages/Advanced';
+import { Language } from './pages/Language';
 
 const OuterContainer = styled(SecondaryOverlay)`
   flex-direction: column;
@@ -166,6 +167,9 @@ export function SettingsMenu() {
       break;
     case SettingsPages.ADVANCED:
       pageElement = <Advanced {...pageProps} />;
+      break;
+    case SettingsPages.LANGUAGE:
+      pageElement = <Language {...pageProps} />;
       break;
     default:
       pageElement = <MainPage {...pageProps} />;

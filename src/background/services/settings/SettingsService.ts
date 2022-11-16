@@ -5,7 +5,12 @@ import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
-import { Languages, SettingsEvents, TokensVisibility } from './models';
+import {
+  Languages,
+  SettingsEvents,
+  SETTINGS_UNENCRYPTED_STORAGE_KEY,
+  TokensVisibility,
+} from './models';
 import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
 import { changeLanguage } from 'i18next';
 
@@ -41,6 +46,7 @@ export class SettingsService implements OnStorageReady {
     let settings: SettingsState;
     try {
       settings = await this.getSettings();
+
       changeLanguage(settings.language);
     } catch (e) {
       return;
@@ -50,20 +56,31 @@ export class SettingsService implements OnStorageReady {
   }
 
   async getSettings(): Promise<SettingsState> {
-    const state = await this.storageService.load<SettingsState>(
-      SETTINGS_STORAGE_KEY
-    );
-
-    const unEncryptedState =
-      await this.storageService.loadUnencrypted<SettingsState>(
+    try {
+      const state = await this.storageService.load<SettingsState>(
         SETTINGS_STORAGE_KEY
       );
+      const unEncryptedState =
+        await this.storageService.loadUnencrypted<SettingsState>(
+          SETTINGS_UNENCRYPTED_STORAGE_KEY
+        );
 
-    return {
-      ...DEFAULT_SETTINGS_STATE,
-      ...unEncryptedState,
-      ...state,
-    };
+      return {
+        ...DEFAULT_SETTINGS_STATE,
+        ...unEncryptedState,
+        ...state,
+      };
+    } catch {
+      const unEncryptedState =
+        await this.storageService.loadUnencrypted<SettingsState>(
+          SETTINGS_UNENCRYPTED_STORAGE_KEY
+        );
+
+      return {
+        ...DEFAULT_SETTINGS_STATE,
+        ...unEncryptedState,
+      };
+    }
   }
 
   async addCustomToken(token: NetworkContractToken) {
@@ -159,9 +176,12 @@ export class SettingsService implements OnStorageReady {
 
   private async saveSettings(state: SettingsState) {
     const language = state.language;
-    await this.storageService.saveUnencrypted(SETTINGS_STORAGE_KEY, {
-      language: state.language,
-    });
+    await this.storageService.saveUnencrypted(
+      SETTINGS_UNENCRYPTED_STORAGE_KEY,
+      {
+        language: state.language,
+      }
+    );
     try {
       await this.storageService.save(SETTINGS_STORAGE_KEY, state);
       this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, state);
