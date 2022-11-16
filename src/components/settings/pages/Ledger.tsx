@@ -100,7 +100,9 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
               <Typography size={14} height="17px">
                 <Trans
                   i18nKey="Ensure you have installed the <strong>Avalanche App v{{REQUIRED_LEDGER_VERSION}}</strong> (or above) and open it on your device."
-                  REQUIRED_LEDGER_VERSION={REQUIRED_LEDGER_VERSION}
+                  values={{
+                    REQUIRED_LEDGER_VERSION: REQUIRED_LEDGER_VERSION,
+                  }}
                 />
               </Typography>
             </HorizontalFlex>

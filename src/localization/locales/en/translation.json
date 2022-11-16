@@ -302,6 +302,7 @@
   "Invalid mnemonic phrase": "Invalid mnemonic phrase",
   "Enter Secret Recovery Phrase": "Enter Secret Recovery Phrase",
   "Type your recovery phrase": "Type your recovery phrase",
+  "<typography>This process retrieves the addresses<br />from your ledger</typography>": "<typography>This process retrieves the addresses<br />from your ledger</typography>",
   "Please confirm these actions in the <br/><typography>Avalanche App</typography> on your Ledger device": "Please confirm these actions in the <br/><typography>Avalanche App</typography> on your Ledger device",
   "Please confirm the action on your ledger device.": "Please confirm the action on your ledger device.",
   "Please confirm the action {{count}} more {{plural}} on your ledger device.": "Please confirm the action {{count}} more {{plural}} on your ledger device.",
