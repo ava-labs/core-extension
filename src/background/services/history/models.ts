@@ -1,3 +1,9 @@
+export interface TxHistoryItemToken {
+  decimal?: string;
+  name: string;
+  symbol: string;
+  amount?: string;
+}
 export interface TxHistoryItem {
   isBridge: boolean;
   isContractCall: boolean;
@@ -9,13 +15,43 @@ export interface TxHistoryItem {
   amount: string;
   from: string;
   to: string;
-  token?: {
-    decimal: string;
-    name: string;
-    symbol: string;
-  };
+  token?: TxHistoryItemToken;
   explorerLink: string;
   chainId: string; // chainId from ActiveNetwork used to fetch tx
+}
+
+export enum TransactionType {
+  BRIDGE = 'Bridge',
+  SWAP = 'Swap',
+  SEND = 'Send',
+  RECEIVE = 'Receive',
+  NFT_BUY = 'NFT Buy',
+  APPROVE = 'Approve',
+  TRANSFER = 'Transfer',
+  UNKNOWN = 'Unknown',
+}
+
+export const NonContractCallTypes = [
+  TransactionType.BRIDGE,
+  TransactionType.SEND,
+  TransactionType.RECEIVE,
+  TransactionType.TRANSFER,
+];
+
+export interface HistoryItemCategories {
+  isBridge: boolean;
+  isSwap: boolean;
+  isNativeSend: boolean;
+  isNativeReceive: boolean;
+  isNFTPurchase: boolean;
+  isApprove: boolean;
+  isTransfer: boolean;
+  isAirdrop: boolean;
+  isUnwrap: boolean;
+  isFillOrder: boolean;
+  isContractCall: boolean;
+  method: string;
+  type: TransactionType;
 }
 
 export interface SubnetHistoryItem {

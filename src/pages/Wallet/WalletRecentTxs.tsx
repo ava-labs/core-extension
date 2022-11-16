@@ -2,9 +2,11 @@ import {
   Card,
   CaretIcon,
   CheckmarkIcon,
+  ComponentSize,
   DropDownMenu,
   DropDownMenuItem,
   HorizontalFlex,
+  PrimaryButton,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -28,6 +30,8 @@ import { HistoryItem } from './components/History/components/HistoryItem';
 import { PendingTransactionBridge } from './components/History/PendingTransactionBrigde';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { t } from 'i18next';
+import { isBitcoin } from '@src/utils/isBitcoin';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 const StyledDropDownMenu = styled(DropDownMenu)`
   position: absolute;
@@ -119,6 +123,18 @@ export function WalletRecentTxs({
         setLoading(false);
       });
   }, [network, activeAccount, getTransactionHistory]);
+
+  const explorerUrl = useMemo(() => {
+    if (!network || !activeAccount) {
+      return undefined;
+    }
+
+    return getExplorerAddressByNetwork(
+      network,
+      isBitcoin(network) ? activeAccount.addressBTC : activeAccount.addressC,
+      'address'
+    );
+  }, [network, activeAccount]);
 
   const filteredTxHistory = useMemo(() => {
     function isPendingBridge(tx: TxHistoryItem) {
@@ -308,6 +324,25 @@ export function WalletRecentTxs({
               );
             })}
           </>
+        )}
+        {explorerUrl && !loading && filteredTxHistory.length && (
+          <HorizontalFlex
+            width="100%"
+            paddingLeft="16px"
+            paddingRight="16px"
+            marginTop="24px"
+          >
+            <PrimaryButton
+              data-testid="add-account-button"
+              size={ComponentSize.LARGE}
+              width="100%"
+              onClick={() => {
+                window.open(explorerUrl);
+              }}
+            >
+              {t('View On Explorer')}
+            </PrimaryButton>
+          </HorizontalFlex>
         )}
       </VerticalFlex>
     </Scrollbars>
