@@ -22,7 +22,7 @@ jobs:
           download_translations: true
           new_branch_export_pattern: 'src/localization/locales/%two_letters_code%/**/%original_file_name%'
           source: 'src/localization/locales/en/**/*.json'
-          translation: 'src/localization/locales/%two_letters_code%/**/%original_file_name%'
+          translation: 'src/localization/locales/%locale%/**/%original_file_name%'
           project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
           token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
         env:
