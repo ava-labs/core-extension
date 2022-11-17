@@ -86,7 +86,7 @@ export const NetworkForm = ({
     CHAIN_ID_ERROR: t('Chain ID is required'),
     TOKEN_SYMBOL_ERROR: t('Network Token Symbol is required'),
     EXPLORER_URL_ERROR: t('Explorer URL is requried'),
-    CHAIN_ID_EXISTS: t('This Chan ID has been added already'),
+    CHAIN_ID_EXISTS: t('This Chain ID has been added already'),
     INVALID_URL: t('This URL is invalid'),
   };
 

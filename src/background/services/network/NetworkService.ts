@@ -323,8 +323,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     const chainlist = await this.setChainListOrFallback();
     const isCustomNetworkExist = !!this._customNetworks[convertedChainId];
     const isChainListNetwork = chainlist && !!chainlist[convertedChainId];
-    if (isChainListNetwork) {
-      return;
+
+    // customNetwork is a default chain -> dont save
+    if (isChainListNetwork && !isCustomNetworkExist) {
+      throw new Error('chain ID already exists');
     }
     this._customNetworks = {
       ...this._customNetworks,
