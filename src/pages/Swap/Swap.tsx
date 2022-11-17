@@ -457,6 +457,8 @@ export function Swap() {
     ) {
       return;
     }
+    setTxInProgress(true);
+
     const slippage = slippageTolerance || '0';
     const [result, error] = await resolve(
       swap(
@@ -496,6 +498,7 @@ export function Swap() {
         }
       />
     );
+    history.push('/home');
   }
 
   const onGasChange = useCallback(
@@ -813,11 +816,9 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={(
-            (customGasPrice || networkFee?.low)?.mul(gasLimit) ||
-            BigNumber.from(0)
-          )
-            .div(10 ** (network?.networkToken.decimals ?? 18))
+          fee={(customGasPrice || networkFee?.low || BigNumber.from(0))
+            .mul(gasLimit)
+            .div((10 ** (network?.networkToken.decimals ?? 18)).toString())
             .toString()}
           feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}
