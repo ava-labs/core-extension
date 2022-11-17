@@ -7,10 +7,9 @@ import {
 import { getBalances } from '../utils/getBalances';
 import { AssetBalance } from '../models';
 import { useMemo } from 'react';
-import { useBridgeAvalancheTokens } from './useBridgeAvalancheTokens';
-import { useBridgeEthereumTokens } from './useBridgeEthereumTokens';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 /**
  * Get for the current chain.
@@ -24,15 +23,12 @@ export function useAssetBalancesEVM(
   assetsWithBalances: AssetBalance[];
 } {
   const { featureFlags } = useFeatureFlagContext();
-  const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
 
-  const avalancheTokens = useBridgeAvalancheTokens();
-  const ethereumTokens = useBridgeEthereumTokens();
+  const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
 
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
 
-  const tokens =
-    chain === Blockchain.ETHEREUM ? ethereumTokens : avalancheTokens;
+  const tokens = useTokensWithBalances(true);
 
   // For balances on the Avalanche side, for all bridge assets on avalanche
   const balances = useMemo(() => {
