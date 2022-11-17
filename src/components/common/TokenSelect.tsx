@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import {
   VerticalFlex,
@@ -12,22 +12,20 @@ import {
   TokenEllipsis,
 } from '@avalabs/react-components';
 import { TokenIcon } from '@src/components/common/TokenImage';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { formatTokenAmount } from '@avalabs/bridge-sdk';
 import EthLogo from '@src/images/tokens/eth.png';
-import {
-  TokenType,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
 import Big from 'big.js';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
+import { AutoSizer } from 'react-virtualized';
+import VirtualizedList from './VirtualizedList';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -88,6 +86,13 @@ interface TokenSelectProps {
   skipHandleMaxAmount?: boolean;
 }
 
+interface DisplayToken {
+  name: string;
+  symbol: string;
+  displayValue: string;
+  token: TokenWithBalance | AssetBalance;
+}
+
 export function TokenSelect({
   selectedToken,
   onTokenChange,
@@ -139,6 +144,51 @@ export function TokenSelect({
     [onInputAmountChange, maxAmountString]
   );
   const hideTokenDropdown = bridgeTokensList && bridgeTokensList.length < 2;
+
+  const displayTokenList: DisplayToken[] = useMemo(() => {
+    return [
+      ...(tokensList
+        ? tokensList
+            .filter((token) =>
+              searchQuery.length
+                ? token.name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                  token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+                : true
+            )
+            .map((token): DisplayToken => {
+              return {
+                name: token.name,
+                symbol: token.symbol,
+                displayValue: token.balanceDisplayValue ?? '',
+                token,
+              };
+            })
+        : []),
+      ...(bridgeTokensList
+        ? bridgeTokensList
+            .filter((token) =>
+              searchQuery.length
+                ? token.symbol
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                  token.symbolOnNetwork
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLocaleLowerCase())
+                : true
+            )
+            .map((token): DisplayToken => {
+              return {
+                name: token.symbolOnNetwork || token.symbol,
+                symbol: token.asset.symbol,
+                displayValue: formatBalance(token.balance),
+                token,
+              };
+            })
+        : []),
+    ];
+  }, [tokensList, bridgeTokensList, searchQuery]);
 
   useEffect(() => {
     const formattedAmount =
@@ -195,6 +245,51 @@ export function TokenSelect({
     },
     [onError]
   );
+
+  function rowRenderer({ key, index, style }) {
+    const token = displayTokenList[index];
+
+    if (!token) {
+      // Token should be truthy and should not get here. Just adding this to not break the list if this happens. This will make the row just empty.
+      return <div style={style} key={key}></div>;
+    }
+    return (
+      <StyledDropdownMenuItem
+        style={style}
+        data-testid={`token-search-menu-item-${index}`}
+        key={key}
+        onClick={() => {
+          onTokenChange(token.token);
+          onSelectToggle && onSelectToggle();
+        }}
+      >
+        <HorizontalFlex justify="space-between" align="center" grow="1">
+          <HorizontalFlex align="center">
+            <TokenIcon
+              width="32px"
+              height="32px"
+              src={token.symbol === 'ETH' ? EthLogo : token.token.logoUri}
+              name={token.symbol}
+            />
+            <Typography
+              size={16}
+              height="24px"
+              margin={'0 0 0 16px'}
+              weight={500}
+            >
+              <TokenEllipsis text={token.name} maxLength={14} />
+            </Typography>
+          </HorizontalFlex>
+          <BalanceColumn>
+            <Typography size={14} height="24px">
+              {token.displayValue}{' '}
+              <InlineTokenEllipsis text={token.symbol} maxLength={8} />
+            </Typography>
+          </BalanceColumn>
+        </HorizontalFlex>
+      </StyledDropdownMenuItem>
+    );
+  }
 
   return (
     <VerticalFlex width="100%" style={{ margin }}>
@@ -311,130 +406,17 @@ export function TokenSelect({
                 />
               </SearchInputContainer>
               <VerticalFlex grow="1">
-                <Scrollbars>
-                  {tokensList &&
-                    tokensList
-                      .filter((token) =>
-                        searchQuery.length
-                          ? token.name
-                              .toLowerCase()
-                              .includes(searchQuery.toLowerCase()) ||
-                            token.symbol
-                              .toLowerCase()
-                              .includes(searchQuery.toLowerCase())
-                          : true
-                      )
-                      .map((token, index) => (
-                        <StyledDropdownMenuItem
-                          data-testid={`token-search-menu-item-${index}`}
-                          key={
-                            token.type === TokenType.ERC20
-                              ? token.address
-                              : token.symbol
-                          }
-                          onClick={() => {
-                            onTokenChange(token);
-                            onSelectToggle && onSelectToggle();
-                          }}
-                        >
-                          <HorizontalFlex
-                            justify="space-between"
-                            align="center"
-                            grow="1"
-                          >
-                            <HorizontalFlex align="center">
-                              <TokenIcon
-                                height="32px"
-                                src={
-                                  token.symbol === 'ETH'
-                                    ? EthLogo
-                                    : token.logoUri
-                                }
-                                name={token.name}
-                              />
-                              <Typography
-                                size={16}
-                                height="24px"
-                                margin={'0 0 0 16px'}
-                                weight={500}
-                              >
-                                <TokenEllipsis
-                                  text={token.name}
-                                  maxLength={14}
-                                />
-                              </Typography>
-                            </HorizontalFlex>
-                            <BalanceColumn>
-                              <Typography size={14} height="24px">
-                                {token.balanceDisplayValue}{' '}
-                                <InlineTokenEllipsis
-                                  text={token.symbol}
-                                  maxLength={8}
-                                />
-                              </Typography>
-                            </BalanceColumn>
-                          </HorizontalFlex>
-                        </StyledDropdownMenuItem>
-                      ))}
-                  {bridgeTokensList &&
-                    bridgeTokensList
-                      .filter((token) =>
-                        searchQuery.length
-                          ? token.symbol
-                              .toLowerCase()
-                              .includes(searchQuery.toLowerCase()) ||
-                            token.symbolOnNetwork
-                              ?.toLowerCase()
-                              .includes(searchQuery.toLocaleLowerCase())
-                          : true
-                      )
-                      .map((token, index) => {
-                        return (
-                          <StyledDropdownMenuItem
-                            data-testid={`token-bridge-menu-item-${index}`}
-                            key={token.symbol}
-                            onClick={() => {
-                              onTokenChange(token);
-                              onSelectToggle && onSelectToggle();
-                            }}
-                          >
-                            <HorizontalFlex
-                              justify="space-between"
-                              align="center"
-                              grow="1"
-                            >
-                              <HorizontalFlex align="center">
-                                <TokenIcon
-                                  width="32px"
-                                  height="32px"
-                                  src={
-                                    token.symbol === 'ETH'
-                                      ? EthLogo
-                                      : token.logoUri
-                                  }
-                                  name={token.asset.symbol}
-                                />
-
-                                <Typography
-                                  size={16}
-                                  height="24px"
-                                  margin={'0 0 0 16px'}
-                                  weight={500}
-                                >
-                                  {token.symbolOnNetwork || token.symbol}
-                                </Typography>
-                              </HorizontalFlex>
-
-                              <BalanceColumn>
-                                <Typography size={14} height="24px">
-                                  {formatBalance(token.balance)} {token.symbol}
-                                </Typography>
-                              </BalanceColumn>
-                            </HorizontalFlex>
-                          </StyledDropdownMenuItem>
-                        );
-                      })}
-                </Scrollbars>
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <VirtualizedList
+                      height={height}
+                      rowCount={displayTokenList.length}
+                      rowHeight={48}
+                      rowRenderer={rowRenderer}
+                      width={width}
+                    />
+                  )}
+                </AutoSizer>
               </VerticalFlex>
             </DropdownContents>
           </ContainedDropdown>

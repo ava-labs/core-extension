@@ -11,7 +11,6 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { TokenListItem } from './TokenListItem';
-import Scrollbars from 'react-custom-scrollbars-2';
 import { WalletIsEmpty } from './WalletIsEmpty';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
@@ -22,9 +21,15 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
 import { TokenType } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
+import { AutoSizer } from 'react-virtualized';
+import VirtualizedList from '@src/components/common/VirtualizedList';
 
 const LogoContainer = styled.div`
   margin: 0 16px;
+`;
+
+const TokenRow = styled.div`
+  padding: 0 10px 0 16px;
 `;
 
 interface TokenListProps {
@@ -67,6 +72,41 @@ export function TokenList({ searchQuery }: TokenListProps) {
     history.push('/manage-tokens');
   };
 
+  function rowRenderer({ key, index, style }) {
+    const token = tokens[index];
+    if (!token) {
+      // Token should be truthy and should not get here. Just adding this to not break the list if this happens. This will make the row just empty.
+      return <div style={style} key={key}></div>;
+    }
+    return (
+      <TokenRow style={style} key={key}>
+        <TokenListItem
+          data-testid={`${token.symbol}-token-list-item-test2`}
+          onClick={() => {
+            setSendDataInParams({
+              token: token,
+              options: { path: '/token' },
+            });
+            capture('TokenListTokenSelected', {
+              selectedToken:
+                token.type === TokenType.ERC20 ? token.address : token.symbol,
+            });
+          }}
+          name={token.name}
+          symbol={token.symbol}
+          balanceDisplayValue={token.balanceDisplayValue}
+          balanceUSD={token.balanceUSD?.toString()}
+        >
+          <TokenIcon
+            width="32px"
+            height="32px"
+            src={token.logoUri}
+            name={token.name}
+          />
+        </TokenListItem>
+      </TokenRow>
+    );
+  }
   return (
     <VerticalFlex grow="1" margin="8px 0 0">
       <HorizontalFlex
@@ -118,45 +158,23 @@ export function TokenList({ searchQuery }: TokenListProps) {
           </TextButton>
         )}
       </HorizontalFlex>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <VerticalFlex padding="0px 16px 68px">
-          {tokens?.map((token) => {
-            return (
-              <TokenListItem
-                data-testid={`${token.symbol}-token-list-item-test2`}
-                onClick={() => {
-                  setSendDataInParams({
-                    token: token,
-                    options: { path: '/token' },
-                  });
-                  capture('TokenListTokenSelected', {
-                    selectedToken:
-                      token.type === TokenType.ERC20
-                        ? token.address
-                        : token.symbol,
-                  });
-                }}
-                key={
-                  token.type === TokenType.ERC20 ? token.address : token.symbol
-                }
-                name={token.name}
-                symbol={token.symbol}
-                balanceDisplayValue={token.balanceDisplayValue}
-                balanceUSD={token.balanceUSD?.toString()}
-              >
-                <TokenIcon
-                  width="32px"
-                  height="32px"
-                  src={token.logoUri}
-                  name={token.name}
-                />
-              </TokenListItem>
-            );
-          })}
+      <VerticalFlex>
+        {tokens.length && (
+          <AutoSizer>
+            {({ width }) => (
+              <VirtualizedList
+                height={407}
+                rowCount={tokens.length}
+                rowHeight={65}
+                rowRenderer={rowRenderer}
+                width={width}
+              />
+            )}
+          </AutoSizer>
+        )}
 
-          {tokens.length === 0 && <WalletIsEmpty />}
-        </VerticalFlex>
-      </Scrollbars>
+        {tokens.length === 0 && <WalletIsEmpty />}
+      </VerticalFlex>
     </VerticalFlex>
   );
 }
