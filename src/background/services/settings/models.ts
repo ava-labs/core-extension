@@ -14,7 +14,7 @@ export enum Languages {
   KO = 'ko-KR',
   RU = 'ru-RU',
   TR = 'tr-TR',
-  ZHZN = 'zh-ZN',
+  ZHCN = 'zh-CN',
   ZHTW = 'zh-TW',
 }
 

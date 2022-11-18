@@ -14,7 +14,7 @@ export function useLanguage() {
       originalName: 'English',
     },
     {
-      code: Languages.ZHZN,
+      code: Languages.ZHCN,
       name: t('Chinese - Simplified'),
       originalName: '简体中文',
     },

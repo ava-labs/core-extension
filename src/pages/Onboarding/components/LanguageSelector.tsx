@@ -10,7 +10,7 @@ import {
 } from '@avalabs/react-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useLanguage } from '@src/hooks/useLanguages';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components';
 
@@ -57,7 +57,7 @@ export function LanguageSelector() {
       >
         {availableLanguages.map((lang, index) => {
           return (
-            <>
+            <React.Fragment key={lang.code}>
               <DropDownMenuItem
                 onClick={() => {
                   changeLanguage(lang.code);
@@ -65,7 +65,6 @@ export function LanguageSelector() {
                     language: lang.code,
                   });
                 }}
-                key={lang.code}
                 data-testid={`onboarding-language-selector-menu-item-${lang.code}`}
                 width="300px"
                 padding="8px 10px"
@@ -87,7 +86,7 @@ export function LanguageSelector() {
               {index < availableLanguages.length - 1 && (
                 <HorizontalSeparator margin="0" />
               )}
-            </>
+            </React.Fragment>
           );
         })}
       </DropDownMenu>
