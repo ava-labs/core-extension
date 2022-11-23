@@ -1,4 +1,3 @@
-import { useThemeContext } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   TokenType,
@@ -9,14 +8,17 @@ import { settingsUpdatedEventListener } from '@src/background/services/settings/
 import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
 import { SetAnalyticsConsentHandler } from '@src/background/services/settings/handlers/setAnalyticsConsent';
 import { SetDefaultExtensionHandler } from '@src/background/services/settings/handlers/setAsDefaultExtension';
+import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
 import { UpdateCurrencyHandler } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
 import { UpdateTokensVisiblityHandler } from '@src/background/services/settings/handlers/updateTokensVisibility';
 import {
+  Languages,
   SettingsState,
   ThemeVariant,
 } from '@src/background/services/settings/models';
+import { changeLanguage } from 'i18next';
 import {
   createContext,
   useContext,
@@ -38,28 +40,24 @@ type SettingsFromProvider = SettingsState & {
   currencyFormatter(value: number): string;
   toggleIsDefaultExtension(): Promise<boolean>;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
+  setLanguage(lang: Languages): Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
 export function SettingsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { darkMode, toggleDarkTheme } = useThemeContext();
   const [settings, setSettings] = useState<SettingsState>();
+
+  useEffect(() => {
+    changeLanguage(settings?.language);
+  }, [settings?.language]);
 
   useEffect(() => {
     request<GetSettingsHandler>({
       method: ExtensionRequest.SETTINGS_GET,
     }).then((res) => {
       setSettings(res);
-
-      // set theme to the saved value
-      if (
-        (darkMode && res.theme === ThemeVariant.LIGHT) ||
-        (!darkMode && res.theme === ThemeVariant.DARK)
-      ) {
-        toggleDarkTheme();
-      }
     });
 
     const subscription = events()
@@ -70,8 +68,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
       .subscribe((val) => setSettings(val));
 
     return () => subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [events, request]);
 
   const currencyFormatter = useMemo(() => {
     /**
@@ -176,6 +173,13 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  function setLanguage(lang: Languages) {
+    return request<SetLanguageHandler>({
+      method: ExtensionRequest.SETTINGS_SET_LANGUAGE,
+      params: [lang],
+    });
+  }
+
   return (
     <SettingsContext.Provider
       value={
@@ -190,6 +194,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           currencyFormatter,
           toggleIsDefaultExtension,
           setAnalyticsConsent,
+          setLanguage,
         } as SettingsFromProvider
       }
     >

@@ -30,7 +30,6 @@ import { useTheme } from 'styled-components';
 import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundary';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { TransactionTabs } from './components/TransactionTabs';
 import { BigNumber } from 'ethers';
@@ -39,11 +38,14 @@ import { TokenType } from '@src/background/services/balances/models';
 import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletType } from '@src/background/services/wallet/models';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function SignTransactionPage() {
+  const { t } = useTranslation();
   const requestId = useGetRequestId();
+  const onTxError = useCallback(() => {
+    window.close();
+  }, []);
   const {
     updateTransaction,
     id,
@@ -56,17 +58,17 @@ export function SignTransactionPage() {
     displaySpendLimit,
     customSpendLimit,
     selectedGasFee,
+    network,
     ...params
-  } = useGetTransaction(requestId);
+  } = useGetTransaction(requestId, onTxError);
   const [transactionProgressState, setTransactionProgressState] = useState(
     TransactionProgressState.NOT_APPROVED
   );
-  const { network } = useNetworkContext();
   const theme = useTheme();
-  const tokens = useTokensWithBalances();
+  const tokens = useTokensWithBalances(false, network?.chainId);
   const { walletType } = useWalletContext();
 
-  useLedgerDisconnectedDialog(window.close);
+  useLedgerDisconnectedDialog(window.close, undefined, network);
 
   const hasEnoughForNetworkFee = useMemo(() => {
     return tokens

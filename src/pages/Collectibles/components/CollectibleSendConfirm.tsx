@@ -20,7 +20,7 @@ import { CollectibleMedia } from './CollectibleMedia';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { SendState } from '@src/background/services/send/models';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -71,6 +71,7 @@ export const CollectibleSendConfirm = ({
   nft,
   onSubmit,
 }: CollectibleSendConfirmProps) => {
+  const { t } = useTranslation();
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
 

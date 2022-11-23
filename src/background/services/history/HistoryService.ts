@@ -1,41 +1,38 @@
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
-import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import { HistoryServiceBTC } from './HistoryServiceBTC';
-import { HistoryServiceCChain } from './HistoryServiceCChain';
-import { HistoryServiceSubnet } from './HistoryServiceSubnet';
-import { resolve } from '@avalabs/utils-sdk';
 import { HistoryServiceETH } from './HistoryServiceETH';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
+import { GlacierService } from '../glacier/GlacierService';
+import { HistoryServiceGlacier } from './HistoryServiceGlacier';
 
 @singleton()
 export class HistoryService {
   constructor(
     private networkService: NetworkService,
     private btcHistoryService: HistoryServiceBTC,
-    private cChainHistorySerive: HistoryServiceCChain,
-    private subnetHistoryService: HistoryServiceSubnet,
-    private ethHistoryService: HistoryServiceETH
+    private ethHistoryService: HistoryServiceETH,
+    private glacierHistoryService: HistoryServiceGlacier,
+    private glacierService: GlacierService
   ) {}
 
   async getTxHistory() {
     const network = this.networkService.activeNetwork;
 
     if (network) {
+      const isSupportedNetwork = await this.glacierService.isNetworkSupported(
+        network.chainId
+      );
+
+      if (isSupportedNetwork) {
+        return await this.glacierHistoryService.getHistory(network);
+      }
+
       if (network.vmName === NetworkVMType.BITCOIN) {
         return await this.btcHistoryService.getHistory(network);
       } else if (isEthereumNetwork(network)) {
         return await this.ethHistoryService.getHistory(network);
-      } else if (
-        ChainId.AVALANCHE_MAINNET_ID === network.chainId ||
-        ChainId.AVALANCHE_TESTNET_ID === network.chainId
-      ) {
-        return await this.cChainHistorySerive.getHistory(network);
-      } else {
-        const [res] = await resolve(
-          this.subnetHistoryService.getHistory(network)
-        );
-        return res || [];
       }
     }
     return [];

@@ -10,7 +10,7 @@ import {
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import styled, { useTheme } from 'styled-components';
 import { ChainId } from '@avalabs/chains-sdk';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const ConnectedDot = styled.div<{
   color: string;
@@ -25,6 +25,7 @@ const ConnectedDot = styled.div<{
 `;
 
 export function WalletConnection() {
+  const { t } = useTranslation();
   const { network, setNetwork, networks } = useNetworkContext();
   const theme = useTheme();
 

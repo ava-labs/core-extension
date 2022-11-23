@@ -5,8 +5,9 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetTransaction } from '../hooks/useGetTransaction';
 
 interface TransactionHeaderProps {
   title: string;
@@ -18,7 +19,8 @@ export function TransactionHeader({
   showNetwork = true,
 }: TransactionHeaderProps) {
   const { isWalletLocked } = useWalletContext();
-  const { network } = useNetworkContext();
+  const requestId = useGetRequestId();
+  const { network } = useGetTransaction(requestId);
 
   return (
     <VerticalFlex padding="12px 0">

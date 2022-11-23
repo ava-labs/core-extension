@@ -17,7 +17,7 @@ import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
 
@@ -57,6 +57,7 @@ const GroupButton = styled(PrimaryButton)<{ active: boolean }>`
 `;
 
 export function Collectibles() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { nfts, updateNftBalances } = useBalancesContext();
   const setCollectibleParams = useSetCollectibleParams();

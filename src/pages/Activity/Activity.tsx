@@ -4,7 +4,7 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 type ActivityProps = {
   isEmbedded?: boolean;
@@ -15,6 +15,7 @@ export function Activity({
   isEmbedded = false,
   tokenSymbolFilter,
 }: ActivityProps) {
+  const { t } = useTranslation();
   return (
     <VerticalFlex width={'100%'} align={'center'} style={{ flex: 1 }}>
       {isEmbedded && (

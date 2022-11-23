@@ -14,12 +14,11 @@ import styled, { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CustomGasLimit } from '@src/components/common/CustomGasLimit';
 import { BigNumber, utils } from 'ethers';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { useNetworkContext } from '../../contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { formatUnits } from 'ethers/lib/utils';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { NetworkFee } from '@src/background/services/networkFee/models';
 
 interface CustomGasFeesProps {
   gasPrice: BigNumber;
@@ -32,6 +31,8 @@ interface CustomGasFeesProps {
   gasPriceEditDisabled?: boolean;
   maxGasPrice?: string;
   selectedGasFeeModifier?: GasFeeModifier;
+  network?: Network;
+  networkFee: NetworkFee | null;
 }
 
 export enum GasFeeModifier {
@@ -113,11 +114,12 @@ export function CustomFees({
   gasPriceEditDisabled = false,
   maxGasPrice,
   selectedGasFeeModifier,
+  network,
+  networkFee,
 }: CustomGasFeesProps) {
-  const { network } = useNetworkContext();
-  const tokenPrice = useNativeTokenPrice();
+  const { t } = useTranslation();
+  const tokenPrice = useNativeTokenPrice(network);
   const { currencyFormatter } = useSettingsContext();
-  const { networkFee } = useNetworkFeeContext();
   const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();
   const gasLimit = customGasLimit || limit;
   const [customGasPrice, setCustomGasPrice] = useState<BigNumber>(gasPrice);
@@ -288,6 +290,7 @@ export function CustomFees({
               feeType: selectedGasFeeModifier || GasFeeModifier.NORMAL,
             });
           }}
+          network={network}
         />
       </CustomGasLimitOverlay>
     );

@@ -42,9 +42,10 @@ import {
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { WalletType } from '@src/background/services/wallet/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function SendPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { featureFlags } = useFeatureFlagContext();
   const { walletType } = useWalletContext();

@@ -35,6 +35,8 @@ import {
   updateTxStatus,
   updateTxStatusFinalized,
 } from './utils/updateTxStatus';
+import getTargetNetworkForTx from './utils/getTargetNetworkForTx';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 
 @singleton()
 export class TransactionsService {
@@ -44,7 +46,8 @@ export class TransactionsService {
     private networkService: NetworkService,
     private networkFeeService: NetworkFeeService,
     private balancesService: BalanceAggregatorService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private featureFlagService: FeatureFlagService
   ) {}
 
   async getTransactions(): Promise<PendingTransactions> {
@@ -65,15 +68,23 @@ export class TransactionsService {
 
   async addTransaction(tx: ExtensionConnectionMessage) {
     const { params, site } = tx;
-    const activeNetwork = this.networkService.activeNetwork;
     const now = new Date().getTime();
     const txParams = (params || [])[0];
+    const network = await getTargetNetworkForTx(
+      txParams,
+      this.networkService,
+      this.featureFlagService
+    );
+
+    if (!network) {
+      throw Error('no network selected');
+    }
 
     const txDescription = await getTxInfo(
       txParams.to?.toLocaleLowerCase() || '',
       txParams.data,
       txParams.value,
-      this.networkService
+      network
     );
 
     const decodedData = (txDescription as ethers.utils.TransactionDescription)
@@ -83,19 +94,26 @@ export class TransactionsService {
       (txDescription as ethers.utils.TransactionDescription).name
     );
 
-    const gasPrice = await this.networkFeeService.getNetworkFee();
+    const gasPrice = await this.networkFeeService.getNetworkFee(network);
 
     if (txParams && isTxParams(txParams)) {
-      if (!activeNetwork) {
-        throw Error('no network selected');
+      if (
+        !this.networkService.isActiveNetwork(network.chainId) &&
+        this.accountsService.activeAccount
+      ) {
+        await this.balancesService.updateBalancesForNetworks(
+          [network.chainId],
+          [this.accountsService.activeAccount]
+        );
       }
 
       const tokens: TokenWithBalance[] =
         Object.values(
-          this.balancesService.balances?.[activeNetwork?.chainId || '']?.[
+          this.balancesService.balances?.[network?.chainId || '']?.[
             this.accountsService.activeAccount?.addressC || ''
           ] ?? {}
         ) || [];
+
       const nativeToken = tokens.filter((t) => t.type === TokenType.NATIVE);
       const displayValueProps: DisplayValueParserProps = {
         gasPrice: gasPrice?.low || BigNumber.from(0),
@@ -120,7 +138,8 @@ export class TransactionsService {
               txParams.from,
               txParams.to,
               txParams.data as string,
-              txParams.value
+              txParams.value,
+              network
             ));
       } catch (e: any) {
         // handle gas estimation erros with the correct error message
@@ -138,27 +157,36 @@ export class TransactionsService {
         ? txDescription
         : undefined;
 
-      const displayValues: TransactionDisplayValues = parser
-        ? await parser(
-            activeNetwork,
-            txParamsWithGasLimit,
-            decodedData,
-            displayValueProps,
-            description
-          )
-        : (parseBasicDisplayValues(
-            activeNetwork,
-            txParamsWithGasLimit,
-            displayValueProps,
-            description
-          ) as any);
+      let displayValues: TransactionDisplayValues;
 
-      const networkMetaData = this.networkService.activeNetwork
-        ? {
-            metamaskNetworkId: activeNetwork.chainId.toString(),
-            chainId: activeNetwork.chainId.toString(),
-          }
-        : { metamaskNetworkId: '', chainId: '' };
+      try {
+        displayValues = parser
+          ? await parser(
+              network,
+              txParamsWithGasLimit,
+              decodedData,
+              displayValueProps,
+              description
+            )
+          : (parseBasicDisplayValues(
+              network,
+              txParamsWithGasLimit,
+              displayValueProps,
+              description
+            ) as any);
+      } catch (err) {
+        displayValues = parseBasicDisplayValues(
+          network,
+          txParamsWithGasLimit,
+          displayValueProps,
+          description
+        ) as any;
+      }
+
+      const networkMetaData = {
+        metamaskNetworkId: network.chainId.toString(),
+        chainId: network.chainId.toString(),
+      };
 
       const currentPendingTxs = await this.getTransactions();
 

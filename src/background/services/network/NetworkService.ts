@@ -110,6 +110,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     return !this.activeNetwork?.isTestnet;
   }
 
+  public isActiveNetwork(chainId: number) {
+    return this.activeNetwork?.chainId === chainId;
+  }
+
   onLock(): void {
     this._allNetworks.dispatch(undefined);
     this.activeNetwork = undefined;
@@ -253,7 +257,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return new BlockCypherProvider(
         !network.isTestnet,
         process.env.GLACIER_API_KEY,
-        `${process.env.GLACIER_URL}/proxy/blockcypher`
+        `${process.env.PROXY_URL}/proxy/blockcypher`
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(
@@ -319,8 +323,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     const chainlist = await this.setChainListOrFallback();
     const isCustomNetworkExist = !!this._customNetworks[convertedChainId];
     const isChainListNetwork = chainlist && !!chainlist[convertedChainId];
-    if (isChainListNetwork) {
-      return;
+
+    // customNetwork is a default chain -> dont save
+    if (isChainListNetwork && !isCustomNetworkExist) {
+      throw new Error('chain ID already exists');
     }
     this._customNetworks = {
       ...this._customNetworks,

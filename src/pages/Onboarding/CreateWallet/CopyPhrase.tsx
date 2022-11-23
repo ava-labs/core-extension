@@ -9,8 +9,7 @@ import {
 } from '@avalabs/react-components';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 interface CopyPhraseProps {
   mnemonic: string;
@@ -27,6 +26,7 @@ export function CopyPhrase({
 }: CopyPhraseProps) {
   const { capture } = useAnalyticsContext();
   const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   return (
     <VerticalFlex width="100%" align="center">

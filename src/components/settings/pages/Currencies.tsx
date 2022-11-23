@@ -12,9 +12,10 @@ import { SettingsHeader } from '../SettingsHeader';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CURRENCIES } from '@src/background/services/settings/models';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { updateCurrencySetting, currency } = useSettingsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');

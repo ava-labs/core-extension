@@ -28,7 +28,7 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
@@ -47,6 +47,7 @@ const AccountName = styled(Typography)<{ selected: boolean }>`
 `;
 
 export function PermissionsPage() {
+  const { t } = useTranslation();
   const requestId = useGetRequestId();
   const { permissions, isDomainConnectedToAccount } = usePermissionContext();
   const theme = useTheme();

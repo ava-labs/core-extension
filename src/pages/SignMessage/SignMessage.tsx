@@ -23,10 +23,10 @@ import { PersonalSign } from './components/PersonalSign';
 import { SignData } from './components/SignData';
 import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function SignMessage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
   const { action: message, updateAction: updateMessage } =

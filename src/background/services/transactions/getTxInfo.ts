@@ -5,8 +5,7 @@ import {
   getABIForContract,
   getSourceForContract,
 } from '@avalabs/snowtrace-sdk';
-import { NetworkService } from '../network/NetworkService';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId, Network } from '@avalabs/chains-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 
 export function isTxDescriptionError(
@@ -56,25 +55,22 @@ export async function getTxInfo(
   address: string,
   data: string,
   value: string,
-  networkService: NetworkService
+  network: Network
 ) {
-  const isMainnet = await networkService.isMainnet();
-  const activeNetwork = networkService.activeNetwork;
-
   /**
    * We already eliminate BTC as a tx requestor so we only need to verify if we are still on a
    * avalanche net. At this point anything else would be a subnet
    */
   if (
-    activeNetwork?.chainId !== ChainId.AVALANCHE_TESTNET_ID &&
-    activeNetwork?.chainId !== ChainId.AVALANCHE_MAINNET_ID
+    network?.chainId !== ChainId.AVALANCHE_TESTNET_ID &&
+    network?.chainId !== ChainId.AVALANCHE_MAINNET_ID
   ) {
     return parseDataWithABI(data, value, new Interface(ERC20.abi));
   }
 
   const { result, contractSource, error } = await getAvalancheABIFromSource(
     address,
-    isMainnet
+    !network.isTestnet
   );
 
   if (error) return { error };

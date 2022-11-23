@@ -13,8 +13,7 @@ import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useTheme } from 'styled-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -37,6 +36,7 @@ export const CreatePassword = ({
   const [termsOfUseChecked, setTermsOfUseChecked] = useState<boolean>(false);
 
   const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
+  const { t } = useTranslation();
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(
@@ -137,7 +137,7 @@ export const CreatePassword = ({
             />
             <Typography margin="0 0 0 8px" size={12} height="15px">
               <Trans
-                i18nKey="I acknowledge the  <typography>Privacy Policy'</typography>"
+                i18nKey="I acknowledge the  <typography>Privacy Policy</typography>"
                 components={{
                   typography: (
                     <Typography

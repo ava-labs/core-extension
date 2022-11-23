@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const StyledMasonry = styled(Masonry)`
   display: flex;
-  padding-bottom: 16px;
+  padding-bottom: 32px;
 
   .masonryColumn {
     display: flex;

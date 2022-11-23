@@ -9,7 +9,7 @@ import { TxHistoryItem } from '@src/background/services/history/models';
 import styled, { useTheme } from 'styled-components';
 import { HistoryItemLink } from './components/HistoryItemLink';
 import { useBlockchainNames } from './useBlockchainNames';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export const IconCircle = styled(HorizontalFlex)<{ pending: boolean }>`
   width: 32px;
@@ -54,6 +54,7 @@ type TransactionBridgeProps = {
 };
 
 export function TransactionBridge({ item }: TransactionBridgeProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { sourceBlockchain, targetBlockchain } = useBlockchainNames(item);
 

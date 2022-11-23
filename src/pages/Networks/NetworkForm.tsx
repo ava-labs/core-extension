@@ -9,7 +9,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback, useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CSSTransition } from 'react-transition-group';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export enum NetworkFormAction {
   Add = 'add',
@@ -71,6 +71,7 @@ export const NetworkForm = ({
   showErrors = false,
   action,
 }: NetworkFormProps) => {
+  const { t } = useTranslation();
   const { isChainIdExist } = useNetworkContext();
   const [rpcError, setRpcError] = useState<string>();
   const [chainNameError, setChainNameError] = useState<string>();
@@ -85,7 +86,7 @@ export const NetworkForm = ({
     CHAIN_ID_ERROR: t('Chain ID is required'),
     TOKEN_SYMBOL_ERROR: t('Network Token Symbol is required'),
     EXPLORER_URL_ERROR: t('Explorer URL is requried'),
-    CHAIN_ID_EXISTS: t('This Chan ID has been added already'),
+    CHAIN_ID_EXISTS: t('This Chain ID has been added already'),
     INVALID_URL: t('This URL is invalid'),
   };
 

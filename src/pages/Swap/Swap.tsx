@@ -52,7 +52,7 @@ import BN from 'bn.js';
 import { WalletType } from '@src/background/services/wallet/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export interface Token {
   icon?: JSX.Element;
@@ -85,6 +85,7 @@ const TryAgainButton = styled.span`
 `;
 
 export function Swap() {
+  const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
   const { walletType } = useWalletContext();
@@ -99,7 +100,7 @@ export function Swap() {
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
-  const avaxPrice = useNativeTokenPrice();
+  const avaxPrice = useNativeTokenPrice(network);
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const pageHistory: {
     selectedFromToken?: TokenWithBalance;
@@ -374,6 +375,7 @@ export function Swap() {
     getRate,
     setValuesDebouncedSubject,
     isCalculateAvaxMax,
+    t,
   ]);
 
   const calculateSwapValue = ({
@@ -455,6 +457,8 @@ export function Swap() {
     ) {
       return;
     }
+    setTxInProgress(true);
+
     const slippage = slippageTolerance || '0';
     const [result, error] = await resolve(
       swap(
@@ -494,6 +498,7 @@ export function Swap() {
         }
       />
     );
+    history.push('/home');
   }
 
   const onGasChange = useCallback(
@@ -811,11 +816,9 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={(
-            (customGasPrice || networkFee?.low)?.mul(gasLimit) ||
-            BigNumber.from(0)
-          )
-            .div(10 ** (network?.networkToken.decimals ?? 18))
+          fee={(customGasPrice || networkFee?.low || BigNumber.from(0))
+            .mul(gasLimit)
+            .div((10 ** (network?.networkToken.decimals ?? 18)).toString())
             .toString()}
           feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}

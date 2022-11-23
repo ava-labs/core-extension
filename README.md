@@ -4,18 +4,18 @@ Avalanche Wallet Browser Extension.
 
 ## Prerequesites
 
-- [Install Node](https://nodejs.org/en/download/) (version 16 or upper)
+- [Install Node](https://nodejs.org/en/blog/release/v16.16.0/) (version 16)
 - [Install Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
 
-### Login to your NPM profile via the CLI
+### Login to your NPM profile
 
 This is so you can install `@avalabs` packages from the NPM registry:
 
-```sh
-npx npm-cli-login -u YOUR_NPM_USERNAME -p YOUR_NPM_PASSWORD -e YOUR_NPM_EMAIL
-```
+Follow the instructions [here](https://docs.npmjs.com/accessing-npm-using-2fa#sign-in-from-the-command-line-using---auth-typeweb)
 
-You can also [set up an access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) if you prefer.
+## Install
+
+`yarn install` will install all the required dependencies for the project.
 
 ## Build
 

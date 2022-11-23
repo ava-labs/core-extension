@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { useBuyClick } from '@src/hooks/useBuyClick';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const ActionButtonWrapper = styled(TextButton)`
   padding: 8px;
@@ -84,6 +84,7 @@ export function FAB() {
   const history = useHistory();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
   const { onBuyClick } = useBuyClick();
+  const { t } = useTranslation();
 
   const ActionButton = ({ icon, text, ...rest }) => (
     <ActionButtonWrapper

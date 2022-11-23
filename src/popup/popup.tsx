@@ -34,6 +34,7 @@ import { AddNetwork } from '@src/pages/Networks/AddNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
+import { Accounts } from '@src/pages/Accounts/Accounts';
 
 import { lazy, Suspense, useEffect, useMemo } from 'react';
 import {
@@ -44,8 +45,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
-import '@src/localization/init';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -164,6 +164,7 @@ const UpdateContacts = lazy(() => {
 });
 
 export function Popup() {
+  const { t } = useTranslation();
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
@@ -245,6 +246,7 @@ export function Popup() {
                                   '/bridge/transaction-details',
                                   '/send/confirm',
                                   '/collectible/send/confirm',
+                                  '/accounts',
                                 ].some((path) =>
                                   location.pathname.startsWith(path)
                                 ) && (
@@ -437,6 +439,12 @@ export function Popup() {
                                     <Route path="/network/switch">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SwitchActiveNetwork />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/accounts">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Accounts />
                                       </Suspense>
                                     </Route>
 

@@ -9,13 +9,14 @@ import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
 import { TokenCard } from './components/TokenCard';
 import { TransactionHeader } from './components/TransactionHeader';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function SwapTx({
   path,
   toAddress,
   fromAddress,
 }: SwapExactTokensForTokenDisplayValues) {
+  const { t } = useTranslation();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const sentToken = path[0]!;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

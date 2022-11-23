@@ -32,11 +32,16 @@ export class GetNetworksStateHandler implements HandlerType {
       };
     }
 
-    const networkList = Object.values<Network>(networks).sort((a, b) =>
-      a.chainName.localeCompare(b.chainName)
-    );
+    const networkList = Object.values<Network>(networks)
+      .map((network) => {
+        const networkWithoutTokens = { ...network };
+        delete networkWithoutTokens.tokens;
+        return networkWithoutTokens;
+      })
+      .sort((a, b) => a.chainName.localeCompare(b.chainName));
 
-    const activeNetwork = this.networkService.activeNetwork;
+    const activeNetwork = Object.assign({}, this.networkService.activeNetwork);
+    delete activeNetwork?.tokens;
 
     const favoriteNetworks = this.networkService.favoriteNetworks;
 

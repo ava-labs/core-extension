@@ -19,13 +19,14 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { WalletType } from '@src/background/services/wallet/models';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function SecurityAndPrivacy({
   goBack,
   navigateTo,
   width,
 }: SettingsPageProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { showDialog, clearDialog } = useDialog();
   const { walletType } = useWalletContext();

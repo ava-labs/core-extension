@@ -14,7 +14,7 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import styled, { useTheme } from 'styled-components';
 import { Network } from '@avalabs/chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const SiteAvatar = styled(VerticalFlex)`
   width: 80px;
@@ -25,6 +25,7 @@ const SiteAvatar = styled(VerticalFlex)`
 `;
 
 export function SetDeveloperMode() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
 

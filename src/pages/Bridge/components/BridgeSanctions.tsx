@@ -5,9 +5,10 @@ import {
 } from '@avalabs/react-components';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export const BridgeSanctions = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   return (
     <VerticalFlex>

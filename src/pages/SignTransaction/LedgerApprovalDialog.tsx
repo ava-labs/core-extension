@@ -8,7 +8,7 @@ import {
   HorizontalFlex,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 interface LedgerApprovalDialogProps {
   address?: string;
@@ -34,6 +34,7 @@ export function LedgerApprovalDialog({
   feeSymbol,
   nftName,
 }: LedgerApprovalDialogProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   return (
     <VerticalFlex

@@ -13,7 +13,7 @@ import type { Contact } from '@avalabs/types';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const Tabs = styled(HorizontalFlex)`
   border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
@@ -51,6 +51,7 @@ export const ContactSelect = ({
   onChange,
   selectedContact,
 }: ContactSelectProps) => {
+  const { t } = useTranslation();
   const identifyAddress = useIdentifyAddress();
   const { getTransactionHistory } = useWalletContext();
   const { accounts } = useAccountsContext();

@@ -20,7 +20,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -35,6 +35,7 @@ const FlexScrollbars = styled(Scrollbars)`
 `;
 
 export const AddNetwork = () => {
+  const { t } = useTranslation();
   const { saveCustomNetwork } = useNetworkContext();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
 

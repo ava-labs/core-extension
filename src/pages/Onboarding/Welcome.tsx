@@ -13,7 +13,7 @@ import { BetaLabel } from '@src/components/icons/BetaLabel';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const ExistingWalletButton = styled(OnboardButton)`
   .lock-ledger-icon-container {
@@ -55,6 +55,7 @@ const defaultOptions = {
 
 export function Welcome({ onNext }: WelcomeProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <VerticalFlex width="100%" align="center">
       <VerticalFlex justify="center" align="center" margin="22px 0 36px">

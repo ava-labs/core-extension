@@ -2,11 +2,13 @@ import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 
 describe('utils/addGlacierAPIKeyIfNeeded', () => {
   const env = process.env;
+
   beforeEach(() => {
     process.env = {
       ...env,
       GLACIER_API_KEY: 'glacierapikey',
       GLACIER_URL: 'https://glacier-api-dev.avax.network',
+      PROXY_URL: 'https://proxy-api-dev.avax.network',
     };
   });
 
@@ -24,14 +26,26 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
     );
   });
 
-  it('adds key on the domain from the env var', () => {
+  it('adds key on the domain from the `GLACIER_URL`` env var', () => {
+    expect(
+      addGlacierAPIKeyIfNeeded(`${process.env.GLACIER_URL}/somethingsomething`)
+    ).toBe(`${process.env.GLACIER_URL}/somethingsomething?token=glacierapikey`);
+  });
+
+  it('adds key on the production `proxy-api.avax.network` domain', () => {
     expect(
       addGlacierAPIKeyIfNeeded(
-        `https://glacier-api-dev.avax.network/somethingsomething`
+        'https://proxy-api.avax.network/somethingsomething'
       )
     ).toBe(
-      'https://glacier-api-dev.avax.network/somethingsomething?token=glacierapikey'
+      'https://proxy-api.avax.network/somethingsomething?token=glacierapikey'
     );
+  });
+
+  it('adds key on the domain from the `PROXY_URL`` env var', () => {
+    expect(
+      addGlacierAPIKeyIfNeeded(`${process.env.PROXY_URL}/somethingsomething`)
+    ).toBe(`${process.env.PROXY_URL}/somethingsomething?token=glacierapikey`);
   });
 
   it('supports query params', () => {
@@ -45,7 +59,7 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
   });
 
   it('does nothing when no glacier key is present', () => {
-    process.env = { ...env, GLACIER_URL: 'https://glacier-api.avax.network' };
+    delete process.env.GLACIER_API_KEY;
 
     expect(
       addGlacierAPIKeyIfNeeded(
@@ -55,7 +69,7 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
   });
 
   it('does nothing when no glacier url is present', () => {
-    process.env = { ...env, GLACIER_API_KEY: 'glacierapikey' };
+    delete process.env.GLACIER_URL;
 
     expect(
       addGlacierAPIKeyIfNeeded(
@@ -64,7 +78,17 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
     ).toBe('https://glacier-api.avax.network/somethingsomething');
   });
 
-  it('does nothing for non glacier domains', () => {
+  it('does nothing when no proxy url is present', () => {
+    delete process.env.PROXY_URL;
+
+    expect(
+      addGlacierAPIKeyIfNeeded(
+        'https://glacier-api.avax.network/somethingsomething'
+      )
+    ).toBe('https://glacier-api.avax.network/somethingsomething');
+  });
+
+  it('does nothing for non supported domains', () => {
     expect(
       addGlacierAPIKeyIfNeeded('https://glacier-api.avax-test.network')
     ).toBe('https://glacier-api.avax-test.network');

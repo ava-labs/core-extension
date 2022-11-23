@@ -1,6 +1,7 @@
 import { Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
 import { ExtensionRequestHandler } from '../models';
+import * as Sentry from '@sentry/browser';
 
 export function ExtensionRequestHandlerMiddleware(
   handlers: ExtensionRequestHandler<any, any>[]
@@ -19,16 +20,22 @@ export function ExtensionRequestHandlerMiddleware(
       error(new Error('no handler for this request found'));
       return;
     }
-
+    const sentryTracker = Sentry.startTransaction({
+      name: `Handler: ${context.request.method}`,
+    });
     const promise = handler.handle({ ...context.request });
 
     context.response = await resolve(promise).then(([result, error]) => {
       error && console.error(error);
+      error
+        ? sentryTracker.setStatus('intertal_error')
+        : sentryTracker.setStatus('ok');
       return {
         ...(error ? error : result),
       };
     });
 
+    sentryTracker.finish();
     next();
   };
 }

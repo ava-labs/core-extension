@@ -39,7 +39,7 @@ import {
   bnToLocaleString,
 } from '@avalabs/utils-sdk';
 import { satoshiToBtc } from '@avalabs/bridge-sdk';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -129,13 +129,14 @@ export const SendConfirm = ({
   gasPrice,
   selectedGasFee,
 }: SendConfirmProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
   const { activeAccount } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
-  const nativeTokenPrice = useNativeTokenPrice();
+  const nativeTokenPrice = useNativeTokenPrice(network);
 
   useLedgerDisconnectedDialog(history.goBack);
 
@@ -272,7 +273,11 @@ export const SendConfirm = ({
               <Typography size={12} height="15px" margin="0 8px 0 0">
                 {t('Network Fee')}
               </Typography>
-              <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={gasLimit} />
+              <TransactionFeeTooltip
+                gasPrice={gasPrice}
+                gasLimit={gasLimit}
+                network={network}
+              />
             </HorizontalFlex>
             <Typography
               data-testid="send-network-fee-amount"

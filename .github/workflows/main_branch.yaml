@@ -27,6 +27,7 @@ jobs:
           echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
           echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
+          echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
           echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
           echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
       - name: Install dependencies
@@ -84,7 +85,13 @@ jobs:
         run: ls *.zip
       - name: Rename extension file
         run: mv *.zip extension.zip
-      - name: Running smoke tests against latest zip
+      - name: Generate crx file
+        uses: cardinalby/webext-buildtools-chrome-crx-action@v2
+        with:
+          zipFilePath: './extension.zip'
+          crxFilePath: './extension.crx'
+          privateKey: ${{ secrets.CRX_PRIVATE_KEY }}
+      - name: Running smoke tests against latest crx
         run: npm run ext:testnet-smoke
       - name: Success slack notification
         if: success()

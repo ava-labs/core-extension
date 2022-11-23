@@ -11,12 +11,13 @@ import { useTheme } from 'styled-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export const ManageTokens = () => {
   const theme = useTheme();
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { t } = useTranslation();
 
   return (
     <VerticalFlex flex={1}>

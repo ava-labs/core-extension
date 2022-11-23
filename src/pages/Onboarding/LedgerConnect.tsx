@@ -28,8 +28,7 @@ import { Network } from '@avalabs/chains-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { useGetAvalancheNetwork } from '@src/hooks/useGetAvalancheNetwork';
 import { PubKeyType } from '@src/background/services/wallet/models';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { TFunction, Trans, useTranslation } from 'react-i18next';
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 
 interface LedgerConnectProps {
@@ -58,6 +57,7 @@ const WAIT_1500_MILLI_FOR_USER = 1500;
 
 const getConfirmAccountLabel = (
   confirmedAccountCount: number,
+  t: TFunction<'translation', undefined>,
   pathSpec?: DerivationPath
 ) => {
   if (!pathSpec) {
@@ -106,6 +106,7 @@ export function LedgerConnect({
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [avalancheNetwork, setAvalancheNetwork] = useState<Network>();
+  const { t } = useTranslation();
 
   const resetStates = () => {
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
@@ -157,7 +158,7 @@ export function LedgerConnect({
       return;
     }
     await initLedgerTransport();
-    const path = getAddressDerivationPath(0, pathSpec);
+    const path = getAddressDerivationPath(0, pathSpec, 'EVM');
 
     setDerivationPath(path);
   };
@@ -183,7 +184,11 @@ export function LedgerConnect({
     pubKeys: PubKeyType[] = []
   ) => {
     try {
-      const derivationPath = getAddressDerivationPath(accountIndex, pathSpec);
+      const derivationPath = getAddressDerivationPath(
+        accountIndex,
+        pathSpec,
+        'EVM'
+      );
       setDerivationPath(derivationPath);
 
       const pubKey = await getPublicKey(accountIndex, pathSpec);
@@ -258,11 +263,10 @@ export function LedgerConnect({
   };
 
   const Content = (
-    <Typography align="left" size={12}>
-      This process retrieves the addresses
-      <br />
-      from your ledger
-    </Typography>
+    <Trans
+      i18nKey="<typography>This process retrieves the addresses<br />from your ledger</typography>"
+      components={{ typography: <Typography align="left" size={12} /> }}
+    />
   );
 
   return (
@@ -301,7 +305,7 @@ export function LedgerConnect({
               {publicKeyState !== LedgerStatus.LEDGER_CONNECTION_FAILED && (
                 <VerticalFlex>
                   <Typography size={12} margin="6px 0 0">
-                    {getConfirmAccountLabel(confirmedAccountCount, pathSpec)}
+                    {getConfirmAccountLabel(confirmedAccountCount, t, pathSpec)}
                   </Typography>
                 </VerticalFlex>
               )}

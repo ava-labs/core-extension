@@ -2,9 +2,10 @@ import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
 import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function EthSign({ message }: { message: Action }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   return (
     <VerticalFlex width={'100%'}>

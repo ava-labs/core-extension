@@ -8,9 +8,10 @@ import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAvailableBlockchains } from '../hooks/useAvailableBlockchains';
 import { blockchainToNetwork } from '../utils/blockchainConversion';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export const BridgeUnknownNetwork = ({ onSelect }) => {
+  const { t } = useTranslation();
   const availableBlockchains = useAvailableBlockchains();
   const blockchain = availableBlockchains.includes(Blockchain.ETHEREUM)
     ? Blockchain.ETHEREUM

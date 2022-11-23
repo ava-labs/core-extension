@@ -25,13 +25,14 @@ import { useHistory } from 'react-router-dom';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 interface NetworkListProps {
   networkList: Network[];
 }
 
 export function NetworkList({ networkList }: NetworkListProps) {
+  const { t } = useTranslation();
   const {
     network,
     setNetwork,

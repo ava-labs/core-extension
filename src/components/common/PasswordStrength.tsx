@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { useTheme, DefaultTheme } from 'styled-components';
 import { useThemeContext } from '@avalabs/react-components';
 import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'));
 
@@ -60,6 +61,7 @@ export function PasswordStrength({
   password: string;
   setPasswordStrength: (score: number) => void;
 }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { darkMode } = useThemeContext();
   const barColors = getBarColors(theme, darkMode);

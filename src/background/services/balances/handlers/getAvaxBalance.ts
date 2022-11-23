@@ -33,11 +33,13 @@ export class GetAvaxBalanceHandler implements HandlerType {
         error: 'no provider',
       };
     }
+
     const balance = await this.balancesServiceEVM.getNativeTokenBalance(
       provider,
       address,
       avalancheNetwork
     );
+
     return {
       ...request,
       result: { balance },

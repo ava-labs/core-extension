@@ -15,12 +15,12 @@ import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { AccountBalance } from './AccountBalance';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 
-interface AccountDropdownItemProps {
+interface AccountItemProps {
   account: Account;
   editing: boolean;
   onEdit: () => void;
@@ -60,7 +60,7 @@ const AccountNameInput = styled(WordInput)`
   }
 `;
 
-const AccountItem = styled(HorizontalFlex)<{
+const StyledAccountItem = styled(HorizontalFlex)<{
   selected?: boolean;
   edit?: boolean;
 }>`
@@ -82,18 +82,19 @@ const AccountItem = styled(HorizontalFlex)<{
   transition: 0.2s ease-in-out;
 `;
 
-export function AccountDropdownItem({
+export function AccountItem({
   account,
   editing,
   onEdit,
   onSave,
-}: AccountDropdownItemProps) {
+}: AccountItemProps) {
   const [accountName, setAccountName] = useState<string>(account.name);
   const { renameAccount } = useAccountsContext();
   const theme = useTheme();
   const { updateBalanceOnAllNetworks } = useBalancesContext();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
+  const { t } = useTranslation();
   const hasBalance = balanceTotalUSD !== null;
 
   const inEditMode = account.active && editing;
@@ -124,7 +125,7 @@ export function AccountDropdownItem({
   };
 
   return (
-    <AccountItem selected={account.active} edit={inEditMode}>
+    <StyledAccountItem selected={account.active} edit={inEditMode}>
       <VerticalFlex align="flex-start">
         <HorizontalFlex
           width={inEditMode ? '100%' : 'auto'}
@@ -250,6 +251,6 @@ export function AccountDropdownItem({
           )}
         </>
       )}
-    </AccountItem>
+    </StyledAccountItem>
   );
 }

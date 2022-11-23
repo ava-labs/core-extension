@@ -9,13 +9,14 @@ import { useTheme } from 'styled-components';
 import { AddressPaths } from './components/AddressPaths';
 import { TokenCard } from './components/TokenCard';
 import { TransactionHeader } from './components/TransactionHeader';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function AddLiquidityTx({
   poolTokens,
   toAddress,
   fromAddress,
 }: AddLiquidityDisplayData) {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const plusIcon = (

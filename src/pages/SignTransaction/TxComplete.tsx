@@ -4,9 +4,10 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function TxComplete({ hash }: { hash?: string }) {
+  const { t } = useTranslation();
   return (
     <VerticalFlex>
       <Typography>{t('Tx Finished')}</Typography>

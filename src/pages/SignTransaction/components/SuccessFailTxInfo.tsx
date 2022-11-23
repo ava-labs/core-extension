@@ -17,9 +17,10 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { BigNumber } from 'ethers';
 import Big from 'big.js';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetTransaction } from '../hooks/useGetTransaction';
 
 export function SuccessFailTxInfo({
   hash,
@@ -32,9 +33,11 @@ export function SuccessFailTxInfo({
   gasLimit: number;
   error?: string;
 }) {
+  const { t } = useTranslation();
   const theme = useTheme();
-  const { network } = useNetworkContext();
-  const nativeTokenPrice = useNativeTokenPrice();
+  const requestId = useGetRequestId();
+  const { network } = useGetTransaction(requestId);
+  const nativeTokenPrice = useNativeTokenPrice(network);
   const { currencyFormatter } = useSettingsContext();
 
   const gasCost = new Big(gasPrice.toString()).mul(gasLimit).div(10 ** 18);
@@ -68,7 +71,11 @@ export function SuccessFailTxInfo({
           <Typography size={12} height="15px" margin="0 8px 0 0">
             {t('Network Fee')}
           </Typography>
-          <TransactionFeeTooltip gasPrice={gasPrice} gasLimit={gasLimit} />
+          <TransactionFeeTooltip
+            gasPrice={gasPrice}
+            gasLimit={gasLimit}
+            network={network}
+          />
         </HorizontalFlex>
         <VerticalFlex align="flex-end">
           <Typography size={12} height="15px" margin="0 0 4px 0">

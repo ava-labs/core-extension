@@ -180,7 +180,8 @@ export class WalletService implements OnLock, OnUnlock {
           addressPublicKey,
           getAddressDerivationPath(
             accountsService.activeAccount.index,
-            DerivationPath.BIP44
+            DerivationPath.BIP44,
+            'EVM'
           ),
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport
@@ -202,7 +203,8 @@ export class WalletService implements OnLock, OnUnlock {
           Buffer.from(addressPublicKey.evm, 'hex'),
           getAddressDerivationPath(
             accountsService.activeAccount.index,
-            DerivationPath.LedgerLive
+            DerivationPath.LedgerLive,
+            'EVM'
           ),
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport
@@ -384,6 +386,10 @@ export class WalletService implements OnLock, OnUnlock {
           index,
           isMainnet ? networks.bitcoin : networks.testnet
         ),
+        //TODO: Add support once XP is ready
+        [NetworkVMType.AVM]: '',
+        [NetworkVMType.PVM]: '',
+        [NetworkVMType.CoreEth]: '',
       };
     } else if (secrets?.pubKeys) {
       // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
@@ -401,6 +407,10 @@ export class WalletService implements OnLock, OnUnlock {
           pubKeyBuffer,
           isMainnet ? networks.bitcoin : networks.testnet
         ),
+        //TODO: Add support once XP is ready
+        [NetworkVMType.AVM]: '',
+        [NetworkVMType.PVM]: '',
+        [NetworkVMType.CoreEth]: '',
       };
     }
 

@@ -10,8 +10,7 @@ import {
   TextButton,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const TroubleshootLink = styled(TextButton)`
   cursor: pointer;
@@ -48,6 +47,7 @@ export function LedgerConnectCard({
 }) {
   const theme = useTheme();
   const isErrorStatus = LedgerStatus.LEDGER_CONNECTION_FAILED === status;
+  const { t } = useTranslation();
 
   return (
     <VerticalFlex margin="16px 0 0 0">

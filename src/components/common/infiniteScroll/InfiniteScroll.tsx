@@ -3,7 +3,7 @@ import {
   Typography,
   LoadingSpinnerIcon,
 } from '@avalabs/react-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { Scrollbars } from '../scrollbars/Scrollbars';
@@ -29,6 +29,7 @@ export function InfiniteScroll({
 }: InfiniteScrollProps) {
   const loader = useRef(null);
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const loadMoreHandler = useCallback(
     (entries) => {

@@ -3,9 +3,10 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkTabProps } from './Networks';
 import { EmptyContent } from '@src/components/common/EmptyContent';
 import { NetworkList } from './common/NetworkList';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function FavoritesTab({ searchTerm }: NetworkTabProps) {
+  const { t } = useTranslation();
   const { favoriteNetworks } = useNetworkContext();
 
   const filteredNetworks = favoriteNetworks.filter(

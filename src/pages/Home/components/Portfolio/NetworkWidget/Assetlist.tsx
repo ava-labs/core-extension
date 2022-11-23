@@ -2,6 +2,7 @@ import {
   HorizontalFlex,
   TextButton,
   Typography,
+  TokenEllipsis,
 } from '@avalabs/react-components';
 import {
   TokenType,
@@ -14,7 +15,9 @@ import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme, keyframes } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { BalanceColumn } from '@src/components/common/BalanceColumn';
+import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -46,11 +49,11 @@ const BalanceField = styled(Typography)`
 const AssetlistRow = styled(HorizontalFlex)`
   &:hover {
     background-color: ${({ theme }) => `${theme.palette.white}40`};
-    > ${BalanceField} {
+    > ${BalanceColumn} > ${BalanceField} {
       display: block;
       animation: 0.3s ease-in-out ${ShowAnimation};
     }
-    > ${BalanceUSDField} {
+    > ${BalanceColumn} > ${BalanceUSDField} {
       display: none;
       animation: 0.3s ease-in-out ${HideAnimation};
     }
@@ -58,6 +61,7 @@ const AssetlistRow = styled(HorizontalFlex)`
 `;
 
 export function Assetlist({ assetList }: AssetListProps) {
+  const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const tokensWithBalances = useTokensWithBalances();
   const { currencyFormatter } = useSettingsContext();
@@ -104,39 +108,43 @@ export function Assetlist({ assetList }: AssetListProps) {
                 color={theme.colors.text1}
                 size={12}
               >
-                {token.name}
+                <TokenEllipsis maxLength={12} text={token.name} />
               </Typography>
               <Typography
                 margin="0 0 0 4px"
                 color={theme.colors.text2}
                 size={12}
               >
-                {token.symbol}
+                <TokenEllipsis maxLength={8} text={token.symbol} />
               </Typography>
             </HorizontalFlex>
-            {!!token.balanceUSD && (
-              <>
-                <BalanceUSDField
-                  data-testid="token-row-currency-balance"
-                  color={theme.colors.text1}
-                  size={12}
-                >
-                  {currencyFormatter(token.balanceUSD)}
-                </BalanceUSDField>
-                <BalanceField
-                  data-testid="token-row-token-balance"
-                  color={theme.colors.text1}
-                  size={12}
-                >
-                  {token.balanceDisplayValue} {token.symbol}
-                </BalanceField>
-              </>
-            )}
-            {token.balanceUSD === 0 && (
-              <Typography color={theme.colors.text1} size={12}>
-                {token.balanceDisplayValue} {token.symbol}
-              </Typography>
-            )}
+            <BalanceColumn>
+              {!!token.balanceUSD && (
+                <>
+                  <BalanceUSDField
+                    data-testid="token-row-currency-balance"
+                    color={theme.colors.text1}
+                    size={12}
+                  >
+                    {currencyFormatter(token.balanceUSD)}
+                  </BalanceUSDField>
+                  <BalanceField
+                    data-testid="token-row-token-balance"
+                    color={theme.colors.text1}
+                    size={12}
+                  >
+                    {token.balanceDisplayValue}{' '}
+                    <InlineTokenEllipsis maxLength={8} text={token.symbol} />
+                  </BalanceField>
+                </>
+              )}
+              {token.balanceUSD === 0 && (
+                <Typography color={theme.colors.text1} size={12}>
+                  {token.balanceDisplayValue}{' '}
+                  <InlineTokenEllipsis maxLength={8} text={token.symbol} />
+                </Typography>
+              )}
+            </BalanceColumn>
           </AssetlistRow>
         );
       })}

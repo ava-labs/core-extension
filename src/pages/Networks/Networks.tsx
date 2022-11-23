@@ -14,7 +14,7 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { useTheme } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { useState } from 'react';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 enum NetworkTabs {
   FAVORITES = 'FAVORITES',
@@ -27,6 +27,7 @@ export interface NetworkTabProps {
 }
 
 export function Networks() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const { capture } = useAnalyticsContext();
   const theme = useTheme();

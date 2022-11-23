@@ -1,4 +1,4 @@
-import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import { WalletType } from '@src/background/services/wallet/models';
 import {
@@ -15,7 +15,7 @@ import {
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { LedgerWrongVersion } from '@src/pages/Ledger/LedgerWrongVersion';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 
@@ -25,8 +25,10 @@ const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
 
 export function useLedgerDisconnectedDialog(
   onCancel: () => void,
-  requestedApp?: LedgerAppType
+  requestedApp?: LedgerAppType,
+  otherNetwork?: Network
 ): boolean {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { walletType } = useWalletContext();
   const {
@@ -37,9 +39,10 @@ export function useLedgerDisconnectedDialog(
     avaxAppVersion,
   } = useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
-  const { network } = useNetworkContext();
+  const { network: activeNetwork } = useNetworkContext();
   const [hasCorrectApp, setHasCorrectApp] = useState(false);
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
+  const network = otherNetwork ?? activeNetwork;
 
   const requiredAppType = useMemo(() => {
     if (requestedApp) {
@@ -97,6 +100,7 @@ export function useLedgerDisconnectedDialog(
     );
   }, [
     showDialog,
+    t,
     requiredAppType,
     theme.colors.icon1,
     isConfirm,
@@ -135,6 +139,7 @@ export function useLedgerDisconnectedDialog(
     );
   }, [
     showDialog,
+    t,
     requiredAppType,
     isConfirm,
     popDeviceSelection,

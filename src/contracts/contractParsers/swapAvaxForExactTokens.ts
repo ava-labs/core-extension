@@ -51,7 +51,8 @@ export async function swapAVAXForExactTokens(
   };
 
   const lastTokenInPath = await findToken(
-    data.path[data.path.length - 1]?.toLowerCase() || ''
+    data.path[data.path.length - 1]?.toLowerCase() || '',
+    network
   );
   const lastTokenAmountBN = hexToBN(
     (data.amountOut || data.amountOutMin).toHexString()

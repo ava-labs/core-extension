@@ -65,6 +65,7 @@ export enum ExtensionRequest {
   SETTINGS_SET_DEFAULT_EXTENSION = 'settings_set_default_extension',
   SETTINGS_GET_DEFAULT_EXTENSION = 'settings_get_default_extension',
   SETTINGS_SET_ANALYTICS_CONSENT = 'settings_set_analytics_consent',
+  SETTINGS_SET_LANGUAGE = 'settings_set_language',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',

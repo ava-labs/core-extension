@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import { CollectibleMedia } from './components/CollectibleMedia';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 
 const AttributeLabel = styled(Typography)`
@@ -29,6 +29,7 @@ const AttributeData = styled(Typography)`
 `;
 
 export function CollectibleDetails() {
+  const { t } = useTranslation();
   const setCollectibleParams = useSetCollectibleParams();
   const { nft } = useCollectibleFromParams();
 

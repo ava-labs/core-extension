@@ -6,7 +6,7 @@ import {
 } from '@avalabs/react-components';
 import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 /**
  * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v4
@@ -14,6 +14,7 @@ import { t } from 'i18next';
  * @returns
  */
 export function SignDataV4({ message }: { message: Action }) {
+  const { t } = useTranslation();
   const data = message.displayData.data;
 
   const renderRow = (data: any) => {

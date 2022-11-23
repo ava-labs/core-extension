@@ -8,6 +8,7 @@ export const DEFAULT_FLAGS = {
   [FeatureGates.BRIDGE_ETH]: true,
   [FeatureGates.BRIDGE_BTC]: true,
   [FeatureGates.SEND]: true,
+  [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: true,
 };
 
 export enum FeatureFlagEvents {

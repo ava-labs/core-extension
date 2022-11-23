@@ -16,9 +16,10 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function AddTokenApproval() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
   const {

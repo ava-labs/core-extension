@@ -11,7 +11,7 @@ import {
 import styled, { useTheme } from 'styled-components';
 import { DerivationPath } from '@avalabs/wallets-sdk';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const StyledVerticalFlex = styled(VerticalFlex)`
   width: 100%;
@@ -57,6 +57,8 @@ export function DerivationPathDropdown({
 }: DerivationPathDropdownProps) {
   const [selectingPath, setSelectingPath] = useState(false);
   const theme = useTheme();
+  const { t } = useTranslation();
+
   return (
     <>
       <StyledVerticalFlex>

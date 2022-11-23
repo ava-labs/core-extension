@@ -17,13 +17,14 @@ import { BtcQRCodeLogo } from '@src/components/icons/BtcQRCodeLogo';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { EthereumQRCodeLogo } from '@src/components/icons/EthereumQRCodeLogo';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const StyledPrimaryAddress = styled(PrimaryAddress)`
   width: 100%;
 `;
 
 export const Receive = () => {
+  const { t } = useTranslation();
   const { network } = useNetworkContext();
   const { activeAccount } = useAccountsContext();
   const { capture } = useAnalyticsContext();

@@ -12,8 +12,7 @@ import { truncateAddress } from '@src/utils/truncateAddress';
 import { TransactionHeader } from './components/TransactionHeader';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function ApproveTx({
   site,
@@ -22,6 +21,7 @@ export function ApproveTx({
   displaySpendLimit,
   ...rest
 }: ApproveTransactionData) {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const hideEdit: boolean =

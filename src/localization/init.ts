@@ -8,7 +8,19 @@ i18next
     // Remove resources from here
     lng: 'en',
     fallbackLng: 'en',
-    supportedLngs: ['en'],
+    supportedLngs: [
+      'en',
+      'de-DE',
+      'hi-IN',
+      'ko-KR',
+      'ru-RU',
+      'tr-TR',
+      'zh-CN',
+      'zh-TW',
+      'es-EM',
+      'ja-JP',
+    ],
+    load: 'currentOnly',
     interpolation: {
       escapeValue: false,
     },

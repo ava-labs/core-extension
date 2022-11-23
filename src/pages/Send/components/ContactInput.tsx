@@ -16,7 +16,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers/lib/utils';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const RelativeContainer = styled.div`
   position: relative;
@@ -47,6 +47,7 @@ export const ContactInput = ({
   toggleContactsDropdown,
   setIsOpen,
 }: ContactInputProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { network } = useNetworkContext();
   const inputRef = useRef<HTMLDivElement>(null);

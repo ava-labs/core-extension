@@ -18,7 +18,7 @@ import styled, { useTheme } from 'styled-components';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -35,6 +35,7 @@ export function WalletLocked({
 }: {
   unlockWallet(password: string): Promise<any>;
 }) {
+  const { t } = useTranslation();
   const { request } = useConnectionContext();
   const dimensions = useAppDimensions();
   const [password, setPassword] = useState<string>('');

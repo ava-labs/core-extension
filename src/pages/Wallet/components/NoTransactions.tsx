@@ -4,9 +4,10 @@ import {
   VerticalFlex,
 } from '@avalabs/react-components';
 import { useTheme } from 'styled-components';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export function NoTransactions({ loading = false }: { loading: boolean }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   return (
     <VerticalFlex align="center" grow="1" margin="48px 0 0 0">
