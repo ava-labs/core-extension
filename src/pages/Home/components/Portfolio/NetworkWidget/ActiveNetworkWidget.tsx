@@ -2,7 +2,10 @@ import { Assetlist } from './Assetlist';
 import {
   HorizontalFlex,
   HorizontalSeparator,
+  LinkIcon,
   Skeleton,
+  TextButton,
+  Tooltip,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -16,6 +19,9 @@ import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useTranslation } from 'react-i18next';
+import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { ChainId } from '@avalabs/chains-sdk';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -34,6 +40,14 @@ const LogoContainer = styled.div`
   margin-right: 16px;
 `;
 
+function TooltipContent({ text }: { text: React.ReactNode }) {
+  return (
+    <VerticalFlex width="120px">
+      <Typography size={12}>{text}</Typography>
+    </VerticalFlex>
+  );
+}
+
 export function ActiveNetworkWidget({
   assetList,
   activeNetworkBalance,
@@ -41,12 +55,18 @@ export function ActiveNetworkWidget({
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
-  const { network } = useNetworkContext();
+  const { network, isCustomNetwork } = useNetworkContext();
   const { currencyFormatter } = useSettingsContext();
+  const { activeAccount } = useAccountsContext();
 
   if (!network || !assetList?.length) {
     return <Skeleton height="234px" delay={250} />;
   }
+
+  const showCoreWebLink =
+    network.chainId === ChainId.BITCOIN || isCustomNetwork(network.chainId)
+      ? false
+      : true;
 
   const handleCardClick = (e) => {
     e.stopPropagation();
@@ -60,11 +80,12 @@ export function ActiveNetworkWidget({
         display="block"
         onClick={handleCardClick}
       >
-        <VerticalFlex>
+        <VerticalFlex height="100%">
           <HorizontalFlex
             justify="space-between"
-            align="flex-start"
+            align="stretch"
             width="100%"
+            height="100%"
           >
             <HorizontalFlex>
               <LogoContainer>
@@ -98,15 +119,36 @@ export function ActiveNetworkWidget({
                 </Typography>
               </VerticalFlex>
             </HorizontalFlex>
-            <Badge>
-              <Typography
-                color={theme.palette.grey[900]}
-                size={10}
-                height="17px"
-              >
-                {t('Active')}
-              </Typography>
-            </Badge>
+            <VerticalFlex justify="space-between" align="flex-end">
+              <Badge>
+                <Typography
+                  color={theme.palette.grey[900]}
+                  size={10}
+                  height="17px"
+                >
+                  {t('Active')}
+                </Typography>
+              </Badge>
+              {showCoreWebLink ? (
+                <Tooltip
+                  placement={'left'}
+                  content={<TooltipContent text={t('View in Core Web')} />}
+                >
+                  <TextButton
+                    as="a"
+                    target="_blank"
+                    href={getCoreWebUrl(
+                      activeAccount?.addressC,
+                      network.chainId
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                    data-testid="core-web-link-icon"
+                  >
+                    <LinkIcon height="12" color={theme.colors.icon1} />
+                  </TextButton>
+                </Tooltip>
+              ) : null}
+            </VerticalFlex>
           </HorizontalFlex>
         </VerticalFlex>
         {assetList.length ? (

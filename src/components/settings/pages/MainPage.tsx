@@ -8,7 +8,6 @@ import {
   IconDirection,
   SecondaryButton,
   TextButton,
-  Toggle,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -22,20 +21,26 @@ import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { WalletType } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@src/hooks/useLanguages';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import styled from 'styled-components';
+import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
+
+const StyledTag = styled(Typography)`
+  background-color: ${({ theme }) => theme.palette.secondary[500]};
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  padding: 2px 8px;
+`;
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { walletType } = useWalletContext();
-  const {
-    showTokensWithoutBalances,
-    lockWallet,
-    toggleShowTokensWithoutBalanceSetting,
-    currency,
-    isDefaultExtension,
-    toggleIsDefaultExtension,
-  } = useSettingsContext();
+  const { lockWallet, currency } = useSettingsContext();
   const { currentLanguage } = useLanguage();
+  const { activeAccount } = useAccountsContext();
 
   return (
     <VerticalFlex
@@ -61,6 +66,28 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         <TextButton onClick={onClose}>
           <CloseIcon height="16px" color={theme.colors.icon1} />
         </TextButton>
+      </HorizontalFlex>
+      <HorizontalFlex
+        justify="space-between"
+        padding="10px 16px"
+        align="center"
+      >
+        <TextButton
+          as="a"
+          target="_blank"
+          href={getCoreWebUrl(activeAccount?.addressC)}
+          data-testid="core-web-link-button"
+        >
+          <Typography
+            height="20px"
+            size={14}
+            color={theme.colors.secondary1}
+            weight={600}
+          >
+            {t('Core Web')}
+          </Typography>
+        </TextButton>
+        <StyledTag>{t('New!')}</StyledTag>
       </HorizontalFlex>
       <DropDownMenuItem
         data-testid="address-book-option"
@@ -171,33 +198,6 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           />
         </DropDownMenuItem>
       )}
-      <DropDownMenuItem
-        data-testid="show-tokens-without-balance-option"
-        justify="space-between"
-        padding="10px 16px"
-      >
-        <Typography size={14} height="17px">
-          {t('Show Tokens Without Balance')}
-        </Typography>
-        <Toggle
-          isChecked={showTokensWithoutBalances}
-          onChange={() => toggleShowTokensWithoutBalanceSetting()}
-        />
-      </DropDownMenuItem>
-
-      <DropDownMenuItem
-        data-testid="set-default-extension-option"
-        justify="space-between"
-        padding="12px 16px"
-      >
-        <Typography size={14} height="17px">
-          {t('Set as Default Extension')}
-        </Typography>
-        <Toggle
-          isChecked={isDefaultExtension}
-          onChange={() => toggleIsDefaultExtension()}
-        />
-      </DropDownMenuItem>
 
       <HorizontalFlex width="100%" margin="16px 0" padding="0 16px">
         <HorizontalSeparator />
