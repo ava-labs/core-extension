@@ -19,8 +19,8 @@ i18next
       'zh-TW',
       'es-EM',
       'ja-JP',
-      'zh',
     ],
+    load: 'currentOnly',
     interpolation: {
       escapeValue: false,
     },
