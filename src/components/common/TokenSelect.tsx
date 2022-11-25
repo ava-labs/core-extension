@@ -333,7 +333,7 @@ export function TokenSelect({
                 : null
             }
             hideCaretIcon={hideTokenDropdown}
-            label={selectorLabel ?? 'Select'}
+            label={selectorLabel ?? t('Select')}
           />
           <BNInput
             value={
@@ -399,7 +399,7 @@ export function TokenSelect({
                 <StyledSearchInput
                   searchTerm={searchQuery}
                   data-testid="token-search-input"
-                  placeholder="Search"
+                  placeholder={t('Search')}
                   width="100%"
                   onSearch={(term) => setSearchQuery(term)}
                   autoFocus={true}

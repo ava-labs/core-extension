@@ -49,7 +49,7 @@ export function AddToken() {
         method: ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
         params: [addressInput],
       });
-      success && toast.custom(<CustomToast label="Added!" />);
+      success && toast.custom(<CustomToast label={t('Added!')} />);
       capture('ManageTokensAddCustomToken', {
         status: 'success',
         address: addressInput,

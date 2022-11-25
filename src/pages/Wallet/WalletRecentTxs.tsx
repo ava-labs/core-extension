@@ -346,7 +346,7 @@ export function WalletRecentTxs({
                 window.open(explorerUrl);
               }}
             >
-              {t('View On Explorer')}
+              {t('View on explorer')}
             </PrimaryButton>
           </HorizontalFlex>
         )}

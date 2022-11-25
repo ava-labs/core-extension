@@ -68,7 +68,7 @@ export const CreatePassword = ({
         <Input
           data-testid="wallet-name-input"
           margin="32px 0 0"
-          label="Wallet Name"
+          label={t('Wallet Name')}
           onChange={(e) => setAccountName(e.target.value)}
           placeholder={t('Enter a Name')}
           autoFocus
@@ -76,7 +76,7 @@ export const CreatePassword = ({
         <Input
           data-testid="wallet-password-input"
           margin="24px 0"
-          label="Password"
+          label={t('Password')}
           onChange={(e) => setPassword(e.target.value)}
           placeholder={t('Enter a Password')}
           type="password"
