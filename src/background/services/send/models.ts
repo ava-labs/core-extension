@@ -49,14 +49,15 @@ export interface SendErrors {
   formError: SendError;
 }
 
+// see getSendErrorMessage for the message for display
 export enum SendErrorMessage {
-  AMOUNT_REQUIRED = 'Amount required',
-  ADDRESS_REQUIRED = 'Address required',
-  C_CHAIN_REQUIRED = 'Must be a C chain address',
-  INVALID_ADDRESS = 'Address is invalid',
-  INVALID_NETWORK_FEE = 'Network Fee is invalid',
-  INSUFFICIENT_BALANCE = 'Insufficient balance.',
-  INSUFFICIENT_BALANCE_FOR_FEE = 'Insufficient balance for fee',
+  AMOUNT_REQUIRED = 'AMOUNT_REQUIRED',
+  ADDRESS_REQUIRED = 'ADDRESS_REQUIRED',
+  C_CHAIN_REQUIRED = 'C_CHAIN_REQUIRED',
+  INVALID_ADDRESS = 'INVALID_ADDRESS',
+  INVALID_NETWORK_FEE = 'INVALID_NETWORK_FEE',
+  INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE',
+  INSUFFICIENT_BALANCE_FOR_FEE = 'INSUFFICIENT_BALANCE_FOR_FEE',
 }
 
 export interface SendServiceHelper {
