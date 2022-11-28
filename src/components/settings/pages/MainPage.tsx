@@ -63,7 +63,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
             <BetaLabel />
           </HorizontalFlex>
         </HorizontalFlex>
-        <TextButton onClick={onClose}>
+        <TextButton data-testid="close-settings-menu-button" onClick={onClose}>
           <CloseIcon height="16px" color={theme.colors.icon1} />
         </TextButton>
       </HorizontalFlex>
