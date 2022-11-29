@@ -12,20 +12,40 @@ import { SettingsHeader } from '../SettingsHeader';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CURRENCIES } from '@src/background/services/settings/models';
-import { useTranslation } from 'react-i18next';
+import { TFunction, useTranslation } from 'react-i18next';
+
+// TODO: bring back the commented currencies when the glacier supports them
+export const getCurrencyNames = (t: TFunction<'translation'>) => {
+  const currencyNames = {
+    [CURRENCIES.USD]: t('United States Dollar'),
+    [CURRENCIES.EUR]: t('Euro'),
+    [CURRENCIES.GBP]: t('Pound Sterling'),
+    [CURRENCIES.AUD]: t('Australian Dollar'),
+    [CURRENCIES.CAD]: t('Canadian Dollar'),
+    [CURRENCIES.CHF]: t('Swiss Franc'),
+    [CURRENCIES.HKD]: t('Hong Kong Dollar'),
+    // { name: 'Japanese Yen', symbol: 'JPY' },
+    // { name: 'Chinese Renminbi', symbol: 'CNH' },
+    // { name: 'New Zealand Dollar', symbol: 'NZD' },
+  };
+  return currencyNames;
+};
 
 export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { updateCurrencySetting, currency } = useSettingsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const currencyNames = getCurrencyNames(t);
 
-  const filteredCurrencies = CURRENCIES.filter(
-    (c) =>
-      !searchTerm ||
-      c.symbol.toLowerCase().includes(searchTerm) ||
-      c.name.toLowerCase().includes(searchTerm)
-  );
+  const filteredCurrencies = Object.keys(CURRENCIES)
+    .map((symbol) => ({ symbol, name: currencyNames[symbol] }))
+    .filter(
+      (c) =>
+        !searchTerm ||
+        c.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   return (
     <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
@@ -57,7 +77,7 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
             }}
           >
             <Typography size={14} height="17px">
-              {c.name} ({c.symbol})
+              {currencyNames[c.symbol]} ({c.symbol})
             </Typography>
             {currency === c.symbol && (
               <CheckmarkIcon height="16px" color={theme.colors.icon1} />
