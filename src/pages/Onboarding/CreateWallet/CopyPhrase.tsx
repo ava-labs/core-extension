@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  Mnemonic,
   PrimaryButton,
   Checkbox,
   ComponentSize,
@@ -10,6 +9,7 @@ import {
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
+import { Mnemonic } from '../../../components/common/Mnemonic';
 
 interface CopyPhraseProps {
   mnemonic: string;

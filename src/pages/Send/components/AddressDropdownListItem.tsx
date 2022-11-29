@@ -2,7 +2,6 @@ import {
   AvaxTokenIcon,
   HorizontalFlex,
   HorizontalSeparator,
-  SimpleAddress,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -10,6 +9,7 @@ import React from 'react';
 import styled, { useTheme } from 'styled-components';
 import type { Contact } from '@avalabs/types';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
+import { SimpleAddress } from '@src/components/common/SimpleAddress';
 
 const RowContainer = styled(VerticalFlex)`
   padding: 16px;

@@ -5,7 +5,6 @@ import {
   HorizontalFlex,
   Typography,
   TokenSelector,
-  BNInput,
   SearchInput,
   DropDownMenuItem,
   HorizontalSeparator,
@@ -26,6 +25,7 @@ import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from './VirtualizedList';
+import { BNInput } from './BNInput';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';

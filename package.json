@@ -27,7 +27,7 @@
     "@avalabs/etherscan-sdk": "v2.8.0-alpha.28",
     "@avalabs/glacier-sdk": "v2.8.0-alpha.28",
     "@avalabs/posthog-sdk": "v2.8.0-alpha.28",
-    "@avalabs/react-components": "1.110.0",
+    "@avalabs/react-components": "1.114.1",
     "@avalabs/snowtrace-sdk": "v2.8.0-alpha.28",
     "@avalabs/token-prices-sdk": "v2.8.0-alpha.28",
     "@avalabs/types": "v2.8.0-alpha.28",

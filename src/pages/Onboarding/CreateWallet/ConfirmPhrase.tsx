@@ -2,13 +2,13 @@ import { useState } from 'react';
 import {
   VerticalFlex,
   Typography,
-  Mnemonic,
   PrimaryButton,
   ComponentSize,
 } from '@avalabs/react-components';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
+import { Mnemonic } from '../../../components/common/Mnemonic';
 
 interface ConfirmPhraseProps {
   mnemonic: string;

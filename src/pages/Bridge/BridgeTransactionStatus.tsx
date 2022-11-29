@@ -5,7 +5,6 @@ import {
   HorizontalFlex,
   TextButton,
   HorizontalSeparator,
-  ConfirmationTracker,
   toast,
   useDialog,
   CaretIcon,
@@ -40,6 +39,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
 import { useTranslation } from 'react-i18next';
+import { ConfirmationTracker } from '@src/components/common/ConfirmationTracker';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;

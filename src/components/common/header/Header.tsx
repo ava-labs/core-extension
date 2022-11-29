@@ -3,7 +3,6 @@ import {
   HorizontalFlex,
   HorizontalSeparator,
   SecondaryButton,
-  SimpleAddress,
   Skeleton,
   Typography,
   VerticalFlex,
@@ -18,6 +17,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { useTranslation } from 'react-i18next';
+import { SimpleAddress } from '../SimpleAddress';
 
 export function Header() {
   const domain = useCurrentDomain();
