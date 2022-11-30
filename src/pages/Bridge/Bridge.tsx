@@ -53,7 +53,7 @@ import { BridgeConfirmLedger } from './components/BridgeConfirm';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BridgeSanctions } from './components/BridgeSanctions';
-import { isAddressWhitelisted } from './utils/isAddressWhitelisted';
+import { isAddressBlocklisted } from './utils/isAddressBlocklisted';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import {
   blockchainToNetwork,
@@ -343,7 +343,7 @@ export function Bridge() {
     return <BridgeUnknownNetwork onSelect={handleBlockchainSwitchFrom} />;
   }
 
-  if (activeAccount && isAddressWhitelisted(activeAccount, bridgeConfig)) {
+  if (activeAccount && isAddressBlocklisted(activeAccount, bridgeConfig)) {
     return <BridgeSanctions />;
   }
 
