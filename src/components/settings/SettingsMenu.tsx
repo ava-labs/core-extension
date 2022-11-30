@@ -1,4 +1,4 @@
-import { cloneElement, useState } from 'react';
+import { cloneElement, useEffect, useState } from 'react';
 import {
   HamburgerIcon,
   SecondaryOverlay,
@@ -21,6 +21,7 @@ import { Ledger } from './pages/Ledger';
 import { Legal } from './pages/Legal';
 import { Advanced } from './pages/Advanced';
 import { Language } from './pages/Language';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 const OuterContainer = styled(SecondaryOverlay)`
   flex-direction: column;
@@ -98,15 +99,26 @@ const dynamicChildFactory = (classNames) => (child) =>
 
 export function SettingsMenu() {
   const theme = useTheme();
+  const {
+    isSettingsOpen,
+    setIsSettingsOpen,
+    settingsActivePage,
+    setSettingsActivePage,
+  } = useSettingsContext();
   const [navStack, setNavStack] = useState<SettingsPages[]>([
-    SettingsPages.MAIN_PAGE,
+    settingsActivePage,
   ]);
   const [isBackAnimation, setIsBackAnimation] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    setNavStack([settingsActivePage]);
+  }, [settingsActivePage]);
+
   const currentPage = navStack[navStack.length - 1];
 
   const goBack = () => {
     if (navStack.length === 1) {
+      setIsSettingsOpen(false);
       return;
     }
     setIsBackAnimation(true);
@@ -120,6 +132,7 @@ export function SettingsMenu() {
 
   const resetNavigation = () => {
     setNavStack([SettingsPages.MAIN_PAGE]);
+    setSettingsActivePage(SettingsPages.MAIN_PAGE);
   };
 
   let pageElement: JSX.Element | null = null;
@@ -129,7 +142,7 @@ export function SettingsMenu() {
     goBack,
     width: '319px',
     onClose: () => {
-      setOpen(false);
+      setIsSettingsOpen(false);
       resetNavigation();
     },
   };
@@ -181,7 +194,7 @@ export function SettingsMenu() {
     <>
       <TextButton
         data-testid="hamburger-menu-button"
-        onClick={() => setOpen(true)}
+        onClick={() => setIsSettingsOpen(true)}
       >
         <HamburgerIcon color={theme.colors.text1} />
       </TextButton>
@@ -193,11 +206,11 @@ export function SettingsMenu() {
           // only reset navigation once the drawer is closed
           resetNavigation();
         }}
-        in={open}
+        in={isSettingsOpen}
         classNames="slideIn"
         unmountOnExit
       >
-        <OuterContainer onClick={() => setOpen(false)}>
+        <OuterContainer onClick={() => setIsSettingsOpen(false)}>
           <VerticalFlex
             width="319px"
             overflow="hidden"

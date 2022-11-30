@@ -18,6 +18,7 @@ import {
   SettingsState,
   ThemeVariant,
 } from '@src/background/services/settings/models';
+import { SettingsPages } from '@src/components/settings/models';
 import { changeLanguage } from 'i18next';
 import {
   createContext,
@@ -26,6 +27,8 @@ import {
   useMemo,
   useCallback,
   useState,
+  Dispatch,
+  SetStateAction,
 } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
@@ -41,6 +44,12 @@ type SettingsFromProvider = SettingsState & {
   toggleIsDefaultExtension(): Promise<boolean>;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
   setLanguage(lang: Languages): Promise<boolean>;
+  isSettingsOpen: boolean;
+  setIsSettingsOpen: (isOpen: boolean) => Dispatch<SetStateAction<boolean>>;
+  settingsActivePage: SettingsPages;
+  setSettingsActivePage: (
+    activePage: SettingsPages
+  ) => Dispatch<SetStateAction<SettingsPages>>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -48,6 +57,10 @@ const SettingsContext = createContext<SettingsFromProvider>({} as any);
 export function SettingsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [settings, setSettings] = useState<SettingsState>();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsActivePage, setSettingsActivePage] = useState<SettingsPages>(
+    SettingsPages.MAIN_PAGE
+  );
 
   useEffect(() => {
     changeLanguage(settings?.language);
@@ -195,6 +208,10 @@ export function SettingsContextProvider({ children }: { children: any }) {
           toggleIsDefaultExtension,
           setAnalyticsConsent,
           setLanguage,
+          isSettingsOpen,
+          setIsSettingsOpen,
+          settingsActivePage,
+          setSettingsActivePage,
         } as SettingsFromProvider
       }
     >
