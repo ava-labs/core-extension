@@ -1,8 +1,10 @@
 import { Assetlist } from './Assetlist';
 import {
+  BridgeIcon,
   HorizontalFlex,
   HorizontalSeparator,
   LinkIcon,
+  SecondaryButton,
   Skeleton,
   TextButton,
   Tooltip,
@@ -40,6 +42,12 @@ const LogoContainer = styled.div`
   margin-right: 16px;
 `;
 
+const StyledBridgeIcon = styled(BridgeIcon)`
+  height: 14px;
+  margin: 0 8px 0 0;
+  color: ${({ theme }) => theme.colors.icon1};
+`;
+
 function TooltipContent({ text }: { text: React.ReactNode }) {
   return (
     <VerticalFlex width="120px">
@@ -70,7 +78,11 @@ export function ActiveNetworkWidget({
 
   const handleCardClick = (e) => {
     e.stopPropagation();
-    history.push('/tokenlist');
+    if (network.chainId === ChainId.BITCOIN) {
+      history.push('/token');
+    } else {
+      history.push('/tokenlist');
+    }
   };
 
   return (
@@ -163,6 +175,20 @@ export function ActiveNetworkWidget({
         ) : (
           <ZeroWidget />
         )}
+        {network.chainId === ChainId.BITCOIN ? (
+          <SecondaryButton
+            data-testid="btc-bridge-button"
+            width="100%"
+            margin="16px 0 0 0"
+            onClick={(e) => {
+              e.stopPropagation();
+              history.push('/bridge');
+            }}
+          >
+            <StyledBridgeIcon color={theme.colors.icon1} />
+            {t('Bridge')}
+          </SecondaryButton>
+        ) : null}
       </NetworkCard>
     </>
   );
