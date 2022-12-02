@@ -247,7 +247,9 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         target="_blank"
         onClick={() =>
           window.open(
-            'https://support.avax.network/en/collections/3391518-core',
+            `https://support.avax.network/${
+              currentLanguage ? currentLanguage.linkCode : 'en'
+            }/collections/3391518-core`,
             '_blank'
           )
         }

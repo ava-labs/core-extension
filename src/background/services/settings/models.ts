@@ -18,6 +18,19 @@ export enum Languages {
   ZHTW = 'zh-TW',
 }
 
+export enum LanguageLinks {
+  EN = 'en',
+  DE = 'de',
+  ES = 'es',
+  JA = 'ja',
+  HI = 'hi',
+  KO = 'ko',
+  RU = 'ru',
+  TR = 'tr',
+  ZHCN = 'zh-CN',
+  ZHTW = 'zh-TW',
+}
+
 export type TokensVisibility = {
   [key: string]: boolean;
 };
