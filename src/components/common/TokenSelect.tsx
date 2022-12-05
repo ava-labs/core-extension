@@ -5,7 +5,6 @@ import {
   HorizontalFlex,
   Typography,
   TokenSelector,
-  BNInput,
   SearchInput,
   DropDownMenuItem,
   HorizontalSeparator,
@@ -26,6 +25,7 @@ import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from './VirtualizedList';
+import { BNInput } from './BNInput';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -333,7 +333,7 @@ export function TokenSelect({
                 : null
             }
             hideCaretIcon={hideTokenDropdown}
-            label={selectorLabel ?? 'Select'}
+            label={selectorLabel ?? t('Select')}
           />
           <BNInput
             value={
@@ -399,7 +399,7 @@ export function TokenSelect({
                 <StyledSearchInput
                   searchTerm={searchQuery}
                   data-testid="token-search-input"
-                  placeholder="Search"
+                  placeholder={t('Search')}
                   width="100%"
                   onSearch={(term) => setSearchQuery(term)}
                   autoFocus={true}

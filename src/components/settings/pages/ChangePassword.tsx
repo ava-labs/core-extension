@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-  Input,
   VerticalFlex,
   ComponentSize,
   Typography,
@@ -16,6 +15,7 @@ import {
   getPasswordErrorMessage,
 } from '@src/components/common/PasswordStrength';
 import { useTranslation } from 'react-i18next';
+import { PasswordInput } from '@src/components/common/PasswordInput';
 
 export function ChangePassword({
   goBack,
@@ -80,7 +80,7 @@ export function ChangePassword({
         <>
           <VerticalFlex align="center" padding="16px 16px 0">
             <HorizontalFlex height="88px" width="100%">
-              <Input
+              <PasswordInput
                 data-testid="old-password-input"
                 onChange={(e) => {
                   setOldPassword(e.target.value);
@@ -88,14 +88,13 @@ export function ChangePassword({
                 value={oldPassword}
                 label={t('Old Password')}
                 placeholder={t('Old password')}
-                type="password"
                 error={!!serverError}
                 errorMessage={serverError}
                 width="100%"
               />
             </HorizontalFlex>
             <VerticalFlex width="100%">
-              <Input
+              <PasswordInput
                 data-testid="new-password-input"
                 onChange={(e) => {
                   setNewPassword(e.target.value);
@@ -103,7 +102,6 @@ export function ChangePassword({
                 value={newPassword}
                 label={t('Create New Password')}
                 placeholder={t('New Password')}
-                type="password"
                 error={!!error}
                 width="100%"
               />
@@ -113,7 +111,7 @@ export function ChangePassword({
               />
             </VerticalFlex>
             <HorizontalFlex margin="16px 0 0" height="88px" width="100%">
-              <Input
+              <PasswordInput
                 data-testid="confirm-new-password-input"
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
@@ -121,7 +119,6 @@ export function ChangePassword({
                 label={t('Confirm New Password')}
                 value={confirmPassword}
                 placeholder={t('Confirm Password')}
-                type="password"
                 error={!!error}
                 errorMessage={error}
                 width="100%"

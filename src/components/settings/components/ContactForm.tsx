@@ -9,6 +9,7 @@ import type { Contact } from '@avalabs/types';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { useContactsContext } from '@src/contexts/ContactsProvider';
 interface ContactFormProps {
   contact: Contact;
   handleChange: (contact: Contact, formValid: boolean) => void;
@@ -26,6 +27,7 @@ export const ContactForm = ({
   const [nameError, setNameError] = useState<string>();
   const [addressError, setAddressError] = useState<string>();
   const [addressBtcError, setAddressBtcError] = useState<string>();
+  const { contacts } = useContactsContext();
 
   const FormErrors = {
     NAME_ERROR: t('Name is required'),
@@ -34,14 +36,15 @@ export const ContactForm = ({
     ),
     ADDRESS_BTC_ERROR: t('Not a valid Bitcoin address'),
     ADDRESS_REQUIRED_ERROR: t('At least one address required'),
+    ADDRESS_EXISTS: t('This address already exists in the address book'),
   };
 
   const validateForm = useCallback(
     (updatedContact: Contact) => {
+      console.log('updatedContact: ', updatedContact);
       const nameExists = !!updatedContact.name;
       const addressExists = !!updatedContact.address;
       const btcExists = !!updatedContact.addressBTC;
-
       let valid = true;
       // no name -> error
       if (!nameExists && showErrors) {
@@ -71,13 +74,33 @@ export const ContactForm = ({
         valid = false;
       }
 
+      if (
+        updatedContact.address &&
+        contacts.find((contact) => contact.address === updatedContact.address)
+      ) {
+        setAddressError(FormErrors.ADDRESS_EXISTS);
+        valid = false;
+      }
+
+      if (
+        updatedContact.addressBTC &&
+        contacts.find(
+          (contact) => contact.addressBTC === updatedContact.addressBTC
+        )
+      ) {
+        setAddressBtcError(FormErrors.ADDRESS_EXISTS);
+        valid = false;
+      }
+
       return valid;
     },
     [
       FormErrors.ADDRESS_BTC_ERROR,
       FormErrors.ADDRESS_ERROR,
+      FormErrors.ADDRESS_EXISTS,
       FormErrors.ADDRESS_REQUIRED_ERROR,
       FormErrors.NAME_ERROR,
+      contacts,
       showErrors,
     ]
   );

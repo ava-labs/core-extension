@@ -68,7 +68,7 @@ export function WalletRecentTxs({
   isEmbedded = false,
   tokenSymbolFilter,
 }: WalletRecentTxsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const FilterItems = {
     [FilterType.ALL]: t('All'),
     [FilterType.BRIDGE]: t('Bridge'),
@@ -191,7 +191,12 @@ export function WalletRecentTxs({
       ? t('Today')
       : isYesterday
       ? t('Yesterday')
-      : format(date, 'MMMM do');
+      : i18n.language === 'en'
+      ? format(date, 'MMMM do')
+      : new Intl.DateTimeFormat(i18n.language, {
+          month: 'long',
+          day: '2-digit',
+        }).format(date);
   };
 
   const FilterItem = ({ keyName }) => (
@@ -341,7 +346,7 @@ export function WalletRecentTxs({
                 window.open(explorerUrl);
               }}
             >
-              {t('View On Explorer')}
+              {t('View on explorer')}
             </PrimaryButton>
           </HorizontalFlex>
         )}

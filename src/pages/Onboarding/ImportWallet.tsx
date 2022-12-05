@@ -4,7 +4,6 @@ import {
   Typography,
   PrimaryButton,
   ComponentSize,
-  Input,
 } from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
@@ -12,6 +11,7 @@ import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { isValidMnemonic } from 'ethers/lib/utils';
 import { Trans, useTranslation } from 'react-i18next';
+import { PasswordInput } from '@src/components/common/PasswordInput';
 
 interface ImportProps {
   onCancel(): void;
@@ -58,9 +58,8 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
         <Typography align="center" margin="8px 0 0" size={14} height="17px">
           <Trans i18nKey="Access an existing wallet with your secret <br/>recovery phrase." />
         </Typography>
-        <Input
+        <PasswordInput
           data-testid="recovery-phrase-input"
-          type="password"
           autoFocus
           margin="32px 0 0 0"
           error={!!error}

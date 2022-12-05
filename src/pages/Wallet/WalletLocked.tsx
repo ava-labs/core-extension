@@ -2,7 +2,6 @@ import {
   ComponentSize,
   HorizontalFlex,
   HorizontalSeparator,
-  Input,
   LoadingSpinnerIcon,
   PrimaryButton,
   TextButton,
@@ -19,6 +18,7 @@ import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 import { useTranslation } from 'react-i18next';
+import { PasswordInput } from '@src/components/common/PasswordInput';
 
 const StyledLoading = styled(LoadingSpinnerIcon)`
   margin-right: 10px;
@@ -109,9 +109,8 @@ export function WalletLocked({
       </VerticalFlex>
 
       <VerticalFlex align="center" height="88px">
-        <Input
+        <PasswordInput
           data-testid="wallet-locked-password-input"
-          type="password"
           label={t('Password')}
           onChange={(e) => setPassword(e.currentTarget.value.trim())}
           placeholder={t('Password')}

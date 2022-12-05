@@ -3,7 +3,6 @@ import {
   ComponentSize,
   HorizontalFlex,
   PencilIcon,
-  SimpleAddress,
   Skeleton,
   TextButton,
   Typography,
@@ -19,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { AccountBalance } from './AccountBalance';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
+import { SimpleAddress } from '@src/components/common/SimpleAddress';
 
 interface AccountItemProps {
   account: Account;

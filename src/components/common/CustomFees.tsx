@@ -17,7 +17,7 @@ import { BigNumber, utils } from 'ethers';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { formatUnits } from 'ethers/lib/utils';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 
 interface CustomGasFeesProps {
@@ -348,7 +348,8 @@ export function CustomFees({
               }}
               width="65px"
             >
-              Normal <br />
+              {t('Normal')}
+              <br />
               {getGasFeeToDisplay(
                 getUpToTwoDecimals(networkFee.low, networkFee.displayDecimals)
               )}
@@ -364,7 +365,8 @@ export function CustomFees({
                   }}
                   width="65px"
                 >
-                  Fast <br />
+                  {t('Fast')}
+                  <br />
                   {getGasFeeToDisplay(
                     getUpToTwoDecimals(
                       networkFee.medium,
@@ -383,7 +385,8 @@ export function CustomFees({
                   }}
                   width="65px"
                 >
-                  Instant <br />
+                  {t('Instant')}
+                  <br />
                   {getGasFeeToDisplay(
                     getUpToTwoDecimals(
                       networkFee.high,
@@ -447,8 +450,10 @@ export function CustomFees({
       {isGasPriceTooHigh && (
         <VerticalFlex padding="4px 0">
           <Typography size={12} color={theme.colors.error}>
-            Insufficient balance to cover gas costs. <br />
-            Please add {network?.networkToken.symbol}.
+            <Trans
+              i18nKey="Insufficient balance to cover gas costs. <br />Please add {{tokenSymbol}}."
+              values={{ tokenSymbol: network?.networkToken.symbol }}
+            />
           </Typography>
         </VerticalFlex>
       )}

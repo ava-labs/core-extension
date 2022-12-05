@@ -20,6 +20,7 @@ import {
 import { useTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { getSendErrorMessage } from '@src/pages/Send/utils/sendErrorMessages';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -95,7 +96,7 @@ export const SendForm = ({
       >
         {sendState?.error?.message === SendErrorMessage.ADDRESS_REQUIRED && (
           <Typography size={12} color={theme.colors.error}>
-            {sendState.error.message}.
+            {getSendErrorMessage(SendErrorMessage.ADDRESS_REQUIRED)}.
           </Typography>
         )}
       </HorizontalFlex>
@@ -115,7 +116,9 @@ export const SendForm = ({
             sendState.error?.message &&
             errorsToExcludeForTokenSelect.includes(sendState.error.message)
               ? undefined
-              : sendState.error?.message
+              : getSendErrorMessage(
+                  sendState.error?.message as SendErrorMessage
+                )
           }
           margin="24px 0"
           setIsOpen={setIsTokenSelectOpen}

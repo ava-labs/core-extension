@@ -122,9 +122,7 @@ export function FAB() {
         <ArrowIcon
           height="21px"
           color={theme.colors.bg1}
-          style={{
-            transform: `rotate(315deg)`,
-          }}
+          direction={IconDirection.NORTHEAST}
         />
       ),
     },

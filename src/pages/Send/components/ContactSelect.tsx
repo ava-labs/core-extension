@@ -57,7 +57,7 @@ export const ContactSelect = ({
   const { accounts } = useAccountsContext();
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
-  const [selectedTab, setSelectedTab] = useState<string>('recents');
+  const [selectedTab, setSelectedTab] = useState<string>('addressBook');
   const [historyContacts, setHistoryContacts] = useState<Contact[]>([]);
 
   useEffect(() => {
@@ -112,21 +112,21 @@ export const ContactSelect = ({
     <VerticalFlex margin="24px 0 0 0" grow="1">
       <Tabs justify="center" padding="0 16px 0 16px">
         <Tab
-          data-testid="send-recent-contact-tab"
-          selected={selectedTab === 'recents'}
-          onClick={() => setSelectedTab('recents')}
-        >
-          <TabText $selected={selectedTab === 'recents'}>
-            {t('Recents')}
-          </TabText>
-        </Tab>
-        <Tab
           data-testid="send-address-book-tab"
           selected={selectedTab === 'addressBook'}
           onClick={() => setSelectedTab('addressBook')}
         >
           <TabText $selected={selectedTab === 'addressBook'}>
             {t('Address Book')}
+          </TabText>
+        </Tab>
+        <Tab
+          data-testid="send-recent-contact-tab"
+          selected={selectedTab === 'recents'}
+          onClick={() => setSelectedTab('recents')}
+        >
+          <TabText $selected={selectedTab === 'recents'}>
+            {t('Recents')}
           </TabText>
         </Tab>
         <Tab
@@ -139,18 +139,19 @@ export const ContactSelect = ({
           </TabText>
         </Tab>
       </Tabs>
-      {selectedTab === 'recents' && (
-        <AddressDropdownList
-          contacts={historyContacts}
-          selectedContact={selectedContact}
-          onChange={(contact) => onChange(contact, selectedTab)}
-        />
-      )}
       {selectedTab === 'addressBook' && (
         <AddressDropdownList
           contacts={formattedContacts}
           onChange={(contact) => onChange(contact, selectedTab)}
           selectedContact={selectedContact}
+          addContact
+        />
+      )}
+      {selectedTab === 'recents' && (
+        <AddressDropdownList
+          contacts={historyContacts}
+          selectedContact={selectedContact}
+          onChange={(contact) => onChange(contact, selectedTab)}
         />
       )}
       {selectedTab === 'accounts' && (

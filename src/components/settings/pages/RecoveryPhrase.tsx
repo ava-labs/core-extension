@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   VerticalFlex,
-  Input,
   PrimaryButton,
   Typography,
   ComponentSize,
@@ -13,6 +12,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import styled, { useTheme } from 'styled-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Trans, useTranslation } from 'react-i18next';
+import { PasswordInput } from '@src/components/common/PasswordInput';
 
 const RecoveryPhraseContainer = styled(HorizontalFlex)`
   width: 100%;
@@ -85,7 +85,7 @@ export function RecoveryPhrase({
         {!recoveryValue ? (
           <>
             <HorizontalFlex height="100px" padding="0 16px" width="100%">
-              <Input
+              <PasswordInput
                 data-testid="recovery-phrase-password-input"
                 label={t('Enter Password to Continue')}
                 error={!!errorMessage}
@@ -96,7 +96,6 @@ export function RecoveryPhrase({
                 }}
                 value={passwordValue}
                 placeholder={t('Password')}
-                type="password"
                 width="100%"
               />
             </HorizontalFlex>

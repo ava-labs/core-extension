@@ -36,7 +36,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={'Address Book'}
+        title={t('Address Book')}
         action={
           <Tooltip
             content={<Typography size={12}>{t('Add New Contact')}</Typography>}

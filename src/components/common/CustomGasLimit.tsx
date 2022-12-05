@@ -64,7 +64,7 @@ export function CustomGasLimit({
       setCustomGasLimit(customGasLimit);
       calculateGasAndFeesError && setCalculateGasAndFeesError('');
     } catch (error) {
-      setCalculateGasAndFeesError('Gas Limit is too much');
+      setCalculateGasAndFeesError(t('Gas Limit is too much'));
     }
   };
 
@@ -85,7 +85,7 @@ export function CustomGasLimit({
         </Typography>
         <Input
           autoFocus
-          label={'Gas Limit'}
+          label={t('Gas Limit')}
           type={'number'}
           value={customGasLimit}
           onChange={(evt) =>
@@ -103,7 +103,7 @@ export function CustomGasLimit({
           width="100%"
           onClick={handleOnSave}
         >
-          Save
+          {t('Save')}
         </PrimaryButton>
       </HorizontalFlex>
     </VerticalFlex>

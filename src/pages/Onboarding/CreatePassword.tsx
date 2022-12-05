@@ -14,6 +14,7 @@ import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useTheme } from 'styled-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
+import { PasswordInput } from '@src/components/common/PasswordInput';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
@@ -68,18 +69,17 @@ export const CreatePassword = ({
         <Input
           data-testid="wallet-name-input"
           margin="32px 0 0"
-          label="Wallet Name"
+          label={t('Wallet Name')}
           onChange={(e) => setAccountName(e.target.value)}
           placeholder={t('Enter a Name')}
           autoFocus
         />
-        <Input
+        <PasswordInput
           data-testid="wallet-password-input"
           margin="24px 0"
-          label="Password"
+          label={t('Password')}
           onChange={(e) => setPassword(e.target.value)}
           placeholder={t('Enter a Password')}
-          type="password"
           error={!!passwordLengthError}
           helperText={t('Must be at least 8 characters')}
           onBlur={() => {
@@ -90,12 +90,11 @@ export const CreatePassword = ({
           }
         />
         <HorizontalFlex width="100%" height="84px">
-          <Input
+          <PasswordInput
             data-testid="wallet-confirm-password-input"
             label={t('Confirm Password')}
             onChange={(e) => setConfirmPasswordVal(e.target.value)}
             placeholder={t('Enter a Password')}
-            type="password"
             error={confirmationError}
             errorMessage={
               confirmationError ? t('Passwords do not match') : undefined

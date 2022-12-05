@@ -26,7 +26,7 @@ export const ManageTokens = () => {
         <SearchInput
           data-testid="search-token-list-input"
           searchTerm={searchQuery}
-          placeholder="Search"
+          placeholder={t('Search')}
           width="100%"
           onSearch={(term) => setSearchQuery(term)}
           autoFocus={true}

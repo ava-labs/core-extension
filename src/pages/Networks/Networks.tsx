@@ -53,7 +53,7 @@ export function Networks() {
       <HorizontalFlex padding="8px 16px">
         <SearchInput
           width="100%"
-          placeholder="Search"
+          placeholder={t('Search')}
           onSearch={setSearchTerm}
         />
       </HorizontalFlex>

@@ -15,6 +15,7 @@ import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { Trans, useTranslation } from 'react-i18next';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 function TooltipContent({ text }: { text: React.ReactNode }) {
   return (
@@ -29,6 +30,12 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const theme = useTheme();
   const { setDeveloperMode, isDeveloperMode } = useNetworkContext();
   const { isBridgeDevEnv, setIsBridgeDevEnv } = useBridgeContext();
+  const {
+    showTokensWithoutBalances,
+    toggleShowTokensWithoutBalanceSetting,
+    isDefaultExtension,
+    toggleIsDefaultExtension,
+  } = useSettingsContext();
   const history = useHistory();
 
   return (
@@ -106,6 +113,34 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
           />
         </DropDownMenuItem>
       ) : undefined}
+
+      <DropDownMenuItem
+        data-testid="show-tokens-without-balance-option"
+        justify="space-between"
+        padding="10px 16px"
+      >
+        <Typography size={14} height="17px" margin="0 0 0 6px">
+          {t('Show Tokens Without Balance')}
+        </Typography>
+        <Toggle
+          isChecked={showTokensWithoutBalances}
+          onChange={() => toggleShowTokensWithoutBalanceSetting()}
+        />
+      </DropDownMenuItem>
+
+      <DropDownMenuItem
+        data-testid="set-default-extension-option"
+        justify="space-between"
+        padding="12px 16px"
+      >
+        <Typography size={14} height="17px" margin="0 0 0 6px">
+          {t('Set as Default Extension')}
+        </Typography>
+        <Toggle
+          isChecked={isDefaultExtension}
+          onChange={() => toggleIsDefaultExtension()}
+        />
+      </DropDownMenuItem>
     </VerticalFlex>
   );
 }

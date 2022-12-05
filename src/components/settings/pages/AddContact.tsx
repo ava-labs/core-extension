@@ -67,7 +67,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
               goBack();
             }}
           >
-            Save
+            {t('Save')}
           </TextButton>
         }
       />

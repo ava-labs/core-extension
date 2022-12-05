@@ -1,13 +1,13 @@
 import {
   AvaxTokenIcon,
   HorizontalFlex,
-  SimpleAddress,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import styled from 'styled-components';
 import type { Contact } from '@avalabs/types';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
+import { SimpleAddress } from '@src/components/common/SimpleAddress';
 
 const ContactName = styled(Typography)`
   max-width: 95%;

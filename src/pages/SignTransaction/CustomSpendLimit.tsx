@@ -1,6 +1,5 @@
 import {
   HorizontalFlex,
-  BNInput,
   PrimaryButton,
   Typography,
   VerticalFlex,
@@ -15,6 +14,7 @@ import { DomainMetadata } from '@src/background/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
+import { BNInput } from '@src/components/common/BNInput';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',

@@ -18,6 +18,19 @@ export enum Languages {
   ZHTW = 'zh-TW',
 }
 
+export enum LanguageLinks {
+  EN = 'en',
+  DE = 'de',
+  ES = 'es',
+  JA = 'ja',
+  HI = 'hi',
+  KO = 'ko',
+  RU = 'ru',
+  TR = 'tr',
+  ZHCN = 'zh-CN',
+  ZHTW = 'zh-TW',
+}
+
 export type TokensVisibility = {
   [key: string]: boolean;
 };
@@ -44,19 +57,16 @@ export enum SettingsEvents {
   SETTINGS_UPDATED = 'SettingsEvents: SETTINGS_UPDATED',
 }
 
-// TODO: bring back the commented currenies when the glacier supports them
-export const CURRENCIES: {
-  name: string;
-  symbol: string;
-}[] = [
-  { name: 'United States Dollar', symbol: 'USD' },
-  { name: 'Euro', symbol: 'EUR' },
-  // { name: 'Japanese Yen', symbol: 'JPY' },
-  { name: 'Pound Sterling', symbol: 'GBP' },
-  { name: 'Australian Dollar', symbol: 'AUD' },
-  { name: 'Canadian Dollar', symbol: 'CAD' },
-  { name: 'Swiss Franc', symbol: 'CHF' },
-  // { name: 'Chinese Renminbi', symbol: 'CNH' },
-  { name: 'Hong Kong Dollar', symbol: 'HKD' },
-  // { name: 'New Zealand Dollar', symbol: 'NZD' },
-];
+// TODO: bring back the commented currencies when the glacier supports them
+export enum CURRENCIES {
+  USD = 'USD',
+  EUR = 'EUR',
+  GBP = 'GBP',
+  AUD = 'AUD',
+  CAD = 'CAD',
+  CHF = 'CHF',
+  HKD = 'HKD',
+  // JPY: 'JPY',
+  // CNH: 'CNH',
+  // NZD: 'NZD'
+}

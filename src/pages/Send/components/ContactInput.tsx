@@ -5,7 +5,7 @@ import {
   CaretIcon,
   IconDirection,
 } from '@avalabs/react-components';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ContactSelect } from './ContactSelect';
 import type { Contact } from '@avalabs/types';
 import { truncateAddress } from '@src/utils/truncateAddress';
@@ -17,6 +17,7 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { useContactsContext } from '@src/contexts/ContactsProvider';
 
 const RelativeContainer = styled.div`
   position: relative;
@@ -52,6 +53,16 @@ export const ContactInput = ({
   const { network } = useNetworkContext();
   const inputRef = useRef<HTMLDivElement>(null);
   const identifyAddress = useIdentifyAddress();
+  const { contacts } = useContactsContext();
+  const [contactsLength, setContactsLength] = useState(contacts.length);
+
+  useEffect(() => {
+    if (contacts.length > contactsLength) {
+      const recentlyAddedContact = contacts[contacts.length - 1];
+      onChange(recentlyAddedContact);
+    }
+    setContactsLength(contacts.length);
+  }, [contacts, contactsLength, onChange]);
 
   const changeAndCloseDropdown = (contact: Contact, selectedTab: string) => {
     onChange(contact, selectedTab);
@@ -71,11 +82,17 @@ export const ContactInput = ({
   };
 
   const getInputDisplayValue = () => {
-    if (!contact?.address) return '';
+    if (!contact?.address) {
+      return '';
+    }
     // Show the full address string when the text field is focused
-    if (inputFocused) return contact.address || '';
+    if (inputFocused) {
+      return contact.address || '';
+    }
     let displayStr = '';
-    if (contact?.isKnown) displayStr += truncateName(contact.name) + '   ';
+    if (contact?.isKnown) {
+      displayStr += truncateName(contact.name) + '   ';
+    }
     displayStr += isValidAddress()
       ? truncateAddress(contact.address)
       : contact.address; // user is typing in the address
