@@ -34,6 +34,7 @@
     "@avalabs/utils-sdk": "v2.8.0-alpha.36",
     "@avalabs/wallets-sdk": "v2.8.0-alpha.36",
     "@babel/runtime": "7.16.7",
+    "@coinbase/cbpay-js": "1.6.0",
     "@ethereumjs/common": "2.6.2",
     "@ethereumjs/tx": "3.4.0",
     "@ethersproject/providers": "5.7.0",
@@ -52,6 +53,7 @@
     "@sentry/browser": "7.17.3",
     "@sentry/tracing": "7.17.3",
     "abi-decoder": "2.4.0",
+    "add": "^2.0.6",
     "bitcoinjs-lib": "5.2.0",
     "bn.js": "5.2.1",
     "copy-webpack-plugin": "10.2.1",
@@ -98,7 +100,8 @@
     "tsyringe": "4.6.0",
     "tweetnacl": "1.0.3",
     "web3": "1.7.1",
-    "xss": "1.0.13"
+    "xss": "1.0.13",
+    "yarn": "1.22.19"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "7.17.9",
@@ -231,7 +234,9 @@
       "react-scripts>react-app-polyfill>core-js": false,
       "web3": false,
       "web3>web3-bzz": false,
-      "web3>web3-shh": false
+      "web3>web3-shh": false,
+      "@avalabs/react-components": false,
+      "yarn": false
     }
   }
 }
