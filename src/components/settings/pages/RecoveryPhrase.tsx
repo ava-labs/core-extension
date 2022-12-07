@@ -118,7 +118,9 @@ export function RecoveryPhrase({
           </>
         ) : (
           <VerticalFlex width="100%" align="center" padding="12px 16px">
-            <RecoveryPhraseContainer>{recoveryValue}</RecoveryPhraseContainer>
+            <RecoveryPhraseContainer data-testid="recovery-phrase">
+              {recoveryValue}
+            </RecoveryPhraseContainer>
           </VerticalFlex>
         )}
       </VerticalFlex>
