@@ -41,7 +41,6 @@ export const ContactForm = ({
 
   const validateForm = useCallback(
     (updatedContact: Contact) => {
-      console.log('updatedContact: ', updatedContact);
       const nameExists = !!updatedContact.name;
       const addressExists = !!updatedContact.address;
       const btcExists = !!updatedContact.addressBTC;
@@ -76,7 +75,11 @@ export const ContactForm = ({
 
       if (
         updatedContact.address &&
-        contacts.find((contact) => contact.address === updatedContact.address)
+        contacts.find(
+          (contact) =>
+            contact.id !== updatedContact.id &&
+            contact.address === updatedContact.address
+        )
       ) {
         setAddressError(FormErrors.ADDRESS_EXISTS);
         valid = false;
@@ -85,7 +88,9 @@ export const ContactForm = ({
       if (
         updatedContact.addressBTC &&
         contacts.find(
-          (contact) => contact.addressBTC === updatedContact.addressBTC
+          (contact) =>
+            contact.id !== updatedContact.id &&
+            contact.addressBTC === updatedContact.addressBTC
         )
       ) {
         setAddressBtcError(FormErrors.ADDRESS_EXISTS);
