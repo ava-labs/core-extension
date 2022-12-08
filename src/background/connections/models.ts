@@ -149,9 +149,11 @@ export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
 
 export const CORE_DOMAINS = [
   'localhost',
+  '127.0.0.1',
   'core-web.pages.dev',
   'core.app',
   'test.core.app',
+  'fantastic-goggles-c7f7e3c0.pages.github.io', // playground
 ];
 
 export interface ConnectionController {

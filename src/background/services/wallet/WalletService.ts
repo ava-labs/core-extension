@@ -22,6 +22,7 @@ import {
   getBtcAddressFromPubKey,
   getEvmAddressFromPubKey,
   getPubKeyFromTransport,
+  getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
@@ -40,6 +41,7 @@ import { Wallet } from 'ethers';
 import { networks } from 'bitcoinjs-lib';
 import { AccountsService } from '../accounts/AccountsService';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
+import { AccountType, ImportData, ImportType } from '../accounts/models';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -63,7 +65,6 @@ export class WalletService implements OnLock, OnUnlock {
 
     if (!walletKeys) {
       // wallet is not initialized
-
       return;
     }
 
@@ -116,22 +117,60 @@ export class WalletService implements OnLock, OnUnlock {
     const accountsService = container.resolve(AccountsService);
 
     const activeNetwork = network || this.networkService.activeNetwork;
+    const activeAccount = accountsService.activeAccount;
 
     if (
       !walletKeys ||
       (!walletKeys.xpub && !walletKeys.pubKeys) ||
       !activeNetwork ||
-      !accountsService?.activeAccount
+      !activeAccount
     ) {
       // wallet is not initialized
       return;
     }
+
     const provider = this.networkService.getProviderForNetwork(activeNetwork);
+
+    if (activeAccount.type === AccountType.IMPORTED) {
+      const importData = walletKeys.imported?.[activeAccount.id];
+
+      if (!importData) {
+        throw new Error(
+          'Wallet initialization for imported account failed: no data found'
+        );
+      }
+
+      switch (importData.type) {
+        case ImportType.PRIVATE_KEY: {
+          if (activeNetwork.vmName === NetworkVMType.EVM) {
+            return new Wallet(
+              importData.secret,
+              provider as JsonRpcBatchInternal
+            );
+          } else if (activeNetwork.vmName === NetworkVMType.BITCOIN) {
+            return new BitcoinWallet(
+              Buffer.from(importData.secret, 'hex'),
+              provider as BitcoinProviderAbstract
+            );
+          }
+
+          throw new Error(
+            'Wallet initialization for imported account failed: unsupported network type'
+          );
+        }
+        default: {
+          throw new Error(
+            'Wallet initialization for imported account failed: unsupported import type'
+          );
+        }
+      }
+    }
+
     if (activeNetwork.vmName === NetworkVMType.EVM) {
       if (walletKeys.mnemonic) {
         const wallet = getWalletFromMnemonic(
           walletKeys.mnemonic,
-          accountsService.activeAccount.index,
+          activeAccount.index,
           DerivationPath.BIP44
         );
         return wallet.connect(provider as JsonRpcBatchInternal);
@@ -141,7 +180,7 @@ export class WalletService implements OnLock, OnUnlock {
         }
 
         return new LedgerSigner(
-          accountsService.activeAccount.index,
+          activeAccount.index,
           this.ledgerService.recentTransport,
           DerivationPath.BIP44, // Extended public keys are always m/44'/60'/0'
           provider as JsonRpcBatchInternal
@@ -152,7 +191,7 @@ export class WalletService implements OnLock, OnUnlock {
         }
 
         return new LedgerSigner(
-          accountsService.activeAccount.index,
+          activeAccount.index,
           this.ledgerService.recentTransport,
           DerivationPath.LedgerLive, // Use LedgerLive derivation paths for address public keys (m/44'/60'/n'/0/0) in storage
           provider as JsonRpcBatchInternal
@@ -162,7 +201,7 @@ export class WalletService implements OnLock, OnUnlock {
       if (walletKeys.mnemonic) {
         return await BitcoinWallet.fromMnemonic(
           walletKeys.mnemonic,
-          accountsService.activeAccount.index,
+          activeAccount.index,
           provider as BitcoinProviderAbstract
         );
       } else if (walletKeys.xpub) {
@@ -173,13 +212,13 @@ export class WalletService implements OnLock, OnUnlock {
         // Use BIP44 derivation paths for extended public key of m/44'/60'/0'
         const addressPublicKey = getAddressPublicKeyFromXPub(
           walletKeys.xpub,
-          accountsService.activeAccount.index
+          activeAccount.index
         );
 
         return new BitcoinLedgerWallet(
           addressPublicKey,
           getAddressDerivationPath(
-            accountsService.activeAccount.index,
+            activeAccount.index,
             DerivationPath.BIP44,
             'EVM'
           ),
@@ -192,8 +231,7 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Ledger transport not available');
         }
 
-        const addressPublicKey =
-          walletKeys.pubKeys[accountsService.activeAccount.index];
+        const addressPublicKey = walletKeys.pubKeys[activeAccount.index];
 
         if (!addressPublicKey) {
           throw new Error('Account public key not available');
@@ -202,7 +240,7 @@ export class WalletService implements OnLock, OnUnlock {
         return new BitcoinLedgerWallet(
           Buffer.from(addressPublicKey.evm, 'hex'),
           getAddressDerivationPath(
-            accountsService.activeAccount.index,
+            activeAccount.index,
             DerivationPath.LedgerLive,
             'EVM'
           ),
@@ -369,14 +407,14 @@ export class WalletService implements OnLock, OnUnlock {
       );
     }
 
-    return this.getAddress(index);
+    return this.getAddresses(index);
   }
 
-  async getAddress(index: number): Promise<Record<NetworkVMType, string>> {
+  async getAddresses(index: number): Promise<Record<NetworkVMType, string>> {
     const secrets = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
-    const isMainnet = await this.networkService.isMainnet();
+    const isMainnet = this.networkService.isMainnet();
 
     if (secrets?.xpub) {
       return {
@@ -415,5 +453,107 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     throw new Error('No public key available');
+  }
+
+  async addImportedWallet(importData: ImportData) {
+    const addresses = this.calculateImportedAddresses(importData);
+    const id = crypto.randomUUID();
+    const secrets =
+      (await this.storageService.load<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY
+      )) ?? {};
+
+    // let the AccountService validate the account's uniqueness and save the secret using this callback
+    const commit = async () =>
+      this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
+        ...secrets,
+        imported: {
+          ...secrets?.imported,
+          [id]: {
+            type: importData.importType,
+            secret: importData.data,
+          },
+        },
+      });
+
+    return { account: { id, ...addresses }, commit };
+  }
+
+  async getImportedAddresses(id: string) {
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    const importData = secrets?.imported?.[id];
+
+    if (!importData) {
+      throw new Error(
+        'Could not find an imported account with the provided identifier'
+      );
+    }
+
+    return this.calculateImportedAddresses({
+      importType: importData.type,
+      data: importData.secret,
+    });
+  }
+
+  private calculateImportedAddresses({ importType, data }: ImportData) {
+    const addresses = {
+      addressBTC: '',
+      addressC: '',
+      addressAVM: '',
+      addressPVM: '',
+      addressCoreEth: '',
+    };
+
+    const isMainnet = this.networkService.isMainnet();
+
+    switch (importType) {
+      case ImportType.PRIVATE_KEY: {
+        try {
+          const publicKey = getPublicKeyFromPrivateKey(data);
+          addresses.addressC = getEvmAddressFromPubKey(publicKey);
+          addresses.addressBTC = getBtcAddressFromPubKey(
+            publicKey,
+            isMainnet ? networks.bitcoin : networks.testnet
+          );
+          break;
+        } catch (err) {
+          throw new Error('Error while calculating addresses');
+        }
+      }
+      default:
+        throw new Error(`Unsupported import type ${importType}`);
+    }
+
+    if (!addresses.addressC || !addresses.addressBTC) {
+      throw new Error(`Missing address`);
+    }
+
+    return addresses;
+  }
+
+  async deleteImportedWallets(ids: string[]) {
+    const secrets =
+      (await this.storageService.load<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY
+      )) ?? {};
+
+    const newImportedSecrets = ids.reduce(
+      (importedSecrets, id) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [id]: _, ...newImportedSecrets } = importedSecrets;
+        return newImportedSecrets ?? {};
+      },
+      { ...(secrets.imported ?? {}) }
+    );
+
+    await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
+      ...secrets,
+      imported: {
+        ...newImportedSecrets,
+      },
+    });
   }
 }

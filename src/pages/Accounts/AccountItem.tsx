@@ -1,5 +1,6 @@
 import {
   AvaxTokenIcon,
+  Checkbox,
   ComponentSize,
   HorizontalFlex,
   PencilIcon,
@@ -9,7 +10,7 @@ import {
   VerticalFlex,
   WordInput,
 } from '@avalabs/react-components';
-import { Account } from '@src/background/services/accounts/models';
+import { Account, AccountType } from '@src/background/services/accounts/models';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import React, { useState } from 'react';
@@ -18,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { AccountBalance } from './AccountBalance';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
+import { CSSTransition } from 'react-transition-group';
 import { SimpleAddress } from '@src/components/common/SimpleAddress';
 
 interface AccountItemProps {
@@ -25,7 +27,9 @@ interface AccountItemProps {
   editing: boolean;
   onEdit: () => void;
   onSave: () => void;
-  isLoadingIndex: number | null;
+  isDelete?: boolean;
+  setDeleteId?: (id: string) => void;
+  isDeleteMode?: boolean;
 }
 
 const AccountName = styled(Typography)`
@@ -60,6 +64,18 @@ const AccountNameInput = styled(WordInput)`
   }
 `;
 
+const CheckboxContainer = styled.div`
+  margin-right: 16px;
+  margin-left: 0px;
+  &.item-appear {
+    margin-left: -30px;
+  }
+  &.item-appear-active {
+    margin-left: 0px;
+    transition: margin-left 300ms ease-in-out;
+  }
+`;
+
 const StyledAccountItem = styled(HorizontalFlex)<{
   selected?: boolean;
   edit?: boolean;
@@ -87,17 +103,22 @@ export function AccountItem({
   editing,
   onEdit,
   onSave,
+  setDeleteId,
+  isDelete,
+  isDeleteMode,
 }: AccountItemProps) {
   const [accountName, setAccountName] = useState<string>(account.name);
-  const { renameAccount } = useAccountsContext();
+  const { renameAccount, isActiveAccount } = useAccountsContext();
   const theme = useTheme();
   const { updateBalanceOnAllNetworks } = useBalancesContext();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
   const { t } = useTranslation();
-  const hasBalance = balanceTotalUSD !== null;
 
-  const inEditMode = account.active && editing;
+  const hasBalance = balanceTotalUSD !== null;
+  const isActive = isActiveAccount(account.id);
+
+  const inEditMode = isActive && editing;
 
   const editAddress = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -111,7 +132,7 @@ export function AccountItem({
       setAccountName(account.name);
     } else {
       onSave();
-      renameAccount(account.index, accountName);
+      renameAccount(account.id, accountName);
     }
   };
 
@@ -125,101 +146,115 @@ export function AccountItem({
   };
 
   return (
-    <StyledAccountItem selected={account.active} edit={inEditMode}>
-      <VerticalFlex align="flex-start">
-        <HorizontalFlex
-          width={inEditMode ? '100%' : 'auto'}
-          align="center"
-          justify="space-between"
-          marginBottom="2px"
-        >
-          {inEditMode ? (
-            <>
-              <AccountNameInput
-                data-testid="account-name-edit-input"
-                value={accountName}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setAccountName(e.target.value);
+    <StyledAccountItem selected={isActive} edit={inEditMode}>
+      <HorizontalFlex>
+        {isDeleteMode && account.type === AccountType.IMPORTED && (
+          <CSSTransition timeout={500} classNames="item" appear in exit>
+            <CheckboxContainer>
+              <Checkbox
+                onChange={() => {
+                  setDeleteId && setDeleteId(account?.id);
                 }}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    onSaveClicked(e);
-                  }
-                }}
-                onFocus={(e) => {
-                  e.target.select();
-                }}
-                autoFocus
+                isChecked={isDelete}
               />
-              <TextButton
-                data-testid="account-name-save-button"
-                size={ComponentSize.SMALL}
-                margin="0 0 0 8px"
-                onClick={onSaveClicked}
-              >
-                {t('Save')}
-              </TextButton>
-            </>
-          ) : (
-            <>
-              <AccountName data-testid="account-name">
-                {accountName}
-              </AccountName>
-              {account.active && (
+            </CheckboxContainer>
+          </CSSTransition>
+        )}
+        <VerticalFlex align="flex-start">
+          <HorizontalFlex
+            width={inEditMode ? '100%' : 'auto'}
+            align="center"
+            justify="space-between"
+            marginBottom="2px"
+          >
+            {inEditMode ? (
+              <>
+                <AccountNameInput
+                  data-testid="account-name-edit-input"
+                  value={accountName}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setAccountName(e.target.value);
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      onSaveClicked(e);
+                    }
+                  }}
+                  onFocus={(e) => {
+                    e.target.select();
+                  }}
+                  autoFocus
+                />
                 <TextButton
-                  data-testid="account-name-edit-button"
-                  onClick={editAddress}
+                  data-testid="account-name-save-button"
+                  size={ComponentSize.SMALL}
                   margin="0 0 0 8px"
+                  onClick={onSaveClicked}
                 >
-                  <PencilIcon color={theme.colors.icon1} height="12px" />
+                  {t('Save')}
                 </TextButton>
-              )}
-            </>
-          )}
-        </HorizontalFlex>
-        <HorizontalFlex
-          data-testid="account-selector-copy-ava-address"
-          margin="4px 0 0 0"
-        >
-          <LogoContainer>
-            <AvaxTokenIcon height="16" />
-          </LogoContainer>
-          <SimpleAddress
-            address={account.addressC}
-            typographyProps={{
-              size: 12,
-              height: '15px',
-              color: theme.colors.text2,
-              margin: '0 8px 0 0',
-            }}
-            copyIconProps={{
-              height: '12px',
-              color: account.active ? theme.colors.icon1 : theme.colors.icon2,
-            }}
-          />
-        </HorizontalFlex>
-        <HorizontalFlex
-          data-testid="account-selector-copy-btc-address"
-          margin="4px 0 0 0"
-        >
-          <LogoContainer>
-            <BitcoinLogo height="16" />
-          </LogoContainer>
-          <SimpleAddress
-            address={account.addressBTC}
-            typographyProps={{
-              size: 12,
-              height: '15px',
-              color: theme.colors.text2,
-              margin: '0 8px 0 0',
-            }}
-            copyIconProps={{
-              height: '12px',
-              color: account.active ? theme.colors.icon1 : theme.colors.icon2,
-            }}
-          />
-        </HorizontalFlex>
-      </VerticalFlex>
+              </>
+            ) : (
+              <>
+                <AccountName data-testid="account-name">
+                  {accountName}
+                </AccountName>
+                {isActive && (
+                  <TextButton
+                    data-testid="account-name-edit-button"
+                    onClick={editAddress}
+                    margin="0 0 0 8px"
+                  >
+                    <PencilIcon color={theme.colors.icon1} height="12px" />
+                  </TextButton>
+                )}
+              </>
+            )}
+          </HorizontalFlex>
+          <HorizontalFlex
+            data-testid="account-selector-copy-ava-address"
+            margin="4px 0 0 0"
+          >
+            <LogoContainer>
+              <AvaxTokenIcon height="16" />
+            </LogoContainer>
+            <SimpleAddress
+              address={account.addressC}
+              typographyProps={{
+                size: 12,
+                height: '15px',
+                color: theme.colors.text2,
+                margin: '0 8px 0 0',
+              }}
+              copyIconProps={{
+                height: '12px',
+                color: isActive ? theme.colors.icon1 : theme.colors.icon2,
+              }}
+            />
+          </HorizontalFlex>
+          <HorizontalFlex
+            data-testid="account-selector-copy-btc-address"
+            margin="4px 0 0 0"
+          >
+            <LogoContainer>
+              <BitcoinLogo height="16" />
+            </LogoContainer>
+            <SimpleAddress
+              address={account.addressBTC}
+              typographyProps={{
+                size: 12,
+                height: '15px',
+                color: theme.colors.text2,
+                margin: '0 8px 0 0',
+              }}
+              copyIconProps={{
+                height: '12px',
+                color: isActive ? theme.colors.icon1 : theme.colors.icon2,
+              }}
+            />
+          </HorizontalFlex>
+        </VerticalFlex>
+      </HorizontalFlex>
       {!inEditMode && (
         <>
           {/* BALANCE */}

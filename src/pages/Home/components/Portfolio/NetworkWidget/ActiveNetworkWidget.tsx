@@ -65,7 +65,9 @@ export function ActiveNetworkWidget({
   const history = useHistory();
   const { network, isCustomNetwork } = useNetworkContext();
   const { currencyFormatter } = useSettingsContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   if (!network || !assetList?.length) {
     return <Skeleton height="234px" delay={250} />;

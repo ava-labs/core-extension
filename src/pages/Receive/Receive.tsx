@@ -26,7 +26,9 @@ const StyledPrimaryAddress = styled(PrimaryAddress)`
 export const Receive = () => {
   const { t } = useTranslation();
   const { network } = useNetworkContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { capture } = useAnalyticsContext();
   const [address, setAddress] = useState<string>('');
   const [isBitcoinActive, setIsBitcoinActive] = useState<boolean>(false);

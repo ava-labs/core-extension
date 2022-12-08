@@ -99,6 +99,7 @@ import { GetAvalancheNetworkHandler } from '@src/background/services/network/han
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
+import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -110,6 +111,7 @@ import { SetLanguageHandler } from '@src/background/services/settings/handlers/s
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
   { token: 'ExtensionRequestHandler', useToken: RenameAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
+  { token: 'ExtensionRequestHandler', useToken: DeleteAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateActionHandler },
   { token: 'ExtensionRequestHandler', useToken: ClearAnalyticsIdsHandler },

@@ -29,7 +29,9 @@ const AccountName = styled(Typography)`
 
 export function AccountSelectorButton({ onClick }: AccountSelectorButtonProps) {
   const theme = useTheme();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
 
   return (

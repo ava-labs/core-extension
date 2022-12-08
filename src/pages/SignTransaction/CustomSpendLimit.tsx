@@ -44,7 +44,9 @@ export function CustomSpendLimit({
   site: DomainMetadata;
 }) {
   const { t } = useTranslation();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
     ...spendLimit,
   });

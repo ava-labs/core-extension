@@ -4,6 +4,7 @@ import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ethErrors } from 'eth-rpc-errors';
 import { container } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
+import { AccountType } from '../../accounts/models';
 import { ActionsService } from '../../actions/ActionsService';
 import { Action, ActionStatus } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
@@ -120,16 +121,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     const onErrorMock = jest.fn();
 
     const accountsServiceMock = {
-      getAccounts: () => [
-        {
-          index: 1,
-          addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        },
-        {
-          index: 2,
-          addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        },
-      ],
+      getAccountByID: jest.fn(),
       activateAccount: jest.fn(),
     };
 
@@ -148,9 +140,17 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
     beforeEach(() => {
       jest.resetAllMocks();
+      accountsServiceMock.getAccountByID.mockReturnValue({
+        index: 2,
+        id: 'uuid',
+        addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        type: AccountType.PRIMARY,
+      });
     });
 
     it('returns error when no account is selected', async () => {
+      accountsServiceMock.getAccountByID.mockReturnValueOnce(undefined);
+
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
         permissionServiceMock as any
@@ -182,7 +182,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
       await handler.onActionApproved(
         { ...mockAction },
-        2,
+        'uuid',
         onSuccessMock,
         onErrorMock
       );
@@ -198,7 +198,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       expect(onSuccessMock).not.toHaveBeenCalled();
     });
 
-    it('updates permissons', async () => {
+    it('updates permissons for primary account', async () => {
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
         permissionServiceMock as any
@@ -206,7 +206,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
       await handler.onActionApproved(
         { ...mockAction, site: { domain: 'example.com' } },
-        2,
+        'uuid',
         onSuccessMock,
         onErrorMock
       );
@@ -223,7 +223,45 @@ describe('background/services/web3/handlers/connect.ts', () => {
         true
       );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
-      expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith(2);
+      expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('uuid');
+      expect(onSuccessMock).toHaveBeenCalledTimes(1);
+      expect(onSuccessMock).toHaveBeenCalledWith([
+        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+      ]);
+    });
+
+    it('updates permissons for imported account', async () => {
+      accountsServiceMock.getAccountByID.mockReturnValue({
+        id: '0x2',
+        addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        type: AccountType.IMPORTED,
+      });
+
+      const handler = new ConnectRequestHandler(
+        accountsServiceMock as any,
+        permissionServiceMock as any
+      );
+
+      await handler.onActionApproved(
+        { ...mockAction, site: { domain: 'example.com' } },
+        '0x2',
+        onSuccessMock,
+        onErrorMock
+      );
+
+      expect(onErrorMock).not.toHaveBeenCalled();
+      expect(
+        permissionServiceMock.setAccountPermissionForDomain
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        permissionServiceMock.setAccountPermissionForDomain
+      ).toHaveBeenCalledWith(
+        'example.com',
+        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        true
+      );
+      expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
+      expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('0x2');
       expect(onSuccessMock).toHaveBeenCalledTimes(1);
       expect(onSuccessMock).toHaveBeenCalledWith([
         '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',

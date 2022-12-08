@@ -1,71 +1,92 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import {
-  ComponentSize,
+  CustomToast,
   HorizontalFlex,
-  HorizontalSeparator,
-  LoadingSpinnerIcon,
   Overlay,
-  PrimaryButton,
+  toast,
+  useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { AccountItem } from './AccountItem';
-import {
-  Scrollbars,
-  ScrollbarsRef,
-} from '@src/components/common/scrollbars/Scrollbars';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { AddAccountError } from './AddAccountError';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
 import { t } from 'i18next';
 import { PageTitle } from '@src/components/common/PageTitle';
+import { CreateAccountButton } from './CreateAccountButton';
+import { MainList } from './MainList';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { Tabs } from '@src/components/common/Tabs';
+import { ImportedList } from './ImportedList';
+import { ActionButton, StyledTrashIcon } from './components/Buttons';
+import { useTheme } from 'styled-components';
+
+export enum AccountsTabs {
+  MAIN = 'MAIN',
+  IMPORTED = 'IMPORTED',
+}
+
+export interface AccountListProps {
+  isEditing: boolean;
+  onAccountClicked: (id: string) => Promise<void>;
+  setIsEditing: (isEditing: boolean) => void;
+}
 
 export function Accounts() {
-  const { accounts, activeAccount, selectAccount, addAccount } =
-    useAccountsContext();
+  const { selectAccount, addAccount, deleteAccounts } = useAccountsContext();
 
-  const theme = useTheme();
-  const scrollbarsRef = useRef<ScrollbarsRef>(null);
-
-  const [editing, isEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [hasError, setHasError] = useState(false);
-  const [accountIndexLoading, setAccountIndexLoading] = useState<number | null>(
-    null
-  );
   const [addAccountLoading, setAddAccountLoading] = useState<boolean>(false);
-  const { capture } = useAnalyticsContext();
   const { hasLedgerTransport } = useLedgerContext();
+  const { capture } = useAnalyticsContext();
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const theme = useTheme();
+  const [deleteIdList, setDeleteIdList] = useState<string[]>([]);
+  const { showDialog, clearDialog } = useDialog();
 
   const addAccountAndFocus = async () => {
     setAddAccountLoading(true);
     try {
       setHasError(false);
-      await addAccount();
-      const nextIndex = accounts.length;
-      await selectAccount(nextIndex);
-      isEditing(true);
-      scrollbarsRef.current?.scrollToBottom();
+      const id = await addAccount();
+      await selectAccount(id);
+      setIsEditing(true);
     } catch (e) {
       setHasError(true);
     }
     setAddAccountLoading(false);
   };
 
-  useEffect(() => {
-    if (activeAccount) {
-      scrollbarsRef.current?.scrollTop(50 * activeAccount.index);
-    }
-    // only scroll to the selected account on the first open
-    // new selects will always be in the view since the user had to click them
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onAccountClicked = async (id: string) => {
+    await selectAccount(id);
+  };
 
-  const onAccountClicked = async (index: number) => {
-    setAccountIndexLoading(index);
-    await selectAccount(index);
-    setAccountIndexLoading(null);
+  const onAccountDeleteSuccess = () => {
+    capture('ImportedAccountDeleteSucceeded');
+    toast.custom(<CustomToast label={t('Account(s) Deleted!')} />);
+    setIsDeleteMode(false);
+  };
+
+  const onAccountDelete = () => {
+    showDialog({
+      title: t('Are You Sure?'),
+      body: t(
+        'Clicking “delete” will permanently remove this account from Core. To re-add this account you will need to enter the private key.'
+      ),
+      confirmText: t('Delete'),
+      width: '343px',
+      onConfirm: () => {
+        clearDialog();
+        deleteAccounts(deleteIdList).then(() => {
+          onAccountDeleteSuccess();
+        });
+      },
+      cancelText: t('Cancel'),
+      onCancel: () => {
+        clearDialog();
+      },
+    });
   };
 
   return (
@@ -75,70 +96,73 @@ export function Accounts() {
           <LedgerApprovalDialog />
         </Overlay>
       )}
-      <Scrollbars
-        style={{
-          flexGrow: 1,
-          maxHeight: 'unset',
-          height: '100%',
-          width: '100%',
-        }}
-        autoHide={false}
-        ref={scrollbarsRef}
-      >
-        <VerticalFlex padding="0 0 16px 0">
-          {hasError && <AddAccountError />}
-          <PageTitle margin={'24px 0'}>{t('Accounts')}</PageTitle>
-          {accounts.map((account, i) => {
-            return (
-              <VerticalFlex
-                data-testid={`account-${i}`}
-                key={account.addressC}
-                onClick={() => !editing && onAccountClicked(account.index)}
-                width="100%"
-              >
-                <AccountItem
-                  account={account}
-                  editing={editing}
-                  onEdit={() => isEditing(true)}
-                  onSave={() => isEditing(false)}
-                  isLoadingIndex={accountIndexLoading}
-                />
-                {i < accounts.length - 1 && (
-                  <HorizontalSeparator
-                    color={`${theme.colors.bg3}80`}
-                    margin="0 16px"
-                    width="auto"
-                  />
-                )}
-              </VerticalFlex>
-            );
-          })}
-        </VerticalFlex>
-      </Scrollbars>
+      <PageTitle margin={'24px 0 0 0'}>{t('Accounts')}</PageTitle>
+
+      {hasError && <AddAccountError />}
+      <Tabs
+        margin="14px 0 0"
+        tabs={[
+          {
+            title: t('Main'),
+            id: AccountsTabs.MAIN,
+            component: (
+              <MainList
+                isEditing={isEditing}
+                onAccountClicked={onAccountClicked}
+                setIsEditing={setIsEditing}
+              />
+            ),
+            onClick: () => {
+              setIsDeleteMode(false);
+              setIsEditing(false);
+              capture('MainAccountPageClicked');
+            },
+          },
+          {
+            title: t('Imported'),
+            id: AccountsTabs.IMPORTED,
+            component: (
+              <ImportedList
+                isEditing={isEditing}
+                onAccountClicked={onAccountClicked}
+                setIsEditing={setIsEditing}
+                isDeleteMode={isDeleteMode}
+                setIsDeleteMode={setIsDeleteMode}
+                deleteIdList={deleteIdList}
+                setDeleteIdList={setDeleteIdList}
+              />
+            ),
+            onClick: () => {
+              setIsEditing(false);
+              capture('ImportedAccountPageClicked');
+            },
+          },
+        ]}
+      />
       <HorizontalFlex
         background={`${theme.colors.bg2}99`}
         justify="center"
         padding="12px 16px 24px"
         width="100%"
       >
-        <PrimaryButton
-          data-testid="add-account-button"
-          size={ComponentSize.LARGE}
-          disabled={addAccountLoading}
-          width="100%"
-          onClick={() => {
-            capture('AccountSelectorAddAccount', {
-              accountNumber: accounts.length + 1,
-            });
-            addAccountAndFocus();
-          }}
-        >
-          {addAccountLoading ? (
-            <LoadingSpinnerIcon color={theme.colors.icon1} height="24px" />
-          ) : (
-            t('Add Account')
-          )}
-        </PrimaryButton>
+        {isDeleteMode ? (
+          <ActionButton
+            onClick={() => {
+              onAccountDelete();
+              capture('ImportedAccountDeleteClicked');
+            }}
+            disabled={!deleteIdList.length}
+            data-testid="delete-imported-account-button"
+          >
+            <StyledTrashIcon height="14px" />
+            {t('Delete account(s)')}
+          </ActionButton>
+        ) : (
+          <CreateAccountButton
+            isLoading={addAccountLoading}
+            addAccountAndFocus={addAccountAndFocus}
+          />
+        )}
       </HorizontalFlex>
     </VerticalFlex>
   );

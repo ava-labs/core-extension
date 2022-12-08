@@ -89,6 +89,12 @@ const ManageTokensPage = lazy(() => {
   }));
 });
 
+const ImportPrivateKeyPage = lazy(() => {
+  return import('../pages/ImportPrivateKey/ImportPrivateKey').then((m) => ({
+    default: m.ImportPrivateKey,
+  }));
+});
+
 const Swap = lazy(() => {
   return import('../pages/Swap/Swap').then((m) => ({
     default: m.Swap,
@@ -247,6 +253,7 @@ export function Popup() {
                                   '/send/confirm',
                                   '/collectible/send/confirm',
                                   '/accounts',
+                                  '/import-private-key',
                                 ].some((path) =>
                                   location.pathname.startsWith(path)
                                 ) && (
@@ -445,6 +452,12 @@ export function Popup() {
                                     <Route path="/accounts">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <Accounts />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/import-private-key">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <ImportPrivateKeyPage />
                                       </Suspense>
                                     </Route>
 

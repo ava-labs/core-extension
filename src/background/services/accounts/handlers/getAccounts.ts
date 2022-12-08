@@ -2,11 +2,11 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
-import { Account } from '../models';
+import { Accounts } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_GET_ACCOUNTS,
-  Account[]
+  Accounts
 >;
 
 @injectable()

@@ -12,11 +12,19 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   }
 
   handleAuthenticated = async (request) => {
-    const accounts = this.accountsService.getAccounts();
+    const accounts = this.accountsService.getAccountList();
+    const activeAccount = this.accountsService.activeAccount;
 
     return {
       ...request,
-      result: accounts,
+      result: accounts.map((acc) => {
+        const active = activeAccount?.id === acc.id;
+
+        return {
+          ...acc,
+          active,
+        };
+      }),
     };
   };
 

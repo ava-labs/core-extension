@@ -6,7 +6,7 @@ import { AccountsService } from '../AccountsService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_SELECT,
   'success',
-  [selectedIndex: number]
+  [id: string]
 >;
 
 @injectable()
@@ -15,10 +15,10 @@ export class SelectAccountHandler implements HandlerType {
 
   constructor(private accountsService: AccountsService) {}
   handle: HandlerType['handle'] = async (request) => {
-    const [selectedIndex] = request.params;
+    const [id] = request.params;
 
     try {
-      await this.accountsService.activateAccount(selectedIndex);
+      await this.accountsService.activateAccount(id);
     } catch (e: any) {
       return {
         ...request,

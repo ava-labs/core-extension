@@ -73,7 +73,9 @@ export const CollectibleSendConfirm = ({
 }: CollectibleSendConfirmProps) => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   useLedgerDisconnectedDialog(history.goBack);
 

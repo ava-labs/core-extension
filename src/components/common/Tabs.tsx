@@ -112,7 +112,7 @@ export function Tabs({ tabs, margin, loading }: TabsProps) {
                 selected={selectedTab === tab.id}
                 onClick={() => {
                   setSelectedTab(tab.id);
-                  history.push({
+                  history.replace({
                     pathname: pathname,
                     search: `?${new URLSearchParams({
                       activeTab: tab.id,

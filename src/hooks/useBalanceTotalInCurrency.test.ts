@@ -1,5 +1,5 @@
 import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { Account } from '@src/background/services/accounts/models';
+import { Account, AccountType } from '@src/background/services/accounts/models';
 import {
   Balances,
   TokenType,
@@ -29,10 +29,14 @@ const mockNetwork: Network = {
 
 const mockAccount: Account = {
   index: 0,
+  id: 'uuid',
   name: 'Account 1',
-  active: true,
   addressBTC: `bc1qy76a8lk4ym3af4u45f7fghuqc6ftfh7l6c87ed`,
   addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  addressAVM: '',
+  addressPVM: '',
+  addressCoreEth: '',
+  type: AccountType.PRIMARY,
 };
 
 const mockBalances: Balances = {

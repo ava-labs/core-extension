@@ -90,7 +90,8 @@ export class SubmitOnboardingHandler implements HandlerType {
     await this.networkService.addFavoriteNetwork(ChainId.BITCOIN);
     await this.networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
 
-    await this.accountsService.activateAccount(0);
+    const account = this.accountsService.getAccountList()[0];
+    await this.accountsService.activateAccount(account?.id ?? '');
     await this.onboardingService.setIsOnboarded(true);
     await this.settingsService.setAnalyticsConsent(analyticsConsent);
 

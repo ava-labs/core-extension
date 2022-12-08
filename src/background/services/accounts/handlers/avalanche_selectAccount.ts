@@ -4,7 +4,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountsService } from '../AccountsService';
-import { Account } from '../models';
+import { Account, AccountType } from '../models';
 import { Action } from '../../actions/models';
 
 @injectable()
@@ -16,11 +16,16 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
   }
 
   handleAuthenticated = async (request) => {
-    const [selectedIndex] = request.params;
+    const [selectedIndexOrID] = request.params;
 
-    const selectedAccount = this.accountsService
-      .getAccounts()
-      .find((account) => account.index === Number(selectedIndex));
+    // until core web sends only IDs...
+    const allAccounts = this.accountsService.getAccountList();
+    const selectedAccount = allAccounts.find((account) =>
+      account.type === AccountType.PRIMARY
+        ? account.index === selectedIndexOrID ||
+          account.id === selectedIndexOrID
+        : account.id === selectedIndexOrID
+    );
 
     if (!selectedAccount) {
       return {
@@ -58,7 +63,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
       const { selectedAccount } = pendingAction as Action & {
         selectedAccount: Account;
       };
-      await this.accountsService.activateAccount(selectedAccount.index);
+      await this.accountsService.activateAccount(selectedAccount.id);
       onSuccess(null);
     } catch (e) {
       onError(e);

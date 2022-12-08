@@ -24,7 +24,9 @@ const openMiniWindow = (url: string) => {
 };
 
 export const useBuyClick = () => {
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { showDialog, clearDialog } = useDialog();
   const { t } = useTranslation();
 

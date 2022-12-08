@@ -9,6 +9,10 @@ import extension from 'extensionizer';
 import { singleton } from 'tsyringe';
 import nacl from 'tweetnacl';
 import { WALLET_STORAGE_ENCRYPTION_KEY } from './models';
+import {
+  getDataWithSchemaVersion,
+  migrateToLatest,
+} from './schemaMigrations/schemaMigrations';
 
 @singleton()
 export class StorageService {
@@ -64,8 +68,10 @@ export class StorageService {
       throw new Error('No encryption key defined');
     }
 
+    const dataWithSchemaVersion = getDataWithSchemaVersion<T>(key, data);
+
     const encryptedData = await encrypt(
-      JSON.stringify(serialize(data)),
+      JSON.stringify(serialize(dataWithSchemaVersion)),
       encryptionKey,
       !!customEncryptionKey
     );
@@ -106,7 +112,15 @@ export class StorageService {
       Uint8Array.from(encryptedData.nonce)
     );
 
-    return deserialize(JSON.parse(data)) as T;
+    const deserializedData = deserialize(JSON.parse(data)) as T;
+
+    if (deserializedData) {
+      return migrateToLatest<T>(key, deserializedData, (data) =>
+        this.save<T>(key, data, customEncryptionKey)
+      );
+    }
+
+    return deserializedData;
   }
 
   async saveUnencrypted<T>(key: string, data: T) {

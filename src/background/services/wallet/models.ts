@@ -1,5 +1,6 @@
 import { BitcoinInputUTXO, BitcoinOutputUTXO } from '@avalabs/wallets-sdk';
 import { TransactionRequest } from '@ethersproject/providers';
+import { ImportType } from '../accounts/models';
 
 export type SignTransactionRequest = TransactionRequest | BtcTransactionRequest;
 export interface BtcTransactionRequest {
@@ -17,6 +18,13 @@ export interface WalletSecretInStorage {
   // Extended public key of m/44'/60'/0'
   xpub?: string;
   pubKeys?: PubKeyType[];
+  imported?: Record<
+    string,
+    {
+      type: ImportType;
+      secret: string;
+    }
+  >;
 }
 
 export enum WalletEvents {

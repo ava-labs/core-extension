@@ -49,7 +49,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
   const { tokens } = useBalancesContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   const [btcBalance, setBtcBalance] = useState<AssetBalance>();
   const [btcBalanceAvalanche, setBtcBalanceAvalanche] =

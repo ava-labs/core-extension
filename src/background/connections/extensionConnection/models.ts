@@ -16,6 +16,7 @@ export enum ExtensionRequest {
   ACCOUNT_SELECT = 'account_select',
   ACCOUNT_RENAME = 'account_rename',
   ACCOUNT_ADD = 'account_add',
+  ACCOUNT_DELETE = 'account_delete',
 
   BALANCES_GET = 'balances_get',
   NETWORK_BALANCES_UPDATE = 'network_balances_update',

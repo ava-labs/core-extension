@@ -16,7 +16,9 @@ export function useTokenFromParams(
   const [selectedToken, setSelectedToken] = useState<
     TokenWithBalance | undefined
   >(withDefault ? allTokens?.[0] : undefined);
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   const { tokenSymbol, tokenAddress } = useMemo(() => {
     const { tokenSymbol, tokenAddress } = (Object as any).fromEntries(

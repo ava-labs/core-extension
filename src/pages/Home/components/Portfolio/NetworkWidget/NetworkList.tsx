@@ -32,7 +32,9 @@ export function NetworkList() {
     useNetworkContext();
   const theme = useTheme();
   const { tokens } = useBalancesContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
   const favoriteNetworksWithoutActive = favoriteNetworks.filter(
     (networkItem) => networkItem.chainId !== network?.chainId

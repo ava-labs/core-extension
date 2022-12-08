@@ -6,7 +6,7 @@ import { AccountsService } from '../AccountsService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_RENAME,
   'success',
-  [index: number, name: string]
+  [id: string, name: string]
 >;
 
 @injectable()
@@ -15,10 +15,10 @@ export class RenameAccountHandler implements HandlerType {
 
   constructor(private accountsService: AccountsService) {}
   handle: HandlerType['handle'] = async (request) => {
-    const [index, name] = request.params;
+    const [id, name] = request.params;
 
     try {
-      await this.accountsService.setAccountName(index, name);
+      await this.accountsService.setAccountName(id, name);
     } catch (e: any) {
       return {
         ...request,

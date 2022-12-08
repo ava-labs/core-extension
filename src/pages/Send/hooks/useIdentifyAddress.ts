@@ -11,7 +11,7 @@ const UNSAVED_CONTACT_BASE = {
 
 export const useIdentifyAddress = () => {
   const { contacts } = useContactsContext();
-  const { accounts } = useAccountsContext();
+  const { allAccounts } = useAccountsContext();
 
   /**
    * Identifies if an address exists in the accounts or contacts
@@ -28,7 +28,7 @@ export const useIdentifyAddress = () => {
           return { id: contact.id, address, name: contact.name, isKnown: true };
         }
       }
-      for (const account of accounts) {
+      for (const account of allAccounts) {
         if (
           account.addressC.toLowerCase() === addressLowerCase ||
           account.addressBTC.toLocaleLowerCase() === addressLowerCase
@@ -40,7 +40,7 @@ export const useIdentifyAddress = () => {
         address,
       };
     },
-    [accounts, contacts]
+    [allAccounts, contacts]
   );
 
   return identifyAddress;

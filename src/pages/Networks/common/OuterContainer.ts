@@ -1,6 +1,7 @@
+import { VerticalFlex } from '@avalabs/react-components';
 import styled from 'styled-components';
 
-export const OuterContainer = styled.div`
+export const OuterContainer = styled(VerticalFlex)`
   flex-direction: column;
   align-items: flex-start;
   position: relative;

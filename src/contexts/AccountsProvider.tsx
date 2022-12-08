@@ -10,23 +10,34 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { concat, filter, from, map } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { accountsUpdatedEventListener } from '@src/background/services/accounts/events/accountsUpdatedEventListener';
-import { Account } from '@src/background/services/accounts/models';
+import {
+  Accounts,
+  ImportData,
+  Account,
+} from '@src/background/services/accounts/models';
 import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
 import { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
 import { RenameAccountHandler } from '@src/background/services/accounts/handlers/renameAccount';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
+import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 
 const AccountsContext = createContext<{
-  accounts: Account[];
-  activeAccount?: Account;
-  selectAccount(index: number): Promise<any>;
-  renameAccount(index: number, name: string): Promise<any>;
-  addAccount(): Promise<any>;
+  accounts: Accounts;
+  allAccounts: Account[];
+  isActiveAccount(id: string): boolean;
+  selectAccount(id: string): Promise<any>;
+  renameAccount(id: string, name: string): Promise<any>;
+  addAccount(name?: string, importData?: ImportData): Promise<any>;
+  deleteAccounts(ids: string[]): Promise<any>;
 }>({} as any);
 
 export function AccountsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<Accounts>({
+    active: undefined,
+    primary: [],
+    imported: {},
+  });
 
   useEffect(() => {
     if (!request || !events) {
@@ -51,41 +62,66 @@ export function AccountsContextProvider({ children }: { children: any }) {
     };
   }, [events, request]);
 
-  const activeAccount = useMemo(() => {
-    return accounts.find((a) => a.active);
-  }, [accounts]);
+  const allAccounts = useMemo(
+    () => [...accounts.primary, ...Object.values(accounts.imported)],
+    [accounts.imported, accounts.primary]
+  );
 
   const selectAccount = useCallback(
-    (index: number) =>
-      request<SelectAccountHandler>({
+    (id: string) => {
+      return request<SelectAccountHandler>({
         method: ExtensionRequest.ACCOUNT_SELECT,
-        params: [index],
-      }),
+        params: [id],
+      });
+    },
     [request]
   );
 
   const renameAccount = useCallback(
-    (index: number, name: string) =>
-      request<RenameAccountHandler>({
+    (id: string, name: string) => {
+      return request<RenameAccountHandler>({
         method: ExtensionRequest.ACCOUNT_RENAME,
-        params: [index, name],
-      }),
+        params: [id, name],
+      });
+    },
     [request]
   );
 
   const addAccount = useCallback(
-    () => request<AddAccountHandler>({ method: ExtensionRequest.ACCOUNT_ADD }),
+    (name?: string, importData?: ImportData) =>
+      request<AddAccountHandler>({
+        method: ExtensionRequest.ACCOUNT_ADD,
+        params: [name, importData],
+      }),
     [request]
+  );
+
+  const deleteAccounts = useCallback(
+    (ids: string[]) =>
+      request<DeleteAccountHandler>({
+        method: ExtensionRequest.ACCOUNT_DELETE,
+        params: [ids],
+      }),
+    [request]
+  );
+
+  const isActiveAccount = useCallback(
+    (id: string) => {
+      return accounts.active?.id === id;
+    },
+    [accounts.active]
   );
 
   return (
     <AccountsContext.Provider
       value={{
         accounts,
-        activeAccount,
+        allAccounts,
+        isActiveAccount,
         selectAccount,
         renameAccount,
         addAccount,
+        deleteAccounts,
       }}
     >
       {children}

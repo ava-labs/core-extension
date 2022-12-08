@@ -132,7 +132,9 @@ export const SendConfirm = ({
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
