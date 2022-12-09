@@ -21,9 +21,6 @@ export const Scrollbars = forwardRef(function Scrollbars(
 
   return (
     <CustomScrollbars.Scrollbars
-      autoHide
-      autoHideDuration={200}
-      hideTracksWhenNotNeeded
       renderThumbVertical={renderThumb}
       ref={ref}
       {...props}
