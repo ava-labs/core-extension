@@ -36,7 +36,7 @@ const FlexScrollbars = styled(Scrollbars)`
 
 export const AddNetwork = () => {
   const { t } = useTranslation();
-  const { saveCustomNetwork } = useNetworkContext();
+  const { saveCustomNetwork, isDeveloperMode } = useNetworkContext();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
 
   const history = useHistory();
@@ -100,6 +100,7 @@ export const AddNetwork = () => {
   const handleChange = (network: Network, formValid: boolean) => {
     setNetwork({
       ...network,
+      isTestnet: isDeveloperMode,
     });
     setNavigationHistoryData({ ...network });
     setIsFormValid(formValid);
