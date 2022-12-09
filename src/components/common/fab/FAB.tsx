@@ -16,7 +16,6 @@ import styled, { useTheme } from 'styled-components';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
-import { useBuyClick } from '@src/hooks/useBuyClick';
 import { useTranslation } from 'react-i18next';
 
 const ActionButtonWrapper = styled(TextButton)`
@@ -83,7 +82,6 @@ export function FAB() {
   const theme = useTheme();
   const history = useHistory();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
-  const { onBuyClick } = useBuyClick();
   const { t } = useTranslation();
 
   const ActionButton = ({ icon, text, ...rest }) => (
@@ -134,7 +132,7 @@ export function FAB() {
     },
     {
       text: t('Buy'),
-      route: '',
+      route: '/buy',
       name: 'Buy',
       icon: <BuyIcon height="21px" color={theme.colors.bg1} />,
     },
@@ -181,9 +179,7 @@ export function FAB() {
                 key={text}
                 text={text}
                 icon={icon}
-                onClick={() => {
-                  !route ? onBuyClick() : history.push(route);
-                }}
+                onClick={() => history.push(route)}
               />
             );
           })}

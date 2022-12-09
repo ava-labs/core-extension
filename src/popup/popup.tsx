@@ -33,6 +33,7 @@ import { Networks } from '@src/pages/Networks';
 import { AddNetwork } from '@src/pages/Networks/AddNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
+import { Buy } from '@src/pages/Buy/Buy';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
 import { Accounts } from '@src/pages/Accounts/Accounts';
 
@@ -374,6 +375,12 @@ export function Popup() {
                                     <Route path="/send">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SendPage />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/buy">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Buy />
                                       </Suspense>
                                     </Route>
 

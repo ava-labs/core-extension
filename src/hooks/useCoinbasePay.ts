@@ -1,8 +1,8 @@
 import { generateOnRampURL } from '@coinbase/cbpay-js';
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 
-export function useCoinbasePay(address: string) {
-  const coinbaseUrlByAddress = useMemo(() => {
+export function useCoinbasePay() {
+  const coinbaseUrlByAddress = useCallback((address: string) => {
     const appId = process.env.COINBASE_APP_ID;
     if (!appId) {
       throw new Error('Coinbase appId is wrong');
@@ -16,7 +16,7 @@ export function useCoinbasePay(address: string) {
         },
       ],
     });
-  }, [address]);
+  }, []);
 
   return { coinbaseUrlByAddress };
 }

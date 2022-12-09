@@ -5,13 +5,14 @@ import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 interface FunctionIsOfflineProps {
-  functionName: 'Bridge' | 'Send' | 'Swap';
+  functionName: 'Bridge' | 'Send' | 'Swap' | 'Buy';
 }
 
 export const FunctionNames = {
   Bridge: t('Bridge'),
   Swap: t('Swap'),
   Send: t('Send'),
+  Buy: t('Buy'),
 };
 
 export function FunctionIsOffline({
