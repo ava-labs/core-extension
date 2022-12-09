@@ -62,7 +62,7 @@ export function SendPage() {
 
   const tokensWBalances = useTokensWithBalances(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.INSTANT
+    GasFeeModifier.NORMAL
   );
 
   const [showTxInProgress, setShowTxInProgress] = useState(false);
