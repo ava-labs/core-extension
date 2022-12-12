@@ -222,12 +222,12 @@ export const SendConfirm = ({
                   <SummaryToken>{token?.symbol}</SummaryToken>
                 </Typography>
 
-                {token?.priceUSD && (
+                {typeof token?.priceUSD !== 'undefined' ? (
                   <SummaryAmountInCurrency align="right">
                     {amountInCurrency}{' '}
                     <SummaryCurrency>{currency}</SummaryCurrency>
                   </SummaryAmountInCurrency>
-                )}
+                ) : null}
               </VerticalFlex>
             </HorizontalFlex>
             <SummaryTokenIcon
