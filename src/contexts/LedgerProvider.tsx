@@ -311,11 +311,11 @@ export function LedgerContextProvider({ children }: { children: any }) {
     if (initialized) {
       return;
     }
-    setInialized(true);
     await request<InitLedgerTransportHandler>({
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [LEDGER_INSTANCE_UUID],
     });
+    setInialized(true);
   }, [initialized, request]);
 
   useEffect(() => {

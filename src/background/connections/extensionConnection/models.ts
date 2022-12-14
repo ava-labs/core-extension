@@ -84,7 +84,6 @@ export enum ExtensionRequest {
 
   LEDGER_INIT_TRANSPORT = 'ledger_init_transport',
   LEDGER_HAS_TRANSPORT = 'ledger_has_transport',
-  LEDGER_GET_PUBLIC = 'ledger_get_public',
   LEDGER_RESPONSE = 'ledger_response',
   LEDGER_REMOVE_TRANSPORT = 'ledger_remove_transport',
   LEDGER_CLOSE_TRANSPORT = 'ledger_close_transport',

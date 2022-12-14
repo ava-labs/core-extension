@@ -30,7 +30,6 @@ import { UpdateContactHandler } from '@src/background/services/contacts/handlers
 import { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
 import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
 import { LedgerTransportRequestEvents } from '@src/background/services/ledger/events/ledgerDeviceRequest';
-import { GetPublicKeyHandler } from '@src/background/services/ledger/handlers/getPublicKey';
 import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
 import { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
@@ -147,7 +146,6 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveContactHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetPublicKeyHandler },
   { token: 'ExtensionRequestHandler', useToken: InitLedgerTransportHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveLedgerTransportHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerResponseHandler },
