@@ -115,6 +115,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }, [settings?.currency]);
 
   function lockWallet() {
+    setIsSettingsOpen(false);
     return request<LockWalletHandler>({ method: ExtensionRequest.LOCK_WALLET });
   }
 
