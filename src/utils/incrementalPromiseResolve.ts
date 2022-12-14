@@ -1,7 +1,9 @@
-function incrementAndCall<T>(prom: Promise<T>, interval = 0) {
-  return new Promise((resolve) => {
+function incrementAndCall<T>(prom: () => Promise<T>, interval = 0) {
+  return new Promise((resolve, reject) => {
     setTimeout(() => {
-      prom.then((res) => resolve(res));
+      prom()
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
     }, 500 * interval);
   });
 }
@@ -21,14 +23,29 @@ export async function incrementalPromiseResolve<T>(
   increment = 0,
   maxTries = 10
 ) {
-  const res = await incrementAndCall<T>(prom(), increment);
-  if (maxTries === increment) return res;
-  if (errorParser(res))
-    return incrementalPromiseResolve(
-      prom,
-      errorParser,
-      increment + 1,
-      maxTries
-    );
-  return res;
+  try {
+    const res = await incrementAndCall<T>(prom, increment);
+    if (maxTries === increment + 1) return res;
+    if (errorParser(res)) {
+      return incrementalPromiseResolve(
+        prom,
+        errorParser,
+        increment + 1,
+        maxTries
+      );
+    }
+    return res;
+  } catch (err) {
+    if (maxTries === increment + 1)
+      throw typeof err === 'string' ? new Error(err) : err;
+    if (errorParser(err)) {
+      return incrementalPromiseResolve(
+        prom,
+        errorParser,
+        increment + 1,
+        maxTries
+      );
+    }
+    throw typeof err === 'string' ? new Error(err) : err;
+  }
 }
