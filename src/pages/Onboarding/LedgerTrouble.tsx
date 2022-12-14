@@ -13,10 +13,11 @@ interface LedgerTroubleProps {
   onBack(): void;
 }
 
-const Link = styled(Typography)`
+const LedgerLink = styled(Typography)`
   font-weight: 600;
   font-size: 14px;
   line-height: 24px;
+  cursor: pointer;
   color: ${({ theme }) => theme.colors.secondary1};
 `;
 
@@ -65,10 +66,10 @@ export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
 
         <Typography size={14} height="22px">
           <Trans
-            i18nKey="If you do not have the latest Avalanche App, please add it through the <link>Ledger Live</link> app manager."
+            i18nKey="If you do not have the latest Avalanche App, please add it through the <ledgerLink>Ledger Live</ledgerLink> app manager."
             components={{
-              link: (
-                <Link
+              ledgerLink: (
+                <LedgerLink
                   as="a"
                   href="https://www.ledger.com/ledger-live"
                   target="_blank"
@@ -80,10 +81,10 @@ export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
         </Typography>
         <Typography size={14} height="22px" margin="24px 0 0">
           <Trans
-            i18nKey="More instructions can be found <link>here</link>."
+            i18nKey="More instructions can be found <ledgerLink>here</ledgerLink>."
             components={{
-              link: (
-                <Link
+              ledgerLink: (
+                <LedgerLink
                   as="a"
                   href="https://support.avax.network/en/articles/6150237-how-to-use-a-ledger-nano-s-or-nano-x-with-avalanche"
                   target="_blank"
