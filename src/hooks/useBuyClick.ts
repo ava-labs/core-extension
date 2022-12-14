@@ -6,6 +6,8 @@ import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useCallback } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useLanguage } from './useLanguages';
+import { Languages } from '@src/background/services/settings/models';
 
 export enum BuyService {
   COINBASE = 'Coinbase Pay',
@@ -42,6 +44,7 @@ export const useBuyClick = () => {
   const { coinbaseUrlByAddress } = useCoinbasePay();
   const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
+  const { currentLanguage } = useLanguage();
 
   const renderError = useCallback(() => {
     showDialog({
@@ -59,12 +62,17 @@ export const useBuyClick = () => {
 
   const renderBuyDialog = useCallback(
     (buyService: BuyService, buyServiceURL: string) => {
+      const supportedLanguageLabel =
+        currentLanguage?.code !== Languages.EN
+          ? t('{{buyService}} only supports English.', { buyService })
+          : '';
       showDialog({
         title: t('Attention'),
         body: t(
-          "Clicking “Continue” will take you to a page powered by our partner {{buyService}}, use is subject to {{buyService}}'s terms and policies",
+          "Clicking “Continue” will take you to a page powered by our partner {{buyService}}, use is subject to {{buyService}}'s terms and policies. {{supportedLanguageLabel}}",
           {
-            buyService: buyService,
+            buyService,
+            supportedLanguageLabel,
           }
         ),
         confirmText: t('Yes'),
@@ -80,7 +88,7 @@ export const useBuyClick = () => {
         },
       });
     },
-    [clearDialog, showDialog, t, capture]
+    [currentLanguage?.code, t, showDialog, clearDialog, capture]
   );
 
   const onBuyClick = async (buyService: BuyService) => {
