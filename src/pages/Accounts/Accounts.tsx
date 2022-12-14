@@ -127,7 +127,10 @@ export function Accounts() {
                 onAccountClicked={onAccountClicked}
                 setIsEditing={setIsEditing}
                 isDeleteMode={isDeleteMode}
-                setIsDeleteMode={setIsDeleteMode}
+                setIsDeleteMode={(status) => {
+                  setDeleteIdList([]);
+                  setIsDeleteMode(status);
+                }}
                 deleteIdList={deleteIdList}
                 setDeleteIdList={setDeleteIdList}
               />

@@ -22,7 +22,7 @@ import { OuterContainer } from '../Networks/common/OuterContainer';
 
 interface ImportedListProps extends AccountListProps {
   isDeleteMode: boolean;
-  setIsDeleteMode: Dispatch<SetStateAction<boolean>>;
+  setIsDeleteMode: (status: boolean) => void;
   deleteIdList: string[];
   setDeleteIdList: Dispatch<SetStateAction<string[]>>;
 }
