@@ -12,7 +12,6 @@ import { TokenIcon } from '@src/components/common/TokenImage';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme, keyframes } from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -63,18 +62,20 @@ const AssetlistRow = styled(HorizontalFlex)`
 export function Assetlist({ assetList }: AssetListProps) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const tokensWithBalances = useTokensWithBalances();
-  const { currencyFormatter } = useSettingsContext();
+  const { currencyFormatter, getTokenVisibility } = useSettingsContext();
   const theme = useTheme();
   const maxAssetCount = 4;
 
-  const restAssetCount = tokensWithBalances.length - maxAssetCount;
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
+  const filteredAssetList = assetList.filter((asset) =>
+    getTokenVisibility(asset)
+  );
+  const restAssetCount = filteredAssetList.length - maxAssetCount;
 
   return (
     <>
-      {assetList.slice(0, maxAssetCount).map((token) => {
+      {filteredAssetList.slice(0, maxAssetCount).map((token) => {
         return (
           <AssetlistRow
             data-testid={`${token.symbol.toLowerCase()}-token-list-row`}
