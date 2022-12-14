@@ -345,6 +345,7 @@ export function Swap() {
                       : result.optimalRate.srcAmount;
 
                   setDestAmount(resultAmount);
+                  setSwapError({ message: '' });
                 }
               })
               .catch(() => {
