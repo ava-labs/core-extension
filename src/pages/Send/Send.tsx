@@ -43,6 +43,8 @@ import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { WalletType } from '@src/background/services/wallet/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useTranslation } from 'react-i18next';
+import { getSendErrorMessage } from './utils/sendErrorMessages';
+import { SendErrorMessage } from '@src/background/services/send/models';
 
 export function SendPage() {
   const { t } = useTranslation();
@@ -355,7 +357,11 @@ export function SendPage() {
             >
               <Tooltip
                 content={
-                  <Typography size={14}>{sendState.error?.message}</Typography>
+                  <Typography size={14}>
+                    {getSendErrorMessage(
+                      sendState.error?.message as SendErrorMessage
+                    )}
+                  </Typography>
                 }
                 disabled={!sendState.error?.error}
               >
