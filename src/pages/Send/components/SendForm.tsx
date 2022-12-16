@@ -67,6 +67,7 @@ export const SendForm = ({
   const errorsToExcludeForTokenSelect: string[] = [
     SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE,
     SendErrorMessage.ADDRESS_REQUIRED,
+    SendErrorMessage.INVALID_ADDRESS,
   ];
 
   const toggleContactsDropdown = (to?: boolean) => {
@@ -94,9 +95,10 @@ export const SendForm = ({
         width="100%"
         height="16px"
       >
-        {sendState?.error?.message === SendErrorMessage.ADDRESS_REQUIRED && (
+        {(sendState?.error?.message === SendErrorMessage.ADDRESS_REQUIRED ||
+          sendState?.error?.message === SendErrorMessage.INVALID_ADDRESS) && (
           <Typography size={12} color={theme.colors.error}>
-            {getSendErrorMessage(SendErrorMessage.ADDRESS_REQUIRED)}.
+            {getSendErrorMessage(sendState.error?.message as SendErrorMessage)}.
           </Typography>
         )}
       </HorizontalFlex>
@@ -111,10 +113,12 @@ export const SendForm = ({
           onInputAmountChange={onAmountInputChange}
           onSelectToggle={toggleTokenDropdown}
           isOpen={isTokenSelectOpen}
-          isValueLoading={sendState.loading}
+          isValueLoading={selectedToken ? sendState.loading : false}
           error={
-            sendState.error?.message &&
-            errorsToExcludeForTokenSelect.includes(sendState.error.message)
+            !selectedToken
+              ? undefined
+              : sendState.error?.message &&
+                errorsToExcludeForTokenSelect.includes(sendState.error.message)
               ? undefined
               : getSendErrorMessage(
                   sendState.error?.message as SendErrorMessage
