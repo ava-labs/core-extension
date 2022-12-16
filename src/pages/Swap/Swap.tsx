@@ -147,7 +147,7 @@ export function Swap() {
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.INSTANT
+    GasFeeModifier.NORMAL
   );
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
