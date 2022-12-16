@@ -178,7 +178,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
           avaxAppInstance.getAppInfo()
         );
 
-        if (!appVersionError) {
+        if (!appVersionError && config.appName === LedgerAppType.AVALANCHE) {
           setAvaxAppVersion(config.appVersion);
           setApp(avaxAppInstance);
           setAppType(LedgerAppType.AVALANCHE);
