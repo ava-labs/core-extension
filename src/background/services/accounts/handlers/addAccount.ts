@@ -2,10 +2,12 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
+import { ImportData } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_ADD,
-  'success' | 'error'
+  string | undefined,
+  [name?: string, importData?: ImportData]
 >;
 
 @injectable()
@@ -15,19 +17,20 @@ export class AddAccountHandler implements HandlerType {
   constructor(private accountsService: AccountsService) {}
 
   handle: HandlerType['handle'] = async (request) => {
+    const [name, importData] = request.params ?? [];
+
     try {
-      await this.accountsService.addAccount();
+      const id = await this.accountsService.addAccount(name, importData);
+
+      return {
+        ...request,
+        result: id,
+      };
     } catch (e: any) {
       return {
         ...request,
-        result: 'error',
         error: e.toString(),
       };
     }
-
-    return {
-      ...request,
-      result: 'success',
-    };
   };
 }

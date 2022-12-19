@@ -51,12 +51,22 @@ export function PermissionsPage() {
   const requestId = useGetRequestId();
   const { permissions, isDomainConnectedToAccount } = usePermissionContext();
   const theme = useTheme();
-  const { accounts, activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+    allAccounts,
+  } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>();
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const selectedAccountRef = useRef<HTMLDivElement>(null);
   const isConfirmContainer = useIsSpecificContextContainer(
     ContextContainer.CONFIRM
+  );
+
+  const isSelected = useCallback(
+    (account: Account) => {
+      return account.id === selectedAccount?.id;
+    },
+    [selectedAccount]
   );
 
   const {
@@ -88,7 +98,7 @@ export function PermissionsPage() {
     updateAction({
       status: ActionStatus.SUBMITTING,
       id: requestId,
-      result: selectedAccount.index,
+      result: selectedAccount.id,
     });
   }, [selectedAccount, updateAction, requestId]);
 
@@ -191,19 +201,15 @@ export function PermissionsPage() {
               style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
               ref={scrollbarsRef}
             >
-              {accounts.map((account) => (
+              {allAccounts.map((account, i) => (
                 <DropDownMenuItem
                   data-testid="connect-account-menu-item"
                   padding="11px 16px"
                   width="100%"
-                  key={account.index}
+                  key={i}
                   onClick={() => setSelectedAccount(account)}
-                  selected={account.index === selectedAccount?.index}
-                  ref={
-                    selectedAccount?.index === account.index
-                      ? selectedAccountRef
-                      : undefined
-                  }
+                  selected={isSelected(account)}
+                  ref={isSelected(account) ? selectedAccountRef : undefined}
                 >
                   <VerticalFlex padding="0px" width="100%">
                     <HorizontalFlex
@@ -211,18 +217,16 @@ export function PermissionsPage() {
                       justify="space-between"
                       align="center"
                     >
-                      <AccountName
-                        selected={selectedAccount?.index === account.index}
-                      >
+                      <AccountName selected={isSelected(account)}>
                         {account.name}
                       </AccountName>
-                      {selectedAccount?.index === account.index && (
+                      {isSelected(account) && (
                         <CheckmarkIcon
                           height="16px"
                           color={theme.colors.text1}
                         />
                       )}
-                      {selectedAccount?.index !== account.index &&
+                      {isSelected(account) &&
                         permissions[request.displayData.domainUrl]?.accounts[
                           account.addressC
                         ] && (

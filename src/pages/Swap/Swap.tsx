@@ -147,7 +147,7 @@ export function Swap() {
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.INSTANT
+    GasFeeModifier.NORMAL
   );
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -188,7 +188,7 @@ export function Swap() {
   );
 
   const onSwapError = useCallback((errorMessage) => {
-    setSwapError({ message: errorMessage });
+    if (errorMessage) setSwapError({ message: errorMessage });
   }, []);
 
   const calculateRate = (optimalRate: OptimalRate) => {
@@ -345,6 +345,7 @@ export function Swap() {
                       : result.optimalRate.srcAmount;
 
                   setDestAmount(resultAmount);
+                  setSwapError({ message: '' });
                 }
               })
               .catch(() => {
@@ -594,7 +595,8 @@ export function Swap() {
             hideErrorMessage
             onError={onSwapError}
             onInputAmountChange={(value) => {
-              if (value.bn.toString() === '0') {
+              setFromDefaultValue(value.bn);
+              if (Number(value.amount) === 0) {
                 setSwapError({ message: t('Please enter an amount') });
                 return;
               }

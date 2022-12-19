@@ -7,12 +7,11 @@ import {
   Typography,
   VerticalFlex,
   WarningIcon,
-  TextButton,
 } from '@avalabs/react-components';
 import styled, { useTheme } from 'styled-components';
 import { Trans, useTranslation } from 'react-i18next';
 
-const TroubleshootLink = styled(TextButton)`
+const TroubleshootLink = styled.span`
   cursor: pointer;
   text-decoration: underline;
   text-decoration-color: ${({ theme }) => theme.colors.primary1};
@@ -79,17 +78,9 @@ export function LedgerConnectCard({
         <HorizontalFlex margin="6px 0 0" align="center">
           <Typography size={12} height="16px" color={theme.colors.primary1}>
             <Trans
-              i18nKey="Unable to connect, view the troubleshoot guide <troubleshoot><link>here</link></troubleshoot>"
+              i18nKey="Unable to connect, view the troubleshoot guide <linkText>here</linkText>"
               components={{
-                troubleshoot: <TroubleshootLink onClick={onError} />,
-                link: (
-                  <Typography
-                    size={12}
-                    height="16px"
-                    color={theme.colors.primary1}
-                    margin="0 0 0 4px"
-                  />
-                ),
+                linkText: <TroubleshootLink onClick={onError} />,
               }}
             />
           </Typography>

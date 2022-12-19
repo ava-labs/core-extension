@@ -106,8 +106,7 @@ export function PermissionMiddleware(
 
     // check if domain has permission
     const permissions = await permissionService.getPermissions();
-    const accounts = await accountsService.getAccounts();
-    const activeAccountAddress = accounts.find((a) => a.active)?.addressC;
+    const activeAccountAddress = accountsService.activeAccount?.addressC;
 
     if (
       activeAccountAddress &&

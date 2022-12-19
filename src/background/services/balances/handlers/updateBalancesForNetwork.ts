@@ -31,7 +31,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
 
     const accountsToFetch = accounts?.length
       ? accounts
-      : this.accountsService.getAccounts();
+      : this.accountsService.getAccountList();
 
     if (Object.keys(accountsToFetch).length === 0) {
       return {

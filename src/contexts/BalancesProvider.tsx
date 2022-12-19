@@ -74,7 +74,9 @@ function balancesReducer(
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const { network, favoriteNetworks, networks } = useNetworkContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const [tokens, dispatch] = useReducer(balancesReducer, {
     loading: true,
   });
@@ -201,19 +203,22 @@ export function BalancesProvider({ children }: { children: any }) {
     // trigger nft updates whenever the account changes
   }, [network?.chainId, activeAccount?.addressC, updateNftBalances]);
 
-  const updateBalanceOnAllNetworks = async (account: Account) => {
-    const networkIds = networks.map((network) => network.chainId);
+  const updateBalanceOnAllNetworks = useCallback(
+    async (account: Account) => {
+      const networkIds = networks.map((network) => network.chainId);
 
-    const balances = await request<UpdateBalancesForNetworkHandler>({
-      method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-      params: [[account], networkIds],
-    });
+      const balances = await request<UpdateBalancesForNetworkHandler>({
+        method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
+        params: [[account], networkIds],
+      });
 
-    dispatch({
-      type: BalanceActionType.UPDATE_BALANCES,
-      payload: balances,
-    });
-  };
+      dispatch({
+        type: BalanceActionType.UPDATE_BALANCES,
+        payload: balances,
+      });
+    },
+    [request, networks]
+  );
 
   return (
     <BalancesContext.Provider

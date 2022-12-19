@@ -1,7 +1,7 @@
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
-import { Account, AccountsEvents } from '../accounts/models';
+import { Account, Accounts, AccountsEvents } from '../accounts/models';
 import { Balances, BalanceServiceEvents } from './models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
@@ -30,10 +30,10 @@ export class BalanceAggregatorService implements OnLock {
   ) {
     this.updateBalancesForNetworks.bind(this);
 
-    this.accountsService.addListener<Account[]>(
+    this.accountsService.addListener<Accounts>(
       AccountsEvents.ACCOUNTS_UPDATED,
       async (accounts) => {
-        const activeAccount = accounts.find((a) => a.active);
+        const activeAccount = accounts.active;
         const activeNetwork = this.networkService.activeNetwork;
         if (!activeAccount || !activeNetwork) {
           return;

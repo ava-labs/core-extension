@@ -9,6 +9,7 @@ export const NetworkListItem = styled(HorizontalFlex)<{
   justify-content: space-between;
   padding: 16px;
   cursor: pointer;
+  width: 100%;
   :hover {
     background-color: ${({ theme }) => theme.colors.bg2};
   }

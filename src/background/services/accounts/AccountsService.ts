@@ -3,9 +3,12 @@ import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
   Account,
+  Accounts,
   AccountsEvents,
-  AccountStorageItem,
   ACCOUNTS_STORAGE_KEY,
+  AccountType,
+  ImportData,
+  ImportedAccount,
 } from './models';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { WalletService } from '../wallet/WalletService';
@@ -16,27 +19,47 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 export class AccountsService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
 
-  private _accounts: Account[] = [];
+  private _accounts: Accounts = {
+    active: undefined,
+    primary: [],
+    imported: {},
+  };
 
-  private set accounts(acc: Account[]) {
-    if (JSON.stringify(this._accounts) === JSON.stringify(acc)) {
+  private set accounts(accounts: Accounts) {
+    if (JSON.stringify(this._accounts) === JSON.stringify(accounts)) {
       return;
     }
-    this._accounts = acc;
+
+    this._accounts = accounts;
 
     // do not save empty list of accounts to storage
-    if (this._accounts.length > 0) {
+    if (accounts.primary.length > 0) {
+      if (accounts.active?.type === AccountType.PRIMARY) {
+        const activeAccount = accounts.primary[accounts.active.index];
+
+        if (activeAccount) {
+          this._accounts.active = activeAccount;
+        }
+      } else if (accounts.active?.type === AccountType.IMPORTED) {
+        const activeAccount = accounts.imported[accounts.active.id];
+
+        if (activeAccount) {
+          this._accounts.active = activeAccount;
+        }
+      }
+
       this.saveAccounts(this._accounts);
     }
+
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
-  private get accounts(): Account[] {
+  private get accounts() {
     return this._accounts;
   }
 
-  public get activeAccount(): Account | undefined {
-    return this.accounts.find((a) => a.active);
+  public get activeAccount() {
+    return this.accounts.active;
   }
 
   constructor(
@@ -53,7 +76,12 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   onLock() {
-    this.accounts = [];
+    this.accounts = {
+      active: undefined,
+      primary: [],
+      imported: {},
+    };
+
     this.networkService.activeNetworkChanged.remove(
       this.onDeveloperModeChanged
     );
@@ -66,92 +94,227 @@ export class AccountsService implements OnLock, OnUnlock {
   private init = async (updateAddresses?: boolean) => {
     const accounts = await this.loadAccounts();
     // no accounts added yet, onboarding is not done yet
-    if (accounts.length === 0) {
+    if (accounts.primary.length === 0) {
       return;
     }
 
-    const accountsWithAddresses: Account[] = [];
+    const [primaryAccountsWithAddresses, importedAccountsWithAddresses] =
+      await Promise.all([
+        Promise.all(
+          accounts.primary.map(async (account) => {
+            if (!updateAddresses && account.addressC && account.addressBTC) {
+              return account;
+            } else {
+              const addresses = await this.walletService.getAddresses(
+                account.index
+              );
 
-    for (const acc of accounts) {
-      // use cached addresses unless they need to be updated due to testnet switches
-      if (!updateAddresses && acc.addressC && acc.addressBTC) {
-        accountsWithAddresses.push({
-          ...acc,
-          addressC: acc.addressC,
-          addressBTC: acc.addressBTC,
-        });
-      } else {
-        const addresses = await this.walletService.getAddress(acc.index);
+              return {
+                ...account,
+                addressC: addresses[NetworkVMType.EVM],
+                addressBTC: addresses[NetworkVMType.BITCOIN],
+                addressAVM: addresses[NetworkVMType.AVM],
+                addressPVM: addresses[NetworkVMType.PVM],
+                addressCoreEth: addresses[NetworkVMType.CoreEth],
+              };
+            }
+          })
+        ),
+        Promise.all(
+          Object.values(accounts.imported).map(async (account) => {
+            if (!updateAddresses && account?.addressC && account?.addressBTC) {
+              return account;
+            } else {
+              const addresses = await this.walletService.getImportedAddresses(
+                account.id
+              );
 
-        accountsWithAddresses.push({
-          ...acc,
-          addressC: addresses[NetworkVMType.EVM],
-          addressBTC: addresses[NetworkVMType.BITCOIN],
-        });
-      }
-    }
-    this.accounts = accountsWithAddresses;
+              return {
+                ...account,
+                ...addresses,
+              };
+            }
+          })
+        ),
+      ]);
+
+    this.accounts = {
+      ...accounts,
+      primary: primaryAccountsWithAddresses,
+      imported: importedAccountsWithAddresses.reduce((accounts, account) => {
+        accounts[account.id] = account;
+        return accounts;
+      }, {}),
+    };
   };
 
-  private async loadAccounts(): Promise<AccountStorageItem[]> {
-    const accounts = await this.storageService.load<AccountStorageItem[]>(
+  private async loadAccounts(): Promise<Accounts> {
+    const accounts = await this.storageService.load<Accounts>(
       ACCOUNTS_STORAGE_KEY
     );
 
-    return accounts ?? [];
-  }
-
-  private async saveAccounts(accounts: AccountStorageItem[]) {
-    await this.storageService.save<AccountStorageItem[]>(
-      ACCOUNTS_STORAGE_KEY,
-      accounts
+    return (
+      accounts ?? {
+        active: undefined,
+        primary: [],
+        imported: {},
+      }
     );
   }
 
-  getAccounts(): Account[] {
+  private async saveAccounts(accounts: Accounts) {
+    await this.storageService.save<Accounts>(ACCOUNTS_STORAGE_KEY, accounts);
+  }
+
+  getAccountByID(id: string) {
+    return (
+      this.accounts.imported[id] ??
+      this.accounts.primary.find((acc) => acc.id === id)
+    );
+  }
+
+  getAccounts(): Accounts {
     return this.accounts;
   }
 
-  async addAccount(name?: string) {
-    const lastAccount = this.accounts.at(-1);
-    const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
-    const newAccount = {
-      index: nextIndex,
-      name: name || `Account ${nextIndex + 1}`,
-      active: false,
-    };
-
-    const addresses = await this.walletService.addAddress(nextIndex);
-
-    this.accounts = [
-      ...this.accounts,
-      {
-        ...newAccount,
-        addressC: addresses[NetworkVMType.EVM],
-        addressBTC: addresses[NetworkVMType.BITCOIN],
-      },
-    ];
+  getAccountList(): Account[] {
+    return [...this.accounts.primary, ...Object.values(this.accounts.imported)];
   }
 
-  async setAccountName(index: number, name: string) {
-    const accountToChange = this.accounts[index];
+  isAlreadyImported(addressC: string) {
+    return Object.values(this.accounts.imported).some(
+      (acc) => acc.addressC === addressC
+    );
+  }
+
+  async addAccount(name?: string, options?: ImportData) {
+    if (options) {
+      try {
+        const { account, commit } = await this.walletService.addImportedWallet(
+          options
+        );
+
+        if (this.isAlreadyImported(account.addressC)) {
+          throw new Error('Account has been already imported');
+        }
+
+        // the imported account is unique, we can save its secret
+        await commit();
+
+        const newAccount: ImportedAccount = {
+          ...account,
+          name:
+            name ||
+            `Imported Account ${
+              Object.keys(this.accounts.imported).length + 1
+            }`,
+          type: AccountType.IMPORTED as const,
+        };
+
+        this.accounts = {
+          ...this.accounts,
+          imported: {
+            ...this.accounts.imported,
+            [newAccount.id]: newAccount,
+          },
+        };
+
+        return account.id;
+      } catch (err) {
+        throw new Error(
+          `Account import failed with error: ${(err as Error).message}`
+        );
+      }
+    } else {
+      const lastAccount = this.accounts.primary.at(-1);
+      const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
+      const newAccount = {
+        index: nextIndex,
+        name: name || `Account ${nextIndex + 1}`,
+        type: AccountType.PRIMARY as const,
+      };
+
+      const addresses = await this.walletService.addAddress(nextIndex);
+      const id = crypto.randomUUID();
+
+      this.accounts = {
+        ...this.accounts,
+        primary: [
+          ...this.accounts.primary,
+          {
+            ...newAccount,
+            id,
+            addressC: addresses[NetworkVMType.EVM],
+            addressBTC: addresses[NetworkVMType.BITCOIN],
+            addressAVM: addresses[NetworkVMType.AVM],
+            addressPVM: addresses[NetworkVMType.PVM],
+            addressCoreEth: addresses[NetworkVMType.CoreEth],
+          },
+        ],
+      };
+
+      return id;
+    }
+  }
+
+  async setAccountName(id: string, name: string) {
+    const accountToChange = this.getAccountByID(id);
 
     if (!accountToChange) {
-      throw new Error(`Account with index ${index} not found`);
+      throw new Error(`Account rename failed: account not found`);
     }
-    // create copy of the object to prevent updating this.accounts
-    const accountWithNewName = { ...accountToChange, name };
-    const newAccounts = [...this.accounts];
-    newAccounts[index] = accountWithNewName;
 
-    this.accounts = newAccounts;
+    if (accountToChange.type === AccountType.PRIMARY) {
+      const accountWithNewName = { ...accountToChange, name };
+      const newAccounts = [...this.accounts.primary];
+      newAccounts[accountToChange.index] = accountWithNewName;
+      this.accounts = { ...this.accounts, primary: newAccounts };
+    } else if (accountToChange.type === AccountType.IMPORTED) {
+      const accountWithNewName = { ...accountToChange, name };
+      const newAccounts = { ...this.accounts.imported };
+      newAccounts[id] = accountWithNewName;
+      this.accounts = { ...this.accounts, imported: newAccounts };
+    } else {
+      throw new Error('Account rename failed: unknown account type');
+    }
   }
 
-  async activateAccount(index: number) {
-    this.accounts = this.accounts.map((acc) => ({
-      ...acc,
-      active: acc.index === index,
-    }));
+  async activateAccount(id: string) {
+    const accountToActivate = this.getAccountByID(id);
+
+    if (!accountToActivate) {
+      throw new Error(`Account activation failed: account not found`);
+    }
+
+    this.accounts = {
+      ...this.accounts,
+      active: accountToActivate,
+    };
+  }
+
+  async deleteAccounts(ids: string[]) {
+    const newAccounts = ids.reduce(
+      (accounts, id) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [id]: _, ...newAccounts } = accounts;
+        return newAccounts;
+      },
+      { ...this.accounts.imported }
+    );
+
+    const active =
+      this.accounts.active?.type === AccountType.IMPORTED &&
+      ids.includes(this.accounts.active.id)
+        ? this.accounts.primary[0]
+        : this.accounts.active;
+
+    await this.walletService.deleteImportedWallets(ids);
+
+    this.accounts = {
+      ...this.accounts,
+      imported: newAccounts,
+      active,
+    };
   }
 
   addListener<T = unknown>(event: AccountsEvents, callback: (data: T) => void) {

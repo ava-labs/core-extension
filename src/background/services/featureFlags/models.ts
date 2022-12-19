@@ -9,6 +9,9 @@ export const DEFAULT_FLAGS = {
   [FeatureGates.BRIDGE_BTC]: true,
   [FeatureGates.SEND]: true,
   [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: true,
+  [FeatureGates.BUY]: true,
+  [FeatureGates.BUY_MOONPAY]: true,
+  [FeatureGates.BUY_COINBASE]: true,
 };
 
 export enum FeatureFlagEvents {

@@ -4,6 +4,7 @@ import { container } from 'tsyringe';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ActionsService } from '../../actions/ActionsService';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { AccountType } from '../models';
 
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn(),
@@ -11,18 +12,8 @@ jest.mock('@src/utils/extensionUtils', () => ({
 
 describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () => {
   const addActionMock = jest.fn();
-  const accounts = [
-    {
-      index: 1,
-      addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-    },
-    {
-      index: 2,
-      addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-    },
-  ];
   const accountServiceMock = {
-    getAccounts: () => accounts,
+    getAccountList: jest.fn(),
   } as any;
   const actionsServiceMock = {
     addAction: addActionMock,
@@ -37,7 +28,14 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   });
 
   describe('handleAuthenticated', () => {
-    it('returns DEFERED_RESPONSE', async () => {
+    it('returns DEFERED_RESPONSE for primary address', async () => {
+      const account = {
+        index: 1,
+        addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        type: AccountType.PRIMARY,
+      };
+      accountServiceMock.getAccountList.mockReturnValue([account]);
+
       const handler = new AvalancheSelectAccountHandler(accountServiceMock);
       const url = 'switchAccount?id=123';
 
@@ -51,7 +49,44 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       const actionData = {
         ...request,
         tabId: 1,
-        selectedAccount: accounts[0],
+        selectedAccount: account,
+        popupWindowId: 123,
+      };
+
+      const result = await handler.handleAuthenticated(request);
+
+      expect(openExtensionNewWindow).toHaveBeenCalled();
+      expect(openExtensionNewWindow).toHaveBeenCalledWith(url, '');
+      expect(addActionMock).toHaveBeenCalled();
+      expect(addActionMock).toBeCalledWith(actionData);
+      expect(result).toEqual({
+        ...request,
+        result: DEFERRED_RESPONSE,
+      });
+    });
+
+    it('returns DEFERED_RESPONSE for imported address', async () => {
+      const account = {
+        id: '0x1',
+        addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        type: AccountType.IMPORTED,
+      };
+
+      accountServiceMock.getAccountList.mockReturnValue([account]);
+      const handler = new AvalancheSelectAccountHandler(accountServiceMock);
+      const url = 'switchAccount?id=123';
+
+      const request = {
+        id: '123',
+        method: DAppProviderRequest.ACCOUNT_SELECT,
+        params: ['0x1'],
+        site: { tabId: 1 },
+      } as any;
+
+      const actionData = {
+        ...request,
+        tabId: 1,
+        selectedAccount: account,
         popupWindowId: 123,
       };
 
@@ -68,9 +103,9 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     });
 
     it('returns errors when account not found', async () => {
-      const handler = new AvalancheSelectAccountHandler({
-        getAccounts: () => [],
-      } as any);
+      accountServiceMock.getAccountList.mockReturnValueOnce([]);
+
+      const handler = new AvalancheSelectAccountHandler(accountServiceMock);
       const request = {
         id: '123',
         method: DAppProviderRequest.ACCOUNT_SELECT,
@@ -108,13 +143,13 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     const onErrorMock = jest.fn();
     const activateAccountMock = jest.fn().mockResolvedValue(true);
 
-    it('success', async () => {
+    it('success with primary account', async () => {
       const handler = new AvalancheSelectAccountHandler({
         activateAccount: activateAccountMock,
       } as any);
       await handler.onActionApproved(
         {
-          selectedAccount: { index: 1 },
+          selectedAccount: { index: 1, id: 'uuid', type: AccountType.PRIMARY },
         } as any,
         undefined,
         onSuccessMock,
@@ -122,7 +157,26 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
-      expect(activateAccountMock).toHaveBeenCalledWith(1);
+      expect(activateAccountMock).toHaveBeenCalledWith('uuid');
+      expect(onSuccessMock).toHaveBeenCalled();
+      expect(onSuccessMock).toBeCalledWith(null);
+    });
+
+    it('success with imported account', async () => {
+      const handler = new AvalancheSelectAccountHandler({
+        activateAccount: activateAccountMock,
+      } as any);
+      await handler.onActionApproved(
+        {
+          selectedAccount: { id: '0x1', type: AccountType.IMPORTED },
+        } as any,
+        undefined,
+        onSuccessMock,
+        onErrorMock
+      );
+
+      expect(onErrorMock).not.toHaveBeenCalled();
+      expect(activateAccountMock).toHaveBeenCalledWith('0x1');
       expect(onSuccessMock).toHaveBeenCalled();
       expect(onSuccessMock).toBeCalledWith(null);
     });

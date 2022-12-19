@@ -7,7 +7,7 @@ const VirtualizedList = styled(List)`
   }
   &::-webkit-scrollbar-thumb {
     background: ${({ theme }) => theme.colors.stroke1};
-    borderradius: 9999;
+    border-radius: 3px;
   }
 `;
 export default VirtualizedList;

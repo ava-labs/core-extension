@@ -20,15 +20,12 @@ export class LedgerService implements OnLock, OnUnlock {
   private ledgerDeviceResponse$ = new Subject<DeviceResponseData>();
   private ledgerRequestSubscription?: Subscription;
 
-  constructor() {
+  onUnlock(): void | Promise<void> {
     this.ledgerRequestSubscription = this.ledgerDeviceRequest$.subscribe(
       (request) => {
         this.eventEmitter.emit(LedgerEvent.TRANSPORT_REQUEST, request);
       }
     );
-  }
-
-  onUnlock(): void | Promise<void> {
     /**
      * Request all active frontend LedgerProviders to notify the background after a background script restart.
      */
@@ -95,7 +92,6 @@ export class LedgerService implements OnLock, OnUnlock {
     if (ledgerTransportLRUCache.get(ledgerTransportUUID)) {
       return;
     }
-
     ledgerTransportLRUCache.set(
       ledgerTransportUUID,
       new LedgerTransport(

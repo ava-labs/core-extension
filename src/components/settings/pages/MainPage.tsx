@@ -40,7 +40,9 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const { walletType } = useWalletContext();
   const { lockWallet, currency } = useSettingsContext();
   const { currentLanguage } = useLanguage();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   return (
     <VerticalFlex

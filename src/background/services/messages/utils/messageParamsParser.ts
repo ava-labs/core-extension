@@ -11,6 +11,7 @@ export function paramsToMessageParams(data: JsonRpcRequest<any>) {
         password: params[2],
       };
     case MessageType.SIGN_TYPED_DATA:
+    case MessageType.SIGN_TYPED_DATA_V1:
       return {
         data: params[0],
         from: params[1],

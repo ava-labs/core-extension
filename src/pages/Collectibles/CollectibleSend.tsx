@@ -60,7 +60,7 @@ export function CollectibleSend() {
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.INSTANT
+    GasFeeModifier.NORMAL
   );
   const [showTxInProgress, setShowTxInProgress] = useState(false);
 

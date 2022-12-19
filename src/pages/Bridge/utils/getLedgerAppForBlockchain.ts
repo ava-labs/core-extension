@@ -6,9 +6,7 @@ export function getLedgerAppForBlockchain(
 ): LedgerAppType {
   if (blockchain === Blockchain.BITCOIN) {
     return LedgerAppType.BITCOIN;
-  } else if (blockchain === Blockchain.AVALANCHE) {
-    return LedgerAppType.AVALANCHE;
   }
 
-  return LedgerAppType.ETHEREUM;
+  return LedgerAppType.AVALANCHE;
 }

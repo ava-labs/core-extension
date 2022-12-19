@@ -54,7 +54,7 @@ export const ContactSelect = ({
   const { t } = useTranslation();
   const identifyAddress = useIdentifyAddress();
   const { getTransactionHistory } = useWalletContext();
-  const { accounts } = useAccountsContext();
+  const { allAccounts } = useAccountsContext();
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
   const [selectedTab, setSelectedTab] = useState<string>('addressBook');
@@ -80,14 +80,14 @@ export const ContactSelect = ({
   }, [getTransactionHistory, identifyAddress]);
 
   const formattedAccounts = useMemo(() => {
-    return accounts.map(({ addressC, name, addressBTC }) => ({
+    return allAccounts.map(({ addressC, name, addressBTC }) => ({
       id: '',
       address: network?.vmName == NetworkVMType.EVM ? addressC : '',
       addressBTC: network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
       name,
       isKnown: true,
     }));
-  }, [accounts, network]);
+  }, [allAccounts, network]);
 
   const formattedContacts = useMemo(() => {
     return contacts

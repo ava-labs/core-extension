@@ -18,7 +18,9 @@ export function useTokensWithBalances(
 ) {
   const { tokens } = useBalancesContext();
   const { showTokensWithoutBalances } = useSettingsContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { network } = useNetworkContext();
 
   const selectedChainId = chainId ? chainId : network?.chainId;

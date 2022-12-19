@@ -7,22 +7,22 @@ describe('background/services/accounts/handlers/selectAccount.ts', () => {
     activateAccount: activateAccountMock,
   } as any;
 
+  const request = {
+    id: '123',
+    method: ExtensionRequest.ACCOUNT_SELECT,
+    params: ['uuid'],
+  } as any;
+
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
   it('ACCOUNT_SELECT success', async () => {
     const handler = new SelectAccountHandler(accountServiceMock);
-    const request = {
-      id: '123',
-      method: ExtensionRequest.ACCOUNT_SELECT,
-      params: [1],
-    } as any;
-
     const result = await handler.handle(request);
 
     expect(activateAccountMock).toBeCalledTimes(1);
-    expect(activateAccountMock).toBeCalledWith(1);
+    expect(activateAccountMock).toBeCalledWith('uuid');
     expect(result).toEqual({ ...request, result: 'success' });
   });
 
@@ -30,11 +30,6 @@ describe('background/services/accounts/handlers/selectAccount.ts', () => {
     const handler = new SelectAccountHandler({
       activateAccount: jest.fn().mockRejectedValueOnce(new Error('some error')),
     } as any);
-    const request = {
-      id: '123',
-      method: ExtensionRequest.ACCOUNT_SELECT,
-      params: [1, 'Change Name'],
-    } as any;
 
     const result = await handler.handle(request);
     expect(result).toEqual({ ...request, error: 'Error: some error' });

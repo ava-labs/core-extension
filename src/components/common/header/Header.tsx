@@ -24,7 +24,9 @@ export function Header() {
   const theme = useTheme();
   const { updateAccountPermission, isDomainConnectedToAccount } =
     usePermissionContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { t } = useTranslation();
 
   const isConnected =

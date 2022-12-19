@@ -11,18 +11,18 @@ describe('background/services/accounts/handlers/renameAccount.ts', () => {
     jest.resetAllMocks();
   });
 
-  it('renames account', async () => {
+  it('renames the account properly', async () => {
     const handler = new RenameAccountHandler(accountServiceMock);
     const request = {
       id: '123',
       method: ExtensionRequest.ACCOUNT_RENAME,
-      params: [1, 'Change Name'],
+      params: ['uuid', 'Change Name'],
     } as any;
 
     const result = await handler.handle(request);
 
     expect(setAccountNameMock).toBeCalledTimes(1);
-    expect(setAccountNameMock).toBeCalledWith(1, 'Change Name');
+    expect(setAccountNameMock).toBeCalledWith('uuid', 'Change Name');
     expect(result).toEqual({ ...request, result: 'success' });
   });
 
@@ -33,7 +33,7 @@ describe('background/services/accounts/handlers/renameAccount.ts', () => {
     const request = {
       id: '123',
       method: ExtensionRequest.ACCOUNT_RENAME,
-      params: [1, 'Change Name'],
+      params: ['uuid', 'Change Name'],
     } as any;
 
     const result = await handler.handle(request);

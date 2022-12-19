@@ -18,7 +18,7 @@ import {
 } from '@avalabs/glacier-sdk';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { AccountsService } from '../accounts/AccountsService';
+import { AccountType } from '../accounts/models';
 import { HistoryServiceGlacier } from './HistoryServiceGlacier';
 import { TransactionType, HistoryItemCategories } from './models';
 
@@ -40,24 +40,18 @@ jest.mock('@avalabs/glacier-sdk', () => ({
 }));
 
 describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
-  const mockedAccountsService = new AccountsService(
-    {} as any,
-    {} as any,
-    {} as any
-  );
-
   const btcAddress = 'bc1111111111';
   const userAddress = '0xaaaaaaaaaa';
 
-  const mockedActiveAccount = {
-    index: 0,
-    name: 'test name',
-    active: true,
-    addressBTC: btcAddress,
-    addressC: userAddress,
-  };
-
-  (mockedAccountsService as any)._accounts = [mockedActiveAccount];
+  const mockedAccountsService = {
+    activeAccount: {
+      index: 0,
+      name: 'test name',
+      type: AccountType.PRIMARY,
+      addressBTC: btcAddress,
+      addressC: userAddress,
+    },
+  } as any;
 
   const erc20Token1: Erc20Token = {
     address: '0x7777777777',

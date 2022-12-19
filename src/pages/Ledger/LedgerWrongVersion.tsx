@@ -13,6 +13,12 @@ const CloseButton = styled(TextButton)`
   align-self: flex-end;
 `;
 
+const LedgerLink = styled(Typography)`
+  font-weight: 600;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.secondary1};
+`;
+
 const StyledCard = styled(Card)`
   padding: 16px;
   width: 343px;
@@ -58,10 +64,15 @@ export function LedgerWrongVersion({
         <LedgerNano />
         <Typography size={14} height="20px" padding="24px 0 8px 0">
           <Trans
-            i18nKey="Download <typography>Ledger Live</typography> to update."
+            i18nKey="Download <ledgerLink>Ledger Live</ledgerLink> to update."
             components={{
-              typography: (
-                <Typography color={theme.colors.secondary1} weight={600} />
+              ledgerLink: (
+                <LedgerLink
+                  as="a"
+                  target="_blank"
+                  href="https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true"
+                  rel="noopener noreferrer"
+                />
               ),
             }}
           />

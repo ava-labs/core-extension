@@ -12,18 +12,12 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useTranslation } from 'react-i18next';
+import { Account } from '@src/background/services/accounts/models';
 
 type ConnectedListType = {
   [key: string]: {
     accounts: { [key: string]: boolean };
   };
-};
-
-type Account = {
-  addressC: string;
-  active: boolean;
-  name: string;
-  index: number;
 };
 
 const getAccountConnectedSites = ({
@@ -49,7 +43,9 @@ export function ConnectedSites({
   const { t } = useTranslation();
   const theme = useTheme();
   const { updateAccountPermission, permissions } = usePermissionContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const connectedSitesList = getAccountConnectedSites({
     list: permissions,
     account: activeAccount,

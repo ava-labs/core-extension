@@ -145,7 +145,9 @@ export function Bridge() {
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
 
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { network, setNetwork, networks } = useNetworkContext();
 
   const denomination = sourceBalance?.asset.denomination || 0;

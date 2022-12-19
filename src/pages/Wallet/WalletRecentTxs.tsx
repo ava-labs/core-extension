@@ -78,7 +78,9 @@ export function WalletRecentTxs({
   };
 
   const { getTransactionHistory } = useWalletContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const [loading, setLoading] = useState<boolean>(false);
 
   const yesterday = endOfYesterday();

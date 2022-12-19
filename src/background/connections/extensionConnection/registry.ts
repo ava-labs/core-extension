@@ -30,7 +30,6 @@ import { UpdateContactHandler } from '@src/background/services/contacts/handlers
 import { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
 import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
 import { LedgerTransportRequestEvents } from '@src/background/services/ledger/events/ledgerDeviceRequest';
-import { GetPublicKeyHandler } from '@src/background/services/ledger/handlers/getPublicKey';
 import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
 import { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
@@ -99,6 +98,7 @@ import { GetAvalancheNetworkHandler } from '@src/background/services/network/han
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
+import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -110,6 +110,7 @@ import { SetLanguageHandler } from '@src/background/services/settings/handlers/s
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
   { token: 'ExtensionRequestHandler', useToken: RenameAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
+  { token: 'ExtensionRequestHandler', useToken: DeleteAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateActionHandler },
   { token: 'ExtensionRequestHandler', useToken: ClearAnalyticsIdsHandler },
@@ -145,7 +146,6 @@ import { SetLanguageHandler } from '@src/background/services/settings/handlers/s
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveContactHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetPublicKeyHandler },
   { token: 'ExtensionRequestHandler', useToken: InitLedgerTransportHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveLedgerTransportHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerResponseHandler },

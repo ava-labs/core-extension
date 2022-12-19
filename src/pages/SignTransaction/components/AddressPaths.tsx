@@ -26,14 +26,14 @@ export function AddressPaths({
 }) {
   const requestId = useGetRequestId();
   const { network } = useGetTransaction(requestId);
-  const { accounts } = useAccountsContext();
+  const { allAccounts } = useAccountsContext();
   const theme = useTheme();
   const account = useMemo(() => {
-    return accounts.find((acc) => {
+    return allAccounts.find((acc) => {
       return acc.addressC.toLowerCase() === fromAddress.toLowerCase();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accounts]);
+  }, [allAccounts]);
 
   return (
     <Card width="100%" padding={'14px 16px'}>

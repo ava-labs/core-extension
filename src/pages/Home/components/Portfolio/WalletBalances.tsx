@@ -9,7 +9,9 @@ import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency'
 
 export function WalletBalances() {
   const { currency, currencyFormatter } = useSettingsContext();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount, true);
 
   return (

@@ -71,8 +71,7 @@ export class ConnectRequestHandler extends DAppRequestHandler {
     onSuccess,
     onError
   ) => {
-    const accounts = this.accountsService.getAccounts();
-    const selectedAccount = accounts.find((a) => a.index === result);
+    const selectedAccount = this.accountsService.getAccountByID(result);
 
     if (!selectedAccount) {
       onError(ethErrors.rpc.internal('Selected account not found'));
@@ -90,7 +89,7 @@ export class ConnectRequestHandler extends DAppRequestHandler {
       true
     );
 
-    await this.accountsService.activateAccount(selectedAccount.index);
+    await this.accountsService.activateAccount(result);
 
     onSuccess([selectedAccount.addressC]);
   };

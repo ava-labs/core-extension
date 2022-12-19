@@ -8,9 +8,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   bufferTime,
   distinctUntilChanged,
-  exhaustMap,
   filter,
   Subject,
+  concatMap,
 } from 'rxjs';
 import { getDefaultSendForm, SendStateWithActions } from '../models';
 
@@ -33,8 +33,9 @@ export function useSend<
         bufferTime(300), // buffer all updates
         filter((updates) => updates.length > 0), // do nothing when no updates
         distinctUntilChanged(),
-        exhaustMap((updates) => {
+        concatMap((updates) => {
           const newState = Object.assign(stateRef.current, ...updates); // merge all updates
+
           return request<SendValidateHandlerType<T>>({
             method: ExtensionRequest.SEND_VALIDATE,
             params: newState,

@@ -21,12 +21,12 @@ import {
   map,
 } from 'rxjs';
 import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
-import AppAvax from '@obsidiansystems/hw-app-avalanche';
+import AppAvalanche from '@avalabs/hw-app-avalanche';
+
 import Btc from '@ledgerhq/hw-app-btc';
 import Transport from '@ledgerhq/hw-transport';
 import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
 import { LedgerEvent } from '@src/background/services/ledger/models';
-import Eth from '@ledgerhq/hw-app-eth';
 import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
 import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
@@ -43,10 +43,9 @@ import { lockStateChangedEventListener } from '@src/background/services/lock/eve
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
   BITCOIN = 'Bitcoin',
-  ETHEREUM = 'Ethereum',
   UNKNOWN = 'UNKNOWN',
 }
-export const REQUIRED_LEDGER_VERSION = '0.5.9';
+export const REQUIRED_LEDGER_VERSION = '0.6.0';
 /**
  * Run this here since each new window will have a different id
  * this is used to track the transport and close on window close
@@ -70,7 +69,7 @@ const LedgerContext = createContext<{
 export function LedgerContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
-  const [app, setApp] = useState<Btc | AppAvax | Eth>();
+  const [app, setApp] = useState<Btc | AppAvalanche>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
@@ -165,41 +164,25 @@ export function LedgerContextProvider({ children }: { children: any }) {
   }, [request]);
 
   const initLedgerApp = useCallback(
-    async (transport?: Transport | null): Promise<Btc | AppAvax | Eth> => {
+    async (transport?: Transport | null): Promise<Btc | AppAvalanche> => {
       if (!transport) {
         throw new Error('Ledger not connected');
       }
 
       // first try to get the avalanche App instance
-      const avaxAppInstance = new AppAvax(transport, 'w0w');
+      const avaxAppInstance = new AppAvalanche(transport);
       if (avaxAppInstance) {
         // double check it's really the avalanche app
         // other apps also initialize with AppAvax
         const [config, appVersionError] = await resolve(
-          avaxAppInstance.getAppConfiguration()
+          avaxAppInstance.getAppInfo()
         );
 
-        if (!appVersionError) {
-          setAvaxAppVersion(config.version);
+        if (!appVersionError && config.appName === LedgerAppType.AVALANCHE) {
+          setAvaxAppVersion(config.appVersion);
           setApp(avaxAppInstance);
           setAppType(LedgerAppType.AVALANCHE);
           return avaxAppInstance;
-        }
-      }
-
-      // check if ethererum is selected
-      const ethAppInstance = new Eth(transport, 'w0w');
-      if (ethAppInstance) {
-        // double check it's really the ethereum app
-        // other apps also initialize with Eth
-        const [, appVersionError] = await resolve(
-          ethAppInstance.getAppConfiguration()
-        );
-
-        if (!appVersionError) {
-          setApp(ethAppInstance);
-          setAppType(LedgerAppType.ETHEREUM);
-          return ethAppInstance;
         }
       }
 
@@ -278,7 +261,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   };
 
   /**
-   *
+   * Get the extended public key for m/44'/60'/0'
    * @returns Promise<public key>
    */
   async function getExtendedPublicKey() {
@@ -328,25 +311,24 @@ export function LedgerContextProvider({ children }: { children: any }) {
     if (initialized) {
       return;
     }
-    setInialized(true);
     await request<InitLedgerTransportHandler>({
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [LEDGER_INSTANCE_UUID],
     });
+    setInialized(true);
   }, [initialized, request]);
 
   useEffect(() => {
     const subscription = events()
       .pipe(
         filter((evt) => evt.name === LedgerEvent.TRANSPORT_CLOSE_REQUEST),
-        filter(() =>
-          // check if there if the window is claiming interface index 2. We should close the window
-          // which would clean up the claimed interfaces, thereby releasing it to the new window
+        filter(
+          () =>
+            // check if there if the window is claiming interface index 2. We should close the window
+            // which would clean up the claimed interfaces, thereby releasing it to the new window
 
-          // In windows where this interface wasnt claimed the values here will be false
-          app?.transport?.device.configuration.interfaces.some(
-            (i) => i.claimed && i.interfaceNumber === 2
-          )
+            // In windows where this interface wasnt claimed the values here will be false
+            !!app?.transport?.deviceModel?.id
         )
       )
       .subscribe(() => {

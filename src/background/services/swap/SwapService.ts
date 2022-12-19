@@ -2,14 +2,13 @@ import { ChainId } from '@avalabs/chains-sdk';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import {
   ParaSwap,
-  SwapSide,
   APIError,
   Transaction,
   BuildOptions,
   Address,
   PriceString,
 } from 'paraswap';
-import { OptimalRate } from 'paraswap-core';
+import { OptimalRate, SwapSide } from 'paraswap-core';
 import { singleton } from 'tsyringe';
 import Web3 from 'web3';
 import { AccountsService } from '../accounts/AccountsService';
@@ -44,7 +43,7 @@ export class SwapService {
     srcAmount: string,
     swapSide?: SwapSide
   ) {
-    if (!this.networkService.isMainnet) {
+    if (!this.networkService.isMainnet()) {
       throw NETWORK_UNSUPPORTED_ERROR;
     }
     if (!this.accountsService.activeAccount) {

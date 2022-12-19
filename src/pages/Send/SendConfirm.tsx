@@ -132,7 +132,9 @@ export const SendConfirm = ({
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
@@ -220,12 +222,12 @@ export const SendConfirm = ({
                   <SummaryToken>{token?.symbol}</SummaryToken>
                 </Typography>
 
-                {token?.priceUSD && (
+                {typeof token?.priceUSD !== 'undefined' ? (
                   <SummaryAmountInCurrency align="right">
                     {amountInCurrency}{' '}
                     <SummaryCurrency>{currency}</SummaryCurrency>
                   </SummaryAmountInCurrency>
-                )}
+                ) : null}
               </VerticalFlex>
             </HorizontalFlex>
             <SummaryTokenIcon

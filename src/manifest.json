@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "manifest_version": 3,
   "author": "AvaLabs",
-  "description": "A better way to connect to Web3",
+  "description": "The Best Way to Connect to Web3",
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {

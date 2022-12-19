@@ -123,7 +123,9 @@ const BridgeTransactionStatus = () => {
   }>();
   const { currencyFormatter, currency } = useSettingsContext();
   const { showDialog, clearDialog } = useDialog();
-  const { activeAccount } = useAccountsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { currentAsset } = useBridgeSDK();
   const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);

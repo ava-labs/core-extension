@@ -33,6 +33,7 @@ import { Networks } from '@src/pages/Networks';
 import { AddNetwork } from '@src/pages/Networks/AddNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
+import { Buy } from '@src/pages/Buy/Buy';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
 import { Accounts } from '@src/pages/Accounts/Accounts';
 
@@ -86,6 +87,12 @@ const TokenFlowPage = lazy(() => {
 const ManageTokensPage = lazy(() => {
   return import('../pages/ManageTokens/ManageTokens').then((m) => ({
     default: m.ManageTokens,
+  }));
+});
+
+const ImportPrivateKeyPage = lazy(() => {
+  return import('../pages/ImportPrivateKey/ImportPrivateKey').then((m) => ({
+    default: m.ImportPrivateKey,
   }));
 });
 
@@ -247,6 +254,7 @@ export function Popup() {
                                   '/send/confirm',
                                   '/collectible/send/confirm',
                                   '/accounts',
+                                  '/import-private-key',
                                 ].some((path) =>
                                   location.pathname.startsWith(path)
                                 ) && (
@@ -370,6 +378,12 @@ export function Popup() {
                                       </Suspense>
                                     </Route>
 
+                                    <Route path="/buy">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <Buy />
+                                      </Suspense>
+                                    </Route>
+
                                     <Route path="/swap">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <Swap />
@@ -445,6 +459,12 @@ export function Popup() {
                                     <Route path="/accounts">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <Accounts />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/import-private-key">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <ImportPrivateKeyPage />
                                       </Suspense>
                                     </Route>
 

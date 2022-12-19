@@ -31,6 +31,7 @@ jobs:
           echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
           echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
           echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
+          echo COINBASE_APP_ID=${{ secrets.COINBASE_APP_ID }} >> .env.production
           echo CORE_WEB_BASE_URL=${{ secrets.CORE_WEB_BASE_URL }} >> .env.production
       - name: Install dependencies
         run: yarn setup
@@ -41,15 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_BRANCH: release
         run: yarn run semantic-release
-  rebase:
-    runs-on: ubuntu-latest
-    needs: release
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: rebase main
+      - name: Rebase main
         run: |
           git checkout main &&
           git rebase release &&
