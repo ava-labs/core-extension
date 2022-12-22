@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { Transaction } from '../models';
 import getTargetNetworkForTx from './getTargetNetworkForTx';
@@ -36,7 +37,12 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     mockNetworkService = new NetworkService({} as unknown as StorageService);
     mockNetworkService['activeNetwork'] = networkMock;
     mockNetworkService.isActiveNetwork = jest.fn();
-    // TODO: update jest to >= 29.1.0 (https://github.com/facebook/jest/pull/13145)
+
+    // We need the @ts-ignore, since customNetworks is defined as a read-only accessor.
+    // Normally we'd be able to use Jest API to mock it, but the latest version (29.3 at
+    // the moment of writing this comment) is bugged and does not allow mocking getters
+    // and setters on mocked classes.
+    //
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     mockNetworkService['customNetworks'] = {};
@@ -64,7 +70,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT
     ] = false;
 
-    mockNetworkService.isActiveNetwork = jest.fn().mockReturnValueOnce(true);
+    jest.spyOn(mockNetworkService, 'isActiveNetwork').mockReturnValueOnce(true);
 
     const network = await getTargetNetworkForTx(
       transactionMock,
@@ -80,7 +86,9 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT
     ] = false;
 
-    mockNetworkService.isActiveNetwork = jest.fn().mockReturnValueOnce(false);
+    jest
+      .spyOn(mockNetworkService, 'isActiveNetwork')
+      .mockReturnValueOnce(false);
 
     await expect(
       getTargetNetworkForTx(
@@ -97,8 +105,8 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       chainId: 0x2,
     };
 
-    mockNetworkService.getNetwork = jest
-      .fn()
+    jest
+      .spyOn(mockNetworkService, 'getNetwork')
       .mockResolvedValueOnce(otherNetwork);
 
     const network = await getTargetNetworkForTx(
@@ -111,7 +119,9 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
   });
 
   it('throws error if an unsupported chainId was provided', async () => {
-    mockNetworkService.getNetwork = jest.fn().mockResolvedValueOnce(undefined);
+    jest
+      .spyOn(mockNetworkService, 'getNetwork')
+      .mockResolvedValueOnce(undefined);
 
     await expect(
       getTargetNetworkForTx(
@@ -123,7 +133,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
   });
 
   it('throws error for non EVM networks', async () => {
-    mockNetworkService.getNetwork = jest.fn().mockResolvedValueOnce({
+    jest.spyOn(mockNetworkService, 'getNetwork').mockResolvedValueOnce({
       ...networkMock,
       vmName: NetworkVMType.BITCOIN,
     });
@@ -138,7 +148,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
   });
 
   it('throws error for cross-environment transactions', async () => {
-    mockNetworkService.getNetwork = jest.fn().mockResolvedValueOnce({
+    jest.spyOn(mockNetworkService, 'getNetwork').mockResolvedValueOnce({
       ...networkMock,
       isTestnet: false,
     });
@@ -155,13 +165,10 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
   });
 
   it('throws error for custom networks', async () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    mockNetworkService.customNetworks = {
-      [networkMock.chainId]: networkMock,
-    };
-    mockNetworkService.getNetwork = jest
-      .fn()
+    mockNetworkService.customNetworks[networkMock.chainId] = networkMock;
+
+    jest
+      .spyOn(mockNetworkService, 'getNetwork')
       .mockResolvedValueOnce(networkMock);
 
     await expect(

@@ -3,6 +3,7 @@
 module.exports = {
   clearMocks: true,
   preset: 'ts-jest',
+  resolver: '<rootDir>/src/tests/resolver.js',
   testEnvironment: 'jest-environment-jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/tests/setupTests.ts'],
   moduleNameMapper: {

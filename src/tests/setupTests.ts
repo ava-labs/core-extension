@@ -1,15 +1,20 @@
 import 'reflect-metadata';
 import { TextEncoder, TextDecoder } from 'util';
+import { jest } from '@jest/globals';
 
 // polyfill TextEncoder till it's supported in jsdom
 // https://github.com/jsdom/jsdom/issues/2524
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
 
-global.crypto = {
-  randomUUID: jest.fn().mockReturnValue('00000000-0000-0000-0000-000000000000'),
-  getRandomValues: (arr) => arr.map(() => 1),
-} as any;
+Object.defineProperties(global.crypto, {
+  randomUUID: {
+    value: jest.fn().mockReturnValue('00000000-0000-0000-0000-000000000000'),
+  },
+  getRandomValues: {
+    value: (arr) => arr.map(() => 1),
+  },
+});
 
 global.chrome = {
   runtime: {
