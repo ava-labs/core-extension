@@ -65,6 +65,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
                     toast.custom(
                       <CustomToast label={t('Active Network has changed!')} />
                     );
+                    history.push('/home');
                   }}
                   isActive={networkItem.chainId === network?.chainId}
                 >
