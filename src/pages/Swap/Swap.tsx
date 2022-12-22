@@ -17,7 +17,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN, bnToLocaleString, hexToBN } from '@avalabs/utils-sdk';
+import { stringToBN, bnToLocaleString } from '@avalabs/utils-sdk';
 import styled, { useTheme } from 'styled-components';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
@@ -202,24 +202,24 @@ export function Swap() {
 
   // reload and recalculate the data from the history
   useEffect(() => {
-    if (pageHistory) {
+    if (Object.keys(pageHistory).length) {
       const selectedFromToken = pageHistory.selectedFromToken
         ? {
             ...pageHistory.selectedFromToken,
-            balance: hexToBN(pageHistory.selectedFromToken.balance.toString()),
+            balance: pageHistory.selectedFromToken.balance,
           }
         : undefined;
       setSelectedFromToken(selectedFromToken);
       const selectedToToken = pageHistory.selectedToToken
         ? {
             ...pageHistory.selectedToToken,
-            balance: hexToBN(pageHistory.selectedToToken.balance.toString()),
+            balance: pageHistory.selectedToToken.balance,
           }
         : undefined;
       setSelectedToToken(selectedToToken);
       const tokenValueBN =
         pageHistory.tokenValue && pageHistory.tokenValue.bn
-          ? hexToBN(pageHistory.tokenValue.bn.toString())
+          ? pageHistory.tokenValue.bn
           : new BN(0);
       if (pageHistory.destinationInputField === 'from') {
         setToTokenValue({
