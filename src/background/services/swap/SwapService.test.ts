@@ -138,9 +138,7 @@ describe('background/services/swap/SwapService.ts', () => {
 
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         json: jest.fn().mockResolvedValue({
-          priceRoute: {
-            message: 'Server too busy',
-          },
+          error: 'Price Timeout',
         }),
       });
 
@@ -151,6 +149,40 @@ describe('background/services/swap/SwapService.ts', () => {
       });
 
       expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch).toHaveBeenCalledWith(getExpectedURL('prices', params));
+    });
+
+    it('returns the correct route even if it encountered a network issue before', async () => {
+      const { params, paramsAsTuple } = getParams({});
+
+      (global.fetch as jest.Mock).mockRejectedValueOnce(
+        new TypeError('Failed to fetch')
+      );
+
+      await expect(
+        swapService.getSwapRate(...paramsAsTuple)
+      ).resolves.toStrictEqual({
+        address: ROUTE_ADDRESS,
+      });
+
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch).toHaveBeenCalledWith(getExpectedURL('prices', params));
+    });
+
+    it('does not attempt to retry requests when there is no point in doing it', async () => {
+      const { params, paramsAsTuple } = getParams({});
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        json: jest.fn().mockResolvedValueOnce({
+          error: 'Invalid tokens',
+        }),
+      });
+
+      await expect(
+        swapService.getSwapRate(...paramsAsTuple)
+      ).rejects.toStrictEqual(new Error('Invalid tokens'));
+
+      expect(fetch).toHaveBeenCalledTimes(1);
       expect(fetch).toHaveBeenCalledWith(getExpectedURL('prices', params));
     });
 
