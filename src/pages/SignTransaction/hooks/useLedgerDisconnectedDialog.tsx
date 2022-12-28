@@ -75,11 +75,14 @@ export function useLedgerDisconnectedDialog(
           requiredAppType !== LedgerAppType.AVALANCHE
             ? t('Connect Ledger')
             : undefined,
-        onConfirm: () => {
+        onConfirm: async () => {
           if (isConfirm) {
             popDeviceSelection();
           } else {
-            openExtensionNewWindow(`ledger/connect?app=${requiredAppType}`, '');
+            await openExtensionNewWindow(
+              `ledger/connect?app=${requiredAppType}`,
+              ''
+            );
             window.close();
           }
         },
@@ -114,11 +117,14 @@ export function useLedgerDisconnectedDialog(
           requiredAppType !== LedgerAppType.AVALANCHE
             ? t('Connect Ledger')
             : undefined,
-        onConfirm: () => {
+        onConfirm: async () => {
           if (isConfirm) {
             popDeviceSelection();
           } else {
-            openExtensionNewWindow(`ledger/connect?app=${requiredAppType}`, '');
+            await openExtensionNewWindow(
+              `ledger/connect?app=${requiredAppType}`,
+              ''
+            );
             window.close();
           }
         },

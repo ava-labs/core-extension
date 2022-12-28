@@ -144,7 +144,9 @@ export function LedgerConnect() {
                 <Typography size={14} height="17px">
                   <Trans
                     i18nKey="Ensure you have installed the latest <typography>{{requiredAppType}} App</typography> and open it on your device."
-                    requiredAppType={requiredAppType}
+                    values={{
+                      requiredAppType: requiredAppType,
+                    }}
                     components={{
                       typography: (
                         <Typography weight={600} size={14} height="inherit" />
@@ -155,12 +157,19 @@ export function LedgerConnect() {
               </HorizontalFlex>
 
               <Typography size={14} height="17px" margin="24px 0 0 ">
-                {
-                  (t(
-                    'If you do not have the {{requiredAppType}} App on your Ledger, please add it through the Ledger Live app manager.'
-                  ),
-                  { requiredAppType })
-                }
+                <Trans
+                  i18nKey={
+                    'If you do not have the <typography>{{requiredAppType}} App</typography> on your Ledger, please add it through the Ledger Live app manager.'
+                  }
+                  values={{
+                    requiredAppType: requiredAppType,
+                  }}
+                  components={{
+                    typography: (
+                      <Typography weight={600} size={14} height="inherit" />
+                    ),
+                  }}
+                />
               </Typography>
             </VerticalFlex>
           )}

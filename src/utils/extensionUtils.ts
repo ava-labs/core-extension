@@ -119,7 +119,6 @@ export const openExtensionNewWindow = async (
   if (route) {
     extensionURL += `#/${route}`;
   }
-
   return openWindow({
     url: extensionURL,
     focused: true,
