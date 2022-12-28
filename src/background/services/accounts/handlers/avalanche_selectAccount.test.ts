@@ -18,6 +18,9 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   const actionsServiceMock = {
     addAction: addActionMock,
   };
+  const permissionsServiceMock = {
+    setAccountPermissionForDomain: jest.fn(),
+  } as any;
 
   container.registerInstance(ActionsService, actionsServiceMock as any);
 
@@ -36,7 +39,10 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       };
       accountServiceMock.getAccountList.mockReturnValue([account]);
 
-      const handler = new AvalancheSelectAccountHandler(accountServiceMock);
+      const handler = new AvalancheSelectAccountHandler(
+        accountServiceMock,
+        permissionsServiceMock
+      );
       const url = 'switchAccount?id=123';
 
       const request = {
@@ -73,7 +79,10 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       };
 
       accountServiceMock.getAccountList.mockReturnValue([account]);
-      const handler = new AvalancheSelectAccountHandler(accountServiceMock);
+      const handler = new AvalancheSelectAccountHandler(
+        accountServiceMock,
+        permissionsServiceMock
+      );
       const url = 'switchAccount?id=123';
 
       const request = {
@@ -105,7 +114,10 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     it('returns errors when account not found', async () => {
       accountServiceMock.getAccountList.mockReturnValueOnce([]);
 
-      const handler = new AvalancheSelectAccountHandler(accountServiceMock);
+      const handler = new AvalancheSelectAccountHandler(
+        accountServiceMock,
+        permissionsServiceMock
+      );
       const request = {
         id: '123',
         method: DAppProviderRequest.ACCOUNT_SELECT,
@@ -122,7 +134,10 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   });
 
   it('handleUnauthenticated', async () => {
-    const handler = new AvalancheSelectAccountHandler(accountServiceMock);
+    const handler = new AvalancheSelectAccountHandler(
+      accountServiceMock,
+      permissionsServiceMock
+    );
     const request = {
       id: '123',
       method: DAppProviderRequest.ACCOUNT_SELECT,
@@ -144,9 +159,12 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     const activateAccountMock = jest.fn().mockResolvedValue(true);
 
     it('success with primary account', async () => {
-      const handler = new AvalancheSelectAccountHandler({
-        activateAccount: activateAccountMock,
-      } as any);
+      const handler = new AvalancheSelectAccountHandler(
+        {
+          activateAccount: activateAccountMock,
+        } as any,
+        permissionsServiceMock
+      );
       await handler.onActionApproved(
         {
           selectedAccount: { index: 1, id: 'uuid', type: AccountType.PRIMARY },
@@ -156,6 +174,9 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         onErrorMock
       );
 
+      expect(
+        permissionsServiceMock.setAccountPermissionForDomain
+      ).not.toHaveBeenCalled();
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(activateAccountMock).toHaveBeenCalledWith('uuid');
       expect(onSuccessMock).toHaveBeenCalled();
@@ -163,9 +184,12 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     });
 
     it('success with imported account', async () => {
-      const handler = new AvalancheSelectAccountHandler({
-        activateAccount: activateAccountMock,
-      } as any);
+      const handler = new AvalancheSelectAccountHandler(
+        {
+          activateAccount: activateAccountMock,
+        } as any,
+        permissionsServiceMock
+      );
       await handler.onActionApproved(
         {
           selectedAccount: { id: '0x1', type: AccountType.IMPORTED },
@@ -175,17 +199,56 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         onErrorMock
       );
 
+      expect(
+        permissionsServiceMock.setAccountPermissionForDomain
+      ).not.toHaveBeenCalled();
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(activateAccountMock).toHaveBeenCalledWith('0x1');
       expect(onSuccessMock).toHaveBeenCalled();
       expect(onSuccessMock).toBeCalledWith(null);
     });
 
+    it('sets account permission when domain is defined', async () => {
+      const handler = new AvalancheSelectAccountHandler(
+        {
+          activateAccount: activateAccountMock,
+        } as any,
+        permissionsServiceMock
+      );
+      await handler.onActionApproved(
+        {
+          selectedAccount: {
+            id: '0x1',
+            addressC: '0x1',
+            type: AccountType.IMPORTED,
+          },
+          site: {
+            domain: 'core.app',
+          },
+        } as any,
+        undefined,
+        onSuccessMock,
+        onErrorMock
+      );
+
+      expect(
+        permissionsServiceMock.setAccountPermissionForDomain
+      ).toHaveBeenCalled();
+      expect(
+        permissionsServiceMock.setAccountPermissionForDomain
+      ).toHaveBeenCalledWith('core.app', '0x1', true);
+      expect(activateAccountMock).toHaveBeenCalledWith('0x1');
+      expect(onSuccessMock).toBeCalledWith(null);
+    });
+
     it('error', async () => {
       const mockError = new Error('something went wrong');
-      const handler = new AvalancheSelectAccountHandler({
-        activateAccount: jest.fn().mockRejectedValueOnce(mockError),
-      } as any);
+      const handler = new AvalancheSelectAccountHandler(
+        {
+          activateAccount: jest.fn().mockRejectedValueOnce(mockError),
+        } as any,
+        permissionsServiceMock
+      );
 
       await handler.onActionApproved(
         {
@@ -195,6 +258,9 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         onSuccessMock,
         onErrorMock
       );
+      expect(
+        permissionsServiceMock.setAccountPermissionForDomain
+      ).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
       expect(onErrorMock).toHaveBeenCalled();
       expect(onErrorMock).toBeCalledWith(mockError);
