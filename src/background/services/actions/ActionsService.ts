@@ -103,11 +103,14 @@ export class ActionsService implements OnStorageReady {
   ) {
     await this.removeAction(id);
 
+    // We dont want display data to be emitted. Sometimes it can not be serialized.
+    delete action.displayData;
+
     this.eventEmitter.emit(ActionsEvent.ACTION_COMPLETED, {
       type: isSuccess
         ? ActionCompletedEventType.COMPLETED
         : ActionCompletedEventType.ERROR,
-      action: action,
+      action,
       result,
     });
   }

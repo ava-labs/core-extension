@@ -1,0 +1,47 @@
+import wallet_v2 from './wallet_v2';
+import { Avalanche } from '@avalabs/wallets-sdk';
+import { DerivationType } from '@src/background/services/wallet/models';
+import Joi from 'joi';
+jest.mock('@avalabs/wallets-sdk');
+
+describe('background/services/storage/schemaMigrations/migrations/wallet_v2', () => {
+  const validInputMnemonic = {
+    derivationType: DerivationType.BIP44,
+    mnemonic: 'mnemonic',
+    xpub: 'xpub',
+    pubKeys: undefined,
+  };
+
+  it('accepts correct inputs', () => {
+    const result = wallet_v2.previousSchema.validate(validInputMnemonic);
+
+    expect(result).toEqual({
+      error: undefined,
+      value: validInputMnemonic,
+    });
+  });
+
+  it('rejects incorrect inputs', () => {
+    const invalidInput = ['foo'];
+    const result = wallet_v2.previousSchema.validate(invalidInput);
+
+    expect(result).toEqual({
+      value: invalidInput,
+      error: expect.any(Joi.ValidationError),
+    });
+  });
+
+  it('migrates to v2 successfully', async () => {
+    (Avalanche.getXpubFromMnemonic as jest.Mock).mockReturnValueOnce('xpubXP');
+
+    const result = await wallet_v2.up(validInputMnemonic);
+    expect(result).toStrictEqual({
+      derivationType: DerivationType.BIP44,
+      mnemonic: 'mnemonic',
+      xpub: 'xpub',
+      xpubXP: 'xpubXP',
+      pubKeys: undefined,
+      version: 2,
+    });
+  });
+});

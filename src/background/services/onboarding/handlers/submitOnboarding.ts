@@ -1,5 +1,5 @@
 import { ChainId } from '@avalabs/chains-sdk';
-import { getXpubFromMnemonic } from '@avalabs/wallets-sdk';
+import { getXpubFromMnemonic, Avalanche } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
@@ -62,10 +62,16 @@ export class SubmitOnboardingHandler implements HandlerType {
 
     await this.storageService.createStorageKey(password);
 
+    // XPUB form EVM m/44'/60'/0'
     const xpub =
       xPubFromLedger || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
+
+    // Derive xpubXP from mnemonic
+    const xpubXP = mnemonic && Avalanche.getXpubFromMnemonic(mnemonic);
+
+    //TODO: Support Ledger onboarding for X/P chains m/44'/9000'/0' (https://ava-labs.atlassian.net/browse/CP-4317)
     if (xpub) {
-      await this.walletService.init({ mnemonic, xpub });
+      await this.walletService.init({ mnemonic, xpub, xpubXP });
     }
     if (pubKeys?.length) {
       await this.walletService.init({ pubKeys });

@@ -170,6 +170,12 @@ const UpdateContacts = lazy(() => {
   }));
 });
 
+const AvalancheSignTx = lazy(() => {
+  return import('../pages/ApproveAction/AvalancheSignTx').then((m) => ({
+    default: m.AvalancheSignTx,
+  }));
+});
+
 export function Popup() {
   const { t } = useTranslation();
   const dimensions = useAppDimensions();
@@ -333,6 +339,12 @@ export function Popup() {
                                     <Route path="/approve/set-developer-mode">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <SetDeveloperMode />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/avalancheSignTx">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <AvalancheSignTx />
                                       </Suspense>
                                     </Route>
 

@@ -3,6 +3,7 @@ import { LockService } from '@src/background/services/lock/LockService';
 import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
 import { CORE_DOMAINS } from '../models';
 import { Middleware } from './models';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);
 
@@ -16,6 +17,7 @@ const RESTRICTED_METHODS = Object.freeze([] as string[]);
 export const UNRESTRICTED_METHODS = Object.freeze([
   'eth_accounts',
   'eth_requestAccounts',
+  'eth_baseFee',
   'eth_blockNumber',
   'eth_call',
   'eth_chainId',
@@ -90,6 +92,9 @@ const CORE_METHODS = Object.freeze([
   'avalanche_getBridgeState',
   'avalanche_selectAccount',
   'avalanche_setDeveloperMode',
+  DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
+  DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
+  DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
 ]);
 
 export function PermissionMiddleware(

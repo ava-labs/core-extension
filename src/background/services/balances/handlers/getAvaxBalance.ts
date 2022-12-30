@@ -1,4 +1,4 @@
-import { BlockCypherProvider } from '@avalabs/wallets-sdk';
+import { Avalanche, BlockCypherProvider } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
@@ -27,7 +27,10 @@ export class GetAvaxBalanceHandler implements HandlerType {
     const avalancheNetwork = await this.networkService.getAvalancheNetwork();
     const provider =
       this.networkService.getProviderForNetwork(avalancheNetwork);
-    if (provider instanceof BlockCypherProvider) {
+    if (
+      provider instanceof BlockCypherProvider ||
+      provider instanceof Avalanche.JsonRpcProvider
+    ) {
       return {
         ...request,
         error: 'no provider',

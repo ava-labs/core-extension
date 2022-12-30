@@ -98,11 +98,19 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
+    const isUpdated = (account: Account) =>
+      !updateAddresses &&
+      account.addressC &&
+      account.addressBTC &&
+      account.addressAVM &&
+      account.addressPVM &&
+      account.addressCoreEth;
+
     const [primaryAccountsWithAddresses, importedAccountsWithAddresses] =
       await Promise.all([
         Promise.all(
           accounts.primary.map(async (account) => {
-            if (!updateAddresses && account.addressC && account.addressBTC) {
+            if (isUpdated(account)) {
               return account;
             } else {
               const addresses = await this.walletService.getAddresses(
@@ -122,7 +130,7 @@ export class AccountsService implements OnLock, OnUnlock {
         ),
         Promise.all(
           Object.values(accounts.imported).map(async (account) => {
-            if (!updateAddresses && account?.addressC && account?.addressBTC) {
+            if (isUpdated(account)) {
               return account;
             } else {
               const addresses = await this.walletService.getImportedAddresses(
