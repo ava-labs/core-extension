@@ -357,7 +357,7 @@ export function SendPage() {
             >
               <Tooltip
                 content={
-                  <Typography size={14}>
+                  <Typography size={14} height="1.5">
                     {getSendErrorMessage(
                       sendState.error?.message as SendErrorMessage
                     )}

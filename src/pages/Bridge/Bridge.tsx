@@ -440,7 +440,7 @@ export function Bridge() {
                         placement="bottom-start"
                         content={
                           <VerticalFlex rowGap="16px" padding="8px">
-                            <Typography size={12}>
+                            <Typography size={12} height="1.5">
                               <Trans
                                 i18nKey="Insufficient balance to cover gas costs. <br />Please add {{token}}."
                                 values={{
@@ -452,14 +452,16 @@ export function Bridge() {
                               />
                             </Typography>
                             {isAmountTooLow && (
-                              <Typography size={12}>
+                              <Typography size={12} height="1.5">
                                 {t(`Amount too low -- minimum is {{minimum}}`, {
                                   minimum: minimum?.toFixed(9) ?? 0,
                                 })}
                               </Typography>
                             )}
                             {bridgeError && (
-                              <Typography size={12}>{bridgeError}</Typography>
+                              <Typography size={12} height="1.5">
+                                {bridgeError}
+                              </Typography>
                             )}
                           </VerticalFlex>
                         }
@@ -491,7 +493,11 @@ export function Bridge() {
               >
                 <Tooltip
                   placement="auto"
-                  content={<Typography size={12}>{t('Switch')}</Typography>}
+                  content={
+                    <Typography size={12} height="1.5">
+                      {t('Switch')}
+                    </Typography>
+                  }
                 >
                   <SwitchButton
                     data-testid="bridge-switch-button"

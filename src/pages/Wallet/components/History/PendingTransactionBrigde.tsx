@@ -84,7 +84,7 @@ export function PendingTransactionBridge({
                   placement="bottom"
                   content={
                     <HorizontalFlex align="center" justify="space-between">
-                      <Typography size={12} margin="0 40px 0 0">
+                      <Typography size={12} height="1.5" margin="0 40px 0 0">
                         Number of confirmations:{' '}
                         {item.confirmationCount > // to avoid showing 16/15 since confirmations keep going up
                         item.requiredConfirmationCount

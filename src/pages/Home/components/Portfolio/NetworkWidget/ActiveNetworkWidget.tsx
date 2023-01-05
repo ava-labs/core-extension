@@ -35,6 +35,7 @@ const Badge = styled.div`
   background-color: ${({ theme }) => theme.palette.white};
   padding: 0 8px;
   user-select: none;
+  line-height: 1;
 `;
 
 const LogoContainer = styled.div`
@@ -51,7 +52,9 @@ const StyledBridgeIcon = styled(BridgeIcon)`
 function TooltipContent({ text }: { text: React.ReactNode }) {
   return (
     <VerticalFlex width="120px">
-      <Typography size={12}>{text}</Typography>
+      <Typography size={12} height="1.5">
+        {text}
+      </Typography>
     </VerticalFlex>
   );
 }

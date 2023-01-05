@@ -18,6 +18,7 @@ import { LoadingContent } from './LoadingContent';
 import { FeatureFlagsContextProvider } from '@src/contexts/FeatureFlagsProvider';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@src/localization/init';
+import { darkTheme, ThemeProvider } from '@avalabs/k2-components';
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
@@ -28,25 +29,32 @@ const App = lazy(() => {
 browser.tabs.query({ active: true }).then(() => {
   render(
     <Router>
-      <ThemeContextProvider
-        lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
-        darkTheme={walletThemeDark}
+      <ThemeProvider
+        toasterProps={{
+          position: 'top-center',
+        }}
+        theme={darkTheme}
       >
-        <I18nextProvider i18n={i18n}>
-          <ConnectionContextProvider>
-            <SettingsContextProvider>
-              <FeatureFlagsContextProvider>
-                <AnalyticsContextProvider>
-                  <Toaster />
-                  <Suspense fallback={<LoadingContent />}>
-                    <App />
-                  </Suspense>
-                </AnalyticsContextProvider>
-              </FeatureFlagsContextProvider>
-            </SettingsContextProvider>
-          </ConnectionContextProvider>
-        </I18nextProvider>
-      </ThemeContextProvider>
+        <ThemeContextProvider
+          lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
+          darkTheme={walletThemeDark}
+        >
+          <I18nextProvider i18n={i18n}>
+            <ConnectionContextProvider>
+              <SettingsContextProvider>
+                <FeatureFlagsContextProvider>
+                  <AnalyticsContextProvider>
+                    <Toaster />
+                    <Suspense fallback={<LoadingContent />}>
+                      <App />
+                    </Suspense>
+                  </AnalyticsContextProvider>
+                </FeatureFlagsContextProvider>
+              </SettingsContextProvider>
+            </ConnectionContextProvider>
+          </I18nextProvider>
+        </ThemeContextProvider>
+      </ThemeProvider>
     </Router>,
     document.getElementById('popup')
   );

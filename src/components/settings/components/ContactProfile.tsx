@@ -91,7 +91,13 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   };
 
   const renderEditAction = (
-    <Tooltip content={<Typography size={12}>{t('Edit Contact')}</Typography>}>
+    <Tooltip
+      content={
+        <Typography size={12} height="1.5">
+          {t('Edit Contact')}
+        </Typography>
+      }
+    >
       <TextButton
         data-testid="profile-edit-contact"
         onClick={() => setIsEdit(true)}
@@ -104,7 +110,13 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   );
 
   const renderSaveAction = (
-    <Tooltip content={<Typography size={12}>{t('Save Contact')}</Typography>}>
+    <Tooltip
+      content={
+        <Typography size={12} height="1.5">
+          {t('Save Contact')}
+        </Typography>
+      }
+    >
       <TextButton
         data-testid="profile-save-contact-button"
         onClick={() => {

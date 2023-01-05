@@ -13,7 +13,7 @@ export function SlippageToolTip() {
 
   const Content = (
     <VerticalFlex width="280px">
-      <Typography size={12}>
+      <Typography size={12} height="1.5">
         {t(
           'Suggested slippage – your transaction will fail if the price changes unfavorably more than this percentage'
         )}

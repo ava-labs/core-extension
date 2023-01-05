@@ -265,7 +265,9 @@ export function LedgerConnect({
   const Content = (
     <Trans
       i18nKey="<typography>This process retrieves the addresses<br />from your ledger</typography>"
-      components={{ typography: <Typography align="left" size={12} /> }}
+      components={{
+        typography: <Typography align="left" size={12} height="1.5" />,
+      }}
     />
   );
 

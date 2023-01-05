@@ -333,7 +333,7 @@ export function WalletRecentTxs({
             })}
           </>
         )}
-        {explorerUrl && !loading && filteredTxHistory.length && (
+        {explorerUrl && !loading && !!filteredTxHistory.length && (
           <HorizontalFlex
             width="100%"
             paddingLeft="16px"

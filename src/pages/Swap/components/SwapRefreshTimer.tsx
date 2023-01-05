@@ -49,7 +49,7 @@ export function SwapRefreshTimer({
   });
   const Content = (
     <VerticalFlex width="240px">
-      <Typography size={12}>
+      <Typography size={12} height="1.5">
         {t('Quotes are refreshed to reflect current market prices')}
       </Typography>
     </VerticalFlex>

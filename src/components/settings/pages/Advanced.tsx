@@ -20,7 +20,9 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 function TooltipContent({ text }: { text: React.ReactNode }) {
   return (
     <VerticalFlex width="240px">
-      <Typography size={12}>{text}</Typography>
+      <Typography size={12} height="1.5">
+        {text}
+      </Typography>
     </VerticalFlex>
   );
 }
