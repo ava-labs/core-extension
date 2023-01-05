@@ -67,6 +67,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
                     );
                     history.push('/home');
                   }}
+                  data-testid={`network-li-${index}`}
                   isActive={networkItem.chainId === network?.chainId}
                 >
                   <HorizontalFlex align="center">
@@ -135,6 +136,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
                           removeFavoriteNetwork(networkItem.chainId);
                           setFavoritedItem(null);
                         }}
+                        data-testid="favorite-network"
                       >
                         {isFavorite ? (
                           <StarIcon color={theme.colors.text1} width="20px" />
@@ -153,6 +155,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
                           `/networks/details/${networkItem.chainId}`
                         );
                       }}
+                      data-testid="network-details"
                     >
                       <InfoIcon color={theme.colors.text1} width="20px" />
                     </TextButton>
