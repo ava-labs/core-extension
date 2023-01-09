@@ -168,7 +168,7 @@ export const NetworkDetails = () => {
         align="center"
         padding="0 8px"
       >
-        <TextButton onClick={() => goBack()}>
+        <TextButton data-testid="go-back-button" onClick={() => goBack()}>
           <CaretIcon
             height="20px"
             width="20px"
@@ -186,6 +186,7 @@ export const NetworkDetails = () => {
               }
               removeFavoriteNetwork(networkData.chainId);
             }}
+            data-testid="favorite-button"
           >
             {!isFavorite ? (
               <StarOutlineIcon width="20px" color={theme.colors.icon1} />
@@ -199,6 +200,7 @@ export const NetworkDetails = () => {
               padding="0 0 0 24px"
               onClick={() => setIsOpen(!isOpen)}
               ref={selectButtonRef}
+              data-testid="network-options"
             >
               <EllipsisIcon height="6px" color={theme.colors.icon1} />
             </TextButton>
