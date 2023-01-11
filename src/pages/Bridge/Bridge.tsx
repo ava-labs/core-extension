@@ -447,6 +447,8 @@ export function Bridge() {
                                   token:
                                     currentBlockchain === Blockchain.AVALANCHE
                                       ? 'AVAX'
+                                      : currentBlockchain === Blockchain.BITCOIN
+                                      ? 'BTC'
                                       : 'ETH',
                                 }}
                               />
