@@ -30,26 +30,30 @@ export class HistoryServiceGlacier {
       return [];
     }
 
-    const response = await this.glacierSdkInstance.listTransactions(
-      network.chainId.toString(),
-      account,
-      { pageSize: 25 }
-    );
-
-    const result = response.transactions
-      .filter(
-        // Currently not showing failed tx
-        (tranasaction) => tranasaction.nativeTransaction.txStatus === '1'
-      )
-      .map((transaction) =>
-        this.convertToTxHistoryItem(transaction, network, account)
-      )
-      .filter(
-        // Filtering txs with 0 value since there is no change in balance
-        (transaction) => transaction.amount !== '0'
+    try {
+      const response = await this.glacierSdkInstance.listTransactions(
+        network.chainId.toString(),
+        account,
+        { pageSize: 25 }
       );
 
-    return result;
+      const result = response.transactions
+        .filter(
+          // Currently not showing failed tx
+          (tranasaction) => tranasaction.nativeTransaction.txStatus === '1'
+        )
+        .map((transaction) =>
+          this.convertToTxHistoryItem(transaction, network, account)
+        )
+        .filter(
+          // Filtering txs with 0 value since there is no change in balance
+          (transaction) => transaction.amount !== '0'
+        );
+
+      return result;
+    } catch (err) {
+      return [];
+    }
   }
 
   private getAddress(chainId: number) {

@@ -20,6 +20,7 @@ if (process.env.SENTRY_DSN) {
       new Sentry.Integrations.Breadcrumbs({ dom: false, history: false }),
       new Integrations.Express(),
     ],
+    ignoreErrors: [/^AbortError: The user aborted a request.$/], // ignore errors caused by chrome's throttling
   });
 }
 addExtensionMethods();
