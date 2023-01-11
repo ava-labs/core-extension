@@ -1,0 +1,105 @@
+name: E2E Testing
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: alpha
+    steps:
+      - name: Checkout extension
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Create .npmrc
+        run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' >> .npmrc
+      - name: Create env file
+        run: |
+          touch .env.production
+          echo RELEASE=alpha >> .env.production
+          echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
+          echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
+          echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
+          echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
+          echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
+          echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
+          echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
+          echo COINBASE_APP_ID=${{ secrets.COINBASE_APP_ID }} >> .env.production
+          echo CORE_WEB_BASE_URL=${{ secrets.CORE_WEB_BASE_URL }} >> .env.production
+          echo GLACIER_API_KEY=${{ secrets.GLACIER_API_KEY }} >> .env.production
+      - name: Install dependencies
+        run: yarn setup
+      - name: Build library
+        run: yarn build:alpha
+      - name: Generate a zip
+        run: yarn zip
+      - name: Output extension file version before renaming
+        run: ls builds/*.zip
+      - name: Rename extension file
+        run: |
+          mv builds/*.zip builds/extension.zip
+          mv builds/extension.zip ${GITHUB_WORKSPACE}
+      - name: Upload builded zip file
+        uses: actions/upload-artifact@v3
+        with:
+          name: extension
+          path: extension.zip
+  e2e:
+    needs: build
+    name: Run E2E Smoke Tests
+    runs-on: ubuntu-latest
+    environment: e2e
+    env:
+      LOG_LEVEL: ${{secrets.LOG_LEVEL}}
+      RECOVERY_PHRASE: ${{secrets.RECOVERY_PHRASE}}
+      METAMASK_RECOVERY_PHRASE: ${{secrets.METAMASK_RECOVERY_PHRASE}}
+    steps:
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Checkout automation repo
+        uses: actions/checkout@v3
+        with:
+          repository: 'ava-labs/wdio-cucumber-e2e-test'
+          path: './'
+          ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
+      - name: Install automation repo dependencies
+        run: yarn install
+      - name: Download builded zip file
+        uses: actions/download-artifact@v3
+        with:
+          name: extension
+      - name: Running browser extension smoke tests on testnet/mainnet against generated zip
+        run: yarn ext:testnet/mainnet-smoke
+      - name: Success slack notification
+        if: success()
+        uses: slackapi/slack-github-action@v1.22.0
+        with:
+          payload: |
+            {
+              "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
+              "GH_RUN_STATUS": "PASSED",
+              "STATUS_EMOJI": ":white_check_mark:",
+              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Failure slack notification
+        if: failure()
+        uses: slackapi/slack-github-action@v1.22.0
+        with:
+          payload: |
+            {
+              "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
+              "GH_RUN_STATUS": "FAILED",
+              "STATUS_EMOJI": ":alert:",
+              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
