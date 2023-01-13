@@ -46,9 +46,9 @@ const StyledDropDownMenuItem = styled(DropDownMenuItem)<{
 `;
 
 interface DerivationPathDropdownProps {
-  setPathSpec: Dispatch<SetStateAction<DerivationPath | undefined>>;
+  setPathSpec: Dispatch<SetStateAction<DerivationPath>>;
   onPathSelected: (path: DerivationPath) => void;
-  pathSpec?: DerivationPath;
+  pathSpec: DerivationPath;
 }
 
 export function DerivationPathDropdown({

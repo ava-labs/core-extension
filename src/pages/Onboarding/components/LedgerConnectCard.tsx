@@ -28,6 +28,7 @@ const LedgerCard = styled(Card)<{
 `;
 
 export enum LedgerStatus {
+  LEDGER_UNINITIATED = 'uninitiated',
   LEDGER_LOADING = 'loading',
   LEDGER_CONNECTED = 'connected',
   LEDGER_CONNECTION_FAILED = 'failed',

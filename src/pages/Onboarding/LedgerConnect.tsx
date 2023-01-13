@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   VerticalFlex,
   Typography,
@@ -89,6 +89,7 @@ export function LedgerConnect({
     getExtendedPublicKey,
     popDeviceSelection,
     hasLedgerTransport,
+    wasTransportAttempted,
     initLedgerTransport,
     getPublicKey,
   } = useLedgerContext();
@@ -96,10 +97,12 @@ export function LedgerConnect({
   const { setXpub, setPublicKeys } = useOnboardingContext();
   const { getAvalancheNetwork } = useGetAvalancheNetwork();
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
-    LedgerStatus.LEDGER_LOADING
+    LedgerStatus.LEDGER_UNINITIATED
   );
 
-  const [pathSpec, setPathSpec] = useState<DerivationPath>();
+  const [pathSpec, setPathSpec] = useState<DerivationPath>(
+    DerivationPath.LedgerLive
+  );
 
   const [derivationPath, setDerivationPath] = useState('');
   const [confirmedAccountCount, setConfirmedAccountCount] = useState(0);
@@ -114,10 +117,35 @@ export function LedgerConnect({
     setAddresses([]);
     setConfirmedAccountCount(0);
     setHasPublicKeys(false);
-    setPathSpec(undefined);
+    setPathSpec(DerivationPath.LedgerLive);
   };
 
-  const getXPublicKey = async () => {
+  const getAddressFromXpubKey = useCallback(
+    async (
+      xpub: string,
+      accountIndex: number,
+      addresses: AddressType[] = []
+    ) => {
+      const address = getAddressFromXPub(xpub, accountIndex);
+      const { balance } = await getAvaxBalance(address);
+      const newAddresses = [
+        ...addresses,
+        { address, balance: balance.balanceDisplayValue || '0' },
+      ];
+      setAddresses(newAddresses);
+      if (accountIndex < 2) {
+        await getAddressFromXpubKey(xpub, accountIndex + 1, newAddresses);
+      }
+      if (accountIndex >= 2) {
+        capture('OnboardingLedgerConnected');
+        setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
+        setHasPublicKeys(true);
+      }
+    },
+    [capture, getAvaxBalance]
+  );
+
+  const getXPublicKey = useCallback(async () => {
     try {
       const xpub = await getExtendedPublicKey();
       setXpub(xpub);
@@ -129,39 +157,26 @@ export function LedgerConnect({
       setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
       popDeviceSelection();
     }
-  };
+  }, [
+    capture,
+    getAddressFromXpubKey,
+    getExtendedPublicKey,
+    popDeviceSelection,
+    setXpub,
+  ]);
 
-  const getAddressFromXpubKey = async (
-    xpub: string,
-    accountIndex: number,
-    addresses: AddressType[] = []
-  ) => {
-    const address = getAddressFromXPub(xpub, accountIndex);
-    const { balance } = await getAvaxBalance(address);
-    const newAddresses = [
-      ...addresses,
-      { address, balance: balance.balanceDisplayValue || '0' },
-    ];
-    setAddresses(newAddresses);
-    if (accountIndex < 2) {
-      await getAddressFromXpubKey(xpub, accountIndex + 1, newAddresses);
-    }
-    if (accountIndex >= 2) {
-      capture('OnboardingLedgerConnected');
-      setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
-      setHasPublicKeys(true);
-    }
-  };
+  const getDerivationPathValue = useCallback(
+    async (pathSpec: DerivationPath) => {
+      if (!pathSpec) {
+        return;
+      }
+      await initLedgerTransport();
+      const path = getAddressDerivationPath(0, pathSpec, 'EVM');
 
-  const getDerivationPathValue = async (pathSpec: DerivationPath) => {
-    if (!pathSpec) {
-      return;
-    }
-    await initLedgerTransport();
-    const path = getAddressDerivationPath(0, pathSpec, 'EVM');
-
-    setDerivationPath(path);
-  };
+      setDerivationPath(path);
+    },
+    [initLedgerTransport]
+  );
 
   useEffect(() => {
     const initLedger = async () => {
@@ -177,49 +192,52 @@ export function LedgerConnect({
     }
   }, [avalancheNetwork, getAvalancheNetwork, initLedgerTransport]);
 
-  const getPubKeys = async (
-    pathSpec: DerivationPath,
-    accountIndex = 0,
-    addresses: AddressType[] = [],
-    pubKeys: PubKeyType[] = []
-  ) => {
-    try {
-      const derivationPath = getAddressDerivationPath(
-        accountIndex,
-        pathSpec,
-        'EVM'
-      );
-      setDerivationPath(derivationPath);
+  const getPubKeys = useCallback(
+    async (
+      pathSpec: DerivationPath,
+      accountIndex = 0,
+      addresses: AddressType[] = [],
+      pubKeys: PubKeyType[] = []
+    ) => {
+      try {
+        const derivationPath = getAddressDerivationPath(
+          accountIndex,
+          pathSpec,
+          'EVM'
+        );
+        setDerivationPath(derivationPath);
 
-      const pubKey = await getPublicKey(accountIndex, pathSpec);
-      const address = getEvmAddressFromPubKey(pubKey);
-      const { balance } = await getAvaxBalance(address);
-      const newAddresses = [
-        ...addresses,
-        { address, balance: balance.balanceDisplayValue || '0' },
-      ];
-      setConfirmedAccountCount(accountIndex + 1);
-      setAddresses(newAddresses);
-      if (accountIndex < 2) {
-        await getPubKeys(pathSpec, accountIndex + 1, newAddresses, [
-          ...pubKeys,
-          { evm: pubKey.toString('hex') },
-        ]);
+        const pubKey = await getPublicKey(accountIndex, pathSpec);
+        const address = getEvmAddressFromPubKey(pubKey);
+        const { balance } = await getAvaxBalance(address);
+        const newAddresses = [
+          ...addresses,
+          { address, balance: balance.balanceDisplayValue || '0' },
+        ];
+        setConfirmedAccountCount(accountIndex + 1);
+        setAddresses(newAddresses);
+        if (accountIndex < 2) {
+          await getPubKeys(pathSpec, accountIndex + 1, newAddresses, [
+            ...pubKeys,
+            { evm: pubKey.toString('hex') },
+          ]);
+        }
+        if (accountIndex >= 2) {
+          capture('OnboardingLedgerConnected');
+          setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
+          setPublicKeys([...pubKeys, { evm: pubKey.toString('hex') }]);
+          setHasPublicKeys(true);
+        }
+      } catch {
+        capture('OnboardingLedgerConnectionFailed');
+        setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
+        popDeviceSelection();
       }
-      if (accountIndex >= 2) {
-        capture('OnboardingLedgerConnected');
-        setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
-        setPublicKeys([...pubKeys, { evm: pubKey.toString('hex') }]);
-        setHasPublicKeys(true);
-      }
-    } catch {
-      capture('OnboardingLedgerConnectionFailed');
-      setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
-      popDeviceSelection();
-    }
-  };
+    },
+    [capture, getAvaxBalance, getPublicKey, popDeviceSelection, setPublicKeys]
+  );
 
-  const tryPublicKey = async () => {
+  const tryPublicKey = useCallback(async () => {
     capture('OnboardingLedgerRetry');
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
 
@@ -235,7 +253,14 @@ export function LedgerConnect({
       setConfirmedAccountCount(0);
       return getPubKeys(pathSpec);
     }
-  };
+  }, [
+    capture,
+    getPubKeys,
+    getXPublicKey,
+    hasLedgerTransport,
+    initLedgerTransport,
+    pathSpec,
+  ]);
 
   const onLedgerCardClicked = () => {
     if (publicKeyState === LedgerStatus.LEDGER_CONNECTION_FAILED) {
@@ -261,6 +286,50 @@ export function LedgerConnect({
       await getPubKeys(selectedPathSpec);
     }
   };
+
+  // Attempt to automatically connect using Ledger Live as soon as we
+  // establish the transport.
+  useEffect(() => {
+    const retrieveKeys = async (selectedPathSpec: DerivationPath) => {
+      setPublicKeyState(LedgerStatus.LEDGER_LOADING);
+      if (selectedPathSpec === DerivationPath.LedgerLive) {
+        setAddresses([]);
+        setConfirmedAccountCount(0);
+        await getPubKeys(selectedPathSpec);
+      } else if (selectedPathSpec === DerivationPath.BIP44) {
+        getXPublicKey();
+      }
+    };
+
+    if (hasPublicKeys) {
+      return;
+    }
+
+    if (
+      hasLedgerTransport &&
+      publicKeyState === LedgerStatus.LEDGER_UNINITIATED
+    ) {
+      retrieveKeys(pathSpec);
+    } else if (!hasLedgerTransport) {
+      if (
+        wasTransportAttempted &&
+        publicKeyState !== LedgerStatus.LEDGER_CONNECTION_FAILED
+      ) {
+        setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
+      } else {
+        getDerivationPathValue(pathSpec);
+      }
+    }
+  }, [
+    pathSpec,
+    hasLedgerTransport,
+    publicKeyState,
+    hasPublicKeys,
+    getPubKeys,
+    getDerivationPathValue,
+    wasTransportAttempted,
+    getXPublicKey,
+  ]);
 
   const Content = (
     <Trans
