@@ -24,6 +24,7 @@ import { useLanguage } from '@src/hooks/useLanguages';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import styled from 'styled-components';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
+import { browser } from 'webextension-polyfill-ts';
 
 const StyledTag = styled(Typography)`
   background-color: ${({ theme }) => theme.palette.secondary[500]};
@@ -43,6 +44,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+
+  const extensionVersion = browser.runtime.getManifest().version;
 
   return (
     <VerticalFlex
@@ -260,6 +263,15 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
           {t('Help Center')}
         </Typography>
       </DropDownMenuItem>
+
+      <Typography
+        padding="0 16px"
+        size={12}
+        height="20px"
+        color={theme.palette.grey[400]}
+      >
+        {`${t('Version')} ${extensionVersion}`}
+      </Typography>
 
       <VerticalFlex grow="1" justify="flex-end" align="center" padding="0 16px">
         <SecondaryButton
