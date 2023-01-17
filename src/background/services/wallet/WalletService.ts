@@ -48,6 +48,7 @@ import {
   ImportData,
   ImportType,
 } from '../accounts/models';
+import ensureMessageIsValid from './utils/ensureMessageIsValid';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -483,6 +484,7 @@ export class WalletService implements OnLock, OnUnlock {
 
   async signMessage(messageType: MessageType, data: any) {
     const wallet = await this.getWallet();
+    const activeNetwork = this.networkService.activeNetwork;
 
     if (!wallet || !(wallet instanceof Wallet)) {
       throw new Error(
@@ -492,50 +494,51 @@ export class WalletService implements OnLock, OnUnlock {
       );
     }
 
+    if (!activeNetwork) {
+      throw new Error(`no active network found`);
+    }
+
     const privateKey = wallet.privateKey.toLowerCase().startsWith('0x')
       ? wallet.privateKey.slice(2)
       : wallet.privateKey;
 
     const key = Buffer.from(privateKey, 'hex');
 
-    let result;
+    try {
+      if (data) {
+        ensureMessageIsValid(messageType, data, activeNetwork.chainId);
 
-    if (data) {
-      switch (messageType) {
-        case MessageType.ETH_SIGN:
-        case MessageType.PERSONAL_SIGN:
-          result = await personalSign({ privateKey: key, data });
-          break;
-        case MessageType.SIGN_TYPED_DATA:
-        case MessageType.SIGN_TYPED_DATA_V1:
-          result = await signTypedData({
-            privateKey: key,
-            data,
-            version: SignTypedDataVersion.V1,
-          });
-          break;
-        case MessageType.SIGN_TYPED_DATA_V3:
-          result = await signTypedData({
-            privateKey: key,
-            data,
-            version: SignTypedDataVersion.V3,
-          });
-          break;
-        case MessageType.SIGN_TYPED_DATA_V4:
-          result = await signTypedData({
-            privateKey: key,
-            data,
-            version: SignTypedDataVersion.V4,
-          });
-          break;
-        default:
-          key.fill(0);
-          throw new Error('unknown method');
+        switch (messageType) {
+          case MessageType.ETH_SIGN:
+          case MessageType.PERSONAL_SIGN:
+            return personalSign({ privateKey: key, data });
+          case MessageType.SIGN_TYPED_DATA:
+          case MessageType.SIGN_TYPED_DATA_V1:
+            return signTypedData({
+              privateKey: key,
+              data,
+              version: SignTypedDataVersion.V1,
+            });
+          case MessageType.SIGN_TYPED_DATA_V3:
+            return signTypedData({
+              privateKey: key,
+              data,
+              version: SignTypedDataVersion.V3,
+            });
+          case MessageType.SIGN_TYPED_DATA_V4:
+            return signTypedData({
+              privateKey: key,
+              data,
+              version: SignTypedDataVersion.V4,
+            });
+          default:
+            throw new Error('unknown method');
+        }
+      } else {
+        throw new Error('no message to sign');
       }
+    } finally {
       key.fill(0);
-      return result;
-    } else {
-      throw new Error('no message to sign');
     }
   }
 

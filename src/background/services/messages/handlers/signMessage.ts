@@ -1,8 +1,11 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
+import { NetworkService } from '../../network/NetworkService';
+import ensureMessageIsValid from '../../wallet/utils/ensureMessageIsValid';
 import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
@@ -17,7 +20,10 @@ export class PersonalSignHandler extends DAppRequestHandler {
     DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
     MessageType.PERSONAL_SIGN,
   ];
-  constructor(private walletService: WalletService) {
+  constructor(
+    private walletService: WalletService,
+    private networkService: NetworkService
+  ) {
     super();
   }
 
@@ -35,11 +41,38 @@ export class PersonalSignHandler extends DAppRequestHandler {
         error: 'wallet undefined',
       };
     }
+
     const actionData = {
       ...request,
       displayData: paramsToMessageParams(request),
       tabId: request.site.tabId,
     };
+
+    try {
+      const activeNetwork = this.networkService.activeNetwork;
+
+      if (!activeNetwork) {
+        return {
+          ...request,
+          error: ethErrors.rpc.invalidRequest({
+            message: 'no active network found',
+          }),
+        };
+      }
+
+      ensureMessageIsValid(
+        request.method,
+        actionData.displayData.data,
+        activeNetwork.chainId
+      );
+    } catch (err) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: (err as unknown as Error).message,
+        }),
+      };
+    }
 
     this.openApprovalWindow(actionData, `sign?id=${request.id}`);
 
