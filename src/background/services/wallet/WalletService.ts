@@ -4,13 +4,14 @@ import { StorageService } from '../storage/StorageService';
 import {
   PubKeyType,
   SignTransactionRequest,
+  WALLET_STORAGE_KEY,
   WalletEvents,
   WalletSecretInStorage,
   WalletType,
-  WALLET_STORAGE_KEY,
 } from './models';
 import { MessageType } from '../messages/models';
 import {
+  Avalanche,
   BitcoinLedgerWallet,
   BitcoinProviderAbstract,
   BitcoinWallet,
@@ -41,7 +42,12 @@ import { Wallet } from 'ethers';
 import { networks } from 'bitcoinjs-lib';
 import { AccountsService } from '../accounts/AccountsService';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
-import { AccountType, ImportData, ImportType } from '../accounts/models';
+import {
+  Account,
+  AccountType,
+  ImportData,
+  ImportType,
+} from '../accounts/models';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -84,9 +90,11 @@ export class WalletService implements OnLock, OnUnlock {
   async init({
     mnemonic,
     xpub,
+    xpubXP,
     pubKeys,
   }: {
     xpub?: string;
+    xpubXP?: string;
     pubKeys?: PubKeyType[];
     mnemonic?: string;
   }) {
@@ -98,6 +106,7 @@ export class WalletService implements OnLock, OnUnlock {
       mnemonic,
       xpub,
       pubKeys,
+      xpubXP,
     });
     await this.onUnlock();
   }
@@ -118,7 +127,6 @@ export class WalletService implements OnLock, OnUnlock {
 
     const activeNetwork = network || this.networkService.activeNetwork;
     const activeAccount = accountsService.activeAccount;
-
     if (
       !walletKeys ||
       (!walletKeys.xpub && !walletKeys.pubKeys) ||
@@ -151,6 +159,16 @@ export class WalletService implements OnLock, OnUnlock {
             return new BitcoinWallet(
               Buffer.from(importData.secret, 'hex'),
               provider as BitcoinProviderAbstract
+            );
+          } else if (
+            activeNetwork.vmName === NetworkVMType.AVM ||
+            activeNetwork.vmName === NetworkVMType.PVM
+          ) {
+            // Imported private keys use the same key for both X/P and C
+            return new Avalanche.StaticSigner(
+              Buffer.from(importData.secret, 'hex'),
+              Buffer.from(importData.secret, 'hex'),
+              provider as Avalanche.JsonRpcProvider
             );
           }
 
@@ -248,6 +266,89 @@ export class WalletService implements OnLock, OnUnlock {
           this.ledgerService.recentTransport
         );
       }
+    } else if (
+      activeNetwork.vmName === NetworkVMType.AVM ||
+      activeNetwork.vmName === NetworkVMType.PVM
+    ) {
+      // Return X/P Wallet
+      const accountIndex = activeAccount.index;
+      if (walletKeys.mnemonic) {
+        return Avalanche.StaticSigner.fromMnemonic(
+          walletKeys.mnemonic,
+          getAddressDerivationPath(accountIndex, DerivationPath.BIP44, 'AVM'),
+          getAddressDerivationPath(accountIndex, DerivationPath.BIP44, 'EVM'),
+          provider as Avalanche.JsonRpcProvider
+        );
+      } else if (walletKeys.xpub && walletKeys.xpubXP) {
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+        // get account public key for EVM
+        const pubkeyC = getAddressPublicKeyFromXPub(
+          walletKeys.xpub,
+          accountIndex
+        );
+
+        // Get public key for X/P
+        const pubkeyXP = Avalanche.getAddressPublicKeyFromXpub(
+          walletKeys.xpubXP,
+          accountIndex
+        );
+        // get address path m/44'/60'/0'/0/n
+        // If we have xpub it means we are using BIP44 paths
+        const pathC = getAddressDerivationPath(
+          accountIndex,
+          DerivationPath.BIP44,
+          'EVM'
+        );
+        // X/P chain uses path m/44'/9000'/0'/0/n
+        const pathXP = getAddressDerivationPath(
+          accountIndex,
+          DerivationPath.BIP44,
+          'AVM'
+        );
+        return new Avalanche.LedgerSigner(
+          pubkeyXP,
+          pathXP,
+          pubkeyC,
+          pathC,
+          provider as Avalanche.JsonRpcProvider
+        );
+      } else if (walletKeys.pubKeys?.length) {
+        // Ledger signing with LedgerLive derivaiton paths
+        if (!this.ledgerService.recentTransport) {
+          throw new Error('Ledger transport not available');
+        }
+
+        const pubkey = walletKeys.pubKeys[accountIndex];
+
+        if (!pubkey)
+          throw new Error('Can not find public key for the active account');
+
+        // Verify public key exists for X/P path
+        if (!pubkey.xp) throw new Error('X/P Chain public key is not set');
+
+        // EVM Path
+        const pathC = getAddressDerivationPath(
+          accountIndex,
+          DerivationPath.LedgerLive,
+          'EVM'
+        );
+        // XP Path
+        const pathXP = getAddressDerivationPath(
+          accountIndex,
+          DerivationPath.LedgerLive,
+          'AVM'
+        );
+
+        return new Avalanche.LedgerSigner(
+          Buffer.from(pubkey.xp, 'hex'),
+          pathXP,
+          Buffer.from(pubkey.evm, 'hex'),
+          pathC,
+          provider as Avalanche.JsonRpcProvider
+        );
+      }
     } else {
       throw new Error('Wallet initialization failed unsupported network type');
     }
@@ -300,11 +401,84 @@ export class WalletService implements OnLock, OnUnlock {
       return signedTx.toHex();
     }
 
+    // Handle Avalanche signing, X/P/CoreEth
+    if ('tx' in tx) {
+      if (
+        !(wallet instanceof Avalanche.StaticSigner) &&
+        !(wallet instanceof Avalanche.LedgerWallet)
+      ) {
+        throw new Error('Signing error, wrong network');
+      }
+
+      const sig = await wallet.signTxBuffer({
+        buffer: tx.tx,
+        chain: tx.chain,
+      });
+      // Wallet can sign with multiple keys, but in our case it will always be one
+      if (!sig[0]) throw new Error('Failed to sign transaction.');
+      return sig[0].toString('hex');
+    }
+
     if (!(wallet instanceof Wallet) && !(wallet instanceof LedgerSigner)) {
       throw new Error('Signing error, wrong network');
     }
 
     return await wallet.signTransaction(tx);
+  }
+
+  /**
+   * Get the public key of an account index
+   * @throws Will throw error for LedgerLive accounts that have not been added yet.
+   * @param index Account index to get public key of.
+   */
+  async getPublicKey(account: Account): Promise<PubKeyType> {
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (account.type === AccountType.IMPORTED) {
+      const secretEntry = secrets?.imported?.[account.id];
+
+      if (!secretEntry) {
+        throw new Error(
+          'Can not find public key for the given imported account'
+        );
+      }
+
+      if (secretEntry.type === ImportType.PRIVATE_KEY) {
+        const publicKey = getPublicKeyFromPrivateKey(
+          secretEntry.secret
+        ).toString('hex');
+
+        return {
+          evm: publicKey,
+          xp: publicKey,
+        };
+      }
+
+      throw new Error('Unable to get public key');
+    }
+
+    if (secrets?.xpub && secrets?.xpubXP) {
+      const evmPub = getAddressPublicKeyFromXPub(secrets.xpub, account.index);
+      const xpPub = Avalanche.getAddressPublicKeyFromXpub(
+        secrets.xpubXP,
+        account.index
+      );
+      return {
+        evm: evmPub.toString('hex'),
+        xp: xpPub.toString('hex'),
+      };
+    } else if (secrets?.pubKeys) {
+      const pub = secrets.pubKeys[account.index];
+      if (!pub) throw new Error('Can not find public key for the given index');
+      return {
+        evm: pub.evm,
+        xp: pub.xp,
+      };
+    }
+
+    throw new Error('Unable to get public key');
   }
 
   async signMessage(messageType: MessageType, data: any) {
@@ -385,18 +559,23 @@ export class WalletService implements OnLock, OnUnlock {
         throw new Error('Ledger transport not available');
       }
 
-      const addressPublicKey = await getPubKeyFromTransport(
+      // Get EVM public key from transport
+      const addressPublicKeyC = await getPubKeyFromTransport(
         this.ledgerService.recentTransport,
         index,
         DerivationPath.LedgerLive
       );
 
-      if (!addressPublicKey || !addressPublicKey.byteLength) {
+      // TODO: Get X/P public key from transport (https://ava-labs.atlassian.net/browse/CP-4317)
+      if (!addressPublicKeyC || !addressPublicKeyC.byteLength) {
         throw new Error('Failed to get public key from device.');
       }
 
       const pubKeys = [...(secrets?.pubKeys || [])];
-      pubKeys[index] = { evm: addressPublicKey.toString('hex') };
+      pubKeys[index] = {
+        evm: addressPublicKeyC.toString('hex'),
+        xp: '',
+      };
 
       await this.storageService.save<WalletSecretInStorage>(
         WALLET_STORAGE_KEY,
@@ -416,7 +595,26 @@ export class WalletService implements OnLock, OnUnlock {
     );
     const isMainnet = this.networkService.isMainnet();
 
+    // Avalanche XP Provider
+    const provXP = await this.networkService.getAvalanceProviderXP();
+
     if (secrets?.xpub) {
+      // C-avax... this address uses the same public key as EVM
+      const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);
+      const cAddr = provXP.getAddress(cPubkey, 'C');
+
+      let xAddr, pAddr;
+      // We can only get X/P addresses if xpubXP is set
+      if (secrets.xpubXP) {
+        // X and P addresses different derivation path m/44'/9000'/0'...
+        const xpPub = Avalanche.getAddressPublicKeyFromXpub(
+          secrets.xpubXP,
+          index
+        );
+        xAddr = provXP.getAddress(xpPub, 'X');
+        pAddr = provXP.getAddress(xpPub, 'P');
+      }
+
       return {
         [NetworkVMType.EVM]: getAddressFromXPub(secrets.xpub, index),
         [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
@@ -424,13 +622,13 @@ export class WalletService implements OnLock, OnUnlock {
           index,
           isMainnet ? networks.bitcoin : networks.testnet
         ),
-        //TODO: Add support once XP is ready
-        [NetworkVMType.AVM]: '',
-        [NetworkVMType.PVM]: '',
-        [NetworkVMType.CoreEth]: '',
+        [NetworkVMType.AVM]: xAddr,
+        [NetworkVMType.PVM]: pAddr,
+        [NetworkVMType.CoreEth]: cAddr,
       };
     } else if (secrets?.pubKeys) {
       // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
+      // and for X/P derivation paths  m/44'/9000'/n'/0/0
       const addressPublicKey = secrets.pubKeys[index];
 
       if (!addressPublicKey?.evm) {
@@ -439,20 +637,104 @@ export class WalletService implements OnLock, OnUnlock {
 
       const pubKeyBuffer = Buffer.from(addressPublicKey.evm, 'hex');
 
+      // X/P addresses use a different public key because derivation path is different
+      let addrX, addrP;
+      if (addressPublicKey.xp) {
+        const pubKeyBufferXP = Buffer.from(addressPublicKey.xp, 'hex');
+        addrX = provXP.getAddress(pubKeyBufferXP, 'X');
+        addrP = provXP.getAddress(pubKeyBufferXP, 'P');
+      }
+
       return {
         [NetworkVMType.EVM]: getEvmAddressFromPubKey(pubKeyBuffer),
         [NetworkVMType.BITCOIN]: getBtcAddressFromPubKey(
           pubKeyBuffer,
           isMainnet ? networks.bitcoin : networks.testnet
         ),
-        //TODO: Add support once XP is ready
-        [NetworkVMType.AVM]: '',
-        [NetworkVMType.PVM]: '',
-        [NetworkVMType.CoreEth]: '',
+        [NetworkVMType.AVM]: addrX,
+        [NetworkVMType.PVM]: addrP,
+        [NetworkVMType.CoreEth]: provXP.getAddress(pubKeyBuffer, 'C'),
       };
     }
 
     throw new Error('No public key available');
+  }
+
+  async getAddressesInRange(
+    externalStart: number,
+    internalStart: number,
+    externalLimit?: number,
+    internalLimit?: number
+  ) {
+    if (
+      isNaN(externalStart) ||
+      externalStart < 0 ||
+      isNaN(internalStart) ||
+      internalStart < 0
+    ) {
+      throw new Error('Invalid start index');
+    }
+
+    const getCorrectedLimit = (limit?: number) => {
+      const MAX_LIMIT = 100;
+
+      if (limit === undefined || isNaN(limit)) {
+        return 0;
+      }
+
+      return limit > MAX_LIMIT ? MAX_LIMIT : limit;
+    };
+
+    const correctedExternalLimit = getCorrectedLimit(externalLimit);
+    const correctedInternalLimit = getCorrectedLimit(internalLimit);
+    const provXP = await this.networkService.getAvalanceProviderXP();
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    const addresses: { external: string[]; internal: string[] } = {
+      external: [],
+      internal: [],
+    };
+
+    if (secrets?.xpubXP) {
+      if (correctedExternalLimit > 0) {
+        for (
+          let index = externalStart;
+          index <= externalStart + correctedExternalLimit;
+          index++
+        ) {
+          addresses.external.push(
+            Avalanche.getAddressFromXpub(
+              secrets.xpubXP,
+              index,
+              provXP,
+              'X'
+            ).split('-')[1] as string // since addresses are the same for X/P we return them without the chain alias prefix (e.g.: fuji1jsduya7thx2ayrawf9dnw7v9jz7vc6xjycra2m)
+          );
+        }
+      }
+
+      if (correctedInternalLimit > 0) {
+        for (
+          let index = internalStart;
+          index <= internalStart + correctedInternalLimit;
+          index++
+        ) {
+          addresses.internal.push(
+            Avalanche.getAddressFromXpub(
+              secrets.xpubXP,
+              index,
+              provXP,
+              'X',
+              true
+            ).split('-')[1] as string // only X has "internal" (change) addresses, but we remove the chain alias here as well to make it consistent with the external address list
+          );
+        }
+      }
+    }
+
+    return addresses;
   }
 
   async addImportedWallet(importData: ImportData) {
@@ -508,6 +790,9 @@ export class WalletService implements OnLock, OnUnlock {
     };
 
     const isMainnet = this.networkService.isMainnet();
+    const provXP = isMainnet
+      ? Avalanche.JsonRpcProvider.getDefaultMainnetProvider()
+      : Avalanche.JsonRpcProvider.getDefaultFujiProvider();
 
     switch (importType) {
       case ImportType.PRIVATE_KEY: {
@@ -518,6 +803,9 @@ export class WalletService implements OnLock, OnUnlock {
             publicKey,
             isMainnet ? networks.bitcoin : networks.testnet
           );
+          addresses.addressAVM = provXP.getAddress(publicKey, 'X');
+          addresses.addressPVM = provXP.getAddress(publicKey, 'P');
+          addresses.addressCoreEth = provXP.getAddress(publicKey, 'C');
           break;
         } catch (err) {
           throw new Error('Error while calculating addresses');
@@ -527,7 +815,13 @@ export class WalletService implements OnLock, OnUnlock {
         throw new Error(`Unsupported import type ${importType}`);
     }
 
-    if (!addresses.addressC || !addresses.addressBTC) {
+    if (
+      !addresses.addressC ||
+      !addresses.addressBTC ||
+      !addresses.addressAVM ||
+      !addresses.addressPVM ||
+      !addresses.addressCoreEth
+    ) {
       throw new Error(`Missing address`);
     }
 

@@ -30,6 +30,14 @@ const StyledNumberList = styled(Typography)`
   margin-right: 16px;
 `;
 
+const InstructionLink = styled(Typography)`
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.secondary1};
+`;
+
 export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -110,7 +118,19 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
             <HorizontalSeparator margin="24px 0" />
 
             <Typography size={14} height="17px">
-              <Trans i18nKey="If you do not have the Avalanche app on your Ledger, please add it through the Ledger Live app manager. More instructions can be found here." />
+              <Trans
+                i18nKey="If you do not have the Avalanche app on your Ledger, please add it through the Ledger Live app manager. More instructions can be found <instructionLink>here</instructionLink>."
+                components={{
+                  instructionLink: (
+                    <InstructionLink
+                      as="a"
+                      target="_blank"
+                      href="https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true"
+                      rel="noopener noreferrer"
+                    />
+                  ),
+                }}
+              />
             </Typography>
           </VerticalFlex>
         )}

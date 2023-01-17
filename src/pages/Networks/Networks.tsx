@@ -41,7 +41,7 @@ export function Networks() {
         <PageTitle onBackClick={() => history.push('/home')}>
           {t('Networks')}
         </PageTitle>
-        <TextButton>
+        <TextButton data-testid="add-network-button">
           <PlusIcon
             color={theme.colors.text1}
             onClick={() => {
@@ -55,6 +55,7 @@ export function Networks() {
           width="100%"
           placeholder={t('Search')}
           onSearch={setSearchTerm}
+          data-testid="network-search"
         />
       </HorizontalFlex>
       <Tabs

@@ -45,6 +45,7 @@ const AccountName = styled(Typography)`
 
 const LogoContainer = styled.span`
   margin-right: 8px;
+  line-height: 1;
 `;
 
 const AccountNameInput = styled(WordInput)`

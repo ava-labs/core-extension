@@ -275,6 +275,24 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
   });
   describe('getHistory', () => {
+    it('should return an empty array if account is missing', async () => {
+      const service = new HistoryServiceGlacier({} as any);
+      const result = await service.getHistory(network);
+      expect(result).toStrictEqual([]);
+    });
+
+    it('should return an empty array on error', async () => {
+      const error = new Error('some error');
+      (GlacierClient as jest.Mock).mockImplementationOnce(() => {
+        return {
+          listTransactions: jest.fn().mockRejectedValue(error),
+        };
+      });
+      const service = new HistoryServiceGlacier(mockedAccountsService);
+      const result = await service.getHistory(network);
+      expect(result).toStrictEqual([]);
+    });
+
     it('should return expected results', async () => {
       // detailsWithInternalTransactions, detailsForFailedTransaction, and txDetails1 should be filtered
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;

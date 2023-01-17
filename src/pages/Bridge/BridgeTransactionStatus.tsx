@@ -275,7 +275,7 @@ const BridgeTransactionStatus = () => {
                       <Tooltip
                         placement="left"
                         content={
-                          <Typography size={14}>
+                          <Typography size={14} height="1.5">
                             {t('View on explorer')}
                           </Typography>
                         }
@@ -396,7 +396,7 @@ const BridgeTransactionStatus = () => {
                       <Tooltip
                         placement="left"
                         content={
-                          <Typography size={14}>
+                          <Typography size={14} height="1.5">
                             {t('View on explorer')}
                           </Typography>
                         }

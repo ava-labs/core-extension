@@ -138,6 +138,7 @@ export const AddNetwork = () => {
         margin="24px 16px"
       >
         <PrimaryButton
+          data-testid="add-network-save"
           size={ComponentSize.LARGE}
           width="100%"
           onClick={async () => {

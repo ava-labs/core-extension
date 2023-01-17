@@ -53,12 +53,18 @@ export function TransactionFeeTooltip({
   const Content = (
     <VerticalFlex width="330px" padding="4px">
       <HorizontalFlex width="100%" justify="space-between" margin="0 0 8px 0">
-        <Typography size={12}>{t('Gas Limit')}</Typography>
-        <Typography size={12}>{gasLimit}</Typography>
+        <Typography size={12} height="1.5">
+          {t('Gas Limit')}
+        </Typography>
+        <Typography size={12} height="1.5">
+          {gasLimit}
+        </Typography>
       </HorizontalFlex>
       <HorizontalFlex width="100%" justify="space-between">
-        <Typography size={12}>{t('Gas Price')}</Typography>
-        <Typography size={12}>
+        <Typography size={12} height="1.5">
+          {t('Gas Price')}
+        </Typography>
+        <Typography size={12} height="1.5">
           {bigToLocaleString(new Big(gasPrice.toString()).div(10 ** 9), 0)}{' '}
           {gasPriceUnit}
         </Typography>

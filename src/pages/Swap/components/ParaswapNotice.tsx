@@ -15,7 +15,7 @@ export function ParaswapNotice() {
 
   const TooltipContent = (
     <VerticalFlex width="240px">
-      <Typography size={12}>
+      <Typography size={12} height="1.5">
         {t("You will interact directly with Paraswap's smart contracts.")}
       </Typography>
     </VerticalFlex>

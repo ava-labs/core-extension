@@ -13,7 +13,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { BNInput } from '@src/components/common/BNInput';
 
 export enum Limit {
@@ -80,12 +80,10 @@ export function CustomSpendLimit({
           {t('Spending limit')}
         </Typography>
         <SubTextTypography size={12} height="15px" margin="4px 0 0">
-          {
-            (t(
-              'Set a limit that you will allow {{site.domain}} to withdraw and spend.'
-            ),
-            { site })
-          }
+          <Trans
+            i18nKey="Set a limit that you will allow {{site.domain}} to withdraw and spend."
+            values={{ site }}
+          />
         </SubTextTypography>
 
         {/* Radio */}

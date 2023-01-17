@@ -22,11 +22,14 @@ export enum DAppProviderRequest {
   AVALANCHE_UPDATE_CONTACT = 'avalanche_updateContact',
   AVALANCHE_REMOVE_CONTACT = 'avalanche_removeContact',
   AVALANCHE_GET_ACCOUNTS = 'avalanche_getAccounts',
+  AVALANCHE_GET_ADDRESSES_IN_RANGE = 'avalanche_getAddressesInRange',
   AVALANCHE_BRIDGE_ASSET = 'avalanche_bridgeAsset',
   AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
   AVALANCHE_SET_DEVELOPER_MODE = 'avalanche_setDeveloperMode',
   ACCOUNT_SELECT = 'avalanche_selectAccount',
+  AVALANCHE_GET_ACCOUNT_PUB_KEY = 'avalanche_getAccountPubKey',
+  AVALANCHE_SEND_TRANSACTION = 'avalanche_sendTransaction',
 }
 
 export enum Web3Event {

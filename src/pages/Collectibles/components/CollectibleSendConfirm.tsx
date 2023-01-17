@@ -156,7 +156,9 @@ export const CollectibleSendConfirm = ({
               </SecondaryButton>
               <Tooltip
                 content={
-                  <Typography size={14}>{sendState?.error?.message}</Typography>
+                  <Typography size={14} height="1.5">
+                    {sendState?.error?.message}
+                  </Typography>
                 }
                 disabled={!sendState?.error?.error}
               >

@@ -5,21 +5,24 @@ import {
 } from '@src/background/runtime/lifecycleCallbacks';
 import { StorageService } from '../storage/StorageService';
 import {
+  NETWORK_LIST_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
   NetworkStorage,
-  NETWORK_LIST_STORAGE_KEY,
 } from './models';
 import {
+  AVALANCHE_XP_NETWORK,
+  AVALANCHE_XP_TEST_NETWORK,
+  BITCOIN_NETWORK,
+  BITCOIN_TEST_NETWORK,
+  ChainId,
+  ChainList,
   getChainsAndTokens,
   Network,
-  ChainList,
-  ChainId,
   NetworkVMType,
-  BITCOIN_TEST_NETWORK,
-  BITCOIN_NETWORK,
 } from '@avalabs/chains-sdk';
 import { Signal, ValueCache } from 'micro-signals';
 import {
+  Avalanche,
   BlockCypherProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
@@ -197,6 +200,13 @@ export class NetworkService implements OnLock, OnStorageReady {
     return activeNetworks?.[networkId];
   }
 
+  /**
+   * Returns the network object for Avalanche X/P Chains
+   */
+  getAvalancheNetworkXP() {
+    return this.isMainnet() ? AVALANCHE_XP_NETWORK : AVALANCHE_XP_TEST_NETWORK;
+  }
+
   async setNetwork(networkId: number) {
     const selectedNetwork = await this.getNetwork(networkId);
     if (!selectedNetwork) {
@@ -207,6 +217,9 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.updateNetworkState();
   }
 
+  /**
+   * Returns the network object used for Avalanche EVM chain
+   */
   async getAvalancheNetwork(): Promise<Network> {
     const activeNetworks = await this.activeNetworks.promisify();
     const network =
@@ -216,9 +229,20 @@ export class NetworkService implements OnLock, OnStorageReady {
     return network;
   }
 
+  /**
+   * Returns the Ethers provider used by the Avalanche C Chain
+   */
   async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
     const network = await this.getAvalancheNetwork();
     return this.getProviderForNetwork(network) as JsonRpcBatchInternal;
+  }
+
+  /**
+   * Returns the provider used by Avalanche X/P/CoreEth chains.
+   */
+  async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
+    const network = this.getAvalancheNetworkXP();
+    return this.getProviderForNetwork(network) as Avalanche.JsonRpcProvider;
   }
 
   async getEthereumNetwork(): Promise<Network> {
@@ -252,7 +276,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   getProviderForNetwork(
     network: Network,
     useMulticall = false
-  ): BlockCypherProvider | JsonRpcBatchInternal {
+  ): BlockCypherProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider {
     if (network.vmName === NetworkVMType.BITCOIN) {
       return new BlockCypherProvider(
         !network.isTestnet,
@@ -274,6 +298,13 @@ export class NetworkService implements OnLock, OnStorageReady {
       provider.pollingInterval = 2000;
 
       return provider;
+    } else if (
+      network.vmName === NetworkVMType.AVM ||
+      network.vmName === NetworkVMType.PVM
+    ) {
+      return network.isTestnet
+        ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
+        : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
     } else {
       throw new Error('unsupported network');
     }

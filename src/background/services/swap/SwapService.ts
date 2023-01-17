@@ -13,6 +13,11 @@ import { singleton } from 'tsyringe';
 import Web3 from 'web3';
 import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
+import {
+  hasParaswapError,
+  ParaswapPricesResponse,
+  PARASWAP_RETRYABLE_ERRORS,
+} from './models';
 
 const NETWORK_UNSUPPORTED_ERROR = new Error(
   'Fuji network is not supported by Paraswap'
@@ -72,20 +77,44 @@ export class SwapService {
 
     const optimalRates = async () => {
       const response = await fetch(url);
-      const data = await response.json();
-      return data.priceRoute;
+      return response.json();
     };
 
-    function checkForErrorsInResult(result: OptimalRate | APIError) {
-      return (result as APIError).message === 'Server too busy';
+    function checkForErrorsInResult(
+      response: ParaswapPricesResponse | TypeError
+    ) {
+      const isFetchError = response instanceof TypeError;
+      const isParaswapError = !isFetchError && hasParaswapError(response);
+
+      if (isFetchError || isParaswapError) {
+        // If there is an error, we may want to retry the request if a network issue
+        // or some of the documented Paraswap API errors occurred.
+        const isNetworkIssue =
+          isFetchError && response.message === 'Failed to fetch';
+        const shouldBeRetried =
+          isNetworkIssue ||
+          (isParaswapError &&
+            PARASWAP_RETRYABLE_ERRORS.includes(response.error));
+
+        if (shouldBeRetried) {
+          return true;
+        } else {
+          // If an error occurred, but there is no point in retrying a request,
+          // we need to propagate the error so we're able to show an approriate
+          // message in the UI.
+          throw new Error(isFetchError ? response.message : response.error);
+        }
+      }
+
+      return false;
     }
 
-    const result = await incrementalPromiseResolve<OptimalRate | APIError>(
+    const result = await incrementalPromiseResolve<ParaswapPricesResponse>(
       () => optimalRates(),
       checkForErrorsInResult
     );
 
-    return result;
+    return result.priceRoute;
   }
 
   async getParaswapSpender(): Promise<string> {

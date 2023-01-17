@@ -27,6 +27,9 @@ import { ConnectRequestHandler } from '@src/background/services/web3/handlers/co
 import { MetamaskGetProviderState } from '@src/background/services/web3/handlers/metamask_getProviderState';
 import { MetamaskSendDomainMetadataHandler } from '@src/background/services/web3/handlers/metamask_sendDomainMetadata';
 import { registry } from 'tsyringe';
+import { AvalancheGetAccountPubKeyHandler } from '@src/background/services/accounts/handlers/avalanche_getAccountPubKey';
+import { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
+import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/accounts/handlers/avalanche_getAddressesInRange';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -47,6 +50,12 @@ import { registry } from 'tsyringe';
   { token: 'DAppRequestHandler', useToken: AvalancheRemoveContactHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectWalletHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheGetAccountPubKeyHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
+  {
+    token: 'DAppRequestHandler',
+    useToken: AvalancheGetAddressesInRangeHandler,
+  },
   { token: 'DAppRequestHandler', useToken: PersonalEcRecoverHandler },
   { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },

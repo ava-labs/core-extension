@@ -86,7 +86,7 @@ export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
               ledgerLink: (
                 <LedgerLink
                   as="a"
-                  href="https://support.avax.network/en/articles/6150237-how-to-use-a-ledger-nano-s-or-nano-x-with-avalanche"
+                  href="https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true"
                   target="_blank"
                   rel="noopener noreferrer"
                 />

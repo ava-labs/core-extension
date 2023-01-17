@@ -37,9 +37,9 @@ describe('background/services/accounts/AccountsService', () => {
 
   const evmAddress = '0x000000000';
   const btcAddress = 'btc000000000';
-  const avmAddress = '';
-  const pvmAddress = '';
-  const coreEthAddress = '';
+  const avmAddress = 'X-';
+  const pvmAddress = 'P-';
+  const coreEthAddress = 'C-';
   const otherEvmAddress = '0x000000001';
   const otherBtcAddress = 'btc000000001';
 
@@ -723,6 +723,9 @@ describe('background/services/accounts/AccountsService', () => {
             name: 'name',
             addressC: 'addressC',
             addressBTC: 'addressBTC',
+            addressAVM: 'addressAVM',
+            addressPVM: 'addressPVM',
+            addressCoreEth: 'addressCoreEth',
           },
         ],
         imported: {},

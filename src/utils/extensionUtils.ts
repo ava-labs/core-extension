@@ -91,20 +91,6 @@ export const getTabs = () => {
   return extension.tabs.query(() => {});
 };
 
-export const openExtensionInBrowser = (route = null, queryString = null) => {
-  let extensionURL = extension.runtime.getURL(contextToOpenIn);
-
-  if (queryString) {
-    extensionURL += `?${queryString}`;
-  }
-
-  if (route) {
-    extensionURL += `#${route}`;
-  }
-
-  return openNewTab({ url: extensionURL });
-};
-
 export const openExtensionNewWindow = async (
   route?: string,
   queryString?: string
@@ -133,7 +119,6 @@ export const openExtensionNewWindow = async (
   if (route) {
     extensionURL += `#/${route}`;
   }
-
   return openWindow({
     url: extensionURL,
     focused: true,

@@ -167,6 +167,7 @@ export const NetworkForm = ({
               rpcUrl: e.target.value,
             });
           }}
+          data-testid="network-rpc-url"
           value={customNetwork.rpcUrl}
           label={t('Network RPC URL')}
           placeholder="http(s)://URL"
@@ -193,6 +194,7 @@ export const NetworkForm = ({
               chainName: e.target.value,
             });
           }}
+          data-testid="network-name"
           value={customNetwork.chainName}
           label={t('Network Name')}
           placeholder={t('Enter Name')}
@@ -219,6 +221,7 @@ export const NetworkForm = ({
               chainId: parseInt(e.target.value),
             });
           }}
+          data-testid="chain-id"
           value={isNaN(customNetwork.chainId) ? '' : customNetwork.chainId}
           label={t('Chain ID')}
           placeholder={t('Enter Chain ID')}
@@ -249,6 +252,7 @@ export const NetworkForm = ({
               },
             });
           }}
+          data-testid="network-token-symbol"
           value={customNetwork.networkToken.symbol}
           label={t('Network Token Symbol')}
           placeholder={t('Enter Token Symbol')}
@@ -278,6 +282,7 @@ export const NetworkForm = ({
               },
             });
           }}
+          data-testid="network-token-name"
           value={customNetwork.networkToken.name}
           label={t('Network Token Name (Optional)')}
           placeholder={t('Enter Token')}
@@ -302,6 +307,7 @@ export const NetworkForm = ({
               explorerUrl: e.target.value,
             });
           }}
+          data-testid="explorer-url"
           value={customNetwork.explorerUrl}
           label={t('Explorer URL (Optional)')}
           placeholder={t('Enter URL')}
@@ -328,6 +334,7 @@ export const NetworkForm = ({
               logoUri: e.target.value,
             });
           }}
+          data-testid="logo-url"
           value={customNetwork.logoUri}
           label={t('Logo URL (Optional)')}
           placeholder={t('Enter URL')}

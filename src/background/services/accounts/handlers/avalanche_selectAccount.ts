@@ -6,12 +6,16 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { AccountsService } from '../AccountsService';
 import { Account, AccountType } from '../models';
 import { Action } from '../../actions/models';
+import { PermissionsService } from '../../permissions/PermissionsService';
 
 @injectable()
 export class AvalancheSelectAccountHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.ACCOUNT_SELECT];
 
-  constructor(private accountsService: AccountsService) {
+  constructor(
+    private accountsService: AccountsService,
+    private permissionsService: PermissionsService
+  ) {
     super();
   }
 
@@ -63,6 +67,13 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
       const { selectedAccount } = pendingAction as Action & {
         selectedAccount: Account;
       };
+      if (pendingAction.site?.domain) {
+        await this.permissionsService.setAccountPermissionForDomain(
+          pendingAction.site.domain,
+          selectedAccount.addressC,
+          true
+        );
+      }
       await this.accountsService.activateAccount(selectedAccount.id);
       onSuccess(null);
     } catch (e) {

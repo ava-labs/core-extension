@@ -111,6 +111,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   useEffect(() => {
     if (!isHome && onboardingState && !onboardingState.isOnBoarded) {
       browser.tabs.create({ url: '/home.html' });
+      window.close();
     }
   }, [isHome, onboardingState]);
 
