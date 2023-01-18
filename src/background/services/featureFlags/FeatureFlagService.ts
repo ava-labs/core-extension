@@ -4,6 +4,7 @@ import { singleton } from 'tsyringe';
 import { AnalyticsService } from '../analytics/AnalyticsService';
 import { DEFAULT_FLAGS, FeatureFlagEvents } from './models';
 import { AnalyticsEvents } from '../analytics/models';
+import { LockService } from '../lock/LockService';
 
 @singleton()
 export class FeatureFlagService {
@@ -25,10 +26,18 @@ export class FeatureFlagService {
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
       this._featureFlags
     );
+
+    // We need to lock the wallet when "everything" flag is disabled.
+    if (!newFlags[FeatureGates.EVERYTHING] && !this.lockService.locked) {
+      this.lockService.lock();
+    }
   }
   private featureFlagsListener?: ReturnType<typeof initFeatureFlags>;
 
-  constructor(private analyticsService: AnalyticsService) {
+  constructor(
+    private analyticsService: AnalyticsService,
+    private lockService: LockService
+  ) {
     // start fetching feature as early as possible
     // update requests with unique id after it's available
     // if analytics is disabled `ANALYTICS_STATE_UPDATED` will never be fired
@@ -49,6 +58,12 @@ export class FeatureFlagService {
         });
       }
     );
+  }
+
+  ensureFlagEnabled(feature: FeatureGates) {
+    if (!this.featureFlags[feature]) {
+      throw new Error(`Feature (${feature}) is currently unavailable`);
+    }
   }
 
   private async initFeatureFlags() {

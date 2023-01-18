@@ -1,6 +1,7 @@
-import { initFeatureFlags } from '@avalabs/posthog-sdk';
+import { FeatureGates, initFeatureFlags } from '@avalabs/posthog-sdk';
 import { noop } from '@avalabs/utils-sdk';
 import { AnalyticsEvents } from '../analytics/models';
+import { LockService } from '../lock/LockService';
 import { FeatureFlagService } from './FeatureFlagService';
 import { DEFAULT_FLAGS, FeatureFlagEvents } from './models';
 
@@ -18,6 +19,9 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     getIds: jest.fn(),
     addListener: jest.fn(),
   } as any;
+  const lockServiceMock = {
+    lock: jest.fn(),
+  } as unknown as LockService;
 
   const initFeatureFlagsMock = {
     listen: {
@@ -42,7 +46,10 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
   });
 
   it('initializes feature flags with defaults', () => {
-    const featureFlagsService = new FeatureFlagService(analyticsServiceMock);
+    const featureFlagsService = new FeatureFlagService(
+      analyticsServiceMock,
+      lockServiceMock
+    );
     expect(featureFlagsService.featureFlags).toBe(DEFAULT_FLAGS);
   });
 
@@ -52,7 +59,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       .spyOn(globalThis.console, 'error')
       .mockImplementation(noop);
 
-    new FeatureFlagService(analyticsServiceMock);
+    new FeatureFlagService(analyticsServiceMock, lockServiceMock);
     await new Promise(process.nextTick);
 
     expect(initFeatureFlags).not.toHaveBeenCalled();
@@ -66,7 +73,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       .spyOn(globalThis.console, 'error')
       .mockImplementation(noop);
 
-    new FeatureFlagService(analyticsServiceMock);
+    new FeatureFlagService(analyticsServiceMock, lockServiceMock);
     await new Promise(process.nextTick);
 
     expect(initFeatureFlags).not.toHaveBeenCalled();
@@ -85,7 +92,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
   it('defaults to production posthog instance', async () => {
     process.env = { ...env, POSTHOG_KEY: 'posthogkey' };
 
-    new FeatureFlagService(analyticsServiceMock);
+    new FeatureFlagService(analyticsServiceMock, lockServiceMock);
     await new Promise(process.nextTick);
 
     expect(initFeatureFlags).toHaveBeenCalledTimes(1);
@@ -98,7 +105,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
   });
 
   it('fetches feature flags when instantiated', async () => {
-    new FeatureFlagService(analyticsServiceMock);
+    new FeatureFlagService(analyticsServiceMock, lockServiceMock);
     await new Promise(process.nextTick);
 
     expect(analyticsServiceMock.getIds).toHaveBeenCalledTimes(1);
@@ -114,7 +121,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
   });
 
   it('updates userId when ANALYTICS_STATE_UPDATED', async () => {
-    new FeatureFlagService(analyticsServiceMock);
+    new FeatureFlagService(analyticsServiceMock, lockServiceMock);
     await new Promise(process.nextTick);
 
     expect(analyticsServiceMock.getIds).toHaveBeenCalledTimes(1);
@@ -155,7 +162,10 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       newflag: true,
     };
 
-    const featureFlagsService = new FeatureFlagService(analyticsServiceMock);
+    const featureFlagsService = new FeatureFlagService(
+      analyticsServiceMock,
+      lockServiceMock
+    );
     await new Promise(process.nextTick);
     featureFlagsService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
@@ -179,7 +189,10 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       newflag: true,
     };
 
-    const featureFlagsService = new FeatureFlagService(analyticsServiceMock);
+    const featureFlagsService = new FeatureFlagService(
+      analyticsServiceMock,
+      lockServiceMock
+    );
     await new Promise(process.nextTick);
     featureFlagsService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
@@ -196,5 +209,55 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
 
     initFeatureFlagsMock.listen.add.mock.calls[0][0]({ ...newFlags }); // new object with the same values should not trigger an update
     expect(eventSubscription).toHaveBeenCalledTimes(1);
+  });
+
+  describe('when "everything" flag is disabled', () => {
+    it('locks the wallet', async () => {
+      const eventSubscription = jest.fn();
+      const newFlags = {
+        ...DEFAULT_FLAGS,
+        everything: false,
+      };
+
+      const featureFlagsService = new FeatureFlagService(
+        analyticsServiceMock,
+        lockServiceMock
+      );
+      await new Promise(process.nextTick);
+      featureFlagsService.addListener(
+        FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+        eventSubscription
+      );
+
+      initFeatureFlagsMock.listen.add.mock.calls[0][0](newFlags);
+      expect(lockServiceMock.lock).toHaveBeenCalled();
+    });
+  });
+
+  describe('#ensureFlagEnabled', () => {
+    let service: FeatureFlagService;
+
+    beforeEach(async () => {
+      const flags = {
+        [FeatureGates.EVERYTHING]: true,
+        [FeatureGates.SWAP]: true,
+        [FeatureGates.BRIDGE]: false,
+      };
+
+      service = new FeatureFlagService(analyticsServiceMock, lockServiceMock);
+      await new Promise(process.nextTick);
+
+      initFeatureFlagsMock.listen.add.mock.calls[0][0](flags);
+    });
+
+    it('does not throw errors if given feature is enabled', () => {
+      expect(() => service.ensureFlagEnabled(FeatureGates.SWAP)).not.toThrow();
+    });
+
+    it('throws an error if given feature is disabled', () => {
+      expect(() => service.ensureFlagEnabled(FeatureGates.BRIDGE)).toThrow(
+        `Feature (${FeatureGates.BRIDGE}) is currently unavailable`
+      );
+    });
   });
 });

@@ -8,6 +8,7 @@ import { errorCodes, EthereumRpcError } from 'eth-rpc-errors';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { FeatureGates } from '@avalabs/posthog-sdk';
+import { LockService } from '../../lock/LockService';
 
 jest.mock('../../network/NetworkService');
 jest.mock('../../featureFlags/FeatureFlagService');
@@ -48,7 +49,8 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     mockNetworkService['customNetworks'] = {};
 
     mockFeatureFlagService = new FeatureFlagService(
-      {} as unknown as AnalyticsService
+      {} as unknown as AnalyticsService,
+      {} as unknown as LockService
     );
     mockFeatureFlagService['featureFlags'] = {
       [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: true,

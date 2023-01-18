@@ -33,9 +33,18 @@ describe('background/services/swap/SwapService.ts', () => {
     },
   };
 
+  const featureFlagServiceMock = (swapEnabled = true) => ({
+    ensureFlagEnabled() {
+      if (!swapEnabled) {
+        throw new Error('Feature (swap-feature) is currently unavailable');
+      }
+    },
+  });
+
   const swapService = new SwapService(
     networkServiceMock as any,
-    accountServiceMock as any
+    accountServiceMock as any,
+    featureFlagServiceMock() as any
   );
 
   beforeEach(() => {
@@ -111,7 +120,8 @@ describe('background/services/swap/SwapService.ts', () => {
     it('throws if there is no active account', async () => {
       const swapServiceWithoutActiveAccount = new SwapService(
         networkServiceMock as any,
-        {} as any
+        {} as any,
+        featureFlagServiceMock() as any
       );
 
       await expect(
@@ -119,6 +129,20 @@ describe('background/services/swap/SwapService.ts', () => {
           ...getParams({}).paramsAsTuple
         )
       ).rejects.toThrowError('Account address missing');
+    });
+
+    it('throws error when swap feature is unavailable', async () => {
+      const swapServiceWithoutActiveAccount = new SwapService(
+        networkServiceMock as any,
+        accountServiceMock as any,
+        featureFlagServiceMock(false) as any
+      );
+
+      await expect(
+        swapServiceWithoutActiveAccount.getSwapRate(
+          ...getParams({}).paramsAsTuple
+        )
+      ).rejects.toThrowError('Feature (swap-feature) is currently unavailable');
     });
 
     it('returns the correct route', async () => {
@@ -227,6 +251,18 @@ describe('background/services/swap/SwapService.ts', () => {
         `${API_URL}/adapters/contracts?network=${ChainId.AVALANCHE_MAINNET_ID}`
       );
     });
+
+    it('throws error when swap feature is unavailable', async () => {
+      const swapService = new SwapService(
+        networkServiceMock as any,
+        accountServiceMock as any,
+        featureFlagServiceMock(false) as any
+      );
+
+      await expect(swapService.getParaswapSpender()).rejects.toThrowError(
+        'Feature (swap-feature) is currently unavailable'
+      );
+    });
   });
 
   describe('buildTx', () => {
@@ -271,6 +307,18 @@ describe('background/services/swap/SwapService.ts', () => {
       string,
       string
     ];
+
+    it('throws error when swap feature is unavailable', async () => {
+      const swapServiceWithoutActiveAccount = new SwapService(
+        networkServiceMock as any,
+        accountServiceMock as any,
+        featureFlagServiceMock(false) as any
+      );
+
+      await expect(
+        swapServiceWithoutActiveAccount.buildTx(...paramsAsTuple)
+      ).rejects.toThrowError('Feature (swap-feature) is currently unavailable');
+    });
 
     it('returns the correct transaction', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
