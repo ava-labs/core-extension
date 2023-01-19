@@ -281,6 +281,8 @@ const BridgeTransactionStatus = () => {
                         }
                       >
                         <PopOutButton
+                          data-testid="source-tx-link"
+                          data-tx-hash={bridgeTransaction.sourceTxHash}
                           onClick={() =>
                             window.open(
                               getExplorerAddress(
@@ -402,6 +404,8 @@ const BridgeTransactionStatus = () => {
                         }
                       >
                         <PopOutButton
+                          data-testid="target-tx-link"
+                          data-tx-hash={bridgeTransaction.targetTxHash}
                           onClick={() =>
                             window.open(
                               getExplorerAddress(
