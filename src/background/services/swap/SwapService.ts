@@ -1,4 +1,5 @@
 import { ChainId } from '@avalabs/chains-sdk';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import {
   ParaSwap,
@@ -12,6 +13,7 @@ import { OptimalRate, SwapSide } from 'paraswap-core';
 import { singleton } from 'tsyringe';
 import Web3 from 'web3';
 import { AccountsService } from '../accounts/AccountsService';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { NetworkService } from '../network/NetworkService';
 import {
   hasParaswapError,
@@ -37,7 +39,8 @@ export class SwapService {
 
   constructor(
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private featureFlagService: FeatureFlagService
   ) {}
 
   async getSwapRate(
@@ -54,6 +57,8 @@ export class SwapService {
     if (!this.accountsService.activeAccount) {
       throw new Error('Account address missing');
     }
+
+    this.featureFlagService.ensureFlagEnabled(FeatureGates.SWAP);
 
     const activeNetwork = this.networkService.activeNetwork;
 
@@ -118,6 +123,8 @@ export class SwapService {
   }
 
   async getParaswapSpender(): Promise<string> {
+    this.featureFlagService.ensureFlagEnabled(FeatureGates.SWAP);
+
     const response = await fetch(
       `${this.apiUrl}/adapters/contracts?network=${ChainId.AVALANCHE_MAINNET_ID}`
     );
@@ -144,6 +151,8 @@ export class SwapService {
     permit?: string,
     deadline?: string
   ): Promise<APIError | Transaction> {
+    this.featureFlagService.ensureFlagEnabled(FeatureGates.SWAP);
+
     const query = new URLSearchParams(options as Record<string, string>);
     const txURL = `${this.apiUrl}/transactions/${network}/?${query.toString()}`;
     const txConfig = {

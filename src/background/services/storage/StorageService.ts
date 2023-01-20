@@ -13,9 +13,10 @@ import {
   getDataWithSchemaVersion,
   migrateToLatest,
 } from './schemaMigrations/schemaMigrations';
+import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class StorageService {
+export class StorageService implements OnLock {
   private _storageKey?: string;
 
   constructor(private callbackManager: CallbackManager) {}
@@ -35,6 +36,11 @@ export class StorageService {
       console.error(err);
       return Promise.reject(new Error('password incorrect'));
     }
+  }
+
+  onLock() {
+    // Clear the encryption key when wallet is locked to prevent unauthorized storage access.
+    this._storageKey = undefined;
   }
 
   async changePassword(oldPassword: string, newPassword: string) {

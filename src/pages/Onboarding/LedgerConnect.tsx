@@ -114,6 +114,8 @@ export function LedgerConnect({
   const resetStates = () => {
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
     setDerivationPath('');
+    setXpub('');
+    setPublicKeys([]);
     setAddresses([]);
     setConfirmedAccountCount(0);
     setHasPublicKeys(false);

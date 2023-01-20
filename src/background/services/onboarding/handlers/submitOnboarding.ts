@@ -72,9 +72,13 @@ export class SubmitOnboardingHandler implements HandlerType {
     //TODO: Support Ledger onboarding for X/P chains m/44'/9000'/0' (https://ava-labs.atlassian.net/browse/CP-4317)
     if (xpub) {
       await this.walletService.init({ mnemonic, xpub, xpubXP });
-    }
-    if (pubKeys?.length) {
+      await this.accountsService.addAccount(accountName);
+    } else if (pubKeys?.length) {
       await this.walletService.init({ pubKeys });
+      for (let i = 0; i < pubKeys.length; i++) {
+        const newAccountName = i === 0 ? accountName : '';
+        await this.accountsService.addAccount(newAccountName);
+      }
     }
 
     if (!xpub && !pubKeys) {
@@ -82,14 +86,6 @@ export class SubmitOnboardingHandler implements HandlerType {
         ...request,
         error: 'unable to create a wallet',
       };
-    }
-    if (pubKeys?.length) {
-      for (let i = 0; i < pubKeys.length; i++) {
-        const newAccountName = i === 0 ? accountName : '';
-        await this.accountsService.addAccount(newAccountName);
-      }
-    } else {
-      await this.accountsService.addAccount(accountName);
     }
 
     // add favorite networks before account activation so they can be loaded by the balances service

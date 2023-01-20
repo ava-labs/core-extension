@@ -12,9 +12,11 @@ import {
   transferAsset as transferAssetSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 import { EventEmitter } from 'events';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import {
   BRIDGE_STORAGE_KEY,
   BridgeEvents,
@@ -53,7 +55,8 @@ export class BridgeService implements OnLock, OnStorageReady {
     private storageService: StorageService,
     private networkService: NetworkService,
     private walletService: WalletService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private featureFlagService: FeatureFlagService
   ) {
     this.networkService.activeNetworkChanged.add(() => {
       this.updateBridgeConfig();
@@ -165,6 +168,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     if (!this.accountsService.activeAccount) {
       throw new Error('no active account found');
     }
+    this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
 
     const avalancheProvider = await this.networkService.getAvalancheProvider();
     const ethereumProvider = await this.networkService.getEthereumProvider();
@@ -219,6 +223,8 @@ export class BridgeService implements OnLock, OnStorageReady {
     if (this.bridgeState.bridgeTransactions[sourceTxHash]) {
       throw new Error('bridge tx already exists');
     }
+
+    this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
 
     const addressC = this.accountsService.activeAccount.addressC;
     const addressBTC = this.accountsService.activeAccount.addressBTC;
