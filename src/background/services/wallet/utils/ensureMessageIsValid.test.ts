@@ -1,7 +1,7 @@
 import { MessageType } from '../../messages/models';
 import ensureMessageIsValid from './ensureMessageIsValid';
 
-const getPayload = (without?: string) => {
+const getPayload = (without?: string, withHexChainId?: boolean) => {
   const payload = {
     types: {
       EIP712Domain: [
@@ -13,7 +13,7 @@ const getPayload = (without?: string) => {
     },
     primaryType: 'Primary Type',
     domain: {
-      chainId: 2,
+      chainId: withHexChainId ? '0x2' : 2,
     },
     message: {},
   };
@@ -74,15 +74,24 @@ describe('src/background/services/wallet/utils/ensureMessageIsValid.test.ts', ()
 
     it('throws validation error when the chain id does not match the active one', () => {
       const payload = getPayload();
+      const payloadWithHexChainId = getPayload(undefined, true);
 
       expect(() => ensureMessageIsValid(messageType, payload, 1)).toThrowError(
         'target chainId does not match the currently active one'
       );
+      expect(() =>
+        ensureMessageIsValid(messageType, payloadWithHexChainId, 1)
+      ).toThrowError('target chainId does not match the currently active one');
     });
 
     it('returns without error when payload is valid', () => {
       const payload = getPayload();
+      const payloadWithHexChainId = getPayload(undefined, true);
+
       expect(ensureMessageIsValid(messageType, payload, 2)).toBeUndefined();
+      expect(
+        ensureMessageIsValid(messageType, payloadWithHexChainId, 2)
+      ).toBeUndefined();
     });
   });
 });
