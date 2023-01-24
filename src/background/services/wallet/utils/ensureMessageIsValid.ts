@@ -9,7 +9,7 @@ type TypedMessage = {
   domain: {
     name?: string;
     version?: string;
-    chainId?: number;
+    chainId?: number | string;
     verifyingContract?: string;
     salt?: ArrayBuffer;
   };
@@ -43,7 +43,10 @@ const ensureMessageIsValid = (
       throw validationResult.error;
     }
 
-    if (validationResult.value.domain.chainId !== activeChainId) {
+    // chainId can be hexadecimal string or decimal number
+    const chainId = Number(validationResult.value.domain.chainId);
+
+    if (chainId !== activeChainId) {
       throw new Error('target chainId does not match the currently active one');
     }
   }
