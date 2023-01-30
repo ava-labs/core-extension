@@ -3,6 +3,8 @@ import { ACCOUNTS_STORAGE_KEY } from '../../accounts/models';
 import accounts_v2 from './migrations/accounts_v2';
 import { WALLET_STORAGE_KEY } from '@src/background/services/wallet/models';
 import wallet_v2 from './migrations/wallet_v2';
+import { NETWORK_STORAGE_KEY } from '@src/background/services/network/models';
+import network_v2 from './migrations/network_v2';
 
 export type Migration = {
   previousSchema: Joi.Schema;
@@ -36,6 +38,15 @@ export const SCHEMA_MAP = {
       {
         version: 2,
         migration: wallet_v2,
+      },
+    ],
+  },
+  [NETWORK_STORAGE_KEY]: {
+    latestVersion: 2,
+    migrations: [
+      {
+        version: 2,
+        migration: network_v2,
       },
     ],
   },
