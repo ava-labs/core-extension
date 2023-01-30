@@ -16,14 +16,16 @@ import { lockStateChangedEventListener } from '@src/background/services/lock/eve
 import { UnlockWalletHandler } from '@src/background/services/lock/handlers/unlockWalletState';
 import { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
-import { GetWalletTypeHandler } from '@src/background/services/wallet/handlers/getWalletType';
+import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
 import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
+import { DerivationPath } from '@avalabs/wallets-sdk';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;
   isWalletLocked: boolean;
   walletType: WalletType | undefined;
+  derivationPath: DerivationPath | undefined;
   changeWalletPassword(
     newPassword: string,
     oldPassword: string
@@ -37,6 +39,9 @@ export function WalletContextProvider({ children }: { children: any }) {
   const { initLedgerTransport } = useLedgerContext();
   const { request, events } = useConnectionContext();
   const [walletType, setWalletType] = useState<WalletType | undefined>();
+  const [derivationPath, setDerivationPath] = useState<
+    DerivationPath | undefined
+  >();
   const [isWalletLocked, setIsWalletLocked] = useState<boolean>(true);
   const [isWalletLoading, setIsWalletLoading] = useState<boolean>(true);
 
@@ -46,9 +51,12 @@ export function WalletContextProvider({ children }: { children: any }) {
       return;
     }
     setIsWalletLoading(true);
-    request<GetWalletTypeHandler>({
-      method: ExtensionRequest.WALLET_GET_TYPE,
-    }).then(setWalletType);
+    request<GetWalletDetailsHandler>({
+      method: ExtensionRequest.WALLET_GET_DETAILS,
+    }).then((details) => {
+      setWalletType(details.walletType);
+      setDerivationPath(details.derivationPath);
+    });
 
     request<GetLockStateHandler>({
       method: ExtensionRequest.LOCK_GET_STATE,
@@ -67,9 +75,12 @@ export function WalletContextProvider({ children }: { children: any }) {
 
         // update wallet type when the extension gets unlocked
         if (!locked) {
-          request<GetWalletTypeHandler>({
-            method: ExtensionRequest.WALLET_GET_TYPE,
-          }).then(setWalletType);
+          request<GetWalletDetailsHandler>({
+            method: ExtensionRequest.WALLET_GET_DETAILS,
+          }).then((details) => {
+            setWalletType(details.walletType);
+            setDerivationPath(details.derivationPath);
+          });
         }
       });
 
@@ -130,6 +141,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         isWalletLoading,
         isWalletLocked,
         walletType,
+        derivationPath,
         changeWalletPassword,
         getUnencryptedMnemonic,
         getTransactionHistory,

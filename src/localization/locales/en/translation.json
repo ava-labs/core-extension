@@ -265,6 +265,8 @@
   "Open Core in your browser.": "Open Core in your browser.",
   "Reenter the transaction details and try again.": "Reenter the transaction details and try again.",
   "Retry": "Retry",
+  "Incorrect Ledger": "Incorrect Ledger",
+  "This Ledger was not used to create this wallet. Please connect the original Ledger device to continue.": "This Ledger was not used to create this wallet. Please connect the original Ledger device to continue.",
   "Please update the <typography>Avalanche Application</typography> on your Ledger device to continue.": "Please update the <typography>Avalanche Application</typography> on your Ledger device to continue.",
   "Download <ledgerLink>Ledger Live</ledgerLink> to update.": "Download <ledgerLink>Ledger Live</ledgerLink> to update.",
   "Update Required": "Update Required",

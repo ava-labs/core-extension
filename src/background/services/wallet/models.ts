@@ -1,4 +1,8 @@
-import { BitcoinInputUTXO, BitcoinOutputUTXO } from '@avalabs/wallets-sdk';
+import {
+  BitcoinInputUTXO,
+  BitcoinOutputUTXO,
+  DerivationPath,
+} from '@avalabs/wallets-sdk';
 import { TransactionRequest } from '@ethersproject/providers';
 import { ImportType } from '../accounts/models';
 import { VM, OutputOwners, TransferableOutput } from '@avalabs/avalanchejs-v2';
@@ -23,7 +27,7 @@ export interface WalletLockedState {
 }
 
 export interface WalletSecretInStorage {
-  derivationType?: DerivationType;
+  derivationPath: DerivationPath;
   mnemonic?: string;
   // Extended public key of m/44'/60'/0'
   xpub?: string;
@@ -47,10 +51,7 @@ export enum WalletEvents {
 }
 
 export const WALLET_STORAGE_KEY = 'wallet';
-export enum DerivationType {
-  BIP44 = 'BIP44',
-  LEDGER_LIVE = 'LEDGER_LIVE',
-}
+
 export enum WalletType {
   MNEMONIC = 'MNEMONIC',
   LEDGER = 'LEDGER',

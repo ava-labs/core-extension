@@ -71,7 +71,7 @@ import { GetSwapRateHandler } from '@src/background/services/swap/handlers/getSw
 import { TransactionFinalizedUpdateEvents } from '@src/background/services/transactions/events/transactionFinalizedUpdate';
 import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
-import { GetWalletTypeHandler } from '@src/background/services/wallet/handlers/getWalletType';
+import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
 import { registry } from 'tsyringe';
 import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCurrencySelection';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
@@ -199,7 +199,7 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
   { token: 'ExtensionRequestHandler', useToken: GetIsDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: GetSettingsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenDataHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetWalletTypeHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetWalletDetailsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetUnencryptedMnemonicHandler },
   { token: 'ExtensionRequestHandler', useToken: SetDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateShowNoBalanceHandler },

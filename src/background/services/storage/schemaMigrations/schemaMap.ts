@@ -1,9 +1,10 @@
 import Joi from 'joi';
 import { ACCOUNTS_STORAGE_KEY } from '../../accounts/models';
-import accounts_v2 from './migrations/accounts_v2';
 import { WALLET_STORAGE_KEY } from '@src/background/services/wallet/models';
-import wallet_v2 from './migrations/wallet_v2';
 import { NETWORK_STORAGE_KEY } from '@src/background/services/network/models';
+import accounts_v2 from './migrations/accounts_v2';
+import wallet_v2 from './migrations/wallet_v2';
+import wallet_v3 from './migrations/wallet_v3';
 import network_v2 from './migrations/network_v2';
 
 export type Migration = {
@@ -33,11 +34,15 @@ export const SCHEMA_MAP = {
     ],
   },
   [WALLET_STORAGE_KEY]: {
-    latestVersion: 2,
+    latestVersion: 3,
     migrations: [
       {
         version: 2,
         migration: wallet_v2,
+      },
+      {
+        version: 3,
+        migration: wallet_v3,
       },
     ],
   },
