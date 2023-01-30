@@ -1,20 +1,4 @@
-import {
-  HorizontalFlex,
-  TextButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import styled from 'styled-components';
-
-const TextButtonCard = styled(TextButton)`
-  border-radius: 8px;
-  border: 1px solid transparent;
-
-  &:hover {
-    border: 1px solid ${({ theme }) => theme.colors.stroke1};
-    background-color: ${({ theme }) => `${theme.colors.bg3}50`};
-  }
-`;
+import { Stack, Typography, useTheme } from '@avalabs/k2-components';
 
 export function OnboardButton({
   children,
@@ -33,51 +17,87 @@ export function OnboardButton({
   testId?: string;
   variant?: 'regular' | 'small';
 }) {
+  const theme = useTheme();
+
   if (variant === 'small') {
     return (
-      <TextButtonCard
+      <Stack
         data-testid={`${testId}-button`}
         onClick={onClick}
-        margin={margin}
+        sx={(theme) => ({
+          m: margin,
+          borderRadius: theme.spacing(1),
+          border: '1px solid transparent',
+          '&:hover': {
+            border: `1px solid ${theme.palette.divider}`,
+            backgroundColor: theme.palette.grey[850],
+            cursor: 'pointer',
+          },
+        })}
       >
-        <HorizontalFlex
-          width="227px"
-          height="56px"
-          padding="18px"
-          align="center"
-          justify="flex-start"
-          gap="24px"
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            width: theme.spacing(29),
+            height: theme.spacing(7),
+            pl: 2,
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            columnGap: 3,
+          }}
           className={className}
         >
           {children}
-          <Typography size={16} height="24px" weight={600}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: 'semibold',
+              textAlign: 'center',
+            }}
+          >
             {title}
           </Typography>
-        </HorizontalFlex>
-      </TextButtonCard>
+        </Stack>
+      </Stack>
     );
   }
 
   return (
-    <TextButtonCard
+    <Stack
       data-testid={`${testId}-button`}
       onClick={onClick}
-      margin={margin}
+      sx={{
+        m: margin,
+        borderRadius: theme.spacing(1),
+        border: '1px solid transparent',
+        '&:hover': {
+          border: `1px solid ${theme.palette.divider}`,
+          backgroundColor: theme.palette.grey[850],
+          cursor: 'pointer',
+        },
+      }}
     >
-      <VerticalFlex
-        width="232px"
-        height="180px"
-        padding="36px 0"
-        align="center"
-        justify="center"
-        gap="24px"
+      <Stack
+        sx={{
+          width: theme.spacing(29),
+          height: theme.spacing(25),
+          alignItems: 'center',
+          justifyContent: 'center',
+          rowGap: 3,
+        }}
         className={className}
       >
-        <Typography size={16} height="24px" weight={600}>
+        <Typography
+          variant="body1"
+          sx={{
+            height: theme.spacing(3),
+            fontWeight: 'semibold',
+          }}
+        >
           {title}
         </Typography>
         {children}
-      </VerticalFlex>
-    </TextButtonCard>
+      </Stack>
+    </Stack>
   );
 }

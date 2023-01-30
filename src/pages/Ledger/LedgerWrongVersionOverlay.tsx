@@ -1,4 +1,3 @@
-import { SecondaryOverlay } from '@avalabs/react-components';
 import { LedgerWrongVersion } from './LedgerWrongVersion';
 import { WalletType } from '@src/background/services/wallet/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -7,6 +6,7 @@ import {
   useLedgerContext,
 } from '@src/contexts/LedgerProvider';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
+import { Backdrop, Stack } from '@avalabs/k2-components';
 
 export function LedgerWrongVersionOverlay({
   onClose,
@@ -32,9 +32,9 @@ export function LedgerWrongVersionOverlay({
   // Used in Onboarding
   if (onClose && ledgerCheck) {
     return (
-      <SecondaryOverlay>
-        <LedgerWrongVersion onClose={() => onClose()} />
-      </SecondaryOverlay>
+      <Backdrop open>
+        <LedgerWrongVersion onClose={onClose} />
+      </Backdrop>
     );
   }
 
@@ -45,11 +45,13 @@ export function LedgerWrongVersionOverlay({
     ledgerCheck
   ) {
     return (
-      <SecondaryOverlay padding="16px">
-        <LedgerWrongVersion
-          onClose={() => updateLedgerVersionWarningClosed()}
-        />
-      </SecondaryOverlay>
+      <Backdrop open>
+        <Stack sx={{ m: 2 }}>
+          <LedgerWrongVersion
+            onClose={() => updateLedgerVersionWarningClosed()}
+          />
+        </Stack>
+      </Backdrop>
     );
   }
   return null;

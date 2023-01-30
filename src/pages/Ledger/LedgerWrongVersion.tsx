@@ -1,34 +1,13 @@
-import {
-  Card,
-  CloseIcon,
-  TextButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { LedgerNano } from '@src/components/common/LedgerNano';
-import styled, { useTheme } from 'styled-components';
 import { Trans, useTranslation } from 'react-i18next';
-
-const CloseButton = styled(TextButton)`
-  align-self: flex-end;
-`;
-
-const LedgerLink = styled(Typography)`
-  font-weight: 600;
-  cursor: pointer;
-  color: ${({ theme }) => theme.colors.secondary1};
-`;
-
-const StyledCard = styled(Card)`
-  padding: 16px;
-  width: 343px;
-
-  &.dialog {
-    padding: 0px;
-    margin-top: -10px;
-    width: initial;
-  }
-`;
+import {
+  Button,
+  Card,
+  Stack,
+  Typography,
+  useTheme,
+  XIcon,
+} from '@avalabs/k2-components';
 
 export function LedgerWrongVersion({
   onClose,
@@ -40,34 +19,58 @@ export function LedgerWrongVersion({
   const { t } = useTranslation();
   const theme = useTheme();
   return (
-    <StyledCard className={className}>
-      <VerticalFlex align="center">
-        <CloseButton onClick={() => onClose?.()}>
-          <CloseIcon height="16px" color={theme.colors.icon1} />
-        </CloseButton>
-        <Typography size={18} weight={700} height="28px">
-          {t('Update Required')}
-        </Typography>
+    <Card
+      sx={{
+        p: theme.spacing(2),
+        width: theme.spacing(43),
+      }}
+      className={className}
+    >
+      <Stack
+        sx={{
+          alignItems: 'center',
+        }}
+      >
+        <Button
+          variant="text"
+          onClick={() => onClose?.()}
+          sx={{ alignSelf: 'flex-end' }}
+        >
+          <XIcon
+            sx={{
+              height: 2,
+              color: 'primary.main',
+            }}
+          />
+        </Button>
+        <Typography variant="h5">{t('Update Required')}</Typography>
         <Typography
-          align="center"
-          size={14}
-          height="20px"
-          padding="8px 0 32px 0"
+          variant="body2"
+          sx={{
+            textAlign: 'center',
+            pt: 1,
+            pb: 4,
+          }}
         >
           <Trans
             i18nKey="Please update the <typography>Avalanche Application</typography> on your Ledger device to continue."
             components={{
-              typography: <Typography weight={600} />,
+              typography: <Typography sx={{ fontWeight: 'semibold' }} />,
             }}
           />
         </Typography>
         <LedgerNano />
-        <Typography size={14} height="20px" padding="24px 0 8px 0">
+        <Typography variant="body2" sx={{ mt: 3, mb: 1 }}>
           <Trans
             i18nKey="Download <ledgerLink>Ledger Live</ledgerLink> to update."
             components={{
               ledgerLink: (
-                <LedgerLink
+                <Typography
+                  sx={{
+                    cursor: 'pointer',
+                    fontWeight: 'semibold',
+                    color: 'secondary.main',
+                  }}
                   as="a"
                   target="_blank"
                   href="https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true"
@@ -77,7 +80,7 @@ export function LedgerWrongVersion({
             }}
           />
         </Typography>
-      </VerticalFlex>
-    </StyledCard>
+      </Stack>
+    </Card>
   );
 }

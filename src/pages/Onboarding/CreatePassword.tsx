@@ -1,43 +1,42 @@
 import { useState } from 'react';
-import {
-  VerticalFlex,
-  Input,
-  PrimaryButton,
-  Typography,
-  ComponentSize,
-  HorizontalFlex,
-  Checkbox,
-} from '@avalabs/react-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
-import { useTheme } from 'styled-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
-import { PasswordInput } from '@src/components/common/PasswordInput';
+import {
+  Checkbox,
+  Stack,
+  TextField,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-components';
+import { OnboardingPath } from './Onboarding';
+import { PageNav } from './components/PageNav';
 interface CreatePasswordProps {
   onCancel(): void;
   onBack(): void;
   isImportFlow: boolean;
+  onboardingPath?: OnboardingPath;
 }
 
 export const CreatePassword = ({
   onCancel,
   onBack,
   isImportFlow,
+  onboardingPath,
 }: CreatePasswordProps) => {
-  const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const { setPasswordAndName, setNextPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
-  const [privacyPolicyChecked, setPrivacyPolicyChecked] =
+  const [termAndPolicyChecked, setTermAndPolicyChecked] =
     useState<boolean>(false);
-  const [termsOfUseChecked, setTermsOfUseChecked] = useState<boolean>(false);
 
   const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(
@@ -51,116 +50,122 @@ export const CreatePassword = ({
     !passwordLengthError &&
     !confirmationError &&
     isFieldsFilled &&
-    privacyPolicyChecked &&
-    termsOfUseChecked;
+    termAndPolicyChecked;
 
   return (
-    <VerticalFlex width="100%" align="center">
+    <Stack
+      sx={{
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <OnboardingStepHeader
         testId="name-and-password"
         title={t('Create a Name and Password')}
-        onBack={onBack}
         onClose={onCancel}
       />
-      <VerticalFlex align="center" grow="1">
-        <Typography align="center" margin="8px 0 0" size={14} height="17px">
-          <Trans i18nKey="For your security, please create a new name <br />and password." />
+      <Stack sx={{ flexGrow: 1, pt: 1, px: 6 }}>
+        <Typography variant="body2" sx={{ mb: 4 }}>
+          <Trans i18nKey="For your security, please create a new name and password." />
         </Typography>
-        <Input
-          data-testid="wallet-name-input"
-          margin="32px 0 0"
-          label={t('Wallet Name')}
-          onChange={(e) => setAccountName(e.target.value)}
-          placeholder={t('Enter a Name')}
-          autoFocus
-        />
-        <PasswordInput
-          data-testid="wallet-password-input"
-          margin="24px 0"
-          label={t('Password')}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder={t('Enter a Password')}
-          error={!!passwordLengthError}
-          helperText={t('Must be at least 8 characters')}
-          onBlur={() => {
-            setIsPasswordInputFilled(true);
-          }}
-          errorMessage={
-            passwordLengthError ? t('Must be at least 8 characters') : ''
-          }
-        />
-        <HorizontalFlex width="100%" height="84px">
-          <PasswordInput
-            data-testid="wallet-confirm-password-input"
-            label={t('Confirm Password')}
-            onChange={(e) => setConfirmPasswordVal(e.target.value)}
-            placeholder={t('Enter a Password')}
-            error={confirmationError}
-            errorMessage={
-              confirmationError ? t('Passwords do not match') : undefined
-            }
-          />
-        </HorizontalFlex>
-        <VerticalFlex justify="flex-start" width="100%">
-          <HorizontalFlex data-testid="terms-of-use-checkbox" margin="8px 0 0">
-            <Checkbox
-              isChecked={termsOfUseChecked}
-              onChange={() => setTermsOfUseChecked(!termsOfUseChecked)}
+
+        <Stack
+          sx={{ width: theme.spacing(44), alignSelf: 'center', rowGap: 2 }}
+        >
+          <Stack sx={{ height: theme.spacing(12) }}>
+            <TextField
+              data-testid="wallet-name-input"
+              label={t('Wallet Name')}
+              onChange={(e) => setAccountName(e.target.value)}
+              placeholder={t('Enter a Name')}
+              autoFocus
+              fullWidth
             />
-            <Typography margin="0 0 0 8px" size={12} height="15px">
-              <Trans
-                i18nKey="I agree to the <typography>Terms of Use</typography>"
-                components={{
-                  typography: (
-                    <Typography
-                      as="a"
-                      target="_blank"
-                      href="https://core.app/terms/core"
-                      color={theme.colors.secondary1}
-                      size={12}
-                      height="15px"
-                      weight={500}
-                    />
-                  ),
-                }}
-              />
-            </Typography>
-          </HorizontalFlex>
-          <HorizontalFlex
-            data-testid="privacy-policy-checkbox"
-            margin="8px 0 0"
-          >
-            <Checkbox
-              isChecked={privacyPolicyChecked}
-              onChange={() => setPrivacyPolicyChecked(!privacyPolicyChecked)}
+          </Stack>
+          <Stack sx={{ height: theme.spacing(12) }}>
+            <TextField
+              data-testid="wallet-password-input"
+              type="password"
+              label={t('Password')}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t('Enter a Password')}
+              error={!!passwordLengthError}
+              onBlur={() => {
+                setIsPasswordInputFilled(true);
+              }}
+              helperText={
+                passwordLengthError ? t('Must be at least 8 characters') : ''
+              }
+              fullWidth
             />
-            <Typography margin="0 0 0 8px" size={12} height="15px">
-              <Trans
-                i18nKey="I acknowledge the  <typography>Privacy Policy</typography>"
-                components={{
-                  typography: (
-                    <Typography
-                      as="a"
-                      target="_blank"
-                      href="https://www.avalabs.org/privacy-policy"
-                      color={theme.colors.secondary1}
-                      size={12}
-                      height="15px"
-                      weight={500}
-                    />
-                  ),
-                }}
-              />
-            </Typography>
-          </HorizontalFlex>
-        </VerticalFlex>
-      </VerticalFlex>
-      <PrimaryButton
-        data-testid="save-button"
-        size={ComponentSize.LARGE}
-        width="343px"
-        disabled={!canSubmit}
-        onClick={() => {
+          </Stack>
+          <Stack sx={{ height: theme.spacing(12) }}>
+            <TextField
+              type="password"
+              data-testid="wallet-confirm-password-input"
+              label={t('Confirm Password')}
+              onChange={(e) => setConfirmPasswordVal(e.target.value)}
+              placeholder={t('Enter a Password')}
+              error={confirmationError}
+              helperText={
+                confirmationError ? t('Passwords do not match') : undefined
+              }
+              fullWidth
+            />
+          </Stack>
+        </Stack>
+
+        <Stack sx={{ justifyContent: 'center', mt: 2 }}>
+          <Stack sx={{ alignSelf: 'center', width: theme.spacing(44) }}>
+            <Checkbox
+              disableRipple
+              style={{
+                height: theme.spacing(2.5),
+                color: termAndPolicyChecked
+                  ? theme.palette.secondary.main
+                  : theme.palette.primary.main,
+              }}
+              data-testid="terms-of-use-checkbox"
+              checked={termAndPolicyChecked}
+              onChange={() => setTermAndPolicyChecked(!termAndPolicyChecked)}
+              label={
+                <Typography variant="body3">
+                  <Trans
+                    i18nKey="I agree to the <termLink>Terms of Use</termLink> and the <privacyLink>Privacy Policy</privacyLink>"
+                    components={{
+                      termLink: (
+                        <Typography
+                          as="a"
+                          target="_blank"
+                          href="https://core.app/terms/core"
+                          variant="body3"
+                          sx={{
+                            color: 'secondary.main',
+                          }}
+                        />
+                      ),
+                      privacyLink: (
+                        <Typography
+                          as="a"
+                          target="_blank"
+                          href="https://www.avalabs.org/privacy-policy"
+                          variant="body3"
+                          sx={{
+                            color: 'secondary.main',
+                          }}
+                        />
+                      ),
+                    }}
+                  />
+                </Typography>
+              }
+            />
+          </Stack>
+        </Stack>
+      </Stack>
+      <PageNav
+        onBack={onBack}
+        onNext={() => {
           capture('OnboardingPasswordSet', {
             AccountNameSet: !!accountName,
           });
@@ -171,9 +176,14 @@ export const CreatePassword = ({
               : OnboardingPhase.CREATE_WALLET
           );
         }}
-      >
-        {t('Save')}
-      </PrimaryButton>
-    </VerticalFlex>
+        nextText={
+          onboardingPath === OnboardingPath.NEW_WALLET ? t('Next') : t('Save')
+        }
+        disableNext={!canSubmit}
+        expand={onboardingPath === OnboardingPath.NEW_WALLET ? false : true}
+        steps={onboardingPath === OnboardingPath.NEW_WALLET ? 4 : 3}
+        activeStep={onboardingPath === OnboardingPath.NEW_WALLET ? 1 : 2}
+      />
+    </Stack>
   );
 };
