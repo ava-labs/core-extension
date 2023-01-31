@@ -5,6 +5,10 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import { stringToBN } from '@avalabs/utils-sdk';
+import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
+import { BigNumber } from 'ethers';
+import { OptimalRate } from 'paraswap-core';
+import BN from 'bn.js';
 
 interface GetTokenIconProps {
   token?: TokenWithBalance;
@@ -45,7 +49,7 @@ export const getMaxValue = (token?: TokenWithBalance, fee?: string) => {
   }
 
   if (token.type === TokenType.NATIVE) {
-    return token.balance.sub(stringToBN(fee, 18));
+    return token.balance.sub(stringToBN(fee, token.decimals));
   }
   return token.balance;
 };
@@ -60,3 +64,53 @@ export const getTokenAddress = (token?: TokenWithBalance) => {
   }
   return token.type === TokenType.NATIVE ? token.symbol : token.address;
 };
+
+export const getMaxValueWithGas = ({
+  customGasPrice,
+  gasLimit,
+  avaxPrice,
+  tokenDecimals,
+  selectedFromToken,
+}: {
+  customGasPrice: BigNumber;
+  gasLimit?: number;
+  avaxPrice: number;
+  tokenDecimals?: number;
+  selectedFromToken: TokenWithBalance;
+}) => {
+  const newFees = calculateGasAndFees({
+    gasPrice: customGasPrice,
+    tokenPrice: avaxPrice,
+    tokenDecimals,
+    gasLimit,
+  });
+
+  const max = getMaxValue(selectedFromToken, newFees.fee);
+  return max;
+};
+
+export const calculateRate = (optimalRate: OptimalRate) => {
+  const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
+  const destAmountNumber =
+    parseInt(destAmount, 10) / Math.pow(10, destDecimals);
+  const sourceAmountNumber =
+    parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
+  return destAmountNumber / sourceAmountNumber;
+};
+
+export interface Token {
+  icon?: JSX.Element;
+  name?: string;
+}
+
+export type DestinationInput = 'from' | 'to' | '';
+
+export interface SwapRate extends OptimalRate {
+  status?: number;
+  message?: string;
+}
+
+export interface Amount {
+  bn: BN;
+  amount: string;
+}

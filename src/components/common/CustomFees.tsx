@@ -27,6 +27,7 @@ interface CustomGasFeesProps {
     customGasLimit?: number;
     gasPrice: BigNumber;
     feeType: GasFeeModifier;
+    error?: boolean;
   }): void;
   gasPriceEditDisabled?: boolean;
   maxGasPrice?: string;
@@ -173,7 +174,12 @@ export function CustomFees({
       if (maxGasPrice && newFees.bnFee.gt(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
         // call cb with limit and gas
-        onChange({ customGasLimit, gasPrice: gas, feeType: modifier });
+        onChange({
+          customGasLimit,
+          gasPrice: gas,
+          feeType: modifier,
+          error: true,
+        });
         return;
       }
       if (modifier === GasFeeModifier.CUSTOM) {
