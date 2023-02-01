@@ -15,17 +15,18 @@ export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
 };
 
 export const getNetworkBalance = (assetList: TokenWithBalance[]) => {
-  const sum = assetList.reduce(
-    (prevAssetUSD, currentAsset) =>
-      prevAssetUSD + (currentAsset.balanceUSD || 0),
-    0
-  );
+  const sum = assetList.reduce((prevAssetUSD, currentAsset) => {
+    return (
+      prevAssetUSD +
+      ((currentAsset.unconfirmedBalanceUSD || 0) +
+        (currentAsset.balanceUSD || 0))
+    );
+  }, 0);
   return sum;
 };
 
 export function NetworksWidget() {
   const activeNetworkAssetList = useTokensWithBalances();
-
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
 
   return (

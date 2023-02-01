@@ -8,6 +8,7 @@ export interface AssetBalance {
   symbolOnNetwork?: string;
   logoUri?: string;
   price?: number;
+  unconfirmedBalance?: Big;
 }
 
 export const blockchainDisplayNameMap = new Map([

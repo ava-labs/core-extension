@@ -26,6 +26,7 @@ import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis'
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from './VirtualizedList';
 import { BNInput } from '@avalabs/react-components';
+import { InfoCircleIcon, Stack, Tooltip } from '@avalabs/k2-components';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -281,6 +282,28 @@ export function TokenSelect({
     );
   }
 
+  const renderTokenLabel = () => {
+    if (selectedToken?.unconfirmedBalance) {
+      return (
+        <Stack sx={{ flexDirection: 'row' }}>
+          {!!selectedToken?.unconfirmedBalance?.toNumber() && (
+            <Tooltip
+              placement="top"
+              title={`${t('Unavailable')}: ${
+                selectedToken?.unconfirmedBalanceDisplayValue
+              } ${selectedToken?.symbol}`}
+            >
+              <InfoCircleIcon sx={{ mr: 0.5, cursor: 'pointer' }} />
+            </Tooltip>
+          )}
+          {t('Available Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
+        </Stack>
+      );
+    } else {
+      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
+    }
+  };
+
   return (
     <VerticalFlex width="100%" style={{ margin }}>
       <HorizontalFlex
@@ -294,7 +317,7 @@ export function TokenSelect({
           {label ?? t('Token')}
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
-          {t('Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
+          {renderTokenLabel()}
         </Typography>
       </HorizontalFlex>
       <SelectContainer>

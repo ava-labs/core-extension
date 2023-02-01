@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import styled, { useTheme } from 'styled-components';
 import { ChainId } from '@avalabs/chains-sdk';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { balanceToDisplayValue } from '@avalabs/utils-sdk';
 
 const StyledBridgeIcon = styled(BridgeIcon)`
   height: 22px;
@@ -62,7 +63,9 @@ export function TokenFlow() {
     return <LoadingIcon />;
   }
 
-  const balanceCurrencyValue = token.balanceUsdDisplayValue ?? token.balanceUSD;
+  const balanceCurrencyValue = isBitcoin
+    ? (token.balanceUSD || 0) + (token.unconfirmedBalanceUSD || 0)
+    : token.balanceUsdDisplayValue ?? token.balanceUSD;
 
   return (
     <VerticalFlex width={'100%'} position="relative">
@@ -89,7 +92,13 @@ export function TokenFlow() {
             height="17px"
             margin={'4px 0 0'}
           >
-            {token.balanceDisplayValue} {token.symbol}
+            {token.balance && token.unconfirmedBalance
+              ? balanceToDisplayValue(
+                  token.balance.add(token.unconfirmedBalance),
+                  token.decimals
+                )
+              : token.balanceDisplayValue}{' '}
+            {token.symbol}
           </SubTextTypography>
         </VerticalFlex>
         <Typography

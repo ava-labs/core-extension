@@ -419,6 +419,13 @@ export function Bridge() {
                               address: sourceBalance.asset.symbol,
                               contractType: 'ERC-20',
                               description: '',
+                              unconfirmedBalanceDisplayValue: formatBalance(
+                                sourceBalance.unconfirmedBalance
+                              ),
+                              unconfirmedBalance: bigToBN(
+                                sourceBalance.unconfirmedBalance || BIG_ZERO,
+                                denomination
+                              ),
                             }
                           : undefined
                       }

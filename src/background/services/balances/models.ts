@@ -14,6 +14,11 @@ interface TokenBalanceData {
   balanceUsdDisplayValue?: string;
   priceUSD?: number;
   utxos?: BitcoinInputUTXO[];
+  utxosUnconfirmed?: BitcoinInputUTXO[];
+  unconfirmedBalance?: BN;
+  unconfirmedBalanceDisplayValue?: string;
+  unconfirmedBalanceUsdDisplayValue?: string;
+  unconfirmedBalanceUSD?: number;
 }
 
 export enum TokenType {
