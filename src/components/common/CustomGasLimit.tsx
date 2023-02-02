@@ -70,7 +70,9 @@ export function CustomGasLimit({
 
   return (
     <VerticalFlex padding="16px 0 24px 0" height="100%">
-      <PageTitle onBackClick={onCancel}>{t('Edit Gas Limit')}</PageTitle>
+      <PageTitle onBackClick={onCancel} margin="0">
+        {t('Edit Gas Limit')}
+      </PageTitle>
       <VerticalFlex padding="8px 16px 0">
         <Typography
           size={32}

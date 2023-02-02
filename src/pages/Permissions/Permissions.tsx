@@ -42,6 +42,7 @@ export function PermissionsPage() {
     cancelHandler,
     updateAction,
   } = useApproveAction(requestId);
+  const isSubmitting = request?.status === ActionStatus.SUBMITTING;
 
   const onApproveClicked = useCallback(async () => {
     if (!selectedAccount) {
@@ -160,15 +161,19 @@ export function PermissionsPage() {
               window.close();
             }}
             sx={{ width: 168, maxHeight: 40, height: 40 }}
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
           >
-            {t('Reject')}
+            {isSubmitting ? '' : t('Reject')}
           </Button>
           <Button
             data-testid="connect-approve-btn"
             onClick={() => onApproveClicked()}
             sx={{ width: 168, maxHeight: 40, height: 40 }}
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
           >
-            {t('Approve')}
+            {isSubmitting ? '' : t('Approve')}
           </Button>
         </Stack>
       </Stack>

@@ -29,6 +29,7 @@ const AccountsContext = createContext<{
   renameAccount(id: string, name: string): Promise<any>;
   addAccount(name?: string, importData?: ImportData): Promise<any>;
   deleteAccounts(ids: string[]): Promise<any>;
+  getAccount(address: string): Account | undefined;
 }>({} as any);
 
 export function AccountsContextProvider({ children }: { children: any }) {
@@ -65,6 +66,14 @@ export function AccountsContextProvider({ children }: { children: any }) {
   const allAccounts = useMemo(
     () => [...accounts.primary, ...Object.values(accounts.imported)],
     [accounts.imported, accounts.primary]
+  );
+
+  const getAccount = useCallback(
+    (address: string) =>
+      allAccounts.find(
+        (acc) => acc.addressC.toLowerCase() === address.toLowerCase()
+      ),
+    [allAccounts]
   );
 
   const selectAccount = useCallback(
@@ -116,6 +125,7 @@ export function AccountsContextProvider({ children }: { children: any }) {
     <AccountsContext.Provider
       value={{
         accounts,
+        getAccount,
         allAccounts,
         isActiveAccount,
         selectAccount,

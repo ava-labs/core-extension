@@ -272,9 +272,10 @@ export function Popup() {
                                 <HorizontalFlex
                                   flex={1}
                                   justify={'center'}
-                                  margin={isMiniMode ? '' : '16px 0'}
+                                  padding={isMiniMode ? '' : '16px 0'}
                                   maxWidth="100%"
                                   width={appWidth}
+                                  maxHeight="100%"
                                 >
                                   <Switch>
                                     <Route path="/token/add">

@@ -1,62 +1,82 @@
 import {
-  StubbyArrowIcon,
-  HorizontalFlex,
-  IconDirection,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { SwapExactTokensForTokenDisplayValues } from '@src/contracts/contractParsers/models';
-import { useTheme } from 'styled-components';
-import { AddressPaths } from './components/AddressPaths';
-import { TokenCard } from './components/TokenCard';
-import { TransactionHeader } from './components/TransactionHeader';
+  SwapExactTokensForTokenDisplayValues,
+  SwapTokenIn,
+  SwapTokenOut,
+} from '@src/contracts/contractParsers/models';
 import { useTranslation } from 'react-i18next';
+import {
+  ArrowDownIcon,
+  CodeIcon,
+  IconButton,
+  Stack,
+} from '@avalabs/k2-components';
+import {
+  ApprovalSection,
+  ApprovalSectionBody,
+  ApprovalSectionHeader,
+} from './components/ApprovalSection';
+import {
+  AccountDetails,
+  ContractDetails,
+  NetworkDetails,
+} from './components/ApprovalTxDetails';
+import {
+  TokenWithAmountAndValue,
+  TxBalanceChange,
+} from './components/TxBalanceChange';
+
+const SwapTokensDivider = () => (
+  <ArrowDownIcon size={20} sx={{ px: 0.75, py: 1.75 }} />
+);
 
 export function SwapTx({
   path,
   toAddress,
   fromAddress,
+  setShowRawTransactionData,
+  network,
 }: SwapExactTokensForTokenDisplayValues) {
   const { t } = useTranslation();
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const sentToken = path[0]!;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const receivingToken = path[path.length - 1]!;
+  const firstToken = path[0] as SwapTokenIn;
+  const lastToken = path[path.length - 1] as SwapTokenOut;
 
-  const theme = useTheme();
+  const sentToken: TokenWithAmountAndValue = {
+    ...firstToken,
+    amount: firstToken.amountIn.value,
+    value: Number(firstToken.amountUSDValue),
+  };
+  const receivingToken: TokenWithAmountAndValue = {
+    ...lastToken,
+    amount: lastToken.amountOut.value,
+    value: Number(lastToken.amountUSDValue),
+  };
+  const tokens = [sentToken, receivingToken];
 
   return (
-    <VerticalFlex width="100%">
-      <TransactionHeader title={t('Approve Swap')} />
-
-      <VerticalFlex>
-        <AddressPaths
-          toAddress={toAddress || ''}
-          fromAddress={fromAddress || ''}
-        />
-        {/* Top Token */}
-        <TokenCard
-          token={sentToken}
-          margin={'16px 0 0 0'}
-          displayValue={sentToken.amountIn?.value}
-          amount={sentToken.amountUSDValue}
-        />
-
-        {/* arrow */}
-        <HorizontalFlex width={'100%'} justify={'center'} padding={'8px 0'}>
-          <StubbyArrowIcon
-            height="16px"
-            color={theme.colors.icon1}
-            direction={IconDirection.DOWN}
-          />
-        </HorizontalFlex>
-
-        {/* Bottom token */}
-        <TokenCard
-          token={receivingToken}
-          displayValue={receivingToken.amountOut?.value}
-          amount={receivingToken.amountUSDValue}
-        />
-      </VerticalFlex>
-    </VerticalFlex>
+    <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
+      <ApprovalSection>
+        <ApprovalSectionHeader label={t('Transaction Details')}>
+          <IconButton
+            size="small"
+            sx={{ px: 0, minWidth: 'auto' }}
+            onClick={() => setShowRawTransactionData(true)}
+          >
+            <CodeIcon />
+          </IconButton>
+        </ApprovalSectionHeader>
+        <ApprovalSectionBody sx={{ py: 1 }}>
+          {fromAddress && <AccountDetails address={fromAddress} />}
+          {toAddress && (
+            <ContractDetails contractAddress={toAddress} network={network} />
+          )}
+          {network && <NetworkDetails network={network} />}
+        </ApprovalSectionBody>
+      </ApprovalSection>
+      <TxBalanceChange
+        tokens={tokens}
+        transactionType={t('Swap')}
+        divider={<SwapTokensDivider />}
+      />
+    </Stack>
   );
 }

@@ -6,6 +6,7 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import {
+  EnsureDefined,
   TransactionDisplayValues,
   txParams,
 } from '@src/background/services/transactions/models';
@@ -38,9 +39,11 @@ export type erc20PathToken = TokenWithBalance & {
   amountOut?: BNWithDisplay;
   amountUSDValue?: string;
 };
+export type SwapTokenIn = EnsureDefined<erc20PathToken, 'amountIn'>;
+export type SwapTokenOut = EnsureDefined<erc20PathToken, 'amountOut'>;
 export interface SwapExactTokensForTokenDisplayValues
   extends TransactionDisplayValues {
-  path: erc20PathToken[];
+  path: Array<erc20PathToken | SwapTokenIn | SwapTokenOut>;
 }
 
 export type LiquidityPoolToken = TokenWithBalance & {
@@ -53,6 +56,7 @@ export interface AddLiquidityDisplayData extends TransactionDisplayValues {
 
 export interface ApproveTransactionData extends TransactionDisplayValues {
   tokenToBeApproved: TokenWithBalance;
+  network?: Network;
 }
 
 export interface DisplayValueParserProps {

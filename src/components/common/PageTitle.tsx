@@ -1,14 +1,14 @@
-import {
-  HorizontalFlex,
-  CaretIcon,
-  IconDirection,
-  Typography,
-  TextButton,
-} from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { useHistory } from 'react-router-dom';
-import styled, { useTheme, keyframes } from 'styled-components';
 import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
+import {
+  ChevronLeftIcon,
+  IconButton,
+  Stack,
+  Typography,
+  styled,
+  keyframes,
+} from '@avalabs/k2-components';
 
 const ShowThumbnailImageAnimation = keyframes`
   0% {
@@ -17,10 +17,6 @@ const ShowThumbnailImageAnimation = keyframes`
   100% {
     transform: scale(1);
   }
-`;
-
-const BackButton = styled(TextButton)<{ padding?: string }>`
-  padding: ${({ padding }) => padding ?? '4px 8px 4px 16px'};
 `;
 
 const ThumbnailImage = styled(ImageWithFallback)`
@@ -54,7 +50,6 @@ export const PageTitle = ({
   thumbnailImage,
   margin = '8px 0',
 }: PropsWithChildren<PageTitleProps>) => {
-  const theme = useTheme();
   const history = useHistory();
 
   const goBack = () => {
@@ -64,36 +59,38 @@ export const PageTitle = ({
   };
 
   return (
-    <HorizontalFlex
-      align="center"
-      position="relative"
-      width="100%"
-      paddingTop={variant === PageTitleVariant.PRIMARY ? '16px' : undefined}
-      margin={margin}
+    <Stack
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'relative',
+        width: '100%',
+        pt: variant === PageTitleVariant.PRIMARY ? 2 : 0,
+        margin,
+      }}
     >
       {showBackButton && (
-        <BackButton
+        <IconButton
           onClick={() => (onBackClick ? onBackClick() : goBack())}
           padding={buttonPadding}
           data-testid="page-title-back-button"
+          disableRipple
         >
-          <CaretIcon
-            height="20px"
-            width="20px"
-            color={theme.colors.icon1}
-            direction={IconDirection.LEFT}
-          />
-        </BackButton>
+          <ChevronLeftIcon size={32} />
+        </IconButton>
       )}
       {thumbnailImage && <ThumbnailImage src={thumbnailImage} />}
       <Typography
-        weight={500}
-        size={20}
-        width="100%"
-        margin={showBackButton ? '0' : '0 0 0 16px'}
+        component="h1"
+        sx={{
+          fontSize: 24,
+          width: '100%',
+          fontWeight: 'bold',
+          marginLeft: showBackButton ? 0 : 2,
+        }}
       >
         {children}
       </Typography>
-    </HorizontalFlex>
+    </Stack>
   );
 };
