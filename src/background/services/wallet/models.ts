@@ -6,6 +6,7 @@ import {
 import { TransactionRequest } from '@ethersproject/providers';
 import { ImportType } from '../accounts/models';
 import { VM, OutputOwners, TransferableOutput } from '@avalabs/avalanchejs-v2';
+import { GetAssetDescriptionResponse } from '@avalabs/avalanchejs-v2/dist/src/vms/common';
 
 export type SignTransactionRequest =
   | TransactionRequest
@@ -71,19 +72,36 @@ export type PubKeyType = {
 /**
  * Types for parsed transaction
  */
-export type AvalancheTx =
+export type AvalancheTxType =
   | AddValidatorTx
   | AddDelegatorTx
   | ExportTx
   | ImportTx
+  | AvalancheBaseTx
   | UnknownTx;
 
-export interface AvalancheBaseTx {
+export interface AvalancheTx {
   type: string;
   chain: VM;
+  txFee: bigint;
 }
 
-export interface AddValidatorTx extends AvalancheBaseTx {
+export interface AvalancheBaseTx extends AvalancheTx {
+  type: 'base';
+  chain: 'AVM';
+  outputs: {
+    assetId: string;
+    locktime: bigint;
+    threshold: bigint;
+    amount: bigint;
+    assetDescription?: GetAssetDescriptionResponse;
+    owners: string[];
+    isAvax: boolean;
+  }[];
+  memo?: string;
+}
+
+export interface AddValidatorTx extends AvalancheTx {
   type: 'add_validator';
   nodeID: string;
   fee: number;
@@ -94,7 +112,7 @@ export interface AddValidatorTx extends AvalancheBaseTx {
   stakeOuts: TransferableOutput[];
 }
 
-export interface AddDelegatorTx extends AvalancheBaseTx {
+export interface AddDelegatorTx extends AvalancheTx {
   type: 'add_delegator';
   nodeID: string;
   start: string;
@@ -104,34 +122,39 @@ export interface AddDelegatorTx extends AvalancheBaseTx {
   stakeOuts: TransferableOutput[];
 }
 
-export interface ExportTx extends AvalancheBaseTx {
+export interface ExportTx extends AvalancheTx {
   type: 'export';
   destination: VM;
   amount: bigint;
+  exportOuts: any;
 }
 
-export interface ImportTx extends AvalancheBaseTx {
+export interface ImportTx extends AvalancheTx {
   type: 'import';
   source: VM;
   amount: bigint;
 }
 
-export interface UnknownTx extends AvalancheBaseTx {
+export interface UnknownTx extends AvalancheTx {
   type: 'unknown';
 }
 
 /**
  * Type Guards
  */
-export function isAddValidatorTx(tx: AvalancheTx): tx is AddValidatorTx {
+
+export function isAddValidatorTx(tx: AvalancheTxType): tx is AddValidatorTx {
   return tx.type === 'add_validator';
 }
-export function isAddDelegatorTx(tx: AvalancheTx): tx is AddDelegatorTx {
+export function isAddDelegatorTx(tx: AvalancheTxType): tx is AddDelegatorTx {
   return tx.type === 'add_delegator';
 }
-export function isExportTx(tx: AvalancheTx): tx is ExportTx {
+export function isExportTx(tx: AvalancheTxType): tx is ExportTx {
   return tx.type === 'export';
 }
-export function isImportTx(tx: AvalancheTx): tx is ImportTx {
+export function isImportTx(tx: AvalancheTxType): tx is ImportTx {
   return tx.type === 'import';
+}
+export function isBaseTx(tx: AvalancheTxType): tx is AvalancheBaseTx {
+  return tx.type === 'base';
 }

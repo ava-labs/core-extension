@@ -1,25 +1,31 @@
-import {
-  ComponentSize,
-  HorizontalFlex,
-  PrimaryButton,
-  SecondaryButton,
-  Typography,
-  VerticalFlex,
-  WalletIcon,
-} from '@avalabs/react-components';
-import { ActionStatus } from '@src/background/services/actions/models';
-import { SiteAvatar } from '@src/components/common/SiteAvatar';
+import { useCallback } from 'react';
+import { Button, Scrollbars, Stack } from '@avalabs/k2-components';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { useCallback } from 'react';
-import { useTheme } from 'styled-components';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { AvalancheSignTxDetails } from '@src/pages/ApproveAction/AvalancheSignTxDetails';
+import { ActionStatus } from '@src/background/services/actions/models';
+import {
+  AvalancheTxType,
+  isAddDelegatorTx,
+  isAddValidatorTx,
+  isExportTx,
+  isImportTx,
+  isBaseTx,
+} from '@src/background/services/wallet/models';
+
+import { ImportTxView } from './components/ApproveImportTx';
+import { ExportTxView } from './components/ApproveExportTx';
+import { AddValidator } from './components/ApproveAddValidator';
+import { AddDelegator } from './components/ApproveAddDelegator';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { BaseTxView } from './components/ApproveBaseTx';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
-  const theme = useTheme();
   const { action, updateAction } = useApproveAction(requestId);
+  const { network } = useNetworkContext();
+  const tokenPrice = useNativeTokenPrice(network);
 
   const signTx = useCallback(() => {
     updateAction({
@@ -34,60 +40,58 @@ export function AvalancheSignTx() {
     return <LoadingOverlay />;
   }
 
-  return (
-    <VerticalFlex>
-      <VerticalFlex align="center" justify="center">
-        <SiteAvatar justify="center" align="center">
-          <WalletIcon height="48px" width="48px" color={theme.colors.icon1} />
-        </SiteAvatar>
-        <Typography
-          align="center"
-          size={24}
-          margin="16px 0"
-          height="29px"
-          weight={700}
-        >
-          Sign Transaction
-        </Typography>
-      </VerticalFlex>
-      <VerticalFlex grow="1" width="100%" align="center">
-        <VerticalFlex grow="1" width="100%">
-          <AvalancheSignTxDetails
-            tx={action.displayData.txData}
-          ></AvalancheSignTxDetails>
-        </VerticalFlex>
+  const renderSignTxDetails = () => {
+    const tx = action.displayData.txData as AvalancheTxType;
+    if (isAddValidatorTx(tx)) {
+      return <AddValidator tx={tx} avaxPrice={tokenPrice}></AddValidator>;
+    } else if (isAddDelegatorTx(tx)) {
+      return <AddDelegator tx={tx} avaxPrice={tokenPrice}></AddDelegator>;
+    } else if (isExportTx(tx)) {
+      return <ExportTxView tx={tx} avaxPrice={tokenPrice}></ExportTxView>;
+    } else if (isImportTx(tx)) {
+      return <ImportTxView tx={tx} avaxPrice={tokenPrice}></ImportTxView>;
+    } else if (isBaseTx(tx)) {
+      return <BaseTxView tx={tx} avaxPrice={tokenPrice}></BaseTxView>;
+    }
+    return <>UNKNOWN TX</>;
+  };
 
-        <HorizontalFlex
-          flex={1}
-          align="flex-end"
-          width="100%"
-          justify="space-between"
-          padding="0 0 8px"
+  return (
+    <Stack sx={{ my: 0, mx: 2, width: 1, justifyContent: 'space-between' }}>
+      <Scrollbars>{renderSignTxDetails()}</Scrollbars>
+
+      <Stack
+        sx={{
+          mt: 2,
+          mb: 1,
+          flexDirection: 'row',
+        }}
+      >
+        <Button
+          fullWidth
+          size="medium"
+          color="secondary"
+          sx={{ mr: 1 }}
+          onClick={() => {
+            updateAction({
+              status: ActionStatus.ERROR_USER_CANCELED,
+              id: action.id,
+            });
+            window.close();
+          }}
         >
-          <SecondaryButton
-            size={ComponentSize.LARGE}
-            width="168px"
-            onClick={() => {
-              updateAction({
-                status: ActionStatus.ERROR_USER_CANCELED,
-                id: action.id,
-              });
-              window.close();
-            }}
-          >
-            Reject
-          </SecondaryButton>
-          <PrimaryButton
-            width="168px"
-            size={ComponentSize.LARGE}
-            onClick={() => {
-              signTx();
-            }}
-          >
-            Approve
-          </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </VerticalFlex>
+          Reject
+        </Button>
+        <Button
+          fullWidth
+          size="medium"
+          onClick={() => {
+            signTx();
+          }}
+        >
+          Approve
+        </Button>
+      </Stack>
+    </Stack>
   );
 }

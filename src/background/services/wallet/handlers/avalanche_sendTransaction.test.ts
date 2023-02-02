@@ -37,6 +37,11 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   const onSuccessMock = jest.fn();
   const onErrorMock = jest.fn();
 
+  const activeAccountMock = {
+    addressAVM: 'X-fuji1',
+    addressCoreEth: 'C-fuji1',
+    addressPVM: 'C-fuji1',
+  };
   const walletServiceMock = {
     sign: signMock,
   };
@@ -44,6 +49,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     getAvalanceProviderXP: getAvalanceProviderXPMock,
     getAvalancheNetworkXP: getAvalancheNetworkXPMock,
   };
+  const accountsServiceMock = {};
   const unsignedTxMock = {
     getVM: getVMMock,
     toBytes: toBytesMock,
@@ -68,11 +74,16 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     issueTxMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     openApprovalWindowSpy.mockResolvedValue(undefined);
+    (accountsServiceMock as any).activeAccount = activeAccountMock;
   });
 
   describe('handleUnauthenticated', () => {
     it('returns error for unauthorized requests', async () => {
-      const handler = new AvalancheSendTransactionHandler({} as any, {} as any);
+      const handler = new AvalancheSendTransactionHandler(
+        {} as any,
+        {} as any,
+        {} as any
+      );
       const result = await handler.handleUnauthenticated(request);
 
       expect(result).toEqual({
@@ -86,13 +97,34 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     it('returns error if unsigned transaction is not provided', async () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { params, ...requestWithoutParam } = request;
-      const handler = new AvalancheSendTransactionHandler({} as any, {} as any);
+      const handler = new AvalancheSendTransactionHandler(
+        {} as any,
+        {} as any,
+        {} as any
+      );
       const result = await handler.handleAuthenticated(requestWithoutParam);
 
       expect(result).toEqual({
         ...requestWithoutParam,
         error: ethErrors.rpc.invalidParams({
           message: 'Missing unsigned transaction JSON object',
+        }),
+      });
+    });
+
+    it('returns error if there is no active account', async () => {
+      unsignedTxMock.getVM.mockReturnValueOnce('AVM');
+      const handler = new AvalancheSendTransactionHandler(
+        {} as any,
+        {} as any,
+        {} as any
+      );
+      const result = await handler.handleAuthenticated(request);
+
+      expect(result).toEqual({
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'No active account found',
         }),
       });
     });
@@ -104,7 +136,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
-        networkServiceMock as any
+        networkServiceMock as any,
+        accountsServiceMock as any
       );
       const result = await handler.handleAuthenticated(request);
 
@@ -123,7 +156,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
-        networkServiceMock as any
+        networkServiceMock as any,
+        accountsServiceMock as any
       );
       const result = await handler.handleAuthenticated(request);
 
@@ -164,7 +198,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
-        networkServiceMock as any
+        networkServiceMock as any,
+        accountsServiceMock as any
       );
       await handler.onActionApproved(
         pendingActionMock,
@@ -186,7 +221,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
-        networkServiceMock as any
+        networkServiceMock as any,
+        accountsServiceMock as any
       );
       await handler.onActionApproved(
         pendingActionMock,
@@ -215,7 +251,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
-        networkServiceMock as any
+        networkServiceMock as any,
+        accountsServiceMock as any
       );
       await handler.onActionApproved(
         {
