@@ -20,8 +20,9 @@ module.exports = merge(common, {
     new CopyPlugin({
       patterns: [
         {
-          from: 'src/manifest.json',
-          to: '../manifest.json',
+          context: 'manifest/',
+          from: '**/*.json',
+          to: '../',
           transform: (content) =>
             content
               .toString()
