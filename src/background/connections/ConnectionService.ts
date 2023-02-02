@@ -1,4 +1,4 @@
-import { Runtime, browser } from 'webextension-polyfill-ts';
+import browser, { Runtime } from 'webextension-polyfill';
 import extension from 'extensionizer';
 import {
   CONTENT_SCRIPT,

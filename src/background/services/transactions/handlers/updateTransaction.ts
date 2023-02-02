@@ -18,7 +18,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { BigNumber } from 'ethers';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import getTargetNetworkForTx from '../utils/getTargetNetworkForTx';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 

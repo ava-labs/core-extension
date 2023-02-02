@@ -1,4 +1,4 @@
-import { Tabs, Windows } from 'webextension-polyfill-ts';
+import { Tabs, Windows } from 'webextension-polyfill';
 import extension from 'extensionizer';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';

@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { OnboardingService } from '../../onboarding/OnboardingService';
 import { StorageService } from '../StorageService';

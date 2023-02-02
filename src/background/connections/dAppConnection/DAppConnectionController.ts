@@ -7,7 +7,7 @@ import {
   responseLog,
 } from '@src/utils/logging';
 import { injectable, injectAll } from 'tsyringe';
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import { Context, Pipeline } from '../middlewares/models';
 import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
 import { DAppRequestHandlerMiddleware } from '../middlewares/DAppRequestHandlerMiddleware';

@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import { addExtensionMethods, Integrations } from '@sentry/tracing';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({

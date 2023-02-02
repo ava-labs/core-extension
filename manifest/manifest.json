@@ -37,20 +37,16 @@
     "activeTab",
     "contextMenus",
     "notifications",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
+  "host_permissions": ["file://*/*", "http://*/*", "https://*/*"],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "js": ["js/contentscript.js"],
       "run_at": "document_start",
       "all_frames": true
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["js/inpage.js"],
-      "matches": ["file://*/*", "http://*/*", "https://*/*"]
     }
   ],
   "content_security_policy": {
