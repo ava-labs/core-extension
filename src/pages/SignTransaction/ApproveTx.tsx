@@ -1,99 +1,64 @@
-import {
-  Typography,
-  VerticalFlex,
-  GlobeIcon,
-  HorizontalFlex,
-  TextButton,
-  ComponentSize,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import { Stack, IconButton, CodeIcon } from '@avalabs/k2-components';
+import { useTranslation } from 'react-i18next';
 import { ApproveTransactionData } from '@src/contracts/contractParsers/models';
-import { truncateAddress } from '@src/utils/truncateAddress';
-import { TransactionHeader } from './components/TransactionHeader';
-import { TokenIcon } from '@src/components/common/TokenImage';
-import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { Trans, useTranslation } from 'react-i18next';
+import { SpendLimitInfo } from './components/SpendLimitInfo';
+import {
+  AccountDetails,
+  ContractDetails,
+  NetworkDetails,
+  WebsiteDetails,
+} from './components/ApprovalTxDetails';
+import {
+  ApprovalSection,
+  ApprovalSectionBody,
+  ApprovalSectionHeader,
+} from './components/ApprovalSection';
 
 export function ApproveTx({
   site,
   tokenToBeApproved,
   setShowCustomSpendLimit,
+  setShowRawTransactionData,
   displaySpendLimit,
-  ...rest
+  limitFiatValue,
+  fromAddress,
+  toAddress,
+  network,
+  requestedApprovalLimit,
 }: ApproveTransactionData) {
   const { t } = useTranslation();
-  const theme = useTheme();
 
-  const hideEdit: boolean =
-    displaySpendLimit === '0' && setShowCustomSpendLimit;
+  const hideEdit: boolean = requestedApprovalLimit.isZero();
 
   return (
-    <VerticalFlex width="100%">
-      <TransactionHeader title="Approval Summary" showNetwork={false} />
-
-      <VerticalFlex align="center">
-        <SiteAvatar justify="center" align="center">
-          <TokenIcon height="48px" width="48px" src={site?.icon}>
-            <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
-          </TokenIcon>
-        </SiteAvatar>
-
-        <Typography align="center" size={14} height="17px">
-          <Trans
-            i18nKey="Allow {{domain}} to <br /> spend your {{name}}?"
-            values={{
-              domain: site?.domain,
-              name: tokenToBeApproved?.name || 'Unknown Token',
-            }}
-          />
-        </Typography>
-
-        {/* Approval Amnt */}
-        <VerticalFlex width="100%" margin="24px 0 0 0">
-          <HorizontalFlex justify="space-between" align="center">
-            <Typography size={12} height="15px">
-              {t('Approval amount')}
-            </Typography>
-            <Typography weight={700} size={18} height="22px">
-              {displaySpendLimit}
-              <Typography
-                padding="0 0 0 4px"
-                weight={600}
-                size={16}
-                height="24px"
-                color={theme.colors.text2}
-              >
-                {tokenToBeApproved?.symbol || t('Unknown Symbol')}
-              </Typography>
-            </Typography>
-          </HorizontalFlex>
-
-          {/* 
-            Hides Edit button if its a Revoke approval
-          */}
-
-          {!hideEdit && (
-            <HorizontalFlex>
-              <TextButton
-                onClick={() => setShowCustomSpendLimit(true)}
-                size={ComponentSize.SMALL}
-                height="16px"
-              >
-                {t('Edit')}
-              </TextButton>
-            </HorizontalFlex>
+    <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
+      <ApprovalSection>
+        <ApprovalSectionHeader label={t('Transaction Details')}>
+          <IconButton
+            size="small"
+            sx={{ px: 0, minWidth: 'auto' }}
+            onClick={() => setShowRawTransactionData(true)}
+          >
+            <CodeIcon />
+          </IconButton>
+        </ApprovalSectionHeader>
+        <ApprovalSectionBody sx={{ py: 1 }}>
+          {fromAddress && <AccountDetails address={fromAddress} />}
+          {toAddress && (
+            <ContractDetails contractAddress={toAddress} network={network} />
           )}
+          {site && <WebsiteDetails site={site} />}
+          {network && <NetworkDetails network={network} />}
+        </ApprovalSectionBody>
+      </ApprovalSection>
 
-          <HorizontalFlex justify="space-between" align="center">
-            <Typography size={12} height="15px">
-              {t('To')}
-            </Typography>
-            <Typography weight={600} size={16} height="24px">
-              {truncateAddress(rest.toAddress || '')}
-            </Typography>
-          </HorizontalFlex>
-        </VerticalFlex>
-      </VerticalFlex>
-    </VerticalFlex>
+      <SpendLimitInfo
+        hideEdit={hideEdit}
+        setShowCustomSpendLimit={setShowCustomSpendLimit}
+        tokenToBeApproved={tokenToBeApproved}
+        displaySpendLimit={displaySpendLimit}
+        limitFiatValue={limitFiatValue}
+      />
+    </Stack>
   );
 }

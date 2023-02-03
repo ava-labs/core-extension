@@ -12,7 +12,12 @@ import Web3 from 'web3';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
-import { bnToLocaleString, hexToBN } from '@avalabs/utils-sdk';
+import {
+  bigToLocaleString,
+  bnToBig,
+  bnToLocaleString,
+  hexToBN,
+} from '@avalabs/utils-sdk';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -25,8 +30,9 @@ import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useDialog } from '@avalabs/react-components';
 import { t } from 'i18next';
+import { BN } from 'bn.js';
 
-const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
+export const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
 export function useGetTransaction(requestId: string, onError?: () => void) {
   // Target network of the transaction defined by the chainId param. May differ from the active one.
@@ -45,7 +51,11 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
   const [hash, setHash] = useState<string>('');
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
     useState<boolean>(false);
+  const [showRawTransactionData, setShowRawTransactionData] = useState(false);
   const [displaySpendLimit, setDisplaySpendLimit] = useState<string>(
+    UNLIMITED_SPEND_LIMIT_LABEL
+  );
+  const [limitFiatValue, setLimitFiatValue] = useState<string | null>(
     UNLIMITED_SPEND_LIMIT_LABEL
   );
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
@@ -101,6 +111,33 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
     ]
   );
 
+  const updateLimitFiatValue = useCallback(
+    (spendLimit: SpendLimit) => {
+      if (spendLimit.limitType === Limit.UNLIMITED) {
+        setLimitFiatValue(UNLIMITED_SPEND_LIMIT_LABEL);
+      } else {
+        const price =
+          transaction?.displayValues?.tokenToBeApproved?.price?.value;
+        const amount =
+          spendLimit.limitType === Limit.CUSTOM
+            ? spendLimit.value?.bn ?? new BN(0)
+            : hexToBN(transaction?.displayValues?.approveData?.limit);
+
+        // If we don't know the price, let's not show anything.
+        if (!price) {
+          setLimitFiatValue(null);
+        } else {
+          const fiatValue = bnToBig(
+            amount,
+            transaction.displayValues.tokenToBeApproved.decimals
+          ).mul(price);
+          setLimitFiatValue(bigToLocaleString(fiatValue, 4));
+        }
+      }
+    },
+    [setLimitFiatValue, transaction]
+  );
+
   const setSpendLimit = useCallback(
     (customSpendData: SpendLimit) => {
       const srcToken: string =
@@ -120,7 +157,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
         setCustomSpendLimit(customSpendData);
         setDisplaySpendLimit(
           customSpendData.limitType === Limit.CUSTOM
-            ? customSpendData.value?.amount || ''
+            ? customSpendData.value?.amount || '0'
             : bnToLocaleString(
                 hexToBN(transaction?.displayValues.approveData.limit),
                 transaction?.displayValues.tokenToBeApproved.decimals
@@ -131,6 +168,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
             ? customSpendData.value?.bn.toString()
             : transaction?.displayValues?.approveData?.limit;
       }
+      updateLimitFiatValue(customSpendData);
 
       // create hex string for approval amount
       const web3 = new Web3();
@@ -145,7 +183,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
         params: { data: hashedCustomSpend },
       });
     },
-    [transaction, updateTransaction]
+    [transaction, updateTransaction, updateLimitFiatValue]
   );
 
   useEffect(() => {
@@ -181,14 +219,35 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
 
   useEffect(() => {
     if (transaction?.displayValues?.approveData?.limit) {
-      setDisplaySpendLimit(
+      if (
         constants.MaxUint256.eq(transaction.displayValues.approveData.limit)
-          ? UNLIMITED_SPEND_LIMIT_LABEL
-          : bnToLocaleString(
-              hexToBN(transaction.displayValues.approveData.limit),
-              transaction.displayValues.tokenToBeApproved.decimals
-            )
-      );
+      ) {
+        setDisplaySpendLimit(UNLIMITED_SPEND_LIMIT_LABEL);
+        setLimitFiatValue(UNLIMITED_SPEND_LIMIT_LABEL);
+      } else {
+        const limit = hexToBN(transaction.displayValues.approveData.limit);
+
+        setDisplaySpendLimit(
+          bnToLocaleString(
+            limit,
+            transaction.displayValues.tokenToBeApproved.decimals
+          )
+        );
+
+        const price =
+          transaction?.displayValues?.tokenToBeApproved?.price?.value;
+
+        if (typeof price !== 'number') {
+          setLimitFiatValue(null);
+        } else {
+          // If we know the token price, let's show the spend limit's USD value as well
+          const fiatValue = bnToBig(
+            limit,
+            transaction.displayValues.tokenToBeApproved.decimals
+          ).mul(price);
+          setLimitFiatValue(bigToLocaleString(fiatValue, 4));
+        }
+      }
     }
   }, [transaction]);
 
@@ -271,7 +330,10 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
       setCustomFee,
       showCustomSpendLimit,
       setShowCustomSpendLimit,
+      showRawTransactionData,
+      setShowRawTransactionData,
       setSpendLimit,
+      limitFiatValue,
       displaySpendLimit,
       customSpendLimit,
       selectedGasFee,
@@ -288,7 +350,9 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
     hash,
     setCustomFee,
     showCustomSpendLimit,
+    showRawTransactionData,
     setSpendLimit,
+    limitFiatValue,
     displaySpendLimit,
     customSpendLimit,
     selectedGasFee,

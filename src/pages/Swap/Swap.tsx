@@ -15,24 +15,18 @@ import {
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { OptimalRate, SwapSide } from 'paraswap-core';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN, bnToLocaleString } from '@avalabs/utils-sdk';
+import { useState } from 'react';
+
 import styled, { useTheme } from 'styled-components';
-import { BehaviorSubject, debounceTime } from 'rxjs';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
 import { ReviewOrder } from './components/ReviewOrder';
-import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { getMaxValue, getTokenAddress, isAPIError } from './utils';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
-import { GasFeeModifier } from '@src/components/common/CustomFees';
-import { usePageHistory } from '@src/hooks/usePageHistory';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
@@ -40,34 +34,20 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
-import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
-import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import BN from 'bn.js';
 import { WalletType } from '@src/background/services/wallet/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useTranslation } from 'react-i18next';
-
-export interface Token {
-  icon?: JSX.Element;
-  name?: string;
-}
-
-export interface SwapRate extends OptimalRate {
-  status?: number;
-  message?: string;
-}
-
-interface Amount {
-  bn: BN;
-  amount: string;
-}
+import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
+import { SwapError } from './components/SwapError';
+import { calculateRate } from './utils';
 
 const ReviewOrderButtonContainer = styled.div<{
   isTransactionDetailsOpen: boolean;
@@ -79,352 +59,55 @@ const ReviewOrderButtonContainer = styled.div<{
   width: 100%;
 `;
 
-const TryAgainButton = styled.span`
-  text-decoration: underline;
-  cursor: pointer;
-`;
-
 export function Swap() {
   const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
   const { walletType } = useWalletContext();
   const { network } = useNetworkContext();
-  const { getRate, swap } = useSwapContext();
+  const { swap } = useSwapContext();
   const { networkFee } = useNetworkFeeContext();
 
   const { isFunctionAvailable: isSwapAvailable } =
     useIsFunctionAvailable('Swap');
-
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
-  const avaxPrice = useNativeTokenPrice(network);
-  const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
-  const pageHistory: {
-    selectedFromToken?: TokenWithBalance;
-    selectedToToken?: TokenWithBalance;
-    destinationInputField?: 'from' | 'to' | '';
-    tokenValue?: Amount;
-  } = getPageHistoryData();
 
-  const [swapError, setSwapError] = useState<{
-    message: string;
-    hasTryAgain?: boolean;
-  }>({ message: '' });
-  const [swapWarning, setSwapWarning] = useState('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
-  const [selectedToToken, setSelectedToToken] = useState<TokenWithBalance>();
-  const [optimalRate, setOptimalRate] = useState<OptimalRate>();
-  const [selectedFromToken, setSelectedFromToken] =
-    useState<TokenWithBalance>();
-
-  const [gasLimit, setGasLimit] = useState<number>(0);
-  const [customGasPrice, setCustomGasPrice] = useState<BigNumber | undefined>(
-    networkFee?.low
-  );
-
-  const [gasCost, setGasCost] = useState('');
-  const [destAmount, setDestAmount] = useState('');
-  const [destinationInputField, setDestinationInputField] = useState<
-    'from' | 'to' | ''
-  >('');
-
-  const [fromTokenValue, setFromTokenValue] = useState<Amount>();
-  const [toTokenValue, setToTokenValue] = useState<Amount>();
-  const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
   const [slippageTolerance, setSlippageTolerance] = useState('1');
-
-  const [defaultFromValue, setFromDefaultValue] = useState<BN>();
-  const [isCalculateAvaxMax, setIsCalculateAvaxMax] = useState(false);
-
   const [isFromTokenSelectOpen, setIsFromTokenSelectOpen] = useState(false);
   const [isToTokenSelectOpen, setIsToTokenSelectOpen] = useState(false);
-  const [isSwapped, setIsSwapped] = useState(false);
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
-  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.NORMAL
-  );
-  const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
-    useSendAnalyticsData();
 
-  const setValuesDebouncedSubject = useMemo(() => {
-    return new BehaviorSubject<{
-      amount?: Amount;
-      toTokenAddress?: string;
-      fromTokenAddress?: string;
-      toTokenDecimals?: number;
-      fromTokenDecimals?: number;
-    }>({});
-  }, []);
-
-  const calculateTokenValueToInput = useCallback(
-    (
-      amount: Amount,
-      destinationInput: 'from' | 'to' | '',
-      sourceToken?: TokenWithBalance,
-      destinationToken?: TokenWithBalance
-    ) => {
-      if (!sourceToken || !destinationToken) {
-        return;
-      }
-      setDestinationInputField(destinationInput);
-      setIsLoading(true);
-      setIsTransactionDetailsOpen(false);
-      setValuesDebouncedSubject.next({
-        ...setValuesDebouncedSubject.getValue(),
-        fromTokenAddress: getTokenAddress(sourceToken),
-        toTokenAddress: getTokenAddress(destinationToken),
-        fromTokenDecimals: sourceToken.decimals,
-        toTokenDecimals: destinationToken.decimals,
-        amount,
-      });
-    },
-    [setValuesDebouncedSubject]
-  );
-
-  const onSwapError = useCallback((errorMessage) => {
-    if (errorMessage) setSwapError({ message: errorMessage });
-  }, []);
-
-  const calculateRate = (optimalRate: OptimalRate) => {
-    const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
-    const destAmountNumber =
-      parseInt(destAmount, 10) / Math.pow(10, destDecimals);
-    const sourceAmountNumber =
-      parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
-    return destAmountNumber / sourceAmountNumber;
-  };
-
-  // reload and recalculate the data from the history
-  useEffect(() => {
-    if (Object.keys(pageHistory).length) {
-      const selectedFromToken = pageHistory.selectedFromToken
-        ? {
-            ...pageHistory.selectedFromToken,
-            balance: pageHistory.selectedFromToken.balance,
-          }
-        : undefined;
-      setSelectedFromToken(selectedFromToken);
-      const selectedToToken = pageHistory.selectedToToken
-        ? {
-            ...pageHistory.selectedToToken,
-            balance: pageHistory.selectedToToken.balance,
-          }
-        : undefined;
-      setSelectedToToken(selectedToToken);
-      const tokenValueBN =
-        pageHistory.tokenValue && pageHistory.tokenValue.bn
-          ? pageHistory.tokenValue.bn
-          : new BN(0);
-      if (pageHistory.destinationInputField === 'from') {
-        setToTokenValue({
-          bn: tokenValueBN,
-          amount: bnToLocaleString(tokenValueBN),
-        });
-      } else {
-        setFromDefaultValue(tokenValueBN);
-      }
-      calculateTokenValueToInput(
-        {
-          bn: tokenValueBN,
-          amount: bnToLocaleString(tokenValueBN),
-        },
-        pageHistory.destinationInputField || 'to',
-        selectedFromToken,
-        selectedToToken
-      );
-    }
-  }, [calculateTokenValueToInput, pageHistory]);
-
-  useEffect(() => {
-    if (
-      customGasPrice &&
-      gasLimit &&
-      selectedFromToken?.type === TokenType.NATIVE
-    ) {
-      const newFees = calculateGasAndFees({
-        gasPrice: customGasPrice,
-        gasLimit,
-        tokenPrice: avaxPrice,
-        tokenDecimals: network?.networkToken.decimals,
-      });
-
-      setGasCost(newFees.fee);
-      const max = getMaxValue(selectedFromToken, newFees.fee);
-
-      setMaxFromValue(max);
-      if (!max) {
-        return;
-      }
-      if (isCalculateAvaxMax) {
-        setFromDefaultValue(max);
-        calculateTokenValueToInput(
-          {
-            bn: max,
-            amount: max.toString(),
-          },
-          'to',
-          selectedFromToken,
-          selectedToToken
-        );
-      }
-      return;
-    }
-    setMaxFromValue(selectedFromToken?.balance);
-  }, [
-    avaxPrice,
+  const {
     calculateTokenValueToInput,
-    isCalculateAvaxMax,
-    gasCost,
+    onGasChange,
+    reverseTokens,
+    onTokenChange,
+    onFromInputAmountChange,
+    onToInputAmountChange,
+    getSwapValues,
+    customGasPrice,
     gasLimit,
     selectedFromToken,
     selectedToToken,
-    customGasPrice,
-    network,
-  ]);
-
-  useEffect(() => {
-    const subscription = setValuesDebouncedSubject
-      .pipe(debounceTime(500))
-      .subscribe(
-        ({
-          amount,
-          toTokenAddress,
-          fromTokenAddress,
-          toTokenDecimals,
-          fromTokenDecimals,
-        }) => {
-          if (
-            amount &&
-            toTokenAddress &&
-            fromTokenAddress &&
-            fromTokenDecimals &&
-            toTokenDecimals
-          ) {
-            const amountString = amount.bn.toString();
-            if (amountString === '0') {
-              setSwapError({ message: t('Please enter an amount') });
-              setIsLoading(false);
-              return;
-            }
-            const swapSide =
-              destinationInputField === 'to' ? SwapSide.SELL : SwapSide.BUY;
-            setIsLoading(true);
-            getRate(
-              fromTokenAddress,
-              fromTokenDecimals,
-              toTokenAddress,
-              toTokenDecimals,
-              amountString,
-              swapSide
-            )
-              .then((result) => {
-                /**
-                 * This can be an error, the bacground tries 10x but if the
-                 * server is still "busy" it sends the error
-                 */
-                if (isAPIError(result.optimalRate)) {
-                  throw new Error(
-                    t(
-                      'paraswap error message while get rate: {{result.optimalRate.message}}',
-                      { message: result.optimalRate.message }
-                    )
-                  );
-                } else {
-                  // Never modify the properies of the optimalRate since the swap API needs it unchanged
-                  setOptimalRate(result.optimalRate);
-                  setGasLimit(Number(result.optimalRate?.gasCost || 0));
-                  const resultAmount =
-                    destinationInputField === 'to'
-                      ? result.optimalRate.destAmount
-                      : result.optimalRate.srcAmount;
-
-                  setDestAmount(resultAmount);
-                  setSwapError({ message: '' });
-                }
-              })
-              .catch(() => {
-                setOptimalRate(undefined);
-                setSwapError({
-                  message: t('Something went wrong, '),
-                  hasTryAgain: true,
-                });
-              })
-              .finally(() => {
-                if (!isCalculateAvaxMax) {
-                  setIsLoading(false);
-                  return;
-                }
-                setIsCalculateAvaxMax(false);
-              });
-          } else {
-            setOptimalRate(undefined);
-          }
-        }
-      );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [
     destinationInputField,
-    getRate,
-    setValuesDebouncedSubject,
-    isCalculateAvaxMax,
-    t,
-  ]);
-
-  const calculateSwapValue = ({
-    selectedFromToken,
-    selectedToToken,
-  }: {
-    selectedFromToken?: TokenWithBalance;
-    selectedToToken?: TokenWithBalance;
-  }) => {
-    if (!selectedFromToken || !selectedToToken) {
-      return;
-    }
-    const amount = {
-      amount: fromTokenValue?.amount || '0',
-      bn: stringToBN(
-        fromTokenValue?.amount || '0',
-        selectedFromToken.decimals || 18
-      ),
-    };
-    calculateTokenValueToInput(
-      amount,
-      'to',
-      selectedFromToken,
-      selectedToToken
-    );
-  };
-
-  const swapTokens = () => {
-    if (
-      !tokensWBalances.some(
-        (token) =>
-          token.name === selectedToToken?.name &&
-          token.symbol === selectedToToken?.symbol
-      )
-    ) {
-      setSwapWarning(
-        t(`You don't have any {{symbol}} token for swap`, {
-          symbol: selectedToToken?.symbol,
-        })
-      );
-      return;
-    }
-    const [to, from] = [selectedFromToken, selectedToToken];
-    setSelectedFromToken(from);
-    setSelectedToToken(to);
-    setIsSwapped(!isSwapped);
-    calculateSwapValue({ selectedFromToken: from, selectedToToken: to });
-  };
+    fromTokenValue,
+    swapError,
+    isLoading,
+    defaultFromValue,
+    swapWarning,
+    isReversed,
+    selectedGasFee,
+    toTokenValue,
+    maxFromValue,
+    optimalRate,
+    destAmount,
+  } = useSwapStateFunctions();
 
   async function onHandleSwap() {
     let toastId = '';
@@ -446,7 +129,7 @@ export function Swap() {
       toTokenAddress,
       toTokenDecimals,
       fromTokenDecimals,
-    } = setValuesDebouncedSubject.getValue();
+    } = getSwapValues();
     if (
       !networkFee ||
       !optimalRate?.gasCost ||
@@ -502,21 +185,6 @@ export function Swap() {
     history.push('/home');
   }
 
-  const onGasChange = useCallback(
-    (values: {
-      customGasLimit?: number;
-      gasPrice: BigNumber;
-      feeType: GasFeeModifier;
-    }) => {
-      if (values.customGasLimit) {
-        setGasLimit(values.customGasLimit);
-      }
-      setCustomGasPrice(values.gasPrice);
-      setSelectedGasFee(values.feeType);
-    },
-    []
-  );
-
   if (!isSwapAvailable) {
     return (
       <FunctionIsUnavailable
@@ -545,6 +213,13 @@ export function Swap() {
     gasLimit &&
     networkFee;
 
+  const isDetailsAvailable =
+    selectedFromToken && selectedToToken && optimalRate && networkFee;
+
+  if (!isDetailsAvailable && isTransactionDetailsOpen) {
+    setIsTransactionDetailsOpen(false);
+  }
+
   return (
     <VerticalFlex width="100%">
       <PageTitle>{t('Swap')}</PageTitle>
@@ -559,19 +234,12 @@ export function Swap() {
           <TokenSelect
             label={t('From')}
             onTokenChange={(token: TokenWithBalance) => {
-              setSelectedFromToken(token);
-              setSwapWarning('');
-              calculateSwapValue({
-                selectedFromToken: token,
+              onTokenChange({
+                token,
+                destination: 'to',
                 selectedToToken,
+                fromTokenValue,
               });
-              setNavigationHistoryData({
-                selectedFromToken: token,
-                selectedToToken,
-                tokenValue: fromTokenValue,
-                destinationInputField,
-              });
-              sendTokenSelectedAnalytics('Swap');
             }}
             onSelectToggle={() => {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
@@ -593,38 +261,8 @@ export function Swap() {
             }
             isValueLoading={destinationInputField === 'from' && isLoading}
             hideErrorMessage
-            onError={onSwapError}
             onInputAmountChange={(value) => {
-              setFromDefaultValue(value.bn);
-              if (Number(value.amount) === 0) {
-                setSwapError({ message: t('Please enter an amount') });
-                return;
-              }
-              if (
-                maxFromValue &&
-                value.bn.eq(maxFromValue) &&
-                selectedFromToken?.type === TokenType.NATIVE
-              ) {
-                setIsCalculateAvaxMax(true);
-              } else {
-                setIsCalculateAvaxMax(false);
-              }
-              setSwapError({ message: '' });
-              setSwapWarning('');
-              setFromTokenValue(value as any);
-              calculateTokenValueToInput(
-                value,
-                'to',
-                selectedFromToken,
-                selectedToToken
-              );
-              setNavigationHistoryData({
-                selectedFromToken,
-                selectedToToken,
-                tokenValue: value,
-                destinationInputField: 'to',
-              });
-              sendAmountEnteredAnalytics('Swap');
+              onFromInputAmountChange(value);
             }}
             setIsOpen={setIsFromTokenSelectOpen}
           />
@@ -636,31 +274,15 @@ export function Swap() {
             margin="16px 0"
           >
             {swapError?.message && (
-              <div>
-                <Typography size={12} color={theme.colors.error}>
-                  {swapError.message ?? ''}
-                </Typography>
-                {swapError.hasTryAgain && (
-                  <Typography
-                    size={12}
-                    color={theme.colors.error}
-                    onClick={() => {
-                      const value =
-                        destinationInputField === 'to'
-                          ? fromTokenValue || { bn: new BN(0), amount: '0' }
-                          : toTokenValue || { bn: new BN(0), amount: '0' };
-                      calculateTokenValueToInput(
-                        value,
-                        destinationInputField || 'to',
-                        selectedFromToken,
-                        selectedToToken
-                      );
-                    }}
-                  >
-                    <TryAgainButton>{t('try again')}</TryAgainButton>
-                  </Typography>
-                )}
-              </div>
+              <SwapError
+                swapError={swapError}
+                destinationInputField={destinationInputField}
+                fromTokenValue={fromTokenValue}
+                toTokenValue={toTokenValue}
+                calculateTokenValueToInput={calculateTokenValueToInput}
+                selectedFromToken={selectedFromToken}
+                selectedToToken={selectedToToken}
+              />
             )}
             {swapWarning && (
               <Typography size={12} color={theme.colors.error}>
@@ -669,9 +291,16 @@ export function Swap() {
             )}
             <SwitchIconContainer
               data-testid="swap-switch-token-button"
-              onClick={swapTokens}
+              onClick={() =>
+                reverseTokens(
+                  isReversed,
+                  selectedFromToken,
+                  selectedToToken,
+                  fromTokenValue
+                )
+              }
               disabled={!selectedFromToken || !selectedToToken}
-              isSwapped={isSwapped}
+              isSwapped={isReversed}
             >
               <SwitchIcon
                 height="24px"
@@ -683,19 +312,12 @@ export function Swap() {
           <TokenSelect
             label={t('To')}
             onTokenChange={(token: TokenWithBalance) => {
-              setSelectedToToken(token);
-              setSwapWarning('');
-              calculateSwapValue({
+              onTokenChange({
+                token,
                 selectedFromToken,
-                selectedToToken: token,
+                destination: 'from',
+                fromTokenValue,
               });
-              setNavigationHistoryData({
-                selectedFromToken,
-                selectedToToken: token,
-                tokenValue: fromTokenValue,
-                destinationInputField,
-              });
-              sendTokenSelectedAnalytics('Swap');
             }}
             onSelectToggle={() => {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
@@ -712,25 +334,12 @@ export function Swap() {
             isValueLoading={destinationInputField === 'to' && isLoading}
             hideErrorMessage
             onInputAmountChange={(value) => {
-              setToTokenValue(value as any);
-              calculateTokenValueToInput(
-                value as any,
-                'from',
-                selectedFromToken,
-                selectedToToken
-              );
-              setNavigationHistoryData({
-                selectedFromToken,
-                selectedToToken,
-                tokenValue: value,
-                destinationInputField: 'from',
-              });
-              sendAmountEnteredAnalytics('Swap');
+              onToInputAmountChange(value);
             }}
             setIsOpen={setIsToTokenSelectOpen}
           />
 
-          {!isLoading && canSwap && (
+          {isDetailsAvailable && (
             <TransactionDetails
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
@@ -744,6 +353,7 @@ export function Swap() {
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
               setIsOpen={setIsTransactionDetailsOpen}
               selectedGasFee={selectedGasFee}
+              isTransactionDetailsOpen={isTransactionDetailsOpen}
             />
           )}
           <ReviewOrderButtonContainer

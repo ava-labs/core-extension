@@ -1,11 +1,11 @@
-import { Tabs, Windows } from 'webextension-polyfill-ts';
+import { Tabs, Windows } from 'webextension-polyfill';
 import extension from 'extensionizer';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 const NOTIFICATION_WIDTH = 375;
-const NOTIFICATION_HEIGHT = 628;
+const NOTIFICATION_HEIGHT = 668;
 const WINDOWS_SCROLLBAR_WIDTH = 26;
 const contextToOpenIn = ContextContainer.CONFIRM;
 /**

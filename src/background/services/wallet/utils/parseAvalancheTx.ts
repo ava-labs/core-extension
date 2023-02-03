@@ -7,16 +7,26 @@ import {
   utils,
   VM,
   Context,
+  Common,
+  TransferOutput,
 } from '@avalabs/avalanchejs-v2';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import {
   AddDelegatorTx,
   AddValidatorTx,
-  AvalancheTx,
+  AvalancheTxType,
+  AvalancheBaseTx,
   ExportTx,
   ImportTx,
   UnknownTx,
 } from '@src/background/services/wallet/models';
+import xss from 'xss';
+
+export enum AvalancheChainStrings {
+  AVM = 'X Chain',
+  PVM = 'P Chain',
+  EVM = 'C Chain',
+}
 
 function sumOutputs(outs: TransferableOutput[], assetID: string) {
   return outs.reduce((acc, val) => {
@@ -37,6 +47,66 @@ function sumInputs(outs: TransferableInput[], assetID: string) {
     }
     return acc + val.amount();
   }, BigInt(0));
+}
+
+function sumEvmInputs(ins: evmSerial.Input[], assetID: string) {
+  return ins.reduce((acc, val) => {
+    // If asset id does not match, skip
+    if (assetID !== val.assetId.value()) {
+      return acc;
+    }
+    return acc + val.amount.value();
+  }, BigInt(0));
+}
+
+function sumEvmOutputs(outs: evmSerial.Output[], assetID: string) {
+  return outs.reduce((acc, val) => {
+    // If asset id does not match, skip
+    if (assetID !== val.assetId.value()) {
+      return acc;
+    }
+    return acc + val.amount.value();
+  }, BigInt(0));
+}
+
+function calculateBurn(
+  tx: Common.Transaction,
+  vm: VM,
+  context: Context.Context
+) {
+  const inputsArray: TransferableInput[] = [];
+  const outputsArray: TransferableOutput[] = [];
+  const evmInsArray: evmSerial.Input[] = [];
+  const evmOutsArray: evmSerial.Output[] = [];
+
+  if (vm === 'PVM' || vm === 'AVM') {
+    if (pvmSerial.isAddValidatorTx(tx) || pvmSerial.isAddDelegatorTx(tx)) {
+      inputsArray.push(...tx.baseTx.inputs);
+      outputsArray.push(...tx.baseTx.outputs);
+    } else if (pvmSerial.isImportTx(tx) || avmSerial.isImportTx(tx)) {
+      inputsArray.push(...tx.baseTx.inputs);
+      outputsArray.push(...tx.baseTx.outputs);
+      inputsArray.push(...tx.ins);
+    } else if (pvmSerial.isExportTx(tx) || avmSerial.isExportTx(tx)) {
+      inputsArray.push(...tx.baseTx.inputs);
+      outputsArray.push(...tx.baseTx.outputs);
+      outputsArray.push(...tx.outs);
+    }
+  } else if (vm === 'EVM') {
+    if (evmSerial.isExportTx(tx)) {
+      evmInsArray.push(...tx.ins);
+      outputsArray.push(...tx.exportedOutputs);
+    } else if (evmSerial.isImportTx(tx)) {
+      inputsArray.push(...tx.importedInputs);
+      evmOutsArray.push(...tx.Outs);
+    }
+  }
+  const insTotal = sumInputs(inputsArray, context.avaxAssetID);
+  const outsTotal = sumOutputs(outputsArray, context.avaxAssetID);
+  const evmInsTotal = sumEvmInputs(evmInsArray, context.avaxAssetID);
+  const evmOutsTotal = sumEvmOutputs(evmOutsArray, context.avaxAssetID);
+
+  return insTotal + evmInsTotal - (outsTotal + evmOutsTotal);
 }
 
 /**
@@ -73,12 +143,15 @@ function chainIdToVM(id: string): VM {
 /**
  * Returns human readable data from a given a transaction buffer,
  */
-export function parseAvalancheTx(
+export async function parseAvalancheTx(
   txBuff: Buffer | Uint8Array,
   vm: VM,
-  context: Context.Context
-): AvalancheTx {
+  provider: Avalanche.JsonRpcProvider,
+  currentAddress: string
+): Promise<AvalancheTxType> {
+  const context = provider.getContext();
   const tx = utils.unpackWithManager(vm, txBuff);
+  const burn = calculateBurn(tx, vm, context);
 
   if (vm === 'PVM') {
     if (pvmSerial.isAddValidatorTx(tx)) {
@@ -94,10 +167,10 @@ export function parseAvalancheTx(
         rewardOwner: tx.rewardsOwner,
         stakeOuts: tx.stake,
         stake: totStake,
+        txFee: burn,
       } as AddValidatorTx;
     } else if (pvmSerial.isAddDelegatorTx(tx)) {
       const totStake = sumOutputs(tx.stake, context.avaxAssetID);
-
       return {
         type: 'add_delegator',
         chain: vm,
@@ -107,6 +180,7 @@ export function parseAvalancheTx(
         rewardOwner: tx.rewardsOwner,
         stakeOuts: tx.stake,
         stake: totStake,
+        txFee: burn,
       } as AddDelegatorTx;
     } else if (pvmSerial.isImportTx(tx)) {
       const tot = sumInputs(tx.ins, context.avaxAssetID);
@@ -115,6 +189,7 @@ export function parseAvalancheTx(
         chain: vm,
         source: chainIdToVM(tx.sourceChain.value()),
         amount: tot,
+        txFee: burn,
       } as ImportTx;
     } else if (pvmSerial.isExportTx(tx)) {
       const tot = sumOutputs(tx.outs, context.avaxAssetID);
@@ -123,6 +198,7 @@ export function parseAvalancheTx(
         chain: vm,
         destination: chainIdToVM(tx.destination.value()),
         amount: tot,
+        txFee: burn,
       } as ExportTx;
     }
   } else if (vm === 'AVM') {
@@ -136,18 +212,87 @@ export function parseAvalancheTx(
         chain: vm,
         source: chainIdToVM(tx.sourceChain.value()),
         amount: tot,
+        txFee: burn,
       } as ImportTx;
     } else if (avmSerial.isExportTx(tx)) {
-      const tot = sumOutputs(tx.outs, context.avaxAssetID);
+      const sumExportOuts = sumOutputs(tx.outs, context.avaxAssetID);
       //TODO: Show change outs? (https://ava-labs.atlassian.net/browse/CP-3819)
       return {
         type: 'export',
         chain: vm,
         destination: chainIdToVM(tx.destination.value()),
-        amount: tot,
+        amount: sumExportOuts,
+        txFee: burn,
       } as ExportTx;
+    } else if (avmSerial.isBaseTx(tx)) {
+      const baseTx = tx.baseTx;
+
+      // Reduce asset ids and fetch details
+      const assetIDs: Set<string> = new Set();
+      baseTx.outputs.forEach((out) => {
+        assetIDs.add(out.assetId.value());
+      });
+
+      const descriptions = await Promise.all(
+        [...assetIDs.values()].map((assetId) => {
+          return provider.getApiX().getAssetDescription(assetId);
+        })
+      );
+
+      // Reduce to TransferOutputs we can display
+      // TODO: Show other output types jira(https://ava-labs.atlassian.net/browse/CP-4691)
+
+      let parsedOutputs = baseTx.outputs.reduce<
+        AvalancheBaseTx['outputs'][number][]
+      >((acc, out) => {
+        if (out.output instanceof TransferOutput) {
+          const assetId = out.assetId.value();
+          const assetIndex = [...assetIDs.values()].indexOf(assetId);
+          const desc = descriptions[assetIndex];
+          const addresses = out.output.outputOwners.addrs.map(
+            (owner) => `X-${owner.toString(context.hrp)}`
+          );
+
+          return [
+            ...acc,
+            {
+              assetId,
+              amount: out.output.amount(),
+              locktime: out.output.getLocktime(),
+              threshold: BigInt(out.output.getThreshold()),
+              assetDescription: desc,
+              owners: addresses,
+              isAvax: context.avaxAssetID === assetId,
+            },
+          ];
+        }
+        return acc;
+      }, []);
+
+      // Hide change utxos if more than 1 outputs
+      const now = Avalanche.getUnixNow();
+
+      if (parsedOutputs.length > 1) {
+        parsedOutputs = parsedOutputs.filter((out) => {
+          // Only hide if we are the only owner and locktime is in the past
+          if (
+            out.owners.length === 1 &&
+            out.owners[0] === currentAddress &&
+            out.locktime <= now
+          )
+            return false;
+          return true;
+        });
+      }
+
+      return {
+        type: 'base',
+        chain: vm,
+        txFee: context.baseTxFee,
+        outputs: parsedOutputs,
+        memo: xss(Buffer.from(baseTx.memo.toBytes()).toString('utf-8', 4)),
+      };
     }
-    //TODO: Add other tx types including base tx
   } else if (vm === 'EVM') {
     if (evmSerial.isExportTx(tx)) {
       const tot = sumOutputs(tx.exportedOutputs, context.avaxAssetID);
@@ -157,6 +302,7 @@ export function parseAvalancheTx(
         destination: chainIdToVM(tx.destinationChain.value()),
         exportOuts: tx.exportedOutputs,
         amount: tot,
+        txFee: burn,
       } as ExportTx;
     } else if (evmSerial.isImportTx(tx)) {
       const tot = sumInputs(tx.importedInputs, context.avaxAssetID);
@@ -165,6 +311,7 @@ export function parseAvalancheTx(
         chain: vm,
         source: chainIdToVM(tx.sourceChain.value()),
         amount: tot,
+        txFee: burn,
       } as ImportTx;
     }
   }

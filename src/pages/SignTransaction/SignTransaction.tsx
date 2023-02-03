@@ -1,12 +1,10 @@
 import {
-  HorizontalFlex,
-  VerticalFlex,
-  PrimaryButton,
-  SecondaryButton,
-  ComponentSize,
-  LoadingSpinnerIcon,
+  Box,
+  Button,
+  LoadingDots,
+  Stack,
   Typography,
-} from '@avalabs/react-components';
+} from '@avalabs/k2-components';
 import {
   AddLiquidityDisplayData,
   ContractCall,
@@ -15,6 +13,7 @@ import {
 } from '@src/contracts/contractParsers/models';
 import {
   TransactionDisplayValues,
+  TransactionDisplayValuesWithGasData,
   TxStatus,
 } from '@src/background/services/transactions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
@@ -26,19 +25,30 @@ import { useGetTransaction } from './hooks/useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { LedgerApprovalOverlay } from './LedgerApprovalOverlay';
 import { CustomSpendLimit } from './CustomSpendLimit';
-import { useTheme } from 'styled-components';
 import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundary';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
-import { TransactionTabs } from './components/TransactionTabs';
 import { BigNumber } from 'ethers';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
-import { ethersBigNumberToBN } from '@avalabs/utils-sdk';
+import { ethersBigNumberToBN, hexToBN } from '@avalabs/utils-sdk';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletType } from '@src/background/services/wallet/models';
 import { Trans, useTranslation } from 'react-i18next';
+import { RawTransactionData } from './components/RawTransactionData';
+import { CustomFeesK2 } from '@src/components/common/CustomFeesK2';
+import { useSignTransactionHeader } from './hooks/useSignTransactionHeader';
+
+const hasGasPriceData = (
+  displayData: TransactionDisplayValues
+): displayData is TransactionDisplayValuesWithGasData => {
+  return (
+    displayData.gasPrice instanceof BigNumber &&
+    typeof displayData.gasLimit === 'number' &&
+    displayData.gasLimit > 0
+  );
+};
 
 export function SignTransactionPage() {
   const { t } = useTranslation();
@@ -49,24 +59,27 @@ export function SignTransactionPage() {
   const {
     updateTransaction,
     id,
-    hash,
     contractType,
     setCustomFee,
     showCustomSpendLimit,
     setShowCustomSpendLimit,
+    showRawTransactionData,
+    setShowRawTransactionData,
     setSpendLimit,
     displaySpendLimit,
+    limitFiatValue,
     customSpendLimit,
     selectedGasFee,
     network,
+    networkFee,
     ...params
   } = useGetTransaction(requestId, onTxError);
   const [transactionProgressState, setTransactionProgressState] = useState(
     TransactionProgressState.NOT_APPROVED
   );
-  const theme = useTheme();
   const tokens = useTokensWithBalances(false, network?.chainId);
   const { walletType } = useWalletContext();
+  const header = useSignTransactionHeader(contractType);
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
@@ -94,6 +107,9 @@ export function SignTransactionPage() {
     ...params,
     contractType,
   };
+  const requestedApprovalLimit = displayData.approveData
+    ? hexToBN(displayData.approveData.limit)
+    : undefined;
 
   const onApproveClick = () => {
     setTransactionProgressState(TransactionProgressState.PENDING);
@@ -114,14 +130,16 @@ export function SignTransactionPage() {
 
   if (!Object.keys(displayData).length) {
     return (
-      <HorizontalFlex
-        width={'100%'}
-        height={'100%'}
-        justify={'center'}
-        align={'center'}
+      <Stack
+        sx={{
+          width: '100%',
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
       >
-        <LoadingSpinnerIcon color={theme.colors.icon1} />
-      </HorizontalFlex>
+        <LoadingDots size={20} />
+      </Stack>
     );
   }
 
@@ -129,10 +147,20 @@ export function SignTransactionPage() {
     return (
       <CustomSpendLimit
         site={displayData.site || { domain: 'unkown' }}
+        requestedApprovalLimit={requestedApprovalLimit}
         spendLimit={customSpendLimit}
         token={displayData.tokenToBeApproved}
         onClose={() => setShowCustomSpendLimit(false)}
         setSpendLimit={setSpendLimit}
+      />
+    );
+  }
+
+  if (showRawTransactionData) {
+    return (
+      <RawTransactionData
+        data={displayData.txParams?.data}
+        onClose={() => setShowRawTransactionData(false)}
       />
     );
   }
@@ -142,76 +170,136 @@ export function SignTransactionPage() {
       {transactionProgressState === TransactionProgressState.PENDING && (
         <LedgerApprovalOverlay displayData={displayData} />
       )}
-      <VerticalFlex width="100%" padding="0 16px" align="center">
+      <Stack
+        sx={{
+          width: '100%',
+          alignItems: 'center',
+        }}
+      >
+        {/* Header */}
+        {header && (
+          <Box
+            sx={{
+              width: '100%',
+              backgroundColor: 'background.default',
+              pt: 1,
+              pb: 2,
+              px: 2,
+              zIndex: 1,
+              height: '56px',
+            }}
+          >
+            <Typography
+              component="h1"
+              sx={{ fontSize: 24, fontWeight: 'bold' }}
+            >
+              {header}
+            </Typography>
+          </Box>
+        )}
         {/* Actions  */}
-        <SignTxRenderErrorBoundary>
-          {
+        <Stack
+          sx={{
+            flex: 1,
+            overflow: 'scroll',
+            width: '100%',
+            px: 2,
+            gap: 3,
+            pb: 5,
+          }}
+        >
+          <SignTxRenderErrorBoundary>
             {
-              [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
-                <SwapTx
-                  {...(displayData as SwapExactTokensForTokenDisplayValues)}
-                  hash={hash}
-                  onCustomFeeSet={setCustomFee}
-                  selectedGasFee={selectedGasFee}
-                />
-              ),
-              [ContractCall.APPROVE]: (
-                <ApproveTx
-                  {...(displayData as ApproveTransactionData)}
-                  setShowCustomSpendLimit={setShowCustomSpendLimit}
-                  displaySpendLimit={displaySpendLimit}
-                />
-              ),
-              [ContractCall.ADD_LIQUIDITY]: (
-                <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
-              ),
-              [ContractCall.ADD_LIQUIDITY_AVAX]: (
-                <AddLiquidityTx {...(displayData as AddLiquidityDisplayData)} />
-              ),
-              ['unknown']: (
-                <UnknownTx {...(displayData as TransactionDisplayValues)} />
-              ),
-            }[contractType || 'unknown']
-          }
+              {
+                [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
+                  <SwapTx
+                    {...(displayData as SwapExactTokensForTokenDisplayValues)}
+                    setShowRawTransactionData={setShowRawTransactionData}
+                    network={network}
+                  />
+                ),
+                [ContractCall.APPROVE]: (
+                  <ApproveTx
+                    {...(displayData as ApproveTransactionData)}
+                    setShowCustomSpendLimit={setShowCustomSpendLimit}
+                    setShowRawTransactionData={setShowRawTransactionData}
+                    displaySpendLimit={displaySpendLimit}
+                    requestedApprovalLimit={requestedApprovalLimit}
+                    limitFiatValue={limitFiatValue}
+                    network={network}
+                  />
+                ),
+                [ContractCall.ADD_LIQUIDITY]: (
+                  <AddLiquidityTx
+                    {...(displayData as AddLiquidityDisplayData)}
+                    setShowRawTransactionData={setShowRawTransactionData}
+                    network={network}
+                  />
+                ),
+                [ContractCall.ADD_LIQUIDITY_AVAX]: (
+                  <AddLiquidityTx
+                    {...(displayData as AddLiquidityDisplayData)}
+                    setShowRawTransactionData={setShowRawTransactionData}
+                    network={network}
+                  />
+                ),
+                ['unknown']: (
+                  <UnknownTx
+                    {...(displayData as TransactionDisplayValues)}
+                    setShowRawTransactionData={setShowRawTransactionData}
+                    network={network}
+                  />
+                ),
+              }[contractType || 'unknown']
+            }
 
-          {/* Tabs */}
-          {transactionProgressState ===
-            TransactionProgressState.NOT_APPROVED && (
-            <TransactionTabs
-              byteStr={displayData.txParams?.data}
-              gasPrice={displayData.gasPrice}
-              limit={displayData.gasLimit ?? 0}
-              onCustomFeeSet={setCustomFee}
-              selectedGasFee={selectedGasFee}
-            />
-          )}
-          {!hasEnoughForNetworkFee && (
-            <VerticalFlex padding="16px 0" width="100%" align="flex-start">
-              <Typography color="error" size={12}>
-                <Trans
-                  i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
-                  values={{ symbol: network?.networkToken.symbol }}
+            <Stack sx={{ gap: 1, width: '100%' }}>
+              {hasGasPriceData(displayData) && (
+                <CustomFeesK2
+                  gasPrice={displayData.gasPrice}
+                  limit={displayData.gasLimit}
+                  onChange={setCustomFee}
+                  selectedGasFeeModifier={selectedGasFee}
+                  network={network}
+                  networkFee={networkFee}
                 />
-              </Typography>
-            </VerticalFlex>
-          )}
-        </SignTxRenderErrorBoundary>
+              )}
+
+              {!hasEnoughForNetworkFee && (
+                <Stack sx={{ width: '100%', alignItems: 'flex-start' }}>
+                  <Typography
+                    sx={{ color: 'error.main', fontSize: 'body3.fontSize' }}
+                  >
+                    <Trans
+                      i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
+                      values={{ symbol: network?.networkToken.symbol }}
+                    />
+                  </Typography>
+                </Stack>
+              )}
+            </Stack>
+          </SignTxRenderErrorBoundary>
+        </Stack>
 
         {/* Action Buttons */}
-        <HorizontalFlex
-          flex={1}
-          align="flex-end"
-          width="100%"
-          justify="space-between"
-          padding="0 0 8px"
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            width: '100%',
+            justifyContent: 'space-between',
+            pt: 3,
+            px: 2,
+            pb: 1,
+          }}
         >
           {transactionProgressState ===
             TransactionProgressState.NOT_APPROVED && (
             <>
-              <SecondaryButton
+              <Button
+                color="secondary"
                 data-testid="transaction-reject-btn"
-                size={ComponentSize.LARGE}
-                width="168px"
+                sx={{ width: 168, maxHeight: 40, height: 40 }}
                 onClick={() => {
                   id &&
                     updateTransaction({
@@ -222,20 +310,19 @@ export function SignTransactionPage() {
                 }}
               >
                 {t('Reject')}
-              </SecondaryButton>
-              <PrimaryButton
+              </Button>
+              <Button
                 data-testid="transaction-approve-btn"
                 disabled={!hasEnoughForNetworkFee}
-                width="168px"
-                size={ComponentSize.LARGE}
+                sx={{ width: 168, maxHeight: 40, height: 40 }}
                 onClick={onApproveClick}
               >
                 {t('Approve')}
-              </PrimaryButton>
+              </Button>
             </>
           )}
-        </HorizontalFlex>
-      </VerticalFlex>
+        </Stack>
+      </Stack>
     </>
   );
 }

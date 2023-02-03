@@ -5,6 +5,7 @@
   "manifest_version": 3,
   "author": "AvaLabs",
   "description": "The Best Way to Connect to Crypto",
+  "default_locale": "en",
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
@@ -36,20 +37,16 @@
     "activeTab",
     "contextMenus",
     "notifications",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
+  "host_permissions": ["file://*/*", "http://*/*", "https://*/*"],
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
       "js": ["js/contentscript.js"],
       "run_at": "document_start",
       "all_frames": true
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["js/inpage.js"],
-      "matches": ["file://*/*", "http://*/*", "https://*/*"]
     }
   ],
   "content_security_policy": {

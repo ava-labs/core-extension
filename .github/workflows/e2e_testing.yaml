@@ -55,7 +55,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: e2e
     env:
-      LOG_LEVEL: ${{secrets.LOG_LEVEL}}
+      RUNNER: CI
+      LOG_LEVEL: info
+      POST_TO_TESTRAIL: true
+      TESTRAIL_API_KEY: ${{secrets.TESTRAIL_API_KEY}}
       RECOVERY_PHRASE: ${{secrets.RECOVERY_PHRASE}}
       METAMASK_RECOVERY_PHRASE: ${{secrets.METAMASK_RECOVERY_PHRASE}}
     steps:
@@ -77,6 +80,11 @@ jobs:
           name: extension
       - name: Running browser extension smoke tests on testnet/mainnet against generated zip
         run: yarn ext:testnet/mainnet-smoke
+      - if: always()
+        name: Set Testrail Run ID ENV
+        run: |
+          echo $(head -n 1 testrail_run_id.txt)
+          echo "TESTRAIL_RUN_ID=$(head -n 1 testrail_run_id.txt)" >> $GITHUB_ENV
       - name: Success slack notification
         if: success()
         uses: slackapi/slack-github-action@v1.22.0
@@ -86,7 +94,8 @@ jobs:
               "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "PASSED",
               "STATUS_EMOJI": ":white_check_mark:",
-              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests"
+              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests",
+              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TESTRAIL_RUN_ID }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -99,7 +108,8 @@ jobs:
               "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "FAILED",
               "STATUS_EMOJI": ":alert:",
-              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests"
+              "TEST_RUN_TYPE": "Browser extension merge to main smoke tests",
+              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TESTRAIL_RUN_ID }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

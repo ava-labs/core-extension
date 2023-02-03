@@ -1,20 +1,19 @@
 import {
-  HorizontalFlex,
-  PrimaryButton,
-  Typography,
-  VerticalFlex,
-  SubTextTypography,
-  SecondaryCard,
+  Box,
+  Button,
+  FormControlLabel,
   Radio,
-  ComponentSize,
-} from '@avalabs/react-components';
+  RadioGroup,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
+import BN from 'bn.js';
 import { useState } from 'react';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DomainMetadata } from '@src/background/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 import { Trans, useTranslation } from 'react-i18next';
-import { BNInput } from '@src/components/common/BNInput';
+import { BNInput } from '@avalabs/react-components';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -30,11 +29,27 @@ export interface SpendLimit {
   };
 }
 
+const SpendLimitOption = ({ label, value, checked, ...props }) => (
+  <FormControlLabel
+    label={label}
+    value={value}
+    control={<Radio size="medium" color={checked ? 'secondary' : 'primary'} />}
+    sx={{
+      '.MuiFormControlLabel-label': {
+        fontSize: 'body2.fontSize',
+        fontWeight: checked ? 'fontWeightSemibold' : 'fontWeightRegular',
+      },
+    }}
+    {...props}
+  />
+);
+
 export function CustomSpendLimit({
   spendLimit,
   token,
   onClose,
   setSpendLimit,
+  requestedApprovalLimit,
   site,
 }: {
   token: TokenWithBalanceERC20;
@@ -42,11 +57,9 @@ export function CustomSpendLimit({
   onClose(): void;
   spendLimit: SpendLimit;
   site: DomainMetadata;
+  requestedApprovalLimit?: BN;
 }) {
   const { t } = useTranslation();
-  const {
-    accounts: { active: activeAccount },
-  } = useAccountsContext();
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
     ...spendLimit,
   });
@@ -57,120 +70,103 @@ export function CustomSpendLimit({
   };
 
   return (
-    <VerticalFlex width="100%">
-      <PageTitle onBackClick={() => onClose()}>{t('Edit Limit')}</PageTitle>
+    <Stack sx={{ width: '100%', gap: 3 }}>
+      <PageTitle onBackClick={() => onClose()} margin="0">
+        {t('Edit Spending Limit')}
+      </PageTitle>
 
-      {/* Content middle */}
-      <VerticalFlex padding="8px 16px 0">
-        {/* Balance */}
-        <Typography size={12} height="15px" padding="0 0 4px 0">
-          {t('Balance')}
-        </Typography>
-        <SecondaryCard padding="16px" direction="column">
-          <Typography height="24px" padding="0 0 8px 0">
-            {activeAccount?.name}
+      <Stack sx={{ px: 2, gap: 3 }}>
+        <Stack sx={{ gap: 1.5 }}>
+          <Typography
+            sx={{
+              fontSize: 'body2.fontSize',
+              fontWeight: 'fontWeightSemibold',
+            }}
+          >
+            {t('Spending limit')}
           </Typography>
-          <Typography weight={600} height="24px">
-            {token.balanceDisplayValue} {token.symbol}
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <Trans
+              i18nKey="Set a limit that you will allow {{site.domain}} to automatically spend."
+              values={{ site }}
+            />
           </Typography>
-        </SecondaryCard>
-
-        {/* Spending Limit */}
-        <Typography weight={500} size={14} height="24px" margin="24px 0 0">
-          {t('Spending limit')}
-        </Typography>
-        <SubTextTypography size={12} height="15px" margin="4px 0 0">
-          <Trans
-            i18nKey="Set a limit that you will allow {{site.domain}} to withdraw and spend."
-            values={{ site }}
+        </Stack>
+        <RadioGroup
+          sx={{ gap: 2 }}
+          onChange={(ev, limitType) => {
+            setCustomSpendLimit({
+              ...customSpendLimit,
+              limitType: limitType as Limit,
+            });
+          }}
+          value={customSpendLimit.limitType}
+        >
+          <SpendLimitOption
+            label={t('Unlimited')}
+            value={Limit.UNLIMITED}
+            checked={customSpendLimit.limitType === Limit.UNLIMITED}
           />
-        </SubTextTypography>
-
-        {/* Radio */}
-        <VerticalFlex margin="24px 0 0 0">
-          <HorizontalFlex align="center" margin="0 0 0 8px">
-            <Radio
-              onChange={() => {
-                setCustomSpendLimit({
-                  ...customSpendLimit,
-                  limitType: Limit.DEFAULT,
-                });
-              }}
+          <Stack sx={{ gap: 1.5 }}>
+            <SpendLimitOption
+              label={t('Default')}
               value={Limit.DEFAULT}
-              name="unlimitedGroup"
-              id="default"
               checked={customSpendLimit.limitType === Limit.DEFAULT}
             />
-            <Typography margin="0 0 0 16px" weight={600}>
-              {t('Default')}
-            </Typography>
-          </HorizontalFlex>
-          <HorizontalFlex align="center" margin="24px 0 0 8px">
-            <Radio
-              onChange={() => {
-                setCustomSpendLimit({
-                  ...customSpendLimit,
-                  limitType: Limit.UNLIMITED,
-                });
-              }}
-              value={Limit.UNLIMITED}
-              name="unlimitedGroup"
-              id="unlimited"
-              checked={customSpendLimit.limitType === Limit.UNLIMITED}
-            />
-            <Typography margin="0 0 0 16px" weight={600}>
-              {t('Unlimited')}
-            </Typography>
-          </HorizontalFlex>
-          <HorizontalFlex align="center" margin="24px 0 0 8px">
-            <Radio
-              onChange={() => {
-                setCustomSpendLimit({
-                  ...customSpendLimit,
-                  limitType: Limit.CUSTOM,
-                });
-              }}
+            <Box sx={{ pl: 3 }}>
+              <BNInput
+                disabled
+                value={requestedApprovalLimit}
+                denomination={token.decimals}
+                width="100%"
+              />
+            </Box>
+          </Stack>
+          <Stack sx={{ gap: 1.5 }}>
+            <SpendLimitOption
+              label={t('Custom Spend Limit')}
               value={Limit.CUSTOM}
-              name="unlimitedGroup"
-              id="custom"
               checked={customSpendLimit.limitType === Limit.CUSTOM}
             />
-            <Typography margin="0 0 0 16px" weight={600}>
-              {t('Custom Spend Limit')}
-            </Typography>
-          </HorizontalFlex>
-          <VerticalFlex width="100%" padding="16px 0 0 48px">
-            <BNInput
-              onChange={(value) => {
-                setCustomSpendLimit({
-                  ...customSpendLimit,
-                  value,
-                  limitType: Limit.CUSTOM,
-                });
-              }}
-              denomination={token.decimals}
-              placeholder={t('Maximum Limit')}
-              value={customSpendLimit.value?.bn}
-              width="100%"
-            />
-          </VerticalFlex>
-        </VerticalFlex>
-      </VerticalFlex>
-
-      <HorizontalFlex
-        flex={1}
-        align="flex-end"
-        width="100%"
-        padding="0 16px 8px"
+            <Box sx={{ pl: 3 }}>
+              <BNInput
+                onChange={(value) => {
+                  setCustomSpendLimit({
+                    ...customSpendLimit,
+                    value,
+                    limitType: Limit.CUSTOM,
+                  });
+                }}
+                denomination={token.decimals}
+                placeholder={t('Maximum Limit')}
+                value={customSpendLimit.value?.bn} // TODO: properly handle zero (BNInput sees zero as an empty value)
+                width="100%"
+              />
+            </Box>
+          </Stack>
+        </RadioGroup>
+      </Stack>
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          flex: 1,
+          alignItems: 'flex-end',
+          width: '100%',
+          pt: 0,
+          px: 2,
+          pb: 1,
+        }}
       >
-        <PrimaryButton
-          size={ComponentSize.LARGE}
-          width="100%"
+        <Button
+          color="primary"
+          size="large"
           onClick={handleOnSave}
+          sx={{ fontSize: 'body2.fontSize' }}
+          fullWidth
         >
           {t('Save')}
-        </PrimaryButton>
-      </HorizontalFlex>
-    </VerticalFlex>
+        </Button>
+      </Stack>
+    </Stack>
   );
 }

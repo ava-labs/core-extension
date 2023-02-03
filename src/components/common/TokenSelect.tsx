@@ -25,7 +25,8 @@ import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from './VirtualizedList';
-import { BNInput } from './BNInput';
+import { BNInput } from '@avalabs/react-components';
+import { InfoCircleIcon, Stack, Tooltip } from '@avalabs/k2-components';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -82,7 +83,6 @@ interface TokenSelectProps {
   bridgeTokensList?: AssetBalance[];
   isValueLoading?: boolean;
   hideErrorMessage?: boolean;
-  onError?: (errorMessage: string) => void;
   skipHandleMaxAmount?: boolean;
 }
 
@@ -109,7 +109,6 @@ export function TokenSelect({
   selectorLabel,
   isValueLoading,
   hideErrorMessage,
-  onError,
   skipHandleMaxAmount,
   bridgeTokensList,
   setIsOpen,
@@ -120,7 +119,6 @@ export function TokenSelect({
 
   const selectButtonRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [bnError, setBNError] = useState('');
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
 
@@ -239,13 +237,6 @@ export function TokenSelect({
     }
   }, [bridgeTokensList, onTokenChange, selectedToken]);
 
-  const onBNError = useCallback(
-    (errorMessage) => {
-      onError ? onError(errorMessage) : setBNError(errorMessage);
-    },
-    [onError]
-  );
-
   function rowRenderer({ key, index, style }) {
     const token = displayTokenList[index];
 
@@ -291,6 +282,28 @@ export function TokenSelect({
     );
   }
 
+  const renderTokenLabel = () => {
+    if (selectedToken?.unconfirmedBalance) {
+      return (
+        <Stack sx={{ flexDirection: 'row' }}>
+          {!!selectedToken?.unconfirmedBalance?.toNumber() && (
+            <Tooltip
+              placement="top"
+              title={`${t('Unavailable')}: ${
+                selectedToken?.unconfirmedBalanceDisplayValue
+              } ${selectedToken?.symbol}`}
+            >
+              <InfoCircleIcon sx={{ mr: 0.5, cursor: 'pointer' }} />
+            </Tooltip>
+          )}
+          {t('Available Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
+        </Stack>
+      );
+    } else {
+      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
+    }
+  };
+
   return (
     <VerticalFlex width="100%" style={{ margin }}>
       <HorizontalFlex
@@ -304,7 +317,7 @@ export function TokenSelect({
           {label ?? t('Token')}
         </Typography>
         <Typography size={12} color={theme.colors.text2}>
-          {t('Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
+          {renderTokenLabel()}
         </Typography>
       </HorizontalFlex>
       <SelectContainer>
@@ -360,10 +373,8 @@ export function TokenSelect({
             disabled={!selectedToken || isValueLoading}
             onChange={handleAmountChange}
             onClick={(e) => e.stopPropagation()}
-            onError={onBNError}
             onKeyPress={preventMinus}
             style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
-            hideErrorMessage
             isValueLoading={isValueLoading}
           />
         </InputContainer>
@@ -375,7 +386,7 @@ export function TokenSelect({
             padding={padding}
           >
             <Typography size={12} color={theme.colors.error}>
-              {bnError || error}
+              {error}
             </Typography>
             <Typography size={12} color={theme.colors.text2}>
               {amountInCurrency ? (

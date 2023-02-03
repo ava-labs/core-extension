@@ -47,6 +47,7 @@ import {
 } from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
 import { useTranslation } from 'react-i18next';
+import LedgerIncorrectDevice from '@src/pages/Ledger/LedgerIncorrectDevice';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -271,9 +272,10 @@ export function Popup() {
                                 <HorizontalFlex
                                   flex={1}
                                   justify={'center'}
-                                  margin={isMiniMode ? '' : '16px 0'}
+                                  padding={isMiniMode ? '' : '16px 0'}
                                   maxWidth="100%"
                                   width={appWidth}
+                                  maxHeight="100%"
                                 >
                                   <Switch>
                                     <Route path="/token/add">
@@ -484,6 +486,7 @@ export function Popup() {
                                       <Redirect to="/home" />
                                     </Route>
                                   </Switch>
+                                  <LedgerIncorrectDevice />
                                 </HorizontalFlex>
                               </VerticalFlex>
                             </WalletLoading>

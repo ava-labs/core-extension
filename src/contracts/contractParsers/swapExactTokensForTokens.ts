@@ -3,7 +3,6 @@ import {
   ContractCall,
   ContractParser,
   DisplayValueParserProps,
-  erc20PathToken,
   SwapExactTokensForTokenDisplayValues,
 } from './models';
 import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
@@ -43,7 +42,7 @@ export async function swapExactTokensForTokenHandler(
 ): Promise<SwapExactTokensForTokenDisplayValues> {
   const firstTokenInPath = data.path[0];
   const lastTokenInPath = data.path[data.path.length - 1];
-  const path: erc20PathToken[] = await Promise.all(
+  const path = await Promise.all(
     data.path.map(async (address) => {
       const pathToken: TokenWithBalanceERC20 = await findToken(
         address.toLowerCase(),

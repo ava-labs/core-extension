@@ -1,6 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 import { DomainMetadata } from '../models';
 import { ExtensionRequest } from './extensionConnection/models';

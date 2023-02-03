@@ -1,54 +1,73 @@
-import {
-  HorizontalFlex,
-  PlusIcon,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { AddLiquidityDisplayData } from '@src/contracts/contractParsers/models';
-import { Fragment } from 'react';
-import { useTheme } from 'styled-components';
-import { AddressPaths } from './components/AddressPaths';
-import { TokenCard } from './components/TokenCard';
-import { TransactionHeader } from './components/TransactionHeader';
 import { useTranslation } from 'react-i18next';
+import {
+  CodeIcon,
+  IconButton,
+  PlusIcon,
+  Stack,
+  useTheme,
+} from '@avalabs/k2-components';
+
+import { AddLiquidityDisplayData } from '@src/contracts/contractParsers/models';
+import {
+  TokenWithAmountAndValue,
+  TxBalanceChange,
+} from './components/TxBalanceChange';
+import {
+  ApprovalSection,
+  ApprovalSectionBody,
+  ApprovalSectionHeader,
+} from './components/ApprovalSection';
+import {
+  AccountDetails,
+  ContractDetails,
+  NetworkDetails,
+} from './components/ApprovalTxDetails';
+
+const PoolTokenDivider = () => (
+  <PlusIcon size={20} sx={{ px: 0.75, py: 1.75 }} />
+);
 
 export function AddLiquidityTx({
   poolTokens,
   toAddress,
   fromAddress,
+  setShowRawTransactionData,
+  network,
 }: AddLiquidityDisplayData) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const { spacing } = useTheme();
 
-  const plusIcon = (
-    <HorizontalFlex width={'100%'} justify={'center'} margin="8px 0">
-      <PlusIcon color={theme.colors.icon1} height="16px" />
-    </HorizontalFlex>
-  );
+  const tokensFormatted = poolTokens.map<TokenWithAmountAndValue>((p) => ({
+    ...p,
+    amount: p.amountDepositedDisplayValue,
+    value: Number(p.amountUSDValue),
+  }));
 
   return (
-    <VerticalFlex width={'100%'}>
-      <TransactionHeader title={t('Adding Liquidity to Pool')} />
-
-      <VerticalFlex>
-        {/* Account */}
-        <AddressPaths
-          toAddress={toAddress || ''}
-          fromAddress={fromAddress || ''}
-        />
-
-        {/* Tokens */}
-        {poolTokens.map((token, index) => (
-          <Fragment key={token.symbol}>
-            <TokenCard
-              token={token}
-              margin={`${!index && '16px 0 0 0'}`}
-              displayValue={token.amountDepositedDisplayValue}
-              amount={token.amountUSDValue}
-            />
-            {!index && plusIcon}
-          </Fragment>
-        ))}
-      </VerticalFlex>
-    </VerticalFlex>
+    <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
+      <ApprovalSection>
+        <ApprovalSectionHeader label={t('Transaction Details')}>
+          <IconButton
+            size="small"
+            sx={{ px: 0, minWidth: 'auto' }}
+            onClick={() => setShowRawTransactionData(true)}
+          >
+            <CodeIcon />
+          </IconButton>
+        </ApprovalSectionHeader>
+        <ApprovalSectionBody sx={{ py: spacing(1) }}>
+          {fromAddress && <AccountDetails address={fromAddress} />}
+          {toAddress && (
+            <ContractDetails contractAddress={toAddress} network={network} />
+          )}
+          {network && <NetworkDetails network={network} />}
+        </ApprovalSectionBody>
+      </ApprovalSection>
+      <TxBalanceChange
+        tokens={tokensFormatted}
+        transactionType={t('Pool')}
+        divider={<PoolTokenDivider />}
+      />
+    </Stack>
   );
 }

@@ -17,6 +17,7 @@ import styled, { useTheme, keyframes } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
+import { balanceToDisplayValue } from '@avalabs/utils-sdk';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -68,6 +69,7 @@ export function Assetlist({ assetList }: AssetListProps) {
 
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
+
   const filteredAssetList = assetList.filter((asset) =>
     getTokenVisibility(asset)
   );
@@ -127,21 +129,33 @@ export function Assetlist({ assetList }: AssetListProps) {
                     color={theme.colors.text1}
                     size={12}
                   >
-                    {currencyFormatter(token.balanceUSD)}
+                    {currencyFormatter(
+                      token.balanceUSD + (token.unconfirmedBalanceUSD || 0)
+                    )}
                   </BalanceUSDField>
                   <BalanceField
                     data-testid="token-row-token-balance"
                     color={theme.colors.text1}
                     size={12}
                   >
-                    {token.balanceDisplayValue}{' '}
+                    {token.balance && token.unconfirmedBalance
+                      ? balanceToDisplayValue(
+                          token.balance.add(token.unconfirmedBalance),
+                          token.decimals
+                        )
+                      : token.balanceDisplayValue}{' '}
                     <InlineTokenEllipsis maxLength={8} text={token.symbol} />
                   </BalanceField>
                 </>
               )}
               {token.balanceUSD === 0 && (
                 <Typography color={theme.colors.text1} size={12}>
-                  {token.balanceDisplayValue}{' '}
+                  {token.balance && token.unconfirmedBalance
+                    ? balanceToDisplayValue(
+                        token.balance.add(token.unconfirmedBalance),
+                        token.decimals
+                      )
+                    : token.balanceDisplayValue}{' '}
                   <InlineTokenEllipsis maxLength={8} text={token.symbol} />
                 </Typography>
               )}

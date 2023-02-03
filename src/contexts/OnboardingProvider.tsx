@@ -25,7 +25,7 @@ import {
   SetStateAction,
 } from 'react';
 import { concat, filter, from, map } from 'rxjs';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { useConnectionContext } from './ConnectionProvider';
 
 const Onboarding = lazy(() =>

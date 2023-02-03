@@ -48,12 +48,14 @@ import {
   ImportData,
   ImportType,
 } from '../accounts/models';
+import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageIsValid from './utils/ensureMessageIsValid';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
   private _walletType?: WalletType;
+  private _derivationPath?: DerivationPath;
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService,
@@ -63,6 +65,10 @@ export class WalletService implements OnLock, OnUnlock {
 
   public get walletType(): WalletType | undefined {
     return this._walletType;
+  }
+
+  public get derivationPath(): DerivationPath | undefined {
+    return this._derivationPath;
   }
 
   async onUnlock(): Promise<void> {
@@ -82,6 +88,8 @@ export class WalletService implements OnLock, OnUnlock {
     } else {
       throw new Error('Wallet initialization failed, no key found');
     }
+
+    this._derivationPath = walletKeys.derivationPath;
   }
 
   /**
@@ -103,11 +111,14 @@ export class WalletService implements OnLock, OnUnlock {
       throw new Error('Mnemonic, pubKeys or xpub is required');
     }
 
+    const derivationPath = getDerivationPath({ mnemonic, xpub, pubKeys });
+
     await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
       mnemonic,
       xpub,
       pubKeys,
       xpubXP,
+      derivationPath,
     });
     await this.onUnlock();
   }
@@ -743,10 +754,13 @@ export class WalletService implements OnLock, OnUnlock {
   async addImportedWallet(importData: ImportData) {
     const addresses = this.calculateImportedAddresses(importData);
     const id = crypto.randomUUID();
-    const secrets =
-      (await this.storageService.load<WalletSecretInStorage>(
-        WALLET_STORAGE_KEY
-      )) ?? {};
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (!secrets) {
+      throw new Error('Error while importing wallet: storage is empty.');
+    }
 
     // let the AccountService validate the account's uniqueness and save the secret using this callback
     const commit = async () =>
@@ -832,10 +846,15 @@ export class WalletService implements OnLock, OnUnlock {
   }
 
   async deleteImportedWallets(ids: string[]) {
-    const secrets =
-      (await this.storageService.load<WalletSecretInStorage>(
-        WALLET_STORAGE_KEY
-      )) ?? {};
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (!secrets) {
+      throw new Error(
+        'Error while deleting imported wallet: storage is empty.'
+      );
+    }
 
     const newImportedSecrets = ids.reduce(
       (importedSecrets, id) => {

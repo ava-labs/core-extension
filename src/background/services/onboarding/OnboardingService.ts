@@ -1,7 +1,7 @@
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { StorageService } from '../storage/StorageService';
 import {
   OnboardingState,

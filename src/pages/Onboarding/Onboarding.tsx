@@ -5,7 +5,6 @@ import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { Import } from './ImportWallet';
 import { Welcome } from './Welcome';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { Card, HorizontalFlex, VerticalFlex } from '@avalabs/react-components';
 import { Logo } from '@src/components/icons/Logo';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { LedgerConnect } from './LedgerConnect';
@@ -15,6 +14,13 @@ import { AnalyticsConsent } from './AnalyticsConsent';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { LanguageSelector } from './components/LanguageSelector';
+import { Card, Stack, useTheme } from '@avalabs/k2-components';
+
+export enum OnboardingPath {
+  NEW_WALLET = 'new-wallet',
+  RECOVERY = 'recovery',
+  LEDGER = 'ledger',
+}
 
 export function Onboarding() {
   const { nextPhase, onboardingState, setNextPhase, submit, submitInProgress } =
@@ -22,6 +28,8 @@ export function Onboarding() {
   const { initAnalyticsIds, capture } = useAnalyticsContext();
   const [isImportFlow, setIsImportFlow] = useState<boolean>(false);
   const [isLedgerFlow, setIsLedgerFlow] = useState<boolean>(false);
+  const [onboardingPath, setOnboardingPath] = useState<OnboardingPath>();
+  const theme = useTheme();
 
   async function handleOnCancel() {
     capture('OnboardingCancelled', { step: nextPhase });
@@ -61,15 +69,18 @@ export function Onboarding() {
         capture(eventNames[nextPhase]);
         setNextPhase(nextPhase);
         if (nextPhase === OnboardingPhase.ANALYTICS_CONSENT) {
+          setOnboardingPath(OnboardingPath.NEW_WALLET);
           setIsImportFlow(false);
           setIsLedgerFlow(false);
           return;
         }
         if (nextPhase === OnboardingPhase.LEDGER) {
+          setOnboardingPath(OnboardingPath.LEDGER);
           setIsLedgerFlow(true);
           setIsImportFlow(false);
           return;
         }
+        setOnboardingPath(OnboardingPath.RECOVERY);
         setIsLedgerFlow(false);
         setIsImportFlow(true);
       }}
@@ -92,8 +103,9 @@ export function Onboarding() {
       content = (
         <CreatePassword
           onCancel={handleOnCancel}
-          onBack={handleOnCancel}
+          onBack={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
           isImportFlow={isImportFlow || isLedgerFlow}
+          onboardingPath={onboardingPath}
         />
       );
       break;
@@ -101,7 +113,6 @@ export function Onboarding() {
       content = (
         <LedgerConnect
           onCancel={handleOnCancel}
-          onBack={handleOnCancel}
           onNext={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
           onError={() => setNextPhase(OnboardingPhase.LEDGER_TROUBLE)}
         />
@@ -114,7 +125,12 @@ export function Onboarding() {
       );
       break;
     case OnboardingPhase.ANALYTICS_CONSENT:
-      content = <AnalyticsConsent />;
+      content = (
+        <AnalyticsConsent
+          onCancel={handleOnCancel}
+          onboardingPath={onboardingPath}
+        />
+      );
       break;
     case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:
@@ -129,28 +145,50 @@ export function Onboarding() {
   }
 
   return (
-    <VerticalFlex align="center" style={{ minHeight: `100%` }}>
-      <HorizontalFlex
-        style={{ maxWidth: `90%` }}
-        padding="16px 0"
-        width="1200px"
-        align="center"
-        justify="space-between"
+    <Stack sx={{ height: `100%`, alignItems: 'center' }}>
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          maxWidth: '90%',
+          width: theme.spacing(150),
+          py: 2,
+        }}
       >
-        <HorizontalFlex>
-          <Logo height={29} />
-          <BrandName height={15} margin="0 0 0 8px" />
-          <HorizontalFlex width="auto" margin="0 0 0 16px">
-            <BetaLabel />
-          </HorizontalFlex>
-        </HorizontalFlex>
+        <Stack
+          onClick={handleOnCancel}
+          sx={{
+            cursor: 'pointer',
+            width: '100%',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Logo height={29} />
+            <BrandName height={15} margin={`0 0 0 ${theme.spacing(1)}`} />
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                width: 'auto',
+                ml: 1,
+              }}
+            >
+              <BetaLabel />
+            </Stack>
+          </Stack>
+        </Stack>
+
         <LanguageSelector />
-      </HorizontalFlex>
-      <VerticalFlex align="center" justify="center" grow="1">
-        <Card width="568px" minHeight="540px" height="639px" padding="40px">
+      </Stack>
+      <Stack sx={{ justifyContent: 'center', flexGrow: 1 }}>
+        <Card
+          sx={(theme) => ({
+            width: theme.spacing(73),
+            height: theme.spacing(82),
+          })}
+        >
           {content}
         </Card>
-      </VerticalFlex>
-    </VerticalFlex>
+      </Stack>
+    </Stack>
   );
 }

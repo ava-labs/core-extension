@@ -113,6 +113,7 @@ export function Bridge() {
     wrapStatus,
     transfer,
   } = useBridge();
+
   const {
     bridgeConfig,
     currentAsset,
@@ -247,6 +248,15 @@ export function Bridge() {
     });
     setAmount(bigValue);
     sendAmountEnteredAnalytics('Bridge');
+    if (maximum && bigValue && !maximum.gt(bigValue)) {
+      const errorMessage = t('Insufficient balance');
+      capture('BridgeTokenSelectError', {
+        errorMessage,
+      });
+      setBridgeError(errorMessage);
+      return;
+    }
+    setBridgeError('');
   };
 
   const handleBlockchainToggle = () => {
@@ -409,17 +419,18 @@ export function Bridge() {
                               address: sourceBalance.asset.symbol,
                               contractType: 'ERC-20',
                               description: '',
+                              unconfirmedBalanceDisplayValue: formatBalance(
+                                sourceBalance.unconfirmedBalance
+                              ),
+                              unconfirmedBalance: bigToBN(
+                                sourceBalance.unconfirmedBalance || BIG_ZERO,
+                                denomination
+                              ),
                             }
                           : undefined
                       }
                       onInputAmountChange={handleAmountChanged}
                       padding="8px 16px"
-                      onError={(errorMessage) => {
-                        capture('BridgeTokenSelectError', {
-                          errorMessage,
-                        });
-                        setBridgeError(errorMessage);
-                      }}
                       skipHandleMaxAmount
                       inputAmount={
                         // Reset BNInput when programmatically setting the amount to zero

@@ -1,12 +1,10 @@
 import wallet_v2 from './wallet_v2';
 import { Avalanche } from '@avalabs/wallets-sdk';
-import { DerivationType } from '@src/background/services/wallet/models';
 import Joi from 'joi';
 jest.mock('@avalabs/wallets-sdk');
 
 describe('background/services/storage/schemaMigrations/migrations/wallet_v2', () => {
   const validInputMnemonic = {
-    derivationType: DerivationType.BIP44,
     mnemonic: 'mnemonic',
     xpub: 'xpub',
     pubKeys: undefined,
@@ -36,7 +34,6 @@ describe('background/services/storage/schemaMigrations/migrations/wallet_v2', ()
 
     const result = await wallet_v2.up(validInputMnemonic);
     expect(result).toStrictEqual({
-      derivationType: DerivationType.BIP44,
       mnemonic: 'mnemonic',
       xpub: 'xpub',
       xpubXP: 'xpubXP',

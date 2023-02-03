@@ -4,10 +4,17 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { UnsignedTx, EVMUnsignedTx } from '@avalabs/avalanchejs-v2';
+import {
+  UnsignedTx,
+  EVMUnsignedTx,
+  AVM,
+  PVM,
+  EVM,
+} from '@avalabs/avalanchejs-v2';
 import { parseAvalancheTx } from '@src/background/services/wallet/utils/parseAvalancheTx';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
+import { AccountsService } from '../../accounts/AccountsService';
 
 @injectable()
 export class AvalancheSendTransactionHandler extends DAppRequestHandler {
@@ -15,7 +22,8 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
 
   constructor(
     private walletService: WalletService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private accountsService: AccountsService
   ) {
     super();
   }
@@ -36,9 +44,36 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
     const unsignedTx = UnsignedTx.fromJSON(unsignedTxJson);
     const vm = unsignedTx.getVM();
 
+    const getAddressByVM = () => {
+      const activeAccount = this.accountsService.activeAccount;
+
+      if (!activeAccount) {
+        return;
+      }
+
+      if (vm === AVM) {
+        return activeAccount.addressAVM;
+      } else if (vm === PVM) {
+        return activeAccount.addressPVM;
+      } else if (vm === EVM) {
+        return activeAccount.addressCoreEth;
+      }
+    };
+
+    const currentAddress = getAddressByVM();
+
+    if (!currentAddress) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'No active account found',
+        }),
+      };
+    }
+
     const prov = await this.networkService.getAvalanceProviderXP();
     const txBuff = Buffer.from(unsignedTx.toBytes());
-    const txData = parseAvalancheTx(txBuff, vm, prov.getContext());
+    const txData = await parseAvalancheTx(txBuff, vm, prov, currentAddress);
 
     // Throw an error if we can't parse the transaction
     if (txData.type === 'unknown') {

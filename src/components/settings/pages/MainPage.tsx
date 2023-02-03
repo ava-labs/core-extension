@@ -24,7 +24,7 @@ import { useLanguage } from '@src/hooks/useLanguages';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import styled from 'styled-components';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 const StyledTag = styled(Typography)`
   background-color: ${({ theme }) => theme.palette.secondary[500]};

@@ -51,12 +51,26 @@ export class BalancesServiceBTC {
           }
 
           const denomination = network.networkToken.decimals;
-          const { balance: balanceSatoshis, utxos } =
-            await provider.getUtxoBalance(account.addressBTC);
+          const {
+            balance: balanceSatoshis,
+            utxos,
+            utxosUnconfirmed,
+            balanceUnconfirmed: balanceSatoshisUnconfirmed,
+          } = await provider.getUtxoBalance(account.addressBTC);
           const balanceBig = satoshiToBtc(balanceSatoshis);
           const balance = bigToBN(balanceBig, denomination);
           const balanceUSD = tokenPrice
             ? balanceBig.times(tokenPrice).toNumber()
+            : 0;
+          const unconfirmedBalanceBig = satoshiToBtc(
+            balanceSatoshisUnconfirmed
+          );
+          const unconfirmedBalance = bigToBN(
+            unconfirmedBalanceBig,
+            denomination
+          );
+          const unconfirmedBalanceUSD = tokenPrice
+            ? unconfirmedBalanceBig.times(tokenPrice).toNumber()
             : 0;
           return {
             address: account.addressBTC,
@@ -75,6 +89,16 @@ export class BalancesServiceBTC {
                   : undefined,
                 priceUSD: tokenPrice,
                 utxos,
+                utxosUnconfirmed,
+                unconfirmedBalance,
+                unconfirmedBalanceDisplayValue: balanceToDisplayValue(
+                  unconfirmedBalance,
+                  denomination
+                ),
+                unconfirmedBalanceUsdDisplayValue: tokenPrice
+                  ? unconfirmedBalanceBig.mul(tokenPrice).toFixed(2)
+                  : undefined,
+                unconfirmedBalanceUSD,
                 logoUri:
                   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
               },

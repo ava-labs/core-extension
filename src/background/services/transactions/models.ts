@@ -4,6 +4,10 @@ import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
 import * as ethers from 'ethers';
 
+// A helper generic that turns only given keys (K) of type T
+// from optional to required.
+export type EnsureDefined<T, K extends keyof T> = T & Required<Pick<T, K>>;
+
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
   PENDING = 'pending',
@@ -32,6 +36,12 @@ export interface TransactionDisplayValues {
   description?: ethers.utils.TransactionDescription;
   [key: string]: any;
 }
+
+export type TransactionDisplayValuesWithGasData = EnsureDefined<
+  TransactionDisplayValues,
+  'gasPrice' | 'gasLimit'
+>;
+
 export interface Transaction {
   id: number | string | void;
   method: string;

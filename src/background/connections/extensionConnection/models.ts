@@ -34,7 +34,7 @@ export enum ExtensionRequest {
   BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',
   BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT = 'bridge_get_eth_max_transfer_amount',
 
-  WALLET_GET_TYPE = 'wallet_getType',
+  WALLET_GET_DETAILS = 'wallet_getDetails',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
   GET_WALLET_HISTORY = 'wallet_getHistory',
 

@@ -40,6 +40,7 @@ import {
   ImportType,
   PrimaryAccount,
 } from '../accounts/models';
+import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageIsValid from './utils/ensureMessageIsValid';
 
 jest.mock('../storage/StorageService');
@@ -49,6 +50,7 @@ jest.mock('../lock/LockService');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageIsValid');
 jest.mock('@avalabs/wallets-sdk');
+jest.mock('./utils/getDerivationPath');
 
 jest.mock('@metamask/eth-sig-util', () => {
   const personalSignMock = jest.fn();
@@ -189,12 +191,18 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('stores the data and invokes onUnlock', async () => {
       const onUnlockSpy = jest.spyOn(walletService as any, 'onUnlock');
+      (getDerivationPath as jest.Mock).mockReturnValueOnce(
+        DerivationPath.BIP44
+      );
+
       await walletService.init({ mnemonic });
 
       expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
         mnemonic,
         pubKeys: undefined,
         xpub: undefined,
+        xpubXP: undefined,
+        derivationPath: DerivationPath.BIP44,
       });
       expect(onUnlockSpy).toHaveBeenCalled();
     });

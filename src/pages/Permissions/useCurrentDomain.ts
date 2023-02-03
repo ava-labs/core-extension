@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 export function useCurrentDomain() {
   const [domain, setDomain] = useState<string>();

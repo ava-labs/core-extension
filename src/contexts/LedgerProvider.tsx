@@ -32,6 +32,7 @@ import { InitLedgerTransportHandler } from '@src/background/services/ledger/hand
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 import {
   DerivationPath,
+  getAddressDerivationPath,
   getLedgerExtendedPublicKeyOfAccount,
   getPubKeyFromTransport,
 } from '@avalabs/wallets-sdk';
@@ -60,10 +61,14 @@ const LedgerContext = createContext<{
   appType: LedgerAppType;
   wasTransportAttempted: boolean;
   getPublicKey(accountIndex: number, pathType: DerivationPath): Promise<Buffer>;
-  closeTransport: () => void;
+  getBtcPublicKey(
+    accountIndex: number,
+    pathType: DerivationPath
+  ): Promise<Buffer>;
   avaxAppVersion: string | null;
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
+  closeCurrentApp: () => Promise<void>;
 }>({} as any);
 
 export function LedgerContextProvider({ children }: { children: any }) {
@@ -179,10 +184,18 @@ export function LedgerContextProvider({ children }: { children: any }) {
         );
 
         if (!appVersionError && config.appName === LedgerAppType.AVALANCHE) {
-          setAvaxAppVersion(config.appVersion);
-          setApp(avaxAppInstance);
-          setAppType(LedgerAppType.AVALANCHE);
-          return avaxAppInstance;
+          // TODO: remove this check once Avalanche app detects locked device state properly
+          const [, transportError] = await resolve(
+            // check if the device is locked
+            avaxAppInstance.getETHAddress("m/44'/60'/0'/0/0")
+          );
+
+          if (!transportError) {
+            setAvaxAppVersion(config.appVersion);
+            setApp(avaxAppInstance);
+            setAppType(LedgerAppType.AVALANCHE);
+            return avaxAppInstance;
+          }
         }
       }
 
@@ -252,14 +265,6 @@ export function LedgerContextProvider({ children }: { children: any }) {
     };
   }, [initialized, initLedgerApp, request]);
 
-  const closeTransport = () => {
-    if (app && initialized) {
-      setInialized(false);
-      app.transport.close();
-      setApp(undefined);
-    }
-  };
-
   /**
    * Get the extended public key for m/44'/60'/0'
    * @returns Promise<public key>
@@ -283,6 +288,27 @@ export function LedgerContextProvider({ children }: { children: any }) {
     }
     return getPubKeyFromTransport(transportRef.current, accountIndex, pathType);
   }
+
+  const getBtcPublicKey = useCallback(
+    async (accountIndex: number, pathType: DerivationPath) => {
+      if (!app || appType !== LedgerAppType.BITCOIN) {
+        throw new Error('no device detected');
+      }
+
+      const derivationPath = getAddressDerivationPath(
+        accountIndex,
+        pathType,
+        'EVM'
+      );
+
+      const { publicKey } = await (app as Btc).getWalletPublicKey(
+        derivationPath
+      );
+
+      return Buffer.from(publicKey, 'hex');
+    },
+    [app, appType]
+  );
 
   /**
    * When the user plugs-in/connects their ledger for the first time a
@@ -317,6 +343,15 @@ export function LedgerContextProvider({ children }: { children: any }) {
     });
     setInialized(true);
   }, [initialized, request]);
+
+  const closeCurrentApp = useCallback(async () => {
+    if (app) {
+      // send get app version first as a workaround for BTC bug: https://github.com/LedgerHQ/app-bitcoin-new/issues/63
+      await app.transport.send(0xb0, 0x01, 0x00, 0x00);
+      // quit the app: https://developers.ledger.com/docs/transport/open-close-info-on-apps/#quit-application
+      await app.transport.send(0xb0, 0xa7, 0x00, 0x00);
+    }
+  }, [app]);
 
   useEffect(() => {
     const subscription = events()
@@ -382,10 +417,11 @@ export function LedgerContextProvider({ children }: { children: any }) {
         wasTransportAttempted,
         appType,
         getPublicKey,
-        closeTransport,
+        getBtcPublicKey,
         avaxAppVersion,
         updateLedgerVersionWarningClosed,
         ledgerVersionWarningClosed,
+        closeCurrentApp,
       }}
     >
       {children}

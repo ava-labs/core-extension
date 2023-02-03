@@ -14,12 +14,20 @@ export function useApproveAction(actionId: string) {
 
   const updateAction = useCallback(
     (params: ActionUpdate) => {
+      if (action) {
+        // We need to update the status a bit faster for smoother UX.
+        setAction({
+          ...action,
+          status: params.status,
+        });
+      }
+
       request<UpdateActionHandler>({
         method: ExtensionRequest.ACTION_UPDATE,
         params: [params],
       }).then(() => globalThis.close());
     },
-    [request]
+    [request, action]
   );
 
   const cancelHandler = useCallback(() => {

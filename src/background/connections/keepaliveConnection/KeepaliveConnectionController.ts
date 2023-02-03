@@ -1,4 +1,4 @@
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import { ConnectionController } from '../models';
 
 export class KeepaliveConnectionController implements ConnectionController {

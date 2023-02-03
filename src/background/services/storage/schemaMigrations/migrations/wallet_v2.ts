@@ -1,12 +1,10 @@
 import Joi from 'joi';
 import { ImportType } from '@src/background/services/accounts/models';
-import { DerivationType } from '@src/background/services/wallet/models';
 import { Avalanche } from '@avalabs/wallets-sdk';
 
 const VERSION = 2;
 
 type PreviousSchema = {
-  derivationType?: DerivationType;
   mnemonic?: string;
   // Extended public key of m/44'/60'/0'
   xpub?: string;

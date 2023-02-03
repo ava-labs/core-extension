@@ -1,12 +1,10 @@
 import {
-  CaretIcon,
-  CloseIcon,
-  HorizontalFlex,
-  IconDirection,
-  TextButton,
+  Button,
+  Stack,
   Typography,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+  useTheme,
+  XIcon,
+} from '@avalabs/k2-components';
 
 interface OnboardingStepHeaderProps {
   testId?: string;
@@ -15,52 +13,51 @@ interface OnboardingStepHeaderProps {
   onClose?: () => void;
 }
 
-const Title = styled(Typography)`
-  flex-grow: 1;
-  line-height: 22px;
-  font-size: 20px;
-  font-weight: 700;
-  text-align: center;
-`;
-
 export function OnboardingStepHeader({
   testId,
   title,
-  onBack,
   onClose,
 }: OnboardingStepHeaderProps) {
   const theme = useTheme();
   return (
-    <HorizontalFlex width="100%" justify="space-between" align="center">
-      {onBack && (
-        <TextButton
-          data-testid={`${testId}-back-button`}
-          width="24px"
-          padding="2px 0"
-          onClick={onBack}
-        >
-          <CaretIcon
-            direction={IconDirection.LEFT}
-            height="18px"
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-      )}
+    <Stack
+      sx={{
+        width: '100%',
+        pt: theme.spacing(2),
+        pr: theme.spacing(2),
+        pb: 0,
+        pl: theme.spacing(6),
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      }}
+    >
       {title && (
-        <Title as="h1" data-testid={`${testId}-header`}>
+        <Typography
+          variant="h4"
+          sx={{
+            flexGrow: 1,
+            pt: 3,
+          }}
+          data-testid={`${testId}-header`}
+        >
           {title}
-        </Title>
+        </Typography>
       )}
       {onClose && (
-        <TextButton
+        <Button
+          variant="text"
           data-testid={`${testId}-close-button`}
-          width="24px"
-          padding="2px 0"
           onClick={onClose}
+          sx={{
+            p: 0,
+            height: theme.spacing(3),
+            width: theme.spacing(3),
+            minWidth: theme.spacing(3),
+          }}
         >
-          <CloseIcon height="18px" color={theme.colors.icon1} />
-        </TextButton>
+          <XIcon size={24} sx={{ color: 'primary.main' }} />
+        </Button>
       )}
-    </HorizontalFlex>
+    </Stack>
   );
 }

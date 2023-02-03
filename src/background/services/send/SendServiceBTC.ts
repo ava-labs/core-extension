@@ -1,4 +1,7 @@
-import { isBech32AddressInNetwork } from '@avalabs/bridge-sdk';
+import {
+  isBech32AddressInNetwork,
+  isBase58AddressInNetwork,
+} from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
 import {
   BitcoinInputUTXO,
@@ -70,20 +73,10 @@ export class SendServiceBTC implements SendServiceHelper {
         SendErrorMessage.INVALID_NETWORK_FEE
       );
 
-    // Estimate max send amount based on UTXOs and fee rate
-    // Since we are only using bech32 addresses we can use this.address to estimate
-    const maxAmount = new BN(
-      Math.max(
-        getMaxTransferAmountBTC(utxos, this.address, this.address, feeRate),
-        0
-      )
-    );
-
     if (!toAddress)
       return this.getErrorState(
         {
           ...sendState,
-          maxAmount,
           loading: false,
         },
         SendErrorMessage.ADDRESS_REQUIRED
@@ -91,13 +84,26 @@ export class SendServiceBTC implements SendServiceHelper {
 
     // Validate the destination address
     const isMainnet = await this.networkService.isMainnet();
-    const isAddressValid = isBech32AddressInNetwork(toAddress, isMainnet);
+
+    // Verify if its bech32/base58 address on the correct network
+    const isAddressValid =
+      isBech32AddressInNetwork(toAddress, isMainnet) ||
+      isBase58AddressInNetwork(toAddress, isMainnet);
 
     if (!isAddressValid)
       return this.getErrorState(
-        { ...sendState, loading: false, canSubmit: false, maxAmount },
+        { ...sendState, loading: false, canSubmit: false },
         SendErrorMessage.INVALID_ADDRESS
       );
+
+    // Estimate max send amount based on UTXOs and fee rate
+    // Since we are only using bech32 addresses we can use this.address to estimate
+    const maxAmount = new BN(
+      Math.max(
+        getMaxTransferAmountBTC(utxos, toAddress, this.address, feeRate),
+        0
+      )
+    );
 
     // Try to construct the actual transaction
     const { fee, psbt } = createTransferTx(

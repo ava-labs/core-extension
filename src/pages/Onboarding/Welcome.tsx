@@ -1,48 +1,16 @@
-import {
-  VerticalFlex,
-  HorizontalFlex,
-  WalletIcon,
-  CreateWalletIcon,
-  VerticalSeparator,
-  RecoveryLockIcon,
-  LedgerIcon,
-} from '@avalabs/react-components';
 import { OnboardButton } from './components/OnboardButton';
-import styled, { useTheme } from 'styled-components';
-import { BetaLabel } from '@src/components/icons/BetaLabel';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { useTranslation } from 'react-i18next';
-
-const ExistingWalletButton = styled(OnboardButton)`
-  .lock-ledger-icon-container {
-    display: none;
-    height: 100%;
-  }
-
-  .wallet-icon {
-    display: block;
-    height: 100%;
-  }
-`;
-
-const ButtonsWrapper = styled(VerticalFlex)`
-  display: none;
-  height: 100%;
-  width: 234px;
-`;
-
-const ExistingButtonsWrapper = styled.div`
-  :hover {
-    ${ExistingWalletButton} {
-      display: none;
-    }
-    ${ButtonsWrapper} {
-      display: flex;
-    }
-  }
-`;
+import {
+  Divider,
+  LedgerIcon,
+  PlusIcon,
+  RecoveryPhraseIcon,
+  Stack,
+  WalletIcon,
+} from '@avalabs/k2-components';
 
 interface WelcomeProps {
   onNext: (isImportFlow: OnboardingPhase) => void;
@@ -54,50 +22,67 @@ const defaultOptions = {
 };
 
 export function Welcome({ onNext }: WelcomeProps) {
-  const theme = useTheme();
   const { t } = useTranslation();
+
   return (
-    <VerticalFlex width="100%" align="center">
-      <VerticalFlex justify="center" align="center" margin="22px 0 36px">
-        <VerticalFlex height="260px">
-          <Lottie options={defaultOptions} height={260} width={260} />
-        </VerticalFlex>
-        <HorizontalFlex justify="flex-end" width="100%">
-          <BetaLabel />
-        </HorizontalFlex>
-      </VerticalFlex>
-      <VerticalFlex align="center">
-        <HorizontalFlex>
-          <OnboardButton
-            testId="create-new-wallet"
-            title={t('Create a New Wallet')}
-            onClick={() => onNext(OnboardingPhase.ANALYTICS_CONSENT)}
+    <Stack sx={{ width: '100%', alignItems: 'center', rowGap: 10 }}>
+      <Stack sx={{ mt: 12.5 }}>
+        <Lottie options={defaultOptions} height={200} width={200} />
+      </Stack>
+      <Stack>
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            columnGap: 1,
+          }}
+          divider={<Divider orientation="vertical" flexItem />}
+        >
+          <Stack>
+            <OnboardButton
+              testId="create-new-wallet"
+              title={t('Create a New Wallet')}
+              onClick={() => onNext(OnboardingPhase.ANALYTICS_CONSENT)}
+            >
+              <PlusIcon size={42} />
+            </OnboardButton>
+          </Stack>
+
+          <Stack
+            sx={{
+              '&:hover': {
+                '& .existing-wallet': {
+                  display: 'none',
+                },
+                '& .existing-wallet-buttons': {
+                  display: 'flex',
+                },
+              },
+            }}
           >
-            <CreateWalletIcon color={theme.colors.icon1} height="56px" />
-          </OnboardButton>
-          <VerticalSeparator margin="0 24px" />
-          <ExistingButtonsWrapper>
-            <ExistingWalletButton
+            <OnboardButton
+              className="existing-wallet"
               testId="access-existing-wallet"
               title={t('Access Existing Wallet')}
             >
-              <WalletIcon
-                color={theme.colors.icon1}
-                height="56px"
-                width="56px"
-                className="wallet-icon"
-              />
-            </ExistingWalletButton>
-            <ButtonsWrapper justify="space-evenly">
+              <WalletIcon size={42} className="wallet-icon" />
+            </OnboardButton>
+            <Stack
+              className="existing-wallet-buttons"
+              sx={{
+                display: 'none',
+                width: (theme) => theme.spacing(29.25),
+                height: '100%',
+                justifyContent: 'space-evenly',
+              }}
+            >
               <OnboardButton
                 testId="recovery-phrase"
                 title={t('Recovery Phrase')}
                 onClick={() => onNext(OnboardingPhase.IMPORT_WALLET)}
                 variant="small"
               >
-                <RecoveryLockIcon color={theme.colors.icon1} height="35px" />
+                <RecoveryPhraseIcon size={35} />
               </OnboardButton>
-              <VerticalSeparator margin="0 24px" />
               <OnboardButton
                 testId="ledger"
                 title={t('Ledger')}
@@ -106,12 +91,12 @@ export function Welcome({ onNext }: WelcomeProps) {
                 }}
                 variant="small"
               >
-                <LedgerIcon color={theme.colors.icon1} height="35px" />
+                <LedgerIcon size={35} />
               </OnboardButton>
-            </ButtonsWrapper>
-          </ExistingButtonsWrapper>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </VerticalFlex>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 }

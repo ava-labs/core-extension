@@ -37,6 +37,7 @@ interface TransactionDetailsProps {
   setIsOpen?: (isOpen: boolean) => void;
   maxGasPrice?: string;
   selectedGasFee?: GasFeeModifier;
+  isTransactionDetailsOpen?: boolean;
 }
 
 const isSlippageValid = (value: string) => {
@@ -78,13 +79,16 @@ export function TransactionDetails({
   setIsOpen,
   maxGasPrice,
   selectedGasFee,
+  isTransactionDetailsOpen,
 }: TransactionDetailsProps) {
   const { t } = useTranslation();
   const { network } = useNetworkContext();
   const { networkFee } = useNetworkFeeContext();
   const tokenPrice = useNativeTokenPrice(network);
   const { currencyFormatter } = useSettingsContext();
-  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(
+    isTransactionDetailsOpen || false
+  );
 
   const theme = useTheme();
 

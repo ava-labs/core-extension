@@ -122,6 +122,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
           balance: satoshiToBtc(btcBalance.balance.toNumber()),
           logoUri: btcBalance.logoUri,
           price: btcBalance.priceUSD,
+          unconfirmedBalance: btcBalance?.unconfirmedBalance
+            ? satoshiToBtc(btcBalance.unconfirmedBalance.toNumber())
+            : satoshiToBtc(0),
         });
       }
 
@@ -137,9 +140,12 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         setBtcBalanceAvalanche({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(btcAvalancheBalance?.balance.toNumber() || 0),
+          balance: satoshiToBtc(btcAvalancheBalance.balance?.toNumber() || 0),
           logoUri: btcAvalancheBalance.logoUri,
           price: btcAvalancheBalance.priceUSD,
+          unconfirmedBalance: satoshiToBtc(
+            btcAvalancheBalance.balance?.toNumber() || 0
+          ),
         });
       }
     }
