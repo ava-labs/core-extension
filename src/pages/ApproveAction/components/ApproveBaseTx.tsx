@@ -1,5 +1,5 @@
 import {
-  AvaxIcon,
+  AvalancheColorIcon,
   Card,
   CardContent,
   Stack,
@@ -113,7 +113,9 @@ export function BaseTxView({
                       alignItems: 'center',
                     }}
                   >
-                    {out.isAvax && <AvaxIcon size={'32px'} sx={{ mr: 1 }} />}
+                    {out.isAvax && (
+                      <AvalancheColorIcon size={'32px'} sx={{ mr: 1 }} />
+                    )}
                     <Typography variant="h6">
                       {out.assetDescription?.symbol}
                     </Typography>

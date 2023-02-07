@@ -10,7 +10,10 @@ import {
   RecoveryPhraseIcon,
   Stack,
   WalletIcon,
+  KeystoneIcon,
 } from '@avalabs/k2-components';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 
 interface WelcomeProps {
   onNext: (isImportFlow: OnboardingPhase) => void;
@@ -18,11 +21,12 @@ interface WelcomeProps {
 const defaultOptions = {
   loop: false,
   autoplay: true,
-  animationData: animationData,
+  animationData,
 };
 
 export function Welcome({ onNext }: WelcomeProps) {
   const { t } = useTranslation();
+  const { featureFlags } = useFeatureFlagContext();
 
   return (
     <Stack sx={{ width: '100%', alignItems: 'center', rowGap: 10 }}>
@@ -93,6 +97,18 @@ export function Welcome({ onNext }: WelcomeProps) {
               >
                 <LedgerIcon size={35} />
               </OnboardButton>
+              {featureFlags[FeatureGates.KEYSTONE] && (
+                <OnboardButton
+                  testId="ledger"
+                  title={t('Keystone')}
+                  onClick={() => {
+                    onNext(OnboardingPhase.KEYSTONE_TUTORIAL);
+                  }}
+                  variant="small"
+                >
+                  <KeystoneIcon size={35} />
+                </OnboardButton>
+              )}
             </Stack>
           </Stack>
         </Stack>
