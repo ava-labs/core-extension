@@ -107,6 +107,12 @@ export function SignTransactionPage() {
     ...params,
     contractType,
   };
+
+  const isReadyForApproval =
+    Boolean(networkFee) &&
+    hasGasPriceData(displayData) &&
+    transactionProgressState === TransactionProgressState.NOT_APPROVED;
+
   const requestedApprovalLimit = displayData.approveData
     ? hexToBN(displayData.approveData.limit)
     : undefined;
@@ -293,8 +299,7 @@ export function SignTransactionPage() {
             pb: 1,
           }}
         >
-          {transactionProgressState ===
-            TransactionProgressState.NOT_APPROVED && (
+          {isReadyForApproval && (
             <>
               <Button
                 color="secondary"
