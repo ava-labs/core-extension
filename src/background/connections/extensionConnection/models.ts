@@ -28,7 +28,6 @@ export enum ExtensionRequest {
 
   BRIDGE_GET_STATE = 'bridge_get_state',
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
-  BRIDGE_SIGN_ISSUE_BTC = 'bridge_sign_issue_btc',
   BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
   BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
   BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',

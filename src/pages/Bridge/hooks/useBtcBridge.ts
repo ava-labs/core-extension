@@ -24,7 +24,7 @@ import { AssetBalance } from '../models';
 import { BridgeAdapter } from './useBridge';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
-import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
+import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 
 const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
@@ -201,9 +201,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     const timestamp = Date.now();
     const symbol = currentAsset || '';
 
-    const result = await request<BridgeSignIssueBtcHandler>({
-      method: ExtensionRequest.BRIDGE_SIGN_ISSUE_BTC,
-      params: [amountInSatoshis, feeRate],
+    const result = await request<BridgeTransferAssetHandler>({
+      method: ExtensionRequest.BRIDGE_TRANSFER_ASSET,
+      params: [currentBlockchain, amountInBtc, btcAsset],
     });
 
     setTransactionDetails({
@@ -221,18 +221,17 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
     return result.hash;
   }, [
-    activeAccount,
-    amountInBtc,
-    amountInSatoshis,
-    btcAsset,
-    config,
-    createBridgeTransaction,
-    currentAsset,
     isBitcoinBridge,
-    request,
-    setTransactionDetails,
+    config,
+    activeAccount,
+    btcAsset,
     utxos,
-    feeRate,
+    currentAsset,
+    request,
+    currentBlockchain,
+    amountInBtc,
+    setTransactionDetails,
+    createBridgeTransaction,
   ]);
 
   return {

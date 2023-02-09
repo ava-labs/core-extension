@@ -21,7 +21,6 @@ import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers
 import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
-import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { ContactsUpdatedEvents } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
@@ -137,7 +136,6 @@ import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/servi
     token: 'ExtensionRequestHandler',
     useToken: BridgeRemoveTransactionHandler,
   },
-  { token: 'ExtensionRequestHandler', useToken: BridgeSignIssueBtcHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeTransferAssetHandler },
   {
     token: 'ExtensionRequestHandler',
