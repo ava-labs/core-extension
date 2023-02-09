@@ -20,12 +20,21 @@ import { useGetRequestId } from '../../hooks/useGetRequestId';
 import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
 import { BridgeTransferAsset } from './BridgeTransferAsset';
 import { Trans, useTranslation } from 'react-i18next';
+import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { LedgerApprovalOverlay } from '../SignTransaction/LedgerApprovalOverlay';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 
 export function ApproveAction() {
   const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
   const { action, updateAction } = useApproveAction(requestId);
+  const { network } = useNetworkContext();
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
+
+  useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
 
   if (!action) {
     return (
@@ -40,10 +49,18 @@ export function ApproveAction() {
     );
   }
 
+  const renderLedgerApproval = () => {
+    if (action.status === ActionStatus.SUBMITTING) {
+      return <LedgerApprovalOverlay displayData={action.displayData} />;
+    }
+  };
+
   return (
     <>
       <VerticalFlex width="100%" padding="0 16px" align="center">
         <SignTxRenderErrorBoundary>
+          {renderLedgerApproval()}
+
           <VerticalFlex padding="12px 0">
             <Typography as="h1" size={20} height="29px" weight={600}>
               {action.error ? 'Signing Failed' : 'Approve Action'}
@@ -107,6 +124,7 @@ export function ApproveAction() {
             <SecondaryButton
               size={ComponentSize.LARGE}
               width="168px"
+              disabled={action.status === ActionStatus.SUBMITTING}
               onClick={() => {
                 updateAction({
                   status: ActionStatus.ERROR_USER_CANCELED,
@@ -120,11 +138,15 @@ export function ApproveAction() {
             <PrimaryButton
               width="168px"
               size={ComponentSize.LARGE}
+              disabled={action.status === ActionStatus.SUBMITTING}
               onClick={() => {
-                updateAction({
-                  status: ActionStatus.SUBMITTING,
-                  id: action.id,
-                });
+                updateAction(
+                  {
+                    status: ActionStatus.SUBMITTING,
+                    id: action.id,
+                  },
+                  isUsingLedgerWallet // wait for the response only for ledger wallets
+                );
               }}
             >
               {t('Approve')}

@@ -47,8 +47,6 @@ import BN from 'bn.js';
 import Big from 'big.js';
 import { TokenType } from '@src/background/services/balances/models';
 import { useSetBridgeChainFromNetwork } from './hooks/useSetBridgeChainFromNetwork';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { WalletType } from '@src/background/services/wallet/models';
 import { BridgeConfirmLedger } from './components/BridgeConfirm';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -63,6 +61,7 @@ import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useAvailableBlockchains } from './hooks/useAvailableBlockchains';
 import { Trans, useTranslation } from 'react-i18next';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 
 const ErrorSection = styled(HorizontalFlex)`
   position: relative;
@@ -131,7 +130,7 @@ export function Bridge() {
 
   const { currencyFormatter, currency } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
-  const { walletType } = useWalletContext();
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
 
   const theme = useTheme();
   const [bridgeError, setBridgeError] = useState<string>('');
@@ -288,7 +287,7 @@ export function Bridge() {
   };
 
   const onTransferClicked = () => {
-    if (walletType === WalletType.LEDGER) {
+    if (isUsingLedgerWallet) {
       setTransferWithLedger(true);
     } else {
       handleTransfer();

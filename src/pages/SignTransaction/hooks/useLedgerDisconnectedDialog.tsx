@@ -1,6 +1,5 @@
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
-import { WalletType } from '@src/background/services/wallet/models';
 import {
   LedgerAppType,
   REQUIRED_LEDGER_VERSION,
@@ -18,6 +17,7 @@ import styled, { useTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { LedgerWrongVersion } from '@src/pages/Ledger/LedgerWrongVersion';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
   margin: 24px 0 0;
@@ -42,6 +42,7 @@ export function useLedgerDisconnectedDialog(
   const { network: activeNetwork } = useNetworkContext();
   const [hasCorrectApp, setHasCorrectApp] = useState(false);
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const network = otherNetwork ?? activeNetwork;
 
   const requiredAppType = useMemo(() => {
@@ -169,7 +170,7 @@ export function useLedgerDisconnectedDialog(
     clearDialog();
     // only show dialogs for ledger wallets and
     // wait for transport to be attempted at least once
-    if (walletType !== WalletType.LEDGER || !wasTransportAttempted) {
+    if (!isUsingLedgerWallet || !wasTransportAttempted) {
       return;
     }
 
@@ -196,6 +197,7 @@ export function useLedgerDisconnectedDialog(
     clearDialog,
     avaxAppVersion,
     showIncorrectAvaxVersionDialog,
+    isUsingLedgerWallet,
   ]);
 
   return hasCorrectApp;

@@ -13,7 +13,6 @@ import {
   WarningIcon,
 } from '@avalabs/react-components';
 import { useSwapContext } from '@src/contexts/SwapProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useState } from 'react';
 
@@ -41,13 +40,13 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import BN from 'bn.js';
-import { WalletType } from '@src/background/services/wallet/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
 import { calculateRate } from './utils';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 
 const ReviewOrderButtonContainer = styled.div<{
   isTransactionDetailsOpen: boolean;
@@ -63,7 +62,6 @@ export function Swap() {
   const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
-  const { walletType } = useWalletContext();
   const { network } = useNetworkContext();
   const { swap } = useSwapContext();
   const { networkFee } = useNetworkFeeContext();
@@ -74,6 +72,7 @@ export function Swap() {
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
 
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
@@ -111,7 +110,7 @@ export function Swap() {
 
   async function onHandleSwap() {
     let toastId = '';
-    if (walletType !== WalletType.LEDGER) {
+    if (!isUsingLedgerWallet) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
