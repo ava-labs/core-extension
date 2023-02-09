@@ -30,6 +30,7 @@ import {
   getPublicKeyFromPrivateKey,
   getAddressPublicKeyFromXPub,
   Avalanche,
+  getLedgerExtendedPublicKey,
 } from '@avalabs/wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
@@ -129,6 +130,30 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       walletService.onLock();
       expect(walletService.walletType).toBeUndefined();
+      expect(eventListener).toHaveBeenCalledWith({
+        locked: true,
+      });
+    });
+
+    it('clears the walletType and the derivationPath and triggers an event for Ledger wallets', async () => {
+      (storageService.load as jest.Mock).mockResolvedValueOnce({
+        xpub: 'xpub',
+        derivationPath: DerivationPath.BIP44,
+      });
+
+      const eventListener = jest.fn();
+      walletService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
+
+      await walletService.onUnlock();
+      expect(walletService.walletType).toBe(WalletType.LEDGER);
+      expect(walletService.derivationPath).toBe(DerivationPath.BIP44);
+
+      walletService.onLock();
+      expect(walletService.walletType).toBeUndefined();
+      expect(walletService.derivationPath).toBeUndefined();
       expect(eventListener).toHaveBeenCalledWith({
         locked: true,
       });
@@ -663,6 +688,9 @@ describe('background/services/wallet/WalletService.ts', () => {
     const addressesMock = {
       addressC: 'addressC',
       addressBTC: 'addressBTC',
+      addressAVM: 'addressAVM',
+      addressPVM: 'addressPVM',
+      addressCoreEth: 'addressCoreEth',
     };
     let getAddressesSpy: jest.SpyInstance;
 
@@ -693,7 +721,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         );
       });
 
-      it('throws when it fails to get pubkey from ledger', async () => {
+      it('throws when it fails to get EVM pubkey from ledger', async () => {
         const transportMock = {} as LedgerTransport;
         (storageService.load as jest.Mock).mockResolvedValueOnce({
           pubKeys: [],
@@ -716,8 +744,32 @@ describe('background/services/wallet/WalletService.ts', () => {
         );
       });
 
+      it('throws when it fails to get X/P pubkey from ledger', async () => {
+        const transportMock = {} as LedgerTransport;
+        (storageService.load as jest.Mock).mockResolvedValueOnce({
+          pubKeys: [],
+        });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        ledgerService.recentTransport = transportMock;
+
+        (getPubKeyFromTransport as jest.Mock)
+          .mockReturnValueOnce(Buffer.from('evm'))
+          .mockReturnValueOnce(Buffer.from(''));
+
+        await expect(walletService.addAddress(1)).rejects.toThrowError(
+          'Failed to get public key from device.'
+        );
+        expect(getPubKeyFromTransport).toHaveBeenCalledWith(
+          transportMock,
+          1,
+          DerivationPath.LedgerLive
+        );
+      });
+
       it('gets the addresses correctly', async () => {
-        const addressBuff = Buffer.from('0x1');
+        const addressBuffEvm = Buffer.from('0x1');
+        const addressBuffXP = Buffer.from('0x2');
         const transportMock = {} as LedgerTransport;
         getAddressesSpy.mockReturnValueOnce(addressesMock);
         (storageService.load as jest.Mock).mockResolvedValueOnce({
@@ -726,13 +778,20 @@ describe('background/services/wallet/WalletService.ts', () => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ledgerService.recentTransport = transportMock;
-        (getPubKeyFromTransport as jest.Mock).mockReturnValueOnce(addressBuff);
+        (getPubKeyFromTransport as jest.Mock)
+          .mockReturnValueOnce(addressBuffEvm)
+          .mockReturnValueOnce(addressBuffXP);
 
         const result = await walletService.addAddress(0);
         expect(getAddressesSpy).toHaveBeenCalledWith(0);
         expect(result).toStrictEqual(addressesMock);
         expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
-          pubKeys: [{ evm: addressBuff.toString('hex'), xp: '' }],
+          pubKeys: [
+            {
+              evm: addressBuffEvm.toString('hex'),
+              xp: addressBuffXP.toString('hex'),
+            },
+          ],
         });
       });
     });
@@ -1281,6 +1340,181 @@ describe('background/services/wallet/WalletService.ts', () => {
         expect(result.external).toHaveLength(101);
         expect(result.internal).toHaveLength(101);
         expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(202);
+      });
+    });
+  });
+
+  describe('migrateMissingXPPublicKeys', () => {
+    beforeEach(() => {
+      walletService['_walletType'] = WalletType.LEDGER;
+      (ledgerService as any).recentTransport = {} as LedgerTransport;
+      (storageService.load as jest.Mock).mockResolvedValue({
+        pubKeys: [{ evm: 'evm', xp: 'xp' }],
+      });
+    });
+
+    it('throws if storage is empty', async () => {
+      (storageService.load as jest.Mock).mockResolvedValueOnce(undefined);
+      await expect(
+        walletService.migrateMissingXPPublicKeys()
+      ).rejects.toThrowError(
+        'Error while searching for missing public keys: storage is empty.'
+      );
+    });
+
+    it('terminates early if wallet type is incorrect', async () => {
+      walletService['_walletType'] = WalletType.MNEMONIC;
+      await expect(
+        walletService.migrateMissingXPPublicKeys()
+      ).resolves.toBeUndefined();
+      expect(storageService.save).not.toHaveBeenCalled();
+    });
+
+    it('throws if transport is missing', async () => {
+      (ledgerService as any).recentTransport = undefined;
+      (storageService.load as jest.Mock).mockResolvedValue({
+        pubKeys: [{ evm: 'evm', xp: '' }],
+      });
+      (ledgerService as any).recentTransport = undefined;
+      await expect(
+        walletService.migrateMissingXPPublicKeys()
+      ).rejects.toThrowError('Ledger transport not available');
+    });
+
+    describe('Derivation path: BIP44', () => {
+      beforeEach(() => {
+        walletService['_derivationPath'] = DerivationPath.BIP44;
+      });
+
+      it('terminates early if there is nothing to update', async () => {
+        (storageService.load as jest.Mock).mockResolvedValue({
+          xpubXP: 'existing xpubXP',
+        });
+        await expect(
+          walletService.migrateMissingXPPublicKeys()
+        ).resolves.toBeUndefined();
+        expect(storageService.save).not.toHaveBeenCalled();
+      });
+
+      it('updates the extended public key correctly', async () => {
+        const secrets = { xpub: 'xpub' };
+        (storageService.load as jest.Mock).mockResolvedValue(secrets);
+        (getLedgerExtendedPublicKey as jest.Mock).mockResolvedValueOnce(
+          'xpubXP'
+        );
+
+        await expect(
+          walletService.migrateMissingXPPublicKeys()
+        ).resolves.toBeUndefined();
+        expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+          ...secrets,
+          xpubXP: 'xpubXP',
+        });
+      });
+    });
+
+    describe('Derivation path: Ledger Live', () => {
+      beforeEach(() => {
+        walletService['_derivationPath'] = DerivationPath.LedgerLive;
+      });
+
+      it('terminates early if there is nothing to update', async () => {
+        await expect(
+          walletService.migrateMissingXPPublicKeys()
+        ).resolves.toBeUndefined();
+        expect(storageService.save).not.toHaveBeenCalled();
+      });
+
+      it('updates the pubkeys and throws if an error happened', async () => {
+        const secrets = {
+          pubKeys: [
+            { evm: 'evm', xp: 'xp' },
+            { evm: 'evm2', xp: '' },
+            { evm: 'evm3', xp: '' },
+          ],
+        };
+        (storageService.load as jest.Mock).mockResolvedValue(secrets);
+
+        (getPubKeyFromTransport as jest.Mock)
+          .mockResolvedValueOnce(Buffer.from('1234', 'hex'))
+          .mockRejectedValueOnce('some error');
+
+        await expect(
+          walletService.migrateMissingXPPublicKeys()
+        ).rejects.toThrowError(
+          'Error while searching for missing public keys: incomplete migration.'
+        );
+
+        expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+          pubKeys: [
+            { evm: 'evm', xp: 'xp' },
+            {
+              evm: 'evm2',
+              xp: '1234',
+            },
+            { evm: 'evm3', xp: '' },
+          ],
+        });
+
+        expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
+          1,
+          {},
+          1,
+          DerivationPath.LedgerLive,
+          'AVM'
+        );
+        expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
+          2,
+          {},
+          2,
+          DerivationPath.LedgerLive,
+          'AVM'
+        );
+      });
+
+      it('updates the pubkeys correctly', async () => {
+        const secrets = {
+          pubKeys: [
+            { evm: 'evm', xp: 'xp' },
+            { evm: 'evm2', xp: '' },
+            { evm: 'evm3', xp: '' },
+          ],
+        };
+        (storageService.load as jest.Mock).mockResolvedValue(secrets);
+
+        (getPubKeyFromTransport as jest.Mock)
+          .mockResolvedValueOnce(Buffer.from('1234', 'hex'))
+          .mockResolvedValueOnce(Buffer.from('5678', 'hex'));
+
+        await expect(
+          walletService.migrateMissingXPPublicKeys()
+        ).resolves.toBeUndefined();
+
+        expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+          pubKeys: [
+            { evm: 'evm', xp: 'xp' },
+            {
+              evm: 'evm2',
+              xp: '1234',
+            },
+            { evm: 'evm3', xp: '5678' },
+          ],
+        });
+
+        expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
+          1,
+          {},
+          1,
+          DerivationPath.LedgerLive,
+          'AVM'
+        );
+        expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
+          2,
+          {},
+          2,
+          DerivationPath.LedgerLive,
+          'AVM'
+        );
       });
     });
   });

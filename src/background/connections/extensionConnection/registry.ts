@@ -99,6 +99,7 @@ import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
 import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
+import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -226,6 +227,10 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
     useToken: LedgerVersionWarningClosedHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: SetLanguageHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: MigrateMissingPublicKeysFromLedgerHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 

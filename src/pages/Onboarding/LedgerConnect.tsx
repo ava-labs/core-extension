@@ -5,6 +5,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { DerivationPathDropdown } from './components/DerivationPathDropDown';
 import {
+  Avalanche,
   DerivationPath,
   getAddressFromXPub,
   getEvmAddressFromPubKey,
@@ -66,7 +67,7 @@ export function LedgerConnect({
     getPublicKey,
   } = useLedgerContext();
   const { getAvaxBalance } = useGetAvaxBalance();
-  const { setXpub, setPublicKeys } = useOnboardingContext();
+  const { setXpub, setXpubXP, setPublicKeys } = useOnboardingContext();
   const { getAvalancheNetwork } = useGetAvalancheNetwork();
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
     LedgerStatus.LEDGER_UNINITIATED
@@ -118,6 +119,10 @@ export function LedgerConnect({
     try {
       const xpub = await getExtendedPublicKey();
       setXpub(xpub);
+      const xpubXP = await getExtendedPublicKey(
+        Avalanche.LedgerWallet.getAccountPath('X')
+      );
+      setXpubXP(xpubXP);
       setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
       capture('OnboardingLedgerConnected');
       getAddressFromXpubKey(xpub, 0);
@@ -132,6 +137,7 @@ export function LedgerConnect({
     getExtendedPublicKey,
     popDeviceSelection,
     setXpub,
+    setXpubXP,
   ]);
 
   const getDerivationPathValue = useCallback(
@@ -167,6 +173,7 @@ export function LedgerConnect({
     ) => {
       try {
         const pubKey = await getPublicKey(accountIndex, pathSpec);
+        const pubKeyXP = await getPublicKey(accountIndex, pathSpec, 'AVM');
         const address = getEvmAddressFromPubKey(pubKey);
         const { balance } = await getAvaxBalance(address);
         const newAddresses = [
@@ -177,13 +184,16 @@ export function LedgerConnect({
         if (accountIndex < 2) {
           await getPubKeys(pathSpec, accountIndex + 1, newAddresses, [
             ...pubKeys,
-            { evm: pubKey.toString('hex') },
+            { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
           ]);
         }
         if (accountIndex >= 2) {
           capture('OnboardingLedgerConnected');
           setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
-          setPublicKeys([...pubKeys, { evm: pubKey.toString('hex') }]);
+          setPublicKeys([
+            ...pubKeys,
+            { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
+          ]);
           setHasPublicKeys(true);
         }
       } catch {

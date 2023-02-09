@@ -22,6 +22,7 @@ import {
   getBech32AddressFromXPub,
   getBtcAddressFromPubKey,
   getEvmAddressFromPubKey,
+  getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
@@ -56,6 +57,7 @@ export class WalletService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
   private _walletType?: WalletType;
   private _derivationPath?: DerivationPath;
+
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService,
@@ -125,6 +127,7 @@ export class WalletService implements OnLock, OnUnlock {
 
   onLock() {
     this._walletType = undefined;
+    this._derivationPath = undefined;
     this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, { locked: true });
   }
 
@@ -580,22 +583,34 @@ export class WalletService implements OnLock, OnUnlock {
         DerivationPath.LedgerLive
       );
 
-      // TODO: Get X/P public key from transport (https://ava-labs.atlassian.net/browse/CP-4317)
-      if (!addressPublicKeyC || !addressPublicKeyC.byteLength) {
+      // Get X/P public key from transport
+      const addressPublicKeyXP = await getPubKeyFromTransport(
+        this.ledgerService.recentTransport,
+        index,
+        DerivationPath.LedgerLive,
+        'AVM'
+      );
+
+      if (
+        !addressPublicKeyC ||
+        !addressPublicKeyC.byteLength ||
+        !addressPublicKeyXP ||
+        !addressPublicKeyXP.byteLength
+      ) {
         throw new Error('Failed to get public key from device.');
       }
 
       const pubKeys = [...(secrets?.pubKeys || [])];
       pubKeys[index] = {
         evm: addressPublicKeyC.toString('hex'),
-        xp: '',
+        xp: addressPublicKeyXP.toString('hex'),
       };
 
       await this.storageService.save<WalletSecretInStorage>(
         WALLET_STORAGE_KEY,
         {
           ...secrets,
-          pubKeys: pubKeys,
+          pubKeys,
         }
       );
     }
@@ -607,6 +622,7 @@ export class WalletService implements OnLock, OnUnlock {
     const secrets = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
+
     const isMainnet = this.networkService.isMainnet();
 
     // Avalanche XP Provider
@@ -871,5 +887,104 @@ export class WalletService implements OnLock, OnUnlock {
         ...newImportedSecrets,
       },
     });
+  }
+
+  // Attempts to update the existing pubKey records where the XP public key is missing
+  async migrateMissingXPPublicKeys() {
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (!secrets) {
+      throw new Error(
+        'Error while searching for missing public keys: storage is empty.'
+      );
+    }
+
+    // nothing to migrate, exit early
+    if (this.walletType !== WalletType.LEDGER) {
+      return;
+    }
+
+    const transport = this.ledgerService.recentTransport;
+
+    if (!transport) {
+      throw new Error('Ledger transport not available');
+    }
+
+    if (this.derivationPath === DerivationPath.BIP44) {
+      // nothing to update, exit early
+      if (secrets.xpubXP) {
+        return;
+      }
+
+      const xpubXP = await getLedgerExtendedPublicKey(
+        transport,
+        false,
+        Avalanche.LedgerWallet.getAccountPath('X')
+      );
+
+      await this.storageService.save<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY,
+        {
+          ...secrets,
+          xpubXP,
+        }
+      );
+    } else if (this.derivationPath === DerivationPath.LedgerLive) {
+      const hasMissingXPPublicKey = (secrets.pubKeys ?? []).some(
+        (pubKey) => !pubKey.xp
+      );
+
+      // nothing to migrate, exit early
+      if (!hasMissingXPPublicKey) {
+        return;
+      }
+
+      const migrationResult: {
+        updatedPubKeys: PubKeyType[];
+        hasError: boolean;
+      } = {
+        updatedPubKeys: [],
+        hasError: false,
+      };
+
+      for (const [index, pubKey] of (secrets.pubKeys ?? []).entries()) {
+        if (!pubKey.xp) {
+          try {
+            const addressPublicKeyXP = await getPubKeyFromTransport(
+              transport,
+              index,
+              DerivationPath.LedgerLive,
+              'AVM'
+            );
+
+            migrationResult.updatedPubKeys.push({
+              ...pubKey,
+              xp: addressPublicKeyXP.toString('hex'),
+            });
+          } catch (err) {
+            migrationResult.updatedPubKeys.push(pubKey);
+            migrationResult.hasError = true;
+          }
+        } else {
+          migrationResult.updatedPubKeys.push(pubKey);
+        }
+      }
+
+      await this.storageService.save<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY,
+        {
+          ...secrets,
+          pubKeys: migrationResult.updatedPubKeys,
+        }
+      );
+
+      if (migrationResult.hasError) {
+        throw new Error(
+          'Error while searching for missing public keys: incomplete migration.'
+        );
+      }
+    }
   }
 }
