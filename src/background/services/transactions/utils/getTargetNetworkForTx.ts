@@ -18,15 +18,15 @@ const getTargetNetworkForTx = async (
 
   const chainId = parseInt(tx.chainId);
 
+  if (networkService.isActiveNetwork(chainId)) {
+    return activeNetwork;
+  }
+
   if (
     !featureFlagService.featureFlags[
       FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT
     ]
   ) {
-    if (networkService.isActiveNetwork(chainId)) {
-      return activeNetwork;
-    }
-
     throw ethErrors.rpc.invalidParams({
       message: 'Custom ChainID is not supported',
       data: { chainId },
