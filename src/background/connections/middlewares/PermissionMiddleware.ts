@@ -95,6 +95,7 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
   DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
   DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+  DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
 ]);
 
 export function PermissionMiddleware(

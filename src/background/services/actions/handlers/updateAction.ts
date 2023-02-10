@@ -17,7 +17,6 @@ export class UpdateActionHandler implements HandlerType {
   constructor(private actionsService: ActionsService) {}
   handle: HandlerType['handle'] = async (request) => {
     const [{ id, ...updates }, shouldWaitForResponse] = request.params;
-
     if (!id) {
       return {
         ...request,

@@ -177,6 +177,12 @@ const AvalancheSignTx = lazy(() => {
   }));
 });
 
+const BitcoinSignTx = lazy(() => {
+  return import('../pages/ApproveAction/BitcoinSignTx').then((m) => ({
+    default: m.BitcoinSignTx,
+  }));
+});
+
 export function Popup() {
   const { t } = useTranslation();
   const dimensions = useAppDimensions();
@@ -347,6 +353,12 @@ export function Popup() {
                                     <Route path="/approve/avalancheSignTx">
                                       <Suspense fallback={<LoadingIcon />}>
                                         <AvalancheSignTx />
+                                      </Suspense>
+                                    </Route>
+
+                                    <Route path="/approve/bitcoinSignTx">
+                                      <Suspense fallback={<LoadingIcon />}>
+                                        <BitcoinSignTx />
                                       </Suspense>
                                     </Route>
 
