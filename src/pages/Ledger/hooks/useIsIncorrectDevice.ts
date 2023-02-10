@@ -15,6 +15,7 @@ const useIsIncorrectDevice = () => {
   const { hasLedgerTransport, getPublicKey, getBtcPublicKey, appType } =
     useLedgerContext();
   const { accounts } = useAccountsContext();
+  const firstAddress = accounts.primary[0]?.addressC;
 
   useEffect(() => {
     const compareAddresses = async () => {
@@ -36,8 +37,6 @@ const useIsIncorrectDevice = () => {
               throw new Error(`App type '${appType}' not supported`);
             }
           };
-
-          const firstAddress = accounts.primary[0]?.addressC;
 
           if (firstAddress && appType !== LedgerAppType.UNKNOWN) {
             const pubKey = await getPublicKeyByAppType();
@@ -65,7 +64,7 @@ const useIsIncorrectDevice = () => {
     isWalletLocked,
     walletType,
     derivationPath,
-    accounts,
+    firstAddress,
     getPublicKey,
     hasLedgerTransport,
     appType,

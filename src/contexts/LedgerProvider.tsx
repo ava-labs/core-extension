@@ -191,18 +191,10 @@ export function LedgerContextProvider({ children }: { children: any }) {
         );
 
         if (!appVersionError && config.appName === LedgerAppType.AVALANCHE) {
-          // TODO: remove this check once Avalanche app detects locked device state properly
-          const [, transportError] = await resolve(
-            // check if the device is locked
-            avaxAppInstance.getETHAddress("m/44'/60'/0'/0/0")
-          );
-
-          if (!transportError) {
-            setAvaxAppVersion(config.appVersion);
-            setApp(avaxAppInstance);
-            setAppType(LedgerAppType.AVALANCHE);
-            return avaxAppInstance;
-          }
+          setAvaxAppVersion(config.appVersion);
+          setApp(avaxAppInstance);
+          setAppType(LedgerAppType.AVALANCHE);
+          return avaxAppInstance;
         }
       }
 
