@@ -76,6 +76,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'wallet_switchEthereumChain',
   'wallet_addEthereumChain',
   'wallet_watchAsset',
+  'wallet_requestPermissions',
   'web3_clientVersion',
   'web3_sha3',
   'avalanche_getIsDefaultExtensionState',

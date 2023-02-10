@@ -6,6 +6,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../PermissionsService';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
+import { ethErrors } from 'eth-rpc-errors';
 
 @injectable()
 export class WalletRequestPermissionsHandler extends DAppRequestHandler {
@@ -20,8 +21,16 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
 
   handleUnauthenticated = async (request) => {
     await this.openApprovalWindow(
-      request,
-      `permissions?domain=${request.site?.domain}`
+      {
+        ...request,
+        displayData: {
+          domainName: request.site?.name,
+          domainUrl: request.site?.domain,
+          domainIcon: request.site?.icon,
+        },
+        tabId: request.site.tabId,
+      },
+      `permissions?id=${request.id}`
     );
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -34,16 +43,34 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
   onActionApproved = async (
     pendingAction: Action,
     result: any,
-    onSuccess: (result: unknown) => void
+    onSuccess: (result: unknown) => void,
+    onError: (error: Error) => void
   ) => {
+    const selectedAccount = this.accountsService.getAccountByID(result);
+    if (!selectedAccount) {
+      onError(ethErrors.rpc.internal('Selected account not found'));
+      return;
+    }
+
+    if (!pendingAction?.site?.domain) {
+      onError(ethErrors.rpc.internal('Domain not set'));
+      return;
+    }
+
+    await this.permissionsService.addPermission({
+      domain: pendingAction.site.domain,
+      accounts: { [selectedAccount.addressC]: true },
+    });
+
     const currentPermissions = await this.permissionsService.getPermissions();
-    onSuccess({
-      ...pendingAction,
-      result: getPermissionsConvertedToMetaMaskStructure(
-        this.accountsService.activeAccount?.addressC,
+    await this.accountsService.activateAccount(result);
+
+    onSuccess(
+      getPermissionsConvertedToMetaMaskStructure(
+        selectedAccount.addressC,
         pendingAction.site?.domain,
         currentPermissions
-      ),
-    });
+      )
+    );
   };
 }

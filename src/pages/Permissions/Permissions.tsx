@@ -44,6 +44,10 @@ export function PermissionsPage() {
   } = useApproveAction(requestId);
   const isSubmitting = request?.status === ActionStatus.SUBMITTING;
 
+  const isEthRequestAccounts = request?.method === 'eth_requestAccounts';
+  const isWalletRequestPermissions =
+    request?.method === 'wallet_requestPermissions';
+
   const onApproveClicked = useCallback(async () => {
     if (!selectedAccount) {
       return;
@@ -64,26 +68,23 @@ export function PermissionsPage() {
         request.displayData.domainUrl,
         activeAccount.addressC
       ) &&
-      isConfirmContainer &&
-      onApproveClicked,
-    [
-      request,
-      activeAccount,
-      isDomainConnectedToAccount,
       isConfirmContainer,
-      onApproveClicked,
-    ]
+    [request, activeAccount, isDomainConnectedToAccount, isConfirmContainer]
   );
 
   // If the domain already has permissions for the active account, close the popup
   useEffect(() => {
-    if (isAccountPermissionGranted) {
-      onApproveClicked();
+    if (isAccountPermissionGranted && isEthRequestAccounts) {
+      window.close();
     }
-  }, [isAccountPermissionGranted, onApproveClicked]);
+  }, [isAccountPermissionGranted, isEthRequestAccounts]);
 
   // Must also wait for isAccountPermissionGranted since `onApproveClicked` is async
-  if (!permissions || !request || isAccountPermissionGranted) {
+  if (
+    !permissions ||
+    !request ||
+    (isAccountPermissionGranted && !isWalletRequestPermissions)
+  ) {
     return <LoadingDots size={20} />;
   }
 
