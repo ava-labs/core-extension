@@ -28,7 +28,6 @@ export enum ExtensionRequest {
 
   BRIDGE_GET_STATE = 'bridge_get_state',
   BRIDGE_TRANSFER_ASSET = 'bridge_transfer_asset',
-  BRIDGE_SIGN_ISSUE_BTC = 'bridge_sign_issue_btc',
   BRIDGE_TRANSACTION_CREATE = 'bridge_transaction_create',
   BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
   BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',
@@ -89,6 +88,7 @@ export enum ExtensionRequest {
   LEDGER_CLOSE_TRANSPORT = 'ledger_close_transport',
   SHOW_LEDGER_VERSION_WARNING = 'show_ledger_version_warning',
   LEDGER_VERSION_WARNING_CLOSED = 'ledger_version_warning_closed',
+  LEDGER_MIGRATE_MISSING_PUBKEYS = 'ledger_migrate_missing_pubkeys',
 
   NAVIGATION_HISTORY_GET = 'navigation_history_get',
   NAVIGATION_HISTORY_SET = 'navigation_history_set',

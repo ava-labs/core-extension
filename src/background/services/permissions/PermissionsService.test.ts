@@ -242,7 +242,13 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       expect(storageService.save).toHaveBeenCalledTimes(1);
       expect(storageService.save).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY, {
         ...mockPermissionData,
-        'oneaccount.example': newPermission,
+        'oneaccount.example': {
+          ...newPermission,
+          accounts: {
+            ...mockPermissionData[newPermission.domain]?.accounts,
+            ...newPermission.accounts,
+          },
+        },
       });
     });
 

@@ -33,12 +33,11 @@ import { BigNumber } from 'ethers';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
 import { ethersBigNumberToBN, hexToBN } from '@avalabs/utils-sdk';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { WalletType } from '@src/background/services/wallet/models';
 import { Trans, useTranslation } from 'react-i18next';
 import { RawTransactionData } from './components/RawTransactionData';
 import { CustomFeesK2 } from '@src/components/common/CustomFeesK2';
 import { useSignTransactionHeader } from './hooks/useSignTransactionHeader';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
@@ -78,8 +77,8 @@ export function SignTransactionPage() {
     TransactionProgressState.NOT_APPROVED
   );
   const tokens = useTokensWithBalances(false, network?.chainId);
-  const { walletType } = useWalletContext();
   const header = useSignTransactionHeader(contractType);
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
@@ -107,6 +106,12 @@ export function SignTransactionPage() {
     ...params,
     contractType,
   };
+
+  const isReadyForApproval =
+    Boolean(networkFee) &&
+    hasGasPriceData(displayData) &&
+    transactionProgressState === TransactionProgressState.NOT_APPROVED;
+
   const requestedApprovalLimit = displayData.approveData
     ? hexToBN(displayData.approveData.limit)
     : undefined;
@@ -123,7 +128,7 @@ export function SignTransactionPage() {
 		When wallet type is ledger, we need to show to the user that the interaction with ledger is needed. 
 		In this case, the popup will stay open until the promise from updateTransaction is resolved. 
      */
-    if (walletType !== WalletType.LEDGER) {
+    if (!isUsingLedgerWallet) {
       window.close();
     }
   };
@@ -293,8 +298,7 @@ export function SignTransactionPage() {
             pb: 1,
           }}
         >
-          {transactionProgressState ===
-            TransactionProgressState.NOT_APPROVED && (
+          {isReadyForApproval && (
             <>
               <Button
                 color="secondary"

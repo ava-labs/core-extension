@@ -15,6 +15,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { LanguageSelector } from './components/LanguageSelector';
 import { Card, Stack, useTheme } from '@avalabs/k2-components';
+import { KeystoneTutorial } from './KeystoneTutorial';
 
 export enum OnboardingPath {
   NEW_WALLET = 'new-wallet',
@@ -65,6 +66,7 @@ export function Onboarding() {
             'OnboardingCreateNewWalletSelected',
           [OnboardingPhase.IMPORT_WALLET]: 'OnboardingImportMnemonicSelected',
           [OnboardingPhase.LEDGER]: 'OnboardingImportLedgerSelected',
+          [OnboardingPhase.KEYSTONE_TUTORIAL]: 'OnboardingKeystoneSelected',
         };
         capture(eventNames[nextPhase]);
         setNextPhase(nextPhase);
@@ -131,6 +133,9 @@ export function Onboarding() {
           onboardingPath={onboardingPath}
         />
       );
+      break;
+    case OnboardingPhase.KEYSTONE_TUTORIAL:
+      content = <KeystoneTutorial onCancel={handleOnCancel} />;
       break;
     case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:

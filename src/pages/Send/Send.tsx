@@ -22,7 +22,6 @@ import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTheme } from 'styled-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useContactFromParams } from './hooks/useContactFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
@@ -40,17 +39,16 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useTranslation } from 'react-i18next';
 import { getSendErrorMessage } from './utils/sendErrorMessages';
 import { SendErrorMessage } from '@src/background/services/send/models';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 
 export function SendPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const { featureFlags } = useFeatureFlagContext();
-  const { walletType } = useWalletContext();
   const selectedToken = useTokenFromParams(false);
   const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
@@ -58,7 +56,6 @@ export function SendPage() {
   const { network } = useNetworkContext();
   const [amountInput, setAmountInput] = useState<BN>();
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
-
   const { sendState, resetSendState, submitSendState, updateSendState } =
     useSend();
 
@@ -67,6 +64,7 @@ export function SendPage() {
     GasFeeModifier.NORMAL
   );
 
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
   const [gasPriceState, setGasPrice] = useState<BigNumber>();
@@ -246,7 +244,7 @@ export function SendPage() {
       selectedGasFee,
     });
     let toastId: string;
-    if (walletType !== WalletType.LEDGER) {
+    if (!isUsingLedgerWallet) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -285,7 +283,7 @@ export function SendPage() {
       })
       .finally(() => {
         setShowTxInProgress(false);
-        if (walletType === WalletType.LEDGER) history.push('/home');
+        if (isUsingLedgerWallet) history.push('/home');
       });
   };
 

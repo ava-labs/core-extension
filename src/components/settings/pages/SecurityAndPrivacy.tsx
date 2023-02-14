@@ -132,7 +132,7 @@ export function SecurityAndPrivacy({
         padding="10px 16px"
       >
         <Typography size={14} height="17px">
-          {t('Participate in CoreAnalytics')}
+          {t('Participate in Core Analytics')}
         </Typography>
         <Toggle
           isChecked={analyticsConsent}

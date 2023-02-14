@@ -13,7 +13,7 @@ export function useApproveAction(actionId: string) {
   const [error] = useState<string>('');
 
   const updateAction = useCallback(
-    (params: ActionUpdate) => {
+    (params: ActionUpdate, shouldWaitForResponse?: boolean) => {
       if (action) {
         // We need to update the status a bit faster for smoother UX.
         setAction({
@@ -24,7 +24,7 @@ export function useApproveAction(actionId: string) {
 
       request<UpdateActionHandler>({
         method: ExtensionRequest.ACTION_UPDATE,
-        params: [params],
+        params: [params, shouldWaitForResponse],
       }).then(() => globalThis.close());
     },
     [request, action]

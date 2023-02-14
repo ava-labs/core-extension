@@ -1,7 +1,6 @@
 import { Overlay } from '@avalabs/react-components';
-import { WalletType } from '@src/background/services/wallet/models';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
 
 interface TxInProgressProps {
@@ -21,9 +20,9 @@ export function TxInProgress({
   address,
   nftName,
 }: TxInProgressProps) {
-  const { walletType } = useWalletContext();
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
 
-  if (walletType === WalletType.LEDGER) {
+  if (isUsingLedgerWallet) {
     return (
       <Overlay>
         <LedgerApprovalDialog

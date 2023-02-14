@@ -1,8 +1,8 @@
-import { Typography, VerticalFlex } from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
-import { useTranslation } from 'react-i18next';
+import { Trans } from 'react-i18next';
 import { FunctionNames } from './FunctionIsOffline';
+import { Stack, Typography } from '@avalabs/k2-components';
 interface FunctionIsOfflineProps {
   functionName: string;
   network: string;
@@ -13,24 +13,33 @@ export function FunctionIsUnavailable({
   network,
   children,
 }: PropsWithChildren<FunctionIsOfflineProps>) {
-  const { t } = useTranslation();
   return (
-    <VerticalFlex height="100%" width="100%">
+    <Stack
+      sx={{
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <PageTitle variant={PageTitleVariant.PRIMARY}>{functionName}</PageTitle>
-      <VerticalFlex align="center" justify="center" grow="1">
-        <Typography size={16} align="center" height="24px">
-          {
-            (t(
-              'Sorry, {{functionName}} is unavailable on {{network}} network.'
-            ),
-            {
+      <Stack
+        sx={{
+          flexGrow: 1,
+          px: 4,
+          alignContent: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography variant="body1" minHeight={24} align="center">
+          <Trans
+            i18nKey="Sorry, {{functionName}} is unavailable on <br/>{{network}} network."
+            values={{
               functionName: FunctionNames[functionName] || functionName,
               network,
-            })
-          }
+            }}
+          />
         </Typography>
         {children}
-      </VerticalFlex>
-    </VerticalFlex>
+      </Stack>
+    </Stack>
   );
 }

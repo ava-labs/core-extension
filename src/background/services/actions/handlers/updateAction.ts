@@ -7,7 +7,7 @@ import { ActionUpdate } from '../models';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE,
   true,
-  [ActionUpdate]
+  [ActionUpdate, boolean | undefined]
 >;
 
 @injectable()
@@ -16,8 +16,7 @@ export class UpdateActionHandler implements HandlerType {
 
   constructor(private actionsService: ActionsService) {}
   handle: HandlerType['handle'] = async (request) => {
-    const { id, ...updates } = request.params[0];
-
+    const [{ id, ...updates }, shouldWaitForResponse] = request.params;
     if (!id) {
       return {
         ...request,
@@ -36,7 +35,11 @@ export class UpdateActionHandler implements HandlerType {
       return { ...request, error: 'no message found with that id' };
     }
 
-    this.actionsService.updateAction({ id, ...updates });
+    const response = this.actionsService.updateAction({ id, ...updates });
+
+    if (shouldWaitForResponse) {
+      await response;
+    }
 
     return { ...request, result: true };
   };

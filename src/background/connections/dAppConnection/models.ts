@@ -30,6 +30,7 @@ export enum DAppProviderRequest {
   ACCOUNT_SELECT = 'avalanche_selectAccount',
   AVALANCHE_GET_ACCOUNT_PUB_KEY = 'avalanche_getAccountPubKey',
   AVALANCHE_SEND_TRANSACTION = 'avalanche_sendTransaction',
+  BITCOIN_SEND_TRANSACTION = 'bitcoin_sendTransaction',
 }
 
 export enum Web3Event {

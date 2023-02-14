@@ -64,10 +64,20 @@ export class PermissionsService implements OnLock {
 
   async addPermission(dappPermissions: DappPermissions) {
     const currentPermissions = await this.getPermissions();
+    const permissionsForDomain: DappPermissions =
+      currentPermissions[dappPermissions.domain] || dappPermissions;
+
     this.permissions = {
       ...currentPermissions,
-      [dappPermissions.domain]: dappPermissions,
+      [dappPermissions.domain]: {
+        ...permissionsForDomain,
+        accounts: {
+          ...permissionsForDomain.accounts,
+          ...dappPermissions.accounts,
+        },
+      },
     };
+
     this.storageService.save<Permissions>(
       PERMISSION_STORAGE_KEY,
       this.permissions

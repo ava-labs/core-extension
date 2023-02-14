@@ -5,10 +5,11 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import Big from 'big.js';
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
+import { BtcTransactionResponse } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSFER_ASSET,
-  TransactionResponse,
+  TransactionResponse | BtcTransactionResponse,
   [currentBlockchain: Blockchain, amountStr: Big, asset: Asset]
 >;
 
@@ -20,40 +21,47 @@ export class BridgeTransferAssetHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async (request) => {
     const [currentBlockchain, amount, asset] = request.params;
-    // BTC.b has AssetType = BTC and this check prevents it from bridging that
-    // if (
-    //   !(
-    //     asset.assetType === AssetType.ERC20 ||
-    //     asset.assetType === AssetType.NATIVE
-    //   )
-    // ) {
-    //   return {
-    //     ...request,
-    //     error: `Cannot transfer asset type ${asset.assetType}`,
-    //   };
-    // }
-    try {
-      const result = await this.bridgeService.transferAsset(
-        currentBlockchain,
-        amount,
-        // This is needed for the bridge to work currently
-        asset as any
-      );
 
-      if (!result) return { ...request, error: 'Unknown error' };
+    if (currentBlockchain === Blockchain.BITCOIN) {
+      try {
+        const result = await this.bridgeService.transferBtcAsset(amount);
 
-      return {
-        ...request,
-        result,
-      };
-    } catch (error: any) {
-      // user declined the transaction
-      console.error(error);
+        return {
+          ...request,
+          result,
+        };
+      } catch (error) {
+        console.error(error);
 
-      return {
-        ...request,
-        error: 'User declined the transaction',
-      };
+        return {
+          ...request,
+          error: 'User declined the transaction',
+        };
+      }
+    } else {
+      try {
+        const result = await this.bridgeService.transferAsset(
+          currentBlockchain,
+          amount,
+          // This is needed for the bridge to work currently
+          asset as any
+        );
+
+        if (!result) return { ...request, error: 'Unknown error' };
+
+        return {
+          ...request,
+          result,
+        };
+      } catch (error: any) {
+        // user declined the transaction
+        console.error(error);
+
+        return {
+          ...request,
+          error: 'User declined the transaction',
+        };
+      }
     }
   };
 }

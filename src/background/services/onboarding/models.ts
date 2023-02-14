@@ -14,6 +14,8 @@ export enum OnboardingPhase {
   LEDGER = 'ledger',
   LEDGER_TROUBLE = 'ledger_trouble',
   ANALYTICS_CONSENT = 'analytics_consent',
+  KEYSTONE = 'keystone',
+  KEYSTONE_TUTORIAL = 'keystone_tutorial',
 }
 
 export enum OnboardingEvents {

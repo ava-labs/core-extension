@@ -76,6 +76,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'wallet_switchEthereumChain',
   'wallet_addEthereumChain',
   'wallet_watchAsset',
+  'wallet_requestPermissions',
   'web3_clientVersion',
   'web3_sha3',
   'avalanche_getIsDefaultExtensionState',
@@ -95,6 +96,7 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
   DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
   DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+  DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
 ]);
 
 export function PermissionMiddleware(

@@ -21,7 +21,6 @@ import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers
 import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
-import { BridgeSignIssueBtcHandler } from '@src/background/services/bridge/handlers/signAndIssueBtcTx';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { ContactsUpdatedEvents } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
@@ -99,6 +98,7 @@ import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
 import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
+import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -136,7 +136,6 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
     token: 'ExtensionRequestHandler',
     useToken: BridgeRemoveTransactionHandler,
   },
-  { token: 'ExtensionRequestHandler', useToken: BridgeSignIssueBtcHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeTransferAssetHandler },
   {
     token: 'ExtensionRequestHandler',
@@ -226,6 +225,10 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
     useToken: LedgerVersionWarningClosedHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: SetLanguageHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: MigrateMissingPublicKeysFromLedgerHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 

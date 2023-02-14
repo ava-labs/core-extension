@@ -67,6 +67,18 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     expect(network).toBe(networkMock);
   });
 
+  it('returns the active network if chainId is the active one', async () => {
+    jest.spyOn(mockNetworkService, 'isActiveNetwork').mockReturnValueOnce(true);
+
+    const network = await getTargetNetworkForTx(
+      {} as unknown as Transaction,
+      mockNetworkService,
+      mockFeatureFlagService
+    );
+
+    expect(network).toBe(networkMock);
+  });
+
   it(`returns the active network if feature flag is disabled and the provided chainId equals the active network's`, async () => {
     mockFeatureFlagService.featureFlags[
       FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT

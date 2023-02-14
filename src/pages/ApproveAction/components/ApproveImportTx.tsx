@@ -1,6 +1,6 @@
 import { ImportTx } from '@src/background/services/wallet/models';
 import {
-  AvaxIcon,
+  AvalancheColorIcon,
   Card,
   CardContent,
   Divider,
@@ -139,7 +139,7 @@ export function ImportTxView({
                 alignItems: 'center',
               }}
             >
-              <AvaxIcon size={'32px'} />
+              <AvalancheColorIcon size={'32px'} />
               <Typography sx={{ ml: 1 }} variant="h6">
                 AVAX
               </Typography>

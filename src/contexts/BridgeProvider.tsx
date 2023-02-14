@@ -20,6 +20,7 @@ import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handle
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import {
   BridgeState,
+  BtcTransactionResponse,
   DefaultBridgeState,
   PartialBridgeTransaction,
   TransferEventType,
@@ -46,7 +47,7 @@ interface BridgeContext {
     asset: Asset,
     onStatusChange: (status: WrapStatus) => void,
     onTxHashChange: (txHash: string) => void
-  ) => Promise<TransactionResponse>;
+  ) => Promise<TransactionResponse | BtcTransactionResponse>;
   isBridgeDevEnv: boolean;
   setIsBridgeDevEnv: (enabled: boolean) => void;
 }

@@ -20,6 +20,7 @@ type HandlerType = ExtensionRequestHandler<
     {
       mnemonic: string | undefined;
       xpub: string | undefined;
+      xpubXP: string | undefined;
       password: string;
       accountName: string;
       analyticsConsent: boolean;
@@ -47,11 +48,12 @@ export class SubmitOnboardingHandler implements HandlerType {
     const {
       mnemonic,
       xpub: xPubFromLedger,
+      xpubXP: xPubXpFromLedger,
       password,
       accountName,
       analyticsConsent,
       pubKeys,
-    } = request.params[0];
+    } = (request.params ?? [])[0] ?? {};
 
     if (!mnemonic && !xPubFromLedger && !pubKeys) {
       return {
@@ -60,16 +62,40 @@ export class SubmitOnboardingHandler implements HandlerType {
       };
     }
 
-    await this.storageService.createStorageKey(password);
+    if (!password) {
+      return {
+        ...request,
+        error: 'unable to create a wallet, password is required',
+      };
+    }
+
+    // the payload shouldn't contain both xpub and pubkeys
+    // it's not possible to determine which one to use, so we throw an error here
+    if (xPubFromLedger && pubKeys?.length) {
+      return {
+        ...request,
+        error: "unable to determine wallet's derivation path",
+      };
+    }
 
     // XPUB form EVM m/44'/60'/0'
     const xpub =
       xPubFromLedger || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
 
-    // Derive xpubXP from mnemonic
-    const xpubXP = mnemonic && Avalanche.getXpubFromMnemonic(mnemonic);
+    if (!xpub && !pubKeys) {
+      return {
+        ...request,
+        error: 'unable to create a wallet',
+      };
+    }
 
-    //TODO: Support Ledger onboarding for X/P chains m/44'/9000'/0' (https://ava-labs.atlassian.net/browse/CP-4317)
+    await this.storageService.createStorageKey(password);
+
+    // Derive xpubXP from mnemonic / ledger
+    const xpubXP = mnemonic
+      ? Avalanche.getXpubFromMnemonic(mnemonic)
+      : xPubXpFromLedger;
+
     if (xpub) {
       await this.walletService.init({ mnemonic, xpub, xpubXP });
       await this.accountsService.addAccount(accountName);
@@ -79,13 +105,6 @@ export class SubmitOnboardingHandler implements HandlerType {
         const newAccountName = i === 0 ? accountName : '';
         await this.accountsService.addAccount(newAccountName);
       }
-    }
-
-    if (!xpub && !pubKeys) {
-      return {
-        ...request,
-        error: 'unable to create a wallet',
-      };
     }
 
     // add favorite networks before account activation so they can be loaded by the balances service

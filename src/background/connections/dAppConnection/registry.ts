@@ -3,7 +3,7 @@ import { AvalancheGetAccountsHandler } from '@src/background/services/accounts/h
 import { AvalancheSelectAccountHandler } from '@src/background/services/accounts/handlers/avalanche_selectAccount';
 import { EthAccountsHandler } from '@src/background/services/accounts/handlers/eth_accounts';
 import { ActionCompletedEvents } from '@src/background/services/actions/events/actionCompletedEvents';
-import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/AvalancheBridgeAsset';
+import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/avalanche_bridgeAsset';
 import { AvalancheGetBridgeTransactionHandler } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
 import { AvalancheGetContactsHandler } from '@src/background/services/contacts/handlers/avalanche_getContacts';
 import { AvalancheCreateContactHandler } from '@src/background/services/contacts/handlers/avalanche_createContact';
@@ -30,6 +30,7 @@ import { registry } from 'tsyringe';
 import { AvalancheGetAccountPubKeyHandler } from '@src/background/services/accounts/handlers/avalanche_getAccountPubKey';
 import { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
 import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/accounts/handlers/avalanche_getAddressesInRange';
+import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -52,6 +53,7 @@ import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/ac
   { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountPubKeyHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
+  { token: 'DAppRequestHandler', useToken: BitcoinSendTransactionHandler },
   {
     token: 'DAppRequestHandler',
     useToken: AvalancheGetAddressesInRangeHandler,

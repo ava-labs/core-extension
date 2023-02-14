@@ -41,6 +41,7 @@ const OnboardingContext = createContext<{
   setNextPhase: Dispatch<SetStateAction<OnboardingPhase | undefined>>;
   setMnemonic: Dispatch<SetStateAction<string>>;
   setXpub: Dispatch<SetStateAction<string>>;
+  setXpubXP: Dispatch<SetStateAction<string>>;
   setAnalyticsConsent: Dispatch<SetStateAction<boolean>>;
   setPasswordAndName: (password: string, accountName: string) => void;
   submit(): void;
@@ -56,6 +57,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [nextPhase, setNextPhase] = useState<OnboardingPhase>();
   const [mnemonic, setMnemonic] = useState('');
   const [xpub, setXpub] = useState('');
+  const [xpubXP, setXpubXP] = useState('');
   const [password, setPassword] = useState('');
   const [accountName, setAccountName] = useState<string>('Account 1');
   const [analyticsConsent, setAnalyticsConsent] = useState(false);
@@ -65,6 +67,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   function resetStates() {
     setMnemonic('');
     setXpub('');
+    setXpubXP('');
+    setPublicKeys([]);
     setPassword('');
     setAccountName('Account 1');
     setAnalyticsConsent(false);
@@ -136,6 +140,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         {
           mnemonic,
           xpub,
+          xpubXP,
           password,
           accountName,
           analyticsConsent,
@@ -158,6 +163,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setNextPhase,
         setMnemonic,
         setXpub,
+        setXpubXP,
         setPasswordAndName,
         submit,
         updateInitialOpen,

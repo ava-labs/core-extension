@@ -1,10 +1,14 @@
+import { isBitcoin } from '@src/utils/isBitcoin';
+import { resolve } from '@avalabs/utils-sdk';
 import {
   Blockchain,
   BridgeConfig,
   BridgeTransaction,
+  btcToSatoshi,
   Environment,
   EthereumConfigAsset,
   fetchConfig,
+  getBtcTransaction,
   getMinimumConfirmations,
   NativeAsset,
   setBridgeEnvironment,
@@ -23,6 +27,7 @@ import {
   BridgeState,
   DefaultBridgeState,
   TransferEventType,
+  BtcTransactionResponse,
 } from './models';
 import { TransactionResponse } from '@ethersproject/providers';
 import { WalletService } from '../wallet/WalletService';
@@ -33,6 +38,11 @@ import {
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
 import Big from 'big.js';
+import { NetworkFeeService } from '../networkFee/NetworkFeeService';
+import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
+import { ChainId } from '@avalabs/chains-sdk';
+import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { BigNumber } from 'ethers';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -56,7 +66,9 @@ export class BridgeService implements OnLock, OnStorageReady {
     private networkService: NetworkService,
     private walletService: WalletService,
     private accountsService: AccountsService,
-    private featureFlagService: FeatureFlagService
+    private featureFlagService: FeatureFlagService,
+    private networkFeeService: NetworkFeeService,
+    private networkBalancesService: BalanceAggregatorService
   ) {
     this.networkService.activeNetworkChanged.add(() => {
       this.updateBridgeConfig();
@@ -157,6 +169,76 @@ export class BridgeService implements OnLock, OnStorageReady {
     );
   }
 
+  async transferBtcAsset(amount: Big): Promise<BtcTransactionResponse> {
+    if (!this.config?.config) {
+      throw new Error('Missing bridge config');
+    }
+    const addressBtc = this.accountsService.activeAccount?.addressBTC;
+    if (!addressBtc) {
+      throw new Error('No active account found');
+    }
+
+    const network = this.networkService.activeNetwork;
+
+    if (!network || !isBitcoin(network)) {
+      throw new Error('Wrong network.');
+    }
+
+    const provider = this.networkService.getProviderForNetwork(network);
+    if (
+      provider instanceof JsonRpcBatchInternal ||
+      provider instanceof Avalanche.JsonRpcProvider
+    ) {
+      throw new Error('Wrong provider found.');
+    }
+
+    const amountInSatoshis = btcToSatoshi(amount);
+
+    // mimicing the same feeRate in useBtcBridge
+    const feeRate =
+      (await this.networkFeeService.getNetworkFee(network))?.high.toNumber() ??
+      0;
+
+    const token =
+      this.networkBalancesService.balances[
+        network.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+      ]?.[addressBtc]?.['BTC'];
+
+    const utxos = token?.utxos ?? [];
+
+    const { inputs, outputs } = getBtcTransaction(
+      this.config.config,
+      addressBtc,
+      utxos,
+      amountInSatoshis,
+      feeRate
+    );
+
+    const [signedTx, error] = await resolve(
+      this.walletService.sign({ inputs, outputs }, network)
+    );
+
+    if (!signedTx || error) {
+      throw new Error('Failed to sign transaction.');
+    }
+
+    const [sendResult, sendError] = await resolve(
+      provider.issueRawTx(signedTx)
+    );
+
+    if (!sendResult || sendError) {
+      throw new Error('Failed to send transaction.');
+    }
+
+    return {
+      hash: sendResult.hash,
+      gasLimit: BigNumber.from(sendResult.fees),
+      value: BigNumber.from(amountInSatoshis),
+      confirmations: sendResult.confirmations,
+      from: addressBtc,
+    };
+  }
+
   async transferAsset(
     currentBlockchain: Blockchain,
     amount: Big,
@@ -177,8 +259,6 @@ export class BridgeService implements OnLock, OnStorageReady {
     let network;
     if (currentBlockchain === Blockchain.AVALANCHE) {
       network = await this.networkService.getAvalancheNetwork();
-    } else if (currentBlockchain === Blockchain.BITCOIN) {
-      network = await this.networkService.getBitcoinNetwork();
     } else if (currentBlockchain === Blockchain.ETHEREUM) {
       network = await this.networkService.getEthereumNetwork();
     }

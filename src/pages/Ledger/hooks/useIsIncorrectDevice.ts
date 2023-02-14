@@ -4,13 +4,18 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useState } from 'react';
+import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 const useIsIncorrectDevice = () => {
   const [isIncorrectDevice, setIsIncorrectDevice] = useState<boolean>(false);
   const { isWalletLocked, walletType, derivationPath } = useWalletContext();
+  const { request } = useConnectionContext();
   const { hasLedgerTransport, getPublicKey, getBtcPublicKey, appType } =
     useLedgerContext();
   const { accounts } = useAccountsContext();
+  const firstAddress = accounts.primary[0]?.addressC;
 
   useEffect(() => {
     const compareAddresses = async () => {
@@ -33,12 +38,19 @@ const useIsIncorrectDevice = () => {
             }
           };
 
-          if (appType !== LedgerAppType.UNKNOWN) {
+          if (firstAddress && appType !== LedgerAppType.UNKNOWN) {
             const pubKey = await getPublicKeyByAppType();
             const address = getEvmAddressFromPubKey(pubKey);
-            const isMatching = accounts.primary[0]?.addressC === address;
+            const isMatching = firstAddress === address;
 
             setIsIncorrectDevice(!isMatching);
+
+            if (isMatching && appType === LedgerAppType.AVALANCHE) {
+              // Attempt to migrate missing X/P public keys (if there's any) once the device is verified
+              await request<MigrateMissingPublicKeysFromLedgerHandler>({
+                method: ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
+              });
+            }
           }
         } catch (err) {
           // some problem occured with the app
@@ -52,11 +64,12 @@ const useIsIncorrectDevice = () => {
     isWalletLocked,
     walletType,
     derivationPath,
-    accounts,
+    firstAddress,
     getPublicKey,
     hasLedgerTransport,
     appType,
     getBtcPublicKey,
+    request,
   ]);
 
   return isIncorrectDevice;
