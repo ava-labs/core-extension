@@ -284,7 +284,7 @@ export abstract class BaseProvider extends SafeEventEmitter {
    * @emits MetaMaskInpageProvider#connect
    */
   protected _handleConnect(chainId: string) {
-    if (!this._state.isConnected) {
+    if (!this._state.isConnected && Number(chainId) !== 0) {
       this._state.isConnected = true;
       this.emit('connect', { chainId });
       this._log.debug(messages.info.connected(chainId));

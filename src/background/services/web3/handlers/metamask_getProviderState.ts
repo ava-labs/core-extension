@@ -21,8 +21,12 @@ export class MetamaskGetProviderState extends DAppRequestHandler {
       ...request,
       result: {
         isUnlocked: false,
-        chainId: `0x${activeNetwork?.chainId.toString(16)}`,
-        networkVersion: `${activeNetwork?.chainId}`,
+        chainId: activeNetwork?.chainId
+          ? `0x${activeNetwork?.chainId.toString(16)}`
+          : '0x0',
+        networkVersion: activeNetwork?.chainId
+          ? `${activeNetwork?.chainId}`
+          : 'loading',
         accounts: [],
       },
     };
@@ -34,8 +38,12 @@ export class MetamaskGetProviderState extends DAppRequestHandler {
       ...request,
       result: {
         isUnlocked: true,
-        chainId: `0x${activeNetwork?.chainId.toString(16)}`,
-        networkVersion: `${activeNetwork?.chainId}`,
+        chainId: activeNetwork?.chainId
+          ? `0x${activeNetwork?.chainId.toString(16)}`
+          : '0x0',
+        networkVersion: activeNetwork?.chainId
+          ? `${activeNetwork?.chainId}`
+          : 'loading',
         accounts: this.accountsService.activeAccount
           ? [this.accountsService.activeAccount.addressC]
           : [],
