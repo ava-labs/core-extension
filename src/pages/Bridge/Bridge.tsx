@@ -6,6 +6,7 @@ import {
   useBridgeSDK,
   WrapStatus,
   useGetTokenSymbolOnNetwork,
+  isAddressBlocklisted,
 } from '@avalabs/bridge-sdk';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import {
@@ -51,7 +52,6 @@ import { BridgeConfirmLedger } from './components/BridgeConfirm';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { BridgeSanctions } from './components/BridgeSanctions';
-import { isAddressBlocklisted } from './utils/isAddressBlocklisted';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import {
   blockchainToNetwork,
@@ -354,7 +354,14 @@ export function Bridge() {
     return <BridgeUnknownNetwork onSelect={handleBlockchainSwitchFrom} />;
   }
 
-  if (activeAccount && isAddressBlocklisted(activeAccount, bridgeConfig)) {
+  if (
+    activeAccount &&
+    isAddressBlocklisted({
+      addressEVM: activeAccount.addressC,
+      addressBTC: activeAccount.addressBTC,
+      bridgeConfig,
+    })
+  ) {
     return <BridgeSanctions />;
   }
 
