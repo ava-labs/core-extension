@@ -28,7 +28,7 @@ const NetworkListContainer = styled(HorizontalFlex)`
 
 export function NetworkList() {
   const { capture } = useAnalyticsContext();
-  const { network, networks, setNetwork, favoriteNetworks } =
+  const { network, networks, setNetwork, favoriteNetworks, isCustomNetwork } =
     useNetworkContext();
   const theme = useTheme();
   const { tokens } = useBalancesContext();
@@ -100,7 +100,7 @@ export function NetworkList() {
                     src={network.logoUri}
                   />
                 </LogoContainer>
-                <VerticalFlex width="100%">
+                <VerticalFlex width="100%" minHeight="51px" justify="center">
                   <Typography
                     size={14}
                     color={theme.colors.text2}
@@ -109,14 +109,16 @@ export function NetworkList() {
                   >
                     {network.chainName}
                   </Typography>
-                  <Typography
-                    data-testid={`network-card-${network.chainId}-balance`}
-                    size={14}
-                    color={theme.colors.text2}
-                    height="17px"
-                  >
-                    {currencyFormatter(networkBalance)}
-                  </Typography>
+                  {!isCustomNetwork(network.chainId) && (
+                    <Typography
+                      data-testid={`network-card-${network.chainId}-balance`}
+                      size={14}
+                      color={theme.colors.text2}
+                      height="17px"
+                    >
+                      {currencyFormatter(networkBalance)}
+                    </Typography>
+                  )}
                 </VerticalFlex>
               </HorizontalFlex>
             </NetworkCard>
