@@ -25,6 +25,7 @@ import { Account } from '../accounts/models';
 import { getSmallImageForNFT } from './nft/utils/getSmallImageForNFT';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import * as Sentry from '@sentry/browser';
+import { getErc721Metadata } from '@src/utils/getErc721Metadata';
 
 @singleton()
 export class BalancesServiceGlacier {
@@ -218,18 +219,7 @@ export class BalancesServiceGlacier {
       name: `Get NFT metadata for unindexed NFT and convert`,
       op: 'convertUnindexedNftToTokenWithBalance',
     });
-    let data: ERC721Metadata = {};
-    if (token.tokenUri.startsWith('data:application/json;base64,')) {
-      const json = Buffer.from(
-        token.tokenUri.substring(29),
-        'base64'
-      ).toString();
-      data = JSON.parse(json);
-    } else {
-      data = await fetch(ipfsResolverWithFallback(token.tokenUri))
-        .then((r) => r.json())
-        .catch(() => ({}));
-    }
+    const data: ERC721Metadata = await getErc721Metadata(token.tokenUri);
     const result = this.convertNFTToTokenWithBalanceWithMetadata(token, data);
     sentryTracker.finish();
     return result;

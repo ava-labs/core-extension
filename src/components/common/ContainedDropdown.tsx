@@ -7,7 +7,7 @@ const BOTTOM_PADDING = 16;
 const getDropdownHeight = (
   anchorEl: MutableRefObject<HTMLElement | null>
 ): number => {
-  if (!anchorEl.current) return 0; // Default height
+  if (!anchorEl.current || !window.visualViewport) return 0; // Default height
   return (
     window.visualViewport.height -
     anchorEl?.current?.getBoundingClientRect().top -

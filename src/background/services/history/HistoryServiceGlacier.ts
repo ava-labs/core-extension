@@ -15,6 +15,10 @@ import {
 } from './models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { getErc721Metadata } from '@src/utils/getErc721Metadata';
+import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
+import { resolve } from '@src/utils/promiseResolver';
+import { TokenType } from '../balances/models';
 
 @singleton()
 export class HistoryServiceGlacier {
@@ -37,18 +41,24 @@ export class HistoryServiceGlacier {
         { pageSize: 25 }
       );
 
-      const result = response.transactions
-        .filter(
-          // Currently not showing failed tx
-          (tranasaction) => tranasaction.nativeTransaction.txStatus === '1'
-        )
-        .map((transaction) =>
-          this.convertToTxHistoryItem(transaction, network, account)
-        )
-        .filter(
-          // Filtering txs with 0 value since there is no change in balance
-          (transaction) => transaction.amount !== '0'
-        );
+      const convertedItems = await Promise.all(
+        response.transactions
+          .filter(
+            // Currently not showing failed tx
+            (tranasaction) => tranasaction.nativeTransaction.txStatus === '1'
+          )
+          .map((transaction) =>
+            this.convertToTxHistoryItem(transaction, network, account).then(
+              (result) => result
+            )
+          )
+      );
+
+      const result = convertedItems.filter(
+        // Filtering txs with 0 value since there is no change in balance
+        (transaction) =>
+          transaction.tokens.find((token) => Number(token.amount) !== 0)
+      );
 
       return result;
     } catch (err) {
@@ -157,10 +167,10 @@ export class HistoryServiceGlacier {
     };
   }
 
-  private getTokens(
+  private async getTokens(
     { nativeTransaction, erc20Transfers, erc721Transfers }: TransactionDetails,
     network: Network
-  ): TxHistoryItemToken[] {
+  ): Promise<TxHistoryItemToken[]> {
     const result: TxHistoryItemToken[] = [];
 
     if (nativeTransaction.value !== '0') {
@@ -172,6 +182,9 @@ export class HistoryServiceGlacier {
         name: network.networkToken.name,
         symbol: network.networkToken.symbol,
         amount: amountDisplayValue,
+        from: nativeTransaction.from,
+        to: nativeTransaction.to,
+        type: TokenType.NATIVE,
       });
     }
 
@@ -185,25 +198,56 @@ export class HistoryServiceGlacier {
         name: erc20Transfer.erc20Token.name,
         symbol: erc20Transfer.erc20Token.symbol,
         amount: amountDisplayValue,
+        from: erc20Transfer.from,
+        to: erc20Transfer.to,
+        imageUri: erc20Transfer.erc20Token.logoUri,
+        type: TokenType.ERC20,
       });
     });
 
-    erc721Transfers?.forEach((erc721Transfer) => {
-      result.push({
-        name: erc721Transfer.erc721Token.name,
-        symbol: erc721Transfer.erc721Token.symbol,
-        amount: '1',
-      });
-    });
+    if (erc721Transfers) {
+      await Promise.all(
+        erc721Transfers.map(async (erc721Transfer) => {
+          const token = erc721Transfer.erc721Token;
+          let imageUri: string;
+
+          if (token.metadata.imageUri) {
+            imageUri = token.metadata.imageUri;
+          } else {
+            const [metadata, error] = await resolve(
+              getErc721Metadata(token.tokenUri)
+            );
+            if (error) {
+              imageUri = '';
+            } else {
+              imageUri = metadata.image
+                ? await getSmallImageForNFT(metadata.image)
+                : '';
+            }
+          }
+
+          result.push({
+            name: erc721Transfer.erc721Token.name,
+            symbol: erc721Transfer.erc721Token.symbol,
+            amount: '1',
+            imageUri,
+            from: erc721Transfer.from,
+            to: erc721Transfer.to,
+            collectableTokenId: erc721Transfer.erc721Token.tokenId,
+            type: TokenType.ERC721,
+          });
+        })
+      );
+    }
 
     return result;
   }
 
-  private convertToTxHistoryItem(
+  private async convertToTxHistoryItem(
     tx: TransactionDetails,
     network: Network,
     account: string
-  ): TxHistoryItem {
+  ): Promise<TxHistoryItem> {
     const historyItemCategories = this.getHistoryItemCategories(tx, account);
 
     const { isOutgoing, isIncoming, isSender, from, to } = this.getSenderInfo(
@@ -212,9 +256,7 @@ export class HistoryServiceGlacier {
       account
     );
 
-    const tokens = this.getTokens(tx, network);
-    const token = tokens[0]; // Currently we are not displaying any TX details that has multiple tokens.
-    const amount = token?.amount ?? '0';
+    const tokens = await this.getTokens(tx, network);
 
     return {
       isBridge: historyItemCategories.isBridge,
@@ -226,15 +268,17 @@ export class HistoryServiceGlacier {
         tx.nativeTransaction.blockTimestamp * 1000
       ).toISOString(), // s to ms
       hash: tx.nativeTransaction.txHash,
-      amount,
       from,
       to,
-      token,
+      tokens,
+      gasPrice: tx.nativeTransaction.gasPrice,
+      gasUsed: tx.nativeTransaction.gasUsed,
       explorerLink: getExplorerAddressByNetwork(
         network,
         tx.nativeTransaction.txHash
       ),
       chainId: network.chainId.toString(),
+      type: historyItemCategories.type,
     };
   }
 }

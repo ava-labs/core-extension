@@ -1,55 +1,31 @@
-import {
-  Card,
-  CaretIcon,
-  CheckmarkIcon,
-  ComponentSize,
-  DropDownMenu,
-  DropDownMenuItem,
-  HorizontalFlex,
-  PrimaryButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Fragment, useEffect, useMemo, useState } from 'react';
-
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { TransactionBridge } from './components/History/TransactionBridge';
-import styled, { useTheme } from 'styled-components';
-
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { TxHistoryItem } from '@src/background/services/history/models';
 import {
-  HistoryReceivedIndicator,
-  HistorySentIndicator,
-} from './components/History/components/SentReceivedIndicators';
-import { HistoryItem } from './components/History/components/HistoryItem';
-import { PendingTransactionBridge } from './components/History/PendingTransactionBrigde';
+  TransactionType,
+  TxHistoryItem,
+} from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTranslation } from 'react-i18next';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-
-const StyledDropDownMenu = styled(DropDownMenu)`
-  position: absolute;
-  right: 16px;
-  top: 0;
-`;
-
-const StyledDropdownMenuItem = styled(DropDownMenuItem)`
-  border-bottom: 1px solid ${({ theme }) => `${theme.colors.stroke2}1A`};
-
-  &:hover {
-    background: ${({ theme }) => `${theme.colors.bg1}40`};
-  }
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-`;
+import { ActivityCard } from './components/History/components/ActivityCard/ActivityCard';
+import { InProgressBridgeActivityCard } from './components/History/components/InProgressBridge/InProgressBridgeActivityCard';
+import {
+  Button,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  MenuItem,
+  MenuList,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
+import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 
 type WalletRecentTxsProps = {
   isEmbedded?: boolean;
@@ -62,6 +38,8 @@ export enum FilterType {
   INCOMING = 'Incoming',
   OUTGOING = 'Outgoing',
   CONTRACT_CALL = 'Contract Call',
+  SWAP = 'Swap',
+  NFTS = 'NFTs',
 }
 
 export function WalletRecentTxs({
@@ -72,9 +50,11 @@ export function WalletRecentTxs({
   const FilterItems = {
     [FilterType.ALL]: t('All'),
     [FilterType.BRIDGE]: t('Bridge'),
+    [FilterType.SWAP]: t('Swap'),
+    [FilterType.NFTS]: t('NFTs'),
+    [FilterType.CONTRACT_CALL]: t('Contract Call'),
     [FilterType.INCOMING]: t('Incoming'),
     [FilterType.OUTGOING]: t('Outgoing'),
-    [FilterType.CONTRACT_CALL]: t('Contract Call'),
   };
 
   const { getTransactionHistory } = useWalletContext();
@@ -82,6 +62,7 @@ export function WalletRecentTxs({
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const [loading, setLoading] = useState<boolean>(false);
+  const [showFilterMenu, setShowFilterMenu] = useState<boolean>(false);
 
   const yesterday = endOfYesterday();
   const today = endOfToday();
@@ -93,7 +74,6 @@ export function WalletRecentTxs({
   );
 
   const { network } = useNetworkContext();
-  const theme = useTheme();
 
   /*
    * If a tokenSymbolFilter exists, we need to filter out the bridge
@@ -157,12 +137,21 @@ export function WalletRecentTxs({
         return true;
       } else if (filter === FilterType.BRIDGE) {
         return tx.isBridge;
+      } else if (filter === FilterType.SWAP) {
+        return tx.type === TransactionType.SWAP;
       } else if (filter === FilterType.CONTRACT_CALL) {
-        return tx.isContractCall;
+        return tx.isContractCall && tx.type !== TransactionType.SWAP;
       } else if (filter === FilterType.INCOMING) {
         return tx.isIncoming;
       } else if (filter === FilterType.OUTGOING) {
         return tx.isOutgoing;
+      } else if (filter === FilterType.NFTS) {
+        return (
+          tx.type === TransactionType.NFT_BUY ||
+          (tx.type === TransactionType.TRANSFER &&
+            tx.tokens[0] &&
+            isNFT(tx.tokens[0].type))
+        );
       } else {
         return false;
       }
@@ -171,7 +160,7 @@ export function WalletRecentTxs({
     return unfilteredTxHistory
       .filter((tx) => {
         if (tokenSymbolFilter) {
-          return tokenSymbolFilter === tx.token?.symbol;
+          return tokenSymbolFilter === tx.tokens?.[0]?.symbol;
         } else {
           return true;
         }
@@ -201,44 +190,98 @@ export function WalletRecentTxs({
         }).format(date);
   };
 
-  const FilterItem = ({ keyName }) => (
-    <StyledDropdownMenuItem onClick={() => setSelectedFilter(keyName)}>
-      <HorizontalFlex justify="space-between" align="center" width="100%">
-        <Typography margin="0 16px 0 0">{FilterItems[keyName]}</Typography>
-        {selectedFilter === keyName && (
-          <CheckmarkIcon color={theme.colors.text1} height="12px" />
-        )}
-      </HorizontalFlex>
-    </StyledDropdownMenuItem>
-  );
+  const FilterItem = ({ keyName, onClick }) => {
+    function onClickHandler() {
+      onClick(keyName);
+    }
+    return (
+      <MenuItem
+        disableRipple
+        onClick={onClickHandler}
+        sx={{ height: 32, minHeight: 32 }}
+      >
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+          }}
+        >
+          <Typography variant="body2">{FilterItems[keyName]}</Typography>
+          {selectedFilter === keyName && <CheckIcon size="12px" />}
+        </Stack>
+      </MenuItem>
+    );
+  };
+
+  function handleFilterChange(keyName) {
+    setSelectedFilter(keyName);
+    setShowFilterMenu(false);
+  }
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <VerticalFlex grow="1" padding={isEmbedded ? '0' : '4px 16px 68px'}>
-        <StyledDropDownMenu
-          coords={{ right: '0' }}
-          icon={
-            <HorizontalFlex
-              data-testid="filter-activity-menu"
-              padding={'10px'}
-              align={'center'}
-              justify="space-between"
-            >
-              <Typography size={12} margin={'0 8px 0 5px'}>
-                {t('Display')}: {FilterItems[selectedFilter]}
-              </Typography>
-              <CaretIcon height={'12px'} color={theme.colors.text1} />
-            </HorizontalFlex>
-          }
+      <Stack
+        sx={{ flexGrow: 1, p: isEmbedded ? '0' : '4px 16px 68px', rowGap: 1 }}
+      >
+        <Stack
+          sx={(theme) => ({
+            position: 'absolute',
+            right: theme.spacing(2),
+            top: theme.spacing(1),
+          })}
         >
-          <VerticalFlex data-testid="filter-activity-options" width="200px">
-            <FilterItem keyName={FilterType.ALL} />
-            <FilterItem keyName={FilterType.CONTRACT_CALL} />
-            <FilterItem keyName={FilterType.BRIDGE} />
-            <FilterItem keyName={FilterType.INCOMING} />
-            <FilterItem keyName={FilterType.OUTGOING} />
-          </VerticalFlex>
-        </StyledDropDownMenu>
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              cursor: 'pointer',
+              justifyContent: 'flex-end',
+              mb: 1,
+              mt: 0.5,
+            }}
+            onClick={() => {
+              setShowFilterMenu(!showFilterMenu);
+            }}
+            data-testid="filter-activity-menu"
+          >
+            <Typography
+              variant="body3"
+              sx={{
+                m: '0 8px 0 5px',
+                fontWeight: 'fontWeightMedium',
+                height: 20,
+                alignSelf: 'center',
+              }}
+            >
+              {t('Display')}: {FilterItems[selectedFilter]}
+            </Typography>
+            {showFilterMenu ? (
+              <ChevronUpIcon size="20px" />
+            ) : (
+              <ChevronDownIcon size="20px" />
+            )}
+          </Stack>
+          {showFilterMenu && (
+            <MenuList
+              data-testid="filter-activity-options"
+              sx={{
+                width: 180,
+                justifyContent: 'flex-start',
+                zIndex: 1,
+              }}
+            >
+              {Object.keys(FilterItems).map((filterItem) => (
+                <FilterItem
+                  key={filterItem}
+                  keyName={filterItem}
+                  onClick={handleFilterChange}
+                />
+              ))}
+            </MenuList>
+          )}
+        </Stack>
 
         {filteredTxHistory.length === 0 ? (
           <NoTransactions loading={loading} />
@@ -249,22 +292,20 @@ export function WalletRecentTxs({
               (selectedFilter === 'All' || selectedFilter === 'Bridge') && (
                 <>
                   <Typography
-                    size={14}
-                    height="15px"
-                    weight={500}
-                    margin={'8px 0 13px'}
+                    variant="body2"
+                    sx={{
+                      fontWeight: 'fontWeightSemibold',
+                      m: '8px 0 13px',
+                    }}
                   >
                     {t('Pending')}
                   </Typography>
 
                   {Object.values(filteredBridgeTransactions).map((tx, i) => (
-                    <Card
+                    <InProgressBridgeActivityCard
                       key={`${tx.sourceTxHash}-${i}`}
-                      padding={'8px 12px 8px 16px'}
-                      margin={'0 0 8px 0'}
-                    >
-                      <PendingTransactionBridge item={tx} />
-                    </Card>
+                      tx={tx}
+                    />
                   ))}
                 </>
               )}
@@ -282,77 +323,36 @@ export function WalletRecentTxs({
                 <Fragment key={index}>
                   {isNewDay && (
                     <Typography
-                      size={14}
-                      height="15px"
-                      weight={500}
+                      variant="body2"
+                      sx={{
+                        fontWeight: 'fontWeightSemibold',
+                      }}
                       margin={index === 0 ? '8px 0 13px' : '8px 0'}
                     >
                       {getDayString(tx.timestamp)}
                     </Typography>
                   )}
-
-                  <Card
-                    data-testid={`activity-tx-card-${index}`}
-                    key={tx.hash}
-                    padding={'8px 12px 8px 16px'}
-                    margin={'0 0 8px 0'}
-                  >
-                    {(tx.isBridge && selectedFilter === FilterType.ALL) ||
-                    selectedFilter === FilterType.BRIDGE ? (
-                      <TransactionBridge item={tx} />
-                    ) : (
-                      <>
-                        <HorizontalFlex
-                          width={'100%'}
-                          justify={'space-between'}
-                          align="center"
-                        >
-                          {tx.isSender ? (
-                            <HistorySentIndicator />
-                          ) : (
-                            <HistoryReceivedIndicator />
-                          )}
-                          {tx.isContractCall ? (
-                            <HistoryItem label={'Contract Call'} item={tx} />
-                          ) : (
-                            <HistoryItem label={tx.token?.name || ''} item={tx}>
-                              <VerticalFlex>
-                                <Typography size={14} height="24px">
-                                  {tx.isSender ? '-' : '+'}
-                                  {tx.amount} {tx.token?.symbol}
-                                </Typography>
-                              </VerticalFlex>
-                            </HistoryItem>
-                          )}
-                        </HorizontalFlex>
-                      </>
-                    )}
-                  </Card>
+                  <ActivityCard historyItem={tx} />
                 </Fragment>
               );
             })}
           </>
         )}
         {explorerUrl && !loading && !!filteredTxHistory.length && (
-          <HorizontalFlex
-            width="100%"
-            paddingLeft="16px"
-            paddingRight="16px"
-            marginTop="24px"
-          >
-            <PrimaryButton
+          <Stack sx={{ flexDirection: 'row', width: '100%', px: 2, mt: 3 }}>
+            <Button
               data-testid="add-account-button"
-              size={ComponentSize.LARGE}
+              fullWidth
               width="100%"
               onClick={() => {
                 window.open(explorerUrl);
               }}
             >
               {t('View on explorer')}
-            </PrimaryButton>
-          </HorizontalFlex>
+            </Button>
+          </Stack>
         )}
-      </VerticalFlex>
+      </Stack>
     </Scrollbars>
   );
 }

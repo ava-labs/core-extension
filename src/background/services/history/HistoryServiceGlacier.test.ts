@@ -21,6 +21,9 @@ import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { AccountType } from '../accounts/models';
 import { HistoryServiceGlacier } from './HistoryServiceGlacier';
 import { TransactionType, HistoryItemCategories } from './models';
+import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
+import { getErc721Metadata } from '@src/utils/getErc721Metadata';
+import { TokenType } from '../balances/models';
 
 jest.mock('@src/utils/getExplorerAddress', () => ({
   getExplorerAddressByNetwork: jest.fn(),
@@ -39,217 +42,246 @@ jest.mock('@avalabs/glacier-sdk', () => ({
   },
 }));
 
-describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
-  const btcAddress = 'bc1111111111';
-  const userAddress = '0xaaaaaaaaaa';
+jest.mock('@src/utils/getErc721Metadata', () => ({
+  getErc721Metadata: jest.fn(),
+}));
 
-  const mockedAccountsService = {
-    activeAccount: {
-      index: 0,
-      name: 'test name',
-      type: AccountType.PRIMARY,
-      addressBTC: btcAddress,
-      addressC: userAddress,
-    },
-  } as any;
+jest.mock('../balances/nft/utils/getSmallImageForNFT', () => ({
+  getSmallImageForNFT: jest.fn(),
+}));
+const btcAddress = 'bc1111111111';
+const userAddress = '0xaaaaaaaaaa';
 
-  const erc20Token1: Erc20Token = {
-    address: '0x7777777777',
-    name: 'Erc20 Token 1',
-    symbol: 'E20T1',
-    decimals: 20,
-    logoUri: 'erc20.one.com',
-    price: {
-      currencyCode: CurrencyCode.Usd,
-      value: 100,
-    },
-  };
+const mockedAccountsService = {
+  activeAccount: {
+    index: 0,
+    name: 'test name',
+    type: AccountType.PRIMARY,
+    addressBTC: btcAddress,
+    addressC: userAddress,
+  },
+} as any;
 
-  const erc721Token1: Erc721Token = {
-    address: '0x8888888888',
-    name: 'Erc721 Token 1',
-    symbol: 'E721T1',
-    tokenId: '123',
-    tokenUri: 'erc721.one.com',
-    metadata: {
-      indexStatus: Erc721MetadataStatus.UNINDEXED,
-    },
-  };
+const senderAddress = 'Sender Address';
 
-  const erc20Tx: Erc20TransferDetails = {
-    from: {
-      address: '0x3333333333',
-    },
-    to: {
-      address: '0x4444444444',
-    },
-    erc20Token: erc20Token1,
-    value: '2',
-  };
+const tokenInfo = {
+  from: { address: senderAddress },
+  to: { address: userAddress },
+  value: '100000000000000',
+  erc20Token: {
+    address: 'erc20 Token address',
+    decimals: 18,
+    name: 'ERC20 Token',
+    price: { value: 1000000, currencyCode: CurrencyCode.Usd },
+    symbol: 'E20T',
+  },
+};
 
-  const erc721Tx: Erc721TransferDetails = {
-    from: {
-      address: '0x5555555555',
-    },
-    to: {
-      address: '0x6666666666',
-    },
-    erc721Token: erc721Token1,
-  };
+const nativeTx: NativeTransaction = {
+  blockNumber: '339',
+  blockTimestamp: 1648672486,
+  blockHash: '0X9999999999',
+  blockIndex: 0,
+  txHash: '0x1010101010',
+  txStatus: '1',
+  txType: 1,
+  gasLimit: '51373',
+  gasUsed: '51373',
+  gasPrice: '470000000000',
+  nonce: '1',
+  from: {
+    address: '0x1212121212',
+  },
+  to: {
+    address: '0x1313131313',
+  },
+  method: {
+    methodHash: '0xa9059cbb',
+    methodName: 'transfer(address,uint256)',
+  },
+  value: '0',
+};
 
-  const nativeTx: NativeTransaction = {
-    blockNumber: '339',
-    blockTimestamp: 1648672486,
-    blockHash: '0X9999999999',
-    blockIndex: 0,
+const detailsForTransfer: TransactionDetails = {
+  erc20Transfers: [tokenInfo],
+  nativeTransaction: {
+    blockNumber: '15583097',
+    blockTimestamp: 1663779683,
+    blockHash: 'txBlockHash',
+    blockIndex: 31,
     txHash: '0x1010101010',
     txStatus: '1',
     txType: 1,
-    gasLimit: '51373',
-    gasUsed: '51373',
-    gasPrice: '470000000000',
+    gasLimit: '200000',
+    gasUsed: '51606',
+    gasPrice: '20743795546',
     nonce: '1',
-    from: {
-      address: '0x1212121212',
-    },
+    from: { address: senderAddress },
     to: {
-      address: '0x1313131313',
+      address: 'erc20 Token address',
+      logoUri: 'erc20 Logo Uri',
+      name: 'ERC20 Token',
+      symbol: 'E20T',
     },
     method: {
       methodHash: '0xa9059cbb',
       methodName: 'transfer(address,uint256)',
     },
     value: '0',
-  };
+  },
+};
 
-  const txDetails1: TransactionDetails = {
-    nativeTransaction: nativeTx,
-  };
+const networkToken: NetworkToken = {
+  name: 'network token',
+  symbol: 'NWT',
+  description: 'This is network token.',
+  decimals: 20,
+  logoUri: 'network.token.logo.uri',
+};
 
-  const historyItemCategories: HistoryItemCategories = {
-    isBridge: false,
-    isSwap: false,
-    isNativeSend: false,
-    isNativeReceive: false,
-    isNFTPurchase: false,
-    isApprove: false,
-    isTransfer: false,
-    isAirdrop: false,
-    isUnwrap: false,
-    isFillOrder: false,
-    isContractCall: false,
-    method: 'test',
-    type: TransactionType.UNKNOWN,
-  };
+const network: Network = {
+  chainName: 'network chain',
+  chainId: 123,
+  vmName: NetworkVMType.EVM,
+  rpcUrl: 'network.rpc.url',
+  networkToken: networkToken,
+  logoUri: 'network.logo.uri',
+};
 
-  const networkToken: NetworkToken = {
-    name: 'network token',
-    symbol: 'NWT',
-    description: 'This is network token.',
-    decimals: 20,
-    logoUri: 'network.token.logo.uri',
-  };
+const historyItemCategories: HistoryItemCategories = {
+  isBridge: false,
+  isSwap: false,
+  isNativeSend: false,
+  isNativeReceive: false,
+  isNFTPurchase: false,
+  isApprove: false,
+  isTransfer: false,
+  isAirdrop: false,
+  isUnwrap: false,
+  isFillOrder: false,
+  isContractCall: false,
+  method: 'test',
+  type: TransactionType.UNKNOWN,
+};
 
-  const network: Network = {
-    chainName: 'network chain',
-    chainId: 123,
-    vmName: NetworkVMType.EVM,
-    rpcUrl: 'network.rpc.url',
-    networkToken: networkToken,
-    logoUri: 'network.logo.uri',
-  };
-
-  const erc20TxWithUserAddress1: Erc20TransferDetails = {
-    ...erc20Tx,
-    from: {
-      address: userAddress,
-    },
-  };
-
-  const senderAddress = 'Sender Address';
-
-  const tokenInfo = {
-    from: { address: senderAddress },
-    to: { address: userAddress },
-    value: '100000000000000',
-    erc20Token: {
-      address: 'erc20 Token address',
-      decimals: 18,
-      name: 'ERC20 Token',
-      price: { value: 1000000, currencyCode: CurrencyCode.Usd },
-      symbol: 'E20T',
-    },
-  };
-  const detailsForTransfer: TransactionDetails = {
-    erc20Transfers: [tokenInfo],
-    nativeTransaction: {
-      blockNumber: '15583097',
-      blockTimestamp: 1663779683,
-      blockHash: 'txBlockHash',
-      blockIndex: 31,
-      txHash: '0x1010101010',
-      txStatus: '1',
-      txType: 1,
-      gasLimit: '200000',
-      gasUsed: '51606',
-      gasPrice: '20743795546',
-      nonce: '1',
-      from: { address: senderAddress },
-      to: {
-        address: 'erc20 Token address',
-        logoUri: 'erc20 Logo Uri',
-        name: 'ERC20 Token',
-        symbol: 'E20T',
-      },
-      method: {
-        methodHash: '0xa9059cbb',
-        methodName: 'transfer(address,uint256)',
-      },
-      value: '0',
-    },
-  };
-
-  const detailsWithInternalTransactions: TransactionDetails = {
-    nativeTransaction: nativeTx,
-    internalTransactions: [
-      {
-        from: { address: 'internalFromAddress' },
-        to: { address: 'internalToAddress' },
-        internalTxType: InternalTransactionOpCall.UNKNOWN,
-        value: '10000000000000000000',
-        isReverted: false,
-      },
-    ],
-  };
-
-  const detailsForFailedTransaction: TransactionDetails = {
-    nativeTransaction: { ...nativeTx, txStatus: '0' },
-    erc20Transfers: [erc20TxWithUserAddress1],
-  };
-
-  const txHistoryItem = {
-    isBridge: false,
-    isContractCall: historyItemCategories.isContractCall,
-    isIncoming: true,
-    isOutgoing: false,
-    isSender: false,
-    timestamp: new Date(
-      detailsForTransfer.nativeTransaction.blockTimestamp * 1000
-    ).toISOString(),
-    hash: nativeTx.txHash,
-    amount: '0.0001',
-    from: senderAddress,
-    to: userAddress,
-    token: {
+const txHistoryItem = {
+  isBridge: false,
+  isContractCall: historyItemCategories.isContractCall,
+  isIncoming: true,
+  isOutgoing: false,
+  isSender: false,
+  timestamp: new Date(
+    detailsForTransfer.nativeTransaction.blockTimestamp * 1000
+  ).toISOString(),
+  hash: nativeTx.txHash,
+  from: senderAddress,
+  to: userAddress,
+  tokens: [
+    {
       decimal: tokenInfo.erc20Token.decimals.toString(),
       name: tokenInfo.erc20Token.name,
       symbol: tokenInfo.erc20Token.symbol,
       amount: '0.0001',
+      from: { address: senderAddress },
+      to: { address: userAddress },
+      type: TokenType.ERC20,
     },
-    explorerLink: `test.com/${nativeTx.txHash}`,
-    chainId: network.chainId.toString(),
-  };
+  ],
+  gasPrice: detailsForTransfer.nativeTransaction.gasPrice,
+  gasUsed: detailsForTransfer.nativeTransaction.gasUsed,
+  explorerLink: `test.com/${nativeTx.txHash}`,
+  chainId: network.chainId.toString(),
+  type: TransactionType.TRANSFER,
+};
 
+const imageUri = 'erc721.image.com';
+const smallImageUri = 'erc721.small.image.com';
+
+const erc20Token1: Erc20Token = {
+  address: '0x7777777777',
+  name: 'Erc20 Token 1',
+  symbol: 'E20T1',
+  decimals: 20,
+  logoUri: 'erc20.one.com',
+  price: {
+    currencyCode: CurrencyCode.Usd,
+    value: 100,
+  },
+};
+
+const erc721Token1: Erc721Token = {
+  address: '0x8888888888',
+  name: 'Erc721 Token 1',
+  symbol: 'E721T1',
+  tokenId: '123',
+  tokenUri: 'erc721.one.com',
+  metadata: {
+    indexStatus: Erc721MetadataStatus.UNINDEXED,
+    imageUri: imageUri,
+  },
+};
+const erc721TokenWithNoImageUri: Erc721Token = {
+  address: '0x123123123123123',
+  name: 'Erc721 Token no Image',
+  symbol: 'E721T2',
+  tokenId: '789',
+  tokenUri: 'erc721.no.image.com',
+  metadata: {
+    indexStatus: Erc721MetadataStatus.UNINDEXED,
+  },
+};
+
+const erc20Tx: Erc20TransferDetails = {
+  from: {
+    address: '0x3333333333',
+  },
+  to: {
+    address: '0x4444444444',
+  },
+  erc20Token: erc20Token1,
+  value: '2',
+};
+
+const erc721Tx: Erc721TransferDetails = {
+  from: {
+    address: '0x5555555555',
+  },
+  to: {
+    address: '0x6666666666',
+  },
+  erc721Token: erc721Token1,
+};
+
+const txDetails1: TransactionDetails = {
+  nativeTransaction: nativeTx,
+};
+
+const erc20TxWithUserAddress1: Erc20TransferDetails = {
+  ...erc20Tx,
+  from: {
+    address: userAddress,
+  },
+};
+
+const detailsWithInternalTransactions: TransactionDetails = {
+  nativeTransaction: nativeTx,
+  internalTransactions: [
+    {
+      from: { address: 'internalFromAddress' },
+      to: { address: 'internalToAddress' },
+      internalTxType: InternalTransactionOpCall.UNKNOWN,
+      value: '10000000000000000000',
+      isReverted: false,
+    },
+  ],
+};
+
+const detailsForFailedTransaction: TransactionDetails = {
+  nativeTransaction: { ...nativeTx, txStatus: '0' },
+  erc20Transfers: [erc20TxWithUserAddress1],
+};
+
+describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -257,6 +289,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       (network, hash) => {
         return `test.com/${hash}`;
       }
+    );
+    (getErc721Metadata as jest.Mock).mockImplementation(() =>
+      Promise.resolve({ image: imageUri })
+    );
+    (getSmallImageForNFT as jest.Mock).mockImplementation(() =>
+      Promise.resolve(smallImageUri)
     );
     const mockedListTransactions = jest.fn().mockImplementation(() =>
       Promise.resolve({
@@ -277,8 +315,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   describe('getHistory', () => {
     it('should return an empty array if account is missing', async () => {
       const service = new HistoryServiceGlacier({} as any);
-      const result = await service.getHistory(network);
-      expect(result).toStrictEqual([]);
+      try {
+        const result = await service.getHistory(network);
+        expect(result).toStrictEqual([]);
+      } catch (error) {
+        fail(error);
+      }
     });
 
     it('should return an empty array on error', async () => {
@@ -289,21 +331,29 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
         };
       });
       const service = new HistoryServiceGlacier(mockedAccountsService);
-      const result = await service.getHistory(network);
-      expect(result).toStrictEqual([]);
+      try {
+        const result = await service.getHistory(network);
+        expect(result).toStrictEqual([]);
+      } catch (error) {
+        fail(error);
+      }
     });
 
     it('should return expected results', async () => {
       // detailsWithInternalTransactions, detailsForFailedTransaction, and txDetails1 should be filtered
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
-      const result = await service.getHistory(network);
-      expect(result.length).toEqual(1);
-      expect(result[0]).toEqual(txHistoryItem);
+      try {
+        const result = await service.getHistory(network);
+        expect(result.length).toEqual(1);
+        expect(result[0]).toEqual(txHistoryItem);
+      } catch (error) {
+        fail(error);
+      }
     });
   });
 
   describe('getAddress', () => {
-    it('should return btc Address when param is BTC network ID', async () => {
+    it('should return btc Address when param is BTC network ID', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getAddress(ChainId.BITCOIN);
       expect(result).toEqual(btcAddress);
@@ -312,7 +362,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result2).toEqual(btcAddress);
     });
 
-    it('should return C Address when param is non-BTC network ID', async () => {
+    it('should return C Address when param is non-BTC network ID', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const networks = [
         ChainId.AVALANCHE_MAINNET_ID,
@@ -336,17 +386,17 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   });
 
   describe('parseRawMethod', () => {
-    it('should return method name with startCase', async () => {
+    it('should return method name with startCase', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.parseRawMethod('approve(address,uint256)');
       expect(result).toEqual('Approve');
     });
-    it('should return empty string if no method name was provided', async () => {
+    it('should return empty string if no method name was provided', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.parseRawMethod();
       expect(result).toEqual('');
     });
-    it('should return provided method name if open parentheses is not in method name', async () => {
+    it('should return provided method name if open parentheses is not in method name', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const methodName = 'Hello!';
       const result = service.parseRawMethod(methodName);
@@ -355,12 +405,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   });
 
   describe('getHistoryItemCategories', () => {
-    it('should return isBridge as false', async () => {
+    it('should return isBridge as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isBridge).toBeFalsy();
     });
-    it('should return isBridge as true', async () => {
+    it('should return isBridge as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
 
       const bridgeTx = {
@@ -372,12 +422,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.BRIDGE);
       expect(result.isContractCall).toBeFalsy();
     });
-    it('should return isSwap as false', async () => {
+    it('should return isSwap as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isSwap).toBeFalsy();
     });
-    it('should return isSwap as true', async () => {
+    it('should return isSwap as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const swapNativeTx = {
         ...nativeTx,
@@ -394,7 +444,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.SWAP);
       expect(result.isContractCall).toBeTruthy();
     });
-    it('should return isNativeSend as false', async () => {
+    it('should return isNativeSend as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isNativeSend).toBeFalsy();
@@ -411,7 +461,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       const result2 = service.getHistoryItemCategories(sendTx, userAddress);
       expect(result2.isNativeSend).toBeFalsy();
     });
-    it('should return isNativeSend as true', async () => {
+    it('should return isNativeSend as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const sendNativeTx = {
         ...nativeTx,
@@ -427,7 +477,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.SEND);
       expect(result.isContractCall).toBeFalsy();
     });
-    it('should return isNativeReceive as false', async () => {
+    it('should return isNativeReceive as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isNativeReceive).toBeFalsy();
@@ -445,7 +495,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       const result2 = service.getHistoryItemCategories(receiveTx, userAddress);
       expect(result2.isNativeReceive).toBeFalsy();
     });
-    it('should return isNativeReceive as true', async () => {
+    it('should return isNativeReceive as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const receiveNativeTx = {
         ...nativeTx,
@@ -461,12 +511,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.RECEIVE);
       expect(result.isContractCall).toBeFalsy();
     });
-    it('should return isNFTPurchase as false', async () => {
+    it('should return isNFTPurchase as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isNFTPurchase).toBeFalsy();
     });
-    it('should return isNFTPurchase as true', async () => {
+    it('should return isNFTPurchase as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const receiveNativeTx = {
         ...nativeTx,
@@ -498,12 +548,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.NFT_BUY);
       expect(result.isContractCall).toBeTruthy();
     });
-    it('should return isApprove as false', async () => {
+    it('should return isApprove as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isApprove).toBeFalsy();
     });
-    it('should return isApprove as true', async () => {
+    it('should return isApprove as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const approveNativeTx = {
         ...nativeTx,
@@ -520,7 +570,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.APPROVE);
       expect(result.isContractCall).toBeTruthy();
     });
-    it('should return isTransfer as false', async () => {
+    it('should return isTransfer as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const approveNativeTx = {
         ...nativeTx,
@@ -535,19 +585,19 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       const result = service.getHistoryItemCategories(approveTx, userAddress);
       expect(result.isTransfer).toBeFalsy();
     });
-    it('should return isTransfer as true', async () => {
+    it('should return isTransfer as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isTransfer).toBeTruthy();
       expect(result.type).toEqual(TransactionType.TRANSFER);
       expect(result.isContractCall).toBeFalsy();
     });
-    it('should return isAirdrop as false', async () => {
+    it('should return isAirdrop as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isAirdrop).toBeFalsy();
     });
-    it('should return isAirdrop as true', async () => {
+    it('should return isAirdrop as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const airdropNativeTx = {
         ...nativeTx,
@@ -564,12 +614,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.UNKNOWN);
       expect(result.isContractCall).toBeTruthy();
     });
-    it('should return isUnwrap as false', async () => {
+    it('should return isUnwrap as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isUnwrap).toBeFalsy();
     });
-    it('should return isUnwrap as true', async () => {
+    it('should return isUnwrap as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const unwrapNativeTx = {
         ...nativeTx,
@@ -586,12 +636,12 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.type).toEqual(TransactionType.UNKNOWN);
       expect(result.isContractCall).toBeTruthy();
     });
-    it('should return isFillOrder as false', async () => {
+    it('should return isFillOrder as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isFillOrder).toBeFalsy();
     });
-    it('should return isFillOrder as true', async () => {
+    it('should return isFillOrder as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const fillNativeTx = {
         ...nativeTx,
@@ -611,7 +661,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   });
 
   describe('getSenderInfo', () => {
-    it('should return isOutgoing as false', async () => {
+    it('should return isOutgoing as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
@@ -620,7 +670,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       );
       expect(result.isOutgoing).toBeFalsy();
     });
-    it('should return isOutgoing as true', async () => {
+    it('should return isOutgoing as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const categories = {
         ...historyItemCategories,
@@ -647,7 +697,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result2.isOutgoing).toBeTruthy();
     });
 
-    it('should return isIncoming as false', async () => {
+    it('should return isIncoming as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
@@ -656,7 +706,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       );
       expect(result.isIncoming).toBeFalsy();
     });
-    it('should return isIncoming as true', async () => {
+    it('should return isIncoming as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const categories = {
         ...historyItemCategories,
@@ -682,7 +732,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       const result2 = service.getSenderInfo(categories2, details, userAddress);
       expect(result2.isIncoming).toBeTruthy();
     });
-    it('should return isSender as false', async () => {
+    it('should return isSender as false', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
@@ -691,7 +741,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       );
       expect(result.isSender).toBeFalsy();
     });
-    it('should return isSender as true', async () => {
+    it('should return isSender as true', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const sendNativeTx = {
         ...nativeTx,
@@ -710,7 +760,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       );
       expect(result.isSender).toBeTruthy();
     });
-    it('should return expected from and to', async () => {
+    it('should return expected from and to', () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
@@ -725,7 +775,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   describe('getTokens', () => {
     it('should return empty array when no tokens are available', async () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
-      const result = service.getTokens(txDetails1, network, userAddress);
+      const result = await service.getTokens(txDetails1, network, userAddress);
       expect(result.length).toEqual(0);
     });
     it('should return expected nativeToken info when nativeTransaction has a value', async () => {
@@ -737,69 +787,116 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       const details: TransactionDetails = {
         nativeTransaction: nativeTxWithValue,
       };
-      const result = service.getTokens(details, network, userAddress);
+
+      const result = await service.getTokens(details, network, userAddress);
+
       expect(result.length).toEqual(1);
       expect(result[0]).toEqual({
         decimal: network.networkToken.decimals.toString(),
         name: network.networkToken.name,
         symbol: network.networkToken.symbol,
         amount: '1',
+        from: nativeTx.from,
+        to: nativeTx.to,
+        type: TokenType.NATIVE,
       });
     });
 
     it('should return token info from erc20Transfer', async () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
-      const erc20TxWithUserAddress: Erc20TransferDetails = {
-        ...erc20Tx,
-        from: {
-          address: userAddress,
-        },
-      };
-      const result = service.getTokens(
-        { ...txDetails1, erc20Transfers: [erc20TxWithUserAddress] },
+      const result = await service.getTokens(
+        { ...txDetails1, erc20Transfers: [erc20Tx] },
         network,
         userAddress
       );
+
       expect(result.length).toEqual(1);
       expect(result[0]).toEqual({
-        decimal: erc20TxWithUserAddress.erc20Token.decimals.toString(),
-        name: erc20TxWithUserAddress.erc20Token.name,
-        symbol: erc20TxWithUserAddress.erc20Token.symbol,
+        decimal: erc20Tx.erc20Token.decimals.toString(),
+        name: erc20Tx.erc20Token.name,
+        symbol: erc20Tx.erc20Token.symbol,
         amount: '0.00000000000000000002',
+        from: erc20Tx.from,
+        to: erc20Tx.to,
+        imageUri: 'erc20.one.com',
+        type: TokenType.ERC20,
       });
     });
 
     it('should return token info from erc721Transfer', async () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
-      const erc721TxWithUserAddress: Erc721TransferDetails = {
-        ...erc721Tx,
-        to: {
-          address: userAddress,
-        },
-      };
-      const result = service.getTokens(
-        { ...txDetails1, erc721Transfers: [erc721TxWithUserAddress] },
+      const result = await service.getTokens(
+        { ...txDetails1, erc721Transfers: [erc721Tx] },
         network,
         userAddress
       );
+
       expect(result.length).toEqual(1);
       expect(result[0]).toEqual({
-        name: erc721TxWithUserAddress.erc721Token.name,
-        symbol: erc721TxWithUserAddress.erc721Token.symbol,
+        name: erc721Tx.erc721Token.name,
+        symbol: erc721Tx.erc721Token.symbol,
         amount: '1',
+        from: erc721Tx.from,
+        to: erc721Tx.to,
+        collectableTokenId: erc721Token1.tokenId,
+        imageUri,
+        type: TokenType.ERC721,
       });
+    });
+
+    it('should return token info with imageUri from fetched metadata', async () => {
+      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+
+      const result = await service.getTokens(
+        {
+          ...txDetails1,
+          erc721Transfers: [
+            { ...erc721Tx, erc721Token: erc721TokenWithNoImageUri },
+          ],
+        },
+        network,
+        userAddress
+      );
+      expect(getErc721Metadata).toBeCalledTimes(1);
+      expect(getSmallImageForNFT).toBeCalledTimes(1);
+      expect(getSmallImageForNFT).toBeCalledWith(imageUri);
+
+      expect(result.length).toEqual(1);
+      expect(result[0].imageUri).toEqual(smallImageUri);
+    });
+
+    it('should return token info with empty imageUri if fails to fetch metadata', async () => {
+      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+
+      (getErc721Metadata as jest.Mock).mockImplementation(() =>
+        Promise.reject(new Error('Failed to fetch metadata'))
+      );
+
+      const result = await service.getTokens(
+        {
+          ...txDetails1,
+          erc721Transfers: [
+            { ...erc721Tx, erc721Token: erc721TokenWithNoImageUri },
+          ],
+        },
+        network,
+        userAddress
+      );
+      expect(getErc721Metadata).toBeCalledTimes(1);
+
+      expect(result.length).toEqual(1);
+      expect(result[0].imageUri).toEqual('');
     });
   });
 
   describe('convertToTxHistoryItem', () => {
     it('should return expected value', async () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
-      const result = service.convertToTxHistoryItem(
+      const result = await service.convertToTxHistoryItem(
         detailsForTransfer,
         network,
         userAddress
       );
-
       expect(result).toEqual(txHistoryItem);
     });
   });

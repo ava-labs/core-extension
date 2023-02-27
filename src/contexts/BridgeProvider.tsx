@@ -115,6 +115,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
   useEffect(() => {
     if (!network) return;
     const filteredState = filterBridgeStateToNetwork(bridgeState, network);
+
     setBridgeTransactions(filteredState.bridgeTransactions);
     setIsDevEnvInternal(filteredState.isDevEnv);
   }, [bridgeState, network]);

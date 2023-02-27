@@ -56,7 +56,7 @@ function isTxToAvalanche(tx: TxHistoryItem | BridgeTransaction): boolean {
 }
 
 function getTxBlockchain(tx: TxHistoryItem | BridgeTransaction) {
-  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.token?.symbol;
+  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.tokens?.[0]?.symbol;
   const ethereum = 'Ethereum';
   const bitcoin = 'Bitcoin';
 
