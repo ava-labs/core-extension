@@ -21,3 +21,10 @@ export interface OnUnlock {
 export interface OnStorageReady {
   onStorageReady(): void | Promise<void>;
 }
+
+/**
+ * Called when all extension popups disconnect from the backend script.
+ */
+export interface OnAllExtensionClosed {
+  onAllExtensionsClosed(): void | Promise<void>;
+}

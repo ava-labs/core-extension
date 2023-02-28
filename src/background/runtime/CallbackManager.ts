@@ -1,5 +1,10 @@
 import { container, singleton } from 'tsyringe';
-import { OnLock, OnStorageReady, OnUnlock } from './lifecycleCallbacks';
+import {
+  OnAllExtensionClosed,
+  OnLock,
+  OnStorageReady,
+  OnUnlock,
+} from './lifecycleCallbacks';
 
 @singleton()
 export class CallbackManager {
@@ -34,5 +39,12 @@ export class CallbackManager {
     const instances =
       this.getInstancesForInterface<OnStorageReady>('onStorageReady');
     instances.forEach((i) => i.onStorageReady());
+  }
+
+  onAllExtensionsClosed() {
+    const instances = this.getInstancesForInterface<OnAllExtensionClosed>(
+      'onAllExtensionsClosed'
+    );
+    instances.forEach((i) => i.onAllExtensionsClosed());
   }
 }

@@ -10,13 +10,31 @@ import { DAppConnectionController } from './dAppConnection/DAppConnectionControl
 import { ConnectionController } from './models';
 import { KeepaliveConnectionController } from './keepaliveConnection/KeepaliveConnectionController';
 import { ExtensionConnectionController } from './extensionConnection/ExtensionConnectionController';
+import { CallbackManager } from '../runtime/CallbackManager';
 
 @singleton()
 export class ConnectionService {
+  private _extensionsOpened = 0;
+
+  constructor(private callbackManager: CallbackManager) {}
+
   activate() {
     browser.runtime.onConnect.addListener((connection) => {
-      this.handleConnection(connection);
+      const controller = this.handleConnection(connection);
+
+      if (controller instanceof ExtensionConnectionController) {
+        this._extensionsOpened += 1;
+        connection.onDisconnect.addListener(() => this.handleExtensionClosed());
+      }
     });
+  }
+
+  private handleExtensionClosed() {
+    this._extensionsOpened = Math.max(0, this._extensionsOpened - 1); // Safe guard from going below 0.
+
+    if (this._extensionsOpened === 0) {
+      this.callbackManager.onAllExtensionsClosed();
+    }
   }
 
   private handleConnection(connection: Runtime.Port) {
@@ -43,5 +61,7 @@ export class ConnectionService {
     }
 
     connectionController?.connect(connection);
+
+    return connectionController;
   }
 }

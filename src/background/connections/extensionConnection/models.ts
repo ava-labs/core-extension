@@ -19,6 +19,8 @@ export enum ExtensionRequest {
   ACCOUNT_DELETE = 'account_delete',
 
   BALANCES_GET = 'balances_get',
+  BALANCES_START_POLLING = 'balances_start_polling',
+  BALANCES_STOP_POLLING = 'balances_stop_polling',
   NETWORK_BALANCES_UPDATE = 'network_balances_update',
   NFT_BALANCES_GET = 'nft_balances_get',
   TOKEN_PRICE_GET = 'token_price_get',

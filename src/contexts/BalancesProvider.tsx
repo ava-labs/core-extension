@@ -16,12 +16,13 @@ import {
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';
+import { merge } from 'lodash';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { getNetworkIdsToUpdate } from './utils/getNetworkIdsToUpdate';
 import { balancesUpdatedEventListener } from '@src/background/services/balances/events/balancesUpdatedEventListener';
-import _ from 'lodash';
 import { Account } from '@src/background/services/accounts/models';
+import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
+import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 
 interface NftState {
   loading: boolean;
@@ -47,9 +48,13 @@ const BalancesContext = createContext<{
   nfts: NftState;
   updateNftBalances?: (pageToken?: string, callback?: () => void) => void;
   updateBalanceOnAllNetworks?: (account: Account) => Promise<void>;
+  registerSubscriber: () => void;
+  unregisterSubscriber: () => void;
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
+  registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
 });
 
 function balancesReducer(
@@ -64,7 +69,7 @@ function balancesReducer(
         ...state,
         loading: false,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
-        balances: _.merge(state.balances, action.payload),
+        balances: merge({}, state.balances, action.payload),
       };
     default:
       throw new Error();
@@ -73,7 +78,7 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { network, favoriteNetworks, networks } = useNetworkContext();
+  const { network, networks } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -81,6 +86,16 @@ export function BalancesProvider({ children }: { children: any }) {
     loading: true,
   });
   const [nfts, setNfts] = useState<NftState>({ loading: true });
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [isPolling, setIsPolling] = useState(false);
+
+  const registerSubscriber = useCallback(() => {
+    setSubscriberCount((count) => count + 1);
+  }, []);
+
+  const unregisterSubscriber = useCallback(() => {
+    setSubscriberCount((count) => count - 1);
+  }, []);
 
   useEffect(() => {
     const subscription = events()
@@ -116,47 +131,28 @@ export function BalancesProvider({ children }: { children: any }) {
   }, [request]);
 
   useEffect(() => {
-    // update balances every 2 seconds for the active network when the UI is open
-    // update balances for all networks and accounts every 30 seconds
-    if (!activeAccount || !network) return;
-
-    const nonActiveChainIds = favoriteNetworks
-      .map((n) => n.chainId)
-      .filter((id) => id !== network?.chainId);
-
-    const updateNextBalances = async (iteration = 0) => {
-      if (!activeAccount || !network) return;
-
-      const networksToFetch = getNetworkIdsToUpdate(
-        nonActiveChainIds,
-        iteration,
-        15 // make sure we get back to update every network after 15 iterations
-      );
-
-      const balances = await request<UpdateBalancesForNetworkHandler>({
-        method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-        params: [[activeAccount], [network.chainId, ...networksToFetch]],
+    if (isPolling) {
+      request<StartBalancesPollingHandler>({
+        method: ExtensionRequest.BALANCES_START_POLLING,
+      }).then((balances) => {
+        dispatch({
+          type: BalanceActionType.UPDATE_BALANCES,
+          payload: balances,
+        });
       });
 
-      dispatch({
-        type: BalanceActionType.UPDATE_BALANCES,
-        payload: balances,
-      });
-    };
+      return () => {
+        request<StopBalancesPollingHandler>({
+          method: ExtensionRequest.BALANCES_STOP_POLLING,
+        });
+      };
+    }
+  }, [request, isPolling]);
 
-    let intervalId: number;
-    const startTimeout = (iteration = 0) => {
-      return window.setTimeout(async () => {
-        await updateNextBalances(iteration);
-        intervalId = startTimeout(iteration + 1);
-      }, 2000);
-    };
-
-    intervalId = startTimeout();
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [activeAccount, network, favoriteNetworks, request]);
+  useEffect(() => {
+    // Toggle balance polling based on the amount of dependent components.
+    setIsPolling(subscriberCount > 0);
+  }, [subscriberCount]);
 
   const updateNftBalances = useCallback(
     async (pageToken?: string, callback?: () => void) => {
@@ -222,7 +218,14 @@ export function BalancesProvider({ children }: { children: any }) {
 
   return (
     <BalancesContext.Provider
-      value={{ tokens, nfts, updateNftBalances, updateBalanceOnAllNetworks }}
+      value={{
+        tokens,
+        nfts,
+        updateNftBalances,
+        updateBalanceOnAllNetworks,
+        registerSubscriber,
+        unregisterSubscriber,
+      }}
     >
       {children}
     </BalancesContext.Provider>

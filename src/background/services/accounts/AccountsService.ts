@@ -30,6 +30,8 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
+    const activeAccountChanged =
+      this._accounts.active?.id !== accounts.active?.id;
     this._accounts = accounts;
 
     // do not save empty list of accounts to storage
@@ -51,6 +53,12 @@ export class AccountsService implements OnLock, OnUnlock {
       this.saveAccounts(this._accounts);
     }
 
+    if (activeAccountChanged) {
+      this.eventEmitter.emit(
+        AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
+        this.accounts.active
+      );
+    }
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
