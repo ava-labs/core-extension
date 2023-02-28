@@ -60,7 +60,9 @@ export function TokenList({ searchQuery }: TokenListProps) {
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase()))
           )
         : tokensWithBalances
-      ).filter((token) => getTokenVisibility(token)),
+      )
+        .filter((token) => getTokenVisibility(token))
+        .sort((a, b) => (b.balanceUSD ?? 0) - (a.balanceUSD ?? 0)),
     [searchQuery, tokensWithBalances, getTokenVisibility]
   );
 

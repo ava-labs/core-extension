@@ -70,9 +70,10 @@ export function Assetlist({ assetList }: AssetListProps) {
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
 
-  const filteredAssetList = assetList.filter((asset) =>
-    getTokenVisibility(asset)
-  );
+  const filteredAssetList = assetList
+    .filter((asset) => getTokenVisibility(asset))
+    .sort((a, b) => (b.balanceUSD ?? 0) - (a.balanceUSD ?? 0));
+
   const restAssetCount = filteredAssetList.length - maxAssetCount;
 
   return (

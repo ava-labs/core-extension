@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import {
   HorizontalFlex,
   Skeleton,
@@ -36,9 +36,26 @@ export function NetworkList() {
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
-  const favoriteNetworksWithoutActive = favoriteNetworks.filter(
-    (networkItem) => networkItem.chainId !== network?.chainId
-  );
+
+  function getNetworkValue(network: Network) {
+    const networkAddress =
+      (network.vmName === NetworkVMType.EVM
+        ? activeAccount?.addressC
+        : activeAccount?.addressBTC) || '';
+    const networkBalances = tokens.balances?.[network.chainId];
+    const networkAssetList = networkBalances
+      ? tokensWithBalances(Object.values(networkBalances[networkAddress] ?? {}))
+      : null;
+    return networkAssetList ? getNetworkBalance(networkAssetList) : 0;
+  }
+
+  const favoriteNetworksWithoutActive = favoriteNetworks
+    .filter((networkItem) => networkItem.chainId !== network?.chainId)
+    .sort((a, b) => {
+      const networkBalanceForA = getNetworkValue(a);
+      const networkBalanceForB = getNetworkValue(b);
+      return networkBalanceForB - networkBalanceForA;
+    });
 
   // we don't know the network list yet. Lets show the placeholder tiles instead
   if (!networks.length) {
@@ -54,19 +71,8 @@ export function NetworkList() {
     <>
       <NetworkListContainer justify="space-between">
         {favoriteNetworksWithoutActive.map((network) => {
-          const networkAddress =
-            (network?.vmName === NetworkVMType.EVM
-              ? activeAccount?.addressC
-              : activeAccount?.addressBTC) || '';
           const networkBalances = tokens.balances?.[network.chainId];
-          const networkAssetList = networkBalances
-            ? tokensWithBalances(
-                Object.values(networkBalances[networkAddress] ?? {})
-              )
-            : null;
-          const networkBalance = networkAssetList
-            ? getNetworkBalance(networkAssetList)
-            : 0;
+          const networkBalance = getNetworkValue(network);
           // show loading skeleton for each tile till we have the balance for them
           return !networkBalances ? (
             <Skeleton
