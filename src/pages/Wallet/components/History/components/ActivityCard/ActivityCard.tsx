@@ -105,7 +105,14 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
   }, [network, t, historyItem]);
 
   return (
-    <Card sx={{ p: 2 }}>
+    <Card
+      data-testid={
+        historyItem.isContractCall
+          ? 'Contract-call-activity-card'
+          : historyItem.type + '-activity-card'
+      }
+      sx={{ p: 2 }}
+    >
       <Stack
         divider={
           <Divider
@@ -176,6 +183,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
               onClick={() => {
                 window.open(historyItem.explorerLink, '_blank');
               }}
+              data-testid="explorer-link"
             >
               <Typography>{gasDisplayAmount}</Typography>
               <Typography>{network?.networkToken.symbol}</Typography>
