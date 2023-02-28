@@ -68,7 +68,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     private networkFeeService: NetworkFeeService,
     private networkBalancesService: BalanceAggregatorService
   ) {
-    this.networkService.activeNetworkChanged.add(() => {
+    this.networkService.developerModeChanged.add(() => {
       this.updateBridgeConfig();
     });
   }

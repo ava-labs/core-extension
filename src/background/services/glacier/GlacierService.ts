@@ -50,5 +50,9 @@ export class GlacierService {
       const status = healthStatus?.status?.toString();
       this.isGlacierHealthy = status === 'ok' ? true : false;
     }, 5000);
+
+    this.getSupportedNetworks().catch(() => {
+      // Noop. It will be retried by .isSupportedNetwork calls upon unlocking if necessary.
+    });
   }
 }

@@ -1,5 +1,8 @@
 import { NetworkContractToken } from '@avalabs/chains-sdk';
-import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
+import {
+  OnLock,
+  OnStorageReady,
+} from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
@@ -26,8 +29,10 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
 };
 
 @singleton()
-export class SettingsService implements OnStorageReady {
+export class SettingsService implements OnStorageReady, OnLock {
   private eventEmitter = new EventEmitter();
+  private _cachedSettings: SettingsState | null = null;
+
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService
@@ -40,6 +45,10 @@ export class SettingsService implements OnStorageReady {
 
   onStorageReady(): void {
     this.applySettings();
+  }
+
+  onLock() {
+    this._cachedSettings = null;
   }
 
   private async applySettings() {
@@ -56,6 +65,10 @@ export class SettingsService implements OnStorageReady {
   }
 
   async getSettings(): Promise<SettingsState> {
+    if (this._cachedSettings) {
+      return this._cachedSettings;
+    }
+
     try {
       const state = await this.storageService.load<SettingsState>(
         SETTINGS_STORAGE_KEY
@@ -65,21 +78,28 @@ export class SettingsService implements OnStorageReady {
           SETTINGS_UNENCRYPTED_STORAGE_KEY
         );
 
-      return {
+      const settings = {
         ...DEFAULT_SETTINGS_STATE,
         ...unEncryptedState,
         ...state,
       };
+
+      this._cachedSettings = settings;
+
+      return settings;
     } catch {
       const unEncryptedState =
         await this.storageService.loadUnencrypted<SettingsState>(
           SETTINGS_UNENCRYPTED_STORAGE_KEY
         );
 
-      return {
+      const settings = {
         ...DEFAULT_SETTINGS_STATE,
         ...unEncryptedState,
       };
+      this._cachedSettings = settings;
+
+      return settings;
     }
   }
 
@@ -184,8 +204,10 @@ export class SettingsService implements OnStorageReady {
     );
     try {
       await this.storageService.save(SETTINGS_STORAGE_KEY, state);
+      this._cachedSettings = state;
       this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, state);
     } catch {
+      this._cachedSettings = { language } as SettingsState;
       this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, { language });
     }
   }

@@ -71,8 +71,9 @@ export class AccountsService implements OnLock, OnUnlock {
   async onUnlock(): Promise<void> {
     await this.init();
 
-    // refresh addresses so in case the user switches to testnet the BTC address gets updated
-    this.networkService.activeNetworkChanged.add(this.onDeveloperModeChanged);
+    // refresh addresses so in case the user switches to testnet mode,
+    // as the BTC address needs to be updated
+    this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
   }
 
   onLock() {
@@ -82,7 +83,7 @@ export class AccountsService implements OnLock, OnUnlock {
       imported: {},
     };
 
-    this.networkService.activeNetworkChanged.remove(
+    this.networkService.developerModeChanged.remove(
       this.onDeveloperModeChanged
     );
   }

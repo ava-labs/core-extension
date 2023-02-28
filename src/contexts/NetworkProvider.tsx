@@ -124,7 +124,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     getNetworkState();
-    events()
+    const activeNetworkSubscription = events()
       .pipe(
         filter(networkUpdatedEventListener),
         map((evt) => evt.value)
@@ -134,7 +134,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         setNetwork((currentNetwork) => result ?? currentNetwork); // do not delete currently set network
       });
 
-    events()
+    const networksSubscription = events()
       .pipe(
         filter(networksUpdatedEventListener),
         map((evt) => evt.value)
@@ -147,6 +147,11 @@ export function NetworkContextProvider({ children }: { children: any }) {
           Object.values(result.customNetworks).map((network) => network.chainId)
         );
       });
+
+    return () => {
+      activeNetworkSubscription.unsubscribe();
+      networksSubscription.unsubscribe();
+    };
   }, [events, getNetworkState, request]);
 
   return (

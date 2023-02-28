@@ -109,8 +109,8 @@ describe('background/services/accounts/AccountsService', () => {
       [NetworkVMType.PVM]: pvmAddress,
       [NetworkVMType.CoreEth]: coreEthAddress,
     });
-    networkService.activeNetworkChanged.add = jest.fn();
-    networkService.activeNetworkChanged.remove = jest.fn();
+    networkService.developerModeChanged.add = jest.fn();
+    networkService.developerModeChanged.remove = jest.fn();
   });
 
   describe('getAccountList', () => {
@@ -255,7 +255,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(accounts).toStrictEqual(mockedAccounts);
     });
 
-    it('account addresses are updated on network change', async () => {
+    it('account addresses are updated on developer mode change', async () => {
       const mockedAccounts = mockAccounts(true);
       const accountsService = new AccountsService(
         storageService,
@@ -289,9 +289,9 @@ describe('background/services/accounts/AccountsService', () => {
       const accounts = accountsService.getAccounts();
       expect(accounts).toStrictEqual(mockedAccounts);
 
-      expect(networkService.activeNetworkChanged.add).toBeCalledTimes(1);
+      expect(networkService.developerModeChanged.add).toBeCalledTimes(1);
       // this mocks a network change
-      (networkService.activeNetworkChanged.add as jest.Mock).mock.calls[0][0]();
+      (networkService.developerModeChanged.add as jest.Mock).mock.calls[0][0]();
       await new Promise(process.nextTick);
 
       const updatedAccounts = accountsService.getAccounts();
@@ -315,9 +315,9 @@ describe('background/services/accounts/AccountsService', () => {
       accountsService.onLock();
       expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
       expect(
-        (networkService.activeNetworkChanged.add as jest.Mock).mock.calls[0][0]
+        (networkService.developerModeChanged.add as jest.Mock).mock.calls[0][0]
       ).toBe(
-        (networkService.activeNetworkChanged.remove as jest.Mock).mock
+        (networkService.developerModeChanged.remove as jest.Mock).mock
           .calls[0][0]
       );
     });
