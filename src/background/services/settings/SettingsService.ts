@@ -207,7 +207,10 @@ export class SettingsService implements OnStorageReady, OnLock {
       this._cachedSettings = state;
       this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, state);
     } catch {
-      this._cachedSettings = { language } as SettingsState;
+      this._cachedSettings = {
+        ...this._cachedSettings,
+        language,
+      } as SettingsState;
       this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, { language });
     }
   }
