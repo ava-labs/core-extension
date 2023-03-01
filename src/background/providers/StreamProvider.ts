@@ -177,6 +177,8 @@ export abstract class AbstractStreamProvider extends BaseProvider {
       return;
     }
 
+    this._handleConnect(chainId);
+
     if (networkVersion === 'loading') {
       this._handleDisconnect(true);
     } else {

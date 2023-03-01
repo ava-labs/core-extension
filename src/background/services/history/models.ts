@@ -1,8 +1,16 @@
+import { RichAddress } from '@avalabs/glacier-sdk';
+import { TokenType } from '../balances/models';
+
 export interface TxHistoryItemToken {
   decimal?: string;
   name: string;
   symbol: string;
-  amount?: string;
+  amount: string;
+  imageUri?: string;
+  from?: RichAddress;
+  to?: RichAddress;
+  collectableTokenId?: string;
+  type: TokenType;
 }
 export interface TxHistoryItem {
   isBridge: boolean;
@@ -12,12 +20,14 @@ export interface TxHistoryItem {
   isSender: boolean;
   timestamp: string;
   hash: string;
-  amount: string;
   from: string;
   to: string;
-  token?: TxHistoryItemToken;
+  tokens: TxHistoryItemToken[];
+  gasPrice?: string;
+  gasUsed: string;
   explorerLink: string;
   chainId: string; // chainId from ActiveNetwork used to fetch tx
+  type: TransactionType;
 }
 
 export enum TransactionType {

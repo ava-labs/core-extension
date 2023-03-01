@@ -30,6 +30,8 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
+    const activeAccountChanged =
+      this._accounts.active?.id !== accounts.active?.id;
     this._accounts = accounts;
 
     // do not save empty list of accounts to storage
@@ -51,6 +53,12 @@ export class AccountsService implements OnLock, OnUnlock {
       this.saveAccounts(this._accounts);
     }
 
+    if (activeAccountChanged) {
+      this.eventEmitter.emit(
+        AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
+        this.accounts.active
+      );
+    }
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
@@ -71,8 +79,9 @@ export class AccountsService implements OnLock, OnUnlock {
   async onUnlock(): Promise<void> {
     await this.init();
 
-    // refresh addresses so in case the user switches to testnet the BTC address gets updated
-    this.networkService.activeNetworkChanged.add(this.onDeveloperModeChanged);
+    // refresh addresses so in case the user switches to testnet mode,
+    // as the BTC address needs to be updated
+    this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
   }
 
   onLock() {
@@ -82,7 +91,7 @@ export class AccountsService implements OnLock, OnUnlock {
       imported: {},
     };
 
-    this.networkService.activeNetworkChanged.remove(
+    this.networkService.developerModeChanged.remove(
       this.onDeveloperModeChanged
     );
   }

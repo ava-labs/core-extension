@@ -4,9 +4,10 @@ import { BitcoinHistoryTx, BlockCypherProvider } from '@avalabs/wallets-sdk';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
+import { TokenType } from '../balances/models';
 import { NetworkService } from '../network/NetworkService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
-import { TxHistoryItem } from './models';
+import { TransactionType, TxHistoryItem } from './models';
 
 @singleton()
 export class HistoryServiceBTC {
@@ -32,28 +33,39 @@ export class HistoryServiceBTC {
       : '';
     const txAddress = tx.addresses[0] ? tx.addresses[0] : '';
     const denomination = BITCOIN_NETWORK.networkToken.decimals;
+    const isBridge = this.bridgeHistoryHelperService.isBridgeTransactionBTC(tx);
+    const type = isBridge
+      ? TransactionType.BRIDGE
+      : tx.isSender
+      ? TransactionType.SEND
+      : TransactionType.RECEIVE;
     return {
-      isBridge: this.bridgeHistoryHelperService.isBridgeTransactionBTC(tx),
+      isBridge,
       isIncoming: !tx.isSender,
       isOutgoing: tx.isSender,
       isContractCall: false,
       timestamp: new Date(tx.receivedTime).toISOString(),
       hash: tx.hash,
-      amount: this.bitcoinAmount(tx.amount, denomination),
       isSender: tx.isSender,
       from: tx.isSender ? userAddress : txAddress,
       to: tx.isSender ? txAddress : userAddress,
-      token: {
-        decimal: denomination.toString(),
-        name: BITCOIN_NETWORK.networkToken.name,
-        symbol: BITCOIN_NETWORK.networkToken.symbol,
-      },
+      tokens: [
+        {
+          decimal: denomination.toString(),
+          name: BITCOIN_NETWORK.networkToken.name,
+          symbol: BITCOIN_NETWORK.networkToken.symbol,
+          amount: this.bitcoinAmount(tx.amount, denomination),
+          type: TokenType.NATIVE,
+        },
+      ],
+      gasUsed: tx.fee.toString(),
       explorerLink: getExplorerAddress(
         Blockchain.BITCOIN,
         tx.hash,
         network.chainId === BITCOIN_NETWORK.chainId
       ),
       chainId: network.chainId.toString(),
+      type,
     };
   }
 

@@ -52,7 +52,6 @@ export function OnboardButton({
             variant="body1"
             sx={{
               fontWeight: 'semibold',
-              textAlign: 'center',
             }}
           >
             {title}
@@ -92,6 +91,7 @@ export function OnboardButton({
           sx={{
             height: theme.spacing(3),
             fontWeight: 'semibold',
+            textAlign: 'center',
           }}
         >
           {title}

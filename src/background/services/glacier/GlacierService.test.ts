@@ -42,6 +42,8 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
       healthCheckMock.mockRejectedValue('some error');
 
       const glacierService = new GlacierService();
+      supportedChainsMock.mockReset(); // It's first called when GlacierService is instantiated, so we need to reset the counter.
+
       await waitForFirstHealthCheck();
 
       const result = await glacierService.isNetworkSupported(1);
@@ -54,12 +56,14 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
       supportedChainsMock.mockRejectedValue('some error');
 
       const glacierService = new GlacierService();
+      supportedChainsMock.mockReset(); // It's first called when GlacierService is instantiated, so we need to reset the counter.
+
       await waitForFirstHealthCheck();
 
       const result = await glacierService.isNetworkSupported(1);
 
       expect(result).toBe(false);
-      expect(supportedChainsMock).toHaveBeenCalled();
+      expect(supportedChainsMock).toHaveBeenCalledTimes(1);
     });
 
     it('returns true if the provided chain id is supported', async () => {

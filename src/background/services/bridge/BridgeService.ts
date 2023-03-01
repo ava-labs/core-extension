@@ -1,4 +1,3 @@
-import { isBitcoin } from '@src/utils/isBitcoin';
 import { resolve } from '@avalabs/utils-sdk';
 import {
   Blockchain,
@@ -40,7 +39,6 @@ import {
 import Big from 'big.js';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
-import { ChainId } from '@avalabs/chains-sdk';
 import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { BigNumber } from 'ethers';
 
@@ -70,7 +68,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     private networkFeeService: NetworkFeeService,
     private networkBalancesService: BalanceAggregatorService
   ) {
-    this.networkService.activeNetworkChanged.add(() => {
+    this.networkService.developerModeChanged.add(() => {
       this.updateBridgeConfig();
     });
   }
@@ -178,13 +176,9 @@ export class BridgeService implements OnLock, OnStorageReady {
       throw new Error('No active account found');
     }
 
-    const network = this.networkService.activeNetwork;
+    const btcNetwork = await this.networkService.getBitcoinNetwork();
 
-    if (!network || !isBitcoin(network)) {
-      throw new Error('Wrong network.');
-    }
-
-    const provider = this.networkService.getProviderForNetwork(network);
+    const provider = this.networkService.getProviderForNetwork(btcNetwork);
     if (
       provider instanceof JsonRpcBatchInternal ||
       provider instanceof Avalanche.JsonRpcProvider
@@ -196,13 +190,14 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     // mimicing the same feeRate in useBtcBridge
     const feeRate =
-      (await this.networkFeeService.getNetworkFee(network))?.high.toNumber() ??
-      0;
+      (
+        await this.networkFeeService.getNetworkFee(btcNetwork)
+      )?.high.toNumber() ?? 0;
 
     const token =
-      this.networkBalancesService.balances[
-        network.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-      ]?.[addressBtc]?.['BTC'];
+      this.networkBalancesService.balances[btcNetwork.chainId]?.[addressBtc]?.[
+        'BTC'
+      ];
 
     const utxos = token?.utxos ?? [];
 
@@ -215,7 +210,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     );
 
     const [signedTx, error] = await resolve(
-      this.walletService.sign({ inputs, outputs }, network)
+      this.walletService.sign({ inputs, outputs }, btcNetwork)
     );
 
     if (!signedTx || error) {

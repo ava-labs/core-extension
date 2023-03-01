@@ -36,8 +36,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _allNetworks = new Signal<ChainList | undefined>();
   private _activeNetwork: Network | undefined = undefined;
   public activeNetworkChanged = new Signal<Network | undefined>();
+  public developerModeChanged = new Signal<boolean | undefined>();
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
+  public favoriteNetworksUpdated = new Signal<number[]>();
   private _initChainListResolved = new Signal<boolean>();
   private _initChainListResolvedCache = new ValueCache<boolean>();
   public initChainListResolved = this._initChainListResolved
@@ -69,12 +71,34 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   private set activeNetwork(network: Network | undefined) {
+    const previousNetwork = this._activeNetwork;
+    const activeNetworkChanged = previousNetwork?.chainId !== network?.chainId;
+
+    if (!activeNetworkChanged) {
+      return;
+    }
+
     this._activeNetwork = network;
     this.activeNetworkChanged.dispatch(this._activeNetwork);
+
+    // No need to notify about developer mode being changed when we're only setting
+    // the network for the first time (after extension startup or unlocking).
+    const developerModeChanged =
+      Boolean(previousNetwork) &&
+      previousNetwork?.isTestnet !== network?.isTestnet;
+
+    if (developerModeChanged) {
+      this.developerModeChanged.dispatch(this._activeNetwork?.isTestnet);
+    }
   }
 
   public get favoriteNetworks() {
     return this._favoriteNetworks;
+  }
+
+  private set favoriteNetworks(networkIds: number[]) {
+    this._favoriteNetworks = networkIds;
+    this.favoriteNetworksUpdated.dispatch(networkIds);
   }
 
   public get customNetworks() {
@@ -91,14 +115,14 @@ export class NetworkService implements OnLock, OnStorageReady {
     ) {
       return storedFavoriteNetworks;
     }
-    this._favoriteNetworks = [...storedFavoriteNetworks, chainId];
+    this.favoriteNetworks = [...storedFavoriteNetworks, chainId];
     this.updateNetworkState();
     return this._favoriteNetworks;
   }
 
   async removeFavoriteNetwork(chainId: number) {
     const storedFavoriteNetworks = this.favoriteNetworks;
-    this._favoriteNetworks = storedFavoriteNetworks.filter(
+    this.favoriteNetworks = storedFavoriteNetworks.filter(
       (storedFavoriteNetworkChainId) => storedFavoriteNetworkChainId !== chainId
     );
     this.updateNetworkState();
@@ -155,7 +179,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     this.activeNetwork = activeNetwork;
 
-    this._favoriteNetworks = network?.favoriteNetworks || [
+    this.favoriteNetworks = network?.favoriteNetworks || [
       ChainId.AVALANCHE_MAINNET_ID,
     ];
   }

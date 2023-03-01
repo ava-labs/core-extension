@@ -1,12 +1,11 @@
+import { merge } from 'lodash';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
-import { AccountsService } from '../accounts/AccountsService';
-import { Account, Accounts, AccountsEvents } from '../accounts/models';
+import { Account } from '../accounts/models';
 import { Balances, BalanceServiceEvents } from './models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
-import _ from 'lodash';
 import * as Sentry from '@sentry/browser';
 
 @singleton()
@@ -24,28 +23,9 @@ export class BalanceAggregatorService implements OnLock {
   }
 
   constructor(
-    private accountsService: AccountsService,
     private balancesService: BalancesService,
     private networkService: NetworkService
-  ) {
-    this.updateBalancesForNetworks.bind(this);
-
-    this.accountsService.addListener<Accounts>(
-      AccountsEvents.ACCOUNTS_UPDATED,
-      async (accounts) => {
-        const activeAccount = accounts.active;
-        const activeNetwork = this.networkService.activeNetwork;
-        if (!activeAccount || !activeNetwork) {
-          return;
-        }
-
-        this.updateBalancesForNetworks(
-          [activeNetwork?.chainId, ...this.networkService.favoriteNetworks],
-          [activeAccount]
-        );
-      }
-    );
-  }
+  ) {}
 
   async updateBalancesForNetworks(
     chainIds: number[],
@@ -66,7 +46,7 @@ export class BalanceAggregatorService implements OnLock {
         );
 
         // use deep merge to make sure we keep all accounts in there, even after a partial update
-        this.balances = _.merge(this.balances, {
+        this.balances = merge(this.balances, {
           [network.chainId]: balances,
         });
       })

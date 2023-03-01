@@ -99,6 +99,8 @@ import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledg
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
 import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
+import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
+import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -128,6 +130,8 @@ import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/servi
     useToken: UpdateBalancesForNetworkHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
+  { token: 'ExtensionRequestHandler', useToken: StartBalancesPollingHandler },
+  { token: 'ExtensionRequestHandler', useToken: StopBalancesPollingHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetStateHandler },

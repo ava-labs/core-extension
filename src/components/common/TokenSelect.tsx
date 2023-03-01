@@ -27,6 +27,7 @@ import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from './VirtualizedList';
 import { BNInput } from '@avalabs/react-components';
 import { InfoCircleIcon, Stack, Tooltip } from '@avalabs/k2-components';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -121,6 +122,8 @@ export function TokenSelect({
   const [searchQuery, setSearchQuery] = useState('');
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
+
+  useLiveBalance(); // Make sure we always show the latest balances.
 
   const decimals = selectedToken?.decimals || 18;
 

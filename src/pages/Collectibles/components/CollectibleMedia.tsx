@@ -13,6 +13,7 @@ const NftImage = styled(ImageWithFallback)<{
   maxHeight?: string;
   hover?: boolean;
   hasBorderRadius?: boolean;
+  boarderRadius?: string;
 }>`
   width: ${({ width }) => width ?? '32px'};
   height: ${({ height }) => height ?? '32px'};
@@ -22,7 +23,8 @@ const NftImage = styled(ImageWithFallback)<{
   box-sizing: border-box;
   filter: drop-shadow(0px 10px 25px ${({ theme }) => `${theme.colors.bg1}40`});
   backdrop-filter: blur(25px);
-  border-radius: ${({ hasBorderRadius }) => (hasBorderRadius ? '8px' : 'none')};
+  border-radius: ${({ hasBorderRadius, boarderRadius }) =>
+    hasBorderRadius ? (boarderRadius ? boarderRadius : '8px') : 'none'};
   cursor: pointer;
 
   ${({ hover }) =>
@@ -40,6 +42,7 @@ const NftVideo = styled.video<{
   maxWidth?: string;
   maxHeight?: string;
   hover?: boolean;
+  boarderRadius?: string;
 }>`
   width: ${({ width }) => width ?? '32px'};
   max-width: ${({ maxWidth }) => maxWidth ?? 'unset'};
@@ -49,8 +52,8 @@ const NftVideo = styled.video<{
   box-sizing: border-box;
   filter: drop-shadow(0px 10px 25px ${({ theme }) => `${theme.colors.bg1}40`});
   backdrop-filter: blur(25px);
-  border-radius: 8px;
-
+  border-radius: ${({ boarderRadius }) =>
+    boarderRadius ? boarderRadius : '8px'};
   ${({ hover }) =>
     hover &&
     `
@@ -77,6 +80,7 @@ interface CollectibleMediaProps {
   showPlayIcon?: boolean;
   controls?: boolean;
   className?: string;
+  boarderRadius?: string;
 }
 
 export function CollectibleMedia({
@@ -90,6 +94,7 @@ export function CollectibleMedia({
   showPlayIcon = true,
   controls = false,
   className,
+  boarderRadius = '8x',
 }: CollectibleMediaProps) {
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
 
@@ -104,6 +109,7 @@ export function CollectibleMedia({
             maxHeight={maxHeight}
             hover={hover}
             controls={controls}
+            boarderRadius={boarderRadius}
           >
             <source src={ipfsResolverWithFallback(url)} />
           </NftVideo>
@@ -123,6 +129,7 @@ export function CollectibleMedia({
             maxHeight={maxHeight}
             hover={hover}
             hasBorderRadius={!isImageFullScreen}
+            boarderRadius={boarderRadius}
           />
         </ImageWrapper>
       )}

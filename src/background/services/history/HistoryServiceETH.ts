@@ -4,7 +4,7 @@ import { Network } from '@avalabs/chains-sdk';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
-import { TxHistoryItem } from './models';
+import { TransactionType, TxHistoryItem } from './models';
 
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
@@ -15,6 +15,7 @@ import {
   getNormalTxs,
   NormalTx,
 } from '@avalabs/etherscan-sdk';
+import { TokenType } from '../balances/models';
 
 @singleton()
 export class HistoryServiceETH {
@@ -38,28 +39,35 @@ export class HistoryServiceETH {
     const decimals = parseInt(tx.tokenDecimal);
     const amountBN = new BN(tx.value);
     const amountDisplayValue = balanceToDisplayValue(amountBN, decimals);
+    const isBridge = this.bridgeHistoryHelperService.isBridgeTransactionEVM(
+      tx,
+      network
+    );
 
     return {
-      isBridge: this.bridgeHistoryHelperService.isBridgeTransactionEVM(
-        tx,
-        network
-      ),
+      isBridge,
       isIncoming: !isSender,
       isOutgoing: isSender,
       isContractCall: false,
       timestamp: timestamp.toISOString(),
       hash: tx.hash,
-      amount: amountDisplayValue,
       isSender: isSender,
       from: tx.from,
       to: tx.to,
-      token: {
-        decimal: tx.tokenDecimal,
-        name: tx.tokenName,
-        symbol: tx.tokenSymbol,
-      },
+      tokens: [
+        {
+          decimal: tx.tokenDecimal,
+          name: tx.tokenName,
+          symbol: tx.tokenSymbol,
+          amount: amountDisplayValue,
+          type: TokenType.ERC20,
+        },
+      ],
+      gasPrice: tx.gasPrice,
+      gasUsed: tx.gasUsed,
       explorerLink: getExplorerAddressByNetwork(network, tx.hash),
       chainId: network.chainId.toString(),
+      type: isBridge ? TransactionType.BRIDGE : TransactionType.UNKNOWN,
     };
   }
 
@@ -84,19 +92,25 @@ export class HistoryServiceETH {
       isContractCall: this.isContractCall(tx),
       timestamp: timestamp.toISOString(),
       hash: tx.hash,
-      amount: amountDisplayValue,
       isSender: isSender,
       from: tx.from,
       to: tx.to,
-      token: {
-        decimal: network.networkToken.decimals
-          ? network.networkToken.decimals.toString()
-          : '18',
-        name: network.networkToken.name,
-        symbol: network.networkToken.symbol,
-      },
+      tokens: [
+        {
+          decimal: network.networkToken.decimals
+            ? network.networkToken.decimals.toString()
+            : '18',
+          name: network.networkToken.name,
+          symbol: network.networkToken.symbol,
+          amount: amountDisplayValue,
+          type: TokenType.NATIVE,
+        },
+      ],
+      gasPrice: tx.gasPrice,
+      gasUsed: tx.gasUsed,
       explorerLink: getExplorerAddressByNetwork(network, tx.hash),
       chainId: network.chainId.toString(),
+      type: TransactionType.UNKNOWN,
     };
   }
 

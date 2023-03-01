@@ -23,6 +23,7 @@ import {
   ApprovalSectionBody,
   ApprovalSectionHeader,
 } from '@src/pages/SignTransaction/components/ApprovalSection';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
 interface CustomGasFeesProps {
   gasPrice: BigNumber;
@@ -166,6 +167,8 @@ export function CustomFeesK2({
       ? GasFeeModifier.NORMAL
       : selectedGasFeeModifier || GasFeeModifier.NORMAL
   );
+
+  useLiveBalance(); // Make sure we always use the latest balances.
 
   const handleGasChange = useCallback(
     (gas: BigNumber, modifier: GasFeeModifier): void => {

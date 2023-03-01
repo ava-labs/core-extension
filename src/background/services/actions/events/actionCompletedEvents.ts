@@ -7,6 +7,7 @@ import {
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { ActionCompletedEventType, ActionsEvent } from '../models';
+import { serializeError } from 'eth-rpc-errors';
 
 @injectable()
 export class ActionCompletedEvents implements DAppEventEmitter {
@@ -24,9 +25,11 @@ export class ActionCompletedEvents implements DAppEventEmitter {
         if (action.tabId === this._connectionInfo?.tabId) {
           const response =
             type === ActionCompletedEventType.ERROR
-              ? { ...action, error: result }
+              ? {
+                  ...action,
+                  error: serializeError(result),
+                }
               : { ...action, result: result };
-
           this.eventEmitter.emit('update', response);
         }
       }

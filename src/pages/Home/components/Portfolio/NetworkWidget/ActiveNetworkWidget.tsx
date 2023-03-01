@@ -115,7 +115,7 @@ export function ActiveNetworkWidget({
                   <NetworkLogo width="40px" height="40px" padding="8px" />
                 </TokenIcon>
               </LogoContainer>
-              <VerticalFlex>
+              <VerticalFlex justify="center">
                 <Typography
                   data-testid="active-network-name"
                   color={theme.colors.text1}
@@ -125,15 +125,17 @@ export function ActiveNetworkWidget({
                 >
                   {network?.chainName}
                 </Typography>
-                <Typography
-                  data-testid="active-network-total-balance"
-                  color={theme.colors.text1}
-                  weight={600}
-                  height="24px"
-                  size={16}
-                >
-                  {currencyFormatter(activeNetworkBalance)}
-                </Typography>
+                {!isCustomNetwork(network.chainId) && (
+                  <Typography
+                    data-testid="active-network-total-balance"
+                    color={theme.colors.text1}
+                    weight={600}
+                    height="24px"
+                    size={16}
+                  >
+                    {currencyFormatter(activeNetworkBalance)}
+                  </Typography>
+                )}
               </VerticalFlex>
             </HorizontalFlex>
             <VerticalFlex justify="space-between" align="flex-end">

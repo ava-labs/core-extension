@@ -6,13 +6,17 @@ import {
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
 export function WalletBalances() {
   const { currency, currencyFormatter } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+
   const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount, true);
+
+  useLiveBalance(); // Make sure we show the latest balances.
 
   return (
     <HorizontalFlex

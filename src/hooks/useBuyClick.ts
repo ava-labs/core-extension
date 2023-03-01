@@ -75,7 +75,7 @@ export const useBuyClick = () => {
             supportedLanguageLabel,
           }
         ),
-        confirmText: t('Yes'),
+        confirmText: t('Continue'),
         width: '343px',
         onConfirm: () => {
           clearDialog();
