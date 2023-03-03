@@ -4,7 +4,7 @@
   <img src="src/images/icon-256.png" alt="core-logo" width="160px" height="160px"/>
   <br>
   <i>
-    Core is a non-custodial browser extension engineered for users to <br/>
+    Core is a non-custodial browser extension engineered for users to <br>
     seamlessly and securely use Web3 powered by Avalanche.
   </i>
   <br>
