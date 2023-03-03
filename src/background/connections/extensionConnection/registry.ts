@@ -101,6 +101,8 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
+import { GetLedgerIncorrectBtcAppWarningHandler } from '@src/background/services/ledger/handlers/getLedgerIncorrectBtcAppWarning';
+import { LedgerIncorrectBtcAppWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerIncorrectBtcAppWarningClosed';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -227,6 +229,14 @@ import { StopBalancesPollingHandler } from '@src/background/services/balances/ha
   {
     token: 'ExtensionRequestHandler',
     useToken: LedgerVersionWarningClosedHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetLedgerIncorrectBtcAppWarningHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: LedgerIncorrectBtcAppWarningClosedHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: SetLanguageHandler },
   {
