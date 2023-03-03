@@ -43,13 +43,18 @@ import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 import { VM } from '@avalabs/avalanchejs-v2';
+import isLedgerBtcAppCorrect from '@src/utils/isLedgerBtcAppCorrect';
+import { LedgerIncorrectBtcAppWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerIncorrectBtcAppWarningClosed';
+import { GetLedgerIncorrectBtcAppWarningHandler } from '@src/background/services/ledger/handlers/getLedgerIncorrectBtcAppWarning';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
   BITCOIN = 'Bitcoin',
   UNKNOWN = 'UNKNOWN',
 }
+
 export const REQUIRED_LEDGER_VERSION = '0.6.0';
+
 /**
  * Run this here since each new window will have a different id
  * this is used to track the transport and close on window close
@@ -73,8 +78,11 @@ const LedgerContext = createContext<{
     vm?: VM
   ): Promise<Buffer>;
   avaxAppVersion: string | null;
+  isCorrectBtcApp: boolean;
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
+  updateLedgerIncorrectBtcAppWarningClosed(): Promise<void>;
+  ledgerIncorrectBtcAppWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
 }>({} as any);
 
@@ -86,8 +94,13 @@ export function LedgerContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
   const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
+  const [isCorrectBtcApp, setIsCorrectBtcApp] = useState<boolean>(true);
   const [ledgerVersionWarningClosed, setLedgerVersionWarningClosed] =
     useState<boolean>();
+  const [
+    ledgerIncorrectBtcAppWarningClosed,
+    setLedgerIncorrectBtcAppWarningClosed,
+  ] = useState<boolean>();
 
   /**
    * Listen for send events to a ledger instance
@@ -210,6 +223,18 @@ export function LedgerContextProvider({ children }: { children: any }) {
         if (!publicKeyError) {
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
+
+          // We support Ledger Bitcoin applications with version < 2.1.0
+          // If the version is >= 2.1.0 we want to prompt the user to switch to the Bitcoin Legacy app
+          // (until we find a way to support newer versions)
+          try {
+            const appInfo = await getLedgerAppInfo(transport);
+            const isCorrectBtcApp = isLedgerBtcAppCorrect(appInfo);
+            setIsCorrectBtcApp(isCorrectBtcApp);
+          } catch (err) {
+            setIsCorrectBtcApp(true);
+          }
+
           return btcAppInstance;
         }
       }
@@ -389,6 +414,12 @@ export function LedgerContextProvider({ children }: { children: any }) {
       setLedgerVersionWarningClosed(result);
     });
 
+    request<GetLedgerIncorrectBtcAppWarningHandler>({
+      method: ExtensionRequest.SHOW_LEDGER_INCORRECT_BTC_APP_WARNING,
+    }).then((result) => {
+      setLedgerIncorrectBtcAppWarningClosed(result);
+    });
+
     const subscription = events()
       .pipe(
         filter(lockStateChangedEventListener),
@@ -400,6 +431,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
           // because it will always be false when locked because the session
           // storage is emptied on lock.
           setLedgerVersionWarningClosed(false);
+          setLedgerIncorrectBtcAppWarningClosed(false);
         }
       });
 
@@ -415,6 +447,13 @@ export function LedgerContextProvider({ children }: { children: any }) {
     setLedgerVersionWarningClosed(result);
   }, [request]);
 
+  const updateLedgerIncorrectBtcAppWarningClosed = useCallback(async () => {
+    const result = await request<LedgerIncorrectBtcAppWarningClosedHandler>({
+      method: ExtensionRequest.LEDGER_INCORRECT_BTC_APP_WARNING_CLOSED,
+    });
+    setLedgerIncorrectBtcAppWarningClosed(result);
+  }, [request]);
+
   return (
     <LedgerContext.Provider
       value={{
@@ -427,8 +466,11 @@ export function LedgerContextProvider({ children }: { children: any }) {
         getPublicKey,
         getBtcPublicKey,
         avaxAppVersion,
+        isCorrectBtcApp,
         updateLedgerVersionWarningClosed,
         ledgerVersionWarningClosed,
+        ledgerIncorrectBtcAppWarningClosed,
+        updateLedgerIncorrectBtcAppWarningClosed,
         closeCurrentApp,
       }}
     >
