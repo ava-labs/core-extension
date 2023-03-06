@@ -5,7 +5,12 @@ import {
 } from '@avalabs/wallets-sdk';
 import { TransactionRequest } from '@ethersproject/providers';
 import { ImportType } from '../accounts/models';
-import { VM, OutputOwners, TransferableOutput } from '@avalabs/avalanchejs-v2';
+import {
+  VM,
+  OutputOwners,
+  TransferableOutput,
+  UnsignedTx,
+} from '@avalabs/avalanchejs-v2';
 import { GetAssetDescriptionResponse } from '@avalabs/avalanchejs-v2/dist/src/vms/common';
 
 export type SignTransactionRequest =
@@ -19,8 +24,11 @@ export interface BtcTransactionRequest {
 }
 
 export interface AvalancheTransactionRequest {
-  tx: Buffer;
+  tx: UnsignedTx;
   chain: 'X' | 'P' | 'C';
+  hasMultipleAddresses?: boolean;
+  externalIndices?: number[];
+  internalIndices?: number[];
 }
 
 export interface WalletLockedState {
