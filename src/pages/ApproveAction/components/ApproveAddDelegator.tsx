@@ -21,7 +21,7 @@ export function AddDelegator({
   return (
     <Stack>
       <Typography
-        variant="h2"
+        variant="h4"
         sx={{
           my: 1.5,
         }}
@@ -51,14 +51,14 @@ export function AddDelegator({
         >
           <Stack>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}
             >
               {t('Node ID')}:
             </Typography>
-            <Typography variant="body3">{nodeID}</Typography>
+            <Typography variant="caption">{nodeID}</Typography>
           </Stack>
         </CardContent>
       </Card>
@@ -80,7 +80,7 @@ export function AddDelegator({
         >
           <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}
@@ -112,7 +112,7 @@ export function AddDelegator({
           </Stack>
           <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}
@@ -131,7 +131,7 @@ export function AddDelegator({
           </Stack>
           <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}
@@ -150,7 +150,7 @@ export function AddDelegator({
           </Stack>
           <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}

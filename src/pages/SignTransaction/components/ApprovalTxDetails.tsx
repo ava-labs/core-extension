@@ -51,7 +51,7 @@ export const ContractDetails = ({
         <ExternalLinkIcon size={14} />
       </Button>
       <Tooltip placement="top" title={contractAddress}>
-        <Typography variant="body3">
+        <Typography variant="caption">
           {truncateAddress(contractAddress)}
         </Typography>
       </Tooltip>
@@ -69,7 +69,7 @@ export const AccountDetails = ({ address }: AccountDetailsProps) => {
 
   return (
     <TxDetailsRow label={t('Account')}>
-      <Typography variant="body3">
+      <Typography variant="caption">
         {account?.name ?? truncateAddress(address)}
       </Typography>
     </TxDetailsRow>
@@ -92,7 +92,7 @@ export const WebsiteDetails = ({ site }: WebsiteDetailsProps) => {
       >
         <LinkIcon size={14} />
       </Link>
-      <Typography variant="body3" sx={{ color: 'text.primary' }}>
+      <Typography variant="caption" sx={{ color: 'text.primary' }}>
         {site.domain}
       </Typography>
     </TxDetailsRow>
@@ -121,7 +121,7 @@ export const NetworkDetails = ({ network }: NetworkDetailsProps) => {
           />
         </Tooltip>
       )}
-      <Typography variant="body3" sx={{ color: 'text.primary' }}>
+      <Typography variant="caption" sx={{ color: 'text.primary' }}>
         {network.chainName}
       </Typography>
     </TxDetailsRow>

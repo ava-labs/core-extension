@@ -70,7 +70,7 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
       <Button variant="text" onClick={onCopy} sx={{ color: 'secondary' }}>
         <CopyIcon size={16} />
         <Typography
-          variant="body3"
+          variant="caption"
           sx={{
             ml: 1,
           }}

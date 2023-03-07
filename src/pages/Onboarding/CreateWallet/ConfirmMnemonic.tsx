@@ -130,7 +130,7 @@ export function ConfirmMnemonic({
                     }}
                   >
                     <Typography
-                      variant="body3"
+                      variant="caption"
                       sx={{
                         userSelect: 'none',
                         fontWeight: 'semibold',

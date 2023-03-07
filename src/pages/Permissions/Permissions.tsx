@@ -138,7 +138,7 @@ export function PermissionsPage() {
         }}
       >
         <Typography
-          variant="body3"
+          variant="caption"
           sx={{
             mb: 2,
             color: theme.palette.text.secondary,

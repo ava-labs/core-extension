@@ -91,7 +91,7 @@ export function BitcoinSignTx() {
       {renderLedgerApproval()}
       <Stack>
         <Typography
-          variant="h2"
+          variant="h4"
           sx={{
             my: 1.5,
           }}
@@ -111,7 +111,7 @@ export function BitcoinSignTx() {
               }}
             >
               <Typography
-                variant="body3"
+                variant="caption"
                 sx={{
                   color: 'text.secondary',
                 }}
@@ -157,7 +157,7 @@ export function BitcoinSignTx() {
                   {btcAmountDisplay} BTC
                 </Typography>
                 <Typography
-                  variant="body3"
+                  variant="caption"
                   sx={{
                     textAlign: 'right',
                     color: 'text.secondary',
@@ -183,7 +183,7 @@ export function BitcoinSignTx() {
                 }}
               >
                 <Typography
-                  variant="body3"
+                  variant="caption"
                   sx={{
                     color: 'text.secondary',
                   }}
@@ -195,11 +195,11 @@ export function BitcoinSignTx() {
                     mt: 1,
                   }}
                 >
-                  <Typography variant="body3">
+                  <Typography variant="caption">
                     {displayData.balance.balanceDisplayValue} BTC
                   </Typography>
                   <Typography
-                    variant="body3"
+                    variant="caption"
                     sx={{
                       textAlign: 'right',
                       color: 'text.secondary',
@@ -227,7 +227,7 @@ export function BitcoinSignTx() {
           }}
         >
           <Typography
-            variant="body3"
+            variant="caption"
             sx={{
               color: 'text.secondary',
             }}
@@ -236,7 +236,7 @@ export function BitcoinSignTx() {
           </Typography>
           <Stack>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 textAlign: 'right',
                 fontWeight: 'fontWeightSemibold',
@@ -245,7 +245,7 @@ export function BitcoinSignTx() {
               {sendFeeDisplay} BTC
             </Typography>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 textAlign: 'right',
                 color: 'text.secondary',

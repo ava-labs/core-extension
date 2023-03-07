@@ -273,7 +273,7 @@ export function SignTransactionPage() {
               {!hasEnoughForNetworkFee && (
                 <Stack sx={{ width: '100%', alignItems: 'flex-start' }}>
                   <Typography
-                    sx={{ color: 'error.main', fontSize: 'body3.fontSize' }}
+                    sx={{ color: 'error.main', fontSize: 'caption.fontSize' }}
                   >
                     <Trans
                       i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."

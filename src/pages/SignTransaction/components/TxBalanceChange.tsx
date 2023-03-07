@@ -38,7 +38,7 @@ export const TxBalanceChange = ({
         sx={{ gap: 1 }}
       >
         <TxDetailsRow label={t('Transaction Type')}>
-          <Typography variant="body3">{transactionType}</Typography>
+          <Typography variant="caption">{transactionType}</Typography>
         </TxDetailsRow>
         <Stack divider={divider} sx={{ pt: 1 }}>
           {tokens.map((t) => (

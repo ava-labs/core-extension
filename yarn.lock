@@ -101,10 +101,10 @@
     bs58 "^5.0.0"
     sha3 "^2.1.4"
 
-"@avalabs/k2-components@4.3.0-alpha.20":
-  version "4.3.0-alpha.20"
-  resolved "https://registry.yarnpkg.com/@avalabs/k2-components/-/k2-components-4.3.0-alpha.20.tgz#73f020515e29a647ab181d30093f7d7b5eb7153f"
-  integrity sha512-MdN/w8KYy1oWHXX+j0hXKy/9Z2FGPtuqXA6TIo6fY5F8NyRU2PuYg6UsuCbirxorEMkQNwSyeFDne7EsH2atvQ==
+"@avalabs/k2-components@4.4.0-alpha.7":
+  version "4.4.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/@avalabs/k2-components/-/k2-components-4.4.0-alpha.7.tgz#7a0f9b7ecf4e099a1cf9dc94c3d251033aabb409"
+  integrity sha512-BQqM+e/K1Nw0kmL3O9kPeFWI/i6efg5ND2E/ck5H9pK16Et8RDjfvK9/tv6tj8gJxFznxWKbtZ35VWr2+qUqmA==
   dependencies:
     "@emotion/react" "11.10.6"
     "@emotion/styled" "11.10.6"

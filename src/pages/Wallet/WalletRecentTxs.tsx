@@ -247,7 +247,7 @@ export function WalletRecentTxs({
             data-testid="filter-activity-menu"
           >
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 m: '0 8px 0 5px',
                 fontWeight: 'fontWeightMedium',

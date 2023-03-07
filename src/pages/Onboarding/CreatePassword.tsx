@@ -129,7 +129,7 @@ export const CreatePassword = ({
               checked={termAndPolicyChecked}
               onChange={() => setTermAndPolicyChecked(!termAndPolicyChecked)}
               label={
-                <Typography variant="body3">
+                <Typography variant="caption">
                   <Trans
                     i18nKey="I agree to the <termLink>Terms of Use</termLink> and the <privacyLink>Privacy Policy</privacyLink>"
                     components={{
@@ -138,7 +138,7 @@ export const CreatePassword = ({
                           as="a"
                           target="_blank"
                           href="https://core.app/terms/core"
-                          variant="body3"
+                          variant="caption"
                           sx={{
                             color: 'secondary.main',
                           }}
@@ -149,7 +149,7 @@ export const CreatePassword = ({
                           as="a"
                           target="_blank"
                           href="https://www.avalabs.org/privacy-policy"
-                          variant="body3"
+                          variant="caption"
                           sx={{
                             color: 'secondary.main',
                           }}

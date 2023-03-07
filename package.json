@@ -35,7 +35,7 @@
     "@avalabs/types": "v2.8.0-alpha.64",
     "@avalabs/utils-sdk": "v2.8.0-alpha.64",
     "@avalabs/wallets-sdk": "v2.8.0-alpha.64",
-    "@avalabs/k2-components": "4.3.0-alpha.20",
+    "@avalabs/k2-components": "4.4.0-alpha.7",
     "@babel/runtime": "7.16.7",
     "@coinbase/cbpay-js": "1.6.0",
     "@ethereumjs/common": "2.6.2",

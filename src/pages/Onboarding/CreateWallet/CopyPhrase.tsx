@@ -71,7 +71,7 @@ export function CopyPhrase({
                   : theme.palette.primary.main,
               }}
               label={
-                <Typography variant="body3">
+                <Typography variant="caption">
                   <Trans i18nKey="I understand losing this phrase will result in lost funds. I have stored it in a secure location." />
                 </Typography>
               }

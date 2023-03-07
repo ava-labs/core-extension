@@ -27,7 +27,7 @@ export function ImportTxView({
   return (
     <Stack>
       <Typography
-        variant="h2"
+        variant="h4"
         sx={{
           my: 1.5,
         }}
@@ -57,7 +57,7 @@ export function ImportTxView({
         >
           <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
                 mb: 1,
@@ -65,20 +65,20 @@ export function ImportTxView({
             >
               {t('Source Chain')}
             </Typography>
-            <Typography variant="body3">
+            <Typography variant="caption">
               {AvalancheChainStrings[source]}
             </Typography>
           </Stack>
           <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}
             >
               {t('Target Chain')}
             </Typography>
-            <Typography variant="body3">
+            <Typography variant="caption">
               {AvalancheChainStrings[chain]}
             </Typography>
           </Stack>
@@ -113,14 +113,14 @@ export function ImportTxView({
             }}
           >
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}
             >
               {t('Transaction Type')}
             </Typography>
-            <Typography variant="body3">
+            <Typography variant="caption">
               {type ? (type[0] || '').toUpperCase() + type.slice(1) : ''}
             </Typography>
           </Stack>
@@ -155,7 +155,7 @@ export function ImportTxView({
                 {Number(bigIntToString(amount, 9))} AVAX
               </Typography>
               <Typography
-                variant="body3"
+                variant="caption"
                 sx={{
                   textAlign: 'right',
                   color: 'text.secondary',
@@ -192,7 +192,7 @@ export function ImportTxView({
         >
           <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}
@@ -210,7 +210,7 @@ export function ImportTxView({
                 {Number(bigIntToString(txFee, 9))} AVAX
               </Typography>
               <Typography
-                variant="body3"
+                variant="caption"
                 sx={{
                   textAlign: 'right',
                   color: 'text.secondary',

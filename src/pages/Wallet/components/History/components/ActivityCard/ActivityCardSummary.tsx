@@ -17,7 +17,7 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
   if (historyItem.type === TransactionType.BRIDGE) {
     return (
       <Typography
-        variant="body3"
+        variant="caption"
         sx={(theme) => ({ color: theme.palette.primary.dark })}
       >
         {sourceBlockchain} -&gt; {targetBlockchain}
@@ -34,7 +34,7 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
 
     return (
       <Typography
-        variant="body3"
+        variant="caption"
         sx={(theme) => ({ color: theme.palette.primary.dark })}
       >
         {sourceToken?.symbol} -&gt; {targetToken?.symbol}
@@ -47,7 +47,7 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
 
   return (
     <Typography
-      variant="body3"
+      variant="caption"
       sx={(theme) => ({ color: theme.palette.primary.dark })}
     >
       {txDirection}: {truncateAddress(txAddress)}
