@@ -280,6 +280,7 @@
   "Set as your default wallet?": "Set as your default wallet?",
   "Private Key Imported": "Private Key Imported",
   "Private Key Import Failed": "Private Key Import Failed",
+  "Invalid key. Please re-enter the key.": "Invalid key. Please re-enter the key.",
   "Enter Private Key": "Enter Private Key",
   "Add an account by entering a private key": "Add an account by entering a private key",
   "Derived Addresses": "Derived Addresses",

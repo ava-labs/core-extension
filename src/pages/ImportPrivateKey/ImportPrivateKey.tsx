@@ -48,11 +48,13 @@ export function ImportPrivateKey() {
   const [privateKey, setPrivateKey] = useState('');
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
   const { addAccount } = useAccountsContext();
   const history = useHistory();
 
-  const isLoading = hasFocus && !derivedAddresses;
+  const isLoading = hasFocus && !derivedAddresses && !error;
 
   const handleImport = async () => {
     setImportLoading(true);
@@ -77,6 +79,11 @@ export function ImportPrivateKey() {
   };
 
   useEffect(() => {
+    function errorHandler() {
+      setDerivedAddresses(undefined);
+      setError(t('Invalid key. Please re-enter the key.'));
+    }
+
     if (privateKey.length === 64) {
       try {
         const publicKey = getPublicKeyFromPrivateKey(privateKey);
@@ -90,11 +97,12 @@ export function ImportPrivateKey() {
           addressC,
           addressBTC,
         });
+        setError('');
       } catch (err) {
-        setDerivedAddresses(undefined);
+        errorHandler();
       }
     } else {
-      setDerivedAddresses(undefined);
+      errorHandler();
     }
   }, [network?.isTestnet, privateKey]);
 
@@ -125,6 +133,7 @@ export function ImportPrivateKey() {
           data-testid="import-private-key-input"
           onChange={(e) => {
             setPrivateKey(e.target.value);
+            if (!isFormDirty) setIsFormDirty(true);
           }}
           value={privateKey}
           placeholder={t('Enter Private Key')}
@@ -133,9 +142,21 @@ export function ImportPrivateKey() {
           onFocus={() => setHasFocus(true)}
           onBlur={() => setHasFocus(false)}
         />
-        <Typography size={12} height="20px" weight={400} margin="8px 0 0">
-          {t('Add an account by entering a private key')}
-        </Typography>
+        {error && isFormDirty ? (
+          <Typography
+            size={12}
+            height="20px"
+            weight={400}
+            margin="8px 0 0"
+            color={theme.colors.error}
+          >
+            {error}
+          </Typography>
+        ) : (
+          <Typography size={12} height="20px" weight={400} margin="8px 0 0">
+            {t('Add an account by entering a private key')}
+          </Typography>
+        )}
       </VerticalFlex>
 
       <VerticalFlex padding="0 16px" margin="40px 0 0">
