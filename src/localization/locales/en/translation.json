@@ -503,6 +503,8 @@
   "NFT Received": "NFT Received",
   "Contract Call": "Contract Call",
   "Collection": "Collection",
+  "Bridge Successful": "Bridge Successful",
+  "You transferred {{amount}} {{symbol}}": "You transferred {{amount}} {{symbol}}",
   "View Status": "View Status",
   "Pending": "Pending",
   "No transactions": "No transactions",
