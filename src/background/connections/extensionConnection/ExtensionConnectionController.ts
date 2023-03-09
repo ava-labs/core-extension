@@ -49,8 +49,8 @@ export class ExtensionConnectionController implements ConnectionController {
 
     connectionLog('Extension Provider');
 
-    this.connection.onMessage.addListener(this.onMessage);
-    this.connection.onDisconnect.addListener(this.disconnect);
+    this.connection?.onMessage.addListener(this.onMessage);
+    this.connection?.onDisconnect.addListener(this.disconnect);
     this.eventEmitters.forEach((emitter) => emitter.addListener(this.onEvent));
   }
 
@@ -86,12 +86,22 @@ export class ExtensionConnectionController implements ConnectionController {
       if (isDevelopment()) {
         responseLog(`extension reponse (${request.method})`, response);
       }
-      this.connection.postMessage(response);
+      try {
+        this.connection?.postMessage(response);
+      } catch (e) {
+        console.error(e);
+      }
     } else if (context) {
       if (isDevelopment()) {
         responseLog(`extension reponse (${request.method})`, context.response);
       }
-      this.connection.postMessage(context.response);
+      try {
+        this.connection?.postMessage(context.response);
+      } catch (e) {
+        // This try statement could throw an exception when a connection is closed with this message: "Attempting to use a disconnected port object"
+        // Since the UI which made this request is disconnected, this should be harmless.
+        console.error(e);
+      }
     }
   }
 

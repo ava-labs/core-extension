@@ -130,8 +130,11 @@ export function NetworkContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe((result) => {
+        if (!result) {
+          return;
+        }
         getNetworkState();
-        setNetwork((currentNetwork) => result ?? currentNetwork); // do not delete currently set network
+        setNetwork(result);
       });
 
     const networksSubscription = events()
