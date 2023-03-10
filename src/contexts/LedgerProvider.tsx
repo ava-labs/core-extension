@@ -115,7 +115,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
         if (res.value.method === 'SEND') {
           try {
             const { cla, ins, p1, p2, data, statusList } = res.value.params;
-            const result = await app?.transport.send(
+            const result = await transportRef.current?.send(
               cla,
               ins,
               p1,
@@ -150,7 +150,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [request, events, app]);
+  }, [request, events, transportRef]);
 
   /**
    * Create instance for a given UUID
@@ -212,7 +212,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
       }
 
       // check if btc app is selected
-      const btcAppInstance = new Btc(transport);
+      const btcAppInstance = new Btc({ transport });
       if (btcAppInstance) {
         const [, publicKeyError] = await resolve(
           // double check the app is really working
@@ -262,13 +262,13 @@ export function LedgerContextProvider({ children }: { children: any }) {
         tap(() => {
           setWasTransportAttempted(true);
         }),
-        switchMap((ledgerApp) =>
+        switchMap(() =>
           fromEventPattern(
             (handler) => {
-              ledgerApp?.transport.on('disconnect', handler);
+              transportRef.current?.on('disconnect', handler);
             },
             (handler) => {
-              ledgerApp?.transport?.off('disconnect', handler);
+              transportRef.current?.off('disconnect', handler);
             }
           ).pipe(
             tap(() => {
@@ -378,13 +378,13 @@ export function LedgerContextProvider({ children }: { children: any }) {
   }, [initialized, request]);
 
   const closeCurrentApp = useCallback(async () => {
-    if (app) {
+    if (transportRef.current) {
       // send get app version first as a workaround for BTC bug: https://github.com/LedgerHQ/app-bitcoin-new/issues/63
-      await getLedgerAppInfo(app.transport);
+      await getLedgerAppInfo(transportRef.current);
       // quit the app: https://developers.ledger.com/docs/transport/open-close-info-on-apps/#quit-application
-      await quitLedgerApp(app.transport);
+      await quitLedgerApp(transportRef.current);
     }
-  }, [app]);
+  }, [transportRef]);
 
   useEffect(() => {
     const subscription = events()
@@ -396,7 +396,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
             // which would clean up the claimed interfaces, thereby releasing it to the new window
 
             // In windows where this interface wasnt claimed the values here will be false
-            !!app?.transport?.deviceModel?.id
+            Boolean(app) && Boolean(transportRef.current?.deviceModel?.id)
         )
       )
       .subscribe(() => {
