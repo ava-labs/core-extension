@@ -162,10 +162,9 @@ export function PermissionsPage() {
               window.close();
             }}
             sx={{ width: 168, maxHeight: 40, height: 40 }}
-            isLoading={isSubmitting}
             disabled={isSubmitting}
           >
-            {isSubmitting ? '' : t('Reject')}
+            {t('Reject')}
           </Button>
           <Button
             data-testid="connect-approve-btn"
