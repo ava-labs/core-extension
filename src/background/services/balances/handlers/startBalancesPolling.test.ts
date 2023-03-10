@@ -11,7 +11,8 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
   describe('when balance polling is not active', () => {
     const balancePollingService = {
       isPollingActive: false,
-      startPolling: jest.fn(),
+      startPolling: jest.fn().mockResolvedValue(true),
+      startAsSoonAsAccountIsSelected: jest.fn(),
     } as unknown as BalancePollingService;
 
     const aggregatorService = {
@@ -46,10 +47,39 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
     });
   });
 
+  describe('when balance polling does not start', () => {
+    const balancePollingService = {
+      isPollingActive: false,
+      startPolling: jest.fn().mockResolvedValue(false),
+      startAsSoonAsAccountIsSelected: jest.fn(),
+    } as unknown as BalancePollingService;
+
+    const aggregatorService = {
+      balances: {},
+    } as unknown as BalanceAggregatorService;
+
+    it('schedules it to start when account is switched', async () => {
+      const handler = new StartBalancesPollingHandler(
+        balancePollingService,
+        aggregatorService
+      );
+
+      await handler.handle({
+        id: '123',
+        method: ExtensionRequest.BALANCES_START_POLLING,
+      });
+
+      expect(
+        balancePollingService.startAsSoonAsAccountIsSelected
+      ).toHaveBeenCalledWith();
+    });
+  });
+
   describe('when balance polling is already active', () => {
     const balancePollingService = {
       isPollingActive: true,
-      startPolling: jest.fn(),
+      startPolling: jest.fn().mockResolvedValue(true),
+      startAsSoonAsAccountIsSelected: jest.fn(),
     } as unknown as BalancePollingService;
 
     const aggregatorService = {

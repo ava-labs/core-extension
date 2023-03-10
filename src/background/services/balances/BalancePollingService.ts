@@ -28,7 +28,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     private accountsService: AccountsService
   ) {
     this.networkService.favoriteNetworksUpdated.add(() => {
-      this.startPolling();
+      this.restartPolling();
     });
     this.accountsService.addListener<Account | undefined>(
       AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
@@ -62,11 +62,14 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     this.stopPolling();
     // Start a new interval
     this._preventSchedulingNextUpdate = false;
-    const started = await this.pollBalances();
+    return this.pollBalances();
+  }
 
-    if (!started) {
-      this._startAsSoonAsAccountIsSelected = true;
-    }
+  // This method should only be invoked by outside classes (i.e. startBalancesPolling handler).
+  // Do not use it in event handlers for other services, as balance polling should only be
+  // first initiated when the UI requires it, so it should never be set by the backend script itself.
+  startAsSoonAsAccountIsSelected() {
+    this._startAsSoonAsAccountIsSelected = true;
   }
 
   onAllExtensionsClosed() {

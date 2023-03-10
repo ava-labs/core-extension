@@ -21,7 +21,11 @@ export class StartBalancesPollingHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async (request) => {
     if (!this.pollingService.isPollingActive) {
-      await this.pollingService.startPolling();
+      const started = await this.pollingService.startPolling();
+
+      if (!started) {
+        this.pollingService.startAsSoonAsAccountIsSelected();
+      }
     }
 
     return {

@@ -57,7 +57,7 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
       );
 
       // Simulate .startPolling() call before an account is selected
-      await service.startPolling();
+      service.startAsSoonAsAccountIsSelected();
 
       jest.spyOn(service, 'startPolling');
       const [, callback] = addListenerMock.mock.calls[0];
