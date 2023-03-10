@@ -16,7 +16,6 @@ import {
   Tooltip,
 } from '@avalabs/react-components';
 import {
-  useBridgeSDK,
   Blockchain,
   usePrice,
   BridgeTransaction,
@@ -40,6 +39,7 @@ import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
 import { useTranslation } from 'react-i18next';
 import { ConfirmationTracker } from '@src/components/common/ConfirmationTracker';
+import { useCoinGeckoId } from '@src/hooks/useCoinGeckoId';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -126,7 +126,6 @@ const BridgeTransactionStatus = () => {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { currentAsset } = useBridgeSDK();
   const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
   const [toastShown, setToastShown] = useState<boolean>();
@@ -134,10 +133,11 @@ const BridgeTransactionStatus = () => {
   const bridgeTransaction = bridgeTransactions[params.txHash] as
     | BridgeTransaction
     | undefined;
+  const coingeckoId = useCoinGeckoId(bridgeTransaction?.symbol);
   const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
 
   const assetPrice = usePrice(
-    bridgeTransaction?.symbol || currentAsset,
+    coingeckoId,
     currency.toLowerCase() as VsCurrencyType
   );
   const networkPrice = usePriceForChain(bridgeTransaction?.sourceChain);
