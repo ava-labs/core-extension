@@ -53,7 +53,6 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
     <Stack alignItems="flex-end">
       <Grid
         container
-        direction="column"
         sx={{
           backgroundColor: theme.palette.grey[850],
           height: theme.spacing(38),
