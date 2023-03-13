@@ -50,6 +50,7 @@ import { GetLedgerIncorrectBtcAppWarningHandler } from '@src/background/services
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
   BITCOIN = 'Bitcoin',
+  BITCOIN_LEGACY = 'Bitcoin Legacy',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -213,28 +214,23 @@ export function LedgerContextProvider({ children }: { children: any }) {
 
       // check if btc app is selected
       const btcAppInstance = new Btc({ transport });
-      if (btcAppInstance) {
-        const [, publicKeyError] = await resolve(
-          // double check the app is really working
-          // We are not doing anything with the key
-          btcAppInstance.getWalletPublicKey("44'/0'/0'/0/0")
-        );
 
-        if (!publicKeyError) {
+      if (btcAppInstance) {
+        const appInfo = await getLedgerAppInfo(transport);
+
+        if (
+          [LedgerAppType.BITCOIN, LedgerAppType.BITCOIN_LEGACY].includes(
+            appInfo.applicationName as LedgerAppType
+          )
+        ) {
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
 
           // We support Ledger Bitcoin applications with version < 2.1.0
           // If the version is >= 2.1.0 we want to prompt the user to switch to the Bitcoin Legacy app
           // (until we find a way to support newer versions)
-          try {
-            const appInfo = await getLedgerAppInfo(transport);
-            const isCorrectBtcApp = isLedgerBtcAppCorrect(appInfo);
-            setIsCorrectBtcApp(isCorrectBtcApp);
-          } catch (err) {
-            setIsCorrectBtcApp(true);
-          }
-
+          const isCorrectBtcApp = isLedgerBtcAppCorrect(appInfo);
+          setIsCorrectBtcApp(isCorrectBtcApp);
           return btcAppInstance;
         }
       }
