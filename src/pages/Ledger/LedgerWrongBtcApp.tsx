@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
+  Link,
   Stack,
   Typography,
   useTheme,
@@ -29,38 +30,61 @@ export function LedgerWrongBtcApp({
       <Stack
         sx={{
           alignItems: 'center',
+          rowGap: 3,
         }}
       >
-        <Button
-          variant="text"
-          onClick={() => onClose?.()}
-          sx={{ alignSelf: 'flex-end' }}
-        >
-          <XIcon
+        <Stack sx={{ width: '100%', rowGap: 1 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+          >
+            <Typography variant="h5" sx={{ pt: 1 }}>
+              {t('Legacy App Required')}
+            </Typography>
+            <Button
+              variant="text"
+              onClick={() => onClose?.()}
+              sx={{ height: 14, minWidth: 14, p: 0 }}
+              disableRipple
+            >
+              <XIcon
+                size={24}
+                sx={{
+                  color: 'primary.main',
+                }}
+              />
+            </Button>
+          </Stack>
+
+          <Typography
+            variant="body2"
             sx={{
-              height: 2,
-              color: 'primary.main',
+              width: 287,
+              color: theme.palette.grey[400],
             }}
-          />
-        </Button>
-        <Typography variant="h5">{t('Bitcoin Legacy Required')}</Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            textAlign: 'center',
-            pt: 1,
-            pb: 4,
-          }}
-        >
-          <Trans
-            i18nKey="Please switch to the <typography>Bitcoin Legacy Application</typography> on your Ledger device to continue."
-            components={{
-              typography: <Typography sx={{ fontWeight: 'semibold' }} />,
-            }}
-          />
-        </Typography>
+          >
+            <Trans
+              i18nKey="Please use the Bitcoin Legacy application on your Ledger device to continue. <br> Learn more <ledgerLink>here</ledgerLink>."
+              components={{
+                ledgerLink: (
+                  <Link
+                    underline="none"
+                    sx={{
+                      color: 'secondary.main',
+                    }}
+                    target="_blank"
+                    href="https://support.avax.network/en/articles/7053882-using-core-with-the-bitcoin-legacy-ledger-application"
+                    rel="noopener noreferrer"
+                  />
+                ),
+              }}
+            />
+          </Typography>
+        </Stack>
+
         <LedgerNano />
-        <Typography variant="body2" sx={{ mt: 3, mb: 1 }}>
+        <Typography variant="body2" sx={{ mb: 1 }}>
           <Trans
             i18nKey="Download <ledgerLink>Ledger Live</ledgerLink> to install."
             components={{

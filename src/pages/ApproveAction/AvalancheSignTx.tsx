@@ -20,25 +20,39 @@ import { AddDelegator } from './components/ApproveAddDelegator';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { BaseTxView } from './components/ApproveBaseTx';
+import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import { LedgerApprovalOverlay } from '../SignTransaction/LedgerApprovalOverlay';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
   const { action, updateAction } = useApproveAction(requestId);
   const { network } = useNetworkContext();
   const tokenPrice = useNativeTokenPrice(network);
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
+
+  useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
 
   const signTx = useCallback(() => {
-    updateAction({
-      status: ActionStatus.SUBMITTING,
-      id: requestId,
-      result: '',
-    });
-    window.close();
-  }, [requestId, updateAction]);
+    updateAction(
+      {
+        status: ActionStatus.SUBMITTING,
+        id: requestId,
+      },
+      isUsingLedgerWallet
+    );
+  }, [isUsingLedgerWallet, requestId, updateAction]);
 
   if (!action) {
     return <LoadingOverlay />;
   }
+
+  const renderLedgerApproval = () => {
+    if (action.status === ActionStatus.SUBMITTING && isUsingLedgerWallet) {
+      return <LedgerApprovalOverlay displayData={action.displayData} />;
+    }
+  };
 
   const renderSignTxDetails = () => {
     const tx = action.displayData.txData as AvalancheTxType;
@@ -58,6 +72,7 @@ export function AvalancheSignTx() {
 
   return (
     <Stack sx={{ my: 0, mx: 2, width: 1, justifyContent: 'space-between' }}>
+      {renderLedgerApproval()}
       <Scrollbars>{renderSignTxDetails()}</Scrollbars>
 
       <Stack

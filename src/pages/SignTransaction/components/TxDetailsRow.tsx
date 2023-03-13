@@ -12,7 +12,7 @@ export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
     <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <Typography
         component="span"
-        sx={{ fontSize: 'body3.fontSize', color: 'text.secondary' }}
+        sx={{ fontSize: 'caption.fontSize', color: 'text.secondary' }}
       >
         {label}
       </Typography>

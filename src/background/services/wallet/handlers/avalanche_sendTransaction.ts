@@ -30,7 +30,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
 
   handleAuthenticated = async (request) => {
     const params = request.params ?? [];
-    const unsignedTxJson = params[0];
+    const [unsignedTxJson] = params;
 
     if (!unsignedTxJson) {
       return {
@@ -121,36 +121,50 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
   ) => {
     try {
       const {
-        displayData: { txBuffer, vm, unsignedTxJson },
+        params,
+        displayData: { vm, unsignedTxJson },
       } = pendingAction;
+      const [, externalIndices, internalIndices] = params ?? [];
 
       // We need to know if transaction is on C or X/P, the generated tx object is slightly different for C
       // EVM in Avalanche context means the CoreEth layer.
       const chainAlias = vm === 'EVM' ? 'C' : 'X';
-      // Sign the transaction and return signature
-      const sig = await this.walletService.sign(
-        {
-          tx: Buffer.from(txBuffer, 'hex'),
-          chain: chainAlias,
-        },
-        // Must tell it is avalanche network
-        this.networkService.getAvalancheNetworkXP()
-      );
 
       // Parse the json into a tx object
       const unsignedTx =
         chainAlias === 'C'
           ? EVMUnsignedTx.fromJSON(unsignedTxJson)
           : UnsignedTx.fromJSON(unsignedTxJson);
-      // Add the signature
-      unsignedTx.addSignature(Buffer.from(sig, 'hex'));
 
-      if (!unsignedTx.hasAllSignatures())
-        throw new Error('Unable to submit transaction, missing signatures.');
+      const hasMultipleAddresses =
+        unsignedTx.addressMaps.getAddresses().length > 1;
+
+      if (
+        hasMultipleAddresses &&
+        !(externalIndices ?? []).length &&
+        !(internalIndices ?? []).length
+      ) {
+        throw new Error(
+          'Transaction contains multiple addresses, but indices were not provided'
+        );
+      }
+
+      // Sign the transaction and return signature
+      const signedTransactionHex = await this.walletService.sign(
+        {
+          tx: unsignedTx,
+          hasMultipleAddresses,
+          chain: chainAlias,
+          externalIndices,
+          internalIndices,
+        },
+        // Must tell it is avalanche network
+        this.networkService.getAvalancheNetworkXP()
+      );
 
       // Submit the transaction and return the tx id
       const prov = await this.networkService.getAvalanceProviderXP();
-      const res = await prov.issueTx(unsignedTx.getSignedTx());
+      const res = await prov.issueTxHex(signedTransactionHex, vm);
 
       onSuccess(res.txID);
     } catch (e) {

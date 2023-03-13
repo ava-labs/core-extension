@@ -154,7 +154,7 @@ export const KeystoneTutorial = ({ onCancel }: KeystoneTutorialProps) => {
             sx={{ color: 'secondary.main', marginRight: 1 }}
           />
           <Typography
-            variant="body3"
+            variant="caption"
             sx={{
               color: 'secondary.main',
               fontWeight: 600,

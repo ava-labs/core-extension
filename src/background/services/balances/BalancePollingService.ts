@@ -16,6 +16,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   private _pollingIteration = 0;
   private _requestInProgress = false;
   private _preventSchedulingNextUpdate = false;
+  private _startAsSoonAsAccountIsSelected = false;
 
   get isPollingActive() {
     return this._timer !== null;
@@ -27,16 +28,26 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     private accountsService: AccountsService
   ) {
     this.networkService.favoriteNetworksUpdated.add(() => {
-      this.startPolling();
+      this.restartPolling();
     });
     this.accountsService.addListener<Account | undefined>(
       AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
       (activeAccount) => {
-        if (activeAccount) {
+        if (!activeAccount) {
+          this.stopPolling();
+          return;
+        }
+
+        if (this._startAsSoonAsAccountIsSelected) {
+          // It's technically possible, with some unfortunate timing, that
+          // the balance polling is initiated by BalancesProvider before
+          // we have an account selected. If that's the case, we should
+          // make sure that we .startPolling() instead of .restartPolling()
+          // as soon as AccountsService notifies us about the account selection.
+          this.startPolling();
+        } else {
           // Restart polling with newly activated account
           this.restartPolling();
-        } else {
-          this.stopPolling();
         }
       }
     );
@@ -51,7 +62,14 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     this.stopPolling();
     // Start a new interval
     this._preventSchedulingNextUpdate = false;
-    await this.pollBalances();
+    return this.pollBalances();
+  }
+
+  // This method should only be invoked by outside classes (i.e. startBalancesPolling handler).
+  // Do not use it in event handlers for other services, as balance polling should only be
+  // first initiated when the UI requires it, so it should never be set by the backend script itself.
+  startAsSoonAsAccountIsSelected() {
+    this._startAsSoonAsAccountIsSelected = true;
   }
 
   onAllExtensionsClosed() {
@@ -68,13 +86,15 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     if (this._requestInProgress) {
       this._preventSchedulingNextUpdate = true;
     }
+
+    this._startAsSoonAsAccountIsSelected = false;
   }
 
   // Only starts polling if it was already active.
   // Call this if you need to start a new polling process,
   // i.e. when favorite networks change.
-  private restartPolling() {
-    if (this._timer !== null) {
+  restartPolling() {
+    if (this.isPollingActive) {
       this.startPolling();
     }
   }
@@ -90,6 +110,8 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
 
     if (activeAccount) {
       this._requestInProgress = true;
+      this._startAsSoonAsAccountIsSelected = false;
+
       try {
         await this.balanceAggregator.updateBalancesForNetworks(chainIds, [
           activeAccount,
@@ -101,7 +123,11 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
       if (!this._preventSchedulingNextUpdate) {
         this.scheduleNextUpdate();
       }
+
+      return true;
     }
+
+    return false;
   }
 
   private scheduleNextUpdate() {

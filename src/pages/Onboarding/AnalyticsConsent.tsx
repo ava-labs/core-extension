@@ -142,7 +142,7 @@ export const AnalyticsConsent = ({
             }}
           >
             <ChevronLeftIcon size={16} />
-            <Typography variant="body3" sx={{ ml: 1 }}>
+            <Typography variant="caption" sx={{ ml: 1 }}>
               {t('Back')}
             </Typography>
           </Button>

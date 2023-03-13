@@ -35,11 +35,11 @@ export function ActivityCardDetails({ historyItem }: ActivityCardProp) {
                     name={token.name}
                   />
                 )}
-                <Typography variant="body3">{token.symbol}</Typography>
+                <Typography variant="caption">{token.symbol}</Typography>
               </Stack>
               <Stack sx={{ flexDirection: 'row', columnGap: 1 }}>
-                <Typography variant="body3"> {token.amount}</Typography>
-                <Typography variant="body3">{token.symbol}</Typography>
+                <Typography variant="caption"> {token.amount}</Typography>
+                <Typography variant="caption">{token.symbol}</Typography>
               </Stack>
             </Stack>
           );

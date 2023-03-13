@@ -5,6 +5,8 @@ import {
   Divider,
   ExternalLinkIcon,
   Stack,
+  toast,
+  ToastCard,
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
@@ -12,7 +14,7 @@ import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useBlockchainNames } from '../../useBlockchainNames';
@@ -32,8 +34,9 @@ export function InProgressBridgeActivityCard({
   const { bridgeConfig } = useBridgeSDK();
 
   const { sourceBlockchain, targetBlockchain } = useBlockchainNames(tx);
+  const [toastShown, setToastShown] = useState<boolean>(false);
 
-  const { bridgeTransactions } = useBridgeContext();
+  const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
   const bridgeTransaction = bridgeTransactions[tx.sourceTxHash] as
     | BridgeTransaction
     | undefined;
@@ -63,6 +66,42 @@ export function InProgressBridgeActivityCard({
 
     return (currentCount / confirmationCount) * 100;
   }, [bridgeTransaction]);
+
+  useEffect(() => {
+    if (!tx.complete) {
+      return;
+    }
+
+    if (!toastShown) {
+      setToastShown(true);
+      const toastId = toast.custom(
+        <ToastCard
+          variant="success"
+          title={t('Bridge Successful')}
+          onDismiss={() => {
+            toast.remove(toastId);
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 18,
+              fontWeight: 'fontWeightSemibold',
+            }}
+          >
+            {t(`You transferred {{amount}} {{symbol}}`, {
+              amount: tx.amount,
+              symbol: tx.symbol,
+            })}
+          </Typography>
+        </ToastCard>,
+        {
+          duration: Infinity,
+        }
+      );
+    }
+
+    removeBridgeTransaction(tx.sourceTxHash);
+  }, [removeBridgeTransaction, t, toastShown, tx]);
 
   return (
     <Card
@@ -128,7 +167,7 @@ export function InProgressBridgeActivityCard({
                   }}
                 >
                   <Typography
-                    variant="body3"
+                    variant="caption"
                     sx={(theme) => ({ color: theme.palette.primary.dark })}
                   >
                     {sourceBlockchain} -&gt; {targetBlockchain}
@@ -147,7 +186,7 @@ export function InProgressBridgeActivityCard({
                     }}
                   >
                     <Typography
-                      variant="body3"
+                      variant="caption"
                       sx={{ fontWeight: 'fontWeightSemibold' }}
                     >
                       {t('View Status')}

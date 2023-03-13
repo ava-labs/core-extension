@@ -249,10 +249,15 @@ export function Bridge() {
     sendAmountEnteredAnalytics('Bridge');
     if (maximum && bigValue && !maximum.gt(bigValue)) {
       const errorMessage = t('Insufficient balance');
+
+      if (errorMessage === bridgeError) {
+        return;
+      }
+
+      setBridgeError(errorMessage);
       capture('BridgeTokenSelectError', {
         errorMessage,
       });
-      setBridgeError(errorMessage);
       return;
     }
     setBridgeError('');

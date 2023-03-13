@@ -81,7 +81,7 @@ export function ConfirmMnemonic({
 
       onConfirmedChange(
         Object.values(newState).every(
-          (item) => item.index && words[item.index] === item.selected
+          (item) => item.index >= 0 && words[item.index] === item.selected
         )
       );
     }
@@ -130,7 +130,7 @@ export function ConfirmMnemonic({
                     }}
                   >
                     <Typography
-                      variant="body3"
+                      variant="caption"
                       sx={{
                         userSelect: 'none',
                         fontWeight: 'semibold',

@@ -101,7 +101,7 @@ const CustomInput = styled('input')`
   line-height: 21px;
   text-align: center;
   border: none;
-  font-family: ${({ theme }) => theme.typography.body3.fontFamily};
+  font-family: ${({ theme }) => theme.typography.caption.fontFamily};
   padding: 0 4px;
 
   ::-webkit-outer-spin-button,
@@ -307,7 +307,7 @@ export function CustomFeesK2({
               {t('Normal')}
             </Typography>
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{ fontWeight: 'fontWeightSemibold' }}
             >
               {getGasFeeToDisplay(
@@ -334,7 +334,7 @@ export function CustomFeesK2({
                   {t('Fast')}
                 </Typography>
                 <Typography
-                  variant="body3"
+                  variant="caption"
                   sx={{ fontWeight: 'fontWeightSemibold' }}
                 >
                   {getGasFeeToDisplay(
@@ -364,7 +364,7 @@ export function CustomFeesK2({
                   {t('Instant')}
                 </Typography>
                 <Typography
-                  variant="body3"
+                  variant="caption"
                   sx={{ fontWeight: 'fontWeightSemibold' }}
                 >
                   {getGasFeeToDisplay(
@@ -437,7 +437,7 @@ export function CustomFeesK2({
         >
           <Typography
             component="span"
-            sx={{ fontSize: 'body3.fontSize', color: 'text.secondary' }}
+            sx={{ fontSize: 'caption.fontSize', color: 'text.secondary' }}
           >
             {t('Fee Amount')}
           </Typography>
@@ -456,7 +456,7 @@ export function CustomFeesK2({
             </Typography>
             <Typography
               data-testid="network-fee-currency-amount"
-              variant="body3"
+              variant="caption"
               sx={{ color: 'text.secondary' }}
             >
               {!isNaN(Number(newFees.feeUSD))
@@ -468,7 +468,7 @@ export function CustomFeesK2({
       </ApprovalSectionBody>
       {isGasPriceTooHigh && (
         <Stack sx={{ py: 0.5 }}>
-          <Typography variant="body3" sx={{ color: 'error.main' }}>
+          <Typography variant="caption" sx={{ color: 'error.main' }}>
             <Trans
               i18nKey="Insufficient balance to cover gas costs. <br />Please add {{tokenSymbol}}."
               values={{ tokenSymbol: network?.networkToken.symbol }}

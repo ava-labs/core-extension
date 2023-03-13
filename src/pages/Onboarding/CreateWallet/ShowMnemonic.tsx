@@ -53,7 +53,6 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
     <Stack alignItems="flex-end">
       <Grid
         container
-        direction="column"
         sx={{
           backgroundColor: theme.palette.grey[850],
           height: theme.spacing(38),
@@ -70,7 +69,7 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
       <Button variant="text" onClick={onCopy} sx={{ color: 'secondary' }}>
         <CopyIcon size={16} />
         <Typography
-          variant="body3"
+          variant="caption"
           sx={{
             ml: 1,
           }}

@@ -37,7 +37,7 @@ export const TokenAmount = ({ token, amount, fiatValue }: TokenAmountProps) => {
         </Typography>
         {displayFiatValue && (
           <Typography
-            variant="body3"
+            variant="caption"
             sx={{ color: 'text.secondary', lineHeight: 1 }}
           >
             {fiatValue}

@@ -291,7 +291,7 @@ export function LedgerConnect({
     <Trans
       i18nKey="<typography>This process retrieves the addresses<br />from your ledger</typography>"
       components={{
-        typography: <Typography variant="body3" />,
+        typography: <Typography variant="caption" />,
       }}
     />
   );
@@ -358,7 +358,7 @@ export function LedgerConnect({
             <Stack sx={{ mt: 1, rowGap: 3, width: theme.spacing(44) }}>
               <Stack direction="row">
                 <Typography
-                  variant="body3"
+                  variant="caption"
                   sx={{ color: theme.palette.error.main }}
                 >
                   <Trans
@@ -401,7 +401,7 @@ export function LedgerConnect({
         >
           <ExternalLinkIcon size={16} sx={{ color: 'secondary.main' }} />
           <Typography
-            variant="body3"
+            variant="caption"
             sx={{
               ml: 1,
               color: 'secondary.main',

@@ -37,7 +37,7 @@ export function BaseTxView({
       {/* source chain */}
       <Stack>
         <Typography
-          variant="h2"
+          variant="h4"
           sx={{
             my: 1.5,
           }}
@@ -58,14 +58,14 @@ export function BaseTxView({
               sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
             >
               <Typography
-                variant="body3"
+                variant="caption"
                 sx={{
                   color: 'text.secondary',
                 }}
               >
                 {t('Source Chain')}
               </Typography>
-              <Typography variant="body3">
+              <Typography variant="caption">
                 {AvalancheChainStrings[chain]}
               </Typography>
             </Stack>
@@ -137,7 +137,7 @@ export function BaseTxView({
                     </Typography>
                     {out.isAvax && (
                       <Typography
-                        variant="body3"
+                        variant="caption"
                         sx={{
                           textAlign: 'right',
                           color: 'text.secondary',
@@ -164,7 +164,7 @@ export function BaseTxView({
                     }}
                   >
                     <Typography
-                      variant="body3"
+                      variant="caption"
                       sx={{
                         color: 'text.secondary',
                       }}
@@ -191,7 +191,7 @@ export function BaseTxView({
                     }}
                   >
                     <Typography
-                      variant="body3"
+                      variant="caption"
                       sx={{
                         color: 'text.secondary',
                       }}
@@ -214,7 +214,7 @@ export function BaseTxView({
                   {out.owners.map((address) => (
                     <Typography
                       key={address}
-                      variant="body3"
+                      variant="caption"
                       sx={{
                         color: 'text.secondary',
                       }}
@@ -256,7 +256,7 @@ export function BaseTxView({
               sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
             >
               <Typography
-                variant="body3"
+                variant="caption"
                 sx={{
                   color: 'text.secondary',
                 }}
@@ -274,7 +274,7 @@ export function BaseTxView({
                   {Number(bigIntToString(txFee, 9))} AVAX
                 </Typography>
                 <Typography
-                  variant="body3"
+                  variant="caption"
                   sx={{
                     textAlign: 'right',
                     color: 'text.secondary',
@@ -314,7 +314,7 @@ export function BaseTxView({
             }}
           >
             <Typography
-              variant="body3"
+              variant="caption"
               sx={{
                 color: 'text.secondary',
               }}

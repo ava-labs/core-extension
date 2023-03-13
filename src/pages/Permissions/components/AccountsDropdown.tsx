@@ -105,7 +105,7 @@ export const AccountsDropdown = ({
       </Dropdown>
       {isBalanceLoading && <Skeleton variant="text" width={120} />}
       {!isBalanceLoading && hasAccountBalance && (
-        <Typography variant="body3" color={theme.palette.text.secondary}>
+        <Typography variant="caption" color={theme.palette.text.secondary}>
           {t('Balance')}:{' '}
           {currencyFormatter(accountBalance).replace(currency, '')}
         </Typography>

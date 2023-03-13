@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   LoadingDots,
+  Skeleton,
   Stack,
   Typography,
 } from '@avalabs/k2-components';
@@ -82,6 +83,10 @@ export function SignTransactionPage() {
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
+  const hasTokenBalance = useMemo(
+    () => tokens.find((t) => t.type === TokenType.NATIVE)?.balance,
+    [tokens]
+  );
   const hasEnoughForNetworkFee = useMemo(() => {
     return tokens
       .find((t) => t.type === TokenType.NATIVE)
@@ -107,9 +112,10 @@ export function SignTransactionPage() {
     contractType,
   };
 
+  const hasFeeInformation = Boolean(networkFee) && hasGasPriceData(displayData);
   const isReadyForApproval =
-    Boolean(networkFee) &&
-    hasGasPriceData(displayData) &&
+    hasTokenBalance &&
+    hasFeeInformation &&
     transactionProgressState === TransactionProgressState.NOT_APPROVED;
 
   const requestedApprovalLimit = displayData.approveData
@@ -259,7 +265,7 @@ export function SignTransactionPage() {
             }
 
             <Stack sx={{ gap: 1, width: '100%' }}>
-              {hasGasPriceData(displayData) && (
+              {hasFeeInformation ? (
                 <CustomFeesK2
                   gasPrice={displayData.gasPrice}
                   limit={displayData.gasLimit}
@@ -268,12 +274,17 @@ export function SignTransactionPage() {
                   network={network}
                   networkFee={networkFee}
                 />
+              ) : (
+                <>
+                  <Skeleton variant="text" width="100%" />
+                  <Skeleton variant="rectangular" width="100%" height="136px" />
+                </>
               )}
 
               {!hasEnoughForNetworkFee && (
                 <Stack sx={{ width: '100%', alignItems: 'flex-start' }}>
                   <Typography
-                    sx={{ color: 'error.main', fontSize: 'body3.fontSize' }}
+                    sx={{ color: 'error.main', fontSize: 'caption.fontSize' }}
                   >
                     <Trans
                       i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
@@ -298,33 +309,33 @@ export function SignTransactionPage() {
             pb: 1,
           }}
         >
-          {isReadyForApproval && (
-            <>
-              <Button
-                color="secondary"
-                data-testid="transaction-reject-btn"
-                sx={{ width: 168, maxHeight: 40, height: 40 }}
-                onClick={() => {
-                  id &&
-                    updateTransaction({
-                      status: TxStatus.ERROR_USER_CANCELED,
-                      id: id,
-                    });
-                  window.close();
-                }}
-              >
-                {t('Reject')}
-              </Button>
-              <Button
-                data-testid="transaction-approve-btn"
-                disabled={!hasEnoughForNetworkFee}
-                sx={{ width: 168, maxHeight: 40, height: 40 }}
-                onClick={onApproveClick}
-              >
-                {t('Approve')}
-              </Button>
-            </>
-          )}
+          <Button
+            color="secondary"
+            data-testid="transaction-reject-btn"
+            disabled={
+              transactionProgressState !== TransactionProgressState.NOT_APPROVED
+            }
+            sx={{ width: 168, maxHeight: 40, height: 40 }}
+            onClick={() => {
+              id &&
+                updateTransaction({
+                  status: TxStatus.ERROR_USER_CANCELED,
+                  id: id,
+                });
+              window.close();
+            }}
+          >
+            {t('Reject')}
+          </Button>
+          <Button
+            data-testid="transaction-approve-btn"
+            disabled={!hasEnoughForNetworkFee || !isReadyForApproval}
+            isLoading={!isReadyForApproval}
+            sx={{ width: 168, maxHeight: 40, height: 40 }}
+            onClick={onApproveClick}
+          >
+            {t('Approve')}
+          </Button>
         </Stack>
       </Stack>
     </>

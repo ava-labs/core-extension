@@ -8,13 +8,14 @@ import {
   CurrencyCode,
   Erc20Token,
   Erc20TransferDetails,
-  Erc721MetadataStatus,
+  NftTokenMetadataStatus,
   Erc721Token,
   Erc721TransferDetails,
   InternalTransactionOpCall,
   NativeTransaction,
   TransactionDetails,
   GlacierClient,
+  TransactionMethodType,
 } from '@avalabs/glacier-sdk';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
@@ -34,11 +35,14 @@ jest.mock('@avalabs/glacier-sdk', () => ({
   CurrencyCode: {
     Usd: 'usd',
   },
-  Erc721MetadataStatus: {
+  NftTokenMetadataStatus: {
     UNKNOWN: 'UNKNOWN',
   },
   InternalTransactionOpCall: {
     UNKNOWN: 'UNKNOWN',
+  },
+  TransactionMethodType: {
+    NATIVE_TRANSFER: 'NATIVE_TRANSFER',
   },
 }));
 
@@ -64,11 +68,12 @@ const mockedAccountsService = {
 
 const senderAddress = 'Sender Address';
 
-const tokenInfo = {
+const tokenInfo: Erc20TransferDetails = {
   from: { address: senderAddress },
   to: { address: userAddress },
   value: '100000000000000',
   erc20Token: {
+    ercType: 'ERC-20',
     address: 'erc20 Token address',
     decimals: 18,
     name: 'ERC20 Token',
@@ -97,6 +102,7 @@ const nativeTx: NativeTransaction = {
   },
   method: {
     methodHash: '0xa9059cbb',
+    callType: TransactionMethodType.NATIVE_TRANSFER,
     methodName: 'transfer(address,uint256)',
   },
   value: '0',
@@ -125,6 +131,7 @@ const detailsForTransfer: TransactionDetails = {
     },
     method: {
       methodHash: '0xa9059cbb',
+      callType: TransactionMethodType.NATIVE_TRANSFER,
       methodName: 'transfer(address,uint256)',
     },
     value: '0',
@@ -203,6 +210,7 @@ const erc20Token1: Erc20Token = {
   symbol: 'E20T1',
   decimals: 20,
   logoUri: 'erc20.one.com',
+  ercType: 'ERC-20',
   price: {
     currencyCode: CurrencyCode.Usd,
     value: 100,
@@ -215,8 +223,9 @@ const erc721Token1: Erc721Token = {
   symbol: 'E721T1',
   tokenId: '123',
   tokenUri: 'erc721.one.com',
+  ercType: 'ERC-721',
   metadata: {
-    indexStatus: Erc721MetadataStatus.UNINDEXED,
+    indexStatus: NftTokenMetadataStatus.UNINDEXED,
     imageUri: imageUri,
   },
 };
@@ -226,8 +235,9 @@ const erc721TokenWithNoImageUri: Erc721Token = {
   symbol: 'E721T2',
   tokenId: '789',
   tokenUri: 'erc721.no.image.com',
+  ercType: 'ERC-721',
   metadata: {
-    indexStatus: Erc721MetadataStatus.UNINDEXED,
+    indexStatus: NftTokenMetadataStatus.UNINDEXED,
   },
 };
 
@@ -272,6 +282,8 @@ const detailsWithInternalTransactions: TransactionDetails = {
       internalTxType: InternalTransactionOpCall.UNKNOWN,
       value: '10000000000000000000',
       isReverted: false,
+      gasLimit: '0',
+      gasUsed: '21600',
     },
   ],
 };

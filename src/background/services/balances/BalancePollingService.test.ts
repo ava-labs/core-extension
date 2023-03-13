@@ -27,8 +27,9 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
     },
   } as unknown as NetworkService;
 
+  const addListenerMock = jest.fn();
   const accountsServiceMock = {
-    addListener: jest.fn(),
+    addListener: addListenerMock,
     activeAccount: { id: 'abcd-1234' },
   } as unknown as AccountsService;
 
@@ -41,6 +42,68 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
       await jest.runOnlyPendingTimers();
     }
   };
+
+  describe('when polling initiation fails due to no account being active', () => {
+    it('schedules polling to start as soon as account is selected', async () => {
+      const accountsService = {
+        ...accountsServiceMock,
+        activeAccount: null,
+      } as unknown as AccountsService;
+
+      const service = new BalancePollingService(
+        aggregatorServiceMock,
+        networkServiceMock,
+        accountsService
+      );
+
+      // Simulate .startPolling() call before an account is selected
+      service.startAsSoonAsAccountIsSelected();
+
+      jest.spyOn(service, 'startPolling');
+      const [, callback] = addListenerMock.mock.calls[0];
+
+      // Simulate active account selection event
+      callback({ id: '1234' });
+
+      expect(service.startPolling).toHaveBeenCalled();
+    });
+  });
+
+  describe('when the active account changes', () => {
+    it('restarts polling', async () => {
+      const service = new BalancePollingService(
+        aggregatorServiceMock,
+        networkServiceMock,
+        accountsServiceMock
+      );
+      jest.spyOn(service, 'restartPolling');
+
+      const [, callback] = addListenerMock.mock.calls[0];
+
+      // Simulate active account selection event
+      callback({ id: '1234' });
+
+      expect(service.restartPolling).toHaveBeenCalled();
+    });
+  });
+
+  describe('when there is no active account', () => {
+    it('stops polling', () => {
+      const service = new BalancePollingService(
+        aggregatorServiceMock,
+        networkServiceMock,
+        accountsServiceMock
+      );
+
+      const [, callback] = addListenerMock.mock.calls[0];
+
+      jest.spyOn(service, 'stopPolling');
+      // Simulate active account deselection event (i.e. wallet lock)
+      callback(undefined);
+
+      expect(service.stopPolling).toHaveBeenCalled();
+    });
+  });
 
   describe('when polling is active', () => {
     beforeEach(async () => {

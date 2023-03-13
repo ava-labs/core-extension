@@ -56,11 +56,11 @@ export function UnknownTx({
         <ApprovalSectionHeader label={txSummaryHeader} />
         <ApprovalSectionBody divider={null} sx={{ gap: 1, py: 1 }}>
           <TxDetailsRow label={t('Transaction Type')}>
-            <Typography variant="body3">{transactionType}</Typography>
+            <Typography variant="caption">{transactionType}</Typography>
           </TxDetailsRow>
           {hasTokenAmount && (
             <TxDetailsRow label={t('Token Amount')}>
-              <Typography variant="body3">{displayValue}</Typography>
+              <Typography variant="caption">{displayValue}</Typography>
             </TxDetailsRow>
           )}
         </ApprovalSectionBody>
