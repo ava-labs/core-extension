@@ -252,8 +252,6 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(signMock).toHaveBeenCalledWith(
         {
           tx: unsignedTxMock,
-          chain: 'C',
-          hasMultipleAddresses: false,
           externalIndices: undefined,
           internalIndices: undefined,
         },
@@ -285,8 +283,6 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(signMock).toHaveBeenCalledWith(
         {
           tx: unsignedTxMock,
-          chain: 'X',
-          hasMultipleAddresses: false,
           externalIndices: undefined,
           internalIndices: undefined,
         },
@@ -321,9 +317,6 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(signMock).toHaveBeenCalledWith(
         {
           tx: unsignedTxMock,
-          chain: 'X',
-
-          hasMultipleAddresses: true,
           externalIndices: [0, 1],
           internalIndices: [2, 3],
         },

@@ -153,8 +153,6 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
       const signedTransactionHex = await this.walletService.sign(
         {
           tx: unsignedTx,
-          hasMultipleAddresses,
-          chain: chainAlias,
           externalIndices,
           internalIndices,
         },

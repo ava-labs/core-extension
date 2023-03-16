@@ -75,9 +75,9 @@ describe('background/services/wallet/WalletService.ts', () => {
   const btcWalletMock = Object.create(BitcoinWallet.prototype);
   const btcLedgerWalletMock = Object.create(BitcoinLedgerWallet.prototype);
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
-  const ledgerSignerMock = Object.create(Avalanche.LedgerSigner.prototype);
-  const legacyMnemonicWalletMock = Object.create(
-    Avalanche.MnemonicWallet.prototype
+  const simpleSignerMock = Object.create(Avalanche.SimpleSigner.prototype);
+  const ledgerSimpleSignerMock = Object.create(
+    Avalanche.SimpleLedgerSigner.prototype
   );
   const privateKeyMock = 'privateKey';
   const mnemonic = 'mnemonic';
@@ -368,7 +368,6 @@ describe('background/services/wallet/WalletService.ts', () => {
 
         avalancheTxMock = {
           tx: unsignedTxMock,
-          chain: 'X',
         } as AvalancheTransactionRequest;
       });
 
@@ -404,41 +403,38 @@ describe('background/services/wallet/WalletService.ts', () => {
         });
       });
 
-      it('signs transaction correctly using (legacy) MnemonicWallet', async () => {
-        avalancheTxMock.hasMultipleAddresses = true;
+      it('signs transaction correctly using SimpleSigner', async () => {
         avalancheTxMock.externalIndices = [1, 2];
         avalancheTxMock.internalIndices = [3, 4];
         unsignedTxMock.hasAllSignatures.mockReturnValueOnce(true);
-        legacyMnemonicWalletMock.signTx = jest
-          .fn()
-          .mockReturnValueOnce(unsignedTxMock);
-        getWalletSpy
-          .mockResolvedValueOnce(staticSignerMock)
-          .mockResolvedValueOnce(legacyMnemonicWalletMock);
+        simpleSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
+        getWalletSpy.mockResolvedValueOnce(simpleSignerMock);
         (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
         const result = await walletService.sign(avalancheTxMock, networkMock);
 
         expect(result).toEqual('1234');
-        expect(legacyMnemonicWalletMock.signTx).toHaveBeenCalledWith({
+        expect(simpleSignerMock.signTx).toHaveBeenCalledWith({
           tx: unsignedTxMock,
           externalIndices: avalancheTxMock.externalIndices,
           internalIndices: avalancheTxMock.internalIndices,
         });
       });
 
-      it('signs transaction correctly using LedgerSigner', async () => {
+      it('signs transaction correctly using LedgerSimpleSigner', async () => {
         const transportMock = {} as LedgerTransport;
         (ledgerService as any).recentTransport = transportMock;
         unsignedTxMock.hasAllSignatures.mockReturnValueOnce(true);
-        ledgerSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
-        getWalletSpy.mockResolvedValueOnce(ledgerSignerMock);
+        ledgerSimpleSignerMock.signTx = jest
+          .fn()
+          .mockReturnValueOnce(unsignedTxMock);
+        getWalletSpy.mockResolvedValueOnce(ledgerSimpleSignerMock);
         (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
         const result = await walletService.sign(avalancheTxMock, networkMock);
 
         expect(result).toEqual('1234');
-        expect(ledgerSignerMock.signTx).toHaveBeenCalledWith({
+        expect(ledgerSimpleSignerMock.signTx).toHaveBeenCalledWith({
           tx: unsignedTxMock,
           transport: transportMock,
         });

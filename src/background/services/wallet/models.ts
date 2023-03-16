@@ -25,8 +25,6 @@ export interface BtcTransactionRequest {
 
 export interface AvalancheTransactionRequest {
   tx: UnsignedTx;
-  chain: 'X' | 'P' | 'C';
-  hasMultipleAddresses?: boolean;
   externalIndices?: number[];
   internalIndices?: number[];
 }

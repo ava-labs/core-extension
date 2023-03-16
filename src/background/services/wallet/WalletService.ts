@@ -131,8 +131,7 @@ export class WalletService implements OnLock, OnUnlock {
     this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, { locked: true });
   }
 
-  // TODO: get rid of the `useLegacy` param (https://ava-labs.atlassian.net/browse/CP-4895)
-  private async getWallet(network?: Network, useLegacy?: boolean) {
+  private async getWallet(network?: Network) {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
@@ -288,64 +287,19 @@ export class WalletService implements OnLock, OnUnlock {
     ) {
       // Return X/P Wallet
       const accountIndex = activeAccount.index;
+
       if (walletKeys.mnemonic) {
-        if (useLegacy) {
-          return Avalanche.MnemonicWallet.fromMnemonic(
-            walletKeys.mnemonic,
-            provider as Avalanche.JsonRpcProvider
-          );
-        } else {
-          return Avalanche.StaticSigner.fromMnemonic(
-            walletKeys.mnemonic,
-            getAddressDerivationPath(accountIndex, DerivationPath.BIP44, 'AVM'),
-            getAddressDerivationPath(accountIndex, DerivationPath.BIP44, 'EVM'),
-            provider as Avalanche.JsonRpcProvider
-          );
-        }
+        return new Avalanche.SimpleSigner(walletKeys.mnemonic, accountIndex);
       } else if (walletKeys.xpub && walletKeys.xpubXP) {
         if (!this.ledgerService.recentTransport) {
           throw new Error('Ledger transport not available');
         }
 
-        // get account public key for EVM
-        const pubkeyC = getAddressPublicKeyFromXPub(
-          walletKeys.xpub,
-          accountIndex
+        return new Avalanche.SimpleLedgerSigner(
+          accountIndex,
+          provider as Avalanche.JsonRpcProvider,
+          walletKeys.xpubXP
         );
-
-        if (useLegacy) {
-          return new Avalanche.LedgerWallet(
-            walletKeys.xpubXP,
-            pubkeyC,
-            provider as Avalanche.JsonRpcProvider
-          );
-        } else {
-          // Get public key for X/P
-          const pubkeyXP = Avalanche.getAddressPublicKeyFromXpub(
-            walletKeys.xpubXP,
-            accountIndex
-          );
-          // get address path m/44'/60'/0'/0/n
-          // If we have xpub it means we are using BIP44 paths
-          const pathC = getAddressDerivationPath(
-            accountIndex,
-            DerivationPath.BIP44,
-            'EVM'
-          );
-          // X/P chain uses path m/44'/9000'/0'/0/n
-          const pathXP = getAddressDerivationPath(
-            accountIndex,
-            DerivationPath.BIP44,
-            'AVM'
-          );
-          return new Avalanche.LedgerSigner(
-            pubkeyXP,
-            pathXP,
-            pubkeyC,
-            pathC,
-            provider as Avalanche.JsonRpcProvider
-          );
-        }
       } else if (walletKeys.pubKeys?.length) {
         // Ledger signing with LedgerLive derivaiton paths
         if (!this.ledgerService.recentTransport) {
@@ -360,24 +314,8 @@ export class WalletService implements OnLock, OnUnlock {
         // Verify public key exists for X/P path
         if (!pubkey.xp) throw new Error('X/P Chain public key is not set');
 
-        // EVM Path
-        const pathC = getAddressDerivationPath(
+        return new Avalanche.SimpleLedgerSigner(
           accountIndex,
-          DerivationPath.LedgerLive,
-          'EVM'
-        );
-        // XP Path
-        const pathXP = getAddressDerivationPath(
-          accountIndex,
-          DerivationPath.LedgerLive,
-          'AVM'
-        );
-
-        return new Avalanche.LedgerSigner(
-          Buffer.from(pubkey.xp, 'hex'),
-          pathXP,
-          Buffer.from(pubkey.evm, 'hex'),
-          pathC,
           provider as Avalanche.JsonRpcProvider
         );
       }
@@ -407,6 +345,7 @@ export class WalletService implements OnLock, OnUnlock {
 
   async sign(tx: SignTransactionRequest, network?: Network): Promise<string> {
     const wallet = await this.getWallet(network);
+
     if (!wallet) {
       throw new Error('Wallet not found');
     }
@@ -435,24 +374,17 @@ export class WalletService implements OnLock, OnUnlock {
 
     // Handle Avalanche signing, X/P/CoreEth
     if ('tx' in tx) {
-      // use legacy wallet if transaction has inputs from multiple addresses
-      const avalancheWallet = tx.hasMultipleAddresses
-        ? await this.getWallet(network, true)
-        : wallet;
-
       if (
-        !(avalancheWallet instanceof Avalanche.StaticSigner) &&
-        !(avalancheWallet instanceof Avalanche.LedgerSigner) &&
-        !(avalancheWallet instanceof Avalanche.MnemonicWallet) && // legacy for signing with multiple addresses
-        !(avalancheWallet instanceof Avalanche.LedgerWallet) // legacy for signing with multiple addresses
+        !(wallet instanceof Avalanche.SimpleSigner) &&
+        !(wallet instanceof Avalanche.StaticSigner) &&
+        !(wallet instanceof Avalanche.SimpleLedgerSigner)
       ) {
         throw new Error('Signing error, wrong network');
       }
 
-      const unsignedTx = await avalancheWallet.signTx({
+      const unsignedTx = await wallet.signTx({
         tx: tx.tx,
-        ...((wallet instanceof Avalanche.LedgerSigner ||
-          wallet instanceof Avalanche.LedgerWallet) && {
+        ...(wallet instanceof Avalanche.SimpleLedgerSigner && {
           transport: this.ledgerService.recentTransport,
         }),
         externalIndices: tx.externalIndices,
