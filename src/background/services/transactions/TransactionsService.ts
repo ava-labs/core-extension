@@ -37,6 +37,7 @@ import {
 } from './utils/updateTxStatus';
 import getTargetNetworkForTx from './utils/getTargetNetworkForTx';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 @singleton()
 export class TransactionsService {
@@ -67,6 +68,8 @@ export class TransactionsService {
   }
 
   async addTransaction(tx: ExtensionConnectionMessage) {
+    let txDescription;
+
     const { params, site } = tx;
     const now = new Date().getTime();
     const txParams = (params || [])[0];
@@ -80,12 +83,29 @@ export class TransactionsService {
       throw Error('no network selected');
     }
 
-    const txDescription = await getTxInfo(
-      txParams.to?.toLocaleLowerCase() || '',
-      txParams.data,
-      txParams.value,
-      network
+    const provider = this.networkService.getProviderForNetwork(network, true);
+    const toAddress = txParams.to?.toLocaleLowerCase() || '';
+    const contractByteCode = await (provider as JsonRpcBatchInternal).getCode(
+      toAddress
     );
+
+    // the response is always `0x` if the address is EOA and it's the contract's source byte code otherwise
+    // see https://docs.ethers.org/v5/single-page/#/v5/api/providers/provider/-%23-Provider-getCode
+    if (contractByteCode !== '0x') {
+      try {
+        txDescription = await getTxInfo(
+          toAddress,
+          txParams.data,
+          txParams.value,
+          network
+        );
+      } catch (err) {
+        console.error(err);
+        txDescription = { error: 'error while parsing ABI' };
+      }
+    } else {
+      txDescription = { error: 'not a contract' };
+    }
 
     const decodedData = (txDescription as ethers.utils.TransactionDescription)
       .args;

@@ -1342,10 +1342,10 @@ describe('background/services/wallet/WalletService.ts', () => {
         const result = await walletService.getAddressesInRange(0, 0, 2, 2);
 
         expect(result).toEqual({
-          external: getExpectedResult('external', 3),
-          internal: getExpectedResult('internal', 3),
+          external: getExpectedResult('external', 2),
+          internal: getExpectedResult('internal', 2),
         });
-        expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(6);
+        expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(4);
       });
 
       it('sets the limit to 0 if not provided', async () => {
@@ -1372,9 +1372,9 @@ describe('background/services/wallet/WalletService.ts', () => {
           1000,
           1000
         );
-        expect(result.external).toHaveLength(101);
-        expect(result.internal).toHaveLength(101);
-        expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(202);
+        expect(result.external).toHaveLength(100);
+        expect(result.internal).toHaveLength(100);
+        expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(200);
       });
     });
   });

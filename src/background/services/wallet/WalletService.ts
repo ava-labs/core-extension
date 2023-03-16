@@ -763,7 +763,7 @@ export class WalletService implements OnLock, OnUnlock {
       if (correctedExternalLimit > 0) {
         for (
           let index = externalStart;
-          index <= externalStart + correctedExternalLimit;
+          index < externalStart + correctedExternalLimit;
           index++
         ) {
           addresses.external.push(
@@ -780,7 +780,7 @@ export class WalletService implements OnLock, OnUnlock {
       if (correctedInternalLimit > 0) {
         for (
           let index = internalStart;
-          index <= internalStart + correctedInternalLimit;
+          index < internalStart + correctedInternalLimit;
           index++
         ) {
           addresses.internal.push(
