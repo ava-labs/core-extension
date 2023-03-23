@@ -103,6 +103,7 @@ import { StartBalancesPollingHandler } from '@src/background/services/balances/h
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 import { GetLedgerIncorrectBtcAppWarningHandler } from '@src/background/services/ledger/handlers/getLedgerIncorrectBtcAppWarning';
 import { LedgerIncorrectBtcAppWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerIncorrectBtcAppWarningClosed';
+import { WalletUpdatedEvents } from '@src/background/services/wallet/events/WalletUpdatedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -270,5 +271,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
   { token: 'ExtensionEventEmitter', useToken: LedgerCloseTransportEvent },
   { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

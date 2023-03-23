@@ -134,7 +134,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       walletService.onLock();
       expect(walletService.walletType).toBeUndefined();
       expect(eventListener).toHaveBeenCalledWith({
-        locked: true,
+        walletType: undefined,
+        derivationPath: undefined,
       });
     });
 
@@ -158,7 +159,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(walletService.walletType).toBeUndefined();
       expect(walletService.derivationPath).toBeUndefined();
       expect(eventListener).toHaveBeenCalledWith({
-        locked: true,
+        walletType: undefined,
+        derivationPath: undefined,
       });
     });
   });
@@ -175,27 +177,58 @@ describe('background/services/wallet/WalletService.ts', () => {
       (storageService.load as jest.Mock).mockResolvedValueOnce({
         mnemonic,
       });
+      const eventListener = jest.fn();
+      walletService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
       expect(walletService.walletType).toBe(WalletType.MNEMONIC);
+      expect(eventListener).toHaveBeenCalledWith({
+        walletType: WalletType.MNEMONIC,
+        derivationPath: undefined,
+      });
     });
 
     it('sets the walletType as ledger if xpub is present', async () => {
       (storageService.load as jest.Mock).mockResolvedValueOnce({
         xpub: 'xpub',
+        derivationPath: DerivationPath.LedgerLive,
       });
+
+      const eventListener = jest.fn();
+      walletService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
       expect(walletService.walletType).toBe(WalletType.LEDGER);
+      expect(eventListener).toHaveBeenCalledWith({
+        walletType: WalletType.LEDGER,
+        derivationPath: DerivationPath.LedgerLive,
+      });
     });
 
     it('sets the walletType as ledger if pubKeys is present', async () => {
       (storageService.load as jest.Mock).mockResolvedValueOnce({
         pubKeys: ['0x1'],
+        derivationPath: DerivationPath.BIP44,
       });
+
+      const eventListener = jest.fn();
+      walletService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
       expect(walletService.walletType).toBe(WalletType.LEDGER);
+      expect(eventListener).toHaveBeenCalledWith({
+        walletType: WalletType.LEDGER,
+        derivationPath: DerivationPath.BIP44,
+      });
     });
 
     it('throws when storage contains malformed data', async () => {

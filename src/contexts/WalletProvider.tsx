@@ -12,7 +12,6 @@ import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useLedgerContext } from './LedgerProvider';
 import { TxHistoryItem } from '@src/background/services/history/models';
-import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 import { UnlockWalletHandler } from '@src/background/services/lock/handlers/unlockWalletState';
 import { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
@@ -20,6 +19,8 @@ import { GetWalletDetailsHandler } from '@src/background/services/wallet/handler
 import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { DerivationPath } from '@avalabs/wallets-sdk';
+import { walletStateChangedEventListener } from '@src/background/services/wallet/events/WalletUpdatedEventListener';
+import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;
@@ -65,27 +66,28 @@ export function WalletContextProvider({ children }: { children: any }) {
       setIsWalletLoading(false);
     });
 
-    const subscription = events()
+    const lockSubscription = events()
       .pipe(
         filter(lockStateChangedEventListener),
         map((evt) => evt.value)
       )
       .subscribe((locked) => {
         setIsWalletLocked(locked);
+      });
 
-        // update wallet type when the extension gets unlocked
-        if (!locked) {
-          request<GetWalletDetailsHandler>({
-            method: ExtensionRequest.WALLET_GET_DETAILS,
-          }).then((details) => {
-            setWalletType(details.walletType);
-            setDerivationPath(details.derivationPath);
-          });
-        }
+    const walletSubscription = events()
+      .pipe(
+        filter(walletStateChangedEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe(({ walletType, derivationPath }) => {
+        setWalletType(walletType);
+        setDerivationPath(derivationPath);
       });
 
     return () => {
-      subscription.unsubscribe();
+      walletSubscription.unsubscribe();
+      lockSubscription.unsubscribe();
     };
   }, [events, request]);
 

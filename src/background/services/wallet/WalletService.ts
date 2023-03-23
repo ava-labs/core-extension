@@ -73,12 +73,20 @@ export class WalletService implements OnLock, OnUnlock {
     return this._derivationPath;
   }
 
+  private emitWalletState() {
+    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, {
+      walletType: this._walletType,
+      derivationPath: this._derivationPath,
+    });
+  }
+
   async onUnlock(): Promise<void> {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
 
     if (!walletKeys) {
+      this.emitWalletState();
       // wallet is not initialized
       return;
     }
@@ -92,6 +100,7 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     this._derivationPath = walletKeys.derivationPath;
+    this.emitWalletState();
   }
 
   /**
@@ -128,7 +137,7 @@ export class WalletService implements OnLock, OnUnlock {
   onLock() {
     this._walletType = undefined;
     this._derivationPath = undefined;
-    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, { locked: true });
+    this.emitWalletState();
   }
 
   private async getWallet(network?: Network) {
