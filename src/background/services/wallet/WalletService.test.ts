@@ -31,11 +31,13 @@ import {
   getAddressPublicKeyFromXPub,
   Avalanche,
   getLedgerExtendedPublicKey,
+  createWalletPolicy,
 } from '@avalabs/wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
 import { networks } from 'bitcoinjs-lib';
 import {
+  Account,
   AccountType,
   ImportedAccount,
   ImportType,
@@ -43,6 +45,7 @@ import {
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageIsValid from './utils/ensureMessageIsValid';
+import { WalletPolicy } from 'ledger-bitcoin';
 
 jest.mock('../storage/StorageService');
 jest.mock('../network/NetworkService');
@@ -300,6 +303,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
   describe('sign', () => {
     let getWalletSpy: jest.SpyInstance;
+
     const txMock = {
       to: '0x1',
       from: '0x1',
@@ -1580,6 +1584,294 @@ describe('background/services/wallet/WalletService.ts', () => {
           'AVM'
         );
       });
+    });
+  });
+
+  describe('getBtcWalletPolicyDetails', () => {
+    const btcWalletPolicyDetails = {
+      hmacHex: '0x1',
+      xpub: '0x2',
+      masterFingerprint: '1234',
+      name: 'policy',
+    };
+
+    beforeEach(() => {
+      walletService['_walletType'] = WalletType.LEDGER;
+    });
+
+    it('returns undefined if account is not provided', async () => {
+      await expect(
+        walletService.getBtcWalletPolicyDetails()
+      ).resolves.toBeUndefined();
+    });
+
+    it('returns undefined if account is not primary', async () => {
+      await expect(
+        walletService.getBtcWalletPolicyDetails({
+          type: AccountType.IMPORTED,
+        } as Account)
+      ).resolves.toBeUndefined();
+    });
+
+    it('returns undefined if wallet type is not Ledger', async () => {
+      walletService['_walletType'] = WalletType.MNEMONIC;
+
+      await expect(
+        walletService.getBtcWalletPolicyDetails({
+          type: AccountType.PRIMARY,
+        } as Account)
+      ).resolves.toBeUndefined();
+    });
+
+    it('returns the policy details correctly for Ledger Live', async () => {
+      walletService['_derivationPath'] = DerivationPath.LedgerLive;
+      (storageService.load as jest.Mock).mockResolvedValueOnce({
+        pubKeys: [
+          {
+            btcWalletPolicyDetails,
+          },
+        ],
+      });
+
+      await expect(
+        walletService.getBtcWalletPolicyDetails({
+          type: AccountType.PRIMARY,
+          index: 0,
+        } as Account)
+      ).resolves.toBe(btcWalletPolicyDetails);
+    });
+
+    it('returns the policy details correctly for BIP44', async () => {
+      walletService['_derivationPath'] = DerivationPath.BIP44;
+      (storageService.load as jest.Mock).mockResolvedValueOnce({
+        btcWalletPolicyDetails,
+      });
+
+      await expect(
+        walletService.getBtcWalletPolicyDetails({
+          type: AccountType.PRIMARY,
+          index: 0,
+        } as Account)
+      ).resolves.toBe(btcWalletPolicyDetails);
+    });
+  });
+
+  describe('storeBtcWalletPolicyDetails', () => {
+    const hmacHex = '0x1';
+    const xpub = '0x2';
+    const masterFingerprint = '1234';
+    const name = 'policy';
+
+    beforeEach(() => {
+      walletService['_walletType'] = WalletType.LEDGER;
+      walletService['_derivationPath'] = DerivationPath.LedgerLive;
+    });
+
+    const storeBtcWalletPolicyDetails = async () =>
+      walletService.storeBtcWalletPolicyDetails(
+        0,
+        xpub,
+        masterFingerprint,
+        hmacHex,
+        name
+      );
+
+    it('throws if wallet type is not Ledger', async () => {
+      walletService['_walletType'] = WalletType.MNEMONIC;
+
+      await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+        'Error while saving wallet policy details: incorrect wallet type.'
+      );
+    });
+
+    it('throws if storage is empty', async () => {
+      (storageService.load as jest.Mock).mockResolvedValueOnce(undefined);
+
+      await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+        'Error while saving wallet policy details: storage is empty.'
+      );
+    });
+
+    it('throws for unknown derivation paths', async () => {
+      walletService['_derivationPath'] = undefined;
+      (storageService.load as jest.Mock).mockResolvedValueOnce({});
+
+      await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+        'Error while saving wallet policy details: unknown derivation path.'
+      );
+    });
+
+    describe('Derivation path: Ledger Live', () => {
+      beforeEach(() => {
+        walletService['_derivationPath'] = DerivationPath.LedgerLive;
+      });
+
+      it('throws if storage is empty for the given index', async () => {
+        (storageService.load as jest.Mock).mockResolvedValueOnce({
+          pubKeys: [],
+        });
+
+        await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+          'Error while saving wallet policy details: missing record for the provided index.'
+        );
+      });
+
+      it('throws if storage is already contains policy info for the given index', async () => {
+        (storageService.load as jest.Mock).mockResolvedValueOnce({
+          pubKeys: [
+            {
+              btcWalletPolicyDetails: {},
+            },
+          ],
+        });
+
+        await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+          'Error while saving wallet policy details: policy details already stored.'
+        );
+      });
+
+      it('stores the policy details correctly', async () => {
+        (storageService.load as jest.Mock).mockResolvedValueOnce({
+          pubKeys: [
+            {
+              evm: '0x1',
+              xp: '0x2',
+            },
+          ],
+        });
+
+        await storeBtcWalletPolicyDetails();
+
+        expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+          pubKeys: [
+            {
+              evm: '0x1',
+              xp: '0x2',
+              btcWalletPolicyDetails: {
+                xpub,
+                masterFingerprint,
+                hmacHex,
+                name,
+              },
+            },
+          ],
+        });
+      });
+    });
+
+    describe('Derivation path: BIP44', () => {
+      beforeEach(() => {
+        walletService['_derivationPath'] = DerivationPath.BIP44;
+      });
+
+      it('throws if storage is already contains policy', async () => {
+        (storageService.load as jest.Mock).mockResolvedValueOnce({
+          btcWalletPolicyDetails: {},
+        });
+
+        await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+          'Error while saving wallet policy details: policy details already stored.'
+        );
+      });
+
+      it('stores the policy details correctly', async () => {
+        (storageService.load as jest.Mock).mockResolvedValueOnce({
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+        });
+
+        await storeBtcWalletPolicyDetails();
+
+        expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          btcWalletPolicyDetails: {
+            xpub,
+            masterFingerprint,
+            hmacHex,
+            name,
+          },
+        });
+      });
+    });
+  });
+
+  describe('parseWalletPolicyDetails', () => {
+    let getBtcWalletPolicyDetailsSpy: jest.SpyInstance;
+
+    const hmacHex = '123654';
+    const xpub = '0x1';
+    const masterFingerprint = '1234';
+    const name = 'policy';
+    const walletPolicy = {} as WalletPolicy;
+
+    beforeEach(() => {
+      getBtcWalletPolicyDetailsSpy = jest.spyOn(
+        walletService as any,
+        'getBtcWalletPolicyDetails'
+      );
+    });
+
+    it('throws if it fails to find policy details', async () => {
+      getBtcWalletPolicyDetailsSpy.mockResolvedValueOnce(undefined);
+
+      await expect(
+        walletService['parseWalletPolicyDetails']({ index: 0 } as Account)
+      ).rejects.toThrowError(
+        'Error while parsing wallet policy: missing data.'
+      );
+    });
+
+    it('returns the correct data for Ledger Live', async () => {
+      walletService['_derivationPath'] = DerivationPath.LedgerLive;
+      getBtcWalletPolicyDetailsSpy.mockResolvedValueOnce({
+        xpub,
+        masterFingerprint,
+        hmacHex,
+        name,
+      });
+
+      (createWalletPolicy as jest.Mock).mockReturnValueOnce(walletPolicy);
+
+      await expect(
+        walletService['parseWalletPolicyDetails']({ index: 1 } as Account)
+      ).resolves.toStrictEqual({
+        hmac: Buffer.from(hmacHex, 'hex'),
+        policy: walletPolicy,
+      });
+
+      expect(createWalletPolicy).toHaveBeenCalledWith(
+        masterFingerprint,
+        1,
+        xpub,
+        name
+      );
+    });
+
+    it('returns the correct data for BIP44', async () => {
+      walletService['_derivationPath'] = DerivationPath.BIP44;
+      getBtcWalletPolicyDetailsSpy.mockResolvedValueOnce({
+        xpub,
+        masterFingerprint,
+        hmacHex,
+        name,
+      });
+
+      (createWalletPolicy as jest.Mock).mockReturnValueOnce(walletPolicy);
+
+      await expect(
+        walletService['parseWalletPolicyDetails']({ index: 1 } as Account)
+      ).resolves.toStrictEqual({
+        hmac: Buffer.from(hmacHex, 'hex'),
+        policy: walletPolicy,
+      });
+
+      expect(createWalletPolicy).toHaveBeenCalledWith(
+        masterFingerprint,
+        0,
+        xpub,
+        name
+      );
     });
   });
 });

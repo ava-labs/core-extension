@@ -51,6 +51,7 @@ export interface WalletSecretInStorage {
       secret: string;
     }
   >;
+  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 }
 
 export enum WalletEvents {
@@ -64,6 +65,16 @@ export enum WalletType {
   LEDGER = 'LEDGER',
 }
 
+export type BtcWalletPolicyDetails = {
+  hmacHex: string;
+  /**
+   * Extended public key of m/44'/60'/n
+   */
+  xpub: string;
+  masterFingerprint: string;
+  name: string;
+};
+
 /**
  * Used for Ledger Live accounts on ledger.
  */
@@ -73,6 +84,7 @@ export type PubKeyType = {
    * Public keys used for X/P chain are from a different derivation path.
    */
   xp?: string;
+  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 };
 
 /**

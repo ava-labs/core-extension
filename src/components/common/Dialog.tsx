@@ -10,15 +10,27 @@ type DialogProps = {
   onClose: () => void;
   title?: ReactNode;
   content?: ReactNode;
+  isCloseable?: boolean;
 };
 
-const Dialog = ({ open, onClose, title, content }: DialogProps) => {
+const Dialog = ({
+  open,
+  onClose,
+  title,
+  content,
+  isCloseable = true,
+}: DialogProps) => {
   const theme = useTheme();
 
   return (
     <K2Dialog
       open={open}
-      onClose={onClose}
+      showCloseIcon={isCloseable}
+      onClose={() => {
+        if (isCloseable) {
+          onClose();
+        }
+      }}
       BackdropProps={{
         sx: {
           backdropFilter: 'none',

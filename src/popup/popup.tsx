@@ -48,6 +48,7 @@ import {
 import { OfflineContent } from './OfflineContent';
 import { useTranslation } from 'react-i18next';
 import LedgerIncorrectDevice from '@src/pages/Ledger/LedgerIncorrectDevice';
+import LedgerRegisterBtcWalletPolicy from '@src/pages/Ledger/LedgerRegisterBtcWalletPolicy';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -499,6 +500,7 @@ export function Popup() {
                                     </Route>
                                   </Switch>
                                   <LedgerIncorrectDevice />
+                                  <LedgerRegisterBtcWalletPolicy />
                                 </HorizontalFlex>
                               </VerticalFlex>
                             </WalletLoading>

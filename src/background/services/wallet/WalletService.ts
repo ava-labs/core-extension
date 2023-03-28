@@ -15,6 +15,7 @@ import {
   BitcoinLedgerWallet,
   BitcoinProviderAbstract,
   BitcoinWallet,
+  createWalletPolicy,
   DerivationPath,
   getAddressDerivationPath,
   getAddressFromXPub,
@@ -48,6 +49,7 @@ import {
   AccountType,
   ImportData,
   ImportType,
+  PrimaryAccount,
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageIsValid from './utils/ensureMessageIsValid';
@@ -251,6 +253,8 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Ledger transport not available');
         }
 
+        const walletPolicy = await this.parseWalletPolicyDetails(activeAccount);
+
         // Use BIP44 derivation paths for extended public key of m/44'/60'/0'
         const addressPublicKey = getAddressPublicKeyFromXPub(
           walletKeys.xpub,
@@ -265,7 +269,8 @@ export class WalletService implements OnLock, OnUnlock {
             'EVM'
           ),
           provider as BitcoinProviderAbstract,
-          this.ledgerService.recentTransport
+          this.ledgerService.recentTransport,
+          walletPolicy
         );
       } else if (walletKeys.pubKeys?.length) {
         // Use LedgerLive derivation paths for address public keys (m/44'/60'/n'/0/0) in storage
@@ -279,6 +284,8 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Account public key not available');
         }
 
+        const walletPolicy = await this.parseWalletPolicyDetails(activeAccount);
+
         return new BitcoinLedgerWallet(
           Buffer.from(addressPublicKey.evm, 'hex'),
           getAddressDerivationPath(
@@ -287,7 +294,8 @@ export class WalletService implements OnLock, OnUnlock {
             'EVM'
           ),
           provider as BitcoinProviderAbstract,
-          this.ledgerService.recentTransport
+          this.ledgerService.recentTransport,
+          walletPolicy
         );
       }
     } else if (
@@ -958,6 +966,135 @@ export class WalletService implements OnLock, OnUnlock {
           'Error while searching for missing public keys: incomplete migration.'
         );
       }
+    }
+  }
+
+  private async parseWalletPolicyDetails(account?: Account) {
+    const btcWalletPolicyDetails = await this.getBtcWalletPolicyDetails(
+      account
+    );
+
+    if (!btcWalletPolicyDetails) {
+      throw new Error('Error while parsing wallet policy: missing data.');
+    }
+
+    const accountIndex =
+      this.derivationPath === DerivationPath.LedgerLive
+        ? (account as PrimaryAccount).index
+        : 0;
+    const hmac = Buffer.from(btcWalletPolicyDetails.hmacHex, 'hex');
+    const policy = createWalletPolicy(
+      btcWalletPolicyDetails.masterFingerprint,
+      accountIndex,
+      btcWalletPolicyDetails.xpub,
+      btcWalletPolicyDetails.name
+    );
+
+    return {
+      hmac,
+      policy,
+    };
+  }
+
+  async getBtcWalletPolicyDetails(account?: Account) {
+    if (
+      !account ||
+      account.type !== AccountType.PRIMARY ||
+      this.walletType !== WalletType.LEDGER
+    ) {
+      return;
+    }
+
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (this.derivationPath === DerivationPath.LedgerLive) {
+      const pubKeyInfo = (secrets?.pubKeys ?? [])[account.index];
+      return pubKeyInfo?.btcWalletPolicyDetails;
+    } else if (this.derivationPath === DerivationPath.BIP44) {
+      return secrets?.btcWalletPolicyDetails;
+    }
+  }
+
+  async storeBtcWalletPolicyDetails(
+    accountIndex: number,
+    xpub: string,
+    masterFingerprint: string,
+    hmacHex: string,
+    name: string
+  ) {
+    if (this.walletType !== WalletType.LEDGER) {
+      throw new Error(
+        'Error while saving wallet policy details: incorrect wallet type.'
+      );
+    }
+
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (!secrets) {
+      throw new Error(
+        'Error while saving wallet policy details: storage is empty.'
+      );
+    }
+
+    if (this.derivationPath === DerivationPath.LedgerLive) {
+      const pubKeys = secrets.pubKeys ?? [];
+      const pubKeyInfo = pubKeys[accountIndex];
+
+      if (!pubKeyInfo) {
+        throw new Error(
+          'Error while saving wallet policy details: missing record for the provided index.'
+        );
+      }
+
+      if (pubKeyInfo?.btcWalletPolicyDetails) {
+        throw new Error(
+          'Error while saving wallet policy details: policy details already stored.'
+        );
+      }
+
+      pubKeyInfo.btcWalletPolicyDetails = {
+        xpub,
+        masterFingerprint,
+        hmacHex,
+        name,
+      };
+
+      pubKeys[accountIndex] = pubKeyInfo;
+
+      await this.storageService.save<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY,
+        {
+          ...secrets,
+          pubKeys,
+        }
+      );
+    } else if (this.derivationPath === DerivationPath.BIP44) {
+      if (secrets?.btcWalletPolicyDetails) {
+        throw new Error(
+          'Error while saving wallet policy details: policy details already stored.'
+        );
+      }
+
+      await this.storageService.save<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY,
+        {
+          ...secrets,
+          btcWalletPolicyDetails: {
+            xpub,
+            masterFingerprint,
+            hmacHex,
+            name,
+          },
+        }
+      );
+    } else {
+      throw new Error(
+        'Error while saving wallet policy details: unknown derivation path.'
+      );
     }
   }
 }

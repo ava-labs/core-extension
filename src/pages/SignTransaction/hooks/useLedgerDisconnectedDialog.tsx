@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next';
 import { LedgerWrongVersion } from '@src/pages/Ledger/LedgerWrongVersion';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import { LedgerWrongBtcApp } from '@src/pages/Ledger/LedgerWrongBtcApp';
 
 const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
   margin: 24px 0 0;
@@ -37,7 +36,6 @@ export function useLedgerDisconnectedDialog(
     wasTransportAttempted,
     appType,
     popDeviceSelection,
-    isCorrectBtcApp,
     avaxAppVersion,
   } = useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
@@ -168,25 +166,6 @@ export function useLedgerDisconnectedDialog(
     );
   }, [showDialog, onCancel, clearDialog]);
 
-  const showIncorrectBitcoinAppDialog = useCallback(() => {
-    showDialog(
-      {
-        title: '',
-        width: '343px',
-        component: (
-          <LedgerWrongBtcApp
-            className="dialog"
-            onClose={() => {
-              onCancel();
-              clearDialog();
-            }}
-          />
-        ),
-      },
-      false
-    );
-  }, [showDialog, onCancel, clearDialog]);
-
   useEffect(() => {
     clearDialog();
     // only show dialogs for ledger wallets and
@@ -205,8 +184,6 @@ export function useLedgerDisconnectedDialog(
       !isLedgerVersionCompatible(avaxAppVersion, REQUIRED_LEDGER_VERSION)
     ) {
       showIncorrectAvaxVersionDialog();
-    } else if (appType === LedgerAppType.BITCOIN && !isCorrectBtcApp) {
-      showIncorrectBitcoinAppDialog();
     }
     setHasCorrectApp(hasCorrectApp);
   }, [
@@ -221,8 +198,6 @@ export function useLedgerDisconnectedDialog(
     avaxAppVersion,
     showIncorrectAvaxVersionDialog,
     isUsingLedgerWallet,
-    isCorrectBtcApp,
-    showIncorrectBitcoinAppDialog,
   ]);
 
   return hasCorrectApp;

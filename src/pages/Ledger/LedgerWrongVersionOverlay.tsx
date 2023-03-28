@@ -2,13 +2,11 @@ import { LedgerWrongVersion } from './LedgerWrongVersion';
 import { WalletType } from '@src/background/services/wallet/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import {
-  LedgerAppType,
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
 } from '@src/contexts/LedgerProvider';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 import { Backdrop, Stack } from '@avalabs/k2-components';
-import { LedgerWrongBtcApp } from './LedgerWrongBtcApp';
 
 export function LedgerWrongVersionOverlay({
   onClose,
@@ -19,10 +17,6 @@ export function LedgerWrongVersionOverlay({
   const {
     ledgerVersionWarningClosed,
     updateLedgerVersionWarningClosed,
-    ledgerIncorrectBtcAppWarningClosed,
-    updateLedgerIncorrectBtcAppWarningClosed,
-    appType,
-    isCorrectBtcApp,
     avaxAppVersion,
     hasLedgerTransport,
   } = useLedgerContext();
@@ -55,23 +49,6 @@ export function LedgerWrongVersionOverlay({
         <Stack sx={{ m: 2 }}>
           <LedgerWrongVersion
             onClose={() => updateLedgerVersionWarningClosed()}
-          />
-        </Stack>
-      </Backdrop>
-    );
-  }
-
-  if (
-    !ledgerIncorrectBtcAppWarningClosed &&
-    walletType === WalletType.LEDGER &&
-    appType === LedgerAppType.BITCOIN &&
-    !isCorrectBtcApp
-  ) {
-    return (
-      <Backdrop open>
-        <Stack sx={{ m: 2 }}>
-          <LedgerWrongBtcApp
-            onClose={() => updateLedgerIncorrectBtcAppWarningClosed()}
           />
         </Stack>
       </Backdrop>

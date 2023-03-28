@@ -101,8 +101,8 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
-import { GetLedgerIncorrectBtcAppWarningHandler } from '@src/background/services/ledger/handlers/getLedgerIncorrectBtcAppWarning';
-import { LedgerIncorrectBtcAppWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerIncorrectBtcAppWarningClosed';
+import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
+import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
 import { WalletUpdatedEvents } from '@src/background/services/wallet/events/WalletUpdatedEvent';
 
 /**
@@ -206,6 +206,8 @@ import { WalletUpdatedEvents } from '@src/background/services/wallet/events/Wall
   { token: 'ExtensionRequestHandler', useToken: GetSettingsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenDataHandler },
   { token: 'ExtensionRequestHandler', useToken: GetWalletDetailsHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetBtcWalletPolicyDetails },
+  { token: 'ExtensionRequestHandler', useToken: StoreBtcWalletPolicyDetails },
   { token: 'ExtensionRequestHandler', useToken: GetUnencryptedMnemonicHandler },
   { token: 'ExtensionRequestHandler', useToken: SetDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateShowNoBalanceHandler },
@@ -230,14 +232,6 @@ import { WalletUpdatedEvents } from '@src/background/services/wallet/events/Wall
   {
     token: 'ExtensionRequestHandler',
     useToken: LedgerVersionWarningClosedHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: GetLedgerIncorrectBtcAppWarningHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: LedgerIncorrectBtcAppWarningClosedHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: SetLanguageHandler },
   {

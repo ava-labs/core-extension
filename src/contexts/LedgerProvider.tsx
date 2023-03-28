@@ -22,8 +22,12 @@ import {
 } from 'rxjs';
 import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
 import AppAvalanche from '@avalabs/hw-app-avalanche';
+import {
+  AppClient as Btc,
+  DefaultWalletPolicy,
+  WalletPolicy,
+} from 'ledger-bitcoin';
 
-import Btc from '@ledgerhq/hw-app-btc';
 import Transport from '@ledgerhq/hw-transport';
 import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
 import { LedgerEvent } from '@src/background/services/ledger/models';
@@ -32,7 +36,6 @@ import { InitLedgerTransportHandler } from '@src/background/services/ledger/hand
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 import {
   DerivationPath,
-  getAddressDerivationPath,
   getLedgerAppInfo,
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
@@ -43,14 +46,10 @@ import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 import { VM } from '@avalabs/avalanchejs-v2';
-import isLedgerBtcAppCorrect from '@src/utils/isLedgerBtcAppCorrect';
-import { LedgerIncorrectBtcAppWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerIncorrectBtcAppWarningClosed';
-import { GetLedgerIncorrectBtcAppWarningHandler } from '@src/background/services/ledger/handlers/getLedgerIncorrectBtcAppWarning';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
   BITCOIN = 'Bitcoin',
-  BITCOIN_LEGACY = 'Bitcoin Legacy',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -69,21 +68,24 @@ const LedgerContext = createContext<{
   hasLedgerTransport: boolean;
   appType: LedgerAppType;
   wasTransportAttempted: boolean;
-  getBtcPublicKey(
-    accountIndex: number,
-    pathType: DerivationPath
-  ): Promise<Buffer>;
   getPublicKey(
     accountIndex: number,
     pathType: DerivationPath,
     vm?: VM
   ): Promise<Buffer>;
   avaxAppVersion: string | null;
-  isCorrectBtcApp: boolean;
+  masterFingerprint: string | undefined;
+  setMasterFingerprint: (masterFingerprint?: string) => void;
+  getMasterFingerprint(): Promise<string>;
+  getBtcExtendedPublicKey(path: string): Promise<string>;
+  registerBtcWalletPolicy(
+    xpub: string,
+    masterFingerprint: string,
+    derivationpath: string,
+    name: string
+  ): Promise<readonly [Buffer, Buffer]>;
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
-  updateLedgerIncorrectBtcAppWarningClosed(): Promise<void>;
-  ledgerIncorrectBtcAppWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
 }>({} as any);
 
@@ -95,13 +97,11 @@ export function LedgerContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
   const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
-  const [isCorrectBtcApp, setIsCorrectBtcApp] = useState<boolean>(true);
+  const [masterFingerprint, setMasterFingerprint] = useState<
+    string | undefined
+  >();
   const [ledgerVersionWarningClosed, setLedgerVersionWarningClosed] =
     useState<boolean>();
-  const [
-    ledgerIncorrectBtcAppWarningClosed,
-    setLedgerIncorrectBtcAppWarningClosed,
-  ] = useState<boolean>();
 
   /**
    * Listen for send events to a ledger instance
@@ -213,24 +213,16 @@ export function LedgerContextProvider({ children }: { children: any }) {
       }
 
       // check if btc app is selected
-      const btcAppInstance = new Btc({ transport });
+      const btcAppInstance = new Btc(transport);
 
       if (btcAppInstance) {
         const appInfo = await getLedgerAppInfo(transport);
 
         if (
-          [LedgerAppType.BITCOIN, LedgerAppType.BITCOIN_LEGACY].includes(
-            appInfo.applicationName as LedgerAppType
-          )
+          LedgerAppType.BITCOIN === (appInfo.applicationName as LedgerAppType)
         ) {
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
-
-          // We support Ledger Bitcoin applications with version < 2.1.0
-          // If the version is >= 2.1.0 we want to prompt the user to switch to the Bitcoin Legacy app
-          // (until we find a way to support newer versions)
-          const isCorrectBtcApp = isLedgerBtcAppCorrect(appInfo);
-          setIsCorrectBtcApp(isCorrectBtcApp);
           return btcAppInstance;
         }
       }
@@ -318,27 +310,6 @@ export function LedgerContextProvider({ children }: { children: any }) {
     );
   }
 
-  const getBtcPublicKey = useCallback(
-    async (accountIndex: number, pathType: DerivationPath) => {
-      if (!app || appType !== LedgerAppType.BITCOIN) {
-        throw new Error('no device detected');
-      }
-
-      const derivationPath = getAddressDerivationPath(
-        accountIndex,
-        pathType,
-        'EVM'
-      );
-
-      const { publicKey } = await (app as Btc).getWalletPublicKey(
-        derivationPath
-      );
-
-      return Buffer.from(publicKey, 'hex');
-    },
-    [app, appType]
-  );
-
   /**
    * When the user plugs-in/connects their ledger for the first time a
    * device selection needs to be performed before we can do anything with
@@ -410,12 +381,6 @@ export function LedgerContextProvider({ children }: { children: any }) {
       setLedgerVersionWarningClosed(result);
     });
 
-    request<GetLedgerIncorrectBtcAppWarningHandler>({
-      method: ExtensionRequest.SHOW_LEDGER_INCORRECT_BTC_APP_WARNING,
-    }).then((result) => {
-      setLedgerIncorrectBtcAppWarningClosed(result);
-    });
-
     const subscription = events()
       .pipe(
         filter(lockStateChangedEventListener),
@@ -427,7 +392,6 @@ export function LedgerContextProvider({ children }: { children: any }) {
           // because it will always be false when locked because the session
           // storage is emptied on lock.
           setLedgerVersionWarningClosed(false);
-          setLedgerIncorrectBtcAppWarningClosed(false);
         }
       });
 
@@ -436,18 +400,53 @@ export function LedgerContextProvider({ children }: { children: any }) {
     };
   }, [events, request]);
 
+  const getMasterFingerprint = useCallback(async () => {
+    if (!(app instanceof Btc)) {
+      throw new Error('wrong app');
+    }
+
+    return app.getMasterFingerprint();
+  }, [app]);
+
+  const getBtcExtendedPublicKey = useCallback(
+    async (path: string) => {
+      if (!(app instanceof Btc)) {
+        throw new Error('wrong app');
+      }
+
+      return app.getExtendedPubkey(path, true);
+    },
+    [app]
+  );
+
+  const registerBtcWalletPolicy = useCallback(
+    async (
+      xpub: string,
+      masterFingerprint: string,
+      derivationpath: string,
+      name: string
+    ) => {
+      if (!(app instanceof Btc)) {
+        throw new Error('wrong app');
+      }
+
+      const template = new DefaultWalletPolicy(
+        `wpkh(@0/**)`,
+        `[${masterFingerprint}/${derivationpath}]${xpub}`
+      );
+
+      const walletPolicy = new WalletPolicy(name, `wpkh(@0/**)`, template.keys);
+
+      return app.registerWallet(walletPolicy);
+    },
+    [app]
+  );
+
   const updateLedgerVersionWarningClosed = useCallback(async () => {
     const result = await request<LedgerVersionWarningClosedHandler>({
       method: ExtensionRequest.LEDGER_VERSION_WARNING_CLOSED,
     });
     setLedgerVersionWarningClosed(result);
-  }, [request]);
-
-  const updateLedgerIncorrectBtcAppWarningClosed = useCallback(async () => {
-    const result = await request<LedgerIncorrectBtcAppWarningClosedHandler>({
-      method: ExtensionRequest.LEDGER_INCORRECT_BTC_APP_WARNING_CLOSED,
-    });
-    setLedgerIncorrectBtcAppWarningClosed(result);
   }, [request]);
 
   return (
@@ -460,13 +459,14 @@ export function LedgerContextProvider({ children }: { children: any }) {
         wasTransportAttempted,
         appType,
         getPublicKey,
-        getBtcPublicKey,
         avaxAppVersion,
-        isCorrectBtcApp,
+        masterFingerprint,
+        setMasterFingerprint,
+        getMasterFingerprint,
+        getBtcExtendedPublicKey,
+        registerBtcWalletPolicy,
         updateLedgerVersionWarningClosed,
         ledgerVersionWarningClosed,
-        ledgerIncorrectBtcAppWarningClosed,
-        updateLedgerIncorrectBtcAppWarningClosed,
         closeCurrentApp,
       }}
     >
