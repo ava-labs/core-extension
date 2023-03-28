@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import {
-  toast,
-  VerticalFlex,
-  TextButton,
-  CustomToast,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import type { Contact } from '@avalabs/types';
 import { ContactForm } from '../components/ContactForm';
 import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  Stack,
+  Scrollbars,
+  styled,
+  toast,
+} from '@avalabs/k2-components';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -35,7 +34,6 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
     addressBTC: '',
   });
 
-  const theme = useTheme();
   const { createContact } = useContactsContext();
   const [isFormValid, setIsFormValid] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
@@ -48,39 +46,49 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
   };
 
   return (
-    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
+    <Stack
+      sx={{
+        width: `${width}`,
+        height: '100%',
+      }}
+    >
       <SettingsHeader
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
-        title={t('Add New Contact')}
+        title={t('New Contact')}
         action={
-          <TextButton
+          <Button
+            variant="text"
+            color="secondary"
             data-testid="add-new-contact-button"
             onClick={() => {
               setShowErrors(true);
               if (!isFormValid) {
                 return;
               }
-              createContact(contact);
-              toast.custom(<CustomToast label={t('Contact created!')} />);
+              toast.promise(createContact(contact), {
+                loading: t('creating...'),
+                success: t('Contact created!'),
+                error: t('Something went wrong'),
+              });
               goBack();
             }}
           >
             {t('Save')}
-          </TextButton>
+          </Button>
         }
       />
       <FlexScrollbars>
-        <VerticalFlex padding="0 16px">
+        <Stack sx={{ px: 2 }}>
           <ContactForm
             contact={contact}
             handleChange={handleChange}
             showErrors={showErrors}
             autoFocus={true}
           />
-        </VerticalFlex>
+        </Stack>
       </FlexScrollbars>
-    </VerticalFlex>
+    </Stack>
   );
 }

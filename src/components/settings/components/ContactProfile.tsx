@@ -1,52 +1,36 @@
-import {
-  ComponentSize,
-  CustomToast,
-  PrimaryAddress,
-  TextButton,
-  toast,
-  Tooltip,
-  Typography,
-  useDialog,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
 import type { Contact } from '@avalabs/types';
 import { SettingsHeader } from '../SettingsHeader';
 import { useContactIdFromParams } from '@src/hooks/useContactIdFromParams';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { ContactForm } from '@src/components/settings/components/ContactForm';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import {
+  Avatar,
+  Button,
+  Stack,
+  TextField,
+  Typography,
+  useTheme,
+  Tooltip,
+  toast,
+  Scrollbars,
+  CopyIcon,
+} from '@avalabs/k2-components';
+import Dialog from '@src/components/common/Dialog';
+import { truncateAddress } from '@src/utils/truncateAddress';
 
 interface ContactProfileProps {
   goBack: () => void;
   width: string;
 }
 
-const InitialsCircle = styled(VerticalFlex)`
-  height: 80px;
-  width: 80px;
-  border-radius: 100%;
-  background-color: ${({ theme }) => `${theme.colors.bg3}80`};
-  justify-content: center;
-  align-items: center;
-  margin-top: 16px;
-`;
-
-const StyledAddress = styled(PrimaryAddress)`
-  width: 100%;
-`;
-
-const DeleteButton = styled(TextButton)`
-  color: ${({ theme }) => theme.colors.error};
-`;
-
 export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const { contactId } = useContactIdFromParams();
   const { removeContact, updateContact, getContactById } = useContactsContext();
-  const { showDialog, clearDialog } = useDialog();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const [contact, setContact] = useState<Contact>(
     getContactById(contactId) || { id: '', name: '', address: '' }
@@ -71,99 +55,155 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
     setIsFormValid(formValid);
   };
 
-  const onDelete = () => {
-    showDialog({
-      title: t('Delete Contact?'),
-      body: t('Are you sure you want to delete this contact?'),
-      confirmText: t('Delete'),
-      width: '343px',
-      onConfirm: async () => {
-        clearDialog();
-        goBack();
-        await removeContact(contact);
-        toast.custom(<CustomToast label={t('Contact deleted!')} />);
-      },
-      cancelText: t('Cancel'),
-      onCancel: () => {
-        clearDialog();
-      },
-    });
-  };
+  const deleteDialogContent = (
+    <Stack sx={{ justifyContent: 'center', width: '100%' }}>
+      <Typography variant="h5" sx={{ textAlign: 'center' }}>
+        {t('Delete Contact?')}
+      </Typography>
+      <Typography variant="body2" sx={{ textAlign: 'center', mt: 1 }}>
+        <Trans i18nKey="Are you sure you want to delete<br /> this contact?" />
+      </Typography>
+      <Stack
+        sx={{
+          mt: 3,
+        }}
+      >
+        <Button
+          sx={{ mb: 1 }}
+          onClick={() => {
+            goBack();
+            toast.promise(removeContact(contact), {
+              loading: t('removing'),
+              success: t('Contact Deleted'),
+              error: t('Something went wrong'),
+            });
+            setShowDeleteDialog(false);
+          }}
+        >
+          {t('Delete')}
+        </Button>
+        <Button variant="text" onClick={() => setShowDeleteDialog(false)}>
+          {t('Cancel')}
+        </Button>
+      </Stack>
+    </Stack>
+  );
 
   const renderEditAction = (
-    <Tooltip
-      content={
-        <Typography size={12} height="1.5">
-          {t('Edit Contact')}
-        </Typography>
-      }
-    >
-      <TextButton
+    <Tooltip title={t('Edit Contact')}>
+      <Button
+        variant="text"
+        color="secondary"
         data-testid="profile-edit-contact"
         onClick={() => setIsEdit(true)}
       >
-        <Typography size={14} height="24px" color={theme.colors.secondary1}>
-          {t('Edit')}
-        </Typography>
-      </TextButton>
+        {t('Edit')}
+      </Button>
     </Tooltip>
   );
 
   const renderSaveAction = (
-    <Tooltip
-      content={
-        <Typography size={12} height="1.5">
-          {t('Save Contact')}
-        </Typography>
-      }
-    >
-      <TextButton
+    <Tooltip title={t('Save Contact')}>
+      <Button
+        variant="text"
+        color="secondary"
         data-testid="profile-save-contact-button"
         onClick={() => {
           setShowErrors(true);
           if (!isFormValid) {
             return;
           }
-          updateContact(contact);
-          toast.custom(<CustomToast label={t('Contact updated!')} />);
+          toast.promise(updateContact(contact), {
+            loading: t('saving...'),
+            success: t('Contact updated!'),
+            error: t('Something went wrong'),
+          });
           setIsEdit(false);
         }}
       >
-        <Typography size={14} height="24px" color={theme.colors.secondary1}>
-          {t('Save')}
-        </Typography>
-      </TextButton>
+        {t('Save')}
+      </Button>
     </Tooltip>
   );
 
+  const copyAddress = (address: string) => {
+    navigator.clipboard.writeText(address);
+    toast.success(t('Copied!'), { duration: 2000 });
+  };
+
   const renderContactDetails = (
-    <VerticalFlex width="100%">
+    <Stack sx={{ width: '100%' }}>
       {contact.address && (
         <>
-          <Typography size={12} height="15px" margin="0 0 8px 0">
-            {t('Avalanche (C-Chain) Address')}
-          </Typography>
-          <StyledAddress address={contact.address} isTruncated={false} />
+          <Tooltip
+            title={contact.address}
+            sx={{ display: 'block' }}
+            disableInteractive
+          >
+            <TextField
+              size="small"
+              InputProps={{
+                readOnly: true,
+                endAdornment: (
+                  <CopyIcon
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      copyAddress(contact.address);
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                  />
+                ),
+              }}
+              value={truncateAddress(contact.address)}
+              label={t('Avalanche (C-Chain) Address')}
+              placeholder={t(`Enter Avalanche (C-Chain) address`)}
+              fullWidth
+              rows={2}
+              light
+            />
+          </Tooltip>
         </>
       )}
       {contact.addressBTC && (
-        <>
-          <Typography size={12} height="15px" margin="24px 0 8px 0">
-            {t('Bitcoin Address')}
-          </Typography>
-          <StyledAddress address={contact.addressBTC} />
-        </>
+        <Stack sx={{ mt: 4 }}>
+          <Tooltip
+            title={contact.addressBTC}
+            sx={{ display: 'block' }}
+            disableInteractive
+          >
+            <TextField
+              size="small"
+              InputProps={{
+                readOnly: true,
+                endAdornment: (
+                  <CopyIcon
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      copyAddress(contact.addressBTC || '');
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                  />
+                ),
+              }}
+              value={truncateAddress(contact.addressBTC)}
+              label={t('Bitcoin Address')}
+              placeholder={t(`Enter Bitcoin address`)}
+              fullWidth
+              rows={2}
+              light
+            />
+          </Tooltip>
+        </Stack>
       )}
-    </VerticalFlex>
+    </Stack>
   );
 
   return (
-    <VerticalFlex
-      width={width}
-      background={theme.colors.bg2}
-      height="100%"
-      padding="0 0 24px 0"
-    >
+    <Stack width={width} sx={{ height: '100%', pb: 2 }}>
       <SettingsHeader
         width={width}
         goBack={goBack}
@@ -171,41 +211,65 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
         navigateTo={() => console.log('dont do anything')}
         action={isEdit ? renderSaveAction : renderEditAction}
       />
-      <VerticalFlex align="center" width="100%" padding="0 16px">
-        <InitialsCircle>
-          <Typography size={32} height="48px">
-            {showInitials()}
-          </Typography>
-        </InitialsCircle>
-        <Typography size={18} height="22px" weight={600} margin="24px 0">
-          {contact.name}
-        </Typography>
-        {isEdit ? (
-          <ContactForm
-            contact={contact}
-            handleChange={handleChange}
-            showErrors={showErrors}
-          />
-        ) : (
-          renderContactDetails
-        )}
-      </VerticalFlex>
-      {isEdit && (
-        <VerticalFlex
-          grow="1"
-          justify="flex-end"
-          align="center"
-          padding="0 16px"
+      <Scrollbars>
+        <Stack
+          sx={{
+            alignItems: 'center',
+            width: '100%',
+            px: 2,
+          }}
         >
-          <DeleteButton
-            data-testid="profile-delete-contact-button"
-            size={ComponentSize.LARGE}
-            onClick={() => onDelete()}
+          <Avatar
+            sx={{
+              width: 80,
+              height: 80,
+              backgroundColor: `${theme.customPalette.alternates.blue.main}`,
+            }}
           >
-            {t('Delete Contact')}
-          </DeleteButton>
-        </VerticalFlex>
-      )}
-    </VerticalFlex>
+            <Typography variant="h1" sx={{ fontWeight: 'fontWeightBold' }}>
+              {showInitials()}
+            </Typography>
+          </Avatar>
+          <Typography variant="h3" sx={{ my: 3 }}>
+            {contact.name}
+          </Typography>
+          {isEdit ? (
+            <ContactForm
+              contact={contact}
+              handleChange={handleChange}
+              showErrors={showErrors}
+            />
+          ) : (
+            renderContactDetails
+          )}
+        </Stack>
+        {isEdit && (
+          <Stack
+            sx={{
+              flexGrow: '1',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+            }}
+          >
+            <Button
+              data-testid="profile-delete-contact-button"
+              variant="text"
+              size="medium"
+              color="error"
+              onClick={() => setShowDeleteDialog(true)}
+              sx={{ mt: 2 }}
+            >
+              {t('Delete Contact')}
+            </Button>
+          </Stack>
+        )}
+      </Scrollbars>
+      <Dialog
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        content={deleteDialogContent}
+        bgColorDefault
+      />
+    </Stack>
   );
 };

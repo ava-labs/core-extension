@@ -1,33 +1,32 @@
 import {
-  ConnectionIndicator,
-  HorizontalFlex,
-  HorizontalSeparator,
-  SecondaryDropDownMenuItem,
+  Stack,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+  List,
+  ListItem,
+  ListItemText,
+  styled,
+  Box,
+  Divider,
+  Scrollbars,
+} from '@avalabs/k2-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import {
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
 } from '@src/contexts/LedgerProvider';
 import { Trans, useTranslation } from 'react-i18next';
+import { ConnectionIndicatorK2 } from '../../common/ConnectionIndicatorK2';
 
-const StyledNumberList = styled(Typography)`
-  font-size: 14px;
-  display: block;
-  background-color: ${({ theme }) => theme.colors.bg3};
+const StyledListNumber = styled(Box)`
+  background-color: ${({ theme }) => theme.palette.grey[800]};
   height: 24px;
-  width: 24px;
   min-width: 24px;
-  line-height: 24px;
   border-radius: 50%;
-  text-align: center;
-  padding: 0 6px;
-  margin-right: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  padding-left: 6px; // optically center the number because of the period
 `;
 
 const InstructionLink = styled(Typography)`
@@ -35,16 +34,18 @@ const InstructionLink = styled(Typography)`
   line-height: 17px;
   font-weight: 600;
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.secondary1};
+  color: ${({ theme }) => theme.palette.secondary.main};
 `;
 
 export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const { hasLedgerTransport } = useLedgerContext();
+  const { hasLedgerTransport, avaxAppVersion } = useLedgerContext();
 
   return (
-    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
+    <Stack
+      width={width}
+      sx={{ height: '100%', backgroundColor: 'background.paper' }}
+    >
       <SettingsHeader
         width={width}
         goBack={goBack}
@@ -52,74 +53,101 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
         title={t('Ledger')}
       />
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <SecondaryDropDownMenuItem
-          selected={hasLedgerTransport}
-          justify="space-between"
-          align="center"
-          padding="10px 16px"
-          margin="16px 0 0"
-          background={theme.colors.bg3}
-        >
-          <Typography size={14} height="17px">
-            {t('Status')}
-          </Typography>
-          <HorizontalFlex align="center">
-            <ConnectionIndicator
-              connected={hasLedgerTransport}
-              disableTooltip
-              size={8}
-            />
-            <Typography
-              size={14}
-              height="17px"
-              color={theme.colors.text2}
-              margin="0 0 0 8px"
-            >
-              {hasLedgerTransport ? t('Connected') : t('Disconnected')}
-            </Typography>
-          </HorizontalFlex>
-        </SecondaryDropDownMenuItem>
+        <List>
+          <ListItem sx={{ justifyContent: 'space-between' }}>
+            <Typography variant="body2">{t('Status')}</Typography>
+            <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+              <ConnectionIndicatorK2
+                connected={hasLedgerTransport}
+                disableTooltip
+                size={12}
+              />
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                {hasLedgerTransport ? t('Connected') : t('Disconnected')}
+              </Typography>
+            </Stack>
+          </ListItem>
+          {hasLedgerTransport && (
+            <ListItem sx={{ justifyContent: 'space-between' }}>
+              <Typography variant="body2">{t('Ledger Version')}</Typography>
+              <Typography variant="body2">{avaxAppVersion}</Typography>
+            </ListItem>
+          )}
+        </List>
         {!hasLedgerTransport && (
-          <VerticalFlex width="100%" padding="0 16px">
+          <Stack sx={{ width: '100%', py: 0, px: 2 }}>
+            <Typography variant="body2">{t('To Connect:')}</Typography>
+            <List sx={{ pt: 1.5, mb: 1 }}>
+              <ListItem sx={{ alignItems: 'flex-start', px: 0 }}>
+                <StyledListNumber>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: 'fontWeightSemibold' }}
+                  >
+                    {t('1.')}
+                  </Typography>
+                </StyledListNumber>
+                <ListItemText sx={{ m: 0 }}>
+                  <Typography variant="body1">
+                    {t('Connect the Ledger device to your computer.')}
+                  </Typography>
+                </ListItemText>
+              </ListItem>
+
+              <ListItem sx={{ alignItems: 'flex-start', px: 0 }}>
+                <StyledListNumber>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: 'fontWeightSemibold' }}
+                  >
+                    {t('2.')}
+                  </Typography>
+                </StyledListNumber>
+                <ListItemText sx={{ m: 0 }}>
+                  <Typography variant="body1">
+                    {t('Enter your PIN and access your device.')}
+                  </Typography>
+                </ListItemText>
+              </ListItem>
+
+              <ListItem sx={{ alignItems: 'flex-start', px: 0 }}>
+                <StyledListNumber>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: 'fontWeightSemibold' }}
+                  >
+                    {t('3.')}
+                  </Typography>
+                </StyledListNumber>
+                <ListItemText sx={{ m: 0 }}>
+                  <Typography variant="body1">
+                    <Trans
+                      i18nKey="Ensure you have installed the <strong>Avalanche App v{{REQUIRED_LEDGER_VERSION}}</strong> (or above) and open it on your device."
+                      values={{
+                        REQUIRED_LEDGER_VERSION: REQUIRED_LEDGER_VERSION,
+                      }}
+                    />
+                  </Typography>
+                </ListItemText>
+              </ListItem>
+            </List>
+
+            <Divider />
+
             <Typography
-              padding="10px 0"
-              margin="0 0 16px"
-              size={14}
-              height="17px"
+              variant="body2"
+              sx={{
+                mt: 3,
+                mb: 2,
+              }}
             >
-              {t('To Connect:')}
+              {t(
+                'If you do not have the Avalanche app on your Ledger, please add it through the Ledger Live app manager.'
+              )}
             </Typography>
-            <HorizontalFlex>
-              <StyledNumberList>{t('1.')}</StyledNumberList>
-              <Typography size={14} height="17px" margin="0 0 24px 0">
-                {t('Connect the Ledger device to your computer.')}
-              </Typography>
-            </HorizontalFlex>
-
-            <HorizontalFlex>
-              <StyledNumberList>{t('2.')}</StyledNumberList>
-              <Typography size={14} height="17px" margin="0 0 24px 0">
-                {t('Enter your PIN and access your device.')}
-              </Typography>
-            </HorizontalFlex>
-
-            <HorizontalFlex>
-              <StyledNumberList>{t('3.')}</StyledNumberList>
-              <Typography size={14} height="17px">
-                <Trans
-                  i18nKey="Ensure you have installed the <strong>Avalanche App v{{REQUIRED_LEDGER_VERSION}}</strong> (or above) and open it on your device."
-                  values={{
-                    REQUIRED_LEDGER_VERSION: REQUIRED_LEDGER_VERSION,
-                  }}
-                />
-              </Typography>
-            </HorizontalFlex>
-
-            <HorizontalSeparator margin="24px 0" />
-
-            <Typography size={14} height="17px">
+            <Typography variant="body2">
               <Trans
-                i18nKey="If you do not have the Avalanche app on your Ledger, please add it through the Ledger Live app manager. More instructions can be found <instructionLink>here</instructionLink>."
+                i18nKey="More instructions can be found <instructionLink>here</instructionLink>."
                 components={{
                   instructionLink: (
                     <InstructionLink
@@ -132,9 +160,9 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
                 }}
               />
             </Typography>
-          </VerticalFlex>
+          </Stack>
         )}
       </Scrollbars>
-    </VerticalFlex>
+    </Stack>
   );
 }

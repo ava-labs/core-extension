@@ -1,8 +1,7 @@
 import { lazy } from 'react';
-import { useTheme, DefaultTheme } from 'styled-components';
-import { useThemeContext } from '@avalabs/react-components';
 import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
+import { useTheme, darkTheme } from '@avalabs/k2-components';
 
 const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'));
 
@@ -35,22 +34,13 @@ export const getPasswordErrorMessage = (
   return '';
 };
 
-const getBarColors = (theme: DefaultTheme, darkMode?: boolean) => {
-  if (darkMode) {
-    return [
-      theme.palette.grey[400],
-      theme.palette.primary[400],
-      theme.palette.primary[200],
-      theme.palette.orange[400],
-      theme.palette.green[300],
-    ];
-  }
+const getBarColors = (theme: typeof darkTheme) => {
   return [
-    theme.palette.grey[300],
-    theme.palette.primary[200],
-    theme.palette.primary[500],
-    theme.palette.orange[200],
-    theme.palette.green[200],
+    theme.palette.grey[400],
+    theme.palette.error.main,
+    theme.palette.error.light,
+    theme.palette.warning.main,
+    theme.palette.success.light,
   ];
 };
 
@@ -63,15 +53,15 @@ export function PasswordStrength({
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { darkMode } = useThemeContext();
-  const barColors = getBarColors(theme, darkMode);
+  const barColors = getBarColors(theme);
   return (
     <PasswordStrengthBar
       password={password}
       scoreWordStyle={{
         fontSize: '12px',
-        fontFamily: theme.fontFamily,
-        color: theme.colors.text2,
+        fontFamily: theme.typography.fontFamily,
+        color: theme.palette.text.secondary,
+        textAlign: 'left',
       }}
       scoreWords={[
         t('Password strength: Too weak'),

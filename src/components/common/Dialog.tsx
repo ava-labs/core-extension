@@ -1,15 +1,12 @@
 import { ReactNode } from 'react';
-import {
-  Dialog as K2Dialog,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-components';
+import { Dialog as K2Dialog, Typography } from '@avalabs/k2-components';
 
 type DialogProps = {
   open: boolean;
   onClose: () => void;
   title?: ReactNode;
   content?: ReactNode;
+  bgColorDefault?: boolean;
   isCloseable?: boolean;
 };
 
@@ -18,10 +15,9 @@ const Dialog = ({
   onClose,
   title,
   content,
+  bgColorDefault = false,
   isCloseable = true,
 }: DialogProps) => {
-  const theme = useTheme();
-
   return (
     <K2Dialog
       open={open}
@@ -31,16 +27,24 @@ const Dialog = ({
           onClose();
         }
       }}
-      BackdropProps={{
-        sx: {
-          backdropFilter: 'none',
+      slotProps={{
+        backdrop: {
+          sx: {
+            backdropFilter: `${bgColorDefault ? 'undefined' : 'none'}`,
+            backgroundColor: `${
+              bgColorDefault ? 'background.default' : 'undefined'
+            }`,
+          },
         },
       }}
       PaperProps={{
-        style: {
-          backgroundColor: theme.palette.background.paper,
-          padding: '24px 32px',
-          margin: '32px 16px',
+        sx: {
+          width: '100%',
+          backgroundColor: 'background.paper',
+          mx: 2,
+          my: 4,
+          py: 3,
+          px: 2,
         },
       }}
     >
@@ -51,7 +55,7 @@ const Dialog = ({
           sx={{
             fontWeight: 700,
             lineHeight: '28px',
-            marginBottom: '4px',
+            mb: 0.5,
           }}
         >
           {title}
