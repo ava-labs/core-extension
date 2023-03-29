@@ -53,6 +53,9 @@ import {
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageIsValid from './utils/ensureMessageIsValid';
+import { KeystoneWallet } from '../keystone/KeystoneWallet';
+import { KeystoneService } from '../keystone/KeystoneService';
+import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -64,7 +67,8 @@ export class WalletService implements OnLock, OnUnlock {
     private storageService: StorageService,
     private networkService: NetworkService,
     private ledgerService: LedgerService,
-    private lockService: LockService
+    private lockService: LockService,
+    private keystoneService: KeystoneService
   ) {}
 
   public get walletType(): WalletType | undefined {
@@ -95,6 +99,8 @@ export class WalletService implements OnLock, OnUnlock {
 
     if (walletKeys.mnemonic) {
       this._walletType = WalletType.MNEMONIC;
+    } else if (walletKeys.masterFingerprint) {
+      this._walletType = WalletType.KEYSTONE;
     } else if (walletKeys.xpub || walletKeys.pubKeys?.length) {
       this._walletType = WalletType.LEDGER;
     } else {
@@ -114,11 +120,13 @@ export class WalletService implements OnLock, OnUnlock {
     xpub,
     xpubXP,
     pubKeys,
+    masterFingerprint,
   }: {
     xpub?: string;
     xpubXP?: string;
     pubKeys?: PubKeyType[];
     mnemonic?: string;
+    masterFingerprint?: string;
   }) {
     if (!mnemonic && !xpub && !pubKeys?.length) {
       throw new Error('Mnemonic, pubKeys or xpub is required');
@@ -132,6 +140,7 @@ export class WalletService implements OnLock, OnUnlock {
       pubKeys,
       xpubXP,
       derivationPath,
+      masterFingerprint,
     });
     await this.onUnlock();
   }
@@ -142,7 +151,7 @@ export class WalletService implements OnLock, OnUnlock {
     this.emitWalletState();
   }
 
-  private async getWallet(network?: Network) {
+  private async getWallet(network?: Network, tabId?: number) {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
@@ -211,7 +220,18 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     if (activeNetwork.vmName === NetworkVMType.EVM) {
-      if (walletKeys.mnemonic) {
+      if (walletKeys.masterFingerprint) {
+        if (!this.networkService.activeNetwork?.chainId) {
+          throw new Error('active network not found');
+        }
+        return new KeystoneWallet(
+          walletKeys.masterFingerprint,
+          activeAccount.index,
+          this.keystoneService,
+          this.networkService.activeNetwork.chainId,
+          tabId
+        );
+      } else if (walletKeys.mnemonic) {
         const wallet = getWalletFromMnemonic(
           walletKeys.mnemonic,
           activeAccount.index,
@@ -242,7 +262,26 @@ export class WalletService implements OnLock, OnUnlock {
         );
       }
     } else if (activeNetwork.vmName === NetworkVMType.BITCOIN) {
-      if (walletKeys.mnemonic) {
+      if (walletKeys.masterFingerprint && walletKeys.xpub) {
+        // Use BIP44 derivation paths for extended public key of m/44'/60'/0'
+        const addressPublicKey = getAddressPublicKeyFromXPub(
+          walletKeys.xpub,
+          activeAccount.index
+        );
+
+        return new BitcoinKeystoneWallet(
+          walletKeys.masterFingerprint,
+          addressPublicKey,
+          getAddressDerivationPath(
+            activeAccount.index,
+            DerivationPath.BIP44,
+            'EVM'
+          ),
+          this.keystoneService,
+          provider as BitcoinProviderAbstract,
+          tabId
+        );
+      } else if (walletKeys.mnemonic) {
         return await BitcoinWallet.fromMnemonic(
           walletKeys.mnemonic,
           activeAccount.index,
@@ -360,8 +399,12 @@ export class WalletService implements OnLock, OnUnlock {
     return secrets.mnemonic;
   }
 
-  async sign(tx: SignTransactionRequest, network?: Network): Promise<string> {
-    const wallet = await this.getWallet(network);
+  async sign(
+    tx: SignTransactionRequest,
+    tabId?: number,
+    network?: Network
+  ): Promise<string> {
+    const wallet = await this.getWallet(network, tabId);
 
     if (!wallet) {
       throw new Error('Wallet not found');
@@ -371,7 +414,8 @@ export class WalletService implements OnLock, OnUnlock {
     if ('inputs' in tx) {
       if (
         !(wallet instanceof BitcoinWallet) &&
-        !(wallet instanceof BitcoinLedgerWallet)
+        !(wallet instanceof BitcoinLedgerWallet) &&
+        !(wallet instanceof BitcoinKeystoneWallet)
       ) {
         throw new Error('Signing error, wrong network');
       }
@@ -415,7 +459,11 @@ export class WalletService implements OnLock, OnUnlock {
       return Avalanche.signedTxToHex(unsignedTx.getSignedTx());
     }
 
-    if (!(wallet instanceof Wallet) && !(wallet instanceof LedgerSigner)) {
+    if (
+      !(wallet instanceof Wallet) &&
+      !(wallet instanceof LedgerSigner) &&
+      !(wallet instanceof KeystoneWallet)
+    ) {
       throw new Error('Signing error, wrong network');
     }
 

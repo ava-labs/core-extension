@@ -115,7 +115,7 @@ export class ActionsService implements OnStorageReady {
     });
   }
 
-  async updateAction({ status, id, result, error }: ActionUpdate) {
+  async updateAction({ status, id, result, error, tabId }: ActionUpdate) {
     const currentPendingActions = await this.getActions();
     const pendingMessage = currentPendingActions[id];
     if (!pendingMessage) {
@@ -145,7 +145,8 @@ export class ActionsService implements OnStorageReady {
         },
         async (error) => {
           await this.emitResult(id, pendingMessage, false, error);
-        }
+        },
+        tabId
       );
     } else if (status === ActionStatus.ERROR) {
       await this.emitResult(

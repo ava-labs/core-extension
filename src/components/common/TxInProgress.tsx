@@ -1,6 +1,8 @@
 import { Overlay } from '@avalabs/react-components';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/KeystoneApprovalOverlay';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
 
 interface TxInProgressProps {
@@ -10,6 +12,7 @@ interface TxInProgressProps {
   amount?: string;
   symbol?: string;
   nftName?: string;
+  onReject?: () => void;
 }
 
 export function TxInProgress({
@@ -19,8 +22,10 @@ export function TxInProgress({
   symbol,
   address,
   nftName,
+  onReject,
 }: TxInProgressProps) {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   if (isUsingLedgerWallet) {
     return (
@@ -35,6 +40,10 @@ export function TxInProgress({
         />
       </Overlay>
     );
+  }
+
+  if (isUsingKeystoneWallet) {
+    return <KeystoneApprovalOverlay onReject={onReject} />;
   }
 
   return <LoadingOverlay />;

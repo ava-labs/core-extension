@@ -39,6 +39,8 @@ import { RawTransactionData } from './components/RawTransactionData';
 import { CustomFeesK2 } from '@src/components/common/CustomFeesK2';
 import { useSignTransactionHeader } from './hooks/useSignTransactionHeader';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { KeystoneApprovalOverlay } from './KeystoneApprovalOverlay';
+import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
@@ -80,6 +82,7 @@ export function SignTransactionPage() {
   const tokens = useTokensWithBalances(false, network?.chainId);
   const header = useSignTransactionHeader(contractType);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
@@ -131,10 +134,10 @@ export function SignTransactionPage() {
       }).finally(() => window.close());
 
     /*
-		When wallet type is ledger, we need to show to the user that the interaction with ledger is needed. 
-		In this case, the popup will stay open until the promise from updateTransaction is resolved. 
-     */
-    if (!isUsingLedgerWallet) {
+    When wallet type is ledger or keystone, we need to show to the user that the interaction with the device is needed. 
+    In this case, the popup will stay open until the promise from updateTransaction is resolved. 
+      */
+    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
       window.close();
     }
   };
@@ -179,7 +182,20 @@ export function SignTransactionPage() {
   return (
     <>
       {transactionProgressState === TransactionProgressState.PENDING && (
-        <LedgerApprovalOverlay displayData={displayData} />
+        <>
+          <LedgerApprovalOverlay displayData={displayData} />
+          <KeystoneApprovalOverlay
+            onReject={() => {
+              if (id) {
+                updateTransaction({
+                  status: TxStatus.ERROR_USER_CANCELED,
+                  id: id,
+                });
+                window.close();
+              }
+            }}
+          />
+        </>
       )}
       <Stack
         sx={{

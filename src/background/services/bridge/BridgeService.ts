@@ -167,7 +167,10 @@ export class BridgeService implements OnLock, OnStorageReady {
     );
   }
 
-  async transferBtcAsset(amount: Big): Promise<BtcTransactionResponse> {
+  async transferBtcAsset(
+    amount: Big,
+    tabId?: number
+  ): Promise<BtcTransactionResponse> {
     if (!this.config?.config) {
       throw new Error('Missing bridge config');
     }
@@ -210,7 +213,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     );
 
     const [signedTx, error] = await resolve(
-      this.walletService.sign({ inputs, outputs }, btcNetwork)
+      this.walletService.sign({ inputs, outputs }, tabId, btcNetwork)
     );
 
     if (!signedTx || error) {
@@ -237,7 +240,8 @@ export class BridgeService implements OnLock, OnStorageReady {
   async transferAsset(
     currentBlockchain: Blockchain,
     amount: Big,
-    asset: EthereumConfigAsset | NativeAsset
+    asset: EthereumConfigAsset | NativeAsset,
+    tabId?: number
   ): Promise<TransactionResponse | undefined> {
     if (!this.config?.config) {
       throw new Error('missing bridge config');
@@ -277,7 +281,7 @@ export class BridgeService implements OnLock, OnStorageReady {
           txHash,
         }),
       async (txData) => {
-        return await this.walletService.sign(txData, network);
+        return await this.walletService.sign(txData, tabId, network);
       }
     );
   }

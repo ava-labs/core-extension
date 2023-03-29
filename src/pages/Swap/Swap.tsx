@@ -47,6 +47,8 @@ import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
 import { calculateRate } from './utils';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
 
 const ReviewOrderButtonContainer = styled.div<{
   isTransactionDetailsOpen: boolean;
@@ -73,6 +75,8 @@ export function Swap() {
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const { resetKeystoneRequest } = useKeystoneContext();
 
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
@@ -110,7 +114,7 @@ export function Swap() {
 
   async function onHandleSwap() {
     let toastId = '';
-    if (!isUsingLedgerWallet) {
+    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -434,6 +438,10 @@ export function Swap() {
           feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}
           symbol={selectedFromToken?.symbol}
+          onReject={() => {
+            resetKeystoneRequest();
+            setTxInProgress(false);
+          }}
         />
       )}
     </VerticalFlex>

@@ -15,26 +15,24 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { LanguageSelector } from './components/LanguageSelector';
 import { Card, Stack, useTheme } from '@avalabs/k2-components';
-import { KeystoneTutorial } from './KeystoneTutorial';
+import { Keystone } from './Keystone';
 
 export enum OnboardingPath {
   NEW_WALLET = 'new-wallet',
   RECOVERY = 'recovery',
   LEDGER = 'ledger',
+  KEYSTONE = 'keystone',
 }
 
 export function Onboarding() {
   const { nextPhase, onboardingState, setNextPhase, submit, submitInProgress } =
     useOnboardingContext();
   const { initAnalyticsIds, capture } = useAnalyticsContext();
-  const [isImportFlow, setIsImportFlow] = useState<boolean>(false);
-  const [isLedgerFlow, setIsLedgerFlow] = useState<boolean>(false);
   const [onboardingPath, setOnboardingPath] = useState<OnboardingPath>();
   const theme = useTheme();
 
   async function handleOnCancel() {
     capture('OnboardingCancelled', { step: nextPhase });
-    setIsImportFlow(false);
     setNextPhase(OnboardingPhase.RESTART);
   }
   useEffect(() => {
@@ -52,7 +50,6 @@ export function Onboarding() {
     if (onboardingState.isOnBoarded) {
       setNextPhase(OnboardingPhase.FINALIZE);
     } else if (onboardingState.reImportMnemonic) {
-      setIsImportFlow(true);
       setNextPhase(OnboardingPhase.IMPORT_WALLET);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,25 +63,23 @@ export function Onboarding() {
             'OnboardingCreateNewWalletSelected',
           [OnboardingPhase.IMPORT_WALLET]: 'OnboardingImportMnemonicSelected',
           [OnboardingPhase.LEDGER]: 'OnboardingImportLedgerSelected',
-          [OnboardingPhase.KEYSTONE_TUTORIAL]: 'OnboardingKeystoneSelected',
+          [OnboardingPhase.KEYSTONE]: 'OnboardingKeystoneSelected',
         };
         capture(eventNames[nextPhase]);
         setNextPhase(nextPhase);
         if (nextPhase === OnboardingPhase.ANALYTICS_CONSENT) {
           setOnboardingPath(OnboardingPath.NEW_WALLET);
-          setIsImportFlow(false);
-          setIsLedgerFlow(false);
           return;
         }
         if (nextPhase === OnboardingPhase.LEDGER) {
           setOnboardingPath(OnboardingPath.LEDGER);
-          setIsLedgerFlow(true);
-          setIsImportFlow(false);
+          return;
+        }
+        if (nextPhase === OnboardingPhase.KEYSTONE) {
+          setOnboardingPath(OnboardingPath.KEYSTONE);
           return;
         }
         setOnboardingPath(OnboardingPath.RECOVERY);
-        setIsLedgerFlow(false);
-        setIsImportFlow(true);
       }}
     />
   );
@@ -106,7 +101,7 @@ export function Onboarding() {
         <CreatePassword
           onCancel={handleOnCancel}
           onBack={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
-          isImportFlow={isImportFlow || isLedgerFlow}
+          isImportFlow={onboardingPath !== OnboardingPath.NEW_WALLET}
           onboardingPath={onboardingPath}
         />
       );
@@ -134,8 +129,13 @@ export function Onboarding() {
         />
       );
       break;
-    case OnboardingPhase.KEYSTONE_TUTORIAL:
-      content = <KeystoneTutorial onCancel={handleOnCancel} />;
+    case OnboardingPhase.KEYSTONE:
+      content = (
+        <Keystone
+          onCancel={handleOnCancel}
+          onNext={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
+        />
+      );
       break;
     case OnboardingPhase.FINALIZE:
     case OnboardingPhase.CONFIRM:

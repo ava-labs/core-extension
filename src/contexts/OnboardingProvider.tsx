@@ -48,6 +48,7 @@ const OnboardingContext = createContext<{
   updateInitialOpen(): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
+  setMasterFingerprint: Dispatch<SetStateAction<string>>;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -63,6 +64,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [analyticsConsent, setAnalyticsConsent] = useState(false);
   const [submitInProgress, setSubmitInProgress] = useState(false);
   const [publicKeys, setPublicKeys] = useState<PubKeyType[]>();
+  const [masterFingerprint, setMasterFingerprint] = useState<string>('');
 
   function resetStates() {
     setMnemonic('');
@@ -72,6 +74,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setPassword('');
     setAccountName('Account 1');
     setAnalyticsConsent(false);
+    setMasterFingerprint('');
   }
 
   useEffect(() => {
@@ -145,6 +148,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           accountName,
           analyticsConsent,
           pubKeys: publicKeys,
+          masterFingerprint,
         },
       ],
     })
@@ -170,6 +174,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setAnalyticsConsent,
         setPublicKeys,
         publicKeys,
+        setMasterFingerprint,
       }}
     >
       {/*

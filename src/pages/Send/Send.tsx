@@ -40,6 +40,8 @@ import {
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
 
 const DEFAULT_DECIMALS = 9;
 
@@ -62,6 +64,7 @@ export function SendPage() {
   );
 
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
   const [gasPriceState, setGasPrice] = useState<BigNumber>();
@@ -70,6 +73,7 @@ export function SendPage() {
     useSendAnalyticsData();
 
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
+  const { resetKeystoneRequest } = useKeystoneContext();
 
   const pageHistory: {
     address?: string;
@@ -241,7 +245,7 @@ export function SendPage() {
     capture('SendApproved', {
       selectedGasFee,
     });
-    if (!isUsingLedgerWallet) {
+    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
       history.push('/home');
       pendingToastId = toast.loading(t('Transaction pending...'));
     }
@@ -296,6 +300,13 @@ export function SendPage() {
                 network?.networkToken.decimals ?? 18
               )}
               feeSymbol={network?.networkToken.symbol}
+              onReject={() => {
+                capture('SendCancel', {
+                  selectedGasFee,
+                });
+                resetKeystoneRequest();
+                history.goBack();
+              }}
             />
           )}
           <SendConfirm

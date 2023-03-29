@@ -20,6 +20,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     },
   };
 
+  const frontendTabId = 951;
+
   const openApprovalWindowSpy = jest.spyOn(
     DAppRequestHandler.prototype,
     'openApprovalWindow'
@@ -235,7 +237,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(onErrorMock).toHaveBeenCalledWith(error);
     });
 
-    it('sings transactions correctly on C', async () => {
+    it('signs transactions correctly on C', async () => {
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -246,7 +248,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         pendingActionMock,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
+        frontendTabId
       );
 
       expect(signMock).toHaveBeenCalledWith(
@@ -255,6 +258,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
+        frontendTabId,
         'network'
       );
       expect(EVMUnsignedTx.fromJSON).toBeCalledWith(
@@ -264,7 +268,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(onSuccessMock).toHaveBeenCalledWith(1);
     });
 
-    it('sings transactions correctly on X/P', async () => {
+    it('signs transactions correctly on X/P', async () => {
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -277,7 +281,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         } as unknown as Action,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
+        frontendTabId
       );
 
       expect(signMock).toHaveBeenCalledWith(
@@ -286,6 +291,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
+        frontendTabId,
         'network'
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(
@@ -295,7 +301,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(onSuccessMock).toHaveBeenCalledWith(1);
     });
 
-    it('sings transactions correctly on X/P with multiple addresses', async () => {
+    it('signs transactions correctly on X/P with multiple addresses', async () => {
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -311,7 +317,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         } as unknown as Action,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
+        frontendTabId
       );
 
       expect(signMock).toHaveBeenCalledWith(
@@ -320,6 +327,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: [0, 1],
           internalIndices: [2, 3],
         },
+        frontendTabId,
         'network'
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(

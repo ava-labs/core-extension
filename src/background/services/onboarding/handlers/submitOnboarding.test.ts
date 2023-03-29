@@ -244,6 +244,57 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     ).not.toHaveBeenCalled();
   });
 
+  it('sets up a keystone wallet with xpub correctly', async () => {
+    const handler = getHandler();
+    const request = getRequest([
+      {
+        xpub: 'xpub',
+        xpubXP: '',
+        password: 'password',
+        accountName: 'Bob',
+        analyticsConsent: false,
+        masterFingerprint: 'masterFingerprint',
+      },
+    ]);
+
+    const result = await handler.handle(request);
+
+    expect(result).toEqual({
+      ...request,
+      result: true,
+    });
+
+    expect(getXpubFromMnemonic).not.toHaveBeenCalled();
+    expect(Avalanche.getXpubFromMnemonic).not.toHaveBeenCalled();
+    expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
+      'password'
+    );
+    expect(walletServiceMock.init).toHaveBeenCalledWith({
+      mnemonic: undefined,
+      xpub: 'xpub',
+      xpubXP: '',
+      masterFingerprint: 'masterFingerprint',
+    });
+    expect(accountsServiceMock.addAccount).toHaveBeenCalledWith('Bob');
+    expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
+      1,
+      ChainId.BITCOIN
+    );
+    expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
+      2,
+      ChainId.ETHEREUM_HOMESTEAD
+    );
+    expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith(
+      accountMock.id
+    );
+    expect(onboardingServiceMock.setIsOnboarded).toHaveBeenCalledWith(true);
+    expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
+    expect(lockServiceMock.unlock).toHaveBeenCalledWith('password');
+    expect(
+      analyticsServiceMock.saveTemporaryAnalyticsIds
+    ).not.toHaveBeenCalled();
+  });
+
   it('sets up a ledger wallet with pubkeys correctly', async () => {
     const handler = getHandler();
     const request = getRequest([

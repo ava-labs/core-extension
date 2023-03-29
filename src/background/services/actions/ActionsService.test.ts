@@ -289,6 +289,34 @@ describe('background/services/actions/ActionsService.ts', () => {
         );
       });
 
+      it('passes the tabId to onActionApproved call', async () => {
+        const eventListener = jest.fn();
+        actionsService.addListener(
+          ActionsEvent.ACTION_COMPLETED,
+          eventListener
+        );
+
+        (storageService.load as jest.Mock).mockResolvedValue({
+          1: mockAction,
+        });
+
+        const tabId = 1337;
+
+        await actionsService.updateAction({
+          status: ActionStatus.SUBMITTING,
+          id: 1,
+          tabId,
+        });
+
+        expect(handlerWithCallback.onActionApproved).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 1 }),
+          undefined,
+          expect.any(Function),
+          expect.any(Function),
+          tabId
+        );
+      });
+
       it('emits error when handler emits an error', async () => {
         const eventListener = jest.fn();
         actionsService.addListener(

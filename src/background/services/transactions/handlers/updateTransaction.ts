@@ -41,6 +41,7 @@ export class UpdateTransactionHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
+    const tabId = request.tabId;
     const [update] = request.params;
 
     const isKnownTxType = [
@@ -55,7 +56,6 @@ export class UpdateTransactionHandler implements HandlerType {
         error: 'malformed or unsupported update',
       };
     }
-
     await this.transactionsService.updateTransaction(update);
 
     const currentPendingTransactions =
@@ -109,6 +109,7 @@ export class UpdateTransactionHandler implements HandlerType {
             to: to,
             value: value,
           },
+          tabId,
           network
         );
 

@@ -62,6 +62,7 @@ import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useAvailableBlockchains } from './hooks/useAvailableBlockchains';
 import { Trans, useTranslation } from 'react-i18next';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
 
 const ErrorSection = styled(HorizontalFlex)`
   position: relative;
@@ -149,6 +150,7 @@ export function Bridge() {
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { network, setNetwork, networks } = useNetworkContext();
+  const { resetKeystoneRequest } = useKeystoneContext();
 
   const denomination = sourceBalance?.asset.denomination || 0;
   const amountBN = useMemo(
@@ -621,6 +623,11 @@ export function Bridge() {
           address={t('Avalanche Bridge')}
           amount={bigToLocaleString(amount)}
           symbol={currentAsset}
+          onReject={() => {
+            setTransferWithLedger(false);
+            resetKeystoneRequest();
+            setIsPending(false);
+          }}
         />
       )}
     </VerticalFlex>

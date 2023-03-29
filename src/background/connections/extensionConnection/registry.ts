@@ -101,6 +101,8 @@ import { DeleteAccountHandler } from '@src/background/services/accounts/handlers
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
+import { KeystoneRequestEvents } from '@src/background/services/keystone/events/keystoneDeviceRequest';
+import { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
 import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
 import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
 import { WalletUpdatedEvents } from '@src/background/services/wallet/events/WalletUpdatedEvent';
@@ -238,6 +240,7 @@ import { WalletUpdatedEvents } from '@src/background/services/wallet/events/Wall
     token: 'ExtensionRequestHandler',
     useToken: MigrateMissingPublicKeysFromLedgerHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: SubmitKeystoneSignature },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -260,6 +263,7 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SettingsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: PermissionStateUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerTransportRequestEvents },
+  { token: 'ExtensionEventEmitter', useToken: KeystoneRequestEvents },
   { token: 'ExtensionEventEmitter', useToken: LedgerDiscoverTransportsEvents },
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },

@@ -117,7 +117,8 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
     pendingAction: Action,
     result,
     onSuccess,
-    onError
+    onError,
+    frontendTabId?: number
   ) => {
     try {
       const {
@@ -156,6 +157,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
           externalIndices,
           internalIndices,
         },
+        frontendTabId,
         // Must tell it is avalanche network
         this.networkService.getAvalancheNetworkXP()
       );

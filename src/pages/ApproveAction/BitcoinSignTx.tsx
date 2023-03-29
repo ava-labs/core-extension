@@ -22,6 +22,8 @@ import {
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import { KeystoneApprovalOverlay } from '../SignTransaction/KeystoneApprovalOverlay';
 
 export function BitcoinSignTx() {
   const { t } = useTranslation();
@@ -31,6 +33,7 @@ export function BitcoinSignTx() {
   const tokenPrice = useNativeTokenPrice(BITCOIN_NETWORK);
   const { action, updateAction } = useApproveAction(requestId);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   const displayData = useMemo<DisplayData_BitcoinSendTx>(() => {
     return action?.displayData;
@@ -54,8 +57,12 @@ export function BitcoinSignTx() {
       : currencyFormatter(Number(sendFeeDisplay) * tokenPrice);
   }, [currencyFormatter, sendFeeDisplay, tokenPrice]);
 
-  const renderLedgerApproval = () => {
-    if (action?.status === ActionStatus.SUBMITTING && isUsingLedgerWallet) {
+  const renderDeviceApproval = () => {
+    if (action?.status !== ActionStatus.SUBMITTING) {
+      return null;
+    }
+
+    if (isUsingLedgerWallet) {
       return (
         <LedgerApprovalOverlay
           displayData={{
@@ -67,7 +74,21 @@ export function BitcoinSignTx() {
         />
       );
     }
+
+    if (isUsingKeystoneWallet) {
+      return <KeystoneApprovalOverlay onReject={handleRejection} />;
+    }
   };
+
+  const handleRejection = useCallback(() => {
+    if (action) {
+      updateAction({
+        status: ActionStatus.ERROR_USER_CANCELED,
+        id: action.id,
+      });
+    }
+    window.close();
+  }, [updateAction, action]);
 
   const signTx = useCallback(() => {
     updateAction(
@@ -75,9 +96,9 @@ export function BitcoinSignTx() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet
+      isUsingLedgerWallet || isUsingKeystoneWallet
     );
-  }, [requestId, updateAction, isUsingLedgerWallet]);
+  }, [requestId, updateAction, isUsingLedgerWallet, isUsingKeystoneWallet]);
 
   // Make the user switch to the correct app or close the window
   useLedgerDisconnectedDialog(window.close, LedgerAppType.BITCOIN);
@@ -88,7 +109,7 @@ export function BitcoinSignTx() {
 
   return (
     <Stack sx={{ my: 0, mx: 2, width: 1, justifyContent: 'space-between' }}>
-      {renderLedgerApproval()}
+      {renderDeviceApproval()}
       <Stack>
         <Typography
           variant="h4"
@@ -267,13 +288,7 @@ export function BitcoinSignTx() {
             size="medium"
             color="secondary"
             sx={{ mr: 1 }}
-            onClick={() => {
-              updateAction({
-                status: ActionStatus.ERROR_USER_CANCELED,
-                id: action.id,
-              });
-              window.close();
-            }}
+            onClick={handleRejection}
           >
             {t('Reject')}
           </Button>

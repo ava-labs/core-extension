@@ -24,7 +24,10 @@ export class BridgeTransferAssetHandler implements HandlerType {
 
     if (currentBlockchain === Blockchain.BITCOIN) {
       try {
-        const result = await this.bridgeService.transferBtcAsset(amount);
+        const result = await this.bridgeService.transferBtcAsset(
+          amount,
+          request.tabId
+        );
 
         return {
           ...request,
@@ -44,7 +47,8 @@ export class BridgeTransferAssetHandler implements HandlerType {
           currentBlockchain,
           amount,
           // This is needed for the bridge to work currently
-          asset as any
+          asset as any,
+          request.tabId
         );
 
         if (!result) return { ...request, error: 'Unknown error' };

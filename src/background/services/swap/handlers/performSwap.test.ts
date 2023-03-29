@@ -56,6 +56,8 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     accountsServiceMock as any
   );
 
+  const tabId = 862;
+
   const getRequest = (
     excludedParam?: string,
     modifiedParams?: Record<string, any>
@@ -87,6 +89,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
         id: '123',
         method: ExtensionRequest.SWAP_PERFORM,
         params: Object.values(requestParams),
+        tabId,
       } as any,
       params: requestParams,
     };
@@ -410,14 +413,18 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           spenderAddress,
           params.srcAmount
         );
-        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(1, {
-          nonce: 1,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: networkFee.low,
-          gasLimit: params.gasLimit,
-          data: 'data',
-          to: params.srcToken,
-        });
+        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(
+          1,
+          {
+            nonce: 1,
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            gasPrice: networkFee.low,
+            gasLimit: params.gasLimit,
+            data: 'data',
+            to: params.srcToken,
+          },
+          tabId
+        );
         expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
           1,
           signedTx
@@ -440,15 +447,19 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           undefined,
           undefined
         );
-        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(2, {
-          nonce: 1,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: params.gasPrice,
-          gasLimit: 1,
-          data: 'data',
-          to: 'toAddress',
-          undefined,
-        });
+        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(
+          2,
+          {
+            nonce: 1,
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            gasPrice: params.gasPrice,
+            gasLimit: 1,
+            data: 'data',
+            to: 'toAddress',
+            undefined,
+          },
+          tabId
+        );
         expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
           2,
           signedTx
@@ -487,14 +498,18 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           spenderAddress,
           '10100'
         );
-        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(1, {
-          nonce: 1,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: networkFee.low,
-          gasLimit: params.gasLimit,
-          data: 'data',
-          to: params.srcToken,
-        });
+        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(
+          1,
+          {
+            nonce: 1,
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            gasPrice: networkFee.low,
+            gasLimit: params.gasLimit,
+            data: 'data',
+            to: params.srcToken,
+          },
+          tabId
+        );
         expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
           1,
           signedTx
@@ -517,15 +532,19 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           undefined,
           undefined
         );
-        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(2, {
-          nonce: 1,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: params.gasPrice,
-          gasLimit: 1,
-          data: 'data',
-          to: 'toAddress',
-          undefined,
-        });
+        expect(walletServiceMock.sign).toHaveBeenNthCalledWith(
+          2,
+          {
+            nonce: 1,
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            gasPrice: params.gasPrice,
+            gasLimit: 1,
+            data: 'data',
+            to: 'toAddress',
+            undefined,
+          },
+          tabId
+        );
         expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
           2,
           signedTx
@@ -583,15 +602,18 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           undefined,
           undefined
         );
-        expect(walletServiceMock.sign).toHaveBeenCalledWith({
-          nonce: 1,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: params.gasPrice,
-          gasLimit: 1,
-          data: 'data',
-          to: 'toAddress',
-          value: `0x${new BN(params.srcAmount).toString('hex')}`,
-        });
+        expect(walletServiceMock.sign).toHaveBeenCalledWith(
+          {
+            nonce: 1,
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            gasPrice: params.gasPrice,
+            gasLimit: 1,
+            data: 'data',
+            to: 'toAddress',
+            value: `0x${new BN(params.srcAmount).toString('hex')}`,
+          },
+          tabId
+        );
         expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith(
           signedTx
         );
@@ -634,15 +656,18 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           undefined,
           undefined
         );
-        expect(walletServiceMock.sign).toHaveBeenCalledWith({
-          nonce: 1,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: params.gasPrice,
-          gasLimit: 1,
-          data: 'data',
-          to: 'toAddress',
-          value: `0x${new BN('10100').toString('hex')}`,
-        });
+        expect(walletServiceMock.sign).toHaveBeenCalledWith(
+          {
+            nonce: 1,
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            gasPrice: params.gasPrice,
+            gasLimit: 1,
+            data: 'data',
+            to: 'toAddress',
+            value: `0x${new BN('10100').toString('hex')}`,
+          },
+          tabId
+        );
         expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith(
           signedTx
         );
@@ -697,14 +722,17 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           undefined,
           undefined
         );
-        expect(walletServiceMock.sign).toHaveBeenCalledWith({
-          nonce: 1,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: params.gasPrice,
-          gasLimit: 1,
-          data: 'data',
-          to: 'toAddress',
-        });
+        expect(walletServiceMock.sign).toHaveBeenCalledWith(
+          {
+            nonce: 1,
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            gasPrice: params.gasPrice,
+            gasLimit: 1,
+            data: 'data',
+            to: 'toAddress',
+          },
+          tabId
+        );
         expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith(
           signedTx
         );

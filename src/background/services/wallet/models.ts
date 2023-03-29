@@ -51,6 +51,7 @@ export interface WalletSecretInStorage {
       secret: string;
     }
   >;
+  masterFingerprint?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 }
 
@@ -63,6 +64,7 @@ export const WALLET_STORAGE_KEY = 'wallet';
 export enum WalletType {
   MNEMONIC = 'MNEMONIC',
   LEDGER = 'LEDGER',
+  KEYSTONE = 'KEYSTONE',
 }
 
 export type BtcWalletPolicyDetails = {

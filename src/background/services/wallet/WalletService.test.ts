@@ -45,11 +45,15 @@ import {
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageIsValid from './utils/ensureMessageIsValid';
+import { KeystoneService } from '../keystone/KeystoneService';
+import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
+import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { WalletPolicy } from 'ledger-bitcoin';
 
 jest.mock('../storage/StorageService');
 jest.mock('../network/NetworkService');
 jest.mock('../ledger/LedgerService');
+jest.mock('../keystone/KeystoneService');
 jest.mock('../lock/LockService');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageIsValid');
@@ -73,15 +77,18 @@ describe('background/services/wallet/WalletService.ts', () => {
   let networkService: NetworkService;
   let ledgerService: LedgerService;
   let lockService: LockService;
+  let keystoneService: KeystoneService;
 
   const walletMock = Object.create(Wallet.prototype);
   const btcWalletMock = Object.create(BitcoinWallet.prototype);
   const btcLedgerWalletMock = Object.create(BitcoinLedgerWallet.prototype);
+  const btcKeystoneWalletMock = Object.create(BitcoinKeystoneWallet.prototype);
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
   const simpleSignerMock = Object.create(Avalanche.SimpleSigner.prototype);
   const ledgerSimpleSignerMock = Object.create(
     Avalanche.SimpleLedgerSigner.prototype
   );
+  const keystoneWalletMock = Object.create(KeystoneWallet.prototype);
   const privateKeyMock = 'privateKey';
   const mnemonic = 'mnemonic';
 
@@ -94,6 +101,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     networkService = new NetworkService({} as any);
     ledgerService = new LedgerService();
     lockService = new LockService({} as any, {} as any);
+    keystoneService = new KeystoneService();
 
     getAddressMock = jest.fn().mockImplementation((pubkey, chain) => {
       return `${chain}-`;
@@ -111,7 +119,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       storageService,
       networkService,
       ledgerService,
-      lockService
+      lockService,
+      keystoneService
     );
 
     (networkService.getAvalanceProviderXP as jest.Mock).mockReturnValue(
@@ -317,6 +326,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       chainId: 111,
     } as Network;
 
+    const tabId = 951;
+
     beforeEach(() => {
       getWalletSpy = jest.spyOn(walletService as any, 'getWallet');
     });
@@ -325,7 +336,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       getWalletSpy.mockResolvedValueOnce(undefined);
 
       await expect(
-        walletService.sign(txMock, networkMock)
+        walletService.sign(txMock, tabId, networkMock)
       ).rejects.toThrowError('Wallet not found');
     });
 
@@ -333,7 +344,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       getWalletSpy.mockResolvedValueOnce(walletMock);
 
       await expect(
-        walletService.sign(btcTxMock, networkMock)
+        walletService.sign(btcTxMock, tabId, networkMock)
       ).rejects.toThrowError('Signing error, wrong network');
     });
 
@@ -341,7 +352,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       getWalletSpy.mockResolvedValueOnce(btcWalletMock);
 
       await expect(
-        walletService.sign(txMock, networkMock)
+        walletService.sign(txMock, tabId, networkMock)
       ).rejects.toThrowError('Signing error, wrong network');
     });
 
@@ -352,8 +363,26 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
       getWalletSpy.mockResolvedValueOnce(btcWalletMock);
 
-      const result = await walletService.sign(btcTxMock, networkMock);
+      const result = await walletService.sign(btcTxMock, tabId, networkMock);
       expect(btcWalletMock.signTx).toHaveBeenCalledWith(
+        btcTxMock.inputs,
+        btcTxMock.outputs
+      );
+      expect(result).toBe(buffer.toString('hex'));
+    });
+
+    it('signs BTC transactions correctly using BitcoinKeystoneWallet', async () => {
+      const blockCypherProviderMock = new BlockCypherProvider(false);
+      const buffer = Buffer.from('0x1');
+      btcKeystoneWalletMock.signTx = jest.fn().mockResolvedValueOnce({
+        toHex: jest.fn(() => buffer.toString('hex')),
+      });
+      getWalletSpy.mockResolvedValueOnce(btcKeystoneWalletMock);
+      (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
+        blockCypherProviderMock
+      );
+      const result = await walletService.sign(btcTxMock, tabId, networkMock);
+      expect(btcKeystoneWalletMock.signTx).toHaveBeenCalledWith(
         btcTxMock.inputs,
         btcTxMock.outputs
       );
@@ -372,7 +401,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
       (prepareBtcTxForLedger as jest.Mock).mockReturnValueOnce(btcTxMock);
 
-      const result = await walletService.sign(btcTxMock, networkMock);
+      const result = await walletService.sign(btcTxMock, tabId, networkMock);
       expect(prepareBtcTxForLedger).toHaveBeenCalledWith(
         btcTxMock,
         blockCypherProviderMock
@@ -388,9 +417,19 @@ describe('background/services/wallet/WalletService.ts', () => {
       walletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
       getWalletSpy.mockResolvedValueOnce(walletMock);
 
-      const result = await walletService.sign(txMock, networkMock);
+      const result = await walletService.sign(txMock, tabId, networkMock);
 
       expect(walletMock.signTransaction).toHaveBeenCalledWith(txMock);
+      expect(result).toBe('0x1');
+    });
+
+    it('signs evm tx correctly using KeystoneWallet', async () => {
+      keystoneWalletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
+      getWalletSpy.mockResolvedValueOnce(keystoneWalletMock);
+
+      const result = await walletService.sign(txMock, tabId, networkMock);
+
+      expect(keystoneWalletMock.signTransaction).toHaveBeenCalledWith(txMock);
       expect(result).toBe('0x1');
     });
 
@@ -412,7 +451,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         getWalletSpy.mockResolvedValueOnce(btcWalletMock);
 
         await expect(
-          walletService.sign(avalancheTxMock, networkMock)
+          walletService.sign(avalancheTxMock, tabId, networkMock)
         ).rejects.toThrowError('Signing error, wrong network');
       });
 
@@ -422,7 +461,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         getWalletSpy.mockResolvedValueOnce(staticSignerMock);
 
         await expect(
-          walletService.sign(avalancheTxMock, networkMock)
+          walletService.sign(avalancheTxMock, tabId, networkMock)
         ).rejects.toThrowError('Signing error, missing signatures.');
       });
 
@@ -432,7 +471,11 @@ describe('background/services/wallet/WalletService.ts', () => {
         getWalletSpy.mockResolvedValueOnce(staticSignerMock);
         (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
-        const result = await walletService.sign(avalancheTxMock, networkMock);
+        const result = await walletService.sign(
+          avalancheTxMock,
+          tabId,
+          networkMock
+        );
 
         expect(result).toEqual('1234');
         expect(staticSignerMock.signTx).toHaveBeenCalledWith({
@@ -448,7 +491,11 @@ describe('background/services/wallet/WalletService.ts', () => {
         getWalletSpy.mockResolvedValueOnce(simpleSignerMock);
         (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
-        const result = await walletService.sign(avalancheTxMock, networkMock);
+        const result = await walletService.sign(
+          avalancheTxMock,
+          tabId,
+          networkMock
+        );
 
         expect(result).toEqual('1234');
         expect(simpleSignerMock.signTx).toHaveBeenCalledWith({
@@ -468,7 +515,11 @@ describe('background/services/wallet/WalletService.ts', () => {
         getWalletSpy.mockResolvedValueOnce(ledgerSimpleSignerMock);
         (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
-        const result = await walletService.sign(avalancheTxMock, networkMock);
+        const result = await walletService.sign(
+          avalancheTxMock,
+          tabId,
+          networkMock
+        );
 
         expect(result).toEqual('1234');
         expect(ledgerSimpleSignerMock.signTx).toHaveBeenCalledWith({

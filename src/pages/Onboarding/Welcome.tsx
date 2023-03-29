@@ -99,10 +99,10 @@ export function Welcome({ onNext }: WelcomeProps) {
               </OnboardButton>
               {featureFlags[FeatureGates.KEYSTONE] && (
                 <OnboardButton
-                  testId="ledger"
+                  testId="keystone"
                   title={t('Keystone')}
                   onClick={() => {
-                    onNext(OnboardingPhase.KEYSTONE_TUTORIAL);
+                    onNext(OnboardingPhase.KEYSTONE);
                   }}
                   variant="small"
                 >

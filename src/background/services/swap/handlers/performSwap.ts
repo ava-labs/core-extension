@@ -199,16 +199,19 @@ export class PerformSwapHandler implements HandlerType {
             sourceAmount
           );
           const [signedTx, signError] = await resolve(
-            this.walletService.sign({
-              nonce: await provider.getTransactionCount(userAddress),
-              chainId: ChainId.AVALANCHE_MAINNET_ID,
-              gasPrice: defaultGasPrice?.low,
-              gasLimit: approveGasLimit
-                ? approveGasLimit.toNumber()
-                : Number(gasLimit),
-              data,
-              to: srcTokenAddress,
-            })
+            this.walletService.sign(
+              {
+                nonce: await provider.getTransactionCount(userAddress),
+                chainId: ChainId.AVALANCHE_MAINNET_ID,
+                gasPrice: defaultGasPrice?.low,
+                gasLimit: approveGasLimit
+                  ? approveGasLimit.toNumber()
+                  : Number(gasLimit),
+                data,
+                to: srcTokenAddress,
+              },
+              request.tabId
+            )
           );
 
           if (signError) {
@@ -280,18 +283,21 @@ export class PerformSwapHandler implements HandlerType {
     }
 
     const [signedTx, signError] = await resolve(
-      this.walletService.sign({
-        nonce: await provider.getTransactionCount(userAddress),
-        chainId: ChainId.AVALANCHE_MAINNET_ID,
-        gasPrice: BigNumber.from(gasPrice ? gasPrice : defaultGasPrice?.low),
-        gasLimit: Number(txBuildData.gas),
-        data: txBuildData.data,
-        to: txBuildData.to,
-        value:
-          srcToken === activeNetwork.networkToken.symbol
-            ? `0x${new BN(sourceAmount).toString('hex')}`
-            : undefined, // AVAX value needs to be sent with the transaction
-      })
+      this.walletService.sign(
+        {
+          nonce: await provider.getTransactionCount(userAddress),
+          chainId: ChainId.AVALANCHE_MAINNET_ID,
+          gasPrice: BigNumber.from(gasPrice ? gasPrice : defaultGasPrice?.low),
+          gasLimit: Number(txBuildData.gas),
+          data: txBuildData.data,
+          to: txBuildData.to,
+          value:
+            srcToken === activeNetwork.networkToken.symbol
+              ? `0x${new BN(sourceAmount).toString('hex')}`
+              : undefined, // AVAX value needs to be sent with the transaction
+        },
+        request.tabId
+      )
     );
 
     if (signError) {
