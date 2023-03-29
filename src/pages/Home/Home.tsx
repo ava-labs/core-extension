@@ -47,6 +47,7 @@ export function Home() {
               onClick={() => {
                 toggleIsDefaultExtension();
                 updateInitialOpen();
+                toast.remove(toaster);
               }}
             >
               {t('Yes')}
