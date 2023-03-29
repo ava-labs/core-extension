@@ -191,9 +191,6 @@ export function CollectibleSend() {
               contact={contactInput}
               onChange={onContactChanged}
               isContactsOpen={isContactsOpen}
-              toggleContactsDropdown={(to?: boolean) =>
-                setIsContactsOpen(to ?? !isContactsOpen)
-              }
               setIsOpen={setIsContactsOpen}
             />
             <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">

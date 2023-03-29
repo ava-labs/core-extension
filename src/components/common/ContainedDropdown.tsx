@@ -1,5 +1,11 @@
-import { MutableRefObject, PropsWithChildren, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import { Stack, StackProps, useTheme } from '@avalabs/k2-components';
+import {
+  forwardRef,
+  MutableRefObject,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+} from 'react';
 
 const BOTTOM_PADDING = 16;
 
@@ -21,31 +27,24 @@ const getOffsetTop = (anchorEl: MutableRefObject<HTMLElement | null>) =>
     ? anchorEl?.current?.offsetTop + anchorEl?.current?.offsetHeight
     : 0;
 
-const Dropdown = styled.div<{
-  isOpen?: boolean;
-  height?: number | string;
-  top?: number;
-  right?: number;
-  width?: string;
-  margin?: string;
-  borderRadius?: string;
-}>`
-  display: flex;
-  flex-flow: column;
-  position: absolute;
-  overflow-y: hidden;
-  width: ${({ width }) => `${width ?? '100%'}`};
-  background: ${({ theme }) => theme.colors.bg1};
-  z-index: 2;
-  transition: height 0.15s ease, opacity 0.15s ease;
-  border-radius: ${({ borderRadius }) => borderRadius ?? '0 0 8px 8px'};
-  margin: ${({ margin }) => margin ?? '0'};
-  height: ${({ isOpen, height }) => (isOpen ? `${height}px` : 0)};
-  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
-  top: ${({ top }) => `${top}px`};
-  right: ${({ right }) => `${right}px`};
-  transition: height 0.15s ease, opacity 0.15s ease;
-`;
+const Dropdown = forwardRef<HTMLDivElement, StackProps>(
+  ({ sx = {}, ...props }, ref) => (
+    <Stack
+      ref={ref}
+      sx={{
+        position: 'absolute',
+        overflowY: 'hidden',
+        backgroundColor: 'common.black',
+        zIndex: 2,
+        transition: 'height 0.15s ease, opacity 0.15s ease',
+        right: 0,
+        ...sx,
+      }}
+      {...props}
+    />
+  )
+);
+Dropdown.displayName = 'Dropdown';
 
 type ContainedDropdownProps = {
   anchorEl: MutableRefObject<HTMLElement | null>;
@@ -76,6 +75,7 @@ export const ContainedDropdown = ({
   const calculatedHeight = getDropdownHeight(anchorEl);
   const top = getOffsetTop(anchorEl);
   const container = useRef<HTMLDivElement>(null);
+  const { spacing } = useTheme();
 
   // We need to detect the where the user clicked. If outside of the anchor (that is the button which opens the dropdown) and the list, it should close the dropdown
   // if the user click the anchor (the button) it will handle that on its own
@@ -96,13 +96,14 @@ export const ContainedDropdown = ({
 
   return (
     <Dropdown
-      height={height || calculatedHeight}
-      isOpen={isOpen}
-      top={top}
-      right={0}
-      width={width}
-      margin={margin}
-      borderRadius={borderRadius}
+      sx={{
+        width: width ?? '100%',
+        borderRadius: borderRadius ?? spacing(0, 0, 1, 1),
+        margin: margin ?? '0',
+        height: isOpen ? `${height || calculatedHeight}px` : 0,
+        top,
+        opacity: isOpen ? 1 : 0,
+      }}
       ref={container}
     >
       {children}

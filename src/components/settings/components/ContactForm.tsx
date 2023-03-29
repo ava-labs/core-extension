@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Contact } from '@avalabs/types';
-import { isBech32Address } from '@avalabs/bridge-sdk';
-import { isAddress } from 'ethers/lib/utils';
+import { isValidAddress, isValidBtcAddress } from '@src/utils/isAddressValid';
 import { useTranslation } from 'react-i18next';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { Stack, TextField } from '@avalabs/k2-components';
@@ -111,14 +110,6 @@ export const ContactForm = ({
       validateForm(contact);
     }
   }, [showErrors, contact, validateForm]);
-
-  const isValidAddress = (address: string) => {
-    return !!address.length && isAddress(address);
-  };
-
-  const isValidBtcAddress = (address: string) => {
-    return !!address.length && isBech32Address(address);
-  };
 
   const resetErrors = () => {
     setNameError('');

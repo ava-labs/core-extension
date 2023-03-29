@@ -1,5 +1,4 @@
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { LoadingSpinnerIcon, useDialog } from '@avalabs/react-components';
 import {
   LedgerAppType,
   REQUIRED_LEDGER_VERSION,
@@ -7,21 +6,14 @@ import {
 } from '@src/contexts/LedgerProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import {
-  ContextContainer,
-  useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { LedgerWrongVersion } from '@src/pages/Ledger/LedgerWrongVersion';
+import { LedgerWrongVersionContent } from '@src/pages/Ledger/LedgerWrongVersion';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-
-const StyledLoadingSpinnerIcon = styled(LoadingSpinnerIcon)`
-  margin: 24px 0 0;
-`;
+import { useDialog } from '@src/contexts/DialogContextProvider';
+import { LedgerDisconnected } from '@src/pages/Ledger/LedgerDisconnected';
+import { LedgerIncorrectApp } from '@src/pages/Ledger/LedgerIncorrectApp';
 
 export function useLedgerDisconnectedDialog(
   onCancel: () => void,
@@ -29,19 +21,12 @@ export function useLedgerDisconnectedDialog(
   otherNetwork?: Network
 ): boolean {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { walletType } = useWalletContext();
-  const {
-    hasLedgerTransport,
-    wasTransportAttempted,
-    appType,
-    popDeviceSelection,
-    avaxAppVersion,
-  } = useLedgerContext();
+  const { hasLedgerTransport, wasTransportAttempted, appType, avaxAppVersion } =
+    useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
   const { network: activeNetwork } = useNetworkContext();
   const [hasCorrectApp, setHasCorrectApp] = useState(false);
-  const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const network = otherNetwork ?? activeNetwork;
 
@@ -58,113 +43,40 @@ export function useLedgerDisconnectedDialog(
   }, [network, requestedApp]);
 
   const showLedgerDisconnectedDialog = useCallback(() => {
-    showDialog(
-      {
-        title: t('Ledger Disconnected'),
-        body: t(
-          'Please connect your Ledger device to approve this transaction.'
-        ),
-        width: '343px',
-        component:
-          requiredAppType !== LedgerAppType.AVALANCHE ? (
-            <StyledLoadingSpinnerIcon
-              color={theme.colors.icon1}
-              height="32px"
-            />
-          ) : undefined,
-        confirmText:
-          requiredAppType !== LedgerAppType.AVALANCHE
-            ? t('Connect Ledger')
-            : undefined,
-        onConfirm: async () => {
-          if (isConfirm) {
-            popDeviceSelection();
-          } else {
-            await openExtensionNewWindow(
-              `ledger/connect?app=${requiredAppType}`,
-              ''
-            );
-            window.close();
-          }
-        },
-        cancelText: t('Cancel'),
-        onCancel: () => {
-          onCancel();
-          clearDialog();
-        },
+    showDialog({
+      title: t('Ledger Disconnected'),
+      content: <LedgerDisconnected />,
+      open: true,
+      onClose: () => {
+        onCancel();
+        clearDialog();
       },
-      false
-    );
-  }, [
-    showDialog,
-    t,
-    requiredAppType,
-    theme.colors.icon1,
-    isConfirm,
-    popDeviceSelection,
-    onCancel,
-    clearDialog,
-  ]);
+    });
+  }, [clearDialog, onCancel, showDialog, t]);
 
   const showIncorrectAppDialog = useCallback(() => {
-    showDialog(
-      {
-        title: t('Wrong App'),
-        body: t('Please switch to the {{requiredAppType}} app on your Ledger', {
-          requiredAppType,
-        }),
-        width: '343px',
-        confirmText:
-          requiredAppType !== LedgerAppType.AVALANCHE
-            ? t('Connect Ledger')
-            : undefined,
-        onConfirm: async () => {
-          if (isConfirm) {
-            popDeviceSelection();
-          } else {
-            await openExtensionNewWindow(
-              `ledger/connect?app=${requiredAppType}`,
-              ''
-            );
-            window.close();
-          }
-        },
-        cancelText: t('Cancel'),
-        onCancel: () => {
-          onCancel();
-          clearDialog();
-        },
+    showDialog({
+      title: t('Wrong App'),
+      content: <LedgerIncorrectApp requiredAppType={requiredAppType} />,
+      open: true,
+      onClose: () => {
+        onCancel();
+        clearDialog();
       },
-      false
-    );
-  }, [
-    showDialog,
-    t,
-    requiredAppType,
-    isConfirm,
-    popDeviceSelection,
-    onCancel,
-    clearDialog,
-  ]);
+    });
+  }, [showDialog, t, requiredAppType, onCancel, clearDialog]);
 
   const showIncorrectAvaxVersionDialog = useCallback(() => {
-    showDialog(
-      {
-        title: '',
-        width: '343px',
-        component: (
-          <LedgerWrongVersion
-            className="dialog"
-            onClose={() => {
-              onCancel();
-              clearDialog();
-            }}
-          />
-        ),
+    showDialog({
+      title: t('Update Required'),
+      content: <LedgerWrongVersionContent />,
+      open: true,
+      onClose: () => {
+        onCancel();
+        clearDialog();
       },
-      false
-    );
-  }, [showDialog, onCancel, clearDialog]);
+    });
+  }, [showDialog, t, onCancel, clearDialog]);
 
   useEffect(() => {
     clearDialog();

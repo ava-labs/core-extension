@@ -27,7 +27,7 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
 interface CustomGasFeesProps {
   gasPrice: BigNumber;
-  limit: number;
+  limit?: number;
   onChange(values: {
     customGasLimit?: number;
     gasPrice: BigNumber;
@@ -98,7 +98,7 @@ const CustomInput = styled('input')`
   font-size: 12px;
   font-weight: 600;
   color: inherit;
-  line-height: 21px;
+  line-height: 1.143;
   text-align: center;
   border: none;
   font-family: ${({ theme }) => theme.typography.caption.fontFamily};
@@ -280,13 +280,15 @@ export function CustomFeesK2({
   return (
     <ApprovalSection>
       <ApprovalSectionHeader label={t('Network Fee')}>
-        <IconButton
-          size="small"
-          data-testid="edit-gas-limit-button"
-          onClick={() => setShowEditGasLimit(true)}
-        >
-          <GearIcon />
-        </IconButton>
+        {gasLimit !== undefined && (
+          <IconButton
+            size="small"
+            data-testid="edit-gas-limit-button"
+            onClick={() => setShowEditGasLimit(true)}
+          >
+            <GearIcon />
+          </IconButton>
+        )}
       </ApprovalSectionHeader>
       <ApprovalSectionBody>
         <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -300,16 +302,10 @@ export function CustomFeesK2({
               updateGasFee(GasFeeModifier.NORMAL);
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{ fontWeight: 'fontWeightSemibold' }}
-            >
+            <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
               {t('Normal')}
             </Typography>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 'fontWeightSemibold' }}
-            >
+            <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
               {getGasFeeToDisplay(
                 getUpToTwoDecimals(networkFee.low, networkFee.displayDecimals)
               )}
@@ -327,16 +323,10 @@ export function CustomFeesK2({
                   updateGasFee(GasFeeModifier.FAST);
                 }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 'fontWeightSemibold' }}
-                >
+                <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
                   {t('Fast')}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ fontWeight: 'fontWeightSemibold' }}
-                >
+                <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                   {getGasFeeToDisplay(
                     getUpToTwoDecimals(
                       networkFee.medium,
@@ -357,16 +347,10 @@ export function CustomFeesK2({
                   updateGasFee(GasFeeModifier.INSTANT);
                 }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 'fontWeightSemibold' }}
-                >
+                <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
                   {t('Instant')}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ fontWeight: 'fontWeightSemibold' }}
-                >
+                <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                   {getGasFeeToDisplay(
                     getUpToTwoDecimals(
                       networkFee.high,
@@ -389,10 +373,7 @@ export function CustomFeesK2({
                 }}
                 disableRipple
               >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 'fontWeightSemibold' }}
-                >
+                <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
                   {t('Custom')}
                 </Typography>
                 <CustomInput
@@ -428,25 +409,23 @@ export function CustomFeesK2({
             </>
           )}
         </Stack>
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-          }}
-        >
-          <Typography
-            component="span"
-            sx={{ fontSize: 'caption.fontSize', color: 'text.secondary' }}
-          >
-            {t('Fee Amount')}
-          </Typography>
+        <Stack>
           <Stack
             sx={{
-              alignItems: 'flex-end',
-              gap: 0.5,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
+            <Typography
+              component="span"
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
+              {t('Fee Amount')}
+            </Typography>
             <Typography
               variant="body2"
               data-testid="network-fee-token-amount"
@@ -454,6 +433,12 @@ export function CustomFeesK2({
             >
               {newFees.fee} {network?.networkToken.symbol}
             </Typography>
+          </Stack>
+          <Stack
+            sx={{
+              alignItems: 'flex-end',
+            }}
+          >
             <Typography
               data-testid="network-fee-currency-amount"
               variant="caption"
@@ -476,39 +461,41 @@ export function CustomFeesK2({
           </Typography>
         </Stack>
       )}
-      <CustomGasLimitDialog
-        open={Boolean(
-          network?.vmName === NetworkVMType.EVM &&
-            showEditGasLimit &&
-            customGasPrice
-        )}
-      >
-        <CustomGasLimit
-          limit={gasLimit}
-          gasPrice={customGasPrice}
-          onCancel={() => setShowEditGasLimit(false)}
-          onSave={(limit) => {
-            // update customGasLimit
-            setCustomGasLimit(limit);
-            // update newFees
-            setNewFees(
-              calculateGasAndFees({
+      {gasLimit !== undefined && (
+        <CustomGasLimitDialog
+          open={Boolean(
+            network?.vmName === NetworkVMType.EVM &&
+              showEditGasLimit &&
+              customGasPrice
+          )}
+        >
+          <CustomGasLimit
+            limit={gasLimit}
+            gasPrice={customGasPrice}
+            onCancel={() => setShowEditGasLimit(false)}
+            onSave={(limit) => {
+              // update customGasLimit
+              setCustomGasLimit(limit);
+              // update newFees
+              setNewFees(
+                calculateGasAndFees({
+                  gasPrice: customGasPrice,
+                  tokenPrice,
+                  tokenDecimals: network?.networkToken.decimals,
+                  gasLimit: limit,
+                })
+              );
+              // call cb with limit and gas
+              onChange({
+                customGasLimit: limit,
                 gasPrice: customGasPrice,
-                tokenPrice,
-                tokenDecimals: network?.networkToken.decimals,
-                gasLimit: limit,
-              })
-            );
-            // call cb with limit and gas
-            onChange({
-              customGasLimit: limit,
-              gasPrice: customGasPrice,
-              feeType: selectedGasFeeModifier || GasFeeModifier.NORMAL,
-            });
-          }}
-          network={network}
-        />
-      </CustomGasLimitDialog>
+                feeType: selectedGasFeeModifier || GasFeeModifier.NORMAL,
+              });
+            }}
+            network={network}
+          />
+        </CustomGasLimitDialog>
+      )}
     </ApprovalSection>
   );
 }

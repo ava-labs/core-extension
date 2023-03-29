@@ -1,14 +1,14 @@
 import { ReactNode } from 'react';
 import { Dialog as K2Dialog, Typography } from '@avalabs/k2-components';
 
-type DialogProps = {
+export interface DialogProps {
   open: boolean;
   onClose: () => void;
   title?: ReactNode;
   content?: ReactNode;
   bgColorDefault?: boolean;
   isCloseable?: boolean;
-};
+}
 
 const Dialog = ({
   open,

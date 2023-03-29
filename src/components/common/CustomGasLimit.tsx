@@ -1,12 +1,3 @@
-import {
-  HorizontalFlex,
-  Input,
-  PrimaryButton,
-  Typography,
-  VerticalFlex,
-  SubTextTypography,
-  ComponentSize,
-} from '@avalabs/react-components';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { BigNumber } from 'ethers';
@@ -14,6 +5,7 @@ import { useState } from 'react';
 import { PageTitle } from './PageTitle';
 import { useTranslation } from 'react-i18next';
 import { Network } from '@avalabs/chains-sdk';
+import { Button, Stack, TextField } from '@avalabs/k2-components';
 
 interface CustomGasLimitProps {
   limit: number;
@@ -53,6 +45,13 @@ export function CustomGasLimit({
   }
 
   const checkCustomGasLimit = (customGasLimit: number) => {
+    setCustomGasLimit(customGasLimit);
+
+    if (customGasLimit <= 0) {
+      setCalculateGasAndFeesError(t('Gas Limit too low'));
+      return;
+    }
+
     try {
       const calculatedGasAndFees = calculateGasAndFees({
         gasPrice,
@@ -61,7 +60,6 @@ export function CustomGasLimit({
         gasLimit: customGasLimit,
       });
       setNewFees(calculatedGasAndFees);
-      setCustomGasLimit(customGasLimit);
       calculateGasAndFeesError && setCalculateGasAndFeesError('');
     } catch (error) {
       setCalculateGasAndFeesError(t('Gas Limit is too much'));
@@ -69,45 +67,49 @@ export function CustomGasLimit({
   };
 
   return (
-    <VerticalFlex padding="16px 0 24px 0" height="100%">
-      <PageTitle onBackClick={onCancel} margin="0">
-        {t('Edit Gas Limit')}
-      </PageTitle>
-      <VerticalFlex padding="8px 16px 0">
-        <Typography
-          size={32}
-          height="44px"
-          padding="0 0 8px 0"
-          wordBreak="break-word"
-        >
-          {newFees.fee}
-          <SubTextTypography padding="0 0 0 4px" weight={500} height="24px">
-            {network?.networkToken.symbol}
-          </SubTextTypography>
-        </Typography>
-        <Input
+    <Stack sx={{ height: '100%' }}>
+      <PageTitle onBackClick={onCancel}>{t('Edit Gas Limit')}</PageTitle>
+      <Stack sx={{ padding: 2 }}>
+        <TextField
+          light
+          label={t('Current Gas Cost')}
+          value={`${newFees.fee} ${network?.networkToken.symbol}`}
+          disabled
+          sx={{ marginBottom: 5 }}
+        />
+        <TextField
+          light
           autoFocus
           label={t('Gas Limit')}
           type={'number'}
           value={customGasLimit}
           onChange={(evt) =>
-            checkCustomGasLimit(parseInt(evt.currentTarget.value || '0'))
+            checkCustomGasLimit(parseInt(evt.currentTarget.value))
           }
-          margin="16px 0 0 0"
           error={!!calculateGasAndFeesError}
-          errorMessage={calculateGasAndFeesError}
+          helperText={calculateGasAndFeesError}
         />
-      </VerticalFlex>
+      </Stack>
 
-      <HorizontalFlex flex={1} align="flex-end" padding="0 16px" width="100%">
-        <PrimaryButton
-          size={ComponentSize.LARGE}
-          width="100%"
+      <Stack
+        sx={{
+          flex: 1,
+          justifyContent: 'flex-end',
+          paddingX: 2,
+          paddingBottom: 3,
+        }}
+      >
+        <Button
+          data-testid="save-gas-limit-button"
+          size="large"
+          variant="contained"
           onClick={handleOnSave}
+          disabled={!!calculateGasAndFeesError}
+          fullWidth
         >
           {t('Save')}
-        </PrimaryButton>
-      </HorizontalFlex>
-    </VerticalFlex>
+        </Button>
+      </Stack>
+    </Stack>
   );
 }

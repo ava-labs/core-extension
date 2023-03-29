@@ -1,17 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
-import {
-  toast,
-  ComponentSize,
-  PrimaryButton,
-  Tooltip,
-  Typography,
-  VerticalFlex,
-  TransactionToastType,
-  TransactionToast,
-  LoadingSpinnerIcon,
-  WarningIcon,
-} from '@avalabs/react-components';
 import { SendForm } from './components/SendForm';
 import { bnToLocaleString, stringToBN } from '@avalabs/utils-sdk';
 import type { Contact } from '@avalabs/types';
@@ -21,10 +9,8 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
-import { useTheme } from 'styled-components';
 import { useContactFromParams } from './hooks/useContactFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
@@ -43,11 +29,22 @@ import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useTranslation } from 'react-i18next';
 import { getSendErrorMessage } from './utils/sendErrorMessages';
 import { SendErrorMessage } from '@src/background/services/send/models';
+import {
+  toast,
+  Typography,
+  Button,
+  Stack,
+  Scrollbars,
+  Tooltip,
+} from '@avalabs/k2-components';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+
+const DEFAULT_DECIMALS = 9;
 
 export function SendPage() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { featureFlags } = useFeatureFlagContext();
   const selectedToken = useTokenFromParams(false);
   const contactInput = useContactFromParams();
@@ -238,54 +235,48 @@ export function SendPage() {
   }
 
   const onSubmit = () => {
+    let pendingToastId = '';
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
     capture('SendApproved', {
       selectedGasFee,
     });
-    let toastId: string;
     if (!isUsingLedgerWallet) {
       history.push('/home');
-      toastId = toast.custom(
-        <TransactionToast
-          type={TransactionToastType.PENDING}
-          text={t('Transaction pending...')}
-          startIcon={
-            <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
-          }
-        />
-      );
+      pendingToastId = toast.loading(t('Transaction pending...'));
     }
 
     submitSendState()
       .then((txId) => {
         resetSendState();
-        toast.custom(
-          <TransactionToast
-            status={t('Transaction Successful')}
-            type={TransactionToastType.SUCCESS}
-            text={t('View in Explorer')}
-            href={getURL(txId)}
-          />,
-          { id: toastId }
-        );
+        toastCardWithLink({
+          title: t('Send Successful'),
+          url: getURL(txId),
+          label: t('View in Explorer'),
+        });
         history.push('/home');
       })
       .catch(() => {
-        toast.custom(
-          <TransactionToast
-            type={TransactionToastType.ERROR}
-            text={t('Transaction Failed')}
-            startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
-          />,
-          { id: toastId, duration: Infinity }
-        );
+        toast.error(t('Transaction Failed'));
       })
       .finally(() => {
+        pendingToastId && toast.dismiss(pendingToastId);
         setShowTxInProgress(false);
-        if (isUsingLedgerWallet) history.push('/home');
+        if (isUsingLedgerWallet) {
+          history.push('/home');
+        }
       });
   };
+
+  const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
+  const onAddressBookToggled = useCallback((visible) => {
+    setIsAddressBookOpen(visible);
+  }, []);
+
+  const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
+  const onTokenSelectToggled = useCallback((visible) => {
+    setIsTokenSelectOpen(visible);
+  }, []);
 
   if (!featureFlags[FeatureGates.SEND]) {
     return <FunctionIsOffline functionName="Send" />;
@@ -320,68 +311,87 @@ export function SendPage() {
         </>
       </Route>
       <Route path="/send">
-        <VerticalFlex height="100%" width="100%">
+        <Stack sx={{ width: '100%', height: '100%' }}>
           <PageTitle>{t('Send')}</PageTitle>
-          <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
-            <SendForm
-              contactInput={contactInput}
-              onContactChange={onContactChanged}
-              selectedToken={selectedToken}
-              onTokenChange={onTokenChanged}
-              amountInput={
-                amountInput ||
-                (pageHistory &&
-                  pageHistory.amountInput &&
-                  stringToBN(
-                    pageHistory.amountInput,
-                    selectedToken?.decimals || 9
-                  )) ||
-                undefined
-              }
-              onAmountInputChange={onAmountChanged}
-              sendState={sendState}
-              tokensWBalances={tokensWBalances}
-              onGasChanged={onGasChanged}
-              maxGasPrice={maxGasPrice}
-              gasPrice={gasPriceState}
-              selectedGasFee={selectedGasFee}
-            />
-            <VerticalFlex
-              align="center"
-              justify="flex-end"
-              width="100%"
-              padding="0 16px 24px"
-              grow="1"
+          <Stack
+            sx={{ flexGrow: 1, alignItems: 'center', width: '100%', pt: 1 }}
+          >
+            <Scrollbars
+              style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
             >
-              <Tooltip
-                content={
-                  <Typography size={14} height="1.5">
-                    {getSendErrorMessage(
-                      sendState.error?.message as SendErrorMessage
-                    )}
-                  </Typography>
+              <SendForm
+                contactInput={contactInput}
+                onContactChange={onContactChanged}
+                selectedToken={selectedToken}
+                onTokenChange={onTokenChanged}
+                amountInput={
+                  amountInput ||
+                  (pageHistory &&
+                    pageHistory.amountInput &&
+                    stringToBN(
+                      pageHistory.amountInput,
+                      selectedToken?.decimals || DEFAULT_DECIMALS
+                    )) ||
+                  undefined
                 }
-                disabled={!sendState.error?.error}
+                onAmountInputChange={onAmountChanged}
+                sendState={sendState}
+                tokensWBalances={tokensWBalances}
+                onGasChanged={onGasChanged}
+                maxGasPrice={maxGasPrice}
+                gasPrice={gasPriceState}
+                selectedGasFee={selectedGasFee}
+                onAddressBookToggled={onAddressBookToggled}
+                onTokenSelectToggled={onTokenSelectToggled}
+              />
+            </Scrollbars>
+            {!isAddressBookOpen && !isTokenSelectOpen && (
+              <Stack
+                sx={{
+                  flexGrow: 1,
+                  justifyContent: 'flex-end',
+                  pt: 3,
+                  px: 2,
+                  pb: 3,
+                  width: '100%',
+                  alignItems: 'center',
+                }}
               >
-                <PrimaryButton
-                  data-testid="send-next-button"
-                  size={ComponentSize.LARGE}
-                  width="343px"
-                  onClick={() => {
-                    setSendDataInParams({
-                      token: selectedToken,
-                      address: contactInput?.address,
-                      options: { path: '/send/confirm' },
-                    });
-                  }}
-                  disabled={!sendState.canSubmit}
+                <Tooltip
+                  placement="top"
+                  title={
+                    sendState.error ? (
+                      <Typography variant="body2">
+                        {getSendErrorMessage(
+                          sendState.error?.message as SendErrorMessage
+                        )}
+                      </Typography>
+                    ) : (
+                      ''
+                    )
+                  }
                 >
-                  {t('Next')}
-                </PrimaryButton>
-              </Tooltip>
-            </VerticalFlex>
-          </VerticalFlex>
-        </VerticalFlex>
+                  <Button
+                    data-testid="send-next-button"
+                    variant="contained"
+                    size="large"
+                    onClick={() => {
+                      setSendDataInParams({
+                        token: selectedToken,
+                        address: contactInput?.address,
+                        options: { path: '/send/confirm' },
+                      });
+                    }}
+                    disabled={!sendState.canSubmit}
+                    sx={{ width: '343px' }}
+                  >
+                    {t('Next')}
+                  </Button>
+                </Tooltip>
+              </Stack>
+            )}
+          </Stack>
+        </Stack>
       </Route>
     </Switch>
   );

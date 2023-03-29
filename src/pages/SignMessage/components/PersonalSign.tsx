@@ -9,7 +9,7 @@ export function PersonalSign({ message }: { message: Action }) {
   return (
     <VerticalFlex width={'100%'}>
       <Typography size={12} height="15px" margin="0 0 8px 0">
-        {t(' Message:')}
+        {t('Message:')}
       </Typography>
       <Card height="250px" padding="16px 0">
         <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
