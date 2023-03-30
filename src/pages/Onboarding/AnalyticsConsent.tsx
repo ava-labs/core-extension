@@ -146,6 +146,8 @@ export const AnalyticsConsent = ({
                 setNextPhase(OnboardingPhase.IMPORT_WALLET);
               } else if (onboardingPath === OnboardingPath.LEDGER) {
                 setNextPhase(OnboardingPhase.LEDGER);
+              } else if (onboardingPath === OnboardingPath.KEYSTONE) {
+                setNextPhase(OnboardingPhase.KEYSTONE);
               }
             }}
             sx={{
