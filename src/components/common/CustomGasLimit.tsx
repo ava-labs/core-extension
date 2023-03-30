@@ -71,14 +71,12 @@ export function CustomGasLimit({
       <PageTitle onBackClick={onCancel}>{t('Edit Gas Limit')}</PageTitle>
       <Stack sx={{ padding: 2 }}>
         <TextField
-          light
           label={t('Current Gas Cost')}
           value={`${newFees.fee} ${network?.networkToken.symbol}`}
           disabled
           sx={{ marginBottom: 5 }}
         />
         <TextField
-          light
           autoFocus
           label={t('Gas Limit')}
           type={'number'}

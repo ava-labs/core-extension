@@ -107,7 +107,6 @@ export function BNInput({
   return (
     <Stack sx={{ position: 'relative' }}>
       <InputNumber
-        light
         value={valStr}
         onChange={(e) => onValueChanged(e.target.value)}
         type="number"

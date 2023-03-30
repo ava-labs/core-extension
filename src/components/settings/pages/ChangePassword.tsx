@@ -111,7 +111,6 @@ export function ChangePassword({
               sx={{
                 mb: 4,
               }}
-              light
             />
             <Stack sx={{ mb: 0.25 }}>
               <TextField
@@ -125,7 +124,6 @@ export function ChangePassword({
                 error={!!error}
                 size="small"
                 fullWidth
-                light
               />
             </Stack>
             <PasswordStrength
@@ -145,7 +143,6 @@ export function ChangePassword({
                 helperText={error}
                 size="small"
                 fullWidth
-                light
               />
             </Stack>
           </Stack>

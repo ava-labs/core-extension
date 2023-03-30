@@ -123,7 +123,6 @@ export const ContactInput = ({
           }}
         >
           <TextField
-            light
             data-testid="send-address-input"
             color="primary"
             fullWidth

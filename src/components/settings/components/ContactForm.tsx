@@ -147,7 +147,6 @@ export const ContactForm = ({
         fullWidth
         value={contact.name}
         size="small"
-        light
       />
 
       <Stack sx={{ py: 4 }}>
@@ -166,7 +165,6 @@ export const ContactForm = ({
           fullWidth
           multiline
           rows={2}
-          light
         />
       </Stack>
 
@@ -185,7 +183,6 @@ export const ContactForm = ({
         fullWidth
         multiline
         rows={2}
-        light
       />
     </Stack>
   );

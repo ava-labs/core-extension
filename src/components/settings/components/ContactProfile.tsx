@@ -161,7 +161,6 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
               placeholder={t(`Enter Avalanche (C-Chain) address`)}
               fullWidth
               rows={2}
-              light
             />
           </Tooltip>
         </>
@@ -194,7 +193,6 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
               placeholder={t(`Enter Bitcoin address`)}
               fullWidth
               rows={2}
-              light
             />
           </Tooltip>
         </Stack>

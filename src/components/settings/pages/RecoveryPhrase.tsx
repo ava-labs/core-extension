@@ -81,7 +81,6 @@ export function RecoveryPhrase({
           placeholder={t('Enter password')}
           size="small"
           fullWidth
-          light
           sx={{
             mb: 2,
           }}
@@ -96,7 +95,6 @@ export function RecoveryPhrase({
             InputProps={{
               readOnly: true,
             }}
-            light
           />
         )}
       </Stack>
