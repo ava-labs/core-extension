@@ -20,6 +20,9 @@ import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry-eth';
 import { useKeystoneScannerContents } from '@src/hooks/useKeystoneScannerContents';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
+export const KEYSTONE_CONNECT_SUPPORT_URL =
+  'https://support.keyst.one/getting-started/new-how-to-sync-keystone-with-compatible-software-wallets';
+
 interface KeystoneProps {
   onCancel(): void;
   setXPubKey: (newValue: string) => void;
@@ -162,7 +165,7 @@ export const KeystoneQRCodeScanner = ({
           <Button
             variant="text"
             onClick={() => {
-              window.open('https://keyst.one', '_blank');
+              window.open(KEYSTONE_CONNECT_SUPPORT_URL, '_blank');
             }}
           >
             <ExternalLinkIcon

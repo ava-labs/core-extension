@@ -14,7 +14,10 @@ import { PageNav } from './components/PageNav';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { KeystoneQRCodeScanner } from './KeystoneQRCodeScanner';
+import {
+  KeystoneQRCodeScanner,
+  KEYSTONE_CONNECT_SUPPORT_URL,
+} from './KeystoneQRCodeScanner';
 import { AddressType } from './LedgerConnect';
 import { getAddressFromXPub } from '@avalabs/wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
@@ -228,10 +231,7 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
           <Button
             variant="text"
             onClick={() => {
-              window.open(
-                'https://support.keyst.one/getting-started/new-how-to-sync-keystone-with-compatible-software-wallets',
-                '_blank'
-              );
+              window.open(KEYSTONE_CONNECT_SUPPORT_URL, '_blank');
             }}
           >
             <ExternalLinkIcon
