@@ -12,6 +12,7 @@ import {
   Stack,
   Typography,
   useTheme,
+  Tooltip,
 } from '@avalabs/k2-components';
 
 interface DerivedAddressesProps {
@@ -75,14 +76,16 @@ export function DerivedAddresses({
                           pr: 2,
                         }}
                       >
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            fontWeight: 'semibold',
-                          }}
-                        >
-                          {truncateAddress(addressData.address)}
-                        </Typography>
+                        <Tooltip placement="top" title={addressData.address}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 'semibold',
+                            }}
+                          >
+                            {truncateAddress(addressData.address)}
+                          </Typography>
+                        </Tooltip>
                       </Stack>
                     </Stack>
                     <Stack
