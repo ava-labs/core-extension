@@ -151,7 +151,8 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
     pendingAction: Action,
     result,
     onSuccess,
-    onError
+    onError,
+    frontendTabId?: number
   ) => {
     try {
       const displayData: DisplayData_BitcoinSendTx = pendingAction.displayData;
@@ -159,7 +160,11 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
         displayData.sendState
       );
       const btcNetwork = await this.networkService.getBitcoinNetwork();
-      const signed = await this.walletService.sign(txRequest, btcNetwork);
+      const signed = await this.walletService.sign(
+        txRequest,
+        frontendTabId,
+        btcNetwork
+      );
       const result = await this.networkService.sendTransaction(
         signed,
         btcNetwork

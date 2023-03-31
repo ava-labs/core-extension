@@ -37,6 +37,8 @@ export enum ExtensionRequest {
 
   WALLET_GET_DETAILS = 'wallet_getDetails',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
+  WALLET_GET_BTC_WALLET_POLICY_DETAILS = 'wallet_getBtcWalletPolicyDetails',
+  WALLET_STORE_BTC_WALLET_POLICY_DETAILS = 'wallet_storeBtcWalletPolicyDetails',
   GET_WALLET_HISTORY = 'wallet_getHistory',
 
   LOCK_WALLET = 'lock_lock',
@@ -90,9 +92,9 @@ export enum ExtensionRequest {
   LEDGER_CLOSE_TRANSPORT = 'ledger_close_transport',
   SHOW_LEDGER_VERSION_WARNING = 'show_ledger_version_warning',
   LEDGER_VERSION_WARNING_CLOSED = 'ledger_version_warning_closed',
-  SHOW_LEDGER_INCORRECT_BTC_APP_WARNING = 'show_ledger_incorrect_btc_app_warning',
-  LEDGER_INCORRECT_BTC_APP_WARNING_CLOSED = 'ledger_incorrect_btc_app_warning_closed',
   LEDGER_MIGRATE_MISSING_PUBKEYS = 'ledger_migrate_missing_pubkeys',
+
+  KEYSTONE_SUBMIT_SIGNATURE = 'keystone_submit_signature',
 
   NAVIGATION_HISTORY_GET = 'navigation_history_get',
   NAVIGATION_HISTORY_SET = 'navigation_history_set',

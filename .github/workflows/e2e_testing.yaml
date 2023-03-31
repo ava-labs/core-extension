@@ -61,6 +61,9 @@ jobs:
       TESTRAIL_API_KEY: ${{secrets.TESTRAIL_API_KEY}}
       RECOVERY_PHRASE: ${{secrets.RECOVERY_PHRASE}}
       METAMASK_RECOVERY_PHRASE: ${{secrets.METAMASK_RECOVERY_PHRASE}}
+      APITOKEN_ETHERSCAN: ${{secrets.APITOKEN_ETHERSCAN}}
+      APITOKEN_CRYPTOAPIS: ${{secrets.APITOKEN_CRYPTOAPIS}}
+      APITOKEN_SNOWTRACE: ${{secrets.APITOKEN_SNOWTRACE}}
     steps:
       - name: Use Node.js
         uses: actions/setup-node@v3

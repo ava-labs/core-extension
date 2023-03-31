@@ -1,14 +1,11 @@
 import { ReactNode } from 'react';
 import {
-  CaretIcon,
-  HorizontalFlex,
-  IconDirection,
-  TextButton,
+  IconButton,
+  Stack,
   Typography,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+  ChevronLeftIcon,
+} from '@avalabs/k2-components';
 import { SettingsPageProps } from './models';
-
 interface SettingsHeaderProps {
   title: string;
   action?: ReactNode;
@@ -20,33 +17,31 @@ export function SettingsHeader({
   action,
   width,
 }: SettingsHeaderProps & SettingsPageProps) {
-  const theme = useTheme();
-
   return (
-    <HorizontalFlex
+    <Stack
       width={width}
-      marginTop="16px"
-      padding="12px 16px"
-      align="center"
-      justify="space-between"
+      sx={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        mt: 1,
+        py: 1.5,
+        pr: 2,
+      }}
     >
-      <HorizontalFlex align="center">
-        <TextButton
-          data-testid="go-back-button"
-          onClick={goBack}
-          margin="0 12px 0 0"
-        >
-          <CaretIcon
-            height="18px"
-            direction={IconDirection.LEFT}
-            color={theme.colors.icon1}
-          />
-        </TextButton>
-        <Typography size={20} weight={600} height="29px">
-          {title}
-        </Typography>
-      </HorizontalFlex>
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          position: 'relative',
+        }}
+      >
+        <IconButton data-testid="go-back-button" onClick={goBack} disableRipple>
+          <ChevronLeftIcon size={32} />
+        </IconButton>
+        <Typography variant="h3">{title}</Typography>
+      </Stack>
       {action}
-    </HorizontalFlex>
+    </Stack>
   );
 }

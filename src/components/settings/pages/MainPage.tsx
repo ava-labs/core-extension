@@ -1,17 +1,3 @@
-import {
-  CaretIcon,
-  CloseIcon,
-  ComponentSize,
-  DropDownMenuItem,
-  HorizontalFlex,
-  HorizontalSeparator,
-  IconDirection,
-  SecondaryButton,
-  TextButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -22,267 +8,346 @@ import { WalletType } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@src/hooks/useLanguages';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import styled from 'styled-components';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
+import {
+  Button,
+  IconButton,
+  Stack,
+  XIcon,
+  Typography,
+  ChevronRightIcon,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  UserIcon,
+  GearIcon,
+  LockIcon,
+  GlobeIcon,
+  LedgerIcon,
+  CurrencyIcon,
+  Chip,
+  ComputerIcon,
+} from '@avalabs/k2-components';
 import browser from 'webextension-polyfill';
-
-const StyledTag = styled(Typography)`
-  background-color: ${({ theme }) => theme.palette.secondary[500]};
-  border-radius: 100px;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-  padding: 2px 8px;
-`;
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { walletType } = useWalletContext();
-  const { lockWallet, currency } = useSettingsContext();
+  const { lockWallet } = useSettingsContext();
   const { currentLanguage } = useLanguage();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-
   const extensionVersion = browser.runtime.getManifest().version;
 
   return (
-    <VerticalFlex
-      width={width}
-      height="100%"
-      padding="16px 0 24px"
-      background={theme.colors.bg2}
+    <Stack
+      sx={{
+        width: `${width}`,
+        height: '100%',
+        pt: 2,
+        px: 0,
+        py: 3,
+        backgroundColor: 'background.paper',
+      }}
     >
-      <HorizontalFlex
-        margin="0 0 16px"
-        padding="0 16px"
-        height="53px"
-        justify="space-between"
-        align="center"
+      <Stack
+        sx={{
+          mt: 0,
+          mx: 0,
+          mb: 2,
+          py: 0,
+          px: 2,
+          flexDirection: 'row',
+          height: '53px',
+          justifyContent: 'space-between',
+          alignContent: 'center',
+        }}
       >
-        <HorizontalFlex align="center">
+        <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
           <Logo height={29} />
-          <BrandName height={15} margin="0 0 0 8px" />
-          <HorizontalFlex width="auto" margin="0 0 0 16px">
+          <BrandName height={17} margin="0 0 0 8px" />
+          <Stack sx={{ width: 'auto', ml: 2 }}>
             <BetaLabel />
-          </HorizontalFlex>
-        </HorizontalFlex>
-        <TextButton data-testid="close-settings-menu-button" onClick={onClose}>
-          <CloseIcon height="16px" color={theme.colors.icon1} />
-        </TextButton>
-      </HorizontalFlex>
-      <HorizontalFlex
-        justify="space-between"
-        padding="10px 16px"
-        align="center"
-      >
-        <TextButton
-          as="a"
-          target="_blank"
-          href={getCoreWebUrl(activeAccount?.addressC)}
-          data-testid="core-web-link-button"
+          </Stack>
+        </Stack>
+        <IconButton
+          data-testid="close-settings-menu-button"
+          onClick={onClose}
+          disableRipple
         >
-          <Typography
-            height="20px"
-            size={14}
-            color={theme.colors.secondary1}
-            weight={600}
+          <XIcon size={24} />
+        </IconButton>
+      </Stack>
+      <List>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              justifyContent: 'space-between',
+              py: 1,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            data-testid="core-web-link-button"
+            onClick={() => {
+              window.open(getCoreWebUrl(activeAccount?.addressC), '_blank');
+            }}
           >
-            {t('Core Web')}
-          </Typography>
-        </TextButton>
-        <StyledTag>{t('New!')}</StyledTag>
-      </HorizontalFlex>
-      <DropDownMenuItem
-        data-testid="address-book-option"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
-      >
-        <Typography size={14} height="17px">
-          {t('Address Book')}
-        </Typography>
-        <CaretIcon
-          color={theme.colors.icon1}
-          height="14px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
-      <DropDownMenuItem
-        data-testid="currency-option"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        onClick={() => navigateTo(SettingsPages.CURRENCIES)}
-      >
-        <Typography size={14} height="17px">
-          {t('Currency')}
-        </Typography>
-        <HorizontalFlex align="center">
-          <Typography
-            size={14}
-            height="17px"
-            margin="0 8px"
-            color={theme.colors.text2}
+            <ListItemIcon>
+              <ComputerIcon size={24} />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ ml: 1, fontSize: '14px', my: 0, color: 'secondary.main' }}
+              disableTypography
+            >
+              {t('Core Web')}
+            </ListItemText>
+
+            <ListItemIcon>
+              <Chip
+                label={t('New!')}
+                size="small"
+                sx={{
+                  backgroundColor: 'secondary.dark',
+                  fontSize: '14px',
+                }}
+              />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              justifyContent: 'space-between',
+              py: 1,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            data-testid="address-book-option"
+            onClick={() => navigateTo(SettingsPages.CONTACT_LIST)}
           >
-            {currency}
-          </Typography>
-          <CaretIcon
-            color={theme.colors.icon1}
-            height="14px"
-            direction={IconDirection.RIGHT}
-          />
-        </HorizontalFlex>
-      </DropDownMenuItem>
-      <DropDownMenuItem
-        data-testid="language-option"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        onClick={() => navigateTo(SettingsPages.LANGUAGE)}
-      >
-        <Typography size={14} height="17px">
-          {t('Language')}
-        </Typography>
-        <HorizontalFlex align="center">
-          <Typography
-            size={14}
-            height="17px"
-            margin="0 8px"
-            color={theme.colors.text2}
+            <ListItemIcon>
+              <UserIcon size={24} />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ ml: 1, fontSize: '14px', my: 0 }}
+              disableTypography
+            >
+              {t('Address Book')}
+            </ListItemText>
+
+            <ListItemIcon>
+              <ChevronRightIcon size={24} />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              justifyContent: 'space-between',
+              py: 1,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            data-testid="currency-option"
+            onClick={() => navigateTo(SettingsPages.CURRENCIES)}
           >
-            {currentLanguage?.name}
-          </Typography>
-          <CaretIcon
-            color={theme.colors.icon1}
-            height="14px"
-            direction={IconDirection.RIGHT}
-          />
-        </HorizontalFlex>
-      </DropDownMenuItem>
-      <DropDownMenuItem
-        data-testid="advanced-option"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        onClick={() => navigateTo(SettingsPages.ADVANCED)}
-      >
-        <Typography size={14} height="17px">
-          {t('Advanced')}
-        </Typography>
-        <HorizontalFlex align="center">
-          <Typography
-            size={14}
-            height="17px"
-            margin="0 8px"
-            color={theme.colors.text2}
-          ></Typography>
-          <CaretIcon
-            color={theme.colors.icon1}
-            height="14px"
-            direction={IconDirection.RIGHT}
-          />
-        </HorizontalFlex>
-      </DropDownMenuItem>
-      {walletType === WalletType.LEDGER && (
-        <DropDownMenuItem
-          justify="space-between"
-          align="center"
-          padding="10px 16px"
-          onClick={() => navigateTo(SettingsPages.LEDGER)}
-        >
-          <Typography size={14} height="17px">
-            {t('Ledger')}
-          </Typography>
-          <CaretIcon
-            color={theme.colors.icon1}
-            height="14px"
-            direction={IconDirection.RIGHT}
-          />
-        </DropDownMenuItem>
-      )}
+            <ListItemIcon>
+              <CurrencyIcon size={24} />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ ml: 1, fontSize: '14px', my: 0 }}
+              disableTypography
+            >
+              {t('Currency')}
+            </ListItemText>
 
-      <HorizontalFlex width="100%" margin="16px 0" padding="0 16px">
-        <HorizontalSeparator />
-      </HorizontalFlex>
+            <ListItemIcon>
+              <ChevronRightIcon size={24} />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              justifyContent: 'space-between',
+              py: 1,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            data-testid="language-option"
+            onClick={() => navigateTo(SettingsPages.LANGUAGE)}
+          >
+            <ListItemIcon>
+              <GlobeIcon size={24} />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ ml: 1, fontSize: '14px', my: 0 }}
+              disableTypography
+            >
+              {t('Language')}
+            </ListItemText>
 
-      <DropDownMenuItem
-        data-testid="security-privacy-option"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
-      >
-        <Typography size={14} height="17px">
-          {t('Security & Privacy')}
-        </Typography>
-        <CaretIcon
-          color={theme.colors.icon1}
-          height="14px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
-      <DropDownMenuItem
-        data-testid="legal-option"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        as="a"
-        target="_blank"
-        onClick={() => navigateTo(SettingsPages.LEGAL)}
-      >
-        <Typography size={14} height="17px">
-          {t('Legal')}
-        </Typography>
-        <CaretIcon
-          color={theme.colors.icon1}
-          height="14px"
-          direction={IconDirection.RIGHT}
-        />
-      </DropDownMenuItem>
+            <ListItemIcon>
+              <ChevronRightIcon size={24} />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        {walletType === WalletType.LEDGER && (
+          <ListItem sx={{ p: 0 }}>
+            <ListItemButton
+              sx={{
+                justifyContent: 'space-between',
+                py: 1,
+                px: 2,
+                m: 0,
+                '&:hover': { borderRadius: 0 },
+              }}
+              onClick={() => navigateTo(SettingsPages.LEDGER)}
+            >
+              <ListItemIcon>
+                <LedgerIcon size={24} />
+              </ListItemIcon>
+              <ListItemText
+                sx={{ ml: 1, fontSize: '14px', my: 0 }}
+                disableTypography
+              >
+                {t('Ledger')}
+              </ListItemText>
+              <ListItemIcon>
+                <ChevronRightIcon size={24} />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+        )}
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              justifyContent: 'space-between',
+              py: 1,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            data-testid="advanced-option"
+            onClick={() => navigateTo(SettingsPages.ADVANCED)}
+          >
+            <ListItemIcon>
+              <GearIcon size={24} />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ ml: 1, fontSize: '14px', my: 0 }}
+              disableTypography
+            >
+              {t('Advanced')}
+            </ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon size={24} />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              justifyContent: 'space-between',
+              py: 1,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            data-testid="security-privacy-option"
+            onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
+          >
+            <ListItemIcon>
+              <LockIcon size={24} />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ ml: 1, fontSize: '14px', my: 0 }}
+              disableTypography
+            >
+              {t('Security & Privacy')}
+            </ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon size={24} />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+      </List>
 
-      <DropDownMenuItem
-        data-testid="help-center-option"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        as="a"
-        target="_blank"
-        onClick={() =>
-          window.open(
-            `https://support.avax.network/${
-              currentLanguage ? currentLanguage.linkCode : 'en'
-            }/collections/3391518-core`,
-            '_blank'
-          )
-        }
+      <Divider />
+      <List dense>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              py: 0.5,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            onClick={() => navigateTo(SettingsPages.LEGAL)}
+            data-testid="legal-option"
+          >
+            <ListItemText>
+              <Typography variant="body2">{t('Legal')}</Typography>
+            </ListItemText>
+          </ListItemButton>
+        </ListItem>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              py: 0.5,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            onClick={() =>
+              window.open(
+                `https://support.avax.network/${
+                  currentLanguage ? currentLanguage.linkCode : 'en'
+                }/collections/3391518-core`,
+                '_blank'
+              )
+            }
+            data-testid="help-center-option"
+          >
+            <ListItemText>
+              <Typography variant="body2">{t('Help Center')}</Typography>
+            </ListItemText>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemText>
+            <Typography variant="caption" sx={{ color: 'grey.400' }}>{`${t(
+              'Version'
+            )} ${extensionVersion}`}</Typography>
+          </ListItemText>
+        </ListItem>
+      </List>
+      <Stack
+        sx={{
+          height: '100%',
+          flexDirection: 'column-reverse',
+          px: 2,
+        }}
       >
-        <Typography size={14} height="17px">
-          {t('Help Center')}
-        </Typography>
-      </DropDownMenuItem>
-
-      <Typography
-        padding="0 16px"
-        size={12}
-        height="20px"
-        color={theme.palette.grey[400]}
-      >
-        {`${t('Version')} ${extensionVersion}`}
-      </Typography>
-
-      <VerticalFlex grow="1" justify="flex-end" align="center" padding="0 16px">
-        <SecondaryButton
-          data-testid="lock-core-wallet-button"
-          width="100%"
-          size={ComponentSize.LARGE}
+        <Button
+          variant="contained"
+          color="secondary"
+          fullWidth
           onClick={lockWallet}
+          data-testid="lock-core-wallet-button"
         >
           {t('Lock Core')}
-        </SecondaryButton>
-      </VerticalFlex>
-    </VerticalFlex>
+        </Button>
+      </Stack>
+    </Stack>
   );
 }

@@ -25,6 +25,8 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '../SignTransaction/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import { KeystoneApprovalOverlay } from '../SignTransaction/KeystoneApprovalOverlay';
 
 export function ApproveAction() {
   const { t } = useTranslation();
@@ -33,6 +35,7 @@ export function ApproveAction() {
   const { action, updateAction } = useApproveAction(requestId);
   const { network } = useNetworkContext();
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
 
@@ -49,9 +52,20 @@ export function ApproveAction() {
     );
   }
 
-  const renderLedgerApproval = () => {
+  const cancelHandler = () => {
+    updateAction({
+      status: ActionStatus.ERROR_USER_CANCELED,
+      id: action.id,
+    });
+    window.close();
+  };
+
+  const renderDeviceApproval = () => {
     if (action.status === ActionStatus.SUBMITTING) {
-      return <LedgerApprovalOverlay displayData={action.displayData} />;
+      if (isUsingLedgerWallet)
+        return <LedgerApprovalOverlay displayData={action.displayData} />;
+      else if (isUsingKeystoneWallet)
+        return <KeystoneApprovalOverlay onReject={cancelHandler} />;
     }
   };
 
@@ -59,7 +73,7 @@ export function ApproveAction() {
     <>
       <VerticalFlex width="100%" padding="0 16px" align="center">
         <SignTxRenderErrorBoundary>
-          {renderLedgerApproval()}
+          {renderDeviceApproval()}
 
           <VerticalFlex padding="12px 0">
             <Typography as="h1" size={20} height="29px" weight={600}>
@@ -125,13 +139,7 @@ export function ApproveAction() {
               size={ComponentSize.LARGE}
               width="168px"
               disabled={action.status === ActionStatus.SUBMITTING}
-              onClick={() => {
-                updateAction({
-                  status: ActionStatus.ERROR_USER_CANCELED,
-                  id: action.id,
-                });
-                window.close();
-              }}
+              onClick={cancelHandler}
             >
               {t('Reject')}
             </SecondaryButton>
@@ -145,7 +153,7 @@ export function ApproveAction() {
                     status: ActionStatus.SUBMITTING,
                     id: action.id,
                   },
-                  isUsingLedgerWallet // wait for the response only for ledger wallets
+                  isUsingLedgerWallet || isUsingKeystoneWallet // wait for the response only for device wallets
                 );
               }}
             >

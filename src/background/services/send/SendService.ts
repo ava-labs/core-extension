@@ -27,7 +27,7 @@ export class SendService {
     this.eventEmitter.emit(SendEvent.TX_DETAILS, txData);
   }
 
-  async send(sendState: SendState): Promise<string> {
+  async send(sendState: SendState, tabId?: number): Promise<string> {
     const service = await this.getService();
     sendState = await service.validateStateAndCalculateFees(sendState);
 
@@ -40,7 +40,7 @@ export class SendService {
     }
 
     const txRequest = await service.getTransactionRequest(sendState);
-    const signedTx = await this.walletService.sign(txRequest);
+    const signedTx = await this.walletService.sign(txRequest, tabId);
     const txId = await this.networkService.sendTransaction(signedTx);
     this.transactionUpdated({ txId });
     return txId;

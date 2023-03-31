@@ -25,8 +25,6 @@ export interface BtcTransactionRequest {
 
 export interface AvalancheTransactionRequest {
   tx: UnsignedTx;
-  chain: 'X' | 'P' | 'C';
-  hasMultipleAddresses?: boolean;
   externalIndices?: number[];
   internalIndices?: number[];
 }
@@ -53,6 +51,8 @@ export interface WalletSecretInStorage {
       secret: string;
     }
   >;
+  masterFingerprint?: string;
+  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 }
 
 export enum WalletEvents {
@@ -64,7 +64,18 @@ export const WALLET_STORAGE_KEY = 'wallet';
 export enum WalletType {
   MNEMONIC = 'MNEMONIC',
   LEDGER = 'LEDGER',
+  KEYSTONE = 'KEYSTONE',
 }
+
+export type BtcWalletPolicyDetails = {
+  hmacHex: string;
+  /**
+   * Extended public key of m/44'/60'/n
+   */
+  xpub: string;
+  masterFingerprint: string;
+  name: string;
+};
 
 /**
  * Used for Ledger Live accounts on ledger.
@@ -75,6 +86,7 @@ export type PubKeyType = {
    * Public keys used for X/P chain are from a different derivation path.
    */
   xp?: string;
+  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 };
 
 /**

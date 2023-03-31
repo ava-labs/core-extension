@@ -17,7 +17,6 @@ import type { Contact } from '@avalabs/types';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTheme } from 'styled-components';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { ContactInput } from '../Send/components/ContactInput';
@@ -36,18 +35,18 @@ import { useSend } from '../Send/hooks/useSend';
 import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { WalletType } from '@src/background/services/wallet/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 
 export function CollectibleSend() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { walletType } = useWalletContext();
   const { nft } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
@@ -63,6 +62,9 @@ export function CollectibleSend() {
     GasFeeModifier.NORMAL
   );
   const [showTxInProgress, setShowTxInProgress] = useState(false);
+
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   useEffect(() => {
     if (nft && !sendState.token) {
@@ -113,7 +115,7 @@ export function CollectibleSend() {
     if (!sendState.canSubmit) return;
 
     let toastId: string;
-    if (walletType !== WalletType.LEDGER) {
+    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
       history.push('/home');
       toastId = toast.custom(
         <TransactionToast
@@ -152,7 +154,7 @@ export function CollectibleSend() {
       })
       .finally(() => {
         setShowTxInProgress(false);
-        if (walletType === WalletType.LEDGER) history.push('/home');
+        if (isUsingLedgerWallet || isUsingKeystoneWallet) history.push('/home');
       });
   };
 
@@ -191,9 +193,6 @@ export function CollectibleSend() {
               contact={contactInput}
               onChange={onContactChanged}
               isContactsOpen={isContactsOpen}
-              toggleContactsDropdown={(to?: boolean) =>
-                setIsContactsOpen(to ?? !isContactsOpen)
-              }
               setIsOpen={setIsContactsOpen}
             />
             <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">

@@ -18,8 +18,14 @@ export class BalanceAggregatorService implements OnLock {
   }
 
   private set balances(balances: Balances) {
+    const haveChanged =
+      JSON.stringify(balances) !== JSON.stringify(this._balances);
+
     this._balances = balances;
-    this.eventEmitter.emit(BalanceServiceEvents.UPDATED, balances);
+
+    if (haveChanged) {
+      this.eventEmitter.emit(BalanceServiceEvents.UPDATED, balances);
+    }
   }
 
   constructor(
@@ -46,7 +52,7 @@ export class BalanceAggregatorService implements OnLock {
         );
 
         // use deep merge to make sure we keep all accounts in there, even after a partial update
-        this.balances = merge(this.balances, {
+        this.balances = merge({}, this.balances, {
           [network.chainId]: balances,
         });
       })

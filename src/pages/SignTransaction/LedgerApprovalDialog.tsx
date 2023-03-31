@@ -1,14 +1,13 @@
-import {
-  HorizontalSeparator,
-  LoadingSpinnerIcon,
-  Card,
-  truncateAddress,
-  Typography,
-  VerticalFlex,
-  HorizontalFlex,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import {
+  Divider,
+  Typography,
+  Box,
+  Stack,
+  CircularProgress,
+  useTheme,
+} from '@avalabs/k2-components';
+import { truncateAddress } from '@src/utils/truncateAddress';
 
 interface LedgerApprovalDialogProps {
   address?: string;
@@ -18,13 +17,6 @@ interface LedgerApprovalDialogProps {
   feeSymbol?: string;
   nftName?: string;
 }
-
-const StyledCard = styled(Card)`
-  margin: 16px 0 0 0;
-  radius: 8px;
-  padding: 16px;
-  background-color: ${({ theme }) => `${theme.colors.bg3}80`};
-`;
 
 export function LedgerApprovalDialog({
   address,
@@ -37,87 +29,90 @@ export function LedgerApprovalDialog({
   const { t } = useTranslation();
   const theme = useTheme();
   return (
-    <VerticalFlex
-      width="337px"
-      align="center"
-      padding="16px"
-      radius={theme.borderRadius}
-      background={theme.colors.bg2}
+    <Stack
+      sx={{
+        width: '337px',
+        alignItems: 'center',
+        p: 2,
+        borderRadius: 2,
+        background: theme.palette.background.paper,
+      }}
     >
-      <Typography weight={600} size={18} height="22px">
+      <Typography variant="h5" sx={{ mb: 2 }}>
         {t('Approve on your Ledger')}
       </Typography>
-      <StyledCard>
-        <VerticalFlex width="100%">
+      <Box sx={{ width: '100%' }}>
+        <Stack sx={{ width: '100%' }}>
           {address && (
-            <VerticalFlex>
-              <Typography height="17px" size={14} margin="0 0 4px 0">
+            <Stack>
+              <Typography
+                margin="0 0 4px 0"
+                variant="body2"
+                sx={{ color: theme.palette.text.secondary }}
+              >
                 {t('To')}
               </Typography>
-              <Typography height="24px" weight={600}>
-                {truncateAddress(address, 24)}
+              <Typography variant="body1">
+                {truncateAddress(address, 12)}
               </Typography>
-            </VerticalFlex>
+            </Stack>
           )}
-          <HorizontalSeparator margin="16px 0" />
+          <Divider sx={{ my: 2 }} />
           {amount && (
             <>
-              <VerticalFlex>
-                <Typography height="17px" size={14} margin="0 0 4px 0">
+              <Stack>
+                <Typography
+                  variant="body2"
+                  margin="0 0 4px 0"
+                  sx={{ color: theme.palette.text.secondary }}
+                >
                   {t('Amount')}
                 </Typography>
-                <Typography height="24px" weight={600}>
+                <Typography variant="body1">
                   {amount} {symbol}
                 </Typography>
-              </VerticalFlex>
-              <HorizontalSeparator margin="16px 0" />
+              </Stack>
+              <Divider sx={{ my: 2 }} />
             </>
           )}
           {fee && (
             <>
-              <VerticalFlex>
-                <Typography height="17px" size={14} margin="0 0 4px 0">
+              <Stack>
+                <Typography
+                  variant="body2"
+                  margin="0 0 4px 0"
+                  sx={{ color: theme.palette.text.secondary }}
+                >
                   {t('Fee')}
                 </Typography>
-                <Typography height="24px" weight={600}>
+                <Typography variant="body1">
                   {fee} {feeSymbol}
                 </Typography>
-              </VerticalFlex>
-              <HorizontalSeparator margin="16px 0" />
+              </Stack>
+              <Divider sx={{ my: 2 }} />
             </>
           )}
           {nftName && (
             <>
-              <VerticalFlex>
-                <Typography height="17px" size={14} margin="0 0 4px 0">
+              <Stack>
+                <Typography variant="body2" margin="0 0 4px 0">
                   {t('Collectible')}
                 </Typography>
-                <Typography height="24px" weight={600}>
-                  {nftName}
-                </Typography>
-              </VerticalFlex>
-              <HorizontalSeparator margin="16px 0" />
+                <Typography variant="body1">{nftName}</Typography>
+              </Stack>
+              <Divider sx={{ my: 2 }} />
             </>
           )}
-          <VerticalFlex>
-            <Typography
-              height="17px"
-              size={14}
-              margin="0 0 4px 0"
-              align="center"
-            >
+          <Stack>
+            <Typography variant="body2" margin="0 0 4px 0">
               {t('Status')}
             </Typography>
-            <HorizontalFlex justify="center" margin="8px 0 0 0">
-              <LoadingSpinnerIcon
-                color={theme.colors.icon1}
-                height="32px"
-                width="32px"
-              />
-            </HorizontalFlex>
-          </VerticalFlex>
-        </VerticalFlex>
-      </StyledCard>
-    </VerticalFlex>
+            <Stack sx={{ mt: 1, flexDirection: 'row' }}>
+              <CircularProgress size={24} />
+            </Stack>
+          </Stack>
+        </Stack>
+      </Box>
+    </Stack>
   );
 }

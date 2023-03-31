@@ -15,6 +15,7 @@ import {
   BitcoinLedgerWallet,
   BitcoinProviderAbstract,
   BitcoinWallet,
+  createWalletPolicy,
   DerivationPath,
   getAddressDerivationPath,
   getAddressFromXPub,
@@ -48,9 +49,13 @@ import {
   AccountType,
   ImportData,
   ImportType,
+  PrimaryAccount,
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageIsValid from './utils/ensureMessageIsValid';
+import { KeystoneWallet } from '../keystone/KeystoneWallet';
+import { KeystoneService } from '../keystone/KeystoneService';
+import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -62,7 +67,8 @@ export class WalletService implements OnLock, OnUnlock {
     private storageService: StorageService,
     private networkService: NetworkService,
     private ledgerService: LedgerService,
-    private lockService: LockService
+    private lockService: LockService,
+    private keystoneService: KeystoneService
   ) {}
 
   public get walletType(): WalletType | undefined {
@@ -73,18 +79,28 @@ export class WalletService implements OnLock, OnUnlock {
     return this._derivationPath;
   }
 
+  private emitWalletState() {
+    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, {
+      walletType: this._walletType,
+      derivationPath: this._derivationPath,
+    });
+  }
+
   async onUnlock(): Promise<void> {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
 
     if (!walletKeys) {
+      this.emitWalletState();
       // wallet is not initialized
       return;
     }
 
     if (walletKeys.mnemonic) {
       this._walletType = WalletType.MNEMONIC;
+    } else if (walletKeys.masterFingerprint) {
+      this._walletType = WalletType.KEYSTONE;
     } else if (walletKeys.xpub || walletKeys.pubKeys?.length) {
       this._walletType = WalletType.LEDGER;
     } else {
@@ -92,6 +108,7 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     this._derivationPath = walletKeys.derivationPath;
+    this.emitWalletState();
   }
 
   /**
@@ -103,11 +120,13 @@ export class WalletService implements OnLock, OnUnlock {
     xpub,
     xpubXP,
     pubKeys,
+    masterFingerprint,
   }: {
     xpub?: string;
     xpubXP?: string;
     pubKeys?: PubKeyType[];
     mnemonic?: string;
+    masterFingerprint?: string;
   }) {
     if (!mnemonic && !xpub && !pubKeys?.length) {
       throw new Error('Mnemonic, pubKeys or xpub is required');
@@ -121,6 +140,7 @@ export class WalletService implements OnLock, OnUnlock {
       pubKeys,
       xpubXP,
       derivationPath,
+      masterFingerprint,
     });
     await this.onUnlock();
   }
@@ -128,11 +148,10 @@ export class WalletService implements OnLock, OnUnlock {
   onLock() {
     this._walletType = undefined;
     this._derivationPath = undefined;
-    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, { locked: true });
+    this.emitWalletState();
   }
 
-  // TODO: get rid of the `useLegacy` param (https://ava-labs.atlassian.net/browse/CP-4895)
-  private async getWallet(network?: Network, useLegacy?: boolean) {
+  private async getWallet(network?: Network, tabId?: number) {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
@@ -201,7 +220,18 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     if (activeNetwork.vmName === NetworkVMType.EVM) {
-      if (walletKeys.mnemonic) {
+      if (walletKeys.masterFingerprint) {
+        if (!this.networkService.activeNetwork?.chainId) {
+          throw new Error('active network not found');
+        }
+        return new KeystoneWallet(
+          walletKeys.masterFingerprint,
+          activeAccount.index,
+          this.keystoneService,
+          this.networkService.activeNetwork.chainId,
+          tabId
+        );
+      } else if (walletKeys.mnemonic) {
         const wallet = getWalletFromMnemonic(
           walletKeys.mnemonic,
           activeAccount.index,
@@ -232,7 +262,26 @@ export class WalletService implements OnLock, OnUnlock {
         );
       }
     } else if (activeNetwork.vmName === NetworkVMType.BITCOIN) {
-      if (walletKeys.mnemonic) {
+      if (walletKeys.masterFingerprint && walletKeys.xpub) {
+        // Use BIP44 derivation paths for extended public key of m/44'/60'/0'
+        const addressPublicKey = getAddressPublicKeyFromXPub(
+          walletKeys.xpub,
+          activeAccount.index
+        );
+
+        return new BitcoinKeystoneWallet(
+          walletKeys.masterFingerprint,
+          addressPublicKey,
+          getAddressDerivationPath(
+            activeAccount.index,
+            DerivationPath.BIP44,
+            'EVM'
+          ),
+          this.keystoneService,
+          provider as BitcoinProviderAbstract,
+          tabId
+        );
+      } else if (walletKeys.mnemonic) {
         return await BitcoinWallet.fromMnemonic(
           walletKeys.mnemonic,
           activeAccount.index,
@@ -242,6 +291,8 @@ export class WalletService implements OnLock, OnUnlock {
         if (!this.ledgerService.recentTransport) {
           throw new Error('Ledger transport not available');
         }
+
+        const walletPolicy = await this.parseWalletPolicyDetails(activeAccount);
 
         // Use BIP44 derivation paths for extended public key of m/44'/60'/0'
         const addressPublicKey = getAddressPublicKeyFromXPub(
@@ -257,7 +308,8 @@ export class WalletService implements OnLock, OnUnlock {
             'EVM'
           ),
           provider as BitcoinProviderAbstract,
-          this.ledgerService.recentTransport
+          this.ledgerService.recentTransport,
+          walletPolicy
         );
       } else if (walletKeys.pubKeys?.length) {
         // Use LedgerLive derivation paths for address public keys (m/44'/60'/n'/0/0) in storage
@@ -271,6 +323,8 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Account public key not available');
         }
 
+        const walletPolicy = await this.parseWalletPolicyDetails(activeAccount);
+
         return new BitcoinLedgerWallet(
           Buffer.from(addressPublicKey.evm, 'hex'),
           getAddressDerivationPath(
@@ -279,7 +333,8 @@ export class WalletService implements OnLock, OnUnlock {
             'EVM'
           ),
           provider as BitcoinProviderAbstract,
-          this.ledgerService.recentTransport
+          this.ledgerService.recentTransport,
+          walletPolicy
         );
       }
     } else if (
@@ -288,64 +343,19 @@ export class WalletService implements OnLock, OnUnlock {
     ) {
       // Return X/P Wallet
       const accountIndex = activeAccount.index;
+
       if (walletKeys.mnemonic) {
-        if (useLegacy) {
-          return Avalanche.MnemonicWallet.fromMnemonic(
-            walletKeys.mnemonic,
-            provider as Avalanche.JsonRpcProvider
-          );
-        } else {
-          return Avalanche.StaticSigner.fromMnemonic(
-            walletKeys.mnemonic,
-            getAddressDerivationPath(accountIndex, DerivationPath.BIP44, 'AVM'),
-            getAddressDerivationPath(accountIndex, DerivationPath.BIP44, 'EVM'),
-            provider as Avalanche.JsonRpcProvider
-          );
-        }
+        return new Avalanche.SimpleSigner(walletKeys.mnemonic, accountIndex);
       } else if (walletKeys.xpub && walletKeys.xpubXP) {
         if (!this.ledgerService.recentTransport) {
           throw new Error('Ledger transport not available');
         }
 
-        // get account public key for EVM
-        const pubkeyC = getAddressPublicKeyFromXPub(
-          walletKeys.xpub,
-          accountIndex
+        return new Avalanche.SimpleLedgerSigner(
+          accountIndex,
+          provider as Avalanche.JsonRpcProvider,
+          walletKeys.xpubXP
         );
-
-        if (useLegacy) {
-          return new Avalanche.LedgerWallet(
-            walletKeys.xpubXP,
-            pubkeyC,
-            provider as Avalanche.JsonRpcProvider
-          );
-        } else {
-          // Get public key for X/P
-          const pubkeyXP = Avalanche.getAddressPublicKeyFromXpub(
-            walletKeys.xpubXP,
-            accountIndex
-          );
-          // get address path m/44'/60'/0'/0/n
-          // If we have xpub it means we are using BIP44 paths
-          const pathC = getAddressDerivationPath(
-            accountIndex,
-            DerivationPath.BIP44,
-            'EVM'
-          );
-          // X/P chain uses path m/44'/9000'/0'/0/n
-          const pathXP = getAddressDerivationPath(
-            accountIndex,
-            DerivationPath.BIP44,
-            'AVM'
-          );
-          return new Avalanche.LedgerSigner(
-            pubkeyXP,
-            pathXP,
-            pubkeyC,
-            pathC,
-            provider as Avalanche.JsonRpcProvider
-          );
-        }
       } else if (walletKeys.pubKeys?.length) {
         // Ledger signing with LedgerLive derivaiton paths
         if (!this.ledgerService.recentTransport) {
@@ -360,24 +370,8 @@ export class WalletService implements OnLock, OnUnlock {
         // Verify public key exists for X/P path
         if (!pubkey.xp) throw new Error('X/P Chain public key is not set');
 
-        // EVM Path
-        const pathC = getAddressDerivationPath(
+        return new Avalanche.SimpleLedgerSigner(
           accountIndex,
-          DerivationPath.LedgerLive,
-          'EVM'
-        );
-        // XP Path
-        const pathXP = getAddressDerivationPath(
-          accountIndex,
-          DerivationPath.LedgerLive,
-          'AVM'
-        );
-
-        return new Avalanche.LedgerSigner(
-          Buffer.from(pubkey.xp, 'hex'),
-          pathXP,
-          Buffer.from(pubkey.evm, 'hex'),
-          pathC,
           provider as Avalanche.JsonRpcProvider
         );
       }
@@ -405,8 +399,13 @@ export class WalletService implements OnLock, OnUnlock {
     return secrets.mnemonic;
   }
 
-  async sign(tx: SignTransactionRequest, network?: Network): Promise<string> {
-    const wallet = await this.getWallet(network);
+  async sign(
+    tx: SignTransactionRequest,
+    tabId?: number,
+    network?: Network
+  ): Promise<string> {
+    const wallet = await this.getWallet(network, tabId);
+
     if (!wallet) {
       throw new Error('Wallet not found');
     }
@@ -415,7 +414,8 @@ export class WalletService implements OnLock, OnUnlock {
     if ('inputs' in tx) {
       if (
         !(wallet instanceof BitcoinWallet) &&
-        !(wallet instanceof BitcoinLedgerWallet)
+        !(wallet instanceof BitcoinLedgerWallet) &&
+        !(wallet instanceof BitcoinKeystoneWallet)
       ) {
         throw new Error('Signing error, wrong network');
       }
@@ -435,24 +435,17 @@ export class WalletService implements OnLock, OnUnlock {
 
     // Handle Avalanche signing, X/P/CoreEth
     if ('tx' in tx) {
-      // use legacy wallet if transaction has inputs from multiple addresses
-      const avalancheWallet = tx.hasMultipleAddresses
-        ? await this.getWallet(network, true)
-        : wallet;
-
       if (
-        !(avalancheWallet instanceof Avalanche.StaticSigner) &&
-        !(avalancheWallet instanceof Avalanche.LedgerSigner) &&
-        !(avalancheWallet instanceof Avalanche.MnemonicWallet) && // legacy for signing with multiple addresses
-        !(avalancheWallet instanceof Avalanche.LedgerWallet) // legacy for signing with multiple addresses
+        !(wallet instanceof Avalanche.SimpleSigner) &&
+        !(wallet instanceof Avalanche.StaticSigner) &&
+        !(wallet instanceof Avalanche.SimpleLedgerSigner)
       ) {
         throw new Error('Signing error, wrong network');
       }
 
-      const unsignedTx = await avalancheWallet.signTx({
+      const unsignedTx = await wallet.signTx({
         tx: tx.tx,
-        ...((wallet instanceof Avalanche.LedgerSigner ||
-          wallet instanceof Avalanche.LedgerWallet) && {
+        ...(wallet instanceof Avalanche.SimpleLedgerSigner && {
           transport: this.ledgerService.recentTransport,
         }),
         externalIndices: tx.externalIndices,
@@ -466,7 +459,11 @@ export class WalletService implements OnLock, OnUnlock {
       return Avalanche.signedTxToHex(unsignedTx.getSignedTx());
     }
 
-    if (!(wallet instanceof Wallet) && !(wallet instanceof LedgerSigner)) {
+    if (
+      !(wallet instanceof Wallet) &&
+      !(wallet instanceof LedgerSigner) &&
+      !(wallet instanceof KeystoneWallet)
+    ) {
       throw new Error('Signing error, wrong network');
     }
 
@@ -1017,6 +1014,135 @@ export class WalletService implements OnLock, OnUnlock {
           'Error while searching for missing public keys: incomplete migration.'
         );
       }
+    }
+  }
+
+  private async parseWalletPolicyDetails(account?: Account) {
+    const btcWalletPolicyDetails = await this.getBtcWalletPolicyDetails(
+      account
+    );
+
+    if (!btcWalletPolicyDetails) {
+      throw new Error('Error while parsing wallet policy: missing data.');
+    }
+
+    const accountIndex =
+      this.derivationPath === DerivationPath.LedgerLive
+        ? (account as PrimaryAccount).index
+        : 0;
+    const hmac = Buffer.from(btcWalletPolicyDetails.hmacHex, 'hex');
+    const policy = createWalletPolicy(
+      btcWalletPolicyDetails.masterFingerprint,
+      accountIndex,
+      btcWalletPolicyDetails.xpub,
+      btcWalletPolicyDetails.name
+    );
+
+    return {
+      hmac,
+      policy,
+    };
+  }
+
+  async getBtcWalletPolicyDetails(account?: Account) {
+    if (
+      !account ||
+      account.type !== AccountType.PRIMARY ||
+      this.walletType !== WalletType.LEDGER
+    ) {
+      return;
+    }
+
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (this.derivationPath === DerivationPath.LedgerLive) {
+      const pubKeyInfo = (secrets?.pubKeys ?? [])[account.index];
+      return pubKeyInfo?.btcWalletPolicyDetails;
+    } else if (this.derivationPath === DerivationPath.BIP44) {
+      return secrets?.btcWalletPolicyDetails;
+    }
+  }
+
+  async storeBtcWalletPolicyDetails(
+    accountIndex: number,
+    xpub: string,
+    masterFingerprint: string,
+    hmacHex: string,
+    name: string
+  ) {
+    if (this.walletType !== WalletType.LEDGER) {
+      throw new Error(
+        'Error while saving wallet policy details: incorrect wallet type.'
+      );
+    }
+
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (!secrets) {
+      throw new Error(
+        'Error while saving wallet policy details: storage is empty.'
+      );
+    }
+
+    if (this.derivationPath === DerivationPath.LedgerLive) {
+      const pubKeys = secrets.pubKeys ?? [];
+      const pubKeyInfo = pubKeys[accountIndex];
+
+      if (!pubKeyInfo) {
+        throw new Error(
+          'Error while saving wallet policy details: missing record for the provided index.'
+        );
+      }
+
+      if (pubKeyInfo?.btcWalletPolicyDetails) {
+        throw new Error(
+          'Error while saving wallet policy details: policy details already stored.'
+        );
+      }
+
+      pubKeyInfo.btcWalletPolicyDetails = {
+        xpub,
+        masterFingerprint,
+        hmacHex,
+        name,
+      };
+
+      pubKeys[accountIndex] = pubKeyInfo;
+
+      await this.storageService.save<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY,
+        {
+          ...secrets,
+          pubKeys,
+        }
+      );
+    } else if (this.derivationPath === DerivationPath.BIP44) {
+      if (secrets?.btcWalletPolicyDetails) {
+        throw new Error(
+          'Error while saving wallet policy details: policy details already stored.'
+        );
+      }
+
+      await this.storageService.save<WalletSecretInStorage>(
+        WALLET_STORAGE_KEY,
+        {
+          ...secrets,
+          btcWalletPolicyDetails: {
+            xpub,
+            masterFingerprint,
+            hmacHex,
+            name,
+          },
+        }
+      );
+    } else {
+      throw new Error(
+        'Error while saving wallet policy details: unknown derivation path.'
+      );
     }
   }
 }

@@ -1,23 +1,22 @@
-import { useState } from 'react';
-import {
-  PlusIcon,
-  SearchInput,
-  TextButton,
-  Typography,
-  VerticalFlex,
-  Tooltip,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import { ChangeEvent, useState } from 'react';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { ContactListItem } from '../components/ContactListItem';
 import { useTranslation } from 'react-i18next';
+import {
+  Stack,
+  Typography,
+  Scrollbars,
+  Tooltip,
+  PlusIcon,
+  IconButton,
+  List,
+  SearchBar,
+} from '@avalabs/k2-components';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { contacts } = useContactsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
@@ -31,53 +30,59 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
     );
 
   return (
-    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
+    <Stack width={width} sx={{ height: '100%' }}>
       <SettingsHeader
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={t('Address Book')}
         action={
-          <Tooltip
-            content={
-              <Typography size={12} height="1.5">
-                {t('Add New Contact')}
-              </Typography>
-            }
-          >
-            <TextButton
+          <Tooltip title={t('New Contact')}>
+            <IconButton
               data-testid="add-contact-plus-button"
               onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}
             >
-              <PlusIcon height="18px" color={theme.colors.text1} />
-            </TextButton>
+              <PlusIcon size="24" />
+            </IconButton>
           </Tooltip>
         }
       />
-      <VerticalFlex padding="16px">
-        <SearchInput
+      <Stack sx={{ p: 2 }}>
+        <SearchBar
           data-testid="contact-search-input"
-          placeholder={t('Search')}
-          onSearch={setSearchTerm}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setSearchTerm(e.target.value)
+          }
           autoFocus={true}
+          light
         />
-      </VerticalFlex>
+      </Stack>
       <Scrollbars>
         {filteredContacts.length === 0 && (
-          <Typography margin="16px" size={14} as="p" align="center">
-            {t('No contacts found')}
-          </Typography>
+          <Stack sx={{ alignContent: 'center', mt: 12 }}>
+            <Typography variant="h4" sx={{ textAlign: 'center', mb: 1 }}>
+              {t('No Contacts Saved')}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ textAlign: 'center', color: 'text.secondary' }}
+            >
+              {t('Hit the + to add a new contact')}
+            </Typography>
+          </Stack>
         )}
-        {filteredContacts.map((contact, index) => (
-          <ContactListItem
-            key={contact.id}
-            contact={contact}
-            navigateTo={navigateTo}
-            index={index}
-            length={filteredContacts.length}
-          />
-        ))}
+        <List>
+          {filteredContacts.map((contact, index) => (
+            <ContactListItem
+              key={contact.id}
+              contact={contact}
+              navigateTo={navigateTo}
+              index={index}
+              length={filteredContacts.length}
+            />
+          ))}
+        </List>
       </Scrollbars>
-    </VerticalFlex>
+    </Stack>
   );
 }

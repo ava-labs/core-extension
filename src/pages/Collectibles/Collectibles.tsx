@@ -146,7 +146,7 @@ export function Collectibles() {
           />
         </GroupButton>
       </ButtonGroup>
-      {!nfts.loading && nfts.items?.length && (
+      {!nfts.loading && !!nfts.items?.length && (
         <InfiniteScroll
           loadMore={update}
           hasMore={!!nfts.pageToken}

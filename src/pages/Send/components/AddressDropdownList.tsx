@@ -1,10 +1,12 @@
-import { TextButton, VerticalFlex } from '@avalabs/react-components';
-import { AddressDropdownListItem } from './AddressDropdownListItem';
-import type { Contact } from '@avalabs/types';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+import { Box, Button, Scrollbars, Stack } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
+import type { Contact } from '@avalabs/types';
+
+import { AddressDropdownListItem } from './AddressDropdownListItem';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPages } from '@src/components/settings/models';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { isBitcoin } from '@src/utils/isBitcoin';
 
 type AddressDropdownListProps = {
   contacts: Contact[];
@@ -20,37 +22,43 @@ export const AddressDropdownList = ({
   addContact,
 }: AddressDropdownListProps) => {
   const { t } = useTranslation();
+  const { network } = useNetworkContext();
+  const useBtcAddress = isBitcoin(network);
+
+  const selectedAddress =
+    selectedContact?.[useBtcAddress ? 'addressBTC' : 'address']?.toLowerCase();
+
   const { setIsSettingsOpen, setSettingsActivePage } = useSettingsContext();
   return (
-    <VerticalFlex grow="1" paddingTop={addContact ? '0' : '16px'}>
+    <Stack sx={{ flexGrow: 1 }}>
       {addContact && (
-        <TextButton
-          padding="18px"
-          onClick={() => {
-            setSettingsActivePage(SettingsPages.ADD_CONTACT);
-            setIsSettingsOpen(true);
-          }}
-          data-testid="send-add-new-contact"
-        >
-          {t('+ Add New Contact')}
-        </TextButton>
+        <Box sx={{ py: 2 }}>
+          <Button
+            variant="text"
+            onClick={() => {
+              setSettingsActivePage(SettingsPages.ADD_CONTACT);
+              setIsSettingsOpen(true);
+            }}
+            data-testid="send-add-new-contact"
+          >
+            {t('+ Add New Contact')}
+          </Button>
+        </Box>
       )}
-      <Scrollbars
-        style={{
-          flexGrow: 1,
-          height: '100%',
-          width: '100%',
-        }}
-      >
+      <Scrollbars style={{ flexGrow: 1, height: '100%', width: '100%' }}>
         {contacts.map((contact, i) => (
           <AddressDropdownListItem
             key={`${contact.address}${i}`}
             contact={contact}
-            selectedContact={selectedContact}
+            isSelected={
+              contact?.[
+                useBtcAddress ? 'addressBTC' : 'address'
+              ]?.toLowerCase() === selectedAddress
+            }
             onChange={onChange}
           />
         ))}
       </Scrollbars>
-    </VerticalFlex>
+    </Stack>
   );
 };

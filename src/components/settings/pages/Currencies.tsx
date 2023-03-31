@@ -1,18 +1,19 @@
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import {
-  CheckmarkIcon,
-  SearchInput,
-  SecondaryDropDownMenuItem,
+  Stack,
+  Scrollbars,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+  ListItem,
+  List,
+  CheckIcon,
+  SearchBar,
+} from '@avalabs/k2-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CURRENCIES } from '@src/background/services/settings/models';
 import { TFunction, useTranslation } from 'react-i18next';
+import { StyledListButton } from '../components/StyledListItemButton';
 
 // TODO: bring back the commented currencies when the glacier supports them
 export const getCurrencyNames = (t: TFunction<'translation'>) => {
@@ -33,7 +34,6 @@ export const getCurrencyNames = (t: TFunction<'translation'>) => {
 
 export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { updateCurrencySetting, currency } = useSettingsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const currencyNames = getCurrencyNames(t);
@@ -48,43 +48,54 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
     );
 
   return (
-    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
+    <Stack
+      sx={{
+        width: `${width}`,
+        height: '100%',
+      }}
+    >
       <SettingsHeader
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={t('Currency')}
       />
-      <VerticalFlex padding="16px 16px 24px">
-        <SearchInput
+      <Stack
+        sx={{
+          pt: 1,
+          px: 2,
+          pb: 3,
+        }}
+      >
+        <SearchBar
           data-testid="currency-search-input"
-          placeholder={t('Search')}
-          onSearch={setSearchTerm}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setSearchTerm(e.target.value)
+          }
           autoFocus={true}
+          light
         />
-      </VerticalFlex>
+      </Stack>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        {filteredCurrencies.map((c) => (
-          <SecondaryDropDownMenuItem
-            data-testid={`currency-menu-item-${c.symbol}`.toLowerCase()}
-            selected={currency === c.symbol}
-            padding="10px 16px"
-            key={c.symbol}
-            justify="space-between"
-            align="center"
-            onClick={() => {
-              updateCurrencySetting(c.symbol);
-            }}
-          >
-            <Typography size={14} height="17px">
-              {currencyNames[c.symbol]} ({c.symbol})
-            </Typography>
-            {currency === c.symbol && (
-              <CheckmarkIcon height="16px" color={theme.colors.icon1} />
-            )}
-          </SecondaryDropDownMenuItem>
-        ))}
+        <List sx={{ py: 0 }}>
+          {filteredCurrencies.map((c) => (
+            <ListItem key={c.symbol} sx={{ p: 0 }}>
+              <StyledListButton
+                data-testid={`currency-menu-item-${c.symbol}`.toLowerCase()}
+                selected={currency === c.symbol}
+                onClick={() => {
+                  updateCurrencySetting(c.symbol);
+                }}
+              >
+                <Typography variant="body2">
+                  {currencyNames[c.symbol]} ({c.symbol})
+                </Typography>
+                {currency === c.symbol && <CheckIcon size={16} />}
+              </StyledListButton>
+            </ListItem>
+          ))}
+        </List>
       </Scrollbars>
-    </VerticalFlex>
+    </Stack>
   );
 }

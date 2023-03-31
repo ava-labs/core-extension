@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
@@ -37,6 +37,16 @@ export const CreatePassword = ({
   const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
   const { t } = useTranslation();
   const theme = useTheme();
+
+  const getSteps = useMemo(() => {
+    if (onboardingPath === OnboardingPath.NEW_WALLET) {
+      return { stepsNumber: 4, activeStep: 1 };
+    }
+    if (onboardingPath === OnboardingPath.KEYSTONE) {
+      return { stepsNumber: 6, activeStep: 5 };
+    }
+    return { stepsNumber: 3, activeStep: 2 };
+  }, [onboardingPath]);
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(
@@ -181,8 +191,8 @@ export const CreatePassword = ({
         }
         disableNext={!canSubmit}
         expand={onboardingPath === OnboardingPath.NEW_WALLET ? false : true}
-        steps={onboardingPath === OnboardingPath.NEW_WALLET ? 4 : 3}
-        activeStep={onboardingPath === OnboardingPath.NEW_WALLET ? 1 : 2}
+        steps={getSteps.stepsNumber}
+        activeStep={getSteps.activeStep}
       />
     </Stack>
   );

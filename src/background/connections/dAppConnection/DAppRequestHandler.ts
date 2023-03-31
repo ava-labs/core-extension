@@ -18,7 +18,8 @@ export interface DAppRequestHandler {
     pendingAction: Action,
     result: any,
     onSuccess: (result: unknown) => Promise<void>,
-    onError: (error: Error) => Promise<void>
+    onError: (error: Error) => Promise<void>,
+    tabId?: number
   ) => Promise<void>;
 }
 

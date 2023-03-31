@@ -13,6 +13,7 @@ import {
 } from '@avalabs/k2-components';
 import { OnboardingPath } from './Onboarding';
 import { PageNav } from './components/PageNav';
+import { useMemo } from 'react';
 
 interface AnalyticsProps {
   onCancel(): void;
@@ -27,6 +28,16 @@ export const AnalyticsConsent = ({
   const { setNextPhase, setAnalyticsConsent } = useOnboardingContext();
   const { capture, stopDataCollection } = useAnalyticsContext();
   const { t } = useTranslation();
+
+  const getSteps = useMemo(() => {
+    if (onboardingPath === OnboardingPath.NEW_WALLET) {
+      return { stepsNumber: 4, activeStep: 0 };
+    }
+    if (onboardingPath === OnboardingPath.KEYSTONE) {
+      return { stepsNumber: 6, activeStep: 4 };
+    }
+    return { stepsNumber: 3, activeStep: 1 };
+  }, [onboardingPath]);
 
   return (
     <Stack
@@ -124,8 +135,8 @@ export const AnalyticsConsent = ({
         nextText={t('I Agree')}
         disableNext={false}
         expand={onboardingPath !== OnboardingPath.NEW_WALLET}
-        steps={onboardingPath === OnboardingPath.NEW_WALLET ? 4 : 3}
-        activeStep={onboardingPath === OnboardingPath.NEW_WALLET ? 0 : 1}
+        steps={getSteps.stepsNumber}
+        activeStep={getSteps.activeStep}
       >
         {onboardingPath !== OnboardingPath.NEW_WALLET && (
           <Button
@@ -135,6 +146,8 @@ export const AnalyticsConsent = ({
                 setNextPhase(OnboardingPhase.IMPORT_WALLET);
               } else if (onboardingPath === OnboardingPath.LEDGER) {
                 setNextPhase(OnboardingPhase.LEDGER);
+              } else if (onboardingPath === OnboardingPath.KEYSTONE) {
+                setNextPhase(OnboardingPhase.KEYSTONE);
               }
             }}
             sx={{

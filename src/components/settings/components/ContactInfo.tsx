@@ -1,56 +1,70 @@
-import {
-  AvaxTokenIcon,
-  HorizontalFlex,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import styled from 'styled-components';
 import type { Contact } from '@avalabs/types';
-import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
-import { SimpleAddress } from '@src/components/common/SimpleAddress';
-
-const ContactName = styled(Typography)`
-  max-width: 95%;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`;
-
-const StyledAvaxIcon = styled(AvaxTokenIcon)`
-  margin: 0 4px 0 0;
-`;
-
-const StyleBitcoinIcon = styled(BitcoinLogo)`
-  margin: 0 4px 0 0;
-`;
+import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
+import {
+  Stack,
+  Typography,
+  AvalancheColorIcon,
+  BitcoinColorIcon,
+} from '@avalabs/k2-components';
 
 export const ContactInfo = ({ contact }: { contact: Contact }) => {
   return (
-    <HorizontalFlex justify="space-between" width={'100%'} align="center">
-      <ContactName title={contact.name}>{contact.name}</ContactName>
-      <VerticalFlex>
+    <Stack
+      sx={{
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        width: '100%',
+        alignItems: 'center',
+      }}
+    >
+      <Typography
+        variant="body1"
+        title={contact.name}
+        sx={{
+          maxWidth: '95%',
+          textOverflow: 'ellipsis',
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          fontWeight: 'fontWeightSemibold',
+        }}
+      >
+        {contact.name}
+      </Typography>
+      <Stack>
         {contact.address && (
-          <HorizontalFlex
+          <Stack
+            sx={{ flexDirection: 'row', alignItems: 'center', width: '120px' }}
             data-testid="contact-li-copy-ava-address"
-            align="center"
           >
-            <StyledAvaxIcon height="16px" />
-            <SimpleAddress address={contact.address} />
-          </HorizontalFlex>
+            <AvalancheColorIcon
+              sx={{
+                mr: 0.5,
+              }}
+              size={16}
+            />
+            <SimpleAddressK2 address={contact.address} />
+          </Stack>
         )}
         {contact.addressBTC && (
-          <HorizontalFlex
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '120px',
+              mt: 1,
+            }}
             data-testid="contact-li-copy-btc-address"
-            align="center"
           >
-            <StyleBitcoinIcon height="16px" />
-            <SimpleAddress address={contact.addressBTC} />
-          </HorizontalFlex>
+            <BitcoinColorIcon
+              sx={{
+                mr: 0.5,
+              }}
+              size={16}
+            />
+            <SimpleAddressK2 address={contact.addressBTC} />
+          </Stack>
         )}
-      </VerticalFlex>
-    </HorizontalFlex>
+      </Stack>
+    </Stack>
   );
 };

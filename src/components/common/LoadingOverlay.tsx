@@ -1,12 +1,10 @@
-import { LoadingSpinnerIcon, Overlay } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
+import { CircularProgress } from '@avalabs/k2-components';
+import { Overlay } from './Overlay';
 
 export function LoadingOverlay() {
-  const theme = useTheme();
-
   return (
     <Overlay>
-      <LoadingSpinnerIcon color={theme.colors.secondary1} />
+      <CircularProgress />
     </Overlay>
   );
 }

@@ -16,6 +16,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       tabId: 1,
     },
   };
+  const frontendTabId = 987;
 
   const openApprovalWindowSpy = jest.spyOn(
     DAppRequestHandler.prototype,
@@ -288,7 +289,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         pendingActionMock,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
+        frontendTabId
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(expect.any(Error));
@@ -320,10 +322,11 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         pendingActionMock,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
+        frontendTabId
       );
 
-      expect(signMock).toHaveBeenCalledWith({}, { chainId: 3 });
+      expect(signMock).toHaveBeenCalledWith({}, frontendTabId, { chainId: 3 });
       expect(onSuccessMock).toHaveBeenCalledWith('resultHash');
     });
   });

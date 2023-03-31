@@ -1,0 +1,123 @@
+<mxfile host="65bd71144e">
+    <diagram id="aZ6EJbNiV0EWviCFpwhp" name="Page-1">
+        <mxGraphModel dx="2658" dy="2258" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#114B5F" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="3" value="Content Script" style="whiteSpace=wrap;html=1;fillColor=#1A1A1A;strokeColor=#FFFFFF;fontColor=#E4FDE1;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="96.25" y="127.5" width="182.5" height="115" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="dApp" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F45B69;strokeColor=#028090;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="-610" y="145" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=#114B5F;strokeColor=#FFFFFF;fontColor=#E4FDE1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="89" target="5" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="-500" y="270" as="sourcePoint"/>
+                        <mxPoint x="-360" y="170" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="-500" y="185"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="8" value="&lt;h1&gt;Websites&lt;/h1&gt;&lt;p&gt;dApps can communicate with the wallet via the Injected provider either by using the window.ethereum / window.avalanche object directly, or by using a connection library with the approriate connector like web3-react.&lt;br&gt;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="-790" y="25" width="340" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;direction=north;fillColor=#F45B69;strokeColor=#FFFFFF;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="127.5" y="100" width="120" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;h1&gt;Runtime.Post&lt;/h1&gt;&lt;p&gt;Here the content script bridges the background script and provider.&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="96.25" y="7.5" width="210" height="92.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;direction=east;fillColor=#F45B69;strokeColor=#FFFFFF;fontColor=#E4FDE1;rotation=0;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="542.5" width="20" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="&lt;h1&gt;Background (service-worker)&lt;/h1&gt;&lt;p&gt;This is the brain of the wallet. Here all requests from the extension UI itself and from the dApp are routed. This houses the rpc layers for making requests to the chain, the chain info being shown in the dropdown, all user settings and the list goes on. Basically this is almost the entire app.&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="440" y="532.5" width="350" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="89" value="" style="whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;strokeColor=#F0F0F0;fillColor=#1A1A1A;" parent="1" vertex="1">
+                    <mxGeometry x="-420" y="25" width="320" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="90" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;labelBackgroundColor=#114B5F;strokeColor=#FFFFFF;fontColor=#E4FDE1" parent="1" source="3" target="89" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="10" y="260" as="sourcePoint"/>
+                        <mxPoint x="60" y="210" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="-60" y="185"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="91" value="&lt;h1&gt;Injected provider&lt;/h1&gt;&lt;p&gt;now instead of just having window.ethereum you add window.avalanche. An API is provided at wallet that gives dApps the ability to have wallet features and allows wallets to be built like dApps. Non of them would need ot have knowledge of what a wallet entails and could simply connect and display&amp;nbsp;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="-415" y="30" width="310" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="96" value="window.ethereum" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#1A1A1A;strokeColor=#FFFFFF;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="-400" y="180" width="150" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="97" value="window.avalanche" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#1A1A1A;strokeColor=#FFFFFF;fontColor=#E4FDE1;" parent="1" vertex="1">
+                    <mxGeometry x="-260" y="180" width="150" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="98" value="" style="whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#1A1A1A;strokeColor=#FFFFFF;" vertex="1" parent="1">
+                    <mxGeometry x="-415" y="477.5" width="320" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="99" value="&lt;h1&gt;Frontend&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;fontColor=#E4FDE1;" vertex="1" parent="1">
+                    <mxGeometry x="-410" y="482.5" width="310" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="100" value="approval windows" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#1A1A1A;strokeColor=#FFFFFF;fontColor=#E4FDE1;" vertex="1" parent="1">
+                    <mxGeometry x="-401.25" y="652.5" width="105" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="101" value="main extension &lt;br&gt;UI" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#1A1A1A;strokeColor=#FFFFFF;fontColor=#E4FDE1;" vertex="1" parent="1">
+                    <mxGeometry x="-306.25" y="557.5" width="105" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="102" value="onboarding" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#1A1A1A;strokeColor=#FFFFFF;fontColor=#E4FDE1;" vertex="1" parent="1">
+                    <mxGeometry x="-213.75" y="652.5" width="105" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="103" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#6a00ff;strokeColor=#3700CC;fontColor=#ffffff;rounded=0;glass=0;" vertex="1" parent="1">
+                    <mxGeometry y="450" width="375" height="375" as="geometry"/>
+                </mxCell>
+                <mxCell id="104" value="&lt;h1&gt;Background script&lt;/h1&gt;&lt;p&gt;These services line in the service worker and are only accessible through RPC request handlers.&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;glass=0;align=center;" vertex="1" parent="1">
+                    <mxGeometry x="17.5" y="462.5" width="340" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="105" value="Wallet" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="42.5" y="552.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="106" value="Network" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="152.5" y="552.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="107" value="Permissions&lt;span style=&quot;color: rgba(0 , 0 , 0 , 0) ; font-family: monospace ; font-size: 0px&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22Network%22%20style%3D%22ellipse%3BwhiteSpace%3Dwrap%3Bhtml%3D1%3Baspect%3Dfixed%3Brounded%3D0%3Bglass%3D0%3Balign%3Dcenter%3BfillColor%3D%236a00ff%3BstrokeColor%3D%233700CC%3BfontColor%3D%23ffffff%3B%22%20vertex%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20x%3D%22630%22%20y%3D%22660%22%20width%3D%2280%22%20height%3D%2280%22%20as%3D%22geometry%22%2F%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="252.5" y="552.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="108" value="Onboarding" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="42.5" y="642.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="109" value="Messages" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="152.5" y="642.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="110" value="Transactions" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="252.5" y="642.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="111" value="Storage" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="252.5" y="732.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="112" value="Extension&lt;br&gt;Connections" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="152.5" y="732.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="113" value="Dapp&lt;br&gt;Connections" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;rounded=0;glass=0;align=center;fillColor=#6a00ff;strokeColor=#FFFFFF;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="42.5" y="732.5" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="117" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;labelBackgroundColor=#114B5F;strokeColor=#FFFFFF;fontColor=#E4FDE1" edge="1" parent="1" source="103" target="98">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="200" y="360" as="sourcePoint"/>
+                        <mxPoint x="80" y="360" as="targetPoint"/>
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="118" value="" style="endArrow=classic;startArrow=classic;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;labelBackgroundColor=#114B5F;strokeColor=#FFFFFF;fontColor=#E4FDE1" edge="1" parent="1" source="103" target="3">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="220" y="330" as="sourcePoint"/>
+                        <mxPoint x="100" y="330" as="targetPoint"/>
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

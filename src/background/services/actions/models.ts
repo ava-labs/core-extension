@@ -33,6 +33,7 @@ export interface ActionUpdate {
   status: ActionStatus;
   result?: any;
   error?: string;
+  tabId?: number;
 }
 export const ACTIONS_STORAGE_KEY = 'actions';
 

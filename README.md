@@ -25,7 +25,7 @@
 
 ### Prerequisites
 
-- Install [Node.js] and [Yarn] <br/>The project uses [Volta] to manage Node.js and Yarn versions, however it's not mandatory to use Volta, you can always just install the correct version or use another tool like `nvm`.
+- Install [Node.js] and [Yarn] <br/>The project uses [Volta] to manage Node.js and Yarn versions, however, it's not mandatory to use Volta, you can always just install the correct version or use another tool like `nvm`.
 
 - Get added to `@avalabs` on [npmjs.com].<br/>
   The project uses multiple private SDKs and utility packages from NPM.<br/>
@@ -68,11 +68,11 @@ yarn dev
 ### Versioning
 
 The project uses semantic versioning to determine the next version number.
-Use the [conventional commmit] format for increasing the verison number correctly.
+Use the [conventional commmit] format for increasing the version number correctly.
 
 - `feat`: a commit of the type feat introduces a new feature to the codebase (this correlates with MINOR in Semantic Versioning).
 - Having the `BREAKING CHANGE` or `BREAKING CHANGES` string in the commit message bumps the major version number
-- Other scopes like `fix`, `build`, `chore`, `ci`, `docs`, `style`, `refactor`, `perf`, `test` or having no scope, increments the PATCH section of the version number
+- Other scopes like `fix`, `build`, `chore`, `ci`, `docs`, `style`, `refactor`, `perf`, `test` or having no scope, increment the PATCH section of the version number
 
 ### Alpha releases
 

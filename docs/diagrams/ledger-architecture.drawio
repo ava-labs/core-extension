@@ -1,0 +1,79 @@
+<mxfile host="65bd71144e">
+    <diagram id="A-Ijg5x2X9pUbq4fZsCD" name="Page-1">
+        <mxGraphModel dx="1842" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#114B5F" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="3" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-90" y="50" width="730" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="13" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Ledger Device" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6A00FF;" vertex="1" parent="1">
+                    <mxGeometry x="-720" y="246" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="&lt;h1&gt;Background script&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="-80" y="60" width="590" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="-50" y="134" width="300" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="" style="rounded=0;whiteSpace=wrap;html=1;shadow=1;" vertex="1" parent="20">
+                    <mxGeometry width="290" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="LedgerTransport" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6A00FF;shadow=1;" vertex="1" parent="20">
+                    <mxGeometry x="40" y="100" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="&lt;h1&gt;Ledger Service&lt;/h1&gt;&lt;div&gt;Maintains a list of Ledger connections on the frontend in the form of LedgerTransport objects.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="20">
+                    <mxGeometry x="10" y="10" width="290" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="LedgerTransport" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6A00FF;shadow=1;" vertex="1" parent="20">
+                    <mxGeometry x="30" y="113" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="300" y="133" width="300" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="" style="rounded=0;whiteSpace=wrap;html=1;shadow=1;" vertex="1" parent="22">
+                    <mxGeometry width="290" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="&lt;h1&gt;Wallet Service&lt;/h1&gt;&lt;div&gt;The WalletService creates Ledger wallet instances on demand, initializing them with the LedgerTransports provided by the LedgerService&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="22">
+                    <mxGeometry x="10" y="10" width="290" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="LedgerWallet" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6A00FF;shadow=1;" vertex="1" parent="22">
+                    <mxGeometry x="20" y="116" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="26" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="12" target="26">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="-470" y="97" width="270" height="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="29">
+                    <mxGeometry width="270" height="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="LedgerProvider" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6A00FF;" vertex="1" parent="29">
+                    <mxGeometry x="65" y="150" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="&lt;h1&gt;Frontend&lt;/h1&gt;&lt;div&gt;The frontend connects to the Ledger device and tries to maintain the connection with an aggressive reconnection logic if the user has Ledger as their primary wallet.&lt;br&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="29">
+                    <mxGeometry x="12" y="10" width="250" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="13" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="13">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="12" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

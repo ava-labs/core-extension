@@ -1,51 +1,44 @@
+import { useEffect, useMemo, useState } from 'react';
+import type { Contact } from '@avalabs/types';
+import { NetworkVMType } from '@avalabs/chains-sdk';
+import { useTranslation } from 'react-i18next';
 import {
-  HorizontalFlex,
+  Box,
+  Stack,
+  Tab,
+  TabPanel,
+  Tabs,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+} from '@avalabs/k2-components';
+
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { AddressDropdownList } from './AddressDropdownList';
-import type { Contact } from '@avalabs/types';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { NetworkVMType } from '@avalabs/chains-sdk';
-import { useTranslation } from 'react-i18next';
-
-const Tabs = styled(HorizontalFlex)`
-  border-bottom: ${({ theme }) => `1px solid ${theme.separator.color}`};
-`;
-
-const TabText = styled(Typography)<{
-  $selected: boolean;
-}>`
-  text-align: center;
-  width: 100%;
-  font-size: 14px;
-  ${({ $selected, theme }) => `
-		color: ${$selected ? theme.colors.text1 : theme.colors.text2};
-		font-weight: ${$selected ? 500 : 400};
-	`}
-`;
-
-const Tab = styled(HorizontalFlex)<{ selected?: boolean }>`
-  border: none;
-  background: transparent;
-  justify-content: center;
-  cursor: pointer;
-  padding: 8px 0;
-  width: 100%; // To stop shifting due to font-weight change when switching tabs
-  border-bottom: ${({ selected, theme }) =>
-    selected ? `2px solid ${theme.colors.text1}` : '2px solid transparent'}; ;
-`;
 
 interface ContactSelectProps {
   selectedContact?: Contact;
   onChange(contact: Contact, selectedTab: string): void;
 }
+
+enum TabId {
+  ADDRESS_BOOK,
+  RECENT_ADDRESSES,
+  MY_ACCOUNTS,
+}
+
+const NoContactsMessage = ({ header, description }) => (
+  <Stack sx={{ pt: 12, gap: 1, textAlign: 'center', width: '100%' }}>
+    <Typography variant="h4" color="text.primary">
+      {header}
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      {description}
+    </Typography>
+  </Stack>
+);
 
 export const ContactSelect = ({
   onChange,
@@ -57,7 +50,7 @@ export const ContactSelect = ({
   const { allAccounts } = useAccountsContext();
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
-  const [selectedTab, setSelectedTab] = useState<string>('addressBook');
+  const [selectedTab, setSelectedTab] = useState(TabId.ADDRESS_BOOK);
   const [historyContacts, setHistoryContacts] = useState<Contact[]>([]);
 
   useEffect(() => {
@@ -109,58 +102,95 @@ export const ContactSelect = ({
   }, [contacts, network]);
 
   return (
-    <VerticalFlex margin="24px 0 0 0" grow="1">
-      <Tabs justify="center" padding="0 16px 0 16px">
+    <Stack sx={{ width: '100%', px: 2, pt: 3, height: '100%' }}>
+      <Tabs
+        variant="fullWidth"
+        indicatorColor="secondary"
+        value={selectedTab}
+        onChange={(_, tab) => setSelectedTab(tab)}
+        sx={{ flexShrink: 0 }}
+      >
         <Tab
+          value={TabId.ADDRESS_BOOK}
           data-testid="send-address-book-tab"
-          selected={selectedTab === 'addressBook'}
-          onClick={() => setSelectedTab('addressBook')}
-        >
-          <TabText $selected={selectedTab === 'addressBook'}>
-            {t('Address Book')}
-          </TabText>
-        </Tab>
+          tabIndex={0}
+          label={t('Address Book')}
+        />
         <Tab
+          value={TabId.RECENT_ADDRESSES}
           data-testid="send-recent-contact-tab"
-          selected={selectedTab === 'recents'}
-          onClick={() => setSelectedTab('recents')}
-        >
-          <TabText $selected={selectedTab === 'recents'}>
-            {t('Recents')}
-          </TabText>
-        </Tab>
+          tabIndex={1}
+          label={t('Recents')}
+        />
         <Tab
+          value={TabId.MY_ACCOUNTS}
           data-testid="send-my-accounts-tab"
-          selected={selectedTab === 'accounts'}
-          onClick={() => setSelectedTab('accounts')}
-        >
-          <TabText $selected={selectedTab === 'accounts'}>
-            {t('My Accounts')}
-          </TabText>
-        </Tab>
+          tabIndex={2}
+          label={t('My Accounts')}
+        />
       </Tabs>
-      {selectedTab === 'addressBook' && (
-        <AddressDropdownList
-          contacts={formattedContacts}
-          onChange={(contact) => onChange(contact, selectedTab)}
-          selectedContact={selectedContact}
-          addContact
-        />
-      )}
-      {selectedTab === 'recents' && (
-        <AddressDropdownList
-          contacts={historyContacts}
-          selectedContact={selectedContact}
-          onChange={(contact) => onChange(contact, selectedTab)}
-        />
-      )}
-      {selectedTab === 'accounts' && (
-        <AddressDropdownList
-          contacts={formattedAccounts}
-          onChange={(contact) => onChange(contact, selectedTab)}
-          selectedContact={selectedContact}
-        />
-      )}
-    </VerticalFlex>
+      <Box
+        sx={{
+          width: '100%',
+          borderTop: 1,
+          borderColor: 'divider',
+          mt: -0.25, // Move the container up, just below the tab indicator.
+          pt: 0.75, // Then add some padding at the top to equalize the missed space.
+          flexGrow: 1,
+          overflow: 'hidden',
+        }}
+      >
+        <TabPanel
+          value={selectedTab}
+          index={TabId.ADDRESS_BOOK}
+          sx={{
+            display: 'flex',
+            height: selectedTab === TabId.ADDRESS_BOOK ? '100%' : 0,
+          }}
+        >
+          <AddressDropdownList
+            contacts={formattedContacts}
+            onChange={(contact) => onChange(contact, 'addressBook')}
+            selectedContact={selectedContact}
+            addContact
+          />
+        </TabPanel>
+        <TabPanel
+          value={selectedTab}
+          index={TabId.RECENT_ADDRESSES}
+          sx={{
+            display: 'flex',
+            height: selectedTab === TabId.RECENT_ADDRESSES ? '100%' : 0,
+          }}
+        >
+          {historyContacts.length > 0 ? (
+            <AddressDropdownList
+              contacts={historyContacts}
+              selectedContact={selectedContact}
+              onChange={(contact) => onChange(contact, 'recents')}
+            />
+          ) : (
+            <NoContactsMessage
+              header={t('No Recent Recipients')}
+              description={t('Enter the address in the above field')}
+            />
+          )}
+        </TabPanel>
+        <TabPanel
+          value={selectedTab}
+          index={TabId.MY_ACCOUNTS}
+          sx={{
+            display: 'flex',
+            height: selectedTab === TabId.MY_ACCOUNTS ? '100%' : 0,
+          }}
+        >
+          <AddressDropdownList
+            contacts={formattedAccounts}
+            onChange={(contact) => onChange(contact, 'accounts')}
+            selectedContact={selectedContact}
+          />
+        </TabPanel>
+      </Box>
+    </Stack>
   );
 };

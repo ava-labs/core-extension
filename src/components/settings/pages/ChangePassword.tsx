@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react';
-import {
-  VerticalFlex,
-  ComponentSize,
-  Typography,
-  PrimaryButton,
-  HorizontalFlex,
-} from '@avalabs/react-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useTheme } from 'styled-components';
 import {
   PasswordStrength,
   getPasswordErrorMessage,
 } from '@src/components/common/PasswordStrength';
 import { useTranslation } from 'react-i18next';
-import { PasswordInput } from '@src/components/common/PasswordInput';
+import {
+  Stack,
+  TextField,
+  Typography,
+  Button,
+  AlertTriangleIcon,
+} from '@avalabs/k2-components';
 
 export function ChangePassword({
   goBack,
@@ -23,7 +21,6 @@ export function ChangePassword({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const [oldPassword, setOldPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [newPasswordStrength, setNewPasswordStrength] = useState<number>(0);
@@ -69,91 +66,116 @@ export function ChangePassword({
   };
 
   return (
-    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
+    <Stack
+      sx={{
+        width: `${width}`,
+        height: '100%',
+      }}
+    >
       <SettingsHeader
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={t('Change Password')}
       />
+
       {!serverResponse ? (
         <>
-          <VerticalFlex align="center" padding="16px 16px 0">
-            <HorizontalFlex height="88px" width="100%">
-              <PasswordInput
-                data-testid="old-password-input"
-                onChange={(e) => {
-                  setOldPassword(e.target.value);
-                }}
-                value={oldPassword}
-                label={t('Old Password')}
-                placeholder={t('Old password')}
-                error={!!serverError}
-                errorMessage={serverError}
-                width="100%"
-              />
-            </HorizontalFlex>
-            <VerticalFlex width="100%">
-              <PasswordInput
-                data-testid="new-password-input"
-                onChange={(e) => {
-                  setNewPassword(e.target.value);
-                }}
-                value={newPassword}
-                label={t('Create New Password')}
-                placeholder={t('New Password')}
-                error={!!error}
-                width="100%"
-              />
-              <PasswordStrength
-                password={newPassword}
-                setPasswordStrength={setNewPasswordStrength}
-              />
-            </VerticalFlex>
-            <HorizontalFlex margin="16px 0 0" height="88px" width="100%">
-              <PasswordInput
-                data-testid="confirm-new-password-input"
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                }}
-                label={t('Confirm New Password')}
-                value={confirmPassword}
-                placeholder={t('Confirm Password')}
-                error={!!error}
-                errorMessage={error}
-                width="100%"
-              />
-            </HorizontalFlex>
-            <Typography size={12} height="15px" padding="0 16px" align="center">
+          <Stack
+            sx={{
+              mx: 2,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <AlertTriangleIcon sx={{ color: 'warning.main', fontSize: 24 }} />
+            <Typography variant="body2" sx={{ ml: 2 }}>
               {t(
                 'Avoid using a password that you use with other websites or that might be easy for someone to guess.'
               )}
             </Typography>
-          </VerticalFlex>
-          <VerticalFlex
-            align="center"
-            grow="1"
-            justify="flex-end"
-            margin="16px 16px 24px"
+          </Stack>
+          <Stack sx={{ pt: 3, px: 2 }}>
+            <TextField
+              data-testid="old-password-input"
+              type="password"
+              label={t('Old Password')}
+              onChange={(e) => {
+                setOldPassword(e.target.value);
+              }}
+              placeholder={t('Old password')}
+              error={!!serverError}
+              helperText={serverError}
+              size="small"
+              fullWidth
+              sx={{
+                mb: 4,
+              }}
+            />
+            <Stack sx={{ mb: 0.25 }}>
+              <TextField
+                data-testid="new-password-input"
+                type="password"
+                label={t('Create New Password')}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                }}
+                placeholder={t('New Password')}
+                error={!!error}
+                size="small"
+                fullWidth
+              />
+            </Stack>
+            <PasswordStrength
+              password={newPassword}
+              setPasswordStrength={setNewPasswordStrength}
+            />
+            <Stack sx={{ mt: 1.5 }}>
+              <TextField
+                data-testid="confirm-new-password-input"
+                type="password"
+                label={t('Confirm New Password')}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                }}
+                placeholder={t('Confirm Password')}
+                error={!!error}
+                helperText={error}
+                size="small"
+                fullWidth
+              />
+            </Stack>
+          </Stack>
+
+          <Stack
+            sx={{
+              justifyContent: 'flex-end',
+              flexGrow: '1',
+              mt: 2,
+              my: 2,
+              mb: 3,
+              px: 2,
+            }}
           >
-            <PrimaryButton
+            <Button
               data-testid="save-password-button"
-              width="100%"
-              size={ComponentSize.LARGE}
+              variant="contained"
+              color="secondary"
+              fullWidth
               onClick={handleChangePassword}
               disabled={!canSubmit}
             >
               {t('Save')}
-            </PrimaryButton>
-          </VerticalFlex>
+            </Button>
+          </Stack>
         </>
       ) : (
-        <VerticalFlex width="100%" align="center" grow="1" padding="16px">
-          <Typography size={14} height="17px" align="center">
+        <Stack sx={{ alignItems: 'center', flexGrow: '1', p: 2 }}>
+          <Typography variant="body2" sx={{ textAlign: 'center' }}>
             {serverResponse}
           </Typography>
-        </VerticalFlex>
+        </Stack>
       )}
-    </VerticalFlex>
+    </Stack>
   );
 }

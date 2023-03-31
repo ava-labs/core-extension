@@ -1,11 +1,6 @@
 import { cloneElement, useEffect, useState } from 'react';
-import {
-  HamburgerIcon,
-  SecondaryOverlay,
-  TextButton,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+import { SecondaryOverlay } from '@avalabs/react-components';
+import styled from 'styled-components';
 import { MainPage } from './pages/MainPage';
 import { Currencies } from './pages/Currencies';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -22,6 +17,7 @@ import { Legal } from './pages/Legal';
 import { Advanced } from './pages/Advanced';
 import { Language } from './pages/Language';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { IconButton, MenuIcon, Stack } from '@avalabs/k2-components';
 
 const OuterContainer = styled(SecondaryOverlay)`
   flex-direction: column;
@@ -43,7 +39,7 @@ const OuterContainer = styled(SecondaryOverlay)`
   }
 `;
 
-const AnimatedContainer = styled(VerticalFlex)`
+const AnimatedContainer = styled(Stack)`
   height: 100%;
   max-height: 100%;
   width: fit-content;
@@ -98,7 +94,6 @@ const dynamicChildFactory = (classNames) => (child) =>
   });
 
 export function SettingsMenu() {
-  const theme = useTheme();
   const {
     isSettingsOpen,
     setIsSettingsOpen,
@@ -192,12 +187,15 @@ export function SettingsMenu() {
 
   return (
     <>
-      <TextButton
+      <IconButton
         data-testid="hamburger-menu-button"
         onClick={() => setIsSettingsOpen(true)}
+        sx={{
+          p: 0,
+        }}
       >
-        <HamburgerIcon color={theme.colors.text1} />
-      </TextButton>
+        <MenuIcon size={24} />
+      </IconButton>
       <CSSTransition
         addEndListener={(node, done) =>
           node.addEventListener('transitionend', done, false)
@@ -211,11 +209,14 @@ export function SettingsMenu() {
         unmountOnExit
       >
         <OuterContainer onClick={() => setIsSettingsOpen(false)}>
-          <VerticalFlex
-            width="319px"
-            overflow="hidden"
-            height="100%"
-            position="relative"
+          <Stack
+            sx={{
+              width: '319px',
+              overflow: 'hidden',
+              height: '100%',
+              position: 'relative',
+              backgroundColor: 'background.paper',
+            }}
           >
             <TransitionGroup childFactory={dynamicChildFactory(animationClass)}>
               <CSSTransition
@@ -236,7 +237,7 @@ export function SettingsMenu() {
                 </AnimatedContainer>
               </CSSTransition>
             </TransitionGroup>
-          </VerticalFlex>
+          </Stack>
         </OuterContainer>
       </CSSTransition>
     </>

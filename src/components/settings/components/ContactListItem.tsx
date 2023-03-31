@@ -1,13 +1,8 @@
-import {
-  HorizontalSeparator,
-  SecondaryDropDownMenuItem,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import styled from 'styled-components';
 import type { Contact } from '@avalabs/types';
 import { SettingsPages } from '../models';
 import { useHistory, useLocation } from 'react-router-dom';
 import { ContactInfo } from './ContactInfo';
+import { Divider, ListItem, ListItemButton } from '@avalabs/k2-components';
 
 interface ContactListItemProps {
   contact: Contact;
@@ -15,25 +10,6 @@ interface ContactListItemProps {
   index: number;
   length: number;
 }
-
-const StyledHR = styled(HorizontalSeparator)`
-  margin: 0 16px;
-  width: auto;
-`;
-
-const StyledSecondaryDropDownMenuItem = styled(SecondaryDropDownMenuItem)`
-  box-sizing: border-box;
-
-  :hover {
-    border-top: 1px solid ${({ theme }) => `${theme.colors.bg3}`};
-    margin-bottom: 1px;
-    margin-top: -1px;
-  }
-
-  :hover + ${StyledHR} {
-    visibility: hidden;
-  }
-`;
 
 export const ContactListItem = ({
   contact,
@@ -46,12 +22,8 @@ export const ContactListItem = ({
 
   return (
     <>
-      <StyledSecondaryDropDownMenuItem
+      <ListItem
         data-testid={`contact-li-${index}`}
-        height="64px"
-        justify="space-between"
-        align="center"
-        padding="0 16px"
         onClick={() => {
           history.push({
             pathname: pathname,
@@ -61,12 +33,21 @@ export const ContactListItem = ({
           });
           navigateTo && navigateTo(SettingsPages.CONTACT_PROFILE);
         }}
+        sx={{ p: 0 }}
       >
-        <VerticalFlex align="flex-start" justify="space-between" width="100%">
+        <ListItemButton
+          sx={{
+            minHeight: '68px',
+            py: 1.25,
+            px: 2,
+            m: 0,
+            '&:hover': { borderRadius: 0 },
+          }}
+        >
           <ContactInfo contact={contact} />
-        </VerticalFlex>
-      </StyledSecondaryDropDownMenuItem>
-      {!(length - 1 === index) && <StyledHR />}
+        </ListItemButton>
+      </ListItem>
+      {!(length - 1 === index) && <Divider />}
     </>
   );
 };

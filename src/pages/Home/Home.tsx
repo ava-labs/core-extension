@@ -1,9 +1,3 @@
-import {
-  VerticalFlex,
-  TransactionToast,
-  TransactionToastType,
-  toast,
-} from '@avalabs/react-components';
 import { FAB } from '@src/components/common/fab/FAB';
 import { Portfolio } from './components/Portfolio/Portfolio';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -11,6 +5,13 @@ import { useEffect, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTranslation } from 'react-i18next';
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
+import {
+  toast,
+  ToastCard,
+  Typography,
+  Button,
+  Stack,
+} from '@avalabs/k2-components';
 
 export function Home() {
   const { t } = useTranslation();
@@ -24,25 +25,37 @@ export function Home() {
       onboardingState.initialOpen &&
       !isDefaultExtension
     ) {
-      toast.custom(
-        <TransactionToast
-          status={t("You've entered your Core wallet!")}
-          type={TransactionToastType.SUCCESS}
-          text={t('Set as your default wallet?')}
-          onClick={() => {
-            toggleIsDefaultExtension();
+      const toaster = toast.custom(
+        <ToastCard
+          onDismiss={() => {
             updateInitialOpen();
+            toast.remove(toaster);
           }}
-          buttonText={t('Yes')}
-          onClose={() => {
-            updateInitialOpen();
-          }}
-        />,
+          variant="success"
+          title={t("You've entered your Core wallet!")}
+          sx={{ width: '343px', minWidth: '343px', position: 'relative' }}
+        >
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Typography>{t('Set as your default wallet?')}</Typography>
+            <Button
+              onClick={() => {
+                toggleIsDefaultExtension();
+                updateInitialOpen();
+                toast.remove(toaster);
+              }}
+            >
+              {t('Yes')}
+            </Button>
+          </Stack>
+        </ToastCard>,
         {
-          // Toast will show until user clicks X icon or yes button
           duration: Infinity,
-          // define id to prevent showing it up multiple times
-          id: 'default_extension_toast',
         }
       );
     }
@@ -58,12 +71,10 @@ export function Home() {
 
   return (
     <>
-      <VerticalFlex width={'100%'}>
-        <VerticalFlex flex={1}>
-          <Portfolio />
-        </VerticalFlex>
+      <Stack sx={{ width: '100%' }}>
+        <Portfolio />
         <FAB />
-      </VerticalFlex>
+      </Stack>
       <LedgerWrongVersionOverlay />
     </>
   );

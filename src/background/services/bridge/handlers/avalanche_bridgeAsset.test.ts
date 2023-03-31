@@ -22,6 +22,9 @@ jest.mock('@avalabs/bridge-sdk', () => {
     getBtcAsset: jest.fn(),
   };
 });
+
+const frontendTabId = 654;
+
 const mockBridgeConfig: BridgeConfig = {
   config: {
     critical: {
@@ -420,10 +423,20 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const now = Date.now();
       jest.spyOn(Date, 'now').mockReturnValue(now);
 
-      await handler.onActionApproved(btcAction, {}, mockOnSuccess, mockOnError);
+      await handler.onActionApproved(
+        btcAction,
+        {},
+        mockOnSuccess,
+        mockOnError,
+        frontendTabId
+      );
 
       expect(bridgeServiceMock.transferBtcAsset).toBeCalledTimes(1);
-      expect(bridgeServiceMock.transferBtcAsset).toBeCalledWith(amount);
+      expect(bridgeServiceMock.transferBtcAsset).toBeCalledWith(
+        amount,
+        frontendTabId
+      );
+
       expect(bridgeServiceMock.transferAsset).toBeCalledTimes(0);
       expect(bridgeServiceMock.createTransaction).toBeCalledTimes(1);
       expect(bridgeServiceMock.createTransaction).toBeCalledWith(
@@ -472,13 +485,20 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const now = Date.now();
       jest.spyOn(Date, 'now').mockReturnValue(now);
 
-      await handler.onActionApproved(ethAction, {}, mockOnSuccess, mockOnError);
+      await handler.onActionApproved(
+        ethAction,
+        {},
+        mockOnSuccess,
+        mockOnError,
+        frontendTabId
+      );
 
       expect(bridgeServiceMock.transferAsset).toBeCalledTimes(1);
       expect(bridgeServiceMock.transferAsset).toBeCalledWith(
         ethAction.displayData.currentBlockchain,
         amount,
-        ethAction.displayData.asset
+        ethAction.displayData.asset,
+        frontendTabId
       );
       expect(bridgeServiceMock.transferBtcAsset).toBeCalledTimes(0);
       expect(bridgeServiceMock.createTransaction).toBeCalledTimes(1);

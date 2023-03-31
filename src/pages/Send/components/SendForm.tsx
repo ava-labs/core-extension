@@ -1,15 +1,8 @@
-import { useState } from 'react';
-import { TokenSelect } from '@src/components/common/TokenSelect';
+import { useEffect, useState } from 'react';
+import { TokenSelect } from '@src/components/common/TokenSelectK2';
 import { ContactInput } from './ContactInput';
 import type { Contact } from '@avalabs/types';
-import {
-  HorizontalFlex,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { BigNumber } from 'ethers';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import BN from 'bn.js';
@@ -17,10 +10,13 @@ import {
   SendErrorMessage,
   SendState,
 } from '@src/background/services/send/models';
-import { useTheme } from 'styled-components';
-import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getSendErrorMessage } from '@src/pages/Send/utils/sendErrorMessages';
+import {
+  CustomFeesK2,
+  GasFeeModifier,
+} from '@src/components/common/CustomFeesK2';
+import { Stack, Typography } from '@avalabs/k2-components';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -41,6 +37,8 @@ type SendFormProps = {
   maxGasPrice?: string;
   gasPrice?: BigNumber;
   selectedGasFee?: GasFeeModifier;
+  onAddressBookToggled: (visible: boolean) => void;
+  onTokenSelectToggled: (visible: boolean) => void;
 };
 
 export const SendForm = ({
@@ -56,13 +54,27 @@ export const SendForm = ({
   maxGasPrice,
   gasPrice,
   selectedGasFee,
+  onAddressBookToggled,
+  onTokenSelectToggled,
 }: SendFormProps) => {
-  const { t } = useTranslation();
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const { networkFee } = useNetworkFeeContext();
   const { network } = useNetworkContext();
-  const theme = useTheme();
+
+  const setContactsDropDownOpen = (open: boolean) => {
+    setIsContactsOpen(open);
+    onAddressBookToggled(open);
+  };
+
+  const setTokensDropDownOpen = (open: boolean) => {
+    setIsTokenSelectOpen(open);
+    onTokenSelectToggled(open);
+  };
+
+  useEffect(() => {
+    onTokenSelectToggled(isTokenSelectOpen);
+  }, [isTokenSelectOpen, onTokenSelectToggled]);
 
   const errorsToExcludeForTokenSelect: string[] = [
     SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE,
@@ -70,14 +82,9 @@ export const SendForm = ({
     SendErrorMessage.INVALID_ADDRESS,
   ];
 
-  const toggleContactsDropdown = (to?: boolean) => {
-    setIsContactsOpen(to === undefined ? !isContactsOpen : to);
-    setIsTokenSelectOpen(false);
-  };
-
   const toggleTokenDropdown = () => {
-    setIsTokenSelectOpen(!isTokenSelectOpen);
-    setIsContactsOpen(false);
+    setTokensDropDownOpen(!isTokenSelectOpen);
+    setContactsDropDownOpen(false);
   };
 
   return (
@@ -86,24 +93,28 @@ export const SendForm = ({
         contact={contactInput}
         onChange={onContactChange}
         isContactsOpen={isContactsOpen}
-        toggleContactsDropdown={toggleContactsDropdown}
-        setIsOpen={setIsContactsOpen}
+        setIsOpen={(open) => setContactsDropDownOpen(open)}
       />
-      <HorizontalFlex
-        marginTop="4px"
-        paddingLeft="16px"
-        width="100%"
-        height="16px"
+      <Stack
+        sx={{
+          pl: 2,
+          mt: 0.5,
+          width: '100%',
+          height: 2,
+        }}
       >
         {(sendState?.error?.message === SendErrorMessage.ADDRESS_REQUIRED ||
           sendState?.error?.message === SendErrorMessage.INVALID_ADDRESS) && (
-          <Typography size={12} color={theme.colors.error}>
-            {getSendErrorMessage(sendState.error?.message as SendErrorMessage)}.
+          <Typography
+            variant="caption"
+            sx={{ color: (theme) => theme.palette.error.main }}
+          >
+            {getSendErrorMessage(sendState.error?.message as SendErrorMessage)}
           </Typography>
         )}
-      </HorizontalFlex>
+      </Stack>
 
-      <HorizontalFlex padding="0 16px" width="100%">
+      <Stack sx={{ py: 0, px: 2, mt: 4, width: '100%' }}>
         <TokenSelect
           maxAmount={sendState.maxAmount || FALLBACK_MAX}
           tokensList={tokensWBalances}
@@ -124,33 +135,29 @@ export const SendForm = ({
                   sendState.error?.message as SendErrorMessage
                 )
           }
-          margin="24px 0"
-          setIsOpen={setIsTokenSelectOpen}
+          setIsOpen={(open) => setTokensDropDownOpen(open)}
         />
-      </HorizontalFlex>
-      <VerticalFlex width="100%" padding="0 16px">
-        <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
-          <Typography size={12} height="15px" margin="0 8px 0 0">
-            {t('Network Fee')}
-          </Typography>
-          <TransactionFeeTooltip
-            gasPrice={BigNumber.from(sendState?.gasPrice?.toString() || 0)}
-            gasLimit={sendState.customGasLimit || sendState?.gasLimit}
-            network={network}
-          />
-        </HorizontalFlex>
-        <VerticalFlex data-testid="send-custom-fees-section" width="100%">
-          <CustomFees
-            gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
-            limit={sendState.customGasLimit || sendState.gasLimit || 0}
-            onChange={onGasChanged}
-            maxGasPrice={maxGasPrice}
-            selectedGasFeeModifier={selectedGasFee}
-            network={network}
-            networkFee={networkFee}
-          />
-        </VerticalFlex>
-      </VerticalFlex>
+      </Stack>
+      <Stack
+        data-testid="send-custom-fees-section"
+        sx={{
+          mb: 3,
+          flexDirection: 'row',
+          p: 2,
+          width: '100%',
+          display: isContactsOpen ? 'none' : 'flex',
+        }}
+      >
+        <CustomFeesK2
+          gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
+          limit={sendState.customGasLimit || sendState.gasLimit}
+          onChange={onGasChanged}
+          maxGasPrice={maxGasPrice}
+          selectedGasFeeModifier={selectedGasFee}
+          network={network}
+          networkFee={networkFee}
+        />
+      </Stack>
     </>
   );
 };

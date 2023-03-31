@@ -22,11 +22,7 @@ export const ApprovalSectionHeader: React.FC<ApprovalSectionHeaderProps> = ({
       alignItems: 'center',
     }}
   >
-    <Typography
-      component="h2"
-      variant="body2"
-      sx={{ fontWeight: 'fontWeightSemibold' }}
-    >
+    <Typography component="h2" variant="body2" sx={{ fontWeight: 'semibold' }}>
       {label}
     </Typography>
     <Box>{children}</Box>

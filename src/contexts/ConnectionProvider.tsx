@@ -24,6 +24,7 @@ const activeRequestEngine = requestEngineSignal
   .filter((value) => !!value)
   .readOnly();
 const eventsHandler = new Subject<ExtensionConnectionEvent>();
+const tabId = Math.floor(Math.random() * 100000000);
 
 export interface ConnectionContextType {
   /**
@@ -34,6 +35,7 @@ export interface ConnectionContextType {
   request: RequestHandlerType;
   events<V = any>(): Observable<ExtensionConnectionEvent<V>>;
   connection?: Runtime.Port;
+  tabId: number;
 }
 
 const ConnectionContext = createContext<ConnectionContextType>({} as any);
@@ -60,7 +62,8 @@ export function ConnectionContextProvider({ children }: { children: any }) {
   const requestHandler: RequestHandlerType = useCallback(
     async function requestHandler(message) {
       const activeEngine = await activeRequestEngine.promisify();
-      return activeEngine(message).then<any>((results) => {
+
+      return activeEngine({ ...message, tabId }).then<any>((results) => {
         return results.error ? Promise.reject(results.error) : results.result;
       });
     },
@@ -79,6 +82,7 @@ export function ConnectionContextProvider({ children }: { children: any }) {
         connection,
         request: requestHandler,
         events,
+        tabId,
       }}
     >
       {children}

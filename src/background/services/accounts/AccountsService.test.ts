@@ -3,6 +3,7 @@ import { AccountsService } from './AccountsService';
 import { StorageService } from '../storage/StorageService';
 import { WalletService } from '../wallet/WalletService';
 import { LedgerService } from '../ledger/LedgerService';
+import { KeystoneService } from '../keystone/KeystoneService';
 import { LockService } from '../lock/LockService';
 import {
   AccountsEvents,
@@ -16,17 +17,20 @@ jest.mock('../storage/StorageService');
 jest.mock('../wallet/WalletService');
 jest.mock('../ledger/LedgerService');
 jest.mock('../lock/LockService');
+jest.mock('../keystone/KeystoneService');
 
 describe('background/services/accounts/AccountsService', () => {
   const networkService = new NetworkService({} as any);
   const storageService = new StorageService({} as any);
   const ledgerService = new LedgerService();
   const lockService = new LockService({} as any, {} as any);
+  const keystoneService = new KeystoneService();
   const walletService = new WalletService(
     storageService,
     networkService,
     ledgerService,
-    lockService
+    lockService,
+    keystoneService
   );
 
   const emptyAccounts = {

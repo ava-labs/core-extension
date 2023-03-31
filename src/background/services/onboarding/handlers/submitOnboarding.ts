@@ -25,6 +25,7 @@ type HandlerType = ExtensionRequestHandler<
       accountName: string;
       analyticsConsent: boolean;
       pubKeys: PubKeyType[] | undefined;
+      masterFingerprint: string | undefined;
     }
   ]
 >;
@@ -47,15 +48,16 @@ export class SubmitOnboardingHandler implements HandlerType {
   handle: HandlerType['handle'] = async (request) => {
     const {
       mnemonic,
-      xpub: xPubFromLedger,
+      xpub: xPubFromHardware,
       xpubXP: xPubXpFromLedger,
       password,
       accountName,
       analyticsConsent,
       pubKeys,
+      masterFingerprint,
     } = (request.params ?? [])[0] ?? {};
 
-    if (!mnemonic && !xPubFromLedger && !pubKeys) {
+    if (!mnemonic && !xPubFromHardware && !pubKeys) {
       return {
         ...request,
         error: 'unable to create a wallet, mnemonic or public key required',
@@ -71,7 +73,7 @@ export class SubmitOnboardingHandler implements HandlerType {
 
     // the payload shouldn't contain both xpub and pubkeys
     // it's not possible to determine which one to use, so we throw an error here
-    if (xPubFromLedger && pubKeys?.length) {
+    if (xPubFromHardware && pubKeys?.length) {
       return {
         ...request,
         error: "unable to determine wallet's derivation path",
@@ -80,7 +82,7 @@ export class SubmitOnboardingHandler implements HandlerType {
 
     // XPUB form EVM m/44'/60'/0'
     const xpub =
-      xPubFromLedger || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
+      xPubFromHardware || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
 
     if (!xpub && !pubKeys) {
       return {
@@ -97,7 +99,12 @@ export class SubmitOnboardingHandler implements HandlerType {
       : xPubXpFromLedger;
 
     if (xpub) {
-      await this.walletService.init({ mnemonic, xpub, xpubXP });
+      await this.walletService.init({
+        mnemonic,
+        xpub,
+        xpubXP,
+        masterFingerprint,
+      });
       await this.accountsService.addAccount(accountName);
     } else if (pubKeys?.length) {
       await this.walletService.init({ pubKeys });

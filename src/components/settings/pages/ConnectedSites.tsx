@@ -1,17 +1,21 @@
 import {
-  HorizontalFlex,
-  SecondaryDropDownMenuItem,
-  TrashIcon,
+  Stack,
+  Scrollbars,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+  ListItem,
+  List,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  XIcon,
+  IconButton,
+  EmptySitesIcon,
+} from '@avalabs/k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
-import { useTheme } from 'styled-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import Scrollbars from 'react-custom-scrollbars-2';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { Account } from '@src/background/services/accounts/models';
 
 type ConnectedListType = {
@@ -41,7 +45,6 @@ export function ConnectedSites({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { updateAccountPermission, permissions } = usePermissionContext();
   const {
     accounts: { active: activeAccount },
@@ -50,67 +53,55 @@ export function ConnectedSites({
     list: permissions,
     account: activeAccount,
   });
+
   return (
-    <VerticalFlex width={width} background={theme.colors.bg2} height="100%">
+    <Stack
+      sx={{
+        width: `${width}`,
+        height: '100%',
+      }}
+    >
       <SettingsHeader
         width={width}
         goBack={goBack}
         navigateTo={navigateTo}
         title={t('Connected Sites')}
       />
-      <HorizontalFlex padding="16px">
-        {connectedSitesList.length ? (
-          <Typography size={14} height="17px">
-            {t('{{name}} is connected to these sites.', {
-              name: activeAccount?.name,
-            })}
+      {!connectedSitesList.length && (
+        <Stack sx={{ mt: 6 }}>
+          <EmptySitesIcon sx={{ justifyContent: 'center', fontSize: '64px' }} />
+          <Typography variant="h4" sx={{ textAlign: 'center', mt: 3, mb: 1 }}>
+            {t('No Connected Sites')}
           </Typography>
-        ) : (
-          <Typography size={14} height="17px">
-            {t('There are no connected sites.')}
+          <Typography
+            variant="body2"
+            sx={{ textAlign: 'center', color: 'text.secondary' }}
+          >
+            {
+              <Trans i18nKey='Connect your wallet via the <br /> "Connect Wallet" button on the site' />
+            }
           </Typography>
-        )}
-      </HorizontalFlex>
+        </Stack>
+      )}
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
         {!!connectedSitesList.length && (
-          <VerticalFlex padding="8px">
+          <List>
             {connectedSitesList.map((site: any, index) => {
               return (
-                <SecondaryDropDownMenuItem
-                  data-testid={`connected-site-${index}`}
-                  justify="space-between"
-                  align="center"
+                <ListItem
+                  sx={{
+                    justifyContent: 'space-between',
+                    py: 1,
+                    px: 2,
+                    m: 0,
+                    '&:hover': { borderRadius: 0 },
+                  }}
                   key={site.domain}
-                  padding="10px 16px"
-                >
-                  <HorizontalFlex align={'center'}>
-                    <HorizontalFlex
-                      radius="50%"
-                      background={`${theme.colors.disabled}CC`}
-                      width="32px"
-                      height="32px"
-                      style={{ flexShrink: 0 }}
-                      justify="center"
-                      align="center"
-                      margin="0 16px 0 0"
-                    >
-                      <Typography size={12} align="center">
-                        {site.domain.substring(0, 2).toUpperCase()}
-                      </Typography>
-                    </HorizontalFlex>
-                    <Typography weight={500} size={14} height="17px">
-                      {site.domain}
-                    </Typography>
-                  </HorizontalFlex>
-                  <HorizontalFlex
-                    data-testid={`connected-site-${index}-trash`}
-                    justify={'flex-end'}
-                    align={'center'}
-                  >
-                    <TrashIcon
-                      height="16px"
-                      color={theme.colors.icon1}
-                      cursor="pointer"
+                  data-testid={`connected-site-${index}`}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      data-testid={`connected-site-${index}-trash`}
                       onClick={() => {
                         updateAccountPermission({
                           addressC: activeAccount?.addressC,
@@ -118,14 +109,28 @@ export function ConnectedSites({
                           domain: site.domain,
                         });
                       }}
-                    />
-                  </HorizontalFlex>
-                </SecondaryDropDownMenuItem>
+                    >
+                      <XIcon size={24} />
+                    </IconButton>
+                  }
+                >
+                  <ListItemIcon>
+                    <Avatar sx={{ width: 32, height: 32 }}>
+                      {site.domain.substring(0, 2).toUpperCase()}
+                    </Avatar>
+                  </ListItemIcon>
+                  <ListItemText
+                    sx={{ ml: 2, fontSize: '16px', my: 0 }}
+                    disableTypography
+                  >
+                    {site.domain}
+                  </ListItemText>
+                </ListItem>
               );
             })}
-          </VerticalFlex>
+          </List>
         )}
       </Scrollbars>
-    </VerticalFlex>
+    </Stack>
   );
 }

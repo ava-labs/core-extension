@@ -1,21 +1,22 @@
-import {
-  DropDownMenuItem,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation } from 'react-i18next';
+import {
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
 
 export function Legal({ goBack, navigateTo, width }) {
   const { t } = useTranslation();
-  const theme = useTheme();
   return (
-    <VerticalFlex
-      width={width}
-      background={theme.colors.bg2}
-      height="100%"
-      justify="flex-start"
+    <Stack
+      sx={{
+        width: `${width}`,
+        height: '100%',
+      }}
     >
       <SettingsHeader
         width={width}
@@ -23,32 +24,42 @@ export function Legal({ goBack, navigateTo, width }) {
         navigateTo={navigateTo}
         title={t('Legal')}
       />
-      <DropDownMenuItem
-        data-testid="terms-of-use-link"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        as="a"
-        target="_blank"
-        href="https://core.app/terms/core"
-      >
-        <Typography size={14} height="17px">
-          {t('Terms of Use')}
-        </Typography>
-      </DropDownMenuItem>
-      <DropDownMenuItem
-        data-testid="privacy-policy-link"
-        justify="space-between"
-        align="center"
-        padding="10px 16px"
-        as="a"
-        target="_blank"
-        href="https://www.avalabs.org/privacy-policy"
-      >
-        <Typography size={14} height="17px">
-          {t('Privacy Policy')}
-        </Typography>
-      </DropDownMenuItem>
-    </VerticalFlex>
+      <List>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              py: 0.5,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            onClick={() => window.open(`https://core.app/terms/core`, '_blank')}
+            data-testid="terms-of-use-link"
+          >
+            <ListItemText>
+              <Typography variant="body2">{t('Terms of Use')}</Typography>
+            </ListItemText>
+          </ListItemButton>
+        </ListItem>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              py: 0.5,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            onClick={() =>
+              window.open(`https://www.avalabs.org/privacy-policy`, '_blank')
+            }
+            data-testid="privacy-policy-link"
+          >
+            <ListItemText>
+              <Typography variant="body2">{t('Privacy Policy')}</Typography>
+            </ListItemText>
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Stack>
   );
 }

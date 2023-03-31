@@ -85,7 +85,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
     pendingAction: Action,
     result,
     onSuccess,
-    onError
+    onError,
+    frontendTabId?: number
   ) => {
     const currentBlockchain = pendingAction?.displayData.currentBlockchain;
     const amountStr = pendingAction?.displayData.amountStr;
@@ -95,7 +96,10 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
 
     if (currentBlockchain === Blockchain.BITCOIN) {
       try {
-        const result = await this.bridgeService.transferBtcAsset(amount);
+        const result = await this.bridgeService.transferBtcAsset(
+          amount,
+          frontendTabId
+        );
         await this.bridgeService.createTransaction(
           Blockchain.BITCOIN,
           result.hash,
@@ -113,7 +117,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
         const result = await this.bridgeService.transferAsset(
           currentBlockchain,
           amount,
-          asset
+          asset,
+          frontendTabId
         );
         if (result) {
           await this.bridgeService.createTransaction(

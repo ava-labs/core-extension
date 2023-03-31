@@ -24,7 +24,9 @@ export class SendSubmitHandler implements HandlerType {
       return { ...request, error: 'missing sendState' };
     }
 
-    const [result, error] = await resolve(this.sendService.send(sendState));
+    const [result, error] = await resolve(
+      this.sendService.send(sendState, request.tabId)
+    );
     return {
       ...request,
       result: result,
