@@ -140,7 +140,7 @@ export function KeystoneApprovalOverlay({
           width: '100%',
           height: '100%',
           pt: 2,
-          pb: 2.5,
+          pb: 3,
           gap: 2,
         }}
       >
@@ -244,10 +244,9 @@ export function KeystoneApprovalOverlay({
             flexDirection: 'row',
             alignItems: 'flex-end',
             width: '100%',
+            flexGrow: 1,
             justifyContent: 'space-between',
-            pt: 7,
             px: 2,
-            pb: 1,
             gap: 1,
           }}
         >
