@@ -16,6 +16,7 @@ export class UpdateActionHandler implements HandlerType {
 
   constructor(private actionsService: ActionsService) {}
   handle: HandlerType['handle'] = async (request) => {
+    const { tabId } = request;
     const [{ id, ...updates }, shouldWaitForResponse] = request.params;
     if (!id) {
       return {
@@ -35,7 +36,11 @@ export class UpdateActionHandler implements HandlerType {
       return { ...request, error: 'no message found with that id' };
     }
 
-    const response = this.actionsService.updateAction({ id, ...updates });
+    const response = this.actionsService.updateAction({
+      id,
+      tabId,
+      ...updates,
+    });
 
     if (shouldWaitForResponse) {
       await response;
