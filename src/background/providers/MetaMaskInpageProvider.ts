@@ -14,6 +14,7 @@ import {
   AbstractStreamProvider,
   StreamProviderOptions,
 } from './StreamProvider';
+import { ProviderInfo } from '../models';
 
 export interface SendSyncJsonRpcRequest extends JsonRpcRequest<unknown> {
   method:
@@ -82,6 +83,8 @@ export class MetaMaskInpageProvider extends AbstractStreamProvider {
   public readonly isMetaMask: true;
   public readonly isAvalanche: true;
 
+  public readonly info: ProviderInfo;
+
   /**
    * @param connectionStream - A Node.js duplex stream
    * @param options - An options bag
@@ -125,6 +128,13 @@ export class MetaMaskInpageProvider extends AbstractStreamProvider {
     this._warnOfDeprecation = this._warnOfDeprecation.bind(this);
 
     this._metamask = this._getExperimentalApi();
+
+    this.info = {
+      name: EVM_PROVIDER_INFO.name,
+      uuid: EVM_PROVIDER_INFO.uuid,
+      icon: EVM_PROVIDER_INFO.icon,
+      description: EVM_PROVIDER_INFO.description,
+    };
 
     // handle JSON-RPC notifications
     this._jsonRpcConnection.events.on('notification', (payload) => {

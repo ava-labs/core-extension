@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="2Leqcbp7zkG62xNGO-v0" name="window.ethereum">
-        <mxGraphModel dx="2464" dy="1375" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#114B5F" math="0" shadow="0">
+        <mxGraphModel dx="1965" dy="1425" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#114B5F" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -10,10 +10,10 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="2" value="dApp loaded" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" parent="p3TH8BZZUFwpQg5CQpSY-50" vertex="1">
-                    <mxGeometry x="411.5" y="65" width="80" height="80" as="geometry"/>
+                    <mxGeometry x="526.5" y="60" width="80" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="3" value="background script&lt;br&gt;injects the inpage.js and opens Port for communication" style="whiteSpace=wrap;html=1;" parent="p3TH8BZZUFwpQg5CQpSY-50" vertex="1">
-                    <mxGeometry x="391.5" y="185" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="506.5" y="185" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="4" value="" style="edgeStyle=none;html=1;" parent="p3TH8BZZUFwpQg5CQpSY-50" source="2" target="3" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -24,7 +24,7 @@
                 <mxCell id="5" value="&lt;span&gt;create proxy object for&amp;nbsp;&lt;br&gt;window.ethereum&lt;/span&gt;" style="whiteSpace=wrap;html=1;" parent="p3TH8BZZUFwpQg5CQpSY-50" vertex="1">
                     <mxGeometry x="471.5" y="295" width="190" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="6" value="" style="edgeStyle=none;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;" parent="p3TH8BZZUFwpQg5CQpSY-50" source="3" target="5" edge="1">
+                <mxCell id="6" value="" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="p3TH8BZZUFwpQg5CQpSY-50" source="3" target="5" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="7" value="is window.ethereum &lt;br&gt;already defined" style="rhombus;whiteSpace=wrap;html=1;" parent="p3TH8BZZUFwpQg5CQpSY-50" vertex="1">
@@ -33,7 +33,7 @@
                 <mxCell id="8" value="" style="edgeStyle=none;html=1;" parent="p3TH8BZZUFwpQg5CQpSY-50" source="5" target="7" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="9" value="Define window.avalanche as non overwritable with the provider instance&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;div style=&quot;color: rgb(212 , 212 , 212) ; background-color: rgb(30 , 30 , 30) ; font-family: &amp;#34;menlo&amp;#34; , &amp;#34;monaco&amp;#34; , &amp;#34;courier new&amp;#34; , monospace ; line-height: 18px&quot;&gt;&lt;div&gt;&lt;span style=&quot;color: #4ec9b0&quot;&gt;Object&lt;/span&gt;.&lt;span style=&quot;color: #dcdcaa&quot;&gt;defineProperty&lt;/span&gt;(&lt;span style=&quot;color: #9cdcfe&quot;&gt;window&lt;/span&gt;, &lt;span style=&quot;color: #ce9178&quot;&gt;'avalanche'&lt;/span&gt;, {&lt;/div&gt;&lt;div&gt;    &lt;span style=&quot;color: #9cdcfe&quot;&gt;value&lt;/span&gt;&lt;span style=&quot;color: #9cdcfe&quot;&gt;:&lt;/span&gt; &lt;span style=&quot;color: #9cdcfe&quot;&gt;providerInstance&lt;/span&gt;,&lt;/div&gt;&lt;div&gt;    &lt;span style=&quot;color: #9cdcfe&quot;&gt;writable&lt;/span&gt;&lt;span style=&quot;color: #9cdcfe&quot;&gt;:&lt;/span&gt; &lt;span style=&quot;color: #569cd6&quot;&gt;false&lt;/span&gt;,&lt;/div&gt;&lt;div&gt;  });&lt;/div&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;" parent="p3TH8BZZUFwpQg5CQpSY-50" vertex="1">
+                <mxCell id="9" value="Define window.avalanche as non overwritable with the provider instance&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;div style=&quot;color: rgb(212 , 212 , 212) ; background-color: rgb(30 , 30 , 30) ; font-family: &amp;#34;menlo&amp;#34; , &amp;#34;monaco&amp;#34; , &amp;#34;courier new&amp;#34; , monospace ; line-height: 18px&quot;&gt;&lt;div&gt;&lt;span style=&quot;color: #4ec9b0&quot;&gt;Object&lt;/span&gt;.&lt;span style=&quot;color: #dcdcaa&quot;&gt;defineProperty&lt;/span&gt;(&lt;span style=&quot;color: #9cdcfe&quot;&gt;window&lt;/span&gt;, &lt;span style=&quot;color: #ce9178&quot;&gt;'avalanche'&lt;/span&gt;, {&lt;/div&gt;&lt;div&gt;    &lt;span style=&quot;color: #9cdcfe&quot;&gt;value&lt;/span&gt;&lt;span style=&quot;color: #9cdcfe&quot;&gt;:&lt;/span&gt; &lt;span style=&quot;color: #9cdcfe&quot;&gt;providerInstance&lt;/span&gt;,&lt;/div&gt;&lt;div&gt;    &lt;span style=&quot;color: #9cdcfe&quot;&gt;writable&lt;/span&gt;&lt;span style=&quot;color: #9cdcfe&quot;&gt;:&lt;/span&gt; &lt;span style=&quot;color: #569cd6&quot;&gt;false&lt;/span&gt;,&lt;/div&gt;&lt;div&gt;  });&lt;/div&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillStyle=solid;" parent="p3TH8BZZUFwpQg5CQpSY-50" vertex="1">
                     <mxGeometry x="71.5" y="295" width="360" height="130" as="geometry"/>
                 </mxCell>
                 <mxCell id="14" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" parent="p3TH8BZZUFwpQg5CQpSY-50" edge="1">
@@ -162,6 +162,15 @@
                 <mxCell id="48" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" parent="47" vertex="1" connectable="0">
                     <mxGeometry x="-0.2" y="1" relative="1" as="geometry">
                         <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="50" value="Define window.evmproviders&lt;br&gt;&lt;br&gt;&lt;div style=&quot;color: rgb(212 , 212 , 212) ; background-color: rgb(30 , 30 , 30) ; font-family: &amp;quot;menlo&amp;quot; , &amp;quot;monaco&amp;quot; , &amp;quot;courier new&amp;quot; , monospace ; line-height: 18px&quot;&gt;&lt;div style=&quot;color: rgb(215, 219, 224); background-color: rgb(19, 16, 41); font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; line-height: 18px;&quot;&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;color: #cc5c87;&quot;&gt;window&lt;/span&gt;.&lt;span style=&quot;color: #6ac4b3;&quot;&gt;evmproviders&lt;/span&gt; &lt;span style=&quot;color: #3d5afe;&quot;&gt;=&lt;/span&gt; &lt;span style=&quot;color: #cc5c87;&quot;&gt;window&lt;/span&gt;.&lt;span style=&quot;color: #6ac4b3;&quot;&gt;evmproviders&lt;/span&gt; &lt;span style=&quot;color: #3d5afe;&quot;&gt;||&lt;/span&gt; {};&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;  &lt;span style=&quot;color: #cc5c87;&quot;&gt;window&lt;/span&gt;.&lt;span style=&quot;color: #afa44f;&quot;&gt;evmproviders&lt;/span&gt;.&lt;span style=&quot;color: #6ac4b3;&quot;&gt;core&lt;/span&gt; &lt;span style=&quot;color: #3d5afe;&quot;&gt;=&lt;/span&gt; &lt;span style=&quot;color: #408fe4;&quot;&gt;providerInstance&lt;/span&gt;;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillStyle=solid;" vertex="1" parent="p3TH8BZZUFwpQg5CQpSY-50">
+                    <mxGeometry x="715" y="325" width="360" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="51" value="" style="edgeStyle=none;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.113;entryY=0.021;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="p3TH8BZZUFwpQg5CQpSY-50" source="3" target="50">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="730" y="235" as="sourcePoint"/>
+                        <mxPoint x="730" y="285" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
             </root>
