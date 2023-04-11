@@ -1,7 +1,8 @@
-import { TokenCard, VerticalFlex } from '@avalabs/react-components';
 import { CollectibleMedia } from './CollectibleMedia';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
+import { Stack } from '@avalabs/k2-components';
+import { TokenCard } from '@src/components/common/TokenCard';
 
 export function CollectibleList({
   onClick,
@@ -10,11 +11,10 @@ export function CollectibleList({
 }) {
   const { nfts } = useBalancesContext();
   return (
-    <VerticalFlex padding="0 16px 16px">
+    <Stack sx={{ px: 2 }}>
       {nfts.items?.map((nft) => (
         <TokenCard
           name={nft.name}
-          symbol={''}
           balanceUSD={`#${nft.tokenId}`}
           key={`${nft.address}-${nft.tokenId}`}
           onClick={() => onClick(nft)}
@@ -30,6 +30,6 @@ export function CollectibleList({
           />
         </TokenCard>
       ))}
-    </VerticalFlex>
+    </Stack>
   );
 }

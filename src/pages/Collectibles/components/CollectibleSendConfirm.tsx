@@ -1,18 +1,4 @@
-import {
-  VerticalFlex,
-  Typography,
-  PrimaryButton,
-  ComponentSize,
-  Card,
-  HorizontalFlex,
-  SecondaryButton,
-  HorizontalSeparator,
-  Tooltip,
-  SubTextTypography,
-} from '@avalabs/react-components';
-import styled from 'styled-components';
 import type { Contact } from '@avalabs/types';
-import { truncateAddress } from '@src/utils/truncateAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory } from 'react-router-dom';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
@@ -21,6 +7,17 @@ import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/us
 import { SendState } from '@src/background/services/send/models';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
+import {
+  styled,
+  Card,
+  Stack,
+  Typography,
+  Divider,
+  Button,
+  Tooltip,
+} from '@avalabs/k2-components';
+import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const StyledCollectibleMedia = styled(CollectibleMedia)`
   position: absolute;
@@ -30,32 +27,8 @@ const StyledCollectibleMedia = styled(CollectibleMedia)`
   left: 0;
   right: 0;
   width: fit-content;
-  border: 8px solid ${({ theme }) => theme.colors.bg1};
+  border: 8px solid ${({ theme }) => theme.palette.common.black};
   border-radius: 8px;
-`;
-
-const CardLabel = styled(Typography)`
-  font-size: 14px;
-  line-height: 17px;
-  color: ${({ theme }) => theme.colors.text2};
-`;
-
-const ContactName = styled(Typography)`
-  max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: right;
-  font-size: 14px;
-  line-height: 17px;
-`;
-
-const ContactAddress = styled(Typography)`
-  text-align: right;
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 15px;
-  color: ${({ theme }) => theme.colors.text2};
 `;
 
 type CollectibleSendConfirmProps = {
@@ -76,6 +49,7 @@ export const CollectibleSendConfirm = ({
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { capture } = useAnalyticsContext();
 
   useLedgerDisconnectedDialog(history.goBack);
 
@@ -86,95 +60,142 @@ export const CollectibleSendConfirm = ({
 
   return (
     <>
-      <VerticalFlex height="100%" width="100%">
+      <Stack sx={{ width: '100%', height: '100%' }}>
         <PageTitle variant={PageTitleVariant.PRIMARY}>
           {t('Confirm Transaction')}
         </PageTitle>
-        <VerticalFlex
-          grow="1"
-          align="center"
-          width="100%"
-          padding="0 16px 24px 16px"
+        <Stack
+          sx={{
+            flexGrow: 1,
+            alignItems: 'center',
+            width: '100%',
+            px: 2,
+            pb: 3,
+          }}
         >
           <Card
-            position="relative"
-            margin="44px 0 0 0"
-            padding="44px 16px 16px"
+            sx={{
+              position: 'relative',
+              mt: 5,
+              pt: 5,
+              px: 2,
+              pb: 2,
+              width: '100%',
+              overflow: 'visible',
+            }}
           >
             <StyledCollectibleMedia
               width="auto"
               height="56px"
               url={nft?.logoSmall || nft?.logoUri}
             />
-            <VerticalFlex width="100%" align="center">
-              <SubTextTypography size={14} height="17px">
+            <Stack sx={{ alignItems: 'center', width: '100%' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {t('Collectible')}
-              </SubTextTypography>
+              </Typography>
               <Typography
                 size={18}
                 height="22px"
                 weight={700}
                 margin="4px 0"
               >{`#${nft.tokenId}`}</Typography>
-              <SubTextTypography size={16} height="24px" weight={600}>
-                {nft?.name}
-              </SubTextTypography>
-              <HorizontalFlex
-                margin="16px 0 0"
-                justify="space-between"
-                width="100%"
+              <Typography variant="body1">{nft?.name}</Typography>
+              <Stack
+                sx={{
+                  flexDirection: 'row',
+                  mt: 2,
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}
               >
-                <CardLabel>{t('From')}</CardLabel>
-                <VerticalFlex>
-                  <ContactName>{activeAccount.name}</ContactName>
-                  <ContactAddress>
-                    {truncateAddress(activeAccount.addressC || '')}
-                  </ContactAddress>
-                </VerticalFlex>
-              </HorizontalFlex>
-              <HorizontalSeparator margin="8px 0" />
-              <HorizontalFlex justify="space-between" width="100%">
-                <CardLabel>{t('To')}</CardLabel>
-                <VerticalFlex>
-                  <ContactName>{contact?.name}</ContactName>
-                  <ContactAddress>
-                    {truncateAddress(contact?.address || '')}
-                  </ContactAddress>
-                </VerticalFlex>
-              </HorizontalFlex>
-            </VerticalFlex>
+                <Typography sx={{ color: 'text.secondary' }}>
+                  {t('From')}
+                </Typography>
+                <Stack sx={{ textAlign: 'right' }}>
+                  <Typography variant="body2">
+                    <TokenEllipsis text={activeAccount.name} maxLength={34} />
+                  </Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>
+                    <TokenEllipsis
+                      text={activeAccount.addressC || ''}
+                      maxLength={14}
+                    />
+                  </Typography>
+                </Stack>
+              </Stack>
+              <Divider sx={{ my: 1, width: '100%' }} />
+              <Stack
+                sx={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}
+              >
+                <Typography sx={{ color: 'text.secondary' }}>
+                  {t('To')}
+                </Typography>
+                <Stack sx={{ textAlign: 'right' }}>
+                  <Typography variant="body2">
+                    <TokenEllipsis text={contact?.name} maxLength={34} />
+                  </Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>
+                    <TokenEllipsis
+                      text={contact?.address || ''}
+                      maxLength={14}
+                    />
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Stack>
           </Card>
 
-          <VerticalFlex align="center" justify="flex-end" width="100%" grow="1">
-            <HorizontalFlex width="100%" justify="space-between" align="center">
-              <SecondaryButton
-                width="168px"
-                size={ComponentSize.LARGE}
-                onClick={() => history.goBack()}
+          <Stack
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              width: '100%',
+              flexGrow: 1,
+            }}
+          >
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                width: '100%',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Button
+                color="secondary"
+                data-testid="send-cancel-button"
+                fullWidth
+                onClick={() => {
+                  capture('NFTSendCancel');
+                  history.goBack();
+                }}
+                sx={{ height: '40px', maxHeight: 'none', mr: 1 }}
               >
                 {t('Cancel')}
-              </SecondaryButton>
+              </Button>
               <Tooltip
-                content={
-                  <Typography size={14} height="1.5">
-                    {sendState?.error?.message}
-                  </Typography>
-                }
-                disabled={!sendState?.error?.error}
+                sx={{ width: '100%' }}
+                title={sendState?.error?.error ? sendState?.error?.message : ''}
               >
-                <PrimaryButton
-                  width="168px"
-                  size={ComponentSize.LARGE}
+                <Button
+                  color="primary"
+                  data-testid="send-now-button"
+                  fullWidth
                   onClick={onSubmit}
                   disabled={!sendState?.canSubmit}
+                  sx={{ height: '40px', maxHeight: 'none', ml: 1 }}
                 >
                   {t('Send Now')}
-                </PrimaryButton>
+                </Button>
               </Tooltip>
-            </HorizontalFlex>
-          </VerticalFlex>
-        </VerticalFlex>
-      </VerticalFlex>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Stack>
     </>
   );
 };
