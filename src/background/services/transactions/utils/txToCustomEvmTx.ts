@@ -1,5 +1,4 @@
 import { Transaction } from '../models';
-import { BigNumber } from 'ethers';
 import { NetworkFee } from '../../networkFee/models';
 
 export function txToCustomEvmTx(
@@ -11,7 +10,17 @@ export function txToCustomEvmTx(
   }
 
   const txParams = tx.txParams;
-  const { gas, to, from, data, value, gasPrice } = txParams;
+  const {
+    gas,
+    to,
+    from,
+    data,
+    type,
+    value,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+  } = txParams;
 
   if (!gas || !networkFee) {
     throw new Error('Gas or gas estimate is malformed');
@@ -23,12 +32,20 @@ export function txToCustomEvmTx(
 
   const gasLimit = Number(gas);
 
+  if (!maxFeePerGas && !gasPrice) {
+    throw new Error(
+      `not enough gas price data: provide values for [gasPrice] or [maxFeePerGas]`
+    );
+  }
+
   return {
-    gasPrice: BigNumber.from(gasPrice || networkFee.low),
+    maxFeePerGas: maxFeePerGas || gasPrice || networkFee.low.maxFee,
+    maxPriorityFeePerGas: maxPriorityFeePerGas || networkFee.low.maxTip,
     gasLimit: gasLimit,
     to,
     from,
     data,
+    type,
     value,
   };
 }

@@ -31,7 +31,8 @@ type SendFormProps = {
   tokensWBalances: TokenWithBalance[];
   onGasChanged(values: {
     customGasLimit?: number;
-    gasPrice: BigNumber;
+    maxFeePerGas: BigNumber;
+    maxPriorityFeePerGas?: BigNumber;
     feeType: GasFeeModifier;
   }): void;
   maxGasPrice?: string;
@@ -149,8 +150,8 @@ export const SendForm = ({
         }}
       >
         <CustomFeesK2
-          gasPrice={gasPrice || networkFee?.low || BigNumber.from(0)}
-          limit={sendState.customGasLimit || sendState.gasLimit}
+          maxFeePerGas={gasPrice || networkFee?.low.maxFee || BigNumber.from(0)}
+          limit={sendState.customGasLimit || sendState.gasLimit || 0}
           onChange={onGasChanged}
           maxGasPrice={maxGasPrice}
           selectedGasFeeModifier={selectedGasFee}

@@ -3,6 +3,7 @@ import { contractParserMap } from '@src/contracts/contractParsers/contractParser
 import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
 import { BigNumber, ethers } from 'ethers';
+import { TransactionTypes } from 'ethers/lib/utils';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
@@ -26,6 +27,7 @@ import {
   TransactionDisplayValues,
   TransactionEvent,
   TRANSACTIONS_STORAGE_KEY,
+  txParams,
   txParamsUpdate,
   TxStatus,
   txStatusUpdate,
@@ -114,7 +116,7 @@ export class TransactionsService {
       (txDescription as ethers.utils.TransactionDescription).name
     );
 
-    const gasPrice = await this.networkFeeService.getNetworkFee(network);
+    const fees = await this.networkFeeService.getNetworkFee(network);
 
     if (txParams && isTxParams(txParams)) {
       if (
@@ -135,8 +137,25 @@ export class TransactionsService {
         ) || [];
 
       const nativeToken = tokens.filter((t) => t.type === TokenType.NATIVE);
+      const maxFeePerGas = fees?.low.maxFee ?? BigNumber.from(0);
+      const maxPriorityFeePerGas = fees?.low.maxTip
+        ? BigNumber.from(fees?.low.maxTip)
+        : undefined;
+      const suggestedMaxFeePerGas = txParams.maxFeePerGas ?? txParams.gasPrice;
+
+      // If dApp suggests maxFeePerGas, but not maxPriorityFeePerGas, we set the tip to 0.
+      const suggestedMaxPriorityFeePerGas = txParams.maxPriorityFeePerGas
+        ? BigNumber.from(txParams.maxPriorityFeePerGas)
+        : suggestedMaxFeePerGas
+        ? BigNumber.from(0)
+        : undefined;
       const displayValueProps: DisplayValueParserProps = {
-        gasPrice: gasPrice?.low || BigNumber.from(0),
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        suggestedMaxFeePerGas: suggestedMaxFeePerGas
+          ? BigNumber.from(suggestedMaxFeePerGas)
+          : undefined,
+        suggestedMaxPriorityFeePerGas,
         erc20Tokens: tokens.filter(
           (t): t is TokenWithBalanceERC20 => t.type === TokenType.ERC20
         ),
@@ -169,9 +188,9 @@ export class TransactionsService {
         throw e;
       }
 
-      const txParamsWithGasLimit = gasLimit
-        ? { ...txParams, gas: gasLimit }
-        : txParams;
+      const txPayload = this.addTxType(
+        gasLimit ? { ...txParams, gas: gasLimit } : txParams
+      );
 
       const description = isTxDescriptionError(txDescription)
         ? txDescription
@@ -183,21 +202,21 @@ export class TransactionsService {
         displayValues = parser
           ? await parser(
               network,
-              txParamsWithGasLimit,
+              txPayload,
               decodedData,
               displayValueProps,
               description
             )
           : (parseBasicDisplayValues(
               network,
-              txParamsWithGasLimit,
+              txPayload,
               displayValueProps,
               description
             ) as any);
       } catch (err) {
         displayValues = parseBasicDisplayValues(
           network,
-          txParamsWithGasLimit,
+          txPayload,
           displayValueProps,
           description
         ) as any;
@@ -218,7 +237,7 @@ export class TransactionsService {
           time: now,
           status: TxStatus.PENDING,
           ...networkMetaData,
-          txParams: txParamsWithGasLimit,
+          txParams: txPayload,
           displayValues,
           type: 'standard',
           transactionCategory: 'transfer',
@@ -263,5 +282,23 @@ export class TransactionsService {
 
   addListener(event: TransactionEvent, callback: (data: any) => void) {
     this.eventEmitter.on(event, callback);
+  }
+
+  private addTxType(payload: txParams): txParams {
+    const typeFromPayload = payload.type ?? 0;
+
+    return {
+      ...payload,
+      /**
+       * We use EIP-1559 market fees (maxFeePerGas/maxPriorityFeePerGas),
+       * and they require `type` to be set accordingly (to a value of 2).
+       *
+       * If the transaction payload explicitly sets a higher `type`,
+       * we won't change it hoping it's still backwards-compatible.
+       *
+       * At the moment of writing this comment, "2" is the highest tx type available.
+       */
+      type: Math.max(typeFromPayload, TransactionTypes.eip1559),
+    };
   }
 }

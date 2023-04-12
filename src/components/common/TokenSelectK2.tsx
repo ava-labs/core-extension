@@ -362,7 +362,6 @@ export function TokenSelect({
               <Divider sx={{ mx: 2, mt: 1 }} />
               <SearchInputContainer>
                 <SearchBar
-                  light
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setSearchQuery(e.currentTarget.value)
                   }

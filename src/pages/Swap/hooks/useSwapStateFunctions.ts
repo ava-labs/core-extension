@@ -40,7 +40,7 @@ export function useSwapStateFunctions() {
   const [destinationInputField, setDestinationInputField] =
     useState<DestinationInput>('');
   const [customGasPrice, setCustomGasPrice] = useState<BigNumber | undefined>(
-    networkFee?.low
+    networkFee?.low.maxFee
   );
 
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
@@ -142,22 +142,23 @@ export function useSwapStateFunctions() {
 
   const onGasChange = useCallback(
     (values: {
-      customGasLimit?: number;
-      gasPrice: BigNumber;
+      customGasLimit?: number | undefined;
+      maxFeePerGas: BigNumber;
+      maxPriorityFeePerGas?: BigNumber | undefined;
       feeType: GasFeeModifier;
       error?: boolean;
     }) => {
       if (values.customGasLimit) {
         setGasLimit(values.customGasLimit);
       }
-      setCustomGasPrice(values.gasPrice);
+      setCustomGasPrice(values.maxFeePerGas);
       setSelectedGasFee(values.feeType);
       if (!selectedFromToken) {
         return;
       }
 
       const max = getMaxValueWithGas({
-        customGasPrice: values.gasPrice,
+        customGasPrice: values.maxFeePerGas,
         gasLimit: values.customGasLimit || swapGasLimit,
         avaxPrice,
         tokenDecimals: network?.networkToken.decimals,

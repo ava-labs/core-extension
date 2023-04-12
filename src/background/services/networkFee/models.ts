@@ -1,13 +1,26 @@
+import Big from 'big.js';
 import { BigNumber } from 'ethers';
 
-// The Swimmer subnet is the only one with fixed fee.
+export type FeeRate = {
+  maxFee: BigNumber;
+  maxTip?: BigNumber;
+};
+
 export interface NetworkFee {
   displayDecimals: number;
-  low: BigNumber;
-  medium: BigNumber;
-  high: BigNumber;
+  baseFee?: BigNumber;
+  low: FeeRate;
+  medium: FeeRate;
+  high: FeeRate;
   isFixedFee: boolean;
 }
+
+export type EIP1559GasModifier = {
+  maxTip: BigNumber;
+  baseFeeMultiplier: Big;
+};
+
+export type TransactionPriority = 'low' | 'medium' | 'high';
 
 export type SerializedNetworkFee = Omit<
   NetworkFee,

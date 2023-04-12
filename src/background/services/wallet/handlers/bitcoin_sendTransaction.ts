@@ -90,7 +90,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
     const sendState = {
       address,
       amount: new BN(amountSatoshi),
-      gasPrice: BigNumber.from(feeRate),
+      maxFeePerGas: BigNumber.from(feeRate),
     };
 
     const verifiedState =

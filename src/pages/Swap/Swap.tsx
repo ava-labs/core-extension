@@ -157,7 +157,7 @@ export function Swap() {
         optimalRate,
         optimalRate.destAmount,
         gasLimit,
-        customGasPrice || networkFee.low,
+        customGasPrice || networkFee.low.maxFee,
         parseFloat(slippage)
       )
     );
@@ -350,7 +350,7 @@ export function Swap() {
               walletFee={optimalRate.partnerFee}
               onGasChange={onGasChange}
               gasLimit={gasLimit}
-              gasPrice={customGasPrice || networkFee.low}
+              gasPrice={customGasPrice || networkFee.low.maxFee}
               maxGasPrice={maxGasPrice}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
@@ -398,7 +398,7 @@ export function Swap() {
           }}
           optimalRate={optimalRate}
           gasLimit={gasLimit}
-          gasPrice={customGasPrice || networkFee.low}
+          gasPrice={customGasPrice || networkFee.low.maxFee}
           slippage={slippageTolerance}
           onTimerExpire={() => {
             capture('SwapReviewTimerRestarted');
@@ -431,7 +431,7 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={(customGasPrice || networkFee?.low || BigNumber.from(0))
+          fee={(customGasPrice || networkFee?.low.maxFee || BigNumber.from(0))
             .mul(gasLimit)
             .div((10 ** (network?.networkToken.decimals ?? 18)).toString())
             .toString()}

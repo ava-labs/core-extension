@@ -60,7 +60,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const [feeRates, setFeeRates] = useState<NetworkFee | null>();
 
   const feeRate = useMemo(() => {
-    return feeRates?.high.toNumber() || 0;
+    return feeRates?.high.maxFee.toNumber() || 0;
   }, [feeRates]);
 
   const maximum = useMemo(() => {

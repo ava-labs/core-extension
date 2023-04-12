@@ -112,7 +112,7 @@ export const ContactInput = ({
         <Tooltip
           // Tooltip does not render at all when title is empty. Falling back to a single space prevents the input from re-rendering and losing focus when users starts typing.
           title={contactAddress ?? ' '}
-          open={!inputFocused && inputHovered && contact?.isKnown}
+          open={Boolean(!inputFocused && inputHovered && contact?.isKnown)}
           sx={{
             flexDirection: 'column',
             gap: 1,

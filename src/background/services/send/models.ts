@@ -23,7 +23,8 @@ export interface SendState<T extends SendableToken = SendableToken> {
   address?: string;
   error?: SendError;
   sendFee?: BN;
-  gasPrice?: BigNumber;
+  maxFeePerGas?: BigNumber;
+  maxPriorityFeePerGas?: BigNumber;
   gasLimit?: number;
   customGasLimit?: number;
   canSubmit?: boolean;
@@ -33,7 +34,7 @@ export interface SendState<T extends SendableToken = SendableToken> {
 }
 
 export type ValidSendState = SendState &
-  Required<Pick<SendState, 'amount' | 'address' | 'gasPrice'>> & {
+  Required<Pick<SendState, 'amount' | 'address' | 'maxFeePerGas'>> & {
     canSubmit: true;
   };
 

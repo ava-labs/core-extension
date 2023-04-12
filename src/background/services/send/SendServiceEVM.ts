@@ -24,7 +24,7 @@ import {
   TokenWithBalanceERC20,
   NftTokenWithBalance,
 } from '../balances/models';
-import { isAddress } from 'ethers/lib/utils';
+import { isAddress, TransactionTypes } from 'ethers/lib/utils';
 import { isNFT } from '../balances/nft/utils/isNFT';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 
@@ -50,7 +50,9 @@ export class SendServiceEVM implements SendServiceHelper {
       ...unsignedTx,
       chainId,
       gasLimit: sendState.customGasLimit ?? gasLimit,
-      gasPrice: sendState.gasPrice,
+      maxFeePerGas: sendState.maxFeePerGas,
+      maxPriorityFeePerGas: sendState.maxPriorityFeePerGas,
+      type: TransactionTypes.eip1559,
       nonce,
     };
   }
@@ -58,15 +60,16 @@ export class SendServiceEVM implements SendServiceHelper {
   async validateStateAndCalculateFees(
     sendState: SendState
   ): Promise<SendState | ValidSendState> {
-    const { amount, address, gasPrice, token } = sendState;
+    const { amount, address, maxFeePerGas, maxPriorityFeePerGas, token } =
+      sendState;
 
     // This *should* always be defined and set by the UI
     if (!token) return this.getErrorState(sendState, 'Invalid token');
 
     const gasLimit = await this.getGasLimit(sendState);
 
-    const sendFee = gasPrice
-      ? new BN(gasLimit).mul(ethersBigNumberToBN(gasPrice))
+    const sendFee = maxFeePerGas
+      ? new BN(gasLimit).mul(ethersBigNumberToBN(maxFeePerGas))
       : undefined;
 
     const maxAmount =
@@ -77,10 +80,13 @@ export class SendServiceEVM implements SendServiceHelper {
     const newState: SendState = {
       ...sendState,
       canSubmit: true,
-      loading: token.balance.gt(new BN(0)) ? !maxAmount || !gasPrice : false,
+      loading: token.balance.gt(new BN(0))
+        ? !maxAmount || !maxFeePerGas
+        : false,
       error: undefined,
       gasLimit,
-      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
       maxAmount,
       sendFee,
     };
@@ -91,7 +97,7 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!isAddress(address))
       return this.getErrorState(newState, SendErrorMessage.INVALID_ADDRESS);
 
-    if (!gasPrice || gasPrice.isZero())
+    if (!maxFeePerGas || maxFeePerGas.isZero())
       return this.getErrorState(newState, SendErrorMessage.INVALID_NETWORK_FEE);
 
     if (!isNFT(token.type) && (!amount || amount.isZero()))

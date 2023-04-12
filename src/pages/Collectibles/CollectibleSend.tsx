@@ -88,12 +88,14 @@ export function CollectibleSend() {
   const onGasChanged = useCallback(
     (values: {
       customGasLimit?: number;
-      gasPrice: BigNumber;
+      maxFeePerGas: BigNumber;
+      maxPriorityFeePerGas?: BigNumber;
       feeType: GasFeeModifier;
     }) => {
       updateSendState({
         customGasLimit: values.customGasLimit,
-        gasPrice: values.gasPrice,
+        maxFeePerGas: values.maxFeePerGas,
+        maxPriorityFeePerGas: values.maxPriorityFeePerGas,
       });
       setSelectedGasFee(values.feeType);
     },
@@ -217,14 +219,14 @@ export function CollectibleSend() {
                 }}
               >
                 <TransactionFeeTooltip
-                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+                  gasPrice={sendState?.maxFeePerGas || BigNumber.from(0)}
                   gasLimit={sendState.customGasLimit || sendState?.gasLimit}
                   network={network}
                 />
               </Stack>
               <Stack sx={{ width: '100%' }}>
                 <CustomFeesK2
-                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+                  maxFeePerGas={sendState?.maxFeePerGas || BigNumber.from(0)}
                   limit={sendState.customGasLimit || sendState?.gasLimit || 0}
                   onChange={onGasChanged}
                   maxGasPrice={maxGasPrice}

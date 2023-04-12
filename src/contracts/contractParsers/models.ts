@@ -59,10 +59,16 @@ export interface ApproveTransactionData extends TransactionDisplayValues {
   network?: Network;
 }
 
-export interface DisplayValueParserProps {
-  gasPrice: ethers.BigNumber;
+type GasPricingData = {
+  maxFeePerGas: ethers.BigNumber;
+  maxPriorityFeePerGas?: ethers.BigNumber;
+  suggestedMaxFeePerGas?: ethers.BigNumber;
+  suggestedMaxPriorityFeePerGas?: ethers.BigNumber;
+};
+
+export type DisplayValueParserProps = GasPricingData & {
   erc20Tokens: TokenWithBalanceERC20[];
   avaxToken: NetworkTokenWithBalance;
   avaxPrice: number;
   site: DomainMetadata;
-}
+};

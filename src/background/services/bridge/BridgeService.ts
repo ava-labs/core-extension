@@ -195,7 +195,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     const feeRate =
       (
         await this.networkFeeService.getNetworkFee(btcNetwork)
-      )?.high.toNumber() ?? 0;
+      )?.high.maxFee.toNumber() ?? 0;
 
     const token =
       this.networkBalancesService.balances[btcNetwork.chainId]?.[addressBtc]?.[
