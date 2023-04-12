@@ -1,4 +1,4 @@
-import { GlacierClient } from '@avalabs/glacier-sdk';
+import { Glacier } from '@avalabs/glacier-sdk';
 import { GlacierService } from './GlacierService';
 
 jest.mock('@avalabs/glacier-sdk');
@@ -16,11 +16,15 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
     jest.resetAllMocks();
     jest.useFakeTimers();
 
-    (GlacierClient as jest.Mock).mockReturnValue({
-      healthCheck: healthCheckMock.mockResolvedValue({
-        status: 'ok',
-      }),
-      supportedChains: supportedChainsMock,
+    (Glacier as jest.Mock).mockReturnValue({
+      healthCheck: {
+        healthCheck: healthCheckMock.mockResolvedValue({
+          status: 'ok',
+        }),
+      },
+      evm: {
+        supportedChains: supportedChainsMock,
+      },
     });
   });
 

@@ -1,11 +1,9 @@
-import { GlacierClient } from '@avalabs/glacier-sdk';
+import { Glacier } from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
 import { resolve } from '@avalabs/utils-sdk';
 @singleton()
 export class GlacierService {
-  private glacierSdkInstance = new GlacierClient(
-    process.env.GLACIER_URL as string
-  );
+  private glacierSdkInstance = new Glacier({ BASE: process.env.GLACIER_URL });
   private isGlacierHealthy = true;
   private supportedNetworks: string[] = [];
 
@@ -15,7 +13,8 @@ export class GlacierService {
     }
 
     try {
-      const supportedNetworks = await this.glacierSdkInstance.supportedChains();
+      const supportedNetworks =
+        await this.glacierSdkInstance.evm.supportedChains();
       this.supportedNetworks = supportedNetworks.chains.map(
         (chain) => chain.chainId
       );
@@ -39,7 +38,7 @@ export class GlacierService {
      */
     setInterval(async () => {
       const [healthStatus, healthStatusError] = await resolve(
-        this.glacierSdkInstance.healthCheck()
+        this.glacierSdkInstance.healthCheck.healthCheck()
       );
 
       if (healthStatusError) {

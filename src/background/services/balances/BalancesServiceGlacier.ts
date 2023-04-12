@@ -1,10 +1,10 @@
 import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
 import {
-  GlacierClient,
   NativeTokenBalance,
   Erc20TokenBalance,
   Erc721TokenBalance,
   CurrencyCode,
+  Glacier,
 } from '@avalabs/glacier-sdk';
 import { balanceToDisplayValue, bnToBig } from '@avalabs/utils-sdk';
 import { singleton } from 'tsyringe';
@@ -29,9 +29,7 @@ import { getErc721Metadata } from '@src/utils/getErc721Metadata';
 
 @singleton()
 export class BalancesServiceGlacier {
-  private glacierSdkInstance = new GlacierClient(
-    process.env.GLACIER_URL as string
-  );
+  private glacierSdkInstance = new Glacier({ BASE: process.env.GLACIER_URL });
   constructor(
     private settingsService: SettingsService,
     private tokensManagerService: TokenManagerService
@@ -96,8 +94,10 @@ export class BalancesServiceGlacier {
     address: string,
     selectedCurrency: any
   ) {
-    return this.glacierSdkInstance
-      .getNativeBalance(network.chainId.toString(), address, {
+    return this.glacierSdkInstance.evm
+      .getNativeBalance({
+        chainId: network.chainId.toString(),
+        address,
         currency: selectedCurrency.toLocaleLowerCase(),
       })
       .then((res) => res.nativeTokenBalance)
@@ -139,16 +139,14 @@ export class BalancesServiceGlacier {
      */
     let nextPageToken: string | undefined = undefined;
     do {
-      const response = await this.glacierSdkInstance.listErc20Balances(
-        network.chainId.toString(),
+      const response = await this.glacierSdkInstance.evm.listErc20Balances({
+        chainId: network.chainId.toString(),
         address,
-        {
-          currency: selectedCurrency.toLocaleLowerCase(),
-          // glacier has a cap on page size of 100
-          pageSize: 100,
-          pageToken: nextPageToken,
-        }
-      );
+        currency: selectedCurrency.toLocaleLowerCase(),
+        // glacier has a cap on page size of 100
+        pageSize: 100,
+        pageToken: nextPageToken,
+      });
 
       tokensWithBalance.push(
         ...this.convertErc20ToTokenWithBalance(response.erc20TokenBalances)
@@ -235,22 +233,18 @@ export class BalancesServiceGlacier {
       name: `BalancesServiceGlacier: getNFTBalanceForNetwork for ${network.chainName}`,
       op: 'getNFTBalanceForNetwork',
     });
-    const query = {
-      currency: selectedCurrency,
-      // glacier has a cap on page size of 100
-      pageSize: 25,
-      ...(pageToken ? { pageToken } : {}),
-    };
 
     const glacierSentryTracker = Sentry.startTransaction({
       name: `Glacier: Get NFTs for ${network.chainName}`,
       op: 'listErc721Balances',
     });
-    const response = await this.glacierSdkInstance.listErc721Balances(
-      network.chainId.toString(),
+    const response = await this.glacierSdkInstance.evm.listErc721Balances({
+      chainId: network.chainId.toString(),
       address,
-      query
-    );
+      // glacier has a cap on page size of 100
+      pageSize: 25,
+      ...(pageToken ? { pageToken } : {}),
+    });
     glacierSentryTracker.finish();
 
     const metadataSentryTracker = Sentry.startTransaction({

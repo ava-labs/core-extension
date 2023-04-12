@@ -14,7 +14,7 @@ import {
   InternalTransactionOpCall,
   NativeTransaction,
   TransactionDetails,
-  GlacierClient,
+  Glacier,
   TransactionMethodType,
 } from '@avalabs/glacier-sdk';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
@@ -31,7 +31,7 @@ jest.mock('@src/utils/getExplorerAddress', () => ({
 }));
 
 jest.mock('@avalabs/glacier-sdk', () => ({
-  GlacierClient: jest.fn(),
+  Glacier: jest.fn(),
   CurrencyCode: {
     Usd: 'usd',
   },
@@ -43,6 +43,16 @@ jest.mock('@avalabs/glacier-sdk', () => ({
   },
   TransactionMethodType: {
     NATIVE_TRANSFER: 'NATIVE_TRANSFER',
+  },
+  Erc20Token: {
+    ercType: {
+      ERC_20: 'ERC-20',
+    },
+  },
+  Erc721Token: {
+    ercType: {
+      ERC_721: 'ERC-721',
+    },
   },
 }));
 
@@ -73,11 +83,11 @@ const tokenInfo: Erc20TransferDetails = {
   to: { address: userAddress },
   value: '100000000000000',
   erc20Token: {
-    ercType: 'ERC-20',
+    ercType: Erc20Token.ercType.ERC_20,
     address: 'erc20 Token address',
     decimals: 18,
     name: 'ERC20 Token',
-    price: { value: 1000000, currencyCode: CurrencyCode.Usd },
+    price: { value: 1000000, currencyCode: CurrencyCode.USD },
     symbol: 'E20T',
   },
 };
@@ -210,9 +220,9 @@ const erc20Token1: Erc20Token = {
   symbol: 'E20T1',
   decimals: 20,
   logoUri: 'erc20.one.com',
-  ercType: 'ERC-20',
+  ercType: Erc20Token.ercType.ERC_20,
   price: {
-    currencyCode: CurrencyCode.Usd,
+    currencyCode: CurrencyCode.USD,
     value: 100,
   },
 };
@@ -223,7 +233,7 @@ const erc721Token1: Erc721Token = {
   symbol: 'E721T1',
   tokenId: '123',
   tokenUri: 'erc721.one.com',
-  ercType: 'ERC-721',
+  ercType: Erc721Token.ercType.ERC_721,
   metadata: {
     indexStatus: NftTokenMetadataStatus.UNINDEXED,
     imageUri: imageUri,
@@ -235,7 +245,7 @@ const erc721TokenWithNoImageUri: Erc721Token = {
   symbol: 'E721T2',
   tokenId: '789',
   tokenUri: 'erc721.no.image.com',
-  ercType: 'ERC-721',
+  ercType: Erc721Token.ercType.ERC_721,
   metadata: {
     indexStatus: NftTokenMetadataStatus.UNINDEXED,
   },
@@ -318,9 +328,11 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
         ],
       })
     );
-    (GlacierClient as jest.Mock).mockImplementation(() => {
+    (Glacier as jest.Mock).mockImplementation(() => {
       return {
-        listTransactions: mockedListTransactions,
+        evm: {
+          listTransactions: mockedListTransactions,
+        },
       };
     });
   });
@@ -337,7 +349,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
     it('should return an empty array on error', async () => {
       const error = new Error('some error');
-      (GlacierClient as jest.Mock).mockImplementationOnce(() => {
+      (Glacier as jest.Mock).mockImplementationOnce(() => {
         return {
           listTransactions: jest.fn().mockRejectedValue(error),
         };
