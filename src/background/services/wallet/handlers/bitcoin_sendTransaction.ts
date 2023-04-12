@@ -82,6 +82,14 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
     const btcChainID = this.networkService.isMainnet()
       ? ChainId.BITCOIN
       : ChainId.BITCOIN_TESTNET;
+
+    // Refresh UTXOs before to ensure that UTXOs is updated
+    this.accountService.activeAccount &&
+      (await this.balanceAggregatorService.updateBalancesForNetworks(
+        [btcChainID],
+        [this.accountService.activeAccount]
+      ));
+
     const balance =
       this.balanceAggregatorService.balances[btcChainID]?.[
         this.accountService.activeAccount.addressBTC
@@ -156,10 +164,12 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
   ) => {
     try {
       const displayData: DisplayData_BitcoinSendTx = pendingAction.displayData;
+
+      const btcNetwork = await this.networkService.getBitcoinNetwork();
+
       const txRequest = await this.sendServiceBTC.getTransactionRequest(
         displayData.sendState
       );
-      const btcNetwork = await this.networkService.getBitcoinNetwork();
       const signed = await this.walletService.sign(
         txRequest,
         frontendTabId,

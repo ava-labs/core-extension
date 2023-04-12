@@ -1,4 +1,3 @@
-import { merge } from 'lodash';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { Account } from '../accounts/models';
@@ -51,10 +50,13 @@ export class BalanceAggregatorService implements OnLock {
           accounts
         );
 
-        // use deep merge to make sure we keep all accounts in there, even after a partial update
-        this.balances = merge({}, this.balances, {
-          [network.chainId]: balances,
-        });
+        this.balances = {
+          ...this.balances,
+          [network.chainId]: {
+            ...this.balances[network.chainId],
+            ...balances,
+          },
+        };
       })
     ).then(() => {
       return networks.reduce(

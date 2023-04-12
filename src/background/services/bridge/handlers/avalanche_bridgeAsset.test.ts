@@ -5,12 +5,14 @@ import {
   BridgeConfig,
   getBtcAsset,
 } from '@avalabs/bridge-sdk';
+import { ChainId } from '@avalabs/chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { TransactionResponse } from '@ethersproject/providers';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { BigNumber } from 'ethers';
+import { AccountType, PrimaryAccount } from '../../accounts/models';
 import { BtcTransactionResponse } from '../models';
 import { Action, ActionStatus } from './../../actions/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
@@ -138,6 +140,27 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     bridgeConfig: mockBridgeConfig,
   } as any;
 
+  const testActiveAccount: PrimaryAccount = {
+    index: 0,
+    type: AccountType.PRIMARY,
+    id: 'active_account_ID',
+    name: 'active account',
+    addressBTC: 'BTC_address',
+    addressC: 'C_address',
+  };
+
+  const accountsServiceMock = {
+    activeAccount: testActiveAccount,
+  } as any;
+
+  const balanceAggregatorServiceMock = {
+    updateBalancesForNetworks: jest.fn(),
+  } as any;
+
+  const networkServiceMock = {
+    isMainnet: jest.fn(),
+  } as any;
+
   const btcAsset: BitcoinConfigAsset = {
     additionalTxFeeAmount: 0,
     avaxPromotionAmount: '100000000000000000',
@@ -235,7 +258,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     };
 
     it('should return error when currentBlockchain is missing', async () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
       const result = await handler.handleAuthenticated(request);
 
       expect(result).toEqual({
@@ -246,7 +274,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('should return error when amount is missing', async () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
       const result = await handler.handleAuthenticated({
         ...request,
         params: ['bitcoin'],
@@ -261,7 +294,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('should return error when asset is missing and blockchain in not bitcoin', async () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
       const result = await handler.handleAuthenticated({
         ...request,
         params: ['testBlockchain', '1'],
@@ -276,7 +314,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('should get btcAsset if missing', async () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
       const result = await handler.handleAuthenticated({
         ...request,
         params: ['bitcoin', '1'],
@@ -306,7 +349,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     it('should throw error if fails to fetch btcConfig', async () => {
       (getBtcAsset as jest.Mock).mockReturnValue(undefined);
 
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
       const result = await handler.handleAuthenticated({
         ...request,
         params: ['bitcoin', '1'],
@@ -321,7 +369,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('should return error when asset is invalid', async () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
       const mockRequest = {
         ...request,
         params: [
@@ -378,7 +431,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         },
         tabId: request.site.tabId,
       };
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
 
       const result = await handler.handleAuthenticated(request);
 
@@ -395,7 +453,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   describe('handleAuthenticated', () => {
     it('return expected error', () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
       const request = {
         id: 852,
         site: { tabId: 10 },
@@ -409,7 +472,14 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   describe('onActionApproved', () => {
     it('transferBtcAsset is called when network is Bitcoin', async () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      networkServiceMock.isMainnet.mockReturnValue(true);
+
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
 
       const mockOnSuccess = jest.fn();
       const mockOnError = jest.fn();
@@ -447,6 +517,11 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         amount,
         'BTC'
       );
+
+      expect(
+        balanceAggregatorServiceMock.updateBalancesForNetworks
+      ).toBeCalledWith([ChainId.BITCOIN], [testActiveAccount]);
+
       expect(mockOnSuccess).toBeCalledWith(btcResult);
       expect(mockOnError).toBeCalledTimes(0);
     });
@@ -457,7 +532,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         return Promise.reject(error);
       });
 
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
 
       const mockOnSuccess = jest.fn();
       const mockOnError = jest.fn();
@@ -470,7 +550,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('transferAsset is called when network is not bitcoin', async () => {
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
 
       const mockOnSuccess = jest.fn();
       const mockOnError = jest.fn();
@@ -492,6 +577,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         mockOnError,
         frontendTabId
       );
+
+      expect(
+        balanceAggregatorServiceMock.updateBalancesForNetworks
+      ).toBeCalledTimes(0);
 
       expect(bridgeServiceMock.transferAsset).toBeCalledTimes(1);
       expect(bridgeServiceMock.transferAsset).toBeCalledWith(
@@ -520,7 +609,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         return Promise.reject(error);
       });
 
-      const handler = new AvalancheBridgeAsset(bridgeServiceMock);
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
 
       const mockOnSuccess = jest.fn();
       const mockOnError = jest.fn();

@@ -1,3 +1,5 @@
+import { NetworkService } from '@src/background/services/network/NetworkService';
+import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { Blockchain, getBtcAsset } from '@avalabs/bridge-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
@@ -6,13 +8,20 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { BridgeService } from '../BridgeService';
+import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
+import { ChainId } from '@avalabs/chains-sdk';
 
 // this is used for core web
 @injectable()
 export class AvalancheBridgeAsset extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_BRIDGE_ASSET];
 
-  constructor(private bridgeService: BridgeService) {
+  constructor(
+    private bridgeService: BridgeService,
+    private accountsService: AccountsService,
+    private balanceAggregatorService: BalanceAggregatorService,
+    private networkService: NetworkService
+  ) {
     super();
   }
 
@@ -96,6 +105,17 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
 
     if (currentBlockchain === Blockchain.BITCOIN) {
       try {
+        const btcChainID = this.networkService.isMainnet()
+          ? ChainId.BITCOIN
+          : ChainId.BITCOIN_TESTNET;
+
+        // Refresh UTXOs before to ensure that it is updated
+        this.accountsService.activeAccount &&
+          (await this.balanceAggregatorService.updateBalancesForNetworks(
+            [btcChainID],
+            [this.accountsService.activeAccount]
+          ));
+
         const result = await this.bridgeService.transferBtcAsset(
           amount,
           frontendTabId
@@ -108,6 +128,13 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
           amount,
           'BTC'
         );
+
+        // Refresh UTXOs
+        this.accountsService.activeAccount &&
+          this.balanceAggregatorService.updateBalancesForNetworks(
+            [btcChainID],
+            [this.accountsService.activeAccount]
+          );
         onSuccess(result);
       } catch (e) {
         onError(e);

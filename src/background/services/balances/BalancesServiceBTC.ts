@@ -54,9 +54,9 @@ export class BalancesServiceBTC {
           const {
             balance: balanceSatoshis,
             utxos,
-            utxosUnconfirmed,
             balanceUnconfirmed: balanceSatoshisUnconfirmed,
           } = await provider.getUtxoBalance(account.addressBTC);
+
           const balanceBig = satoshiToBtc(balanceSatoshis);
           const balance = bigToBN(balanceBig, denomination);
           const balanceUSD = tokenPrice
@@ -89,7 +89,6 @@ export class BalancesServiceBTC {
                   : undefined,
                 priceUSD: tokenPrice,
                 utxos,
-                utxosUnconfirmed,
                 unconfirmedBalance,
                 unconfirmedBalanceDisplayValue: balanceToDisplayValue(
                   unconfirmedBalance,
