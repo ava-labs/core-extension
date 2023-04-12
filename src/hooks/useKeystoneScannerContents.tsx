@@ -91,15 +91,6 @@ export const useKeystoneScannerContents = ({
     allowAccess: (
       <>
         <CircularProgress size={88} />
-        <AnimatedQRScanner
-          purpose={Purpose.SOL_SYNC}
-          handleScan={handleScan}
-          handleError={handleError}
-          options={{
-            width: 1,
-            height: 1,
-          }}
-        />
       </>
     ),
     hasAccess: (
