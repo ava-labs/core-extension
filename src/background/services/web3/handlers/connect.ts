@@ -83,6 +83,19 @@ export class ConnectRequestHandler extends DAppRequestHandler {
       return;
     }
 
+    // The site was already approved
+    // We usually get here when an already approved site attempts to connect and the extension was locked
+    if (
+      this.accountsService.activeAccount?.id === result &&
+      (await this.permissionsService.hasDomainPermissionForAccount(
+        pendingAction.site.domain,
+        selectedAccount.addressC
+      ))
+    ) {
+      onSuccess([selectedAccount.addressC]);
+      return;
+    }
+
     await this.permissionsService.setAccountPermissionForDomain(
       pendingAction.site.domain,
       selectedAccount.addressC,
