@@ -440,7 +440,7 @@
   "<typography>This process retrieves the addresses<br />from your ledger</typography>": "<typography>This process retrieves the addresses<br />from your ledger</typography>",
   "Unable to connect, view the troubleshoot guide <linkText>here</linkText>": "Unable to connect, view the troubleshoot guide <linkText>here</linkText>",
   "Connect your Ledger": "Connect your Ledger",
-  "Select a derivation path to see your derived aaddresses.": "Select a derivation path to see your derived aaddresses.",
+  "Select a derivation path to see your derived addresses.": "Select a derivation path to see your derived addresses.",
   "Ledger Live Support": "Ledger Live Support",
   "Ensure you have installed the latest <typography>Avalanche App</typography> and open it on your device.": "Ensure you have installed the latest <typography>Avalanche App</typography> and open it on your device.",
   "If you do not have the latest Avalanche App, please add it through the <ledgerLink>Ledger Live</ledgerLink> app manager.": "If you do not have the latest Avalanche App, please add it through the <ledgerLink>Ledger Live</ledgerLink> app manager.",

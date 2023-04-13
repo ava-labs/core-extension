@@ -229,7 +229,7 @@ export function SignTransactionPage() {
         <Stack
           sx={{
             flex: 1,
-            overflow: 'scroll',
+            overflow: 'auto',
             width: '100%',
             px: 2,
             gap: 3,
