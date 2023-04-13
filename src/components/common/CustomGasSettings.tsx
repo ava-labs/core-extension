@@ -225,6 +225,7 @@ export function CustomGasSettings({
               );
             }}
             error={!!errors.maxFee}
+            data-testid="max-base-fee"
           />
           {errors.maxFee ? (
             <ErrorMessage message={errors.maxFee} />
@@ -257,6 +258,7 @@ export function CustomGasSettings({
               );
             }}
             error={!!errors.maxPriorityFee}
+            data-testid="max-priority-fee"
           />
           {errors.maxPriorityFee ? (
             <ErrorMessage message={errors.maxPriorityFee} />
@@ -282,6 +284,7 @@ export function CustomGasSettings({
               setCustomGasLimit(parseInt(evt.currentTarget.value))
             }
             error={!!errors.gasLimit}
+            data-testid="gas-limit"
           />
           {errors.gasLimit && <ErrorMessage message={errors.gasLimit} />}
         </Stack>
