@@ -44,7 +44,7 @@ export function MainList({
           {primaryAccounts.map((account, i) => {
             return (
               <VerticalFlex
-                data-testid={`account-${i}`}
+                data-testid={`account-li-${i}`}
                 key={account.addressC}
                 onClick={() => !isEditing && onAccountClicked(account.id)}
                 width="100%"
