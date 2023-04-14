@@ -554,6 +554,7 @@
   "Pending": "Pending",
   "No transactions": "No transactions",
   "Once you transact, it will be displayed here": "Once you transact, it will be displayed here",
+  "Unknown wallet": "Unknown wallet",
   "Switch to {{name}}?": "Switch to {{name}}?",
   "{{domain}} is requesting to switch your active account.": "{{domain}} is requesting to switch your active account.",
   "Token Details": "Token Details",

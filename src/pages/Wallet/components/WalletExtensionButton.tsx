@@ -10,6 +10,7 @@ import {
   WalletIcon,
 } from '@avalabs/react-components';
 import { WalletExtensionType } from '@src/background/services/web3/models';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components';
 
 interface WalletExtensionButtonProps {
@@ -22,6 +23,7 @@ export function WalletExtensionButton({
   onClick,
 }: WalletExtensionButtonProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const getWalletDisplayName = (type: WalletExtensionType) => {
     switch (type) {
       case WalletExtensionType.METAMASK:
@@ -32,7 +34,7 @@ export function WalletExtensionButton({
         return 'Rabby';
       case WalletExtensionType.UNKNOWN:
       default:
-        return 'Unkown wallet';
+        return t('Unknown wallet');
     }
   };
 
