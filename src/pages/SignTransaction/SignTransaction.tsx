@@ -46,7 +46,7 @@ const hasGasPriceData = (
   displayData: TransactionDisplayValues
 ): displayData is TransactionDisplayValuesWithGasData => {
   return (
-    displayData.gasPrice instanceof BigNumber &&
+    displayData.maxFeePerGas instanceof BigNumber &&
     typeof displayData.gasLimit === 'number' &&
     displayData.gasLimit > 0
   );
@@ -72,6 +72,7 @@ export function SignTransactionPage() {
     limitFiatValue,
     customSpendLimit,
     selectedGasFee,
+    suggestedFee,
     network,
     networkFee,
     ...params
@@ -95,11 +96,11 @@ export function SignTransactionPage() {
       .find((t) => t.type === TokenType.NATIVE)
       ?.balance.gte(
         ethersBigNumberToBN(
-          params.gasPrice?.mul(params.gasLimit || BigNumber.from(0)) ??
+          params.maxFeePerGas?.mul(params.gasLimit || BigNumber.from(0)) ??
             BigNumber.from(0)
         )
       );
-  }, [tokens, params.gasPrice, params.gasLimit]);
+  }, [tokens, params.maxFeePerGas, params.gasLimit]);
 
   const cancelHandler = useCallback(() => {
     updateTransaction({
@@ -228,7 +229,7 @@ export function SignTransactionPage() {
         <Stack
           sx={{
             flex: 1,
-            overflow: 'scroll',
+            overflow: 'auto',
             width: '100%',
             px: 2,
             gap: 3,
@@ -283,12 +284,13 @@ export function SignTransactionPage() {
             <Stack sx={{ gap: 1, width: '100%' }}>
               {hasFeeInformation ? (
                 <CustomFeesK2
-                  gasPrice={displayData.gasPrice}
+                  maxFeePerGas={displayData.maxFeePerGas}
                   limit={displayData.gasLimit}
                   onChange={setCustomFee}
                   selectedGasFeeModifier={selectedGasFee}
                   network={network}
                   networkFee={networkFee}
+                  suggestedNetworkFee={suggestedFee}
                 />
               ) : (
                 <>

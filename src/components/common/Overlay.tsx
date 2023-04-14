@@ -15,6 +15,7 @@ export const Overlay = ({ children, isBackgroundFilled }: OverlayProps) => {
       }
     : {
         backdropFilter: 'blur(30px)',
+        backgroundColor: 'transparent',
       };
 
   return (

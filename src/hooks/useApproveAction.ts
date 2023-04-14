@@ -14,20 +14,24 @@ export function useApproveAction(actionId: string) {
 
   const updateAction = useCallback(
     (params: ActionUpdate, shouldWaitForResponse?: boolean) => {
-      if (action) {
-        // We need to update the status a bit faster for smoother UX.
-        setAction({
-          ...action,
+      // We need to update the status a bit faster for smoother UX.
+      // use function to avoid `action` as a dependency and thus infinite loops
+      setAction((prevActionData) => {
+        if (!prevActionData) {
+          return;
+        }
+        return {
+          ...prevActionData,
           status: params.status,
-        });
-      }
+        };
+      });
 
       request<UpdateActionHandler>({
         method: ExtensionRequest.ACTION_UPDATE,
         params: [params, shouldWaitForResponse],
       }).then(() => globalThis.close());
     },
-    [request, action]
+    [request]
   );
 
   const cancelHandler = useCallback(() => {

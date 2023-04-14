@@ -1,15 +1,19 @@
 import { TransactionRequest } from '@ethersproject/providers';
 import { BN } from 'bn.js';
 import { BigNumber } from 'ethers';
-import { Transaction } from '@ethereumjs/tx';
-import Common from '@ethereumjs/common';
+import {
+  FeeMarketEIP1559Transaction,
+  FeeMarketEIP1559TxData,
+  Transaction,
+} from '@ethereumjs/tx';
+import Common, { Hardfork } from '@ethereumjs/common';
 import {
   DataType,
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
 
-import { rlp } from 'ethereumjs-util';
+import { BufferLike, rlp } from 'ethereumjs-util';
 import {
   hexlify,
   resolveProperties,
@@ -17,7 +21,7 @@ import {
   UnsignedTransaction,
 } from 'ethers/lib/utils';
 import { CBOR, KeystoneTransport } from './models';
-import { convertTxData } from '../bridge/utils';
+import { convertTxData, makeBNLike } from './utils';
 
 export class KeystoneWallet {
   constructor(
@@ -44,13 +48,23 @@ export class KeystoneWallet {
     const v = new BN(signature.slice(64)).toNumber();
 
     const tx = await resolveProperties(txRequest);
+    const gasPriceData =
+      typeof tx.gasPrice !== 'undefined'
+        ? {
+            gasPrice: tx.gasPrice || undefined,
+          }
+        : {
+            maxFeePerGas: tx.maxFeePerGas || undefined,
+            maxPriorityFeePerGas: tx.maxPriorityFeePerGas || undefined,
+          };
     const baseTx: UnsignedTransaction = {
+      ...gasPriceData,
       chainId: tx.chainId ?? this.chainId ?? undefined,
       data: tx.data || undefined,
       gasLimit: tx.gasLimit || undefined,
-      gasPrice: tx.gasPrice || undefined,
       nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
       to: tx.to || undefined,
+      type: tx.type,
       value: tx.value || undefined,
     };
 
@@ -63,21 +77,42 @@ export class KeystoneWallet {
     activeAccountIndex: number
   ): CBOR {
     const chainId = txRequest.chainId ?? this.chainId;
-    const tx = Transaction.fromTxData(convertTxData(txRequest), {
-      common: Common.custom({
-        chainId: chainId,
-      }),
-    });
+    const isLegacyTx = typeof txRequest.gasPrice !== 'undefined';
 
-    const dataType = DataType.transaction;
-    const message = Buffer.from(rlp.encode(tx.getMessageToSign(false)));
+    const tx = isLegacyTx
+      ? Transaction.fromTxData(convertTxData(txRequest), {
+          common: Common.custom({ chainId }),
+        })
+      : FeeMarketEIP1559Transaction.fromTxData(
+          this.txRequestToFeeMarketTxData(txRequest),
+          {
+            common: Common.custom(
+              { chainId },
+              {
+                // "London" hardfork introduced EIP-1559 proposal. Setting it here allows us
+                // to use the new TX props (maxFeePerGas and maxPriorityFeePerGas) in combination
+                // with the custom chainId.
+                hardfork: Hardfork.London,
+              }
+            ),
+          }
+        );
+
+    const message =
+      tx instanceof FeeMarketEIP1559Transaction
+        ? tx.getMessageToSign(false)
+        : rlp.encode(tx.getMessageToSign(false)); // Legacy transactions are not RLP-encoded
+
+    const dataType = isLegacyTx
+      ? DataType.transaction
+      : DataType.typedTransaction;
 
     // The keyPath below will depend on how the user onboards and should come from WalletService probably,
     // based on activeAccount.index, or fetched based on the address passed in params.from.
     // This here is BIP44 for the first account (index 0). 2nd account should be M/44'/60'/0'/0/1, etc..
     const keyPath = `M/44'/60'/0'/0/${activeAccountIndex}`;
     const ethSignRequest = EthSignRequest.constructETHRequest(
-      message,
+      Buffer.from(message),
       dataType,
       keyPath,
       fingerprint,
@@ -90,6 +125,32 @@ export class KeystoneWallet {
     return {
       cbor: ur.cbor.toString('hex'),
       type: ur.type,
+    };
+  }
+
+  private txRequestToFeeMarketTxData(
+    txRequest: TransactionRequest
+  ): FeeMarketEIP1559TxData {
+    const {
+      to,
+      nonce,
+      gasLimit,
+      value,
+      data,
+      type,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+    } = txRequest;
+
+    return {
+      to,
+      nonce: makeBNLike(nonce),
+      maxFeePerGas: makeBNLike(maxFeePerGas),
+      maxPriorityFeePerGas: makeBNLike(maxPriorityFeePerGas),
+      gasLimit: makeBNLike(gasLimit),
+      value: makeBNLike(value),
+      data: data as BufferLike,
+      type: type,
     };
   }
 }

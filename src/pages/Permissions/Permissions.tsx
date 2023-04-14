@@ -75,9 +75,24 @@ export function PermissionsPage() {
   // If the domain already has permissions for the active account, close the popup
   useEffect(() => {
     if (isAccountPermissionGranted && isEthRequestAccounts) {
-      window.close();
+      if (activeAccount?.id) {
+        // make sure we return a response even if the site was already approved
+        updateAction({
+          status: ActionStatus.SUBMITTING,
+          id: requestId,
+          result: activeAccount.id,
+        });
+      } else {
+        window.close();
+      }
     }
-  }, [isAccountPermissionGranted, isEthRequestAccounts]);
+  }, [
+    activeAccount?.id,
+    isAccountPermissionGranted,
+    isEthRequestAccounts,
+    requestId,
+    updateAction,
+  ]);
 
   // Must also wait for isAccountPermissionGranted since `onApproveClicked` is async
   if (

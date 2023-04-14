@@ -310,7 +310,7 @@ export function LedgerConnect({
       />
       <Stack sx={{ flexGrow: 1, pt: 1, px: 6 }}>
         <Typography variant="body2">
-          {t('Select a derivation path to see your derived aaddresses.')}
+          {t('Select a derivation path to see your derived addresses.')}
           <Tooltip
             title={Content}
             sx={{

@@ -55,6 +55,7 @@ export function initializeProvider({
   if (shouldSetOnWindow) {
     setGlobalProvider(provider);
     setAvalancheGlobalProvider(provider);
+    setEvmproviders(provider);
   }
 
   return provider;
@@ -73,8 +74,8 @@ export function setGlobalProvider(
     const multiWalletProxy = createMultiWalletProxy(providerInstance);
 
     // if we already have a wallet lets add it
-    if ((window as any).ethereum) {
-      multiWalletProxy.addProvider((window as any).ethereum);
+    if (window.ethereum) {
+      multiWalletProxy.addProvider(window.ethereum);
     }
 
     Object.defineProperty(window, 'ethereum', {
@@ -113,7 +114,7 @@ export function setGlobalProvider(
     console.error('Cannot set Core window.ethereum provider', e);
 
     // try to set the providerInstance in case it's a proxy like we are
-    (window as any).ethereum = providerInstance;
+    window.ethereum = providerInstance;
   }
 }
 
@@ -131,4 +132,13 @@ export function setAvalancheGlobalProvider(
     writable: false,
   });
   window.dispatchEvent(new Event('avalanche#initialized'));
+}
+
+export function setEvmproviders(
+  providerInstance: MetaMaskInpageProvider
+): void {
+  window.evmproviders = window.evmproviders || {};
+  window.evmproviders.core = providerInstance;
+
+  window.dispatchEvent(new Event('evmproviders#initialized'));
 }

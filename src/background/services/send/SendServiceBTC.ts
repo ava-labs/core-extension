@@ -34,7 +34,7 @@ export class SendServiceBTC implements SendServiceHelper {
     outputs: BitcoinOutputUTXO[];
   }> {
     const { address: toAddress, amount } = sendState;
-    const feeRate = sendState.gasPrice.toNumber();
+    const feeRate = sendState.maxFeePerGas.toNumber();
     const provider = await this.networkService.getBitcoinProvider();
     const { utxos } = await this.getBalance();
 
@@ -58,7 +58,7 @@ export class SendServiceBTC implements SendServiceHelper {
     sendState: SendState
   ): Promise<SendState | ValidSendState> {
     const { amount, address: toAddress } = sendState;
-    const feeRate = sendState.gasPrice?.toNumber();
+    const feeRate = sendState.maxFeePerGas?.toNumber();
     const amountInSatoshis = amount?.toNumber() || 0;
     const { utxos } = await this.getBalance();
     const provider = await this.networkService.getBitcoinProvider();

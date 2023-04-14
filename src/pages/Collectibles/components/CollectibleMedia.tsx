@@ -1,10 +1,9 @@
-import { HorizontalFlex, PlayIcon } from '@avalabs/react-components';
 import { useState } from 'react';
-import styled from 'styled-components';
 import { isVideo } from '../utils';
 import { ImageWrapper } from './ImageWrapper';
 import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
+import { Stack, styled, TriangleRightIcon } from '@avalabs/k2-components';
 
 const NftImage = styled(ImageWithFallback)<{
   width?: string;
@@ -19,9 +18,11 @@ const NftImage = styled(ImageWithFallback)<{
   height: ${({ height }) => height ?? '32px'};
   max-width: ${({ maxWidth }) => maxWidth ?? 'unset'};
   max-height: ${({ maxHeight }) => maxHeight ?? 'unset'};
-  border: 1px solid ${({ theme }) => `${theme.colors.bg1}1A`};
+  border: 1px solid ${({ theme }) => `${theme.palette.common.black}1A`};
   box-sizing: border-box;
-  filter: drop-shadow(0px 10px 25px ${({ theme }) => `${theme.colors.bg1}40`});
+  filter: drop-shadow(
+    0px 10px 25px ${({ theme }) => `${theme.palette.common.black}40`}
+  );
   backdrop-filter: blur(25px);
   border-radius: ${({ hasBorderRadius, boarderRadius }) =>
     hasBorderRadius ? (boarderRadius ? boarderRadius : '8px') : 'none'};
@@ -36,7 +37,7 @@ const NftImage = styled(ImageWithFallback)<{
   `};
 `;
 
-const NftVideo = styled.video<{
+const NftVideo = styled('video')<{
   width?: string;
   height?: string;
   maxWidth?: string;
@@ -48,9 +49,11 @@ const NftVideo = styled.video<{
   max-width: ${({ maxWidth }) => maxWidth ?? 'unset'};
   height: ${({ height }) => height ?? '32px'};
   max-height: ${({ maxHeight }) => maxHeight ?? 'unset'};
-  border: 1px solid ${({ theme }) => `${theme.colors.bg1}1A`};
+  border: 1px solid ${({ theme }) => `${theme.palette.common.black}1A`};
   box-sizing: border-box;
-  filter: drop-shadow(0px 10px 25px ${({ theme }) => `${theme.colors.bg1}40`});
+  filter: drop-shadow(
+    0px 10px 25px ${({ theme }) => `${theme.palette.common.black}40`}
+  );
   backdrop-filter: blur(25px);
   border-radius: ${({ boarderRadius }) =>
     boarderRadius ? boarderRadius : '8px'};
@@ -61,12 +64,6 @@ const NftVideo = styled.video<{
             filter: grayscale(100%);
         }
   `};
-`;
-
-const StyledPlayIcon = styled(PlayIcon)`
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
 `;
 
 interface CollectibleMediaProps {
@@ -99,9 +96,15 @@ export function CollectibleMedia({
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
 
   return (
-    <HorizontalFlex margin={margin} className={className}>
+    <Stack
+      sx={{
+        margin,
+        flexDirection: 'row',
+      }}
+      className={className}
+    >
       {isVideo(url) ? (
-        <HorizontalFlex position="relative">
+        <Stack sx={{ position: 'relative', flexDirection: 'row' }}>
           <NftVideo
             width={width}
             height={height}
@@ -113,8 +116,17 @@ export function CollectibleMedia({
           >
             <source src={ipfsResolverWithFallback(url)} />
           </NftVideo>
-          {showPlayIcon && <StyledPlayIcon />}
-        </HorizontalFlex>
+          {showPlayIcon && (
+            <TriangleRightIcon
+              sx={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+                color: 'common.white',
+              }}
+            />
+          )}
+        </Stack>
       ) : (
         <ImageWrapper
           isOverlay={isImageFullScreen}
@@ -122,8 +134,8 @@ export function CollectibleMedia({
           onClose={() => setIsImageFullScreen(false)}
         >
           <NftImage
-            width={width}
-            height={height}
+            width={isImageFullScreen ? '100%' : width}
+            height={isImageFullScreen ? 'auto' : height}
             src={url}
             maxWidth={maxWidth}
             maxHeight={maxHeight}
@@ -133,6 +145,6 @@ export function CollectibleMedia({
           />
         </ImageWrapper>
       )}
-    </HorizontalFlex>
+    </Stack>
   );
 }

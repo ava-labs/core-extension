@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
+  Alert,
+  AlertTitle,
   Box,
   Button,
   CircularProgress,
@@ -39,9 +41,11 @@ export function KeystoneApprovalOverlay({
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const [step, setStep] = useState(KeystoneApprovalStep.SCAN_WITH_KEYSTONE);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const { txRequest, submitSignature } = useKeystoneContext();
   const [hasQRError, setHasQRError] = useState(false);
   const [showAccessDeniedDialog, setShowAccessDeniedDialog] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     if (txRequest) {
@@ -49,6 +53,12 @@ export function KeystoneApprovalOverlay({
       setIsSubmitting(false);
     }
   }, [txRequest]);
+
+  useEffect(() => {
+    if (!isSubmitting && hasSubmitted) {
+      setShowAlert(true);
+    }
+  }, [hasSubmitted, isSubmitting]);
 
   const onBackClick = useCallback(() => {
     if (step === KeystoneApprovalStep.SCAN_WITH_KEYSTONE) {
@@ -81,6 +91,8 @@ export function KeystoneApprovalOverlay({
       }
 
       setIsSubmitting(true);
+      setHasSubmitted(true);
+
       try {
         await submitTx(cbor, type);
       } catch (ex) {
@@ -141,13 +153,24 @@ export function KeystoneApprovalOverlay({
           height: '100%',
           pt: 2,
           pb: 3,
-          gap: 2,
+          gap: showAlert ? 1.5 : 2,
         }}
       >
+        {showAlert && (
+          <Alert
+            severity="info"
+            onClose={() => setShowAlert(false)}
+            sx={{ mx: 2 }}
+          >
+            <AlertTitle>This is a new approval</AlertTitle>
+            Keystone requires multiple appprovals
+          </Alert>
+        )}
+
         <PageTitle onBackClick={onBackClick} margin="0">
           {t('Scan QR Code')}
         </PageTitle>
-        <Box sx={{ width: '100%', overflowX: 'hidden' }}>
+        <Box sx={{ width: '100%', overflowX: 'hidden', overflowY: 'hidden' }}>
           <Stack
             sx={{
               width: '200%',
@@ -158,7 +181,7 @@ export function KeystoneApprovalOverlay({
           >
             <Stack
               sx={{
-                gap: 5,
+                gap: showAlert ? 2.5 : 5,
                 alignItems: 'center',
                 flex: 1,
                 px: 2,
@@ -196,7 +219,7 @@ export function KeystoneApprovalOverlay({
                 gap: 5,
                 alignItems: 'center',
                 flex: 1,
-                px: 2,
+                px: showAlert ? 1.5 : 2,
               }}
             >
               <Typography variant="body1">
@@ -208,10 +231,15 @@ export function KeystoneApprovalOverlay({
                 />
               </Typography>
               {/* Save space for the scanner feed */}
-              <Box sx={{ minHeight: 220 }}>
+              <Stack
+                sx={{
+                  minHeight: 220,
+                  justifyContent: 'center',
+                }}
+              >
                 {isSubmitting && <CircularProgress size={100} />}
                 <QRScanner />
-              </Box>
+              </Stack>
               <Typography variant="body2" color="text.secondary">
                 {t('Position the QR code in front of your camera.')}
               </Typography>

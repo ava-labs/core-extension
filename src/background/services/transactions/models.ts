@@ -27,7 +27,10 @@ export enum TransactionEvent {
 export interface TransactionDisplayValues {
   fromAddress?: string;
   toAddress?: string;
-  gasPrice?: ethers.BigNumber;
+  maxFeePerGas?: ethers.BigNumber;
+  maxPriorityFeePerGas?: ethers.BigNumber;
+  suggestedMaxFeePerGas?: ethers.BigNumber;
+  suggestedMaxPriorityFeePerGas?: ethers.BigNumber;
   contractType?: ContractCall;
   gasLimit?: number;
   fee?: string;
@@ -39,7 +42,7 @@ export interface TransactionDisplayValues {
 
 export type TransactionDisplayValuesWithGasData = EnsureDefined<
   TransactionDisplayValues,
-  'gasPrice' | 'gasLimit'
+  'maxFeePerGas' | 'gasLimit'
 >;
 
 export interface Transaction {
@@ -72,7 +75,10 @@ export interface txParams {
   value?: string;
   data?: string;
   gas?: number;
+  type?: number;
   gasPrice?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
 }
 /**
  * This is updating the gasPrice and gasEstimate for a pending tx

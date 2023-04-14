@@ -30,6 +30,19 @@ interface KeystoneProps {
   onSuccess(): void;
 }
 
+const promptAccess = (setCameraPermission) => {
+  navigator.mediaDevices
+    .getUserMedia({
+      video: true,
+    })
+    .then(() => {
+      setCameraPermission('granted');
+    })
+    .catch(() => {
+      setCameraPermission('denied');
+    });
+};
+
 export const KeystoneQRCodeScanner = ({
   onCancel,
   setXPubKey,
@@ -99,17 +112,20 @@ export const KeystoneQRCodeScanner = ({
   });
 
   useEffect(() => {
+    promptAccess(setCameraPermission);
+  }, []);
+
+  useEffect(() => {
     async function getPermissions() {
       const permission = await navigator.permissions.query({
         name: 'camera' as PermissionName, // workaround to avoid the ts error
       });
       permission.onchange = () => {
+        promptAccess(setCameraPermission);
         if (permission.state === 'denied') {
           capture(`KeystoneScanQRCameraAccessDenied`);
         }
-        setCameraPermission(permission.state);
       };
-      setCameraPermission(permission.state);
     }
     getPermissions();
   }, [capture]);

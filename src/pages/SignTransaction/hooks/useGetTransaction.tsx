@@ -24,7 +24,10 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { UpdateTransactionHandler } from '@src/background/services/transactions/handlers/updateTransaction';
 import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
 import { BigNumber, constants } from 'ethers';
-import { NetworkFee } from '@src/background/services/networkFee/models';
+import {
+  FeeRate,
+  NetworkFee,
+} from '@src/background/services/networkFee/models';
 import { Network } from '@avalabs/chains-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
@@ -46,7 +49,8 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [customGas, setCustomGas] = useState<{
     gasLimit?: number;
-    gasPrice: BigNumber;
+    maxFeePerGas: BigNumber;
+    maxPriorityFeePerGas?: BigNumber;
   } | null>(null);
   const [hash, setHash] = useState<string>('');
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
@@ -64,6 +68,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.INSTANT
   );
+  const [suggestedFee, setSuggestedFee] = useState<FeeRate | null>(null);
   const { showDialog, clearDialog } = useDialog();
 
   const updateTransaction = useCallback(
@@ -77,36 +82,49 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
   );
 
   const setCustomFee = useCallback(
-    (values: {
-      customGasLimit?: number;
-      gasPrice: BigNumber;
-      feeType: GasFeeModifier;
-    }) => {
-      setCustomGas({
-        gasLimit: values.customGasLimit,
-        gasPrice: values.gasPrice,
-      });
+    (
+      values: {
+        customGasLimit?: number;
+        maxFeePerGas: BigNumber;
+        maxPriorityFeePerGas?: BigNumber;
+        feeType: GasFeeModifier;
+      },
+      tx?: Transaction
+    ) => {
+      const currentTx = tx ?? transaction;
+
+      setCustomGas((currentGas) => ({
+        gasLimit: values.customGasLimit ?? currentGas?.gasLimit,
+        maxFeePerGas: values.maxFeePerGas ?? currentGas?.maxFeePerGas,
+        maxPriorityFeePerGas:
+          values.maxPriorityFeePerGas ?? currentGas?.maxPriorityFeePerGas,
+      }));
       setSelectedGasFee(values.feeType);
 
       const feeDisplayValues = calculateGasAndFees({
-        gasPrice: values.gasPrice,
-        gasLimit: values.customGasLimit ?? transaction?.displayValues.gasLimit,
+        maxFeePerGas: values.maxFeePerGas,
+        gasLimit:
+          values.customGasLimit ??
+          customGas?.gasLimit ??
+          currentTx?.displayValues.gasLimit,
         tokenPrice,
         tokenDecimals: network?.networkToken.decimals,
       });
+
       updateTransaction({
-        id: transaction?.id,
+        id: currentTx?.id,
         params: {
           gas: feeDisplayValues.gasLimit.toString(),
-          gasPrice: feeDisplayValues.gasPrice,
+          maxFeePerGas: feeDisplayValues.maxFeePerGas,
+          maxPriorityFeePerGas: values.maxPriorityFeePerGas,
         },
       });
     },
     [
       network?.networkToken.decimals,
       tokenPrice,
-      transaction?.displayValues.gasLimit,
-      transaction?.id,
+      customGas?.gasLimit,
+      transaction,
       updateTransaction,
     ]
   );
@@ -186,12 +204,42 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
     [transaction, updateTransaction, updateLimitFiatValue]
   );
 
+  const updateFees = useCallback(
+    (tx: Transaction) => {
+      const { displayValues } = tx;
+      const suggestedFee = displayValues.suggestedMaxFeePerGas;
+      const suggestedTip = displayValues.suggestedMaxPriorityFeePerGas;
+
+      if (suggestedFee) {
+        setSuggestedFee({
+          maxFee: BigNumber.from(suggestedFee),
+          maxTip: suggestedTip ? BigNumber.from(suggestedTip) : undefined,
+        });
+        setCustomFee(
+          {
+            maxFeePerGas: BigNumber.from(suggestedFee),
+            maxPriorityFeePerGas: suggestedTip
+              ? BigNumber.from(suggestedTip)
+              : undefined,
+            feeType: GasFeeModifier.CUSTOM,
+          },
+          tx
+        );
+      }
+    },
+    [setCustomFee]
+  );
+
   useEffect(() => {
     request<GetTransactionHandler>({
       method: ExtensionRequest.TRANSACTIONS_GET,
       params: [requestId],
     }).then((tx) => {
       setTransaction(tx || null);
+
+      if (tx) {
+        updateFees(tx);
+      }
     });
     const subscriptions = new Subscription();
 
@@ -314,7 +362,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
       networkFee &&
       transaction?.displayValues.gasLimit &&
       calculateGasAndFees({
-        gasPrice: customGas?.gasPrice ?? networkFee.low,
+        maxFeePerGas: customGas?.maxFeePerGas ?? networkFee.low.maxFee,
         gasLimit: customGas?.gasLimit ?? transaction.displayValues.gasLimit,
         tokenPrice,
         tokenDecimals: network?.networkToken.decimals,
@@ -333,6 +381,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
       showRawTransactionData,
       setShowRawTransactionData,
       setSpendLimit,
+      suggestedFee,
       limitFiatValue,
       displaySpendLimit,
       customSpendLimit,
@@ -352,6 +401,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
     showCustomSpendLimit,
     showRawTransactionData,
     setSpendLimit,
+    suggestedFee,
     limitFiatValue,
     displaySpendLimit,
     customSpendLimit,

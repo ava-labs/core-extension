@@ -203,7 +203,7 @@ export class PerformSwapHandler implements HandlerType {
               {
                 nonce: await provider.getTransactionCount(userAddress),
                 chainId: ChainId.AVALANCHE_MAINNET_ID,
-                gasPrice: defaultGasPrice?.low,
+                gasPrice: defaultGasPrice?.low.maxFee,
                 gasLimit: approveGasLimit
                   ? approveGasLimit.toNumber()
                   : Number(gasLimit),

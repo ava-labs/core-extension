@@ -127,6 +127,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
     const permissionServiceMock = {
       setAccountPermissionForDomain: jest.fn(),
+      hasDomainPermissionForAccount: jest.fn(),
     };
 
     const mockAction: Action = {
@@ -196,6 +197,49 @@ describe('background/services/web3/handlers/connect.ts', () => {
       ).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
+    });
+
+    it('returns address when permissons already set for the selected active account', async () => {
+      permissionServiceMock.hasDomainPermissionForAccount.mockReturnValue(true);
+
+      const handler = new ConnectRequestHandler(
+        {
+          ...accountsServiceMock,
+          activeAccount: {
+            index: 2,
+            id: 'uuid',
+            addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+            type: AccountType.PRIMARY,
+          },
+        } as any,
+        permissionServiceMock as any
+      );
+
+      await handler.onActionApproved(
+        { ...mockAction, site: { domain: 'example.com' } },
+        'uuid',
+        onSuccessMock,
+        onErrorMock
+      );
+
+      expect(onErrorMock).not.toHaveBeenCalled();
+      expect(
+        permissionServiceMock.hasDomainPermissionForAccount
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        permissionServiceMock.hasDomainPermissionForAccount
+      ).toHaveBeenCalledWith(
+        'example.com',
+        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+      );
+      expect(
+        permissionServiceMock.setAccountPermissionForDomain
+      ).not.toHaveBeenCalled();
+      expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
+      expect(onSuccessMock).toHaveBeenCalledTimes(1);
+      expect(onSuccessMock).toHaveBeenCalledWith([
+        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+      ]);
     });
 
     it('updates permissons for primary account', async () => {

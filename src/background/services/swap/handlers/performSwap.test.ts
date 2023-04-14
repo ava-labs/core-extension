@@ -348,9 +348,9 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     const transactionCount = 1;
     const networkFee = {
       displayDecimals: 10,
-      low: BigNumber.from(1),
-      medium: BigNumber.from(5),
-      high: BigNumber.from(10),
+      low: { maxFee: BigNumber.from(1) },
+      medium: { maxFee: BigNumber.from(5) },
+      high: { maxFee: BigNumber.from(10) },
       isFixedFee: false,
     };
     const signedTx = 'signedTx';
@@ -418,7 +418,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           {
             nonce: 1,
             chainId: ChainId.AVALANCHE_MAINNET_ID,
-            gasPrice: networkFee.low,
+            gasPrice: networkFee.low.maxFee,
             gasLimit: params.gasLimit,
             data: 'data',
             to: params.srcToken,
@@ -503,7 +503,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           {
             nonce: 1,
             chainId: ChainId.AVALANCHE_MAINNET_ID,
-            gasPrice: networkFee.low,
+            gasPrice: networkFee.low.maxFee,
             gasLimit: params.gasLimit,
             data: 'data',
             to: params.srcToken,

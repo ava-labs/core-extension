@@ -7,16 +7,19 @@ Analytics is a sensitive topic and is a balancing act. As a product, we need to 
 While originally it was a self-hosted instance, it has been migrated to the cloud due to Posthog's portfolio changes. This makes tracking even more sensitive.
 
 For error reporting we use Sentry.io
+Posthog url: https://app.posthog.com
+
+Ask IT for access!
 
 ## Environments
 
-The Extension uses 2 separate Posthog environments. The main reasons behind this duality are:
+The Extension uses 2 separate Posthog projects. The main reasons behind this duality are:
 
 1. Be able to toggle feature flags separately
 2. Access control. Only give production access to a limited set of people.
 
-- Local development, the main branch build, and the Blue builds are hooked up to the DEV Posthog instance: https://data-posthog.avax-test.network/
-- Production is using the production Posthog instance: https://data-posthog.avax.network/
+- Local development, the main branch build, and the Blue builds are hooked up to the `TEST Posthog organization`
+- Production is using the `production Posthog organization`. Access is provisioned separately.
 
 ## Reporting events
 

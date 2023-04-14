@@ -77,7 +77,7 @@ export class UpdateTransactionHandler implements HandlerType {
           this.featureFlagService
         );
 
-        const calculatedGasPrice = await this.networkFeeService.getNetworkFee(
+        const calculatedFee = await this.networkFeeService.getNetworkFee(
           network
         );
 
@@ -94,20 +94,27 @@ export class UpdateTransactionHandler implements HandlerType {
           ) as JsonRpcBatchInternal
         ).getTransactionCount(pendingTx.txParams.from);
 
-        const { gasPrice, gasLimit, data, to, value } = txToCustomEvmTx(
-          pendingTx,
-          calculatedGasPrice
-        );
+        const {
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          gasLimit,
+          data,
+          to,
+          value,
+          type,
+        } = txToCustomEvmTx(pendingTx, calculatedFee);
 
         const signedTx = await this.walletService.sign(
           {
             nonce,
             chainId: BigNumber.from(pendingTx.chainId).toNumber(),
-            gasPrice: gasPrice,
+            maxFeePerGas,
+            maxPriorityFeePerGas,
             gasLimit: gasLimit,
             data: data,
             to: to,
             value: value,
+            type,
           },
           tabId,
           network

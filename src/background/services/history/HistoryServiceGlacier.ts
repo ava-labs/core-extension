@@ -1,6 +1,6 @@
 import { BN } from 'bn.js';
 import { Network } from '@avalabs/chains-sdk';
-import { GlacierClient, TransactionDetails } from '@avalabs/glacier-sdk';
+import { Glacier, TransactionDetails } from '@avalabs/glacier-sdk';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { startCase } from 'lodash';
 import { singleton } from 'tsyringe';
@@ -22,9 +22,9 @@ import { TokenType } from '../balances/models';
 
 @singleton()
 export class HistoryServiceGlacier {
-  private glacierSdkInstance = new GlacierClient(
-    process.env.GLACIER_URL as string
-  );
+  private glacierSdkInstance = new Glacier({
+    BASE: process.env.GLACIER_URL,
+  });
   constructor(private accountsService: AccountsService) {}
 
   async getHistory(network: Network): Promise<TxHistoryItem[]> {
@@ -35,11 +35,11 @@ export class HistoryServiceGlacier {
     }
 
     try {
-      const response = await this.glacierSdkInstance.listTransactions(
-        network.chainId.toString(),
-        account,
-        { pageSize: 25 }
-      );
+      const response = await this.glacierSdkInstance.evm.listTransactions({
+        chainId: network.chainId.toString(),
+        address: account,
+        pageSize: 25,
+      });
 
       const convertedItems = await Promise.all(
         response.transactions

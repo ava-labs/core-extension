@@ -1,23 +1,6 @@
-import {
-  Overlay,
-  HorizontalFlex,
-  TextButton,
-  CaretIcon,
-  IconDirection,
-} from '@avalabs/react-components';
+import { ChevronLeftIcon, IconButton, Stack } from '@avalabs/k2-components';
+import { Overlay } from '@src/components/common/Overlay';
 import { PropsWithChildren } from 'react';
-import styled, { useTheme } from 'styled-components';
-
-const FullSizeHeader = styled(HorizontalFlex)`
-  background-color: ${({ theme }) => `${theme.colors.bg1}80`};
-  padding: 30px 20px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 10;
-`;
-
 interface ImageWrapperProps {
   isOverlay: boolean;
   onClick: () => void;
@@ -30,26 +13,41 @@ export function ImageWrapper({
   onClose,
   children,
 }: PropsWithChildren<ImageWrapperProps>) {
-  const theme = useTheme();
   if (isOverlay) {
     return (
       <Overlay>
-        <FullSizeHeader>
-          <TextButton onClick={onClose}>
-            <CaretIcon
-              height="17px"
-              color={theme.colors.icon1}
-              direction={IconDirection.LEFT}
-            />
-          </TextButton>
-        </FullSizeHeader>
-        {children}
+        <Stack
+          sx={{
+            height: '100%',
+            width: '100%',
+          }}
+        >
+          <Stack
+            sx={{
+              px: 1,
+              py: 4,
+              alignItems: 'flex-start',
+            }}
+          >
+            <IconButton
+              onClick={onClose}
+              data-testid="page-title-back-button"
+              disableRipple
+              sx={{
+                p: 0,
+              }}
+            >
+              <ChevronLeftIcon size={32} />
+            </IconButton>
+          </Stack>
+          {children}
+        </Stack>
       </Overlay>
     );
   }
   return (
-    <HorizontalFlex onClick={onClick} width="100%">
+    <Stack onClick={onClick} sx={{ width: '100%', flexDirection: 'row' }}>
       {children}
-    </HorizontalFlex>
+    </Stack>
   );
 }

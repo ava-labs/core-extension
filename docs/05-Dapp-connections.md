@@ -25,6 +25,8 @@ Since each EVM-compatible wallet needs to implement the same interface, defined 
 
 When Core's provider gets injected, it attempts to lock down both the `window.ethereum` and `window.avalanche` properties. It creates a Proxy object and starts to listen to overwrite attempts. If another wallet attempts to overwrite Core's provider, it gets stored in the `providers` array. Next time when the website attempts to connect to `window.ethereum`, Core prompts the user to select the wallet they want to use. The selected provider will be set as default for the current session for all communications.
 
+In order to try and elimate the "race" to own the `window.ethereum` object, the [EIP-5749](https://eips.ethereum.org/EIPS/eip-5749) replaces `window.ethereum` with `window.evmproviders`. Each wallet will have a `{[index: string]: Provider}` in the `window.evemproviders` object. As for now this is NOT a breaking change and does not required replacing the `window.ethereum` with `window.evmproivders` object but rather has both and in the future replacing `window.ethereum` with `window.evmproviders` and such causing a breaking change.
+
 ## Initialization
 
 <img src="images/inpage-initialization-process.png"/>

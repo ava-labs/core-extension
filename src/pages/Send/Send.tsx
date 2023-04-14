@@ -165,7 +165,7 @@ export function SendPage() {
         if (gasPriceState) {
           updateSendState({
             amount: bn,
-            gasPrice: gasPriceState,
+            maxFeePerGas: gasPriceState,
           });
           return;
         }
@@ -218,13 +218,15 @@ export function SendPage() {
   const onGasChanged = useCallback(
     (values: {
       customGasLimit?: number;
-      gasPrice: BigNumber;
+      maxFeePerGas: BigNumber;
+      maxPriorityFeePerGas?: BigNumber;
       feeType: GasFeeModifier;
     }) => {
-      setGasPrice(values.gasPrice);
+      setGasPrice(values.maxFeePerGas);
       updateSendState({
         customGasLimit: values.customGasLimit,
-        gasPrice: values.gasPrice,
+        maxFeePerGas: values.maxFeePerGas,
+        maxPriorityFeePerGas: values.maxPriorityFeePerGas,
       });
       setSelectedGasFee(values.feeType);
     },

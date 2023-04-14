@@ -29,8 +29,10 @@ export function parseBasicDisplayValues(
      * The wallet this is being sent from
      */
     fromAddress: request.from,
+    suggestedMaxFeePerGas: props.suggestedMaxFeePerGas,
+    suggestedMaxPriorityFeePerGas: props.suggestedMaxPriorityFeePerGas,
     ...calculateGasAndFees({
-      gasPrice: props.gasPrice,
+      maxFeePerGas: props.maxFeePerGas,
       gasLimit: request.gas || 0,
       tokenPrice: props.avaxPrice,
       tokenDecimals: network.networkToken.decimals,

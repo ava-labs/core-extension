@@ -1,23 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  toast,
-  ComponentSize,
-  PrimaryButton,
-  Tooltip,
-  Typography,
-  VerticalFlex,
-  TransactionToastType,
-  TransactionToast,
-  LoadingSpinnerIcon,
-  WarningIcon,
-  Card,
-  HorizontalFlex,
-} from '@avalabs/react-components';
 import type { Contact } from '@avalabs/types';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { useTheme } from 'styled-components';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
+import {
+  CustomFeesK2,
+  GasFeeModifier,
+} from '@src/components/common/CustomFeesK2';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { ContactInput } from '../Send/components/ContactInput';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
@@ -43,10 +31,19 @@ import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import {
+  Button,
+  Scrollbars,
+  Stack,
+  Tooltip,
+  Typography,
+  Card,
+  toast,
+} from '@avalabs/k2-components';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 
 export function CollectibleSend() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { nft } = useCollectibleFromParams();
   const contactInput = useContactFromParams();
   const setCollectibleParams = useSetCollectibleParams();
@@ -91,12 +88,14 @@ export function CollectibleSend() {
   const onGasChanged = useCallback(
     (values: {
       customGasLimit?: number;
-      gasPrice: BigNumber;
+      maxFeePerGas: BigNumber;
+      maxPriorityFeePerGas?: BigNumber;
       feeType: GasFeeModifier;
     }) => {
       updateSendState({
         customGasLimit: values.customGasLimit,
-        gasPrice: values.gasPrice,
+        maxFeePerGas: values.maxFeePerGas,
+        maxPriorityFeePerGas: values.maxPriorityFeePerGas,
       });
       setSelectedGasFee(values.feeType);
     },
@@ -114,47 +113,31 @@ export function CollectibleSend() {
     setShowTxInProgress(true);
     if (!sendState.canSubmit) return;
 
-    let toastId: string;
+    let pendingToastId = '';
     if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
       history.push('/home');
-      toastId = toast.custom(
-        <TransactionToast
-          type={TransactionToastType.PENDING}
-          text={t('Transaction pending...')}
-          startIcon={
-            <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
-          }
-        />
-      );
+      pendingToastId = toast.loading(t('Transaction pending...'));
     }
 
     submitSendState()
       .then((txId) => {
         resetSendState();
-        toast.custom(
-          <TransactionToast
-            status={t('Transaction Successful')}
-            type={TransactionToastType.SUCCESS}
-            text={t('View in Explorer')}
-            href={getURL(txId)}
-          />,
-          { id: toastId }
-        );
+        toastCardWithLink({
+          title: t('Send Successful'),
+          url: getURL(txId),
+          label: t('View in Explorer'),
+        });
         history.push('/home');
       })
       .catch(() => {
-        toast.custom(
-          <TransactionToast
-            type={TransactionToastType.ERROR}
-            text={t('Transaction Failed')}
-            startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
-          />,
-          { id: toastId, duration: Infinity }
-        );
+        toast.error(t('Transaction Failed'));
       })
       .finally(() => {
         setShowTxInProgress(false);
-        if (isUsingLedgerWallet || isUsingKeystoneWallet) history.push('/home');
+        pendingToastId && toast.dismiss(pendingToastId);
+        if (isUsingLedgerWallet || isUsingKeystoneWallet) {
+          history.push('/home');
+        }
       });
   };
 
@@ -186,49 +169,64 @@ export function CollectibleSend() {
         </>
       </Route>
       <Route path="/collectible/send">
-        <VerticalFlex height="100%" width="100%">
+        <Stack
+          sx={{
+            height: '100%',
+            width: '100%',
+          }}
+        >
           <PageTitle>{t('Send')}</PageTitle>
-          <VerticalFlex grow="1" align="center" width="100%" paddingTop="8px">
+          <Scrollbars
+            style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
+          >
             <ContactInput
               contact={contactInput}
               onChange={onContactChanged}
               isContactsOpen={isContactsOpen}
               setIsOpen={setIsContactsOpen}
             />
-            <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
-              <Typography size={12} height="15px">
+            <Stack sx={{ width: '100%', mt: 3, px: 2 }}>
+              <Typography
+                component="h2"
+                variant="body2"
+                sx={{ fontWeight: 'semibold', pb: 1 }}
+              >
                 {t('Collectible')}
               </Typography>
-              <Card padding="16px" margin="8px 0 0" height="auto">
-                <HorizontalFlex>
+              <Card sx={{ height: 'auto', p: 2, mt: 1 }}>
+                <Stack sx={{ flexDirection: 'row' }}>
                   <CollectibleMedia
-                    width="auto"
-                    maxWidth="80px"
-                    height="80px"
+                    width="80px"
+                    height="auto"
                     url={nft?.logoSmall || nft.logoUri}
                     hover={false}
                   />
-                  <Typography size={14} height="17px" margin="0 0 0 16px">
+                  <Typography component="h2" variant="body2" sx={{ ml: 2 }}>
                     {nft?.name}
                   </Typography>
-                </HorizontalFlex>
+                </Stack>
               </Card>
-            </VerticalFlex>
+            </Stack>
 
-            <VerticalFlex width="100%" margin="24px 0 0" padding="0 16px">
-              <HorizontalFlex margin="16px 0 8px" width="100%" align="center">
-                <Typography size={12} height="15px" margin="0 8px 0 0">
-                  {t('Network Fee')}
-                </Typography>
+            <Stack sx={{ width: '100%', px: 2, mt: 3 }}>
+              <Stack
+                sx={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '100%',
+                  mt: 2,
+                  mb: 1,
+                }}
+              >
                 <TransactionFeeTooltip
-                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+                  gasPrice={sendState?.maxFeePerGas || BigNumber.from(0)}
                   gasLimit={sendState.customGasLimit || sendState?.gasLimit}
                   network={network}
                 />
-              </HorizontalFlex>
-              <VerticalFlex width="100%">
-                <CustomFees
-                  gasPrice={sendState?.gasPrice || BigNumber.from(0)}
+              </Stack>
+              <Stack sx={{ width: '100%' }}>
+                <CustomFeesK2
+                  maxFeePerGas={sendState?.maxFeePerGas || BigNumber.from(0)}
                   limit={sendState.customGasLimit || sendState?.gasLimit || 0}
                   onChange={onGasChanged}
                   maxGasPrice={maxGasPrice}
@@ -236,27 +234,35 @@ export function CollectibleSend() {
                   network={network}
                   networkFee={networkFee}
                 />
-              </VerticalFlex>
-            </VerticalFlex>
+              </Stack>
+            </Stack>
 
-            <VerticalFlex
-              align="center"
-              justify="flex-end"
-              width="100%"
-              padding="0 16px 24px"
-              grow="1"
+            <Stack
+              sx={{
+                flexGrow: 1,
+                justifyContent: 'flex-end',
+                py: 3,
+                px: 2,
+                width: '100%',
+                alignItems: 'center',
+              }}
             >
               <Tooltip
-                content={
-                  <Typography size={14} height="1.5">
-                    {sendState.error?.message}
-                  </Typography>
+                placement="top"
+                title={
+                  sendState.error ? (
+                    <Typography variant="body2">
+                      {sendState.error?.message}
+                    </Typography>
+                  ) : (
+                    ''
+                  )
                 }
-                disabled={!sendState.error?.error}
               >
-                <PrimaryButton
-                  size={ComponentSize.LARGE}
-                  width="343px"
+                <Button
+                  data-testid="send-next-button"
+                  variant="contained"
+                  size="large"
                   onClick={() => {
                     setCollectibleParams({
                       nft,
@@ -265,13 +271,14 @@ export function CollectibleSend() {
                     });
                   }}
                   disabled={!sendState.canSubmit}
+                  sx={{ width: '343px' }}
                 >
                   {t('Next')}
-                </PrimaryButton>
+                </Button>
               </Tooltip>
-            </VerticalFlex>
-          </VerticalFlex>
-        </VerticalFlex>
+            </Stack>
+          </Scrollbars>
+        </Stack>
       </Route>
     </Switch>
   );

@@ -15,7 +15,7 @@ export const useHasEnoughForGas = (): boolean => {
     const token = tokens.find((x) => x.type === TokenType.NATIVE);
     // get gasPrice of network
     const balance = token && token.balance;
-    const estimatedGasCost = networkFee.low;
+    const estimatedGasCost = networkFee.low.maxFee;
     // check if balance > gasPrice
     if (balance && estimatedGasCost) {
       setHasEnough(
