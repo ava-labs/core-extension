@@ -452,11 +452,7 @@ export class WalletService implements OnLock, OnUnlock {
         internalIndices: tx.internalIndices,
       });
 
-      if (!unsignedTx.hasAllSignatures()) {
-        throw new Error('Signing error, missing signatures.');
-      }
-
-      return Avalanche.signedTxToHex(unsignedTx.getSignedTx());
+      return JSON.stringify(unsignedTx.toJSON());
     }
 
     if (
@@ -717,6 +713,35 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     throw new Error('No public key available');
+  }
+
+  async getAddressesByIndices(
+    indices: number[],
+    chainAlias: 'X' | 'P',
+    isChange: boolean
+  ) {
+    const provXP = await this.networkService.getAvalanceProviderXP();
+    const secrets = await this.storageService.load<WalletSecretInStorage>(
+      WALLET_STORAGE_KEY
+    );
+
+    if (!secrets?.xpubXP) {
+      return [];
+    }
+
+    if (isChange && chainAlias !== 'X') {
+      return [];
+    }
+
+    return indices.map((index) =>
+      Avalanche.getAddressFromXpub(
+        secrets.xpubXP as string,
+        index,
+        provXP,
+        chainAlias,
+        isChange
+      )
+    );
   }
 
   async getAddressesInRange(

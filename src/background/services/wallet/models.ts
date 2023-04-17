@@ -9,9 +9,9 @@ import {
   VM,
   OutputOwners,
   TransferableOutput,
+  Common,
   UnsignedTx,
 } from '@avalabs/avalanchejs-v2';
-import { GetAssetDescriptionResponse } from '@avalabs/avalanchejs-v2/dist/src/vms/common';
 
 export type SignTransactionRequest =
   | TransactionRequest
@@ -98,6 +98,9 @@ export type AvalancheTxType =
   | ExportTx
   | ImportTx
   | AvalancheBaseTx
+  | CreateSubnetTx
+  | CreateChainTx
+  | AddSubnetValidatorTx
   | UnknownTx;
 
 export interface AvalancheTx {
@@ -114,7 +117,7 @@ export interface AvalancheBaseTx extends AvalancheTx {
     locktime: bigint;
     threshold: bigint;
     amount: bigint;
-    assetDescription?: GetAssetDescriptionResponse;
+    assetDescription?: Common.GetAssetDescriptionResponse;
     owners: string[];
     isAvax: boolean;
   }[];
@@ -155,6 +158,29 @@ export interface ImportTx extends AvalancheTx {
   amount: bigint;
 }
 
+export interface CreateSubnetTx extends AvalancheTx {
+  type: 'create_subnet';
+  threshold: number;
+  controlKeys: string[];
+}
+
+export interface CreateChainTx extends AvalancheTx {
+  type: 'create_chain';
+  subnetID: string;
+  chainName: string;
+  vmID: string;
+  fxIDs: string[];
+  genesisData: string;
+}
+
+export interface AddSubnetValidatorTx extends AvalancheTx {
+  type: 'add_subnet_validator';
+  nodeID: string;
+  start: string;
+  end: string;
+  subnetID: string;
+}
+
 export interface UnknownTx extends AvalancheTx {
   type: 'unknown';
 }
@@ -177,4 +203,15 @@ export function isImportTx(tx: AvalancheTxType): tx is ImportTx {
 }
 export function isBaseTx(tx: AvalancheTxType): tx is AvalancheBaseTx {
   return tx.type === 'base';
+}
+export function isCreateSubnetTx(tx: AvalancheTxType): tx is CreateSubnetTx {
+  return tx.type === 'create_subnet';
+}
+export function isCreateChainTx(tx: AvalancheTxType): tx is CreateChainTx {
+  return tx.type === 'create_chain';
+}
+export function isAddSubnetValidatorTx(
+  tx: AvalancheTxType
+): tx is AddSubnetValidatorTx {
+  return tx.type === 'add_subnet_validator';
 }

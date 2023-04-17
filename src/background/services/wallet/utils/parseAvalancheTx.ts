@@ -4,7 +4,6 @@ import {
   evmSerial,
   TransferableOutput,
   TransferableInput,
-  utils,
   VM,
   Context,
   Common,
@@ -19,6 +18,9 @@ import {
   ExportTx,
   ImportTx,
   UnknownTx,
+  CreateChainTx,
+  CreateSubnetTx,
+  AddSubnetValidatorTx,
 } from '@src/background/services/wallet/models';
 import xss from 'xss';
 
@@ -144,13 +146,19 @@ function chainIdToVM(id: string): VM {
  * Returns human readable data from a given a transaction buffer,
  */
 export async function parseAvalancheTx(
-  txBuff: Buffer | Uint8Array,
-  vm: VM,
+  tx: Common.Transaction,
   provider: Avalanche.JsonRpcProvider,
   currentAddress: string
 ): Promise<AvalancheTxType> {
   const context = provider.getContext();
-  const tx = utils.unpackWithManager(vm, txBuff);
+
+  if (typeof tx.getVM !== 'function') {
+    return {
+      type: 'unknown',
+    } as UnknownTx;
+  }
+
+  const vm = tx.getVM();
   const burn = calculateBurn(tx, vm, context);
 
   if (vm === 'PVM') {
@@ -200,6 +208,37 @@ export async function parseAvalancheTx(
         amount: tot,
         txFee: burn,
       } as ExportTx;
+    } else if (pvmSerial.isCreateChainTx(tx)) {
+      return {
+        type: 'create_chain',
+        chain: vm,
+        txFee: burn,
+        subnetID: tx.getSubnetID().value(),
+        chainName: tx.chainName.value(),
+        vmID: tx.vmID.value(),
+        fxIDs: tx.fxIds.map((fxID) => fxID.value()),
+        genesisData: tx.genesisData.toString(),
+      } as CreateChainTx;
+    } else if (pvmSerial.isCreateSubnetTx(tx)) {
+      return {
+        type: 'create_subnet',
+        chain: vm,
+        txFee: burn,
+        threshold: tx.getSubnetOwners().threshold.value(),
+        controlKeys: tx
+          .getSubnetOwners()
+          .addrs.map((addr) => `P-${addr.toString(provider.getHrp())}`),
+      } as CreateSubnetTx;
+    } else if (pvmSerial.isAddSubnetValidatorTx(tx)) {
+      return {
+        type: 'add_subnet_validator',
+        chain: vm,
+        nodeID: tx.subnetValidator.validator.nodeId.value(),
+        start: tx.subnetValidator.validator.startTime.value().toString(),
+        end: tx.subnetValidator.validator.endTime.value().toString(),
+        subnetID: tx.getSubnetID().value(),
+        txFee: burn,
+      } as AddSubnetValidatorTx;
     }
   } else if (vm === 'AVM') {
     if (avmSerial.isImportTx(tx)) {

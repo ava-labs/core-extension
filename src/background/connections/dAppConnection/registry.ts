@@ -31,6 +31,7 @@ import { AvalancheGetAccountPubKeyHandler } from '@src/background/services/accou
 import { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
 import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/accounts/handlers/avalanche_getAddressesInRange';
 import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
+import { AvalancheSignTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_signTransaction';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -53,6 +54,7 @@ import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/h
   { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountPubKeyHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
   { token: 'DAppRequestHandler', useToken: BitcoinSendTransactionHandler },
   {
     token: 'DAppRequestHandler',

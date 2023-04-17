@@ -434,11 +434,13 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     describe('avalanche signing - XP / Coreth', () => {
+      const unsignedTxJSON = { foo: 'bar' };
+
       let unsignedTxMock, avalancheTxMock;
 
       beforeEach(() => {
         unsignedTxMock = {
-          hasAllSignatures: jest.fn(),
+          toJSON: jest.fn().mockReturnValue(unsignedTxJSON),
           getSignedTx: jest.fn(),
         };
 
@@ -455,21 +457,9 @@ describe('background/services/wallet/WalletService.ts', () => {
         ).rejects.toThrowError('Signing error, wrong network');
       });
 
-      it('throws on failed signing', async () => {
-        unsignedTxMock.hasAllSignatures.mockReturnValueOnce(false);
-        staticSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
-        getWalletSpy.mockResolvedValueOnce(staticSignerMock);
-
-        await expect(
-          walletService.sign(avalancheTxMock, tabId, networkMock)
-        ).rejects.toThrowError('Signing error, missing signatures.');
-      });
-
       it('signs transaction correctly using StaticSigner', async () => {
-        unsignedTxMock.hasAllSignatures.mockReturnValueOnce(true);
         staticSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
         getWalletSpy.mockResolvedValueOnce(staticSignerMock);
-        (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
         const result = await walletService.sign(
           avalancheTxMock,
@@ -477,7 +467,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           networkMock
         );
 
-        expect(result).toEqual('1234');
+        expect(result).toEqual(JSON.stringify(unsignedTxJSON));
         expect(staticSignerMock.signTx).toHaveBeenCalledWith({
           tx: unsignedTxMock,
         });
@@ -486,10 +476,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       it('signs transaction correctly using SimpleSigner', async () => {
         avalancheTxMock.externalIndices = [1, 2];
         avalancheTxMock.internalIndices = [3, 4];
-        unsignedTxMock.hasAllSignatures.mockReturnValueOnce(true);
         simpleSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
         getWalletSpy.mockResolvedValueOnce(simpleSignerMock);
-        (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
         const result = await walletService.sign(
           avalancheTxMock,
@@ -497,7 +485,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           networkMock
         );
 
-        expect(result).toEqual('1234');
+        expect(result).toEqual(JSON.stringify(unsignedTxJSON));
         expect(simpleSignerMock.signTx).toHaveBeenCalledWith({
           tx: unsignedTxMock,
           externalIndices: avalancheTxMock.externalIndices,
@@ -508,12 +496,10 @@ describe('background/services/wallet/WalletService.ts', () => {
       it('signs transaction correctly using LedgerSimpleSigner', async () => {
         const transportMock = {} as LedgerTransport;
         (ledgerService as any).recentTransport = transportMock;
-        unsignedTxMock.hasAllSignatures.mockReturnValueOnce(true);
         ledgerSimpleSignerMock.signTx = jest
           .fn()
           .mockReturnValueOnce(unsignedTxMock);
         getWalletSpy.mockResolvedValueOnce(ledgerSimpleSignerMock);
-        (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce('1234');
 
         const result = await walletService.sign(
           avalancheTxMock,
@@ -521,7 +507,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           networkMock
         );
 
-        expect(result).toEqual('1234');
+        expect(result).toEqual(JSON.stringify(unsignedTxJSON));
         expect(ledgerSimpleSignerMock.signTx).toHaveBeenCalledWith({
           tx: unsignedTxMock,
           transport: transportMock,
@@ -1922,6 +1908,73 @@ describe('background/services/wallet/WalletService.ts', () => {
         0,
         xpub,
         name
+      );
+    });
+  });
+
+  describe('getAddressesByIndices', () => {
+    const xpubXP = 'xpubXP';
+
+    it('returns an empty array if xpub XP is missing from storage', async () => {
+      (storageService.load as jest.Mock).mockResolvedValueOnce({
+        mnemonic,
+      });
+
+      const result = await walletService.getAddressesByIndices(
+        [1, 2],
+        'X',
+        false
+      );
+
+      expect(result).toStrictEqual([]);
+    });
+
+    it('returns an empty array if isChange is true for P chain', async () => {
+      (storageService.load as jest.Mock).mockResolvedValueOnce({
+        xpubXP,
+      });
+
+      const result = await walletService.getAddressesByIndices(
+        [1, 2],
+        'P',
+        true
+      );
+
+      expect(result).toStrictEqual([]);
+    });
+
+    it('returns the correct list of addresses', async () => {
+      (storageService.load as jest.Mock).mockResolvedValueOnce({
+        xpubXP,
+      });
+
+      (Avalanche.getAddressFromXpub as jest.Mock)
+        .mockReturnValueOnce('0x1')
+        .mockReturnValueOnce('0x4');
+
+      const result = await walletService.getAddressesByIndices(
+        [1, 4],
+        'X',
+        false
+      );
+
+      expect(result).toStrictEqual(['0x1', '0x4']);
+      expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(2);
+      expect(Avalanche.getAddressFromXpub).toHaveBeenNthCalledWith(
+        1,
+        xpubXP,
+        1,
+        getDefaultFujiProviderMock(),
+        'X',
+        false
+      );
+      expect(Avalanche.getAddressFromXpub).toHaveBeenNthCalledWith(
+        2,
+        xpubXP,
+        4,
+        getDefaultFujiProviderMock(),
+        'X',
+        false
       );
     });
   });

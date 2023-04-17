@@ -7,14 +7,18 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import {
   UnsignedTx,
   EVMUnsignedTx,
-  AVM,
-  PVM,
   EVM,
+  utils,
+  avaxSerial,
 } from '@avalabs/avalanchejs-v2';
 import { parseAvalancheTx } from '@src/background/services/wallet/utils/parseAvalancheTx';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
+import createAvalancheEvmUnsignedTx from '../utils/createAvalancheEvmUnsignedTx';
+import createAvalancheUnsignedTx from '../utils/createAvalancheUnsignedTx';
+import getAddressByVM from '../utils/getAddressByVM';
+import { Avalanche } from '@avalabs/wallets-sdk';
 
 @injectable()
 export class AvalancheSendTransactionHandler extends DAppRequestHandler {
@@ -29,38 +33,27 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
   }
 
   handleAuthenticated = async (request) => {
-    const params = request.params ?? [];
-    const [unsignedTxJson] = params;
+    let unsignedTx: UnsignedTx | EVMUnsignedTx;
 
-    if (!unsignedTxJson) {
+    const { transactionHex, chainAlias, externalIndices, internalIndices } =
+      (request.params ?? {}) as any;
+
+    if (!transactionHex || !chainAlias) {
       return {
         ...request,
         error: ethErrors.rpc.invalidParams({
-          message: 'Missing unsigned transaction JSON object',
+          message: 'Missing mandatory param(s)',
         }),
       };
     }
 
-    const unsignedTx = UnsignedTx.fromJSON(unsignedTxJson);
-    const vm = unsignedTx.getVM();
-
-    const getAddressByVM = () => {
-      const activeAccount = this.accountsService.activeAccount;
-
-      if (!activeAccount) {
-        return;
-      }
-
-      if (vm === AVM) {
-        return activeAccount.addressAVM;
-      } else if (vm === PVM) {
-        return activeAccount.addressPVM;
-      } else if (vm === EVM) {
-        return activeAccount.addressCoreEth;
-      }
-    };
-
-    const currentAddress = getAddressByVM();
+    const vm = Avalanche.getVmByChainAlias(chainAlias);
+    const txBytes = utils.hexToBuffer(transactionHex);
+    const provider = await this.networkService.getAvalanceProviderXP();
+    const currentAddress = getAddressByVM(
+      vm,
+      this.accountsService.activeAccount
+    );
 
     if (!currentAddress) {
       return {
@@ -71,16 +64,59 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
       };
     }
 
-    const prov = await this.networkService.getAvalanceProviderXP();
-    const txBuff = Buffer.from(unsignedTx.toBytes());
-    const txData = await parseAvalancheTx(txBuff, vm, prov, currentAddress);
+    if (vm === EVM) {
+      unsignedTx = await createAvalancheEvmUnsignedTx({
+        txBytes,
+        vm,
+        provider,
+        fromAddress: currentAddress,
+      });
+    } else {
+      const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
-    // Throw an error if we can't parse the transaction
+      const externalAddresses = await this.walletService.getAddressesByIndices(
+        externalIndices ?? [],
+        chainAlias,
+        false
+      );
+
+      const internalAddresses = await this.walletService.getAddressesByIndices(
+        internalIndices ?? [],
+        chainAlias,
+        true
+      );
+
+      const fromAddresses = [
+        ...new Set([
+          currentAddress,
+          ...externalAddresses,
+          ...internalAddresses,
+        ]),
+      ];
+
+      const fromAddressBytes = fromAddresses.map(
+        (address) => utils.parse(address)[2]
+      );
+
+      unsignedTx = await createAvalancheUnsignedTx({
+        tx,
+        vm,
+        provider,
+        fromAddressBytes,
+      });
+    }
+
+    const txData = await parseAvalancheTx(
+      unsignedTx.getTx(),
+      provider,
+      currentAddress
+    );
+
     if (txData.type === 'unknown') {
       return {
         ...request,
         error: ethErrors.rpc.invalidParams({
-          message: 'Unable to parse transaction data. Unsupported tx type?',
+          message: 'Unable to parse transaction data. Unsupported tx type',
         }),
       };
     }
@@ -89,12 +125,12 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
       ...request,
       tabId: request.site.tabId,
       displayData: {
-        unsignedTxJson,
-        txBuffer: txBuff,
+        unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
         txData,
         vm,
       },
     };
+
     await this.openApprovalWindow(
       actionData,
       `approve/avalancheSignTx?id=${request.id}`
@@ -122,18 +158,13 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
   ) => {
     try {
       const {
-        params,
         displayData: { vm, unsignedTxJson },
+        params: { externalIndices, internalIndices },
       } = pendingAction;
-      const [, externalIndices, internalIndices] = params ?? [];
-
-      // We need to know if transaction is on C or X/P, the generated tx object is slightly different for C
-      // EVM in Avalanche context means the CoreEth layer.
-      const chainAlias = vm === 'EVM' ? 'C' : 'X';
 
       // Parse the json into a tx object
       const unsignedTx =
-        chainAlias === 'C'
+        vm === EVM
           ? EVMUnsignedTx.fromJSON(unsignedTxJson)
           : UnsignedTx.fromJSON(unsignedTxJson);
 
@@ -150,8 +181,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
         );
       }
 
-      // Sign the transaction and return signature
-      const signedTransactionHex = await this.walletService.sign(
+      const signedTransactionJson = await this.walletService.sign(
         {
           tx: unsignedTx,
           externalIndices,
@@ -160,6 +190,19 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
         frontendTabId,
         // Must tell it is avalanche network
         this.networkService.getAvalancheNetworkXP()
+      );
+
+      const signedTransaction =
+        vm === EVM
+          ? EVMUnsignedTx.fromJSON(signedTransactionJson)
+          : UnsignedTx.fromJSON(signedTransactionJson);
+
+      if (!signedTransaction.hasAllSignatures()) {
+        throw new Error('Signing error, missing signatures.');
+      }
+
+      const signedTransactionHex = Avalanche.signedTxToHex(
+        signedTransaction.getSignedTx()
       );
 
       // Submit the transaction and return the tx id
