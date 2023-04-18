@@ -110,7 +110,7 @@
   "Contact created!": "Contact created!",
   "When both this AND Testnet Mode are enabled then the Bridge will use the DEV warden config.<br /><br />Only available for internal builds.": "When both this AND Testnet Mode are enabled then the Bridge will use the DEV warden config.<br /><br />Only available for internal builds.",
   "Advanced": "Advanced",
-  "Developer Mode": "Developer Mode",
+  "Testnet Mode": "Testnet Mode",
   "Testnet mode changes the interface to allow you to interact with supported testnets.": "Testnet mode changes the interface to allow you to interact with supported testnets.",
   "Bridge DEV Environment": "Bridge DEV Environment",
   "Show Tokens Without Balance": "Show Tokens Without Balance",

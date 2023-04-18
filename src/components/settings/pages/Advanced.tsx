@@ -47,7 +47,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
             sx={{ display: 'flex', fontSize: '14px', alignItems: 'center' }}
             disableTypography
           >
-            {t('Developer Mode')}
+            {t('Testnet Mode')}
             <Tooltip
               sx={{ ml: 0.5 }}
               PopperProps={{
