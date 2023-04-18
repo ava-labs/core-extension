@@ -50,7 +50,8 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
 
     mockFeatureFlagService = new FeatureFlagService(
       {} as unknown as AnalyticsService,
-      {} as unknown as LockService
+      {} as unknown as LockService,
+      {} as unknown as StorageService
     );
     mockFeatureFlagService['featureFlags'] = {
       [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: true,
