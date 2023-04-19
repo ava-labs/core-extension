@@ -23,7 +23,6 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   showTokensWithoutBalances: false,
   theme: ThemeVariant.DARK,
   tokensVisibility: {},
-  isDefaultExtension: false,
   analyticsConsent: true,
   language: Languages.EN,
 };
@@ -32,19 +31,19 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
 export class SettingsService implements OnStorageReady, OnLock {
   private eventEmitter = new EventEmitter();
   private _cachedSettings: SettingsState | null = null;
+  private needToRetryFetch = false;
 
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService
   ) {
-    this.applySettings();
     this.networkService.activeNetworkChanged.add(() => {
       this.applySettings();
     });
   }
 
-  onStorageReady(): void {
-    this.applySettings();
+  async onStorageReady(): Promise<void> {
+    await this.applySettings();
   }
 
   onLock() {
@@ -55,7 +54,6 @@ export class SettingsService implements OnStorageReady, OnLock {
     let settings: SettingsState;
     try {
       settings = await this.getSettings();
-
       changeLanguage(settings.language);
     } catch (e) {
       return;
@@ -65,7 +63,7 @@ export class SettingsService implements OnStorageReady, OnLock {
   }
 
   async getSettings(): Promise<SettingsState> {
-    if (this._cachedSettings) {
+    if (this._cachedSettings && !this.needToRetryFetch) {
       return this._cachedSettings;
     }
 
@@ -84,10 +82,12 @@ export class SettingsService implements OnStorageReady, OnLock {
         ...state,
       };
 
+      this.needToRetryFetch = false;
       this._cachedSettings = settings;
 
       return settings;
     } catch {
+      this.needToRetryFetch = true;
       const unEncryptedState =
         await this.storageService.loadUnencrypted<SettingsState>(
           SETTINGS_UNENCRYPTED_STORAGE_KEY
@@ -97,6 +97,7 @@ export class SettingsService implements OnStorageReady, OnLock {
         ...DEFAULT_SETTINGS_STATE,
         ...unEncryptedState,
       };
+
       this._cachedSettings = settings;
 
       return settings;
@@ -140,14 +141,6 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       analyticsConsent: !!consent,
-    });
-  }
-
-  async toggleIsDefaultExtension() {
-    const settings = await this.getSettings();
-    await this.saveSettings({
-      ...settings,
-      isDefaultExtension: !settings.isDefaultExtension,
     });
   }
 

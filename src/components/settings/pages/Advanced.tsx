@@ -20,12 +20,8 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { setDeveloperMode, isDeveloperMode } = useNetworkContext();
   const { isBridgeDevEnv, setIsBridgeDevEnv } = useBridgeContext();
-  const {
-    showTokensWithoutBalances,
-    toggleShowTokensWithoutBalanceSetting,
-    isDefaultExtension,
-    toggleIsDefaultExtension,
-  } = useSettingsContext();
+  const { showTokensWithoutBalances, toggleShowTokensWithoutBalanceSetting } =
+    useSettingsContext();
   const history = useHistory();
 
   return (
@@ -109,16 +105,6 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
             size="small"
             checked={showTokensWithoutBalances}
             onChange={() => toggleShowTokensWithoutBalanceSetting()}
-          />
-        </ListItem>
-        <ListItem data-testid="set-default-extension-option">
-          <ListItemText sx={{ fontSize: '14px' }} disableTypography>
-            {t('Set as Default Extension')}
-          </ListItemText>
-          <Switch
-            size="small"
-            checked={isDefaultExtension}
-            onChange={() => toggleIsDefaultExtension()}
           />
         </ListItem>
       </List>

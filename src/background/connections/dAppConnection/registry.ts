@@ -19,7 +19,6 @@ import { AvalancheSetDeveloperModeHandler } from '@src/background/services/netwo
 import { WalletGetPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_getPermissions';
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
 import { WalletWatchAssetHandler } from '@src/background/services/settings/events/wallet_watchAsset';
-import { GetIsDefaultExtensionDAppHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
 import { AvalancheSelectWalletHandler } from '@src/background/services/web3/handlers/avalanche_selectWallet';
@@ -68,7 +67,6 @@ import { AvalancheSignTransactionHandler } from '@src/background/services/wallet
   { token: 'DAppRequestHandler', useToken: WalletGetPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
-  { token: 'DAppRequestHandler', useToken: GetIsDefaultExtensionDAppHandler },
   { token: 'DAppRequestHandler', useToken: EthSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },
   { token: 'DAppRequestHandler', useToken: MetamaskGetProviderState },

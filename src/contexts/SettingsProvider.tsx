@@ -7,7 +7,6 @@ import { LockWalletHandler } from '@src/background/services/lock/handlers/lockWa
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
 import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
 import { SetAnalyticsConsentHandler } from '@src/background/services/settings/handlers/setAnalyticsConsent';
-import { SetDefaultExtensionHandler } from '@src/background/services/settings/handlers/setAsDefaultExtension';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
 import { UpdateCurrencyHandler } from '@src/background/services/settings/handlers/updateCurrencySelection';
 import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
@@ -41,7 +40,6 @@ type SettingsFromProvider = SettingsState & {
   getTokenVisibility(token: TokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
   currencyFormatter(value: number): string;
-  toggleIsDefaultExtension(): Promise<boolean>;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
   setLanguage(lang: Languages): Promise<boolean>;
   isSettingsOpen: boolean;
@@ -170,16 +168,6 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
-  /**
-   *
-   * @returns boolean state of isDefaultExtenion in settings state
-   */
-  function toggleIsDefaultExtension() {
-    return request<SetDefaultExtensionHandler>({
-      method: ExtensionRequest.SETTINGS_SET_DEFAULT_EXTENSION,
-    });
-  }
-
   function setAnalyticsConsent(consent: boolean) {
     return request<SetAnalyticsConsentHandler>({
       method: ExtensionRequest.SETTINGS_SET_ANALYTICS_CONSENT,
@@ -206,7 +194,6 @@ export function SettingsContextProvider({ children }: { children: any }) {
           toggleTokenVisibility,
           updateTheme,
           currencyFormatter,
-          toggleIsDefaultExtension,
           setAnalyticsConsent,
           setLanguage,
           isSettingsOpen,

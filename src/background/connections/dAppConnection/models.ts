@@ -16,7 +16,6 @@ export enum DAppProviderRequest {
   ETH_SIGN_TYPED_DATA_V1 = 'eth_signTypedData_v1',
   ETH_SIGN_TYPED_DATA = 'eth_signTypedData',
   ETH_SIGN = 'eth_sign',
-  GET_IS_DEFAULT_EXTENSION = 'avalanche_getIsDefaultExtensionState',
   AVALANCHE_GET_CONTACTS = 'avalanche_getContacts',
   AVALANCHE_CREATE_CONTACT = 'avalanche_createContact',
   AVALANCHE_UPDATE_CONTACT = 'avalanche_updateContact',
