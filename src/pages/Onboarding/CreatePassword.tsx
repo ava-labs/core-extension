@@ -115,7 +115,7 @@ export const CreatePassword = ({
               data-testid="wallet-confirm-password-input"
               label={t('Confirm Password')}
               onChange={(e) => setConfirmPasswordVal(e.target.value)}
-              placeholder={t('Enter a Password')}
+              placeholder={t('Confirm Password')}
               error={confirmationError}
               helperText={
                 confirmationError ? t('Passwords do not match') : undefined
