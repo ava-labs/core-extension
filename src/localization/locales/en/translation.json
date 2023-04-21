@@ -516,6 +516,8 @@
   "Transaction Approval": "Transaction Approval",
   "Scan the QR code with your <deviceName>Keystone device</deviceName>": "Scan the QR code with your <deviceName>Keystone device</deviceName>",
   "Scan the QR code displayed on your <deviceName>Keystone device</deviceName>": "Scan the QR code displayed on your <deviceName>Keystone device</deviceName>",
+  "This is a new approval": "This is a new approval",
+  "This transaction requires multiple approvals.": "This transaction requires multiple approvals.",
   "Click on the 'Get Signature' button after signing the transaction with your Keystone device.": "Click on the 'Get Signature' button after signing the transaction with your Keystone device.",
   "Position the QR code in front of your camera.": "Position the QR code in front of your camera.",
   "Get Signature": "Get Signature",
