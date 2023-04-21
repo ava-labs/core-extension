@@ -6,11 +6,6 @@ import {
   SwitchIcon,
   ComponentSize,
   IconDirection,
-  LoadingSpinnerIcon,
-  TransactionToastType,
-  TransactionToast,
-  toast,
-  WarningIcon,
 } from '@avalabs/react-components';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -49,6 +44,8 @@ import { calculateRate } from './utils';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { toast } from '@avalabs/k2-components';
 
 const ReviewOrderButtonContainer = styled.div<{
   isTransactionDetailsOpen: boolean;
@@ -113,18 +110,9 @@ export function Swap() {
   } = useSwapStateFunctions();
 
   async function onHandleSwap() {
-    let toastId = '';
     if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
       history.push('/home');
-      toastId = toast.custom(
-        <TransactionToast
-          type={TransactionToastType.PENDING}
-          text={t('Swap pending...')}
-          startIcon={
-            <LoadingSpinnerIcon height="16px" color={theme.colors.icon1} />
-          }
-        />
-      );
+      toast.loading(t('Swap pending...'));
     }
     const {
       amount,
@@ -163,28 +151,16 @@ export function Swap() {
     );
     setTxInProgress(false);
     if (error) {
-      toast.custom(
-        <TransactionToast
-          type={TransactionToastType.ERROR}
-          text={t('Swap Failed')}
-          startIcon={<WarningIcon height="20px" color={theme.colors.icon1} />}
-        />,
-        { id: toastId, duration: Infinity }
-      );
+      toast.error(t('Swap Failed'), { duration: Infinity });
       setIsReviewOrderOpen(false);
 
       return;
     }
-    toast.custom(
-      <TransactionToast
-        status={t('Swap Successful')}
-        type={TransactionToastType.SUCCESS}
-        text={t('View in Explorer')}
-        href={
-          network && getExplorerAddressByNetwork(network, result.swapTxHash)
-        }
-      />
-    );
+    toastCardWithLink({
+      title: t('Swap Successful'),
+      url: network && getExplorerAddressByNetwork(network, result.swapTxHash),
+      label: t('View in Explorer'),
+    });
     history.push('/home');
   }
 

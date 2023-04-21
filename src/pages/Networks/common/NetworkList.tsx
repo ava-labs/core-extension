@@ -6,8 +6,6 @@ import {
   InfoIcon,
   StarOutlineIcon,
   GlobeIcon,
-  CustomToast,
-  toast,
 } from '@avalabs/react-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useState } from 'react';
@@ -26,6 +24,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { useTranslation } from 'react-i18next';
+import { toast } from '@avalabs/k2-components';
 
 interface NetworkListProps {
   networkList: Network[];
@@ -62,9 +61,9 @@ export function NetworkList({ networkList }: NetworkListProps) {
                 <NetworkListItem
                   onClick={() => {
                     setNetwork(networkItem);
-                    toast.custom(
-                      <CustomToast label={t('Active Network has changed!')} />
-                    );
+                    toast.success(t('Active Network has changed!'), {
+                      duration: 2000,
+                    });
                     history.push('/home');
                   }}
                   data-testid={`network-li-${index}`}

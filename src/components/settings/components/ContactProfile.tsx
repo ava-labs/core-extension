@@ -72,11 +72,19 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
           sx={{ mb: 1 }}
           onClick={() => {
             goBack();
-            toast.promise(removeContact(contact), {
-              loading: t('removing'),
-              success: t('Contact Deleted'),
-              error: t('Something went wrong'),
-            });
+            toast.promise(
+              removeContact(contact),
+              {
+                loading: t('removing'),
+                success: t('Contact Deleted'),
+                error: t('Something went wrong'),
+              },
+              {
+                success: {
+                  duration: 2000,
+                },
+              }
+            );
             setShowDeleteDialog(false);
           }}
         >
@@ -113,11 +121,19 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
           if (!isFormValid) {
             return;
           }
-          toast.promise(updateContact(contact), {
-            loading: t('saving...'),
-            success: t('Contact updated!'),
-            error: t('Something went wrong'),
-          });
+          toast.promise(
+            updateContact(contact),
+            {
+              loading: t('saving...'),
+              success: t('Contact updated!'),
+              error: t('Something went wrong'),
+            },
+            {
+              success: {
+                duration: 2000,
+              },
+            }
+          );
           setIsEdit(false);
         }}
       >

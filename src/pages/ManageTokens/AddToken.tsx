@@ -4,8 +4,6 @@ import {
   TextArea,
   TokenCard,
   VerticalFlex,
-  toast,
-  CustomToast,
 } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
@@ -21,6 +19,7 @@ import { TokenType } from '@src/background/services/balances/models';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
 import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
 import { useTranslation } from 'react-i18next';
+import { toast } from '@avalabs/k2-components';
 
 const AddressInput = styled(TextArea)`
   word-break: break-all;
@@ -49,7 +48,7 @@ export function AddToken() {
         method: ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
         params: [addressInput],
       });
-      success && toast.custom(<CustomToast label={t('Added!')} />);
+      success && toast.success(t('Added!'), { duration: 2000 });
       capture('ManageTokensAddCustomToken', {
         status: 'success',
         address: addressInput,
@@ -60,7 +59,7 @@ export function AddToken() {
         status: 'failed',
         address: addressInput,
       });
-      toast.error('Failed.');
+      toast.error(t('Failed.'), { duration: 2000 });
     }
   };
 

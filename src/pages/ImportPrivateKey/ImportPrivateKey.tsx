@@ -1,13 +1,10 @@
 import {
   ComponentSize,
-  CustomToast,
   FileDownload,
   HorizontalFlex,
   Input,
   LoadingSpinnerIcon,
   PrimaryButton,
-  toast,
-  TransactionToastType,
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
@@ -31,6 +28,7 @@ import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { AccountsTabs } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
+import { toast } from '@avalabs/k2-components';
 
 type DerivedAddresses = {
   addressC: string;
@@ -63,15 +61,10 @@ export function ImportPrivateKey() {
         importType: ImportType.PRIVATE_KEY,
         data: privateKey,
       });
-      toast.custom(<CustomToast label={t('Private Key Imported')} />);
+      toast.success(t('Private Key Imported'), { duration: 2000 });
       capture('ImportPrivateKeySucceeded');
     } catch (err) {
-      toast.custom(
-        <CustomToast
-          label={t('Private Key Import Failed')}
-          type={TransactionToastType.ERROR}
-        />
-      );
+      toast.error(t('Private Key Import Failed'), { duration: 2000 });
       console.error(err);
     }
     setImportLoading(false);

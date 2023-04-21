@@ -6,14 +6,13 @@ import {
   SubTextTypography,
   Typography,
   VerticalFlex,
-  toast,
   ComponentSize,
-  CustomToast,
 } from '@avalabs/react-components';
 import { Component } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import styled from 'styled-components';
 import { t } from 'i18next';
+import { toast } from '@avalabs/k2-components';
 
 const Header = styled(Typography)`
   color: ${({ theme }) => theme.colors.primary1};
@@ -78,7 +77,7 @@ export class SignTxErrorBoundary extends Component<
               width="168px"
               onClick={() => {
                 navigator.clipboard.writeText(this.state.errorStack ?? '');
-                toast.custom(<CustomToast label={t('Copied!')} />, {
+                toast.success(t('Copied!'), {
                   duration: 2000,
                 });
               }}

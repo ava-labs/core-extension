@@ -2,7 +2,6 @@ import { Network } from '@avalabs/chains-sdk';
 import {
   CaretIcon,
   ComponentSize,
-  CustomToast,
   EllipsisIcon,
   HorizontalFlex,
   IconDirection,
@@ -11,7 +10,6 @@ import {
   StarIcon,
   StarOutlineIcon,
   TextButton,
-  toast,
   Typography,
   useDialog,
   VerticalFlex,
@@ -29,6 +27,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { NetworkForm, NetworkFormAction } from './NetworkForm';
 import { useTranslation } from 'react-i18next';
+import { toast } from '@avalabs/k2-components';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -115,12 +114,12 @@ export const NetworkDetails = () => {
 
   const onDeleteSuccess = () => {
     capture('CustomNetworkDeleted');
-    toast.custom(<CustomToast label={t('Custom Network Deleted!')} />);
+    toast.success(t('Custom Network Deleted!'), { duration: 2000 });
     history.push('/networks?activeTab=NETWORKS');
   };
   const onEditSuccess = () => {
     capture('CustomNetworkEdited');
-    toast.custom(<CustomToast label={t('Custom Network Edited!')} />);
+    toast.success(t('Custom Network Edited!'), { duration: 2000 });
     setIsEdit(false);
     setErrorMessage('');
   };

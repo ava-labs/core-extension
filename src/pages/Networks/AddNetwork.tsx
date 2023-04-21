@@ -4,8 +4,6 @@ import {
   PrimaryButton,
   ComponentSize,
   HorizontalFlex,
-  toast,
-  CustomToast,
   Typography,
 } from '@avalabs/react-components';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -21,6 +19,7 @@ import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useTranslation } from 'react-i18next';
+import { toast } from '@avalabs/k2-components';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -80,7 +79,7 @@ export const AddNetwork = () => {
 
   const onSuccess = () => {
     capture('CustomNetworkAdded');
-    toast.custom(<CustomToast label={t('Custom network added!')} />);
+    toast.success(t('Custom network added!'), { duration: 2000 });
     history.push('/networks?activeTab=NETWORKS');
   };
 
