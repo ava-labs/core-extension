@@ -19,6 +19,7 @@ import { AvalancheSetDeveloperModeHandler } from '@src/background/services/netwo
 import { WalletGetPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_getPermissions';
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
 import { WalletWatchAssetHandler } from '@src/background/services/settings/events/wallet_watchAsset';
+import { WalletGetEthereumChainHandler } from '@src/background/services/network/handlers/wallet_getEthereumChain';
 import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
 import { AvalancheSelectWalletHandler } from '@src/background/services/web3/handlers/avalanche_selectWallet';
@@ -63,6 +64,7 @@ import { AvalancheSignTransactionHandler } from '@src/background/services/wallet
   { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletSwitchEthereumChainHandler },
+  { token: 'DAppRequestHandler', useToken: WalletGetEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSetDeveloperModeHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },

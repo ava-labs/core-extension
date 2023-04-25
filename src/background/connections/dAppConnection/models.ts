@@ -6,6 +6,7 @@ export enum DAppProviderRequest {
   WALLET_PERMISSIONS = 'wallet_requestPermissions',
   WALLET_GET_PERMISSIONS = 'wallet_getPermissions',
   WALLET_ADD_CHAIN = 'wallet_addEthereumChain',
+  WALLET_GET_CHAIN = 'wallet_getEthereumChain',
   WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
   WALLET_WATCH_ASSET = 'wallet_watchAsset',
   ETH_SEND_TX = 'eth_sendTransaction',

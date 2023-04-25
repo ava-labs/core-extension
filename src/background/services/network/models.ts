@@ -26,3 +26,7 @@ export interface AddEthereumChainParameter {
   };
   rpcUrls?: string[];
 }
+
+export interface GetEthereumChainResponse extends AddEthereumChainParameter {
+  isTestnet: boolean;
+}
