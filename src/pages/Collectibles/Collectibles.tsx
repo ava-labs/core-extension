@@ -16,7 +16,10 @@ import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { NftTokenWithBalance } from '@src/background/services/balances/models';
+import {
+  NftTokenWithBalance,
+  TokenType,
+} from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
@@ -78,10 +81,13 @@ export function Collectibles() {
     }
 
     setLoading(true);
-    if (nfts.pageToken) {
-      updateNftBalances(nfts.pageToken, () => setLoading(false));
+    if (
+      nfts.pageTokens &&
+      (nfts.pageTokens[TokenType.ERC1155] || nfts.pageTokens[TokenType.ERC721])
+    ) {
+      updateNftBalances(nfts.pageTokens, () => setLoading(false));
     }
-  }, [loading, updateNftBalances, nfts.pageToken]);
+  }, [loading, updateNftBalances, nfts.pageTokens]);
 
   useEffect(() => {
     if (isHistoryLoading) {
@@ -149,7 +155,10 @@ export function Collectibles() {
       {!nfts.loading && !!nfts.items?.length && (
         <InfiniteScroll
           loadMore={update}
-          hasMore={!!nfts.pageToken}
+          hasMore={
+            !!nfts.pageTokens?.[TokenType.ERC721] ||
+            !!nfts.pageTokens?.[TokenType.ERC1155]
+          }
           loading={loading}
           error={nfts.error?.toString()}
         >

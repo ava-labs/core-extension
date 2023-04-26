@@ -4,13 +4,17 @@ import { ReactEventHandler, useState } from 'react';
 interface ImageWithFallbackProps {
   src?: string;
   onError?: ReactEventHandler;
+  onLoad?: ReactEventHandler;
   className?: string;
+  id?: string;
 }
 
 export function ImageWithFallback({
   src,
   onError,
+  onLoad,
   className,
+  id,
 }: ImageWithFallbackProps) {
   const [fallbackImage, setFallbackImage] = useState('');
 
@@ -25,7 +29,11 @@ export function ImageWithFallback({
       crossOrigin="anonymous"
       src={fallbackImage || ipfsResolverWithFallback(src)}
       onError={imageOnErrorHandler}
+      onLoad={(event) => {
+        onLoad?.(event);
+      }}
       className={className}
+      id={id}
     />
   );
 }

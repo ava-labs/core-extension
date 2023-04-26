@@ -15,7 +15,7 @@ import {
 } from './models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
-import { getErc721Metadata } from '@src/utils/getErc721Metadata';
+import { getNftMetadata } from '@src/utils/getNftMetadata';
 import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
 import { resolve } from '@src/utils/promiseResolver';
 import { TokenType } from '../balances/models';
@@ -215,7 +215,7 @@ export class HistoryServiceGlacier {
             imageUri = token.metadata.imageUri;
           } else {
             const [metadata, error] = await resolve(
-              getErc721Metadata(token.tokenUri)
+              getNftMetadata(token.tokenUri)
             );
             if (error) {
               imageUri = '';

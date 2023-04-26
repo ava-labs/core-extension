@@ -3,6 +3,7 @@ import { ChainId, Network } from '@avalabs/chains-sdk';
 import { NFTService } from './models';
 import './registry';
 import { NFTBalancesServiceCovalent } from './NFTBalancesServiceCovalent';
+import { NftPageTokens } from '../models';
 
 @singleton()
 export class NFTBalancesService {
@@ -15,7 +16,7 @@ export class NFTBalancesService {
   async getNftBalances(
     address: string,
     network: Network,
-    pageToken: string | undefined
+    pageTokens: NftPageTokens
   ) {
     const networksWithNFTSupport = [
       ChainId.AVALANCHE_MAINNET_ID,
@@ -26,7 +27,7 @@ export class NFTBalancesService {
     if (!provider || !networksWithNFTSupport.includes(network.chainId)) {
       throw new Error('NFTs not supported on the network');
     }
-    return provider.getNFTBalances(address, network, pageToken);
+    return provider.getNFTBalances(address, network, pageTokens);
   }
 
   private async getNftProviderForNetwork(

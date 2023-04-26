@@ -23,7 +23,7 @@ import { AccountType } from '../accounts/models';
 import { HistoryServiceGlacier } from './HistoryServiceGlacier';
 import { TransactionType, HistoryItemCategories } from './models';
 import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
-import { getErc721Metadata } from '@src/utils/getErc721Metadata';
+import { getNftMetadata } from '@src/utils/getNftMetadata';
 import { TokenType } from '../balances/models';
 
 jest.mock('@src/utils/getExplorerAddress', () => ({
@@ -56,8 +56,8 @@ jest.mock('@avalabs/glacier-sdk', () => ({
   },
 }));
 
-jest.mock('@src/utils/getErc721Metadata', () => ({
-  getErc721Metadata: jest.fn(),
+jest.mock('@src/utils/getNftMetadata', () => ({
+  getNftMetadata: jest.fn(),
 }));
 
 jest.mock('../balances/nft/utils/getSmallImageForNFT', () => ({
@@ -312,7 +312,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
         return `test.com/${hash}`;
       }
     );
-    (getErc721Metadata as jest.Mock).mockImplementation(() =>
+    (getNftMetadata as jest.Mock).mockImplementation(() =>
       Promise.resolve({ image: imageUri })
     );
     (getSmallImageForNFT as jest.Mock).mockImplementation(() =>
@@ -881,7 +881,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
         network,
         userAddress
       );
-      expect(getErc721Metadata).toBeCalledTimes(1);
+      expect(getNftMetadata).toBeCalledTimes(1);
       expect(getSmallImageForNFT).toBeCalledTimes(1);
       expect(getSmallImageForNFT).toBeCalledWith(imageUri);
 
@@ -892,7 +892,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     it('should return token info with empty imageUri if fails to fetch metadata', async () => {
       const service = new HistoryServiceGlacier(mockedAccountsService) as any;
 
-      (getErc721Metadata as jest.Mock).mockImplementation(() =>
+      (getNftMetadata as jest.Mock).mockImplementation(() =>
         Promise.reject(new Error('Failed to fetch metadata'))
       );
 
@@ -906,7 +906,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
         network,
         userAddress
       );
-      expect(getErc721Metadata).toBeCalledTimes(1);
+      expect(getNftMetadata).toBeCalledTimes(1);
 
       expect(result.length).toEqual(1);
       expect(result[0].imageUri).toEqual('');

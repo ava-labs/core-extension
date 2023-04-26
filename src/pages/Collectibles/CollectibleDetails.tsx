@@ -15,6 +15,7 @@ import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
+import { TokenType } from '@src/background/services/balances/models';
 
 const AttributeLabel = styled(Typography)`
   font-size: 14px;
@@ -58,13 +59,16 @@ export function CollectibleDetails() {
       >
         <VerticalFlex padding="0 16px">
           <CollectibleMedia
-            width="100%"
+            width="343px"
             height="auto"
             url={nft?.logoUri}
             hover={false}
             margin="8px 0"
             controls={true}
             showPlayIcon={false}
+            showBalance={TokenType.ERC1155 === nft.type}
+            balance={nft.balance}
+            showExpandOption={TokenType.ERC1155 === nft.type}
           />
           <PrimaryButton
             margin="24px 0"

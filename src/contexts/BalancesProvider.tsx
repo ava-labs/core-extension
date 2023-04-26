@@ -1,7 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   Balances,
+  NftPageTokens,
   NftTokenWithBalance,
+  TokenType,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -27,7 +29,7 @@ import { StopBalancesPollingHandler } from '@src/background/services/balances/ha
 interface NftState {
   loading: boolean;
   items?: NftTokenWithBalance[];
-  pageToken?: string;
+  pageTokens?: NftPageTokens;
   error?: string;
 }
 interface BalancesState {
@@ -46,7 +48,7 @@ type BalanceAction =
 const BalancesContext = createContext<{
   tokens: BalancesState;
   nfts: NftState;
-  updateNftBalances?: (pageToken?: string, callback?: () => void) => void;
+  updateNftBalances?: (pageToken: NftPageTokens, callback?: () => void) => void;
   updateBalanceOnAllNetworks?: (account: Account) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
@@ -155,22 +157,25 @@ export function BalancesProvider({ children }: { children: any }) {
   }, [subscriberCount]);
 
   const updateNftBalances = useCallback(
-    async (pageToken?: string, callback?: () => void) => {
-      if (!pageToken) {
+    async (pageTokens?: NftPageTokens, callback?: () => void) => {
+      if (
+        !pageTokens ||
+        (!pageTokens[TokenType.ERC1155] && !pageTokens[TokenType.ERC721])
+      ) {
         setNfts({ loading: true });
       }
 
       request<GetNftBalancesHandler>({
         method: ExtensionRequest.NFT_BALANCES_GET,
-        params: [pageToken],
+        params: [pageTokens],
       })
         .then((result) => {
           setNfts((prevState) => {
             return {
-              items: pageToken
+              items: pageTokens
                 ? [...(prevState.items ?? []), ...result.list]
                 : result.list,
-              pageToken: result.pageToken,
+              pageTokens: result.pageTokens,
               loading: false,
             };
           });
