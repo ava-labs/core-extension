@@ -1,6 +1,7 @@
 import {
   Asset,
   Blockchain,
+  EthereumAssets,
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/bridge-sdk';
@@ -43,7 +44,7 @@ export function useAssetBalancesEVM(
     }
 
     // do not allow BUSD.e onboardings
-    const filteredEthereumAssets = Object.keys(ethereumAssets)
+    const filteredEthereumAssets: EthereumAssets = Object.keys(ethereumAssets)
       .filter((key) => ethereumAssets[key]?.symbol !== 'BUSD')
       .reduce((obj, key) => {
         obj[key] = ethereumAssets[key];
@@ -57,7 +58,7 @@ export function useAssetBalancesEVM(
       : filteredEthereumAssets;
 
     // filter out assets for networks not available
-    const availableAssets = Object.values(assets).filter((asset) => {
+    const availableAssets = Object.values(assets).filter((asset: Asset) => {
       if (chain === Blockchain.AVALANCHE) {
         if (
           asset.nativeNetwork === Blockchain.ETHEREUM &&

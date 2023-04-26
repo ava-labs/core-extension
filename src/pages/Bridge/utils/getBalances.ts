@@ -1,4 +1,4 @@
-import { Asset, AssetType } from '@avalabs/bridge-sdk';
+import { Asset, isBtcAsset, isNativeAsset } from '@avalabs/bridge-sdk';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { bnToBig } from '@avalabs/utils-sdk';
 import {
@@ -30,13 +30,12 @@ export function getBalances(
 
   return assets.map((asset) => {
     const symbol = asset.symbol;
-    const token =
-      asset.assetType === AssetType.NATIVE
-        ? tokensByAddress[asset.symbol.toLowerCase()]
-        : asset.assetType === AssetType.BTC
-        ? tokensByAddress[asset.wrappedContractAddress.toLowerCase()]
-        : tokensByAddress[asset.wrappedContractAddress?.toLowerCase()] ||
-          tokensByAddress[asset.nativeContractAddress?.toLowerCase()];
+    const token = isNativeAsset(asset)
+      ? tokensByAddress[asset.symbol.toLowerCase()]
+      : isBtcAsset(asset)
+      ? tokensByAddress[asset.wrappedContractAddress.toLowerCase()]
+      : tokensByAddress[asset.wrappedContractAddress?.toLowerCase()] ||
+        tokensByAddress[asset.nativeContractAddress?.toLowerCase()];
 
     const balance = token && bnToBig(token.balance, token.decimals);
     const logoUri = token?.logoUri;

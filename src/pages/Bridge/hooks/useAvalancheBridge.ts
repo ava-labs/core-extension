@@ -1,15 +1,7 @@
-import {
-  AssetType,
-  BIG_ZERO,
-  Blockchain,
-  btcToSatoshi,
-  getMinimumTransferAmount,
-  satoshiToBtc,
-  useBridgeSDK,
-} from '@avalabs/bridge-sdk';
+import { BIG_ZERO, Blockchain, useBridgeSDK } from '@avalabs/bridge-sdk';
 import { BridgeAdapter } from './useBridge';
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import Big from 'big.js';
 import { useHasEnoughForGas } from './useHasEnoughtForGas';
@@ -17,10 +9,13 @@ import { useHasEnoughForGas } from './useHasEnoughtForGas';
 /**
  * Hook for when the source is Avalanche
  */
-export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
+export function useAvalancheBridge(
+  amount: Big,
+  bridgeFee: Big,
+  minimum: Big
+): BridgeAdapter {
   const {
     targetBlockchain,
-    bridgeConfig,
     currentBlockchain,
     setTransactionDetails,
     currentAssetData,
@@ -41,20 +36,6 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const hasEnoughForNetworkFee = useHasEnoughForGas();
 
   const maximum = sourceBalance?.balance || BIG_ZERO;
-  const minimum = useMemo(() => {
-    if (!bridgeConfig.config) return BIG_ZERO;
-    if (currentAssetData?.assetType === AssetType.ERC20) {
-      return bridgeFee.mul(3);
-    } else {
-      return satoshiToBtc(
-        getMinimumTransferAmount(
-          Blockchain.AVALANCHE,
-          bridgeConfig.config,
-          btcToSatoshi(amount)
-        )
-      );
-    }
-  }, [amount, bridgeConfig.config, bridgeFee, currentAssetData?.assetType]);
   const receiveAmount = amount.gt(minimum) ? amount.minus(bridgeFee) : BIG_ZERO;
 
   const transfer = useCallback(async () => {
@@ -100,7 +81,6 @@ export function useAvalancheBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     hasEnoughForNetworkFee,
     receiveAmount,
     maximum,
-    minimum,
     price: sourceBalance?.price,
     txHash,
     transfer,

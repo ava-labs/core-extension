@@ -4,6 +4,7 @@ import {
   useBridgeSDK,
   useBridgeFeeEstimate,
   WrapStatus,
+  useMinimumTransferAmount,
 } from '@avalabs/bridge-sdk';
 import { useState } from 'react';
 import { AssetBalance } from '../models';
@@ -49,14 +50,15 @@ export function useBridge(): Bridge {
   const [amount, setAmount] = useState<Big>(BIG_ZERO);
 
   const bridgeFee = useBridgeFeeEstimate(amount) || BIG_ZERO;
+  const minimum = useMinimumTransferAmount(amount);
 
   const btc = useBtcBridge(amount);
-  const eth = useEthBridge(amount, bridgeFee);
-
-  const avalanche = useAvalancheBridge(amount, bridgeFee);
+  const eth = useEthBridge(amount, bridgeFee, minimum);
+  const avalanche = useAvalancheBridge(amount, bridgeFee, minimum);
 
   const defaults = {
     amount,
+    minimum,
     setAmount,
     bridgeFee,
   };
