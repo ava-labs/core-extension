@@ -1,9 +1,16 @@
 import { useState } from 'react';
-import { isVideo } from '../utils';
+import { isVideo, isImageDark } from '../utils';
 import { ImageWrapper } from './ImageWrapper';
 import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
-import { Stack, styled, TriangleRightIcon } from '@avalabs/k2-components';
+import {
+  Chip,
+  Stack,
+  styled,
+  TriangleRightIcon,
+  FullscreenIcon,
+} from '@avalabs/k2-components';
+import BN from 'bn.js';
 
 const NftImage = styled(ImageWithFallback)<{
   width?: string;
@@ -13,6 +20,7 @@ const NftImage = styled(ImageWithFallback)<{
   hover?: boolean;
   hasBorderRadius?: boolean;
   boarderRadius?: string;
+  showPointer?: boolean;
 }>`
   width: ${({ width }) => width ?? '32px'};
   height: ${({ height }) => height ?? '32px'};
@@ -26,15 +34,7 @@ const NftImage = styled(ImageWithFallback)<{
   backdrop-filter: blur(25px);
   border-radius: ${({ hasBorderRadius, boarderRadius }) =>
     hasBorderRadius ? (boarderRadius ? boarderRadius : '8px') : 'none'};
-  cursor: pointer;
-
-  ${({ hover }) =>
-    hover &&
-    `
-        &:hover {
-            filter: grayscale(100%);
-        }
-  `};
+  cursor: ${({ showPointer }) => (showPointer ? 'default' : 'pointer')};
 `;
 
 const NftVideo = styled('video')<{
@@ -57,13 +57,6 @@ const NftVideo = styled('video')<{
   backdrop-filter: blur(25px);
   border-radius: ${({ boarderRadius }) =>
     boarderRadius ? boarderRadius : '8px'};
-  ${({ hover }) =>
-    hover &&
-    `
-        &:hover {
-            filter: grayscale(100%);
-        }
-  `};
 `;
 
 interface CollectibleMediaProps {
@@ -78,6 +71,9 @@ interface CollectibleMediaProps {
   controls?: boolean;
   className?: string;
   boarderRadius?: string;
+  showBalance?: boolean;
+  balance?: BN;
+  showExpandOption?: boolean;
 }
 
 export function CollectibleMedia({
@@ -92,8 +88,12 @@ export function CollectibleMedia({
   controls = false,
   className,
   boarderRadius = '8x',
+  showBalance = false,
+  balance = new BN(0),
+  showExpandOption = false,
 }: CollectibleMediaProps) {
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
+  const [useDarkImageMode, setDarkImageMode] = useState(false);
 
   return (
     <Stack
@@ -103,6 +103,50 @@ export function CollectibleMedia({
       }}
       className={className}
     >
+      {showBalance && (
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            maxWidth: maxWidth ? maxWidth : 'unset',
+            width: width ? width : '32px',
+            position: 'absolute',
+            justifyContent: 'flex-end',
+            alignItems: 'flex-end',
+            columnGap: 1,
+            zIndex: 3,
+            mr: 3,
+            mt: 1,
+            pr: 1,
+          }}
+        >
+          <Chip
+            size="small"
+            sx={{
+              backgroundColor: (theme) =>
+                useDarkImageMode ? 'primary.light' : theme.palette.grey[600],
+              color: useDarkImageMode
+                ? 'primary.contrastText'
+                : 'primary.light',
+              px: 1,
+            }}
+            label={balance.toString()}
+          />
+          {showExpandOption && (
+            <FullscreenIcon
+              onClick={() => {
+                setIsImageFullScreen(true);
+              }}
+              size="24"
+              sx={{
+                color: useDarkImageMode
+                  ? 'primary.light'
+                  : 'primary.contrastText',
+                cursor: 'pointer',
+              }}
+            />
+          )}
+        </Stack>
+      )}
       {isVideo(url) ? (
         <Stack sx={{ position: 'relative', flexDirection: 'row' }}>
           <NftVideo
@@ -130,7 +174,9 @@ export function CollectibleMedia({
       ) : (
         <ImageWrapper
           isOverlay={isImageFullScreen}
-          onClick={() => setIsImageFullScreen(true)}
+          onClick={() => {
+            if (!showBalance) setIsImageFullScreen(true);
+          }}
           onClose={() => setIsImageFullScreen(false)}
         >
           <NftImage
@@ -142,6 +188,14 @@ export function CollectibleMedia({
             hover={hover}
             hasBorderRadius={!isImageFullScreen}
             boarderRadius={boarderRadius}
+            showPointer={showExpandOption}
+            onLoad={(event) => {
+              if (showBalance) {
+                isImageDark(event.target as HTMLImageElement, (isImageDark) => {
+                  setDarkImageMode(isImageDark);
+                });
+              }
+            }}
           />
         </ImageWrapper>
       )}

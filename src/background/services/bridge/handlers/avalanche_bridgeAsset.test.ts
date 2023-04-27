@@ -1,6 +1,7 @@
 import {
+  AppConfigWithFullStaticFees,
   AssetType,
-  BitcoinConfigAsset,
+  BitcoinStaticFeeConfigAsset,
   Blockchain,
   BridgeConfig,
   getBtcAsset,
@@ -27,110 +28,113 @@ jest.mock('@avalabs/bridge-sdk', () => {
 
 const frontendTabId = 654;
 
-const mockBridgeConfig: BridgeConfig = {
-  config: {
-    critical: {
-      assets: {},
-      disableFrontend: false,
-      networks: { avalanche: 43113, ethereum: 5 },
-      operatorAddress: 'normal',
-      walletAddresses: {
-        avalanche: 'avalancheAddress',
-        ethereum: 'ethereumAddress',
-      },
-      addressBlocklist: [],
+const mockConfig: AppConfigWithFullStaticFees = {
+  critical: {
+    operationMode: 'normal',
+    assets: {},
+    disableFrontend: false,
+    networks: { avalanche: 43113, ethereum: 5 },
+    operatorAddress: 'normal',
+    walletAddresses: {
+      avalanche: 'avalancheAddress',
+      ethereum: 'ethereumAddress',
     },
-    nonCritical: {
-      minimumConfirmations: {
-        avalanche: 1,
-        ethereum: 96,
-      },
-      wrapFeeApproximation: {},
-      unwrapFeeApproximation: {},
-      currentEthPrice: '325000000000',
-      currentAvaxPrice: '4000000000',
-      currentGasPrices: {
-        avalanche: {
-          nextBaseFee: '28125000000',
-          suggestedTip: '2000000000',
-        },
-        ethereum: {
-          nextBaseFee: '14743549',
-          suggestedTip: '7000693915',
-        },
-      },
-      updated: 'updated',
-      startupTime: 'startupTime',
+    addressBlocklist: [],
+  },
+  nonCritical: {
+    minimumConfirmations: {
+      avalanche: 1,
+      ethereum: 96,
     },
-    criticalBitcoin: {
-      addressBlocklist: [],
-      avalancheChainId: 43113,
-      bitcoinAssets: {
-        btc: {
-          additionalTxFeeAmount: 0,
-          avaxPromotionAmount: '100000000000000000',
-          avaxPromotionDollarThreshold: 50,
-          bech32AddressPrefix: 'tb',
-          offboardFeeDollars: 10,
-          onboardFeeDollars: 3,
-          operatorAddress: 'operatorAddress',
-          privateKeyPrefix: 'EF',
-          reserveBalanceHighWaterMark: 200000000,
-          reserveBalanceLowWaterMark: 100000000,
-          targetChangeAmount: 5000000,
-          tokenName: 'Bitcoin',
-          wrappedContractAddress: 'wrappedContractAddress',
-          wrappedNetwork: 'avalanche',
-          assetType: 2,
-          symbol: 'BTC',
-          denomination: 8,
-          nativeNetwork: Blockchain.BITCOIN,
-        },
+    wrapFeeApproximation: {},
+    unwrapFeeApproximation: {},
+    currentEthPrice: '325000000000',
+    currentAvaxPrice: '4000000000',
+    currentGasPrices: {
+      avalanche: {
+        nextBaseFee: '28125000000',
+        suggestedTip: '2000000000',
       },
-      disableFrontend: false,
-      operationMode: 'normal',
-      operatorEvmAddress: 'operatorEvmAddress',
-      useEip1559TransactionFormat: true,
-      walletAddresses: {
-        avalanche: 'avalancheAddress',
-        btc: 'btcAddress',
+      ethereum: {
+        nextBaseFee: '14743549',
+        suggestedTip: '7000693915',
       },
     },
-    nonCriticalBitcoin: {
-      networkInfo: {
-        btc: {
-          minimumConfirmations: 4,
-          minimumOnboardSize: 2000,
-          currentPrice: '5000000000000',
-          currentFeeRate: {
-            feeRate: 10,
-            source: 'smartFeeEstimate',
-          },
-          currentUtxoStatistics: {
-            tb1q8nur2k3xphnsqa5zxgjl7djtkj3ya0gfs96nxk: {
-              mean: 2271118,
-              count: 32,
-            },
-          },
-          currentBridgeFeeEstimate: {
-            wrapFeeAmount: 6000,
-            constUnwrapFeeAmount: 21050,
-            unwrapFeeNumerator: 680,
-            unwrapFeeDenominator: 2271118,
-            dustThreshold: 1000,
-          },
-          reserveBalance: 1436210,
-          networkView: {
-            lastIndexedBlock: 2419333,
-            lastSeenBlock: 2419336,
-            nodeVersion: '/Satoshi:24.0.1/',
-          },
-        },
+    updated: 'updated',
+    startupTime: 'startupTime',
+  },
+  criticalBitcoin: {
+    operatorAddress: '0xF759607ffee4B5482492927E51D3b7820DE4189d',
+    addressBlocklist: [],
+    avalancheChainId: 43113,
+    bitcoinAssets: {
+      btc: {
+        additionalTxFeeAmount: 0,
+        avaxPromotionAmount: '100000000000000000',
+        avaxPromotionDollarThreshold: 50,
+        bech32AddressPrefix: 'tb',
+        offboardFeeDollars: 10,
+        onboardFeeDollars: 3,
+        operatorAddress: 'operatorAddress',
+        privateKeyPrefix: 'EF',
+        reserveBalanceHighWaterMark: 200000000,
+        reserveBalanceLowWaterMark: 100000000,
+        targetChangeAmount: 5000000,
+        tokenName: 'Bitcoin',
+        wrappedContractAddress: 'wrappedContractAddress',
+        wrappedNetwork: 'avalanche',
+        assetType: 2,
+        symbol: 'BTC',
+        denomination: 8,
+        nativeNetwork: Blockchain.BITCOIN,
       },
-      updated: 'updated time',
+    },
+    disableFrontend: false,
+    operationMode: 'normal',
+    operatorEvmAddress: 'operatorEvmAddress',
+    useEip1559TransactionFormat: true,
+    walletAddresses: {
+      avalanche: 'avalancheAddress',
+      btc: 'btcAddress',
     },
   },
+  nonCriticalBitcoin: {
+    networkInfo: {
+      btc: {
+        minimumConfirmations: 4,
+        minimumOnboardSize: 2000,
+        currentPrice: '5000000000000',
+        currentFeeRate: {
+          feeRate: 10,
+          source: 'smartFeeEstimate',
+        },
+        currentUtxoStatistics: {
+          tb1q8nur2k3xphnsqa5zxgjl7djtkj3ya0gfs96nxk: {
+            mean: '2271118',
+            count: '32',
+          },
+        },
+        currentBridgeFeeEstimate: {
+          wrapFeeAmount: 6000,
+          constUnwrapFeeAmount: 21050,
+          unwrapFeeNumerator: 680,
+          unwrapFeeDenominator: 2271118,
+          dustThreshold: 1000,
+        },
+        reserveBalance: 1436210,
+        networkView: {
+          lastIndexedBlock: 2419333,
+          lastSeenBlock: 2419336,
+          nodeVersion: '/Satoshi:24.0.1/',
+        },
+      },
+    },
+    updated: 'updated time',
+  },
+  startupTime: 'timestamp',
+  version: '0.0.1',
 };
+const mockBridgeConfig: BridgeConfig = { config: mockConfig };
 
 describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   const bridgeServiceMock = {
@@ -161,7 +165,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     isMainnet: jest.fn(),
   } as any;
 
-  const btcAsset: BitcoinConfigAsset = {
+  const btcAsset: BitcoinStaticFeeConfigAsset = {
     additionalTxFeeAmount: 0,
     avaxPromotionAmount: '100000000000000000',
     avaxPromotionDollarThreshold: 50,

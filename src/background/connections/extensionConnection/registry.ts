@@ -58,11 +58,9 @@ import { SendSubmitHandler } from '@src/background/services/send/handlers/SendSu
 import { SendValidateHandler } from '@src/background/services/send/handlers/SendValidateHandler';
 import { SettingsUpdatedEvents } from '@src/background/services/settings/events/settingsUpdatedEvent';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
-import { GetIsDefaultExtensionHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
 import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
 import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
 import { SetAnalyticsConsentHandler } from '@src/background/services/settings/handlers/setAnalyticsConsent';
-import { SetDefaultExtensionHandler } from '@src/background/services/settings/handlers/setAsDefaultExtension';
 import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
@@ -204,14 +202,12 @@ import { WalletUpdatedEvents } from '@src/background/services/wallet/events/Wall
   { token: 'ExtensionRequestHandler', useToken: SendSubmitHandler },
   { token: 'ExtensionRequestHandler', useToken: SendValidateHandler },
   { token: 'ExtensionRequestHandler', useToken: AddCustomTokenHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetIsDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: GetSettingsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenDataHandler },
   { token: 'ExtensionRequestHandler', useToken: GetWalletDetailsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetBtcWalletPolicyDetails },
   { token: 'ExtensionRequestHandler', useToken: StoreBtcWalletPolicyDetails },
   { token: 'ExtensionRequestHandler', useToken: GetUnencryptedMnemonicHandler },
-  { token: 'ExtensionRequestHandler', useToken: SetDefaultExtensionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateShowNoBalanceHandler },
   { token: 'ExtensionRequestHandler', useToken: SetAnalyticsConsentHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateCurrencyHandler },

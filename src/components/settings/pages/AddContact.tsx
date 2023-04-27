@@ -67,11 +67,19 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
               if (!isFormValid) {
                 return;
               }
-              toast.promise(createContact(contact), {
-                loading: t('creating...'),
-                success: t('Contact created!'),
-                error: t('Something went wrong'),
-              });
+              toast.promise(
+                createContact(contact),
+                {
+                  loading: t('creating...'),
+                  success: t('Contact created!'),
+                  error: t('Something went wrong'),
+                },
+                {
+                  success: {
+                    duration: 2000,
+                  },
+                }
+              );
               goBack();
             }}
           >

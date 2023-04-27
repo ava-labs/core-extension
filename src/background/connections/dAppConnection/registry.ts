@@ -19,7 +19,7 @@ import { AvalancheSetDeveloperModeHandler } from '@src/background/services/netwo
 import { WalletGetPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_getPermissions';
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
 import { WalletWatchAssetHandler } from '@src/background/services/settings/events/wallet_watchAsset';
-import { GetIsDefaultExtensionDAppHandler } from '@src/background/services/settings/handlers/getIsDefaultExtension';
+import { WalletGetEthereumChainHandler } from '@src/background/services/network/handlers/wallet_getEthereumChain';
 import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
 import { AvalancheSelectWalletHandler } from '@src/background/services/web3/handlers/avalanche_selectWallet';
@@ -31,6 +31,7 @@ import { AvalancheGetAccountPubKeyHandler } from '@src/background/services/accou
 import { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
 import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/accounts/handlers/avalanche_getAddressesInRange';
 import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
+import { AvalancheSignTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_signTransaction';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -53,6 +54,7 @@ import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/h
   { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountPubKeyHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
   { token: 'DAppRequestHandler', useToken: BitcoinSendTransactionHandler },
   {
     token: 'DAppRequestHandler',
@@ -62,11 +64,11 @@ import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/h
   { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletSwitchEthereumChainHandler },
+  { token: 'DAppRequestHandler', useToken: WalletGetEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSetDeveloperModeHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
-  { token: 'DAppRequestHandler', useToken: GetIsDefaultExtensionDAppHandler },
   { token: 'DAppRequestHandler', useToken: EthSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },
   { token: 'DAppRequestHandler', useToken: MetamaskGetProviderState },

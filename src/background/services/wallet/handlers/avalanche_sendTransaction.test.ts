@@ -1,26 +1,39 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheSendTransactionHandler } from './avalanche_sendTransaction';
-import { UnsignedTx, EVMUnsignedTx } from '@avalabs/avalanchejs-v2';
+import {
+  UnsignedTx,
+  EVMUnsignedTx,
+  AVM,
+  utils,
+  EVM,
+} from '@avalabs/avalanchejs-v2';
 import { parseAvalancheTx } from '../utils/parseAvalancheTx';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
+import { Avalanche } from '@avalabs/wallets-sdk';
+import createAvalancheUnsignedTx from '../utils/createAvalancheUnsignedTx';
+import createAvalancheEvmUnsignedTx from '../utils/createAvalancheEvmUnsignedTx';
 
 jest.mock('@avalabs/avalanchejs-v2');
+jest.mock('@avalabs/wallets-sdk');
 jest.mock('@src/background/services/wallet/utils/parseAvalancheTx');
+jest.mock('../utils/createAvalancheUnsignedTx');
+jest.mock('../utils/createAvalancheEvmUnsignedTx');
 
 describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts', () => {
   const request = {
     id: '123',
     method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
-    params: ['unsignedTx'],
+    params: { transactionHex: '0x00001', chainAlias: 'X' },
     site: {
       tabId: 1,
     },
   };
 
   const frontendTabId = 951;
+  const txBytes = new Uint8Array([0, 1, 2]);
 
   const openApprovalWindowSpy = jest.spyOn(
     DAppRequestHandler.prototype,
@@ -29,13 +42,12 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   const getAvalanceProviderXPMock = jest.fn();
   const getAvalancheNetworkXPMock = jest.fn();
   const signMock = jest.fn();
-  const getVMMock = jest.fn();
-  const toBytesMock = jest.fn();
-  const getContextMock = jest.fn();
   const issueTxHexMock = jest.fn();
   const getAddressesMock = jest.fn();
   const onSuccessMock = jest.fn();
   const onErrorMock = jest.fn();
+  const getAddressesByIndicesMock = jest.fn();
+  const hasAllSignaturesMock = jest.fn();
 
   const activeAccountMock = {
     addressAVM: 'X-fuji1',
@@ -44,37 +56,43 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   };
   const walletServiceMock = {
     sign: signMock,
+    getAddressesByIndices: getAddressesByIndicesMock,
   };
   const networkServiceMock = {
     getAvalanceProviderXP: getAvalanceProviderXPMock,
     getAvalancheNetworkXP: getAvalancheNetworkXPMock,
   };
   const accountsServiceMock = {};
+  const unsignedTxJson = { foo: 'bar' };
   const unsignedTxMock = {
-    getVM: getVMMock,
-    toBytes: toBytesMock,
     addressMaps: {
       getAddresses: getAddressesMock,
     },
+    hasAllSignatures: hasAllSignaturesMock,
+    toJSON: () => unsignedTxJson,
+    getSignedTx: () => 'signedTx',
+    getTx: () => ({
+      foo: 'bar',
+    }),
   };
   const providerMock = {
-    getContext: getContextMock,
     issueTxHex: issueTxHexMock,
   };
 
   beforeEach(() => {
     jest.resetAllMocks();
+
     (UnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     (EVMUnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
-    getVMMock.mockReturnValue('EVM');
-    toBytesMock.mockReturnValue('some bytes');
-    signMock.mockReturnValue('signed tx hex');
+    signMock.mockReturnValue({ biz: 'baz' });
     getAvalancheNetworkXPMock.mockReturnValue('network');
     issueTxHexMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     getAddressesMock.mockReturnValue([]);
     openApprovalWindowSpy.mockResolvedValue(undefined);
     (accountsServiceMock as any).activeAccount = activeAccountMock;
+    (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(AVM);
+    (utils.hexToBuffer as jest.Mock).mockReturnValue(txBytes);
   });
 
   describe('handleUnauthenticated', () => {
@@ -94,7 +112,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   });
 
   describe('handleAuthenticated', () => {
-    it('returns error if unsigned transaction is not provided', async () => {
+    it('returns error if transactionHex was not provided', async () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { params, ...requestWithoutParam } = request;
       const handler = new AvalancheSendTransactionHandler(
@@ -107,18 +125,42 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(result).toEqual({
         ...requestWithoutParam,
         error: ethErrors.rpc.invalidParams({
-          message: 'Missing unsigned transaction JSON object',
+          message: 'Missing mandatory param(s)',
         }),
       });
     });
 
-    it('returns error if there is no active account', async () => {
-      unsignedTxMock.getVM.mockReturnValueOnce('AVM');
+    it('returns error if chainAlias was not provided', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { params, ...requestWithoutParam } = request;
+      const requestWithoutChainAlias = {
+        ...requestWithoutParam,
+        params: { transactionHex: params.transactionHex },
+      };
       const handler = new AvalancheSendTransactionHandler(
         {} as any,
         {} as any,
         {} as any
       );
+      const result = await handler.handleAuthenticated(
+        requestWithoutChainAlias
+      );
+
+      expect(result).toEqual({
+        ...requestWithoutChainAlias,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Missing mandatory param(s)',
+        }),
+      });
+    });
+
+    it('returns error if there is no active account', async () => {
+      const handler = new AvalancheSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        {} as any
+      );
+
       const result = await handler.handleAuthenticated(request);
 
       expect(result).toEqual({
@@ -130,9 +172,18 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     });
 
     it('returns error if fails to parse transaction', async () => {
+      getAddressesByIndicesMock.mockResolvedValue([]);
       (parseAvalancheTx as jest.Mock).mockReturnValueOnce({
         type: 'unknown',
       });
+      (utils.parse as jest.Mock).mockReturnValueOnce([
+        undefined,
+        undefined,
+        new Uint8Array([0, 1, 2]),
+      ]);
+      (createAvalancheUnsignedTx as jest.Mock).mockReturnValueOnce(
+        unsignedTxMock
+      );
 
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
@@ -144,15 +195,26 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidParams({
-          message: 'Unable to parse transaction data. Unsupported tx type?',
+          message: 'Unable to parse transaction data. Unsupported tx type',
         }),
       });
     });
 
-    it('opens the approval window and returns deferred response', async () => {
+    it('X/P: opens the approval window and returns deferred response', async () => {
+      const tx = { vm: AVM };
+      (utils.unpackWithManager as jest.Mock).mockReturnValueOnce(tx);
+      getAddressesByIndicesMock.mockResolvedValue([]);
       (parseAvalancheTx as jest.Mock).mockReturnValueOnce({
         type: 'import',
       });
+      (utils.parse as jest.Mock).mockReturnValueOnce([
+        undefined,
+        undefined,
+        new Uint8Array([0, 1, 2]),
+      ]);
+      (createAvalancheUnsignedTx as jest.Mock).mockReturnValueOnce(
+        unsignedTxMock
+      );
 
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
@@ -166,8 +228,55 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           ...request,
           tabId: request.site.tabId,
           displayData: {
-            unsignedTxJson: 'unsignedTx',
-            txBuffer: Buffer.from('some bytes'),
+            unsignedTxJson: JSON.stringify(unsignedTxJson),
+            txData: {
+              type: 'import',
+            },
+            vm: 'AVM',
+          },
+        },
+        'approve/avalancheSignTx?id=123'
+      );
+
+      expect(result).toEqual({
+        ...request,
+        result: DEFERRED_RESPONSE,
+      });
+
+      expect(createAvalancheUnsignedTx).toHaveBeenCalledWith({
+        tx,
+        vm: AVM,
+        provider: providerMock,
+        fromAddressBytes: [new Uint8Array([0, 1, 2])],
+      });
+    });
+
+    it('C: opens the approval window and returns deferred response', async () => {
+      (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(EVM);
+      (utils.hexToBuffer as jest.Mock).mockReturnValueOnce(
+        new Uint8Array([0, 1, 2])
+      );
+      getAddressesByIndicesMock.mockResolvedValue([]);
+      (parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+        type: 'import',
+      });
+      (createAvalancheEvmUnsignedTx as jest.Mock).mockReturnValueOnce(
+        unsignedTxMock
+      );
+
+      const handler = new AvalancheSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        accountsServiceMock as any
+      );
+      const result = await handler.handleAuthenticated(request);
+
+      expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        {
+          ...request,
+          tabId: request.site.tabId,
+          displayData: {
+            unsignedTxJson: JSON.stringify(unsignedTxJson),
             txData: {
               type: 'import',
             },
@@ -181,15 +290,23 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         ...request,
         result: DEFERRED_RESPONSE,
       });
+
+      expect(createAvalancheEvmUnsignedTx).toHaveBeenCalledWith({
+        txBytes: new Uint8Array([0, 1, 2]),
+        vm: EVM,
+        provider: providerMock,
+        fromAddress: activeAccountMock.addressCoreEth,
+      });
     });
   });
 
   describe('onActionApproved', () => {
     const pendingActionMock = {
       displayData: {
-        vm: 'EVM',
-        unsignedTxJson: 'unsignedTxJson',
+        vm: 'AVM',
+        unsignedTxJson,
       },
+      params: {},
     } as unknown as Action;
 
     it('returns error when there are multiple addresses without indices', async () => {
@@ -205,7 +322,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         pendingActionMock,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
+        frontendTabId
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(expect.any(Error));
@@ -231,13 +349,82 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         pendingActionMock,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
+        frontendTabId
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(error);
     });
 
-    it('signs transactions correctly on C', async () => {
+    it('returns error when signatures are missing', async () => {
+      hasAllSignaturesMock.mockReturnValueOnce(false);
+
+      const handler = new AvalancheSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        accountsServiceMock as any
+      );
+
+      await handler.onActionApproved(
+        pendingActionMock,
+        {},
+        onSuccessMock,
+        onErrorMock,
+        frontendTabId
+      );
+
+      expect(onErrorMock).toHaveBeenCalledWith(expect.any(Error));
+      expect(onErrorMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Signing error, missing signatures.',
+        })
+      );
+    });
+
+    it('sings transactions correctly on C', async () => {
+      const signedTxHex = '0x000142';
+      hasAllSignaturesMock.mockReturnValueOnce(true);
+      (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
+
+      const handler = new AvalancheSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        accountsServiceMock as any
+      );
+
+      await handler.onActionApproved(
+        {
+          ...pendingActionMock,
+          displayData: { ...pendingActionMock.displayData, vm: 'EVM' },
+        } as unknown as Action,
+        {},
+        onSuccessMock,
+        onErrorMock,
+        frontendTabId
+      );
+
+      expect(signMock).toHaveBeenCalledWith(
+        {
+          tx: unsignedTxMock,
+          externalIndices: undefined,
+          internalIndices: undefined,
+        },
+        frontendTabId,
+        'network'
+      );
+      expect(EVMUnsignedTx.fromJSON).toBeCalledWith(
+        pendingActionMock.displayData.unsignedTxJson
+      );
+      expect(Avalanche.signedTxToHex).toHaveBeenCalledWith('signedTx');
+      expect(issueTxHexMock).toHaveBeenCalledWith(signedTxHex, 'EVM');
+      expect(onSuccessMock).toHaveBeenCalledWith(1);
+    });
+
+    it('sings transactions correctly on X/P', async () => {
+      const signedTxHex = '0x000142';
+      hasAllSignaturesMock.mockReturnValueOnce(true);
+      (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
+
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -261,47 +448,19 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         frontendTabId,
         'network'
       );
-      expect(EVMUnsignedTx.fromJSON).toBeCalledWith(
-        pendingActionMock.displayData.unsignedTxJson
-      );
-      expect(issueTxHexMock).toHaveBeenCalledWith('signed tx hex', 'EVM');
-      expect(onSuccessMock).toHaveBeenCalledWith(1);
-    });
-
-    it('signs transactions correctly on X/P', async () => {
-      const handler = new AvalancheSendTransactionHandler(
-        walletServiceMock as any,
-        networkServiceMock as any,
-        accountsServiceMock as any
-      );
-
-      await handler.onActionApproved(
-        {
-          displayData: { ...pendingActionMock.displayData, vm: 'AVM' },
-        } as unknown as Action,
-        {},
-        onSuccessMock,
-        onErrorMock,
-        frontendTabId
-      );
-
-      expect(signMock).toHaveBeenCalledWith(
-        {
-          tx: unsignedTxMock,
-          externalIndices: undefined,
-          internalIndices: undefined,
-        },
-        frontendTabId,
-        'network'
-      );
       expect(UnsignedTx.fromJSON).toBeCalledWith(
         pendingActionMock.displayData.unsignedTxJson
       );
-      expect(issueTxHexMock).toHaveBeenCalledWith('signed tx hex', 'AVM');
+      expect(Avalanche.signedTxToHex).toHaveBeenCalledWith('signedTx');
+      expect(issueTxHexMock).toHaveBeenCalledWith(signedTxHex, 'AVM');
       expect(onSuccessMock).toHaveBeenCalledWith(1);
     });
 
-    it('signs transactions correctly on X/P with multiple addresses', async () => {
+    it('sings transactions correctly on X/P with multiple addresses', async () => {
+      const signedTxHex = '0x000142';
+      hasAllSignaturesMock.mockReturnValueOnce(true);
+      (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
+
       const handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -312,8 +471,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
       await handler.onActionApproved(
         {
-          params: [undefined, [0, 1], [2, 3]],
-          displayData: { ...pendingActionMock.displayData, vm: 'AVM' },
+          ...pendingActionMock,
+          params: { externalIndices: [0, 1], internalIndices: [2, 3] },
         } as unknown as Action,
         {},
         onSuccessMock,
@@ -333,7 +492,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(UnsignedTx.fromJSON).toBeCalledWith(
         pendingActionMock.displayData.unsignedTxJson
       );
-      expect(issueTxHexMock).toHaveBeenCalledWith('signed tx hex', 'AVM');
+      expect(Avalanche.signedTxToHex).toHaveBeenCalledWith('signedTx');
+      expect(issueTxHexMock).toHaveBeenCalledWith(signedTxHex, 'AVM');
       expect(onSuccessMock).toHaveBeenCalledWith(1);
     });
   });

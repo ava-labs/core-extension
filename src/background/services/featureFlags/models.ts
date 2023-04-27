@@ -18,3 +18,7 @@ export const DEFAULT_FLAGS = {
 export enum FeatureFlagEvents {
   FEATURE_FLAG_UPDATED = 'FeatureFlagEvents: FEATURE_FLAG_UPDATED',
 }
+
+export type FeatureFlags = Record<FeatureGates, boolean>;
+
+export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

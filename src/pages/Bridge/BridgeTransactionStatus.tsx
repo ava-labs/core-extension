@@ -5,11 +5,8 @@ import {
   HorizontalFlex,
   TextButton,
   HorizontalSeparator,
-  toast,
   useDialog,
   CaretIcon,
-  TransactionToast,
-  TransactionToastType,
   IconDirection,
   PopoutLinkIcon,
   CheckmarkIcon,
@@ -40,6 +37,7 @@ import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTrans
 import { useTranslation } from 'react-i18next';
 import { ConfirmationTracker } from '@src/components/common/ConfirmationTracker';
 import { useCoinGeckoId } from '@src/hooks/useCoinGeckoId';
+import { toast, ToastCard } from '@avalabs/k2-components';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -152,17 +150,23 @@ const BridgeTransactionStatus = () => {
 
   useEffect(() => {
     if (bridgeTransaction?.complete && !toastShown) {
-      toast.custom(
-        <TransactionToast
-          status={t('Bridge Successful!')}
-          type={TransactionToastType.SUCCESS}
-          text={t(`You transferred {{amount}} {{symbol}}!`, {
-            amount: bridgeTransaction.amount,
-            symbol: bridgeTransaction.symbol,
-          })}
-        />,
-        { id: bridgeTransaction.sourceTxHash, duration: Infinity }
+      const toasterId = toast.custom(
+        <ToastCard
+          onDismiss={() => toast.remove(toasterId)}
+          variant="success"
+          title={t('Bridge Successful')}
+          sx={{ width: '343px', minWidth: '343px', position: 'relative' }}
+        >
+          <Typography>
+            {t(`You transferred {{amount}} {{symbol}}!`, {
+              amount: bridgeTransaction.amount,
+              symbol: bridgeTransaction.symbol,
+            })}
+          </Typography>
+        </ToastCard>,
+        { duration: Infinity }
       );
+
       setToastShown(true);
     }
     // We only want this to trigger when `complete` switches to `true` and on load

@@ -162,8 +162,8 @@ export function KeystoneApprovalOverlay({
             onClose={() => setShowAlert(false)}
             sx={{ mx: 2 }}
           >
-            <AlertTitle>This is a new approval</AlertTitle>
-            Keystone requires multiple appprovals
+            <AlertTitle>{t('This is a new approval')}</AlertTitle>
+            {t('This transaction requires multiple approvals.')}
           </Alert>
         )}
 

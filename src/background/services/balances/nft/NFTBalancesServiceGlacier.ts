@@ -1,10 +1,10 @@
 import { Network } from '@avalabs/chains-sdk';
-import { CurrencyCode } from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
 import { GlacierService } from '../../glacier/GlacierService';
 import { SettingsService } from '../../settings/SettingsService';
 import { BalancesServiceGlacier } from '../BalancesServiceGlacier';
 import { NFTService } from './models';
+import { NftPageTokens } from '../models';
 
 @singleton()
 export class NFTBalancesServiceGlacier implements NFTService {
@@ -21,17 +21,12 @@ export class NFTBalancesServiceGlacier implements NFTService {
   async getNFTBalances(
     address: string,
     network: Network,
-    pageToken: string | undefined
+    pageTokens: NftPageTokens
   ) {
-    const selectedCurrency = (
-      await this.settingsService.getSettings()
-    ).currency.toLowerCase() as CurrencyCode;
-
     return this.balancesServiceGlacier.getNFTBalanceForNetwork(
       network,
       address,
-      selectedCurrency,
-      pageToken
+      pageTokens
     );
   }
 }

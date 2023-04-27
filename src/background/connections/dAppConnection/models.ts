@@ -6,6 +6,7 @@ export enum DAppProviderRequest {
   WALLET_PERMISSIONS = 'wallet_requestPermissions',
   WALLET_GET_PERMISSIONS = 'wallet_getPermissions',
   WALLET_ADD_CHAIN = 'wallet_addEthereumChain',
+  WALLET_GET_CHAIN = 'wallet_getEthereumChain',
   WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
   WALLET_WATCH_ASSET = 'wallet_watchAsset',
   ETH_SEND_TX = 'eth_sendTransaction',
@@ -16,7 +17,6 @@ export enum DAppProviderRequest {
   ETH_SIGN_TYPED_DATA_V1 = 'eth_signTypedData_v1',
   ETH_SIGN_TYPED_DATA = 'eth_signTypedData',
   ETH_SIGN = 'eth_sign',
-  GET_IS_DEFAULT_EXTENSION = 'avalanche_getIsDefaultExtensionState',
   AVALANCHE_GET_CONTACTS = 'avalanche_getContacts',
   AVALANCHE_CREATE_CONTACT = 'avalanche_createContact',
   AVALANCHE_UPDATE_CONTACT = 'avalanche_updateContact',
@@ -30,6 +30,7 @@ export enum DAppProviderRequest {
   ACCOUNT_SELECT = 'avalanche_selectAccount',
   AVALANCHE_GET_ACCOUNT_PUB_KEY = 'avalanche_getAccountPubKey',
   AVALANCHE_SEND_TRANSACTION = 'avalanche_sendTransaction',
+  AVALANCHE_SIGN_TRANSACTION = 'avalanche_signTransaction',
   BITCOIN_SEND_TRANSACTION = 'bitcoin_sendTransaction',
 }
 

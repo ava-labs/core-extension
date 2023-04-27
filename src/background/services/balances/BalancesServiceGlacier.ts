@@ -3,8 +3,10 @@ import {
   NativeTokenBalance,
   Erc20TokenBalance,
   Erc721TokenBalance,
-  CurrencyCode,
   Glacier,
+  Erc1155TokenBalance,
+  ListErc721BalancesResponse,
+  ListErc1155BalancesResponse,
 } from '@avalabs/glacier-sdk';
 import { balanceToDisplayValue, bnToBig } from '@avalabs/utils-sdk';
 import { singleton } from 'tsyringe';
@@ -16,16 +18,20 @@ import {
   TokenWithBalance,
   TokenWithBalanceERC20,
   NftTokenWithBalance,
-  ERC721Metadata,
-  TokenAttributeERC721,
-  NftBalanceResponse,
+  NftMetadata,
+  TokenAttribute,
+  NftPageTokens,
 } from './models';
 import { BN } from 'bn.js';
 import { Account } from '../accounts/models';
 import { getSmallImageForNFT } from './nft/utils/getSmallImageForNFT';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import * as Sentry from '@sentry/browser';
-import { getErc721Metadata } from '@src/utils/getErc721Metadata';
+import { getNftMetadata } from '@src/utils/getNftMetadata';
+import {
+  is1155Response,
+  isErc721TokenBalance,
+} from './nft/utils/nftTypesUtils';
 
 @singleton()
 export class BalancesServiceGlacier {
@@ -212,23 +218,60 @@ export class BalancesServiceGlacier {
     );
   }
 
-  async convertUnindexedNftToTokenWithBalance(token: Erc721TokenBalance) {
+  async convertUnindexedToTokenWithBalance(
+    token: Erc721TokenBalance | Erc1155TokenBalance
+  ): Promise<NftTokenWithBalance> {
     const sentryTracker = Sentry.startTransaction({
       name: `Get NFT metadata for unindexed NFT and convert`,
       op: 'convertUnindexedNftToTokenWithBalance',
     });
-    const data: ERC721Metadata = await getErc721Metadata(token.tokenUri);
-    const result = this.convertNFTToTokenWithBalanceWithMetadata(token, data);
+    const tokenUri = token.tokenUri.replace(/0x{id}|{id}/g, token.tokenId);
+    const data: NftMetadata = await getNftMetadata(tokenUri);
+    const result = this.convertNftToTokenWithBalanceWithMetadata(token, data);
     sentryTracker.finish();
     return result;
+  }
+
+  async fetch721List(chainId: string, address: string, pageToken?: string) {
+    return await this.glacierSdkInstance.evm.listErc721Balances({
+      chainId: chainId,
+      address,
+      // glacier has a cap on page size of 100
+      pageSize: 25,
+      ...(pageToken ? { pageToken } : {}),
+    });
+  }
+
+  async fetch1155List(chainId: string, address: string, pageToken?: string) {
+    return await this.glacierSdkInstance.evm.listErc1155Balances({
+      chainId: chainId,
+      address,
+      // glacier has a cap on page size of 100
+      pageSize: 25,
+      ...(pageToken ? { pageToken } : {}),
+    });
+  }
+
+  /**
+   * Comment for shouldFetch721 and shouldFetch1155
+   * if the pageToken value is undefined, it is for first page fetch
+   * if the pageToken value is a string, we use that as the pageToken to fetch
+   * if the pageToken is empty string, there is no more pages
+   */
+
+  shouldFetch721(pageTokens: NftPageTokens) {
+    return pageTokens[TokenType.ERC721] !== '';
+  }
+
+  shouldFetch1155(pageTokens: NftPageTokens) {
+    return pageTokens[TokenType.ERC1155] !== '';
   }
 
   async getNFTBalanceForNetwork(
     network: Network,
     address: string,
-    selectedCurrency: CurrencyCode,
-    pageToken: string | undefined
-  ): Promise<NftBalanceResponse> {
+    pageTokens: NftPageTokens
+  ) {
     const sentryTracker = Sentry.startTransaction({
       name: `BalancesServiceGlacier: getNFTBalanceForNetwork for ${network.chainName}`,
       op: 'getNFTBalanceForNetwork',
@@ -238,13 +281,23 @@ export class BalancesServiceGlacier {
       name: `Glacier: Get NFTs for ${network.chainName}`,
       op: 'listErc721Balances',
     });
-    const response = await this.glacierSdkInstance.evm.listErc721Balances({
-      chainId: network.chainId.toString(),
-      address,
-      // glacier has a cap on page size of 100
-      pageSize: 25,
-      ...(pageToken ? { pageToken } : {}),
-    });
+
+    const responseFor721 = this.shouldFetch721(pageTokens)
+      ? this.fetch721List(
+          network.chainId.toString(),
+          address,
+          pageTokens[TokenType.ERC721]
+        )
+      : ({ erc721TokenBalances: [] } as ListErc721BalancesResponse);
+
+    const responseFor1155 = this.shouldFetch1155(pageTokens)
+      ? this.fetch1155List(
+          network.chainId.toString(),
+          address,
+          pageTokens[TokenType.ERC1155]
+        )
+      : ({ erc1155TokenBalances: [] } as ListErc1155BalancesResponse);
+
     glacierSentryTracker.finish();
 
     const metadataSentryTracker = Sentry.startTransaction({
@@ -252,26 +305,74 @@ export class BalancesServiceGlacier {
       op: 'listErc721Balances',
     });
 
-    return Promise.allSettled(
-      response.erc721TokenBalances.map(async (token) => {
-        if (token.metadata.indexStatus === 'INDEXED') {
-          return this.convertNFTToTokenWithBalance(token);
-        }
-        return this.convertUnindexedNftToTokenWithBalance(token);
-      })
-    )
-      .then((results) => {
+    let nextPageTokenFor721;
+    let nextPageTokenFor1155;
+
+    return await Promise.allSettled([responseFor721, responseFor1155])
+      .then(async (results) => {
         metadataSentryTracker.finish();
-        const items = results
-          .filter(
-            (item): item is PromiseFulfilledResult<NftTokenWithBalance> =>
-              item.status === 'fulfilled'
-          )
-          .map((item) => item.value);
+        const items = await Promise.allSettled(
+          results
+            .filter(
+              (
+                item
+              ): item is
+                | PromiseFulfilledResult<ListErc721BalancesResponse>
+                | PromiseFulfilledResult<ListErc1155BalancesResponse> =>
+                item.status === 'fulfilled'
+            )
+            .map((item) => {
+              const is1155 = is1155Response(item);
+              if (is1155) nextPageTokenFor1155 = item.value.nextPageToken;
+              else nextPageTokenFor721 = item.value.nextPageToken;
+
+              return is1155
+                ? item.value.erc1155TokenBalances.filter((balance) => {
+                    return Number(balance.balance) > 0;
+                  })
+                : item.value.erc721TokenBalances;
+            })
+            .map(async (tokenList) => {
+              return await Promise.allSettled(
+                tokenList.map(async (token) => {
+                  if (token.metadata.indexStatus === 'INDEXED') {
+                    return this.convertNftToTokenWithBalance(token);
+                  }
+                  return this.convertUnindexedToTokenWithBalance(token);
+                })
+              ).then((result) => {
+                return result
+                  .filter(
+                    (
+                      item
+                    ): item is PromiseFulfilledResult<NftTokenWithBalance> =>
+                      item.status === 'fulfilled'
+                  )
+                  .map((item) => {
+                    return item.value;
+                  });
+              });
+            })
+        ).then((results) => {
+          return results
+            .filter(
+              (item): item is PromiseFulfilledResult<NftTokenWithBalance[]> =>
+                item.status === 'fulfilled'
+            )
+            .flatMap((item) => {
+              return item.value;
+            })
+            .filter((nft) => {
+              return !!nft;
+            });
+        });
 
         return {
           list: items,
-          pageToken: response.nextPageToken,
+          pageTokens: {
+            [TokenType.ERC721]: nextPageTokenFor721 ?? '',
+            [TokenType.ERC1155]: nextPageTokenFor1155 ?? '',
+          },
         };
       })
       .catch((error) => {
@@ -285,20 +386,18 @@ export class BalancesServiceGlacier {
       });
   }
 
-  private convertNFTToTokenWithBalanceWithMetadata(
-    token: Erc721TokenBalance,
-    metadata: ERC721Metadata
+  private convertNftToTokenWithBalanceWithMetadata(
+    token: Erc721TokenBalance | Erc1155TokenBalance,
+    metadata: NftMetadata
   ): NftTokenWithBalance {
+    const is721 = isErc721TokenBalance(token);
     const attributes =
-      (metadata.attributes || []).reduce(
-        (acc: TokenAttributeERC721[], attr) => {
-          return [
-            ...acc,
-            { name: attr.key ?? attr.trait_type, value: attr.value },
-          ];
-        },
-        []
-      ) ?? [];
+      (metadata.attributes || []).reduce((acc: TokenAttribute[], attr) => {
+        return [
+          ...acc,
+          { name: attr.key ?? attr.trait_type, value: attr.value },
+        ];
+      }, []) ?? [];
 
     return {
       /**
@@ -306,39 +405,47 @@ export class BalancesServiceGlacier {
        * so not sure where this is going to come from. But for now will just
        * say unknown unless token has it eventually
        */
-      collectionName: token.name ?? 'Unknown',
+      collectionName: is721 ? token.name : metadata.name ?? 'Unknown',
       ...token,
-      type: TokenType.ERC721,
+      type: is721 ? TokenType.ERC721 : TokenType.ERC1155,
       logoUri: ipfsResolverWithFallback(metadata.image),
       logoSmall: metadata.image ? getSmallImageForNFT(metadata.image) : '',
       description: metadata.description ?? '',
       address: token.address,
       attributes,
-      balance: new BN(0),
+      balance: is721 ? new BN(0) : new BN(token.balance),
+      name: is721 ? token.name : metadata.name ?? 'Unknown',
+      symbol: is721 ? token.symbol : token.metadata.symbol ?? '',
     };
   }
-  private convertNFTToTokenWithBalance(
-    token: Erc721TokenBalance
+
+  private convertNftToTokenWithBalance(
+    token: Erc721TokenBalance | Erc1155TokenBalance
   ): NftTokenWithBalance {
+    const is721 = isErc721TokenBalance(token);
+
+    const rawAttributes = token.metadata[is721 ? 'attributes' : 'properties'];
+    const attributes = rawAttributes ? JSON.parse(rawAttributes) : [];
+
     return {
       /**
        * Collection name doesnt come back in details of attributes
        * so not sure where this is going to come from. But for now will just
        * say unknown unless token has it eventually
        */
-      collectionName: token.name ?? 'Unknown',
+      collectionName: is721 ? token.name : token.metadata.name ?? 'Unknown',
       ...token,
-      type: TokenType.ERC721,
+      type: is721 ? TokenType.ERC721 : TokenType.ERC1155,
       logoUri: ipfsResolverWithFallback(token.metadata.imageUri),
       logoSmall: token.metadata.imageUri
         ? getSmallImageForNFT(token.metadata.imageUri)
         : '',
       description: token.metadata.description ?? '',
       address: token.address,
-      attributes: token.metadata.attributes
-        ? JSON.parse(token.metadata.attributes)
-        : [],
-      balance: new BN(0),
+      attributes,
+      balance: is721 ? new BN(0) : new BN(token.balance),
+      name: is721 ? token.name : token.metadata.name ?? 'Unknown',
+      symbol: is721 ? token.symbol : token.metadata.symbol ?? '',
     };
   }
 }

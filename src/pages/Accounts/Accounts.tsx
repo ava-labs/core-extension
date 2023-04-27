@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import {
-  CustomToast,
   HorizontalFlex,
   Overlay,
-  toast,
   useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
+import { toast } from '@avalabs/k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { AddAccountError } from './AddAccountError';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
@@ -64,7 +63,7 @@ export function Accounts() {
 
   const onAccountDeleteSuccess = () => {
     capture('ImportedAccountDeleteSucceeded');
-    toast.custom(<CustomToast label={t('Account(s) Deleted!')} />);
+    toast.success(t('Account(s) Deleted!'), { duration: 2000 });
     setIsDeleteMode(false);
   };
 

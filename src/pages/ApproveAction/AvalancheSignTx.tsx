@@ -11,6 +11,9 @@ import {
   isExportTx,
   isImportTx,
   isBaseTx,
+  isCreateSubnetTx,
+  isCreateChainTx,
+  isAddSubnetValidatorTx,
 } from '@src/background/services/wallet/models';
 
 import { ImportTxView } from './components/ApproveImportTx';
@@ -24,6 +27,9 @@ import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerD
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '../SignTransaction/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { CreateSubnetView } from './components/ApproveCreateSubnet';
+import { CreateChainView } from './components/ApproveCreateChain';
+import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -66,6 +72,19 @@ export function AvalancheSignTx() {
       return <ImportTxView tx={tx} avaxPrice={tokenPrice}></ImportTxView>;
     } else if (isBaseTx(tx)) {
       return <BaseTxView tx={tx} avaxPrice={tokenPrice}></BaseTxView>;
+    } else if (isCreateSubnetTx(tx)) {
+      return (
+        <CreateSubnetView tx={tx} avaxPrice={tokenPrice}></CreateSubnetView>
+      );
+    } else if (isCreateChainTx(tx)) {
+      return <CreateChainView tx={tx} avaxPrice={tokenPrice}></CreateChainView>;
+    } else if (isAddSubnetValidatorTx(tx)) {
+      return (
+        <AddSubnetValidatorView
+          tx={tx}
+          avaxPrice={tokenPrice}
+        ></AddSubnetValidatorView>
+      );
     }
     return <>UNKNOWN TX</>;
   };

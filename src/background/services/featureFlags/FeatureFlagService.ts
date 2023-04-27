@@ -2,20 +2,27 @@ import { FeatureGates, initFeatureFlags } from '@avalabs/posthog-sdk';
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import { AnalyticsService } from '../analytics/AnalyticsService';
-import { DEFAULT_FLAGS, FeatureFlagEvents } from './models';
+import {
+  DEFAULT_FLAGS,
+  FeatureFlagEvents,
+  FeatureFlags,
+  FEATURE_FLAGS_OVERRIDES_KEY,
+} from './models';
 import { AnalyticsEvents } from '../analytics/models';
 import { LockService } from '../lock/LockService';
+import { StorageService } from '../storage/StorageService';
+import { formatAndLog } from '../../../utils/logging';
 
 @singleton()
 export class FeatureFlagService {
   private eventEmitter = new EventEmitter();
   private _featureFlags = DEFAULT_FLAGS;
 
-  public get featureFlags(): Record<FeatureGates, boolean> {
+  public get featureFlags(): FeatureFlags {
     return this._featureFlags;
   }
 
-  private set featureFlags(newFlags: Record<FeatureGates, boolean>) {
+  private set featureFlags(newFlags: FeatureFlags) {
     if (JSON.stringify(this._featureFlags) === JSON.stringify(newFlags)) {
       // do nothing since flags are the same
       // do not trigger new update cycles within the app
@@ -32,11 +39,30 @@ export class FeatureFlagService {
       this.lockService.lock();
     }
   }
+
+  private async updateFeatureFlags(newFlags: FeatureFlags) {
+    const overrides =
+      (await this.storageService.loadFromSessionStorage(
+        FEATURE_FLAGS_OVERRIDES_KEY
+      )) || {};
+    const hasOverrides = Object.keys(overrides).length > 0;
+
+    if (hasOverrides) {
+      formatAndLog(`🚩 Feature Flag Overrides found`, overrides);
+    }
+
+    this.featureFlags = {
+      ...newFlags,
+      ...(overrides || {}),
+    };
+  }
+
   private featureFlagsListener?: ReturnType<typeof initFeatureFlags>;
 
   constructor(
     private analyticsService: AnalyticsService,
-    private lockService: LockService
+    private lockService: LockService,
+    private storageService: StorageService
   ) {
     // start fetching feature as early as possible
     // update requests with unique id after it's available
@@ -79,8 +105,8 @@ export class FeatureFlagService {
       process.env.POSTHOG_URL ?? 'https://data-posthog.avax.network',
       5000
     );
-    this.featureFlagsListener.listen.add((flags) => {
-      this.featureFlags = flags as Record<FeatureGates, boolean>;
+    this.featureFlagsListener.listen.add(async (flags) => {
+      await this.updateFeatureFlags(flags as FeatureFlags);
     });
   }
 

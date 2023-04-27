@@ -1,8 +1,8 @@
 import Big from 'big.js';
 import {
-  AssetType,
   BIG_ZERO,
   Blockchain,
+  isNativeAsset,
   useBridgeSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
@@ -18,7 +18,11 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 /**
  * Hook for when the bridge source chain is Ethereum
  */
-export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
+export function useEthBridge(
+  amount: Big,
+  bridgeFee: Big,
+  minimum: Big
+): BridgeAdapter {
   const {
     currentAsset,
     currentAssetData,
@@ -59,17 +63,15 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
   const [wrapStatus, setWrapStatus] = useState<WrapStatus>(WrapStatus.INITIAL);
   const [txHash, setTxHash] = useState<string>();
 
-  const minimum = bridgeFee?.mul(3);
   const receiveAmount = amount.gt(minimum) ? amount.minus(bridgeFee) : BIG_ZERO;
 
   const transfer = useCallback(async () => {
     if (!currentAssetData) return Promise.reject();
 
     const timestamp = Date.now();
-    const symbol =
-      currentAssetData.assetType === AssetType.NATIVE
-        ? currentAssetData.wrappedAssetSymbol
-        : currentAsset || '';
+    const symbol = isNativeAsset(currentAssetData)
+      ? currentAssetData.wrappedAssetSymbol
+      : currentAsset || '';
 
     const result = await transferAsset(
       amount,
@@ -107,7 +109,6 @@ export function useEthBridge(amount: Big, bridgeFee: Big): BridgeAdapter {
     hasEnoughForNetworkFee,
     receiveAmount,
     maximum,
-    minimum,
     price: sourceBalance?.price,
     wrapStatus,
     txHash,

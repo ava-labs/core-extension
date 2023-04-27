@@ -1,11 +1,11 @@
 import { Network } from '@avalabs/chains-sdk';
-import { NftBalanceResponse } from '../models';
+import { NftBalanceResponse, NftPageTokens } from '../models';
 
 export interface NFTService {
   isAggregatorForChain(chainId: number): Promise<boolean>;
   getNFTBalances(
     address: string,
     network: Network,
-    pageToken: string | undefined
+    pageTokens: NftPageTokens
   ): Promise<NftBalanceResponse>;
 }
