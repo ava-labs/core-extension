@@ -391,7 +391,10 @@ export function SendPage() {
                     onClick={() => {
                       setSendDataInParams({
                         token: selectedToken,
-                        address: contactInput?.address,
+                        address:
+                          network?.vmName === NetworkVMType.BITCOIN
+                            ? contactInput?.addressBTC
+                            : contactInput?.address,
                         options: { path: '/send/confirm' },
                       });
                     }}
