@@ -434,7 +434,7 @@
   "Access an existing wallet with your secret recovery phrase": "Access an existing wallet with your secret recovery phrase",
   "Invalid mnemonic phrase": "Invalid mnemonic phrase",
   "Input Secret Recovery Phrase": "Input Secret Recovery Phrase",
-  "Select Software Wallet": "Select Software Wallet",
+  "Connect Software Wallet": "Connect Software Wallet",
   "Connect Network": "Connect Network",
   "Confirm Derived Addresses": "Confirm Derived Addresses",
   "Tap “Connect Software Wallet” at the bottom left corner.": "Tap “Connect Software Wallet” at the bottom left corner.",

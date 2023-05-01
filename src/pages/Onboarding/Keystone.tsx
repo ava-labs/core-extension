@@ -114,7 +114,7 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
   const steps = 3;
 
   const headerTitles = [
-    t('Select Software Wallet'),
+    t('Connect Software Wallet'),
     t('Connect Network'),
     t('Scan QR Code'),
     t('Confirm Derived Addresses'),
