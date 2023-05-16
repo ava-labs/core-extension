@@ -2,8 +2,12 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
 
+/**
+ * This handler is an empty request handler to fit into the regular flow of rpc calls.
+ * The DOMAIN_METADATA requests are stored and handled in the SiteMetadataMiddleware.
+ */
 @injectable()
-export class MetamaskSendDomainMetadataHandler extends DAppRequestHandler {
+export class AvalancheSendDomainMetadataHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.DOMAIN_METADATA_METHOD];
 
   handleUnauthenticated = async (request) => {

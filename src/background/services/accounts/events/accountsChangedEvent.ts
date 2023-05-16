@@ -14,7 +14,12 @@ import {
 } from '../../permissions/models';
 import { Web3Event } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
+import { AccountsChangedEventData } from '@src/background/providers/models';
 
+/**
+ * Emits `accountChanged` events for each dApp according to EIP-1193
+ * https://eips.ethereum.org/EIPS/eip-1193#accountschanged-1
+ */
 @injectable()
 export class AccountsChangedEvents implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
@@ -52,18 +57,19 @@ export class AccountsChangedEvents implements DAppEventEmitter {
   }
 
   async emitAccountsChanged(currentPermissions?: DappPermissions) {
+    const addressC = this.accountsService.activeAccount?.addressC;
     const hasAccessTodApp =
       currentPermissions &&
-      this.accountsService.activeAccount?.addressC &&
-      currentPermissions?.accounts?.[
-        this.accountsService.activeAccount.addressC
-      ];
+      addressC &&
+      currentPermissions?.accounts?.[addressC];
+
+    const accounts: AccountsChangedEventData = hasAccessTodApp
+      ? [addressC]
+      : [];
 
     this.eventEmitter.emit('update', {
       method: Web3Event.ACCOUNTS_CHANGED,
-      params: hasAccessTodApp
-        ? [this.accountsService.activeAccount?.addressC]
-        : [],
+      params: accounts,
     });
   }
 

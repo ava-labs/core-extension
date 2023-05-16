@@ -1,27 +1,34 @@
 import extension from 'extensionizer';
 
 import { CONTENT_SCRIPT, INPAGE_SCRIPT, KEEPALIVE_SCRIPT } from './common';
-import { windowPostMessage } from './utils/windowPostMessage';
-import { Runtime } from 'webextension-polyfill';
-import { providerHandshake } from './utils/providerHandshake';
-import { requestLog, responseLog } from './utils/logging';
+import { Runtime } from 'webextension-polyfill-ts';
+import BroadcastChannelConnection from './background/utils/messaging/BroadcastChannelConnection';
+import PortConnection from './background/utils/messaging/PortConnection';
 
 function setupStream() {
-  /**
-   * This is traffic coming from within the dApp origin only and
-   * aimed at the content script itself
-   */
-  const { listen, dispatch } = windowPostMessage({
-    scope: CONTENT_SCRIPT,
-    target: INPAGE_SCRIPT,
-  });
-
   /**
    * This is traffic coming from the background page out to the provider and from there
    * to the dApp
    */
-  const backgroundConnection: Runtime.Port = extension.runtime.connect({
-    name: CONTENT_SCRIPT,
+  const backgroundConnection = new PortConnection(
+    extension.runtime.connect({
+      name: CONTENT_SCRIPT,
+    })
+  );
+  backgroundConnection.connect();
+  const dappConnection = new BroadcastChannelConnection(INPAGE_SCRIPT);
+  dappConnection.connect(async (data) => {
+    const request = await backgroundConnection.request(data);
+
+    return request;
+  });
+  backgroundConnection.on('message', (data) => {
+    return dappConnection.message(data);
+  });
+
+  document.addEventListener('beforeunload', () => {
+    dappConnection.dispose();
+    backgroundConnection.dispose();
   });
 
   let backgroundKeepaliveConnection: Runtime.Port | null = null;
@@ -39,22 +46,9 @@ function setupStream() {
 
   keepAlive();
 
-  const subscription = listen
-    .pipe(providerHandshake(dispatch))
-    .subscribe((val) => {
-      requestLog(`provider request (${val.data.data.method})`, val.data);
-      backgroundConnection.postMessage(val.data);
-    });
-
-  backgroundConnection.onMessage.addListener((val) => {
-    responseLog(`background connection response (${val.data?.method})`, val);
-    dispatch(val);
-  });
-
-  backgroundConnection.onDisconnect.addListener(() => {
+  backgroundConnection.on('disconnect', () => {
     console.log('reconnecting...');
     setupStream();
-    subscription.unsubscribe();
   });
 }
 

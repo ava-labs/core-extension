@@ -1,22 +1,21 @@
 import { ethErrors } from 'eth-rpc-errors';
-import { JsonRpcRequest, JsonRpcResponse } from 'json-rpc-engine';
-import { DAppProviderRequest } from '../connections/dAppConnection/models';
-import { RequestArguments } from './BaseProvider';
-import { messages } from './messages';
 import {
-  MetaMaskInpageProvider,
-  SendSyncJsonRpcRequest,
-} from './MetaMaskInpageProvider';
-import { getWalletExtensionType, Maybe } from './utils';
-import SafeEventEmitter from '@metamask/safe-event-emitter';
+  DAppProviderRequest,
+  JsonRpcRequest,
+  JsonRpcResponse,
+} from '../connections/dAppConnection/models';
+import { getWalletExtensionType } from './utils/getWalletExtensionType';
+import { CoreProvider } from './CoreProvider';
+import { Maybe } from '@avalabs/utils-sdk';
+import EventEmitter from 'events';
 
-class MultiWalletProviderProxy extends SafeEventEmitter {
+export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: unknown[] = [];
 
-  private _defaultProvider;
+  #defaultProvider;
 
   public get defaultProvider() {
-    return this._defaultProvider;
+    return this.#defaultProvider;
   }
   get providers() {
     return [...this.#_providers];
@@ -24,7 +23,7 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
 
   private isWalletSelected = false;
 
-  constructor(private coreProvider: MetaMaskInpageProvider) {
+  constructor(private coreProvider: CoreProvider) {
     super();
 
     this.addProvider = this.addProvider.bind(this);
@@ -33,7 +32,7 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
     this.request = this.request.bind(this);
     this._request = this._request.bind(this);
 
-    this._defaultProvider = coreProvider;
+    this.#defaultProvider = coreProvider;
 
     this.#_providers.push(coreProvider);
 
@@ -41,7 +40,7 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
     // We subscribe to those events on the currently used provider so
     // that the they can be re-emitted by the proxy.
     this.addListener('newListener', (event) => {
-      this._defaultProvider.addListener(event, (...args: any) => {
+      this.#defaultProvider.addListener(event, (...args: any) => {
         this.emit(event, ...args);
       });
     });
@@ -78,7 +77,7 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
     }
 
     // get users wallet selection
-    const selectedIndex = await this.coreProvider.request<number>({
+    const selectedIndex = await this.coreProvider.request({
       method: 'avalanche_selectWallet',
       params: [
         // using any since we don't really know what kind of provider they are
@@ -93,13 +92,17 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
       ],
     });
 
-    if (selectedIndex === undefined || selectedIndex === null) {
+    if (
+      selectedIndex === undefined ||
+      selectedIndex === null ||
+      typeof selectedIndex !== 'number'
+    ) {
       return;
     }
 
     if (selectedIndex !== 0) {
       // Migrate event subscription to the new event provider
-      this._defaultProvider.removeAllListeners();
+      this.#defaultProvider.removeAllListeners();
 
       this.eventNames().forEach((event) => {
         if (event === 'newListener') {
@@ -122,14 +125,14 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
     }
 
     // set default wallet for this connection
-    this._defaultProvider =
-      this.providers[selectedIndex] || this._defaultProvider;
+    this.#defaultProvider =
+      this.providers[selectedIndex] || this.#defaultProvider;
   }
 
-  private async _request<T>(args: RequestArguments): Promise<Maybe<T>> {
+  private async _request<T>(args): Promise<Maybe<T>> {
     if (!args || typeof args !== 'object' || Array.isArray(args)) {
       throw ethErrors.rpc.invalidRequest({
-        message: messages.errors.invalidRequestArgs(),
+        message: ethErrors.rpc.invalidRequest().message,
         data: args,
       });
     }
@@ -151,12 +154,12 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
   async enable(): Promise<string[]> {
     await this.#toggleWalletSelection();
 
-    return this._defaultProvider.enable();
+    return this.#defaultProvider.enable();
   }
 
   // implement request to intercept `eth_requestAccounts`
   // so that users can select which provider they want to use
-  async request<T>(args: RequestArguments): Promise<Maybe<T>> {
+  async request<T>(args): Promise<Maybe<T>> {
     return this._request(args);
   }
 
@@ -214,7 +217,7 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
    * @param payload - A JSON-RPC request object.
    * @returns A JSON-RPC response object.
    */
-  send<T>(payload: SendSyncJsonRpcRequest): JsonRpcResponse<T>;
+  send<T>(payload): JsonRpcResponse<T>;
 
   // this is needed because there are multiple dApps which love to use an old deprecated method
   send(methodOrPayload: unknown, callbackOrArgs?: unknown): unknown {
@@ -227,11 +230,12 @@ class MultiWalletProviderProxy extends SafeEventEmitter {
         params: callbackOrArgs as unknown[],
       });
     }
-    return this.defaultProvider.send(methodOrPayload, callbackOrArgs);
+
+    return this.sendAsync(methodOrPayload as any, callbackOrArgs as any);
   }
 }
 
-export function createMultiWalletProxy(coreProvider: MetaMaskInpageProvider) {
+export function createMultiWalletProxy(coreProvider: CoreProvider) {
   const proxyProvider = new MultiWalletProviderProxy(coreProvider);
   // Some dApps like Pangolin likes to define helper methods on the window.ethereum object.
   // Store them separately to prevent them from altering the inpage provider behaviour

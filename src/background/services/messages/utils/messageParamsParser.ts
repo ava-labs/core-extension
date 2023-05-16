@@ -1,4 +1,4 @@
-import { JsonRpcRequest } from '@src/utils/jsonRpcEngine';
+import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
 import { MessageType } from '../models';
 
 export function paramsToMessageParams(data: JsonRpcRequest<any>) {

@@ -2,11 +2,7 @@ import { ActionsService } from '@src/background/services/actions/ActionsService'
 import { Action } from '@src/background/services/actions/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { container } from 'tsyringe';
-import { ExtensionRequest } from '../extensionConnection/models';
-import {
-  ExtensionConnectionMessage,
-  ExtensionConnectionMessageResponse,
-} from '../models';
+import { JsonRpcRequest, JsonRpcSuccess } from './models';
 
 export interface DAppRequestHandler {
   /**
@@ -23,16 +19,19 @@ export interface DAppRequestHandler {
   ) => Promise<void>;
 }
 
-export abstract class DAppRequestHandler<T extends ExtensionRequest = any> {
+export abstract class DAppRequestHandler<
+  RequestParams = unknown[],
+  ResponseParams = any
+> {
   abstract methods: string[];
 
   abstract handleAuthenticated: (
-    request: ExtensionConnectionMessage
-  ) => Promise<ExtensionConnectionMessageResponse<T, any>>;
+    request: JsonRpcRequest<RequestParams>
+  ) => Promise<JsonRpcSuccess<ResponseParams>>;
 
   abstract handleUnauthenticated: (
-    request: ExtensionConnectionMessage
-  ) => Promise<ExtensionConnectionMessageResponse<T, any>>;
+    request: JsonRpcRequest<RequestParams>
+  ) => Promise<JsonRpcSuccess<ResponseParams>>;
 
   /**
    * Opens approval window with the specified url and saves the action info to the Actions service

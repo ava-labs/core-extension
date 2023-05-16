@@ -318,7 +318,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   describe('onActionApproved', () => {
     const mockPendingAction: Action = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {

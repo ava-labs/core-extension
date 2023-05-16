@@ -5,7 +5,7 @@ import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 
 @injectable()
-export class MetamaskGetProviderState extends DAppRequestHandler {
+export class AvalancheGetProviderState extends DAppRequestHandler {
   methods = [DAppProviderRequest.INIT_DAPP_STATE];
 
   constructor(
@@ -22,7 +22,7 @@ export class MetamaskGetProviderState extends DAppRequestHandler {
       result: {
         isUnlocked: false,
         chainId: activeNetwork?.chainId
-          ? `0x${activeNetwork?.chainId.toString(16)}`
+          ? `0x${activeNetwork.chainId.toString(16)}`
           : '0x0',
         networkVersion: activeNetwork?.chainId
           ? `${activeNetwork?.chainId}`

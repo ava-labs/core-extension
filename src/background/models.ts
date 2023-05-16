@@ -1,5 +1,5 @@
 export interface DomainMetadataRequest {
-  method: 'metamask_sendDomainMetadata';
+  method: 'avalanche_sendDomainMetadata';
   params: DomainMetadata;
 }
 

@@ -1,11 +1,14 @@
 import { Middleware } from './models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { NetworkVMType } from '@avalabs/chains-sdk';
+import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
 
-export function RPCCallsMiddleware(networkService: NetworkService): Middleware {
+export function RPCCallsMiddleware(
+  networkService: NetworkService
+): Middleware<JsonRpcRequest, JsonRpcResponse> {
   return async (context, next, error) => {
     const network = networkService.activeNetwork;
-    const { method } = context.request.data;
+    const { method } = context.request;
     const declineMethodsPattern = /(^eth_|_watchAsset$)/;
     if (
       network &&
