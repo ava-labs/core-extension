@@ -9,7 +9,6 @@ import {
 } from '@avalabs/react-components';
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
-import { useTheme } from 'styled-components';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { AccountSelector } from '../account/AccountSelector';
 import { NetworkSwitcher } from './NetworkSwitcher';
@@ -17,11 +16,10 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { useTranslation } from 'react-i18next';
-import { SimpleAddress } from '../SimpleAddress';
+import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
 
 export function Header() {
   const domain = useCurrentDomain();
-  const theme = useTheme();
   const { updateAccountPermission, isDomainConnectedToAccount } =
     usePermissionContext();
   const {
@@ -94,11 +92,7 @@ export function Header() {
                 data-testid="header-copy-address"
                 justify="center"
               >
-                <SimpleAddress
-                  copyIconProps={{ color: theme.colors.icon2, height: '12px' }}
-                  typographyProps={{ color: 'text2', size: 12 }}
-                  address={address}
-                />
+                <SimpleAddressK2 address={address} />
               </HorizontalFlex>
             )}
           </>

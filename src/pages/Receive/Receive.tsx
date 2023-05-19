@@ -3,7 +3,6 @@ import {
   VerticalFlex,
   Typography,
   LoadingIcon,
-  PrimaryAddress,
 } from '@avalabs/react-components';
 
 import styled from 'styled-components';
@@ -18,8 +17,9 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 import { EthereumQRCodeLogo } from '@src/components/icons/EthereumQRCodeLogo';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { useTranslation } from 'react-i18next';
+import { PrimaryAddressK2 } from '@src/components/common/AddressK2';
 
-const StyledPrimaryAddress = styled(PrimaryAddress)`
+const StyledPrimaryAddress = styled(PrimaryAddressK2)`
   width: 100%;
 `;
 
@@ -113,7 +113,7 @@ export const Receive = () => {
           {getName()}
         </Typography>
         <StyledPrimaryAddress
-          truncateLength={24}
+          truncateLength={20}
           isTruncated={true}
           address={address}
         />
