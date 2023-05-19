@@ -15,6 +15,7 @@ import {
   ArrowUpRightIcon,
   useTheme,
 } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const ActionButtonWrapper = styled(Stack)`
   padding: 0 8px;
@@ -78,6 +79,7 @@ export function FAB() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const history = useHistory();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -153,7 +155,15 @@ export function FAB() {
 
   return (
     <>
-      {isOpen && <Backdrop onClick={() => setIsOpen(false)} open={isOpen} />}
+      {isOpen && (
+        <Backdrop
+          onClick={() => {
+            capture('FABClosed');
+            setIsOpen(false);
+          }}
+          open={isOpen}
+        />
+      )}
       <FabContainer>
         <Menu isOpen={isOpen}>
           <MenuItems isOpen={isOpen}>
@@ -167,7 +177,10 @@ export function FAB() {
                     key={text}
                     text={text}
                     icon={icon}
-                    onClick={() => history.push(route)}
+                    onClick={() => {
+                      capture(`FABItemSelected_${name}`);
+                      history.push(route);
+                    }}
                   />
                 );
               })}
@@ -176,6 +189,7 @@ export function FAB() {
             data-testid="action-menu-button"
             isOpen={isOpen}
             onClick={() => {
+              capture(isOpen ? 'FABClosed' : 'FABOpened');
               setIsOpen(!isOpen);
             }}
           >
