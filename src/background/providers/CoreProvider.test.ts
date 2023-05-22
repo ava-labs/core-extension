@@ -225,8 +225,8 @@ describe('src/background/providers/CoreProvider', () => {
           expect(connectSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(connectSubscription).toHaveBeenCalledTimes(1);
           expect(connectSubscription).toHaveBeenCalledWith({
@@ -251,14 +251,14 @@ describe('src/background/providers/CoreProvider', () => {
           expect(disconnectSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'disconnect',
+            method: 'disconnect',
           });
 
           expect(disconnectSubscription).toHaveBeenCalledTimes(1);
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x2', networkVersion: '2' },
+            method: 'chainChanged',
+            params: { chainId: '0x2', networkVersion: '2' },
           });
 
           expect(connectSubscription).toHaveBeenCalledTimes(2);
@@ -285,7 +285,7 @@ describe('src/background/providers/CoreProvider', () => {
           expect(disconnectSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'disconnect',
+            method: 'disconnect',
           });
 
           expect(provider._isConnected).toBe(false);
@@ -330,8 +330,8 @@ describe('src/background/providers/CoreProvider', () => {
           expect(chainChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(chainChangedSubscription).toHaveBeenCalledTimes(1);
           expect(chainChangedSubscription).toHaveBeenCalledWith('0x1');
@@ -348,14 +348,14 @@ describe('src/background/providers/CoreProvider', () => {
           expect(chainChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(chainChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(chainChangedSubscription).not.toHaveBeenCalled();
         });
@@ -371,15 +371,15 @@ describe('src/background/providers/CoreProvider', () => {
           expect(chainChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x2', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x2', networkVersion: '1' },
           });
           expect(chainChangedSubscription).toHaveBeenCalledTimes(1);
           expect(chainChangedSubscription).toHaveBeenCalledWith('0x2');
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(chainChangedSubscription).toHaveBeenCalledTimes(2);
           expect(chainChangedSubscription).toHaveBeenCalledWith('0x1');
@@ -432,8 +432,8 @@ describe('src/background/providers/CoreProvider', () => {
           expect(accountsChangedSubscription).toHaveBeenCalledWith(['0x00000']);
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'accountsChanged',
-            data: ['0x00000'],
+            method: 'accountsChanged',
+            params: ['0x00000'],
           });
           expect(accountsChangedSubscription).toHaveBeenCalledTimes(1);
         });
@@ -450,8 +450,8 @@ describe('src/background/providers/CoreProvider', () => {
           expect(accountsChangedSubscription).toHaveBeenCalledWith(['0x00000']);
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'accountsChanged',
-            data: ['0x10000'],
+            method: 'accountsChanged',
+            params: ['0x10000'],
           });
           expect(accountsChangedSubscription).toHaveBeenCalledTimes(2);
           expect(accountsChangedSubscription).toHaveBeenCalledWith(['0x10000']);
@@ -988,7 +988,7 @@ describe('src/background/providers/CoreProvider', () => {
           expect(closeSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'disconnect',
+            method: 'disconnect',
           });
 
           expect(provider._isConnected).toBe(false);
@@ -1033,8 +1033,8 @@ describe('src/background/providers/CoreProvider', () => {
           expect(networkChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(networkChangedSubscription).toHaveBeenCalledTimes(1);
           expect(networkChangedSubscription).toHaveBeenCalledWith('1');
@@ -1051,14 +1051,14 @@ describe('src/background/providers/CoreProvider', () => {
           expect(networkChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(networkChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(networkChangedSubscription).not.toHaveBeenCalled();
         });
@@ -1074,15 +1074,15 @@ describe('src/background/providers/CoreProvider', () => {
           expect(networkChangedSubscription).not.toHaveBeenCalled();
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x2', networkVersion: '2' },
+            method: 'chainChanged',
+            params: { chainId: '0x2', networkVersion: '2' },
           });
           expect(networkChangedSubscription).toHaveBeenCalledTimes(1);
           expect(networkChangedSubscription).toHaveBeenCalledWith('2');
 
           (channelMock.on as jest.Mock).mock.calls[0][1]({
-            event: 'chainChanged',
-            data: { chainId: '0x1', networkVersion: '1' },
+            method: 'chainChanged',
+            params: { chainId: '0x1', networkVersion: '1' },
           });
           expect(networkChangedSubscription).toHaveBeenCalledTimes(2);
           expect(networkChangedSubscription).toHaveBeenCalledWith('1');

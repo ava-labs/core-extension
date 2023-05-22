@@ -171,13 +171,13 @@ export class CoreProvider extends EventEmitter {
     return handlerMap[method];
   };
 
-  #handleBackgroundMessage = ({ event, data }) => {
-    const eventHandler = this.#getEventHandler(event);
+  #handleBackgroundMessage = ({ method, params }) => {
+    const eventHandler = this.#getEventHandler(method);
     if (eventHandler) {
-      return eventHandler(data);
+      return eventHandler(params);
     }
 
-    this.emit(event, data);
+    this.emit(method, params);
   };
 
   isConnected = () => {
