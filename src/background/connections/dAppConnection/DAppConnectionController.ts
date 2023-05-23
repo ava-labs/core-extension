@@ -27,7 +27,12 @@ import { NetworkService } from '@src/background/services/network/NetworkService'
 import { DAppRequestHandler } from './DAppRequestHandler';
 import { LockService } from '@src/background/services/lock/LockService';
 import PortConnection from '@src/background/utils/messaging/PortConnection';
-import { DAppProviderRequest, JsonRpcRequest, JsonRpcSuccess } from './models';
+import {
+  DAppProviderRequest,
+  JsonRpcFailure,
+  JsonRpcRequest,
+  JsonRpcSuccess,
+} from './models';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -35,7 +40,10 @@ import { DAppProviderRequest, JsonRpcRequest, JsonRpcSuccess } from './models';
  */
 @injectable()
 export class DAppConnectionController implements ConnectionController {
-  private pipeline?: Pipeline<JsonRpcRequest<unknown>, JsonRpcSuccess<unknown>>;
+  private pipeline?: Pipeline<
+    JsonRpcRequest<unknown>,
+    JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
+  >;
   private connection?: PortConnection;
 
   constructor(
@@ -90,7 +98,10 @@ export class DAppConnectionController implements ConnectionController {
   }
 
   needToPost(
-    context: Context<JsonRpcRequest<unknown>, JsonRpcSuccess<unknown>>
+    context: Context<
+      JsonRpcRequest<unknown>,
+      JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
+    >
   ): boolean {
     return context.response !== DEFERRED_RESPONSE;
   }
@@ -111,14 +122,15 @@ export class DAppConnectionController implements ConnectionController {
     );
 
     if (error) {
-      const response = {
+      responseLog(`Web3 response (${request.method})`, {
         ...{ error },
-      };
-      responseLog(`Web3 response (${request.method})`, response);
-      return response;
+      });
+      throw error;
     } else if (context) {
-      if (this.needToPost(context)) {
-        return (context.response as JsonRpcSuccess).result;
+      if ((context.response as JsonRpcFailure)?.error) {
+        throw (context.response as JsonRpcFailure).error;
+      } else if (this.needToPost(context)) {
+        return (context.response as JsonRpcSuccess)?.result;
       } else {
         return DEFERRED_RESPONSE;
       }

@@ -150,6 +150,12 @@ export class CoreProvider extends EventEmitter {
     }
 
     return this.#bc.request(data).catch((err) => {
+      // If the error is already a JsonRPCErorr do not serialize them.
+      // eth-rpc-errors always wraps errors if they have an unkown error code
+      // even if the code is valid like 4902 for unrecognized chain ID.
+      if (!!err.code && Number.isInteger(err.code) && !!err.message) {
+        throw err;
+      }
       throw serializeError(err);
     });
   };

@@ -181,6 +181,54 @@ describe('src/background/providers/CoreProvider', () => {
           message: 'non RPC error',
         });
       });
+
+      it('does not double wraps JSON RPC errors', async () => {
+        const provider = new CoreProvider({ channelName: 'channel-name' });
+
+        // wait for init to finish
+        await new Promise(process.nextTick);
+
+        expect(channelMock.request).toHaveBeenCalledTimes(1);
+        expect(channelMock.request).toHaveBeenCalledWith({
+          method: DAppProviderRequest.INIT_DAPP_STATE,
+        });
+
+        // response for domain metadata send
+        (channelMock.request as jest.Mock).mockResolvedValueOnce({});
+        // response for 'eth_requestAccounts'
+        (channelMock.request as jest.Mock).mockRejectedValueOnce({
+          code: 4902,
+          message:
+            'Unrecognized chain ID "0x3FF82". Try adding the chain using wallet_addEthereumChain first.',
+          stack: 'Error: Unrecognized chain ID "0x3FF82"',
+        });
+        const callCallback = jest.fn();
+        provider
+          .request({
+            method: 'eth_requestAccounts',
+          })
+          .catch(callCallback);
+        await new Promise(process.nextTick);
+
+        // no domReady happened yet, still only one call sent
+        expect(channelMock.request).toHaveBeenCalledTimes(1);
+
+        // domReady triggers sending pending requests as well
+        (onDomReady as jest.Mock).mock.calls[0][0]();
+        await new Promise(process.nextTick);
+
+        expect(channelMock.request).toHaveBeenCalledTimes(3);
+        expect(channelMock.request).toHaveBeenCalledWith({
+          method: 'eth_requestAccounts',
+        });
+
+        expect(callCallback).toHaveBeenCalledWith({
+          code: 4902,
+          message:
+            'Unrecognized chain ID "0x3FF82". Try adding the chain using wallet_addEthereumChain first.',
+          stack: 'Error: Unrecognized chain ID "0x3FF82"',
+        });
+      });
     });
 
     describe('events', () => {
