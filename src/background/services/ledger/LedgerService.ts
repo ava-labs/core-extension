@@ -12,6 +12,7 @@ const ledgerTransportLRUCache = new LRU<string, LedgerTransport>({
     transport.close();
   },
 });
+
 @singleton()
 export class LedgerService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();

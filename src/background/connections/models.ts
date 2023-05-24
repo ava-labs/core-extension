@@ -1,9 +1,9 @@
 /* eslint-disable no-prototype-builtins */
 
 import { Runtime } from 'webextension-polyfill';
-import { JsonRpcRequest } from '../../utils/jsonRpcEngine';
 import { DomainMetadata } from '../models';
 import { ExtensionRequest } from './extensionConnection/models';
+import { JsonRpcRequest } from './dAppConnection/models';
 
 interface ExtensionConnectionMessageBase<
   Method extends ExtensionRequest,

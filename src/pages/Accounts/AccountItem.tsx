@@ -20,7 +20,8 @@ import { AccountBalance } from './AccountBalance';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { CSSTransition } from 'react-transition-group';
-import { SimpleAddress } from '@src/components/common/SimpleAddress';
+import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
+import { useTheme as useThemeK2 } from '@avalabs/k2-components';
 
 interface AccountItemProps {
   account: Account;
@@ -111,6 +112,8 @@ export function AccountItem({
   const [accountName, setAccountName] = useState<string>(account.name);
   const { renameAccount, isActiveAccount } = useAccountsContext();
   const theme = useTheme();
+  // remove theme from react-components and use k2 and change to just theme
+  const themeK2 = useThemeK2();
   const { updateBalanceOnAllNetworks } = useBalancesContext();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
@@ -219,17 +222,18 @@ export function AccountItem({
             <LogoContainer>
               <AvaxTokenIcon height="16" />
             </LogoContainer>
-            <SimpleAddress
+            <SimpleAddressK2
               address={account.addressC}
               typographyProps={{
-                size: 12,
-                height: '15px',
-                color: theme.colors.text2,
-                margin: '0 8px 0 0',
+                sx: {
+                  lineHeight: 'inherit',
+                  color: 'text.secondary',
+                },
               }}
               copyIconProps={{
-                height: '12px',
-                color: isActive ? theme.colors.icon1 : theme.colors.icon2,
+                color: isActive
+                  ? themeK2.palette.primary.main
+                  : themeK2.palette.grey[500],
               }}
             />
           </HorizontalFlex>
@@ -240,17 +244,18 @@ export function AccountItem({
             <LogoContainer>
               <BitcoinLogo height="16" />
             </LogoContainer>
-            <SimpleAddress
+            <SimpleAddressK2
               address={account.addressBTC}
               typographyProps={{
-                size: 12,
-                height: '15px',
-                color: theme.colors.text2,
-                margin: '0 8px 0 0',
+                sx: {
+                  lineHeight: 'inherit',
+                  color: 'text.secondary',
+                },
               }}
               copyIconProps={{
-                height: '12px',
-                color: isActive ? theme.colors.icon1 : theme.colors.icon2,
+                color: isActive
+                  ? themeK2.palette.primary.main
+                  : themeK2.palette.grey[500],
               }}
             />
           </HorizontalFlex>

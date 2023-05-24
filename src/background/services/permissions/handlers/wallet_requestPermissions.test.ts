@@ -111,7 +111,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
     };
 
     const mockAction: Action = {
-      id: 5432,
+      id: '5432',
       status: ActionStatus.SUBMITTING,
       method: DAppProviderRequest.WALLET_PERMISSIONS,
       jsonrpc: '2.0',

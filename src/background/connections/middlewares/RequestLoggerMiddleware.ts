@@ -1,4 +1,9 @@
 import { requestLog, responseLog } from '@src/utils/logging';
+import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+} from '../models';
 import { Middleware } from './models';
 
 /**
@@ -15,17 +20,19 @@ export enum SideToLog {
   RESPONSE = 'RESPONSE',
 }
 
-export function LoggerMiddleware(sideToLog: SideToLog): Middleware {
+export function LoggerMiddleware(
+  sideToLog: SideToLog
+): Middleware<
+  ExtensionConnectionMessage | JsonRpcRequest,
+  ExtensionConnectionMessageResponse<any, any> | JsonRpcResponse
+> {
   return (context, next) => {
-    if (!SUPER_NOISY_REQUESTS.includes(context.request.data.method)) {
+    if (!SUPER_NOISY_REQUESTS.includes(context.request.method)) {
       if (sideToLog === SideToLog.REQUEST) {
-        requestLog(
-          `Web3 request (${context.request.data.method})`,
-          context.request.data
-        );
+        requestLog(`Web3 request (${context.request.method})`, context.request);
       } else if (sideToLog === SideToLog.RESPONSE) {
         responseLog(
-          `Web3 response (${context.request.data.method})`,
+          `Web3 response (${context.request.method})`,
           context.response
         );
       }

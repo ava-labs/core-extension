@@ -16,7 +16,6 @@ export interface NetworkFee {
 }
 
 export type EIP1559GasModifier = {
-  maxTip: BigNumber;
   baseFeeMultiplier: Big;
 };
 

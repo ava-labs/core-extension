@@ -1,11 +1,18 @@
 import { Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
-import { ExtensionRequestHandler } from '../models';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+  ExtensionRequestHandler,
+} from '../models';
 import * as Sentry from '@sentry/browser';
 
 export function ExtensionRequestHandlerMiddleware(
   handlers: ExtensionRequestHandler<any, any>[]
-): Middleware {
+): Middleware<
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse<any, any>
+> {
   const handlerMap = handlers.reduce((acc, handler) => {
     if (acc.get(handler.method))
       throw new Error(`Method already handled: ${handler.method}`);

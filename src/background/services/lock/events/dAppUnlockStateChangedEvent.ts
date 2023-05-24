@@ -10,6 +10,7 @@ import { injectable } from 'tsyringe';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { LockService } from '../LockService';
 import { LockEvents } from '../models';
+import { UnlockStateChangedEventData } from '@src/background/providers/models';
 
 @injectable()
 export class LockStateChangedEvents implements DAppEventEmitter {
@@ -35,9 +36,13 @@ export class LockStateChangedEvents implements DAppEventEmitter {
   }
 
   onLock() {
+    const params: UnlockStateChangedEventData = {
+      accounts: [],
+      isUnlocked: false,
+    };
     this.eventEmitter.emit('update', {
       method: Web3Event.UNLOCK_STATE_CHANGED,
-      params: { accounts: [], isUnlocked: false },
+      params,
     });
   }
 
@@ -50,15 +55,14 @@ export class LockStateChangedEvents implements DAppEventEmitter {
         this._connectionInfo.domain,
         currentAddress
       ));
+    const params: UnlockStateChangedEventData = {
+      accounts: connectionHasPermissions ? [currentAddress] : [],
+      isUnlocked: true,
+    };
 
     this.eventEmitter.emit('update', {
       method: Web3Event.UNLOCK_STATE_CHANGED,
-      params: {
-        accounts: connectionHasPermissions
-          ? [this.accountsService.activeAccount?.addressC]
-          : [],
-        isUnlocked: true,
-      },
+      params,
     });
   }
 

@@ -13,6 +13,8 @@ export const DEFAULT_FLAGS = {
   [FeatureGates.BUY_MOONPAY]: true,
   [FeatureGates.BUY_COINBASE]: true,
   [FeatureGates.KEYSTONE]: true,
+  [FeatureGates.NFT_MARKETPLACE]: true,
+  [FeatureGates.BOTTOM_NAVIGATION]: true,
 };
 
 export enum FeatureFlagEvents {

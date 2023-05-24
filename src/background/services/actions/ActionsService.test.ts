@@ -43,7 +43,7 @@ describe('background/services/actions/ActionsService.ts', () => {
   let actionsService: ActionsService;
 
   const mockAction: Action = {
-    id: 1,
+    id: '1',
     time: 123123123,
     status: ActionStatus.PENDING,
     displayData: {},
@@ -114,7 +114,7 @@ describe('background/services/actions/ActionsService.ts', () => {
     it('saves actions to storage when unlocked', async () => {
       const actions = {
         1: mockAction,
-        2: { ...mockAction, id: 2 },
+        2: { ...mockAction, id: '2' },
       };
 
       await actionsService.saveActions(actions);
@@ -131,7 +131,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       (lockService as any).locked = true;
       const actions = {
         1: mockAction,
-        2: { ...mockAction, id: 2 },
+        2: { ...mockAction, id: '2' },
       };
 
       await actionsService.saveActions(actions);
@@ -147,7 +147,7 @@ describe('background/services/actions/ActionsService.ts', () => {
     it('emits event when actions are saved', async () => {
       const actions = {
         1: mockAction,
-        2: { ...mockAction, id: 2 },
+        2: { ...mockAction, id: '2' },
       };
       const eventListener = jest.fn();
 
@@ -162,7 +162,7 @@ describe('background/services/actions/ActionsService.ts', () => {
   describe('onStorageReady', () => {
     it('moves actions from session storage to storage when wallet gets unlocked', async () => {
       (storageService.loadFromSessionStorage as jest.Mock).mockResolvedValue({
-        2: { ...mockAction, id: 2 },
+        2: { ...mockAction, id: '2' },
       });
       (storageService.load as jest.Mock).mockResolvedValue({
         1: mockAction,
@@ -173,7 +173,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       expect(storageService.save).toHaveBeenCalledTimes(1);
       expect(storageService.save).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY, {
         1: mockAction,
-        2: { ...mockAction, id: 2 },
+        2: { ...mockAction, id: '2' },
       });
 
       expect(storageService.removeFromSessionStorage).toHaveBeenCalledWith(
@@ -304,12 +304,12 @@ describe('background/services/actions/ActionsService.ts', () => {
 
         await actionsService.updateAction({
           status: ActionStatus.SUBMITTING,
-          id: 1,
+          id: '1',
           tabId,
         });
 
         expect(handlerWithCallback.onActionApproved).toHaveBeenCalledWith(
-          expect.objectContaining({ id: 1 }),
+          expect.objectContaining({ id: '1' }),
           undefined,
           expect.any(Function),
           expect.any(Function),

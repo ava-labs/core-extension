@@ -6,6 +6,7 @@ import {
   ConnectionController,
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
   ExtensionEventEmitter,
   ExtensionRequestHandler,
 } from '../models';
@@ -25,7 +26,10 @@ import { serialize } from '@src/background/serialization/serialize';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
-  private pipeline?: Pipeline;
+  private pipeline?: Pipeline<
+    ExtensionConnectionMessage,
+    ExtensionConnectionMessageResponse<any, any>
+  >;
   private connection?: Runtime.Port;
 
   constructor(

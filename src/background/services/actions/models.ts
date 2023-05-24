@@ -1,5 +1,5 @@
+import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
 import { DomainMetadata } from '@src/background/models';
-import { JsonRpcRequest } from 'json-rpc-engine';
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval
   PENDING = 'pending',

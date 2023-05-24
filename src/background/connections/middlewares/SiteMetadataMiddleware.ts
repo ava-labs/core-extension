@@ -1,9 +1,26 @@
 import { DomainMetadata } from '@src/background/models';
 import { Runtime } from 'webextension-polyfill-ts';
-import { DAppProviderRequest } from '../dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequest,
+  JsonRpcResponse,
+} from '../dAppConnection/models';
 import { Middleware } from './models';
 
-export function SiteMetadataMiddleware(connection: Runtime.Port): Middleware {
+interface DomainMetadataRequest extends JsonRpcRequest<DomainMetadata> {
+  method: DAppProviderRequest.DOMAIN_METADATA_METHOD;
+  params: DomainMetadata;
+}
+
+const isMetadataRequest = (
+  request: JsonRpcRequest<unknown>
+): request is DomainMetadataRequest => {
+  return request.method === DAppProviderRequest.DOMAIN_METADATA_METHOD;
+};
+
+export function SiteMetadataMiddleware(
+  connection: Runtime.Port
+): Middleware<JsonRpcRequest, JsonRpcResponse> {
   /**
    * Domain is per connection so this needs to remain an closure to the connection
    */
@@ -19,8 +36,8 @@ export function SiteMetadataMiddleware(connection: Runtime.Port): Middleware {
       ...domainMetadata,
     };
 
-    const requestData = context.request.data;
-    if (requestData.method !== DAppProviderRequest.DOMAIN_METADATA_METHOD) {
+    const requestData = context.request;
+    if (!isMetadataRequest(requestData)) {
       next();
       return;
     }

@@ -24,8 +24,8 @@ import { TransactionCompletedEvents } from '@src/background/services/transaction
 import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
 import { AvalancheSelectWalletHandler } from '@src/background/services/web3/handlers/avalanche_selectWallet';
 import { ConnectRequestHandler } from '@src/background/services/web3/handlers/connect';
-import { MetamaskGetProviderState } from '@src/background/services/web3/handlers/metamask_getProviderState';
-import { MetamaskSendDomainMetadataHandler } from '@src/background/services/web3/handlers/metamask_sendDomainMetadata';
+import { AvalancheGetProviderState } from '@src/background/services/web3/handlers/avalanche_getProviderState';
+import { AvalancheSendDomainMetadataHandler } from '@src/background/services/web3/handlers/avalanche_sendDomainMetadata';
 import { registry } from 'tsyringe';
 import { AvalancheGetAccountPubKeyHandler } from '@src/background/services/accounts/handlers/avalanche_getAccountPubKey';
 import { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
@@ -71,8 +71,11 @@ import { AvalancheSignTransactionHandler } from '@src/background/services/wallet
   { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
   { token: 'DAppRequestHandler', useToken: EthSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },
-  { token: 'DAppRequestHandler', useToken: MetamaskGetProviderState },
-  { token: 'DAppRequestHandler', useToken: MetamaskSendDomainMetadataHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheGetProviderState },
+  {
+    token: 'DAppRequestHandler',
+    useToken: AvalancheSendDomainMetadataHandler,
+  },
 ])
 export class DappRequestHandlerRegistry {}
 

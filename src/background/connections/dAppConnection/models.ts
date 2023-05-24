@@ -1,7 +1,11 @@
+import { Maybe } from '@avalabs/utils-sdk';
+import { EthereumProviderError } from 'eth-rpc-errors';
+import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
+
 export enum DAppProviderRequest {
-  DOMAIN_METADATA_METHOD = 'metamask_sendDomainMetadata',
+  DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',
   CONNECT_METHOD = 'eth_requestAccounts',
-  INIT_DAPP_STATE = 'metamask_getProviderState',
+  INIT_DAPP_STATE = 'avalanche_getProviderState',
   ETH_ACCOUNTS = 'eth_accounts',
   WALLET_PERMISSIONS = 'wallet_requestPermissions',
   WALLET_GET_PERMISSIONS = 'wallet_getPermissions',
@@ -35,7 +39,31 @@ export enum DAppProviderRequest {
 }
 
 export enum Web3Event {
-  ACCOUNTS_CHANGED = 'metamask_accountsChanged',
-  UNLOCK_STATE_CHANGED = 'metamask_unlockStateChanged',
-  CHAIN_CHANGED = 'metamask_chainChanged',
+  // https://eips.ethereum.org/EIPS/eip-1193#connect-1
+  // not emitted as a separate event from the background, the inpage provider handles it
+  // based on the `avalanche_getProviderState` and the `chainChanged` event
+  CONNECT = 'connect',
+  // https://eips.ethereum.org/EIPS/eip-1193#disconnect-1
+  DISCONNECT = 'disconnect',
+  // https://eips.ethereum.org/EIPS/eip-1193#accountschanged-1
+  ACCOUNTS_CHANGED = 'accountsChanged',
+  // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
+  CHAIN_CHANGED = 'chainChanged',
+  // non EIP-1193 event
+  UNLOCK_STATE_CHANGED = 'avalanche_unlockStateChanged',
 }
+export interface JsonRpcRequest<Params = unknown[]> {
+  readonly jsonrpc?: '2.0';
+  readonly id?: string;
+  readonly method: string;
+  readonly params?: Params;
+}
+export interface JsonRpcSuccess<T = unknown> {
+  result: Maybe<T>;
+}
+export interface JsonRpcFailure<T = unknown> {
+  error: EthereumProviderError<T> | SerializedEthereumRpcError;
+}
+export declare type JsonRpcResponse<T = unknown> =
+  | JsonRpcSuccess<T>
+  | JsonRpcFailure<T>;

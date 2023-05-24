@@ -4,7 +4,7 @@
 // https://github.com/denoland/deno/issues/12754
 declare global {
   interface Crypto {
-    randomUUID: () => string;
+    randomUUID: () => `${string}-${string}-${string}-${string}-${string}`;
     getRandomValues: <T extends ArrayBufferView | null>(array: T) => T;
   }
 }

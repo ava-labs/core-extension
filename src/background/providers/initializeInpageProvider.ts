@@ -1,62 +1,27 @@
-import { Duplex } from 'stream';
-import {
-  MetaMaskInpageProvider,
-  MetaMaskInpageProviderOptions,
-} from './MetaMaskInpageProvider';
+import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 
-interface InitializeProviderOptions extends MetaMaskInpageProviderOptions {
-  /**
-   * The stream used to connect to the wallet.
-   */
-  connectionStream: Duplex;
-
-  /**
-   * Whether the provider should be set as window.ethereum.
-   */
-  shouldSetOnWindow?: boolean;
-
-  /**
-   * Whether the window.web3 shim should be set.
-   */
-  shouldShimWeb3?: boolean;
-}
-
 /**
- * Initializes a MetaMaskInpageProvider and (optionally) assigns it as window.ethereum.
+ * Initializes a CoreProvide and assigns it as window.ethereum.
  *
- * @param options - An options bag.
- * @param options.connectionStream - A Node.js stream.
- * @param options.jsonRpcStreamName - The name of the internal JSON-RPC stream.
- * @param options.maxEventListeners - The maximum number of event listeners.
- * @param options.shouldSendMetadata - Whether the provider should send page metadata.
- * @param options.shouldSetOnWindow - Whether the provider should be set as window.ethereum.
- * @param options.shouldShimWeb3 - Whether a window.web3 shim should be injected.
+ * @param channelName - Broadcast communication channel name to communicate with the contentscript on
+ * @param maxListeners - The maximum number of event listeners.
+ * @param globalObject - Defaults to window. Defines what to set the provider on.
  * @returns The initialized provider (whether set or not).
  */
-export function initializeProvider({
-  connectionStream,
-  logger = console,
-  maxEventListeners = 100,
-  shouldSendMetadata = true,
-  shouldSetOnWindow = true,
-}: InitializeProviderOptions): MetaMaskInpageProvider {
-  let provider = new MetaMaskInpageProvider(connectionStream, {
-    logger,
-    maxEventListeners,
-    shouldSendMetadata,
-  });
-
-  provider = new Proxy(provider, {
+export function initializeProvider(
+  channelName: string,
+  maxListeners = 100,
+  globalObject = window
+): CoreProvider {
+  const provider = new Proxy(new CoreProvider({ channelName, maxListeners }), {
     // some common libraries, e.g. web3@1.x, mess with our API
     deleteProperty: () => true,
   });
 
-  if (shouldSetOnWindow) {
-    setGlobalProvider(provider);
-    setAvalancheGlobalProvider(provider);
-    setEvmproviders(provider);
-  }
+  setGlobalProvider(provider, globalObject);
+  setAvalancheGlobalProvider(provider, globalObject);
+  setEvmproviders(provider, globalObject);
 
   return provider;
 }
@@ -67,18 +32,19 @@ export function initializeProvider({
  *
  * @param providerInstance - The provider instance.
  */
-export function setGlobalProvider(
-  providerInstance: MetaMaskInpageProvider
+function setGlobalProvider(
+  providerInstance: CoreProvider,
+  globalObject = window
 ): void {
   try {
     const multiWalletProxy = createMultiWalletProxy(providerInstance);
 
     // if we already have a wallet lets add it
-    if (window.ethereum) {
-      multiWalletProxy.addProvider(window.ethereum);
+    if (globalObject.ethereum) {
+      multiWalletProxy.addProvider(globalObject.ethereum);
     }
 
-    Object.defineProperty(window, 'ethereum', {
+    Object.defineProperty(globalObject, 'ethereum', {
       get: () => {
         return multiWalletProxy;
       },
@@ -92,7 +58,7 @@ export function setGlobalProvider(
       currentProvider: multiWalletProxy,
     };
 
-    Object.defineProperty(window, 'web3', {
+    Object.defineProperty(globalObject, 'web3', {
       get: () => {
         return windowWeb3Obj;
       },
@@ -108,13 +74,13 @@ export function setGlobalProvider(
         return true;
       },
     });
-    window.dispatchEvent(new Event('ethereum#initialized'));
+    globalObject.dispatchEvent(new Event('ethereum#initialized'));
   } catch (e) {
     // some browser was faster and defined the window.ethereum as non writable before us
     console.error('Cannot set Core window.ethereum provider', e);
 
     // try to set the providerInstance in case it's a proxy like we are
-    window.ethereum = providerInstance;
+    globalObject.ethereum = providerInstance;
   }
 }
 
@@ -124,21 +90,23 @@ export function setGlobalProvider(
  *
  * @param providerInstance - The provider instance.
  */
-export function setAvalancheGlobalProvider(
-  providerInstance: MetaMaskInpageProvider
+function setAvalancheGlobalProvider(
+  providerInstance: CoreProvider,
+  globalObject = window
 ): void {
-  Object.defineProperty(window, 'avalanche', {
+  Object.defineProperty(globalObject, 'avalanche', {
     value: providerInstance,
     writable: false,
   });
-  window.dispatchEvent(new Event('avalanche#initialized'));
+  globalObject.dispatchEvent(new Event('avalanche#initialized'));
 }
 
-export function setEvmproviders(
-  providerInstance: MetaMaskInpageProvider
+function setEvmproviders(
+  providerInstance: CoreProvider,
+  globalObject = window
 ): void {
-  window.evmproviders = window.evmproviders || {};
-  window.evmproviders.core = providerInstance;
+  globalObject.evmproviders = globalObject.evmproviders || {};
+  globalObject.evmproviders.core = providerInstance;
 
-  window.dispatchEvent(new Event('evmproviders#initialized'));
+  globalObject.dispatchEvent(new Event('evmproviders#initialized'));
 }

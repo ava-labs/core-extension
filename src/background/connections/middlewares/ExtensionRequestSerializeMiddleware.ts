@@ -1,7 +1,14 @@
 import { serialize } from '@src/background/serialization/serialize';
+import {
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+} from '../models';
 import { DEFERRED_RESPONSE, Middleware } from './models';
 
-export function ExtensionRequestSerializeMiddleware(): Middleware {
+export function ExtensionRequestSerializeMiddleware(): Middleware<
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse<any, any>
+> {
   return async (context, next) => {
     if (
       context.response &&

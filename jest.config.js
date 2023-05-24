@@ -11,4 +11,10 @@ module.exports = {
     '\\.(css|less|scss)$': 'identity-obj-proxy',
     '^uuid$': require.resolve('uuid'),
   },
+  globals: {
+    EVM_PROVIDER_INFO_NAME: 'EVM_PROVIDER_INFO_NAME',
+    EVM_PROVIDER_INFO_UUID: 'EVM_PROVIDER_INFO_UUID',
+    EVM_PROVIDER_INFO_ICON: 'EVM_PROVIDER_INFO_ICON',
+    EVM_PROVIDER_INFO_DESCRIPTION: 'EVM_PROVIDER_INFO_DESCRIPTION',
+  },
 };

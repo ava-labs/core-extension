@@ -131,7 +131,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     };
 
     const mockAction: Action = {
-      id: 1235,
+      id: '1235',
       status: ActionStatus.SUBMITTING,
       method: DAppProviderRequest.CONNECT_METHOD,
       jsonrpc: '2.0',

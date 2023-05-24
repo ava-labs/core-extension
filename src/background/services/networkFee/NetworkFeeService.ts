@@ -28,15 +28,12 @@ export class NetworkFeeService implements OnUnlock, OnLock {
 
   private evmFeeModifiers: Record<TransactionPriority, EIP1559GasModifier> = {
     low: {
-      maxTip: BigNumber.from(1e9), // 1 Gwei
       baseFeeMultiplier: new Big(1.05), // We add additional 5% to account for sudden gas price increases
     },
     medium: {
-      maxTip: BigNumber.from(1.5 * 1e9), // 1.5 Gwei
       baseFeeMultiplier: new Big(1.1),
     },
     high: {
-      maxTip: BigNumber.from(2 * 1e9), // 2 Gwei
       baseFeeMultiplier: new Big(1.15),
     },
   };
@@ -106,37 +103,50 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     network: Network,
     provider: JsonRpcBatchInternal
   ): Promise<NetworkFee> {
-    const { lastBaseFeePerGas } = await (
-      provider as JsonRpcBatchInternal
-    ).getFeeData();
+    const {
+      lastBaseFeePerGas,
+      maxPriorityFeePerGas: lastMaxPriorityFeePerGas,
+    } = await (provider as JsonRpcBatchInternal).getFeeData();
 
     if (lastBaseFeePerGas == null) {
       throw new Error('Fetching fee data failed');
     }
 
     const baseFee = ethersBigNumberToBig(lastBaseFeePerGas, 0);
+    const maxPriorityFeePerGas = ethersBigNumberToBig(
+      lastMaxPriorityFeePerGas ?? BigNumber.from(0),
+      0
+    );
 
     return {
       displayDecimals: 9, // use Gwei to display amount
       baseFee: lastBaseFeePerGas,
-      low: this.getEVMFeeForPriority(baseFee, 'low'),
-      medium: this.getEVMFeeForPriority(baseFee, 'medium'),
-      high: this.getEVMFeeForPriority(baseFee, 'high'),
+      low: this.getEVMFeeForPriority(baseFee, maxPriorityFeePerGas, 'low'),
+      medium: this.getEVMFeeForPriority(
+        baseFee,
+        maxPriorityFeePerGas,
+        'medium'
+      ),
+      high: this.getEVMFeeForPriority(baseFee, maxPriorityFeePerGas, 'high'),
       isFixedFee: isSwimmer(network) ? true : false,
     };
   }
 
   private getEVMFeeForPriority(
     baseFee: Big,
+    maxPriorityFee: Big,
     priority: TransactionPriority
   ): FeeRate {
     const modifier = this.evmFeeModifiers[priority];
+    const maxFee = baseFee.mul(modifier.baseFeeMultiplier);
+
+    // max base fee should be greater than or equal to the max priority fee
+    // https://github.com/ava-labs/coreth/blob/26818b3fcdd9831cf31f15c7e65faeecb78f3e70/core/tx_pool.go#L701
+    const maxTip = maxPriorityFee.gt(maxFee) ? maxFee : maxPriorityFee;
 
     return {
-      maxFee: BigNumber.from(
-        baseFee.mul(modifier.baseFeeMultiplier).toFixed(0)
-      ),
-      maxTip: modifier.maxTip,
+      maxFee: BigNumber.from(maxFee.toFixed(0)),
+      maxTip: BigNumber.from(maxTip.toFixed(0)),
     };
   }
 

@@ -187,7 +187,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   };
 
   const btcAction: Action = {
-    id: 123,
+    id: '123',
     jsonrpc: '2.0',
     time: Date.now(),
     status: ActionStatus.PENDING,
@@ -208,7 +208,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   };
 
   const ethAction: Action = {
-    id: 987,
+    id: '987',
     jsonrpc: '2.0',
     time: Date.now(),
     status: ActionStatus.PENDING,

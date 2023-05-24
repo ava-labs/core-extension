@@ -16,14 +16,8 @@ import {
   SideToLog,
 } from '../middlewares/RequestLoggerMiddleware';
 import { SiteMetadataMiddleware } from '../middlewares/SiteMetadataMiddleware';
-import {
-  ConnectionController,
-  DAppEventEmitter,
-  ExtensionConnectionEvent,
-  ExtensionConnectionMessage,
-} from '../models';
+import { ConnectionController, DAppEventEmitter } from '../models';
 import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
-import { INPAGE_PROVIDER } from '@src/common';
 import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 
@@ -32,7 +26,13 @@ import { RPCCallsMiddleware } from '../middlewares/RPCCallsMiddleware';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from './DAppRequestHandler';
 import { LockService } from '@src/background/services/lock/LockService';
-import { RateLimitMiddleware } from '../middlewares/RateLimitMiddleware';
+import PortConnection from '@src/background/utils/messaging/PortConnection';
+import {
+  DAppProviderRequest,
+  JsonRpcFailure,
+  JsonRpcRequest,
+  JsonRpcSuccess,
+} from './models';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -40,8 +40,11 @@ import { RateLimitMiddleware } from '../middlewares/RateLimitMiddleware';
  */
 @injectable()
 export class DAppConnectionController implements ConnectionController {
-  private pipeline?: Pipeline;
-  private connection?: Runtime.Port;
+  private pipeline?: Pipeline<
+    JsonRpcRequest<unknown>,
+    JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
+  >;
+  private connection?: PortConnection;
 
   constructor(
     @injectAll('DAppRequestHandler') private handlers: DAppRequestHandler[],
@@ -51,17 +54,16 @@ export class DAppConnectionController implements ConnectionController {
     private networkService: NetworkService,
     private lockService: LockService
   ) {
-    this.onMessage = this.onMessage.bind(this);
+    this.onRequest = this.onRequest.bind(this);
     this.disconnect = this.disconnect.bind(this);
     this.onEvent = this.onEvent.bind(this);
   }
 
   connect(connection: Runtime.Port) {
-    this.connection = connection;
+    this.connection = new PortConnection(connection);
     this.pipeline = RequestProcessorPipeline(
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
-      RateLimitMiddleware(),
       RPCCallsMiddleware(this.networkService),
       PermissionMiddleware(
         this.permissionsService,
@@ -74,30 +76,37 @@ export class DAppConnectionController implements ConnectionController {
 
     connectionLog('dApp Provider');
 
-    this.connection.onMessage.addListener(this.onMessage);
-    this.connection.onDisconnect.addListener(this.disconnect);
+    this.connection.connect((message) => {
+      return this.onRequest(message);
+    });
+    this.connection.on('disconnect', this.disconnect);
     this.eventEmitters.forEach((emitter) => {
       emitter.addListener(this.onEvent);
       emitter.setConnectionInfo({
-        domain: new URL(this.connection?.sender?.url || '').hostname,
+        domain: new URL(connection?.sender?.url || '').hostname,
         tabId: connection.sender?.tab?.id,
       });
     });
   }
 
   disconnect() {
-    this.connection?.onMessage.removeListener(this.onMessage);
+    this.connection?.dispose();
     this.eventEmitters.forEach((emitter) =>
       emitter.removeListener(this.onEvent)
     );
     disconnectLog('dApp Provider');
   }
 
-  needToPost(context: Context): boolean {
+  needToPost(
+    context: Context<
+      JsonRpcRequest<unknown>,
+      JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
+    >
+  ): boolean {
     return context.response !== DEFERRED_RESPONSE;
   }
 
-  private async onMessage(request: ExtensionConnectionMessage) {
+  private async onRequest(request: JsonRpcRequest<unknown>) {
     if (!this.pipeline || !this.connection) {
       throw Error('dAppConnectionController is not connected to a port');
     }
@@ -106,32 +115,36 @@ export class DAppConnectionController implements ConnectionController {
       this.pipeline.execute({
         // always start with authenticated false, middlewares take care of context updates
         authenticated: false,
-        request: request,
+        request: {
+          ...request,
+        },
       })
     );
 
     if (error) {
-      const response = {
-        ...request,
-        data: {
-          ...request.data,
-          ...{ error },
-        },
-      };
-      responseLog(`Web3 response (${request.data.method})`, response);
-      this.connection.postMessage(response);
-      return;
+      responseLog(`Web3 response (${request.method})`, {
+        ...{ error },
+      });
+      throw error;
     } else if (context) {
-      if (this.needToPost(context)) {
-        this.connection.postMessage(context.response);
+      if ((context.response as JsonRpcFailure)?.error) {
+        throw (context.response as JsonRpcFailure).error;
+      } else if (this.needToPost(context)) {
+        return (context.response as JsonRpcSuccess)?.result;
+      } else {
+        return DEFERRED_RESPONSE;
       }
     }
   }
 
-  private onEvent(evt: ExtensionConnectionEvent) {
-    eventLog('Web 3 Event', evt);
+  private onEvent(evt: any) {
     try {
-      this.connection?.postMessage({ name: INPAGE_PROVIDER, data: evt });
+      if (Object.values(DAppProviderRequest).includes(evt.method)) {
+        this.connection?.deferredResponse(evt.id, evt.result, evt.error);
+      } else {
+        eventLog('Web 3 event', evt);
+        this.connection?.message(evt);
+      }
     } catch (e) {
       console.error(e);
     }

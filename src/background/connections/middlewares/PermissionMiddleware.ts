@@ -1,9 +1,13 @@
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { LockService } from '@src/background/services/lock/LockService';
 import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
-import { CORE_DOMAINS } from '../models';
+import { CORE_DOMAINS, ExtensionConnectionMessage } from '../models';
 import { Middleware } from './models';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequest,
+  JsonRpcResponse,
+} from '@src/background/connections/dAppConnection/models';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);
 
@@ -65,8 +69,8 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'eth_submitWork',
   'eth_syncing',
   'eth_uninstallFilter',
-  'metamask_getProviderState',
-  'metamask_sendDomainMetadata',
+  'avalanche_getProviderState',
+  'avalanche_sendDomainMetadata',
   'metamask_watchAsset',
   'net_listening',
   'net_peerCount',
@@ -105,7 +109,10 @@ export function PermissionMiddleware(
   permissionService: PermissionsService,
   accountsService: AccountsService,
   lockService: LockService
-): Middleware {
+): Middleware<
+  ExtensionConnectionMessage | JsonRpcRequest,
+  ExtensionConnectionMessageResponse<any, any> | JsonRpcResponse
+> {
   return async (context, next, error) => {
     if (lockService.locked) {
       context.authenticated = false;
@@ -126,7 +133,7 @@ export function PermissionMiddleware(
       context.authenticated = true;
     }
 
-    if (RESTRICTED_METHODS.includes(context.request.data.method)) {
+    if (RESTRICTED_METHODS.includes(context.request.method)) {
       if (context.authenticated === false) {
         error(new Error('No permission to access requested method.'));
       } else {
@@ -135,7 +142,7 @@ export function PermissionMiddleware(
       return;
     }
 
-    if (CORE_METHODS.includes(context.request.data.method)) {
+    if (CORE_METHODS.includes(context.request.method)) {
       const domain = context.domainMetadata?.domain
         ? context.domainMetadata.domain
         : '';
@@ -152,7 +159,7 @@ export function PermissionMiddleware(
       }
       return;
     }
-    if (!UNRESTRICTED_METHODS.includes(context.request.data.method)) {
+    if (!UNRESTRICTED_METHODS.includes(context.request.method)) {
       error(new Error('Unrecognized method'));
       return;
     }

@@ -4,10 +4,16 @@ import {
   DAppEventEmitter,
   ConnectionInfo,
 } from '@src/background/connections/models';
+import { ChainChangedEventData } from '@src/background/providers/models';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 
+/**
+ * Emits `chainChanged` events for each dApp according to EIP-1193
+ * https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
+ * For compatibility with legacy apps, also returns the deprecated networkVersion
+ */
 @injectable()
 export class ChainChangedEvents implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
@@ -20,12 +26,13 @@ export class ChainChangedEvents implements DAppEventEmitter {
   constructor(private networkService: NetworkService) {
     this.networkService.activeNetworkChanged.add((chain) => {
       if (!chain) return;
+      const eventData: ChainChangedEventData = {
+        chainId: `0x${chain.chainId.toString(16)}`,
+        networkVersion: `${chain.chainId}`,
+      };
       this.eventEmitter.emit('update', {
         method: Web3Event.CHAIN_CHANGED,
-        params: {
-          chainId: `0x${chain.chainId.toString(16)}`,
-          networkVersion: `${chain.chainId}`,
-        },
+        params: eventData,
       });
     });
   }
