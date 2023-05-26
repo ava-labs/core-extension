@@ -82,17 +82,10 @@ export function InProgressBridgeActivityCard({
             toast.remove(toastId);
           }}
         >
-          <Typography
-            sx={{
-              fontSize: 18,
-              fontWeight: 'fontWeightSemibold',
-            }}
-          >
-            {t(`You transferred {{amount}} {{symbol}}`, {
-              amount: tx.amount,
-              symbol: tx.symbol,
-            })}
-          </Typography>
+          {t(`You transferred {{amount}} {{symbol}}`, {
+            amount: tx.amount,
+            symbol: tx.symbol,
+          })}
         </ToastCard>,
         {
           duration: Infinity,
