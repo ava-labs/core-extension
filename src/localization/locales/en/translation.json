@@ -527,6 +527,7 @@
   "Insufficient balance to cover gas costs. <br /> Please add {{symbol}}.": "Insufficient balance to cover gas costs. <br /> Please add {{symbol}}.",
   "Tx Finished": "Tx Finished",
   "Transaction Summary": "Transaction Summary",
+  "Contract deployment": "Contract deployment",
   "Token Amount": "Token Amount",
   "You will interact directly with Paraswap's smart contracts.": "You will interact directly with Paraswap's smart contracts.",
   "Powered by": "Powered by",
