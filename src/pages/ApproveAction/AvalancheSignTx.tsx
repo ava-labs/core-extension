@@ -30,7 +30,7 @@ import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '../SignTransaction/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { CreateSubnetView } from './components/ApproveCreateSubnet';
-import { CreateChainView } from './components/ApproveCreateChain';
+import { ApproveCreateChain } from './components/ApproveCreateChain';
 import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 import { AvalancheTxHeader } from './components/AvalancheTxHeader';
 
@@ -81,7 +81,10 @@ export function AvalancheSignTx() {
         );
       } else if (isCreateChainTx(tx)) {
         return (
-          <CreateChainView tx={tx} avaxPrice={tokenPrice}></CreateChainView>
+          <ApproveCreateChain
+            tx={tx}
+            avaxPrice={tokenPrice}
+          ></ApproveCreateChain>
         );
       } else if (isAddSubnetValidatorTx(tx)) {
         return (

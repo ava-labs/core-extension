@@ -180,6 +180,7 @@ export interface CreateChainTx extends AvalancheTxBase {
   type: AvalancheTxType.CreateChain;
   subnetID: string;
   chainName: string;
+  chainID: string;
   vmID: string;
   fxIDs: string[];
   genesisData: string;
@@ -191,6 +192,7 @@ export interface AddSubnetValidatorTx extends AvalancheTxBase {
   start: string;
   end: string;
   subnetID: string;
+  stake: bigint;
 }
 
 export interface UnknownTx extends AvalancheTxBase {

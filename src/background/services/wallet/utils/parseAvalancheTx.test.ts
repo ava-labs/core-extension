@@ -226,6 +226,7 @@ describe('src/background/services/wallet/utils/parseAvalancheTx.ts', () => {
       expect(parsed.subnetID).toEqual(
         '2JsbqAWmbMkeqS1YfWgKSxfnA4gVUXJJsx9dh8rRNmf9Sih1QQ'
       );
+      expect(parsed.stake).toEqual(1000000000n);
     });
   });
 

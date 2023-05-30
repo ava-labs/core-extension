@@ -155,7 +155,7 @@ export async function parseAvalancheTx(
 
   if (typeof tx.getVM !== 'function') {
     return {
-      type: 'unknown',
+      type: AvalancheTxType.Unknown,
     } as UnknownTx;
   }
 
@@ -216,6 +216,7 @@ export async function parseAvalancheTx(
         txFee: burn,
         subnetID: tx.getSubnetID().value(),
         chainName: tx.chainName.value(),
+        chainID: tx.getBlockchainId(),
         vmID: tx.vmID.value(),
         fxIDs: tx.fxIds.map((fxID) => fxID.value()),
         genesisData: tx.genesisData.toString(),
@@ -234,6 +235,7 @@ export async function parseAvalancheTx(
       return {
         type: AvalancheTxType.AddSubnetValidator,
         chain: vm,
+        stake: tx.subnetValidator.validator.weight.value(),
         nodeID: tx.subnetValidator.validator.nodeId.value(),
         start: tx.subnetValidator.validator.startTime.value().toString(),
         end: tx.subnetValidator.validator.endTime.value().toString(),
@@ -337,7 +339,7 @@ export async function parseAvalancheTx(
     if (evmSerial.isExportTx(tx)) {
       const tot = sumOutputs(tx.exportedOutputs, context.avaxAssetID);
       return {
-        type: 'export',
+        type: AvalancheTxType.Export,
         chain: vm,
         destination: chainIdToVM(tx.destinationChain.value()),
         exportOuts: tx.exportedOutputs,
@@ -347,7 +349,7 @@ export async function parseAvalancheTx(
     } else if (evmSerial.isImportTx(tx)) {
       const tot = sumInputs(tx.importedInputs, context.avaxAssetID);
       return {
-        type: 'import',
+        type: AvalancheTxType.Import,
         chain: vm,
         source: chainIdToVM(tx.sourceChain.value()),
         amount: tot,
@@ -357,7 +359,7 @@ export async function parseAvalancheTx(
   }
 
   return {
-    type: 'unknown',
+    type: AvalancheTxType.Unknown,
     chain: vm,
   } as UnknownTx;
 }

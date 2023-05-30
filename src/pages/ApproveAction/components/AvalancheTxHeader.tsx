@@ -23,7 +23,7 @@ const useAvalancheTxHeader = (tx: AvalancheTx) => {
       return t('Add Subnet Validator');
 
     case AvalancheTxType.CreateChain:
-      return t('Create Chain');
+      return t('Create Blockchain');
 
     case AvalancheTxType.CreateSubnet:
       return t('Create Subnet');
