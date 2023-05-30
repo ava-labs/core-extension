@@ -27,14 +27,6 @@ export function ImportTxView({
   return (
     <Stack>
       <Typography
-        variant="h4"
-        sx={{
-          my: 1.5,
-        }}
-      >
-        {t('Approve Import')}
-      </Typography>
-      <Typography
         variant="body2"
         sx={{
           fontWeight: 'fontWeightSemibold',

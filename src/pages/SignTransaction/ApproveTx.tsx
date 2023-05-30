@@ -12,7 +12,7 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from './components/ApprovalSection';
+} from '@src/components/common/approval/ApprovalSection';
 
 export function ApproveTx({
   site,

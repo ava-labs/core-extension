@@ -22,14 +22,6 @@ export function AddSubnetValidatorView({
     <Stack>
       {/* source chain */}
       <Stack>
-        <Typography
-          variant="h4"
-          sx={{
-            my: 1.5,
-          }}
-        >
-          {t('Approve Add Subnet Validator')}
-        </Typography>
         <Card
           sx={{
             width: 1,

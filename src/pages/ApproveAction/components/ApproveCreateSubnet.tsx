@@ -20,14 +20,6 @@ export function CreateSubnetView({
     <Stack>
       {/* source chain */}
       <Stack>
-        <Typography
-          variant="h4"
-          sx={{
-            my: 1.5,
-          }}
-        >
-          {t('Approve Create Subnet')}
-        </Typography>
         <Card
           sx={{
             width: 1,

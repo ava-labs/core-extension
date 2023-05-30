@@ -21,14 +21,6 @@ export function AddDelegator({
   return (
     <Stack>
       <Typography
-        variant="h4"
-        sx={{
-          my: 1.5,
-        }}
-      >
-        {t('Approve Add Delegator')}
-      </Typography>
-      <Typography
         variant="body2"
         sx={{
           fontWeight: 'fontWeightSemibold',

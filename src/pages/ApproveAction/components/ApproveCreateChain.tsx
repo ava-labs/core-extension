@@ -20,14 +20,6 @@ export function CreateChainView({
     <Stack>
       {/* source chain */}
       <Stack>
-        <Typography
-          variant="h4"
-          sx={{
-            my: 1.5,
-          }}
-        >
-          {t('Approve Create Chain')}
-        </Typography>
         <Card
           sx={{
             width: 1,

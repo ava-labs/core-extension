@@ -10,13 +10,13 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from './components/ApprovalSection';
+} from '@src/components/common/approval/ApprovalSection';
 import {
   AccountDetails,
   ContractDetails,
   NetworkDetails,
 } from './components/ApprovalTxDetails';
-import { TxDetailsRow } from './components/TxDetailsRow';
+import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 
 export function UnknownTx({
   fromAddress,

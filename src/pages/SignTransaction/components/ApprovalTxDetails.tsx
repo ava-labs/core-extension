@@ -15,7 +15,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { DomainMetadata } from '@src/background/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { TxDetailsRow } from './TxDetailsRow';
+import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 
 type ContractDetailsProps = {
   contractAddress: string;
