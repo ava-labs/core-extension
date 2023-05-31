@@ -2,7 +2,7 @@ import extension from 'extensionizer';
 
 import { CONTENT_SCRIPT, INPAGE_SCRIPT, KEEPALIVE_SCRIPT } from './common';
 import { Runtime } from 'webextension-polyfill-ts';
-import BroadcastChannelConnection from './background/utils/messaging/BroadcastChannelConnection';
+import WindowPostMessageConnection from './background/utils/messaging/WindowPostMessageConnection';
 import PortConnection from './background/utils/messaging/PortConnection';
 
 function setupStream() {
@@ -16,7 +16,7 @@ function setupStream() {
     })
   );
   backgroundConnection.connect();
-  const dappConnection = new BroadcastChannelConnection(INPAGE_SCRIPT);
+  const dappConnection = new WindowPostMessageConnection(INPAGE_SCRIPT);
   dappConnection.connect(async (data) => {
     const request = await backgroundConnection.request(data);
 

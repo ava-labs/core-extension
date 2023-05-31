@@ -1,7 +1,7 @@
 import { ethErrors, serializeError } from 'eth-rpc-errors';
 import EventEmitter from 'events';
 import { getSiteMetadata } from './utils/getSiteMetadata';
-import BroadcastChannelConnection from '../utils/messaging/BroadcastChannelConnection';
+import WindowPostMessageConnection from '../utils/messaging/WindowPostMessageConnection';
 import onDomReady from './utils/onDomReady';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 import {
@@ -27,7 +27,7 @@ interface ProviderState {
 }
 
 export class CoreProvider extends EventEmitter {
-  #bc: BroadcastChannelConnection;
+  #contentScriptConnection: WindowPostMessageConnection;
   #requestRateLimiter = new RequestRatelimiter(['eth_requestAccounts']);
   #providerReadyPromise = new ProviderReadyPromise();
 
@@ -74,7 +74,9 @@ export class CoreProvider extends EventEmitter {
   }) {
     super();
     this.setMaxListeners(maxListeners);
-    this.#bc = new BroadcastChannelConnection(channelName);
+    this.#contentScriptConnection = new WindowPostMessageConnection(
+      channelName
+    );
     this.#init();
   }
 
@@ -82,8 +84,8 @@ export class CoreProvider extends EventEmitter {
    * Initializes provider state,  and collects dApp information
    */
   #init = async () => {
-    this.#bc.connect();
-    this.#bc.on('message', this.#handleBackgroundMessage);
+    this.#contentScriptConnection.connect();
+    this.#contentScriptConnection.on('message', this.#handleBackgroundMessage);
 
     onDomReady(async () => {
       const domainMetadata = await getSiteMetadata();
@@ -149,7 +151,7 @@ export class CoreProvider extends EventEmitter {
       throw ethErrors.rpc.invalidRequest();
     }
 
-    return this.#bc.request(data).catch((err) => {
+    return this.#contentScriptConnection.request(data).catch((err) => {
       // If the error is already a JsonRPCErorr do not serialize them.
       // eth-rpc-errors always wraps errors if they have an unkown error code
       // even if the code is valid like 4902 for unrecognized chain ID.

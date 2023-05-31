@@ -30,21 +30,3 @@ global.chrome = {
     },
   },
 } as any;
-
-const broadcastChannelMock: BroadcastChannel = {
-  onmessage: null,
-  postMessage: jest.fn(),
-  name: '',
-  onmessageerror: null,
-  close: jest.fn(),
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  dispatchEvent: jest.fn(),
-};
-
-global.BroadcastChannel = jest.fn<BroadcastChannel, string[]>(
-  (name: string) => ({
-    ...broadcastChannelMock,
-    name,
-  })
-);

@@ -1,10 +1,10 @@
 import { ethErrors } from 'eth-rpc-errors';
-import BroadcastChannelConnection from '../utils/messaging/BroadcastChannelConnection';
+import WindowPostMessageConnection from '../utils/messaging/WindowPostMessageConnection';
 import { CoreProvider } from './CoreProvider';
 import onDomReady from './utils/onDomReady';
 import { DAppProviderRequest } from '../connections/dAppConnection/models';
 
-jest.mock('../utils/messaging/BroadcastChannelConnection', () => {
+jest.mock('../utils/messaging/WindowPostMessageConnection', () => {
   const mocks = {
     connect: jest.fn(),
     on: jest.fn(),
@@ -16,7 +16,7 @@ jest.mock('../utils/messaging/BroadcastChannelConnection', () => {
 jest.mock('./utils/onDomReady');
 
 describe('src/background/providers/CoreProvider', () => {
-  const channelMock = new BroadcastChannelConnection('');
+  const channelMock = new WindowPostMessageConnection('');
 
   beforeEach(() => {
     (channelMock.request as jest.Mock).mockResolvedValueOnce({
@@ -1140,13 +1140,13 @@ describe('src/background/providers/CoreProvider', () => {
   });
 
   describe('init', () => {
-    it('initializes broadcast channel with the correct name', () => {
+    it('initializes messaging channel with the correct name', () => {
       new CoreProvider({ channelName: 'channel-name' });
-      expect(BroadcastChannelConnection).toHaveBeenCalledWith('channel-name');
+      expect(WindowPostMessageConnection).toHaveBeenCalledWith('channel-name');
     });
 
     it('loads provider state from the background', async () => {
-      const channelMock = new BroadcastChannelConnection('');
+      const channelMock = new WindowPostMessageConnection('');
       (channelMock.request as jest.Mock).mockResolvedValueOnce({
         isUnlocked: true,
         chainId: '0x1',
