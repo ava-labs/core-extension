@@ -31,6 +31,7 @@ export enum ContractCall {
   SWAP_EXACT_AVAX_FOR_TOKENS = 'swapExactAVAXForTokens',
   ADD_LIQUIDITY = 'addLiquidity',
   ADD_LIQUIDITY_AVAX = 'addLiquidityAVAX',
+  SIMPLE_SWAP = 'simpleSwap',
 }
 
 export type BNWithDisplay = { bn: BN; value: string };
@@ -43,6 +44,9 @@ export type SwapTokenIn = EnsureDefined<erc20PathToken, 'amountIn'>;
 export type SwapTokenOut = EnsureDefined<erc20PathToken, 'amountOut'>;
 export interface SwapExactTokensForTokenDisplayValues
   extends TransactionDisplayValues {
+  path: Array<erc20PathToken | SwapTokenIn | SwapTokenOut>;
+}
+export interface SimpleSwapDisplayValues extends TransactionDisplayValues {
   path: Array<erc20PathToken | SwapTokenIn | SwapTokenOut>;
 }
 

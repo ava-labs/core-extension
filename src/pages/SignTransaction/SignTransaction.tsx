@@ -11,6 +11,7 @@ import {
   ContractCall,
   SwapExactTokensForTokenDisplayValues,
   ApproveTransactionData,
+  SimpleSwapDisplayValues,
 } from '@src/contracts/contractParsers/models';
 import {
   TransactionDisplayValues,
@@ -242,6 +243,13 @@ export function SignTransactionPage() {
                 [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
                   <SwapTx
                     {...(displayData as SwapExactTokensForTokenDisplayValues)}
+                    setShowRawTransactionData={setShowRawTransactionData}
+                    network={network}
+                  />
+                ),
+                [ContractCall.SIMPLE_SWAP]: (
+                  <SwapTx
+                    {...(displayData as SimpleSwapDisplayValues)}
                     setShowRawTransactionData={setShowRawTransactionData}
                     network={network}
                   />

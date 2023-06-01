@@ -11,6 +11,7 @@ import {
   SwapExactTokensForTokenParser,
   SwapTokensForExactTokensParser,
 } from './swapExactTokensForTokens';
+import { SimpleSwapParser } from './simpleSwap';
 
 export const contractParserMap = new Map<string, ContractParserHandler>([
   SwapExactTokensForTokenParser,
@@ -21,4 +22,5 @@ export const contractParserMap = new Map<string, ContractParserHandler>([
   ApproveTxParser,
   AddLiquidityAvaxParser,
   AddLiquidityParser,
+  SimpleSwapParser,
 ]);
