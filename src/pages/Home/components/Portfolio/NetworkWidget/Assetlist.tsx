@@ -1,10 +1,4 @@
 import {
-  HorizontalFlex,
-  TextButton,
-  Typography,
-  TokenEllipsis,
-} from '@avalabs/react-components';
-import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
@@ -13,11 +7,19 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useHistory } from 'react-router-dom';
-import styled, { useTheme, keyframes } from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import {
+  Button,
+  ChevronRightIcon,
+  Stack,
+  Typography,
+  keyframes,
+  styled,
+} from '@avalabs/k2-components';
+import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
+import { BalanceColumnK2 } from '@src/components/common/BalanceColumnK2';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -46,14 +48,14 @@ const BalanceField = styled(Typography)`
   display: none;
 `;
 
-const AssetlistRow = styled(HorizontalFlex)`
+const AssetlistRow = styled(Stack)`
   &:hover {
-    background-color: ${({ theme }) => `${theme.palette.white}40`};
-    > ${BalanceColumn} > ${BalanceField} {
+    background-color: ${({ theme }) => `${theme.palette.common.white}40`};
+    > .balance-column > .balance {
       display: block;
       animation: 0.3s ease-in-out ${ShowAnimation};
     }
-    > ${BalanceColumn} > ${BalanceUSDField} {
+    > .balance-column > .balance-usd {
       display: none;
       animation: 0.3s ease-in-out ${HideAnimation};
     }
@@ -64,7 +66,6 @@ export function Assetlist({ assetList }: AssetListProps) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { currencyFormatter, getTokenVisibility } = useSettingsContext();
-  const theme = useTheme();
   const maxAssetCount = 4;
 
   const setSendDataInParams = useSetSendDataInParams();
@@ -82,8 +83,9 @@ export function Assetlist({ assetList }: AssetListProps) {
         return (
           <AssetlistRow
             data-testid={`${token.symbol.toLowerCase()}-token-list-row`}
-            align="center"
-            justify="space-between"
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
             margin="0 -16px"
             padding="4px 16px"
             key={token.symbol}
@@ -99,7 +101,7 @@ export function Assetlist({ assetList }: AssetListProps) {
               });
             }}
           >
-            <HorizontalFlex align="center">
+            <Stack direction="row" alignItems="center">
               <TokenIcon
                 width="16px"
                 height="16px"
@@ -108,36 +110,34 @@ export function Assetlist({ assetList }: AssetListProps) {
               />
               <Typography
                 data-testid="token-row-name"
-                margin="0 0 0 8px"
-                color={theme.colors.text1}
-                size={12}
+                variant="caption"
+                sx={{ ml: 1 }}
               >
                 <TokenEllipsis maxLength={12} text={token.name} />
               </Typography>
               <Typography
-                margin="0 0 0 4px"
-                color={theme.colors.text2}
-                size={12}
+                variant="caption"
+                sx={{ ml: 0.5, color: 'text.secondary' }}
               >
                 <TokenEllipsis maxLength={8} text={token.symbol} />
               </Typography>
-            </HorizontalFlex>
-            <BalanceColumn>
+            </Stack>
+            <BalanceColumnK2 className="balance-column">
               {!!token.balanceUSD && (
                 <>
                   <BalanceUSDField
+                    className="balance-usd"
                     data-testid="token-row-currency-balance"
-                    color={theme.colors.text1}
-                    size={12}
+                    variant="caption"
                   >
                     {currencyFormatter(
                       token.balanceUSD + (token.unconfirmedBalanceUSD || 0)
                     )}
                   </BalanceUSDField>
                   <BalanceField
+                    className="balance"
                     data-testid="token-row-token-balance"
-                    color={theme.colors.text1}
-                    size={12}
+                    variant="caption"
                   >
                     {token.balance && token.unconfirmedBalance
                       ? balanceToDisplayValue(
@@ -150,7 +150,7 @@ export function Assetlist({ assetList }: AssetListProps) {
                 </>
               )}
               {token.balanceUSD === 0 && (
-                <Typography color={theme.colors.text1} size={12}>
+                <Typography variant="caption">
                   {token.balance && token.unconfirmedBalance
                     ? balanceToDisplayValue(
                         token.balance.add(token.unconfirmedBalance),
@@ -160,20 +160,33 @@ export function Assetlist({ assetList }: AssetListProps) {
                   <InlineTokenEllipsis maxLength={8} text={token.symbol} />
                 </Typography>
               )}
-            </BalanceColumn>
+            </BalanceColumnK2>
           </AssetlistRow>
         );
       })}
-      <HorizontalFlex justify="flex-end">
+      <Stack direction="row" justifyContent="flex-end">
         {restAssetCount > 0 && (
-          <TextButton
+          <Button
+            variant="text"
             onClick={() => history.push('/tokenlist')}
-            margin="8px 0 0 0"
+            sx={{ mt: 1, color: 'seconday.main', p: 0 }}
           >
-            {t('+ {{restAssetCount}} more', { restAssetCount })}
-          </TextButton>
+            <Stack
+              direction="row"
+              alignContent="center"
+              sx={{ columnGap: '10px' }}
+            >
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 'fontWeightSemibold' }}
+              >
+                {t('+{{restAssetCount}} more', { restAssetCount })}
+              </Typography>
+              <ChevronRightIcon size={16} />
+            </Stack>
+          </Button>
         )}
-      </HorizontalFlex>
+      </Stack>
     </>
   );
 }

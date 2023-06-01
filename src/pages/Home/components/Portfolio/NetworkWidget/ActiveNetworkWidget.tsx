@@ -1,70 +1,47 @@
 import { Assetlist } from './Assetlist';
-import {
-  BridgeIcon,
-  HorizontalFlex,
-  HorizontalSeparator,
-  LinkIcon,
-  SecondaryButton,
-  Skeleton,
-  TextButton,
-  Tooltip,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
 import { NetworkCard } from './common/NetworkCard';
 import { useHistory } from 'react-router-dom';
 import { ZeroWidget } from './ZeroWidget';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { TokenIcon } from '@src/components/common/TokenImage';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useTranslation } from 'react-i18next';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { ChainId } from '@avalabs/chains-sdk';
+import {
+  BridgeIcon,
+  Button,
+  Chip,
+  Divider,
+  ExternalLinkIcon,
+  IconButton,
+  Skeleton,
+  Stack,
+  Tooltip,
+  Typography,
+  styled,
+} from '@avalabs/k2-components';
+import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
+import { openNewTab } from '@src/utils/extensionUtils';
+import { isBitcoin } from '@src/utils/isBitcoin';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
   activeNetworkBalance: number;
 }
 
-const Badge = styled.div`
-  border-radius: 66px;
-  background-color: ${({ theme }) => theme.palette.white};
-  padding: 0 8px;
-  user-select: none;
-  line-height: 1;
-`;
-
-const LogoContainer = styled.div`
+const LogoContainer = styled('div')`
   margin-top: 4px;
   margin-right: 16px;
 `;
-
-const StyledBridgeIcon = styled(BridgeIcon)`
-  height: 14px;
-  margin: 0 8px 0 0;
-  color: ${({ theme }) => theme.colors.icon1};
-`;
-
-function TooltipContent({ text }: { text: React.ReactNode }) {
-  return (
-    <VerticalFlex width="120px">
-      <Typography size={12} height="1.5">
-        {text}
-      </Typography>
-    </VerticalFlex>
-  );
-}
 
 export function ActiveNetworkWidget({
   assetList,
   activeNetworkBalance,
 }: ActiveNetworkWidgetProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const history = useHistory();
   const { network, isCustomNetwork } = useNetworkContext();
   const { currencyFormatter } = useSettingsContext();
@@ -73,7 +50,7 @@ export function ActiveNetworkWidget({
   } = useAccountsContext();
 
   if (!network || !assetList?.length) {
-    return <Skeleton height="234px" delay={250} />;
+    return <Skeleton variant="rounded" sx={{ width: 343, height: 190 }} />;
   }
 
   const showCoreWebLink =
@@ -97,104 +74,111 @@ export function ActiveNetworkWidget({
         display="block"
         onClick={handleCardClick}
       >
-        <VerticalFlex height="100%">
-          <HorizontalFlex
-            justify="space-between"
-            align="stretch"
-            width="100%"
-            height="100%"
+        <Stack sx={{ height: '100%' }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="stretch"
+            sx={{
+              width: '100%',
+              height: '100%',
+            }}
           >
-            <HorizontalFlex>
+            <Stack direction="row">
               <LogoContainer>
-                <TokenIcon
-                  width="32px"
-                  height="32px"
+                <TokenIconK2
+                  width="40px"
+                  height="40px"
                   src={network.logoUri}
                   name={network.chainName}
                 >
-                  <NetworkLogo width="40px" height="40px" padding="8px" />
-                </TokenIcon>
+                  <NetworkLogoK2 height="40px" src={network.logoUri} />
+                </TokenIconK2>
               </LogoContainer>
-              <VerticalFlex justify="center">
-                <Typography
-                  data-testid="active-network-name"
-                  color={theme.colors.text1}
-                  weight={600}
-                  height="24px"
-                  size={16}
-                >
+              <Stack justifyContent="center" sx={{ rowGap: 0.5 }}>
+                <Typography data-testid="active-network-name" variant="h6">
                   {network?.chainName}
                 </Typography>
                 {!isCustomNetwork(network.chainId) && (
                   <Typography
                     data-testid="active-network-total-balance"
-                    color={theme.colors.text1}
-                    weight={600}
-                    height="24px"
-                    size={16}
+                    variant="h6"
                   >
                     {currencyFormatter(activeNetworkBalance)}
                   </Typography>
                 )}
-              </VerticalFlex>
-            </HorizontalFlex>
-            <VerticalFlex justify="space-between" align="flex-end">
-              <Badge>
-                <Typography
-                  color={theme.palette.grey[900]}
-                  size={10}
-                  height="17px"
-                >
-                  {t('Active')}
-                </Typography>
-              </Badge>
+              </Stack>
+            </Stack>
+            <Stack alignItems="flex-end" sx={{ rowGap: 1, width: '70px' }}>
+              <Chip
+                label={t('Active')}
+                size="small"
+                color="primary"
+                sx={{
+                  height: '20px',
+                  cursor: 'pointer',
+                }}
+              />
               {showCoreWebLink ? (
-                <Tooltip
-                  placement={'left'}
-                  content={<TooltipContent text={t('View in Core Web')} />}
-                >
-                  <TextButton
-                    as="a"
-                    target="_blank"
-                    href={getCoreWebUrl(
-                      activeAccount?.addressC,
-                      network.chainId
-                    )}
-                    onClick={(e) => e.stopPropagation()}
+                <Tooltip placement="left" title={t('View in Core Web')}>
+                  <IconButton
                     data-testid="core-web-link-icon"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      const url = getCoreWebUrl(
+                        activeAccount?.addressC,
+                        network.chainId
+                      );
+
+                      if (url) {
+                        openNewTab({
+                          url,
+                        });
+                      }
+                    }}
                   >
-                    <LinkIcon height="12" color={theme.colors.icon1} />
-                  </TextButton>
+                    <ExternalLinkIcon />
+                  </IconButton>
                 </Tooltip>
               ) : null}
-            </VerticalFlex>
-          </HorizontalFlex>
-        </VerticalFlex>
+            </Stack>
+          </Stack>
+        </Stack>
         {assetList.length ? (
           <>
-            <HorizontalSeparator
-              color={`${theme.colors.bg3}80`}
-              margin="16px 0"
-              width="auto"
+            <Divider
+              sx={{
+                my: 2,
+                width: 'auto',
+              }}
             />
             <Assetlist assetList={assetList} />
           </>
         ) : (
           <ZeroWidget />
         )}
-        {network.chainId === ChainId.BITCOIN ? (
-          <SecondaryButton
+        {isBitcoin(network) ? (
+          <Button
             data-testid="btc-bridge-button"
-            width="100%"
-            margin="16px 0 0 0"
+            color="secondary"
+            fullWidth
+            sx={{
+              mt: 2,
+            }}
             onClick={(e) => {
               e.stopPropagation();
               history.push('/bridge');
             }}
           >
-            <StyledBridgeIcon color={theme.colors.icon1} />
+            <BridgeIcon
+              sx={{
+                mr: 1,
+              }}
+            />
             {t('Bridge')}
-          </SecondaryButton>
+          </Button>
         ) : null}
       </NetworkCard>
     </>

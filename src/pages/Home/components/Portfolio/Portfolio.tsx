@@ -1,4 +1,3 @@
-import { VerticalFlex } from '@avalabs/react-components';
 import { Tabs } from '@src/components/common/Tabs';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
@@ -8,6 +7,7 @@ import { Collectibles } from '../../../Collectibles/Collectibles';
 import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
 import { useTranslation } from 'react-i18next';
+import { Stack } from '@avalabs/k2-components';
 
 export enum PortfolioTabs {
   ASSETS = 'ASSETS',
@@ -24,7 +24,7 @@ export function Portfolio() {
 
   return (
     <>
-      <VerticalFlex grow="1">
+      <Stack sx={{ flexGrow: 1 }}>
         <WalletBalances />
         <Tabs
           loading={loading}
@@ -52,7 +52,7 @@ export function Portfolio() {
             },
           ]}
         />
-      </VerticalFlex>
+      </Stack>
     </>
   );
 }

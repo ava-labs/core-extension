@@ -111,7 +111,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
           ? 'Contract-call-activity-card'
           : historyItem.type + '-activity-card'
       }
-      sx={{ p: 2 }}
+      sx={{ p: 2, backgroundImage: 'none' }}
     >
       <Stack
         divider={

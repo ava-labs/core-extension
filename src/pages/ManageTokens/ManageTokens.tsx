@@ -1,58 +1,53 @@
 import { useState } from 'react';
-import {
-  PlusIcon,
-  SearchInput,
-  TextButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { ManageTokensList } from './ManageTokensList';
-import { useTheme } from 'styled-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  PlusIcon,
+  SearchBar,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
 
 export const ManageTokens = () => {
-  const theme = useTheme();
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { t } = useTranslation();
 
   return (
-    <VerticalFlex flex={1}>
-      <PageTitle>{t('Manage Token List')}</PageTitle>
-      <VerticalFlex grow="1" width="100%" padding="8px 16px">
-        <SearchInput
+    <Stack sx={{ flex: 1 }}>
+      <PageTitle>{t('Manage Tokens')}</PageTitle>
+      <Stack sx={{ flexGrow: 1, width: '100%', py: 1, px: 2, rowGap: '30px' }}>
+        <SearchBar
           data-testid="search-token-list-input"
-          searchTerm={searchQuery}
           placeholder={t('Search')}
-          width="100%"
-          onSearch={(term) => setSearchQuery(term)}
+          onChange={(event) => setSearchQuery(event.target.value)}
           autoFocus={true}
         />
-        <TextButton
+        <Button
+          variant="text"
           data-testid="add-custom-token-button"
-          color={theme.colors.text1}
           onClick={() => history.push('/manage-tokens/add')}
-          margin="16px 0 24px 0"
+          sx={{ alignSelf: 'flex-start', padding: 0 }}
         >
-          <VerticalFlex
-            justify="center"
-            align="center"
-            width="24px"
-            height="24px"
-          >
-            <PlusIcon color={theme.colors.text1} width="20px" height="20px" />
-          </VerticalFlex>
-          <Typography margin="0 16px" size={14} height="24px" weight={600}>
-            {t('Add a Custom Token')}
-          </Typography>
-        </TextButton>
-        <Scrollbars>
+          <Stack direction="row" alignItems="center" sx={{ height: '24px' }}>
+            <Stack
+              justifyContent="center"
+              alignItems="center"
+              sx={{ width: '24px', height: '24px' }}
+            >
+              <PlusIcon size={20} />
+            </Stack>
+            <Typography sx={{ mx: 1 }}>{t('Add Custom Token')}</Typography>
+          </Stack>
+        </Button>
+        <Scrollbars style={{ marginBottom: '16px' }}>
           <ManageTokensList searchQuery={searchQuery} />
         </Scrollbars>
-      </VerticalFlex>
-    </VerticalFlex>
+      </Stack>
+    </Stack>
   );
 };

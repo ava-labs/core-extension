@@ -1,10 +1,10 @@
-import { VerticalFlex } from '@avalabs/react-components';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
+import { Stack } from '@avalabs/k2-components';
 
 export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
   if (!tokenList) {
@@ -31,13 +31,13 @@ export function NetworksWidget() {
 
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <VerticalFlex margin="16px">
+      <Stack sx={{ m: 2 }}>
         <ActiveNetworkWidget
           assetList={activeNetworkAssetList}
           activeNetworkBalance={activeNetworkBalance}
         />
         <NetworkList />
-      </VerticalFlex>
+      </Stack>
     </Scrollbars>
   );
 }

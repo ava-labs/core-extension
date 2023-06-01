@@ -1,8 +1,4 @@
-import {
-  HorizontalFlex,
-  Skeleton,
-  Typography,
-} from '@avalabs/react-components';
+import { Skeleton, Stack, Typography } from '@avalabs/k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
@@ -19,34 +15,32 @@ export function WalletBalances() {
   useLiveBalance(); // Make sure we show the latest balances.
 
   return (
-    <HorizontalFlex
-      justify="center"
-      align="flex-end"
-      minHeight="44px"
-      width="100%"
+    <Stack
+      direction="row"
+      justifyContent="center"
+      alignItems="flex-end"
+      sx={{
+        minHeight: 5.5,
+        width: '100%',
+        mt: 1.75,
+      }}
     >
       {balanceTotalUSD === null ? (
-        <Skeleton width="215px" height="44px" delay={250} />
+        <Skeleton variant="rounded" sx={{ height: 37, width: 215 }} />
       ) : (
         <>
           <Typography
             data-testid="wallet-balance"
-            size={32}
-            height="44px"
-            weight={500}
+            variant="h2"
+            sx={{ fontWeight: 'fontWeightBold' }}
           >
             {currencyFormatter(balanceTotalUSD).replace(currency, '')}
           </Typography>
-          <Typography
-            data-testid="wallet-currency"
-            weight={500}
-            margin={'0 0 10px 6px'}
-            color="text2"
-          >
+          <Typography variant="body1" sx={{ opacity: '60%' }}>
             {currency}
           </Typography>
         </>
       )}
-    </HorizontalFlex>
+    </Stack>
   );
 }

@@ -1,27 +1,21 @@
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
-import {
-  HorizontalFlex,
-  Skeleton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import styled, { useTheme } from 'styled-components';
 import { NetworkCard } from './common/NetworkCard';
 import { getNetworkBalance, tokensWithBalances } from './NetworksWidget';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SeeAllNetworksButton } from './SeeAllNetworksButton';
+import { Skeleton, Stack, Typography, styled } from '@avalabs/k2-components';
 
-const LogoContainer = styled.div`
+const LogoContainer = styled('div')`
   margin-top: 4px;
   margin-right: 16px;
 `;
 
-const NetworkListContainer = styled(HorizontalFlex)`
+const NetworkListContainer = styled(Stack)`
   margin: 16px 0;
   flex-wrap: wrap;
 `;
@@ -30,7 +24,6 @@ export function NetworkList() {
   const { capture } = useAnalyticsContext();
   const { network, networks, setNetwork, favoriteNetworks, isCustomNetwork } =
     useNetworkContext();
-  const theme = useTheme();
   const { tokens } = useBalancesContext();
   const {
     accounts: { active: activeAccount },
@@ -60,16 +53,16 @@ export function NetworkList() {
   // we don't know the network list yet. Lets show the placeholder tiles instead
   if (!networks.length) {
     return (
-      <NetworkListContainer justify="space-between">
-        <Skeleton height="83px" width="164px" margin="0 0 16px 0" delay={250} />
-        <Skeleton height="83px" width="164px" margin="0 0 16px 0" delay={250} />
+      <NetworkListContainer direction="row" justifyContent="space-between">
+        <Skeleton variant="rounded" sx={{ height: 89, width: 164, mb: 2 }} />
+        <Skeleton variant="rounded" sx={{ height: 89, width: 164, mb: 2 }} />
       </NetworkListContainer>
     );
   }
 
   return (
     <>
-      <NetworkListContainer justify="space-between">
+      <NetworkListContainer direction="row" justifyContent="space-between">
         {favoriteNetworksWithoutActive.map((network) => {
           const networkBalances = tokens.balances?.[network.chainId];
           const networkBalance = getNetworkValue(network);
@@ -77,19 +70,19 @@ export function NetworkList() {
           return !networkBalances ? (
             <Skeleton
               key={network.chainId}
-              height="83px"
-              width="164px"
-              margin="0 0 16px 0"
-              delay={250}
+              variant="rounded"
+              sx={{ height: 89, width: 164, mb: 2 }}
             />
           ) : (
             <NetworkCard
               data-testid={`network-card-${network.chainId}-button`}
-              width="164px"
-              display="inline-block"
               key={network.chainId}
-              margin="0 0 16px 0"
-              padding="16px"
+              sx={{
+                width: '164px',
+                display: 'inline-block',
+                mb: 2,
+                p: 2,
+              }}
               onClick={() => {
                 capture('PortfolioNetworkSelected', {
                   chainId: network.chainId,
@@ -97,7 +90,11 @@ export function NetworkList() {
                 setNetwork(network);
               }}
             >
-              <HorizontalFlex justify="center" align="flex-start">
+              <Stack
+                direction="row"
+                justifyContent="center"
+                alignItems="flex-start"
+              >
                 <LogoContainer>
                   <NetworkLogo
                     width="40px"
@@ -106,27 +103,24 @@ export function NetworkList() {
                     src={network.logoUri}
                   />
                 </LogoContainer>
-                <VerticalFlex width="100%" minHeight="51px" justify="center">
-                  <Typography
-                    size={14}
-                    color={theme.colors.text2}
-                    weight="bold"
-                    height="17px"
-                  >
+                <Stack
+                  justifyContent="center"
+                  sx={{ width: '100%', minHeight: '51px' }}
+                >
+                  <Typography variant="body2" fontWeight="fontWeightSemibold">
                     {network.chainName}
                   </Typography>
                   {!isCustomNetwork(network.chainId) && (
                     <Typography
                       data-testid={`network-card-${network.chainId}-balance`}
                       size={14}
-                      color={theme.colors.text2}
                       height="17px"
                     >
                       {currencyFormatter(networkBalance)}
                     </Typography>
                   )}
-                </VerticalFlex>
-              </HorizontalFlex>
+                </Stack>
+              </Stack>
             </NetworkCard>
           );
         })}

@@ -1,5 +1,4 @@
-import { Card } from '@avalabs/react-components';
-import styled from 'styled-components';
+import { Card, styled } from '@avalabs/k2-components';
 
 export const NetworkCard = styled(Card)`
   padding: 16px;

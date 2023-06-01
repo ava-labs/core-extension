@@ -1,8 +1,4 @@
-import {
-  HorizontalFlex,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+import { Stack, Typography } from '@avalabs/k2-components';
 import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
 import { useTranslation } from 'react-i18next';
 
@@ -17,18 +13,21 @@ export function Activity({
 }: ActivityProps) {
   const { t } = useTranslation();
   return (
-    <VerticalFlex width={'100%'} align={'center'} style={{ flex: 1 }}>
+    <Stack alignItems="center" sx={{ flex: 1, width: '100%' }}>
       {isEmbedded && (
-        <HorizontalFlex width="100%">
-          <Typography size={14} height="24px" as="h1">
+        <Stack direction="row" sx={{ width: '100%' }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 'fontWeightSemibold' }}
+          >
             {t('Activity')}
           </Typography>
-        </HorizontalFlex>
+        </Stack>
       )}
       <WalletRecentTxs
         tokenSymbolFilter={tokenSymbolFilter}
         isEmbedded={isEmbedded}
       />
-    </VerticalFlex>
+    </Stack>
   );
 }

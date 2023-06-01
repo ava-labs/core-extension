@@ -1,12 +1,7 @@
-import {
-  SecondaryButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useHistory } from 'react-router-dom';
-import { useTheme } from 'styled-components';
 import { NetworkCard } from './common/NetworkCard';
 import { useTranslation } from 'react-i18next';
+import { Stack, Typography } from '@avalabs/k2-components';
 
 interface SeeAllNetworksButtonProps {
   isFullWidth: boolean;
@@ -17,33 +12,41 @@ export function SeeAllNetworksButton({
 }: SeeAllNetworksButtonProps) {
   const { t } = useTranslation();
   const history = useHistory();
-  const theme = useTheme();
 
   return isFullWidth ? (
-    <SecondaryButton
+    <NetworkCard
       data-testid="see-all-networks-button"
-      width={'100%'}
+      sx={{
+        width: '100%',
+        textAlign: 'center',
+      }}
       onClick={(e) => {
         e.stopPropagation();
         history.push('/networks?activeTab=NETWORKS');
       }}
     >
       {t('See all networks')}
-    </SecondaryButton>
+    </NetworkCard>
   ) : (
     <NetworkCard
       data-testid="see-all-networks-button"
-      width="164px"
-      display="inline-block"
-      margin="0 0 16px 0"
-      padding="16px"
+      sx={{
+        width: '164px',
+        display: 'inline-block',
+        mb: 2,
+        p: 2,
+      }}
       onClick={() => history.push('/networks?activeTab=NETWORKS')}
     >
-      <VerticalFlex justify="center" align="center" height="100%">
-        <Typography color={theme.colors.text1} size={14} weight="bold">
+      <Stack
+        justifyContent="center"
+        alignItems="center"
+        sx={{ height: '100%' }}
+      >
+        <Typography variant="body2" fontWeight="fontWeightSemibold">
           {t('See all networks')}
         </Typography>
-      </VerticalFlex>
+      </Stack>
     </NetworkCard>
   );
 }

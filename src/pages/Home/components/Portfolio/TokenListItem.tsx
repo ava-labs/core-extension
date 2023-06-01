@@ -1,5 +1,5 @@
+import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { TokenCard } from '@avalabs/react-components';
 
 interface TokenListItemProps {
   name: string;
@@ -20,7 +20,7 @@ export function TokenListItem({
 }: TokenListItemProps) {
   const { currencyFormatter } = useSettingsContext();
   return (
-    <TokenCard
+    <TokenCardWithBalance
       name={name}
       symbol={symbol}
       onClick={onClick}
@@ -29,6 +29,6 @@ export function TokenListItem({
       currencyFormatter={currencyFormatter}
     >
       {children}
-    </TokenCard>
+    </TokenCardWithBalance>
   );
 }
