@@ -285,7 +285,7 @@ export function BitcoinSignTx() {
         >
           <Button
             fullWidth
-            size="medium"
+            size="large"
             color="secondary"
             sx={{ mr: 1 }}
             onClick={handleRejection}
@@ -294,7 +294,7 @@ export function BitcoinSignTx() {
           </Button>
           <Button
             fullWidth
-            size="medium"
+            size="large"
             disabled={!!(action?.status === ActionStatus.SUBMITTING)}
             onClick={() => {
               signTx();

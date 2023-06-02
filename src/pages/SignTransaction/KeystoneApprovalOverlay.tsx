@@ -281,7 +281,7 @@ export function KeystoneApprovalOverlay({
           <Button
             color="secondary"
             data-testid="transaction-keystone-reject-btn"
-            sx={{ maxHeight: 40, height: 40 }}
+            size="large"
             onClick={onReject}
             fullWidth
             disabled={isSubmitting}
@@ -291,7 +291,7 @@ export function KeystoneApprovalOverlay({
           {step === KeystoneApprovalStep.SCAN_WITH_KEYSTONE && (
             <Button
               data-testid="transaction-keystone-approve-btn"
-              sx={{ maxHeight: 40, height: 40 }}
+              size="large"
               onClick={() => setStep(KeystoneApprovalStep.SCAN_FROM_KEYSTONE)}
               fullWidth
             >

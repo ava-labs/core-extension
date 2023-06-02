@@ -367,7 +367,7 @@ export const SendConfirm = ({
               });
               history.goBack();
             }}
-            sx={{ height: '40px', maxHeight: 'none' }}
+            size="large"
           >
             {t('Cancel')}
           </Button>
@@ -381,7 +381,7 @@ export const SendConfirm = ({
               fullWidth
               onClick={onSubmit}
               disabled={!sendState?.canSubmit}
-              sx={{ height: '40px', maxHeight: 'none' }}
+              size="large"
             >
               {t('Send Now')}
             </Button>

@@ -372,6 +372,7 @@ export function SendPage() {
               >
                 <Tooltip
                   placement="top"
+                  wrapWithSpan={false}
                   title={
                     sendState.error ? (
                       <Typography variant="body2">
@@ -399,7 +400,7 @@ export function SendPage() {
                       });
                     }}
                     disabled={!sendState.canSubmit}
-                    sx={{ width: '343px' }}
+                    fullWidth
                   >
                     {t('Next')}
                   </Button>

@@ -163,6 +163,7 @@ export const CollectibleSendConfirm = ({
                 width: '100%',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                gap: 1,
               }}
             >
               <Button
@@ -173,7 +174,7 @@ export const CollectibleSendConfirm = ({
                   capture('NFTSendCancel');
                   history.goBack();
                 }}
-                sx={{ height: '40px', maxHeight: 'none', mr: 1 }}
+                size="large"
               >
                 {t('Cancel')}
               </Button>
@@ -187,7 +188,7 @@ export const CollectibleSendConfirm = ({
                   fullWidth
                   onClick={onSubmit}
                   disabled={!sendState?.canSubmit}
-                  sx={{ height: '40px', maxHeight: 'none', ml: 1 }}
+                  size="large"
                 >
                   {t('Send Now')}
                 </Button>

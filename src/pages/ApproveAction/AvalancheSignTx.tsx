@@ -29,7 +29,7 @@ import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerD
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '../SignTransaction/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import { CreateSubnetView } from './components/ApproveCreateSubnet';
+import { ApproveCreateSubnet } from './components/ApproveCreateSubnet';
 import { ApproveCreateChain } from './components/ApproveCreateChain';
 import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 import { AvalancheTxHeader } from './components/AvalancheTxHeader';
@@ -77,7 +77,10 @@ export function AvalancheSignTx() {
         return <BaseTxView tx={tx} avaxPrice={tokenPrice}></BaseTxView>;
       } else if (isCreateSubnetTx(tx)) {
         return (
-          <CreateSubnetView tx={tx} avaxPrice={tokenPrice}></CreateSubnetView>
+          <ApproveCreateSubnet
+            tx={tx}
+            avaxPrice={tokenPrice}
+          ></ApproveCreateSubnet>
         );
       } else if (isCreateChainTx(tx)) {
         return (
@@ -125,9 +128,8 @@ export function AvalancheSignTx() {
       >
         <Button
           fullWidth
-          size="medium"
+          size="large"
           color="secondary"
-          sx={{ height: '40px' }}
           onClick={() => {
             updateAction({
               status: ActionStatus.ERROR_USER_CANCELED,
@@ -138,12 +140,7 @@ export function AvalancheSignTx() {
         >
           {t('Reject')}
         </Button>
-        <Button
-          fullWidth
-          size="medium"
-          sx={{ height: '40px' }}
-          onClick={signTx}
-        >
+        <Button fullWidth size="large" onClick={signTx}>
           {t('Approve')}
         </Button>
       </Stack>
