@@ -1,7 +1,11 @@
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { LockService } from '@src/background/services/lock/LockService';
 import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
-import { CORE_DOMAINS, ExtensionConnectionMessage } from '../models';
+import {
+  CORE_DOMAINS,
+  ExtensionConnectionMessage,
+  ExtensionConnectionMessageResponse,
+} from '../models';
 import { Middleware } from './models';
 import {
   DAppProviderRequest,
