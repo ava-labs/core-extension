@@ -8,7 +8,15 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SeeAllNetworksButton } from './SeeAllNetworksButton';
-import { Skeleton, Stack, Typography, styled } from '@avalabs/k2-components';
+import {
+  AlertTriangleIcon,
+  Tooltip,
+  Stack,
+  Typography,
+  styled,
+  Skeleton,
+} from '@avalabs/k2-components';
+import { useTranslation } from 'react-i18next';
 
 const LogoContainer = styled('div')`
   margin-top: 4px;
@@ -24,11 +32,12 @@ export function NetworkList() {
   const { capture } = useAnalyticsContext();
   const { network, networks, setNetwork, favoriteNetworks, isCustomNetwork } =
     useNetworkContext();
-  const { tokens } = useBalancesContext();
+  const { tokens, isTokensCached } = useBalancesContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
+  const { t } = useTranslation();
 
   function getNetworkValue(network: Network) {
     const networkAddress =
@@ -111,13 +120,26 @@ export function NetworkList() {
                     {network.chainName}
                   </Typography>
                   {!isCustomNetwork(network.chainId) && (
-                    <Typography
-                      data-testid={`network-card-${network.chainId}-balance`}
-                      size={14}
-                      height="17px"
-                    >
-                      {currencyFormatter(networkBalance)}
-                    </Typography>
+                    <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+                      {isTokensCached && (
+                        <Tooltip
+                          title={t('Balances loading...')}
+                          placement="bottom"
+                        >
+                          <AlertTriangleIcon
+                            size={12}
+                            sx={{ color: 'warning.main', mr: 1 }}
+                          />
+                        </Tooltip>
+                      )}
+                      <Typography
+                        data-testid={`network-card-${network.chainId}-balance`}
+                        size={14}
+                        height="17px"
+                      >
+                        {currencyFormatter(networkBalance)}
+                      </Typography>
+                    </Stack>
                   )}
                 </Stack>
               </Stack>

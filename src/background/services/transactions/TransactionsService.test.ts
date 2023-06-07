@@ -10,6 +10,9 @@ import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { StorageService } from '../storage/StorageService';
 import { TransactionsService } from './TransactionsService';
 import { txParams } from './models';
+import { LockService } from '../lock/LockService';
+
+jest.mock('../lock/LockService');
 import { getTxInfo } from './getTxInfo';
 import { isTxDescriptionError } from './getTxInfo';
 
@@ -47,6 +50,8 @@ describe('background/services/transactions/TransactionsService.ts', () => {
 
   let service: TransactionsService;
 
+  const lockService = new LockService({} as any, {} as any);
+
   beforeEach(() => {
     storageService = {
       save: jest.fn(),
@@ -56,11 +61,20 @@ describe('background/services/transactions/TransactionsService.ts', () => {
     } as any;
     networkService = new NetworkService({} as any);
     networkFeeService = new NetworkFeeService(networkService);
+    accountsService = new AccountsService({} as any, {} as any, networkService);
+
+    const accountName = 'testAccount';
+    const accountsServiceMock = {
+      activeAccount: { addressC: accountName },
+    } as unknown as AccountsService;
+
     balanceAggregatorService = new BalanceAggregatorService(
       {} as BalancesService,
-      networkService
+      networkService,
+      lockService,
+      storageService,
+      accountsServiceMock
     );
-    accountsService = new AccountsService({} as any, {} as any, networkService);
     featureFlagService = { addListner: jest.fn() } as any;
 
     // @ts-expect-error activeNetwork setter is private

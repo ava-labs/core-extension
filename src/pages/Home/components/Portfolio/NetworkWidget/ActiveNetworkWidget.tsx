@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { ChainId } from '@avalabs/chains-sdk';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import {
   BridgeIcon,
   Button,
@@ -21,6 +22,7 @@ import {
   Tooltip,
   Typography,
   styled,
+  AlertTriangleIcon,
 } from '@avalabs/k2-components';
 import { TokenIconK2 } from '@src/components/common/TokenImageK2';
 import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
@@ -44,10 +46,12 @@ export function ActiveNetworkWidget({
   const { t } = useTranslation();
   const history = useHistory();
   const { network, isCustomNetwork } = useNetworkContext();
+
   const { currencyFormatter } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { isTokensCached } = useBalancesContext();
 
   if (!network || !assetList?.length) {
     return <Skeleton variant="rounded" sx={{ width: 343, height: 190 }} />;
@@ -100,12 +104,25 @@ export function ActiveNetworkWidget({
                   {network?.chainName}
                 </Typography>
                 {!isCustomNetwork(network.chainId) && (
-                  <Typography
-                    data-testid="active-network-total-balance"
-                    variant="h6"
-                  >
-                    {currencyFormatter(activeNetworkBalance)}
-                  </Typography>
+                  <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {isTokensCached && (
+                      <Tooltip
+                        title={t('Balances loading...')}
+                        placement="bottom"
+                      >
+                        <AlertTriangleIcon
+                          size={14}
+                          sx={{ color: 'warning.main', mr: 1 }}
+                        />
+                      </Tooltip>
+                    )}
+                    <Typography
+                      data-testid="active-network-total-balance"
+                      variant="h6"
+                    >
+                      {currencyFormatter(activeNetworkBalance)}
+                    </Typography>
+                  </Stack>
                 )}
               </Stack>
             </Stack>

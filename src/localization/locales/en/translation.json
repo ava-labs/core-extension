@@ -321,6 +321,7 @@
   "You don’t have any collectibles yet.": "You don’t have any collectibles yet.",
   "Confirm Transaction": "Confirm Transaction",
   "Send Now": "Send Now",
+  "Balances loading...": "Balances loading...",
   "Active": "Active",
   "View in Core Web": "View in Core Web",
   "+{{restAssetCount}} more": "+{{restAssetCount}} more",

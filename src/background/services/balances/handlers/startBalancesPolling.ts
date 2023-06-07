@@ -7,7 +7,12 @@ import { Balances } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_START_POLLING,
-  Balances
+  {
+    balances: Balances;
+    isBalancesCached: boolean;
+    balancesLastUpdated?: number;
+    totalBalance?: number;
+  }
 >;
 
 @injectable()
@@ -28,9 +33,17 @@ export class StartBalancesPollingHandler implements HandlerType {
       }
     }
 
+    const { balances, isBalancesCached, totalBalance, balancesLastUpdated } =
+      this.aggregatorService;
+
     return {
       ...request,
-      result: this.aggregatorService.balances,
+      result: {
+        balances,
+        isBalancesCached,
+        totalBalance,
+        balancesLastUpdated,
+      },
     };
   };
 }
