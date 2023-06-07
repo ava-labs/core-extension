@@ -6,6 +6,7 @@ import { PageTitle } from './PageTitle';
 import { useTranslation } from 'react-i18next';
 import { Network } from '@avalabs/chains-sdk';
 import { Button, Stack, TextField } from '@avalabs/k2-components';
+import { TextFieldLabel } from './TextFieldLabel';
 
 interface CustomGasLimitProps {
   limit: number;
@@ -67,26 +68,35 @@ export function CustomGasLimit({
   };
 
   return (
-    <Stack sx={{ height: '100%' }}>
+    <Stack sx={{ height: '100%', width: '100%' }}>
       <PageTitle onBackClick={onCancel}>{t('Edit Gas Limit')}</PageTitle>
       <Stack sx={{ padding: 2 }}>
-        <TextField
-          label={t('Current Gas Cost')}
-          value={`${newFees.fee} ${network?.networkToken.symbol}`}
-          disabled
-          sx={{ marginBottom: 5 }}
-        />
-        <TextField
-          autoFocus
-          label={t('Gas Limit')}
-          type={'number'}
-          value={customGasLimit}
-          onChange={(evt) =>
-            checkCustomGasLimit(parseInt(evt.currentTarget.value))
-          }
-          error={!!calculateGasAndFeesError}
-          helperText={calculateGasAndFeesError}
-        />
+        <Stack sx={{ width: '100%', gap: 0.5 }}>
+          <TextFieldLabel label={t('Current Gas Cost')} />
+          <TextField
+            value={`${newFees.fee} ${network?.networkToken.symbol}`}
+            disabled
+            sx={{ marginBottom: 5 }}
+          />
+        </Stack>
+        <Stack sx={{ width: '100%', gap: 0.5 }}>
+          <TextFieldLabel
+            label={t('Gas Limit')}
+            tooltip={t(
+              'Total units of gas needed to complete the transaction. Do not edit unless necessary.'
+            )}
+          />
+          <TextField
+            autoFocus
+            type={'number'}
+            value={customGasLimit}
+            onChange={(evt) =>
+              checkCustomGasLimit(parseInt(evt.currentTarget.value))
+            }
+            error={!!calculateGasAndFeesError}
+            helperText={calculateGasAndFeesError}
+          />
+        </Stack>
       </Stack>
 
       <Stack
