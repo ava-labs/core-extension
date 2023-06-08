@@ -4,6 +4,7 @@ import {
   NftPageTokens,
   NftTokenWithBalance,
   TokenType,
+  TotalBalance,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -14,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -36,7 +38,7 @@ export interface BalancesState {
   loading: boolean;
   balances?: Balances;
   cached?: boolean;
-  totalBalance?: number;
+  totalBalance?: TotalBalance;
   lastUpdated?: number;
 }
 
@@ -50,7 +52,7 @@ type BalanceAction =
       type: BalanceActionType.UPDATE_BALANCES;
       payload: {
         balances?: Balances;
-        totalBalance?: number;
+        totalBalance?: TotalBalance;
         lastUpdated?: number;
         isBalancesCached?: boolean;
       };
@@ -64,7 +66,7 @@ const BalancesContext = createContext<{
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
   isTokensCached: boolean;
-  totalBalance?: number;
+  totalBalance?: number | null;
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
@@ -90,7 +92,11 @@ function balancesReducer(
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
         balances: merge({}, state.balances, action.payload.balances),
-        totalBalance: action.payload.totalBalance,
+        totalBalance: merge(
+          {},
+          state.totalBalance,
+          action.payload.totalBalance
+        ),
       };
 
     default:
@@ -246,6 +252,13 @@ export function BalancesProvider({ children }: { children: any }) {
     [request, networks]
   );
 
+  const getTotalBalance = useMemo(() => {
+    if (tokens.totalBalance !== undefined && activeAccount?.addressC) {
+      return tokens.totalBalance[activeAccount?.addressC] ?? null;
+    }
+    return null;
+  }, [activeAccount?.addressC, tokens.totalBalance]);
+
   return (
     <BalancesContext.Provider
       value={{
@@ -256,7 +269,7 @@ export function BalancesProvider({ children }: { children: any }) {
         registerSubscriber,
         unregisterSubscriber,
         isTokensCached: tokens.cached ?? true,
-        totalBalance: tokens.totalBalance,
+        totalBalance: getTotalBalance,
       }}
     >
       {children}

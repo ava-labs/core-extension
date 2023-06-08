@@ -253,7 +253,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
             [network1.chainId]: balanceForNetwork1,
           },
           isBalancesCached: false,
-          totalBalance: undefined,
+          totalBalance: {
+            [account1.addressC]: 0,
+          },
         });
       });
     });

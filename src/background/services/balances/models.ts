@@ -113,3 +113,7 @@ export interface CachedBalancesInfo {
   balances?: Balances;
   lastUpdated?: number;
 }
+
+export interface TotalBalance {
+  [address: string | number]: number;
+}

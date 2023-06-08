@@ -44,7 +44,7 @@ export function WalletBalances() {
       ) : (
         <>
           <Stack sx={{ flexDirection: 'row', alignItems: 'baseline' }}>
-            {(!balanceTotalUSD || isTokensCached) && (
+            {isTokensCached && (
               <Tooltip title={t('Balances loading...')} placement="bottom">
                 <AlertTriangleIcon
                   size={19}

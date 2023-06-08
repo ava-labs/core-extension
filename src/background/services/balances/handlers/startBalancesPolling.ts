@@ -3,7 +3,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { BalancePollingService } from '../BalancePollingService';
-import { Balances } from '../models';
+import { Balances, TotalBalance } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_START_POLLING,
@@ -11,7 +11,7 @@ type HandlerType = ExtensionRequestHandler<
     balances: Balances;
     isBalancesCached: boolean;
     balancesLastUpdated?: number;
-    totalBalance?: number;
+    totalBalance?: TotalBalance;
   }
 >;
 

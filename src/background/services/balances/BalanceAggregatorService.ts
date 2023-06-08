@@ -1,7 +1,7 @@
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { Account } from '../accounts/models';
-import { Balances, BalanceServiceEvents } from './models';
+import { Balances, BalanceServiceEvents, TotalBalance } from './models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
@@ -20,15 +20,19 @@ export class BalanceAggregatorService implements OnLock {
   #balances: Balances = {};
   #isBalancesCached = true;
   #balancesLastUpdated?: number;
-  #totalBalance?: number;
+  #totalBalance?: TotalBalance = {};
 
   get balances() {
     if (!Object.keys(this.#balances).length) {
       this.loadBalanceFromCache().then((cachedBalance) => {
-        const accountCacheKey = this.#getAccountCacheKey();
-        if (accountCacheKey && cachedBalance) {
-          this.#totalBalance = cachedBalance.totalBalance;
+        const account = this.#getAccount();
+        if (account && cachedBalance) {
+          this.#totalBalance = {
+            ...this.#totalBalance,
+            [account]: cachedBalance.totalBalance || 0,
+          };
         }
+
         if (cachedBalance?.balances) {
           this.#isBalancesCached = true;
           this.balances = cachedBalance?.balances;
@@ -47,11 +51,10 @@ export class BalanceAggregatorService implements OnLock {
 
     if (haveChanged) {
       !this.lockService.locked && this.saveBalancesToCache(balances);
-      const totalBalance = this.totalBalance;
       this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
         balances,
         isBalancesCached: this.#isBalancesCached,
-        totalBalance,
+        totalBalance: this.#totalBalance,
       });
       this.#balancesLastUpdated = Date.now();
     }
@@ -67,6 +70,10 @@ export class BalanceAggregatorService implements OnLock {
 
   get totalBalance() {
     return this.#totalBalance;
+  }
+
+  #getAccount() {
+    return this.accountService.activeAccount?.addressC;
   }
 
   constructor(
@@ -145,6 +152,7 @@ export class BalanceAggregatorService implements OnLock {
   }
 
   async saveBalancesToCache(balances: Balances) {
+    const account = this.#getAccount();
     const accountCacheKey = this.#getAccountCacheKey();
 
     if (!accountCacheKey) {
@@ -156,8 +164,12 @@ export class BalanceAggregatorService implements OnLock {
       this.networkService.favoriteNetworks,
       this.balances
     );
-    this.#totalBalance = totalBalance || undefined;
-
+    if (account) {
+      this.#totalBalance = {
+        ...this.#totalBalance,
+        [account]: totalBalance ?? 0,
+      };
+    }
     await this.storageService.save<CachedBalancesInfo>(accountCacheKey, {
       balances,
       totalBalance: totalBalance ?? 0,
