@@ -95,6 +95,7 @@ export function CustomGasLimit({
             }
             error={!!calculateGasAndFeesError}
             helperText={calculateGasAndFeesError}
+            data-testid="gas-limit-input"
           />
         </Stack>
       </Stack>
