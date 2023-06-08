@@ -22,10 +22,14 @@ import {
 } from '@src/components/common/scrollbars/Scrollbars';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
-import { NetworkForm, NetworkFormAction } from './NetworkForm';
+import {
+  NetworkForm,
+  NetworkFormAction,
+  NetworkFormActions,
+} from './NetworkForm';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@avalabs/k2-components';
 
@@ -82,31 +86,40 @@ export const NetworkDetails = () => {
     isCustomNetwork,
     removeCustomNetwork,
     saveCustomNetwork,
+    updateDefaultNetwork,
   } = useNetworkContext();
   const { showDialog, clearDialog } = useDialog();
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(true);
   const selectButtonRef = useRef<HTMLButtonElement>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { capture } = useAnalyticsContext();
 
-  const networkData = networks.find(
-    (networkItem) => networkItem.chainId === selectedChainId
-  );
-  const [networkState, setNetworkState] = useState(networkData);
+  const childRef = useRef<NetworkFormActions>(null);
+  const [networkState, setNetworkState] = useState<Network>();
 
-  if (!networkData || !networkState) {
+  useEffect(() => {
+    const networkData = networks.find(
+      (networkItem) => networkItem.chainId === selectedChainId
+    );
+
+    setNetworkState(networkData);
+  }, [networks, setNetworkState, selectedChainId]);
+
+  if (!networkState) {
     return null;
   }
 
   const goBack = () => {
     history.length <= 2 ? history.replace('/home') : history.goBack();
   };
-  const isFavorite = networkData && isFavoriteNetwork(networkData.chainId);
-  const isCustom = networkData && isCustomNetwork(networkData.chainId);
+  const isFavorite = networkState && isFavoriteNetwork(networkState.chainId);
+  const isCustom = networkState && isCustomNetwork(networkState.chainId);
 
-  const handleChange = (network: Network) => {
+  const handleChange = (network: Network, isValid: boolean) => {
+    setIsFormValid(isValid);
     setNetworkState({
       ...network,
     });
@@ -123,13 +136,29 @@ export const NetworkDetails = () => {
     setIsEdit(false);
     setErrorMessage('');
   };
+  const onUpdateURLSuccess = () => {
+    capture('DefaultNetworkRPCEdited');
+    toast.success(t('RPC URL Updated!'), { duration: 2000 });
+    setIsEdit(false);
+    setErrorMessage('');
+  };
+  const onResetURLSuccess = () => {
+    capture('DefaultNetworkRPCReset');
+    toast.success(t('RPC URL Reset!'), { duration: 2000 });
+    setIsEdit(false);
+    setErrorMessage('');
+  };
 
   const handleEdit = () => {
-    saveCustomNetwork(networkState)
-      .then(() => {
-        onEditSuccess();
-      })
-      .catch((e) => onError(e));
+    if (!isCustom) {
+      onUpdateRpcUrl();
+    } else {
+      saveCustomNetwork(networkState)
+        .then(() => {
+          onEditSuccess();
+        })
+        .catch((e) => onError(e));
+    }
   };
 
   const onError = (e: string) => {
@@ -159,6 +188,51 @@ export const NetworkDetails = () => {
     });
   };
 
+  const onUpdateRpcUrl = () => {
+    showDialog({
+      title: t('Warning'),
+      body: t('Core functionality may be unstable with custom RPC URLs.'),
+      confirmText: t('Confirm Save'),
+      width: '343px',
+      onConfirm: () => {
+        clearDialog();
+        updateDefaultNetwork(networkState)
+          .then(() => {
+            onUpdateURLSuccess();
+          })
+          .catch((e) => onError(e));
+      },
+      cancelText: t('Back'),
+      onCancel: () => {
+        clearDialog();
+      },
+    });
+  };
+
+  const handleResetUrl = () => {
+    showDialog({
+      title: t('Reset RPC?'),
+      body: t("Resetting the RPC URL will put it back to it's default URL. "),
+      confirmText: t('Reset'),
+      width: '343px',
+      onConfirm: () => {
+        clearDialog();
+        // We're resetting the RPC url, so we want to send it as undefined to the backend.
+        const { rpcUrl, ...networkWithoutRpcUrl } = networkState;
+
+        updateDefaultNetwork(networkWithoutRpcUrl)
+          .then(() => {
+            onResetURLSuccess();
+          })
+          .catch((e) => onError(e));
+      },
+      cancelText: t('Back'),
+      onCancel: () => {
+        clearDialog();
+      },
+    });
+  };
+
   return (
     <VerticalFlex width="100%" padding="0 16px 16px" position="relative">
       <HorizontalFlex
@@ -180,21 +254,21 @@ export const NetworkDetails = () => {
             onClick={(e) => {
               e.stopPropagation();
               if (!isFavorite) {
-                addFavoriteNetwork(networkData.chainId);
+                addFavoriteNetwork(networkState.chainId);
                 return;
               }
-              removeFavoriteNetwork(networkData.chainId);
+              removeFavoriteNetwork(networkState.chainId);
             }}
             data-testid="favorite-button"
           >
-            {!isFavorite ? (
+            {isEdit ? null : !isFavorite ? (
               <StarOutlineIcon width="20px" color={theme.colors.icon1} />
             ) : (
               <StarIcon width="20px" color={theme.colors.icon1} />
             )}
           </TextButton>
 
-          {isCustom && (
+          {isEdit ? null : isCustom ? (
             <TextButton
               padding="0 0 0 24px"
               onClick={() => setIsOpen(!isOpen)}
@@ -202,6 +276,10 @@ export const NetworkDetails = () => {
               data-testid="network-options"
             >
               <EllipsisIcon height="6px" color={theme.colors.icon1} />
+            </TextButton>
+          ) : (
+            <TextButton padding="0 0 0 16px" onClick={() => setIsEdit(true)}>
+              Edit
             </TextButton>
           )}
           <ContainedDropdown
@@ -248,12 +326,12 @@ export const NetworkDetails = () => {
                 height="80px"
                 width="80px"
                 padding="16px"
-                src={networkData?.logoUri}
+                src={networkState?.logoUri}
               />
             </NetworkLogoContainer>
 
             <Typography weight={700} size={18} height="22px">
-              {networkData?.chainName}
+              {networkState?.chainName}
             </Typography>
           </VerticalFlex>
           {errorMessage && (
@@ -272,11 +350,14 @@ export const NetworkDetails = () => {
               handleChange={handleChange}
               readOnly={!isEdit}
               action={NetworkFormAction.Edit}
+              isCustomNetwork={isCustom}
+              handleResetUrl={handleResetUrl}
+              ref={childRef}
             />
           )}
         </VerticalFlex>
       </FlexScrollbars>
-      {!isEdit && networkData.chainId !== network?.chainId && (
+      {!isEdit && networkState.chainId !== network?.chainId && (
         <VerticalFlex
           align="center"
           grow="1"
@@ -287,10 +368,10 @@ export const NetworkDetails = () => {
             size={ComponentSize.LARGE}
             width="100%"
             onClick={() => {
-              setNetwork(networkData);
+              setNetwork(networkState);
             }}
           >
-            {t('Connect')}
+            {t('Connect Network')}
           </PrimaryButton>
         </VerticalFlex>
       )}
@@ -308,9 +389,11 @@ export const NetworkDetails = () => {
               width="100%"
               margin="0 8px 0 0"
               onClick={() => {
+                childRef.current?.resetFormErrors();
+                setIsFormValid(true);
                 setIsEdit(false);
                 setErrorMessage('');
-                setNetworkState(networkData);
+                setNetworkState(networkState);
               }}
             >
               {t('Cancel')}
@@ -319,6 +402,7 @@ export const NetworkDetails = () => {
               size={ComponentSize.LARGE}
               width="100%"
               onClick={handleEdit}
+              disabled={!isFormValid}
             >
               {t('Save')}
             </PrimaryButton>

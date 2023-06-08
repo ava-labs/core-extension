@@ -42,6 +42,7 @@ import { NetworkUpdatedEvents } from '@src/background/services/network/events/ne
 import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { RemoveCustomNetworkHandler } from '@src/background/services/network/handlers/removeCustomNetwork';
+import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
 import { NetworkFeeUpdateEvents } from '@src/background/services/networkFee/events/networkFeeUpdate';
 import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
@@ -173,6 +174,7 @@ import { WalletUpdatedEvents } from '@src/background/services/wallet/events/Wall
   { token: 'ExtensionRequestHandler', useToken: SetSelectedNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: SaveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveCustomNetworkHandler },
+  { token: 'ExtensionRequestHandler', useToken: UpdateDefaultNetworkHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDevelopermodeNetworkHandler,

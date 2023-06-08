@@ -21,7 +21,7 @@ export class GetNetworksStateHandler implements HandlerType {
 
   constructor(private networkService: NetworkService) {}
   handle: HandlerType['handle'] = async (request) => {
-    const [networks, err] = await resolve<ChainList>(
+    const [networks, err] = await resolve<Promise<ChainList>>(
       this.networkService.activeNetworks.promisify()
     );
 
@@ -32,7 +32,7 @@ export class GetNetworksStateHandler implements HandlerType {
       };
     }
 
-    const networkList = Object.values<Network>(networks)
+    const networkList = Object.values<Network>(await networks)
       .map((network) => {
         const networkWithoutTokens = { ...network };
         delete networkWithoutTokens.tokens;
