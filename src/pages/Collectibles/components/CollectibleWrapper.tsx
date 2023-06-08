@@ -25,6 +25,7 @@ export function CollectibleWrapper({ children }: { children: ReactNode }) {
       className="masonry"
       breakpointCols={2}
       columnClassName="masonryColumn"
+      data-testid="collectibles-grid"
     >
       {children}
     </StyledMasonry>

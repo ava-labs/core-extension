@@ -11,7 +11,7 @@ export function CollectibleList({
 }) {
   const { nfts } = useBalancesContext();
   return (
-    <Stack sx={{ px: 2 }}>
+    <Stack sx={{ px: 2 }} data-testid="collectibles-list">
       {nfts.items?.map((nft) => (
         <TokenCard
           name={nft.name}

@@ -21,6 +21,7 @@ export function CollectibleGrid({
           <TextButton
             key={`${nft.address}-${nft.tokenId}`}
             onClick={() => onClick(nft)}
+            data-testid={`${nft.name}-${nft.tokenId}`}
           >
             <CollectibleMedia
               width="164px"

@@ -33,6 +33,7 @@ export function TokenCard({
           width: '100%',
           flexDirection: 'row',
         }}
+        data-testid={`${name}-${balanceUSD}`}
       >
         <Stack sx={{ flexDirection: 'row' }}>{children}</Stack>
 
