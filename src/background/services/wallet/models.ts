@@ -92,7 +92,7 @@ export type PubKeyType = {
 /**
  * Types for parsed transaction
  */
-export type AvalancheTxType =
+export type AvalancheTx =
   | AddValidatorTx
   | AddDelegatorTx
   | ExportTx
@@ -103,14 +103,26 @@ export type AvalancheTxType =
   | AddSubnetValidatorTx
   | UnknownTx;
 
-export interface AvalancheTx {
+export interface AvalancheTxBase {
   type: string;
   chain: VM;
   txFee: bigint;
 }
 
-export interface AvalancheBaseTx extends AvalancheTx {
-  type: 'base';
+export enum AvalancheTxType {
+  Base = 'base',
+  AddValidator = 'add_validator',
+  AddDelegator = 'add_delegator',
+  Export = 'export',
+  Import = 'import',
+  CreateSubnet = 'create_subnet',
+  CreateChain = 'create_chain',
+  AddSubnetValidator = 'add_subnet_validator',
+  Unknown = 'unknown',
+}
+
+export interface AvalancheBaseTx extends AvalancheTxBase {
+  type: AvalancheTxType.Base;
   chain: 'AVM';
   outputs: {
     assetId: string;
@@ -124,8 +136,8 @@ export interface AvalancheBaseTx extends AvalancheTx {
   memo?: string;
 }
 
-export interface AddValidatorTx extends AvalancheTx {
-  type: 'add_validator';
+export interface AddValidatorTx extends AvalancheTxBase {
+  type: AvalancheTxType.AddValidator;
   nodeID: string;
   fee: number;
   start: string;
@@ -135,8 +147,8 @@ export interface AddValidatorTx extends AvalancheTx {
   stakeOuts: TransferableOutput[];
 }
 
-export interface AddDelegatorTx extends AvalancheTx {
-  type: 'add_delegator';
+export interface AddDelegatorTx extends AvalancheTxBase {
+  type: AvalancheTxType.AddDelegator;
   nodeID: string;
   start: string;
   end: string;
@@ -145,73 +157,75 @@ export interface AddDelegatorTx extends AvalancheTx {
   stakeOuts: TransferableOutput[];
 }
 
-export interface ExportTx extends AvalancheTx {
-  type: 'export';
+export interface ExportTx extends AvalancheTxBase {
+  type: AvalancheTxType.Export;
   destination: VM;
   amount: bigint;
   exportOuts: any;
 }
 
-export interface ImportTx extends AvalancheTx {
-  type: 'import';
+export interface ImportTx extends AvalancheTxBase {
+  type: AvalancheTxType.Import;
   source: VM;
   amount: bigint;
 }
 
-export interface CreateSubnetTx extends AvalancheTx {
-  type: 'create_subnet';
+export interface CreateSubnetTx extends AvalancheTxBase {
+  type: AvalancheTxType.CreateSubnet;
   threshold: number;
   controlKeys: string[];
 }
 
-export interface CreateChainTx extends AvalancheTx {
-  type: 'create_chain';
+export interface CreateChainTx extends AvalancheTxBase {
+  type: AvalancheTxType.CreateChain;
   subnetID: string;
   chainName: string;
+  chainID: string;
   vmID: string;
   fxIDs: string[];
   genesisData: string;
 }
 
-export interface AddSubnetValidatorTx extends AvalancheTx {
-  type: 'add_subnet_validator';
+export interface AddSubnetValidatorTx extends AvalancheTxBase {
+  type: AvalancheTxType.AddSubnetValidator;
   nodeID: string;
   start: string;
   end: string;
   subnetID: string;
+  stake: bigint;
 }
 
-export interface UnknownTx extends AvalancheTx {
-  type: 'unknown';
+export interface UnknownTx extends AvalancheTxBase {
+  type: AvalancheTxType.Unknown;
 }
 
 /**
  * Type Guards
  */
 
-export function isAddValidatorTx(tx: AvalancheTxType): tx is AddValidatorTx {
+export function isAddValidatorTx(tx: AvalancheTx): tx is AddValidatorTx {
   return tx.type === 'add_validator';
 }
-export function isAddDelegatorTx(tx: AvalancheTxType): tx is AddDelegatorTx {
+export function isAddDelegatorTx(tx: AvalancheTx): tx is AddDelegatorTx {
   return tx.type === 'add_delegator';
 }
-export function isExportTx(tx: AvalancheTxType): tx is ExportTx {
+export function isExportTx(tx: AvalancheTx): tx is ExportTx {
   return tx.type === 'export';
 }
-export function isImportTx(tx: AvalancheTxType): tx is ImportTx {
+export function isImportTx(tx: AvalancheTx): tx is ImportTx {
   return tx.type === 'import';
 }
-export function isBaseTx(tx: AvalancheTxType): tx is AvalancheBaseTx {
+export function isBaseTx(tx: AvalancheTx): tx is AvalancheBaseTx {
   return tx.type === 'base';
 }
-export function isCreateSubnetTx(tx: AvalancheTxType): tx is CreateSubnetTx {
+export function isCreateSubnetTx(tx: AvalancheTx): tx is CreateSubnetTx {
   return tx.type === 'create_subnet';
 }
-export function isCreateChainTx(tx: AvalancheTxType): tx is CreateChainTx {
+export function isCreateChainTx(tx: AvalancheTx): tx is CreateChainTx {
   return tx.type === 'create_chain';
 }
 export function isAddSubnetValidatorTx(
-  tx: AvalancheTxType
+  tx: AvalancheTx
 ): tx is AddSubnetValidatorTx {
   return tx.type === 'add_subnet_validator';
 }

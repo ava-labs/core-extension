@@ -11,6 +11,7 @@ import {
   ContractCall,
   SwapExactTokensForTokenDisplayValues,
   ApproveTransactionData,
+  SimpleSwapDisplayValues,
 } from '@src/contracts/contractParsers/models';
 import {
   TransactionDisplayValues,
@@ -246,6 +247,13 @@ export function SignTransactionPage() {
                     network={network}
                   />
                 ),
+                [ContractCall.SIMPLE_SWAP]: (
+                  <SwapTx
+                    {...(displayData as SimpleSwapDisplayValues)}
+                    setShowRawTransactionData={setShowRawTransactionData}
+                    network={network}
+                  />
+                ),
                 [ContractCall.APPROVE]: (
                   <ApproveTx
                     {...(displayData as ApproveTransactionData)}
@@ -325,6 +333,7 @@ export function SignTransactionPage() {
             pt: 3,
             px: 2,
             pb: 1,
+            gap: 1,
           }}
         >
           <Button
@@ -333,7 +342,8 @@ export function SignTransactionPage() {
             disabled={
               transactionProgressState !== TransactionProgressState.NOT_APPROVED
             }
-            sx={{ width: 168, maxHeight: 40, height: 40 }}
+            size="large"
+            fullWidth
             onClick={() => {
               id &&
                 updateTransaction({
@@ -349,7 +359,8 @@ export function SignTransactionPage() {
             data-testid="transaction-approve-btn"
             disabled={!hasEnoughForNetworkFee || !isReadyForApproval}
             isLoading={!isReadyForApproval}
-            sx={{ width: 168, maxHeight: 40, height: 40 }}
+            size="large"
+            fullWidth
             onClick={onApproveClick}
           >
             {t('Approve')}

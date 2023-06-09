@@ -167,6 +167,7 @@ export function PermissionsPage() {
             flexDirection: 'row',
             justifyContent: 'space-between',
             width: '100%',
+            gap: 1,
           }}
         >
           <Button
@@ -176,7 +177,8 @@ export function PermissionsPage() {
               cancelHandler();
               window.close();
             }}
-            sx={{ width: 168, maxHeight: 40, height: 40 }}
+            fullWidth
+            size="large"
             disabled={isSubmitting}
           >
             {t('Reject')}
@@ -184,7 +186,8 @@ export function PermissionsPage() {
           <Button
             data-testid="connect-approve-btn"
             onClick={() => onApproveClicked()}
-            sx={{ width: 168, maxHeight: 40, height: 40 }}
+            fullWidth
+            size="large"
             isLoading={isSubmitting}
             disabled={isSubmitting}
           >

@@ -19,7 +19,9 @@ export class NetworksUpdatedEvents implements ExtensionEventEmitter {
   }
 
   constructor(private networkService: NetworkService) {
-    this.networkService.activeNetworks.add(async (networks) => {
+    this.networkService.activeNetworks.add(async (networksPromise) => {
+      const networks = await networksPromise;
+
       this.eventEmitter.emit('update', {
         name: NetworkEvents.NETWORKS_UPDATED_EVENT,
         value: {

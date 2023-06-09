@@ -1,13 +1,4 @@
 import { useMemo } from 'react';
-import {
-  CaretIcon,
-  HorizontalFlex,
-  IconDirection,
-  TextButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { TokenIcon } from '@src/components/common/TokenImage';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { TokenListItem } from './TokenListItem';
@@ -16,19 +7,26 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
-import styled, { useTheme } from 'styled-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
 import { TokenType } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from '@src/components/common/VirtualizedList';
+import {
+  Button,
+  ChevronLeftIcon,
+  Stack,
+  Typography,
+  styled,
+} from '@avalabs/k2-components';
+import { TokenIconK2 } from '@src/components/common/TokenImageK2';
 
-const LogoContainer = styled.div`
-  margin: 0 16px;
+const LogoContainer = styled('div')`
+  margin: 0 15px 0 8px;
 `;
 
-const TokenRow = styled.div`
+const TokenRow = styled('div')`
   padding: 0 10px 0 16px;
 `;
 
@@ -44,7 +42,6 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
-  const theme = useTheme();
   const { network } = useNetworkContext();
   const activeNetworkAssetList = useTokensWithBalances();
 
@@ -99,7 +96,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           balanceDisplayValue={token.balanceDisplayValue}
           balanceUSD={token.balanceUSD?.toString()}
         >
-          <TokenIcon
+          <TokenIconK2
             width="32px"
             height="32px"
             src={token.logoUri}
@@ -109,65 +106,71 @@ export function TokenList({ searchQuery }: TokenListProps) {
       </TokenRow>
     );
   }
+
   return (
-    <VerticalFlex grow="1" margin="8px 0 0">
-      <HorizontalFlex
-        width="100%"
-        marginTop="16px"
-        padding="12px 16px"
-        align="center"
-        justify="flex-start"
+    <Stack sx={{ flexGrow: 1, mt: 1 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="flex-start"
+        sx={{
+          width: '100%',
+          mt: 2,
+          py: '12px',
+          px: 2,
+        }}
       >
-        <HorizontalFlex align="center">
-          <TextButton onClick={() => history.push('/home')} margin="0 12px 0 0">
-            <CaretIcon
-              height="18px"
-              direction={IconDirection.LEFT}
-              color={theme.colors.icon1}
-            />
-          </TextButton>
+        <Stack direction="row" alignItems="center">
+          <ChevronLeftIcon
+            onClick={() => history.push('/home')}
+            size={30}
+            sx={{ cursor: 'pointer' }}
+          />
           <LogoContainer>
-            <TokenIcon
+            <TokenIconK2
               width="40px"
               height="40px"
               src={network?.logoUri}
               name={network?.chainName}
             />
           </LogoContainer>
-          <VerticalFlex>
-            <Typography size={20} weight={600} height="29px">
-              {network?.chainName}
-            </Typography>
-            <Typography size={20} weight={600} height="29px">
+          <Stack>
+            <Typography variant="h4">{network?.chainName}</Typography>
+            <Typography variant="body1">
               {currencyFormatter(activeNetworkBalance)}
             </Typography>
-          </VerticalFlex>
-        </HorizontalFlex>
-      </HorizontalFlex>
-      <HorizontalFlex
-        align="center"
-        justify="flex-end"
-        margin="0 16px 8px 16px"
+          </Stack>
+        </Stack>
+      </Stack>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="flex-end"
+        sx={{
+          mx: 2,
+          mb: 1,
+        }}
       >
         {checkIsFunctionAvailable('ManageTokens') && tokens.length && (
-          <TextButton
+          <Button
+            variant="text"
+            size="small"
             data-testid="manage-tokens-button"
             onClick={toggleManageTokensPage}
+            sx={{ cursor: 'pointer' }}
           >
-            <Typography color="inherit" size={12} weight={500}>
-              {t('Manage')}
-            </Typography>
-          </TextButton>
+            {t('Manage')}
+          </Button>
         )}
-      </HorizontalFlex>
-      <VerticalFlex>
+      </Stack>
+      <Stack>
         {tokens.length && (
           <AutoSizer>
             {({ width }) => (
               <VirtualizedList
-                height={407}
+                height={391}
                 rowCount={tokens.length}
-                rowHeight={65}
+                rowHeight={72}
                 rowRenderer={rowRenderer}
                 width={width}
               />
@@ -176,7 +179,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
         )}
 
         {tokens.length === 0 && <WalletIsEmpty />}
-      </VerticalFlex>
-    </VerticalFlex>
+      </Stack>
+    </Stack>
   );
 }

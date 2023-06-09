@@ -4,6 +4,7 @@ import {
   NftPageTokens,
   NftTokenWithBalance,
   TokenType,
+  TotalBalance,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -14,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -32,9 +34,12 @@ interface NftState {
   pageTokens?: NftPageTokens;
   error?: string;
 }
-interface BalancesState {
+export interface BalancesState {
   loading: boolean;
   balances?: Balances;
+  cached?: boolean;
+  totalBalance?: TotalBalance;
+  lastUpdated?: number;
 }
 
 enum BalanceActionType {
@@ -43,7 +48,15 @@ enum BalanceActionType {
 }
 type BalanceAction =
   | { type: BalanceActionType.SET_LOADING; payload: boolean }
-  | { type: BalanceActionType.UPDATE_BALANCES; payload: Balances };
+  | {
+      type: BalanceActionType.UPDATE_BALANCES;
+      payload: {
+        balances?: Balances;
+        totalBalance?: TotalBalance;
+        lastUpdated?: number;
+        isBalancesCached?: boolean;
+      };
+    };
 
 const BalancesContext = createContext<{
   tokens: BalancesState;
@@ -52,11 +65,14 @@ const BalancesContext = createContext<{
   updateBalanceOnAllNetworks?: (account: Account) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
+  isTokensCached: boolean;
+  totalBalance?: number | null;
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  isTokensCached: true,
 });
 
 function balancesReducer(
@@ -67,12 +83,22 @@ function balancesReducer(
     case BalanceActionType.SET_LOADING:
       return { ...state, loading: action.payload };
     case BalanceActionType.UPDATE_BALANCES:
+      if (!Object.keys(action.payload).length) {
+        return { ...state };
+      }
       return {
         ...state,
         loading: false,
+        cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
-        balances: merge({}, state.balances, action.payload),
+        balances: merge({}, state.balances, action.payload.balances),
+        totalBalance: merge(
+          {},
+          state.totalBalance,
+          action.payload.totalBalance
+        ),
       };
+
     default:
       throw new Error();
   }
@@ -86,7 +112,9 @@ export function BalancesProvider({ children }: { children: any }) {
   } = useAccountsContext();
   const [tokens, dispatch] = useReducer(balancesReducer, {
     loading: true,
+    cached: true,
   });
+
   const [nfts, setNfts] = useState<NftState>({ loading: true });
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [isPolling, setIsPolling] = useState(false);
@@ -105,10 +133,11 @@ export function BalancesProvider({ children }: { children: any }) {
         filter(balancesUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((balances) => {
+      .subscribe((balancesData) => {
+        const { balances, isBalancesCached, totalBalance } = balancesData;
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
-          payload: balances,
+          payload: { balances, isBalancesCached, totalBalance },
         });
       });
 
@@ -124,10 +153,11 @@ export function BalancesProvider({ children }: { children: any }) {
     });
     request<GetBalancesHandler>({
       method: ExtensionRequest.BALANCES_GET,
-    }).then((balances) => {
+    }).then((balancesData) => {
+      const { balances, isBalancesCached, totalBalance } = balancesData;
       dispatch({
         type: BalanceActionType.UPDATE_BALANCES,
-        payload: balances,
+        payload: { balances, isBalancesCached, totalBalance },
       });
     });
   }, [request]);
@@ -136,19 +166,20 @@ export function BalancesProvider({ children }: { children: any }) {
     if (isPolling) {
       request<StartBalancesPollingHandler>({
         method: ExtensionRequest.BALANCES_START_POLLING,
-      }).then((balances) => {
+      }).then((balancesData) => {
+        const { balances, isBalancesCached, totalBalance } = balancesData;
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
-          payload: balances,
+          payload: { balances, isBalancesCached, totalBalance },
         });
       });
-
-      return () => {
-        request<StopBalancesPollingHandler>({
-          method: ExtensionRequest.BALANCES_STOP_POLLING,
-        });
-      };
     }
+
+    return () => {
+      request<StopBalancesPollingHandler>({
+        method: ExtensionRequest.BALANCES_STOP_POLLING,
+      });
+    };
   }, [request, isPolling]);
 
   useEffect(() => {
@@ -215,11 +246,18 @@ export function BalancesProvider({ children }: { children: any }) {
 
       dispatch({
         type: BalanceActionType.UPDATE_BALANCES,
-        payload: balances,
+        payload: { balances },
       });
     },
     [request, networks]
   );
+
+  const getTotalBalance = useMemo(() => {
+    if (tokens.totalBalance !== undefined && activeAccount?.addressC) {
+      return tokens.totalBalance[activeAccount?.addressC] ?? null;
+    }
+    return null;
+  }, [activeAccount?.addressC, tokens.totalBalance]);
 
   return (
     <BalancesContext.Provider
@@ -230,6 +268,8 @@ export function BalancesProvider({ children }: { children: any }) {
         updateBalanceOnAllNetworks,
         registerSubscriber,
         unregisterSubscriber,
+        isTokensCached: tokens.cached ?? true,
+        totalBalance: getTotalBalance,
       }}
     >
       {children}

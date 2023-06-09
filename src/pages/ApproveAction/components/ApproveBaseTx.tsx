@@ -36,14 +36,6 @@ export function BaseTxView({
     <Stack>
       {/* source chain */}
       <Stack>
-        <Typography
-          variant="h4"
-          sx={{
-            my: 1.5,
-          }}
-        >
-          {t('Approve Transaction')}
-        </Typography>
         <Card
           sx={{
             width: 1,

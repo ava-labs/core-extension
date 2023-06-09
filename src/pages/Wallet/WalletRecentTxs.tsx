@@ -119,7 +119,7 @@ export function WalletRecentTxs({
     );
   }, [network, activeAccount]);
 
-  const filteredTxHistory = useMemo(() => {
+  const baseFilteredTxHistory = useMemo(() => {
     function isPendingBridge(tx: TxHistoryItem) {
       return Object.values(bridgeTransactions).some(
         (bridge) =>
@@ -128,11 +128,26 @@ export function WalletRecentTxs({
       );
     }
 
-    function shouldTxBeKept(tx: TxHistoryItem, filter: FilterType) {
+    function shouldTxBeKept(tx: TxHistoryItem) {
       if (tx.isBridge && isPendingBridge(tx)) {
         return false;
       }
+      return true;
+    }
 
+    return unfilteredTxHistory
+      .filter((tx) => {
+        if (tokenSymbolFilter) {
+          return tokenSymbolFilter === tx.tokens?.[0]?.symbol;
+        } else {
+          return true;
+        }
+      })
+      .filter((tx) => shouldTxBeKept(tx));
+  }, [unfilteredTxHistory, bridgeTransactions, tokenSymbolFilter]);
+
+  const filteredTxHistory = useMemo(() => {
+    function shouldTxBeKept(tx: TxHistoryItem, filter: FilterType) {
       if (filter === FilterType.ALL) {
         return true;
       } else if (filter === FilterType.BRIDGE) {
@@ -157,21 +172,10 @@ export function WalletRecentTxs({
       }
     }
 
-    return unfilteredTxHistory
-      .filter((tx) => {
-        if (tokenSymbolFilter) {
-          return tokenSymbolFilter === tx.tokens?.[0]?.symbol;
-        } else {
-          return true;
-        }
-      })
-      .filter((tx) => shouldTxBeKept(tx, selectedFilter));
-  }, [
-    unfilteredTxHistory,
-    selectedFilter,
-    bridgeTransactions,
-    tokenSymbolFilter,
-  ]);
+    return baseFilteredTxHistory.filter((tx) =>
+      shouldTxBeKept(tx, selectedFilter)
+    );
+  }, [baseFilteredTxHistory, selectedFilter]);
 
   const getDayString = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -209,7 +213,7 @@ export function WalletRecentTxs({
           }}
         >
           <Typography variant="body2">{FilterItems[keyName]}</Typography>
-          {selectedFilter === keyName && <CheckIcon size="12px" />}
+          {selectedFilter === keyName && <CheckIcon size={12} />}
         </Stack>
       </MenuItem>
     );
@@ -225,63 +229,63 @@ export function WalletRecentTxs({
       <Stack
         sx={{ flexGrow: 1, p: isEmbedded ? '0' : '4px 16px 68px', rowGap: 1 }}
       >
-        <Stack
-          sx={(theme) => ({
-            position: 'absolute',
-            right: theme.spacing(2),
-            top: theme.spacing(1),
-          })}
-        >
+        {baseFilteredTxHistory.length > 0 && (
           <Stack
-            sx={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              cursor: 'pointer',
-              justifyContent: 'flex-end',
-              mb: 1,
-              mt: 0.5,
-            }}
-            onClick={() => {
-              setShowFilterMenu(!showFilterMenu);
-            }}
-            data-testid="filter-activity-menu"
+            sx={(theme) => ({
+              position: 'absolute',
+              right: theme.spacing(2),
+              top: theme.spacing(1),
+            })}
           >
-            <Typography
-              variant="caption"
+            <Stack
               sx={{
-                m: '0 8px 0 5px',
-                fontWeight: 'fontWeightMedium',
-                height: 20,
-                alignSelf: 'center',
+                flexDirection: 'row',
+                alignItems: 'center',
+                cursor: 'pointer',
+                justifyContent: 'flex-end',
+                mb: 1,
+                mt: 0.5,
               }}
+              onClick={() => {
+                setShowFilterMenu(!showFilterMenu);
+              }}
+              data-testid="filter-activity-menu"
             >
-              {t('Display')}: {FilterItems[selectedFilter]}
-            </Typography>
-            {showFilterMenu ? (
-              <ChevronUpIcon size="20px" />
-            ) : (
-              <ChevronDownIcon size="20px" />
+              <Typography
+                variant="caption"
+                sx={{
+                  m: '0 8px 0 5px',
+                  fontWeight: 'fontWeightMedium',
+                }}
+              >
+                {t('Display')}: {FilterItems[selectedFilter]}
+              </Typography>
+              {showFilterMenu ? (
+                <ChevronUpIcon size={20} />
+              ) : (
+                <ChevronDownIcon size={20} />
+              )}
+            </Stack>
+            {showFilterMenu && (
+              <MenuList
+                data-testid="filter-activity-options"
+                sx={{
+                  width: 180,
+                  justifyContent: 'flex-start',
+                  zIndex: 1,
+                }}
+              >
+                {Object.keys(FilterItems).map((filterItem) => (
+                  <FilterItem
+                    key={filterItem}
+                    keyName={filterItem}
+                    onClick={handleFilterChange}
+                  />
+                ))}
+              </MenuList>
             )}
           </Stack>
-          {showFilterMenu && (
-            <MenuList
-              data-testid="filter-activity-options"
-              sx={{
-                width: 180,
-                justifyContent: 'flex-start',
-                zIndex: 1,
-              }}
-            >
-              {Object.keys(FilterItems).map((filterItem) => (
-                <FilterItem
-                  key={filterItem}
-                  keyName={filterItem}
-                  onClick={handleFilterChange}
-                />
-              ))}
-            </MenuList>
-          )}
-        </Stack>
+        )}
 
         {filteredTxHistory.length === 0 ? (
           <NoTransactions loading={loading} />
@@ -339,7 +343,7 @@ export function WalletRecentTxs({
           </>
         )}
         {explorerUrl && !loading && !!filteredTxHistory.length && (
-          <Stack sx={{ flexDirection: 'row', width: '100%', px: 2, mt: 3 }}>
+          <Stack sx={{ flexDirection: 'row', width: '100%', px: 2, my: 2 }}>
             <Button
               data-testid="add-account-button"
               fullWidth

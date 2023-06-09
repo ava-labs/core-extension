@@ -1,10 +1,3 @@
-import {
-  HorizontalFlex,
-  SubTextTypography,
-  Toggle,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenIcon } from '@src/components/common/TokenImage';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -12,6 +5,7 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
+import { Divider, Stack, Switch, Typography } from '@avalabs/k2-components';
 
 type ManageTokensListProps = {
   searchQuery: string;
@@ -21,7 +15,10 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
   const tokensWithBalances = useTokensWithBalances();
 
   return (
-    <>
+    <Stack
+      divider={<Divider flexItem sx={{ borderColor: 'grey.800' }} />}
+      sx={{ rowGap: '10px' }}
+    >
       {tokensWithBalances
         .filter(
           (token) =>
@@ -37,7 +34,7 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
             token={token}
           />
         ))}
-    </>
+    </Stack>
   );
 };
 
@@ -49,33 +46,30 @@ const ManageTokensListItem = ({ token }: ManageTokensListItemProps) => {
   const { getTokenVisibility, toggleTokenVisibility } = useSettingsContext();
 
   return (
-    <HorizontalFlex
+    <Stack
+      direction="row"
       data-testid={`${token.symbol.toLowerCase()}-token-list-item`}
-      width="100%"
-      justify="space-between"
-      align="center"
-      margin="0 0 16px 0"
+      justifyContent="space-between"
+      alignItems="center"
+      sx={{ width: '100%' }}
     >
-      <HorizontalFlex align="center">
+      <Stack direction="row" alignItems="center">
         <TokenIcon
           width="32px"
           height="32px"
           src={token.logoUri}
           name={token.name}
         />
-        <VerticalFlex margin={'0 16px'}>
-          <Typography size={16} margin={'0 0 4px 0'} height="24px" weight={500}>
-            {token.name}
-          </Typography>
-          <SubTextTypography size={14} height="17px">
-            {token.symbol}
-          </SubTextTypography>
-        </VerticalFlex>
-      </HorizontalFlex>
-      <Toggle
-        isChecked={getTokenVisibility(token)}
+        <Stack sx={{ mx: 2 }}>
+          <Typography sx={{ mb: 0.5 }}>{token.name}</Typography>
+          <Typography>{token.balanceDisplayValue}</Typography>
+        </Stack>
+      </Stack>
+      <Switch
+        size="small"
+        checked={getTokenVisibility(token)}
         onChange={() => toggleTokenVisibility(token)}
       />
-    </HorizontalFlex>
+    </Stack>
   );
 };

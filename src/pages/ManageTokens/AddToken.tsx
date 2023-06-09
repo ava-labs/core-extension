@@ -1,16 +1,7 @@
-import {
-  ComponentSize,
-  PrimaryButton,
-  TextArea,
-  TokenCard,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { TokenIcon } from '@src/components/common/TokenImage';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -19,11 +10,15 @@ import { TokenType } from '@src/background/services/balances/models';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
 import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
 import { useTranslation } from 'react-i18next';
-import { toast } from '@avalabs/k2-components';
-
-const AddressInput = styled(TextArea)`
-  word-break: break-all;
-`;
+import {
+  Button,
+  Stack,
+  TextField,
+  Typography,
+  toast,
+} from '@avalabs/k2-components';
+import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
+import { TokenIconK2 } from '@src/components/common/TokenImageK2';
 
 export function AddToken() {
   const { t } = useTranslation();
@@ -48,7 +43,7 @@ export function AddToken() {
         method: ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
         params: [addressInput],
       });
-      success && toast.success(t('Added!'), { duration: 2000 });
+      success && toast.success(t('Token Added'), { duration: 2000 });
       capture('ManageTokensAddCustomToken', {
         status: 'success',
         address: addressInput,
@@ -104,44 +99,69 @@ export function AddToken() {
 
   return (
     <>
-      <VerticalFlex flex={1} align="center">
+      <Stack sx={{ flex: 1, alignItems: 'center' }}>
         <PageTitle>{t('Add Custom Token')}</PageTitle>
-        <VerticalFlex
-          grow="1"
-          align="center"
-          width="100%"
-          padding="8px 16px 24px 16px"
+        <Stack
+          sx={{
+            flexGrow: 1,
+            width: '100%',
+            pt: 1,
+            px: 2,
+            pb: 3,
+          }}
         >
-          <AddressInput
+          <TextField
             data-testid="add-custom-token-address-input"
-            size={ComponentSize.SMALL}
-            margin="12px 0 10px 0"
+            size="small"
+            multiline
+            fullWidth
+            rows={2}
             label={t('Custom Token Address')}
             value={addressInput}
-            placeholder={t('Enter an address')}
+            placeholder={t('Enter an Address')}
             onChange={(e) =>
               setAddressInput((e.nativeEvent.target as HTMLInputElement).value)
             }
             error={!!error}
-            errorMessage={error}
+            helperText={error}
           />
           {tokenData && (
-            <TokenCard name={tokenData.name} symbol={tokenData.symbol}>
-              <TokenIcon width="32px" height="32px" name={tokenData.name} />
-            </TokenCard>
+            <Stack sx={{ mt: 5, rowGap: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 'fontWeightSemibold',
+                }}
+              >
+                {t('Token')}
+              </Typography>
+              <TokenCardWithBalance
+                name={tokenData.name}
+                symbol={tokenData.symbol}
+              >
+                <TokenIconK2 width="32px" height="32px" name={tokenData.name} />
+              </TokenCardWithBalance>
+            </Stack>
           )}
-          <VerticalFlex grow="1" justify="flex-end" align="center">
-            <PrimaryButton
+          <Stack
+            sx={{
+              flexGrow: 1,
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+            }}
+          >
+            <Button
               data-testid="add-custom-token-button"
-              size={ComponentSize.LARGE}
               onClick={addCustomToken}
               disabled={isLoading || !!error?.length || !tokenData}
+              fullWidth
+              size="large"
             >
               {t('Add Token')}
-            </PrimaryButton>
-          </VerticalFlex>
-        </VerticalFlex>
-      </VerticalFlex>
+            </Button>
+          </Stack>
+        </Stack>
+      </Stack>
     </>
   );
 }

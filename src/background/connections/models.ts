@@ -153,7 +153,7 @@ export const CORE_DOMAINS = [
   'core-web.pages.dev',
   'core.app',
   'test.core.app',
-  'fantastic-goggles-c7f7e3c0.pages.github.io', // playground
+  'ava-labs.github.io', // playground
 ];
 
 export interface ConnectionController {

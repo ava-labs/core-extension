@@ -1,9 +1,9 @@
 import {
   toast,
   ToastCard,
-  Typography,
   ExternalLinkIcon,
   Button,
+  Link,
 } from '@avalabs/k2-components';
 
 export const toastCardWithLink = ({ url, title, label }) => {
@@ -12,29 +12,18 @@ export const toastCardWithLink = ({ url, title, label }) => {
       onDismiss={() => toast.remove(toaster)}
       variant="success"
       title={title}
-      sx={{ width: '343px', minWidth: '343px', position: 'relative' }}
     >
       <Button
+        component={Link}
         target="_blank"
         href={url}
+        size="large"
         variant="text"
-        sx={{
-          p: 0,
-        }}
+        color="inherit"
+        endIcon={<ExternalLinkIcon size={16} />}
+        sx={{ pl: 0 }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 600,
-            color: (theme) => theme.palette.text.primary,
-          }}
-        >
-          {label}
-        </Typography>
-        <ExternalLinkIcon
-          size={16}
-          sx={{ ml: 1, color: (theme) => theme.palette.text.primary }}
-        />
+        {label}
       </Button>
     </ToastCard>,
     {

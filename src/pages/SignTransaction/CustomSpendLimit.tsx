@@ -157,13 +157,7 @@ export function CustomSpendLimit({
           pb: 1,
         }}
       >
-        <Button
-          color="primary"
-          size="large"
-          onClick={handleOnSave}
-          sx={{ fontSize: 'body2.fontSize' }}
-          fullWidth
-        >
+        <Button color="primary" size="large" onClick={handleOnSave} fullWidth>
           {t('Save')}
         </Button>
       </Stack>

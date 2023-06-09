@@ -10,12 +10,28 @@ import {
 import BN from 'bn.js';
 import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 
+import { LockService } from '../lock/LockService';
+import { AccountsService } from '../accounts/AccountsService';
+import { StorageService } from '../storage/StorageService';
+
 jest.mock('@sentry/browser');
+jest.mock('../lock/LockService');
+jest.mock('../accounts/AccountsService');
+jest.mock('../storage/StorageService');
 
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   const balancesServiceMock = {
     getBalancesForNetwork: jest.fn(),
   } as any;
+
+  const cacheServiceMock = {
+    loadBalance: jest.fn(),
+    saveBalances: jest.fn(),
+  } as any;
+
+  const lockService = new LockService({} as any, {} as any);
+
+  const storageService = new StorageService({} as any);
 
   const networkToken1: NetworkToken = {
     name: 'network token 1',
@@ -173,12 +189,21 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     utxos: [utxo1],
   };
 
+  const accountsServiceMock = {
+    activeAccount: account1,
+  } as unknown as AccountsService;
+
+  (storageService.load as jest.Mock).mockResolvedValue({
+    lastUpdated: Date.now(),
+  });
+
   beforeEach(() => {
     jest.resetAllMocks();
     (Sentry.startTransaction as jest.Mock).mockReturnValue({
       finish: jest.fn(),
     });
-    networkServiceMock.activeNetworks.promisify.mockReturnValue(accounts);
+    cacheServiceMock.loadBalance.mockImplementation(() => Promise.resolve()),
+      networkServiceMock.activeNetworks.promisify.mockReturnValue(accounts);
     balancesServiceMock.getBalancesForNetwork.mockImplementation(
       (network, accounts) => {
         if (accounts.length > 1) {
@@ -198,7 +223,10 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     beforeEach(() => {
       service = new BalanceAggregatorService(
         balancesServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        lockService,
+        storageService,
+        accountsServiceMock
       );
     });
     it('calls BalancesService.getBalancesForNetwork() with proper params', async () => {
@@ -221,7 +249,13 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         service.addListener(BalanceServiceEvents.UPDATED, eventListener);
         await service.updateBalancesForNetworks([network1.chainId], [account1]);
         expect(eventListener).toHaveBeenCalledWith({
-          [network1.chainId]: balanceForNetwork1,
+          balances: {
+            [network1.chainId]: balanceForNetwork1,
+          },
+          isBalancesCached: false,
+          totalBalance: {
+            [account1.addressC]: 0,
+          },
         });
       });
     });
@@ -389,7 +423,10 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     it('should empty the balances', async () => {
       const service = new BalanceAggregatorService(
         balancesServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        lockService,
+        storageService,
+        accountsServiceMock
       );
       await service.updateBalancesForNetworks([network1.chainId], [account1]);
       const expected = { [network1.chainId]: balanceForNetwork1 };

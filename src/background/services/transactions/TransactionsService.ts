@@ -1,6 +1,9 @@
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { contractParserMap } from '@src/contracts/contractParsers/contractParserMap';
-import { DisplayValueParserProps } from '@src/contracts/contractParsers/models';
+import {
+  ContractParserHandler,
+  DisplayValueParserProps,
+} from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
 import { BigNumber, ethers } from 'ethers';
 import { TransactionTypes } from 'ethers/lib/utils';
@@ -40,6 +43,7 @@ import {
 import getTargetNetworkForTx from './utils/getTargetNetworkForTx';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { resolve } from '@src/utils/promiseResolver';
 
 @singleton()
 export class TransactionsService {
@@ -87,34 +91,43 @@ export class TransactionsService {
 
     const provider = this.networkService.getProviderForNetwork(network, true);
     const toAddress = txParams.to?.toLocaleLowerCase() || '';
-    const contractByteCode = await (provider as JsonRpcBatchInternal).getCode(
-      toAddress
-    );
 
-    // the response is always `0x` if the address is EOA and it's the contract's source byte code otherwise
-    // see https://docs.ethers.org/v5/single-page/#/v5/api/providers/provider/-%23-Provider-getCode
-    if (contractByteCode !== '0x') {
-      try {
-        txDescription = await getTxInfo(
-          toAddress,
-          txParams.data,
-          txParams.value,
-          network
+    let decodedData: ethers.utils.Result | undefined;
+    let parser: ContractParserHandler | undefined;
+
+    // the toAddress is empty for contract deployments
+    if (toAddress) {
+      const [contractByteCode, error] = await resolve(
+        (provider as JsonRpcBatchInternal).getCode(toAddress)
+      );
+
+      if (!error) {
+        // the response is always `0x` if the address is EOA and it's the contract's source byte code otherwise
+        // see https://docs.ethers.org/v5/single-page/#/v5/api/providers/provider/-%23-Provider-getCode
+        if (contractByteCode !== '0x') {
+          try {
+            txDescription = await getTxInfo(
+              toAddress,
+              txParams.data,
+              txParams.value,
+              network
+            );
+          } catch (err) {
+            console.error(err);
+            txDescription = { error: 'error while parsing ABI' };
+          }
+        } else {
+          txDescription = { error: 'not a contract' };
+        }
+
+        decodedData = (txDescription as ethers.utils.TransactionDescription)
+          .args;
+
+        parser = contractParserMap.get(
+          (txDescription as ethers.utils.TransactionDescription).name
         );
-      } catch (err) {
-        console.error(err);
-        txDescription = { error: 'error while parsing ABI' };
       }
-    } else {
-      txDescription = { error: 'not a contract' };
     }
-
-    const decodedData = (txDescription as ethers.utils.TransactionDescription)
-      .args;
-
-    const parser = contractParserMap.get(
-      (txDescription as ethers.utils.TransactionDescription).name
-    );
 
     const fees = await this.networkFeeService.getNetworkFee(network);
 

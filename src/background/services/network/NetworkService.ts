@@ -1,4 +1,5 @@
 import { singleton } from 'tsyringe';
+import { merge, pick } from 'lodash';
 import {
   OnLock,
   OnStorageReady,
@@ -8,6 +9,8 @@ import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
   NetworkStorage,
+  NetworkOverrides,
+  NETWORK_OVERRIDES_STORAGE_KEY,
 } from './models';
 import {
   AVALANCHE_XP_NETWORK,
@@ -51,12 +54,22 @@ export class NetworkService implements OnLock, OnStorageReady {
   public activeNetworks = this._allNetworks
     .cache(this._activeNetworksCache)
     .filter((value) => !!value)
-    .map<ChainList>((chainList) => {
+    .map<Promise<ChainList>>(async (chainList) => {
+      /**
+       * Apply the config overrides for default networks.
+       * We do it here to avoid storing the entire list with
+       * the overrides already applied in the local storage.
+       **/
+      const overrides = await this.storageService.load(
+        NETWORK_OVERRIDES_STORAGE_KEY
+      );
+      const chainListWithOverrides = merge({}, chainList, overrides);
+
       /**
        * Basically if in testnet mode we only want to return the testnet
        * networks. Otherwise we want only mainnet networks
        */
-      return Object.values(chainList || {})
+      return Object.values(chainListWithOverrides || {})
         .filter((network) =>
           this.activeNetwork?.isTestnet ? network.isTestnet : !network.isTestnet
         )
@@ -169,7 +182,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     const chainlist = await this.setChainListOrFallback();
     if (!chainlist) throw new Error('chainlist failed to load');
 
-    const allNetworks = { ...chainlist, ...network?.customNetworks };
+    const allNetworks = {
+      ...chainlist,
+      ...network?.customNetworks,
+    };
     this._customNetworks = network?.customNetworks || {};
     this._allNetworks.dispatch(allNetworks);
 
@@ -387,6 +403,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...this._customNetworks,
       [convertedChainId]: customNetwork,
     };
+
     if (!chainlist) throw new Error('chainlist failed to load');
     this._allNetworks.dispatch({
       ...chainlist,
@@ -395,6 +412,33 @@ export class NetworkService implements OnLock, OnStorageReady {
     if (!isCustomNetworkExist) {
       this.setNetwork(convertedChainId);
     }
+    this.updateNetworkState();
+  }
+
+  async updateNetworkOverrides(network: NetworkOverrides) {
+    const overridableProperties = ['rpcUrl'];
+
+    const overrides = pick(network, overridableProperties);
+
+    const chainId = parseInt(network?.chainId.toString(16), 16).toString();
+
+    const existingOverrides = await this.storageService.load<
+      Record<string, NetworkOverrides>
+    >(NETWORK_OVERRIDES_STORAGE_KEY);
+
+    const newOverrides = {
+      ...existingOverrides,
+      [chainId]: overrides,
+    };
+
+    await this.storageService.save(NETWORK_OVERRIDES_STORAGE_KEY, newOverrides);
+
+    const chainlist = await this.setChainListOrFallback();
+
+    this._allNetworks.dispatch({
+      ...chainlist,
+      ...this._customNetworks,
+    });
   }
 
   async removeCustomNetwork(chainID: number) {

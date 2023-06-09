@@ -8,6 +8,10 @@ interface TokenEllipsisProps {
   className?: string;
 }
 
+function isTruncated(maxLength, text) {
+  return text.length > maxLength;
+}
+
 export function TokenEllipsis({
   maxLength,
   text,
@@ -17,7 +21,13 @@ export function TokenEllipsis({
     text.length <= maxLength ? text : truncateAddress(text, maxLength / 2);
   return (
     <span className={className}>
-      <Tooltip placement="bottom" title={text}>
+      <Tooltip
+        placement="bottom"
+        title={text}
+        disableHoverListener={!isTruncated(maxLength, text)}
+        disableFocusListener={!isTruncated(maxLength, text)}
+        sx={{ cursor: 'pointer' }}
+      >
         <>{name}</>
       </Tooltip>
     </span>

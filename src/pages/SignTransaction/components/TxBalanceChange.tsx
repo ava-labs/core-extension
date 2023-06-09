@@ -6,9 +6,9 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from './ApprovalSection';
+} from '@src/components/common/approval/ApprovalSection';
 import { TokenAmount } from './TokenAmount';
-import { TxDetailsRow } from './TxDetailsRow';
+import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 
 export type TokenWithAmountAndValue = TokenWithBalance & {

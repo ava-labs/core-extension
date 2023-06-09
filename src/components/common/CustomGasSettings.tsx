@@ -16,6 +16,7 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { TextFieldLabel } from './TextFieldLabel';
 
 type GasSettings = {
   gasLimit: number;
@@ -34,17 +35,6 @@ interface CustomGasSettingsProps {
   onCancel(): void;
   network?: Network;
 }
-
-const SettingLabel = ({ label, tooltip }) => (
-  <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-    <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
-      {label}
-    </Typography>
-    <Tooltip title={tooltip}>
-      <InfoCircleIcon size={16} />
-    </Tooltip>
-  </Stack>
-);
 
 const ErrorMessage = ({ message }) => (
   <Typography variant="caption" sx={{ color: 'error.light' }}>
@@ -205,7 +195,7 @@ export function CustomGasSettings({
       </PageTitle>
       <Stack sx={{ padding: 2, gap: 2.5 }}>
         <Stack sx={{ width: '100%', gap: 0.5 }}>
-          <SettingLabel
+          <TextFieldLabel
             label={t('Max Base Fee')}
             tooltip={t(
               'The Base Fee is set by the network and changes frequently. Any difference between the set Max Base Fee and the actual Base Fee will be refunded.'
@@ -236,7 +226,7 @@ export function CustomGasSettings({
           )}
         </Stack>
         <Stack sx={{ width: '100%', gap: 0.5 }}>
-          <SettingLabel
+          <TextFieldLabel
             label={t('Max Priority Fee')}
             tooltip={t(
               'The Priority Fee is an incentive paid to network operators to prioritize processing of this transaction.'
@@ -269,7 +259,7 @@ export function CustomGasSettings({
           )}
         </Stack>
         <Stack sx={{ width: '100%', gap: 0.5 }}>
-          <SettingLabel
+          <TextFieldLabel
             label={t('Gas Limit')}
             tooltip={t(
               'Total units of gas needed to complete the transaction. Do not edit unless necessary.'

@@ -16,7 +16,7 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from './components/ApprovalSection';
+} from '@src/components/common/approval/ApprovalSection';
 import {
   AccountDetails,
   ContractDetails,

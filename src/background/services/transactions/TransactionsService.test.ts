@@ -10,6 +10,16 @@ import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { StorageService } from '../storage/StorageService';
 import { TransactionsService } from './TransactionsService';
 import { txParams } from './models';
+import { LockService } from '../lock/LockService';
+
+jest.mock('../lock/LockService');
+import { getTxInfo } from './getTxInfo';
+import { isTxDescriptionError } from './getTxInfo';
+
+jest.mock('./getTxInfo', () => ({
+  getTxInfo: jest.fn(),
+  isTxDescriptionError: jest.fn(),
+}));
 
 const buildMessage = (
   params: Partial<txParams>
@@ -40,6 +50,8 @@ describe('background/services/transactions/TransactionsService.ts', () => {
 
   let service: TransactionsService;
 
+  const lockService = new LockService({} as any, {} as any);
+
   beforeEach(() => {
     storageService = {
       save: jest.fn(),
@@ -49,11 +61,20 @@ describe('background/services/transactions/TransactionsService.ts', () => {
     } as any;
     networkService = new NetworkService({} as any);
     networkFeeService = new NetworkFeeService(networkService);
+    accountsService = new AccountsService({} as any, {} as any, networkService);
+
+    const accountName = 'testAccount';
+    const accountsServiceMock = {
+      activeAccount: { addressC: accountName },
+    } as unknown as AccountsService;
+
     balanceAggregatorService = new BalanceAggregatorService(
       {} as BalancesService,
-      networkService
+      networkService,
+      lockService,
+      storageService,
+      accountsServiceMock
     );
-    accountsService = new AccountsService({} as any, {} as any, networkService);
     featureFlagService = { addListner: jest.fn() } as any;
 
     // @ts-expect-error activeNetwork setter is private
@@ -262,6 +283,115 @@ describe('background/services/transactions/TransactionsService.ts', () => {
           [message.id]: expect.objectContaining({
             displayValues: expect.objectContaining({
               suggestedMaxFeePerGas: BigNumber.from('0x174876e800'),
+            }),
+          }),
+        });
+      });
+    });
+
+    describe('when parsing a transaction', () => {
+      it('does not load contract info for contract deployments', async () => {
+        const message = buildMessage({
+          from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
+          to: '',
+          value: '0x5af3107a4000',
+          data: '0x123123123123',
+        });
+        await service.addTransaction(message);
+        const provider: any = networkService.getProviderForNetwork({} as any);
+
+        expect(provider.getCode).not.toHaveBeenCalled();
+
+        expect(service.saveTransactions).toHaveBeenCalledWith({
+          [message.id]: expect.objectContaining({
+            txParams: expect.objectContaining({
+              data: '0x123123123123',
+              from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
+              to: '',
+              type: 2,
+              value: '0x5af3107a4000',
+            }),
+          }),
+        });
+      });
+
+      it('loads contract info', async () => {
+        const message = buildMessage({
+          from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
+          to: '0x213B6494E2632ec1c9F90Ce05327e96e30767638',
+          value: '0x5af3107a4000',
+          data: '0x123123123123',
+        });
+        const txInfo = {
+          name: 'deposit',
+          args: [{}],
+        };
+
+        const provider: any = networkService.getProviderForNetwork({} as any);
+        (provider.getCode as jest.Mock).mockResolvedValue('0x1234');
+        (getTxInfo as jest.Mock).mockResolvedValue(txInfo);
+        (isTxDescriptionError as unknown as jest.Mock).mockReturnValue(txInfo);
+
+        await service.addTransaction(message);
+
+        expect(provider.getCode).toHaveBeenCalledTimes(1);
+        expect(provider.getCode).toHaveBeenCalledWith(
+          '0x213b6494e2632ec1c9f90ce05327e96e30767638'
+        );
+
+        expect(service.saveTransactions).toHaveBeenCalledWith({
+          [message.id]: expect.objectContaining({
+            displayValues: expect.objectContaining({
+              description: txInfo,
+            }),
+            txParams: expect.objectContaining({
+              data: '0x123123123123',
+              from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
+              to: '0x213B6494E2632ec1c9F90Ce05327e96e30767638',
+              type: 2,
+              value: '0x5af3107a4000',
+            }),
+          }),
+        });
+      });
+
+      it('handles contract info request errors', async () => {
+        const message = buildMessage({
+          from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
+          to: '0x213B6494E2632ec1c9F90Ce05327e96e30767638',
+          value: '0x5af3107a4000',
+          data: '0x123123123123',
+        });
+        const txInfo = {
+          name: 'deposit',
+          args: [{}],
+        };
+
+        const provider: any = networkService.getProviderForNetwork({} as any);
+        (provider.getCode as jest.Mock).mockRejectedValue(
+          new Error('parsing error')
+        );
+        (getTxInfo as jest.Mock).mockResolvedValue(txInfo);
+        (isTxDescriptionError as unknown as jest.Mock).mockReturnValue(txInfo);
+
+        await service.addTransaction(message);
+
+        expect(provider.getCode).toHaveBeenCalledTimes(1);
+        expect(provider.getCode).toHaveBeenCalledWith(
+          '0x213b6494e2632ec1c9f90ce05327e96e30767638'
+        );
+
+        expect(service.saveTransactions).toHaveBeenCalledWith({
+          [message.id]: expect.objectContaining({
+            displayValues: expect.not.objectContaining({
+              description: txInfo,
+            }),
+            txParams: expect.objectContaining({
+              data: '0x123123123123',
+              from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
+              to: '0x213B6494E2632ec1c9F90Ce05327e96e30767638',
+              type: 2,
+              value: '0x5af3107a4000',
             }),
           }),
         });

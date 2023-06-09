@@ -35,7 +35,11 @@ function parseDataWithABI(
 async function getAvalancheABIFromSource(address: string, isMainnet: boolean) {
   let contractSource: ContractSourceCodeResponse;
   try {
-    const response = await getSourceForContract(address, isMainnet);
+    const response = await getSourceForContract(
+      address,
+      isMainnet,
+      process.env.GLACIER_API_KEY
+    );
     if (!response.result[0])
       throw new Error('Missing ContractSourceCodeResponse');
     contractSource = response.result[0];
@@ -45,7 +49,11 @@ async function getAvalancheABIFromSource(address: string, isMainnet: boolean) {
   }
   const response = await (contractSource.Proxy === '1' &&
   contractSource.Implementation.length > 0
-    ? getABIForContract(contractSource.Implementation, isMainnet)
+    ? getABIForContract(
+        contractSource.Implementation,
+        isMainnet,
+        process.env.GLACIER_API_KEY
+      )
     : Promise.resolve(undefined));
 
   return { result: response?.result, contractSource };

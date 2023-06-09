@@ -107,3 +107,13 @@ export interface Balances {
 }
 
 export const CLOUDFLARE_IPFS_URL = 'https://cloudflare-ipfs.com';
+
+export interface CachedBalancesInfo {
+  totalBalance?: number;
+  balances?: Balances;
+  lastUpdated?: number;
+}
+
+export interface TotalBalance {
+  [address: string | number]: number;
+}

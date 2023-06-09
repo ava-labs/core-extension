@@ -37,11 +37,7 @@ import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTrans
 import { useTranslation } from 'react-i18next';
 import { ConfirmationTracker } from '@src/components/common/ConfirmationTracker';
 import { useCoinGeckoId } from '@src/hooks/useCoinGeckoId';
-import {
-  toast,
-  ToastCard,
-  Typography as TypographyK2,
-} from '@avalabs/k2-components';
+import { toast, ToastCard } from '@avalabs/k2-components';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -159,14 +155,11 @@ const BridgeTransactionStatus = () => {
           onDismiss={() => toast.remove(toasterId)}
           variant="success"
           title={t('Bridge Successful')}
-          sx={{ width: '343px', minWidth: '343px', position: 'relative' }}
         >
-          <TypographyK2>
-            {t(`You transferred {{amount}} {{symbol}}!`, {
-              amount: bridgeTransaction.amount,
-              symbol: bridgeTransaction.symbol,
-            })}
-          </TypographyK2>
+          {t(`You transferred {{amount}} {{symbol}}!`, {
+            amount: bridgeTransaction.amount,
+            symbol: bridgeTransaction.symbol,
+          })}
         </ToastCard>,
         { duration: Infinity }
       );

@@ -24,7 +24,7 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from '@src/pages/SignTransaction/components/ApprovalSection';
+} from '@src/components/common/approval/ApprovalSection';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
 

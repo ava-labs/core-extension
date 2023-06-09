@@ -13,7 +13,7 @@ import { Avalanche } from '@avalabs/wallets-sdk';
 import {
   AddDelegatorTx,
   AddValidatorTx,
-  AvalancheTxType,
+  AvalancheTx,
   AvalancheBaseTx,
   ExportTx,
   ImportTx,
@@ -21,6 +21,7 @@ import {
   CreateChainTx,
   CreateSubnetTx,
   AddSubnetValidatorTx,
+  AvalancheTxType,
 } from '@src/background/services/wallet/models';
 import xss from 'xss';
 
@@ -149,12 +150,12 @@ export async function parseAvalancheTx(
   tx: Common.Transaction,
   provider: Avalanche.JsonRpcProvider,
   currentAddress: string
-): Promise<AvalancheTxType> {
+): Promise<AvalancheTx> {
   const context = provider.getContext();
 
   if (typeof tx.getVM !== 'function') {
     return {
-      type: 'unknown',
+      type: AvalancheTxType.Unknown,
     } as UnknownTx;
   }
 
@@ -166,7 +167,7 @@ export async function parseAvalancheTx(
       // Calculate stake
       const totStake = sumOutputs(tx.stake, context.avaxAssetID);
       return {
-        type: 'add_validator',
+        type: AvalancheTxType.AddValidator,
         chain: vm,
         nodeID: tx.validator.nodeId.value(),
         fee: tx.shares.value(),
@@ -180,7 +181,7 @@ export async function parseAvalancheTx(
     } else if (pvmSerial.isAddDelegatorTx(tx)) {
       const totStake = sumOutputs(tx.stake, context.avaxAssetID);
       return {
-        type: 'add_delegator',
+        type: AvalancheTxType.AddDelegator,
         chain: vm,
         nodeID: tx.validator.nodeId.value(),
         start: tx.validator.startTime.value().toString(),
@@ -193,7 +194,7 @@ export async function parseAvalancheTx(
     } else if (pvmSerial.isImportTx(tx)) {
       const tot = sumInputs(tx.ins, context.avaxAssetID);
       return {
-        type: 'import',
+        type: AvalancheTxType.Import,
         chain: vm,
         source: chainIdToVM(tx.sourceChain.value()),
         amount: tot,
@@ -202,7 +203,7 @@ export async function parseAvalancheTx(
     } else if (pvmSerial.isExportTx(tx)) {
       const tot = sumOutputs(tx.outs, context.avaxAssetID);
       return {
-        type: 'export',
+        type: AvalancheTxType.Export,
         chain: vm,
         destination: chainIdToVM(tx.destination.value()),
         amount: tot,
@@ -210,18 +211,19 @@ export async function parseAvalancheTx(
       } as ExportTx;
     } else if (pvmSerial.isCreateChainTx(tx)) {
       return {
-        type: 'create_chain',
+        type: AvalancheTxType.CreateChain,
         chain: vm,
         txFee: burn,
         subnetID: tx.getSubnetID().value(),
         chainName: tx.chainName.value(),
+        chainID: tx.getBlockchainId(),
         vmID: tx.vmID.value(),
         fxIDs: tx.fxIds.map((fxID) => fxID.value()),
         genesisData: tx.genesisData.toString(),
       } as CreateChainTx;
     } else if (pvmSerial.isCreateSubnetTx(tx)) {
       return {
-        type: 'create_subnet',
+        type: AvalancheTxType.CreateSubnet,
         chain: vm,
         txFee: burn,
         threshold: tx.getSubnetOwners().threshold.value(),
@@ -231,8 +233,9 @@ export async function parseAvalancheTx(
       } as CreateSubnetTx;
     } else if (pvmSerial.isAddSubnetValidatorTx(tx)) {
       return {
-        type: 'add_subnet_validator',
+        type: AvalancheTxType.AddSubnetValidator,
         chain: vm,
+        stake: tx.subnetValidator.validator.weight.value(),
         nodeID: tx.subnetValidator.validator.nodeId.value(),
         start: tx.subnetValidator.validator.startTime.value().toString(),
         end: tx.subnetValidator.validator.endTime.value().toString(),
@@ -247,7 +250,7 @@ export async function parseAvalancheTx(
         ? sumInputs(tx.getInputs(), context.avaxAssetID)
         : sumInputs(tx.ins, context.avaxAssetID);
       return {
-        type: 'import',
+        type: AvalancheTxType.Import,
         chain: vm,
         source: chainIdToVM(tx.sourceChain.value()),
         amount: tot,
@@ -257,7 +260,7 @@ export async function parseAvalancheTx(
       const sumExportOuts = sumOutputs(tx.outs, context.avaxAssetID);
       //TODO: Show change outs? (https://ava-labs.atlassian.net/browse/CP-3819)
       return {
-        type: 'export',
+        type: AvalancheTxType.Export,
         chain: vm,
         destination: chainIdToVM(tx.destination.value()),
         amount: sumExportOuts,
@@ -325,7 +328,7 @@ export async function parseAvalancheTx(
       }
 
       return {
-        type: 'base',
+        type: AvalancheTxType.Base,
         chain: vm,
         txFee: context.baseTxFee,
         outputs: parsedOutputs,
@@ -336,7 +339,7 @@ export async function parseAvalancheTx(
     if (evmSerial.isExportTx(tx)) {
       const tot = sumOutputs(tx.exportedOutputs, context.avaxAssetID);
       return {
-        type: 'export',
+        type: AvalancheTxType.Export,
         chain: vm,
         destination: chainIdToVM(tx.destinationChain.value()),
         exportOuts: tx.exportedOutputs,
@@ -346,7 +349,7 @@ export async function parseAvalancheTx(
     } else if (evmSerial.isImportTx(tx)) {
       const tot = sumInputs(tx.importedInputs, context.avaxAssetID);
       return {
-        type: 'import',
+        type: AvalancheTxType.Import,
         chain: vm,
         source: chainIdToVM(tx.sourceChain.value()),
         amount: tot,
@@ -356,7 +359,7 @@ export async function parseAvalancheTx(
   }
 
   return {
-    type: 'unknown',
+    type: AvalancheTxType.Unknown,
     chain: vm,
   } as UnknownTx;
 }

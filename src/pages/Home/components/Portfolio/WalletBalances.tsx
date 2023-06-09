@@ -1,12 +1,16 @@
 import {
-  HorizontalFlex,
-  Skeleton,
+  AlertTriangleIcon,
+  Stack,
+  Tooltip,
   Typography,
-} from '@avalabs/react-components';
+  Skeleton,
+} from '@avalabs/k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { useTranslation } from 'react-i18next';
 
 export function WalletBalances() {
   const { currency, currencyFormatter } = useSettingsContext();
@@ -14,39 +18,53 @@ export function WalletBalances() {
     accounts: { active: activeAccount },
   } = useAccountsContext();
 
+  const { isTokensCached, totalBalance } = useBalancesContext();
+
+  const { t } = useTranslation();
+
   const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount, true);
+
+  const balanceTotal =
+    balanceTotalUSD !== null ? balanceTotalUSD : totalBalance ?? null;
 
   useLiveBalance(); // Make sure we show the latest balances.
 
   return (
-    <HorizontalFlex
-      justify="center"
-      align="flex-end"
-      minHeight="44px"
-      width="100%"
+    <Stack
+      sx={{
+        width: '100%',
+        minHeight: '44px',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        flexDirection: 'row',
+      }}
     >
-      {balanceTotalUSD === null ? (
-        <Skeleton width="215px" height="44px" delay={250} />
+      {balanceTotal === null ? (
+        <Skeleton variant="rounded" sx={{ height: 37, width: 215 }} />
       ) : (
         <>
-          <Typography
-            data-testid="wallet-balance"
-            size={32}
-            height="44px"
-            weight={500}
-          >
-            {currencyFormatter(balanceTotalUSD).replace(currency, '')}
-          </Typography>
-          <Typography
-            data-testid="wallet-currency"
-            weight={500}
-            margin={'0 0 10px 6px'}
-            color="text2"
-          >
-            {currency}
-          </Typography>
+          <Stack sx={{ flexDirection: 'row', alignItems: 'baseline' }}>
+            {isTokensCached && (
+              <Tooltip title={t('Balances loading...')} placement="bottom">
+                <AlertTriangleIcon
+                  size={19}
+                  sx={{ color: 'warning.main', mr: 1 }}
+                />
+              </Tooltip>
+            )}
+            <Typography
+              data-testid="wallet-balance"
+              variant="h2"
+              sx={{ fontWeight: 'fontWeightBold' }}
+            >
+              {currencyFormatter(balanceTotal).replace(currency, '')}
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: '60%' }}>
+              {currency}
+            </Typography>
+          </Stack>
         </>
       )}
-    </HorizontalFlex>
+    </Stack>
   );
 }

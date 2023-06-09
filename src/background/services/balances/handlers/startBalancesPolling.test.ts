@@ -17,6 +17,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
 
     const aggregatorService = {
       balances: {},
+      isBalancesCached: false,
     } as unknown as BalanceAggregatorService;
 
     it('returns current balances', async () => {
@@ -30,7 +31,10 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
         method: ExtensionRequest.BALANCES_START_POLLING,
       });
 
-      expect(result).toEqual(aggregatorService.balances);
+      expect(result).toEqual({
+        balances: aggregatorService.balances,
+        isBalancesCached: aggregatorService.isBalancesCached,
+      });
     });
     it('starts polling', async () => {
       const handler = new StartBalancesPollingHandler(
@@ -84,6 +88,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
 
     const aggregatorService = {
       balances: {},
+      isBalancesCached: undefined,
     } as unknown as BalanceAggregatorService;
 
     it('returns current balances', async () => {
@@ -97,7 +102,10 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
         method: ExtensionRequest.BALANCES_START_POLLING,
       });
 
-      expect(result).toEqual(aggregatorService.balances);
+      expect(result).toEqual({
+        balances: aggregatorService.balances,
+        isBalancesCached: aggregatorService.isBalancesCached,
+      });
     });
     it('does not start polling', async () => {
       const handler = new StartBalancesPollingHandler(

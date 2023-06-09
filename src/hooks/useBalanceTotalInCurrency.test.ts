@@ -9,6 +9,7 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import { useBalanceTotalInCurrency } from './useBalanceTotalInCurrency';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 jest.mock('@src/contexts/BalancesProvider', () => ({
   useBalancesContext: jest.fn(),
@@ -16,6 +17,10 @@ jest.mock('@src/contexts/BalancesProvider', () => ({
 
 jest.mock('@src/contexts/NetworkProvider', () => ({
   useNetworkContext: jest.fn(),
+}));
+
+jest.mock('@src/contexts/ConnectionProvider', () => ({
+  useConnectionContext: jest.fn(),
 }));
 
 const mockNetwork: Network = {
@@ -93,6 +98,10 @@ describe('hooks/useBalanceTotalInCurrency', () => {
 
     (useBalancesContext as jest.Mock).mockReturnValue({
       ...mockBalances,
+      totalBalance: 23,
+    });
+    (useConnectionContext as jest.Mock).mockReturnValue({
+      request: jest.fn(),
     });
 
     (useNetworkContext as jest.Mock).mockReturnValue({
@@ -118,7 +127,7 @@ describe('hooks/useBalanceTotalInCurrency', () => {
     expect(result.current).toBe(5666.2);
   });
 
-  it('returns balance for favorite and active networks', () => {
+  it('returns balance for favorite and active networks from state', () => {
     (useNetworkContext as jest.Mock).mockReturnValue({
       networks: [
         { ...mockNetwork },
@@ -139,15 +148,15 @@ describe('hooks/useBalanceTotalInCurrency', () => {
       useBalanceTotalInCurrency(mockAccount, true)
     );
 
-    expect(result.current).toBe(13.2);
+    expect(result.current).toBe(23);
   });
 
-  it('returns balance for active network when there are no favorites', () => {
+  it('returns balance for active network when there are no favorites from state', () => {
     const { result } = renderHook(() =>
       useBalanceTotalInCurrency(mockAccount, true)
     );
 
-    expect(result.current).toBe(10.2);
+    expect(result.current).toBe(23);
   });
 
   it('returns null when account is missing', () => {

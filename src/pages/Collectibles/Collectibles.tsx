@@ -130,6 +130,7 @@ export function Collectibles() {
           onClick={() => {
             handleClick(ListType.GRID);
           }}
+          data-testid="grid-view"
         >
           <GridIcon
             height="14px"
@@ -143,6 +144,7 @@ export function Collectibles() {
           onClick={() => {
             handleClick(ListType.LIST);
           }}
+          data-testid="list-view"
         >
           <ListIcon
             height="16px"

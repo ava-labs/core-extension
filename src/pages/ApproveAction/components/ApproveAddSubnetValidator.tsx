@@ -1,9 +1,14 @@
-import { Card, CardContent, Stack, Typography } from '@avalabs/k2-components';
+import { Divider, Typography } from '@avalabs/k2-components';
 import { AddSubnetValidatorTx } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
-import { bigIntToString } from '@avalabs/utils-sdk';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { AvalancheChainStrings } from '@src/background/services/wallet/utils/parseAvalancheTx';
+import {
+  ApprovalSection,
+  ApprovalSectionBody,
+  ApprovalSectionHeader,
+} from '@src/components/common/approval/ApprovalSection';
+import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
+import { TruncatedIdentifier } from './TruncatedIdentifier';
+import { AvaxAmount } from './AvaxAmount';
 
 export function AddSubnetValidatorView({
   tx,
@@ -13,218 +18,48 @@ export function AddSubnetValidatorView({
   avaxPrice: number;
 }) {
   const { t } = useTranslation();
-  const { currencyFormatter } = useSettingsContext();
-  const { chain, txFee, nodeID, start, end, subnetID } = tx;
+  const { txFee, nodeID, start, end, subnetID, stake } = tx;
   const startDate = new Date(parseInt(start) * 1000);
   const endDate = new Date(parseInt(end) * 1000);
 
   return (
-    <Stack>
-      {/* source chain */}
-      <Stack>
-        <Typography
-          variant="h4"
-          sx={{
-            my: 1.5,
-          }}
-        >
-          {t('Approve Add Subnet Validator')}
-        </Typography>
-        <Card
-          sx={{
-            width: 1,
-          }}
-        >
-          <CardContent
-            sx={{
-              p: 2,
-            }}
-          >
-            <Stack
-              sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {t('Source Chain')}
-              </Typography>
-              <Typography variant="caption">
-                {AvalancheChainStrings[chain]}
-              </Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Stack>
+    <>
+      <ApprovalSection sx={{ gap: 1 }}>
+        <ApprovalSectionHeader label={t('Staking Details')} />
+        <ApprovalSectionBody sx={{ justifyContent: 'start', py: 2.25 }}>
+          <TxDetailsRow label={t('Subnet ID')}>
+            <TruncatedIdentifier identifier={subnetID} />
+          </TxDetailsRow>
+          <TxDetailsRow label={t('Node ID')}>
+            <TruncatedIdentifier identifier={nodeID} />
+          </TxDetailsRow>
+          <TxDetailsRow label={t('Stake Amount')}>
+            <AvaxAmount amount={stake} avaxPrice={avaxPrice} />
+          </TxDetailsRow>
 
-      {/* details */}
-      <Stack>
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: 'fontWeightSemibold',
-            mt: 2,
-            mb: 1,
-            mx: 0,
-          }}
-        >
-          {t('Details')}
-        </Typography>
+          <Divider sx={{ my: 1.25 }} />
 
-        <Card
-          sx={{
-            width: 1,
-          }}
-        >
-          <CardContent
-            sx={{
-              p: 2,
-            }}
-          >
-            <Stack>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {t('Subnet ID')}:
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 'fontWeightSemibold',
-                }}
-              >
-                {subnetID}
-              </Typography>
-            </Stack>
-            <Stack>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {t('Node ID')}:
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 'fontWeightSemibold',
-                }}
-              >
-                {nodeID}
-              </Typography>
-            </Stack>
-            <Stack
-              sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {t('Start Date')}:
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  textAlign: 'right',
-                  fontWeight: 'fontWeightSemibold',
-                }}
-              >
-                {startDate.toLocaleString()}
-              </Typography>
-            </Stack>
-            <Stack
-              sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {t('End Date')}:
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  textAlign: 'right',
-                  fontWeight: 'fontWeightSemibold',
-                }}
-              >
-                {endDate.toLocaleString()}
-              </Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Stack>
+          <TxDetailsRow label={t('Start Date')}>
+            <Typography variant="caption">
+              {startDate.toLocaleString()}
+            </Typography>
+          </TxDetailsRow>
 
-      {/* network fee */}
-      <Stack>
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: 'fontWeightSemibold',
-            mt: 1,
-            mb: 1,
-            mx: 0,
-          }}
-        >
-          {t('Network Fee')}
-        </Typography>
-        <Card
-          sx={{
-            width: 1,
-          }}
-        >
-          <CardContent
-            sx={{
-              p: 2,
-            }}
-          >
-            <Stack
-              sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {t('Fee Amount')}
-              </Typography>
-              <Stack>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    textAlign: 'right',
-                    fontWeight: 'fontWeightSemibold',
-                  }}
-                >
-                  {Number(bigIntToString(txFee, 9))} AVAX
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    textAlign: 'right',
-                    color: 'text.secondary',
-                  }}
-                >
-                  {currencyFormatter(
-                    Number(bigIntToString(txFee, 9)) * avaxPrice
-                  )}
-                </Typography>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Stack>
-    </Stack>
+          <TxDetailsRow label={t('End Date')}>
+            <Typography variant="caption">
+              {endDate.toLocaleString()}
+            </Typography>
+          </TxDetailsRow>
+        </ApprovalSectionBody>
+      </ApprovalSection>
+      <ApprovalSection>
+        <ApprovalSectionHeader label={t('Network Fee')} />
+        <ApprovalSectionBody>
+          <TxDetailsRow label={t('Fee Amount')}>
+            <AvaxAmount amount={txFee} avaxPrice={avaxPrice} />
+          </TxDetailsRow>
+        </ApprovalSectionBody>
+      </ApprovalSection>
+    </>
   );
 }

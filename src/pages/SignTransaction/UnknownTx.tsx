@@ -10,13 +10,13 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from './components/ApprovalSection';
+} from '@src/components/common/approval/ApprovalSection';
 import {
   AccountDetails,
   ContractDetails,
   NetworkDetails,
 } from './components/ApprovalTxDetails';
-import { TxDetailsRow } from './components/TxDetailsRow';
+import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 
 export function UnknownTx({
   fromAddress,
@@ -56,7 +56,9 @@ export function UnknownTx({
         <ApprovalSectionHeader label={txSummaryHeader} />
         <ApprovalSectionBody divider={null} sx={{ gap: 1, py: 1 }}>
           <TxDetailsRow label={t('Transaction Type')}>
-            <Typography variant="caption">{transactionType}</Typography>
+            <Typography variant="caption">
+              {!toAddress ? t('Contract deployment') : transactionType}
+            </Typography>
           </TxDetailsRow>
           {hasTokenAmount && (
             <TxDetailsRow label={t('Token Amount')}>

@@ -168,7 +168,7 @@ export function SecurityAndPrivacy({
         </ListItem>
       </List>
 
-      <Divider variant="middle" />
+      <Divider />
 
       <Stack
         sx={{

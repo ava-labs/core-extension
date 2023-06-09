@@ -9,11 +9,14 @@ export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
   const theme = useTheme();
 
   return (
-    <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <Typography
-        component="span"
-        sx={{ fontSize: 'caption.fontSize', color: 'text.secondary' }}
-      >
+    <Stack
+      sx={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+      }}
+    >
+      <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
       <Stack
@@ -21,7 +24,7 @@ export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 1,
-          height: theme.spacing(2),
+          minHeight: theme.spacing(2),
         }}
       >
         {children}

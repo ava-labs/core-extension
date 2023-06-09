@@ -20,6 +20,8 @@ import { RemoveCustomNetworkHandler } from '@src/background/services/network/han
 import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
+import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
+import { NetworkOverrides } from '@src/background/services/network/NetworkService';
 
 const NetworkContext = createContext<{
   network?: Network | undefined;
@@ -27,6 +29,7 @@ const NetworkContext = createContext<{
   networks: Network[];
   setDeveloperMode(status: boolean): void;
   saveCustomNetwork(network: Network): Promise<unknown>;
+  updateDefaultNetwork(network: NetworkOverrides): Promise<unknown>;
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
   favoriteNetworks: Network[];
@@ -122,6 +125,15 @@ export function NetworkContextProvider({ children }: { children: any }) {
     });
   };
 
+  const updateDefaultNetwork = async (network: NetworkOverrides) => {
+    return request<UpdateDefaultNetworkHandler>({
+      method: ExtensionRequest.NETWORK_UPDATE_DEFAULT,
+      params: { network },
+    }).then(() => {
+      getNetworkState();
+    });
+  };
+
   useEffect(() => {
     getNetworkState();
     const activeNetworkSubscription = events()
@@ -173,6 +185,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
             params: [status],
           }),
         saveCustomNetwork,
+        updateDefaultNetwork,
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
         favoriteNetworks: getFavoriteNetworks,

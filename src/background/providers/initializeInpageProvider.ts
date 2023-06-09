@@ -4,7 +4,7 @@ import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
  *
- * @param channelName - Broadcast communication channel name to communicate with the contentscript on
+ * @param channelName - Communication channel name to communicate with the contentscript on
  * @param maxListeners - The maximum number of event listeners.
  * @param globalObject - Defaults to window. Defines what to set the provider on.
  * @returns The initialized provider (whether set or not).

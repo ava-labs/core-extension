@@ -2,11 +2,11 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { Balances } from '../models';
+import { BalancesInfo } from '../events/balancesUpdatedEvent';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET,
-  Balances
+  BalancesInfo
 >;
 
 @injectable()
@@ -16,9 +16,16 @@ export class GetBalancesHandler implements HandlerType {
   constructor(private networkBalancesService: BalanceAggregatorService) {}
 
   handle: HandlerType['handle'] = async (request) => {
+    const { balances, isBalancesCached, totalBalance } =
+      this.networkBalancesService;
+
     return {
       ...request,
-      result: this.networkBalancesService.balances,
+      result: {
+        balances,
+        isBalancesCached,
+        totalBalance,
+      },
     };
   };
 }
