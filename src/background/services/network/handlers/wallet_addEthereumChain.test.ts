@@ -29,6 +29,7 @@ const mockActiveNetwork: Network = {
   },
   logoUri: 'chain-logo.png',
   tokens: [],
+  primaryColor: 'violet',
 };
 
 describe('background/services/network/handlers/wallet_addEthereumChain.ts', () => {
@@ -107,6 +108,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         chainId: 43113,
         chainName: 'Avalanche',
         vmName: NetworkVMType.EVM,
+        primaryColor: 'black',
         rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
         explorerUrl: 'https://snowtrace.io/',
         logoUri: '',
@@ -250,6 +252,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         chainId: 43112,
         chainName: 'Avalanche',
         vmName: NetworkVMType.EVM,
+        primaryColor: 'black',
         rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
         logoUri: 'logo.png',
         explorerUrl: 'https://snowtrace.io/',
@@ -300,6 +303,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         chainId: 43112,
         chainName: 'Avalanche',
         vmName: NetworkVMType.EVM,
+        primaryColor: 'black',
         rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
         logoUri: 'logo.png',
         explorerUrl: 'https://snowtrace.io/',

@@ -30,6 +30,7 @@ const mockNetwork: Network = {
   rpcUrl: '',
   logoUri: '',
   networkToken: {} as any,
+  primaryColor: 'red',
 };
 
 const mockAccount: Account = {

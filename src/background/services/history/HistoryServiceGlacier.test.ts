@@ -157,6 +157,7 @@ const networkToken: NetworkToken = {
 };
 
 const network: Network = {
+  primaryColor: 'blue',
   chainName: 'network chain',
   chainId: 123,
   vmName: NetworkVMType.EVM,

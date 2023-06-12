@@ -202,9 +202,9 @@ export class BalancesServiceGlacier {
 
         return {
           ...token,
+          chainId: Number(token.chainId),
           type: TokenType.ERC20,
           contractType: 'ERC-20',
-          description: '',
           balance,
           address: token.address,
           balanceDisplayValue,

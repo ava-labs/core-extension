@@ -15,13 +15,13 @@ import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
   address,
+  chainId: -1,
   type: TokenType.ERC20,
   contractType: 'ERC-20',
   name: 'UNKNOWN TOKEN',
   symbol: '-',
   balance: new BN(0),
   decimals: 0,
-  description: '',
 });
 
 export async function findToken(
@@ -71,6 +71,5 @@ export async function findToken(
     balance: balance,
     type: TokenType.ERC20,
     contractType: 'ERC-20',
-    description: '',
   };
 }

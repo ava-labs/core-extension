@@ -48,6 +48,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     rpcUrl: 'test.one.com/rpc',
     networkToken: networkToken1,
     logoUri: 'test.one.com/logo',
+    primaryColor: 'purple',
   };
 
   const networkToken2: NetworkToken = {
@@ -65,6 +66,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     rpcUrl: 'test.two.com/rpc',
     networkToken: networkToken2,
     logoUri: 'test.two.com/logo',
+    primaryColor: 'brown',
   };
 
   const accounts = {

@@ -42,6 +42,7 @@ const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
     logoUri: '',
   },
   logoUri: '',
+  primaryColor: 'blue',
   isTestnet: isTestnet ?? true,
 });
 
