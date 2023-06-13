@@ -1,22 +1,24 @@
 import {
-  VerticalFlex,
-  LoadingIcon,
-  HorizontalFlex,
+  LoadingDotsIcon,
+  Stack,
   Typography,
-} from '@avalabs/react-components';
+  styled,
+} from '@avalabs/k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
-import { BuyService, useBuyClick } from '@src/hooks/useBuyClick';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import { useState } from 'react';
+import { BuyService, BuyDialog } from '@src/pages/Buy/BuyDialog';
+import { useCoinbasePay } from '@src/hooks/useCoinbasePay';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
-const PayBox = styled(VerticalFlex)`
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 8px;
+const PayBox = styled(Stack)`
+  background-color: ${({ theme }) => theme.palette.grey[850]};
+  border-radius: ${({ theme }) => `${theme.shape.borderRadius}px`};
   padding: 24px 0;
   width: 165px;
   height: 164px;
@@ -24,20 +26,70 @@ const PayBox = styled(VerticalFlex)`
   cursor: pointer;
 `;
 
-const Logo = styled.img`
+const Logo = styled('img')`
   height: 64px;
   width: 64px;
   margin-top: 24px;
 `;
 
+const moonpayURL = async (address: string): Promise<{ url: string }> => {
+  return await fetch(`${process.env.PROXY_URL}/moonpay/${address}`).then(
+    (response) => response.json()
+  );
+};
+
 export const Buy = () => {
+  const [openBuyDialog, setOpenBuyDialog] = useState<boolean>(false);
+  const [buyService, setBuyService] = useState<BuyService>();
+  const [buyUnavailable, setBuyUnavailable] = useState(false);
+  const [buyServiceURL, setBuyServiceURL] = useState('');
+
   const { t } = useTranslation();
   const { network } = useNetworkContext();
-  const { onBuyClick } = useBuyClick();
   const { featureFlags } = useFeatureFlagContext();
+  const { coinbaseUrlByAddress } = useCoinbasePay();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+
+  const getBuyUrl = async (buyService: BuyService) => {
+    let buyServiceURL = '';
+    setBuyUnavailable(false);
+    if (!activeAccount) return null;
+
+    if (buyService === BuyService.MOONPAY) {
+      const moonPay = await moonpayURL(activeAccount?.addressC);
+      moonPay.url ? (buyServiceURL = moonPay.url) : (buyServiceURL = 'error');
+    }
+
+    if (buyService === BuyService.COINBASE) {
+      buyServiceURL = coinbaseUrlByAddress(activeAccount?.addressC);
+    }
+
+    if (
+      !featureFlags[FeatureGates.BUY_COINBASE] &&
+      buyService === BuyService.COINBASE
+    ) {
+      setBuyUnavailable(true);
+    } else if (
+      (!featureFlags[FeatureGates.BUY_MOONPAY] &&
+        buyService === BuyService.MOONPAY) ||
+      buyServiceURL === 'error'
+    ) {
+      setBuyUnavailable(true);
+    } else {
+      setBuyServiceURL(buyServiceURL);
+    }
+  };
+
+  const onBuyClick = async (buyService: BuyService) => {
+    await getBuyUrl(buyService);
+    setBuyService(buyService);
+    setOpenBuyDialog(true);
+  };
 
   if (!network) {
-    return <LoadingIcon />;
+    return <LoadingDotsIcon />;
   }
 
   if (!featureFlags[FeatureGates.BUY]) {
@@ -45,40 +97,78 @@ export const Buy = () => {
   }
 
   return (
-    <VerticalFlex width="100%" align="center">
+    <Stack
+      sx={{
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
       <PageTitle>{t('Buy')}</PageTitle>
-      <VerticalFlex marginTop="90px">
-        <Typography align="center" weight={600} size={16} height={'24px'}>
+
+      <Stack
+        sx={{
+          mt: 11,
+        }}
+      >
+        <Typography
+          align="center"
+          variant="subtitle1"
+          sx={{ fontWeight: 'fontWeightBold' }}
+        >
           {t('Continue with...')}
         </Typography>
-        <HorizontalFlex marginTop="24px">
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            mt: 3,
+          }}
+        >
           <PayBox
             margin="0 16px 0 0"
-            onClick={(e) => {
-              e.preventDefault();
+            onClick={() => {
               onBuyClick(BuyService.MOONPAY);
             }}
             data-testid="buy-moonpay-button"
           >
-            <Typography weight={600} size={18} height={'28px'}>
+            <Typography
+              sx={{
+                fontSize: '18px',
+                fontWeight: 'fontWeightSemibold',
+                lineHeight: '24px',
+              }}
+            >
               {t('Moonpay')}
             </Typography>
             <Logo src="images/logos/moonpay.svg" />
           </PayBox>
           <PayBox
-            onClick={(e) => {
-              e.preventDefault();
+            onClick={() => {
               onBuyClick(BuyService.COINBASE);
             }}
             data-testid="buy-coinbase-button"
           >
-            <Typography weight={600} size={18} height={'28px'}>
+            <Typography
+              sx={{
+                fontSize: '18px',
+                fontWeight: 'fontWeightSemibold',
+                lineHeight: '24px',
+              }}
+            >
               {t('Coinbase Pay')}
             </Typography>
             <Logo src="images/logos/coinbase.svg" />
           </PayBox>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </VerticalFlex>
+        </Stack>
+      </Stack>
+
+      <BuyDialog
+        openDialog={openBuyDialog}
+        closeDialog={() => setOpenBuyDialog(false)}
+        buyService={buyService}
+        buyServiceURL={buyServiceURL}
+        buyUnavailable={buyUnavailable}
+      />
+    </Stack>
   );
 };
