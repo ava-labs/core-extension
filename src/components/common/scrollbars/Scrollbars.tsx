@@ -1,6 +1,6 @@
 import * as CustomScrollbars from 'react-custom-scrollbars-2';
 import { forwardRef, LegacyRef } from 'react';
-import { useTheme } from 'styled-components';
+import { useTheme } from '@avalabs/k2-components';
 
 export type ScrollbarsRef = CustomScrollbars.Scrollbars;
 
@@ -13,7 +13,7 @@ export const Scrollbars = forwardRef(function Scrollbars(
   const theme = useTheme();
   const renderThumb = ({ style, ...props }) => {
     const thumbStyle = {
-      backgroundColor: theme.colors.stroke1,
+      backgroundColor: theme.palette.grey[800],
       borderRadius: 9999,
     };
     return <div style={{ ...style, ...thumbStyle }} {...props} />;

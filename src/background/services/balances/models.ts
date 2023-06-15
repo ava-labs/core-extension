@@ -34,22 +34,30 @@ export interface TokenWithBalanceERC20
   type: TokenType.ERC20;
 }
 
-export interface TokenAttribute {
-  name: string;
+export type RawTokenAttribute = {
   value: string;
-}
+} & (
+  | {
+      name: string;
+      trait_type: never;
+    }
+  | {
+      name: never;
+      trait_type: string;
+    }
+);
 
 export interface NftMetadata {
-  attributes?: {
-    key?: string;
-    trait_type: string;
-    value: string;
-  }[];
+  attributes?: string;
   name?: string;
   image?: string;
   description?: string;
 }
 
+export interface TokenAttribute {
+  name: string;
+  value: string;
+}
 export interface NftTokenWithBalance extends TokenBalanceData {
   type: TokenType.ERC721 | TokenType.ERC1155;
   address: string;

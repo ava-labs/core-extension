@@ -1,4 +1,3 @@
-import { TextButton } from '@avalabs/react-components';
 import {
   NftTokenWithBalance,
   TokenType,
@@ -6,6 +5,7 @@ import {
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { CollectibleMedia } from './CollectibleMedia';
 import { CollectibleWrapper } from './CollectibleWrapper';
+import { Button } from '@avalabs/k2-components';
 
 export function CollectibleGrid({
   onClick,
@@ -18,7 +18,9 @@ export function CollectibleGrid({
     <CollectibleWrapper>
       {nfts.items?.map((nft) => {
         return (
-          <TextButton
+          <Button
+            sx={{ display: 'flex', padding: 0 }}
+            variant="text"
             key={`${nft.address}-${nft.tokenId}`}
             onClick={() => onClick(nft)}
             data-testid={`${nft.name}-${nft.tokenId}`}
@@ -32,7 +34,7 @@ export function CollectibleGrid({
               showBalance={TokenType.ERC1155 === nft.type}
               balance={nft.balance}
             />
-          </TextButton>
+          </Button>
         );
       })}
     </CollectibleWrapper>

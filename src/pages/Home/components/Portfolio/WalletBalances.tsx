@@ -31,12 +31,14 @@ export function WalletBalances() {
 
   return (
     <Stack
+      direction="row"
       sx={{
-        width: '100%',
-        minHeight: '44px',
-        alignItems: 'flex-end',
         justifyContent: 'center',
-        flexDirection: 'row',
+        alignItems: 'flex-end',
+        minHeight: 5.5,
+        width: '100%',
+        mt: 1.75,
+        gap: 1.25,
       }}
     >
       {balanceTotal === null ? (

@@ -35,7 +35,7 @@ export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
         hover={false}
         margin="8px 0"
         showPlayIcon={false}
-        boarderRadius="50%"
+        borderRadius="50%"
       />
     );
 

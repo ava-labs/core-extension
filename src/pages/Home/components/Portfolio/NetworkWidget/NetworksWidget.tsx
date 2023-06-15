@@ -30,7 +30,13 @@ export function NetworksWidget() {
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
 
   return (
-    <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+    <Scrollbars
+      style={{
+        flexGrow: 1,
+        maxHeight: 'unset',
+        height: 'fit-content',
+      }}
+    >
       <Stack sx={{ m: 2 }}>
         <ActiveNetworkWidget
           assetList={activeNetworkAssetList}
