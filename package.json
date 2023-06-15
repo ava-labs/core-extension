@@ -9,6 +9,7 @@
     "build:alpha": "yarn run build:inpage --mode=production && webpack --config webpack.alpha.js",
     "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
+    "typecheck": "yarn tsc --skipLibCheck --noEmit",
     "postinstall": "husky install",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "setup": "yarn install && yarn allow-scripts",

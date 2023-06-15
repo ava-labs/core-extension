@@ -27,6 +27,8 @@ jobs:
         run: yarn setup
       - name: Lint
         run: yarn lint
+      - name: Typecheck
+        run: yarn typecheck
       - name: Test
         run: yarn test
       - name: Check if localization was updated

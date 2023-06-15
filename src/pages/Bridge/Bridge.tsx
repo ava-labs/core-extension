@@ -431,7 +431,6 @@ export function Bridge() {
                               ),
                               address: sourceBalance.asset.symbol,
                               contractType: 'ERC-20',
-                              description: '',
                               unconfirmedBalanceDisplayValue: formatBalance(
                                 sourceBalance.unconfirmedBalance
                               ),

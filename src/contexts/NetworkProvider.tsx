@@ -21,7 +21,7 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
-import { NetworkOverrides } from '@src/background/services/network/NetworkService';
+import { NetworkOverrides } from '@src/background/services/network/models';
 
 const NetworkContext = createContext<{
   network?: Network | undefined;

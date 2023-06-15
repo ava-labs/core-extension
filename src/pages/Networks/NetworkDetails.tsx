@@ -218,6 +218,7 @@ export const NetworkDetails = () => {
       onConfirm: () => {
         clearDialog();
         // We're resetting the RPC url, so we want to send it as undefined to the backend.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { rpcUrl, ...networkWithoutRpcUrl } = networkState;
 
         updateDefaultNetwork(networkWithoutRpcUrl)
