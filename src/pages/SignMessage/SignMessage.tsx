@@ -6,7 +6,6 @@ import {
   LoadingSpinnerIcon,
   PrimaryButton,
   SecondaryButton,
-  Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { ActionStatus } from '@src/background/services/actions/models';
@@ -24,6 +23,10 @@ import { SignData } from './components/SignData';
 import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
 import { Trans, useTranslation } from 'react-i18next';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { useDialog } from '@src/contexts/DialogContextProvider';
+import { useEffect } from 'react';
+import { Typography } from '@avalabs/k2-components';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -31,6 +34,41 @@ export function SignMessage() {
   const requestId = useGetRequestId();
   const { action: message, updateAction: updateMessage } =
     useApproveAction(requestId);
+
+  // TODO: remove this in https://ava-labs.atlassian.net/browse/CP-5617
+  // Message signing is not currently supported by the Ledger Avalanche app
+  // We also disable the "Sign" button
+  const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const { showDialog, clearDialog } = useDialog();
+
+  useEffect(() => {
+    if (isUsingLedgerWallet && message) {
+      showDialog({
+        title: t('Not Supported'),
+        content: (
+          <Typography
+            variant="body2"
+            align="left"
+            sx={{
+              lineHeight: '20px',
+              color: 'text.secondary',
+            }}
+          >
+            {t('Message signing not supported by the Avalanche Ledger app')}
+          </Typography>
+        ),
+        open: true,
+        onClose: () => {
+          clearDialog();
+          updateMessage({
+            status: ActionStatus.ERROR_USER_CANCELED,
+            id: message.id,
+          });
+          window.close();
+        },
+      });
+    }
+  }, [clearDialog, isUsingLedgerWallet, message, showDialog, t, updateMessage]);
 
   if (!message) {
     return (
@@ -138,6 +176,7 @@ export function SignMessage() {
             <PrimaryButton
               width="168px"
               size={ComponentSize.LARGE}
+              disabled={isUsingLedgerWallet}
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.SUBMITTING,
