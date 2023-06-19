@@ -1,22 +1,25 @@
 import {
-  ConnectionIndicator,
-  HorizontalFlex,
-  HorizontalSeparator,
-  SecondaryButton,
+  Button,
   Skeleton,
+  Stack,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+  useTheme,
+} from '@avalabs/k2-components';
+import { NetworkVMType } from '@avalabs/chains-sdk';
+import { useTranslation } from 'react-i18next';
+
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
 import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
-import { AccountSelector } from '../account/AccountSelector';
-import { NetworkSwitcher } from './NetworkSwitcher';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { NetworkVMType } from '@avalabs/chains-sdk';
-import { useTranslation } from 'react-i18next';
 import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { SettingsPages } from '@src/components/settings/models';
+
+import { ConnectionIndicatorK2 } from '../ConnectionIndicatorK2';
+import { NetworkSwitcher } from './NetworkSwitcher';
+import { AccountSelectorButton } from '../account/AccountSelectorButton';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -27,6 +30,8 @@ export function Header() {
   } = useAccountsContext();
   const { t } = useTranslation();
 
+  const { setIsSettingsOpen, setSettingsActivePage } = useSettingsContext();
+
   const isConnected =
     (isDomainConnectedToAccount &&
       isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||
@@ -36,77 +41,84 @@ export function Header() {
     network?.vmName === NetworkVMType.BITCOIN
       ? activeAccount?.addressBTC
       : activeAccount?.addressC;
+  const theme = useTheme();
 
   return (
-    <HorizontalFlex
-      justify="space-between"
-      align="flex-start"
-      padding="16px 16px 0 16px"
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        py: 1.5,
+        px: 2,
+      }}
     >
       <SettingsMenu />
       {activeAccount ? (
-        <VerticalFlex>
-          <>
-            <HorizontalFlex align="center" justify="center">
-              <ConnectionIndicator connected={isConnected}>
-                <Typography
-                  weight={600}
-                  size={12}
-                  height="16px"
-                  margin="0 16px 8px"
-                >
-                  {domain}
-                </Typography>
-                {isConnected ? (
-                  <>
-                    <HorizontalSeparator margin="0" />
-                    <SecondaryButton
-                      margin="8px auto"
-                      width="210px"
-                      onClick={() => {
-                        updateAccountPermission({
-                          addressC: activeAccount?.addressC,
-                          hasPermission: false,
-                          domain,
-                        });
-                      }}
-                    >
-                      {t('Disconnect')}
-                    </SecondaryButton>
-                  </>
-                ) : (
-                  <Typography
-                    weight={500}
-                    size={12}
-                    height="15px"
-                    margin="0 16px 8px"
-                  >
+        <Stack>
+          <Stack
+            direction="row"
+            sx={{ alignItems: 'center', justifyContent: 'center', gap: 1.5 }}
+          >
+            <ConnectionIndicatorK2 connected={isConnected}>
+              <Stack sx={{ gap: 0.5 }}>
+                <Typography variant="subtitle2">{domain}</Typography>
+                {!isConnected && (
+                  <Typography variant="body2" color="text.secondary">
                     {t('To connect, locate the connect button on their site.')}
                   </Typography>
                 )}
-              </ConnectionIndicator>
-              <AccountSelector />
-            </HorizontalFlex>
-            {address && (
-              <HorizontalFlex
-                data-testid="header-copy-address"
-                justify="center"
-              >
-                <SimpleAddressK2 address={address} />
-              </HorizontalFlex>
-            )}
-          </>
-        </VerticalFlex>
+              </Stack>
+              <Stack sx={{ gap: 1 }}>
+                {isConnected && (
+                  <Button
+                    color="secondary"
+                    fullWidth
+                    sx={{
+                      mt: 0.5,
+                      backgroundColor: `${theme.palette.grey[700]}CC`,
+                      fontSize: 'caption.fontSize',
+                    }}
+                    onClick={() => {
+                      updateAccountPermission({
+                        addressC: activeAccount?.addressC,
+                        hasPermission: false,
+                        domain,
+                      });
+                    }}
+                  >
+                    {t('Disconnect')}
+                  </Button>
+                )}
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => {
+                    setIsSettingsOpen(true);
+                    setSettingsActivePage(SettingsPages.CONNECTED_SITES);
+                  }}
+                >
+                  {t('View All Connected Sites')}
+                </Button>
+              </Stack>
+            </ConnectionIndicatorK2>
+            <AccountSelectorButton />
+          </Stack>
+          {address && (
+            <Stack
+              direction="row"
+              sx={{ pt: 0.5, justifyContent: 'center' }}
+              data-testid="header-copy-address"
+            >
+              <SimpleAddressK2 address={address} />
+            </Stack>
+          )}
+        </Stack>
       ) : (
-        <Skeleton
-          width="102px"
-          height="40px"
-          margin="0 0 8px 30px"
-          delay={250}
-        />
+        <Skeleton variant="rectangular" width="102px" height="24px" />
       )}
 
       <NetworkSwitcher />
-    </HorizontalFlex>
+    </Stack>
   );
 }

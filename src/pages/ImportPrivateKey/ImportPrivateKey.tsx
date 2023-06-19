@@ -1,13 +1,13 @@
 import {
-  ComponentSize,
-  FileDownload,
-  HorizontalFlex,
-  Input,
-  LoadingSpinnerIcon,
-  PrimaryButton,
+  Button,
+  CircularProgress,
+  DownloadIcon,
+  Stack,
+  TextField,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+  toast,
+  useTheme,
+} from '@avalabs/k2-components';
 import {
   getBtcAddressFromPubKey,
   getEvmAddressFromPubKey,
@@ -25,10 +25,8 @@ import { networks } from 'bitcoinjs-lib';
 import { t } from 'i18next';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useTheme } from 'styled-components';
-import { AccountsTabs } from '../Accounts/Accounts';
+import { AccountsTab } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
-import { toast } from '@avalabs/k2-components';
 
 type DerivedAddresses = {
   addressC: string;
@@ -63,12 +61,13 @@ export function ImportPrivateKey() {
       });
       toast.success(t('Private Key Imported'), { duration: 2000 });
       capture('ImportPrivateKeySucceeded');
+      history.replace(`/accounts?activeTab=${AccountsTab.Imported}`);
     } catch (err) {
       toast.error(t('Private Key Import Failed'), { duration: 2000 });
       console.error(err);
+    } finally {
+      setImportLoading(false);
     }
-    setImportLoading(false);
-    history.replace(`/accounts?activeTab=${AccountsTabs.IMPORTED}`);
   };
 
   useEffect(() => {
@@ -109,117 +108,103 @@ export function ImportPrivateKey() {
   }, [derivedAddresses, updateBalanceOnAllNetworks]);
 
   return (
-    <VerticalFlex width="100%">
-      <PageTitle
-        margin={'24px 0'}
-        onBackClick={() =>
-          history.replace(`/accounts?activeTab=${AccountsTabs.IMPORTED}`)
-        }
-      >
+    <Stack
+      sx={{
+        width: '100%',
+        height: '100%',
+        background: theme.palette.background.paper,
+      }}
+    >
+      <PageTitle margin={'24px 0 8px'} onBackClick={() => history.goBack()}>
         {t('Import Private Key')}
       </PageTitle>
-      <VerticalFlex padding="16px 16px 0">
-        <Typography size={14} height="20px" weight={600} margin="0 0 8px">
-          {t('Enter Private Key')}
-        </Typography>
-        <Input
-          data-testid="import-private-key-input"
-          onChange={(e) => {
-            setPrivateKey(e.target.value);
-            if (!isFormDirty) setIsFormDirty(true);
-          }}
-          value={privateKey}
-          placeholder={t('Enter Private Key')}
-          type="password"
-          width="100%"
-          onFocus={() => setHasFocus(true)}
-          onBlur={() => setHasFocus(false)}
-        />
-        {error && isFormDirty ? (
-          <Typography
-            size={12}
-            height="20px"
-            weight={400}
-            margin="8px 0 0"
-            color={theme.colors.error}
-          >
-            {error}
-          </Typography>
-        ) : (
-          <Typography size={12} height="20px" weight={400} margin="8px 0 0">
-            {t('Add an account by entering a private key')}
-          </Typography>
-        )}
-      </VerticalFlex>
-
-      <VerticalFlex padding="0 16px" margin="40px 0 0">
-        <Typography size={14} height="20px" weight={600}>
-          {t('Derived Addresses')}
-        </Typography>
-        <DerivedAddress
-          networkType={NetworkType.AVALANCHE}
-          address={derivedAddresses?.addressC ?? ''}
-          isLoading={isLoading}
-        />
-        <DerivedAddress
-          networkType={NetworkType.BITCOIN}
-          address={derivedAddresses?.addressBTC ?? ''}
-          isLoading={isLoading}
-        />
-      </VerticalFlex>
-
-      <HorizontalFlex
-        padding="0 16px"
-        margin="24px 0 0"
-        justify="space-between"
-      >
-        <Typography size={14} height="20px" weight={600}>
-          {t('Total Balance')}
-        </Typography>
-        <Typography size={14} height="20px" weight={400}>
-          {isBalanceLoading ? (
-            <LoadingSpinnerIcon color={theme.colors.icon1} height="16px" />
-          ) : balance !== null ? (
-            currencyFormatter(balance).replace(currency, '')
+      <Stack sx={{ px: 2, gap: 3, height: '100%' }}>
+        <Stack sx={{ gap: 1.5 }}>
+          <TextField
+            data-testid="import-private-key-input"
+            fullWidth
+            label={t('Enter Private Key')}
+            inputLabelProps={{
+              sx: { transform: 'none', fontSize: 'body2.fontSize' },
+            }}
+            onChange={(e) => {
+              setPrivateKey(e.target.value);
+              if (!isFormDirty) setIsFormDirty(true);
+            }}
+            value={privateKey}
+            placeholder={t('Enter Private Key')}
+            type="password"
+            onFocus={() => setHasFocus(true)}
+            onBlur={() => setHasFocus(false)}
+          />
+          {error && isFormDirty ? (
+            <Typography variant="caption" color={theme.palette.error.main}>
+              {error}
+            </Typography>
           ) : (
-            '-'
+            <Typography variant="caption">
+              {t('Add an account by entering a private key')}
+            </Typography>
           )}
-        </Typography>
-      </HorizontalFlex>
+        </Stack>
 
-      <VerticalFlex
-        align="center"
-        grow="1"
-        justify="flex-end"
-        padding="16px 16px 24px"
-      >
-        <HorizontalFlex justify="center" width="100%">
-          <PrimaryButton
+        <Stack sx={{ gap: 1 }}>
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightSemibold' }}>
+            {t('Derived Addresses')}
+          </Typography>
+          <DerivedAddress
+            networkType={NetworkType.AVALANCHE}
+            address={derivedAddresses?.addressC ?? ''}
+            isLoading={isLoading}
+          />
+          <DerivedAddress
+            networkType={NetworkType.BITCOIN}
+            address={derivedAddresses?.addressBTC ?? ''}
+            isLoading={isLoading}
+          />
+        </Stack>
+
+        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightSemibold' }}>
+            {t('Total Balance')}
+          </Typography>
+          <Typography variant="body2">
+            {isBalanceLoading ? (
+              <CircularProgress size={16} />
+            ) : balance !== null ? (
+              currencyFormatter(balance).replace(currency, '')
+            ) : (
+              '-'
+            )}
+          </Typography>
+        </Stack>
+
+        <Stack
+          sx={{
+            flexGrow: 1,
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            pt: 2,
+            pb: 3,
+          }}
+        >
+          <Button
             data-testid="import-private-key-button"
-            size={ComponentSize.LARGE}
+            size="large"
             disabled={!derivedAddresses || isImportLoading}
-            width="100%"
+            fullWidth
             onClick={() => {
               capture('ImportPrivateKeyClicked');
               handleImport();
             }}
-            style={{ fontSize: '14px', lineHeight: '20px' }}
+            isLoading={isImportLoading}
+            sx={{ gap: 1.5 }}
           >
-            {isImportLoading ? (
-              <LoadingSpinnerIcon color={theme.colors.text1} height="24px" />
-            ) : (
-              <>
-                <FileDownload
-                  color={!privateKey ? theme.buttons.primary.colorDisabled : ''}
-                  height="16px"
-                  style={{ marginRight: '12px' }}
-                />
-                {t('Import Private Key')}
-              </>
-            )}
-          </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </VerticalFlex>
+            <DownloadIcon size={16} />
+            {t('Import Private Key')}
+          </Button>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 }

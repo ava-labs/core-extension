@@ -1,297 +1,271 @@
-import {
-  AvaxTokenIcon,
-  Checkbox,
-  ComponentSize,
-  HorizontalFlex,
-  PencilIcon,
-  Skeleton,
-  TextButton,
-  Typography,
-  VerticalFlex,
-  WordInput,
-} from '@avalabs/react-components';
-import { Account, AccountType } from '@src/background/services/accounts/models';
-import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import React, { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import React, { forwardRef, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccountBalance } from './AccountBalance';
+import {
+  AvalancheColorIcon,
+  BitcoinColorIcon,
+  Button,
+  Checkbox,
+  EditIcon,
+  Grow,
+  IconButton,
+  Stack,
+  StackProps,
+  Typography,
+  styled,
+  useTheme,
+} from '@avalabs/k2-components';
+
+import { Account } from '@src/background/services/accounts/models';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
-import { CSSTransition } from 'react-transition-group';
 import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
-import { useTheme as useThemeK2 } from '@avalabs/k2-components';
+
+import { AccountBalance } from './AccountBalance';
 
 interface AccountItemProps {
   account: Account;
+  onClick: () => void;
   editing: boolean;
-  onEdit: () => void;
-  onSave: () => void;
-  isDelete?: boolean;
-  setDeleteId?: (id: string) => void;
-  isDeleteMode?: boolean;
+  onEditStart: () => void;
+  onEditEnd: () => void;
+  isChecked: boolean;
+  toggle: (id: string) => void;
+  isDeleteMode: boolean;
 }
 
-const AccountName = styled(Typography)`
-  max-width: 164px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 14px;
-  line-height: 17px;
-  font-weight: 500;
-  margin: 0;
-`;
-
-const LogoContainer = styled.span`
-  margin-right: 8px;
-  line-height: 1;
-`;
-
-const AccountNameInput = styled(WordInput)`
-  border: none;
+const AccountNameInput = styled('input')`
   width: 150px;
-  background-color: ${({ theme }) => `${theme.colors.bg1}`};
-  height: 27px;
-  padding: 6px;
-  color: ${({ theme }) => `${theme.colors.text2}`};
+  height: 28px;
+  color: ${({ theme }) => `${theme.palette.text.primary}`};
+  padding: ${({ theme }) => theme.spacing(0.25, 1.5)};
+  font-size: ${({ theme }) => theme.typography.body1.fontSize}px;
+  border-radius: ${({ theme }) => theme.shape.borderRadius}px;
+  background-color: ${({ theme }) => theme.palette.grey[900]};
 
-  > input {
-    font-size: 12px;
-  }
+  border: none;
 
-  &:focus-within {
-    border: none;
-  }
-`;
-
-const CheckboxContainer = styled.div`
-  margin-right: 16px;
-  margin-left: 0px;
-  &.item-appear {
-    margin-left: -30px;
-  }
-  &.item-appear-active {
-    margin-left: 0px;
-    transition: margin-left 300ms ease-in-out;
+  &:focus {
+    border: 1px solid #f8f8fb;
   }
 `;
 
-const StyledAccountItem = styled(HorizontalFlex)<{
-  selected?: boolean;
-  edit?: boolean;
-}>`
-  background-color: ${({ theme, selected }) =>
-    selected ? theme.colors.stroke1 : 'auto'};
-  width: 100%;
-  height: ${({ edit }) => (edit ? '87px' : '78px')};
-  padding: 8px 16px;
-  z-index: ${({ selected }) => (selected ? 2 : 'unset')};
-  margin-top: ${({ selected }) => (selected ? `-1px` : '0')};
-  margin-bottom: ${({ selected }) => (selected ? `-1px` : '0')};
-  justify-content: space-between;
-  cursor: pointer;
-  overflow: hidden;
-  &:hover {
-    opacity: 1;
-  }
-  opacity: ${({ selected }) => (!selected ? 0.6 : 1)};
-  transition: 0.2s ease-in-out;
-`;
+export const AccountItem = forwardRef(
+  (
+    {
+      account,
+      editing,
+      onEditStart,
+      onEditEnd,
+      isChecked,
+      isDeleteMode,
+      toggle,
+      onClick,
+    }: AccountItemProps,
+    ref
+  ) => {
+    const [accountName, setAccountName] = useState<string>(account.name);
+    const { renameAccount, isActiveAccount } = useAccountsContext();
+    const { updateBalanceOnAllNetworks } = useBalancesContext();
+    const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+    const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
+    const { t } = useTranslation();
 
-export function AccountItem({
-  account,
-  editing,
-  onEdit,
-  onSave,
-  setDeleteId,
-  isDelete,
-  isDeleteMode,
-}: AccountItemProps) {
-  const [accountName, setAccountName] = useState<string>(account.name);
-  const { renameAccount, isActiveAccount } = useAccountsContext();
-  const theme = useTheme();
-  // remove theme from react-components and use k2 and change to just theme
-  const themeK2 = useThemeK2();
-  const { updateBalanceOnAllNetworks } = useBalancesContext();
-  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
-  const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
-  const { t } = useTranslation();
+    const isActive = isActiveAccount(account.id);
+    const inEditMode = isActive && editing;
 
-  const hasBalance = balanceTotalUSD !== null;
-  const isActive = isActiveAccount(account.id);
+    const editAddress = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onEditStart();
+    };
 
-  const inEditMode = isActive && editing;
-
-  const editAddress = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onEdit();
-  };
-
-  const onSaveClicked = (e: React.UIEvent) => {
-    e.stopPropagation();
-    if (accountName.trim().length === 0) {
-      onSave();
+    const onCancelEdit = (e: React.KeyboardEvent) => {
+      e.stopPropagation();
       setAccountName(account.name);
-    } else {
-      onSave();
-      renameAccount(account.id, accountName);
-    }
-  };
+    };
 
-  const getBalance = async () => {
-    if (!updateBalanceOnAllNetworks) {
-      return;
-    }
-    setIsBalanceLoading(true);
-    await updateBalanceOnAllNetworks(account);
-    setIsBalanceLoading(false);
-  };
+    const onSaveClicked = (e: React.UIEvent) => {
+      e.stopPropagation();
+      if (accountName.trim().length === 0) {
+        setAccountName(account.name);
+      } else {
+        renameAccount(account.id, accountName);
+      }
+      onEditEnd();
+    };
 
-  return (
-    <StyledAccountItem selected={isActive} edit={inEditMode}>
-      <HorizontalFlex>
-        {isDeleteMode && account.type === AccountType.IMPORTED && (
-          <CSSTransition timeout={500} classNames="item" appear in exit>
-            <CheckboxContainer>
-              <Checkbox
-                onChange={() => {
-                  setDeleteId && setDeleteId(account?.id);
-                }}
-                isChecked={isDelete}
-              />
-            </CheckboxContainer>
-          </CSSTransition>
-        )}
-        <VerticalFlex align="flex-start">
-          <HorizontalFlex
-            width={inEditMode ? '100%' : 'auto'}
-            align="center"
-            justify="space-between"
-            marginBottom="2px"
+    const getBalance = async () => {
+      if (!updateBalanceOnAllNetworks) {
+        return;
+      }
+      setIsBalanceLoading(true);
+      await updateBalanceOnAllNetworks(account);
+      setIsBalanceLoading(false);
+    };
+
+    const handleClick = useCallback(() => {
+      if (isDeleteMode) {
+        toggle?.(account.id);
+      } else {
+        onClick();
+      }
+    }, [isDeleteMode, account.id, toggle, onClick]);
+
+    return (
+      <Wrapper
+        ref={ref}
+        isActive={isActive}
+        isDeleteMode={isDeleteMode}
+        onClick={handleClick}
+      >
+        <Grow in={isDeleteMode} mountOnEnter unmountOnExit>
+          <Stack sx={{ justifyContent: 'center', ml: -1.5, mr: 1 }}>
+            <Checkbox
+              size="medium"
+              checked={isChecked}
+              onChange={() => toggle?.(account.id)}
+            />
+          </Stack>
+        </Grow>
+        <Stack sx={{ width: '100%', zIndex: 0, mr: -0.5, gap: 0.5 }}>
+          {/* Header */}
+          <Stack
+            direction="row"
+            sx={{ justifyContent: 'space-between', gap: 3 }}
           >
-            {inEditMode ? (
-              <>
-                <AccountNameInput
-                  data-testid="account-name-edit-input"
-                  value={accountName}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setAccountName(e.target.value);
-                  }}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      onSaveClicked(e);
-                    }
-                  }}
-                  onFocus={(e) => {
-                    e.target.select();
-                  }}
-                  autoFocus
-                />
-                <TextButton
-                  data-testid="account-name-save-button"
-                  size={ComponentSize.SMALL}
-                  margin="0 0 0 8px"
-                  onClick={onSaveClicked}
-                >
-                  {t('Save')}
-                </TextButton>
-              </>
-            ) : (
-              <>
-                <AccountName data-testid="account-name">
-                  {accountName}
-                </AccountName>
-                {isActive && (
-                  <TextButton
-                    data-testid="account-name-edit-button"
-                    onClick={editAddress}
-                    margin="0 0 0 8px"
+            <Stack
+              direction="row"
+              sx={{
+                alignItems: 'center',
+                flexGrow: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                height: 32,
+                gap: 1,
+              }}
+            >
+              {inEditMode ? (
+                <>
+                  <AccountNameInput
+                    autoFocus
+                    data-testid="account-name-edit-input"
+                    value={accountName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setAccountName(e.target.value);
+                    }}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      if (e.key === 'Enter') {
+                        onSaveClicked(e);
+                      } else if (e.key === 'Escape') {
+                        onCancelEdit(e);
+                      }
+                    }}
+                  />
+                  <Button variant="text" size="small" onClick={onSaveClicked}>
+                    {t('Save')}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
                   >
-                    <PencilIcon color={theme.colors.icon1} height="12px" />
-                  </TextButton>
-                )}
-              </>
-            )}
-          </HorizontalFlex>
-          <HorizontalFlex
-            data-testid="account-selector-copy-ava-address"
-            margin="4px 0 0 0"
-          >
-            <LogoContainer>
-              <AvaxTokenIcon height="16" />
-            </LogoContainer>
-            <SimpleAddressK2
-              address={account.addressC}
-              typographyProps={{
-                sx: {
-                  lineHeight: 'inherit',
-                  color: 'text.secondary',
-                },
-              }}
-              copyIconProps={{
-                color: isActive
-                  ? themeK2.palette.primary.main
-                  : themeK2.palette.grey[500],
-              }}
-            />
-          </HorizontalFlex>
-          <HorizontalFlex
-            data-testid="account-selector-copy-btc-address"
-            margin="4px 0 0 0"
-          >
-            <LogoContainer>
-              <BitcoinLogo height="16" />
-            </LogoContainer>
-            <SimpleAddressK2
-              address={account.addressBTC}
-              typographyProps={{
-                sx: {
-                  lineHeight: 'inherit',
-                  color: 'text.secondary',
-                },
-              }}
-              copyIconProps={{
-                color: isActive
-                  ? themeK2.palette.primary.main
-                  : themeK2.palette.grey[500],
-              }}
-            />
-          </HorizontalFlex>
-        </VerticalFlex>
-      </HorizontalFlex>
-      {!inEditMode && (
-        <>
-          {/* BALANCE */}
-          {isBalanceLoading && !hasBalance && (
-            <Skeleton width="60px" height="12px" />
-          )}
-          {hasBalance && (
+                    {accountName}
+                  </Typography>
+                  {isActive && (
+                    <IconButton size="small" onClick={editAddress}>
+                      <EditIcon />
+                    </IconButton>
+                  )}
+                </>
+              )}
+            </Stack>
             <AccountBalance
               refreshBalance={getBalance}
               balanceTotalUSD={balanceTotalUSD}
               isBalanceLoading={isBalanceLoading}
             />
-          )}
-          {/* BUTTON */}
-          {!hasBalance && !isBalanceLoading && (
-            <VerticalFlex>
-              <TextButton
-                data-testid="view-balance-button"
-                size={ComponentSize.SMALL}
-                margin="0 0 0 8px"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  getBalance();
-                }}
-              >
-                {t('View Balance')}
-              </TextButton>
-            </VerticalFlex>
-          )}
-        </>
-      )}
-    </StyledAccountItem>
-  );
-}
+          </Stack>
+          {/* Addresses */}
+          <Stack sx={{ gap: 1 }}>
+            <Stack
+              direction="row"
+              data-testid="account-selector-copy-ava-address"
+              sx={{ gap: 1 }}
+            >
+              <AvalancheColorIcon size={17} />
+              <SimpleAddressK2
+                address={account.addressC}
+                iconColor={isActive ? 'text.secondary' : 'text.primary'}
+                textColor="text.secondary"
+              />
+            </Stack>
+
+            <Stack
+              direction="row"
+              data-testid="account-selector-copy-btc-address"
+              sx={{ gap: 1 }}
+            >
+              <BitcoinColorIcon size={17} />
+              <SimpleAddressK2
+                address={account.addressBTC}
+                iconColor={isActive ? 'text.secondary' : 'text.primary'}
+                textColor="text.secondary"
+              />
+            </Stack>
+          </Stack>
+        </Stack>
+      </Wrapper>
+    );
+  }
+);
+
+AccountItem.displayName = 'AccountItem';
+
+type WrapperProps = StackProps & { isActive: boolean; isDeleteMode: boolean };
+const Wrapper = forwardRef(
+  ({ isActive, isDeleteMode, ...props }: WrapperProps, ref) => {
+    const theme = useTheme();
+
+    // Disable hover styles when manager mode is enabled.
+    const hoverStyles = isDeleteMode
+      ? {}
+      : {
+          ':hover': {
+            opacity: 1,
+            backgroundColor: isActive ? theme.palette.grey[850] : 'transparent',
+          },
+        };
+
+    return (
+      <Stack
+        direction="row"
+        ref={ref}
+        sx={{
+          zIndex: 0,
+          pt: 0.5,
+          pb: 1.5,
+          px: 2,
+          width: '100%',
+          height: '92px',
+          position: 'relative',
+          transition:
+            'opacity ease-in-out .15s, background-color ease-in-out .15s',
+          opacity: isActive || isDeleteMode ? 1 : 0.6,
+          backgroundColor: isActive ? theme.palette.grey[850] : 'transparent',
+          cursor: isActive ? 'default' : 'pointer',
+
+          ...hoverStyles,
+        }}
+        {...props}
+      ></Stack>
+    );
+  }
+);
+Wrapper.displayName = 'Wrapper';

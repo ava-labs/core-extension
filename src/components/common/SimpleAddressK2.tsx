@@ -1,60 +1,53 @@
 import React from 'react';
-import { truncateAddress } from '@src/utils/truncateAddress';
-
 import {
-  styled,
   Typography,
   Stack,
   toast,
   CopyIcon,
   TypographyProps,
-  IconBaseProps,
 } from '@avalabs/k2-components';
+import { useTranslation } from 'react-i18next';
+
+import { truncateAddress } from '@src/utils/truncateAddress';
 
 export interface SimpleAddressProps {
   address: string;
-  className?: string;
-  typographyProps?: TypographyProps;
-  copyIconProps?: IconBaseProps;
-  copyCompleteText?: string;
+  textColor?: TypographyProps['color'];
+  iconColor?: TypographyProps['color'];
 }
 
-const Container = styled(Stack)`
-  cursor: pointer;
-  flex-direction: row;
-  align-content: center;
-`;
-
-const StyledCopyIcon = styled(CopyIcon)<any>`
-  min-width: 16px;
-`;
-
 export function SimpleAddressK2({
-  className,
   address,
-  typographyProps = {},
-  copyIconProps = {},
-  copyCompleteText = 'Copied!',
+  iconColor,
+  textColor,
 }: SimpleAddressProps) {
+  const { t } = useTranslation();
+
   const copyAddress = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(address);
-    toast.success(copyCompleteText, { duration: 2000 });
+    toast.success(t('Copied!'), { duration: 2000 });
   };
 
   return (
-    <Container
+    <Stack
+      direction="row"
       sx={{
-        textAlign: 'center',
         gap: 1,
+        cursor: 'pointer',
+        alignItems: 'center',
+        textAlign: 'center',
       }}
       onClick={copyAddress}
-      className={className}
     >
-      <StyledCopyIcon height="12px" {...copyIconProps} />
-      <Typography variant="caption" {...typographyProps}>
+      <CopyIcon
+        sx={{
+          ...(iconColor ? { color: iconColor } : {}),
+        }}
+      />
+      <Typography variant="caption" color={textColor}>
         {truncateAddress(address)}
       </Typography>
-    </Container>
+    </Stack>
   );
 }
