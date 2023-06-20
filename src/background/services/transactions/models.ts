@@ -19,6 +19,12 @@ export enum TxStatus {
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
 
+export enum AvalancheChainStrings {
+  AVM = 'X Chain',
+  PVM = 'P Chain',
+  EVM = 'C Chain',
+}
+
 export enum TransactionEvent {
   TRANSACTIONS_UPDATED = 'transactions-updated',
   TRANSACTION_FINALIZED = 'transaction-finalized',

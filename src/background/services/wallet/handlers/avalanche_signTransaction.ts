@@ -11,16 +11,11 @@ import {
   avaxSerial,
   Utxo,
 } from '@avalabs/avalanchejs-v2';
-import { parseAvalancheTx } from '@src/background/services/wallet/utils/parseAvalancheTx';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
-import createAvalancheUnsignedTx from '../utils/createAvalancheUnsignedTx';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/wallets-sdk';
-import populateCredential, {
-  emptySignature,
-} from '../utils/populateCredential';
 
 @injectable()
 export class AvalancheSignTransactionHandler extends DAppRequestHandler {
@@ -71,7 +66,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
     try {
       const codecManager = utils.getManagerForVM(vm);
       const signedTx = codecManager.unpack(txBytes, avaxSerial.SignedTx);
-      const unsignedTx = await createAvalancheUnsignedTx({
+      const unsignedTx = await Avalanche.createAvalancheUnsignedTx({
         tx,
         vm,
         provider,
@@ -80,14 +75,15 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
 
       // transaction has been already (partially) signed, but it may have gaps in its signatures arrays
       // so we fill these gaps with placeholder signatures if needed
-      credentials = tx
-        .getSigIndices()
-        .map(
-          (sigIndices, credentialIndex) =>
-            new Credential(
-              populateCredential(sigIndices, { unsignedTx, credentialIndex })
-            )
-        );
+      credentials = tx.getSigIndices().map(
+        (sigIndices, credentialIndex) =>
+          new Credential(
+            Avalanche.populateCredential(sigIndices, {
+              unsignedTx,
+              credentialIndex,
+            })
+          )
+      );
 
       // prevents double-fetching
       utxos = unsignedTx.getInputUtxos();
@@ -96,10 +92,12 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
       // to ensure it contains a signature slot for all signature indices from the inputs
       credentials = tx
         .getSigIndices()
-        .map((indicies) => new Credential(populateCredential(indicies)));
+        .map(
+          (indicies) => new Credential(Avalanche.populateCredential(indicies))
+        );
     }
 
-    const unsignedTx = await createAvalancheUnsignedTx({
+    const unsignedTx = await Avalanche.createAvalancheUnsignedTx({
       tx,
       vm,
       provider,
@@ -148,7 +146,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
     }
 
     // get display data for the UI
-    const txData = await parseAvalancheTx(
+    const txData = await Avalanche.parseAvalancheTx(
       unsignedTx.getTx(),
       provider,
       currentAddress
@@ -234,7 +232,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
               !signature ||
               (isOwnSignature &&
                 signature.toString() ===
-                  utils.bufferToHex(emptySignature.toBytes()))
+                  utils.bufferToHex(Avalanche.emptySignature.toBytes()))
             ) {
               throw new Error(`Failed to sign [${inputIndex}, ${sigIndex}]`);
             }
