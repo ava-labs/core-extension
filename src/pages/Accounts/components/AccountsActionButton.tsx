@@ -108,7 +108,15 @@ export const AccountsActionButton = ({
       variant="contained"
       fullWidth
     >
-      <Button onClick={handleMainButtonClick} sx={{ gap: 1 }}>
+      <Button
+        onClick={handleMainButtonClick}
+        sx={{ gap: 1 }}
+        data-testid={
+          isInImportedAccountsMode
+            ? 'add-import-account'
+            : 'add-primary-account'
+        }
+      >
         {isInImportedAccountsMode ? (
           <ImportKeyButtonContent />
         ) : (
@@ -120,6 +128,7 @@ export const AccountsActionButton = ({
           ref={toggleButtonRef}
           onClick={() => setIsMenuOpen((open) => !open)}
           sx={{ width: '56px' }}
+          data-testid="account-options"
         >
           <ChevronDownIcon
             size={24}
@@ -141,6 +150,11 @@ export const AccountsActionButton = ({
                     size="large"
                     color="secondary"
                     onClick={handleSecondaryButtonClick}
+                    data-testid={
+                      !isInImportedAccountsMode
+                        ? 'add-import-account'
+                        : 'add-primary-account'
+                    }
                   >
                     {isInImportedAccountsMode ? (
                       <CreateAccountButtonContent />

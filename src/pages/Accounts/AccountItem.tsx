@@ -117,6 +117,7 @@ export const AccountItem = forwardRef(
         isActive={isActive}
         isDeleteMode={isDeleteMode}
         onClick={handleClick}
+        data-testid={`account-li-item-${account.id}`}
       >
         <Grow in={isDeleteMode} mountOnEnter unmountOnExit>
           <Stack sx={{ justifyContent: 'center', ml: -1.5, mr: 1 }}>
@@ -162,7 +163,12 @@ export const AccountItem = forwardRef(
                       }
                     }}
                   />
-                  <Button variant="text" size="small" onClick={onSaveClicked}>
+                  <Button
+                    variant="text"
+                    size="small"
+                    onClick={onSaveClicked}
+                    data-testid="account-name-save-button"
+                  >
                     {t('Save')}
                   </Button>
                 </>
@@ -175,11 +181,16 @@ export const AccountItem = forwardRef(
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
                     }}
+                    data-testid="account-name"
                   >
                     {accountName}
                   </Typography>
                   {isActive && (
-                    <IconButton size="small" onClick={editAddress}>
+                    <IconButton
+                      size="small"
+                      onClick={editAddress}
+                      data-testid="account-name-edit-button"
+                    >
                       <EditIcon />
                     </IconButton>
                   )}
