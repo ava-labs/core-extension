@@ -22,7 +22,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
-import { VerticalStack } from '@src/components/common/VerticalStack';
 
 enum ListType {
   GRID = 'GRID',
@@ -131,7 +130,7 @@ export function Collectibles() {
         </InfiniteScroll>
       )}
       {!nfts.loading && nfts.items?.length === 0 && (
-        <VerticalStack
+        <Stack
           sx={{
             flexGrow: 1,
             pb: 9,
@@ -141,7 +140,7 @@ export function Collectibles() {
           }}
         >
           <CollectibleListEmpty />
-        </VerticalStack>
+        </Stack>
       )}
       {nfts.loading && (
         <Scrollbars>
@@ -149,7 +148,7 @@ export function Collectibles() {
         </Scrollbars>
       )}
       {nfts.error && (
-        <VerticalStack
+        <Stack
           sx={{
             flexGrow: 1,
             pb: 9,
@@ -177,7 +176,7 @@ export function Collectibles() {
           >
             {t('Failed to load collectibles')}
           </Typography>
-        </VerticalStack>
+        </Stack>
       )}
     </Stack>
   );

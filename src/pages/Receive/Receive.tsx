@@ -1,27 +1,20 @@
-import { useEffect, useState } from 'react';
-import {
-  VerticalFlex,
-  Typography,
-  LoadingIcon,
-} from '@avalabs/react-components';
+import { useEffect } from 'react';
 
-import styled from 'styled-components';
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { AvalancheQRCodeLogo } from '@src/components/icons/AvalancheQRCodeLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { BtcQRCodeLogo } from '@src/components/icons/BtcQRCodeLogo';
+import {
+  BtcQRCodeLogo,
+  EthereumQRCodeLogo,
+  AvalancheQRCodeLogo,
+} from '@src/components/icons/QRCodeLogos';
 import { NetworkVMType } from '@avalabs/chains-sdk';
-import { EthereumQRCodeLogo } from '@src/components/icons/EthereumQRCodeLogo';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { useTranslation } from 'react-i18next';
 import { PrimaryAddressK2 } from '@src/components/common/AddressK2';
-
-const StyledPrimaryAddress = styled(PrimaryAddressK2)`
-  width: 100%;
-`;
+import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
 
 export const Receive = () => {
   const { t } = useTranslation();
@@ -30,8 +23,11 @@ export const Receive = () => {
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { capture } = useAnalyticsContext();
-  const [address, setAddress] = useState<string>('');
-  const [isBitcoinActive, setIsBitcoinActive] = useState<boolean>(false);
+  const isBitcoinActive = network?.vmName === NetworkVMType.BITCOIN;
+
+  const address = isBitcoinActive
+    ? activeAccount?.addressBTC
+    : activeAccount?.addressC;
 
   useEffect(() => {
     capture('ReceivePageVisited');
@@ -39,40 +35,13 @@ export const Receive = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    setIsBitcoinActive(network?.vmName === NetworkVMType.BITCOIN);
-  }, [network]);
-
-  useEffect(() => {
-    const activeAddress = isBitcoinActive
-      ? activeAccount?.addressBTC
-      : activeAccount?.addressC;
-    if (activeAddress) {
-      setAddress(activeAddress);
-    }
-  }, [activeAccount, isBitcoinActive]);
-
   function getLogo() {
     if (isBitcoinActive) {
-      return (
-        <BtcQRCodeLogo position={'absolute'} text={'Bitcoin'} size={102} />
-      );
+      return <BtcQRCodeLogo />;
     } else if (network?.chainId && isEthereumChainId(network.chainId)) {
-      return (
-        <EthereumQRCodeLogo
-          position={'absolute'}
-          text={'Ethereum'}
-          size={102}
-        />
-      );
+      return <EthereumQRCodeLogo />;
     } else {
-      return (
-        <AvalancheQRCodeLogo
-          position={'absolute'}
-          text={'C-Chain'}
-          size={102}
-        />
-      );
+      return <AvalancheQRCodeLogo />;
     }
   }
 
@@ -87,37 +56,48 @@ export const Receive = () => {
   }
 
   if (!address || !network) {
-    return <LoadingIcon />;
+    return (
+      <Stack sx={{ justifyContent: 'center' }}>
+        <CircularProgress />
+      </Stack>
+    );
   }
 
   return (
-    <VerticalFlex width="100%" align="center">
-      <PageTitle>{t('Receive')}</PageTitle>
-      <VerticalFlex
+    <Stack
+      sx={{
+        width: '100%',
+        justifyContent: 'space-between',
+      }}
+    >
+      <PageTitle margin="0">{t('Receive')}</PageTitle>
+      <Stack
         data-testid="receive-qr-code"
-        width={'100%'}
-        grow="1"
-        align="center"
-        justify="center"
+        sx={{
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
         <QRCodeWithLogo size={256} value={address}>
           {getLogo()}
         </QRCodeWithLogo>
-      </VerticalFlex>
-      <VerticalFlex
+      </Stack>
+      <Stack
         data-testid="receive-address"
-        padding="0 16px 24px"
-        width="100%"
+        sx={{
+          px: 2,
+          pr: 3,
+          width: '100%',
+          gap: 1.5,
+        }}
       >
-        <Typography size={12} height="15px" margin="0 0 4px">
+        {/* TODO: remove sx override as `button` variant should be 14px by default, but currently isn't in k2 */}
+        <Typography variant="button" sx={{ fontSize: 14 }}>
           {getName()}
         </Typography>
-        <StyledPrimaryAddress
-          truncateLength={20}
-          isTruncated={true}
-          address={address}
-        />
-      </VerticalFlex>
-    </VerticalFlex>
+        <PrimaryAddressK2 address={address} isTruncated={false} />
+      </Stack>
+    </Stack>
   );
 };

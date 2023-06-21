@@ -1,6 +1,7 @@
 import {
   Button,
   Divider,
+  Stack,
   Typography,
   TypographyProps,
 } from '@avalabs/k2-components';
@@ -15,7 +16,6 @@ import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { TokenType } from '@src/background/services/balances/models';
-import { VerticalStack } from '@src/components/common/VerticalStack';
 
 type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 
@@ -41,7 +41,7 @@ export function CollectibleDetails() {
   }
 
   return (
-    <VerticalStack
+    <Stack
       sx={{
         width: '100%',
         height: '100%',
@@ -61,7 +61,7 @@ export function CollectibleDetails() {
           }
         }}
       >
-        <VerticalStack
+        <Stack
           sx={{
             px: 2,
           }}
@@ -94,43 +94,42 @@ export function CollectibleDetails() {
             {t('Send')}
           </Button>
           <Typography variant="h4">{t('Description')}</Typography>
-          <VerticalStack
+          <Stack
             sx={{
               mt: 2,
               mb: 4,
-              display: 'flex',
               gap: '15px',
             }}
           >
-            <VerticalStack>
+            <Stack>
               <AttributeLabel>{t('Collection')}</AttributeLabel>
               <AttributeData>{nft.collectionName}</AttributeData>
-            </VerticalStack>
-            <VerticalStack>
+            </Stack>
+            <Stack>
               <AttributeLabel>{t('Description')}</AttributeLabel>
               <AttributeData>{nft?.description}</AttributeData>
-            </VerticalStack>
-          </VerticalStack>
+            </Stack>
+          </Stack>
 
           {nft?.attributes && nft.attributes.length > 0 && (
             <Typography variant="h4">{t('Properties')}</Typography>
           )}
-          <VerticalStack
+          <Stack
             sx={{
               pt: 2,
               pb: 4,
             }}
           >
             {nft?.attributes?.map((attribute, i) => (
-              <VerticalStack key={i}>
+              <Stack key={i}>
                 {i !== 0 && <Divider sx={{ my: 2 }} />}
                 <AttributeLabel>{attribute.name}</AttributeLabel>
                 <AttributeData>{attribute.value}</AttributeData>
-              </VerticalStack>
+              </Stack>
             ))}
-          </VerticalStack>
-        </VerticalStack>
+          </Stack>
+        </Stack>
       </Scrollbars>
-    </VerticalStack>
+    </Stack>
   );
 }
