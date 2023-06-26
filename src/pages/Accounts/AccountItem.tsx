@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useState } from 'react';
+import React, { ForwardedRef, forwardRef, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AvalancheColorIcon,
@@ -62,7 +62,7 @@ export const AccountItem = forwardRef(
       toggle,
       onClick,
     }: AccountItemProps,
-    ref
+    ref: ForwardedRef<HTMLDivElement>
   ) => {
     const [accountName, setAccountName] = useState<string>(account.name);
     const { renameAccount, isActiveAccount } = useAccountsContext();
@@ -241,7 +241,10 @@ AccountItem.displayName = 'AccountItem';
 
 type WrapperProps = StackProps & { isActive: boolean; isDeleteMode: boolean };
 const Wrapper = forwardRef(
-  ({ isActive, isDeleteMode, ...props }: WrapperProps, ref) => {
+  (
+    { isActive, isDeleteMode, ...props }: WrapperProps,
+    ref: ForwardedRef<HTMLDivElement>
+  ) => {
     const theme = useTheme();
 
     // Disable hover styles when manager mode is enabled.
