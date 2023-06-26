@@ -1,24 +1,11 @@
-import {
-  VerticalFlex,
-  Typography,
-  HorizontalFlex,
-  PrimaryButton,
-  SwitchIcon,
-  ComponentSize,
-  IconDirection,
-} from '@avalabs/react-components';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useState } from 'react';
-
-import styled, { useTheme } from 'styled-components';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
 import { ReviewOrder } from './components/ReviewOrder';
 import { TxInProgress } from '@src/components/common/TxInProgress';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { FeatureGates } from '@avalabs/posthog-sdk';
@@ -45,9 +32,20 @@ import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
-import { toast } from '@avalabs/k2-components';
+import {
+  Stack,
+  toast,
+  Scrollbars,
+  Typography,
+  SwapIcon,
+  useTheme,
+  Button,
+  styled,
+  ToastCard,
+} from '@avalabs/k2-components';
+import { TokenSelect } from '@src/components/common/TokenSelectK2';
 
-const ReviewOrderButtonContainer = styled.div<{
+const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
 }>`
   position: ${({ isTransactionDetailsOpen }) =>
@@ -110,9 +108,11 @@ export function Swap() {
   } = useSwapStateFunctions();
 
   async function onHandleSwap() {
+    let pendingToastId = '';
+
     if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
       history.push('/home');
-      toast.loading(t('Swap pending...'));
+      pendingToastId = toast.loading(t('Swap pending...'));
     }
     const {
       amount,
@@ -151,7 +151,18 @@ export function Swap() {
     );
     setTxInProgress(false);
     if (error) {
-      toast.error(t('Swap Failed'), { duration: Infinity });
+      toast.custom(
+        <ToastCard
+          onDismiss={() => toast.remove(pendingToastId)}
+          variant="error"
+        >
+          {t('Swap Failed')}
+        </ToastCard>,
+        {
+          id: pendingToastId,
+          duration: Infinity,
+        }
+      );
       setIsReviewOrderOpen(false);
 
       return;
@@ -160,6 +171,7 @@ export function Swap() {
       title: t('Swap Successful'),
       url: network && getExplorerAddressByNetwork(network, result.swapTxHash),
       label: t('View in Explorer'),
+      id: pendingToastId,
     });
     history.push('/home');
   }
@@ -200,9 +212,21 @@ export function Swap() {
   }
 
   return (
-    <VerticalFlex width="100%">
+    <Stack
+      sx={{
+        width: '100%',
+      }}
+    >
       <PageTitle>{t('Swap')}</PageTitle>
-      <VerticalFlex grow="1" margin="8px 0 0" padding="16px">
+      <Stack
+        sx={{
+          p: 2,
+          mt: 1,
+          mx: 0,
+          mb: 0,
+          flexGrow: 1,
+        }}
+      >
         <Scrollbars
           style={{
             flexGrow: 1,
@@ -246,11 +270,16 @@ export function Swap() {
             setIsOpen={setIsFromTokenSelectOpen}
           />
 
-          <HorizontalFlex
-            justify={
-              swapError?.message || swapWarning ? 'space-between' : 'flex-end'
-            }
-            margin="16px 0"
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              my: 2,
+              mx: 0,
+              justifyContent: `${
+                swapError?.message || swapWarning ? 'space-between' : 'flex-end'
+              }`,
+              alignItems: 'start',
+            }}
           >
             {swapError?.message && (
               <SwapError
@@ -264,7 +293,10 @@ export function Swap() {
               />
             )}
             {swapWarning && (
-              <Typography size={12} color={theme.colors.error}>
+              <Typography
+                variant="caption"
+                sx={{ color: theme.palette.error.main }}
+              >
                 {swapWarning}
               </Typography>
             )}
@@ -281,13 +313,14 @@ export function Swap() {
               disabled={!selectedFromToken || !selectedToToken}
               isSwapped={isReversed}
             >
-              <SwitchIcon
-                height="24px"
-                direction={IconDirection.UP}
-                color={theme.colors.text1}
+              <SwapIcon
+                size={20}
+                sx={{
+                  transform: 'rotate(90deg)',
+                }}
               />
             </SwitchIconContainer>
-          </HorizontalFlex>
+          </Stack>
           <TokenSelect
             label={t('To')}
             onTokenChange={(token: TokenWithBalance) => {
@@ -323,7 +356,6 @@ export function Swap() {
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(optimalRate)}
-              walletFee={optimalRate.partnerFee}
               onGasChange={onGasChange}
               gasLimit={gasLimit}
               gasPrice={customGasPrice || networkFee.low.maxFee}
@@ -339,10 +371,11 @@ export function Swap() {
             isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
             <ParaswapNotice />
-            <PrimaryButton
+            <Button
               data-testid="swap-review-order-button"
-              width="100%"
-              margin="16px 0 0 0"
+              sx={{
+                mt: 2,
+              }}
               onClick={() => {
                 capture('SwapReviewOrder', {
                   destinationInputField,
@@ -351,14 +384,15 @@ export function Swap() {
                 });
                 setIsReviewOrderOpen(true);
               }}
-              size={ComponentSize.LARGE}
+              fullWidth
+              size="large"
               disabled={isLoading || !canSwap}
             >
               {t('Review Order')}
-            </PrimaryButton>
+            </Button>
           </ReviewOrderButtonContainer>
         </Scrollbars>
-      </VerticalFlex>
+      </Stack>
 
       {isReviewOrderOpen && canSwap && (
         <ReviewOrder
@@ -373,7 +407,6 @@ export function Swap() {
             onHandleSwap();
           }}
           optimalRate={optimalRate}
-          gasLimit={gasLimit}
           gasPrice={customGasPrice || networkFee.low.maxFee}
           slippage={slippageTolerance}
           onTimerExpire={() => {
@@ -402,6 +435,7 @@ export function Swap() {
           isLoading={isLoading}
           rateValueInput={destinationInputField}
           rate={calculateRate(optimalRate)}
+          selectedGasFee={selectedGasFee}
         />
       )}
 
@@ -420,6 +454,6 @@ export function Swap() {
           }}
         />
       )}
-    </VerticalFlex>
+    </Stack>
   );
 }

@@ -1,37 +1,36 @@
-import {
-  HorizontalFlex,
-  InfoIcon,
-  ParaswapIcon,
-  Tooltip,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import {
+  InfoCircleIcon,
+  Stack,
+  Typography,
+  Tooltip,
+} from '@avalabs/k2-components';
+import { ParaswapIcon } from '@src/components/icons/ParaswapIcon';
 
 export function ParaswapNotice() {
   const { t } = useTranslation();
-  const theme = useTheme();
-
-  const TooltipContent = (
-    <VerticalFlex width="240px">
-      <Typography size={12} height="1.5">
-        {t("You will interact directly with Paraswap's smart contracts.")}
-      </Typography>
-    </VerticalFlex>
-  );
 
   return (
-    <HorizontalFlex align="center" justify="center">
-      <Typography size={12} margin="0 6px 0 0">
-        {t('Powered by')}
-      </Typography>
-      <ParaswapIcon color={theme.colors.text1} />
-      <HorizontalFlex margin="0 0 0 6px">
-        <Tooltip placement={'top'} content={TooltipContent}>
-          <InfoIcon height="12px" color={theme.colors.text1} />
+    <Stack
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 0.75,
+      }}
+    >
+      <Typography variant="caption">{t('Powered by')}</Typography>
+      <ParaswapIcon />
+      <Stack sx={{ flexDirection: 'row' }}>
+        <Tooltip
+          placement={'top'}
+          title={t(
+            "You will interact directly with Paraswap's smart contracts."
+          )}
+        >
+          <InfoCircleIcon size="14px" />
         </Tooltip>
-      </HorizontalFlex>
-    </HorizontalFlex>
+      </Stack>
+    </Stack>
   );
 }

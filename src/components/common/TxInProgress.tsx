@@ -1,10 +1,9 @@
-import { Overlay } from '@avalabs/react-components';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/KeystoneApprovalOverlay';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
-
+import { Overlay } from '@src/components/common/Overlay';
 interface TxInProgressProps {
   address?: string;
   fee?: string;

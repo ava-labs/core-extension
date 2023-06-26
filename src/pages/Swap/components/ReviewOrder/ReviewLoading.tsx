@@ -1,38 +1,63 @@
-import {
-  HorizontalFlex,
-  PlaceholderCard,
-  PlaceholderTextLine,
-} from '@avalabs/react-components';
-import styled from 'styled-components';
+import { Skeleton, Stack, styled } from '@avalabs/k2-components';
 
-const ReviewLoadingContainer = styled.div`
+const ReviewLoadingContainer = styled('div')`
   padding: 0 16px;
 `;
 
 export const ReviewLoading = () => {
   return (
     <ReviewLoadingContainer>
-      <PlaceholderTextLine height="12px" margin="8px 0 5px 0" width="40px" />
-      <PlaceholderCard height="50px" />
-      <PlaceholderTextLine height="12px" margin="16px 0 5px 0" width="20px" />
-      <PlaceholderCard height="50px" />
-      <PlaceholderTextLine width="100%" margin="16px 0" height="2px" />
-      <HorizontalFlex margin="32px 0" justify="space-between" align="center">
-        <PlaceholderTextLine width="20%" />
-        <PlaceholderTextLine width="50%" />
-      </HorizontalFlex>
-      <HorizontalFlex margin="24px 0" justify="space-between" align="center">
-        <PlaceholderTextLine width="50%" />
-        <PlaceholderTextLine width="10%" />
-      </HorizontalFlex>
-      <HorizontalFlex margin="24px 0" justify="space-between" align="center">
-        <PlaceholderTextLine width="30%" />
-        <PlaceholderTextLine width="25%" />
-      </HorizontalFlex>
-      <HorizontalFlex margin="24px 0" justify="space-between" align="center">
-        <PlaceholderTextLine width="40%" />
-        <PlaceholderTextLine width="30%" />
-      </HorizontalFlex>
+      <Skeleton variant="text" sx={{ mt: 1, mb: 0.5, mx: 0 }} width={40} />
+      <Skeleton variant="rounded" height={68} />
+      <Skeleton variant="text" sx={{ mt: 2, mb: 0.5, mx: 0 }} width={20} />
+      <Skeleton variant="rounded" height={68} />
+      <Skeleton sx={{ width: '100%', mt: 3, mb: 2, mx: 0 }} height={2} />
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          my: 2,
+          mx: 0,
+        }}
+      >
+        <Skeleton variant="text" sx={{ width: '20%' }} />
+      </Stack>
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          my: 2,
+          mx: 0,
+        }}
+      >
+        <Skeleton variant="text" sx={{ width: '20%' }} />
+        <Skeleton variant="text" sx={{ width: '50%' }} />
+      </Stack>
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          my: 2,
+          mx: 0,
+        }}
+      >
+        <Skeleton variant="text" sx={{ width: '50%' }} />
+        <Skeleton variant="text" sx={{ width: '10%' }} />
+      </Stack>
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          my: 2,
+          mx: 0,
+        }}
+      >
+        <Skeleton variant="text" sx={{ width: '30%' }} />
+        <Skeleton variant="text" sx={{ width: '25%' }} />
+      </Stack>
     </ReviewLoadingContainer>
   );
 };
