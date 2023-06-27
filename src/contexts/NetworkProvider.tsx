@@ -83,6 +83,11 @@ export function NetworkContextProvider({ children }: { children: any }) {
     [networks]
   );
 
+  const isCustomNetwork = useCallback(
+    (chainId: number) => customNetworks.includes(chainId),
+    [customNetworks]
+  );
+
   const getNetwork = useCallback(
     (chainId: number) => {
       if (isNaN(chainId)) {
@@ -197,6 +202,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
             setFavoriteNetworks(result);
             capture('NetworkFavoriteAdded', {
               networkChainId: chainId,
+              isCustom: isCustomNetwork(chainId),
             });
           });
         },
@@ -208,13 +214,14 @@ export function NetworkContextProvider({ children }: { children: any }) {
             setFavoriteNetworks(result);
             capture('NetworkFavoriteRemoved', {
               networkChainId: chainId,
+              isCustom: isCustomNetwork(chainId),
             });
           });
         },
         isFavoriteNetwork: (chainId: number) =>
           favoriteNetworks.includes(chainId),
         customNetworks: getCustomNetworks,
-        isCustomNetwork: (chainId: number) => customNetworks.includes(chainId),
+        isCustomNetwork,
         isChainIdExist,
         getNetwork,
       }}

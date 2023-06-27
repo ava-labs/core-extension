@@ -12,6 +12,7 @@ import {
   styled,
   toast,
 } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -35,6 +36,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
   });
 
   const { createContact } = useContactsContext();
+  const { capture } = useAnalyticsContext();
   const [isFormValid, setIsFormValid] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
@@ -68,7 +70,16 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
                 return;
               }
               toast.promise(
-                createContact(contact),
+                (async () => {
+                  try {
+                    const res = await createContact(contact);
+                    capture('AddContactSucceeded');
+                    return res;
+                  } catch (err) {
+                    capture('AddContactFailed');
+                    throw err;
+                  }
+                })(),
                 {
                   loading: t('creating...'),
                   success: t('Contact created!'),

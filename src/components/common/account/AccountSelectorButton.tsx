@@ -7,6 +7,7 @@ import {
 } from '@avalabs/k2-components';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useHistory } from 'react-router-dom';
 
 const AccountName = styled('span')`
@@ -17,6 +18,7 @@ const AccountName = styled('span')`
 
 export function AccountSelectorButton(props: ButtonProps) {
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -29,6 +31,7 @@ export function AccountSelectorButton(props: ButtonProps) {
       data-testid="account-selector-button"
       onClick={() => {
         history.push('/accounts');
+        capture('AccountSelectorOpened');
       }}
       endIcon={<ChevronDownIcon />}
       sx={{ p: 0, fontSize: '20px' }}

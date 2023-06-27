@@ -14,12 +14,14 @@ export interface SimpleAddressProps {
   address: string;
   textColor?: TypographyProps['color'];
   iconColor?: TypographyProps['color'];
+  copyCallback?: () => void;
 }
 
 export function SimpleAddressK2({
   address,
   iconColor,
   textColor,
+  copyCallback,
 }: SimpleAddressProps) {
   const { t } = useTranslation();
 
@@ -27,6 +29,10 @@ export function SimpleAddressK2({
     e.stopPropagation();
     navigator.clipboard.writeText(address);
     toast.success(t('Copied!'), { duration: 2000 });
+
+    if (copyCallback) {
+      copyCallback();
+    }
   };
 
   return (

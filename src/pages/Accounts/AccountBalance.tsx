@@ -12,11 +12,14 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { AccountType } from '@src/background/services/accounts/models';
 
 interface AccountBalanceProps {
   refreshBalance: () => void;
   balanceTotalUSD: number | null;
   isBalanceLoading: boolean;
+  accountType: AccountType;
 }
 
 const AnimatedRefreshIcon = styled(RefreshIcon, {
@@ -48,11 +51,13 @@ export function AccountBalance({
   refreshBalance,
   balanceTotalUSD,
   isBalanceLoading,
+  accountType,
 }: AccountBalanceProps) {
   const { t } = useTranslation();
   const { currency, currencyFormatter } = useSettingsContext();
   const [skeletonWidth, setSkeletonWidth] = useState(0);
   const balanceTextRef = useRef<HTMLSpanElement>();
+  const { capture } = useAnalyticsContext();
   const hasBalance = balanceTotalUSD !== null;
 
   const handleClick = useCallback(
@@ -72,6 +77,26 @@ export function AccountBalance({
       }
     },
     [refreshBalance]
+  );
+
+  const onRefreshClicked = useCallback(
+    (e: React.MouseEvent) => {
+      handleClick(e);
+      capture('AccountSelectorRefreshBalanceClicked', {
+        type: accountType,
+      });
+    },
+    [handleClick, capture, accountType]
+  );
+
+  const onViewBalanceClicked = useCallback(
+    (e: React.MouseEvent) => {
+      handleClick(e);
+      capture('AccountSelectorViewBalanceClicked', {
+        type: accountType,
+      });
+    },
+    [handleClick, capture, accountType]
   );
 
   return (
@@ -109,7 +134,7 @@ export function AccountBalance({
             data-testid="view-balance-button"
             size="small"
             disableRipple
-            onClick={handleClick}
+            onClick={onViewBalanceClicked}
           >
             {t('View Balance')}
           </Button>
@@ -135,7 +160,7 @@ export function AccountBalance({
       >
         <IconButton
           size="small"
-          onClick={handleClick}
+          onClick={onRefreshClicked}
           data-testid="account-balance-refresh"
           color={isBalanceLoading ? 'secondary' : 'inherit'}
           sx={{ opacity: 0.6, ml: 0.75 }}

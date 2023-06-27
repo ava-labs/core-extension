@@ -32,7 +32,8 @@ export function SecurityAndPrivacy({
   const { t } = useTranslation();
   const { walletType } = useWalletContext();
   const { analyticsConsent, setAnalyticsConsent } = useSettingsContext();
-  const { stopDataCollection, initAnalyticsIds } = useAnalyticsContext();
+  const { capture, stopDataCollection, initAnalyticsIds } =
+    useAnalyticsContext();
   const { request } = useConnectionContext();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
@@ -51,8 +52,9 @@ export function SecurityAndPrivacy({
       >
         <Button
           sx={{ mb: 1 }}
-          onClick={() => {
-            stopDataCollection();
+          onClick={async () => {
+            await capture('RecoveryPhraseResetApproved');
+            await stopDataCollection();
             request<ResetExtensionStateHandler>({
               method: ExtensionRequest.RESET_EXTENSION_STATE,
               params: [true],
@@ -62,7 +64,13 @@ export function SecurityAndPrivacy({
         >
           {t('Yes')}
         </Button>
-        <Button variant="text" onClick={() => setShowLogoutDialog(false)}>
+        <Button
+          variant="text"
+          onClick={() => {
+            capture('RecoveryPhraseResetDeclined');
+            setShowLogoutDialog(false);
+          }}
+        >
           {t('No')}
         </Button>
       </Stack>
@@ -94,7 +102,10 @@ export function SecurityAndPrivacy({
               '&:hover': { borderRadius: 0 },
             }}
             data-testid="connected-sites-menu-item"
-            onClick={() => navigateTo(SettingsPages.CONNECTED_SITES)}
+            onClick={() => {
+              capture('ConnectedSitesClicked');
+              navigateTo(SettingsPages.CONNECTED_SITES);
+            }}
           >
             <ListItemText sx={{ fontSize: '14px' }} disableTypography>
               {t('Connected Sites')}
@@ -115,7 +126,10 @@ export function SecurityAndPrivacy({
               '&:hover': { borderRadius: 0 },
             }}
             data-testid="change-password-menu-item"
-            onClick={() => navigateTo(SettingsPages.CHANGE_PASSWORD)}
+            onClick={() => {
+              capture('ChangePasswordClicked');
+              navigateTo(SettingsPages.CHANGE_PASSWORD);
+            }}
           >
             <ListItemText sx={{ fontSize: '14px' }} disableTypography>
               {t('Change Password')}
@@ -156,12 +170,18 @@ export function SecurityAndPrivacy({
           <Switch
             size="small"
             checked={analyticsConsent}
-            onChange={() => {
-              setAnalyticsConsent(!analyticsConsent);
-              if (analyticsConsent) {
+            onChange={async () => {
+              const newConsent = !analyticsConsent;
+
+              if (!newConsent) {
+                await capture('AnalyticsDisabled');
                 stopDataCollection();
+                setAnalyticsConsent(newConsent);
               } else {
-                initAnalyticsIds(true);
+                await setAnalyticsConsent(newConsent);
+                await initAnalyticsIds(true);
+                // sends an ANALYTICS_CAPTURE_EVENT request without waiting for state updates
+                capture('AnalyticsEnabled', undefined, true);
               }
             }}
           />
@@ -181,7 +201,10 @@ export function SecurityAndPrivacy({
           color="error"
           size="medium"
           data-testid="reset-recovery-phrase-menu-item"
-          onClick={() => setShowLogoutDialog(true)}
+          onClick={() => {
+            capture('RecoveryPhraseResetClicked');
+            setShowLogoutDialog(true);
+          }}
         >
           {t('Reset Secret Recovery Phrase')}
         </Button>

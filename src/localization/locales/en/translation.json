@@ -275,7 +275,7 @@
   "To:": "To:",
   "Insufficient balance to cover gas costs. <br />Please add {{token}}.": "Insufficient balance to cover gas costs. <br />Please add {{token}}.",
   "Insufficient balance": "Insufficient balance",
-  "The was a problem with the transfer": "The was a problem with the transfer",
+  "There was a problem with the transfer": "There was a problem with the transfer",
   "Go to the status page": "Go to the status page",
   "From": "From",
   "Amount too low -- minimum is {{minimum}}": "Amount too low -- minimum is {{minimum}}",

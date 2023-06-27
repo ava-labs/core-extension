@@ -22,6 +22,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 enum ListType {
   GRID = 'GRID',
@@ -31,6 +33,8 @@ enum ListType {
 export function Collectibles() {
   const { t } = useTranslation();
   const { nfts, updateNftBalances } = useBalancesContext();
+  const { capture } = useAnalyticsContext();
+  const { network } = useNetworkContext();
   const setCollectibleParams = useSetCollectibleParams();
   const { getPageHistoryData, setNavigationHistoryData, isHistoryLoading } =
     usePageHistory();
@@ -73,6 +77,20 @@ export function Collectibles() {
     setNavigationHistoryData({ listType: listType });
   };
 
+  const handleItemClick = useCallback(
+    (nft: NftTokenWithBalance) => {
+      setCollectibleParams({
+        nft,
+        options: { path: '/collectible' },
+      });
+
+      capture('CollectibleItemClicked', {
+        chainId: network?.chainId,
+      });
+    },
+    [capture, network, setCollectibleParams]
+  );
+
   return (
     <Stack
       sx={{
@@ -109,23 +127,9 @@ export function Collectibles() {
           error={nfts.error?.toString()}
         >
           {listType === ListType.LIST ? (
-            <CollectibleList
-              onClick={(nft: NftTokenWithBalance) =>
-                setCollectibleParams({
-                  nft,
-                  options: { path: '/collectible' },
-                })
-              }
-            />
+            <CollectibleList onClick={handleItemClick} />
           ) : (
-            <CollectibleGrid
-              onClick={(nft: NftTokenWithBalance) =>
-                setCollectibleParams({
-                  nft,
-                  options: { path: '/collectible' },
-                })
-              }
-            />
+            <CollectibleGrid onClick={handleItemClick} />
           )}
         </InfiniteScroll>
       )}

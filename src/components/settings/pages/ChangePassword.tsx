@@ -14,6 +14,7 @@ import {
   Button,
   AlertTriangleIcon,
 } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function ChangePassword({
   goBack,
@@ -21,6 +22,7 @@ export function ChangePassword({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
   const [oldPassword, setOldPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [newPasswordStrength, setNewPasswordStrength] = useState<number>(0);
@@ -59,9 +61,11 @@ export function ChangePassword({
       .then((res) => {
         resetInputFields();
         setServerResponse(res ? SERVER_SUCCESS : SERVER_ERROR);
+        capture('ChangePasswordSucceeded');
       })
       .catch((err) => {
         setServerError(err);
+        capture('ChangePasswordFailed');
       });
   };
 

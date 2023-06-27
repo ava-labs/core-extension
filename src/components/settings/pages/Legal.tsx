@@ -8,9 +8,12 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function Legal({ goBack, navigateTo, width }) {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
+
   return (
     <Stack
       sx={{
@@ -33,7 +36,15 @@ export function Legal({ goBack, navigateTo, width }) {
               m: 0,
               '&:hover': { borderRadius: 0 },
             }}
-            onClick={() => window.open(`https://core.app/terms/core`, '_blank')}
+            onClick={async () => {
+              try {
+                await capture('TermsOfUseClicked');
+              } catch (err) {
+                console.error(err);
+              }
+
+              window.open(`https://core.app/terms/core`, '_blank');
+            }}
             data-testid="terms-of-use-link"
           >
             <ListItemText>
@@ -49,9 +60,14 @@ export function Legal({ goBack, navigateTo, width }) {
               m: 0,
               '&:hover': { borderRadius: 0 },
             }}
-            onClick={() =>
-              window.open(`https://www.avalabs.org/privacy-policy`, '_blank')
-            }
+            onClick={async () => {
+              try {
+                await capture('PrivacyPolicyClicked');
+              } catch (err) {
+                console.error(err);
+              }
+              window.open(`https://www.avalabs.org/privacy-policy`, '_blank');
+            }}
             data-testid="privacy-policy-link"
           >
             <ListItemText>

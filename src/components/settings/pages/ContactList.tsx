@@ -14,10 +14,12 @@ import {
   List,
   SearchBar,
 } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { contacts } = useContactsContext();
+  const { capture } = useAnalyticsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredContacts = contacts
@@ -40,7 +42,10 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
           <Tooltip title={t('New Contact')}>
             <IconButton
               data-testid="add-contact-plus-button"
-              onClick={() => navigateTo(SettingsPages.ADD_CONTACT)}
+              onClick={() => {
+                capture('AddContactClicked');
+                navigateTo(SettingsPages.ADD_CONTACT);
+              }}
             >
               <PlusIcon size="24" />
             </IconButton>

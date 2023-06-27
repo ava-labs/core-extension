@@ -15,11 +15,13 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { setDeveloperMode, isDeveloperMode } = useNetworkContext();
   const { isBridgeDevEnv, setIsBridgeDevEnv } = useBridgeContext();
+  const { capture } = useAnalyticsContext();
   const { showTokensWithoutBalances, toggleShowTokensWithoutBalanceSetting } =
     useSettingsContext();
   const history = useHistory();
@@ -62,7 +64,11 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
             size="small"
             checked={isDeveloperMode}
             onChange={() => {
-              setDeveloperMode(!isDeveloperMode);
+              const isEnabled = !isDeveloperMode;
+              setDeveloperMode(isEnabled);
+              capture(
+                isEnabled ? 'DeveloperModeEnabled' : 'DeveloperModeDisabled'
+              );
               history.push('/home');
             }}
           />

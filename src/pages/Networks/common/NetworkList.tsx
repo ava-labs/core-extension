@@ -25,6 +25,7 @@ import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface NetworkListProps {
   networkList: Network[];
@@ -41,6 +42,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
   } = useNetworkContext();
   const theme = useTheme();
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
   const [favoritedItem, setFavoritedItem] = useState<number | null>(null);
 
   if (!networkList.length) {
@@ -150,6 +152,9 @@ export function NetworkList({ networkList }: NetworkListProps) {
                     <TextButton
                       onClick={(e) => {
                         e.stopPropagation();
+                        capture('NetworkDetailsClicked', {
+                          chainId: networkItem.chainId,
+                        });
                         history.push(
                           `/networks/details/${networkItem.chainId}`
                         );

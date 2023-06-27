@@ -1,4 +1,3 @@
-import { Account } from '@src/background/services/accounts/models';
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountItem } from './AccountItem';
@@ -10,10 +9,12 @@ import {
   Stack,
 } from '@avalabs/k2-components';
 
+import { Account } from '@src/background/services/accounts/models';
+
 export interface AccountListProps {
   accounts: Account[];
   activeAccount?: Account;
-  onAccountClicked: (id: string) => Promise<void>;
+  onAccountClicked: (account: Account) => Promise<void>;
   // Editing-related
   isEditing: boolean;
   setIsEditing: (isEditing: boolean) => void;
@@ -109,7 +110,9 @@ export function AccountList({
                 key={account.id}
                 ref={activeAccount?.id === account.id ? activeAccountRef : null}
                 account={account}
-                onClick={() => !isDeleteMode && onAccountClicked(account.id)}
+                onClick={() =>
+                  !isDeleteMode && !isEditing && onAccountClicked(account)
+                }
                 toggle={toggleItem}
                 isChecked={deleteIdList.includes(account.id)}
                 isDeleteMode={isDeleteMode}

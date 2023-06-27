@@ -20,6 +20,7 @@ import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalD
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Overlay } from '@src/components/common/Overlay';
 import { useTabFromParams } from '@src/hooks/useTabFromParams';
+import { Account } from '@src/background/services/accounts/models';
 
 import { AccountsActionButton } from './components/AccountsActionButton';
 import { AddAccountError } from './AddAccountError';
@@ -98,8 +99,9 @@ export function Accounts() {
     setAddAccountLoading(false);
   };
 
-  const onAccountClicked = async (id: string) => {
-    await selectAccount(id);
+  const onAccountClicked = async (account: Account) => {
+    await selectAccount(account.id);
+    await capture('AccountSelectorAccountSwitched', { type: account.type });
   };
 
   const onAccountDeleteSuccess = () => {

@@ -37,6 +37,7 @@ interface CustomGasFeesProps {
     maxPriorityFeePerGas?: BigNumber;
     feeType: GasFeeModifier;
   }): void;
+  onModifierChangeCallback?: (feeType?: GasFeeModifier) => void;
   gasPriceEditDisabled?: boolean;
   maxGasPrice?: string;
   selectedGasFeeModifier?: GasFeeModifier;
@@ -153,6 +154,7 @@ export function CustomFeesK2({
   maxFeePerGas,
   limit,
   onChange,
+  onModifierChangeCallback,
   gasPriceEditDisabled = false,
   maxGasPrice,
   selectedGasFeeModifier,
@@ -290,6 +292,17 @@ export function CustomFeesK2({
     [handleGasChange, networkFee, customFee]
   );
 
+  const handleModifierClick = useCallback(
+    (modifier?: GasFeeModifier) => {
+      updateGasFee(modifier);
+
+      if (onModifierChangeCallback) {
+        onModifierChangeCallback(modifier);
+      }
+    },
+    [updateGasFee, onModifierChangeCallback]
+  );
+
   useEffect(() => {
     if (networkFee) {
       // 1. Update selected fees when data is loaded loaded.
@@ -324,7 +337,7 @@ export function CustomFeesK2({
               selectedFee === GasFeeModifier.NORMAL ? 'primary' : 'secondary'
             }
             onClick={() => {
-              updateGasFee(GasFeeModifier.NORMAL);
+              handleModifierClick(GasFeeModifier.NORMAL);
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
@@ -349,7 +362,7 @@ export function CustomFeesK2({
                   selectedFee === GasFeeModifier.FAST ? 'primary' : 'secondary'
                 }
                 onClick={() => {
-                  updateGasFee(GasFeeModifier.FAST);
+                  handleModifierClick(GasFeeModifier.FAST);
                 }}
               >
                 <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
@@ -374,7 +387,7 @@ export function CustomFeesK2({
                     : 'secondary'
                 }
                 onClick={() => {
-                  updateGasFee(GasFeeModifier.INSTANT);
+                  handleModifierClick(GasFeeModifier.INSTANT);
                 }}
               >
                 <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
@@ -399,7 +412,7 @@ export function CustomFeesK2({
                     : 'secondary'
                 }
                 onClick={() => {
-                  updateGasFee(GasFeeModifier.CUSTOM);
+                  handleModifierClick(GasFeeModifier.CUSTOM);
                   customInputRef?.current?.focus();
                 }}
                 disableRipple

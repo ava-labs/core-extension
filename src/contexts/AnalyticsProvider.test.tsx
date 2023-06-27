@@ -20,7 +20,7 @@ const TestComponent = ({
   captureParams,
   initParams,
 }: {
-  captureParams: [string, Record<string, any>];
+  captureParams: [string, Record<string, any>, boolean?];
   initParams: [storeInStorage: boolean];
 }) => {
   const { capture, stopDataCollection, initAnalyticsIds } =
@@ -246,6 +246,39 @@ describe('contexts/AnalyticsProvider', () => {
       fireEvent.click(screen.getByTestId('capture-button'));
 
       expect(connectionMocks.request).not.toHaveBeenCalled();
+    });
+
+    it('captures events if forced to', () => {
+      const captureParams: [string, Record<string, any>, boolean] = [
+        'test-event',
+        { prop: 123, otherprop: 'somedata' },
+        true,
+      ];
+
+      (useSettingsContext as jest.Mock).mockReturnValue({
+        analyticsConsent: false,
+      });
+      renderWithAnalytics(
+        <TestComponent captureParams={captureParams} initParams={[true]} />,
+        {}
+      );
+
+      const connectionMocks = useConnectionContext();
+      (connectionMocks.request as jest.Mock).mockReset();
+
+      fireEvent.click(screen.getByTestId('capture-button'));
+
+      expect(connectionMocks.request).toHaveBeenCalledTimes(1);
+      expect(connectionMocks.request).toHaveBeenCalledWith({
+        method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
+        params: [
+          {
+            name: captureParams[0],
+            properties: captureParams[1],
+            windowId: '00000000-0000-0000-0000-000000000000',
+          },
+        ],
+      });
     });
   });
 

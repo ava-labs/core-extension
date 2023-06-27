@@ -16,6 +16,8 @@ import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { TokenType } from '@src/background/services/balances/models';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 
@@ -31,6 +33,8 @@ export function CollectibleDetails() {
   const { t } = useTranslation();
   const setCollectibleParams = useSetCollectibleParams();
   const { nft } = useCollectibleFromParams();
+  const { capture } = useAnalyticsContext();
+  const { network } = useNetworkContext();
 
   const sendRef = useRef<HTMLButtonElement>(null);
 
@@ -84,6 +88,10 @@ export function CollectibleDetails() {
               my: 3,
             }}
             onClick={() => {
+              capture('CollectibleSendClicked', {
+                chainId: network?.chainId,
+                type: nft.type,
+              });
               setCollectibleParams({
                 nft,
                 options: { path: '/collectible/send' },

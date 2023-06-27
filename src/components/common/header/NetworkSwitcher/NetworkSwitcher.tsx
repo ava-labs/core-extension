@@ -16,6 +16,7 @@ import { ChainId } from '@avalabs/chains-sdk';
 import { useHistory } from 'react-router-dom';
 import { NetworkLogo } from '../../NetworkLogo';
 import { useTranslation } from 'react-i18next';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const NetworkSwitcherButton = styled(HorizontalFlex)`
   border-radius: 100px;
@@ -82,6 +83,7 @@ export function NetworkSwitcher() {
   const theme = useTheme();
   const selectButtonRef = useRef<HTMLDivElement>(null);
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
 
   return (
@@ -90,7 +92,14 @@ export function NetworkSwitcher() {
         data-testid="network-switcher-button"
         align="center"
         justify="space-between"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          const isOpenNow = !isOpen;
+          if (isOpenNow) {
+            // We only want to know when it's being opened
+            capture('NetworkSwitcherOpened');
+          }
+          setIsOpen(isOpenNow);
+        }}
         ref={selectButtonRef}
       >
         <NetworkLogo src={network?.logoUri} width="16px" height="16px" />
@@ -171,6 +180,7 @@ export function NetworkSwitcher() {
               data-testid="manage-networks-button"
               key="NetworksPage"
               onClick={() => {
+                capture('ManageNetworksClicked');
                 history.push('/networks');
                 setIsOpen(false);
               }}

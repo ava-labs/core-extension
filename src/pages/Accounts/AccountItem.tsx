@@ -18,6 +18,7 @@ import {
 import { Account } from '@src/background/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
 
@@ -69,6 +70,7 @@ export const AccountItem = forwardRef(
     const { updateBalanceOnAllNetworks } = useBalancesContext();
     const [isBalanceLoading, setIsBalanceLoading] = useState(false);
     const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
+    const { capture } = useAnalyticsContext();
     const { t } = useTranslation();
 
     const isActive = isActiveAccount(account.id);
@@ -201,6 +203,7 @@ export const AccountItem = forwardRef(
               refreshBalance={getBalance}
               balanceTotalUSD={balanceTotalUSD}
               isBalanceLoading={isBalanceLoading}
+              accountType={account.type}
             />
           </Stack>
           {/* Addresses */}
@@ -215,6 +218,11 @@ export const AccountItem = forwardRef(
                 address={account.addressC}
                 iconColor={isActive ? 'text.secondary' : 'text.primary'}
                 textColor="text.secondary"
+                copyCallback={() => {
+                  capture('AccountSelectorEthAddressCopied', {
+                    type: account.type,
+                  });
+                }}
               />
             </Stack>
 
@@ -228,6 +236,11 @@ export const AccountItem = forwardRef(
                 address={account.addressBTC}
                 iconColor={isActive ? 'text.secondary' : 'text.primary'}
                 textColor="text.secondary"
+                copyCallback={() => {
+                  capture('AccountSelectorBtcAddressCopied', {
+                    type: account.type,
+                  });
+                }}
               />
             </Stack>
           </Stack>
