@@ -100,7 +100,8 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   }
 
   private async pollBalances() {
-    const { activeNetwork, favoriteNetworks } = this.networkService;
+    const { activeNetwork } = this.networkService;
+    const favoriteNetworks = await this.networkService.getFavoriteNetworks();
     const chainIds = uniq([
       activeNetwork?.chainId,
       ...this.getNetworksToUpdate(favoriteNetworks, this._pollingIteration, 15),

@@ -105,13 +105,23 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
   }
 
-  public get favoriteNetworks() {
-    return this._favoriteNetworks;
-  }
-
   private set favoriteNetworks(networkIds: number[]) {
     this._favoriteNetworks = networkIds;
     this.favoriteNetworksUpdated.dispatch(networkIds);
+  }
+
+  async getFavoriteNetworks() {
+    const isTestnet = this.activeNetwork?.isTestnet;
+    const allNetworks = await this.allNetworks.promisify();
+    const filteredFavoriteNetworks = this._favoriteNetworks.filter((id) => {
+      if (allNetworks) {
+        return isTestnet
+          ? allNetworks[id]?.isTestnet
+          : !allNetworks[id]?.isTestnet;
+      }
+      return false;
+    });
+    return filteredFavoriteNetworks;
   }
 
   public get customNetworks() {
@@ -119,7 +129,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async addFavoriteNetwork(chainId?: number) {
-    const storedFavoriteNetworks = this.favoriteNetworks;
+    const storedFavoriteNetworks = this._favoriteNetworks;
     if (
       !chainId ||
       storedFavoriteNetworks.find(
@@ -134,7 +144,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async removeFavoriteNetwork(chainId: number) {
-    const storedFavoriteNetworks = this.favoriteNetworks;
+    const storedFavoriteNetworks = this._favoriteNetworks;
     this.favoriteNetworks = storedFavoriteNetworks.filter(
       (storedFavoriteNetworkChainId) => storedFavoriteNetworkChainId !== chainId
     );

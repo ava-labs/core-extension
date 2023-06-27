@@ -27,6 +27,7 @@ import { balancesUpdatedEventListener } from '@src/background/services/balances/
 import { Account } from '@src/background/services/accounts/models';
 import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
+import { getAccountKey } from '@src/utils/getAccountKey';
 
 interface NftState {
   loading: boolean;
@@ -38,7 +39,7 @@ export interface BalancesState {
   loading: boolean;
   balances?: Balances;
   cached?: boolean;
-  totalBalance?: TotalBalance;
+  totalBalance?: TotalBalance | null;
   lastUpdated?: number;
 }
 
@@ -52,7 +53,7 @@ type BalanceAction =
       type: BalanceActionType.UPDATE_BALANCES;
       payload: {
         balances?: Balances;
-        totalBalance?: TotalBalance;
+        totalBalance?: TotalBalance | null;
         lastUpdated?: number;
         isBalancesCached?: boolean;
       };
@@ -253,11 +254,19 @@ export function BalancesProvider({ children }: { children: any }) {
   );
 
   const getTotalBalance = useMemo(() => {
-    if (tokens.totalBalance !== undefined && activeAccount?.addressC) {
-      return tokens.totalBalance[activeAccount?.addressC] ?? null;
+    if (
+      tokens.totalBalance !== undefined &&
+      tokens.totalBalance !== null &&
+      activeAccount?.addressC
+    ) {
+      const accountKey = getAccountKey({
+        address: activeAccount?.addressC,
+        isTestnet: network?.isTestnet,
+      });
+      return tokens.totalBalance[accountKey] ?? null;
     }
     return null;
-  }, [activeAccount?.addressC, tokens.totalBalance]);
+  }, [activeAccount?.addressC, network?.isTestnet, tokens]);
 
   return (
     <BalancesContext.Provider
