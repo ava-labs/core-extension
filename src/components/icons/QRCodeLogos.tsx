@@ -1,7 +1,7 @@
 import { Stack, useTheme } from '@avalabs/k2-components';
 import { ReactNode } from 'react';
 
-const innerCirclToOuterCircleRatio = 104 / 136;
+const innerCirclToOuterCircleRatio = 49.5 / 63;
 
 interface QRCodeLogoProps {
   size?: number;
@@ -13,7 +13,7 @@ interface QRCodeLogoContainerProps extends QRCodeLogoProps {
 }
 
 const QRCodeLogoContainer = ({
-  size = 136,
+  size = 63,
   className,
   children,
 }: QRCodeLogoContainerProps) => {
