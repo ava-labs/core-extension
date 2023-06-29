@@ -1,0 +1,640 @@
+[
+  {
+    "id": "avax_aave3",
+    "chain": "avax",
+    "name": "Aave V3",
+    "site_url": "https://app.aave.com",
+    "logo_url": "https://static.debank.com/image/project/logo_url/avax_aave3/9459cb86efd13145537eab8104e923bf.png",
+    "has_supported_portfolio": true,
+    "tvl": 183098752.28495273,
+    "portfolio_item_list": [
+      {
+        "stats": {
+          "asset_usd_value": 3.000903834875909,
+          "debt_usd_value": 0.5001194819399999,
+          "net_usd_value": 2.5007843529359093
+        },
+        "asset_dict": {
+          "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e": 3.000505,
+          "avax": 8.371557280431e-6,
+          "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7": -0.500172
+        },
+        "asset_token_list": [
+          {
+            "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+            "chain": "avax",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "display_symbol": null,
+            "optimized_symbol": "USDC",
+            "decimals": 6,
+            "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+            "protocol_id": "",
+            "price": 1.0001,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1637802339.0,
+            "amount": 3.000505
+          },
+          {
+            "id": "avax",
+            "chain": "avax",
+            "name": "Avalanche",
+            "symbol": "AVAX",
+            "display_symbol": null,
+            "optimized_symbol": "AVAX",
+            "decimals": 18,
+            "logo_url": "https://static.debank.com/image/avax_token/logo_url/avax/0b9c84359c84d6bdd5bfda9c2d4c4a82.png",
+            "protocol_id": "",
+            "price": 11.8,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": null,
+            "amount": 8.371557280431e-6
+          },
+          {
+            "id": "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7",
+            "chain": "avax",
+            "name": "TetherToken",
+            "symbol": "USDt",
+            "display_symbol": null,
+            "optimized_symbol": "USDt",
+            "decimals": 6,
+            "logo_url": "https://static.debank.com/image/coin/logo_url/usdt/23af7472292cb41dc39b3f1146ead0fe.png",
+            "protocol_id": "",
+            "price": 0.999895,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1632245731.0,
+            "amount": -0.500172
+          }
+        ],
+        "update_at": 1686653258.0,
+        "name": "Lending",
+        "detail_types": ["lending"],
+        "detail": {
+          "supply_token_list": [
+            {
+              "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "display_symbol": null,
+              "optimized_symbol": "USDC",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1637802339.0,
+              "amount": 3.000505
+            }
+          ],
+          "reward_token_list": [
+            {
+              "id": "avax",
+              "chain": "avax",
+              "name": "Avalanche",
+              "symbol": "AVAX",
+              "display_symbol": null,
+              "optimized_symbol": "AVAX",
+              "decimals": 18,
+              "logo_url": "https://static.debank.com/image/avax_token/logo_url/avax/0b9c84359c84d6bdd5bfda9c2d4c4a82.png",
+              "protocol_id": "",
+              "price": 11.8,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": null,
+              "amount": 8.371557280431e-6
+            }
+          ],
+          "borrow_token_list": [
+            {
+              "id": "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7",
+              "chain": "avax",
+              "name": "TetherToken",
+              "symbol": "USDt",
+              "display_symbol": null,
+              "optimized_symbol": "USDt",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdt/23af7472292cb41dc39b3f1146ead0fe.png",
+              "protocol_id": "",
+              "price": 0.999895,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1632245731.0,
+              "amount": 0.500172
+            }
+          ],
+          "health_rate": 5.174608722456069
+        },
+        "proxy_detail": {},
+        "pool": {
+          "id": "0x794a61358d6845594f94dc1db02a252b5b4814ad",
+          "chain": "avax",
+          "project_id": "avax_aave3",
+          "adapter_id": "aave3_proxy_lending",
+          "controller": "0x794a61358d6845594f94dc1db02a252b5b4814ad",
+          "index": null,
+          "time_at": 1646997171
+        }
+      }
+    ]
+  },
+  {
+    "id": "avax_pangolin",
+    "chain": "avax",
+    "name": "Pangolin",
+    "site_url": "https://app.pangolin.exchange",
+    "logo_url": "https://static.debank.com/image/project/logo_url/avax_pangolin/0a6a8bcb10deb8000f445160d05b0571.png",
+    "has_supported_portfolio": true,
+    "tvl": 20267488.109748073,
+    "portfolio_item_list": [
+      {
+        "stats": {
+          "asset_usd_value": 0.13330312829968227,
+          "debt_usd_value": 0,
+          "net_usd_value": 0.13330312829968227
+        },
+        "asset_dict": {
+          "0x60781c2586d68229fde47564546784ab3faca982": 5.1570155615985955
+        },
+        "asset_token_list": [
+          {
+            "id": "0x60781c2586d68229fde47564546784ab3faca982",
+            "chain": "avax",
+            "name": "Pangolin",
+            "symbol": "PNG",
+            "display_symbol": null,
+            "optimized_symbol": "PNG",
+            "decimals": 18,
+            "logo_url": "https://static.debank.com/image/avax_token/logo_url/0x60781c2586d68229fde47564546784ab3faca982/a3dd9c68afb24187117a6f7adc923d9e.png",
+            "protocol_id": "avax_pangolin",
+            "price": 0.025848890061980025,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1612815307.0,
+            "amount": 5.1570155615985955
+          }
+        ],
+        "update_at": 1686653254.0,
+        "name": "Farming",
+        "detail_types": ["common"],
+        "detail": {
+          "supply_token_list": [
+            {
+              "id": "0x60781c2586d68229fde47564546784ab3faca982",
+              "chain": "avax",
+              "name": "Pangolin",
+              "symbol": "PNG",
+              "display_symbol": null,
+              "optimized_symbol": "PNG",
+              "decimals": 18,
+              "logo_url": "https://static.debank.com/image/avax_token/logo_url/0x60781c2586d68229fde47564546784ab3faca982/a3dd9c68afb24187117a6f7adc923d9e.png",
+              "protocol_id": "avax_pangolin",
+              "price": 0.025848890061980025,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1612815307.0,
+              "amount": 5.0
+            }
+          ],
+          "reward_token_list": [
+            {
+              "id": "0x60781c2586d68229fde47564546784ab3faca982",
+              "chain": "avax",
+              "name": "Pangolin",
+              "symbol": "PNG",
+              "display_symbol": null,
+              "optimized_symbol": "PNG",
+              "decimals": 18,
+              "logo_url": "https://static.debank.com/image/avax_token/logo_url/0x60781c2586d68229fde47564546784ab3faca982/a3dd9c68afb24187117a6f7adc923d9e.png",
+              "protocol_id": "avax_pangolin",
+              "price": 0.025848890061980025,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1612815307.0,
+              "amount": 0.15701556159859578
+            }
+          ]
+        },
+        "proxy_detail": {},
+        "pool": {
+          "id": "0x88afdae1a9f58da3e68584421937e5f564a0135b",
+          "chain": "avax",
+          "project_id": "avax_pangolin",
+          "adapter_id": "uniswap2_farming",
+          "controller": "0x88afdae1a9f58da3e68584421937e5f564a0135b",
+          "index": null,
+          "time_at": 1638408271
+        }
+      }
+    ]
+  },
+  {
+    "id": "avax_traderjoexyz",
+    "chain": "avax",
+    "name": "Trader Joe",
+    "site_url": "https://traderjoexyz.com",
+    "logo_url": "https://static.debank.com/image/project/logo_url/avax_traderjoexyz/961dd8fbeac3d6ee62170c8db600ba25.png",
+    "has_supported_portfolio": true,
+    "tvl": 93724984.24401452,
+    "portfolio_item_list": [
+      {
+        "stats": {
+          "asset_usd_value": 0.11181662866014538,
+          "debt_usd_value": 0,
+          "net_usd_value": 0.11181662866014538
+        },
+        "asset_dict": {
+          "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664": 0.03397218478096355,
+          "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e": 0.0778332633343703
+        },
+        "asset_token_list": [
+          {
+            "id": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+            "chain": "avax",
+            "name": "USD Coin",
+            "symbol": "USDC.e",
+            "display_symbol": null,
+            "optimized_symbol": "USDC.e",
+            "decimals": 6,
+            "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+            "protocol_id": "avax_blizz",
+            "price": 1.0001,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1629818487.0,
+            "amount": 0.03397218478096355
+          },
+          {
+            "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+            "chain": "avax",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "display_symbol": null,
+            "optimized_symbol": "USDC",
+            "decimals": 6,
+            "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+            "protocol_id": "",
+            "price": 1.0001,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1637802339.0,
+            "amount": 0.0778332633343703
+          }
+        ],
+        "update_at": 1686653260.0,
+        "name": "Liquidity Pool",
+        "detail_types": ["common"],
+        "detail": {
+          "supply_token_list": [
+            {
+              "id": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC.e",
+              "display_symbol": null,
+              "optimized_symbol": "USDC.e",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "avax_blizz",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1629818487.0,
+              "amount": 0.032607184780963555
+            },
+            {
+              "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "display_symbol": null,
+              "optimized_symbol": "USDC",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1637802339.0,
+              "amount": 0.0764782633343703
+            }
+          ],
+          "reward_token_list": [
+            {
+              "id": "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC.e",
+              "display_symbol": null,
+              "optimized_symbol": "USDC.e",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "avax_blizz",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1629818487.0,
+              "amount": 0.001365
+            },
+            {
+              "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "display_symbol": null,
+              "optimized_symbol": "USDC",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1637802339.0,
+              "amount": 0.001355
+            }
+          ]
+        },
+        "proxy_detail": {},
+        "pool": {
+          "id": "0x18332988456c4bd9aba6698ec748b331516f5a14",
+          "chain": "avax",
+          "project_id": "avax_traderjoexyz",
+          "adapter_id": "traderjoexyz2_liquidity",
+          "controller": "0x18332988456c4bd9aba6698ec748b331516f5a14",
+          "index": null,
+          "time_at": 1668587456
+        }
+      },
+      {
+        "stats": {
+          "asset_usd_value": 1.197e-17,
+          "debt_usd_value": 0,
+          "net_usd_value": 1.197e-17
+        },
+        "asset_dict": {
+          "0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd": 3.6e-17,
+          "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e": 0.0
+        },
+        "asset_token_list": [
+          {
+            "id": "0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd",
+            "chain": "avax",
+            "name": "JoeToken",
+            "symbol": "JOE",
+            "display_symbol": null,
+            "optimized_symbol": "JOE",
+            "decimals": 18,
+            "logo_url": "https://static.debank.com/image/avax_token/logo_url/0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd/25f094b523a2d6c51e084eeb8f60dd2f.png",
+            "protocol_id": "avax_traderjoexyz_lending",
+            "price": 0.3325,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1624780261.0,
+            "amount": 3.6e-17
+          },
+          {
+            "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+            "chain": "avax",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "display_symbol": null,
+            "optimized_symbol": "USDC",
+            "decimals": 6,
+            "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+            "protocol_id": "",
+            "price": 1.0001,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1637802339.0,
+            "amount": 0.0
+          }
+        ],
+        "update_at": 1686653260.0,
+        "name": "Staked",
+        "detail_types": ["common"],
+        "detail": {
+          "supply_token_list": [
+            {
+              "id": "0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd",
+              "chain": "avax",
+              "name": "JoeToken",
+              "symbol": "JOE",
+              "display_symbol": null,
+              "optimized_symbol": "JOE",
+              "decimals": 18,
+              "logo_url": "https://static.debank.com/image/avax_token/logo_url/0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd/25f094b523a2d6c51e084eeb8f60dd2f.png",
+              "protocol_id": "avax_traderjoexyz_lending",
+              "price": 0.3325,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1624780261.0,
+              "amount": 3.6e-17
+            }
+          ],
+          "reward_token_list": [
+            {
+              "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "display_symbol": null,
+              "optimized_symbol": "USDC",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1637802339.0,
+              "amount": 0.0
+            },
+            {
+              "id": "0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd",
+              "chain": "avax",
+              "name": "JoeToken",
+              "symbol": "JOE",
+              "display_symbol": null,
+              "optimized_symbol": "JOE",
+              "decimals": 18,
+              "logo_url": "https://static.debank.com/image/avax_token/logo_url/0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd/25f094b523a2d6c51e084eeb8f60dd2f.png",
+              "protocol_id": "avax_traderjoexyz_lending",
+              "price": 0.3325,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1624780261.0,
+              "amount": 0.0
+            }
+          ]
+        },
+        "proxy_detail": {},
+        "pool": {
+          "id": "0x1a731b2299e22fbac282e7094eda41046343cb51",
+          "chain": "avax",
+          "project_id": "avax_traderjoexyz",
+          "adapter_id": "traderjoexyz_staked3",
+          "controller": "0x1a731b2299e22fbac282e7094eda41046343cb51",
+          "index": null,
+          "time_at": 1645739248
+        }
+      },
+      {
+        "stats": {
+          "asset_usd_value": 0.122603884940624,
+          "debt_usd_value": 0,
+          "net_usd_value": 0.122603884940624
+        },
+        "asset_dict": {
+          "avax": 0.008582775630561356,
+          "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e": 0.021325
+        },
+        "asset_token_list": [
+          {
+            "id": "avax",
+            "chain": "avax",
+            "name": "Avalanche",
+            "symbol": "AVAX",
+            "display_symbol": null,
+            "optimized_symbol": "AVAX",
+            "decimals": 18,
+            "logo_url": "https://static.debank.com/image/avax_token/logo_url/avax/0b9c84359c84d6bdd5bfda9c2d4c4a82.png",
+            "protocol_id": "",
+            "price": 11.8,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": null,
+            "amount": 0.008582775630561356
+          },
+          {
+            "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+            "chain": "avax",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "display_symbol": null,
+            "optimized_symbol": "USDC",
+            "decimals": 6,
+            "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+            "protocol_id": "",
+            "price": 1.0001,
+            "is_verified": true,
+            "is_core": true,
+            "is_wallet": true,
+            "time_at": 1637802339.0,
+            "amount": 0.021325
+          }
+        ],
+        "update_at": 1686653260.0,
+        "name": "Liquidity Pool",
+        "detail_types": ["common"],
+        "detail": {
+          "supply_token_list": [
+            {
+              "id": "avax",
+              "chain": "avax",
+              "name": "Avalanche",
+              "symbol": "AVAX",
+              "display_symbol": null,
+              "optimized_symbol": "AVAX",
+              "decimals": 18,
+              "logo_url": "https://static.debank.com/image/avax_token/logo_url/avax/0b9c84359c84d6bdd5bfda9c2d4c4a82.png",
+              "protocol_id": "",
+              "price": 11.8,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": null,
+              "amount": 0.007306913787643549
+            },
+            {
+              "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "display_symbol": null,
+              "optimized_symbol": "USDC",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1637802339.0,
+              "amount": 0.0
+            }
+          ],
+          "reward_token_list": [
+            {
+              "id": "avax",
+              "chain": "avax",
+              "name": "Avalanche",
+              "symbol": "AVAX",
+              "display_symbol": null,
+              "optimized_symbol": "AVAX",
+              "decimals": 18,
+              "logo_url": "https://static.debank.com/image/avax_token/logo_url/avax/0b9c84359c84d6bdd5bfda9c2d4c4a82.png",
+              "protocol_id": "",
+              "price": 11.8,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": null,
+              "amount": 0.001275861842917806
+            },
+            {
+              "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              "chain": "avax",
+              "name": "USD Coin",
+              "symbol": "USDC",
+              "display_symbol": null,
+              "optimized_symbol": "USDC",
+              "decimals": 6,
+              "logo_url": "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+              "protocol_id": "",
+              "price": 1.0001,
+              "is_verified": true,
+              "is_core": true,
+              "is_wallet": true,
+              "time_at": 1637802339.0,
+              "amount": 0.021325
+            }
+          ]
+        },
+        "proxy_detail": {},
+        "pool": {
+          "id": "0xb5352a39c11a81fe6748993d586ec448a01f08b5",
+          "chain": "avax",
+          "project_id": "avax_traderjoexyz",
+          "adapter_id": "traderjoexyz2_liquidity",
+          "controller": "0xb5352a39c11a81fe6748993d586ec448a01f08b5",
+          "index": null,
+          "time_at": 1669809442
+        }
+      }
+    ]
+  }
+]

@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 
 import { Tabs } from '@src/components/common/Tabs';
@@ -27,47 +28,59 @@ export function Portfolio() {
   const { network } = useNetworkContext();
   const { featureFlags } = useFeatureFlagContext();
   const loading = !network ? true : false;
+  const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
+
+  useEffect(() => {
+    if (featureFlags[FeatureGates.DEFI]) {
+      setHadDefiEnabled(true);
+    }
+  }, [featureFlags]);
+
+  const tabs = useMemo(
+    () => [
+      {
+        title: t('Assets'),
+        id: PortfolioTabs.ASSETS,
+        component: <NetworksWidget />,
+        onClick: () => capture('PortfolioAssetsClicked'),
+      },
+      {
+        title: t('Collectibles'),
+        id: PortfolioTabs.COLLECTIBLES,
+        component: <Collectibles />,
+        onClick: () => capture('PortfolioCollectiblesClicked'),
+      },
+      {
+        title: t('Activity'),
+        id: PortfolioTabs.ACTIVITY,
+        component: <Activity />,
+        badgeAmount:
+          bridgeTransactions && Object.values(bridgeTransactions).length,
+        onClick: () => capture('PortfolioActivityClicked'),
+      },
+      // If user is on DeFi tab and we disable the feature flag, we want
+      // the tab to stay opened, so we can't just remove it from the array here.
+      // Instead, the <DeFi /> component will render the message about
+      // DeFi not being available.
+      ...(hadDefiEnabled
+        ? [
+            {
+              title: t('DeFi'),
+              id: PortfolioTabs.DEFI,
+              component: <DeFi />,
+              onClick: () => capture('PortfolioDefiClicked'),
+            },
+          ]
+        : []),
+    ],
+    [capture, bridgeTransactions, t, hadDefiEnabled]
+  );
 
   return (
     <>
       <Stack sx={{ flexGrow: 1 }}>
         <WalletBalances />
-        <Tabs
-          loading={loading}
-          margin="14px 0 0"
-          tabs={[
-            {
-              title: t('Assets'),
-              id: PortfolioTabs.ASSETS,
-              component: <NetworksWidget />,
-              onClick: () => capture('PortfolioAssetsClicked'),
-            },
-            {
-              title: t('Collectibles'),
-              id: PortfolioTabs.COLLECTIBLES,
-              component: <Collectibles />,
-              onClick: () => capture('PortfolioCollectiblesClicked'),
-            },
-            {
-              title: t('Activity'),
-              id: PortfolioTabs.ACTIVITY,
-              component: <Activity />,
-              badgeAmount:
-                bridgeTransactions && Object.values(bridgeTransactions).length,
-              onClick: () => capture('PortfolioActivityClicked'),
-            },
-            ...(featureFlags[FeatureGates.DEFI]
-              ? [
-                  {
-                    title: t('DeFi'),
-                    id: PortfolioTabs.DEFI,
-                    component: <DeFi />,
-                    onClick: () => capture('PortfolioDefiClicked'),
-                  },
-                ]
-              : []),
-          ]}
-        />
+        <Tabs loading={loading} margin="14px 0 0" tabs={tabs} />
       </Stack>
     </>
   );
