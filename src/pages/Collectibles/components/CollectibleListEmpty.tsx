@@ -6,15 +6,15 @@ export function CollectibleListEmpty() {
   return (
     <Stack
       sx={{
-        direction: 'column',
-        alignContent: 'center',
+        alignItems: 'center',
         flexGrow: '1',
-        justifyContent: 'center',
+        rowGap: 1,
+        mt: 7,
       }}
     >
       <Typography variant="h5">{t('No Collectibles')}</Typography>
-      <Typography variant="body2">
-        {t('You don’t have any collectibles yet.')}
+      <Typography variant="body2" sx={{ color: 'grey.400' }}>
+        {t('You don’t have any NFTs yet!')}
       </Typography>
     </Stack>
   );
