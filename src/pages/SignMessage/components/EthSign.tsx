@@ -17,7 +17,7 @@ export function EthSign({ message }: { message: Action }) {
         align="center"
       >
         {t(
-          'Signing this message can be dangerous. This signature could potentially perform any operation on your account&apos;s behalf, including granting complete control of your account and all of its assets to the requesting site. Only sign this message if you know what you&apos;re doing or completely trust the requesting site'
+          "Signing this message can be dangerous. This signature could potentially perform any operation on your account's behalf, including granting complete control of your account and all of its assets to the requesting site. Only sign this message if you know what you're doing or completely trust the requesting site"
         )}
       </Typography>
       <Typography size={12} height="15px" margin="0 0 8px 0">

@@ -32,6 +32,7 @@ import {
   ComputerIcon,
 } from '@avalabs/k2-components';
 import browser from 'webextension-polyfill';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const { t } = useTranslation();
@@ -41,6 +42,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { capture } = useAnalyticsContext();
+
   const extensionVersion = browser.runtime.getManifest().version;
 
   return (
@@ -157,7 +160,10 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               '&:hover': { borderRadius: 0 },
             }}
             data-testid="currency-option"
-            onClick={() => navigateTo(SettingsPages.CURRENCIES)}
+            onClick={() => {
+              capture('CurrencySettingClicked');
+              navigateTo(SettingsPages.CURRENCIES);
+            }}
           >
             <ListItemIcon>
               <CurrencyIcon size={24} />
@@ -292,7 +298,10 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               m: 0,
               '&:hover': { borderRadius: 0 },
             }}
-            onClick={() => navigateTo(SettingsPages.LEGAL)}
+            onClick={() => {
+              capture(`LegalClicked`);
+              navigateTo(SettingsPages.LEGAL);
+            }}
             data-testid="legal-option"
           >
             <ListItemText>
@@ -308,14 +317,20 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               m: 0,
               '&:hover': { borderRadius: 0 },
             }}
-            onClick={() =>
+            onClick={async () => {
+              try {
+                await capture(`HelpCenterClicked`);
+              } catch (err) {
+                console.error(err);
+              }
+
               window.open(
                 `https://support.avax.network/${
                   currentLanguage ? currentLanguage.linkCode : 'en'
                 }/collections/3391518-core`,
                 '_blank'
-              )
-            }
+              );
+            }}
             data-testid="help-center-option"
           >
             <ListItemText>

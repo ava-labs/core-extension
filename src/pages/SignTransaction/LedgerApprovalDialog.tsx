@@ -15,6 +15,7 @@ interface LedgerApprovalDialogProps {
   symbol?: string;
   fee?: string;
   feeSymbol?: string;
+  header?: string;
   nftName?: string;
 }
 
@@ -24,10 +25,13 @@ export function LedgerApprovalDialog({
   symbol,
   fee,
   feeSymbol,
+  header,
   nftName,
 }: LedgerApprovalDialogProps) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const title = header ?? t('Approve on your Ledger');
+
   return (
     <Stack
       sx={{
@@ -39,7 +43,7 @@ export function LedgerApprovalDialog({
       }}
     >
       <Typography variant="h5" sx={{ mb: 2 }}>
-        {t('Approve on your Ledger')}
+        {title}
       </Typography>
       <Box sx={{ width: '100%' }}>
         <Stack sx={{ width: '100%' }}>

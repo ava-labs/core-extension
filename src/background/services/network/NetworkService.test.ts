@@ -42,11 +42,20 @@ const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
     logoUri: '',
   },
   logoUri: '',
+  primaryColor: 'blue',
   isTestnet: isTestnet ?? true,
 });
 
 describe('background/services/network/NetworkService', () => {
   const env = process.env;
+
+  const storageServiceMock = {
+    load: jest.fn(),
+    loadUnencrypted: jest.fn(),
+    save: jest.fn(),
+    saveUnencrypted: jest.fn(),
+  } as any;
+  const networkService2 = new NetworkService(storageServiceMock);
 
   beforeAll(() => {
     process.env = {
@@ -62,6 +71,20 @@ describe('background/services/network/NetworkService', () => {
 
   afterAll(() => {
     process.env = env;
+  });
+
+  it('should return without the (filtered out testnet) favorite networks', async () => {
+    const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
+    networkService2.allNetworks = {
+      promisify: () =>
+        Promise.resolve({
+          [mockEVMNetwork.chainId]: { ...mockEVMNetwork },
+        }),
+    } as any;
+    await networkService2.addFavoriteNetwork(123);
+    await networkService2.addFavoriteNetwork(2);
+    const favoriteNetworks = await networkService2.getFavoriteNetworks();
+    expect(favoriteNetworks).toEqual([2]);
   });
 
   describe('getProviderForNetwork', () => {

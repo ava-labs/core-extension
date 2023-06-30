@@ -1,30 +1,27 @@
-import {
-  CaretIcon,
-  ComponentSize,
-  HorizontalFlex,
-  IconDirection,
-  Input,
-  SubTextTypography,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
-import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { SlippageToolTip } from './SlippageToolTip';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { BigNumber } from 'ethers';
-import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import {
+  Stack,
+  Typography,
+  useTheme,
+  styled,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  TextField,
+} from '@avalabs/k2-components';
+import {
+  CustomFeesK2,
+  GasFeeModifier,
+} from '@src/components/common/CustomFeesK2';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
   toTokenSymbol: string;
   rate: number;
-  walletFee: number | null;
   onGasChange(values: {
     customGasLimit?: number;
     maxFeePerGas: BigNumber;
@@ -48,19 +45,21 @@ const isSlippageValid = (value: string) => {
   return false;
 };
 
-const Container = styled.div`
+const Container = styled('div')`
   margin-top: 8px;
   margin-bottom: 32px;
 `;
 
-const TitleContainer = styled(HorizontalFlex)`
+const TitleContainer = styled(Stack)`
+  flex-direction: row;
   cursor: pointer;
 `;
 
-const DetailsContainer = styled(VerticalFlex)`
+const DetailsContainer = styled(Stack)`
   width: 100%;
 `;
-const DetailsRow = styled(HorizontalFlex)`
+const DetailsRow = styled(Stack)`
+  flex-direction: row;
   justify-content: space-between;
   width: 100%;
   margin: 8px 0;
@@ -71,7 +70,6 @@ export function TransactionDetails({
   fromTokenSymbol,
   toTokenSymbol,
   rate,
-  walletFee,
   onGasChange,
   gasLimit,
   gasPrice,
@@ -85,8 +83,6 @@ export function TransactionDetails({
   const { t } = useTranslation();
   const { network } = useNetworkContext();
   const { networkFee } = useNetworkFeeContext();
-  const tokenPrice = useNativeTokenPrice(network);
-  const { currencyFormatter } = useSettingsContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState(
     isTransactionDetailsOpen || false
   );
@@ -102,44 +98,60 @@ export function TransactionDetails({
         }}
       >
         <DetailsRow>
-          <VerticalFlex>
-            <Typography size={14} height="24px" weight={500}>
+          <Stack>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: theme.typography.fontWeightMedium }}
+            >
               {t('Transaction details')}
             </Typography>
-          </VerticalFlex>
-          <VerticalFlex width="24px">
-            <CaretIcon
-              height="21px"
-              color={theme.colors.text1}
-              direction={isDetailsOpen ? IconDirection.UP : IconDirection.DOWN}
-            />
-          </VerticalFlex>
+          </Stack>
+          <Stack sx={{ width: '24px' }}>
+            {isDetailsOpen ? (
+              <ChevronUpIcon size={21} />
+            ) : (
+              <ChevronDownIcon size={21} />
+            )}
+          </Stack>
         </DetailsRow>
       </TitleContainer>
       {isDetailsOpen && (
         <DetailsContainer>
           <DetailsRow>
-            <Typography size={12} height="15px">
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: theme.typography.fontWeightSemibold }}
+            >
               {t('Rate')}
             </Typography>
-            <Typography size={14} height="17px" weight={600}>
+            <Typography variant="body2">
               1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
             </Typography>
           </DetailsRow>
-          <DetailsRow>
-            <HorizontalFlex>
-              <Typography size={12} height="15px" margin="0 8px 0 0">
+          <Stack>
+            <Stack sx={{ flexDirection: 'row', alignItems: 'center', mb: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  my: 0,
+                  mr: 1,
+                  ml: 0,
+                  fontWeight: theme.typography.fontWeightSemibold,
+                }}
+              >
                 {t('Slippage tolerance')}
               </Typography>
               <SlippageToolTip />
-            </HorizontalFlex>
-            <HorizontalFlex align="center">
-              <Input
+            </Stack>
+            <Stack
+              sx={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}
+            >
+              <TextField
                 data-testid="swap-slippage-tolerance-input"
-                size={ComponentSize.SMALL}
+                size={'small'}
                 value={slippage}
-                width="66px"
-                placeholder="0"
+                placeholder="Input Percent %"
+                fullWidth
                 type="number"
                 min="0"
                 max="100"
@@ -148,27 +160,14 @@ export function TransactionDetails({
                   const isValid = isSlippageValid(value);
                   isValid && setSlippage(value);
                 }}
-              ></Input>
-              <Typography margin="0 0 0 8px" size={12} height="15px">
-                {t('%')}
-              </Typography>
-            </HorizontalFlex>
-          </DetailsRow>
-          <DetailsRow>
-            <VerticalFlex width="100%">
-              <HorizontalFlex marginBottom="8px">
-                <Typography size={12} height="15px" margin="0 8px 0 0">
-                  {t('Network Fee')}
-                </Typography>
-                <TransactionFeeTooltip
-                  gasPrice={gasPrice}
-                  gasLimit={gasLimit}
-                  network={network}
-                />
-              </HorizontalFlex>
+              />
+            </Stack>
+          </Stack>
+          <DetailsRow sx={{ mt: 5 }}>
+            <Stack sx={{ width: '100%' }}>
               {gasLimit && gasPrice && (
-                <CustomFees
-                  gasPrice={gasPrice}
+                <CustomFeesK2
+                  maxFeePerGas={gasPrice}
                   limit={gasLimit}
                   onChange={onGasChange}
                   maxGasPrice={maxGasPrice}
@@ -177,22 +176,7 @@ export function TransactionDetails({
                   networkFee={networkFee}
                 />
               )}
-            </VerticalFlex>
-          </DetailsRow>
-          <DetailsRow>
-            <Typography size={12} height="15px">
-              {t('Avalanche Wallet Fee')}
-            </Typography>
-            <VerticalFlex justify="flex-end">
-              <Typography size={14} height="17px" weight={600}>
-                {walletFee} AVAX
-              </Typography>
-              <SubTextTypography size={12} height="15px" margin="4px 0 0">
-                {walletFee &&
-                  tokenPrice &&
-                  currencyFormatter(Number(walletFee) * tokenPrice)}
-              </SubTextTypography>
-            </VerticalFlex>
+            </Stack>
           </DetailsRow>
         </DetailsContainer>
       )}

@@ -1,53 +1,45 @@
 import {
-  CaretIcon,
-  HorizontalFlex,
-  IconDirection,
-  TextButton,
-  Typography,
-} from '@avalabs/react-components';
+  Button,
+  ButtonProps,
+  ChevronDownIcon,
+  Tooltip,
+  styled,
+} from '@avalabs/k2-components';
+
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import {
-  ContextContainer,
-  useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
-import styled, { useTheme } from 'styled-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useHistory } from 'react-router-dom';
 
-interface AccountSelectorButtonProps {
-  onClick?: () => void;
-}
-
-const AccountName = styled(Typography)`
+const AccountName = styled('span')`
   max-width: 165px;
-  margin: 0 8px 0 0;
-  text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 600;
+  text-overflow: ellipsis;
 `;
 
-export function AccountSelectorButton({ onClick }: AccountSelectorButtonProps) {
-  const theme = useTheme();
+export function AccountSelectorButton(props: ButtonProps) {
+  const history = useHistory();
+  const { capture } = useAnalyticsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
 
   return (
-    <TextButton
-      data-testid="account-selector-open-button"
-      margin={isMiniMode ? '0' : '0 32px 0 0'}
-      onClick={onClick}
+    <Button
+      size="xlarge"
+      color="primary"
+      variant="text"
+      data-testid="account-selector-button"
+      onClick={() => {
+        history.push('/accounts');
+        capture('AccountSelectorOpened');
+      }}
+      endIcon={<ChevronDownIcon />}
+      sx={{ p: 0, fontSize: '20px' }}
+      {...props}
     >
-      <HorizontalFlex align={'center'} padding="0 0 0 8px">
+      <Tooltip title={activeAccount?.name}>
         <AccountName>{activeAccount?.name}</AccountName>
-        <CaretIcon
-          direction={IconDirection.DOWN}
-          color={theme.colors.text1}
-          height="12px"
-        />
-      </HorizontalFlex>
-    </TextButton>
+      </Tooltip>
+    </Button>
   );
 }

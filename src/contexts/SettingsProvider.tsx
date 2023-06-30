@@ -31,6 +31,7 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
+import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
 
 type SettingsFromProvider = SettingsState & {
   lockWallet(): Promise<true>;
@@ -81,36 +82,10 @@ export function SettingsContextProvider({ children }: { children: any }) {
     return () => subscription.unsubscribe();
   }, [events, request]);
 
-  const currencyFormatter = useMemo(() => {
-    /**
-     * For performance reasons we want to instantiate this as little as possible
-     */
-    const formatter = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: settings?.currency ?? 'USD',
-      currencyDisplay: 'narrowSymbol',
-    });
-
-    return (amount: number) => {
-      const parts = formatter.formatToParts(amount);
-      /**
-       *  This formats the currency to return
-       *  <symbol><amount>
-       *  ex. $10.00, €10.00
-       * if the (ie. CHF) matches the the it returns
-       * <amount><symbol>
-       * ex. 10 CHF
-       */
-
-      if (parts[0]?.value === settings?.currency) {
-        const flatArray = parts.map((x) => x.value);
-        flatArray.push(` ${flatArray.shift() || ''}`);
-        return flatArray.join('').trim();
-      }
-
-      return formatter.format(amount);
-    };
-  }, [settings?.currency]);
+  const currencyFormatter = useMemo(
+    () => getCurrencyFormatter(settings?.currency ?? 'USD'),
+    [settings?.currency]
+  );
 
   function lockWallet() {
     setIsSettingsOpen(false);

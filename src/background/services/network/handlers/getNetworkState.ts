@@ -43,8 +43,8 @@ export class GetNetworksStateHandler implements HandlerType {
     const activeNetwork = Object.assign({}, this.networkService.activeNetwork);
     delete activeNetwork?.tokens;
 
-    const favoriteNetworks = this.networkService.favoriteNetworks;
-
+    const filteredFavoriteNetworks =
+      await this.networkService.getFavoriteNetworks();
     const customNetworks = Object.values(
       this.networkService.customNetworks
     ).map((network) => network.chainId);
@@ -54,7 +54,7 @@ export class GetNetworksStateHandler implements HandlerType {
       result: {
         networks: networkList,
         activeNetwork,
-        favoriteNetworks,
+        favoriteNetworks: filteredFavoriteNetworks,
         customNetworks,
       },
     };

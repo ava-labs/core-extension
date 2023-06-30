@@ -6,17 +6,6 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { Action, ActionStatus } from '@src/background/services/actions/models';
-import {
-  AvalancheTx,
-  isAddDelegatorTx,
-  isAddValidatorTx,
-  isExportTx,
-  isImportTx,
-  isBaseTx,
-  isCreateSubnetTx,
-  isCreateChainTx,
-  isAddSubnetValidatorTx,
-} from '@src/background/services/wallet/models';
 
 import { ImportTxView } from './components/ApproveImportTx';
 import { ExportTxView } from './components/ApproveExportTx';
@@ -33,6 +22,7 @@ import { ApproveCreateSubnet } from './components/ApproveCreateSubnet';
 import { ApproveCreateChain } from './components/ApproveCreateChain';
 import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 import { AvalancheTxHeader } from './components/AvalancheTxHeader';
+import { Avalanche } from '@avalabs/wallets-sdk';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -64,32 +54,32 @@ export function AvalancheSignTx() {
   );
 
   const renderSignTxDetails = useCallback(
-    (tx: AvalancheTx) => {
-      if (isAddValidatorTx(tx)) {
+    (tx: Avalanche.Tx) => {
+      if (Avalanche.isAddValidatorTx(tx)) {
         return <AddValidator tx={tx} avaxPrice={tokenPrice}></AddValidator>;
-      } else if (isAddDelegatorTx(tx)) {
+      } else if (Avalanche.isAddDelegatorTx(tx)) {
         return <AddDelegator tx={tx} avaxPrice={tokenPrice}></AddDelegator>;
-      } else if (isExportTx(tx)) {
+      } else if (Avalanche.isExportTx(tx)) {
         return <ExportTxView tx={tx} avaxPrice={tokenPrice}></ExportTxView>;
-      } else if (isImportTx(tx)) {
+      } else if (Avalanche.isImportTx(tx)) {
         return <ImportTxView tx={tx} avaxPrice={tokenPrice}></ImportTxView>;
-      } else if (isBaseTx(tx)) {
+      } else if (Avalanche.isBaseTx(tx)) {
         return <BaseTxView tx={tx} avaxPrice={tokenPrice}></BaseTxView>;
-      } else if (isCreateSubnetTx(tx)) {
+      } else if (Avalanche.isCreateSubnetTx(tx)) {
         return (
           <ApproveCreateSubnet
             tx={tx}
             avaxPrice={tokenPrice}
           ></ApproveCreateSubnet>
         );
-      } else if (isCreateChainTx(tx)) {
+      } else if (Avalanche.isCreateChainTx(tx)) {
         return (
           <ApproveCreateChain
             tx={tx}
             avaxPrice={tokenPrice}
           ></ApproveCreateChain>
         );
-      } else if (isAddSubnetValidatorTx(tx)) {
+      } else if (Avalanche.isAddSubnetValidatorTx(tx)) {
         return (
           <AddSubnetValidatorView
             tx={tx}

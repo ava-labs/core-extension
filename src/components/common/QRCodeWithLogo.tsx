@@ -1,7 +1,6 @@
-import { VerticalFlex } from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
 import QRCode from 'qrcode.react';
 import { PropsWithChildren } from 'react';
+import { Stack, useTheme } from '@avalabs/k2-components';
 
 export function QRCodeWithLogo({
   value,
@@ -15,25 +14,27 @@ export function QRCodeWithLogo({
 }>) {
   const theme = useTheme();
   return (
-    <VerticalFlex
-      width="fit-content"
-      position="relative"
-      padding="16px"
-      background={theme.colors.icon1}
-      radius={theme.borderRadius}
+    <Stack
+      sx={{
+        width: 'fit-content',
+        position: 'relative',
+        p: 2,
+        background: theme.palette.common.white,
+        borderRadius: `${theme.shape.borderRadius}px`,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
       className={className}
-      align="center"
-      justify="center"
     >
       <QRCode
         renderAs="svg"
-        fgColor={theme.colors.bg1}
-        bgColor={theme.colors.icon1}
+        fgColor={theme.palette.common.black}
+        bgColor={theme.palette.common.white}
         value={value}
         level="H"
         size={size - 32}
       />
       {children}
-    </VerticalFlex>
+    </Stack>
   );
 }

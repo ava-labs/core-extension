@@ -11,8 +11,12 @@ import { useSettingsContext } from './SettingsProvider';
 
 const AnalyticsContext = createContext<{
   initAnalyticsIds: (storeInStorage: boolean) => Promise<void>;
-  stopDataCollection: () => void;
-  capture: (eventName: string, properties?: Record<string, any>) => void;
+  stopDataCollection: () => Promise<void>;
+  capture: (
+    eventName: string,
+    properties?: Record<string, any>,
+    forceRequestAttempt?: boolean
+  ) => Promise<void>;
 }>({} as any);
 
 const windowId = crypto.randomUUID();
@@ -22,21 +26,34 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
   const { analyticsConsent } = useSettingsContext();
 
   const capture = useCallback(
-    (eventName: string, properties?: Record<string, any>) => {
-      if (!analyticsConsent) {
+    async (
+      eventName: string,
+      properties?: Record<string, any>,
+      /**
+       * Sends the request regardless of the analyticsConsent state's value
+       * The service will still validate if the setting is properly enabled
+       * Useful when you don't want to / can't wait for the changes to be reflected in the state (e.g: when disabling analytics)
+       */
+      forceRequestAttempt?: boolean
+    ) => {
+      if (!analyticsConsent && !forceRequestAttempt) {
         return;
       }
 
-      request<CaptureAnalyticsEventHandler>({
-        method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
-        params: [
-          {
-            name: eventName,
-            windowId,
-            properties: { ...properties },
-          },
-        ],
-      });
+      try {
+        await request<CaptureAnalyticsEventHandler>({
+          method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
+          params: [
+            {
+              name: eventName,
+              windowId,
+              properties: { ...properties },
+            },
+          ],
+        });
+      } catch (err) {
+        console.error(err);
+      }
     },
     [analyticsConsent, request]
   );
@@ -51,8 +68,8 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     [request]
   );
 
-  const stopDataCollection = useCallback(() => {
-    request<ClearAnalyticsIdsHandler>({
+  const stopDataCollection = useCallback(async () => {
+    await request<ClearAnalyticsIdsHandler>({
       method: ExtensionRequest.ANALYTICS_CLEAR_IDS,
     });
   }, [request]);

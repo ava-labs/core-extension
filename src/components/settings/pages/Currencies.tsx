@@ -14,6 +14,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CURRENCIES } from '@src/background/services/settings/models';
 import { TFunction, useTranslation } from 'react-i18next';
 import { StyledListButton } from '../components/StyledListItemButton';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 // TODO: bring back the commented currencies when the glacier supports them
 export const getCurrencyNames = (t: TFunction<'translation'>) => {
@@ -35,6 +36,7 @@ export const getCurrencyNames = (t: TFunction<'translation'>) => {
 export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { updateCurrencySetting, currency } = useSettingsContext();
+  const { capture } = useAnalyticsContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const currencyNames = getCurrencyNames(t);
 
@@ -85,6 +87,7 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
                 selected={currency === c.symbol}
                 onClick={() => {
                   updateCurrencySetting(c.symbol);
+                  capture('CurrencySettingChanged', { currency: c.symbol });
                 }}
               >
                 <Typography variant="body2">

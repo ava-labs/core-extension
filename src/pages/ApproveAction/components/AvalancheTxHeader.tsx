@@ -1,40 +1,37 @@
 import { Box, Typography } from '@avalabs/k2-components';
-import {
-  AvalancheTx,
-  AvalancheTxType,
-} from '@src/background/services/wallet/models';
+import { Avalanche } from '@avalabs/wallets-sdk';
 import { useTranslation } from 'react-i18next';
 
 type AvalancheTxHeaderProps = {
-  tx: AvalancheTx;
+  tx: Avalanche.Tx;
 };
 
-const useAvalancheTxHeader = (tx: AvalancheTx) => {
+const useAvalancheTxHeader = (tx: Avalanche.Tx) => {
   const { t } = useTranslation();
 
   switch (tx.type) {
-    case AvalancheTxType.AddValidator:
+    case Avalanche.TxType.AddValidator:
       return t('Add Validator');
 
-    case AvalancheTxType.AddDelegator:
+    case Avalanche.TxType.AddDelegator:
       return t('Add Delegator');
 
-    case AvalancheTxType.AddSubnetValidator:
+    case Avalanche.TxType.AddSubnetValidator:
       return t('Add Subnet Validator');
 
-    case AvalancheTxType.CreateChain:
+    case Avalanche.TxType.CreateChain:
       return t('Create Blockchain');
 
-    case AvalancheTxType.CreateSubnet:
+    case Avalanche.TxType.CreateSubnet:
       return t('Create Subnet');
 
-    case AvalancheTxType.Export:
+    case Avalanche.TxType.Export:
       return t('Approve Export');
 
-    case AvalancheTxType.Import:
+    case Avalanche.TxType.Import:
       return t('Approve Import');
 
-    case AvalancheTxType.Base:
+    case Avalanche.TxType.Base:
       return t('Approve Transaction');
 
     default:

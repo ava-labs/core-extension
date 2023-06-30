@@ -21,7 +21,9 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
     activeNetwork: {
       chainId: 1,
     },
-    favoriteNetworks: [2, 3, 4],
+    async getFavoriteNetworks() {
+      return [2, 3, 4];
+    },
     favoriteNetworksUpdated: {
       add: jest.fn(),
     },
@@ -33,13 +35,18 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
     activeAccount: { id: 'abcd-1234' },
   } as unknown as AccountsService;
 
-  const getFetchedNetworksForCall = (mock, callIndex) =>
-    mock.calls[callIndex][0];
+  const getFetchedNetworksForCall = (mock, callIndex) => {
+    return mock.calls[callIndex][0];
+  };
 
   const runIntervalTimes = async (times) => {
     for (let i = 0; i < times; i++) {
       jest.advanceTimersByTime(BalancePollingService.INTERVAL + 1);
-      await jest.runOnlyPendingTimers();
+      // Call the scheduled timer.
+      await jest.runAllTimers();
+      // Need to .runAllTicks too, because getFavoriteNetworks() method is async
+      // and called inside of a fake Jest timer. This will resolve the pending promise.
+      await jest.runAllTicks();
     }
   };
 
@@ -55,7 +62,6 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
         networkServiceMock,
         accountsService
       );
-
       // Simulate .startPolling() call before an account is selected
       service.startAsSoonAsAccountIsSelected();
 

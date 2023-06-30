@@ -5,12 +5,18 @@ import {
   createMultiWalletProxy,
 } from './MultiWalletProviderProxy';
 
-jest.mock('./CoreProvider');
+jest.mock('./CoreProvider', () => ({
+  CoreProvider: jest.fn().mockImplementation(() => ({
+    isAvalanche: true,
+    removeAllListeners: jest.fn(),
+  })),
+}));
 
 describe('src/background/providers/MultiWalletProviderProxy', () => {
   describe('init', () => {
     it('initializes with the default provider', () => {
       const provider = new CoreProvider({ channelName: '' });
+
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -53,10 +59,12 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
       expect(mwpp.defaultProvider).toBe(provider);
       expect(mwpp.providers).toStrictEqual([
-        provider,
+        mwpp,
         { isMetaMask: true },
         { isRabby: true },
       ]);
+
+      expect((mwpp.providers[0] as any).isMetaMask).toBeTruthy();
     });
 
     it('does not add extra coinbase proxy', () => {
@@ -88,7 +96,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       mwpp.addProvider(mockProvider);
 
       expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toStrictEqual([provider, mockProvider]);
+      expect(mwpp.providers).toStrictEqual([mwpp, mockProvider]);
     });
   });
 
@@ -118,7 +126,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'UNKNOWN',
+              type: 'CORE',
             },
             {
               index: 1,
@@ -190,7 +198,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'UNKNOWN',
+              type: 'CORE',
             },
             {
               index: 1,
@@ -242,7 +250,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'UNKNOWN',
+              type: 'CORE',
             },
             {
               index: 1,
@@ -287,7 +295,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'UNKNOWN',
+              type: 'CORE',
             },
             {
               index: 1,
@@ -337,7 +345,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'UNKNOWN',
+              type: 'CORE',
             },
             {
               index: 1,

@@ -5,18 +5,17 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-components';
-import { AvalancheBaseTx } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
 import { bigIntToString } from '@avalabs/utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { AvalancheChainStrings } from '@src/background/services/wallet/utils/parseAvalancheTx';
 import { Avalanche } from '@avalabs/wallets-sdk';
+import { AvalancheChainStrings } from '@src/background/services/transactions/models';
 
 export function BaseTxView({
   tx,
   avaxPrice,
 }: {
-  tx: AvalancheBaseTx;
+  tx: Avalanche.BaseTx;
   avaxPrice: number;
 }) {
   const { t } = useTranslation();

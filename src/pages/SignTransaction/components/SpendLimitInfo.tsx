@@ -8,7 +8,7 @@ import {
   ApprovalSectionBody,
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
-import { TokenAmount } from './TokenAmount';
+import { TokenAmount } from '@src/components/common/TokenAmount';
 
 type SpendLimitInfoProps = {
   tokenToBeApproved: TokenWithBalance;

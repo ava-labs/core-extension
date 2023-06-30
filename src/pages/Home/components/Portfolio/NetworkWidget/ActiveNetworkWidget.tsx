@@ -28,6 +28,7 @@ import { TokenIconK2 } from '@src/components/common/TokenImageK2';
 import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { isBitcoin } from '@src/utils/isBitcoin';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -52,6 +53,7 @@ export function ActiveNetworkWidget({
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { isTokensCached } = useBalancesContext();
+  const { capture } = useAnalyticsContext();
 
   if (!network || !assetList?.length) {
     return <Skeleton variant="rounded" sx={{ width: 343, height: 190 }} />;
@@ -67,6 +69,7 @@ export function ActiveNetworkWidget({
     if (network.chainId === ChainId.BITCOIN) {
       history.push('/token');
     } else {
+      capture('PortfolioPrimaryNetworkClicked', { chainId: network.chainId });
       history.push('/tokenlist');
     }
   };

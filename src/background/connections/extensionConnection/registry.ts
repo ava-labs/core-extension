@@ -105,6 +105,9 @@ import { SubmitKeystoneSignature } from '@src/background/services/keystone/handl
 import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
 import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
 import { WalletUpdatedEvents } from '@src/background/services/wallet/events/WalletUpdatedEvent';
+import { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/getDefiPortfolio';
+import { CurrencyRatesUpdatedEvents } from '@src/background/services/currency/events/currencyRatesUpdatedEvent';
+import { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -239,6 +242,14 @@ import { WalletUpdatedEvents } from '@src/background/services/wallet/events/Wall
     useToken: MigrateMissingPublicKeysFromLedgerHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: SubmitKeystoneSignature },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetDefiPortfolioHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetCurrencyExchangeRatesHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -268,5 +279,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: LedgerCloseTransportEvent },
   { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: CurrencyRatesUpdatedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

@@ -64,8 +64,10 @@ describe('background/services/transactions/TransactionsService.ts', () => {
     accountsService = new AccountsService({} as any, {} as any, networkService);
 
     const accountName = 'testAccount';
+    const addListenerMock = jest.fn();
     const accountsServiceMock = {
       activeAccount: { addressC: accountName },
+      addListener: addListenerMock,
     } as unknown as AccountsService;
 
     balanceAggregatorService = new BalanceAggregatorService(

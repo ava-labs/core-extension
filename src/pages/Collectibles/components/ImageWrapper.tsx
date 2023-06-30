@@ -1,21 +1,43 @@
-import { ChevronLeftIcon, IconButton, Stack } from '@avalabs/k2-components';
+import {
+  Box,
+  ChevronLeftIcon,
+  IconButton,
+  Stack,
+} from '@avalabs/k2-components';
 import { Overlay } from '@src/components/common/Overlay';
 import { PropsWithChildren } from 'react';
 interface ImageWrapperProps {
   isOverlay: boolean;
   onClick: () => void;
   onClose: () => void;
+  backdropImageUrl?: string;
+  shouldUseLightIcon: boolean;
 }
 
 export function ImageWrapper({
   isOverlay,
   onClick,
   onClose,
+  backdropImageUrl,
+  shouldUseLightIcon,
   children,
 }: PropsWithChildren<ImageWrapperProps>) {
   if (isOverlay) {
     return (
       <Overlay>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundImage: `url(${backdropImageUrl})`,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            filter: 'blur(16px)',
+          }}
+        />
         <Stack
           sx={{
             height: '100%',
@@ -37,7 +59,14 @@ export function ImageWrapper({
                 p: 0,
               }}
             >
-              <ChevronLeftIcon size={32} />
+              <ChevronLeftIcon
+                size={32}
+                sx={{
+                  color: shouldUseLightIcon
+                    ? 'primary.light'
+                    : 'primary.contrastText',
+                }}
+              />
             </IconButton>
           </Stack>
           {children}

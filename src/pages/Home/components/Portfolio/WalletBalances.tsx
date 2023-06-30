@@ -31,39 +31,51 @@ export function WalletBalances() {
 
   return (
     <Stack
+      direction="row"
       sx={{
-        width: '100%',
-        minHeight: '44px',
-        alignItems: 'flex-end',
         justifyContent: 'center',
-        flexDirection: 'row',
+        alignItems: 'flex-end',
+        minHeight: 5.5,
+        width: '100%',
+        mt: 1.75,
+        gap: 1.25,
       }}
     >
       {balanceTotal === null ? (
-        <Skeleton variant="rounded" sx={{ height: 37, width: 215 }} />
+        <Skeleton
+          variant="rounded"
+          sx={{
+            height: 37,
+            width: 215,
+          }}
+        />
       ) : (
-        <>
-          <Stack sx={{ flexDirection: 'row', alignItems: 'baseline' }}>
-            {isTokensCached && (
-              <Tooltip title={t('Balances loading...')} placement="bottom">
-                <AlertTriangleIcon
-                  size={19}
-                  sx={{ color: 'warning.main', mr: 1 }}
-                />
-              </Tooltip>
-            )}
-            <Typography
-              data-testid="wallet-balance"
-              variant="h2"
-              sx={{ fontWeight: 'fontWeightBold' }}
-            >
-              {currencyFormatter(balanceTotal).replace(currency, '')}
-            </Typography>
-            <Typography variant="body1" sx={{ opacity: '60%' }}>
-              {currency}
-            </Typography>
-          </Stack>
-        </>
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            alignItems: 'baseline',
+            gap: 1.25,
+          }}
+        >
+          {isTokensCached && (
+            <Tooltip title={t('Balances loading...')} placement="bottom">
+              <AlertTriangleIcon
+                size={19}
+                sx={{ color: 'warning.main', mr: 1 }}
+              />
+            </Tooltip>
+          )}
+          <Typography
+            data-testid="wallet-balance"
+            variant="h2"
+            sx={{ fontWeight: 'fontWeightBold' }}
+          >
+            {currencyFormatter(balanceTotal).replace(currency, '')}
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: '60%' }}>
+            {currency}
+          </Typography>
+        </Stack>
       )}
     </Stack>
   );

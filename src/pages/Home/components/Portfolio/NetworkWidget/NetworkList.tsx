@@ -93,7 +93,7 @@ export function NetworkList() {
                 p: 2,
               }}
               onClick={() => {
-                capture('PortfolioNetworkSelected', {
+                capture('PortfolioSecondaryNetworkClicked', {
                   chainId: network.chainId,
                 });
                 setNetwork(network);

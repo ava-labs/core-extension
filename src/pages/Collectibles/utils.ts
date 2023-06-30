@@ -1,7 +1,10 @@
 export const isVideo = (url?: string) =>
   url && ['.mp4', '.webm', '.ogg'].includes(url.slice(url.lastIndexOf('.')));
 
-export const isImageDark = (img: HTMLImageElement, callback) => {
+export const isImageDark = (
+  img: HTMLImageElement,
+  callback: (b: boolean) => void
+) => {
   let colorSum = 0;
 
   if (!img) {
@@ -25,14 +28,17 @@ export const isImageDark = (img: HTMLImageElement, callback) => {
     const width = Math.floor(canvas.width / 2);
     const imageData = ctx.getImageData(width, 0, width, height);
     const data = imageData.data;
-    let r, g, b, avg;
 
     for (let x = 0, len = data.length; x < len; x += 4) {
-      r = data[x];
-      g = data[x + 1];
-      b = data[x + 2];
+      const r = data[x];
+      const g = data[x + 1];
+      const b = data[x + 2];
 
-      avg = Math.floor((r + g + b) / 3);
+      if (r === undefined || g === undefined || b === undefined) {
+        throw new Error('Undefined color');
+      }
+
+      const avg = Math.floor((r + g + b) / 3);
       colorSum += avg;
     }
 

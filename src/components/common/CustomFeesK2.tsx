@@ -37,6 +37,7 @@ interface CustomGasFeesProps {
     maxPriorityFeePerGas?: BigNumber;
     feeType: GasFeeModifier;
   }): void;
+  onModifierChangeCallback?: (feeType?: GasFeeModifier) => void;
   gasPriceEditDisabled?: boolean;
   maxGasPrice?: string;
   selectedGasFeeModifier?: GasFeeModifier;
@@ -116,7 +117,7 @@ const CustomInput = styled('input')`
   }
 `;
 
-function getUpToTwoDecimals(input: BigNumber, decimals: number) {
+export function getUpToTwoDecimals(input: BigNumber, decimals: number) {
   const result = input
     .mul(100)
     .div(10 ** decimals)
@@ -125,10 +126,35 @@ function getUpToTwoDecimals(input: BigNumber, decimals: number) {
   return formatUnits(result, 2);
 }
 
+export const getGasFeeToDisplay = (fee: string, networkFee: NetworkFee) => {
+  if (fee === '') {
+    return fee;
+  }
+  // strings coming in are already decimal formatted from our getUpToTwoDecimals function
+  // If there is no network fee, return undefined
+  if (!networkFee) return undefined;
+  // If network fees are all the same, return decimals (fee arg)
+  if (
+    networkFee.high === networkFee.low &&
+    networkFee.high === networkFee?.medium
+  ) {
+    return fee;
+  }
+  // else if fee is less than or equal to 1, return decimals
+  else if (parseFloat(fee) <= 1) {
+    return fee;
+  }
+  // else, return rounded fee
+  else {
+    return Math.round(parseFloat(fee));
+  }
+};
+
 export function CustomFeesK2({
   maxFeePerGas,
   limit,
   onChange,
+  onModifierChangeCallback,
   gasPriceEditDisabled = false,
   maxGasPrice,
   selectedGasFeeModifier,
@@ -266,29 +292,16 @@ export function CustomFeesK2({
     [handleGasChange, networkFee, customFee]
   );
 
-  const getGasFeeToDisplay = (fee: string) => {
-    if (fee === '') {
-      return fee;
-    }
-    // strings coming in are already decimal formatted from our getUpToTwoDecimals function
-    // If there is no network fee, return undefined
-    if (!networkFee) return undefined;
-    // If network fees are all the same, return decimals (fee arg)
-    if (
-      networkFee.high === networkFee.low &&
-      networkFee.high === networkFee?.medium
-    ) {
-      return fee;
-    }
-    // else if fee is less than or equal to 1, return decimals
-    else if (parseFloat(fee) <= 1) {
-      return fee;
-    }
-    // else, return rounded fee
-    else {
-      return Math.round(parseFloat(fee));
-    }
-  };
+  const handleModifierClick = useCallback(
+    (modifier?: GasFeeModifier) => {
+      updateGasFee(modifier);
+
+      if (onModifierChangeCallback) {
+        onModifierChangeCallback(modifier);
+      }
+    },
+    [updateGasFee, onModifierChangeCallback]
+  );
 
   useEffect(() => {
     if (networkFee) {
@@ -324,7 +337,7 @@ export function CustomFeesK2({
               selectedFee === GasFeeModifier.NORMAL ? 'primary' : 'secondary'
             }
             onClick={() => {
-              updateGasFee(GasFeeModifier.NORMAL);
+              handleModifierClick(GasFeeModifier.NORMAL);
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
@@ -335,7 +348,8 @@ export function CustomFeesK2({
                 getUpToTwoDecimals(
                   networkFee.low.maxFee,
                   networkFee.displayDecimals
-                )
+                ),
+                networkFee
               )}
             </Typography>
           </FeeButton>
@@ -348,7 +362,7 @@ export function CustomFeesK2({
                   selectedFee === GasFeeModifier.FAST ? 'primary' : 'secondary'
                 }
                 onClick={() => {
-                  updateGasFee(GasFeeModifier.FAST);
+                  handleModifierClick(GasFeeModifier.FAST);
                 }}
               >
                 <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
@@ -359,7 +373,8 @@ export function CustomFeesK2({
                     getUpToTwoDecimals(
                       networkFee.medium.maxFee,
                       networkFee.displayDecimals
-                    )
+                    ),
+                    networkFee
                   )}
                 </Typography>
               </FeeButton>
@@ -372,7 +387,7 @@ export function CustomFeesK2({
                     : 'secondary'
                 }
                 onClick={() => {
-                  updateGasFee(GasFeeModifier.INSTANT);
+                  handleModifierClick(GasFeeModifier.INSTANT);
                 }}
               >
                 <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
@@ -383,7 +398,8 @@ export function CustomFeesK2({
                     getUpToTwoDecimals(
                       networkFee.high.maxFee,
                       networkFee.displayDecimals
-                    )
+                    ),
+                    networkFee
                   )}
                 </Typography>
               </FeeButton>
@@ -396,7 +412,7 @@ export function CustomFeesK2({
                     : 'secondary'
                 }
                 onClick={() => {
-                  updateGasFee(GasFeeModifier.CUSTOM);
+                  handleModifierClick(GasFeeModifier.CUSTOM);
                   customInputRef?.current?.focus();
                 }}
                 disableRipple
@@ -411,7 +427,8 @@ export function CustomFeesK2({
                     getUpToTwoDecimals(
                       customFee?.maxFee ?? BigNumber.from(0),
                       networkFee.displayDecimals
-                    )
+                    ),
+                    networkFee
                   )}
                   onChange={(e) => {
                     handleGasChange(

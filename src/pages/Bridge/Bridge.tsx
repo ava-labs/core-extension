@@ -112,6 +112,7 @@ export function Bridge() {
     receiveAmount,
     wrapStatus,
     transfer,
+    bridgeFee,
   } = useBridge();
 
   const {
@@ -291,6 +292,12 @@ export function Bridge() {
     setAmount(BIG_ZERO);
     setCurrentAsset(symbol);
     sendTokenSelectedAnalytics('Bridge');
+
+    if (!hasEnoughForNetworkFee) {
+      capture('BridgeTokenSelectError', {
+        errorMessage: 'Insufficent balance to cover gas costs.',
+      });
+    }
   };
 
   const onTransferClicked = () => {
@@ -318,12 +325,26 @@ export function Bridge() {
       console.error(error);
       // do not show the error when the user denied the transfer
       if (error === 'User declined the transaction') {
+        capture('BridgeTransferRequestUserRejectedError', {
+          sourceBlockchain: currentBlockchain,
+          targetBlockchain,
+          fee: bridgeFee?.toNumber(),
+        });
         return;
       }
 
-      setBridgeError(t('The was a problem with the transfer'));
+      setBridgeError(t('There was a problem with the transfer'));
+      capture('BridgeTransferRequestError', {
+        sourceBlockchain: currentBlockchain,
+        targetBlockchain,
+      });
       return;
     }
+
+    capture('BridgeTransferRequestSucceeded', {
+      sourceBlockchain: currentBlockchain,
+      targetBlockchain,
+    });
 
     const timestamp = Date.now();
 
@@ -431,7 +452,6 @@ export function Bridge() {
                               ),
                               address: sourceBalance.asset.symbol,
                               contractType: 'ERC-20',
-                              description: '',
                               unconfirmedBalanceDisplayValue: formatBalance(
                                 sourceBalance.unconfirmedBalance
                               ),

@@ -1,15 +1,15 @@
-import {
-  HorizontalFlex,
-  InfoIcon,
-  Tooltip,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
 import BN from 'bn.js';
 import { useTranslation } from 'react-i18next';
+import {
+  InfoCircleIcon,
+  Stack,
+  Typography,
+  Tooltip,
+  styled,
+  useTheme,
+} from '@avalabs/k2-components';
 
-const TryAgainButton = styled.span`
+const TryAgainButton = styled('span')`
   text-decoration: underline;
   cursor: pointer;
 `;
@@ -27,16 +27,15 @@ export function SwapError({
   const { t } = useTranslation();
 
   return (
-    <HorizontalFlex>
-      <Typography size={12} color={theme.colors.error}>
+    <Stack sx={{ flexDirection: 'row', flexGrow: 0, alignItems: 'center' }}>
+      <Typography variant="caption" sx={{ color: theme.palette.error.main }}>
         {swapError.message ?? ''}
       </Typography>
       {swapError.hasTryAgain && (
         <>
           <Typography
-            size={12}
-            color={theme.colors.error}
-            margin="0 4px"
+            variant="caption"
+            sx={{ my: 0, mx: 0.5, color: theme.palette.error.main }}
             onClick={() => {
               const value =
                 destinationInputField === 'to'
@@ -53,19 +52,15 @@ export function SwapError({
             <TryAgainButton>{t('try again')}</TryAgainButton>
           </Typography>
           {swapError.errorInfo && (
-            <Tooltip
-              placement={'bottom'}
-              content={
-                <VerticalFlex>
-                  <Typography size={12}>{swapError.errorInfo}</Typography>
-                </VerticalFlex>
-              }
-            >
-              <InfoIcon height="12px" color={theme.colors.error} />
+            <Tooltip placement={'bottom'} title={swapError.errorInfo}>
+              <InfoCircleIcon
+                size="12px"
+                sx={{ color: theme.palette.error.main }}
+              />
             </Tooltip>
           )}
         </>
       )}
-    </HorizontalFlex>
+    </Stack>
   );
 }

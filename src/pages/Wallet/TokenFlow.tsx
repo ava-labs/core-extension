@@ -25,6 +25,7 @@ import {
 } from '@avalabs/k2-components';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import BN from 'bn.js';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const StyledBridgeIcon = styled(BridgeIcon)`
   height: 22px;
@@ -37,6 +38,7 @@ export function TokenFlow() {
   const { currencyFormatter } = useSettingsContext();
   const token = useTokenFromParams();
   const tokensWithBalances = useTokensWithBalances();
+  const { capture } = useAnalyticsContext();
   const [tokensWithBalancesAreReady, setTokensWithBalancesAreReady] =
     useState<boolean>();
   const [showSend, setShowSend] = useState<boolean>();
@@ -135,9 +137,10 @@ export function TokenFlow() {
           <Button
             data-testid="token-details-send-button"
             color="secondary"
-            onClick={() =>
-              setSendDataInParams({ token, options: { path: '/send' } })
-            }
+            onClick={() => {
+              capture('TokenSendClicked', { chainId: network?.chainId });
+              setSendDataInParams({ token, options: { path: '/send' } });
+            }}
             sx={{
               width: '164px',
             }}
@@ -150,7 +153,10 @@ export function TokenFlow() {
         <Button
           data-testid="token-details-receive-button"
           color="secondary"
-          onClick={() => history.push('/receive')}
+          onClick={() => {
+            capture('TokenReceiveClicked', { chainId: network?.chainId });
+            history.push('/receive');
+          }}
           margin={isBitcoin ? '0 8px' : '0 0 0 16px'}
           sx={{
             width: '164px',

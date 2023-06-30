@@ -1,5 +1,3 @@
-import { ExportTx } from '@src/background/services/wallet/models';
-
 import {
   AvalancheColorIcon,
   Card,
@@ -11,13 +9,14 @@ import {
 import { useTranslation } from 'react-i18next';
 import { bigIntToString } from '@avalabs/utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { AvalancheChainStrings } from '@src/background/services/wallet/utils/parseAvalancheTx';
+import { Avalanche } from '@avalabs/wallets-sdk';
+import { AvalancheChainStrings } from '@src/background/services/transactions/models';
 
 export function ExportTxView({
   tx,
   avaxPrice,
 }: {
-  tx: ExportTx;
+  tx: Avalanche.ExportTx;
   avaxPrice: number;
 }) {
   const { t } = useTranslation();

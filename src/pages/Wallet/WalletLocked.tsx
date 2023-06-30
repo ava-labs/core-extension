@@ -1,28 +1,20 @@
-import {
-  ComponentSize,
-  HorizontalFlex,
-  HorizontalSeparator,
-  LoadingSpinnerIcon,
-  PrimaryButton,
-  TextButton,
-  useDialog,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { useEffect, useRef, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
-import { useTranslation } from 'react-i18next';
-import { PasswordInput } from '@src/components/common/PasswordInput';
-
-const StyledLoading = styled(LoadingSpinnerIcon)`
-  margin-right: 10px;
-`;
+import { Trans, useTranslation } from 'react-i18next';
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from '@avalabs/k2-components';
 
 const defaultOptions = {
   loop: false,
@@ -42,8 +34,7 @@ export function WalletLocked({
   const [error, setError] = useState<string>('');
   const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
   const [loggingIn, setLoggingIn] = useState<boolean>(false);
-  const { showDialog, clearDialog } = useDialog();
-  const theme = useTheme();
+  const [showDialog, setShowDialog] = useState<boolean>(false);
 
   const isMounted = useRef(false);
   useEffect(() => {
@@ -54,25 +45,7 @@ export function WalletLocked({
   }, []);
 
   const onImportClick = () => {
-    showDialog({
-      title: t('Have you Written Down your Recovery Phrase?'),
-      body: t(
-        'Pressing yes will terminate this session, without your phrase you will not be able to access the current wallet'
-      ),
-      confirmText: t('Yes'),
-      width: '343px',
-      onConfirm: () => {
-        clearDialog();
-        request<ResetExtensionStateHandler>({
-          method: ExtensionRequest.RESET_EXTENSION_STATE,
-          params: [true],
-        });
-      },
-      cancelText: t('No'),
-      onCancel: () => {
-        clearDialog();
-      },
-    });
+    setShowDialog(true);
   };
 
   const handleSubmit = (e) => {
@@ -95,27 +68,42 @@ export function WalletLocked({
   };
 
   return (
-    <VerticalFlex
-      padding="0px 16px 24px"
-      align={'center'}
-      justify={'center'}
-      {...dimensions}
+    <Stack
+      sx={{
+        ...dimensions,
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        px: 2,
+        pb: 2,
+      }}
     >
-      <VerticalFlex grow="1" justify="center" align="center">
-        <Lottie options={defaultOptions} height={260} width={260} />
-        <HorizontalFlex justify="flex-end" width="100%">
-          <BetaLabel />
-        </HorizontalFlex>
-      </VerticalFlex>
+      <Stack
+        sx={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Lottie options={defaultOptions} height={180} width={180} />
+      </Stack>
 
-      <VerticalFlex align="center" height="88px">
-        <PasswordInput
+      <Stack
+        sx={{
+          height: '88px',
+          width: '100%',
+          mb: 4,
+        }}
+      >
+        <TextField
           data-testid="wallet-locked-password-input"
+          type="password"
           label={t('Password')}
           onChange={(e) => setPassword(e.currentTarget.value.trim())}
-          placeholder={t('Password')}
+          placeholder={t('Input Password')}
           error={!!error}
-          errorMessage={error}
+          helperText={error}
+          fullWidth
+          size="large"
           onKeyPress={(e) => {
             // When we click the enter key within the password input
             if (e.key === 'Enter') {
@@ -124,27 +112,64 @@ export function WalletLocked({
           }}
           autoFocus
         />
-      </VerticalFlex>
-      <PrimaryButton
+      </Stack>
+      <Button
         data-testid="wallet-locked-login-button"
-        size={ComponentSize.LARGE}
-        width="100%"
         disabled={!password || loggingIn || loginSuccess}
         onClick={handleSubmit}
+        fullWidth
+        size="large"
       >
         {(loggingIn || loginSuccess) && (
-          <StyledLoading height="16px" color={theme.colors.stroke2} />
+          <CircularProgress size={16} sx={{ mr: 1 }} />
         )}
         {t('Login')}
-      </PrimaryButton>
-      <HorizontalSeparator margin="24px 0 8px" />
-      <TextButton
+      </Button>
+      <Divider flexItem sx={{ my: 2 }} />
+      <Button
+        variant="text"
         data-testid="wallet-locked-reset-phrase-button"
-        height="40px"
         onClick={() => onImportClick()}
+        sx={{ mb: 1 }}
       >
         {t('Reset Secret Recovery Phrase')}
-      </TextButton>
-    </VerticalFlex>
+      </Button>
+      <Dialog
+        open={showDialog}
+        showCloseIcon={false}
+        onClose={() => setShowDialog(false)}
+        PaperProps={{ sx: { m: 2 } }}
+      >
+        <Stack sx={{ justifyContent: 'center', p: 3, rowGap: 2 }}>
+          <Typography variant="h5" sx={{ textAlign: 'center' }}>
+            {t('Have You Written Down your Recovery Phrase?')}
+          </Typography>
+          <Typography variant="body2" sx={{ textAlign: 'center' }}>
+            <Trans i18nKey="Pressing yes will terminate this session, without your phrase you will not be able to access the current wallet" />
+          </Typography>
+          <Stack
+            sx={{
+              rowGap: 2,
+            }}
+          >
+            <Button
+              size="large"
+              onClick={() => {
+                request<ResetExtensionStateHandler>({
+                  method: ExtensionRequest.RESET_EXTENSION_STATE,
+                  params: [true],
+                });
+                setShowDialog(false);
+              }}
+            >
+              {t('Yes')}
+            </Button>
+            <Button variant="text" onClick={() => setShowDialog(false)}>
+              {t('No')}
+            </Button>
+          </Stack>
+        </Stack>
+      </Dialog>
+    </Stack>
   );
 }

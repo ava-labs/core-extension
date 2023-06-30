@@ -57,11 +57,7 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
           <ListItem sx={{ justifyContent: 'space-between' }}>
             <Typography variant="body2">{t('Status')}</Typography>
             <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-              <ConnectionIndicatorK2
-                connected={hasLedgerTransport}
-                disableTooltip
-                size={12}
-              />
+              <ConnectionIndicatorK2 connected={hasLedgerTransport} size={12} />
               <Typography variant="body2" sx={{ ml: 1 }}>
                 {hasLedgerTransport ? t('Connected') : t('Disconnected')}
               </Typography>

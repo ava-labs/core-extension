@@ -1,29 +1,16 @@
-import {
-  InfoIcon,
-  Tooltip,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { useTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { InfoCircleIcon, Tooltip } from '@avalabs/k2-components';
 
 export function SlippageToolTip() {
   const { t } = useTranslation();
-  const theme = useTheme();
-
-  const Content = (
-    <VerticalFlex width="280px">
-      <Typography size={12} height="1.5">
-        {t(
-          'Suggested slippage – your transaction will fail if the price changes unfavorably more than this percentage'
-        )}
-      </Typography>
-    </VerticalFlex>
-  );
 
   return (
-    <Tooltip content={Content}>
-      <InfoIcon height="16px" color={theme.colors.text2} />
+    <Tooltip
+      title={t(
+        'Suggested slippage – your transaction will fail if the price changes unfavorably more than this percentage'
+      )}
+    >
+      <InfoCircleIcon size="14px" />
     </Tooltip>
   );
 }

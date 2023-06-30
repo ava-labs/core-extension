@@ -8,19 +8,13 @@ import {
   utils,
   EVM,
 } from '@avalabs/avalanchejs-v2';
-import { parseAvalancheTx } from '../utils/parseAvalancheTx';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
 import { Avalanche } from '@avalabs/wallets-sdk';
-import createAvalancheUnsignedTx from '../utils/createAvalancheUnsignedTx';
-import createAvalancheEvmUnsignedTx from '../utils/createAvalancheEvmUnsignedTx';
 
 jest.mock('@avalabs/avalanchejs-v2');
 jest.mock('@avalabs/wallets-sdk');
-jest.mock('@src/background/services/wallet/utils/parseAvalancheTx');
-jest.mock('../utils/createAvalancheUnsignedTx');
-jest.mock('../utils/createAvalancheEvmUnsignedTx');
 
 describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts', () => {
   const request = {
@@ -173,7 +167,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
     it('returns error if fails to parse transaction', async () => {
       getAddressesByIndicesMock.mockResolvedValue([]);
-      (parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+      (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
         type: 'unknown',
       });
       (utils.parse as jest.Mock).mockReturnValueOnce([
@@ -181,7 +175,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         undefined,
         new Uint8Array([0, 1, 2]),
       ]);
-      (createAvalancheUnsignedTx as jest.Mock).mockReturnValueOnce(
+      (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValueOnce(
         unsignedTxMock
       );
 
@@ -204,7 +198,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       const tx = { vm: AVM };
       (utils.unpackWithManager as jest.Mock).mockReturnValueOnce(tx);
       getAddressesByIndicesMock.mockResolvedValue([]);
-      (parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+      (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
         type: 'import',
       });
       (utils.parse as jest.Mock).mockReturnValueOnce([
@@ -212,7 +206,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         undefined,
         new Uint8Array([0, 1, 2]),
       ]);
-      (createAvalancheUnsignedTx as jest.Mock).mockReturnValueOnce(
+      (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValueOnce(
         unsignedTxMock
       );
 
@@ -243,7 +237,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         result: DEFERRED_RESPONSE,
       });
 
-      expect(createAvalancheUnsignedTx).toHaveBeenCalledWith({
+      expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
         tx,
         vm: AVM,
         provider: providerMock,
@@ -257,10 +251,10 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         new Uint8Array([0, 1, 2])
       );
       getAddressesByIndicesMock.mockResolvedValue([]);
-      (parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+      (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
         type: 'import',
       });
-      (createAvalancheEvmUnsignedTx as jest.Mock).mockReturnValueOnce(
+      (Avalanche.createAvalancheEvmUnsignedTx as jest.Mock).mockReturnValueOnce(
         unsignedTxMock
       );
 
@@ -291,7 +285,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         result: DEFERRED_RESPONSE,
       });
 
-      expect(createAvalancheEvmUnsignedTx).toHaveBeenCalledWith({
+      expect(Avalanche.createAvalancheEvmUnsignedTx).toHaveBeenCalledWith({
         txBytes: new Uint8Array([0, 1, 2]),
         vm: EVM,
         provider: providerMock,

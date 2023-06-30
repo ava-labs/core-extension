@@ -1,15 +1,15 @@
-import { AddDelegatorTx } from '@src/background/services/wallet/models';
 import { Card, CardContent, Stack, Typography } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 import { bigIntToString } from '@avalabs/utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { AvalancheChainStrings } from '@src/background/services/wallet/utils/parseAvalancheTx';
+import { Avalanche } from '@avalabs/wallets-sdk';
+import { AvalancheChainStrings } from '@src/background/services/transactions/models';
 
 export function AddDelegator({
   tx,
   avaxPrice,
 }: {
-  tx: AddDelegatorTx;
+  tx: Avalanche.AddDelegatorTx;
   avaxPrice: number;
 }) {
   const { nodeID, start, end, stake, chain } = tx;

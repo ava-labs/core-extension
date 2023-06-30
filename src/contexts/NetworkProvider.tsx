@@ -21,7 +21,7 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
-import { NetworkOverrides } from '@src/background/services/network/NetworkService';
+import { NetworkOverrides } from '@src/background/services/network/models';
 
 const NetworkContext = createContext<{
   network?: Network | undefined;
@@ -81,6 +81,11 @@ export function NetworkContextProvider({ children }: { children: any }) {
     (chainId: number) =>
       (networks ?? []).some((network) => network.chainId === chainId),
     [networks]
+  );
+
+  const isCustomNetwork = useCallback(
+    (chainId: number) => customNetworks.includes(chainId),
+    [customNetworks]
   );
 
   const getNetwork = useCallback(
@@ -197,6 +202,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
             setFavoriteNetworks(result);
             capture('NetworkFavoriteAdded', {
               networkChainId: chainId,
+              isCustom: isCustomNetwork(chainId),
             });
           });
         },
@@ -208,13 +214,14 @@ export function NetworkContextProvider({ children }: { children: any }) {
             setFavoriteNetworks(result);
             capture('NetworkFavoriteRemoved', {
               networkChainId: chainId,
+              isCustom: isCustomNetwork(chainId),
             });
           });
         },
         isFavoriteNetwork: (chainId: number) =>
           favoriteNetworks.includes(chainId),
         customNetworks: getCustomNetworks,
-        isCustomNetwork: (chainId: number) => customNetworks.includes(chainId),
+        isCustomNetwork,
         isChainIdExist,
         getNetwork,
       }}

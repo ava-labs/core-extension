@@ -48,6 +48,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     rpcUrl: 'test.chain.com/rpc',
     networkToken: testNetworkToken,
     logoUri: 'test.chain.com/logo',
+    primaryColor: 'orange',
   };
 
   const networkServiceMock = {
@@ -77,6 +78,7 @@ describe('background/services/settings/SettingsService.ts', () => {
   };
 
   const customToken: NetworkContractToken = {
+    chainId: 1337,
     address: 'customTokenAddress',
     name: 'custom token',
     symbol: 'CT',

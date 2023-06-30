@@ -8,7 +8,7 @@ import {
   Stack,
   styled,
   TriangleRightIcon,
-  FullscreenIcon,
+  ArrowsMaximizeIcon,
 } from '@avalabs/k2-components';
 import BN from 'bn.js';
 
@@ -19,7 +19,7 @@ const NftImage = styled(ImageWithFallback)<{
   maxHeight?: string;
   hover?: boolean;
   hasBorderRadius?: boolean;
-  boarderRadius?: string;
+  borderRadius?: string;
   showPointer?: boolean;
 }>`
   width: ${({ width }) => width ?? '32px'};
@@ -32,8 +32,8 @@ const NftImage = styled(ImageWithFallback)<{
     0px 10px 25px ${({ theme }) => `${theme.palette.common.black}40`}
   );
   backdrop-filter: blur(25px);
-  border-radius: ${({ hasBorderRadius, boarderRadius }) =>
-    hasBorderRadius ? (boarderRadius ? boarderRadius : '8px') : 'none'};
+  border-radius: ${({ hasBorderRadius, borderRadius }) =>
+    hasBorderRadius ? borderRadius ?? '8px' : 'none'};
   cursor: ${({ showPointer }) => (showPointer ? 'default' : 'pointer')};
 `;
 
@@ -43,7 +43,7 @@ const NftVideo = styled('video')<{
   maxWidth?: string;
   maxHeight?: string;
   hover?: boolean;
-  boarderRadius?: string;
+  borderRadius?: string;
 }>`
   width: ${({ width }) => width ?? '32px'};
   max-width: ${({ maxWidth }) => maxWidth ?? 'unset'};
@@ -55,8 +55,7 @@ const NftVideo = styled('video')<{
     0px 10px 25px ${({ theme }) => `${theme.palette.common.black}40`}
   );
   backdrop-filter: blur(25px);
-  border-radius: ${({ boarderRadius }) =>
-    boarderRadius ? boarderRadius : '8px'};
+  border-radius: ${({ borderRadius }) => borderRadius ?? '8px'};
 `;
 
 interface CollectibleMediaProps {
@@ -70,7 +69,7 @@ interface CollectibleMediaProps {
   showPlayIcon?: boolean;
   controls?: boolean;
   className?: string;
-  boarderRadius?: string;
+  borderRadius?: string;
   showBalance?: boolean;
   balance?: BN;
   showExpandOption?: boolean;
@@ -87,13 +86,13 @@ export function CollectibleMedia({
   showPlayIcon = true,
   controls = false,
   className,
-  boarderRadius = '8x',
+  borderRadius = '8px',
   showBalance = false,
   balance = new BN(0),
   showExpandOption = false,
 }: CollectibleMediaProps) {
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
-  const [useDarkImageMode, setDarkImageMode] = useState(false);
+  const [shouldUseLightIcon, setShouldUseLightIcon] = useState(false);
 
   return (
     <Stack
@@ -103,7 +102,7 @@ export function CollectibleMedia({
       }}
       className={className}
     >
-      {showBalance && (
+      {
         <Stack
           sx={{
             flexDirection: 'row',
@@ -119,26 +118,30 @@ export function CollectibleMedia({
             pr: 1,
           }}
         >
-          <Chip
-            size="small"
-            sx={{
-              backgroundColor: (theme) =>
-                useDarkImageMode ? 'primary.light' : theme.palette.grey[600],
-              color: useDarkImageMode
-                ? 'primary.contrastText'
-                : 'primary.light',
-              px: 1,
-            }}
-            label={balance.toString()}
-          />
+          {showBalance && (
+            <Chip
+              size="small"
+              sx={{
+                backgroundColor: (theme) =>
+                  shouldUseLightIcon
+                    ? 'primary.light'
+                    : theme.palette.grey[600],
+                color: shouldUseLightIcon
+                  ? 'primary.contrastText'
+                  : 'primary.light',
+                px: 1,
+              }}
+              label={balance.toString()}
+            />
+          )}
           {showExpandOption && (
-            <FullscreenIcon
+            <ArrowsMaximizeIcon
               onClick={() => {
                 setIsImageFullScreen(true);
               }}
               size="24"
               sx={{
-                color: useDarkImageMode
+                color: shouldUseLightIcon
                   ? 'primary.light'
                   : 'primary.contrastText',
                 cursor: 'pointer',
@@ -146,7 +149,7 @@ export function CollectibleMedia({
             />
           )}
         </Stack>
-      )}
+      }
       {isVideo(url) ? (
         <Stack sx={{ position: 'relative', flexDirection: 'row' }}>
           <NftVideo
@@ -156,7 +159,7 @@ export function CollectibleMedia({
             maxHeight={maxHeight}
             hover={hover}
             controls={controls}
-            boarderRadius={boarderRadius}
+            borderRadius={borderRadius}
           >
             <source src={ipfsResolverWithFallback(url)} />
           </NftVideo>
@@ -178,6 +181,8 @@ export function CollectibleMedia({
             if (!showBalance) setIsImageFullScreen(true);
           }}
           onClose={() => setIsImageFullScreen(false)}
+          backdropImageUrl={url}
+          shouldUseLightIcon={shouldUseLightIcon}
         >
           <NftImage
             width={isImageFullScreen ? '100%' : width}
@@ -187,12 +192,13 @@ export function CollectibleMedia({
             maxHeight={maxHeight}
             hover={hover}
             hasBorderRadius={!isImageFullScreen}
-            boarderRadius={boarderRadius}
+            borderRadius={borderRadius}
             showPointer={showExpandOption}
             onLoad={(event) => {
-              if (showBalance) {
-                isImageDark(event.target as HTMLImageElement, (isImageDark) => {
-                  setDarkImageMode(isImageDark);
+              const imageElement = event.target;
+              if (imageElement instanceof HTMLImageElement) {
+                isImageDark(imageElement, (isImageDark) => {
+                  setShouldUseLightIcon(isImageDark);
                 });
               }
             }}

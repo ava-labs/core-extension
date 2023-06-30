@@ -17,6 +17,7 @@ import {
   GasFeeModifier,
 } from '@src/components/common/CustomFeesK2';
 import { Stack, Typography } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const FALLBACK_MAX = new BN(0);
 
@@ -62,6 +63,7 @@ export const SendForm = ({
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const { networkFee } = useNetworkFeeContext();
   const { network } = useNetworkContext();
+  const { capture } = useAnalyticsContext();
 
   const setContactsDropDownOpen = (open: boolean) => {
     setIsContactsOpen(open);
@@ -153,6 +155,9 @@ export const SendForm = ({
           maxFeePerGas={gasPrice || networkFee?.low.maxFee || BigNumber.from(0)}
           limit={sendState.customGasLimit || sendState.gasLimit || 0}
           onChange={onGasChanged}
+          onModifierChangeCallback={(modifier: GasFeeModifier | undefined) => {
+            capture('SendFeeOptionChanged', { modifier });
+          }}
           maxGasPrice={maxGasPrice}
           selectedGasFeeModifier={selectedGasFee}
           network={network}

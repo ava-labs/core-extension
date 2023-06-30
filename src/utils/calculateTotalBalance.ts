@@ -15,12 +15,12 @@ export function calculateTotalBalance(
 
   const chainIdsToSum = new Set([network.chainId, ...(networkIds ?? [])]);
 
-  const sum = Array.from(chainIdsToSum).reduce((total, network) => {
-    const address = getAddressForChain(network, account);
+  const sum = Array.from(chainIdsToSum).reduce((total, networkItem) => {
+    const address = getAddressForChain(networkItem, account);
     return (
       total +
-      (Object.values(balances?.[network]?.[address] ?? {})?.reduce(
-        (sum, token) => sum + (token.balanceUSD ?? 0),
+      (Object.values(balances?.[networkItem]?.[address] ?? {})?.reduce(
+        (sumTotal, token) => sumTotal + (token.balanceUSD ?? 0),
         0
       ) || 0)
     );

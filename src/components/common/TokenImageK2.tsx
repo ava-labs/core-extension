@@ -96,13 +96,9 @@ export function TokenIconK2({
           flexShrink: 0,
         }}
         {...rest}
-      >
-        <img
-          src={ipfsResolverWithFallback(src)}
-          width={width || TOKEN_IMAGE_DFEAULT_SIZE}
-          height={height || TOKEN_IMAGE_DFEAULT_SIZE}
-        />
-      </Stack>
+        as="img"
+        src={ipfsResolverWithFallback(src)}
+      />
     );
   }
 

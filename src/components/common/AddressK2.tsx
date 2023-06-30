@@ -5,7 +5,7 @@ import {
   CopyIcon,
   Stack,
   IconButton,
-  styled,
+  useTheme,
 } from '@avalabs/k2-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
 
@@ -16,14 +16,6 @@ interface AddressProps {
   className?: string;
   truncateLength?: number;
 }
-
-const Container = styled(Stack)`
-  background: ${({ theme }) => theme.palette.grey[850]};
-  padding: 8px 16px;
-  border-radius: ${({ theme }) => `${theme.shape.borderRadius}px`};
-  align-items: center;
-  justify-content: space-between;
-`;
 
 function AddressContentK2({
   name,
@@ -57,32 +49,43 @@ function AddressContentK2({
           justifyContent: 'space-between',
           alignItems: 'center',
           flexDirection: 'row',
+          width: '100%',
         }}
       >
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
-            my: 0,
-            mr: 1.5,
-            ml: 0,
+            overflowWrap: 'break-word',
+            width: '80%',
           }}
         >
           {isTruncated ? truncateAddress(address, truncateLength) : address}
         </Typography>
-        <Stack>
-          <IconButton size="small" onClick={copyAddress}>
-            <CopyIcon />
-          </IconButton>
-        </Stack>
+        <IconButton size="medium" onClick={copyAddress}>
+          <CopyIcon />
+        </IconButton>
       </Stack>
     </>
   );
 }
 
 export function PrimaryAddressK2(props: AddressProps) {
+  const theme = useTheme();
+
   return (
-    <Container className={props.className}>
+    <Stack
+      sx={{
+        background: theme.palette.grey[850],
+        px: 2,
+        py: 1,
+        mb: 5.5,
+        borderRadius: `${theme.shape.borderRadius}px`,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+      className={props.className}
+    >
       <AddressContentK2 {...props} />
-    </Container>
+    </Stack>
   );
 }

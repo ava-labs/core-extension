@@ -51,11 +51,11 @@ export class TokenManagerService {
 
     return {
       name,
+      chainId: network.chainId,
       symbol,
       decimals,
       address: tokenAddress,
       contractType: 'ERC-20',
-      description: '',
     };
   }
 }

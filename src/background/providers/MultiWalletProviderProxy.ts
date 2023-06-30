@@ -18,6 +18,23 @@ export class MultiWalletProviderProxy extends EventEmitter {
     return this.#defaultProvider;
   }
   get providers() {
+    // When the user decides to select the providers and there is more than one provider and CoreProvider is selected, we want to trigger the wallet selection. So we replace CoreProvider with this.
+    if (this.#_providers.length > 1) {
+      return [...this.#_providers].map((provider) => {
+        if ((provider as CoreProvider)?.isAvalanche) {
+          return new Proxy(this, {
+            get(target, prop, receiver) {
+              if (prop === 'isMetaMask') {
+                return true;
+              }
+              return Reflect.get(target, prop, receiver);
+            },
+          });
+        }
+        return provider;
+      });
+    }
+
     return [...this.#_providers];
   }
 
@@ -65,14 +82,14 @@ export class MultiWalletProviderProxy extends EventEmitter {
       return;
     }
 
-    if (!this.providers.includes(provider)) {
+    if (!this.#_providers.includes(provider)) {
       this.#_providers.push(provider);
     }
   }
 
   async #toggleWalletSelection(): Promise<void> {
     // no need to select a wallet when there is only one
-    if (this.providers.length === 1 || this.isWalletSelected) {
+    if (this.#_providers.length === 1 || this.isWalletSelected) {
       return;
     }
 
@@ -81,7 +98,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
       method: 'avalanche_selectWallet',
       params: [
         // using any since we don't really know what kind of provider they are
-        this.providers.map((p: any, i) => {
+        this.#_providers.map((p: any, i) => {
           const type = getWalletExtensionType(p);
 
           return {
@@ -109,7 +126,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
           return;
         }
 
-        (this.providers[selectedIndex] as any)?.addListener(
+        (this.#_providers[selectedIndex] as any)?.addListener(
           event,
           (...args: any[]) => {
             this.emit(event as string, ...args);
@@ -120,13 +137,13 @@ export class MultiWalletProviderProxy extends EventEmitter {
 
     // store selection if successful to prevent showing selection popup multiple times
     // some dApps call eth_requestAccounts multiple times
-    if (this.providers[selectedIndex]) {
+    if (this.#_providers[selectedIndex]) {
       this.isWalletSelected = true;
     }
 
     // set default wallet for this connection
     this.#defaultProvider =
-      this.providers[selectedIndex] || this.#defaultProvider;
+      this.#_providers[selectedIndex] || this.#defaultProvider;
   }
 
   private async _request<T>(args): Promise<Maybe<T>> {
@@ -142,7 +159,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
     // trigger wallet selection flow at connect in case multiple providers are available
     if (
       method === DAppProviderRequest.CONNECT_METHOD &&
-      this.providers.length > 1
+      this.#_providers.length > 1
     ) {
       await this.#toggleWalletSelection();
     }

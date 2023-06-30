@@ -1,38 +1,40 @@
 import {
-  ComponentSize,
-  HorizontalSeparator,
-  PrimaryButton,
+  Button,
+  Divider,
+  Stack,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+  TypographyProps,
+} from '@avalabs/k2-components';
+
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useRef, useState } from 'react';
 import { Redirect } from 'react-router-dom';
-import styled from 'styled-components';
 import { CollectibleMedia } from './components/CollectibleMedia';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { TokenType } from '@src/background/services/balances/models';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
-const AttributeLabel = styled(Typography)`
-  font-size: 14px;
-  line-height: 17px;
-  margin: 0 0 4px;
-`;
+type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 
-const AttributeData = styled(Typography)`
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
-`;
+const AttributeLabel = (props: AttributeTypographyProps) => (
+  <Typography {...props} variant="body2" />
+);
+
+const AttributeData = (props: AttributeTypographyProps) => (
+  <Typography {...props} variant="h6" sx={{ wordWrap: 'break-word' }} />
+);
 
 export function CollectibleDetails() {
   const { t } = useTranslation();
   const setCollectibleParams = useSetCollectibleParams();
   const { nft } = useCollectibleFromParams();
+  const { capture } = useAnalyticsContext();
+  const { network } = useNetworkContext();
 
   const sendRef = useRef<HTMLButtonElement>(null);
 
@@ -41,8 +43,14 @@ export function CollectibleDetails() {
   if (!nft) {
     return <Redirect to={`/home?activeTab=${PortfolioTabs.COLLECTIBLES}`} />;
   }
+
   return (
-    <VerticalFlex width={'100%'} height="100%">
+    <Stack
+      sx={{
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <PageTitle thumbnailImage={showThumbnail ? nft?.logoUri : ''}>
         {nft?.name}
       </PageTitle>
@@ -57,7 +65,11 @@ export function CollectibleDetails() {
           }
         }}
       >
-        <VerticalFlex padding="0 16px">
+        <Stack
+          sx={{
+            px: 2,
+          }}
+        >
           <CollectibleMedia
             width="343px"
             height="auto"
@@ -68,13 +80,18 @@ export function CollectibleDetails() {
             showPlayIcon={false}
             showBalance={TokenType.ERC1155 === nft.type}
             balance={nft.balance}
-            showExpandOption={TokenType.ERC1155 === nft.type}
+            showExpandOption={true}
           />
-          <PrimaryButton
-            margin="24px 0"
-            width="100%"
-            size={ComponentSize.LARGE}
+          <Button
+            size="large"
+            sx={{
+              my: 3,
+            }}
             onClick={() => {
+              capture('CollectibleSendClicked', {
+                chainId: network?.chainId,
+                type: nft.type,
+              });
               setCollectibleParams({
                 nft,
                 options: { path: '/collectible/send' },
@@ -83,38 +100,44 @@ export function CollectibleDetails() {
             ref={sendRef}
           >
             {t('Send')}
-          </PrimaryButton>
-          <Typography size={18} height="22px" weight={700}>
-            {t('Description')}
-          </Typography>
-          <VerticalFlex margin="16px 0 32px">
-            <VerticalFlex>
-              <AttributeLabel>{t('Collection name')}</AttributeLabel>
+          </Button>
+          <Typography variant="h4">{t('Description')}</Typography>
+          <Stack
+            sx={{
+              mt: 2,
+              mb: 4,
+              gap: '15px',
+            }}
+          >
+            <Stack>
+              <AttributeLabel>{t('Collection')}</AttributeLabel>
               <AttributeData>{nft.collectionName}</AttributeData>
-            </VerticalFlex>
-            <HorizontalSeparator margin="16px 0" />
-            <VerticalFlex>
+            </Stack>
+            <Stack>
               <AttributeLabel>{t('Description')}</AttributeLabel>
               <AttributeData>{nft?.description}</AttributeData>
-            </VerticalFlex>
-          </VerticalFlex>
+            </Stack>
+          </Stack>
 
           {nft?.attributes && nft.attributes.length > 0 && (
-            <Typography size={18} height="22px" weight={700}>
-              {t('Properties')}
-            </Typography>
+            <Typography variant="h4">{t('Properties')}</Typography>
           )}
-          <VerticalFlex margin="16px 0 32px">
+          <Stack
+            sx={{
+              pt: 2,
+              pb: 4,
+            }}
+          >
             {nft?.attributes?.map((attribute, i) => (
-              <VerticalFlex key={i}>
-                {i !== 0 && <HorizontalSeparator margin="16px 0" />}
+              <Stack key={i}>
+                {i !== 0 && <Divider sx={{ my: 2 }} />}
                 <AttributeLabel>{attribute.name}</AttributeLabel>
                 <AttributeData>{attribute.value}</AttributeData>
-              </VerticalFlex>
+              </Stack>
             ))}
-          </VerticalFlex>
-        </VerticalFlex>
+          </Stack>
+        </Stack>
       </Scrollbars>
-    </VerticalFlex>
+    </Stack>
   );
 }

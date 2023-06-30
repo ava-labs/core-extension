@@ -1,16 +1,21 @@
-import { Typography, VerticalFlex } from '@avalabs/react-components';
+import { Typography, Stack } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 
 export function CollectibleListEmpty() {
   const { t } = useTranslation();
   return (
-    <VerticalFlex align="center" grow="1" justify="center">
-      <Typography size={18} height="22px" weight={600}>
-        {t('No Collectibles')}
+    <Stack
+      sx={{
+        alignItems: 'center',
+        flexGrow: '1',
+        rowGap: 1,
+        mt: 7,
+      }}
+    >
+      <Typography variant="h5">{t('No Collectibles')}</Typography>
+      <Typography variant="body2" sx={{ color: 'grey.400' }}>
+        {t('You don’t have any NFTs yet!')}
       </Typography>
-      <Typography size={14} align="center" height="17px" margin="8px 0">
-        {t('You don’t have any collectibles yet.')}
-      </Typography>
-    </VerticalFlex>
+    </Stack>
   );
 }

@@ -33,5 +33,7 @@ module.exports = {
     'react/prop-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'warn',
   },
 };

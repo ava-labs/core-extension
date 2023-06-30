@@ -41,6 +41,7 @@ import {
   toast,
 } from '@avalabs/k2-components';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function CollectibleSend() {
   const { t } = useTranslation();
@@ -53,6 +54,7 @@ export function CollectibleSend() {
   const { network } = useNetworkContext();
   const { networkFee } = useNetworkFeeContext();
   const tokensWithBalances = useTokensWithBalances(true);
+  const { capture } = useAnalyticsContext();
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
@@ -79,6 +81,10 @@ export function CollectibleSend() {
     });
     updateSendState({
       address: contact.address,
+    });
+    capture('NftSendContactSelected', {
+      chainId: network?.chainId,
+      type: nft?.type,
     });
   };
   const gasToken = tokensWithBalances?.find((t) => t.type === TokenType.NATIVE);
@@ -119,6 +125,8 @@ export function CollectibleSend() {
       pendingToastId = toast.loading(t('Transaction pending...'));
     }
 
+    capture('NftSendStarted', { chainId: network?.chainId, type: nft?.type });
+
     submitSendState()
       .then((txId) => {
         resetSendState();
@@ -127,10 +135,18 @@ export function CollectibleSend() {
           url: getURL(txId),
           label: t('View in Explorer'),
         });
+        capture('NftSendSucceeded', {
+          chainId: network?.chainId,
+          type: nft?.type,
+        });
         history.push('/home');
       })
       .catch(() => {
         toast.error(t('Transaction Failed'));
+        capture('NftSendFailed', {
+          chainId: network?.chainId,
+          type: nft?.type,
+        });
       })
       .finally(() => {
         setShowTxInProgress(false);
@@ -229,6 +245,11 @@ export function CollectibleSend() {
                   maxFeePerGas={sendState?.maxFeePerGas || BigNumber.from(0)}
                   limit={sendState.customGasLimit || sendState?.gasLimit || 0}
                   onChange={onGasChanged}
+                  onModifierChangeCallback={(
+                    modifier: GasFeeModifier | undefined
+                  ) => {
+                    capture('NftSendFeeOptionChanged', { modifier });
+                  }}
                   maxGasPrice={maxGasPrice}
                   selectedGasFeeModifier={selectedGasFee}
                   network={network}

@@ -37,6 +37,7 @@ describe('utils/calculateTotalBalance', () => {
     rpcUrl: 'test.one.com/rpc',
     networkToken: networkToken1,
     logoUri: 'test.one.com/logo',
+    primaryColor: 'pink',
   };
 
   const network1TokenBalance: NetworkTokenWithBalance = {

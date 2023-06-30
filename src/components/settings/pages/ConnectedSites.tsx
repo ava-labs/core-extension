@@ -17,6 +17,7 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { Account } from '@src/background/services/accounts/models';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 type ConnectedListType = {
   [key: string]: {
@@ -46,6 +47,7 @@ export function ConnectedSites({
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const { updateAccountPermission, permissions } = usePermissionContext();
+  const { capture } = useAnalyticsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -103,6 +105,7 @@ export function ConnectedSites({
                       edge="end"
                       data-testid={`connected-site-${index}-trash`}
                       onClick={() => {
+                        capture('ConnectedSiteRemoved');
                         updateAccountPermission({
                           addressC: activeAccount?.addressC,
                           hasPermission: false,

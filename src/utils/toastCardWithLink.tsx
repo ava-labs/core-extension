@@ -6,7 +6,7 @@ import {
   Link,
 } from '@avalabs/k2-components';
 
-export const toastCardWithLink = ({ url, title, label }) => {
+export const toastCardWithLink = ({ url, title, label, id = '' }) => {
   const toaster = toast.custom(
     <ToastCard
       onDismiss={() => toast.remove(toaster)}
@@ -17,16 +17,17 @@ export const toastCardWithLink = ({ url, title, label }) => {
         component={Link}
         target="_blank"
         href={url}
-        size="large"
+        size="xlarge"
         variant="text"
         color="inherit"
         endIcon={<ExternalLinkIcon size={16} />}
-        sx={{ pl: 0 }}
+        sx={{ p: 0 }}
       >
         {label}
       </Button>
     </ToastCard>,
     {
+      id: id,
       duration: Infinity,
     }
   );

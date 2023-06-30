@@ -17,6 +17,7 @@ import {
   TxHistoryItem,
 } from '@src/background/services/history/models';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import Big from 'big.js';
 import { useMemo, useState } from 'react';
@@ -36,6 +37,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
 
   const { t } = useTranslation();
   const theme = useTheme();
+  const { capture } = useAnalyticsContext();
 
   const showDetailsOption = useMemo(() => {
     if (
@@ -130,7 +132,17 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
             cursor: showDetailsOption ? 'pointer' : 'default',
           }}
           onClick={() => {
-            if (showDetailsOption) setShowDetails(!showDetails);
+            const isToggledOnNow = !showDetails;
+            if (showDetailsOption) {
+              if (isToggledOnNow) {
+                // We only want to know when it's being shown
+                capture('ActivityCardDetailShown', {
+                  chainId: network?.chainId,
+                  type: historyItem.type,
+                });
+              }
+              setShowDetails(isToggledOnNow);
+            }
           }}
         >
           <Stack>
@@ -180,7 +192,11 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
           <Tooltip title={t('View in Explorer')} arrow>
             <Stack
               sx={{ flexDirection: 'row', columnGap: 0.5, cursor: 'pointer' }}
-              onClick={() => {
+              onClick={async () => {
+                await capture('ActivityCardLinkClicked', {
+                  chainId: network?.chainId,
+                  type: historyItem.type,
+                });
                 window.open(historyItem.explorerLink, '_blank');
               }}
               data-testid="explorer-link"

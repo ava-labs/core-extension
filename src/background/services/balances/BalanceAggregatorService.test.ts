@@ -13,12 +13,17 @@ import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 import { LockService } from '../lock/LockService';
 import { AccountsService } from '../accounts/AccountsService';
 import { StorageService } from '../storage/StorageService';
+import { keccak256 } from 'ethereumjs-util';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
 jest.mock('../accounts/AccountsService');
 jest.mock('../storage/StorageService');
-
+jest.mock('ethereumjs-util', () => {
+  return {
+    keccak256: jest.fn(),
+  };
+});
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   const balancesServiceMock = {
     getBalancesForNetwork: jest.fn(),
@@ -48,6 +53,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     rpcUrl: 'test.one.com/rpc',
     networkToken: networkToken1,
     logoUri: 'test.one.com/logo',
+    primaryColor: 'purple',
   };
 
   const networkToken2: NetworkToken = {
@@ -65,6 +71,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     rpcUrl: 'test.two.com/rpc',
     networkToken: networkToken2,
     logoUri: 'test.two.com/logo',
+    primaryColor: 'brown',
   };
 
   const accounts = {
@@ -76,6 +83,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     activeNetworks: {
       promisify: jest.fn(),
     },
+    getFavoriteNetworks: () => [2, 3, 4],
+    getAllFavoriteNetworks: () => [2, 3, 4],
   } as any;
 
   const account1: Account = {
@@ -189,8 +198,10 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     utxos: [utxo1],
   };
 
+  const addListenerMock = jest.fn();
   const accountsServiceMock = {
     activeAccount: account1,
+    addListener: addListenerMock,
   } as unknown as AccountsService;
 
   (storageService.load as jest.Mock).mockResolvedValue({
@@ -205,8 +216,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     cacheServiceMock.loadBalance.mockImplementation(() => Promise.resolve()),
       networkServiceMock.activeNetworks.promisify.mockReturnValue(accounts);
     balancesServiceMock.getBalancesForNetwork.mockImplementation(
-      (network, accounts) => {
-        if (accounts.length > 1) {
+      (network, accountsList) => {
+        if (accountsList.length > 1) {
           return Promise.resolve(balanceForTwoAccounts);
         }
         if (network.chainId === network1.chainId) {
@@ -252,10 +263,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           balances: {
             [network1.chainId]: balanceForNetwork1,
           },
-          isBalancesCached: false,
-          totalBalance: {
-            [account1.addressC]: 0,
-          },
+          isBalancesCached: true,
+          totalBalance: {},
         });
       });
     });
@@ -416,6 +425,111 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       };
       expect(result).toEqual(expected2);
       expect(service.balances).toEqual(expected2);
+    });
+
+    it('should emit the BalanceServiceEvents.UPDATED with the right properties when the balances changed', () => {
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+      service.balances = { [network2.chainId]: balanceForNetwork1 };
+
+      expect(eventListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          balances: expect.any(Object),
+          isBalancesCached: expect.any(Boolean),
+          totalBalance: expect.any(Object),
+        })
+      );
+    });
+
+    it('should set the balanceCached flag', async () => {
+      const balances = { [network2.chainId]: balanceForNetwork1 };
+      await service.updateBalancesValues(balances);
+      expect(service.isBalancesCached).toBe(false);
+    });
+
+    it('should emit the event after set the balance cached flag to false', async () => {
+      const balances = { [network2.chainId]: balanceForNetwork1 };
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+      await service.updateBalancesValues(balances);
+      expect(eventListener).toHaveBeenCalledWith({
+        balances: {},
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: null },
+      });
+    });
+
+    describe('caching', () => {
+      it('should load the right cache key from the storage when there is no balance yet', () => {
+        (keccak256 as jest.Mock).mockReturnValue('hash');
+        addListenerMock.mock.calls[0][1]();
+
+        expect(storageService.load).toHaveBeenCalledWith(
+          'balances-service-cache-hash'
+        );
+      });
+
+      it('should load the data from cache when there is no balance yet', async () => {
+        const setBalances = { [network2.chainId]: balanceForNetwork1 };
+        const setTotalBalance = { [account1.addressC]: 2 };
+        (storageService.load as jest.Mock).mockResolvedValue({
+          lastUpdated: 1,
+          totalBalance: setTotalBalance,
+          balances: setBalances,
+        });
+
+        addListenerMock.mock.calls[0][1](account1);
+
+        await new Promise(process.nextTick);
+
+        const totalBalance = service.totalBalance;
+
+        const balances = service.balances;
+
+        expect(balances).toEqual(setBalances);
+        expect(totalBalance).toEqual(setTotalBalance);
+      });
+
+      it('should set empty values because nothing in the cache', async () => {
+        (storageService.load as jest.Mock).mockResolvedValue({
+          lastUpdated: 1,
+        });
+
+        addListenerMock.mock.calls[0][1](account1);
+
+        await new Promise(process.nextTick);
+
+        const totalBalance = service.totalBalance;
+
+        const balances = service.balances;
+
+        expect(balances).toEqual({});
+        expect(totalBalance).toEqual({});
+      });
+
+      it('should skip the load from the cache because of there are data in the memory', async () => {
+        const setBalances = { [network2.chainId]: balanceForNetwork1 };
+        const setBalances2 = { [network2.chainId]: balanceForNetwork2 };
+        const setTotalBalance = { [account1.addressC]: 2 };
+        (storageService.load as jest.Mock).mockResolvedValue({
+          lastUpdated: 1,
+          totalBalance: setTotalBalance,
+          balances: setBalances,
+        });
+
+        service.balances = setBalances2;
+
+        addListenerMock.mock.calls[0][1](account1);
+
+        await new Promise(process.nextTick);
+
+        const balances = service.balances;
+
+        const totalBalance = service.totalBalance;
+
+        expect(balances).toEqual(setBalances2);
+        expect(totalBalance).toEqual({});
+      });
     });
   });
 

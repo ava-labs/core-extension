@@ -11,7 +11,7 @@ type HandlerType = ExtensionRequestHandler<
     balances: Balances;
     isBalancesCached: boolean;
     balancesLastUpdated?: number;
-    totalBalance?: TotalBalance;
+    totalBalance?: TotalBalance | null;
   }
 >;
 

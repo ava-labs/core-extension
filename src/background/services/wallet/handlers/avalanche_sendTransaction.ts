@@ -11,12 +11,9 @@ import {
   utils,
   avaxSerial,
 } from '@avalabs/avalanchejs-v2';
-import { parseAvalancheTx } from '@src/background/services/wallet/utils/parseAvalancheTx';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
-import createAvalancheEvmUnsignedTx from '../utils/createAvalancheEvmUnsignedTx';
-import createAvalancheUnsignedTx from '../utils/createAvalancheUnsignedTx';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/wallets-sdk';
 
@@ -65,7 +62,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
     }
 
     if (vm === EVM) {
-      unsignedTx = await createAvalancheEvmUnsignedTx({
+      unsignedTx = await Avalanche.createAvalancheEvmUnsignedTx({
         txBytes,
         vm,
         provider,
@@ -98,7 +95,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
         (address) => utils.parse(address)[2]
       );
 
-      unsignedTx = await createAvalancheUnsignedTx({
+      unsignedTx = await Avalanche.createAvalancheUnsignedTx({
         tx,
         vm,
         provider,
@@ -106,7 +103,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
       });
     }
 
-    const txData = await parseAvalancheTx(
+    const txData = await Avalanche.parseAvalancheTx(
       unsignedTx.getTx(),
       provider,
       currentAddress

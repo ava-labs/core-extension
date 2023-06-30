@@ -113,4 +113,8 @@ export enum ExtensionRequest {
   RESET_EXTENSION_STATE = 'reset_extension_state',
 
   HISTORY_GET = 'history_get',
+
+  DEFI_GET_PORTFOLIO = 'defi_get_portfolio',
+
+  CURRENCIES_GET_EXCHANGE_RATES = 'currencies_get_exchange_rates',
 }

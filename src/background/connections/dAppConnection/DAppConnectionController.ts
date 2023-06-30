@@ -61,7 +61,13 @@ export class DAppConnectionController implements ConnectionController {
 
   connect(connection: Runtime.Port) {
     this.connection = new PortConnection(connection);
-    this.pipeline = RequestProcessorPipeline(
+    this.pipeline = RequestProcessorPipeline<
+      JsonRpcRequest<unknown>,
+      JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
+    >(
+      // TODO: fix this in https://ava-labs.atlassian.net/browse/CP-5738
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
       RPCCallsMiddleware(this.networkService),
