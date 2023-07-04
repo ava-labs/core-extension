@@ -58,7 +58,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       mwpp.addProvider(mockProvider);
 
       expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toStrictEqual([
+      expect(mwpp.providers).toEqual([
         mwpp,
         { isMetaMask: true },
         { isRabby: true },
@@ -96,7 +96,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       mwpp.addProvider(mockProvider);
 
       expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toStrictEqual([mwpp, mockProvider]);
+      expect(mwpp.providers).toEqual([mwpp, mockProvider]);
     });
   });
 
@@ -402,6 +402,38 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       const mwpp = createMultiWalletProxy(provider as any);
 
       expect((mwpp as any).defaultProvider).toBe(provider);
+    });
+
+    it('maintains the providers list properly', () => {
+      const provider = new CoreProvider({ channelName: '' });
+      const mwpp = createMultiWalletProxy(provider);
+      const fooMock = () => 'bar';
+      const bizMock = () => 'baz';
+
+      const mockProvider = {
+        providerMap: new Map([
+          ['core', provider],
+          ['otherprovider', { isMetaMask: true, foo: fooMock }],
+          ['thirdprovider', { isRabby: true, biz: bizMock }],
+        ] as any),
+      };
+
+      mwpp.addProvider(mockProvider);
+
+      expect((mwpp.providers[0] as any).isMetaMask).toBe(true);
+      expect((mwpp.providers[0] as any).someUndefinedProperty).toBe(undefined);
+      expect((mwpp.providers[0] as any)['#isWalletSelected']).toBe(undefined);
+
+      expect(mwpp.providers[1] as any).toEqual({
+        isMetaMask: true,
+        foo: fooMock,
+      });
+
+      expect(mwpp.providers[2] as any).toEqual({
+        isMetaMask: undefined,
+        isRabby: true,
+        biz: bizMock,
+      });
     });
   });
 });

@@ -11,7 +11,7 @@ import EventEmitter from 'events';
 
 export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: unknown[] = [];
-
+  #isWalletSelected = false;
   #defaultProvider;
 
   public get defaultProvider() {
@@ -23,11 +23,15 @@ export class MultiWalletProviderProxy extends EventEmitter {
       return [...this.#_providers].map((provider) => {
         if ((provider as CoreProvider)?.isAvalanche) {
           return new Proxy(this, {
-            get(target, prop, receiver) {
+            get(target, prop) {
               if (prop === 'isMetaMask') {
                 return true;
               }
-              return Reflect.get(target, prop, receiver);
+
+              // eslint-disable-next-line no-prototype-builtins
+              if (target.hasOwnProperty(prop)) {
+                return target[prop];
+              }
             },
           });
         }
@@ -37,8 +41,6 @@ export class MultiWalletProviderProxy extends EventEmitter {
 
     return [...this.#_providers];
   }
-
-  private isWalletSelected = false;
 
   constructor(private coreProvider: CoreProvider) {
     super();
@@ -89,7 +91,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
 
   async #toggleWalletSelection(): Promise<void> {
     // no need to select a wallet when there is only one
-    if (this.#_providers.length === 1 || this.isWalletSelected) {
+    if (this.#_providers.length === 1 || this.#isWalletSelected) {
       return;
     }
 
@@ -138,7 +140,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
     // store selection if successful to prevent showing selection popup multiple times
     // some dApps call eth_requestAccounts multiple times
     if (this.#_providers[selectedIndex]) {
-      this.isWalletSelected = true;
+      this.#isWalletSelected = true;
     }
 
     // set default wallet for this connection
