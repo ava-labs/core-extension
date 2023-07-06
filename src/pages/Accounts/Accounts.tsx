@@ -101,6 +101,7 @@ export function Accounts() {
 
   const onAccountClicked = async (account: Account) => {
     await selectAccount(account.id);
+    history.replace('/home');
     await capture('AccountSelectorAccountSwitched', { type: account.type });
   };
 
