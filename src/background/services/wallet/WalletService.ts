@@ -370,8 +370,21 @@ export class WalletService implements OnLock, OnUnlock {
         // Verify public key exists for X/P path
         if (!pubkey.xp) throw new Error('X/P Chain public key is not set');
 
-        return new Avalanche.SimpleLedgerSigner(
-          accountIndex,
+        // TODO: SimpleLedgerSigner doesn't support LedgerLive derivation paths ATM
+        // https://ava-labs.atlassian.net/browse/CP-5861
+        return new Avalanche.LedgerSigner(
+          Buffer.from(pubkey.xp, 'hex'),
+          getAddressDerivationPath(
+            accountIndex,
+            DerivationPath.LedgerLive,
+            'AVM'
+          ),
+          Buffer.from(pubkey.evm, 'hex'),
+          getAddressDerivationPath(
+            accountIndex,
+            DerivationPath.LedgerLive,
+            'EVM'
+          ),
           provider as Avalanche.JsonRpcProvider
         );
       }
@@ -438,14 +451,15 @@ export class WalletService implements OnLock, OnUnlock {
       if (
         !(wallet instanceof Avalanche.SimpleSigner) &&
         !(wallet instanceof Avalanche.StaticSigner) &&
-        !(wallet instanceof Avalanche.SimpleLedgerSigner)
+        !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
+        !(wallet instanceof Avalanche.LedgerSigner)
       ) {
         throw new Error('Signing error, wrong network');
       }
-
       const unsignedTx = await wallet.signTx({
         tx: tx.tx,
-        ...(wallet instanceof Avalanche.SimpleLedgerSigner && {
+        ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
+          wallet instanceof Avalanche.LedgerSigner) && {
           transport: this.ledgerService.recentTransport,
         }),
         externalIndices: tx.externalIndices,
@@ -928,7 +942,7 @@ export class WalletService implements OnLock, OnUnlock {
 
     const newImportedSecrets = ids.reduce(
       (importedSecrets, id) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-shadow
         const { [id]: _, ...newImportedSecrets } = importedSecrets;
         return newImportedSecrets ?? {};
       },
