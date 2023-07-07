@@ -11,7 +11,6 @@ import {
   StarOutlineIcon,
   TextButton,
   Typography,
-  useDialog,
   VerticalFlex,
 } from '@avalabs/react-components';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
@@ -32,6 +31,10 @@ import {
 } from './NetworkForm';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@avalabs/k2-components';
+import {
+  NetworkDetailsDialogOptions,
+  NetworkDetailsDialogs,
+} from './NetworkDetailsDialogs';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -88,7 +91,6 @@ export const NetworkDetails = () => {
     saveCustomNetwork,
     updateDefaultNetwork,
   } = useNetworkContext();
-  const { showDialog, clearDialog } = useDialog();
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
@@ -99,6 +101,9 @@ export const NetworkDetails = () => {
 
   const childRef = useRef<NetworkFormActions>(null);
   const [networkState, setNetworkState] = useState<Network>();
+  const [isDeleteDialog, setIsDeleteDialog] = useState(false);
+  const [isResetRpcUrlDialog, setIsResetRpcUrlDialog] = useState(false);
+  const [isUpdateRpcUrlDialog, setIsUpdateRpcUrlDialog] = useState(false);
 
   useEffect(() => {
     const networkData = networks.find(
@@ -118,10 +123,10 @@ export const NetworkDetails = () => {
   const isFavorite = networkState && isFavoriteNetwork(networkState.chainId);
   const isCustom = networkState && isCustomNetwork(networkState.chainId);
 
-  const handleChange = (network: Network, isValid: boolean) => {
+  const handleChange = (networkData: Network, isValid: boolean) => {
     setIsFormValid(isValid);
     setNetworkState({
-      ...network,
+      ...networkData,
     });
   };
 
@@ -166,72 +171,70 @@ export const NetworkDetails = () => {
     scrollbarRef?.current?.scrollToTop();
   };
 
-  const onDelete = () => {
-    showDialog({
-      title: t('Delete Network?'),
-      body: t('Are you sure you want to delete this network?'),
-      confirmText: t('Delete'),
-      width: '343px',
-      onConfirm: () => {
-        clearDialog();
+  const resetRpcUrl = () => {
+    //  We're resetting the RPC url, so we want to send it as undefined to the backend.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { rpcUrl, ...networkWithoutRpcUrl } = networkState;
+
+    updateDefaultNetwork(networkWithoutRpcUrl)
+      .then(() => {
         goBack();
+        onResetURLSuccess();
+      })
+      .catch((e) => {
+        hideDialogs();
+        onError(e);
+      });
+  };
+
+  const hideDialogs = () => {
+    setIsDeleteDialog(false);
+    setIsResetRpcUrlDialog(false);
+    setIsUpdateRpcUrlDialog(false);
+  };
+
+  const handleDialogPrimaryClick = (dialog: NetworkDetailsDialogOptions) => {
+    switch (dialog) {
+      case NetworkDetailsDialogOptions.DELETE_DIALOG:
         removeCustomNetwork(selectedChainId)
           .then(() => {
+            goBack();
             onDeleteSuccess();
           })
-          .catch((e) => onError(e));
-      },
-      cancelText: t('Cancel'),
-      onCancel: () => {
-        clearDialog();
-      },
-    });
+          .catch((e) => {
+            hideDialogs();
+            onError(e);
+          });
+        break;
+      case NetworkDetailsDialogOptions.RESET_RPC_URL_DIALOG:
+        resetRpcUrl();
+        break;
+      case NetworkDetailsDialogOptions.UPDATE_RPC_URL_DIALOG:
+        updateDefaultNetwork(networkState)
+          .then(() => {
+            goBack();
+            onUpdateURLSuccess();
+          })
+          .catch((e) => {
+            hideDialogs();
+            onError(e);
+          });
+        break;
+      default:
+        return null;
+    }
+  };
+
+  const onDelete = () => {
+    setIsDeleteDialog(true);
   };
 
   const onUpdateRpcUrl = () => {
-    showDialog({
-      title: t('Warning'),
-      body: t('Core functionality may be unstable with custom RPC URLs.'),
-      confirmText: t('Confirm Save'),
-      width: '343px',
-      onConfirm: () => {
-        clearDialog();
-        updateDefaultNetwork(networkState)
-          .then(() => {
-            onUpdateURLSuccess();
-          })
-          .catch((e) => onError(e));
-      },
-      cancelText: t('Back'),
-      onCancel: () => {
-        clearDialog();
-      },
-    });
+    setIsUpdateRpcUrlDialog(true);
   };
 
   const handleResetUrl = () => {
-    showDialog({
-      title: t('Reset RPC?'),
-      body: t("Resetting the RPC URL will put it back to it's default URL. "),
-      confirmText: t('Reset'),
-      width: '343px',
-      onConfirm: () => {
-        clearDialog();
-        // We're resetting the RPC url, so we want to send it as undefined to the backend.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { rpcUrl, ...networkWithoutRpcUrl } = networkState;
-
-        updateDefaultNetwork(networkWithoutRpcUrl)
-          .then(() => {
-            onResetURLSuccess();
-          })
-          .catch((e) => onError(e));
-      },
-      cancelText: t('Back'),
-      onCancel: () => {
-        clearDialog();
-      },
-    });
+    setIsResetRpcUrlDialog(true);
   };
 
   return (
@@ -410,6 +413,13 @@ export const NetworkDetails = () => {
           </HorizontalFlex>
         </VerticalFlex>
       )}
+      <NetworkDetailsDialogs
+        isDelete={isDeleteDialog}
+        isResetRpcUrl={isResetRpcUrlDialog}
+        isUpdateRpcUrl={isUpdateRpcUrlDialog}
+        handlePrimaryClick={handleDialogPrimaryClick}
+        hideDialog={() => hideDialogs()}
+      />
     </VerticalFlex>
   );
 };
