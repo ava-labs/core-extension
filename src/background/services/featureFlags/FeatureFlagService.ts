@@ -42,7 +42,7 @@ export class FeatureFlagService {
 
   private async updateFeatureFlags(newFlags: FeatureFlags) {
     const overrides =
-      (await this.storageService.loadFromSessionStorage(
+      (await this.storageService.loadUnencrypted<FeatureFlags>(
         FEATURE_FLAGS_OVERRIDES_KEY
       )) || {};
     const hasOverrides = Object.keys(overrides).length > 0;
