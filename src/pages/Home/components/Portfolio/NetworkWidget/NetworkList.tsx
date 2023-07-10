@@ -15,8 +15,11 @@ import {
   Typography,
   styled,
   Skeleton,
+  Badge,
 } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
+import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
 
 const LogoContainer = styled('div')`
   margin-top: 4px;
@@ -38,6 +41,7 @@ export function NetworkList() {
   } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
   const { t } = useTranslation();
+  const { bridgeState } = useBridgeContext();
 
   function getNetworkValue(network: Network) {
     const networkAddress =
@@ -73,6 +77,10 @@ export function NetworkList() {
     <>
       <NetworkListContainer direction="row" justifyContent="space-between">
         {favoriteNetworksWithoutActive.map((network) => {
+          const { bridgeTransactions } = filterBridgeStateToNetwork(
+            bridgeState,
+            network
+          );
           const networkBalances = tokens.balances?.[network.chainId];
           const networkBalance = getNetworkValue(network);
           // show loading skeleton for each tile till we have the balance for them
@@ -105,12 +113,17 @@ export function NetworkList() {
                 alignItems="flex-start"
               >
                 <LogoContainer>
-                  <NetworkLogo
-                    width="40px"
-                    height="40px"
-                    padding="8px"
-                    src={network.logoUri}
-                  />
+                  <Badge
+                    badgeContent={Object.values(bridgeTransactions).length}
+                    color="secondary"
+                  >
+                    <NetworkLogo
+                      width="40px"
+                      height="40px"
+                      padding="8px"
+                      src={network.logoUri}
+                    />
+                  </Badge>
                 </LogoContainer>
                 <Stack
                   justifyContent="center"

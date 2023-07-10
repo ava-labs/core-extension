@@ -92,11 +92,7 @@ export function Collectibles() {
   );
 
   return (
-    <Stack
-      sx={{
-        flexGrow: 1,
-      }}
-    >
+    <Stack style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
       <ToggleButtonGroup
         sx={{
           my: 1,

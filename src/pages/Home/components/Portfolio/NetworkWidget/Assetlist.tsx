@@ -168,7 +168,7 @@ export function Assetlist({ assetList }: AssetListProps) {
         {restAssetCount > 0 && (
           <Button
             variant="text"
-            onClick={() => history.push('/tokenlist')}
+            onClick={() => history.push('/assets')}
             sx={{ mt: 1, color: 'seconday.main', p: 0 }}
           >
             <Stack

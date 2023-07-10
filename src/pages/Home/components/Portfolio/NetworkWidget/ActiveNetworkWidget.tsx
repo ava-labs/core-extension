@@ -5,7 +5,7 @@ import { ZeroWidget } from './ZeroWidget';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { ChainId } from '@avalabs/chains-sdk';
@@ -23,12 +23,15 @@ import {
   Typography,
   styled,
   AlertTriangleIcon,
+  Badge,
 } from '@avalabs/k2-components';
 import { TokenIconK2 } from '@src/components/common/TokenImageK2';
 import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -54,6 +57,7 @@ export function ActiveNetworkWidget({
   } = useAccountsContext();
   const { isTokensCached } = useBalancesContext();
   const { capture } = useAnalyticsContext();
+  const { bridgeTransactions } = useBridgeContext();
 
   if (!network || !assetList?.length) {
     return <Skeleton variant="rounded" sx={{ width: 343, height: 190 }} />;
@@ -66,11 +70,12 @@ export function ActiveNetworkWidget({
 
   const handleCardClick = (e) => {
     e.stopPropagation();
-    if (network.chainId === ChainId.BITCOIN) {
+    capture('PortfolioPrimaryNetworkClicked', { chainId: network.chainId });
+
+    if (isBitcoinNetwork(network)) {
       history.push('/token');
     } else {
-      capture('PortfolioPrimaryNetworkClicked', { chainId: network.chainId });
-      history.push('/tokenlist');
+      history.push('/assets');
     }
   };
 
@@ -93,14 +98,30 @@ export function ActiveNetworkWidget({
           >
             <Stack direction="row">
               <LogoContainer>
-                <TokenIconK2
-                  width="40px"
-                  height="40px"
-                  src={network.logoUri}
-                  name={network.chainName}
+                <Badge
+                  badgeContent={
+                    Object.values(bridgeTransactions).length ? (
+                      <Tooltip
+                        title={
+                          <Trans i18nKey="Bridge in progress. <br/> Click for details." />
+                        }
+                        sx={{ cursor: 'pointer' }}
+                      >
+                        {Object.values(bridgeTransactions).length}
+                      </Tooltip>
+                    ) : null
+                  }
+                  color="secondary"
                 >
-                  <NetworkLogoK2 height="40px" src={network.logoUri} />
-                </TokenIconK2>
+                  <TokenIconK2
+                    width="40px"
+                    height="40px"
+                    src={network.logoUri}
+                    name={network.chainName}
+                  >
+                    <NetworkLogoK2 height="40px" src={network.logoUri} />
+                  </TokenIconK2>
+                </Badge>
               </LogoContainer>
               <Stack justifyContent="center" sx={{ rowGap: 0.5 }}>
                 <Typography data-testid="active-network-name" variant="h6">

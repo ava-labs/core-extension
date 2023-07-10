@@ -1,87 +1,140 @@
-import { useEffect, useMemo, useState } from 'react';
 import { FeatureGates } from '@avalabs/posthog-sdk';
-
-import { Tabs } from '@src/components/common/Tabs';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { Activity } from '@src/pages/Activity/Activity';
 import { DeFi } from '@src/pages/DeFi/DeFi';
 import { Collectibles } from '../../../Collectibles/Collectibles';
 import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
 import { useTranslation } from 'react-i18next';
-import { Stack } from '@avalabs/k2-components';
+import { Box, Stack, Tab, TabPanel, Tabs } from '@avalabs/k2-components';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import { Redirect } from 'react-router-dom';
 
 export enum PortfolioTabs {
-  ASSETS = 'ASSETS',
-  COLLECTIBLES = 'COLLECTIBLES',
-  ACTIVITY = 'ACTIVITY',
-  DEFI = 'DEFI',
+  ASSETS,
+  COLLECTIBLES,
+  DEFI,
 }
+
+const functionIds = {
+  [PortfolioTabs.ASSETS]: 'ASSETS',
+  [PortfolioTabs.COLLECTIBLES]: 'COLLECTIBLES',
+  [PortfolioTabs.DEFI]: 'DEFI',
+};
 
 export function Portfolio() {
   const { t } = useTranslation();
-  const { bridgeTransactions } = useBridgeContext();
   const { capture } = useAnalyticsContext();
-  const { network } = useNetworkContext();
   const { featureFlags } = useFeatureFlagContext();
-  const loading = !network ? true : false;
+  const [activeTab, setActiveTab] = useState<number>(PortfolioTabs.ASSETS);
+  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
 
   useEffect(() => {
-    if (featureFlags[FeatureGates.DEFI]) {
-      setHadDefiEnabled(true);
-    }
+    setHadDefiEnabled(featureFlags[FeatureGates.DEFI]);
   }, [featureFlags]);
 
-  const tabs = useMemo(
-    () => [
-      {
-        title: t('Assets'),
-        id: PortfolioTabs.ASSETS,
-        component: <NetworksWidget />,
-        onClick: () => capture('PortfolioAssetsClicked'),
-      },
-      {
-        title: t('Collectibles'),
-        id: PortfolioTabs.COLLECTIBLES,
-        component: <Collectibles />,
-        onClick: () => capture('PortfolioCollectiblesClicked'),
-      },
-      {
-        title: t('Activity'),
-        id: PortfolioTabs.ACTIVITY,
-        component: <Activity />,
-        badgeAmount:
-          bridgeTransactions && Object.values(bridgeTransactions).length,
-        onClick: () => capture('PortfolioActivityClicked'),
-      },
-      // If user is on DeFi tab and we disable the feature flag, we want
-      // the tab to stay opened, so we can't just remove it from the array here.
-      // Instead, the <DeFi /> component will render the message about
-      // DeFi not being available.
-      ...(hadDefiEnabled
-        ? [
-            {
-              title: t('DeFi'),
-              id: PortfolioTabs.DEFI,
-              component: <DeFi />,
-              onClick: () => capture('PortfolioDefiClicked'),
-            },
-          ]
-        : []),
-    ],
-    [capture, bridgeTransactions, t, hadDefiEnabled]
+  const shouldShow = useCallback(
+    (tab) => {
+      if (tab === PortfolioTabs.DEFI && !hadDefiEnabled) {
+        return false;
+      }
+
+      const idToCheck = functionIds[tab];
+
+      if (!idToCheck) {
+        return false;
+      }
+
+      return checkIsFunctionAvailable(idToCheck);
+    },
+    [checkIsFunctionAvailable, hadDefiEnabled]
   );
 
+  const handleChange = useCallback(
+    (event: React.SyntheticEvent, newValue: number) => {
+      setActiveTab(newValue);
+      if (newValue === PortfolioTabs.ASSETS) {
+        capture('PortfolioAssetsClicked');
+      } else if (newValue === PortfolioTabs.COLLECTIBLES) {
+        capture('PortfolioCollectiblesClicked');
+      } else if (newValue === PortfolioTabs.DEFI) {
+        capture('PortfolioDefiClicked');
+      }
+    },
+    [capture]
+  );
+
+  const tabs = useMemo(() => {
+    const tabsToShow = Object.values(PortfolioTabs)
+      .filter((tab) => shouldShow(tab))
+      .map((tab) => {
+        const label =
+          tab === PortfolioTabs.ASSETS
+            ? t('Assets')
+            : tab === PortfolioTabs.COLLECTIBLES
+            ? t('Collectibles')
+            : tab === PortfolioTabs.DEFI
+            ? t('DeFi')
+            : null;
+        return {
+          label,
+          tab,
+        };
+      });
+
+    return (
+      <Tabs
+        onChange={handleChange}
+        value={activeTab}
+        size="medium"
+        variant="fullWidth"
+      >
+        {tabsToShow.map(({ label, tab }) => {
+          return label ? (
+            <Tab label={label} value={tab} key={`portfolio-tab-${tab}`} />
+          ) : null;
+        })}
+      </Tabs>
+    );
+  }, [activeTab, handleChange, shouldShow, t]);
+
   return (
-    <>
-      <Stack sx={{ flexGrow: 1 }}>
-        <WalletBalances />
-        <Tabs loading={loading} margin="14px 0 0" tabs={tabs} />
-      </Stack>
-    </>
+    <Stack>
+      <WalletBalances />
+      <Box>
+        <Box sx={{ mx: 2, mt: 1 }}>{tabs}</Box>
+        <Box sx={{ height: 420 }}>
+          <TabPanel
+            value={activeTab}
+            index={PortfolioTabs.ASSETS}
+            sx={{ height: '100%' }}
+          >
+            <NetworksWidget />
+          </TabPanel>
+
+          <TabPanel
+            value={activeTab}
+            index={PortfolioTabs.COLLECTIBLES}
+            sx={{ height: '100%' }}
+          >
+            {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
+              <Collectibles />
+            ) : (
+              <Redirect to={'/'} />
+            )}
+          </TabPanel>
+
+          <TabPanel
+            value={activeTab}
+            index={PortfolioTabs.DEFI}
+            sx={{ height: '100%' }}
+          >
+            <DeFi />
+          </TabPanel>
+        </Box>
+      </Box>
+    </Stack>
   );
 }

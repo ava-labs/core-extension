@@ -27,7 +27,6 @@ import {
 import { useOnline } from '@src/hooks/useOnline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { ApproveAction } from '@src/pages/ApproveAction/ApproveAction';
-import { TokenList } from '@src/pages/Home/components/Portfolio/TokenList';
 import { Home } from '@src/pages/Home/Home';
 import { Networks } from '@src/pages/Networks';
 import { AddNetwork } from '@src/pages/Networks/AddNetwork';
@@ -185,6 +184,10 @@ const BitcoinSignTx = lazy(() => {
   return import('../pages/ApproveAction/BitcoinSignTx').then((m) => ({
     default: m.BitcoinSignTx,
   }));
+});
+
+const Assets = lazy(() => {
+  return import('../pages/Home/components/Portfolio/Assets');
 });
 
 export function Popup() {
@@ -497,14 +500,6 @@ export function Popup() {
                                             </Suspense>
                                           </Route>
 
-                                          <Route path="/tokenlist">
-                                            <Suspense
-                                              fallback={<LoadingIcon />}
-                                            >
-                                              <TokenList />
-                                            </Suspense>
-                                          </Route>
-
                                           <Route path="/switchAccount">
                                             <Suspense
                                               fallback={<LoadingIcon />}
@@ -568,6 +563,15 @@ export function Popup() {
                                               <ImportPrivateKeyPage />
                                             </Suspense>
                                           </Route>
+
+                                          <Route path="/assets">
+                                            <Suspense
+                                              fallback={<LoadingIcon />}
+                                            >
+                                              <Assets />
+                                            </Suspense>
+                                          </Route>
+
                                           <Route path="/">
                                             <Redirect to="/home" />
                                           </Route>

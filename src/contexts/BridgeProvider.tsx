@@ -50,6 +50,7 @@ interface BridgeContext {
   ) => Promise<TransactionResponse | BtcTransactionResponse>;
   isBridgeDevEnv: boolean;
   setIsBridgeDevEnv: (enabled: boolean) => void;
+  bridgeState: BridgeState;
 }
 
 const bridgeContext = createContext<BridgeContext>({} as any);
@@ -186,6 +187,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         createBridgeTransaction,
         isBridgeDevEnv,
         setIsBridgeDevEnv,
+        bridgeState,
       }}
     >
       {children}
