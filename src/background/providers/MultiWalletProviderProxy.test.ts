@@ -8,6 +8,7 @@ import {
 jest.mock('./CoreProvider', () => ({
   CoreProvider: jest.fn().mockImplementation(() => ({
     isAvalanche: true,
+    isMetaMask: true,
     removeAllListeners: jest.fn(),
   })),
 }));
@@ -421,16 +422,19 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       mwpp.addProvider(mockProvider);
 
       expect((mwpp.providers[0] as any).isMetaMask).toBe(true);
+      expect((mwpp.providers[0] as any).isAvalanche).toBe(true);
       expect((mwpp.providers[0] as any).someUndefinedProperty).toBe(undefined);
       expect((mwpp.providers[0] as any)['#isWalletSelected']).toBe(undefined);
 
       expect(mwpp.providers[1] as any).toEqual({
         isMetaMask: true,
+        isAvalanche: undefined,
         foo: fooMock,
       });
 
       expect(mwpp.providers[2] as any).toEqual({
         isMetaMask: undefined,
+        isAvalanche: undefined,
         isRabby: true,
         biz: bizMock,
       });
