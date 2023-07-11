@@ -84,7 +84,6 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       promisify: jest.fn(),
     },
     getFavoriteNetworks: () => [2, 3, 4],
-    getAllFavoriteNetworks: () => [2, 3, 4],
   } as any;
 
   const account1: Account = {
@@ -443,6 +442,27 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
     it('should set the balanceCached flag', async () => {
       const balances = { [network2.chainId]: balanceForNetwork1 };
+      expect(service.isBalancesCached).toBe(true);
+      await service.updateBalancesValues(balances);
+      expect(service.isBalancesCached).toBe(false);
+    });
+
+    it('should set the balanceCached flag if there are no favorites', async () => {
+      service = new BalanceAggregatorService(
+        balancesServiceMock,
+        {
+          activeNetworks: {
+            promisify: jest.fn(),
+          },
+          getFavoriteNetworks: () => [],
+        } as any,
+        lockService,
+        storageService,
+        accountsServiceMock
+      );
+
+      const balances = { [network2.chainId]: balanceForNetwork1 };
+      expect(service.isBalancesCached).toBe(true);
       await service.updateBalancesValues(balances);
       expect(service.isBalancesCached).toBe(false);
     });

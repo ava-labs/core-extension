@@ -101,9 +101,11 @@ export class BalanceAggregatorService implements OnLock {
 
     const favoriteNetworks = await this.networkService.getFavoriteNetworks();
 
-    const isLoaded = favoriteNetworks.some((networkId) =>
-      loadedNetworks.includes(networkId.toString())
-    );
+    const isLoaded =
+      favoriteNetworks.length === 0 ||
+      favoriteNetworks.some((networkId) =>
+        loadedNetworks.includes(networkId.toString())
+      );
 
     if (isLoaded) {
       this.#isBalancesCached = false;
