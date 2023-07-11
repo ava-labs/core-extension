@@ -17,3 +17,12 @@ export type DefiProtocol = {
 export interface DefiDataProvider {
   getUserProtocols(address: string): Promise<DefiProtocol[]>;
 }
+
+export enum DefiServiceEvents {
+  PortfolioUpdated = 'DefiService::PortfolioUpdated',
+}
+
+export type DefiPortfolioUpdatedEvent = {
+  address: string;
+  portfolio: DefiPortfolio;
+};

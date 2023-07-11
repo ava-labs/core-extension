@@ -11,11 +11,9 @@ import {
 } from '@avalabs/k2-components';
 
 import { DefiProtocol } from '@src/background/services/defi/models';
-import { useCurrenciesContext } from '@src/contexts/CurrenciesProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { getCurrencyFormatter } from '@src/contexts/utils/getCurrencyFormatter';
 import { openNewTab } from '@src/utils/extensionUtils';
-import { useMemo } from 'react';
+
+import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 
 type DefiProtocolListItemProps = CardProps & {
   protocol: DefiProtocol;
@@ -26,33 +24,9 @@ export const DefiProtocolListItem = ({
   ...cardProps
 }: DefiProtocolListItemProps) => {
   const theme = useTheme();
-  const { convert, hasExchangeRate } = useCurrenciesContext();
-  const { currency, currencyFormatter } = useSettingsContext();
-  const usdFormatter = useMemo(() => getCurrencyFormatter('USD'), []);
+  const formatValue = useConvertedCurrencyFormatter();
 
   const openUrl = (url) => openNewTab({ url });
-
-  const value = useMemo((): string => {
-    // We may not have the value in user's selected currency,
-    // so we need to ensure we show the correct currency code/symbol.
-    const needsConversion = currency !== 'USD';
-    const canConvert = hasExchangeRate('USD', currency);
-    const converted =
-      needsConversion && canConvert
-        ? convert({ amount: protocol.totalUsdValue, from: 'USD', to: currency })
-        : null;
-
-    return converted !== null
-      ? currencyFormatter(converted)
-      : usdFormatter(protocol.totalUsdValue);
-  }, [
-    protocol.totalUsdValue,
-    currency,
-    hasExchangeRate,
-    usdFormatter,
-    currencyFormatter,
-    convert,
-  ]);
 
   return (
     <Card sx={{ width: '100%' }} {...cardProps}>
@@ -96,7 +70,7 @@ export const DefiProtocolListItem = ({
               sx={{ fontSize: 14 }}
               data-testid="defi-protocol-value"
             >
-              {value}
+              {formatValue(protocol.totalUsdValue)}
             </Typography>
             <IconButton
               component="a"

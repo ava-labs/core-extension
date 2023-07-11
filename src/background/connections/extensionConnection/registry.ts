@@ -108,6 +108,7 @@ import { WalletUpdatedEvents } from '@src/background/services/wallet/events/Wall
 import { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/getDefiPortfolio';
 import { CurrencyRatesUpdatedEvents } from '@src/background/services/currency/events/currencyRatesUpdatedEvent';
 import { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';
+import { DefiPortfolioUpdatedEvents } from '@src/background/services/defi/events/defiPortfolioUpdatedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -280,5 +281,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: CurrencyRatesUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: DefiPortfolioUpdatedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

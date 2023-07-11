@@ -1,10 +1,16 @@
+import { StorageService } from '../storage/StorageService';
 import { DefiService } from './DefiService';
 import { DebankService } from './debank';
-import { DefiProtocol } from './models';
+import { DefiPortfolio, DefiProtocol, DefiServiceEvents } from './models';
 
 const mockDebankService = {
   getUserProtocols: jest.fn(),
 } as unknown as DebankService;
+
+const mockStorageService = {
+  saveToSessionStorage: jest.fn(),
+  loadFromSessionStorage: jest.fn(),
+} as unknown as StorageService;
 
 describe('src/background/services/defi/DefiService.ts', () => {
   let service: DefiService;
@@ -12,14 +18,46 @@ describe('src/background/services/defi/DefiService.ts', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    service = new DefiService(mockDebankService);
+    service = new DefiService(mockDebankService, mockStorageService);
   });
 
   describe('.getUserPortfolio()', () => {
+    it(`dispatches the stale (cached) state as an event to the UI`, async () => {
+      const eventSpy = jest.fn();
+      const stalePortfolio: DefiPortfolio = {
+        totalUsdValue: 150,
+        protocols: [
+          {
+            id: 'test-protocol-1',
+            totalUsdValue: 100,
+          },
+          {
+            id: 'test-protocol-2',
+            totalUsdValue: 100,
+          },
+        ] as unknown as DefiProtocol[],
+      };
+
+      jest
+        .mocked(mockStorageService)
+        .loadFromSessionStorage.mockResolvedValueOnce(stalePortfolio);
+
+      jest.mocked(mockDebankService.getUserProtocols).mockResolvedValue([]);
+
+      service.addListener(DefiServiceEvents.PortfolioUpdated, eventSpy);
+
+      await service.getUserPortfolio('0x1234');
+
+      expect(eventSpy).toHaveBeenCalledWith({
+        address: '0x1234',
+        portfolio: stalePortfolio,
+      });
+    });
+
     it(`fetches the list of user's defi protocols`, async () => {
       jest.mocked(mockDebankService.getUserProtocols).mockResolvedValue([]);
 
-      service.getUserPortfolio('0x1234');
+      await service.getUserPortfolio('0x1234');
 
       expect(mockDebankService.getUserProtocols).toHaveBeenCalledWith('0x1234');
     });
