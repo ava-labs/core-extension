@@ -1,3 +1,4 @@
+import { useHistory } from 'react-router-dom';
 import {
   Avatar,
   Card,
@@ -24,13 +25,32 @@ export const DefiProtocolListItem = ({
   ...cardProps
 }: DefiProtocolListItemProps) => {
   const theme = useTheme();
+  const history = useHistory();
   const formatValue = useConvertedCurrencyFormatter();
 
   const openUrl = (url) => openNewTab({ url });
 
+  if (protocol.groups.length === 0) {
+    /**
+     * It's very unlikely, but technically possible that we'll get an empty protocol item
+     * from the backend.
+     *
+     * This mechanism is useful if the user re-activates the extension after closing all
+     * positions on a dApp and then lands directly on /defi/:protocolId page.
+     * In such situations, we want them to see an empty details screen for that dApp.
+     *
+     * However if they land here, on the main DeFi page, we don't want to show
+     * those protocols in the list anymore.
+     */
+    return null;
+  }
+
   return (
     <Card sx={{ width: '100%' }} {...cardProps}>
-      <CardActionArea data-testid={`defi-protocol-${protocol.id}`}>
+      <CardActionArea
+        onClick={() => history.push(`/defi/${protocol.id}`)}
+        data-testid={`defi-protocol-${protocol.id}`}
+      >
         <Stack
           direction="row"
           sx={{

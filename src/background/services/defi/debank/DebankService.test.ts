@@ -1,3 +1,4 @@
+import { DefiItemType } from '../models';
 import { DebankService } from './DebankService';
 
 import fixture_chainList from './fixtures/chain_list.json';
@@ -105,6 +106,42 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
       expect(protocols).toEqual([
         expect.objectContaining({
           id: 'avax_aave3',
+          groups: [
+            {
+              name: 'Lending',
+              totalUsdValue: 12.5,
+              items: [
+                expect.objectContaining({
+                  name: 'Lending',
+                  type: DefiItemType.Lending,
+                  supplyTokens: [
+                    expect.objectContaining({
+                      symbol: 'USDC',
+                      price: 1,
+                      amount: 3,
+                      usdValue: 3,
+                    }),
+                  ],
+                  borrowTokens: [
+                    expect.objectContaining({
+                      symbol: 'USDt',
+                      price: 1,
+                      amount: 0.5,
+                      usdValue: 0.5,
+                    }),
+                  ],
+                  rewardTokens: [
+                    expect.objectContaining({
+                      symbol: 'AVAX',
+                      price: 20,
+                      amount: 0.5,
+                      usdValue: 10,
+                    }),
+                  ],
+                }),
+              ],
+            },
+          ],
           logoUrl:
             'https://static.debank.com/image/project/logo_url/avax_aave3/9459cb86efd13145537eab8104e923bf.png',
           name: 'Aave V3',
@@ -112,6 +149,34 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         }),
         expect.objectContaining({
           id: 'avax_pangolin',
+          groups: [
+            {
+              name: 'Farming',
+              totalUsdValue: 0.104,
+              items: [
+                expect.objectContaining({
+                  name: 'Farming',
+                  type: DefiItemType.Common,
+                  supplyTokens: [
+                    expect.objectContaining({
+                      symbol: 'PNG',
+                      price: 0.02,
+                      amount: 5,
+                      usdValue: 0.1,
+                    }),
+                  ],
+                  rewardTokens: [
+                    expect.objectContaining({
+                      symbol: 'PNG',
+                      price: 0.02,
+                      amount: 0.2,
+                      usdValue: 0.004,
+                    }),
+                  ],
+                }),
+              ],
+            },
+          ],
           logoUrl:
             'https://static.debank.com/image/project/logo_url/avax_pangolin/0a6a8bcb10deb8000f445160d05b0571.png',
           name: 'Pangolin',
@@ -119,6 +184,113 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         }),
         expect.objectContaining({
           id: 'avax_traderjoexyz',
+          groups: [
+            {
+              name: 'Liquidity Pool',
+              totalUsdValue: 1.7 + 0.103,
+              items: [
+                expect.objectContaining({
+                  name: 'Liquidity Pool',
+                  type: DefiItemType.Common,
+                  netUsdValue: 1.7,
+                  supplyTokens: [
+                    expect.objectContaining({
+                      symbol: 'USDC.e',
+                      price: 1.0,
+                      amount: 0.5,
+                      usdValue: 0.5,
+                    }),
+                    expect.objectContaining({
+                      symbol: 'USDC',
+                      price: 1.0,
+                      amount: 1,
+                      usdValue: 1,
+                    }),
+                  ],
+                  rewardTokens: [
+                    expect.objectContaining({
+                      symbol: 'USDC.e',
+                      price: 1.0,
+                      amount: 0.1,
+                      usdValue: 0.1,
+                    }),
+                    expect.objectContaining({
+                      symbol: 'USDC',
+                      price: 1.0,
+                      amount: 0.1,
+                      usdValue: 0.1,
+                    }),
+                  ],
+                }),
+                expect.objectContaining({
+                  name: 'Liquidity Pool',
+                  type: DefiItemType.Common,
+                  netUsdValue: 0.103,
+                  supplyTokens: [
+                    expect.objectContaining({
+                      symbol: 'AVAX',
+                      price: 11.8,
+                      amount: 0.1,
+                      usdValue: 1.1800000000000002,
+                    }),
+                    expect.objectContaining({
+                      symbol: 'USDC',
+                      price: 1.0,
+                      amount: 0.01,
+                      usdValue: 0.01,
+                    }),
+                  ],
+                  rewardTokens: [
+                    expect.objectContaining({
+                      symbol: 'AVAX',
+                      price: 11.8,
+                      amount: 0.01,
+                      usdValue: 0.11800000000000001,
+                    }),
+                    expect.objectContaining({
+                      symbol: 'USDC',
+                      price: 1.0,
+                      amount: 0.02,
+                      usdValue: 0.02,
+                    }),
+                  ],
+                }),
+              ],
+            },
+            {
+              name: 'Staked',
+              totalUsdValue: 0.403,
+              items: [
+                expect.objectContaining({
+                  name: 'Staked',
+                  type: DefiItemType.Common,
+                  netUsdValue: 0.403,
+                  supplyTokens: [
+                    expect.objectContaining({
+                      symbol: 'JOE',
+                      price: 0.3,
+                      amount: 1,
+                      usdValue: 0.3,
+                    }),
+                  ],
+                  rewardTokens: [
+                    expect.objectContaining({
+                      symbol: 'USDC',
+                      price: 1.0,
+                      amount: 0.1,
+                      usdValue: 0.1,
+                    }),
+                    expect.objectContaining({
+                      symbol: 'JOE',
+                      price: 0.3,
+                      amount: 0.01,
+                      usdValue: 0.003,
+                    }),
+                  ],
+                }),
+              ],
+            },
+          ],
           logoUrl:
             'https://static.debank.com/image/project/logo_url/avax_traderjoexyz/961dd8fbeac3d6ee62170c8db600ba25.png',
           name: 'Trader Joe',
@@ -158,13 +330,13 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
 
       expect(protocols).toEqual([
         expect.objectContaining({
-          totalUsdValue: 2.5007843529359093,
+          totalUsdValue: 12.5,
         }),
         expect.objectContaining({
-          totalUsdValue: 0.13330312829968227,
+          totalUsdValue: 0.104,
         }),
         expect.objectContaining({
-          totalUsdValue: 0.2344205136007694,
+          totalUsdValue: 2.206,
         }),
       ]);
     });

@@ -1,7 +1,12 @@
 import { StorageService } from '../storage/StorageService';
 import { DefiService } from './DefiService';
 import { DebankService } from './debank';
-import { DefiPortfolio, DefiProtocol, DefiServiceEvents } from './models';
+import {
+  DefiItemGroup,
+  DefiPortfolio,
+  DefiProtocol,
+  DefiServiceEvents,
+} from './models';
 
 const mockDebankService = {
   getUserProtocols: jest.fn(),
@@ -30,10 +35,12 @@ describe('src/background/services/defi/DefiService.ts', () => {
           {
             id: 'test-protocol-1',
             totalUsdValue: 100,
+            groups: [] as DefiItemGroup[],
           },
           {
             id: 'test-protocol-2',
             totalUsdValue: 100,
+            groups: [] as DefiItemGroup[],
           },
         ] as unknown as DefiProtocol[],
       };

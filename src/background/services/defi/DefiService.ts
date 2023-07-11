@@ -65,6 +65,7 @@ export class DefiService {
         .filter(({ id }) => !liveProtocolIds.includes(id))
         .map((protocol) => ({
           ...protocol,
+          groups: [],
           totalUsdValue: 0,
         }));
     }

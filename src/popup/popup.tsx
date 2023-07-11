@@ -52,6 +52,7 @@ import LedgerIncorrectDevice from '@src/pages/Ledger/LedgerIncorrectDevice';
 import { KeystoneContextProvider } from '@src/contexts/KeystoneProvider';
 import LedgerRegisterBtcWalletPolicy from '@src/pages/Ledger/LedgerRegisterBtcWalletPolicy';
 import { CurrenciesContextProvider } from '@src/contexts/CurrenciesProvider';
+import { DefiProtocolDetails } from '@src/pages/DeFi/DefiProtocolDetails';
 import { DefiContextProvider } from '@src/contexts/DefiProvider';
 
 const AddToken = lazy(() => {
@@ -573,6 +574,18 @@ export function Popup() {
                                                 fallback={<LoadingIcon />}
                                               >
                                                 <Assets />
+                                              </Suspense>
+                                            </Route>
+
+                                            <Route path="/defi/:protocolId">
+                                              <Suspense
+                                                fallback={
+                                                  <CircularProgress
+                                                    size={100}
+                                                  />
+                                                }
+                                              >
+                                                <DefiProtocolDetails />
                                               </Suspense>
                                             </Route>
 
