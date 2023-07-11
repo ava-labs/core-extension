@@ -10,6 +10,7 @@ import { Box, Stack, Tab, TabPanel, Tabs } from '@avalabs/k2-components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { Redirect } from 'react-router-dom';
+import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
 
 export enum PortfolioTabs {
   ASSETS,
@@ -27,12 +28,16 @@ export function Portfolio() {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
-  const [activeTab, setActiveTab] = useState<number>(PortfolioTabs.ASSETS);
-  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { activeTab, setActiveTab } = usePersistedTabs(PortfolioTabs.ASSETS);
+  const { isReady, checkIsFunctionAvailable } = useIsFunctionAvailable();
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
 
   useEffect(() => {
-    setHadDefiEnabled(featureFlags[FeatureGates.DEFI]);
+    if (featureFlags[FeatureGates.DEFI]) {
+      // Never set it back to false,
+      // we need to know if it was *ever* enabled in the current UI session.
+      setHadDefiEnabled(true);
+    }
   }, [featureFlags]);
 
   const shouldShow = useCallback(
@@ -122,7 +127,9 @@ export function Portfolio() {
             {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
               <Collectibles />
             ) : (
-              <Redirect to={'/'} />
+              isReady && ( // Only redirect when we have all the context needed to decide
+                <Redirect to={'/'} />
+              )
             )}
           </TabPanel>
 

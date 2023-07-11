@@ -25,12 +25,14 @@ const enabledFeatues = {
 
 interface FunctionIsAvailable {
   isFunctionAvailable: boolean;
+  isReady: boolean;
   checkIsFunctionAvailable: (functionName: string) => boolean;
 }
 export const useIsFunctionAvailable = (
   functionName?: string
 ): FunctionIsAvailable => {
   const { network } = useNetworkContext();
+  const isReady = Boolean(network);
 
   const checkIsFunctionAvailable = (functionName: string) => {
     if (!network) {
@@ -53,17 +55,20 @@ export const useIsFunctionAvailable = (
 
   if (!network || !functionName) {
     return {
+      isReady,
       isFunctionAvailable: false,
       checkIsFunctionAvailable,
     };
   }
   if (checkIsFunctionAvailable(functionName)) {
     return {
+      isReady,
       isFunctionAvailable: true,
       checkIsFunctionAvailable,
     };
   }
   return {
+    isReady,
     isFunctionAvailable: false,
     checkIsFunctionAvailable,
   };
