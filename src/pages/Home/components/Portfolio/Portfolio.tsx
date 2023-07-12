@@ -68,7 +68,7 @@ export function Portfolio() {
         capture('PortfolioDefiClicked');
       }
     },
-    [capture]
+    [capture, setActiveTab]
   );
 
   const tabs = useMemo(() => {
