@@ -42,6 +42,8 @@ import { useSignTransactionHeader } from './hooks/useSignTransactionHeader';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { KeystoneApprovalOverlay } from './KeystoneApprovalOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import Dialog from '@src/components/common/Dialog';
+import { TransactionErrorDialog } from './TransactionErrorDialog';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
@@ -76,8 +78,10 @@ export function SignTransactionPage() {
     suggestedFee,
     network,
     networkFee,
+    hasTransactionError,
+    setHasTransactionError,
     ...params
-  } = useGetTransaction(requestId, onTxError);
+  } = useGetTransaction(requestId);
   const [transactionProgressState, setTransactionProgressState] = useState(
     TransactionProgressState.NOT_APPROVED
   );
@@ -89,12 +93,12 @@ export function SignTransactionPage() {
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
   const hasTokenBalance = useMemo(
-    () => tokens.find((t) => t.type === TokenType.NATIVE)?.balance,
+    () => tokens.find((token) => token.type === TokenType.NATIVE)?.balance,
     [tokens]
   );
   const hasEnoughForNetworkFee = useMemo(() => {
     return tokens
-      .find((t) => t.type === TokenType.NATIVE)
+      .find((token) => token.type === TokenType.NATIVE)
       ?.balance.gte(
         ethersBigNumberToBN(
           params.maxFeePerGas?.mul(params.gasLimit || BigNumber.from(0)) ??
@@ -367,6 +371,26 @@ export function SignTransactionPage() {
           </Button>
         </Stack>
       </Stack>
+      <Dialog
+        onClose={() => window.close()}
+        isCloseable={false}
+        open={hasTransactionError}
+        content={
+          <TransactionErrorDialog
+            onConfirm={async () => {
+              updateTransaction({
+                status: TxStatus.ERROR,
+                id: id,
+                error: 'Invalid param: chainId',
+              });
+              setHasTransactionError(false);
+              if (onTxError) {
+                onTxError();
+              }
+            }}
+          />
+        }
+      />
     </>
   );
 }

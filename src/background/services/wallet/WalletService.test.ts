@@ -85,6 +85,7 @@ describe('background/services/wallet/WalletService.ts', () => {
   const btcKeystoneWalletMock = Object.create(BitcoinKeystoneWallet.prototype);
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
   const simpleSignerMock = Object.create(Avalanche.SimpleSigner.prototype);
+  const ledgerSignerMock = Object.create(Avalanche.LedgerSigner.prototype);
   const ledgerSimpleSignerMock = Object.create(
     Avalanche.SimpleLedgerSigner.prototype
   );
@@ -509,6 +510,25 @@ describe('background/services/wallet/WalletService.ts', () => {
 
         expect(result).toEqual(JSON.stringify(unsignedTxJSON));
         expect(ledgerSimpleSignerMock.signTx).toHaveBeenCalledWith({
+          tx: unsignedTxMock,
+          transport: transportMock,
+        });
+      });
+
+      it('signs transaction correctly using LedgerSigner', async () => {
+        const transportMock = {} as LedgerTransport;
+        (ledgerService as any).recentTransport = transportMock;
+        ledgerSignerMock.signTx = jest.fn().mockReturnValueOnce(unsignedTxMock);
+        getWalletSpy.mockResolvedValueOnce(ledgerSignerMock);
+
+        const result = await walletService.sign(
+          avalancheTxMock,
+          tabId,
+          networkMock
+        );
+
+        expect(result).toEqual(JSON.stringify(unsignedTxJSON));
+        expect(ledgerSignerMock.signTx).toHaveBeenCalledWith({
           tx: unsignedTxMock,
           transport: transportMock,
         });

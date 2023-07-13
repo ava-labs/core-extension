@@ -7,24 +7,12 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
 import { TokenType } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from '@src/components/common/VirtualizedList';
-import {
-  Button,
-  ChevronLeftIcon,
-  Stack,
-  Typography,
-  styled,
-} from '@avalabs/k2-components';
+import { Button, Stack, styled } from '@avalabs/k2-components';
 import { TokenIconK2 } from '@src/components/common/TokenImageK2';
-
-const LogoContainer = styled('div')`
-  margin: 0 15px 0 8px;
-`;
 
 const TokenRow = styled('div')`
   padding: 0 10px 0 16px;
@@ -36,16 +24,12 @@ interface TokenListProps {
 
 export function TokenList({ searchQuery }: TokenListProps) {
   const { t } = useTranslation();
-  const { getTokenVisibility, currencyFormatter } = useSettingsContext();
+  const { getTokenVisibility } = useSettingsContext();
   const tokensWithBalances = useTokensWithBalances();
   const history = useHistory();
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
-  const { network } = useNetworkContext();
-  const activeNetworkAssetList = useTokensWithBalances();
-
-  const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
 
   const tokens = useMemo(
     () =>
@@ -112,39 +96,6 @@ export function TokenList({ searchQuery }: TokenListProps) {
       <Stack
         direction="row"
         alignItems="center"
-        justifyContent="flex-start"
-        sx={{
-          width: '100%',
-          mt: 2,
-          py: '12px',
-          px: 2,
-        }}
-      >
-        <Stack direction="row" alignItems="center">
-          <ChevronLeftIcon
-            onClick={() => history.push('/home')}
-            size={30}
-            sx={{ cursor: 'pointer' }}
-          />
-          <LogoContainer>
-            <TokenIconK2
-              width="40px"
-              height="40px"
-              src={network?.logoUri}
-              name={network?.chainName}
-            />
-          </LogoContainer>
-          <Stack>
-            <Typography variant="h4">{network?.chainName}</Typography>
-            <Typography variant="body1">
-              {currencyFormatter(activeNetworkBalance)}
-            </Typography>
-          </Stack>
-        </Stack>
-      </Stack>
-      <Stack
-        direction="row"
-        alignItems="center"
         justifyContent="flex-end"
         sx={{
           mx: 2,
@@ -168,7 +119,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           <AutoSizer>
             {({ width }) => (
               <VirtualizedList
-                height={391}
+                height={335}
                 rowCount={tokens.length}
                 rowHeight={72}
                 rowRenderer={rowRenderer}

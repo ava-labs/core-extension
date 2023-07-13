@@ -19,7 +19,7 @@ export const DefiZeroState = (props: StackProps) => {
     <Stack sx={{ mt: 9, gap: 1, alignItems: 'center' }} {...props}>
       <Typography variant="h5">{t('No DeFi Transactions')}</Typography>
       <Typography variant="body2" color="text.secondary">
-        {t('Discover top dapps on Avalanche now.')}
+        {t('Discover top dApps on Avalanche now.')}
       </Typography>
       <Button
         color="primary"

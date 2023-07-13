@@ -2,8 +2,7 @@ import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useTranslation } from 'react-i18next';
 import { CircularProgress, Stack } from '@avalabs/k2-components';
 
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useDefiPortfolio } from '@src/pages/DeFi/hooks/useDefiPortfolio';
+import { useDefiContext } from '@src/contexts/DefiProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
@@ -13,21 +12,16 @@ import { DefiErrorState } from './components/DefiErrorState';
 
 export function DeFi() {
   const { t } = useTranslation();
-  const {
-    accounts: { active: activeAccount },
-  } = useAccountsContext();
-  const { portfolio, hasError, isLoading } = useDefiPortfolio(
-    activeAccount?.addressC
-  );
+  const { portfolio, hasError, isLoading } = useDefiContext();
   const { featureFlags } = useFeatureFlagContext();
 
   if (!featureFlags[FeatureGates.DEFI]) {
     return <FunctionIsOffline hidePageTitle functionName={t('DeFi')} />;
   }
 
+  const hasProtocols = portfolio.protocols.length > 0;
   const isProperlyLoaded = !isLoading && !hasError;
-  const isZeroState = isProperlyLoaded && portfolio.protocols.length === 0;
-  const hasProtocols = isProperlyLoaded && portfolio.protocols.length > 0;
+  const isZeroState = isProperlyLoaded && !hasProtocols;
 
   return (
     <Stack
@@ -40,10 +34,13 @@ export function DeFi() {
         alignItems: 'center',
       }}
     >
-      {isLoading && <CircularProgress sx={{ mt: 9 }} size={100} />}
-      {hasError && <DefiErrorState />}
+      {isLoading && !hasProtocols && (
+        // Only show the full loading screen if we have no data at all
+        <CircularProgress sx={{ mt: 9 }} size={100} />
+      )}
       {isZeroState && <DefiZeroState />}
-      {hasProtocols && (
+      {hasError && <DefiErrorState />}
+      {!hasError && hasProtocols && (
         <Stack sx={{ gap: 1, width: '100%' }}>
           {portfolio.protocols.map((protocol) => (
             <DefiProtocolListItem key={protocol.id} protocol={protocol} />

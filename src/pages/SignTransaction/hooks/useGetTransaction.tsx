@@ -1,8 +1,5 @@
 import { useCallback, useMemo, useEffect, useState } from 'react';
-import {
-  Transaction,
-  TxStatus,
-} from '@src/background/services/transactions/models';
+import { Transaction } from '@src/background/services/transactions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { filter, map, Subscription, take } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -31,13 +28,12 @@ import {
 import { Network } from '@avalabs/chains-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
-import { useDialog } from '@avalabs/react-components';
-import { t } from 'i18next';
+import { useDialog } from '@src/contexts/DialogContextProvider';
 import { BN } from 'bn.js';
 
 export const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
-export function useGetTransaction(requestId: string, onError?: () => void) {
+export function useGetTransaction(requestId: string) {
   // Target network of the transaction defined by the chainId param. May differ from the active one.
   const [network, setNetwork] = useState<Network | undefined>(undefined);
   const [networkFee, setNetworkFee] = useState<NetworkFee | null>(null);
@@ -70,6 +66,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
   );
   const [suggestedFee, setSuggestedFee] = useState<FeeRate | null>(null);
   const { showDialog, clearDialog } = useDialog();
+  const [hasTransactionError, setHasTransactionError] = useState(false);
 
   const updateTransaction = useCallback(
     (update) => {
@@ -207,17 +204,17 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
   const updateFees = useCallback(
     (tx: Transaction) => {
       const { displayValues } = tx;
-      const suggestedFee = displayValues.suggestedMaxFeePerGas;
+      const suggestedFeeMax = displayValues.suggestedMaxFeePerGas;
       const suggestedTip = displayValues.suggestedMaxPriorityFeePerGas;
 
-      if (suggestedFee) {
+      if (suggestedFeeMax) {
         setSuggestedFee({
-          maxFee: BigNumber.from(suggestedFee),
+          maxFee: BigNumber.from(suggestedFeeMax),
           maxTip: suggestedTip ? BigNumber.from(suggestedTip) : undefined,
         });
         setCustomFee(
           {
-            maxFeePerGas: BigNumber.from(suggestedFee),
+            maxFeePerGas: BigNumber.from(suggestedFeeMax),
             maxPriorityFeePerGas: suggestedTip
               ? BigNumber.from(suggestedTip)
               : undefined,
@@ -302,8 +299,10 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
   useEffect(() => {
     const updateNetworkAndFees = async () => {
       if (network?.chainId) {
-        const networkFee = await getNetworkFeeForNetwork(network?.chainId);
-        setNetworkFee(networkFee);
+        const networkFeeCurrent = await getNetworkFeeForNetwork(
+          network?.chainId
+        );
+        setNetworkFee(networkFeeCurrent);
       }
     };
 
@@ -315,36 +314,13 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
 
     if (!featureFlags[FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]) {
       if (transaction && activeNetwork && chainId !== activeNetwork?.chainId) {
-        showDialog(
-          {
-            title: t('Transaction Error'),
-            body: t(
-              'The provided chainID does not match the selected network. Pressing “Continue” will reject the transaction. Please switch networks and try again.'
-            ),
-            width: '343px',
-            confirmText: t('Continue'),
-            onConfirm: async () => {
-              updateTransaction({
-                status: TxStatus.ERROR,
-                id: transaction?.id,
-                error: 'Invalid param: chainId',
-              });
-
-              clearDialog();
-
-              if (onError) {
-                onError();
-              }
-            },
-          },
-          false
-        );
+        setHasTransactionError(true);
       } else {
         setNetwork(activeNetwork);
       }
     } else {
-      const network = getNetwork(chainId);
-      setNetwork(network);
+      const networkCurrent = getNetwork(chainId);
+      setNetwork(networkCurrent);
     }
   }, [
     getNetwork,
@@ -354,7 +330,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
     activeNetwork,
     transaction,
     updateTransaction,
-    onError,
+    setHasTransactionError,
   ]);
 
   return useMemo(() => {
@@ -388,6 +364,8 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
       selectedGasFee,
       network,
       networkFee,
+      hasTransactionError,
+      setHasTransactionError,
     };
   }, [
     networkFee,
@@ -406,5 +384,7 @@ export function useGetTransaction(requestId: string, onError?: () => void) {
     displaySpendLimit,
     customSpendLimit,
     selectedGasFee,
+    hasTransactionError,
+    setHasTransactionError,
   ]);
 }

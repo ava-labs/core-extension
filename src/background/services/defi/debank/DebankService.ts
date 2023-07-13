@@ -1,11 +1,26 @@
 import { singleton } from 'tsyringe';
 
-import { DefiDataProvider, DefiProtocol } from '../models';
+import {
+  DefiDataProvider,
+  DefiProtocol,
+  DefiToken,
+  DefiItem,
+  DefiItemType,
+  DefiCommonItem,
+  DefiLendingItem,
+  DefiVestingItem,
+  DefiInsuranceBuyerItem,
+  DefiRewardItem,
+  DefiItemGroup,
+  DefiPerpetualItem,
+} from '../models';
 
 import {
   DebankChain,
   DebankComplexProtocol,
   DebankPortfolioItemObject,
+  DebankProtocolDetailTypes,
+  DebankTokenObject,
 } from './models';
 
 @singleton()
@@ -69,8 +84,10 @@ export class DebankService implements DefiDataProvider {
             name,
             chainId: chain?.community_id,
             chainLogoUrl: chain?.logo_url,
+            chainName: chain?.name,
             siteUrl: site_url,
             logoUrl: logo_url,
+            groups: this.#mapPortfolioItems(portfolio_item_list),
             totalUsdValue:
               this.#calculateTotalValueOfProtocolItems(portfolio_item_list),
           };
@@ -85,6 +102,173 @@ export class DebankService implements DefiDataProvider {
         }`
       );
     }
+  }
+
+  #mapPortfolioItems(items: DebankPortfolioItemObject[]): DefiItemGroup[] {
+    const allItems = this.#sortItems(
+      items
+        .map((item) => {
+          // DeBank may return multiple detail types with the last one being the most accurate in their estimation.
+          // @see https://docs.cloud.debank.com/en/readme/api-models/portfolioitemobject#about-detail_types
+          const type =
+            item.detail_types[item.detail_types.length - 1] ??
+            DebankProtocolDetailTypes.COMMON;
+
+          switch (type) {
+            case DebankProtocolDetailTypes.LENDING:
+              return this.#mapLendingItem(item);
+
+            case DebankProtocolDetailTypes.VESTING:
+              return this.#mapVestingItem(item);
+
+            case DebankProtocolDetailTypes.REWARD:
+              return this.#mapRewardItem(item);
+
+            case DebankProtocolDetailTypes.INSURANCE_BUYER:
+              return this.#mapInsuranceItem(item);
+
+            case DebankProtocolDetailTypes.PERPETUALS:
+              return this.#mapPerpetualItem(item);
+
+            // Some items we show in a simplified manner, just like
+            // the "common" positions.
+            case DebankProtocolDetailTypes.LOCKED:
+            case DebankProtocolDetailTypes.COMMON:
+              return this.#mapCommonItem(item);
+
+            default:
+              // Return null for items that we don't know how to handle/present yet.
+              return null;
+          }
+        })
+        .filter(Boolean) as DefiItem[] // Filter-out the nullish items.
+    );
+
+    const groupedByName = allItems.reduce((groups, item) => {
+      const group = groups.get(item.name) ?? {
+        name: item.name,
+        totalUsdValue: 0,
+        items: [],
+      };
+
+      groups.set(item.name, {
+        ...group,
+        items: [...group.items, item],
+        totalUsdValue: group.totalUsdValue + item.netUsdValue,
+      });
+
+      return groups;
+    }, new Map<string, DefiItemGroup>());
+
+    return Array.from(groupedByName.values());
+  }
+
+  #mapRewardItem(item: DebankPortfolioItemObject): DefiRewardItem {
+    return {
+      name: item.name,
+      type: DefiItemType.Reward,
+      netUsdValue: item.stats.net_usd_value,
+      tokens: this.#mapTokens(item.detail.token_list),
+    };
+  }
+
+  #mapPerpetualItem(item: DebankPortfolioItemObject): DefiPerpetualItem {
+    return {
+      type: DefiItemType.Perpetual,
+      name: item.name,
+      // We know the fields below are not supposed to be undefined
+      // for perpetuals, so we can cast safely.
+      positionToken: this.#mapToken(
+        item.detail.position_token as DebankTokenObject
+      ),
+      marginToken: this.#mapToken(
+        item.detail.margin_token as DebankTokenObject
+      ),
+      profitUsdValue: Number(item.detail.pnl_usd_value),
+      netUsdValue: item.stats.net_usd_value,
+    };
+  }
+
+  #mapInsuranceItem(item: DebankPortfolioItemObject): DefiInsuranceBuyerItem {
+    return {
+      type: DefiItemType.InsuranceBuyer,
+      name: item.name,
+      // We know those fields are not supposed to be undefined
+      // for insurance, so we can cast safely.
+      description: String(item.detail.description),
+      expiredAt: Number(item.detail.expired_at),
+      netUsdValue: Number(item.detail.usd_value),
+    };
+  }
+
+  #mapVestingItem(item: DebankPortfolioItemObject): DefiVestingItem {
+    const token = item.detail.token as DebankTokenObject;
+
+    return {
+      name: item.name,
+      type: DefiItemType.Vesting,
+      netUsdValue: item.stats.net_usd_value,
+      token: {
+        ...this.#mapToken(token),
+        claimableAmount: token.claimable_amount,
+      },
+      endAt: item.detail.end_at,
+    };
+  }
+
+  #mapLendingItem(item: DebankPortfolioItemObject): DefiLendingItem {
+    return {
+      name: item.name,
+      type: DefiItemType.Lending,
+      healthRate: item.detail.health_rate,
+      netUsdValue: item.stats.net_usd_value,
+      supplyTokens: this.#mapTokens(item.detail.supply_token_list),
+      rewardTokens: this.#mapTokens(item.detail.reward_token_list),
+      borrowTokens: this.#mapTokens(item.detail.borrow_token_list),
+    };
+  }
+
+  #mapCommonItem(item: DebankPortfolioItemObject): DefiCommonItem {
+    return {
+      name: item.name,
+      type: DefiItemType.Common,
+      netUsdValue: item.stats.net_usd_value,
+      supplyTokens: this.#mapTokens(item.detail.supply_token_list),
+      rewardTokens: this.#mapTokens(item.detail.reward_token_list),
+    };
+  }
+
+  #mapTokens(tokens?: DebankTokenObject[]): DefiToken[] {
+    if (!tokens) {
+      return [];
+    }
+
+    return tokens.map((token) => this.#mapToken(token));
+  }
+
+  #mapToken({
+    name: tokenName,
+    symbol,
+    decimals,
+    logo_url,
+    price,
+    amount,
+  }: DebankTokenObject): DefiToken {
+    return {
+      name: tokenName,
+      price,
+      amount,
+      symbol,
+      logoUrl: logo_url,
+      decimals,
+      usdValue: price * amount,
+    };
+  }
+
+  #sortItems(items: DefiItem[]): DefiItem[] {
+    return [...items].sort(
+      ({ netUsdValue: valueA }, { netUsdValue: valueB }) => valueB - valueA
+    );
   }
 
   /**

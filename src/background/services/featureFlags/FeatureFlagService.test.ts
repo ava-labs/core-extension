@@ -24,7 +24,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     lock: jest.fn(),
   } as unknown as LockService;
   const storageServiceMock = {
-    loadFromSessionStorage: jest.fn(),
+    loadUnencrypted: jest.fn(),
   } as unknown as StorageService;
 
   const initFeatureFlagsMock = {
@@ -255,7 +255,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
 
     beforeEach(async () => {
       jest
-        .mocked(storageServiceMock.loadFromSessionStorage)
+        .mocked(storageServiceMock.loadUnencrypted)
         .mockResolvedValue(flagOverrides);
 
       featureFlagsService = new FeatureFlagService(

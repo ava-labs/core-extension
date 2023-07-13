@@ -90,6 +90,7 @@ const tokenInfo: Erc20TransferDetails = {
     price: { value: 1000000, currencyCode: CurrencyCode.USD },
     symbol: 'E20T',
   },
+  logIndex: 1,
 };
 
 const nativeTx: NativeTransaction = {
@@ -261,6 +262,7 @@ const erc20Tx: Erc20TransferDetails = {
   },
   erc20Token: erc20Token1,
   value: '2',
+  logIndex: 2,
 };
 
 const erc721Tx: Erc721TransferDetails = {
@@ -271,6 +273,7 @@ const erc721Tx: Erc721TransferDetails = {
     address: '0x6666666666',
   },
   erc721Token: erc721Token1,
+  logIndex: 3,
 };
 
 const txDetails1: TransactionDetails = {
@@ -308,11 +311,9 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    (getExplorerAddressByNetwork as jest.Mock).mockImplementation(
-      (network, hash) => {
-        return `test.com/${hash}`;
-      }
-    );
+    (getExplorerAddressByNetwork as jest.Mock).mockImplementation((_, hash) => {
+      return `test.com/${hash}`;
+    });
     (getNftMetadata as jest.Mock).mockImplementation(() =>
       Promise.resolve({ image: imageUri })
     );
@@ -359,8 +360,8 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       try {
         const result = await service.getHistory(network);
         expect(result).toStrictEqual([]);
-      } catch (error) {
-        fail(error);
+      } catch (e) {
+        fail(e);
       }
     });
 

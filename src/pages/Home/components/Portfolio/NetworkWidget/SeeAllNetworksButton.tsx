@@ -25,7 +25,7 @@ export function SeeAllNetworksButton({
         history.push('/networks?activeTab=NETWORKS');
       }}
     >
-      {t('See all networks')}
+      {t('View All Networks')}
     </NetworkCard>
   ) : (
     <NetworkCard
@@ -44,7 +44,7 @@ export function SeeAllNetworksButton({
         sx={{ height: '100%' }}
       >
         <Typography variant="body2" fontWeight="fontWeightSemibold">
-          {t('See all networks')}
+          {t('View All Networks')}
         </Typography>
       </Stack>
     </NetworkCard>

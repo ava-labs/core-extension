@@ -37,7 +37,7 @@ export function WalletBalances() {
         alignItems: 'flex-end',
         minHeight: 5.5,
         width: '100%',
-        mt: 1.75,
+        mt: 1,
         gap: 1.25,
       }}
     >

@@ -24,13 +24,12 @@ export class MultiWalletProviderProxy extends EventEmitter {
         if ((provider as CoreProvider)?.isAvalanche) {
           return new Proxy(this, {
             get(target, prop) {
-              if (prop === 'isMetaMask') {
-                return true;
-              }
-
               // eslint-disable-next-line no-prototype-builtins
               if (target.hasOwnProperty(prop)) {
                 return target[prop];
+                // eslint-disable-next-line no-prototype-builtins
+              } else if ((provider as CoreProvider).hasOwnProperty(prop)) {
+                return (provider as CoreProvider)[prop];
               }
             },
           });

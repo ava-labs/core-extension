@@ -1,15 +1,13 @@
-import { GlobeIcon } from '@avalabs/react-components';
+import { GlobeIcon, styled } from '@avalabs/k2-components';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
-import styled, { useTheme } from 'styled-components';
 
-export const GlobeIconContainer = styled.div<NetworkLogoProps>`
+export const GlobeIconContainer = styled('div')<NetworkLogoProps>`
   width: ${({ width }) => width ?? '32px'};
   height: ${({ height }) => height ?? '32px'};
   position: ${({ position }) => position ?? 'static'};
   padding: ${({ padding }) => padding ?? '0'};
   top: 0;
   left: 0;
-  background-color: ${({ theme }) => theme.colors.stroke1};
   border-radius: 50%;
   margin: ${({ margin }) => margin ?? '0'};
 `;
@@ -23,7 +21,7 @@ interface NetworkLogoProps {
   margin?: string;
 }
 
-const NetworkLogoImage = styled.img<NetworkLogoProps>`
+const NetworkLogoImage = styled('img')<NetworkLogoProps>`
   width: auto;
   height: ${({ height }) => height ?? '32px'};
   position: ${({ position }) => position ?? 'static'};
@@ -41,7 +39,6 @@ export function NetworkLogo({
   padding,
   margin,
 }: NetworkLogoProps) {
-  const theme = useTheme();
   return (
     <>
       {src ? (
@@ -49,6 +46,7 @@ export function NetworkLogo({
           height={height}
           src={ipfsResolverWithFallback(src)}
           position={position}
+          margin={margin}
         ></NetworkLogoImage>
       ) : (
         <GlobeIconContainer
@@ -58,7 +56,7 @@ export function NetworkLogo({
           padding={padding}
           margin={margin}
         >
-          <GlobeIcon width="100%" height="100%" color={theme.colors.text1} />
+          <GlobeIcon size={16} />
         </GlobeIconContainer>
       )}
     </>

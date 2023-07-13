@@ -9,6 +9,7 @@ import ensureMessageIsValid from '../../wallet/utils/ensureMessageIsValid';
 import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
+import { sanitizeRequestParams } from '../../wallet/utils/sanitizeRequestParams';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
@@ -44,10 +45,12 @@ export class PersonalSignHandler extends DAppRequestHandler {
 
     const actionData = {
       ...request,
-      displayData: paramsToMessageParams(request),
+      displayData: sanitizeRequestParams(
+        request.method,
+        paramsToMessageParams(request)
+      ),
       tabId: request.site.tabId,
     };
-
     try {
       const activeNetwork = this.networkService.activeNetwork;
 

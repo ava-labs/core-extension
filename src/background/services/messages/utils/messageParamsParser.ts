@@ -12,9 +12,14 @@ export function paramsToMessageParams(data: JsonRpcRequest<any>) {
       };
     case MessageType.SIGN_TYPED_DATA:
     case MessageType.SIGN_TYPED_DATA_V1:
+      // Ethereum document says a string for 'from' value should be 0th index. (An array in 1st index) But MetaMask expects a string to be in 1st index.
+      // In order to handle both cases, we are checking which one is a string and which one is an array and assign the value properly.
+
       return {
-        data: params[0],
-        from: params[1],
+        data: params.find((param) => Array.isArray(param)),
+        from: params.find(
+          (param: any) => typeof param === 'string' || param instanceof String
+        ),
       };
     case MessageType.ETH_SIGN:
       return {
