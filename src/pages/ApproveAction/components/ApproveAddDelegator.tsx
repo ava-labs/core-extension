@@ -1,9 +1,10 @@
 import { Card, CardContent, Stack, Typography } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
-import { bigIntToString } from '@avalabs/utils-sdk';
+import { bigToLocaleString } from '@avalabs/utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import { AvalancheChainStrings } from '@src/background/services/transactions/models';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 export function AddDelegator({
   tx,
@@ -87,7 +88,7 @@ export function AddDelegator({
                   fontWeight: 'fontWeightSemibold',
                 }}
               >
-                {Number(bigIntToString(stake, 9))} AVAX
+                {bigToLocaleString(bigintToBig(stake, 9), 4)} AVAX
               </Typography>
               <Typography
                 variant="body2"
@@ -97,7 +98,7 @@ export function AddDelegator({
                 }}
               >
                 {currencyFormatter(
-                  Number(bigIntToString(stake, 9)) * avaxPrice
+                  bigintToBig(stake, 9).times(avaxPrice).toNumber()
                 )}
               </Typography>
             </Stack>

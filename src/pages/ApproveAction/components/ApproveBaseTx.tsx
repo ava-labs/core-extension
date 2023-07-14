@@ -6,10 +6,11 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
-import { bigIntToString } from '@avalabs/utils-sdk';
+import { bigIntToString, bigToLocaleString } from '@avalabs/utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import { AvalancheChainStrings } from '@src/background/services/transactions/models';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 export function BaseTxView({
   tx,
@@ -262,7 +263,7 @@ export function BaseTxView({
                     fontWeight: 'fontWeightSemibold',
                   }}
                 >
-                  {Number(bigIntToString(txFee, 9))} AVAX
+                  {bigToLocaleString(bigintToBig(txFee, 9), 6)} AVAX
                 </Typography>
                 <Typography
                   variant="caption"
@@ -272,7 +273,7 @@ export function BaseTxView({
                   }}
                 >
                   {currencyFormatter(
-                    Number(bigIntToString(txFee, 9)) * avaxPrice
+                    bigintToBig(txFee, 9).times(avaxPrice).toNumber()
                   )}
                 </Typography>
               </Stack>
