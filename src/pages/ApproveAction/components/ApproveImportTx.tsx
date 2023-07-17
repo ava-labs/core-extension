@@ -12,6 +12,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import { AvalancheChainStrings } from '@src/background/services/transactions/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
+import { EVM } from '@avalabs/avalanchejs-v2';
 
 export function ImportTxView({
   tx,
@@ -24,6 +25,9 @@ export function ImportTxView({
   const { currencyFormatter } = useSettingsContext();
 
   const { amount, chain, source, type, txFee } = tx;
+  // TODO: https://ava-labs.atlassian.net/browse/CP-5974
+  const fee =
+    tx.chain === EVM ? bigintToBig(txFee, 9) : bigintToBig(1000000n, 9);
 
   return (
     <Stack>
@@ -200,7 +204,7 @@ export function ImportTxView({
                   fontWeight: 'fontWeightSemibold',
                 }}
               >
-                {bigToLocaleString(bigintToBig(txFee, 9), 6)} AVAX
+                {bigToLocaleString(fee, 6)} AVAX
               </Typography>
               <Typography
                 variant="caption"
@@ -209,9 +213,7 @@ export function ImportTxView({
                   color: 'text.secondary',
                 }}
               >
-                {currencyFormatter(
-                  bigintToBig(txFee, 9).times(avaxPrice).toNumber()
-                )}
+                {currencyFormatter(fee.times(avaxPrice).toNumber())}
               </Typography>
             </Stack>
           </Stack>
