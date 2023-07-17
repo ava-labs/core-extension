@@ -1,6 +1,6 @@
 {
   "name": "avalanche-extension",
-  "version": "1.55.1",
+  "version": "1.55.2",
   "license": "UNLICENSED",
   "scripts": {
     "start": "yarn dev",
