@@ -22,7 +22,7 @@ export function ApproveCreateChain({
   avaxPrice: number;
 }) {
   const { t } = useTranslation();
-  const { txFee, chainID, chainName, vmID, genesisData } = tx;
+  const { chainID, chainName, vmID, genesisData } = tx;
 
   const [isGenesisFileShown, setIsGenesisFileShown] = useState(false);
 
@@ -61,7 +61,7 @@ export function ApproveCreateChain({
         <ApprovalSectionHeader label={t('Network Fee')} />
         <ApprovalSectionBody>
           <TxDetailsRow label={t('Fee Amount')}>
-            <AvaxAmount amount={txFee} avaxPrice={avaxPrice} />
+            <AvaxAmount amount={1n} avaxPrice={avaxPrice} />
           </TxDetailsRow>
         </ApprovalSectionBody>
       </ApprovalSection>

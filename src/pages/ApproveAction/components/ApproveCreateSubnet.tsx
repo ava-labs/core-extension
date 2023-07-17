@@ -20,7 +20,7 @@ export function ApproveCreateSubnet({
   avaxPrice: number;
 }) {
   const { t } = useTranslation();
-  const { txFee, threshold, controlKeys } = tx;
+  const { threshold, controlKeys } = tx;
 
   return (
     <>
@@ -49,7 +49,7 @@ export function ApproveCreateSubnet({
         <ApprovalSectionHeader label={t('Network Fee')} />
         <ApprovalSectionBody>
           <TxDetailsRow label={t('Fee Amount')}>
-            <AvaxAmount amount={txFee} avaxPrice={avaxPrice} />
+            <AvaxAmount amount={1n} avaxPrice={avaxPrice} />
           </TxDetailsRow>
         </ApprovalSectionBody>
       </ApprovalSection>
