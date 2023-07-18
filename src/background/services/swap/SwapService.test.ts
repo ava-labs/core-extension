@@ -253,15 +253,15 @@ describe('background/services/swap/SwapService.ts', () => {
     });
 
     it('throws error when swap feature is unavailable', async () => {
-      const swapService = new SwapService(
+      const unavailableSwapService = new SwapService(
         networkServiceMock as any,
         accountServiceMock as any,
         featureFlagServiceMock(false) as any
       );
 
-      await expect(swapService.getParaswapSpender()).rejects.toThrowError(
-        'Feature (swap-feature) is currently unavailable'
-      );
+      await expect(
+        unavailableSwapService.getParaswapSpender()
+      ).rejects.toThrowError('Feature (swap-feature) is currently unavailable');
     });
   });
 

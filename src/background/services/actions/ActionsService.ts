@@ -140,11 +140,11 @@ export class ActionsService implements OnStorageReady {
       await handler.onActionApproved(
         pendingMessage,
         result,
-        async (result) => {
-          await this.emitResult(id, pendingMessage, true, result);
+        async (successResult) => {
+          await this.emitResult(id, pendingMessage, true, successResult);
         },
-        async (error) => {
-          await this.emitResult(id, pendingMessage, false, error);
+        async (failureResult) => {
+          await this.emitResult(id, pendingMessage, false, failureResult);
         },
         tabId
       );

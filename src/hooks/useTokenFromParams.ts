@@ -21,13 +21,13 @@ export function useTokenFromParams(
   } = useAccountsContext();
 
   const { tokenSymbol, tokenAddress } = useMemo(() => {
-    const { tokenSymbol, tokenAddress } = (Object as any).fromEntries(
-      (new URLSearchParams(search) as any).entries()
-    );
+    const { tokenSymbol: rawTokenSymbol, tokenAddress: rawTokenAddress } = (
+      Object as any
+    ).fromEntries((new URLSearchParams(search) as any).entries());
 
     return {
-      tokenSymbol: xss(tokenSymbol),
-      tokenAddress: xss(tokenAddress),
+      tokenSymbol: xss(rawTokenSymbol),
+      tokenAddress: xss(rawTokenAddress),
     };
   }, [search]);
 

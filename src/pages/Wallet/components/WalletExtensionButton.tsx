@@ -24,8 +24,8 @@ export function WalletExtensionButton({
 }: WalletExtensionButtonProps) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const getWalletDisplayName = (type: WalletExtensionType) => {
-    switch (type) {
+  const getWalletDisplayName = (walletType: WalletExtensionType) => {
+    switch (walletType) {
       case WalletExtensionType.METAMASK:
         return 'Metamask';
       case WalletExtensionType.COINBASE:
@@ -38,8 +38,8 @@ export function WalletExtensionButton({
     }
   };
 
-  const getWalletLogo = (type: WalletExtensionType) => {
-    switch (type) {
+  const getWalletLogo = (walletType: WalletExtensionType) => {
+    switch (walletType) {
       case WalletExtensionType.METAMASK:
         return <MetamaskColored />;
       case WalletExtensionType.COINBASE:

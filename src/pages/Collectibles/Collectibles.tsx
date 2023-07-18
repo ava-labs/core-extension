@@ -72,9 +72,9 @@ export function Collectibles() {
     setListType(ListType.GRID);
   }, [historyListType, isHistoryLoading]);
 
-  const handleClick = (listType: ListType) => {
-    setListType(listType);
-    setNavigationHistoryData({ listType: listType });
+  const handleClick = (type: ListType) => {
+    setListType(type);
+    setNavigationHistoryData({ listType: type });
   };
 
   const handleItemClick = useCallback(

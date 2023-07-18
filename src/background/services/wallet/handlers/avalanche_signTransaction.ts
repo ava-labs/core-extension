@@ -215,7 +215,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
       const signedTransaction = UnsignedTx.fromJSON(signedTransactionJson);
       const credentials = signedTransaction.getCredentials();
 
-      const correctedDetails = unsignedTx.getSigIndices().reduce<{
+      const newDetails = unsignedTx.getSigIndices().reduce<{
         credentials: Credential[];
         ownSignatures: { signature: string; sigIndices: [number, number] }[];
       }>(
@@ -260,12 +260,12 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
       // create a new SignedTx with the corrected credentials
       const correctedSignexTx = new avaxSerial.SignedTx(
         signedTransaction.getTx(),
-        correctedDetails.credentials
+        newDetails.credentials
       );
 
       onSuccess({
         signedTransactionHex: Avalanche.signedTxToHex(correctedSignexTx),
-        signatures: correctedDetails.ownSignatures,
+        signatures: newDetails.ownSignatures,
       });
     } catch (e) {
       onError(e);

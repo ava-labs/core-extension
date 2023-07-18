@@ -84,7 +84,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action,
-    result,
+    _result,
     onSuccess,
     onError
   ) => {

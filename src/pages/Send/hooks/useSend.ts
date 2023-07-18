@@ -70,7 +70,7 @@ export function useSend<
       params: sendState,
     });
 
-    setSendState((sendState) => ({ ...sendState, txId }));
+    setSendState((state) => ({ ...state, txId }));
     return txId;
   }, [sendState, request]);
 

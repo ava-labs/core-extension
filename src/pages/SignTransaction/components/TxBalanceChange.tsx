@@ -41,12 +41,14 @@ export const TxBalanceChange = ({
           <Typography variant="caption">{transactionType}</Typography>
         </TxDetailsRow>
         <Stack divider={divider} sx={{ pt: 1 }}>
-          {tokens.map((t) => (
+          {tokens.map((token) => (
             <TokenAmount
-              key={t.symbol}
-              token={t}
-              amount={t.amount}
-              fiatValue={t.value ? currencyFormatter(t.value) : undefined}
+              key={token.symbol}
+              token={token}
+              amount={token.amount}
+              fiatValue={
+                token.value ? currencyFormatter(token.value) : undefined
+              }
             />
           ))}
         </Stack>

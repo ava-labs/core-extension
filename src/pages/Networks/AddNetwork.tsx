@@ -96,12 +96,12 @@ export const AddNetwork = () => {
       .catch((e) => onError(e));
   };
 
-  const handleChange = (network: Network, formValid: boolean) => {
+  const handleChange = (networkState: Network, formValid: boolean) => {
     setNetwork({
-      ...network,
+      ...networkState,
       isTestnet: isDeveloperMode,
     });
-    setNavigationHistoryData({ ...network });
+    setNavigationHistoryData({ ...networkState });
     setIsFormValid(formValid);
   };
 

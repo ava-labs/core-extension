@@ -419,7 +419,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         wrappedAssetSymbol: 'WTEST',
         wrappedNetwork: Blockchain.AVALANCHE,
       };
-      const request = {
+      const mockRequest = {
         id: 357,
         site: { tabId: 42 },
         method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
@@ -427,13 +427,13 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       };
 
       const expectedAction = {
-        ...request,
+        ...mockRequest,
         displayData: {
           currentBlockchain,
           amountStr,
           asset: mockAsset,
         },
-        tabId: request.site.tabId,
+        tabId: mockRequest.site.tabId,
       };
       const handler = new AvalancheBridgeAsset(
         bridgeServiceMock,
@@ -442,15 +442,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         networkServiceMock
       );
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(mockRequest);
 
       expect(result).toEqual({
-        ...request,
+        ...mockRequest,
         result: DEFERRED_RESPONSE,
       });
       expect(openApprovalWindowSpy).toBeCalledWith(
         expectedAction,
-        `approve?id=${request.id}`
+        `approve?id=${mockRequest.id}`
       );
     });
   });
@@ -463,14 +463,17 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         balanceAggregatorServiceMock,
         networkServiceMock
       );
-      const request = {
+      const mockRequest = {
         id: 852,
         site: { tabId: 10 },
         method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
       };
 
-      const result = handler.handleUnauthenticated(request);
-      expect(result).toEqual({ ...request, error: 'account not connected' });
+      const result = handler.handleUnauthenticated(mockRequest);
+      expect(result).toEqual({
+        ...mockRequest,
+        error: 'account not connected',
+      });
     });
   });
 

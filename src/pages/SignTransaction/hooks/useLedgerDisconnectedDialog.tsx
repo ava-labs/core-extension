@@ -86,10 +86,10 @@ export function useLedgerDisconnectedDialog(
       return;
     }
 
-    const hasCorrectApp = hasLedgerTransport && appType === requiredAppType;
+    const hasRequiredApp = hasLedgerTransport && appType === requiredAppType;
     if (!hasLedgerTransport) {
       showLedgerDisconnectedDialog();
-    } else if (!hasCorrectApp) {
+    } else if (!hasRequiredApp) {
       showIncorrectAppDialog();
     } else if (
       avaxAppVersion &&
@@ -97,7 +97,7 @@ export function useLedgerDisconnectedDialog(
     ) {
       showIncorrectAvaxVersionDialog();
     }
-    setHasCorrectApp(hasCorrectApp);
+    setHasCorrectApp(hasRequiredApp);
   }, [
     wasTransportAttempted,
     hasLedgerTransport,

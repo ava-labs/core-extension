@@ -9,7 +9,7 @@ export async function engine(network: Network) {
       return addGlacierAPIKeyIfNeeded(network.rpcUrl);
     },
   });
-  const engine = new JsonRpcEngine();
-  engine.push(fetchMiddleware);
-  return engine;
+  const rpcEngine = new JsonRpcEngine();
+  rpcEngine.push(fetchMiddleware);
+  return rpcEngine;
 }

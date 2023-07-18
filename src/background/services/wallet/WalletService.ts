@@ -942,9 +942,9 @@ export class WalletService implements OnLock, OnUnlock {
 
     const newImportedSecrets = ids.reduce(
       (importedSecrets, id) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-shadow
-        const { [id]: _, ...newImportedSecrets } = importedSecrets;
-        return newImportedSecrets ?? {};
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [id]: _, ...restOfSecrets } = importedSecrets;
+        return restOfSecrets ?? {};
       },
       { ...(secrets.imported ?? {}) }
     );

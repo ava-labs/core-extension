@@ -1,7 +1,7 @@
 import { Typography, VerticalFlex } from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
-import { t } from 'i18next';
+import { t as translate } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 interface FunctionIsOfflineProps {
@@ -10,10 +10,10 @@ interface FunctionIsOfflineProps {
 }
 
 export const FunctionNames = {
-  Bridge: t('Bridge'),
-  Swap: t('Swap'),
-  Send: t('Send'),
-  Buy: t('Buy'),
+  Bridge: translate('Bridge'),
+  Swap: translate('Swap'),
+  Send: translate('Send'),
+  Buy: translate('Buy'),
 };
 
 export function FunctionIsOffline({

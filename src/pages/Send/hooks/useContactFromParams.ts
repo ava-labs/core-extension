@@ -10,11 +10,11 @@ export const useContactFromParams = () => {
   const identifyAddress = useIdentifyAddress();
 
   const { address } = useMemo(() => {
-    const { address } = (Object as any).fromEntries(
+    const { address: rawAddress } = (Object as any).fromEntries(
       (new URLSearchParams(search) as any).entries()
     );
     return {
-      address: xss(address),
+      address: xss(rawAddress),
     };
   }, [search]);
 

@@ -238,7 +238,7 @@ export function BalancesProvider({ children }: { children: any }) {
 
   const updateBalanceOnAllNetworks = useCallback(
     async (account: Account) => {
-      const networkIds = networks.map((network) => network.chainId);
+      const networkIds = networks.map(({ chainId }) => chainId);
 
       const balances = await request<UpdateBalancesForNetworkHandler>({
         method: ExtensionRequest.NETWORK_BALANCES_UPDATE,

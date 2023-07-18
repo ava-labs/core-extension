@@ -106,21 +106,21 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   // balances, utxos
   useEffect(() => {
     if (isBitcoinBridge && btcAsset && activeAccount) {
-      const btcBalance =
+      const balance =
         tokens.balances?.[
           isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
         ]?.[activeAccount.addressBTC]?.['BTC'];
 
-      if (btcBalance) {
-        setUtxos(btcBalance.utxos);
+      if (balance) {
+        setUtxos(balance.utxos);
         setBtcBalance({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(btcBalance.balance.toNumber()),
-          logoUri: btcBalance.logoUri,
-          price: btcBalance.priceUSD,
-          unconfirmedBalance: btcBalance?.unconfirmedBalance
-            ? satoshiToBtc(btcBalance.unconfirmedBalance.toNumber())
+          balance: satoshiToBtc(balance.balance.toNumber()),
+          logoUri: balance.logoUri,
+          price: balance.priceUSD,
+          unconfirmedBalance: balance?.unconfirmedBalance
+            ? satoshiToBtc(balance.unconfirmedBalance.toNumber())
             : satoshiToBtc(0),
         });
       }
@@ -159,7 +159,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     if (!isBitcoinBridge || !config || !activeAccount || !utxos) return;
 
     try {
-      const { fee, receiveAmount } = getBtcTransaction(
+      const btcTx = getBtcTransaction(
         config,
         activeAccount.addressBTC,
         utxos,
@@ -167,8 +167,8 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         feeRate
       );
 
-      setNetworkFee(satoshiToBtc(fee));
-      setReceiveAmount(satoshiToBtc(receiveAmount));
+      setNetworkFee(satoshiToBtc(btcTx.fee));
+      setReceiveAmount(satoshiToBtc(btcTx.receiveAmount));
     } catch (error) {
       // getBtcTransaction throws an error when the amount is too low or too high
       // so set these to 0

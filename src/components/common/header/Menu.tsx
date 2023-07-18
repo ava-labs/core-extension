@@ -169,13 +169,13 @@ export function Menu() {
     }
   };
 
-  const renderMenuItems = (menuItems: MenuItem[], level = 0) => {
+  const renderMenuItems = (items: MenuItem[], level = 0) => {
     const elements: JSX.Element[] = [];
 
     const margin = level === 0 ? '5px 0 5px 40px' : '0';
     const padding = level === 0 ? '0' : '12px 32px';
 
-    menuItems.forEach((item, i) => {
+    items.forEach((item, i) => {
       if (item.href) {
         elements.push(
           <Link

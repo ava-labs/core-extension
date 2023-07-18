@@ -80,9 +80,9 @@ export function WalletContextProvider({ children }: { children: any }) {
         filter(walletStateChangedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe(({ walletType, derivationPath }) => {
-        setWalletType(walletType);
-        setDerivationPath(derivationPath);
+      .subscribe(({ walletType: type, derivationPath: path }) => {
+        setWalletType(type);
+        setDerivationPath(path);
       });
 
     return () => {

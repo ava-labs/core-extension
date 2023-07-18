@@ -147,7 +147,7 @@ export function InProgressBridgeActivityCard({
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={(theme) => ({ color: theme.palette.primary.dark })}
+                      sx={{ color: theme.palette.primary.dark }}
                     >
                       {tx.symbol}
                     </Typography>
@@ -161,7 +161,7 @@ export function InProgressBridgeActivityCard({
                 >
                   <Typography
                     variant="caption"
-                    sx={(theme) => ({ color: theme.palette.primary.dark })}
+                    sx={{ color: theme.palette.primary.dark }}
                   >
                     {sourceBlockchain} -&gt; {targetBlockchain}
                   </Typography>

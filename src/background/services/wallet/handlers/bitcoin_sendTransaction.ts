@@ -157,7 +157,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action,
-    result,
+    _result,
     onSuccess,
     onError,
     frontendTabId?: number

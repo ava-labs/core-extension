@@ -206,14 +206,14 @@ export function CustomFeesK2({
       }
 
       // update
-      const newFees = calculateGasAndFees({
+      const updatedFees = calculateGasAndFees({
         maxFeePerGas: rate.maxFee,
         tokenPrice,
         tokenDecimals: network?.networkToken.decimals,
         gasLimit,
       });
 
-      if (maxGasPrice && newFees.bnFee.gt(maxGasPrice)) {
+      if (maxGasPrice && updatedFees.bnFee.gt(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
         // call cb with limit and gas
         onChange({
@@ -224,7 +224,7 @@ export function CustomFeesK2({
         });
         return;
       }
-      setNewFees(newFees);
+      setNewFees(updatedFees);
       // call cb with limit and gas
       onChange({
         customGasLimit,
@@ -244,12 +244,9 @@ export function CustomFeesK2({
   );
 
   const getFeeRateForCustomGasPrice = useCallback(
-    (customFeePerGas: string, networkFee: NetworkFee): FeeRate => {
-      const maxFee = utils.parseUnits(
-        customFeePerGas,
-        networkFee.displayDecimals
-      );
-      const { baseFee } = networkFee;
+    (customFeePerGas: string, fee: NetworkFee): FeeRate => {
+      const maxFee = utils.parseUnits(customFeePerGas, fee.displayDecimals);
+      const { baseFee } = fee;
       // When the user manually sets a max. fee, we also use it to calculate
       // the max. priority fee (tip) for EVM transactions.
       // If the custom max. fee is greater than the current base fee,

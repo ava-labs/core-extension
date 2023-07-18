@@ -94,12 +94,12 @@ export function LedgerConnect({
     async (
       xpub: string,
       accountIndex: number,
-      addresses: AddressType[] = []
+      addressList: AddressType[] = []
     ) => {
       const address = getAddressFromXPub(xpub, accountIndex);
       const { balance } = await getAvaxBalance(address);
       const newAddresses = [
-        ...addresses,
+        ...addressList,
         { address, balance: balance.balanceDisplayValue || '0' },
       ];
       setAddresses(newAddresses);
@@ -141,8 +141,8 @@ export function LedgerConnect({
   ]);
 
   const getDerivationPathValue = useCallback(
-    async (pathSpec: DerivationPath) => {
-      if (!pathSpec) {
+    async (derivationPathSpec: DerivationPath) => {
+      if (!derivationPathSpec) {
         return;
       }
       await initLedgerTransport();
@@ -155,8 +155,8 @@ export function LedgerConnect({
       await initLedgerTransport();
     };
     const initAvalancheNetwork = async () => {
-      const { avalancheNetwork } = await getAvalancheNetwork();
-      setAvalancheNetwork(avalancheNetwork);
+      const { avalancheNetwork: avaxNetwork } = await getAvalancheNetwork();
+      setAvalancheNetwork(avaxNetwork);
     };
     initLedger();
     if (!avalancheNetwork) {
@@ -166,23 +166,27 @@ export function LedgerConnect({
 
   const getPubKeys = useCallback(
     async (
-      pathSpec: DerivationPath,
+      derivationPathSpec: DerivationPath,
       accountIndex = 0,
-      addresses: AddressType[] = [],
+      addressList: AddressType[] = [],
       pubKeys: PubKeyType[] = []
     ) => {
       try {
-        const pubKey = await getPublicKey(accountIndex, pathSpec);
-        const pubKeyXP = await getPublicKey(accountIndex, pathSpec, 'AVM');
+        const pubKey = await getPublicKey(accountIndex, derivationPathSpec);
+        const pubKeyXP = await getPublicKey(
+          accountIndex,
+          derivationPathSpec,
+          'AVM'
+        );
         const address = getEvmAddressFromPubKey(pubKey);
         const { balance } = await getAvaxBalance(address);
         const newAddresses = [
-          ...addresses,
+          ...addressList,
           { address, balance: balance.balanceDisplayValue || '0' },
         ];
         setAddresses(newAddresses);
         if (accountIndex < 2) {
-          await getPubKeys(pathSpec, accountIndex + 1, newAddresses, [
+          await getPubKeys(derivationPathSpec, accountIndex + 1, newAddresses, [
             ...pubKeys,
             { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
           ]);

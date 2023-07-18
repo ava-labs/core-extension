@@ -58,27 +58,29 @@ export function useAssetBalancesEVM(
       : filteredEthereumAssets;
 
     // filter out assets for networks not available
-    const availableAssets = Object.values(assets).filter((asset: Asset) => {
-      if (chain === Blockchain.AVALANCHE) {
-        if (
-          asset.nativeNetwork === Blockchain.ETHEREUM &&
-          !featureFlags[FeatureGates.BRIDGE_ETH]
-        ) {
-          // BTC is not available filter btc tokens out
-          return false;
+    const availableAssets = Object.values(assets).filter(
+      ({ nativeNetwork }: Asset) => {
+        if (chain === Blockchain.AVALANCHE) {
+          if (
+            nativeNetwork === Blockchain.ETHEREUM &&
+            !featureFlags[FeatureGates.BRIDGE_ETH]
+          ) {
+            // BTC is not available filter btc tokens out
+            return false;
+          }
+          if (
+            nativeNetwork === Blockchain.BITCOIN &&
+            !featureFlags[FeatureGates.BRIDGE_BTC]
+          ) {
+            // BTC is not available filter btc tokens out
+            return false;
+          }
         }
-        if (
-          asset.nativeNetwork === Blockchain.BITCOIN &&
-          !featureFlags[FeatureGates.BRIDGE_BTC]
-        ) {
-          // BTC is not available filter btc tokens out
-          return false;
-        }
-      }
 
-      // no further filtering is needed since it's not possible to bridge between eth and btc
-      return true;
-    });
+        // no further filtering is needed since it's not possible to bridge between eth and btc
+        return true;
+      }
+    );
 
     return getBalances(availableAssets, tokens).map((token) => {
       return {

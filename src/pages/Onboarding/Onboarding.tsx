@@ -57,7 +57,7 @@ export function Onboarding() {
 
   let content = (
     <Welcome
-      onNext={(nextPhase) => {
+      onNext={(nextStep) => {
         const eventNames = {
           [OnboardingPhase.ANALYTICS_CONSENT]:
             'OnboardingCreateNewWalletSelected',
@@ -65,17 +65,17 @@ export function Onboarding() {
           [OnboardingPhase.LEDGER]: 'OnboardingImportLedgerSelected',
           [OnboardingPhase.KEYSTONE]: 'OnboardingKeystoneSelected',
         };
-        capture(eventNames[nextPhase]);
-        setNextPhase(nextPhase);
-        if (nextPhase === OnboardingPhase.ANALYTICS_CONSENT) {
+        capture(eventNames[nextStep]);
+        setNextPhase(nextStep);
+        if (nextStep === OnboardingPhase.ANALYTICS_CONSENT) {
           setOnboardingPath(OnboardingPath.NEW_WALLET);
           return;
         }
-        if (nextPhase === OnboardingPhase.LEDGER) {
+        if (nextStep === OnboardingPhase.LEDGER) {
           setOnboardingPath(OnboardingPath.LEDGER);
           return;
         }
-        if (nextPhase === OnboardingPhase.KEYSTONE) {
+        if (nextStep === OnboardingPhase.KEYSTONE) {
           setOnboardingPath(OnboardingPath.KEYSTONE);
           return;
         }
@@ -186,10 +186,10 @@ export function Onboarding() {
       </Stack>
       <Stack sx={{ justifyContent: 'center', flexGrow: 1 }}>
         <Card
-          sx={(theme) => ({
+          sx={{
             width: theme.spacing(73),
             height: theme.spacing(82),
-          })}
+          }}
         >
           {content}
         </Card>

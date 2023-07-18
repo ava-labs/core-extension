@@ -78,8 +78,8 @@ export function NetworkContextProvider({ children }: { children: any }) {
   );
 
   const isChainIdExist = useCallback(
-    (chainId: number) =>
-      (networks ?? []).some((network) => network.chainId === chainId),
+    (lookupChainId: number) =>
+      (networks ?? []).some(({ chainId }) => chainId === lookupChainId),
     [networks]
   );
 
@@ -89,12 +89,12 @@ export function NetworkContextProvider({ children }: { children: any }) {
   );
 
   const getNetwork = useCallback(
-    (chainId: number) => {
-      if (isNaN(chainId)) {
+    (lookupChainId: number) => {
+      if (isNaN(lookupChainId)) {
         return;
       }
 
-      return networks.find((network) => network.chainId === chainId);
+      return networks.find(({ chainId }) => chainId === lookupChainId);
     },
     [networks]
   );
@@ -103,12 +103,10 @@ export function NetworkContextProvider({ children }: { children: any }) {
     request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
-      const { networks, activeNetwork, favoriteNetworks, customNetworks } =
-        result;
-      setNetworks(networks);
-      setNetwork(activeNetwork);
-      setFavoriteNetworks(favoriteNetworks);
-      setCustomNetworks(customNetworks);
+      setNetworks(result.networks);
+      setNetwork(result.activeNetwork);
+      setFavoriteNetworks(result.favoriteNetworks);
+      setCustomNetworks(result.customNetworks);
     });
   }, [request]);
 
@@ -121,19 +119,19 @@ export function NetworkContextProvider({ children }: { children: any }) {
     });
   };
 
-  const saveCustomNetwork = async (network: Network) => {
+  const saveCustomNetwork = async (customNetwork: Network) => {
     return request<SaveCustomNetworkHandler>({
       method: ExtensionRequest.NETWORK_SAVE_CUSTOM,
-      params: [network],
+      params: [customNetwork],
     }).then(() => {
       getNetworkState();
     });
   };
 
-  const updateDefaultNetwork = async (network: NetworkOverrides) => {
+  const updateDefaultNetwork = async (networkOverrides: NetworkOverrides) => {
     return request<UpdateDefaultNetworkHandler>({
       method: ExtensionRequest.NETWORK_UPDATE_DEFAULT,
-      params: { network },
+      params: { network: networkOverrides },
     }).then(() => {
       getNetworkState();
     });
@@ -164,7 +162,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         setNetwork((currentNetwork) => result.activeNetwork ?? currentNetwork); // do not delete currently set network
         setFavoriteNetworks(result.favoriteNetworks);
         setCustomNetworks(
-          Object.values(result.customNetworks).map((network) => network.chainId)
+          Object.values(result.customNetworks).map(({ chainId }) => chainId)
         );
       });
 
@@ -178,10 +176,10 @@ export function NetworkContextProvider({ children }: { children: any }) {
     <NetworkContext.Provider
       value={{
         network,
-        setNetwork: (network: Network) =>
+        setNetwork: ({ chainId }: Network) =>
           request<SetSelectedNetworkHandler>({
             method: ExtensionRequest.NETWORK_SET_SELECTED,
-            params: [network.chainId],
+            params: [chainId],
           }),
         networks,
         setDeveloperMode: (status: boolean) =>

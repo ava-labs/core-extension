@@ -93,12 +93,12 @@ export function SignTransactionPage() {
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
   const hasTokenBalance = useMemo(
-    () => tokens.find((token) => token.type === TokenType.NATIVE)?.balance,
+    () => tokens.find(({ type }) => type === TokenType.NATIVE)?.balance,
     [tokens]
   );
   const hasEnoughForNetworkFee = useMemo(() => {
     return tokens
-      .find((token) => token.type === TokenType.NATIVE)
+      .find(({ type }) => type === TokenType.NATIVE)
       ?.balance.gte(
         ethersBigNumberToBN(
           params.maxFeePerGas?.mul(params.gasLimit || BigNumber.from(0)) ??

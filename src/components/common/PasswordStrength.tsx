@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { t } from 'i18next';
+import { t as translate } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useTheme, darkTheme } from '@avalabs/k2-components';
 
@@ -19,8 +19,8 @@ export const getPasswordErrorMessage = (
   passwordStrength: number,
   considerStrength = true
 ) => {
-  const PASSWORD_STRENGTH_ERROR = t('The new password is too weak');
-  const PASSWORDS_MATCH_ERROR = t('Passwords do not match');
+  const PASSWORD_STRENGTH_ERROR = translate('The new password is too weak');
+  const PASSWORDS_MATCH_ERROR = translate('Passwords do not match');
   if (isFieldsFilled && !verifyPasswordsMatch(newPassword, confirmPassword)) {
     return PASSWORDS_MATCH_ERROR;
   }

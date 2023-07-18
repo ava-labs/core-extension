@@ -350,10 +350,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
 
     it('should return an empty array on error', async () => {
-      const error = new Error('some error');
+      const mockedError = new Error('some error');
       (Glacier as jest.Mock).mockImplementationOnce(() => {
         return {
-          listTransactions: jest.fn().mockRejectedValue(error),
+          listTransactions: jest.fn().mockRejectedValue(mockedError),
         };
       });
       const service = new HistoryServiceGlacier(mockedAccountsService);

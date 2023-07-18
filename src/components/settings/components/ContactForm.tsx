@@ -70,9 +70,8 @@ export const ContactForm = ({
       if (
         updatedContact.address &&
         contacts.find(
-          (contact) =>
-            contact.id !== updatedContact.id &&
-            contact.address === updatedContact.address
+          ({ id, address }) =>
+            id !== updatedContact.id && address === updatedContact.address
         )
       ) {
         setAddressError(FormErrors.ADDRESS_EXISTS);
@@ -82,9 +81,8 @@ export const ContactForm = ({
       if (
         updatedContact.addressBTC &&
         contacts.find(
-          (contact) =>
-            contact.id !== updatedContact.id &&
-            contact.addressBTC === updatedContact.addressBTC
+          ({ id, addressBTC }) =>
+            id !== updatedContact.id && addressBTC === updatedContact.addressBTC
         )
       ) {
         setAddressBtcError(FormErrors.ADDRESS_EXISTS);

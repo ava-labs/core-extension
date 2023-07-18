@@ -317,14 +317,14 @@ export function Bridge() {
     });
 
     setIsPending(true);
-    const [hash, error] = await resolve(transfer());
+    const [hash, transferError] = await resolve(transfer());
     setTransferWithLedger(false);
     setIsPending(false);
 
-    if (error) {
-      console.error(error);
+    if (transferError) {
+      console.error(transferError);
       // do not show the error when the user denied the transfer
-      if (error === 'User declined the transaction') {
+      if (transferError === 'User declined the transaction') {
         capture('BridgeTransferRequestUserRejectedError', {
           sourceBlockchain: currentBlockchain,
           targetBlockchain,

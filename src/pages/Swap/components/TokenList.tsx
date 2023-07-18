@@ -25,7 +25,7 @@ export function TokenList({
   const AVAX_TOKEN = tokenList.find((token) => token.type === TokenType.NATIVE);
   const { currency, currencyFormatter } = useSettingsContext();
   const { tokens, showAvax } = useMemo(() => {
-    const tokens = searchQuery
+    const filteredTokens = searchQuery
       ? tokenList.filter(
           (i) =>
             i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -33,7 +33,7 @@ export function TokenList({
         )
       : tokenList;
 
-    const showAvax =
+    const shouldShowAvax =
       searchQuery &&
       ((AVAX_TOKEN as TokenWithBalance).name
         .toLowerCase()
@@ -42,7 +42,7 @@ export function TokenList({
           .toLowerCase()
           .includes(searchQuery.toLowerCase()));
 
-    return { tokens, showAvax };
+    return { tokens: filteredTokens, showAvax: shouldShowAvax };
   }, [tokenList, searchQuery, AVAX_TOKEN]);
 
   if (!tokens.length && !showAvax) {

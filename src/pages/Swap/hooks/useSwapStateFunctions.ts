@@ -10,7 +10,7 @@ import {
 } from '../utils';
 import { stringToBN } from '@avalabs/utils-sdk';
 import { BigNumber } from 'ethers';
-import { GasFeeModifier } from '@src/components/common/CustomFees';
+import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
@@ -100,21 +100,21 @@ export function useSwapStateFunctions() {
   // reload and recalculate the data from the history
   useEffect(() => {
     if (Object.keys(pageHistory).length && !isHistoryLoaded.current) {
-      const selectedFromToken = pageHistory.selectedFromToken
+      const historyFromToken = pageHistory.selectedFromToken
         ? {
             ...pageHistory.selectedFromToken,
             balance: pageHistory.selectedFromToken.balance,
           }
         : undefined;
-      setSelectedFromToken(selectedFromToken);
-      setMaxFromValue(selectedFromToken?.balance);
-      const selectedToToken = pageHistory.selectedToToken
+      setSelectedFromToken(historyFromToken);
+      setMaxFromValue(historyFromToken?.balance);
+      const historyToToken = pageHistory.selectedToToken
         ? {
             ...pageHistory.selectedToToken,
             balance: pageHistory.selectedToToken.balance,
           }
         : undefined;
-      setSelectedToToken(selectedToToken);
+      setSelectedToToken(historyToToken);
       const tokenValueBN =
         pageHistory.tokenValue && pageHistory.tokenValue.bn
           ? pageHistory.tokenValue.bn
@@ -133,8 +133,8 @@ export function useSwapStateFunctions() {
           amount: bnToLocaleString(tokenValueBN),
         },
         pageHistory.destinationInputField || 'to',
-        selectedFromToken,
-        selectedToToken
+        historyFromToken,
+        historyToToken
       );
       isHistoryLoaded.current = true;
     }
@@ -176,75 +176,65 @@ export function useSwapStateFunctions() {
   );
 
   const calculateSwapValue = ({
-    selectedFromToken,
-    selectedToToken,
-    fromTokenValue,
+    fromToken,
+    toToken,
+    fromValue,
   }: {
-    selectedFromToken?: TokenWithBalance;
-    selectedToToken?: TokenWithBalance;
-    fromTokenValue?: Amount;
+    fromToken?: TokenWithBalance;
+    toToken?: TokenWithBalance;
+    fromValue?: Amount;
   }) => {
-    if (!selectedFromToken || !selectedToToken) {
+    if (!fromToken || !toToken) {
       return;
     }
     const amount = {
-      amount: fromTokenValue?.amount || '0',
-      bn: stringToBN(
-        fromTokenValue?.amount || '0',
-        selectedFromToken.decimals || 18
-      ),
+      amount: fromValue?.amount || '0',
+      bn: stringToBN(fromValue?.amount || '0', fromToken.decimals || 18),
     };
-    calculateTokenValueToInput(
-      amount,
-      'to',
-      selectedFromToken,
-      selectedToToken
-    );
+    calculateTokenValueToInput(amount, 'to', fromToken, toToken);
   };
 
   const reverseTokens = (
-    isReversed: boolean,
-    selectedFromToken?: TokenWithBalance,
-    selectedToToken?: TokenWithBalance,
-    fromTokenValue?: Amount
+    reversed: boolean,
+    fromToken?: TokenWithBalance,
+    toToken?: TokenWithBalance,
+    fromValue?: Amount
   ) => {
     if (
       !tokensWBalances.some(
         (token) =>
-          token.name === selectedToToken?.name &&
-          token.symbol === selectedToToken?.symbol
+          token.name === toToken?.name && token.symbol === toToken?.symbol
       )
     ) {
       setSwapWarning(
         t(`You don't have any {{symbol}} token for swap`, {
-          symbol: selectedToToken?.symbol,
+          symbol: toToken?.symbol,
         })
       );
       return;
     }
-    const [to, from] = [selectedFromToken, selectedToToken];
-    setSelectedFromToken(from);
-    setSelectedToToken(to);
-    setIsReversed(!isReversed);
+    setSelectedFromToken(fromToken);
+    setSelectedToToken(toToken);
+    setIsReversed(!reversed);
     calculateSwapValue({
-      selectedFromToken: from,
-      selectedToToken: to,
-      fromTokenValue,
+      fromToken,
+      toToken,
+      fromValue,
     });
   };
 
   const onTokenChange = ({
     token,
     destination,
-    selectedToToken,
-    selectedFromToken,
-    fromTokenValue,
+    toToken,
+    fromToken,
+    fromValue,
   }: {
     token: TokenWithBalance;
     destination: 'from' | 'to';
-    selectedToToken?: TokenWithBalance;
-    selectedFromToken?: TokenWithBalance;
-    fromTokenValue?: Amount;
+    toToken?: TokenWithBalance;
+    fromToken?: TokenWithBalance;
+    fromValue?: Amount;
   }) => {
     setSwapWarning('');
     if (destination === 'to') {
@@ -255,8 +245,8 @@ export function useSwapStateFunctions() {
     }
     const data =
       destination === 'to'
-        ? { selectedFromToken: token, selectedToToken, fromTokenValue }
-        : { selectedFromToken, selectedToToken: token, fromTokenValue };
+        ? { fromToken: token, toToken, fromValue }
+        : { fromToken, toToken: token, fromValue };
     calculateSwapValue(data);
     setNavigationHistoryData({
       ...data,

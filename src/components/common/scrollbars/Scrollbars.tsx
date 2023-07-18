@@ -11,12 +11,12 @@ export const Scrollbars = forwardRef(function Scrollbars(
   ref: LegacyRef<ScrollbarsRef> | undefined
 ) {
   const theme = useTheme();
-  const renderThumb = ({ style, ...props }) => {
+  const renderThumb = ({ style, ...rest }) => {
     const thumbStyle = {
       backgroundColor: theme.palette.grey[800],
       borderRadius: 9999,
     };
-    return <div style={{ ...style, ...thumbStyle }} {...props} />;
+    return <div style={{ ...style, ...thumbStyle }} {...rest} />;
   };
 
   return (

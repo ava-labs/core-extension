@@ -113,7 +113,7 @@ export function DefiContextProvider({ children }) {
     });
 
     try {
-      const portfolio = await request<GetDefiPortfolioHandler>({
+      const newPortfolioState = await request<GetDefiPortfolioHandler>({
         method: ExtensionRequest.DEFI_GET_PORTFOLIO,
         params: [address],
       });
@@ -124,7 +124,7 @@ export function DefiContextProvider({ children }) {
         payload: {
           isLoading: false,
           hasError: false,
-          portfolio,
+          portfolio: newPortfolioState,
         },
       });
     } catch {
@@ -146,14 +146,14 @@ export function DefiContextProvider({ children }) {
         filter(defiPortfolioUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe(({ address, portfolio }) => {
+      .subscribe(({ address: accountAddress, portfolio: updatedPortfolio }) => {
         dispatch({
           type: DefiProviderActionType.UpdatePortfolio,
-          address,
+          address: accountAddress,
           payload: {
             isLoading: false,
             hasError: false,
-            portfolio,
+            portfolio: updatedPortfolio,
           },
         });
       });

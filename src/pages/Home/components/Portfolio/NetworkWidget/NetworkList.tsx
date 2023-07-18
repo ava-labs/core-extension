@@ -43,12 +43,12 @@ export function NetworkList() {
   const { t } = useTranslation();
   const { bridgeState } = useBridgeContext();
 
-  function getNetworkValue(network: Network) {
+  function getNetworkValue({ vmName, chainId }: Network) {
     const networkAddress =
-      (network.vmName === NetworkVMType.EVM
+      (vmName === NetworkVMType.EVM
         ? activeAccount?.addressC
         : activeAccount?.addressBTC) || '';
-    const networkBalances = tokens.balances?.[network.chainId];
+    const networkBalances = tokens.balances?.[chainId];
     const networkAssetList = networkBalances
       ? tokensWithBalances(Object.values(networkBalances[networkAddress] ?? {}))
       : null;
@@ -76,24 +76,25 @@ export function NetworkList() {
   return (
     <>
       <NetworkListContainer direction="row" justifyContent="space-between">
-        {favoriteNetworksWithoutActive.map((network) => {
+        {favoriteNetworksWithoutActive.map((favoriteNetwork) => {
           const { bridgeTransactions } = filterBridgeStateToNetwork(
             bridgeState,
-            network
+            favoriteNetwork
           );
-          const networkBalances = tokens.balances?.[network.chainId];
-          const networkBalance = getNetworkValue(network);
+          const networkBalances = tokens.balances?.[favoriteNetwork.chainId];
+          const networkBalance = getNetworkValue(favoriteNetwork);
+
           // show loading skeleton for each tile till we have the balance for them
           return !networkBalances ? (
             <Skeleton
-              key={network.chainId}
+              key={favoriteNetwork.chainId}
               variant="rounded"
               sx={{ height: 89, width: 164, mb: 2 }}
             />
           ) : (
             <NetworkCard
-              data-testid={`network-card-${network.chainId}-button`}
-              key={network.chainId}
+              data-testid={`network-card-${favoriteNetwork.chainId}-button`}
+              key={favoriteNetwork.chainId}
               sx={{
                 width: '164px',
                 display: 'inline-block',
@@ -102,9 +103,9 @@ export function NetworkList() {
               }}
               onClick={() => {
                 capture('PortfolioSecondaryNetworkClicked', {
-                  chainId: network.chainId,
+                  chainId: favoriteNetwork.chainId,
                 });
-                setNetwork(network);
+                setNetwork(favoriteNetwork);
               }}
             >
               <Stack
@@ -121,7 +122,7 @@ export function NetworkList() {
                       width="40px"
                       height="40px"
                       padding="8px"
-                      src={network.logoUri}
+                      src={favoriteNetwork.logoUri}
                     />
                   </Badge>
                 </LogoContainer>
@@ -130,9 +131,9 @@ export function NetworkList() {
                   sx={{ width: '100%', minHeight: '51px' }}
                 >
                   <Typography variant="body2" fontWeight="fontWeightSemibold">
-                    {network.chainName}
+                    {favoriteNetwork.chainName}
                   </Typography>
-                  {!isCustomNetwork(network.chainId) && (
+                  {!isCustomNetwork(favoriteNetwork.chainId) && (
                     <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
                       {isTokensCached && (
                         <Tooltip
@@ -146,7 +147,7 @@ export function NetworkList() {
                         </Tooltip>
                       )}
                       <Typography
-                        data-testid={`network-card-${network.chainId}-balance`}
+                        data-testid={`network-card-${favoriteNetwork.chainId}-balance`}
                         size={14}
                         height="17px"
                       >

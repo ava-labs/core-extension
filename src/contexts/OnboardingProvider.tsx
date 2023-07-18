@@ -126,9 +126,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     return <LoadingIcon />;
   }
 
-  function setPasswordAndName(password: string, accountName: string) {
-    setPassword(password);
-    setAccountName(accountName);
+  function setPasswordAndName(pass: string, name: string) {
+    setPassword(pass);
+    setAccountName(name);
   }
 
   function submit() {

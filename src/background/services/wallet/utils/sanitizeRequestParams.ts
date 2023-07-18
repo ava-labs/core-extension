@@ -343,11 +343,11 @@ function isKnownType(typeName: string) {
 
 function findUsedTypes(
   types: MessageTypes,
-  typeToCheck: { [key: string]: MessageTypeProperty[] }
+  primaryType: { [key: string]: MessageTypeProperty[] }
 ) {
   const usedTypes: { [key: string]: MessageTypeProperty[] } = {};
 
-  Object.values(typeToCheck).forEach((properties) => {
+  Object.values(primaryType).forEach((properties) => {
     properties.forEach((type) => {
       const typeToCheck = type.type.includes('[')
         ? getTypeNameWithoutArray(type.type)

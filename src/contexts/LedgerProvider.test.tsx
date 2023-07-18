@@ -89,8 +89,7 @@ const TestComponent = ({ methodParams }) => {
           data-testid={method}
           onClick={async () => {
             try {
-              const result = await methods[method](...methodParams);
-              setResult(result);
+              setResult(await methods[method](...methodParams));
             } catch (err) {
               setError((err as Error).message);
             }

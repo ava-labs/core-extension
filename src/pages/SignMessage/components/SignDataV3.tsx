@@ -25,22 +25,21 @@ export function SignDataV3({
   updateHandler: (values: positionValues) => void;
 }) {
   const { t } = useTranslation();
-  const data = message.displayData.data;
   const theme = useTheme();
 
-  const renderRow = (data: any) => {
-    if (!data) {
+  const renderRow = (rowData: any) => {
+    if (!rowData) {
       return null;
     }
 
-    return Object.keys(data).map((key) => {
-      if (typeof data[key] === 'object') {
+    return Object.keys(rowData).map((key) => {
+      if (typeof rowData[key] === 'object') {
         return (
           <VerticalFlex key={key} padding="0 16px">
             <Typography size={14} height="17px" color={theme.palette.grey[400]}>
               {key}:
             </Typography>
-            {renderRow(data[key])}
+            {renderRow(rowData[key])}
           </VerticalFlex>
         );
       }
@@ -62,7 +61,7 @@ export function SignDataV3({
             color={theme.palette.white[50]}
             weight={700}
           >
-            {data[key]}
+            {rowData[key]}
           </Typography>
         </HorizontalFlex>
       );
@@ -71,7 +70,7 @@ export function SignDataV3({
 
   // remove type fields from data we don't want to render
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { types, primaryType, ...dataWithoutTypes } = data;
+  const { types, primaryType, ...dataWithoutTypes } = message.displayData.data;
   return (
     <VerticalFlex width={'100%'}>
       <Typography size={12} height="15px" margin="0 0 8px 0">
