@@ -5,123 +5,58 @@ import {
   ClickAwayListener,
   Grow,
   KeyIcon,
-  PlusIcon,
+  MenuItem,
+  MenuList,
   Popper,
-  Stack,
+  WalletConnectIcon,
   styled,
 } from '@avalabs/k2-components';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-
-import { AccountsTab } from '../Accounts';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@avalabs/posthog-sdk';
 
 type AccountsActionButtonProps = {
   disabled?: boolean;
-  mode: AccountsTab;
   onAddNewAccount: () => void;
 };
 
-/**
- * The styles below look weird, but they're to make sure
- * that whatever is rendered under the button is not visible,
- * since the button itself is semi-transparent.
- *
- * I didn't want to override the colors for the button,
- * so I'm adding a pseudo element just under it, with the
- * same background color as the background of the entire page.
- *
- * This issue also has an open discussion on the K2 Slack channel.
- **/
-const OpaqueButton = styled(Button)`
-  overflow: hidden;
-  gap: ${({ theme }) => theme.spacing(1)};
-  
-  ::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: ${({ theme }) => theme.palette.background.paper};
-    z-index: -1;
+const StyledMenuItem = styled(MenuItem)`
+  color: ${({ theme }) => theme.palette.text.secondary};
+  &:hover {
+    color: ${({ theme }) => theme.palette.text.primary};
   }
-}`;
-
-const CreateAccountButtonContent = () => {
-  const { t } = useTranslation();
-
-  return (
-    <>
-      <PlusIcon size={24} />
-      {t('Create Account')}
-    </>
-  );
-};
-
-const ImportKeyButtonContent = () => {
-  const { t } = useTranslation();
-
-  return (
-    <>
-      <KeyIcon size={24} />
-      {t('Import Private Key')}
-    </>
-  );
-};
+`;
 
 export const AccountsActionButton = ({
   disabled,
-  mode,
   onAddNewAccount,
 }: AccountsActionButtonProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const history = useHistory();
   const toggleButtonRef = useRef();
-  const isInImportedAccountsMode = mode === AccountsTab.Imported;
+  const { t } = useTranslation();
+  const { featureFlags } = useFeatureFlagContext();
 
   const goToImportScreen = useCallback(
     () => history.push('/import-private-key'),
     [history]
   );
 
-  const handleMainButtonClick = useCallback(() => {
-    if (isInImportedAccountsMode) {
-      goToImportScreen();
-    } else {
-      onAddNewAccount();
-    }
-  }, [isInImportedAccountsMode, onAddNewAccount, goToImportScreen]);
-
-  const handleSecondaryButtonClick = useCallback(() => {
-    // When in imported accounts list, the secondary key adds new main account.
-    if (isInImportedAccountsMode) {
-      onAddNewAccount();
-    } else {
-      goToImportScreen();
-    }
-  }, [isInImportedAccountsMode, onAddNewAccount, goToImportScreen]);
-
   return (
     <ButtonGroup
       disabled={disabled}
       color="primary"
-      size="large"
       variant="contained"
       fullWidth
     >
       <Button
-        onClick={handleMainButtonClick}
+        onClick={onAddNewAccount}
         sx={{ gap: 1 }}
-        data-testid={
-          isInImportedAccountsMode
-            ? 'add-import-account'
-            : 'add-primary-account'
-        }
+        data-testid={'add-primary-account'}
       >
-        {isInImportedAccountsMode ? (
-          <ImportKeyButtonContent />
-        ) : (
-          <CreateAccountButtonContent />
-        )}
+        {t('Create Account')}
       </Button>
       <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
         <Button
@@ -145,24 +80,21 @@ export const AccountsActionButton = ({
           >
             {({ TransitionProps }) => (
               <Grow {...TransitionProps} timeout={250}>
-                <Stack sx={{ mb: 2 }}>
-                  <OpaqueButton
-                    size="large"
-                    color="secondary"
-                    onClick={handleSecondaryButtonClick}
-                    data-testid={
-                      !isInImportedAccountsMode
-                        ? 'add-import-account'
-                        : 'add-primary-account'
-                    }
+                <MenuList dense sx={{ p: 0, mb: 1, overflow: 'hidden' }}>
+                  <StyledMenuItem
+                    onClick={goToImportScreen}
+                    data-testid="add-import-account"
                   >
-                    {isInImportedAccountsMode ? (
-                      <CreateAccountButtonContent />
-                    ) : (
-                      <ImportKeyButtonContent />
-                    )}
-                  </OpaqueButton>
-                </Stack>
+                    <KeyIcon size={16} sx={{ pr: 1 }} />
+                    {t('Import Private Key')}
+                  </StyledMenuItem>
+                  {featureFlags[FeatureGates.IMPORT_WALLET_CONNECT] && (
+                    <StyledMenuItem data-testid="import-wallet-connect">
+                      <WalletConnectIcon size={16} sx={{ pr: 1 }} />
+                      {t('Import with Wallet Connect')}
+                    </StyledMenuItem>
+                  )}
+                </MenuList>
               </Grow>
             )}
           </Popper>

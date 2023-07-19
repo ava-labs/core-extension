@@ -146,7 +146,7 @@ export function Accounts() {
         onConfirm={onAccountDelete}
         isMultiple={deleteIdList.length > 1}
       />
-      <PageTitle margin={'22px 0 4px 0'}>{t('Accounts')}</PageTitle>
+      <PageTitle margin={'22px 0 4px 0'}>{t('Account Manager')}</PageTitle>
 
       {hasError && <AddAccountError />}
 
@@ -266,7 +266,6 @@ export function Accounts() {
           <AccountsActionButton
             disabled={addAccountLoading}
             onAddNewAccount={addAccountAndFocus}
-            mode={activeTab}
           />
         )}
       </Stack>

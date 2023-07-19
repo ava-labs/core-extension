@@ -16,6 +16,7 @@ export const DEFAULT_FLAGS = {
   [FeatureGates.NFT_MARKETPLACE]: true,
   [FeatureGates.BOTTOM_NAVIGATION]: true,
   [FeatureGates.DEFI]: true,
+  [FeatureGates.IMPORT_WALLET_CONNECT]: true,
 };
 
 export enum FeatureFlagEvents {
