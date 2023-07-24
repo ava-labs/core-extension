@@ -13,11 +13,12 @@ export function AddDelegator({
   tx: Avalanche.AddDelegatorTx;
   avaxPrice: number;
 }) {
-  const { nodeID, start, end, stake, chain } = tx;
+  const { nodeID, start, end, stake, chain, txFee } = tx;
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
   const startDate = new Date(parseInt(start) * 1000);
   const endDate = new Date(parseInt(end) * 1000);
+  const fee = bigintToBig(txFee, 9);
 
   return (
     <Stack>
@@ -148,7 +149,7 @@ export function AddDelegator({
                 color: 'text.secondary',
               }}
             >
-              {t('Fee')}:
+              {t('Fee Amount')}:
             </Typography>
             <Stack>
               <Typography
@@ -158,7 +159,16 @@ export function AddDelegator({
                   fontWeight: 'fontWeightSemibold',
                 }}
               >
-                0 AVAX
+                {bigToLocaleString(fee, 4)} AVAX
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  textAlign: 'right',
+                  fontWeight: 'fontWeightSemibold',
+                }}
+              >
+                {currencyFormatter(fee.times(avaxPrice).toNumber())}
               </Typography>
             </Stack>
           </Stack>

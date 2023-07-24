@@ -341,9 +341,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
       expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        {
-          foo: 'bar',
-        },
+        unsignedTxMock,
         providerMock,
         activeAccountMock.addressAVM
       );
@@ -403,9 +401,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
       expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        {
-          foo: 'bar',
-        },
+        unsignedTxMock,
         providerMock,
         activeAccountMock.addressAVM
       );
@@ -524,9 +520,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
       expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        {
-          foo: 'bar',
-        },
+        unsignedTxMock,
         providerMock,
         activeAccountMock.addressAVM
       );

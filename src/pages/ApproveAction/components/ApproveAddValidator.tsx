@@ -19,7 +19,7 @@ type AddValidatorProps = {
 
 export function AddValidator({ tx, avaxPrice }: AddValidatorProps) {
   const { t } = useTranslation();
-  const { nodeID, fee, start, end, stake } = tx;
+  const { nodeID, txFee, start, end, stake, delegationFee } = tx;
   const startDate = new Date(parseInt(start) * 1000);
   const endDate = new Date(parseInt(end) * 1000);
 
@@ -35,7 +35,7 @@ export function AddValidator({ tx, avaxPrice }: AddValidatorProps) {
             <AvaxAmount amount={stake} avaxPrice={avaxPrice} />
           </TxDetailsRow>
           <TxDetailsRow label={t('Delegation Fee')}>
-            <Typography variant="caption">{fee / 10000}%</Typography>
+            <Typography variant="caption">{delegationFee / 10000}%</Typography>
           </TxDetailsRow>
 
           <Divider sx={{ my: 1.25 }} />
@@ -57,7 +57,7 @@ export function AddValidator({ tx, avaxPrice }: AddValidatorProps) {
         <ApprovalSectionHeader label={t('Network Fee')} />
         <ApprovalSectionBody>
           <TxDetailsRow label={t('Fee Amount')}>
-            <AvaxAmount amount={0n} avaxPrice={avaxPrice} />
+            <AvaxAmount amount={txFee} avaxPrice={avaxPrice} />
           </TxDetailsRow>
         </ApprovalSectionBody>
       </ApprovalSection>

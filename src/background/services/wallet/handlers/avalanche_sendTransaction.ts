@@ -104,7 +104,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
     }
 
     const txData = await Avalanche.parseAvalancheTx(
-      unsignedTx.getTx(),
+      unsignedTx,
       provider,
       currentAddress
     );
