@@ -10,6 +10,7 @@ export const GlobeIconContainer = styled('div')<NetworkLogoProps>`
   left: 0;
   border-radius: 50%;
   margin: ${({ margin }) => margin ?? '0'};
+  z-index: ${({ zIndex }) => zIndex ?? '0'};
 `;
 
 interface NetworkLogoProps {
@@ -19,16 +20,26 @@ interface NetworkLogoProps {
   position?: string;
   padding?: string;
   margin?: string;
+  zIndex?: number;
+  withBackground?: boolean;
 }
 
 const NetworkLogoImage = styled('img')<NetworkLogoProps>`
-  width: auto;
+  width: ${({ width }) => width ?? 'auto'};
   height: ${({ height }) => height ?? '32px'};
   position: ${({ position }) => position ?? 'static'};
   margin: ${({ margin }) => margin ?? '0'};
   padding: ${({ padding }) => padding ?? '0'};
+  z-index: ${({ zIndex }) => zIndex ?? '0'};
   top: 0;
   left: 0;
+  background: ${({ withBackground, theme }) =>
+    withBackground ? theme.palette.background.default : 'none'};
+
+  border: ${({ withBackground }) => (withBackground ? '8px solid' : 'none')};
+  border-color: ${({ withBackground, theme }) =>
+    withBackground ? theme.palette.background.default : 'none'};
+  border-radius: ${({ withBackground }) => (withBackground ? '50%' : 'none')};
 `;
 
 export function NetworkLogo({
@@ -38,15 +49,20 @@ export function NetworkLogo({
   position,
   padding,
   margin,
+  zIndex,
+  withBackground = false,
 }: NetworkLogoProps) {
   return (
     <>
       {src ? (
         <NetworkLogoImage
           height={height}
+          width={width}
           src={ipfsResolverWithFallback(src)}
           position={position}
           margin={margin}
+          zIndex={zIndex}
+          withBackground={withBackground}
         ></NetworkLogoImage>
       ) : (
         <GlobeIconContainer
@@ -55,8 +71,10 @@ export function NetworkLogo({
           position={position}
           padding={padding}
           margin={margin}
+          zIndex={zIndex}
+          withBackground={withBackground}
         >
-          <GlobeIcon size={16} />
+          <GlobeIcon size={16} sx={{ m: 'auto', display: 'block' }} />
         </GlobeIconContainer>
       )}
     </>

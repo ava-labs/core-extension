@@ -9,7 +9,11 @@ import {
 
 @injectable()
 export class NavigationHistoryService {
-  private excludedPathNames = ['/send/confirm', '/collectible/send/confirm'];
+  private excludedPathNames = [
+    '/send/confirm',
+    '/collectible/send/confirm',
+    '/bridge/confirm',
+  ];
   private reservedData = ['listType'];
 
   constructor(private storageService: StorageService) {}

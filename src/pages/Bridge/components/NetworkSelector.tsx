@@ -1,21 +1,20 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
-import {
-  CaretIcon,
-  CheckmarkIcon,
-  HorizontalFlex,
-  HorizontalSeparator,
-  IconDirection,
-  SecondaryDropDownMenu,
-  SecondaryDropDownMenuItem,
-  Typography,
-} from '@avalabs/react-components';
-import { TokenIcon } from '@src/components/common/TokenImage';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
-import { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import { useRef, useState } from 'react';
 import { blockchainDisplayNameMap } from '../models';
 import EthLogo from './../../../images/tokens/eth.png';
+import {
+  Button,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  Menu,
+  MenuItem,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
+import { TokenIconK2 } from '@src/components/common/TokenImageK2';
 
 interface NetworkSelectorProps {
   testId?: string;
@@ -26,23 +25,13 @@ interface NetworkSelectorProps {
 }
 
 const EthereumLogo = () => (
-  <TokenIcon
-    width="24px"
-    height="24px"
+  <TokenIconK2
+    width="16px"
+    height="16px"
     src={EthLogo}
     name={Blockchain.ETHEREUM}
   />
 );
-
-const NetworkOption = styled(SecondaryDropDownMenuItem)`
-  background-color: ${({ theme }) => theme.dropdown.secondary.itemBgHover};
-  padding: 8px 16px;
-  width: 240px;
-`;
-
-const Caret = styled(CaretIcon)`
-  margin-left: 12px;
-`;
 
 export function NetworkSelector({
   testId,
@@ -51,121 +40,126 @@ export function NetworkSelector({
   onSelect,
   chains,
 }: NetworkSelectorProps) {
-  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const selectButtonRef = useRef<HTMLDivElement>(null);
 
   const selectedDisplayValue = blockchainDisplayNameMap.get(selected);
 
   const getBlockChainLogo = (blockchain: Blockchain) => {
     switch (blockchain) {
       case Blockchain.AVALANCHE:
-        return <AvaxTokenIcon height="24" />;
+        return <AvaxTokenIcon height="16" />;
       case Blockchain.ETHEREUM:
         return <EthereumLogo />;
       case Blockchain.BITCOIN:
-        return <BitcoinLogo height="24" />;
+        return <BitcoinLogo height="16" />;
       default:
         return <></>;
     }
   };
 
-  return (
-    <SecondaryDropDownMenu
-      onMenuToggle={setIsOpen}
-      coords={{ top: `32px`, right: `-8px` }}
-      disabled={disabled || chains.length <= 1}
-      icon={
-        <HorizontalFlex
-          data-testid={testId}
-          width="100%"
-          align={'center'}
-          justify="space-between"
-        >
-          {getBlockChainLogo(selected)}
-          <Typography margin={'0 0 0 8px'} transform="capitalize">
-            {selectedDisplayValue}
-          </Typography>
-          {chains.length > 1 && (
-            <Caret
-              height={'9px'}
-              color={theme.colors.text1}
-              direction={isOpen ? IconDirection.UP : IconDirection.DOWN}
-            />
-          )}
-        </HorizontalFlex>
-      }
-    >
-      {chains.includes(Blockchain.AVALANCHE) && (
-        <>
-          <NetworkOption
-            data-testid="bridge-avax-chain-option"
-            onClick={() => {
-              onSelect?.(Blockchain.AVALANCHE);
-            }}
-          >
-            <HorizontalFlex justify="space-between" align="center" width="100%">
-              <HorizontalFlex align="center">
-                <AvaxTokenIcon height="24px" />
-                <Typography margin="4px 12px 0 8px">
-                  {blockchainDisplayNameMap.get(Blockchain.AVALANCHE)}
-                </Typography>
-              </HorizontalFlex>
+  const handleClose = (blockchain: Blockchain) => {
+    setIsOpen(false);
+    onSelect?.(blockchain);
+  };
 
-              {selected === Blockchain.AVALANCHE && (
-                <CheckmarkIcon height="16px" color={theme.colors.text1} />
-              )}
-            </HorizontalFlex>
-          </NetworkOption>
-          <HorizontalSeparator margin="0" />
-        </>
-      )}
+  function getMenuItem(dataId: string, blockchain: Blockchain) {
+    if (!chains.includes(blockchain)) {
+      return null;
+    }
 
-      {chains.includes(Blockchain.ETHEREUM) && (
-        <>
-          <NetworkOption
-            data-testid="bridge-eth-chain-option"
-            onClick={() => {
-              onSelect?.(Blockchain.ETHEREUM);
-            }}
-          >
-            <HorizontalFlex justify="space-between" align="center" width="100%">
-              <HorizontalFlex align="center">
-                <EthereumLogo />
-                <Typography margin="0 12px 0 8px">
-                  {blockchainDisplayNameMap.get(Blockchain.ETHEREUM)}
-                </Typography>
-              </HorizontalFlex>
-
-              {selected === Blockchain.ETHEREUM && (
-                <CheckmarkIcon height="16px" color={theme.colors.text1} />
-              )}
-            </HorizontalFlex>
-          </NetworkOption>
-          <HorizontalSeparator margin="0" />
-        </>
-      )}
-
-      {chains.includes(Blockchain.BITCOIN) && (
-        <NetworkOption
-          data-testid="bridge-btc-chain-option"
-          onClick={() => {
-            onSelect?.(Blockchain.BITCOIN);
+    return (
+      <MenuItem
+        data-testid={dataId}
+        onClick={() => {
+          handleClose(blockchain);
+        }}
+        disableRipple
+        sx={{ minHeight: 'auto', py: 1 }}
+      >
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
           }}
         >
-          <HorizontalFlex justify="space-between" align="center" width="100%">
-            <HorizontalFlex align="center">
-              <BitcoinLogo height="24px" />
-              <Typography margin="0 12px 0 8px">
-                {blockchainDisplayNameMap.get(Blockchain.BITCOIN)}
-              </Typography>
-            </HorizontalFlex>
+          <Stack
+            direction="row"
+            sx={{
+              columnGap: 1,
+              alignItems: 'center',
+            }}
+          >
+            {getBlockChainLogo(blockchain)}
+            <Typography variant="body2">
+              {blockchainDisplayNameMap.get(blockchain)}
+            </Typography>
+          </Stack>
 
-            {selected === Blockchain.BITCOIN && (
-              <CheckmarkIcon height="16px" color={theme.colors.text1} />
-            )}
-          </HorizontalFlex>
-        </NetworkOption>
-      )}
-    </SecondaryDropDownMenu>
+          {selected === blockchain && <CheckIcon size={16} />}
+        </Stack>
+      </MenuItem>
+    );
+  }
+
+  return (
+    <Stack sx={{ alignItems: 'flex-end' }}>
+      <Button
+        variant="text"
+        disableRipple
+        data-testid={testId}
+        disabled={disabled || chains.length <= 1}
+        onClick={() => {
+          setIsOpen(!isOpen);
+        }}
+        ref={selectButtonRef}
+        sx={{ color: 'primary.main', p: 0, pb: 1, pr: 1 }}
+        endIcon={
+          chains.length > 1 &&
+          (isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />)
+        }
+      >
+        <Stack
+          direction="row"
+          sx={{
+            columnGap: 1,
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+        >
+          {getBlockChainLogo(selected)}
+          <Typography
+            variant="body2"
+            sx={{ transform: 'capitalize', fontWeight: 'fontWeightSemibold' }}
+          >
+            {selectedDisplayValue}
+          </Typography>
+        </Stack>
+      </Button>
+      <Menu
+        anchorEl={selectButtonRef.current}
+        open={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+        PaperProps={{
+          sx: { width: 220, backgroundColor: 'grey.800', mr: 3 },
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        {getMenuItem('bridge-avax-chain-option', Blockchain.AVALANCHE)}
+        {getMenuItem('bridge-eth-chain-option', Blockchain.ETHEREUM)}
+        {getMenuItem('bridge-btc-chain-option', Blockchain.BITCOIN)}
+      </Menu>
+    </Stack>
   );
 }

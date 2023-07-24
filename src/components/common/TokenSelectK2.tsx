@@ -257,11 +257,12 @@ export function TokenSelect({
               <InfoCircleIcon sx={{ mr: 0.5, cursor: 'pointer' }} />
             </Tooltip>
           )}
-          {t('Available Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
+          {t('Available Balance')}:{' '}
+          {selectedToken?.balanceDisplayValue ?? '0.00'}
         </Stack>
       );
     } else {
-      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
+      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0.00'}`;
     }
   };
 
@@ -327,30 +328,26 @@ export function TokenSelect({
             }
           />
         </InputContainer>
-        {!hideErrorMessage && (
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              padding,
-              m: () => (!padding ? '4px 0 0 0' : '0'),
-            }}
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            padding,
+            m: () => (!padding ? '4px 0 0 0' : '0'),
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ color: (theme) => theme.palette.error.main }}
           >
-            <Typography
-              variant="caption"
-              sx={{ color: (theme) => theme.palette.error.main }}
-            >
-              {error}
-            </Typography>
-            <Typography variant="caption">
-              {amountInCurrency ? (
-                `${amountInCurrency.replace(currency, '')} ${currency}`
-              ) : (
-                <>&nbsp;</>
-              )}
-            </Typography>
-          </Stack>
-        )}
+            {hideErrorMessage ? '' : error}
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {amountInCurrency
+              ? `${amountInCurrency.replace(currency, '')} ${currency}`
+              : `${currencyFormatter(0).replace(currency, '')} ${currency}`}
+          </Typography>
+        </Stack>
 
         {!hideTokenDropdown && (
           <ContainedDropdown
