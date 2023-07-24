@@ -1146,8 +1146,8 @@ describe('src/background/providers/CoreProvider', () => {
     });
 
     it('loads provider state from the background', async () => {
-      const channelMock = new WindowPostMessageConnection('');
-      (channelMock.request as jest.Mock).mockResolvedValueOnce({
+      const mockedChannel = new WindowPostMessageConnection('');
+      (mockedChannel.request as jest.Mock).mockResolvedValueOnce({
         isUnlocked: true,
         chainId: '0x1',
         networkVersion: '1',
@@ -1157,8 +1157,8 @@ describe('src/background/providers/CoreProvider', () => {
       const initializedSubscription = jest.fn();
       provider.addListener('_initialized', initializedSubscription);
 
-      expect(channelMock.request).toHaveBeenCalledTimes(1);
-      expect(channelMock.request).toHaveBeenCalledWith({
+      expect(mockedChannel.request).toHaveBeenCalledTimes(1);
+      expect(mockedChannel.request).toHaveBeenCalledWith({
         method: DAppProviderRequest.INIT_DAPP_STATE,
       });
 

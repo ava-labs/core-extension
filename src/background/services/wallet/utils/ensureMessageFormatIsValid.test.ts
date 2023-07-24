@@ -1,5 +1,5 @@
 import { MessageType } from '../../messages/models';
-import ensureMessageIsValid from './ensureMessageIsValid';
+import ensureMessageFormatIsValid from './ensureMessageFormatIsValid';
 
 const getPayload = (without?: string, withHexChainId?: boolean) => {
   const payload = {
@@ -25,7 +25,7 @@ const getPayload = (without?: string, withHexChainId?: boolean) => {
   return payload;
 };
 
-describe('src/background/services/wallet/utils/ensureMessageIsValid.test.ts', () => {
+describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.ts', () => {
   const typedMessages = [
     { name: 'signTypedData_v3', messageType: MessageType.SIGN_TYPED_DATA_V3 },
     { name: 'signTypedData_v4', messageType: MessageType.SIGN_TYPED_DATA_V4 },
@@ -35,52 +35,52 @@ describe('src/background/services/wallet/utils/ensureMessageIsValid.test.ts', ()
     it('throws validation error when types is missing from the payload', () => {
       const payload = getPayload('types');
 
-      expect(() => ensureMessageIsValid(messageType, payload, 1)).toThrowError(
-        '"types" is required'
-      );
+      expect(() =>
+        ensureMessageFormatIsValid(messageType, payload, 1)
+      ).toThrowError('"types" is required');
     });
 
     it('throws validation error when types.EIP712Domain is missing from the payload', () => {
       const payload = getPayload('types');
 
       expect(() =>
-        ensureMessageIsValid(messageType, { ...payload, types: {} }, 1)
+        ensureMessageFormatIsValid(messageType, { ...payload, types: {} }, 1)
       ).toThrowError('"types.EIP712Domain" is required');
     });
 
     it('throws validation error when primaryType is missing from the payload', () => {
       const payload = getPayload('primaryType');
 
-      expect(() => ensureMessageIsValid(messageType, payload, 1)).toThrowError(
-        '"primaryType" is required'
-      );
+      expect(() =>
+        ensureMessageFormatIsValid(messageType, payload, 1)
+      ).toThrowError('"primaryType" is required');
     });
 
     it('throws validation error when domain is missing from the payload', () => {
       const payload = getPayload('domain');
 
-      expect(() => ensureMessageIsValid(messageType, payload, 1)).toThrowError(
-        '"domain" is required'
-      );
+      expect(() =>
+        ensureMessageFormatIsValid(messageType, payload, 1)
+      ).toThrowError('"domain" is required');
     });
 
     it('throws validation error when message is missing from the payload', () => {
       const payload = getPayload('message');
 
-      expect(() => ensureMessageIsValid(messageType, payload, 1)).toThrowError(
-        '"message" is required'
-      );
+      expect(() =>
+        ensureMessageFormatIsValid(messageType, payload, 1)
+      ).toThrowError('"message" is required');
     });
 
     it('throws validation error when the chain id does not match the active one', () => {
       const payload = getPayload();
       const payloadWithHexChainId = getPayload(undefined, true);
 
-      expect(() => ensureMessageIsValid(messageType, payload, 1)).toThrowError(
-        'target chainId does not match the currently active one'
-      );
       expect(() =>
-        ensureMessageIsValid(messageType, payloadWithHexChainId, 1)
+        ensureMessageFormatIsValid(messageType, payload, 1)
+      ).toThrowError('target chainId does not match the currently active one');
+      expect(() =>
+        ensureMessageFormatIsValid(messageType, payloadWithHexChainId, 1)
       ).toThrowError('target chainId does not match the currently active one');
     });
 
@@ -88,9 +88,11 @@ describe('src/background/services/wallet/utils/ensureMessageIsValid.test.ts', ()
       const payload = getPayload();
       const payloadWithHexChainId = getPayload(undefined, true);
 
-      expect(ensureMessageIsValid(messageType, payload, 2)).toBeUndefined();
       expect(
-        ensureMessageIsValid(messageType, payloadWithHexChainId, 2)
+        ensureMessageFormatIsValid(messageType, payload, 2)
+      ).toBeUndefined();
+      expect(
+        ensureMessageFormatIsValid(messageType, payloadWithHexChainId, 2)
       ).toBeUndefined();
     });
   });

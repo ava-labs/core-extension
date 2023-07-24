@@ -52,7 +52,7 @@ import {
   PrimaryAccount,
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
-import ensureMessageIsValid from './utils/ensureMessageIsValid';
+import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
@@ -942,9 +942,9 @@ export class WalletService implements OnLock, OnUnlock {
 
     const newImportedSecrets = ids.reduce(
       (importedSecrets, id) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-shadow
-        const { [id]: _, ...newImportedSecrets } = importedSecrets;
-        return newImportedSecrets ?? {};
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [id]: _, ...restOfSecrets } = importedSecrets;
+        return restOfSecrets ?? {};
       },
       { ...(secrets.imported ?? {}) }
     );

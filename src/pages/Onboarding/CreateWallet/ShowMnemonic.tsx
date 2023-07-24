@@ -22,11 +22,11 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
       list.push(
         <Grid item key={num}>
           <Stack
-            sx={(theme) => ({
+            sx={{
               width: theme.spacing(13),
               alignItems: 'center',
               flexDirection: 'row',
-            })}
+            }}
           >
             <Typography
               variant="body2"
@@ -42,7 +42,7 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
       );
     }
     return list;
-  }, [wordCount, words]);
+  }, [wordCount, words, theme]);
 
   const onCopy = () => {
     navigator.clipboard.writeText(phrase);

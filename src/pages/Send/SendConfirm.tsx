@@ -215,16 +215,16 @@ export const SendConfirm = ({
   const gasLimit = sendState.customGasLimit || sendState.gasLimit;
   const networkFee = useMemo(() => {
     if (network?.vmName === NetworkVMType.BITCOIN) {
-      const amount =
+      const feeAmount =
         typeof sendState.sendFee !== 'undefined'
           ? satoshiToBtc(sendState.sendFee.toNumber()).toString()
           : '';
-      const fiatValue = amount
-        ? currencyFormatter(Number(amount) * nativeTokenPrice)
+      const fiatValue = feeAmount
+        ? currencyFormatter(Number(feeAmount) * nativeTokenPrice)
         : '';
 
       return {
-        amount,
+        amount: feeAmount,
         fiatValue,
       };
     }

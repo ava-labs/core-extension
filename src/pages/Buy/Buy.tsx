@@ -52,39 +52,39 @@ export const Buy = () => {
     accounts: { active: activeAccount },
   } = useAccountsContext();
 
-  const getBuyUrl = async (buyService: BuyService) => {
-    let buyServiceURL = '';
+  const getBuyUrl = async (service: BuyService) => {
+    let serviceURL = '';
     setBuyUnavailable(false);
     if (!activeAccount) return null;
 
-    if (buyService === BuyService.MOONPAY) {
+    if (service === BuyService.MOONPAY) {
       const moonPay = await moonpayURL(activeAccount?.addressC);
-      moonPay.url ? (buyServiceURL = moonPay.url) : (buyServiceURL = 'error');
+      moonPay.url ? (serviceURL = moonPay.url) : (serviceURL = 'error');
     }
 
-    if (buyService === BuyService.COINBASE) {
-      buyServiceURL = coinbaseUrlByAddress(activeAccount?.addressC);
+    if (service === BuyService.COINBASE) {
+      serviceURL = coinbaseUrlByAddress(activeAccount?.addressC);
     }
 
     if (
       !featureFlags[FeatureGates.BUY_COINBASE] &&
-      buyService === BuyService.COINBASE
+      service === BuyService.COINBASE
     ) {
       setBuyUnavailable(true);
     } else if (
       (!featureFlags[FeatureGates.BUY_MOONPAY] &&
-        buyService === BuyService.MOONPAY) ||
-      buyServiceURL === 'error'
+        service === BuyService.MOONPAY) ||
+      serviceURL === 'error'
     ) {
       setBuyUnavailable(true);
     } else {
-      setBuyServiceURL(buyServiceURL);
+      setBuyServiceURL(serviceURL);
     }
   };
 
-  const onBuyClick = async (buyService: BuyService) => {
-    await getBuyUrl(buyService);
-    setBuyService(buyService);
+  const onBuyClick = async (service: BuyService) => {
+    await getBuyUrl(service);
+    setBuyService(service);
     setOpenBuyDialog(true);
   };
 

@@ -121,8 +121,8 @@ export class StorageService implements OnLock {
     const deserializedData = deserialize(JSON.parse(data)) as T;
 
     if (deserializedData) {
-      return migrateToLatest<T>(key, deserializedData, (data) =>
-        this.save<T>(key, data, customEncryptionKey)
+      return migrateToLatest<T>(key, deserializedData, (migratedData) =>
+        this.save<T>(key, migratedData, customEncryptionKey)
       );
     }
 

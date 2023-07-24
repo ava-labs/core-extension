@@ -235,7 +235,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   useEffect(() => {
     const subscription = of([initialized])
       .pipe(
-        filter(([initialized]) => !!initialized),
+        filter(([isInitialized]) => !!isInitialized),
         switchMap(() =>
           request<CloseLedgerTransportHandler>({
             method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
@@ -422,7 +422,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   const registerBtcWalletPolicy = useCallback(
     async (
       xpub: string,
-      masterFingerprint: string,
+      fingerprint: string,
       derivationpath: string,
       name: string
     ) => {
@@ -432,7 +432,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
 
       const template = new DefaultWalletPolicy(
         `wpkh(@0/**)`,
-        `[${masterFingerprint}/${derivationpath}]${xpub}`
+        `[${fingerprint}/${derivationpath}]${xpub}`
       );
 
       const walletPolicy = new WalletPolicy(name, `wpkh(@0/**)`, template.keys);

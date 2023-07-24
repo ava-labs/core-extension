@@ -123,10 +123,10 @@ export const NetworkDetails = () => {
   const isFavorite = networkState && isFavoriteNetwork(networkState.chainId);
   const isCustom = networkState && isCustomNetwork(networkState.chainId);
 
-  const handleChange = (networkData: Network, isValid: boolean) => {
+  const handleChange = (newNetworkState: Network, isValid: boolean) => {
     setIsFormValid(isValid);
     setNetworkState({
-      ...networkData,
+      ...newNetworkState,
     });
   };
 

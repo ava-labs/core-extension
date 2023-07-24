@@ -55,8 +55,11 @@ export const ContactInput = ({
     setContactsLength(contacts.length);
   }, [contacts, contactsLength, onChange]);
 
-  const changeAndCloseDropdown = (contact: Contact, selectedTab: string) => {
-    onChange(contact, selectedTab);
+  const changeAndCloseDropdown = (
+    selectedContact: Contact,
+    selectedTab: string
+  ) => {
+    onChange(selectedContact, selectedTab);
     setIsOpen(!isContactsOpen);
   };
 

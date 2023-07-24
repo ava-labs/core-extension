@@ -76,12 +76,12 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
     async (
       xpub: string,
       accountIndex: number,
-      addresses: AddressType[] = []
+      addressList: AddressType[] = []
     ) => {
       const address = getAddressFromXPub(xpub, accountIndex);
       const { balance } = await getAvaxBalance(address);
       const newAddresses = [
-        ...addresses,
+        ...addressList,
         { address, balance: balance.balanceDisplayValue || '0' },
       ];
       setAddresses(newAddresses);
@@ -103,8 +103,8 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
 
   useEffect(() => {
     const initAvalancheNetwork = async () => {
-      const { avalancheNetwork } = await getAvalancheNetwork();
-      setAvalancheNetwork(avalancheNetwork);
+      const { avalancheNetwork: avaxNetwork } = await getAvalancheNetwork();
+      setAvalancheNetwork(avaxNetwork);
     };
     if (!avalancheNetwork) {
       initAvalancheNetwork();

@@ -28,26 +28,27 @@ describe('background/services/storage/utils/crypto.ts', () => {
   const bufferInstance = {
     fill: jest.fn(),
   };
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+    (scrypt as jest.Mock).mockReturnValue(new Uint8Array(6));
+    (nacl.secretbox as unknown as jest.Mock).mockReturnValue(cypherResult);
+
+    jest.spyOn(Uint8Array.prototype, 'fill');
+    // eslint-disable-next-line no-global-assign
+    Buffer = {
+      from: jest.fn().mockImplementation(() => {
+        return bufferInstance;
+      }),
+    } as any;
+  });
+
+  afterEach(() => {
+    // eslint-disable-next-line no-global-assign
+    Buffer = buffer;
+  });
+
   describe('encrypt', () => {
-    beforeEach(() => {
-      jest.resetAllMocks();
-      (scrypt as jest.Mock).mockReturnValue(new Uint8Array(6));
-      (nacl.secretbox as unknown as jest.Mock).mockReturnValue(cypherResult);
-
-      jest.spyOn(Uint8Array.prototype, 'fill');
-      // eslint-disable-next-line no-global-assign
-      Buffer = {
-        from: jest.fn().mockImplementation(() => {
-          return bufferInstance;
-        }),
-      } as any;
-    });
-
-    afterEach(() => {
-      // eslint-disable-next-line no-global-assign
-      Buffer = buffer;
-    });
-
     it('should call Buffer.fill if key holds buffer value', async () => {
       await encrypt(secret, encryptionKey, false);
       expect(Buffer.from).toHaveBeenCalledTimes(1);
@@ -81,27 +82,8 @@ describe('background/services/storage/utils/crypto.ts', () => {
   });
 
   describe('decrypt', () => {
-    const buffer = Buffer;
-    const bufferInstance = {
-      fill: jest.fn(),
-    };
-
     beforeEach(() => {
-      jest.resetAllMocks();
-      jest.spyOn(Uint8Array.prototype, 'fill');
-      (scrypt as jest.Mock).mockReturnValue(new Uint8Array(6));
       nacl.secretbox.open = jest.fn();
-      // eslint-disable-next-line no-global-assign
-      Buffer = {
-        from: jest.fn().mockImplementation(() => {
-          return bufferInstance;
-        }),
-      } as any;
-    });
-
-    afterEach(() => {
-      // eslint-disable-next-line no-global-assign
-      Buffer = buffer;
     });
 
     it('should call Buffer.fill if key holds buffer value', async () => {

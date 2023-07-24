@@ -5,13 +5,14 @@ export default function useCameraPermissions() {
   const [permissions, setPermissions] = useState<PermissionState>();
 
   const getPermissions = useCallback(async () => {
-    const observer = await navigator.permissions.query({
+    const permissionsObserver = await navigator.permissions.query({
       name: 'camera' as PermissionName,
     });
-    observer.onchange = () => setPermissions(observer.state);
+    permissionsObserver.onchange = () =>
+      setPermissions(permissionsObserver.state);
 
-    setPermissions(observer.state);
-    setObserver(observer);
+    setPermissions(permissionsObserver.state);
+    setObserver(permissionsObserver);
   }, []);
 
   useEffect(() => {

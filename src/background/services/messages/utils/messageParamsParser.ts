@@ -1,7 +1,9 @@
 import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
-import { MessageType } from '../models';
+import { MessageParams, MessageType } from '../models';
 
-export function paramsToMessageParams(data: JsonRpcRequest<any>) {
+export function paramsToMessageParams(
+  data: JsonRpcRequest<any>
+): MessageParams {
   const { params, method } = data;
   switch (method) {
     case MessageType.PERSONAL_SIGN:

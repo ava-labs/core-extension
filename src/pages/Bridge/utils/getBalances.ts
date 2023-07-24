@@ -18,14 +18,14 @@ export function getBalances(
 ): AssetBalance[] {
   const tokensByAddress = tokens.reduce<{
     [address: string]: TokenWithBalanceERC20 | TokenWithBalance | undefined;
-  }>((tokens, token) => {
+  }>((tokensMap, token) => {
     if (token.type !== TokenType.ERC20) {
-      tokens[token.symbol.toLowerCase()] = token;
-      return tokens;
+      tokensMap[token.symbol.toLowerCase()] = token;
+      return tokensMap;
     }
     // Need to convert the keys to lowercase because they are mixed case, and this messes up or comparison function
-    tokens[token.address.toLowerCase()] = token;
-    return tokens;
+    tokensMap[token.address.toLowerCase()] = token;
+    return tokensMap;
   }, {});
 
   return assets.map((asset) => {

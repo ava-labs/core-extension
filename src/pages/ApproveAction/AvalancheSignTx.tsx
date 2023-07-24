@@ -45,9 +45,9 @@ export function AvalancheSignTx() {
   }, [isUsingLedgerWallet, requestId, updateAction]);
 
   const renderLedgerApproval = useCallback(
-    (action: Action) => {
-      if (action.status === ActionStatus.SUBMITTING && isUsingLedgerWallet) {
-        return <LedgerApprovalOverlay displayData={action.displayData} />;
+    ({ status, displayData }: Action) => {
+      if (status === ActionStatus.SUBMITTING && isUsingLedgerWallet) {
+        return <LedgerApprovalOverlay displayData={displayData} />;
       }
     },
     [isUsingLedgerWallet]

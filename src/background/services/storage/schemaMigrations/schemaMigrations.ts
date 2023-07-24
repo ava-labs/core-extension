@@ -25,7 +25,7 @@ export const migrateToLatest = async <T>(
     (a, b) => a.version - b.version
   );
 
-  const result = await orderedMigrations.reduce<Promise<T>>(
+  const results = await orderedMigrations.reduce<Promise<T>>(
     async (migrationResult, currentMigration) => {
       const result = await migrationResult;
 
@@ -48,8 +48,8 @@ export const migrateToLatest = async <T>(
   );
 
   if (onMigrationApplied) {
-    await onMigrationApplied(result);
+    await onMigrationApplied(results);
   }
 
-  return result;
+  return results;
 };

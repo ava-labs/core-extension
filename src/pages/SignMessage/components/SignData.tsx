@@ -1,5 +1,5 @@
 import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
-import { Action } from '@src/background/services/actions/models';
+import { MessageParams } from '@src/background/services/messages/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { positionValues } from 'react-custom-scrollbars-2';
 import { useTranslation } from 'react-i18next';
@@ -19,12 +19,12 @@ export function SignData({
   scrollFrameHandler,
   updateHandler,
 }: {
-  message: Action;
+  message: MessageParams;
   scrollFrameHandler: (values: positionValues) => void;
   updateHandler: (values: positionValues) => void;
 }) {
   const { t } = useTranslation();
-  const data = message.displayData.data;
+  const data = message.data;
   const theme = useTheme();
   return (
     <VerticalFlex width={'100%'}>

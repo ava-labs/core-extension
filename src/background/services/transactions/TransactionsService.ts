@@ -78,9 +78,9 @@ export class TransactionsService {
 
     const { params, site } = tx;
     const now = new Date().getTime();
-    const txParams = (params || [])[0];
+    const trxParams = (params || [])[0];
     const network = await getTargetNetworkForTx(
-      txParams,
+      trxParams,
       this.networkService,
       this.featureFlagService
     );
@@ -90,7 +90,7 @@ export class TransactionsService {
     }
 
     const provider = this.networkService.getProviderForNetwork(network, true);
-    const toAddress = txParams.to?.toLocaleLowerCase() || '';
+    const toAddress = trxParams.to?.toLocaleLowerCase() || '';
 
     let decodedData: ethers.utils.Result | undefined;
     let parser: ContractParserHandler | undefined;
@@ -108,8 +108,8 @@ export class TransactionsService {
           try {
             txDescription = await getTxInfo(
               toAddress,
-              txParams.data,
-              txParams.value,
+              trxParams.data,
+              trxParams.value,
               network
             );
           } catch (err) {
@@ -131,7 +131,7 @@ export class TransactionsService {
 
     const fees = await this.networkFeeService.getNetworkFee(network);
 
-    if (txParams && isTxParams(txParams)) {
+    if (trxParams && isTxParams(trxParams)) {
       if (
         !this.networkService.isActiveNetwork(network.chainId) &&
         this.accountsService.activeAccount
@@ -154,11 +154,12 @@ export class TransactionsService {
       const maxPriorityFeePerGas = fees?.low.maxTip
         ? BigNumber.from(fees?.low.maxTip)
         : undefined;
-      const suggestedMaxFeePerGas = txParams.maxFeePerGas ?? txParams.gasPrice;
+      const suggestedMaxFeePerGas =
+        trxParams.maxFeePerGas ?? trxParams.gasPrice;
 
       // If dApp suggests maxFeePerGas, but not maxPriorityFeePerGas, we set the tip to 0.
-      const suggestedMaxPriorityFeePerGas = txParams.maxPriorityFeePerGas
-        ? BigNumber.from(txParams.maxPriorityFeePerGas)
+      const suggestedMaxPriorityFeePerGas = trxParams.maxPriorityFeePerGas
+        ? BigNumber.from(trxParams.maxPriorityFeePerGas)
         : suggestedMaxFeePerGas
         ? BigNumber.from(0)
         : undefined;
@@ -184,13 +185,13 @@ export class TransactionsService {
        */
       let gasLimit: number | null;
       try {
-        gasLimit = await (txParams.gas
-          ? BigNumber.from(txParams.gas).toNumber()
+        gasLimit = await (trxParams.gas
+          ? BigNumber.from(trxParams.gas).toNumber()
           : this.networkFeeService.estimateGasLimit(
-              txParams.from,
-              txParams.to,
-              txParams.data as string,
-              txParams.value,
+              trxParams.from,
+              trxParams.to,
+              trxParams.data as string,
+              trxParams.value,
               network
             ));
       } catch (e: any) {
@@ -202,7 +203,7 @@ export class TransactionsService {
       }
 
       const txPayload = this.addTxType(
-        gasLimit ? { ...txParams, gas: gasLimit } : txParams
+        gasLimit ? { ...trxParams, gas: gasLimit } : trxParams
       );
 
       const description = isTxDescriptionError(txDescription)

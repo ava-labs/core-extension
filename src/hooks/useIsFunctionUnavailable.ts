@@ -34,19 +34,19 @@ export const useIsFunctionAvailable = (
   const { network } = useNetworkContext();
   const isReady = Boolean(network);
 
-  const checkIsFunctionAvailable = (functionName: string) => {
+  const checkIsFunctionAvailable = (name: string) => {
     if (!network) {
       return false;
     }
     if (
-      enabledFeatues[functionName] &&
-      !enabledFeatues[functionName].includes(network.chainId)
+      enabledFeatues[name] &&
+      !enabledFeatues[name].includes(network.chainId)
     ) {
       return false;
     }
     if (
-      disabledFeatures[functionName] &&
-      disabledFeatures[functionName].includes(network.chainId)
+      disabledFeatures[name] &&
+      disabledFeatures[name].includes(network.chainId)
     ) {
       return false;
     }

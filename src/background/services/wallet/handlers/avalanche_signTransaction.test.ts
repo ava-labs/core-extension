@@ -341,9 +341,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
       expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        {
-          foo: 'bar',
-        },
+        unsignedTxMock,
         providerMock,
         activeAccountMock.addressAVM
       );
@@ -403,9 +401,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
       expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        {
-          foo: 'bar',
-        },
+        unsignedTxMock,
         providerMock,
         activeAccountMock.addressAVM
       );
@@ -524,9 +520,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
       expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        {
-          foo: 'bar',
-        },
+        unsignedTxMock,
         providerMock,
         activeAccountMock.addressAVM
       );
@@ -562,12 +556,12 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
 
     const signedTransactionJsonMock = { signed: true };
 
-    const txMock = {
+    const mockedTx = {
       getSigIndices: jest.fn(() => [[0, 2]]),
     };
 
     const signedTxMock = {
-      ...txMock,
+      ...mockedTx,
       getCredentials: jest.fn(() => [
         {
           toJSON: () => [
@@ -586,17 +580,17 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           ],
         },
       ]),
-      getTx: jest.fn(() => txMock),
+      getTx: jest.fn(() => mockedTx),
     };
 
     const signedTxInstanceMock = jest.fn();
     const signedTransactionHex = '0x9999999';
 
     it('returns error if own signatures are missing', async () => {
-      txMock.getSigIndices.mockReturnValueOnce([[0, 3]]);
+      mockedTx.getSigIndices.mockReturnValueOnce([[0, 3]]);
       walletServiceMock.sign.mockReturnValueOnce(signedTransactionJsonMock);
       (UnsignedTx.fromJSON as jest.Mock)
-        .mockReturnValueOnce(txMock)
+        .mockReturnValueOnce(mockedTx)
         .mockReturnValueOnce(signedTxMock);
       (avaxSerial.SignedTx as unknown as jest.Mock) = signedTxInstanceMock;
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
@@ -651,7 +645,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       (utils.bufferToHex as jest.Mock).mockReturnValueOnce('0x0');
       walletServiceMock.sign.mockReturnValueOnce(signedTransactionJsonMock);
       (UnsignedTx.fromJSON as jest.Mock)
-        .mockReturnValueOnce(txMock)
+        .mockReturnValueOnce(mockedTx)
         .mockReturnValueOnce(signedTxMock);
       (avaxSerial.SignedTx as unknown as jest.Mock) = signedTxInstanceMock;
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
@@ -686,7 +680,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     it('returns the correct (partially) signed transaction details', async () => {
       walletServiceMock.sign.mockReturnValueOnce(signedTransactionJsonMock);
       (UnsignedTx.fromJSON as jest.Mock)
-        .mockReturnValueOnce(txMock)
+        .mockReturnValueOnce(mockedTx)
         .mockReturnValueOnce(signedTxMock);
       (avaxSerial.SignedTx as unknown as jest.Mock) = signedTxInstanceMock;
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
@@ -729,13 +723,13 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
 
       expect(walletServiceMock.sign).toHaveBeenCalledWith(
         {
-          tx: txMock,
+          tx: mockedTx,
         },
         frontendTabId,
         providerMock
       );
       expect(signedTxMock.getCredentials).toHaveBeenCalled();
-      expect(txMock.getSigIndices).toHaveBeenCalled();
+      expect(mockedTx.getSigIndices).toHaveBeenCalled();
       expect(Credential).toHaveBeenCalledWith([
         expect.objectContaining({
           sig: '0x3463463645',
@@ -744,7 +738,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           sig: '0x1231241242',
         }),
       ]);
-      expect(avaxSerial.SignedTx).toHaveBeenCalledWith(txMock, [
+      expect(avaxSerial.SignedTx).toHaveBeenCalledWith(mockedTx, [
         (Credential as unknown as jest.Mock).mock.instances[0],
       ]);
     });

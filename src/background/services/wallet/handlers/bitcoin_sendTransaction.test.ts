@@ -166,7 +166,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     });
 
     it('returns error if cant verify form state', async () => {
-      const handler = new BitcoinSendTransactionHandler(
+      const sendHandler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
         balancesServiceBTCMock as any,
@@ -183,7 +183,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         },
       });
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated(request);
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -193,7 +193,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     });
 
     it('returns error if cant send', async () => {
-      const handler = new BitcoinSendTransactionHandler(
+      const sendHandler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
         balancesServiceBTCMock as any,
@@ -207,7 +207,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         error: undefined,
       });
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated(request);
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -217,7 +217,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     });
 
     it('opens the approval window and returns deferred response', async () => {
-      const handler = new BitcoinSendTransactionHandler(
+      const sendHandler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
         balancesServiceBTCMock as any,
@@ -233,7 +233,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         address: 'btc1',
       });
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated(request);
 
       expect(openApprovalWindowSpy).toHaveBeenCalledWith(
         {

@@ -193,7 +193,7 @@ export function Swap() {
     selectedFromToken?.type === TokenType.NATIVE && fromTokenValue
       ? selectedFromToken.balance.sub(fromTokenValue.bn).toString()
       : tokensWBalances
-          .find((t) => t.type === TokenType.NATIVE)
+          .find(({ type }) => type === TokenType.NATIVE)
           ?.balance.toString() || '0';
 
   const canSwap =
@@ -240,8 +240,8 @@ export function Swap() {
               onTokenChange({
                 token,
                 destination: 'to',
-                selectedToToken,
-                fromTokenValue,
+                toToken: selectedToToken,
+                fromValue: fromTokenValue,
               });
             }}
             onSelectToggle={() => {
@@ -326,9 +326,9 @@ export function Swap() {
             onTokenChange={(token: TokenWithBalance) => {
               onTokenChange({
                 token,
-                selectedFromToken,
+                fromToken: selectedFromToken,
                 destination: 'from',
-                fromTokenValue,
+                fromValue: fromTokenValue,
               });
             }}
             onSelectToggle={() => {

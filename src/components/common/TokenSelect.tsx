@@ -233,7 +233,7 @@ export function TokenSelect({
       bridgeTokensList[0] &&
       selectedToken &&
       !bridgeTokensList
-        .map((t) => t.symbolOnNetwork ?? t.symbol) // BTC does not have symbolOnNetwork defined
+        .map(({ symbol, symbolOnNetwork }) => symbolOnNetwork ?? symbol) // BTC does not have symbolOnNetwork defined
         .includes(selectedToken.symbol)
     ) {
       onTokenChange(bridgeTokensList[0]);

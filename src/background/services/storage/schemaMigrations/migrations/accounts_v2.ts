@@ -27,7 +27,7 @@ const previousSchema = Joi.array<PreviousSchema>().items(
 
 const up = async (accounts: PreviousSchema) => {
   const newData = accounts.reduce<Accounts>(
-    (accounts, primaryAccount) => {
+    (acc, primaryAccount) => {
       const { active, ...account } = {
         ...primaryAccount,
         id: crypto.randomUUID(),
@@ -37,12 +37,12 @@ const up = async (accounts: PreviousSchema) => {
       };
 
       if (active) {
-        accounts.active = account as PrimaryAccount;
+        acc.active = account as PrimaryAccount;
       }
 
-      accounts.primary.push(account as PrimaryAccount);
+      acc.primary.push(account as PrimaryAccount);
 
-      return accounts;
+      return acc;
     },
     {
       active: undefined,

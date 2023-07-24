@@ -48,9 +48,9 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
       .toUpperCase();
   };
 
-  const handleChange = (contact: Contact, formValid: boolean) => {
+  const handleChange = (newContact: Contact, formValid: boolean) => {
     setContact({
-      ...contact,
+      ...newContact,
     });
     setIsFormValid(formValid);
   };

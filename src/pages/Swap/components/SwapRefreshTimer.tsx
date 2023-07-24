@@ -28,9 +28,9 @@ export function SwapRefreshTimer({
 
   useEffect(() => {
     if (!isRunning) {
-      const time = new Date();
-      time.setSeconds(time.getSeconds() + secondsTimer);
-      restart(time);
+      const datetime = new Date();
+      datetime.setSeconds(datetime.getSeconds() + secondsTimer);
+      restart(datetime);
     }
   }, [isRunning, restart, secondsTimer]);
 

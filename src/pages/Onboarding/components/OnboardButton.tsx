@@ -24,7 +24,7 @@ export function OnboardButton({
       <Stack
         data-testid={`${testId}-button`}
         onClick={onClick}
-        sx={(theme) => ({
+        sx={{
           m: margin,
           borderRadius: theme.spacing(1),
           border: '1px solid transparent',
@@ -33,7 +33,7 @@ export function OnboardButton({
             backgroundColor: theme.palette.grey[850],
             cursor: 'pointer',
           },
-        })}
+        }}
       >
         <Stack
           sx={{

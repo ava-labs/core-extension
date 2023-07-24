@@ -129,16 +129,16 @@ export function CustomGasSettings({
     let hasErrors = false;
 
     if (customGasLimit <= 0) {
-      setErrors((errors) => ({
-        ...errors,
+      setErrors((existingErrors) => ({
+        ...existingErrors,
         gasLimit: t('Gas Limit too low'),
       }));
       hasErrors = true;
     }
 
     if (customMaxPriorityFeePerGas.gt(customMaxFeePerGas)) {
-      setErrors((errors) => ({
-        ...errors,
+      setErrors((existingErrors) => ({
+        ...existingErrors,
         maxPriorityFee: t(
           'Maximum priority fee cannot be greater than maximum fee'
         ),
@@ -164,15 +164,15 @@ export function CustomGasSettings({
       if (error instanceof Error) {
         if (error.message.includes('overflow')) {
           // https://links.ethers.org/v5-errors-NUMERIC_FAULT-overflow
-          setErrors((errors) => ({
-            ...errors,
+          setErrors((existingErrors) => ({
+            ...existingErrors,
             gasLimit: t('Gas Limit is too much'),
           }));
         } else if (
           error.message === 'Please provide gasPrice or maxFeePerGas parameters'
         ) {
-          setErrors((errors) => ({
-            ...errors,
+          setErrors((existingErrors) => ({
+            ...existingErrors,
             maxFee: t('Provide valid numerical value for maximum fee'),
           }));
         }

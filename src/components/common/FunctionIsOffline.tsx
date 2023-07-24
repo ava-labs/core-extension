@@ -1,7 +1,7 @@
-import { Typography, VerticalFlex } from '@avalabs/react-components';
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
-import { t } from 'i18next';
+import { t as translate } from 'i18next';
+import { Stack, Typography } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 
 interface FunctionIsOfflineProps {
@@ -10,10 +10,10 @@ interface FunctionIsOfflineProps {
 }
 
 export const FunctionNames = {
-  Bridge: t('Bridge'),
-  Swap: t('Swap'),
-  Send: t('Send'),
-  Buy: t('Buy'),
+  Bridge: translate('Bridge'),
+  Swap: translate('Swap'),
+  Send: translate('Send'),
+  Buy: translate('Buy'),
 };
 
 export function FunctionIsOffline({
@@ -22,12 +22,15 @@ export function FunctionIsOffline({
   children,
 }: PropsWithChildren<FunctionIsOfflineProps>) {
   const { t } = useTranslation();
+
   return (
-    <VerticalFlex height="100%" width="100%">
+    <Stack sx={{ height: '100%', width: '100%' }}>
       {!hidePageTitle && (
         <PageTitle variant={PageTitleVariant.PRIMARY}>{t('Sorry')}</PageTitle>
       )}
-      <VerticalFlex align="center" justify="center" grow="1">
+      <Stack
+        sx={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
+      >
         <Typography size={16} align="center" height="24px">
           {t('Sorry, {{functionName}} is currently unavailable.', {
             functionName: FunctionNames[functionName] || functionName,
@@ -37,7 +40,7 @@ export function FunctionIsOffline({
           {t('Please check back later.')}
         </Typography>
         {children}
-      </VerticalFlex>
-    </VerticalFlex>
+      </Stack>
+    </Stack>
   );
 }

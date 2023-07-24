@@ -212,7 +212,7 @@ export function SendPage() {
     selectedToken?.type === TokenType.NATIVE && amountInput
       ? selectedToken.balance.sub(amountInput).toString()
       : tokensWBalances
-          .find((t) => t.type === TokenType.NATIVE)
+          .find(({ type }) => type === TokenType.NATIVE)
           ?.balance.toString() || '0';
 
   const onGasChanged = useCallback(

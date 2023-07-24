@@ -197,8 +197,8 @@ export function CollectibleMedia({
             onLoad={(event) => {
               const imageElement = event.target;
               if (imageElement instanceof HTMLImageElement) {
-                isImageDark(imageElement, (isImageDark) => {
-                  setShouldUseLightIcon(isImageDark);
+                isImageDark(imageElement, (isDark) => {
+                  setShouldUseLightIcon(isDark);
                 });
               }
             }}

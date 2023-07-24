@@ -280,6 +280,7 @@ export function Popup() {
                                           '/bridge/transaction-details',
                                           '/send/confirm',
                                           '/collectible/send/confirm',
+                                          '/bridge/confirm',
                                           '/accounts',
                                           '/import-private-key',
                                           '/defi',

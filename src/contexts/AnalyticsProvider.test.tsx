@@ -249,7 +249,7 @@ describe('contexts/AnalyticsProvider', () => {
     });
 
     it('captures events if forced to', () => {
-      const captureParams: [string, Record<string, any>, boolean] = [
+      const params: [string, Record<string, any>, boolean] = [
         'test-event',
         { prop: 123, otherprop: 'somedata' },
         true,
@@ -259,7 +259,7 @@ describe('contexts/AnalyticsProvider', () => {
         analyticsConsent: false,
       });
       renderWithAnalytics(
-        <TestComponent captureParams={captureParams} initParams={[true]} />,
+        <TestComponent captureParams={params} initParams={[true]} />,
         {}
       );
 
@@ -273,8 +273,8 @@ describe('contexts/AnalyticsProvider', () => {
         method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
         params: [
           {
-            name: captureParams[0],
-            properties: captureParams[1],
+            name: params[0],
+            properties: params[1],
             windowId: '00000000-0000-0000-0000-000000000000',
           },
         ],

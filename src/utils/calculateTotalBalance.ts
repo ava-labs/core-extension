@@ -2,6 +2,7 @@ import { Network } from '@avalabs/chains-sdk';
 import { Account } from '@src/background/services/accounts/models';
 import { Balances } from '@src/background/services/balances/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { hasAccountBalances } from './hasAccountBalances';
 
 export function calculateTotalBalance(
   network?: Network,
@@ -14,6 +15,12 @@ export function calculateTotalBalance(
   }
 
   const chainIdsToSum = new Set([network.chainId, ...(networkIds ?? [])]);
+
+  const hasBalances = hasAccountBalances(balances, account);
+
+  if (!hasBalances) {
+    return null;
+  }
 
   const sum = Array.from(chainIdsToSum).reduce((total, networkItem) => {
     const address = getAddressForChain(networkItem, account);

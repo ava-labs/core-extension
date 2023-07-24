@@ -30,8 +30,8 @@ export function DerivedAddresses({
   return (
     <Card
       sx={{
-        width: (theme) => theme.spacing(43.5),
-        height: (theme) => theme.spacing(21.25),
+        width: theme.spacing(43.5),
+        height: theme.spacing(21.25),
         backgroundColor: theme.palette.grey[850],
       }}
     >

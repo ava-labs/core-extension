@@ -87,7 +87,9 @@ export function CollectibleSend() {
       type: nft?.type,
     });
   };
-  const gasToken = tokensWithBalances?.find((t) => t.type === TokenType.NATIVE);
+  const gasToken = tokensWithBalances?.find(
+    ({ type }) => type === TokenType.NATIVE
+  );
   const maxGasPrice =
     (gasToken as NetworkTokenWithBalance)?.balance.toString() || '0';
 

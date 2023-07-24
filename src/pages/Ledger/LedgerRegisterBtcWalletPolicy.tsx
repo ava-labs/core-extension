@@ -81,8 +81,7 @@ const LedgerRegisterBtcWalletPolicy = () => {
           throw new Error('missing data');
         }
 
-        const xpub = await getBtcExtendedPublicKey(walletPolicyDerivationpath);
-        setXpub(xpub);
+        setXpub(await getBtcExtendedPublicKey(walletPolicyDerivationpath));
         setIsXpubDialogOpen(false);
       } catch (err) {
         console.error((err as Error).message);

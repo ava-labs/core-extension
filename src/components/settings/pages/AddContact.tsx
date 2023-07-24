@@ -40,9 +40,9 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
   const [isFormValid, setIsFormValid] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
-  const handleChange = (contact: Contact, formValid: boolean) => {
+  const handleChange = (newContact: Contact, formValid: boolean) => {
     setContact({
-      ...contact,
+      ...newContact,
     });
     setIsFormValid(formValid);
   };

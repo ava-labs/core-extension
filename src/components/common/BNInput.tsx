@@ -69,15 +69,15 @@ export function BNInput({
     }
   }, [denomination, valStr, value]);
 
-  const onValueChanged = (value: string) => {
+  const onValueChanged = (newValue: string) => {
     /**
      * Split the input and make sure the right side never exceeds
      * the denomination length
      */
-    const [, endValue] = splitBN(value);
+    const [, endValue] = splitBN(newValue);
 
     if (!endValue || endValue.length <= denomination) {
-      const valueToBn = numberToBN(value || 0, denomination);
+      const valueToBn = numberToBN(newValue || 0, denomination);
 
       if (valueToBn.lt(min)) {
         return;
@@ -86,11 +86,11 @@ export function BNInput({
       if (!valueToBn.eq(oldValueToBn)) {
         onChange?.({
           // used to removing leading & trailing zeros
-          amount: value ? bnToLocaleString(valueToBn, denomination) : '0',
+          amount: newValue ? bnToLocaleString(valueToBn, denomination) : '0',
           bn: valueToBn,
         });
       }
-      setValStr(value);
+      setValStr(newValue);
     }
   };
 

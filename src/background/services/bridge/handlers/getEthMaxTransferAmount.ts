@@ -56,7 +56,7 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
 
     const token = Object.values(
       balances[activeNetwork?.chainId]?.[activeAccount?.addressC] ?? {}
-    )?.find((token) => token.symbol === currentAsset);
+    )?.find(({ symbol }) => symbol === currentAsset);
 
     try {
       const config = this.bridgeService.bridgeConfig.config;

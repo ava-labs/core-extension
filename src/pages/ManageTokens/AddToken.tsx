@@ -78,15 +78,15 @@ export function AddToken() {
 
     const getTokenData = async () => {
       setIsLoading(true);
-      const tokenData = await request<GetTokenDataHandler>({
+      const data = await request<GetTokenDataHandler>({
         method: ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
         params: [addressInput],
       });
       setIsLoading(false);
-      setTokenData(tokenData || null);
+      setTokenData(data || null);
 
       let errorMessage = '';
-      if (!tokenData) {
+      if (!data) {
         errorMessage = t('Not a valid ERC-20 token address.');
       }
       if (tokenAlreadyExists) {

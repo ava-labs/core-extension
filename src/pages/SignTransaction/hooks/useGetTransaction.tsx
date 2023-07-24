@@ -8,7 +8,7 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import Web3 from 'web3';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
-import { GasFeeModifier } from '@src/components/common/CustomFees';
+import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
 import {
   bigToLocaleString,
   bnToBig,
@@ -205,18 +205,18 @@ export function useGetTransaction(requestId: string) {
     (tx: Transaction) => {
       const { displayValues } = tx;
       const suggestedFeeMax = displayValues.suggestedMaxFeePerGas;
-      const suggestedTip = displayValues.suggestedMaxPriorityFeePerGas;
+      const suggestedMaxTip = displayValues.suggestedMaxPriorityFeePerGas;
 
       if (suggestedFeeMax) {
         setSuggestedFee({
           maxFee: BigNumber.from(suggestedFeeMax),
-          maxTip: suggestedTip ? BigNumber.from(suggestedTip) : undefined,
+          maxTip: suggestedMaxTip ? BigNumber.from(suggestedMaxTip) : undefined,
         });
         setCustomFee(
           {
             maxFeePerGas: BigNumber.from(suggestedFeeMax),
-            maxPriorityFeePerGas: suggestedTip
-              ? BigNumber.from(suggestedTip)
+            maxPriorityFeePerGas: suggestedMaxTip
+              ? BigNumber.from(suggestedMaxTip)
               : undefined,
             feeType: GasFeeModifier.CUSTOM,
           },
@@ -299,10 +299,7 @@ export function useGetTransaction(requestId: string) {
   useEffect(() => {
     const updateNetworkAndFees = async () => {
       if (network?.chainId) {
-        const networkFeeCurrent = await getNetworkFeeForNetwork(
-          network?.chainId
-        );
-        setNetworkFee(networkFeeCurrent);
+        setNetworkFee(await getNetworkFeeForNetwork(network?.chainId));
       }
     };
 
@@ -319,8 +316,7 @@ export function useGetTransaction(requestId: string) {
         setNetwork(activeNetwork);
       }
     } else {
-      const networkCurrent = getNetwork(chainId);
-      setNetwork(networkCurrent);
+      setNetwork(getNetwork(chainId));
     }
   }, [
     getNetwork,

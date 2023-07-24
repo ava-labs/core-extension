@@ -28,7 +28,7 @@ const TYPED_MESSAGE_SCHEMA = Joi.object<TypedMessage>({
   message: Joi.object().required(),
 }).required();
 
-const ensureMessageIsValid = (
+const ensureMessageFormatIsValid = (
   messageType: MessageType,
   data: Record<string, unknown>,
   activeChainId: number
@@ -52,4 +52,4 @@ const ensureMessageIsValid = (
   }
 };
 
-export default ensureMessageIsValid;
+export default ensureMessageFormatIsValid;

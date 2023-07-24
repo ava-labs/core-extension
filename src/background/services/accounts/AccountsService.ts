@@ -158,9 +158,9 @@ export class AccountsService implements OnLock, OnUnlock {
     this.accounts = {
       ...accounts,
       primary: primaryAccountsWithAddresses,
-      imported: importedAccountsWithAddresses.reduce((accounts, account) => {
-        accounts[account.id] = account;
-        return accounts;
+      imported: importedAccountsWithAddresses.reduce((imported, account) => {
+        imported[account.id] = account;
+        return imported;
       }, {}),
     };
   };
@@ -313,8 +313,8 @@ export class AccountsService implements OnLock, OnUnlock {
     const newAccounts = ids.reduce(
       (accounts, id) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [id]: _, ...newAccounts } = accounts;
-        return newAccounts;
+        const { [id]: _, ...otherAccounts } = accounts;
+        return otherAccounts;
       },
       { ...this.accounts.imported }
     );

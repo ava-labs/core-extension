@@ -92,7 +92,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action,
-    result,
+    _result, // Unused
     onSuccess,
     onError,
     frontendTabId?: number

@@ -14,7 +14,7 @@ export class GlacierService {
 
     try {
       const supportedNetworks =
-        await this.glacierSdkInstance.evm.supportedChains();
+        await this.glacierSdkInstance.evm.supportedChains({});
       this.supportedNetworks = supportedNetworks.chains.map(
         (chain) => chain.chainId
       );
