@@ -1,10 +1,19 @@
 import { Card, Typography, VerticalFlex } from '@avalabs/react-components';
-import { Action } from '@src/background/services/actions/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTheme } from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { MessageParams } from '@src/background/services/messages/models';
+import { positionValues } from 'react-custom-scrollbars-2';
 
-export function EthSign({ message }: { message: Action }) {
+export function EthSign({
+  message,
+  scrollFrameHandler,
+  updateHandler,
+}: {
+  message: MessageParams;
+  scrollFrameHandler: (values: positionValues) => void;
+  updateHandler: (values: positionValues) => void;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
   return (
@@ -24,10 +33,14 @@ export function EthSign({ message }: { message: Action }) {
         {t('Message:')}
       </Typography>
       <Card height="105px" padding="16px 0">
-        <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
+        <Scrollbars
+          style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
+          onScrollFrame={scrollFrameHandler}
+          onUpdate={updateHandler}
+        >
           <VerticalFlex padding="0 16px">
             <Typography size={12} height="17px" wordBreak="break-all">
-              {message.displayData.data}
+              {message.data}
             </Typography>
           </VerticalFlex>
         </Scrollbars>

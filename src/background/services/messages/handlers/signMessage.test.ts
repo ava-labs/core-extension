@@ -3,19 +3,22 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { WalletType } from '../../wallet/models';
-import ensureMessageIsValid from '../../wallet/utils/ensureMessageIsValid';
-import { MessageType } from '../models';
+import { MessageParams, MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { PersonalSignHandler } from './signMessage';
+import { _TypedDataEncoder } from 'ethers/lib/utils';
+import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
 
+jest.mock('../../wallet/utils/ensureMessageFormatIsValid');
 jest.mock('../utils/messageParamsParser');
-jest.mock('../../wallet/utils/ensureMessageIsValid');
+jest.mock('ethers/lib/utils');
 
 describe('src/background/services/messages/handlers/signMessage.ts', () => {
-  const displayDataMock = {
+  const displayDataMock: MessageParams = {
     data: {
       foo: 'bar',
     },
+    from: '0x0000000',
   };
   const activeNetworkMock = {
     chainId: 1,
@@ -132,8 +135,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       );
     });
 
-    it('throws if message is not valid', async () => {
-      const errorMessage = 'some error';
+    it('throws if message format is invalid', async () => {
+      const errorMessage = 'invalid message format';
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock
@@ -145,9 +148,10 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         site: {
           tabId: 1,
         },
+        params: ['0x00000', '0x48656c6c6f20506c617967726f756e6421'],
       } as any;
 
-      (ensureMessageIsValid as jest.Mock).mockImplementationOnce(() => {
+      jest.mocked(ensureMessageFormatIsValid).mockImplementationOnce(() => {
         throw new Error(errorMessage);
       });
 
@@ -159,6 +163,131 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           }),
         }
       );
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
+        DAppProviderRequest.ETH_SIGN,
+        { foo: 'bar' },
+        1
+      );
+    });
+
+    it('does not do type checks for ETH_SIGN, ETH_SIGN_TYPED_DATA and ETH_SIGN_TYPED_DATA_V1', async () => {
+      const errorMessage = 'some type error';
+      const handler = new PersonalSignHandler(
+        walletServiceMock,
+        networkServiceMock
+      );
+
+      const methodsWithoutTypeCheck = [
+        DAppProviderRequest.ETH_SIGN,
+        DAppProviderRequest.ETH_SIGN_TYPED_DATA,
+        DAppProviderRequest.ETH_SIGN_TYPED_DATA_V1,
+      ];
+
+      for (const method of methodsWithoutTypeCheck) {
+        const request = {
+          id: '123',
+          method,
+          site: {
+            tabId: 1,
+          },
+        } as any;
+
+        jest.mocked(_TypedDataEncoder.getPayload).mockImplementationOnce(() => {
+          throw new Error(errorMessage);
+        });
+
+        await expect(
+          handler.handleAuthenticated(request)
+        ).resolves.toStrictEqual({
+          ...request,
+          result: DEFERRED_RESPONSE,
+        });
+
+        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+          {
+            ...request,
+            displayData: {
+              messageParams: displayDataMock,
+              isMessageValid: true,
+            },
+            tabId: request.site.tabId,
+          },
+          `sign?id=${request.id}`
+        );
+      }
+    });
+
+    it('does type checks for ETH_SIGN_TYPED_DATA_V3 and ETH_SIGN_TYPED_DATA_V4', async () => {
+      const errorMessage = 'some type error';
+      const handler = new PersonalSignHandler(
+        walletServiceMock,
+        networkServiceMock
+      );
+
+      const messageParamsMock: MessageParams = {
+        data: {
+          types: {
+            EIP712Domain: [],
+            Mail: [{ name: 'name', type: 'string' }],
+          },
+          message: { name: 'asdasd' },
+          domain: {
+            name: 'test site',
+            chainId: 1,
+          },
+        },
+        from: '0x00000',
+      };
+
+      jest.mocked(paramsToMessageParams).mockReturnValue(messageParamsMock);
+
+      const methodsWithTypeCheck = [
+        DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
+        DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
+      ];
+
+      for (const method of methodsWithTypeCheck) {
+        const request = {
+          id: '123',
+          method,
+          site: {
+            tabId: 1,
+          },
+        } as any;
+
+        jest.mocked(_TypedDataEncoder.getPayload).mockImplementationOnce(() => {
+          throw new Error(errorMessage);
+        });
+
+        await expect(
+          handler.handleAuthenticated(request)
+        ).resolves.toStrictEqual({
+          ...request,
+          result: DEFERRED_RESPONSE,
+        });
+
+        expect(_TypedDataEncoder.getPayload).toHaveBeenCalledWith(
+          {
+            name: 'test site',
+            chainId: 1,
+          },
+          { Mail: [{ name: 'name', type: 'string' }] },
+          { name: 'asdasd' }
+        );
+
+        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+          {
+            ...request,
+            displayData: {
+              messageParams: messageParamsMock,
+              isMessageValid: false,
+              validationError: 'Error: some type error',
+            },
+            tabId: request.site.tabId,
+          },
+          `sign?id=${request.id}`
+        );
+      }
     });
 
     it('opens the approval window if message is valid', async () => {
@@ -177,7 +306,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
       const result = await handler.handleAuthenticated(request);
 
-      expect(ensureMessageIsValid).toHaveBeenCalledWith(
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         request.method,
         displayDataMock.data,
         activeNetworkMock.chainId
@@ -190,7 +319,10 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       expect(openApprovalWindowSpy).toHaveBeenCalledWith(
         {
           ...request,
-          displayData: displayDataMock,
+          displayData: {
+            messageParams: displayDataMock,
+            isMessageValid: true,
+          },
           tabId: request.site.tabId,
         },
         `sign?id=${request.id}`
@@ -217,7 +349,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         {
           method: MessageType.ETH_SIGN,
           displayData: {
-            data: displayDataMock,
+            messageParams: displayDataMock,
           },
         } as any,
         undefined,
@@ -240,7 +372,9 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       await handler.onActionApproved(
         {
           method: MessageType.ETH_SIGN,
-          displayData: displayDataMock,
+          displayData: {
+            messageParams: displayDataMock,
+          },
         } as any,
         undefined,
         onSuccessMock,

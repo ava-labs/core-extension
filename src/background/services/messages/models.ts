@@ -12,3 +12,9 @@ export interface MessageDisplayData {
   from?: any;
   password?: any;
 }
+
+export type MessageParams = {
+  data: any;
+  from: string;
+  password?: string;
+};

@@ -26,16 +26,22 @@ import { SignDataV4 } from './components/SignDataV4';
 import { Trans, useTranslation } from 'react-i18next';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { useEffect, useState } from 'react';
-import { Button, Stack, Typography } from '@avalabs/k2-components';
+import {
+  Alert,
+  AlertContent,
+  AlertTitle,
+  Button,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@avalabs/k2-components';
 import Dialog from '@src/components/common/Dialog';
-import { messageTypesNeedFiltering } from '@src/background/services/wallet/utils/sanitizeRequestParams';
 
 export function SignMessage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
-  const { action: message, updateAction: updateMessage } =
-    useApproveAction(requestId);
+  const { action, updateAction: updateMessage } = useApproveAction(requestId);
 
   // TODO: remove this in https://ava-labs.atlassian.net/browse/CP-5617
   // Message signing is not currently supported by the Ledger Avalanche app
@@ -43,6 +49,7 @@ export function SignMessage() {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
+  const [messageAlertClosed, setMessageAlertClosed] = useState(false);
 
   function scrollFrameHandler(values: positionValues) {
     // if values.top is 1, that means the user has scrolled to the bottom
@@ -59,21 +66,10 @@ export function SignMessage() {
   }
 
   useEffect(() => {
-    function needsToForceScrolling(messageType) {
-      return messageType
-        ? Object.values(messageTypesNeedFiltering).includes(messageType)
-        : true;
-    }
-    if (!needsToForceScrolling(message?.method)) {
-      setDisableSubmitButton(false);
-    }
-  }, [message]);
-
-  useEffect(() => {
-    if (isUsingLedgerWallet && message) {
+    if (isUsingLedgerWallet && action) {
       setShowNotSupportedDialog(true);
     }
-  }, [isUsingLedgerWallet, message]);
+  }, [isUsingLedgerWallet, action]);
 
   const notSupportedDialog = (
     <Stack sx={{ justifyContent: 'center', width: '100%' }}>
@@ -93,7 +89,7 @@ export function SignMessage() {
           onClick={() => {
             updateMessage({
               status: ActionStatus.ERROR_USER_CANCELED,
-              id: message?.id,
+              id: action?.id,
             });
             window.close();
           }}
@@ -104,7 +100,7 @@ export function SignMessage() {
     </Stack>
   );
 
-  if (!message) {
+  if (!action) {
     return (
       <HorizontalFlex
         width={'100%'}
@@ -121,15 +117,38 @@ export function SignMessage() {
     <>
       <VerticalFlex width="100%" padding="0 16px">
         <SignTxRenderErrorBoundary>
+          {!action.displayData.isMessageValid && !messageAlertClosed ? (
+            <VerticalFlex
+              style={{ left: 0 }}
+              position="absolute"
+              padding="0 16px"
+              background={theme.colors.bg1}
+            >
+              <Alert
+                onClose={() => {
+                  setMessageAlertClosed(true);
+                }}
+                severity="warning"
+              >
+                <AlertTitle>{t('Warning: Verify Message Content')}</AlertTitle>
+                <Tooltip title={action.displayData.validationError ?? ''}>
+                  <AlertContent sx={{ cursor: 'pointer' }}>
+                    {t('This message contains non-standard elements.')}
+                  </AlertContent>
+                </Tooltip>
+              </Alert>
+            </VerticalFlex>
+          ) : null}
+
           <VerticalFlex padding="12px 0">
             <Typography variant="h3">
-              {message.error ? t('Signing Failed') : t('Sign Message')}
+              {action.error ? t('Signing Failed') : t('Sign Message')}
             </Typography>
           </VerticalFlex>
 
           <VerticalFlex align="center" margin="16px 0 24px">
             <SiteAvatar justify="center" align="center">
-              <TokenIcon height="48px" width="48px" src={message.site?.icon}>
+              <TokenIcon height="48px" width="48px" src={action.site?.icon}>
                 <GlobeIcon
                   height="48px"
                   width="48px"
@@ -138,12 +157,12 @@ export function SignMessage() {
               </TokenIcon>
             </SiteAvatar>
             <Typography variant="h5" sx={{ mt: 1 }}>
-              {message.site?.name ?? t('Unknown')}
+              {action.site?.name ?? t('Unknown')}
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
               <Trans
                 i18nKey="{{domain}} requests you to <br />sign the following message"
-                values={{ domain: message.site?.domain || 'A site' }}
+                values={{ domain: action.site?.domain || 'A site' }}
               />
             </Typography>
           </VerticalFlex>
@@ -151,32 +170,44 @@ export function SignMessage() {
           {/* Actions  */}
           {
             {
-              [MessageType.ETH_SIGN]: <EthSign message={message} />,
-              [MessageType.PERSONAL_SIGN]: <PersonalSign message={message} />,
+              [MessageType.ETH_SIGN]: (
+                <EthSign
+                  message={action.displayData.messageParams}
+                  scrollFrameHandler={scrollFrameHandler}
+                  updateHandler={updateHandler}
+                />
+              ),
+              [MessageType.PERSONAL_SIGN]: (
+                <PersonalSign
+                  message={action.displayData.messageParams}
+                  scrollFrameHandler={scrollFrameHandler}
+                  updateHandler={updateHandler}
+                />
+              ),
               [MessageType.SIGN_TYPED_DATA]: (
                 <SignData
-                  message={message}
+                  message={action.displayData.messageParams}
                   scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
                 />
               ),
               [MessageType.SIGN_TYPED_DATA_V1]: (
                 <SignData
-                  message={message}
+                  message={action.displayData.messageParams}
                   scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
                 />
               ),
               [MessageType.SIGN_TYPED_DATA_V3]: (
                 <SignDataV3
-                  message={message}
+                  message={action.displayData.messageParams}
                   scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
                 />
               ),
               [MessageType.SIGN_TYPED_DATA_V4]: (
                 <SignDataV4
-                  message={message}
+                  message={action.displayData.messageParams}
                   scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
                 />
@@ -186,10 +217,10 @@ export function SignMessage() {
                   {t('Unknown sign type')}
                 </Typography>
               ),
-            }[message.method || 'unknown']
+            }[action.method || 'unknown']
           }
 
-          {message.error && (
+          {action.error && (
             <VerticalFlex margin="16px 0 0 0" width={'100%'}>
               <Typography size={12} height="15px" margin="0 0 8px 0">
                 {t('Error:')}
@@ -200,7 +231,7 @@ export function SignMessage() {
                 >
                   <VerticalFlex padding="0 16px">
                     <Typography size={12} height="17px" wordBreak="break-all">
-                      {message.error}
+                      {action.error}
                     </Typography>
                   </VerticalFlex>
                 </Scrollbars>
@@ -239,7 +270,7 @@ export function SignMessage() {
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.ERROR_USER_CANCELED,
-                  id: message.id,
+                  id: action.id,
                 });
                 window.close();
               }}
@@ -253,7 +284,7 @@ export function SignMessage() {
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.SUBMITTING,
-                  id: message.id,
+                  id: action.id,
                 });
               }}
             >

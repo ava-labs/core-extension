@@ -5,11 +5,11 @@ import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { NetworkService } from '../../network/NetworkService';
-import ensureMessageIsValid from '../../wallet/utils/ensureMessageIsValid';
+import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
 import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
-import { sanitizeRequestParams } from '../../wallet/utils/sanitizeRequestParams';
+import { _TypedDataEncoder } from 'ethers/lib/utils';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
@@ -42,15 +42,6 @@ export class PersonalSignHandler extends DAppRequestHandler {
         error: 'wallet undefined',
       };
     }
-
-    const actionData = {
-      ...request,
-      displayData: sanitizeRequestParams(
-        request.method,
-        paramsToMessageParams(request)
-      ),
-      tabId: request.site.tabId,
-    };
     try {
       const activeNetwork = this.networkService.activeNetwork;
 
@@ -62,12 +53,56 @@ export class PersonalSignHandler extends DAppRequestHandler {
           }),
         };
       }
+      const messageParams = paramsToMessageParams(request);
 
-      ensureMessageIsValid(
+      ensureMessageFormatIsValid(
         request.method,
-        actionData.displayData.data,
+        messageParams.data,
         activeNetwork.chainId
       );
+
+      let isMessageValid = true;
+      let validationError: string | undefined = undefined;
+
+      if (
+        [
+          MessageType.SIGN_TYPED_DATA_V3,
+          MessageType.SIGN_TYPED_DATA_V4,
+        ].includes(request.method)
+      ) {
+        try {
+          // getPayload verifies the types and the content of the message throwing an error if the data is not valid.
+          // We don't want to immediately reject the request even if there are errors for compatiblity reasons.
+          // dApps tend to make small mistakes in the message format like leaving the verifyingContract emptry,
+          // in which cases we should be able to continue just like other wallets do (even if it's technically incorrect).
+
+          // remove EIP712Domain from types since ethers.js handles it separately
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { EIP712Domain, ...types } = messageParams.data.types;
+          _TypedDataEncoder.getPayload(
+            messageParams.data.domain,
+            types,
+            messageParams.data.message
+          );
+        } catch (e) {
+          validationError = (e as Error).toString();
+          isMessageValid = false;
+        }
+      }
+
+      const actionData = {
+        ...request,
+        displayData: {
+          messageParams,
+          isMessageValid,
+          validationError,
+        },
+        tabId: request.site.tabId,
+      };
+
+      this.openApprovalWindow(actionData, `sign?id=${request.id}`);
+
+      return { ...request, result: DEFERRED_RESPONSE };
     } catch (err) {
       return {
         ...request,
@@ -76,10 +111,6 @@ export class PersonalSignHandler extends DAppRequestHandler {
         }),
       };
     }
-
-    this.openApprovalWindow(actionData, `sign?id=${request.id}`);
-
-    return { ...request, result: DEFERRED_RESPONSE };
   };
 
   onActionApproved = async (
@@ -91,7 +122,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
     try {
       const result = await this.walletService.signMessage(
         pendingAction.method as MessageType,
-        pendingAction.displayData.data
+        pendingAction.displayData.messageParams.data
       );
       onSuccess(result);
     } catch (e) {

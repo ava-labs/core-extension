@@ -44,7 +44,7 @@ import {
   PrimaryAccount,
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
-import ensureMessageIsValid from './utils/ensureMessageIsValid';
+import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
@@ -56,7 +56,7 @@ jest.mock('../ledger/LedgerService');
 jest.mock('../keystone/KeystoneService');
 jest.mock('../lock/LockService');
 jest.mock('./utils/prepareBtcTxForLedger');
-jest.mock('./utils/ensureMessageIsValid');
+jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('./utils/getDerivationPath');
 
@@ -594,7 +594,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       const mockedHash = 'mockedHash';
       (personalSign as jest.Mock).mockReturnValue(mockedHash);
       const result = await walletService.signMessage(MessageType.ETH_SIGN, {});
-      expect(ensureMessageIsValid).toHaveBeenCalledWith(
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         MessageType.ETH_SIGN,
         {},
         activeNetworkMock.chainId
@@ -617,7 +617,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.PERSONAL_SIGN,
         {}
       );
-      expect(ensureMessageIsValid).toHaveBeenCalledWith(
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         MessageType.PERSONAL_SIGN,
         {},
         activeNetworkMock.chainId
@@ -640,7 +640,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA,
         {}
       );
-      expect(ensureMessageIsValid).toHaveBeenCalledWith(
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         MessageType.SIGN_TYPED_DATA,
         {},
         activeNetworkMock.chainId
@@ -664,7 +664,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA_V1,
         {}
       );
-      expect(ensureMessageIsValid).toHaveBeenCalledWith(
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         MessageType.SIGN_TYPED_DATA_V1,
         {},
         activeNetworkMock.chainId
@@ -688,7 +688,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA_V3,
         {}
       );
-      expect(ensureMessageIsValid).toHaveBeenCalledWith(
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         MessageType.SIGN_TYPED_DATA_V3,
         {},
         activeNetworkMock.chainId
@@ -712,7 +712,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         MessageType.SIGN_TYPED_DATA_V4,
         {}
       );
-      expect(ensureMessageIsValid).toHaveBeenCalledWith(
+      expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         MessageType.SIGN_TYPED_DATA_V4,
         {},
         activeNetworkMock.chainId
@@ -731,7 +731,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     it('should throw an exception when the message is invalid', async () => {
       const errorMessage = 'message is invalid';
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
-      (ensureMessageIsValid as jest.Mock).mockImplementationOnce(() => {
+      (ensureMessageFormatIsValid as jest.Mock).mockImplementationOnce(() => {
         throw new Error(errorMessage);
       });
       await expect(

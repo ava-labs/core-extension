@@ -52,7 +52,7 @@ import {
   PrimaryAccount,
 } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
-import ensureMessageIsValid from './utils/ensureMessageIsValid';
+import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';

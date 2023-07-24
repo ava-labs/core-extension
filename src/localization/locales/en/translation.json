@@ -530,6 +530,8 @@
   "{{domain}} requests you to <br />sign the following message": "{{domain}} requests you to <br />sign the following message",
   "Not Supported": "Not Supported",
   "Message signing not supported by the Avalanche Ledger app": "Message signing not supported by the Avalanche Ledger app",
+  "Warning: Verify Message Content": "Warning: Verify Message Content",
+  "This message contains non-standard elements.": "This message contains non-standard elements.",
   "Signing Failed": "Signing Failed",
   "Sign Message": "Sign Message",
   "Unknown": "Unknown",

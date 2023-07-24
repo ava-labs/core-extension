@@ -4,7 +4,7 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import { Action } from '@src/background/services/actions/models';
+import { MessageParams } from '@src/background/services/messages/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { positionValues } from 'react-custom-scrollbars-2';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ export function SignDataV3({
   scrollFrameHandler,
   updateHandler,
 }: {
-  message: Action;
+  message: MessageParams;
   scrollFrameHandler: (values: positionValues) => void;
   updateHandler: (values: positionValues) => void;
 }) {
@@ -70,7 +70,7 @@ export function SignDataV3({
 
   // remove type fields from data we don't want to render
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { types, primaryType, ...dataWithoutTypes } = message.displayData.data;
+  const { types, primaryType, ...dataWithoutTypes } = message.data;
   return (
     <VerticalFlex width={'100%'}>
       <Typography size={12} height="15px" margin="0 0 8px 0">
