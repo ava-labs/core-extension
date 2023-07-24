@@ -15,7 +15,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -67,13 +66,18 @@ const BalancesContext = createContext<{
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
   isTokensCached: boolean;
-  totalBalance?: number | null;
+  totalBalance: number | null;
+  getTotalBalance: (addressC?: string) => number | null;
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   isTokensCached: true,
+  totalBalance: null,
+  getTotalBalance() {
+    return null;
+  },
 });
 
 function balancesReducer(
@@ -247,26 +251,29 @@ export function BalancesProvider({ children }: { children: any }) {
 
       dispatch({
         type: BalanceActionType.UPDATE_BALANCES,
-        payload: { balances },
+        payload: { balances, isBalancesCached: false },
       });
     },
     [request, networks]
   );
 
-  const getTotalBalance = useMemo(() => {
-    if (
-      tokens.totalBalance !== undefined &&
-      tokens.totalBalance !== null &&
-      activeAccount?.addressC
-    ) {
-      const accountKey = getAccountKey({
-        address: activeAccount?.addressC,
-        isTestnet: network?.isTestnet,
-      });
-      return tokens.totalBalance[accountKey] ?? null;
-    }
-    return null;
-  }, [activeAccount?.addressC, network?.isTestnet, tokens]);
+  const getTotalBalance = useCallback(
+    (addressC?: string) => {
+      if (
+        tokens.totalBalance !== undefined &&
+        tokens.totalBalance !== null &&
+        activeAccount?.addressC
+      ) {
+        const accountKey = getAccountKey({
+          address: addressC || activeAccount?.addressC,
+          isTestnet: network?.isTestnet,
+        });
+        return tokens.totalBalance[accountKey] ?? null;
+      }
+      return null;
+    },
+    [activeAccount?.addressC, network?.isTestnet, tokens]
+  );
 
   return (
     <BalancesContext.Provider
@@ -278,7 +285,8 @@ export function BalancesProvider({ children }: { children: any }) {
         registerSubscriber,
         unregisterSubscriber,
         isTokensCached: tokens.cached ?? true,
-        totalBalance: getTotalBalance,
+        totalBalance: getTotalBalance(),
+        getTotalBalance,
       }}
     >
       {children}

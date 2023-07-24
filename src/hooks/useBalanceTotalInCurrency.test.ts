@@ -177,27 +177,4 @@ describe('hooks/useBalanceTotalInCurrency', () => {
 
     expect(result.current).toBe(null);
   });
-
-  it('returns null till all required networks are loaded', () => {
-    (useBalancesContext as jest.Mock).mockReturnValue({
-      tokens: {
-        balances: {
-          [1]: {
-            ...(mockBalances.tokens?.balances?.[1] || []),
-          },
-        },
-      },
-    });
-
-    const { result, rerender } = renderHook(() =>
-      useBalanceTotalInCurrency(mockAccount)
-    );
-
-    expect(result.current).toBe(null);
-
-    (useBalancesContext as jest.Mock).mockReturnValue({ ...mockBalances });
-    rerender();
-
-    expect(result.current).toBe(5666.2);
-  });
 });

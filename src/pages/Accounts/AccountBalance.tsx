@@ -55,9 +55,10 @@ export function AccountBalance({
 }: AccountBalanceProps) {
   const { t } = useTranslation();
   const { currency, currencyFormatter } = useSettingsContext();
-  const [skeletonWidth, setSkeletonWidth] = useState(0);
+  const [skeletonWidth, setSkeletonWidth] = useState(30);
   const balanceTextRef = useRef<HTMLSpanElement>();
   const { capture } = useAnalyticsContext();
+
   const hasBalance = balanceTotalUSD !== null;
 
   const handleClick = useCallback(
