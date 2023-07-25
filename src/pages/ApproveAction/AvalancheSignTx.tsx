@@ -1,6 +1,7 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Scrollbars, Stack } from '@avalabs/k2-components';
+import { Avalanche } from '@avalabs/wallets-sdk';
 
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
@@ -22,7 +23,7 @@ import { ApproveCreateSubnet } from './components/ApproveCreateSubnet';
 import { ApproveCreateChain } from './components/ApproveCreateChain';
 import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 import { AvalancheTxHeader } from './components/AvalancheTxHeader';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { ExcessiveBurnWarningDialog } from './components/ExcessiveBurnWarningDialog';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -31,6 +32,19 @@ export function AvalancheSignTx() {
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const [showBurnWarning, setShowBurnWarning] = useState(false);
+  const txData = action?.displayData.txData;
+
+  useEffect(() => {
+    // When the transaction details are loading, `txData` may be undefined,
+    // so we need to listen for it to be populated and then make sure
+    // `isValidAvaxBurnedAmount` is false (not just falsey).
+    const couldBurnExcessAmount = txData?.isValidAvaxBurnedAmount === false;
+
+    if (couldBurnExcessAmount) {
+      setShowBurnWarning(true);
+    }
+  }, [txData?.isValidAvaxBurnedAmount]);
 
   useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
 
@@ -43,6 +57,14 @@ export function AvalancheSignTx() {
       isUsingLedgerWallet
     );
   }, [isUsingLedgerWallet, requestId, updateAction]);
+
+  const rejectTx = useCallback(() => {
+    updateAction({
+      status: ActionStatus.ERROR_USER_CANCELED,
+      id: action?.id,
+    });
+    window.close();
+  }, [action?.id, updateAction]);
 
   const renderLedgerApproval = useCallback(
     ({ status, displayData }: Action) => {
@@ -100,13 +122,17 @@ export function AvalancheSignTx() {
   return (
     <Stack sx={{ px: 2, width: 1, justifyContent: 'space-between' }}>
       {renderLedgerApproval(action)}
-      <AvalancheTxHeader tx={action.displayData.txData} />
+      <AvalancheTxHeader tx={txData} />
 
       <Scrollbars>
-        <Stack sx={{ gap: 3.5 }}>
-          {renderSignTxDetails(action.displayData.txData)}
-        </Stack>
+        <Stack sx={{ gap: 3.5 }}>{renderSignTxDetails(txData)}</Stack>
       </Scrollbars>
+
+      <ExcessiveBurnWarningDialog
+        open={showBurnWarning}
+        onContinue={() => setShowBurnWarning(false)}
+        onReject={rejectTx}
+      />
 
       <Stack
         sx={{
@@ -116,18 +142,7 @@ export function AvalancheSignTx() {
           gap: 1,
         }}
       >
-        <Button
-          fullWidth
-          size="large"
-          color="secondary"
-          onClick={() => {
-            updateAction({
-              status: ActionStatus.ERROR_USER_CANCELED,
-              id: action.id,
-            });
-            window.close();
-          }}
-        >
+        <Button fullWidth size="large" color="secondary" onClick={rejectTx}>
           {t('Reject')}
         </Button>
         <Button fullWidth size="large" onClick={signTx}>
