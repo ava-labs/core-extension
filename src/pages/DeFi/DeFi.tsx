@@ -26,7 +26,7 @@ export function DeFi() {
   return (
     <Stack
       sx={{
-        pt: 1,
+        pt: 2,
         pb: 2,
         px: 2,
         flexGrow: 1,

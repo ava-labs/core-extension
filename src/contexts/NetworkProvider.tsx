@@ -100,7 +100,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
   );
 
   const getNetworkState = useCallback(() => {
-    request<GetNetworksStateHandler>({
+    return request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
       setNetworks(result.networks);
@@ -114,27 +114,21 @@ export function NetworkContextProvider({ children }: { children: any }) {
     return request<RemoveCustomNetworkHandler>({
       method: ExtensionRequest.NETWORK_REMOVE_CUSTOM,
       params: [chainId],
-    }).then(() => {
-      getNetworkState();
-    });
+    }).then(getNetworkState);
   };
 
   const saveCustomNetwork = async (customNetwork: Network) => {
     return request<SaveCustomNetworkHandler>({
       method: ExtensionRequest.NETWORK_SAVE_CUSTOM,
       params: [customNetwork],
-    }).then(() => {
-      getNetworkState();
-    });
+    }).then(getNetworkState);
   };
 
   const updateDefaultNetwork = async (networkOverrides: NetworkOverrides) => {
     return request<UpdateDefaultNetworkHandler>({
       method: ExtensionRequest.NETWORK_UPDATE_DEFAULT,
       params: { network: networkOverrides },
-    }).then(() => {
-      getNetworkState();
-    });
+    }).then(getNetworkState);
   };
 
   useEffect(() => {

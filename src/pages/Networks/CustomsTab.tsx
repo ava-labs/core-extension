@@ -1,9 +1,11 @@
-import { VerticalFlex } from '@avalabs/react-components';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { NetworkTabProps } from './Networks';
-import { EmptyContent } from '@src/components/common/EmptyContent';
-import { NetworkList } from './common/NetworkList';
+import { Stack } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
+
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { EmptyContent } from '@src/components/common/EmptyContent';
+
+import { NetworkList } from './common/NetworkList';
+import { NetworkTabProps } from './Networks';
 
 export function CustomsTab({ searchTerm }: NetworkTabProps) {
   const { t } = useTranslation();
@@ -14,12 +16,12 @@ export function CustomsTab({ searchTerm }: NetworkTabProps) {
   );
 
   return (
-    <VerticalFlex padding="0px 0px 8px 0px" height="100%">
+    <Stack sx={{ height: 1, pb: 1 }}>
       {!filteredCustomNetworks.length && (
         <EmptyContent text={t('There is no search result.')} />
       )}
 
       <NetworkList networkList={filteredCustomNetworks} />
-    </VerticalFlex>
+    </Stack>
   );
 }

@@ -123,6 +123,7 @@ export function NetworkList() {
                       height="40px"
                       padding="8px"
                       src={favoriteNetwork.logoUri}
+                      defaultSize={40}
                     />
                   </Badge>
                 </LogoContainer>

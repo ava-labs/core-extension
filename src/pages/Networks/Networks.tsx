@@ -1,86 +1,117 @@
+import { useHistory } from 'react-router-dom';
+import { ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  IconButton,
+  PlusIcon,
+  SearchBar,
+  Stack,
+  Tab,
+  TabPanel,
+  Tabs,
+  styled,
+} from '@avalabs/k2-components';
+
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { PageTitle } from '@src/components/common/PageTitle';
+import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
+
 import { CustomsTab } from './CustomsTab';
-import { Tabs } from '@src/components/common/Tabs';
 import { FavoritesTab } from './FavoritesTab';
 import { NetworksTab } from './NetworksTab';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import {
-  HorizontalFlex,
-  PlusIcon,
-  SearchInput,
-  TextButton,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { PageTitle } from '@src/components/common/PageTitle';
-import { useTheme } from 'styled-components';
-import { useHistory } from 'react-router-dom';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
-enum NetworkTabs {
-  FAVORITES = 'FAVORITES',
-  NETWORKS = 'NETWORKS',
-  CUSTOM = 'CUSTOM',
+export enum NetworkTab {
+  Favorites,
+  All,
+  Custom,
 }
 
 export interface NetworkTabProps {
   searchTerm: RegExp;
 }
 
+const NetworkTabPanel = styled(TabPanel)`
+  flex-grow: 1;
+`;
+
 export function Networks() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const { capture } = useAnalyticsContext();
-  const theme = useTheme();
   const history = useHistory();
+  const { activeTab, setActiveTab } = usePersistedTabs(NetworkTab.Favorites);
 
   const term = new RegExp(searchTerm, 'gi');
 
   return (
-    <VerticalFlex grow="1">
-      <HorizontalFlex align="center" padding="0 16px 0 0 ">
-        <PageTitle onBackClick={() => history.push('/home')}>
+    <Stack sx={{ width: 1, flexGrow: 1 }}>
+      <PageTitle margin="12px 0">
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            pr: 1,
+          }}
+        >
           {t('Networks')}
-        </PageTitle>
-        <TextButton data-testid="add-network-button">
-          <PlusIcon
-            color={theme.colors.text1}
-            onClick={() => {
-              history.push('/networks/add');
-            }}
-          />
-        </TextButton>
-      </HorizontalFlex>
-      <HorizontalFlex padding="8px 16px">
-        <SearchInput
-          width="100%"
-          placeholder={t('Search')}
-          onSearch={setSearchTerm}
+
+          <IconButton
+            data-testid="add-network-button"
+            onClick={() => history.push('/networks/add')}
+          >
+            <PlusIcon size={24} />
+          </IconButton>
+        </Stack>
+      </PageTitle>
+      <Stack sx={{ py: 1, px: 2 }}>
+        <SearchBar
+          sx={{ width: 1 }}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setSearchTerm(e.target.value)
+          }
           data-testid="network-search"
         />
-      </HorizontalFlex>
+      </Stack>
       <Tabs
-        margin="14px 0 0"
-        tabs={[
-          {
-            title: t('Favorites'),
-            id: NetworkTabs.FAVORITES,
-            component: <FavoritesTab searchTerm={term} />,
-            onClick: () => capture('NetworkFavoritesTabClicked'),
-          },
-          {
-            title: t('Networks'),
-            id: NetworkTabs.NETWORKS,
-            component: <NetworksTab searchTerm={term} />,
-            onClick: () => capture('NetworkNetworksTabClicked'),
-          },
-          {
-            title: t('Custom'),
-            id: NetworkTabs.CUSTOM,
-            component: <CustomsTab searchTerm={term} />,
-            onClick: () => capture('NetworkCustomTabClicked'),
-          },
-        ]}
-      />
-    </VerticalFlex>
+        size="medium"
+        variant="fullWidth"
+        indicatorColor="secondary"
+        value={activeTab}
+        onChange={(_, tab) => {
+          if (tab === NetworkTab.Custom) {
+            capture('NetworkCustomTabClicked');
+          } else if (tab === NetworkTab.Favorites) {
+            capture('NetworkFavoritesTabClicked');
+          } else {
+            capture('NetworkNetworksTabClicked');
+          }
+          setActiveTab(tab);
+        }}
+      >
+        <Tab label={t('Favorites')} value={NetworkTab.Favorites} />
+        <Tab label={t('Networks')} value={NetworkTab.All} />
+        <Tab label={t('Custom')} value={NetworkTab.Custom} />
+      </Tabs>
+      <Stack
+        sx={{
+          flexGrow: 1,
+          mt: -0.25,
+          pt: 1,
+          borderTop: 1,
+          borderColor: 'divider',
+        }}
+      >
+        <NetworkTabPanel value={activeTab} index={NetworkTab.Favorites}>
+          <FavoritesTab searchTerm={term} />
+        </NetworkTabPanel>
+        <NetworkTabPanel value={activeTab} index={NetworkTab.All}>
+          <NetworksTab searchTerm={term} />
+        </NetworkTabPanel>
+        <NetworkTabPanel value={activeTab} index={NetworkTab.Custom}>
+          <CustomsTab searchTerm={term} />
+        </NetworkTabPanel>
+      </Stack>
+    </Stack>
   );
 }

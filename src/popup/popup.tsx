@@ -31,6 +31,7 @@ import { ApproveAction } from '@src/pages/ApproveAction/ApproveAction';
 import { Home } from '@src/pages/Home/Home';
 import { Networks } from '@src/pages/Networks';
 import { AddNetwork } from '@src/pages/Networks/AddNetwork';
+import { EditNetwork } from '@src/pages/Networks/EditNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
 import { Buy } from '@src/pages/Buy/Buy';
@@ -535,6 +536,18 @@ export function Popup() {
                                                 fallback={<LoadingIcon />}
                                               >
                                                 <NetworkDetails />
+                                              </Suspense>
+                                            </Route>
+
+                                            <Route path="/networks/edit/:networkId">
+                                              <Suspense
+                                                fallback={
+                                                  <CircularProgress
+                                                    size={100}
+                                                  />
+                                                }
+                                              >
+                                                <EditNetwork />
                                               </Suspense>
                                             </Route>
 

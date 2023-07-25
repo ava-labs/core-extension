@@ -22,6 +22,7 @@ interface NetworkLogoProps {
   margin?: string;
   zIndex?: number;
   withBackground?: boolean;
+  defaultSize?: number;
 }
 
 const NetworkLogoImage = styled('img')<NetworkLogoProps>`
@@ -47,10 +48,10 @@ export function NetworkLogo({
   width,
   height,
   position,
-  padding,
   margin,
   zIndex,
   withBackground = false,
+  defaultSize,
 }: NetworkLogoProps) {
   return (
     <>
@@ -63,18 +64,17 @@ export function NetworkLogo({
           margin={margin}
           zIndex={zIndex}
           withBackground={withBackground}
-        ></NetworkLogoImage>
+        />
       ) : (
         <GlobeIconContainer
           width={width}
           height={height}
           position={position}
-          padding={padding}
           margin={margin}
           zIndex={zIndex}
           withBackground={withBackground}
         >
-          <GlobeIcon size={16} sx={{ m: 'auto', display: 'block' }} />
+          <GlobeIcon size={defaultSize} sx={{ m: 'auto', display: 'block' }} />
         </GlobeIconContainer>
       )}
     </>
