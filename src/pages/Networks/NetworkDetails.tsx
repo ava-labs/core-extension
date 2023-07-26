@@ -1,81 +1,44 @@
 import { Network } from '@avalabs/chains-sdk';
-import {
-  CaretIcon,
-  ComponentSize,
-  EllipsisIcon,
-  HorizontalFlex,
-  IconDirection,
-  PrimaryButton,
-  SecondaryButton,
-  StarIcon,
-  StarOutlineIcon,
-  TextButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
-import { NetworkLogo } from '@src/components/common/NetworkLogo';
-import {
-  Scrollbars,
-  ScrollbarsRef,
-} from '@src/components/common/scrollbars/Scrollbars';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import styled, { useTheme } from 'styled-components';
+import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  ClickAwayListener,
+  EditIcon,
+  Grow,
+  IconButton,
+  MenuItem,
+  MenuList,
+  MoreHorizontalIcon,
+  Popper,
+  Scrollbars,
+  ScrollbarsRef,
+  Stack,
+  StarFilledIcon,
+  StarIcon,
+  TrashIcon,
+  Typography,
+  toast,
+} from '@avalabs/k2-components';
+
+import { PageTitle } from '@src/components/common/PageTitle';
+import { NetworkLogo } from '@src/components/common/NetworkLogo';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+
 import {
   NetworkForm,
   NetworkFormAction,
   NetworkFormActions,
 } from './NetworkForm';
-import { useTranslation } from 'react-i18next';
-import { toast } from '@avalabs/k2-components';
 import {
   NetworkDetailsDialogOptions,
   NetworkDetailsDialogs,
 } from './NetworkDetailsDialogs';
 
-const FlexScrollbars = styled(Scrollbars)`
-  flex-grow: 1;
-  max-height: unset;
-  height: 100%;
-  width: 100%;
-
-  & > div {
-    display: flex;
-    flex-direction: column;
-  }
-`;
-
-const DropdownContent = styled(VerticalFlex)`
-  flex-grow: 1;
-  background: ${({ theme }) => theme.colors.bg3};
-  border-radius: 0 0 8px 8px;
-`;
-
-const NetworkSwitcherItem = styled(HorizontalFlex)`
-  color: ${({ theme }) => theme.colors.text1};
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 8px;
-  cursor: pointer;
-  :hover {
-    background-color: ${({ theme }) => theme.colors.bg2};
-  }
-  border-bottom: 1px solid ${({ theme }) => theme.palette.grey[700]};
-  :last-of-type {
-    border-bottom: none;
-  }
-`;
-
-const NetworkLogoContainer = styled.div`
-  padding: 16px;
-`;
-
 export const NetworkDetails = () => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const history = useHistory();
   const { networkId } = useParams<{ networkId: string }>();
   const selectedChainId = parseInt(networkId, 10);
@@ -88,12 +51,8 @@ export const NetworkDetails = () => {
     network,
     isCustomNetwork,
     removeCustomNetwork,
-    saveCustomNetwork,
-    updateDefaultNetwork,
   } = useNetworkContext();
   const [isOpen, setIsOpen] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
-  const [isFormValid, setIsFormValid] = useState(true);
   const selectButtonRef = useRef<HTMLButtonElement>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
@@ -102,8 +61,7 @@ export const NetworkDetails = () => {
   const childRef = useRef<NetworkFormActions>(null);
   const [networkState, setNetworkState] = useState<Network>();
   const [isDeleteDialog, setIsDeleteDialog] = useState(false);
-  const [isResetRpcUrlDialog, setIsResetRpcUrlDialog] = useState(false);
-  const [isUpdateRpcUrlDialog, setIsUpdateRpcUrlDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const networkData = networks.find(
@@ -122,48 +80,11 @@ export const NetworkDetails = () => {
   };
   const isFavorite = networkState && isFavoriteNetwork(networkState.chainId);
   const isCustom = networkState && isCustomNetwork(networkState.chainId);
-
-  const handleChange = (newNetworkState: Network, isValid: boolean) => {
-    setIsFormValid(isValid);
-    setNetworkState({
-      ...newNetworkState,
-    });
-  };
+  const canConnect = networkState.chainId !== network?.chainId;
 
   const onDeleteSuccess = () => {
     capture('CustomNetworkDeleted');
     toast.success(t('Custom Network Deleted!'), { duration: 2000 });
-    history.push('/networks?activeTab=NETWORKS');
-  };
-  const onEditSuccess = () => {
-    capture('CustomNetworkEdited');
-    toast.success(t('Custom Network Edited!'), { duration: 2000 });
-    setIsEdit(false);
-    setErrorMessage('');
-  };
-  const onUpdateURLSuccess = () => {
-    capture('DefaultNetworkRPCEdited');
-    toast.success(t('RPC URL Updated!'), { duration: 2000 });
-    setIsEdit(false);
-    setErrorMessage('');
-  };
-  const onResetURLSuccess = () => {
-    capture('DefaultNetworkRPCReset');
-    toast.success(t('RPC URL Reset!'), { duration: 2000 });
-    setIsEdit(false);
-    setErrorMessage('');
-  };
-
-  const handleEdit = () => {
-    if (!isCustom) {
-      onUpdateRpcUrl();
-    } else {
-      saveCustomNetwork(networkState)
-        .then(() => {
-          onEditSuccess();
-        })
-        .catch((e) => onError(e));
-    }
   };
 
   const onError = (e: string) => {
@@ -171,53 +92,21 @@ export const NetworkDetails = () => {
     scrollbarRef?.current?.scrollToTop();
   };
 
-  const resetRpcUrl = () => {
-    //  We're resetting the RPC url, so we want to send it as undefined to the backend.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { rpcUrl, ...networkWithoutRpcUrl } = networkState;
-
-    updateDefaultNetwork(networkWithoutRpcUrl)
-      .then(() => {
-        goBack();
-        onResetURLSuccess();
-      })
-      .catch((e) => {
-        hideDialogs();
-        onError(e);
-      });
-  };
-
-  const hideDialogs = () => {
-    setIsDeleteDialog(false);
-    setIsResetRpcUrlDialog(false);
-    setIsUpdateRpcUrlDialog(false);
-  };
-
   const handleDialogPrimaryClick = (dialog: NetworkDetailsDialogOptions) => {
     switch (dialog) {
       case NetworkDetailsDialogOptions.DELETE_DIALOG:
+        setIsDeleting(true);
         removeCustomNetwork(selectedChainId)
           .then(() => {
             goBack();
             onDeleteSuccess();
           })
           .catch((e) => {
-            hideDialogs();
+            setIsDeleteDialog(false);
             onError(e);
-          });
-        break;
-      case NetworkDetailsDialogOptions.RESET_RPC_URL_DIALOG:
-        resetRpcUrl();
-        break;
-      case NetworkDetailsDialogOptions.UPDATE_RPC_URL_DIALOG:
-        updateDefaultNetwork(networkState)
-          .then(() => {
-            goBack();
-            onUpdateURLSuccess();
           })
-          .catch((e) => {
-            hideDialogs();
-            onError(e);
+          .finally(() => {
+            setIsDeleting(false);
           });
         break;
       default:
@@ -225,201 +114,161 @@ export const NetworkDetails = () => {
     }
   };
 
-  const onDelete = () => {
-    setIsDeleteDialog(true);
-  };
-
-  const onUpdateRpcUrl = () => {
-    setIsUpdateRpcUrlDialog(true);
-  };
-
-  const handleResetUrl = () => {
-    setIsResetRpcUrlDialog(true);
-  };
-
   return (
-    <VerticalFlex width="100%" padding="0 16px 16px" position="relative">
-      <HorizontalFlex
-        justify="space-between"
-        height="53px"
-        align="center"
-        padding="0 8px"
+    <Stack sx={{ width: 1 }}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          pr: 1,
+        }}
       >
-        <TextButton data-testid="go-back-button" onClick={() => goBack()}>
-          <CaretIcon
-            height="20px"
-            width="20px"
-            color={theme.colors.icon1}
-            direction={IconDirection.LEFT}
-          />
-        </TextButton>
-        <HorizontalFlex align="center">
-          <TextButton
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!isFavorite) {
-                addFavoriteNetwork(networkState.chainId);
-                return;
-              }
-              removeFavoriteNetwork(networkState.chainId);
-            }}
-            data-testid="favorite-button"
-          >
-            {isEdit ? null : !isFavorite ? (
-              <StarOutlineIcon width="20px" color={theme.colors.icon1} />
-            ) : (
-              <StarIcon width="20px" color={theme.colors.icon1} />
-            )}
-          </TextButton>
-
-          {isEdit ? null : isCustom ? (
-            <TextButton
-              padding="0 0 0 24px"
-              onClick={() => setIsOpen(!isOpen)}
-              ref={selectButtonRef}
-              data-testid="network-options"
-            >
-              <EllipsisIcon height="6px" color={theme.colors.icon1} />
-            </TextButton>
-          ) : (
-            <TextButton padding="0 0 0 16px" onClick={() => setIsEdit(true)}>
-              Edit
-            </TextButton>
-          )}
-          <ContainedDropdown
-            isOpen={isOpen}
-            width="120px"
-            height="auto"
-            anchorEl={selectButtonRef}
-            setIsOpen={setIsOpen}
-            margin="8px 16px 0 0"
-            borderRadius="8px"
-          >
-            <DropdownContent>
-              <VerticalFlex>
-                <NetworkSwitcherItem
-                  onClick={() => {
-                    setIsOpen(false);
-                    setIsEdit(true);
-                  }}
-                >
-                  <Typography weight={600} size={14}>
-                    {t('Edit')}
-                  </Typography>
-                </NetworkSwitcherItem>
-                <NetworkSwitcherItem
-                  onClick={() => {
-                    onDelete();
-                    setIsOpen(false);
-                  }}
-                >
-                  <Typography weight={600} size={14}>
-                    {t('Delete')}
-                  </Typography>
-                </NetworkSwitcherItem>
-              </VerticalFlex>
-            </DropdownContent>
-          </ContainedDropdown>
-        </HorizontalFlex>
-      </HorizontalFlex>
-      <FlexScrollbars ref={scrollbarRef}>
-        <VerticalFlex width="100%">
-          <VerticalFlex align="center" marginBottom="24px">
-            <NetworkLogoContainer>
-              <NetworkLogo
-                height="80px"
-                width="80px"
-                padding="16px"
-                src={networkState?.logoUri}
-              />
-            </NetworkLogoContainer>
-
-            <Typography weight={700} size={18} height="22px">
-              {networkState?.chainName}
-            </Typography>
-          </VerticalFlex>
-          {errorMessage && (
-            <Typography
-              color={theme.colors.error}
-              size={14}
-              padding="8px 0"
-              margin="0 0 16px 0"
-            >
-              {errorMessage}
-            </Typography>
-          )}
-          {networkState && (
-            <NetworkForm
-              customNetwork={networkState}
-              handleChange={handleChange}
-              readOnly={!isEdit}
-              action={NetworkFormAction.Edit}
-              isCustomNetwork={isCustom}
-              handleResetUrl={handleResetUrl}
-              ref={childRef}
-            />
-          )}
-        </VerticalFlex>
-      </FlexScrollbars>
-      {!isEdit && networkState.chainId !== network?.chainId && (
-        <VerticalFlex
-          align="center"
-          grow="1"
-          justify="flex-end"
-          margin="24px 16px 8px"
-        >
-          <PrimaryButton
-            size={ComponentSize.LARGE}
-            width="100%"
-            onClick={() => {
-              setNetwork(networkState);
+        <PageTitle margin="12px 0">
+          <Stack
+            direction="row"
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              pr: 1,
+              gap: 0.5,
             }}
           >
-            {t('Connect Network')}
-          </PrimaryButton>
-        </VerticalFlex>
-      )}
-      {isEdit && (
-        <VerticalFlex
-          padding="16px 0 0 0"
-          align="center"
-          grow="1"
-          justify="flex-end"
-          width="100%"
-        >
-          <HorizontalFlex width="100%">
-            <SecondaryButton
-              size={ComponentSize.LARGE}
-              width="100%"
-              margin="0 8px 0 0"
-              onClick={() => {
-                childRef.current?.resetFormErrors();
-                setIsFormValid(true);
-                setIsEdit(false);
-                setErrorMessage('');
-                setNetworkState(networkState);
+            <IconButton
+              data-testid="favorite-button"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isFavorite) {
+                  addFavoriteNetwork(networkState.chainId);
+                  return;
+                }
+                removeFavoriteNetwork(networkState.chainId);
               }}
             >
-              {t('Cancel')}
-            </SecondaryButton>
-            <PrimaryButton
-              size={ComponentSize.LARGE}
-              width="100%"
-              onClick={handleEdit}
-              disabled={!isFormValid}
-            >
-              {t('Save')}
-            </PrimaryButton>
-          </HorizontalFlex>
-        </VerticalFlex>
+              {isFavorite ? (
+                <StarFilledIcon size={24} />
+              ) : (
+                <StarIcon size={24} />
+              )}
+            </IconButton>
+
+            {isCustom ? (
+              <ClickAwayListener onClickAway={() => setIsOpen(false)}>
+                <IconButton
+                  onClick={() => setIsOpen(!isOpen)}
+                  ref={selectButtonRef}
+                  data-testid="network-options"
+                >
+                  <MoreHorizontalIcon />
+
+                  <Popper
+                    open={isOpen}
+                    anchorEl={selectButtonRef.current}
+                    placement="bottom-end"
+                    transition
+                  >
+                    {({ TransitionProps }) => (
+                      <Grow {...TransitionProps} timeout={250}>
+                        <MenuList
+                          dense
+                          sx={{
+                            width: 180,
+                            p: 0,
+                            borderRadius: 1,
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              history.push(`/networks/edit/${networkId}`);
+                            }}
+                            sx={{ flexDirection: 'row', gap: 1 }}
+                          >
+                            <EditIcon size={14} />
+                            {t('Edit')}
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              setIsDeleteDialog(true);
+                              setIsOpen(false);
+                            }}
+                            sx={{
+                              flexDirection: 'row',
+                              gap: 1,
+                              color: 'error.main',
+                            }}
+                          >
+                            <TrashIcon size={14} />
+                            {t('Delete')}
+                          </MenuItem>
+                        </MenuList>
+                      </Grow>
+                    )}
+                  </Popper>
+                </IconButton>
+              </ClickAwayListener>
+            ) : (
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => history.push(`/networks/edit/${networkId}`)}
+              >
+                {t('Edit')}
+              </Button>
+            )}
+          </Stack>
+        </PageTitle>
+      </Stack>
+      <Stack sx={{ px: 2, flexGrow: 1 }}>
+        <Scrollbars ref={scrollbarRef}>
+          <Stack sx={{ width: 1, gap: 3, pt: 1, alignItems: 'center' }}>
+            <NetworkLogo
+              height="80px"
+              width="80px"
+              padding="16px"
+              src={networkState?.logoUri}
+              defaultSize={80}
+            />
+            <Typography variant="h4">{networkState?.chainName}</Typography>
+            {errorMessage && (
+              <Typography variant="body2" color="error.main">
+                {errorMessage}
+              </Typography>
+            )}
+            {networkState && (
+              <NetworkForm
+                readOnly
+                customNetwork={networkState}
+                action={NetworkFormAction.Edit}
+                isCustomNetwork={isCustom}
+                ref={childRef}
+              />
+            )}
+          </Stack>
+        </Scrollbars>
+      </Stack>
+      {canConnect && (
+        <Stack
+          direction="row"
+          sx={{ px: 2, py: 3, alignItems: 'center', gap: 1 }}
+        >
+          <Button
+            fullWidth
+            color="primary"
+            size="large"
+            onClick={() => setNetwork(networkState)}
+          >
+            {t('Connect Network')}
+          </Button>
+        </Stack>
       )}
       <NetworkDetailsDialogs
+        isPrimaryButtonLoading={isDeleting}
         isDelete={isDeleteDialog}
-        isResetRpcUrl={isResetRpcUrlDialog}
-        isUpdateRpcUrl={isUpdateRpcUrlDialog}
         handlePrimaryClick={handleDialogPrimaryClick}
-        hideDialog={() => hideDialogs()}
+        hideDialog={() => setIsDeleteDialog(false)}
       />
-    </VerticalFlex>
+    </Stack>
   );
 };

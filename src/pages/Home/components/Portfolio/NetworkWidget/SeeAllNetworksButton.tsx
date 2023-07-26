@@ -3,6 +3,8 @@ import { NetworkCard } from './common/NetworkCard';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/k2-components';
 
+import { NetworkTab } from '@src/pages/Networks';
+
 interface SeeAllNetworksButtonProps {
   isFullWidth: boolean;
 }
@@ -22,7 +24,7 @@ export function SeeAllNetworksButton({
       }}
       onClick={(e) => {
         e.stopPropagation();
-        history.push('/networks?activeTab=NETWORKS');
+        history.push(`/networks?activeTab=${NetworkTab.All}`);
       }}
     >
       {t('View All Networks')}
@@ -36,7 +38,7 @@ export function SeeAllNetworksButton({
         mb: 2,
         p: 2,
       }}
-      onClick={() => history.push('/networks?activeTab=NETWORKS')}
+      onClick={() => history.push(`/networks?activeTab=${NetworkTab.All}`)}
     >
       <Stack
         justifyContent="center"

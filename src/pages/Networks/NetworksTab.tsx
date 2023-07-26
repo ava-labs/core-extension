@@ -1,9 +1,11 @@
-import { VerticalFlex } from '@avalabs/react-components';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { NetworkTabProps } from './Networks';
-import { EmptyContent } from '@src/components/common/EmptyContent';
-import { NetworkList } from './common/NetworkList';
 import { useTranslation } from 'react-i18next';
+import { Stack } from '@avalabs/k2-components';
+
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { EmptyContent } from '@src/components/common/EmptyContent';
+
+import { NetworkTabProps } from './Networks';
+import { NetworkList } from './common/NetworkList';
 
 export function NetworksTab({ searchTerm }: NetworkTabProps) {
   const { t } = useTranslation();
@@ -13,12 +15,15 @@ export function NetworksTab({ searchTerm }: NetworkTabProps) {
     (networkItem) => searchTerm && networkItem.chainName.match(searchTerm)
   );
 
+  const hasSearchResults = filteredNetworks.length > 0;
+
   return (
-    <VerticalFlex padding="0px 0px 8px 0px" height="100%">
-      {!filteredNetworks.length && (
+    <Stack sx={{ width: 1, height: 1, pb: 1 }}>
+      {hasSearchResults ? (
+        <NetworkList networkList={filteredNetworks} />
+      ) : (
         <EmptyContent text={t('There is no search result.')} />
       )}
-      <NetworkList networkList={filteredNetworks} />
-    </VerticalFlex>
+    </Stack>
   );
 }

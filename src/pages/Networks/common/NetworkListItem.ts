@@ -1,18 +1,19 @@
-import { HorizontalFlex } from '@avalabs/react-components';
-import styled from 'styled-components';
+import { Stack, styled } from '@avalabs/k2-components';
 
-export const NetworkListItem = styled(HorizontalFlex)<{
+export const NetworkListItem = styled(Stack)<{
   isActive?: boolean;
 }>`
-  color: ${({ theme }) => theme.colors.text1};
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding: 16px;
   cursor: pointer;
   width: 100%;
-  :hover {
-    background-color: ${({ theme }) => theme.colors.bg2};
-  }
+  transition: background-color 0.15s ease-in-out;
   background-color: ${({ isActive, theme }) =>
-    isActive ? theme.colors.bg2 : 'inherit'}; ;
+    isActive ? `${theme.palette.grey[900]}80` : 'inherit'};
+
+  :hover {
+    background-color: ${({ theme }) => `${theme.palette.grey[900]}80`};
+  }
 `;

@@ -1,31 +1,34 @@
-import {
-  HorizontalFlex,
-  TextButton,
-  Typography,
-  StarIcon,
-  InfoIcon,
-  StarOutlineIcon,
-  GlobeIcon,
-} from '@avalabs/react-components';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useState } from 'react';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { useTheme } from 'styled-components';
+import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { ChainId, Network } from '@avalabs/chains-sdk';
+import {
+  Collapse,
+  Divider,
+  GlobeIcon,
+  IconButton,
+  InfoCircleIcon,
+  Scrollbars,
+  Stack,
+  StarFilledIcon,
+  StarIcon,
+  Typography,
+  toast,
+  useTheme,
+} from '@avalabs/k2-components';
+
+import { NetworkLogo } from '@src/components/common/NetworkLogo';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
+
 import { NetworkListItem } from './NetworkListItem';
 import {
   AnimatedGlobeIconContainer,
   AnimatedNetworkLogo,
   NetworkLogoContainer,
 } from './NetworkLogo';
-import { OuterContainer } from './OuterContainer';
-import { ChainId, Network } from '@avalabs/chains-sdk';
-import { useHistory } from 'react-router-dom';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { NetworkLogo } from '@src/components/common/NetworkLogo';
-import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
-import { useTranslation } from 'react-i18next';
-import { toast } from '@avalabs/k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface NetworkListProps {
   networkList: Network[];
@@ -40,133 +43,118 @@ export function NetworkList({ networkList }: NetworkListProps) {
     isFavoriteNetwork,
     addFavoriteNetwork,
   } = useNetworkContext();
-  const theme = useTheme();
   const history = useHistory();
+  const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const [favoritedItem, setFavoritedItem] = useState<number | null>(null);
 
   if (!networkList.length) {
     return null;
   }
+
   return (
     <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <TransitionGroup>
+      <TransitionGroup component={null}>
         {networkList.map((networkItem, index) => {
           const isFavorite = isFavoriteNetwork(networkItem.chainId);
           return (
-            <CSSTransition
-              key={networkItem.chainId}
-              timeout={500}
-              classNames="item"
-            >
-              <OuterContainer>
-                <NetworkListItem
-                  onClick={() => {
-                    setNetwork(networkItem);
-                    toast.success(t('Active Network has changed!'), {
-                      duration: 2000,
-                    });
-                    history.push('/home');
-                  }}
-                  data-testid={`network-li-${index}`}
-                  isActive={networkItem.chainId === network?.chainId}
-                >
-                  <HorizontalFlex align="center">
-                    <NetworkLogoContainer>
-                      {favoritedItem === index && (
-                        <CSSTransition
-                          key={networkItem.chainId}
-                          timeout={500}
-                          classNames="item"
-                          appear
-                          in
+            <Collapse key={networkItem.chainId} className="item">
+              {index > 0 && <Divider sx={{ mx: 2 }} />}
+              <NetworkListItem
+                onClick={() => {
+                  setNetwork(networkItem);
+                  toast.success(t('Active Network has changed!'), {
+                    duration: 2000,
+                  });
+                  history.push('/home');
+                }}
+                data-testid={`network-li-${index}`}
+                isActive={networkItem.chainId === network?.chainId}
+              >
+                <Stack direction="row" sx={{ alignItems: 'center', gap: 2 }}>
+                  <NetworkLogoContainer>
+                    <CSSTransition
+                      key={networkItem.chainId}
+                      timeout={500}
+                      classNames="item"
+                      appear
+                      in={favoritedItem === networkItem.chainId}
+                    >
+                      {networkItem.logoUri ? (
+                        <AnimatedNetworkLogo
+                          src={ipfsResolverWithFallback(networkItem.logoUri)}
+                          position={index + 1}
+                          isFavorited={index === favoritedItem}
+                        />
+                      ) : (
+                        <AnimatedGlobeIconContainer
+                          position={index + 1}
+                          isFavorited={index === favoritedItem}
                         >
-                          {networkItem.logoUri ? (
-                            <AnimatedNetworkLogo
-                              src={ipfsResolverWithFallback(
-                                networkItem.logoUri
-                              )}
-                              position={index + 1}
-                              isFavorited={index === favoritedItem}
-                            />
-                          ) : (
-                            <AnimatedGlobeIconContainer
-                              position={index + 1}
-                              isFavorited={index === favoritedItem}
-                            >
-                              {' '}
-                              <GlobeIcon
-                                width="100%"
-                                height="100%"
-                                color={theme.colors.text1}
-                              />
-                            </AnimatedGlobeIconContainer>
-                          )}
-                        </CSSTransition>
-                      )}
-                      <NetworkLogo
-                        src={networkItem.logoUri}
-                        width="32px"
-                        height="32px"
-                        position="absolute"
-                        padding="8px"
-                      />
-                    </NetworkLogoContainer>
-                    <Typography margin="0 0 0 16px" weight={600} size={16}>
-                      {networkItem.chainName}
-                    </Typography>
-                  </HorizontalFlex>
-                  <HorizontalFlex
-                    align="center"
-                    justify={
-                      networkItem.chainId !== ChainId.AVALANCHE_MAINNET_ID
-                        ? 'space-between'
-                        : 'flex-end'
-                    }
-                    width="64px"
-                  >
-                    {networkItem.chainId !== ChainId.AVALANCHE_MAINNET_ID && (
-                      <TextButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!isFavorite) {
-                            setFavoritedItem(index);
-                            addFavoriteNetwork(networkItem.chainId);
-                            return;
-                          }
-                          removeFavoriteNetwork(networkItem.chainId);
-                          setFavoritedItem(null);
-                        }}
-                        data-testid="favorite-network"
-                      >
-                        {isFavorite ? (
-                          <StarIcon color={theme.colors.text1} width="20px" />
-                        ) : (
-                          <StarOutlineIcon
-                            color={theme.colors.text1}
-                            width="20px"
+                          <GlobeIcon
+                            width="100%"
+                            height="100%"
+                            color={theme.palette.common.white}
+                            size={32}
                           />
-                        )}
-                      </TextButton>
-                    )}
-                    <TextButton
+                        </AnimatedGlobeIconContainer>
+                      )}
+                    </CSSTransition>
+                    <NetworkLogo
+                      src={networkItem.logoUri}
+                      width="32px"
+                      height="32px"
+                      position="absolute"
+                      defaultSize={32}
+                    />
+                  </NetworkLogoContainer>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: 'fontWeightSemibold' }}
+                  >
+                    {networkItem.chainName}
+                  </Typography>
+                </Stack>
+                <Stack
+                  direction="row"
+                  sx={{ flexShrink: 0, alignItems: 'center' }}
+                >
+                  {networkItem.chainId !== ChainId.AVALANCHE_MAINNET_ID && (
+                    <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
-                        capture('NetworkDetailsClicked', {
-                          chainId: networkItem.chainId,
-                        });
-                        history.push(
-                          `/networks/details/${networkItem.chainId}`
-                        );
+                        if (!isFavorite) {
+                          setFavoritedItem(networkItem.chainId);
+                          addFavoriteNetwork(networkItem.chainId);
+                        } else {
+                          setFavoritedItem(null);
+                          removeFavoriteNetwork(networkItem.chainId);
+                        }
                       }}
-                      data-testid="network-details"
+                      data-testid="favorite-network"
                     >
-                      <InfoIcon color={theme.colors.text1} width="20px" />
-                    </TextButton>
-                  </HorizontalFlex>
-                </NetworkListItem>
-              </OuterContainer>
-            </CSSTransition>
+                      {isFavorite ? (
+                        <StarFilledIcon size={24} />
+                      ) : (
+                        <StarIcon size={24} />
+                      )}
+                    </IconButton>
+                  )}
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      capture('NetworkDetailsClicked', {
+                        chainId: networkItem.chainId,
+                      });
+                      history.push(`/networks/details/${networkItem.chainId}`);
+                    }}
+                    data-testid="network-details"
+                  >
+                    <InfoCircleIcon size={24} />
+                  </IconButton>
+                </Stack>
+              </NetworkListItem>
+            </Collapse>
           );
         })}
       </TransitionGroup>

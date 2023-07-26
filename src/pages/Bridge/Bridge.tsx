@@ -501,27 +501,55 @@ export function Bridge() {
   return (
     <Switch>
       <Route path="/bridge/confirm">
-        <BridgeConfirmation
-          tokenAmount={amount.toString()}
-          currencyAmount={bridgeAmountCurrency}
-          source={{
-            logoUri: sourceNetwork?.logoUri,
-            name: sourceNetwork?.chainName,
-          }}
-          target={{
-            logoUri: targetNetwork?.logoUri,
-            name: targetNetwork?.chainName,
-          }}
-          currentAsset={currentAsset}
-          bridgeFee={
-            bridgeFee
-              ? `${bigToLocaleString(bridgeFee, 9)} ${currentAsset}`
-              : '-'
-          }
-          receiveAmount={receiveAmount}
-          receiveAmountCurrency={formattedReceiveAmountCurrency}
-          onSubmit={onSubmitClicked}
-        />
+        <>
+          <BridgeConfirmation
+            tokenAmount={amount.toString()}
+            currencyAmount={bridgeAmountCurrency}
+            source={{
+              logoUri: sourceNetwork?.logoUri,
+              name: sourceNetwork?.chainName,
+            }}
+            target={{
+              logoUri: targetNetwork?.logoUri,
+              name: targetNetwork?.chainName,
+            }}
+            currentAsset={currentAsset}
+            bridgeFee={
+              bridgeFee
+                ? `${bigToLocaleString(bridgeFee, 9)} ${currentAsset}`
+                : '-'
+            }
+            receiveAmount={receiveAmount}
+            receiveAmountCurrency={formattedReceiveAmountCurrency}
+            onSubmit={onSubmitClicked}
+          />
+
+          {transferWithLedger && (
+            <BridgeConfirmLedger
+              blockchain={currentBlockchain}
+              isTransactionPending={isPending}
+              onCancel={() => {
+                setTransferWithLedger(false);
+              }}
+              startTransfer={() => {
+                setTransferWithLedger(false);
+                handleTransfer();
+              }}
+            />
+          )}
+          {isPending && (
+            <TxInProgress
+              address={t('Avalanche Bridge')}
+              amount={bigToLocaleString(amount)}
+              symbol={currentAsset}
+              onReject={() => {
+                setTransferWithLedger(false);
+                resetKeystoneRequest();
+                setIsPending(false);
+              }}
+            />
+          )}
+        </>
       </Route>
       <Route path="/bridge">
         <Stack sx={{ height: '100%', width: '100%' }}>
@@ -736,31 +764,6 @@ export function Bridge() {
               {t('Next')}
             </Button>
           </Stack>
-          {transferWithLedger && (
-            <BridgeConfirmLedger
-              blockchain={currentBlockchain}
-              isTransactionPending={isPending}
-              onCancel={() => {
-                setTransferWithLedger(false);
-              }}
-              startTransfer={() => {
-                setTransferWithLedger(false);
-                handleTransfer();
-              }}
-            />
-          )}
-          {isPending && (
-            <TxInProgress
-              address={t('Avalanche Bridge')}
-              amount={bigToLocaleString(amount)}
-              symbol={currentAsset}
-              onReject={() => {
-                setTransferWithLedger(false);
-                resetKeystoneRequest();
-                setIsPending(false);
-              }}
-            />
-          )}
         </Stack>
       </Route>
     </Switch>

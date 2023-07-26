@@ -9,6 +9,7 @@ export enum NetworkDetailsDialogOptions {
 }
 
 interface NetworkDetailsDialogsProps {
+  isPrimaryButtonLoading: boolean;
   isDelete?: boolean;
   isResetRpcUrl?: boolean;
   isUpdateRpcUrl?: boolean;
@@ -20,6 +21,7 @@ export const NetworkDetailsDialogs = ({
   isDelete,
   isResetRpcUrl,
   isUpdateRpcUrl,
+  isPrimaryButtonLoading,
   handlePrimaryClick,
   hideDialog,
 }: NetworkDetailsDialogsProps) => {
@@ -50,6 +52,8 @@ export const NetworkDetailsDialogs = ({
             onClick={() => {
               handlePrimaryClick(primaryButtonFn);
             }}
+            disabled={isPrimaryButtonLoading}
+            isLoading={isPrimaryButtonLoading}
           >
             {primaryButtonText}
           </Button>

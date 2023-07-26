@@ -1,12 +1,12 @@
-import styled from 'styled-components';
+import { styled } from '@avalabs/k2-components';
 
-export const NetworkLogoContainer = styled.div`
+export const NetworkLogoContainer = styled('div')`
   width: 32px;
   height: 32px;
   position: relative;
 `;
 
-export const AnimatedGlobeIconContainer = styled.div<{
+export const AnimatedGlobeIconContainer = styled('div')<{
   isFavorited: boolean;
   position: number;
 }>`
@@ -15,13 +15,13 @@ export const AnimatedGlobeIconContainer = styled.div<{
   top: 0;
   left: 0;
   opacity: 0;
-  &.item-appear {
+  &.item-enter {
     opacity: 1;
     transform: scale(1);
     top: 0;
     left: 0;
   }
-  &.item-appear-active {
+  &.item-enter-active {
     opacity: 0;
     top: ${({ position }) => (position ? `-${position * 65}px` : 0)};
     left: 40px;
@@ -31,7 +31,7 @@ export const AnimatedGlobeIconContainer = styled.div<{
   }
 `;
 
-export const AnimatedNetworkLogo = styled.img<{
+export const AnimatedNetworkLogo = styled('img')<{
   isFavorited: boolean;
   position: number;
 }>`
@@ -40,13 +40,13 @@ export const AnimatedNetworkLogo = styled.img<{
   top: 0;
   left: 0;
   opacity: 0;
-  &.item-appear {
+  &.item-enter {
     opacity: 1;
     transform: scale(1);
     top: 0;
     left: 0;
   }
-  &.item-appear-active {
+  &.item-enter-active {
     opacity: 0;
     top: ${({ position }) => (position ? `-${position * 65}px` : 0)};
     left: 40px;

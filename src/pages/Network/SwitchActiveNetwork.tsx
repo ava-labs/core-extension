@@ -1,109 +1,74 @@
-import { useEffect } from 'react';
 import {
-  ComponentSize,
+  Button,
+  CircularProgress,
   GlobeIcon,
-  HorizontalFlex,
-  LoadingSpinnerIcon,
-  PrimaryButton,
-  SecondaryButton,
+  Stack,
   Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { ActionStatus } from '@src/background/services/actions/models';
-import { TokenIcon } from '@src/components/common/TokenImage';
-import styled, { useTheme } from 'styled-components';
-import { useApproveAction } from '../../hooks/useApproveAction';
+  styled,
+} from '@avalabs/k2-components';
 import { Network } from '@avalabs/chains-sdk';
 import { useTranslation } from 'react-i18next';
 
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
+import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { ActionStatus } from '@src/background/services/actions/models';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
+
+import { useApproveAction } from '../../hooks/useApproveAction';
+
+const SiteAvatar = styled(Stack)`
+  width: 88px;
+  height: 88px;
+  background-color: ${({ theme }) => theme.palette.grey[850]};
+  justify-content: center;
+  align-items: center;
   border-radius: 50%;
-  margin: 8px 0;
 `;
 
 export function SwitchActiveNetwork() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const requestId = useGetRequestId();
   const { action: request, updateAction: updateMessage } =
     useApproveAction(requestId);
-  useEffect(() => {
-    function cancelHandler() {
-      updateMessage({
-        status: ActionStatus.ERROR_USER_CANCELED,
-        id: requestId,
-      });
-    }
-    window.addEventListener('unload', cancelHandler);
 
-    return () => {
-      window.removeEventListener('unload', cancelHandler);
-    };
-  }, [updateMessage, requestId, request]);
-
-  if (!request || !request.displayData) {
-    return (
-      <HorizontalFlex
-        width={'100%'}
-        height={'100%'}
-        justify={'center'}
-        align={'center'}
-      >
-        <LoadingSpinnerIcon color={theme.colors.icon1} />
-      </HorizontalFlex>
-    );
-  }
-
+  const isLoading = !request || !request.displayData;
   const network: Network = request?.displayData;
+
   return (
-    <>
-      <VerticalFlex
-        width="100%"
-        padding="0 16px"
-        align="center"
-        justify="center"
-      >
-        <VerticalFlex
-          align="center"
-          margin="0 0 24px"
-          flex={1}
-          justify="center"
-          width="280px"
-        >
-          <SiteAvatar margin="8px 0" justify="center" align="center">
-            <TokenIcon height="48px" width="48px" src={network?.logoUri}>
-              <GlobeIcon
-                height="48px"
-                width="48px"
-                color={theme.colors.icon1}
-              />
-            </TokenIcon>
-          </SiteAvatar>
-          <HorizontalFlex align="center" width="100%" justify="center">
-            <Typography
-              as="h1"
-              size={24}
-              height="29px"
-              weight={700}
-              align="center"
-              margin="0 0 16px"
-            >
+    <Stack
+      sx={{
+        width: 1,
+        height: 1,
+        px: 2,
+        pb: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {isLoading && <CircularProgress size={100} />}
+      {!isLoading && (
+        <>
+          <Stack
+            sx={{
+              px: 2,
+              pb: 3,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              gap: 3,
+            }}
+          >
+            <SiteAvatar>
+              <TokenIconK2 height="56px" width="56px" src={network?.logoUri}>
+                <GlobeIcon size={56} />
+              </TokenIconK2>
+            </SiteAvatar>
+            <Typography variant="h3">
               {t('Switch to {{chainName}} Network?', {
                 chainName: network?.chainName,
               })}
             </Typography>
-          </HorizontalFlex>
-          <HorizontalFlex>
-            <Typography
-              size={14}
-              height="17px"
-              color={theme.colors.text2}
-              align="center"
-            >
+            <Typography variant="body1">
               {t(
                 '{{domain}} is requesting to switch your active network to {{chainName}}',
                 {
@@ -112,41 +77,47 @@ export function SwitchActiveNetwork() {
                 }
               )}
             </Typography>
-          </HorizontalFlex>
-        </VerticalFlex>
-        <HorizontalFlex
-          align="center"
-          width="100%"
-          justify="space-between"
-          alignSelf="flex-end"
-        >
-          <SecondaryButton
-            size={ComponentSize.LARGE}
-            width="168px"
-            onClick={() => {
-              updateMessage({
-                status: ActionStatus.ERROR_USER_CANCELED,
-                id: request?.id,
-              });
-              window.close();
+          </Stack>
+          <Stack
+            direction="row"
+            sx={{
+              width: 1,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              alignSelf: 'flex-end',
+              gap: 1,
             }}
           >
-            {t('Reject')}
-          </SecondaryButton>
-          <PrimaryButton
-            width="168px"
-            size={ComponentSize.LARGE}
-            onClick={() => {
-              updateMessage({
-                status: ActionStatus.SUBMITTING,
-                id: request?.id,
-              });
-            }}
-          >
-            {t('Approve')}
-          </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </>
+            <Button
+              fullWidth
+              color="secondary"
+              size="large"
+              onClick={() => {
+                updateMessage({
+                  status: ActionStatus.ERROR_USER_CANCELED,
+                  id: request?.id,
+                });
+                window.close();
+              }}
+            >
+              {t('Reject')}
+            </Button>
+            <Button
+              fullWidth
+              color="primary"
+              size="large"
+              onClick={() => {
+                updateMessage({
+                  status: ActionStatus.SUBMITTING,
+                  id: request?.id,
+                });
+              }}
+            >
+              {t('Approve')}
+            </Button>
+          </Stack>
+        </>
+      )}
+    </Stack>
   );
 }

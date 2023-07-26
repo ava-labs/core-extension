@@ -1,25 +1,25 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
-  VerticalFlex,
-  PrimaryButton,
-  ComponentSize,
-  HorizontalFlex,
-  Typography,
-} from '@avalabs/react-components';
-import { PageTitle } from '@src/components/common/PageTitle';
-import { NetworkForm, NetworkFormAction } from './NetworkForm';
-import {
+  Button,
   Scrollbars,
   ScrollbarsRef,
-} from '@src/components/common/scrollbars/Scrollbars';
-import styled, { useTheme } from 'styled-components';
+  Stack,
+  Typography,
+  styled,
+  toast,
+  useTheme,
+} from '@avalabs/k2-components';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+
+import { PageTitle } from '@src/components/common/PageTitle';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { useTranslation } from 'react-i18next';
-import { toast } from '@avalabs/k2-components';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+
+import { NetworkForm, NetworkFormAction } from './NetworkForm';
+import { NetworkTab } from './Networks';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;
@@ -76,11 +76,12 @@ export const AddNetwork = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { capture } = useAnalyticsContext();
+  const [isSaving, setIsSaving] = useState(false);
 
   const onSuccess = () => {
     capture('CustomNetworkAdded');
     toast.success(t('Custom network added!'), { duration: 2000 });
-    history.push('/networks?activeTab=NETWORKS');
+    history.push(`/networks?activeTab=${NetworkTab.Custom}`);
   };
 
   const onError = (e: string) => {
@@ -89,11 +90,14 @@ export const AddNetwork = () => {
   };
 
   const handleSave = () => {
+    setIsSaving(true);
+
     saveCustomNetwork(network)
-      .then(() => {
-        onSuccess();
-      })
-      .catch((e) => onError(e));
+      .then(onSuccess)
+      .catch(onError)
+      .finally(() => {
+        setIsSaving(false);
+      });
   };
 
   const handleChange = (networkState: Network, formValid: boolean) => {
@@ -106,18 +110,15 @@ export const AddNetwork = () => {
   };
 
   return (
-    <VerticalFlex width="100%">
-      <HorizontalFlex marginBottom="12px">
-        <PageTitle>{t('Add Network')}</PageTitle>
-      </HorizontalFlex>
+    <Stack sx={{ width: 1, px: 2 }}>
+      <PageTitle margin="8 0 12px">{t('Add Network')}</PageTitle>
       <FlexScrollbars ref={scrollbarRef}>
-        <VerticalFlex padding="0 16px">
+        <Stack sx={{ gap: 1 }}>
           {errorMessage && (
             <Typography
-              color={theme.colors.error}
-              size={14}
-              padding="8px 0"
-              margin="0 0 16px 0"
+              variant="body2"
+              color={theme.palette.error.main}
+              sx={{ py: 1, mb: 2 }}
             >
               {errorMessage}
             </Typography>
@@ -128,19 +129,35 @@ export const AddNetwork = () => {
             showErrors={showErrors}
             action={NetworkFormAction.Add}
           />
-        </VerticalFlex>
+        </Stack>
       </FlexScrollbars>
-      <VerticalFlex
-        align="center"
-        grow="1"
-        justify="flex-end"
-        margin="24px 16px"
+      <Stack
+        direction="row"
+        sx={{
+          flexGrow: 1,
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          py: 3,
+          gap: 1,
+        }}
       >
-        <PrimaryButton
+        <Button
+          color="secondary"
+          data-testid="cancel-network-save"
+          size="large"
+          fullWidth
+          onClick={history.goBack}
+        >
+          {t('Cancel')}
+        </Button>
+        <Button
+          color="primary"
           data-testid="add-network-save"
-          size={ComponentSize.LARGE}
-          width="100%"
-          onClick={async () => {
+          size="large"
+          fullWidth
+          disabled={isSaving}
+          isLoading={isSaving}
+          onClick={() => {
             setShowErrors(true);
             if (isFormValid) {
               handleSave();
@@ -148,8 +165,8 @@ export const AddNetwork = () => {
           }}
         >
           {t('Save')}
-        </PrimaryButton>
-      </VerticalFlex>
-    </VerticalFlex>
+        </Button>
+      </Stack>
+    </Stack>
   );
 };

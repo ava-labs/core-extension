@@ -1,9 +1,11 @@
-import { VerticalFlex } from '@avalabs/react-components';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { NetworkTabProps } from './Networks';
-import { EmptyContent } from '@src/components/common/EmptyContent';
-import { NetworkList } from './common/NetworkList';
+import { Stack } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
+
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { EmptyContent } from '@src/components/common/EmptyContent';
+
+import { NetworkTabProps } from './Networks';
+import { NetworkList } from './common/NetworkList';
 
 export function FavoritesTab({ searchTerm }: NetworkTabProps) {
   const { t } = useTranslation();
@@ -12,16 +14,21 @@ export function FavoritesTab({ searchTerm }: NetworkTabProps) {
   const filteredNetworks = favoriteNetworks.filter(
     (networkItem) => searchTerm && networkItem.chainName.match(searchTerm)
   );
+
+  const hasFavorites = favoriteNetworks.length > 0;
+  const hasSearchResults = filteredNetworks.length > 0;
+
   return (
-    <VerticalFlex padding="0px 0px 8px 0px" height="100%">
-      {!favoriteNetworks.length && (
+    <Stack sx={{ width: 1, height: 1, pb: 1 }}>
+      {!hasFavorites && (
         <EmptyContent text={t("You don't have any favorite item yet.")} />
       )}
-      {!!favoriteNetworks.length && !filteredNetworks.length && (
+
+      {hasFavorites && !hasSearchResults && (
         <EmptyContent text={t('There is no search result.')} />
       )}
 
       <NetworkList networkList={filteredNetworks} />
-    </VerticalFlex>
+    </Stack>
   );
 }
