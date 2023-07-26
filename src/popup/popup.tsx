@@ -317,7 +317,7 @@ export function Popup() {
                                               <Suspense
                                                 fallback={<LoadingIcon />}
                                               >
-                                                <SignTxErrorBoundary>
+                                                <SignTxErrorBoundary variant="OpenError">
                                                   <SignTransactionPage />
                                                 </SignTxErrorBoundary>
                                               </Suspense>

@@ -1,6 +1,10 @@
 import { AVAX_TOKEN } from '@avalabs/chains-sdk';
-import { Stack, Typography, useTheme } from '@avalabs/k2-components';
-import { AvaxTokenIcon } from '@avalabs/react-components';
+import {
+  AvalancheColorIcon,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import { TransactionType } from '@src/background/services/history/models';
 import { TokenIcon } from '@src/components/common/TokenImage';
@@ -26,7 +30,7 @@ export function ActivityCardDetails({ historyItem }: ActivityCardProp) {
             >
               <Stack sx={{ flexDirection: 'row', columnGap: 1 }}>
                 {token.symbol === AVAX_TOKEN.symbol ? (
-                  <AvaxTokenIcon height={theme.spacing(2)} />
+                  <AvalancheColorIcon size={16} />
                 ) : (
                   <TokenIcon
                     width={theme.spacing(2)}

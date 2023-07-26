@@ -17,7 +17,7 @@ import Scrollbars, { positionValues } from 'react-custom-scrollbars-2';
 import { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
-import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
+import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { EthSign } from './components/EthSign';
 import { PersonalSign } from './components/PersonalSign';
 import { SignData } from './components/SignData';
@@ -116,7 +116,7 @@ export function SignMessage() {
   return (
     <>
       <VerticalFlex width="100%" padding="0 16px">
-        <SignTxRenderErrorBoundary>
+        <SignTxErrorBoundary>
           {!action.displayData.isMessageValid && !messageAlertClosed ? (
             <VerticalFlex
               style={{ left: 0 }}
@@ -291,7 +291,7 @@ export function SignMessage() {
               {t('Sign')}
             </PrimaryButton>
           </HorizontalFlex>
-        </SignTxRenderErrorBoundary>
+        </SignTxErrorBoundary>
       </VerticalFlex>
       <Dialog
         onClose={() => window.close()}

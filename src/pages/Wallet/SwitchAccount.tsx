@@ -1,32 +1,27 @@
+import { useTranslation } from 'react-i18next';
 import {
-  ComponentSize,
-  HorizontalFlex,
-  LoadingSpinnerIcon,
-  PrimaryAddress,
-  PrimaryButton,
-  SecondaryButton,
+  Avatar,
+  Button,
+  CircularProgress,
+  CopyIcon,
+  IconButton,
+  Stack,
+  Tooltip,
   Typography,
-  VerticalFlex,
   WalletIcon,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+  toast,
+  useTheme,
+} from '@avalabs/k2-components';
+
 import { Account } from '@src/background/services/accounts/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { useTranslation } from 'react-i18next';
-
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 50%;
-  margin: 8px 0;
-`;
+import { truncateAddress } from '@src/utils/truncateAddress';
 
 export function SwitchAccount() {
-  const { t } = useTranslation();
   const theme = useTheme();
+  const { t } = useTranslation();
   const requestId = useGetRequestId();
 
   const {
@@ -39,73 +34,125 @@ export function SwitchAccount() {
 
   if (!request) {
     return (
-      <HorizontalFlex
-        width={'100%'}
-        height={'100%'}
-        justify={'center'}
-        align={'center'}
+      <Stack
+        sx={{
+          width: 1,
+          height: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
       >
-        <LoadingSpinnerIcon color={theme.colors.icon1} />
-      </HorizontalFlex>
+        <CircularProgress size={60} />
+      </Stack>
     );
   }
 
   return (
-    <VerticalFlex padding="0 16px">
-      <VerticalFlex grow="1" align="center" justify="center">
-        <SiteAvatar justify="center" align="center">
-          <WalletIcon height="48px" width="48px" color={theme.colors.icon1} />
-        </SiteAvatar>
-        <HorizontalFlex align="center" width="100%" justify="center">
-          <Typography
-            align="center"
-            size={24}
-            margin="16px 0"
-            height="29px"
-            weight={700}
-          >
-            {t('Switch to {{name}}?', {
-              name: request.selectedAccount?.name,
-            })}
-          </Typography>
-        </HorizontalFlex>
-        <HorizontalFlex>
-          <Typography
-            size={14}
-            height="17px"
-            color={theme.colors.text2}
-            align="center"
-          >
-            {t('{{domain}} is requesting to switch your active account.', {
-              domain: request.site?.domain || 'This website',
-            })}
-          </Typography>
-        </HorizontalFlex>
+    <Stack sx={{ width: 1, px: 2 }}>
+      <Stack
+        sx={{
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          gap: 2,
+        }}
+      >
+        <Avatar
+          sx={{
+            width: 80,
+            height: 80,
+            backgroundColor: theme.palette.grey[850],
+          }}
+        >
+          <WalletIcon size={48} />
+        </Avatar>
+        <Typography variant="h3" sx={{ fontSize: 24 }}>
+          {t('Switch to {{name}}?', {
+            name: request.selectedAccount?.name,
+          })}
+        </Typography>
 
-        <HorizontalFlex marginTop="16px">
-          <PrimaryAddress
-            name={request.selectedAccount?.name}
-            address={request.selectedAccount?.addressC}
-          />
-        </HorizontalFlex>
-      </VerticalFlex>
+        <Typography variant="body2">
+          {t('{{domain}} is requesting to switch your active account.', {
+            domain: request.site?.domain || 'This website',
+          })}
+        </Typography>
+        <Stack
+          direction="row"
+          sx={{
+            gap: 1,
+            py: 1,
+            pl: 2,
+            pr: 1,
+            alignItems: 'center',
+            background: theme.palette.grey[850],
+            borderRadius: 1,
+            height: 48,
+            width: 1,
+          }}
+        >
+          <Stack
+            direction="row"
+            sx={{
+              flex: 1,
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: 1,
+              gap: 3,
+            }}
+          >
+            <Tooltip title={request.selectedAccount?.name} wrapWithSpan={false}>
+              <Typography
+                variant="body1"
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {request.selectedAccount?.name}
+              </Typography>
+            </Tooltip>
+            <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
+              <Tooltip title={request.selectedAccount?.addressC}>
+                <Typography variant="body2">
+                  {truncateAddress(request.selectedAccount?.addressC)}
+                </Typography>
+              </Tooltip>
+              <IconButton
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    request.selectedAccount.addressC
+                  );
+                  toast.success(t('Copied!'), { duration: 2000 });
+                }}
+              >
+                <CopyIcon size={16} />
+              </IconButton>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Stack>
 
-      <VerticalFlex width="100%" justify="space-between">
-        <HorizontalFlex justify="space-between">
-          <SecondaryButton
+      <Stack sx={{ width: 1, justifyContent: 'space-between' }}>
+        <Stack direction="row" sx={{ gap: 1 }}>
+          <Button
+            color="secondary"
+            size="large"
             data-testid="switch-account-reject-btn"
-            size={ComponentSize.LARGE}
             onClick={() => {
               cancelHandler();
               window.close();
             }}
-            width="168px"
+            fullWidth
           >
             {t('Reject')}
-          </SecondaryButton>
-          <PrimaryButton
+          </Button>
+          <Button
             data-testid="switch-account-approve-btn"
-            size={ComponentSize.LARGE}
+            size="large"
+            color="primary"
             onClick={() => {
               updateMessage({
                 status: ActionStatus.SUBMITTING,
@@ -114,12 +161,12 @@ export function SwitchAccount() {
 
               window.close();
             }}
-            width="168px"
+            fullWidth
           >
             {t('Approve')}
-          </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </VerticalFlex>
+          </Button>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 }

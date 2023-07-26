@@ -17,7 +17,7 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useTheme } from 'styled-components';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
-import { SignTxRenderErrorBoundary } from '../SignTransaction/components/SignTxRenderErrorBoundary';
+import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { BridgeTransferAsset } from './BridgeTransferAsset';
 import { Trans, useTranslation } from 'react-i18next';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
@@ -72,7 +72,7 @@ export function ApproveAction() {
   return (
     <>
       <VerticalFlex width="100%" padding="0 16px" align="center">
-        <SignTxRenderErrorBoundary>
+        <SignTxErrorBoundary>
           {renderDeviceApproval()}
 
           <VerticalFlex padding="12px 0">
@@ -160,7 +160,7 @@ export function ApproveAction() {
               {t('Approve')}
             </PrimaryButton>
           </HorizontalFlex>
-        </SignTxRenderErrorBoundary>
+        </SignTxErrorBoundary>
       </VerticalFlex>
     </>
   );

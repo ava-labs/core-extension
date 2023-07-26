@@ -27,7 +27,7 @@ import { useGetTransaction } from './hooks/useGetTransaction';
 import { AddLiquidityTx } from './AddLiquidityTx';
 import { LedgerApprovalOverlay } from './LedgerApprovalOverlay';
 import { CustomSpendLimit } from './CustomSpendLimit';
-import { SignTxRenderErrorBoundary } from './components/SignTxRenderErrorBoundary';
+import { SignTxErrorBoundary } from './components/SignTxErrorBoundary';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
@@ -241,7 +241,7 @@ export function SignTransactionPage() {
             pb: 5,
           }}
         >
-          <SignTxRenderErrorBoundary>
+          <SignTxErrorBoundary>
             {
               {
                 [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
@@ -324,7 +324,7 @@ export function SignTransactionPage() {
                 </Stack>
               )}
             </Stack>
-          </SignTxRenderErrorBoundary>
+          </SignTxErrorBoundary>
         </Stack>
 
         {/* Action Buttons */}

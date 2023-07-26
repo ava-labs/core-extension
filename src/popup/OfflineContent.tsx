@@ -1,11 +1,11 @@
-import { Typography, VerticalFlex } from '@avalabs/react-components';
+import { Stack, Typography, styled } from '@avalabs/k2-components';
+
 import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { BrandName } from '@src/components/icons/BrandName';
 import { Logo } from '@src/components/icons/Logo';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
-import styled from 'styled-components';
 
-export const AnimatedLogo = styled.div`
+export const AnimatedLogo = styled('div')`
   @keyframes fade {
     0% {
       opacity: 1;
@@ -20,39 +20,38 @@ export const AnimatedLogo = styled.div`
   animation: 6s ease-in infinite fade;
 `;
 
-const BetaLabelWrapper = styled.div`
-  margin: 6px 0;
-`;
-
 interface OfflineContent {
   message?: string;
 }
 
 export function OfflineContent({ message }) {
   const dimensions = useAppDimensions();
+
   return (
-    <VerticalFlex
-      align="center"
-      justify="center"
-      grow="1"
-      height={dimensions.height}
-      width={dimensions.width}
-      padding="16px"
+    <Stack
+      sx={{
+        width: dimensions.width,
+        height: dimensions.height,
+        p: 2,
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <AnimatedLogo>
         <Logo height={96} />
       </AnimatedLogo>
-      <VerticalFlex align="end">
+      <Stack sx={{ alignItems: 'end' }}>
         <BrandName height={42} />
-        <BetaLabelWrapper>
+        <Stack sx={{ my: 0.75 }}>
           <BetaLabel />
-        </BetaLabelWrapper>
-      </VerticalFlex>
+        </Stack>
+      </Stack>
       {message && (
-        <Typography size={16} align="center" height="24px" margin="32px 0">
+        <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
           {message}
         </Typography>
       )}
-    </VerticalFlex>
+    </Stack>
   );
 }

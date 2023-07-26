@@ -1,32 +1,24 @@
-import {
-  Card,
-  HorizontalFlex,
-  PrimaryButton,
-  SecondaryButton,
-  SubTextTypography,
-  Typography,
-  VerticalFlex,
-  ComponentSize,
-} from '@avalabs/react-components';
 import { Component } from 'react';
-import Scrollbars from 'react-custom-scrollbars-2';
-import styled from 'styled-components';
-import { t } from 'i18next';
-import { toast } from '@avalabs/k2-components';
+import {
+  Button,
+  Card,
+  CardContent,
+  Scrollbars,
+  Stack,
+  Typography,
+  toast,
+} from '@avalabs/k2-components';
+import { WithTranslation, withTranslation } from 'react-i18next';
 
-const Header = styled(Typography)`
-  color: ${({ theme }) => theme.colors.primary1};
-  font-weight: 600;
-  font-size: 20px;
-  line-height: 29px;
-  padding: 12px 0;
-`;
+interface SignTxErrorBoundaryProps extends WithTranslation {
+  variant?: 'RenderError' | 'OpenError';
+}
 
 /**
  * This catches all errors in the UI at the sign tx level. Essentially this is a catch all if the sign tx render boundary fails to catch the issue then this should do it
  */
-export class SignTxErrorBoundary extends Component<
-  any,
+class RawSignTxErrorBoundary extends Component<
+  SignTxErrorBoundaryProps,
   { hasError: boolean; error?: string; errorStack?: string }
 > {
   constructor(props) {
@@ -42,53 +34,103 @@ export class SignTxErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <VerticalFlex width={'100%'} align="center" padding="0 16px">
-          <Header>{t('Error')}</Header>
-          <SubTextTypography margin={'8px 0 0'} align="center">
-            {t(
-              'Something went wrong while opening the confirm for this transaction. Copy the below error and post it in our discord, telegram or one of our social channels so our developers can address it as soon as possible. We apologize for the inconvenience.'
+        <Stack
+          sx={{
+            width: 1,
+            alignItems: 'center',
+            px: 2,
+            pb: 1,
+            gap: 1,
+            flexGrow: 1,
+          }}
+        >
+          <Typography variant="h5" color="error.main">
+            {this.getHeader()}
+          </Typography>
+          <Typography variant="body2" align="center">
+            {this.getDescription()}
+          </Typography>
+          <Typography variant="body2" align="center">
+            {this.props.t(
+              'Please copy the below error and post it in our discord, telegram or one of our social channels so our developers can address it as soon as possible. We apologize for the inconvenience.'
             )}
-          </SubTextTypography>
-          <Card margin={'24px 0 0'} height="340px" padding="16px 0">
-            <Scrollbars>
-              <VerticalFlex padding="0 16px">
-                <Typography size={14} height="17px" wordBreak={'break-word'}>
+          </Typography>
+          <Card sx={{ mt: 2, width: 1, height: 340 }}>
+            <CardContent sx={{ p: 2, height: 1 }}>
+              <Scrollbars>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ wordBreak: 'break-word' }}
+                >
                   {this.state.errorStack}
                 </Typography>
-              </VerticalFlex>
-            </Scrollbars>
+              </Scrollbars>
+            </CardContent>
           </Card>
-          <HorizontalFlex
-            width="100%"
-            flex={1}
-            align="flex-end"
-            justify="space-between"
-            margin={'0 0 8px 0'}
+          <Stack
+            direction="row"
+            sx={{
+              width: 1,
+              flexGrow: 1,
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              gap: 1,
+            }}
           >
-            <SecondaryButton
-              size={ComponentSize.LARGE}
-              width="168px"
-              onClick={() => window.close()}
+            <Button
+              color="secondary"
+              size="large"
+              fullWidth
+              onClick={window.close}
             >
-              {t('Close')}
-            </SecondaryButton>
-            <PrimaryButton
-              size={ComponentSize.LARGE}
-              width="168px"
+              {this.props.t('Close')}
+            </Button>
+            <Button
+              color="primary"
+              size="large"
+              fullWidth
               onClick={() => {
                 navigator.clipboard.writeText(this.state.errorStack ?? '');
-                toast.success(t('Copied!'), {
+                toast.success(this.props.t('Copied!'), {
                   duration: 2000,
                 });
               }}
             >
-              {t('Copy')}
-            </PrimaryButton>
-          </HorizontalFlex>
-        </VerticalFlex>
+              {this.props.t('Copy')}
+            </Button>
+          </Stack>
+        </Stack>
       );
     }
 
     return this.props.children;
   }
+
+  private getHeader() {
+    switch (this.props.variant) {
+      case 'RenderError':
+        return this.props.t('Render Error');
+
+      default:
+        return this.props.t('Error');
+    }
+  }
+
+  private getDescription() {
+    switch (this.props.variant) {
+      case 'RenderError':
+        return this.props.t(
+          'Something went wrong while attempting to show the info for this transaction.'
+        );
+
+      default:
+        return this.props.t(
+          'Something went wrong while opening the approval window for this transaction.'
+        );
+    }
+  }
 }
+
+// Export the component class with translation props pre-set.
+export const SignTxErrorBoundary = withTranslation()(RawSignTxErrorBoundary);
