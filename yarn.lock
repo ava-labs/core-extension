@@ -94,16 +94,16 @@
     bs58 "5.0.0"
     sha3 "2.1.4"
 
-"@avalabs/k2-components@4.12.0-alpha.7":
-  version "4.12.0-alpha.7"
-  resolved "https://registry.yarnpkg.com/@avalabs/k2-components/-/k2-components-4.12.0-alpha.7.tgz#5fed8f1b1096dbd88a03931b964c458cb8756000"
-  integrity sha512-HQ3g6Q6yOzISSH4fUvEB8abhPho4ATM+/hmRPyB4uzXjOKW/glb0e48Nu2FsuMkT+ZSFhMxRS/+SiOcNOAye4A==
+"@avalabs/k2-components@4.12.0-alpha.13":
+  version "4.12.0-alpha.13"
+  resolved "https://registry.yarnpkg.com/@avalabs/k2-components/-/k2-components-4.12.0-alpha.13.tgz#cae5c5f29926403407b639ca0e19c5e8500ca6db"
+  integrity sha512-yKvO8BqQY61a7Bhr0VhXkP1+lQVPBmGlOkci6KCgP990WK6NsfBdYCZEEuhasm7UZFTXbWZoVe9UUQa7ZSiRcw==
   dependencies:
     "@emotion/react" "11.11.1"
     "@emotion/styled" "11.11.0"
     "@fontsource/dejavu-mono" "5.0.5"
     "@fontsource/inter" "5.0.5"
-    "@mui/lab" "5.0.0-alpha.136"
+    "@mui/lab" "5.0.0-alpha.137"
     "@mui/material" "5.14.0"
     "@mui/x-data-grid" "5.17.24"
     "@mui/x-date-pickers" "6.3.1"
@@ -3328,21 +3328,35 @@
     prop-types "^15.8.1"
     react-is "^18.2.0"
 
+"@mui/base@5.0.0-beta.8":
+  version "5.0.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-beta.8.tgz#a0a9531ae9147be92d17e4f0e3b9accc57916841"
+  integrity sha512-b4vVjMZx5KzzEMf4arXKoeV5ZegAMOoPwoy1vfUBwhvXc2QtaaAyBp50U7OA2L06Leubc1A+lEp3eqwZoFn87g==
+  dependencies:
+    "@babel/runtime" "^7.22.6"
+    "@emotion/is-prop-valid" "^1.2.1"
+    "@mui/types" "^7.2.4"
+    "@mui/utils" "^5.14.1"
+    "@popperjs/core" "^2.11.8"
+    clsx "^1.2.1"
+    prop-types "^15.8.1"
+    react-is "^18.2.0"
+
 "@mui/core-downloads-tracker@^5.14.0":
   version "5.14.1"
   resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-5.14.1.tgz#af156cb3e15b202f5c09f66e7d8b71ca86aef525"
   integrity sha512-mIa1WmDmNr1LoupV1Rbxt9bTFKMbIn10RHG1bnZ/FJCkAYpuU/D4n+R+ttiycgcZNngU++zyh/OQeJblzbQPzg==
 
-"@mui/lab@5.0.0-alpha.136":
-  version "5.0.0-alpha.136"
-  resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-5.0.0-alpha.136.tgz#ffa1af4a72fbe7a773d3a008979a72f895241504"
-  integrity sha512-ai6LspCkyKRD8rL2HEtaTPBbeYkARNNKvSbjOLVJtro9bIFpZ0noH21Pp7t50Y2eFemuYeC+D5Tto3OvGKrhnQ==
+"@mui/lab@5.0.0-alpha.137":
+  version "5.0.0-alpha.137"
+  resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-5.0.0-alpha.137.tgz#b8d2d4e63367929534c9ae6395df90316d454ac9"
+  integrity sha512-bHfcfti9/GnB657QpTdlK1fc9gjkP3SC+NrXyb9NCr0rT5Cq7TEkBGXyY5wGUSCyHR3CrMvchkIsfG5sH/NJ9A==
   dependencies:
-    "@babel/runtime" "^7.22.5"
-    "@mui/base" "5.0.0-beta.7"
-    "@mui/system" "^5.14.0"
+    "@babel/runtime" "^7.22.6"
+    "@mui/base" "5.0.0-beta.8"
+    "@mui/system" "^5.14.1"
     "@mui/types" "^7.2.4"
-    "@mui/utils" "^5.13.7"
+    "@mui/utils" "^5.14.1"
     clsx "^1.2.1"
     prop-types "^15.8.1"
     react-is "^18.2.0"
@@ -3384,7 +3398,7 @@
     csstype "^3.1.2"
     prop-types "^15.8.1"
 
-"@mui/system@^5.14.0":
+"@mui/system@^5.14.0", "@mui/system@^5.14.1":
   version "5.14.1"
   resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.14.1.tgz#ec8ae69f63963b5916dad4bca2f8a86a001a2392"
   integrity sha512-u+xlsU34Jdkgx1CxmBnIC4Y08uPdVX5iEd3S/1dggDFtOGp+Lj8xmKRJAQ8PJOOJLOh8pDwaZx4AwXikL4l1QA==
