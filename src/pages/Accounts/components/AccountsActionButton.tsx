@@ -14,8 +14,9 @@ import {
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
+
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 type AccountsActionButtonProps = {
   disabled?: boolean;
@@ -41,6 +42,11 @@ export const AccountsActionButton = ({
 
   const goToImportScreen = useCallback(
     () => history.push('/import-private-key'),
+    [history]
+  );
+
+  const goToWalletConnectScreen = useCallback(
+    () => history.push('/import-with-walletconnect'),
     [history]
   );
 
@@ -89,7 +95,10 @@ export const AccountsActionButton = ({
                     {t('Import Private Key')}
                   </StyledMenuItem>
                   {featureFlags[FeatureGates.IMPORT_WALLET_CONNECT] && (
-                    <StyledMenuItem data-testid="import-wallet-connect">
+                    <StyledMenuItem
+                      data-testid="import-wallet-connect"
+                      onClick={goToWalletConnectScreen}
+                    >
                       <WalletConnectIcon size={16} sx={{ pr: 1 }} />
                       {t('Import with Wallet Connect')}
                     </StyledMenuItem>
