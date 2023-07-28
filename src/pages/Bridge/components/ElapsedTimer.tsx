@@ -1,20 +1,26 @@
-import { Typography } from '@avalabs/react-components';
+import {
+  CheckIcon,
+  InfoCircleIcon,
+  Stack,
+  Tooltip,
+  Typography,
+  styled,
+} from '@avalabs/k2-components';
+import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useStopwatch } from 'react-timer-hook';
-import styled from 'styled-components';
 
-const TimeElapsed = styled(Typography)<{
-  complete: boolean;
+const TimeElapsed = styled(Stack, {
+  shouldForwardProp: (prop) => prop !== 'complete',
+})<{
+  complete?: boolean;
 }>`
-  border-radius: 100px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weigth: 600;
-  line-height: 16px;
+  min-width: 76px; // this prevents the chip growing and shrinking due to numbers changing
+  border-radius: 66px;
+  padding: 2px 8px;
   text-align: center;
-  font-variant: tabular-nums;
   background-color: ${({ complete, theme }) =>
-    complete ? theme.colors.success : theme.colors.bg3};
+    complete ? theme.palette.success.dark : theme.palette.grey[700]};
 `;
 
 const padTimeElapsed = (startTime: number, endTime?: number): Date => {
@@ -34,19 +40,18 @@ export function ElapsedTimer({
   startTime: number;
   endTime?: number;
 }) {
-  const { hours, minutes, seconds, reset } = useStopwatch({
-    autoStart: !endTime,
+  const { t } = useTranslation();
+  const { hours, minutes, seconds, reset, isRunning } = useStopwatch({
+    autoStart: false,
     offsetTimestamp: padTimeElapsed(startTime, endTime),
   });
 
   // Stop the timer when we know the endTime
   useEffect(() => {
-    if (endTime) {
-      reset(padTimeElapsed(startTime, endTime), false);
+    if (startTime && !endTime && !isRunning) {
+      reset(padTimeElapsed(startTime, endTime), true);
     }
-    // Cannot add `reset` because it changes on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endTime]);
+  }, [endTime, startTime, reset, isRunning]);
 
   const displayedSeconds = seconds.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
@@ -56,10 +61,34 @@ export function ElapsedTimer({
   });
   const displayedHours = hours > 0 ? hours.toLocaleString('en-US') : undefined;
 
+  if (!startTime) {
+    return (
+      <TimeElapsed complete={!!endTime}>
+        <Typography>00:00</Typography>
+      </TimeElapsed>
+    );
+  }
+
   return (
-    <TimeElapsed complete={!!endTime}>
-      {displayedHours && `${displayedHours}:`}
-      {displayedMinutes}:{displayedSeconds}
+    <TimeElapsed
+      complete={!!endTime}
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <Typography>
+        {displayedHours && `${displayedHours}:`}
+        {displayedMinutes}:{displayedSeconds}
+      </Typography>
+      {endTime ? (
+        <CheckIcon size="12" sx={{ ml: 0.5 }} />
+      ) : (
+        <Tooltip title={t('Time Elapsed')}>
+          <InfoCircleIcon />
+        </Tooltip>
+      )}
     </TimeElapsed>
   );
 }
