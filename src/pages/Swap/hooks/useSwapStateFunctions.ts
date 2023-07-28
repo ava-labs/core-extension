@@ -213,12 +213,12 @@ export function useSwapStateFunctions() {
       );
       return;
     }
-    setSelectedFromToken(fromToken);
-    setSelectedToToken(toToken);
+    setSelectedFromToken(toToken);
+    setSelectedToToken(fromToken);
     setIsReversed(!reversed);
     calculateSwapValue({
-      fromToken,
-      toToken,
+      fromToken: toToken,
+      toToken: fromToken,
       fromValue,
     });
   };
