@@ -75,7 +75,6 @@ export function SignTransactionPage() {
     limitFiatValue,
     customSpendLimit,
     selectedGasFee,
-    suggestedFee,
     network,
     networkFee,
     hasTransactionError,
@@ -302,7 +301,6 @@ export function SignTransactionPage() {
                   selectedGasFeeModifier={selectedGasFee}
                   network={network}
                   networkFee={networkFee}
-                  suggestedNetworkFee={suggestedFee}
                 />
               ) : (
                 <>

@@ -35,8 +35,6 @@ export interface TransactionDisplayValues {
   toAddress?: string;
   maxFeePerGas?: ethers.BigNumber;
   maxPriorityFeePerGas?: ethers.BigNumber;
-  suggestedMaxFeePerGas?: ethers.BigNumber;
-  suggestedMaxPriorityFeePerGas?: ethers.BigNumber;
   contractType?: ContractCall;
   gasLimit?: number;
   fee?: string;

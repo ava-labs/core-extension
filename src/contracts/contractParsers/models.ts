@@ -66,8 +66,6 @@ export interface ApproveTransactionData extends TransactionDisplayValues {
 type GasPricingData = {
   maxFeePerGas: ethers.BigNumber;
   maxPriorityFeePerGas?: ethers.BigNumber;
-  suggestedMaxFeePerGas?: ethers.BigNumber;
-  suggestedMaxPriorityFeePerGas?: ethers.BigNumber;
 };
 
 export type DisplayValueParserProps = GasPricingData & {
