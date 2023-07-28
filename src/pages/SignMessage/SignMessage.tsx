@@ -1,45 +1,38 @@
-import {
-  Card,
-  ComponentSize,
-  GlobeIcon,
-  HorizontalFlex,
-  InfoIcon,
-  LoadingSpinnerIcon,
-  PrimaryButton,
-  SecondaryButton,
-  VerticalFlex,
-} from '@avalabs/react-components';
-import { ActionStatus } from '@src/background/services/actions/models';
-import { MessageType } from '@src/background/services/messages/models';
-import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { TokenIcon } from '@src/components/common/TokenImage';
-import Scrollbars, { positionValues } from 'react-custom-scrollbars-2';
-import { useTheme } from 'styled-components';
-import { useApproveAction } from '../../hooks/useApproveAction';
-import { useGetRequestId } from '../../hooks/useGetRequestId';
-import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
-import { EthSign } from './components/EthSign';
-import { PersonalSign } from './components/PersonalSign';
-import { SignData } from './components/SignData';
-import { SignDataV3 } from './components/SignDataV3';
-import { SignDataV4 } from './components/SignDataV4';
-import { Trans, useTranslation } from 'react-i18next';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Alert,
   AlertContent,
   AlertTitle,
   Button,
+  Card,
+  CircularProgress,
+  GlobeIcon,
+  InfoCircleIcon,
+  Scrollbars,
   Stack,
   Tooltip,
   Typography,
 } from '@avalabs/k2-components';
+
 import Dialog from '@src/components/common/Dialog';
+import { ActionStatus } from '@src/background/services/actions/models';
+import { MessageType } from '@src/background/services/messages/models';
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
+import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useApproveAction } from '@src/hooks/useApproveAction';
+import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+
+import { EthSign } from './components/EthSign';
+import { PersonalSign } from './components/PersonalSign';
+import { SignData } from './components/SignData';
+import { SignDataV3 } from './components/SignDataV3';
+import { SignDataV4 } from './components/SignDataV4';
+import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 
 export function SignMessage() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const requestId = useGetRequestId();
   const { action, updateAction: updateMessage } = useApproveAction(requestId);
 
@@ -51,14 +44,17 @@ export function SignMessage() {
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
 
-  function scrollFrameHandler(values: positionValues) {
+  function scrollFrameHandler(values: { top: number }) {
     // if values.top is 1, that means the user has scrolled to the bottom
     if (values.top === 1) {
       setDisableSubmitButton(false);
     }
   }
 
-  function updateHandler(values: positionValues) {
+  function updateHandler(values: {
+    scrollHeight: number;
+    clientHeight: number;
+  }) {
     // when these 2 values are the same, the content fit in the view without scroller
     if (values.scrollHeight === values.clientHeight) {
       setDisableSubmitButton(false);
@@ -102,27 +98,35 @@ export function SignMessage() {
 
   if (!action) {
     return (
-      <HorizontalFlex
-        width={'100%'}
-        height={'100%'}
-        justify={'center'}
-        align={'center'}
+      <Stack
+        direction="row"
+        sx={{
+          width: 1,
+          height: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
       >
-        <LoadingSpinnerIcon color={theme.colors.icon1} />
-      </HorizontalFlex>
+        <CircularProgress size={60} />
+      </Stack>
     );
   }
 
   return (
     <>
-      <VerticalFlex width="100%" padding="0 16px">
-        <SignTxErrorBoundary>
+      <Stack sx={{ px: 2, width: 1 }}>
+        <SignTxErrorBoundary variant="RenderError">
           {!action.displayData.isMessageValid && !messageAlertClosed ? (
-            <VerticalFlex
-              style={{ left: 0 }}
-              position="absolute"
-              padding="0 16px"
-              background={theme.colors.bg1}
+            <Stack
+              sx={{
+                backgroundColor: 'common.black',
+                px: 2,
+                pt: 2,
+                width: 1,
+                position: 'absolute',
+                left: 0,
+                top: 0,
+              }}
             >
               <Alert
                 onClose={() => {
@@ -137,24 +141,20 @@ export function SignMessage() {
                   </AlertContent>
                 </Tooltip>
               </Alert>
-            </VerticalFlex>
+            </Stack>
           ) : null}
 
-          <VerticalFlex padding="12px 0">
+          <Stack sx={{ py: 1.5 }}>
             <Typography variant="h3">
               {action.error ? t('Signing Failed') : t('Sign Message')}
             </Typography>
-          </VerticalFlex>
+          </Stack>
 
-          <VerticalFlex align="center" margin="16px 0 24px">
+          <Stack sx={{ alignItems: 'center', pt: 2, pb: 3 }}>
             <SiteAvatar justify="center" align="center">
-              <TokenIcon height="48px" width="48px" src={action.site?.icon}>
-                <GlobeIcon
-                  height="48px"
-                  width="48px"
-                  color={theme.colors.icon1}
-                />
-              </TokenIcon>
+              <TokenIconK2 height="48px" width="48px" src={action.site?.icon}>
+                <GlobeIcon size={48} />
+              </TokenIconK2>
             </SiteAvatar>
             <Typography variant="h5" sx={{ mt: 1 }}>
               {action.site?.name ?? t('Unknown')}
@@ -165,7 +165,7 @@ export function SignMessage() {
                 values={{ domain: action.site?.domain || 'A site' }}
               />
             </Typography>
-          </VerticalFlex>
+          </Stack>
 
           {/* Actions  */}
           {
@@ -213,7 +213,7 @@ export function SignMessage() {
                 />
               ),
               ['unknown']: (
-                <Typography color={theme.colors.error} size={14} margin="8px 0">
+                <Typography color="error.main" sx={{ my: 1 }}>
                   {t('Unknown sign type')}
                 </Typography>
               ),
@@ -221,52 +221,63 @@ export function SignMessage() {
           }
 
           {action.error && (
-            <VerticalFlex margin="16px 0 0 0" width={'100%'}>
-              <Typography size={12} height="15px" margin="0 0 8px 0">
+            <Stack sx={{ mt: 2, width: 1 }}>
+              <Typography variant="caption" color="error.main" sx={{ mb: 1 }}>
                 {t('Error:')}
               </Typography>
-              <Card height="105px" padding="16px 0">
+              <Card sx={{ height: 105 }}>
                 <Scrollbars
                   style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
                 >
-                  <VerticalFlex padding="0 16px">
-                    <Typography size={12} height="17px" wordBreak="break-all">
+                  <Stack sx={{ px: 2 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ wordBreak: 'break-all' }}
+                    >
                       {action.error}
                     </Typography>
-                  </VerticalFlex>
+                  </Stack>
                 </Scrollbars>
               </Card>
-            </VerticalFlex>
+            </Stack>
           )}
 
           {disableSubmitButton && (
-            <HorizontalFlex
-              margin="16px 0 0 0"
-              width={'100%'}
-              columnGap="8px"
-              justify="center"
-              align="center"
+            <Stack
+              direction="row"
+              sx={{
+                my: 2,
+                width: 1,
+                columnGap: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
             >
-              <InfoIcon height="13px" color={theme.colors.text2} />
+              <InfoCircleIcon size={14} />
               <Typography variant="overline">
                 {t(
                   'Scroll to the bottom of the message to be able to continue'
                 )}
               </Typography>
-            </HorizontalFlex>
+            </Stack>
           )}
 
           {/* Action Buttons */}
-          <HorizontalFlex
-            flex={1}
-            align="flex-end"
-            width="100%"
-            justify="space-between"
-            padding="0 0 8px"
+          <Stack
+            direction="row"
+            sx={{
+              flexGrow: 1,
+              alignItems: 'flex-end',
+              width: 1,
+              justifyContent: 'space-between',
+              pb: 1,
+              gap: 1,
+            }}
           >
-            <SecondaryButton
-              size={ComponentSize.LARGE}
-              width="168px"
+            <Button
+              color="secondary"
+              size="large"
+              fullWidth
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.ERROR_USER_CANCELED,
@@ -276,10 +287,10 @@ export function SignMessage() {
               }}
             >
               {t('Reject')}
-            </SecondaryButton>
-            <PrimaryButton
-              width="168px"
-              size={ComponentSize.LARGE}
+            </Button>
+            <Button
+              color="primary"
+              size="large"
               disabled={isUsingLedgerWallet || disableSubmitButton}
               onClick={() => {
                 updateMessage({
@@ -287,12 +298,13 @@ export function SignMessage() {
                   id: action.id,
                 });
               }}
+              fullWidth
             >
               {t('Sign')}
-            </PrimaryButton>
-          </HorizontalFlex>
+            </Button>
+          </Stack>
         </SignTxErrorBoundary>
-      </VerticalFlex>
+      </Stack>
       <Dialog
         onClose={() => window.close()}
         open={showNotSupportedDialog}

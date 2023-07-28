@@ -22,7 +22,10 @@ export interface BNInputProps {
   min?: BN;
   max?: BN;
   isValueLoading?: boolean;
+  disabled?: boolean;
   error?: boolean;
+  fullWidth?: boolean;
+  withMaxButton?: boolean;
 }
 
 const InputNumber = styled(TextField)`
@@ -31,7 +34,6 @@ const InputNumber = styled(TextField)`
     -webkit-appearance: none;
     margin: 0;
   }
-  width: 180px;
   padding: 0;
 `;
 
@@ -47,6 +49,9 @@ export function BNInput({
   max,
   isValueLoading,
   error,
+  disabled,
+  fullWidth,
+  withMaxButton = true,
   ...props
 }: BNInputProps) {
   const [valStr, setValStr] = useState('');
@@ -104,9 +109,12 @@ export function BNInput({
     onValueChanged(big.toString());
   };
 
+  const canSetMax = max && !isValueLoading;
+
   return (
     <Stack sx={{ position: 'relative' }}>
       <InputNumber
+        fullWidth={fullWidth}
         value={valStr}
         onChange={(e) => onValueChanged(e.target.value)}
         type="number"
@@ -126,9 +134,13 @@ export function BNInput({
         }}
         error={error}
         placeholder="0.0"
+        sx={{
+          width: fullWidth ? 'auto' : '180px',
+        }}
         InputProps={{
-          endAdornment:
-            max && !isValueLoading ? (
+          disabled,
+          endAdornment: withMaxButton ? (
+            canSetMax ? (
               <InputAdornment position="end">
                 <Button
                   variant="text"
@@ -141,7 +153,8 @@ export function BNInput({
               </InputAdornment>
             ) : (
               <CircularProgress size={16} sx={{ height: 'auto !important' }} />
-            ),
+            )
+          ) : null,
           inputMode: 'text',
           sx: {
             py: 1,

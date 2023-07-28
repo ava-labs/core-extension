@@ -1,95 +1,120 @@
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  CaretIcon,
-  CheckmarkIcon,
-  DropDownMenu,
-  DropDownMenuItem,
-  HorizontalFlex,
-  HorizontalSeparator,
-  IconDirection,
+  Button,
+  CheckIcon,
+  ChevronDownIcon,
+  ClickAwayListener,
+  Grow,
+  MenuItem,
+  MenuList,
+  Popper,
   Typography,
-} from '@avalabs/react-components';
+  styled,
+  useTheme,
+} from '@avalabs/k2-components';
+
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useLanguage } from '@src/hooks/useLanguages';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from 'styled-components';
+
+const SelectorButton = styled(Button)`
+  .current-language {
+    color: ${({ theme }) => theme.palette.text.secondary};
+    transition: ${({ theme }) =>
+      theme.transitions.create('color', {
+        duration: theme.transitions.duration.short,
+      })};
+  }
+
+  &:hover {
+    .current-language {
+      color: ${({ theme }) => theme.palette.secondary.lighter};
+    }
+  }
+`;
 
 export function LanguageSelector() {
   const theme = useTheme();
-
-  const { availableLanguages, changeLanguage, currentLanguage } = useLanguage();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const { availableLanguages, changeLanguage, currentLanguage } = useLanguage();
+
+  const buttonRef = useRef<HTMLButtonElement>();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
-    <>
-      <DropDownMenu
-        onMenuToggle={setIsDropdownOpen}
-        icon={
-          <HorizontalFlex
-            align="center"
-            data-testid="onboarding-language-selector"
-          >
-            <Typography size={14} margin="0 4px 0 0 ">
-              {t('Language')}
-            </Typography>
-            <Typography
-              size={14}
-              margin="0 8px 0 0 "
-              color={theme.colors.text2}
-            >
-              ({currentLanguage?.name})
-            </Typography>
-            <CaretIcon
-              direction={
-                !isDropdownOpen ? IconDirection.DOWN : IconDirection.UP
-              }
-              height={'12px'}
-              color={theme.colors.text1}
-            />
-          </HorizontalFlex>
-        }
-        coords={{
-          top: '30px',
-          right: 0,
-        }}
+    <ClickAwayListener onClickAway={() => setIsDropdownOpen(false)}>
+      <SelectorButton
+        variant="text"
+        color="primary"
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        ref={buttonRef}
+        data-testid="onboarding-language-selector"
+        sx={{ gap: 0.5, color: 'text.primary' }}
       >
-        {availableLanguages.map((lang, index) => {
-          return (
-            <React.Fragment key={lang.code}>
-              <DropDownMenuItem
-                onClick={() => {
-                  changeLanguage(lang.code);
-                  capture('OnboardingLanguageChanged', {
-                    language: lang.code,
-                  });
+        <Typography variant="body2">{t('Language')}</Typography>
+        <Typography className="current-language">
+          ({currentLanguage?.name})
+        </Typography>
+        <ChevronDownIcon
+          size={16}
+          sx={{
+            transition: theme.transitions.create('transform'),
+            transform: isDropdownOpen ? 'rotateX(180deg)' : 'none',
+          }}
+        />
+        <Popper
+          open={isDropdownOpen}
+          anchorEl={buttonRef.current}
+          placement="bottom-end"
+          transition
+        >
+          {({ TransitionProps }) => (
+            <Grow {...TransitionProps} timeout={250}>
+              <MenuList
+                dense
+                sx={{
+                  p: 0,
+                  borderRadius: 1,
+                  overflow: 'hidden',
                 }}
-                data-testid={`onboarding-language-selector-menu-item-${lang.code}`}
-                width="300px"
-                padding="8px 10px"
-                selected={lang.code === currentLanguage?.code}
               >
-                <HorizontalFlex
-                  justify="space-between"
-                  align="center"
-                  width="100%"
-                >
-                  <Typography>
-                    {lang.name} ({lang.originalName})
-                  </Typography>
-                  {lang.code === currentLanguage?.code && (
-                    <CheckmarkIcon height={'12px'} color={theme.colors.text1} />
-                  )}
-                </HorizontalFlex>
-              </DropDownMenuItem>
-              {index < availableLanguages.length - 1 && (
-                <HorizontalSeparator margin="0" />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </DropDownMenu>
-    </>
+                {availableLanguages.map((lang) => {
+                  const isCurrentLang = lang.code === currentLanguage?.code;
+
+                  return (
+                    <MenuItem
+                      key={lang.code}
+                      onClick={() => {
+                        changeLanguage(lang.code);
+                        capture('OnboardingLanguageChanged', {
+                          language: lang.code,
+                        });
+                      }}
+                      data-testid={`onboarding-language-selector-menu-item-${lang.code}`}
+                      sx={{
+                        flexDirection: 'row',
+                        gap: 2,
+                        justifyContent: 'space-between',
+                        px: 1,
+                      }}
+                    >
+                      <Typography
+                        color={
+                          isCurrentLang ? 'text.secondary' : 'text.primary'
+                        }
+                      >
+                        {lang.name} ({lang.originalName})
+                      </Typography>
+                      {isCurrentLang && <CheckIcon size={18} />}
+                    </MenuItem>
+                  );
+                })}
+              </MenuList>
+            </Grow>
+          )}
+        </Popper>
+      </SelectorButton>
+    </ClickAwayListener>
   );
 }

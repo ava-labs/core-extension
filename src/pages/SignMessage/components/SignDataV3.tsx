@@ -1,14 +1,9 @@
-import {
-  Card,
-  HorizontalFlex,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
+import { useTranslation } from 'react-i18next';
+import { Card, Stack, Typography } from '@avalabs/k2-components';
+import { positionValues } from 'react-custom-scrollbars-2';
+
 import { MessageParams } from '@src/background/services/messages/models';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { positionValues } from 'react-custom-scrollbars-2';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from 'styled-components';
 
 /**
  * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v3
@@ -25,7 +20,6 @@ export function SignDataV3({
   updateHandler: (values: positionValues) => void;
 }) {
   const { t } = useTranslation();
-  const theme = useTheme();
 
   const renderRow = (rowData: any) => {
     if (!rowData) {
@@ -35,35 +29,40 @@ export function SignDataV3({
     return Object.keys(rowData).map((key) => {
       if (typeof rowData[key] === 'object') {
         return (
-          <VerticalFlex key={key} padding="0 16px">
-            <Typography size={14} height="17px" color={theme.palette.grey[400]}>
+          <Stack key={key} sx={{ px: 2 }}>
+            <Typography variant="body2" color="text.secondary">
               {key}:
             </Typography>
             {renderRow(rowData[key])}
-          </VerticalFlex>
+          </Stack>
         );
       }
 
       return (
-        <HorizontalFlex key={key} padding="0 16px">
+        <Stack
+          key={key}
+          direction="row"
+          sx={{ px: 2, gap: 0.5, alignItems: 'flex-start' }}
+        >
           <Typography
-            size={14}
-            height="17px"
-            margin="0 8px 0 0"
-            color={theme.palette.grey[400]}
+            variant="body2"
+            color="text.secondary"
+            sx={{ lineHeight: '17px' }}
           >
             {key}:{' '}
           </Typography>
           <Typography
-            size={12}
-            height="17px"
-            wordBreak="break-all"
-            color={theme.palette.white[50]}
-            weight={700}
+            variant="caption"
+            color="text.primary"
+            sx={{
+              wordBreak: 'break-all',
+              fontWeight: 'fontWeightBold',
+              lineHeight: '17px',
+            }}
           >
             {rowData[key]}
           </Typography>
-        </HorizontalFlex>
+        </Stack>
       );
     });
   };
@@ -72,11 +71,9 @@ export function SignDataV3({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { types, primaryType, ...dataWithoutTypes } = message.data;
   return (
-    <VerticalFlex width={'100%'}>
-      <Typography size={12} height="15px" margin="0 0 8px 0">
-        {t('Message:')}
-      </Typography>
-      <Card height="250px" padding="16px 0">
+    <Stack sx={{ width: 1, gap: 1 }}>
+      <Typography variant="caption">{t('Message:')}</Typography>
+      <Card sx={{ height: 250, py: 2 }}>
         <Scrollbars
           style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
           onScrollFrame={scrollFrameHandler}
@@ -85,6 +82,6 @@ export function SignDataV3({
           {renderRow(dataWithoutTypes)}
         </Scrollbars>
       </Card>
-    </VerticalFlex>
+    </Stack>
   );
 }
