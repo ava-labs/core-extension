@@ -174,7 +174,10 @@ export class WalletService implements OnLock, OnUnlock {
 
     const provider = this.networkService.getProviderForNetwork(activeNetwork);
 
-    if (activeAccount.type === AccountType.IMPORTED) {
+    if (
+      activeAccount.type === AccountType.IMPORTED ||
+      activeAccount.type === AccountType.WALLET_CONNECT
+    ) {
       const importData = walletKeys.imported?.[activeAccount.id];
 
       if (!importData) {
@@ -490,7 +493,10 @@ export class WalletService implements OnLock, OnUnlock {
       WALLET_STORAGE_KEY
     );
 
-    if (account.type === AccountType.IMPORTED) {
+    if (
+      account.type === AccountType.IMPORTED ||
+      account.type === AccountType.WALLET_CONNECT
+    ) {
       const secretEntry = secrets?.imported?.[account.id];
 
       if (!secretEntry) {

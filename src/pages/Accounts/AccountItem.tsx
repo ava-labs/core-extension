@@ -5,17 +5,20 @@ import {
   BitcoinColorIcon,
   Button,
   Checkbox,
+  Chip,
   EditIcon,
   Grow,
   IconButton,
+  KeyIcon,
   Stack,
   StackProps,
   Typography,
+  WalletConnectIcon,
   styled,
   useTheme,
 } from '@avalabs/k2-components';
 
-import { Account } from '@src/background/services/accounts/models';
+import { Account, AccountType } from '@src/background/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -113,6 +116,20 @@ export const AccountItem = forwardRef(
       }
     }, [isDeleteMode, account.id, toggle, onClick]);
 
+    const chipLogo =
+      account.type === AccountType.IMPORTED ? (
+        <KeyIcon size={16} color="currentColor" />
+      ) : account.type === AccountType.WALLET_CONNECT ? (
+        <WalletConnectIcon size={16} color="currentColor" />
+      ) : undefined;
+
+    const chipLabel =
+      account.type === AccountType.IMPORTED
+        ? t('Private Key')
+        : account.type === AccountType.WALLET_CONNECT
+        ? t('Wallet Connect')
+        : undefined;
+
     return (
       <Wrapper
         ref={ref}
@@ -207,42 +224,63 @@ export const AccountItem = forwardRef(
             />
           </Stack>
           {/* Addresses */}
-          <Stack sx={{ gap: 1 }}>
-            <Stack
-              direction="row"
-              data-testid="account-selector-copy-ava-address"
-              sx={{ gap: 1 }}
-            >
-              <AvalancheColorIcon size={17} />
-              <SimpleAddressK2
-                address={account.addressC}
-                iconColor={isActive ? 'text.secondary' : 'text.primary'}
-                textColor="text.secondary"
-                copyCallback={() => {
-                  capture('AccountSelectorEthAddressCopied', {
-                    type: account.type,
-                  });
-                }}
-              />
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Stack sx={{ gap: 1 }}>
+              <Stack
+                direction="row"
+                data-testid="account-selector-copy-ava-address"
+                sx={{ gap: 1 }}
+              >
+                <AvalancheColorIcon size={17} />
+                <SimpleAddressK2
+                  address={account.addressC}
+                  iconColor={isActive ? 'text.secondary' : 'text.primary'}
+                  textColor="text.secondary"
+                  copyCallback={() => {
+                    capture('AccountSelectorEthAddressCopied', {
+                      type: account.type,
+                    });
+                  }}
+                />
+              </Stack>
+
+              <Stack
+                direction="row"
+                data-testid="account-selector-copy-btc-address"
+                sx={{ gap: 1 }}
+              >
+                <BitcoinColorIcon size={17} />
+                <SimpleAddressK2
+                  address={account.addressBTC}
+                  iconColor={isActive ? 'text.secondary' : 'text.primary'}
+                  textColor="text.secondary"
+                  copyCallback={() => {
+                    capture('AccountSelectorBtcAddressCopied', {
+                      type: account.type,
+                    });
+                  }}
+                />
+              </Stack>
             </Stack>
 
-            <Stack
-              direction="row"
-              data-testid="account-selector-copy-btc-address"
-              sx={{ gap: 1 }}
-            >
-              <BitcoinColorIcon size={17} />
-              <SimpleAddressK2
-                address={account.addressBTC}
-                iconColor={isActive ? 'text.secondary' : 'text.primary'}
-                textColor="text.secondary"
-                copyCallback={() => {
-                  capture('AccountSelectorBtcAddressCopied', {
-                    type: account.type,
-                  });
+            {account.type !== AccountType.PRIMARY && (
+              <Chip
+                icon={chipLogo}
+                label={chipLabel}
+                sx={{
+                  backgroundColor: 'grey.50',
+                  color: 'background.paper',
+                  py: 0,
+                  height: '20px',
+                  alignSelf: 'flex-end',
                 }}
               />
-            </Stack>
+            )}
           </Stack>
         </Stack>
       </Wrapper>
