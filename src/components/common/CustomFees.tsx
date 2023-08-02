@@ -149,7 +149,7 @@ export const getGasFeeToDisplay = (fee: string, networkFee: NetworkFee) => {
   }
 };
 
-export function CustomFeesK2({
+export function CustomFees({
   maxFeePerGas,
   limit,
   onChange,

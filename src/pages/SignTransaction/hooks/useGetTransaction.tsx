@@ -8,7 +8,7 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import Web3 from 'web3';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { Limit, SpendLimit } from '../CustomSpendLimit';
-import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 import {
   bigToLocaleString,
   bnToBig,

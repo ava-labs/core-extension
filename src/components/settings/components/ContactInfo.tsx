@@ -1,5 +1,5 @@
 import type { Contact } from '@avalabs/types';
-import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
+import { SimpleAddress } from '@src/components/common/SimpleAddress';
 import {
   Stack,
   Typography,
@@ -42,7 +42,7 @@ export const ContactInfo = ({ contact }: { contact: Contact }) => {
               }}
               size={16}
             />
-            <SimpleAddressK2 address={contact.address} />
+            <SimpleAddress address={contact.address} />
           </Stack>
         )}
         {contact.addressBTC && (
@@ -61,7 +61,7 @@ export const ContactInfo = ({ contact }: { contact: Contact }) => {
               }}
               size={16}
             />
-            <SimpleAddressK2 address={contact.addressBTC} />
+            <SimpleAddress address={contact.addressBTC} />
           </Stack>
         )}
       </Stack>

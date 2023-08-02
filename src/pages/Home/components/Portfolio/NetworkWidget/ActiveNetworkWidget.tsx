@@ -25,7 +25,7 @@ import {
   AlertTriangleIcon,
   Badge,
 } from '@avalabs/k2-components';
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { isBitcoin } from '@src/utils/isBitcoin';
@@ -113,14 +113,14 @@ export function ActiveNetworkWidget({
                   }
                   color="secondary"
                 >
-                  <TokenIconK2
+                  <TokenIcon
                     width="40px"
                     height="40px"
                     src={network.logoUri}
                     name={network.chainName}
                   >
                     <NetworkLogoK2 height="40px" src={network.logoUri} />
-                  </TokenIconK2>
+                  </TokenIcon>
                 </Badge>
               </LogoContainer>
               <Stack justifyContent="center" sx={{ rowGap: 0.5 }}>

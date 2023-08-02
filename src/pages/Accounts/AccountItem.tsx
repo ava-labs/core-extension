@@ -23,7 +23,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
-import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
+import { SimpleAddress } from '@src/components/common/SimpleAddress';
 
 import { AccountBalance } from './AccountBalance';
 
@@ -237,7 +237,7 @@ export const AccountItem = forwardRef(
                 sx={{ gap: 1 }}
               >
                 <AvalancheColorIcon size={17} />
-                <SimpleAddressK2
+                <SimpleAddress
                   address={account.addressC}
                   iconColor={isActive ? 'text.secondary' : 'text.primary'}
                   textColor="text.secondary"
@@ -255,7 +255,7 @@ export const AccountItem = forwardRef(
                 sx={{ gap: 1 }}
               >
                 <BitcoinColorIcon size={17} />
-                <SimpleAddressK2
+                <SimpleAddress
                   address={account.addressBTC}
                   iconColor={isActive ? 'text.secondary' : 'text.primary'}
                   textColor="text.secondary"

@@ -1,5 +1,5 @@
 import { PageTitle } from '@src/components/common/PageTitle';
-import { TokenIcon } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';

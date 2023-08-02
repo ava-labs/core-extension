@@ -14,7 +14,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-components';
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 
 interface NetworkSelectorProps {
   testId?: string;
@@ -25,7 +25,7 @@ interface NetworkSelectorProps {
 }
 
 const EthereumLogo = () => (
-  <TokenIconK2
+  <TokenIcon
     width="16px"
     height="16px"
     src={EthLogo}

@@ -18,7 +18,7 @@ import {
   toast,
 } from '@avalabs/k2-components';
 import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 
 export function AddToken() {
   const { t } = useTranslation();
@@ -139,7 +139,7 @@ export function AddToken() {
                 name={tokenData.name}
                 symbol={tokenData.symbol}
               >
-                <TokenIconK2 width="32px" height="32px" name={tokenData.name} />
+                <TokenIcon width="32px" height="32px" name={tokenData.name} />
               </TokenCardWithBalance>
             </Stack>
           )}

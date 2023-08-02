@@ -2,7 +2,7 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
-import { TokenIcon } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
@@ -19,7 +19,7 @@ import {
   styled,
 } from '@avalabs/k2-components';
 import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
-import { BalanceColumnK2 } from '@src/components/common/BalanceColumnK2';
+import { BalanceColumn } from '@src/components/common/BalanceColumn';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -122,7 +122,7 @@ export function Assetlist({ assetList }: AssetListProps) {
                 <TokenEllipsis maxLength={8} text={token.symbol} />
               </Typography>
             </Stack>
-            <BalanceColumnK2 className="balance-column">
+            <BalanceColumn className="balance-column">
               {!!token.balanceUSD && (
                 <>
                   <BalanceUSDField
@@ -160,7 +160,7 @@ export function Assetlist({ assetList }: AssetListProps) {
                   <InlineTokenEllipsis maxLength={8} text={token.symbol} />
                 </Typography>
               )}
-            </BalanceColumnK2>
+            </BalanceColumn>
           </AssetlistRow>
         );
       })}

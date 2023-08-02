@@ -1,68 +1,65 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
 import {
-  VerticalFlex,
-  HorizontalFlex,
-  Typography,
-  TokenSelector,
-  SearchInput,
-  DropDownMenuItem,
-  HorizontalSeparator,
-  TokenEllipsis,
-} from '@avalabs/react-components';
-import { TokenIcon } from '@src/components/common/TokenImage';
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import { formatTokenAmount } from '@avalabs/bridge-sdk';
 import EthLogo from '@src/images/tokens/eth.png';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
-import Big from 'big.js';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
-import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from './VirtualizedList';
-import { BNInput } from '@avalabs/react-components';
-import { InfoCircleIcon, Stack, Tooltip } from '@avalabs/k2-components';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import {
+  InfoCircleIcon,
+  Stack,
+  Tooltip,
+  styled,
+  Typography,
+  Divider,
+  Card,
+  SearchBar,
+} from '@avalabs/k2-components';
+import { BNInput } from '@src/components/common/BNInput';
+import { TokenSelector } from './TokenSelector';
+import { TokenEllipsis } from './TokenEllipsis';
+import { DropdownItem } from './Dropdown';
+import { useDisplaytokenlist } from '@src/hooks/useDisplayTokenList';
 
-function formatBalance(balance: Big | undefined) {
-  return balance ? formatTokenAmount(balance, 6) : '-';
-}
-
-const InputContainer = styled(HorizontalFlex)`
+const InputContainer = styled(Card)`
   justify-content: space-between;
   align-items: center;
-  padding: ${({ padding }) => padding ?? '8px 16px'};
-  background: ${({ theme }) => theme.swapCard.inputContainerBg};
+  padding: 8px 16px;
+  background: ${({ theme }) => theme.palette.grey[850]};
   cursor: pointer;
+  display: flex;
 `;
 
-const SelectContainer = styled.div`
+const SelectContainer = styled(Stack)`
   position: relative;
 `;
 
-const DropdownContents = styled(VerticalFlex)`
+const DropdownContents = styled(Stack)`
   flex-grow: 1;
-  background: ${({ theme }) => theme.swapCard.inputContainerBg};
+  background: ${({ theme }) => theme.palette.grey[850]};
   border-radius: 0 0 8px 8px;
   z-index: 2;
 `;
 
-const SearchInputContainer = styled.div`
+const SearchInputContainer = styled(Stack)`
   padding-left: 16px;
   padding-right: 16px;
 `;
 
-const StyledSearchInput = styled(SearchInput)`
-  margin-top: 16px;
-  margin-bottom: 16px;
-`;
-
-const StyledDropdownMenuItem = styled(DropDownMenuItem)`
+const StyledDropdownMenuItem = styled(DropdownItem)`
   padding: 8px 16px;
 `;
 
@@ -76,7 +73,6 @@ interface TokenSelectProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   error?: string;
-  margin?: string;
   padding?: string;
   label?: string;
   selectorLabel?: string;
@@ -85,13 +81,6 @@ interface TokenSelectProps {
   isValueLoading?: boolean;
   hideErrorMessage?: boolean;
   skipHandleMaxAmount?: boolean;
-}
-
-interface DisplayToken {
-  name: string;
-  symbol: string;
-  displayValue: string;
-  token: TokenWithBalance | AssetBalance;
 }
 
 export function TokenSelect({
@@ -104,7 +93,6 @@ export function TokenSelect({
   onSelectToggle,
   isOpen,
   error,
-  margin,
   padding,
   label,
   selectorLabel,
@@ -115,15 +103,12 @@ export function TokenSelect({
   setIsOpen,
 }: TokenSelectProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { currencyFormatter, currency } = useSettingsContext();
 
   const selectButtonRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
-
-  useLiveBalance(); // Make sure we always show the latest balances.
 
   const decimals = selectedToken?.decimals || 18;
 
@@ -146,53 +131,14 @@ export function TokenSelect({
   );
   const hideTokenDropdown = bridgeTokensList && bridgeTokensList.length < 2;
 
-  const displayTokenList: DisplayToken[] = useMemo(() => {
-    return [
-      ...(tokensList
-        ? tokensList
-            .filter((token) =>
-              searchQuery.length
-                ? token.name
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                  token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-                : true
-            )
-            .map((token): DisplayToken => {
-              return {
-                name: token.name,
-                symbol: token.symbol,
-                displayValue: token.balanceDisplayValue ?? '',
-                token,
-              };
-            })
-        : []),
-      ...(bridgeTokensList
-        ? bridgeTokensList
-            .filter((token) =>
-              searchQuery.length
-                ? token.symbol
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                  token.symbolOnNetwork
-                    ?.toLowerCase()
-                    .includes(searchQuery.toLocaleLowerCase())
-                : true
-            )
-            .map((token): DisplayToken => {
-              return {
-                name: token.symbolOnNetwork || token.symbol,
-                symbol: token.asset.symbol,
-                displayValue: formatBalance(token.balance),
-                token,
-              };
-            })
-        : []),
-    ];
-  }, [tokensList, bridgeTokensList, searchQuery]);
+  const displayTokenList = useDisplaytokenlist({
+    tokensList,
+    bridgeTokensList,
+    searchQuery,
+  });
 
-  useEffect(() => {
-    const formattedAmount =
+  const formattedAmount = useMemo(() => {
+    const amount =
       inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
         ? currencyFormatter(
             parseFloat(
@@ -200,8 +146,13 @@ export function TokenSelect({
             ) * selectedToken.priceUSD
           )
         : undefined;
+
+    return amount;
+  }, [currencyFormatter, decimals, inputAmount, selectedToken]);
+
+  useEffect(() => {
     setAmountInCurrency(formattedAmount);
-  }, [currencyFormatter, inputAmount, decimals, selectedToken?.priceUSD]);
+  }, [formattedAmount]);
 
   // When setting to the max, pin the input value to the max value
   useEffect(() => {
@@ -257,30 +208,37 @@ export function TokenSelect({
           onSelectToggle && onSelectToggle();
         }}
       >
-        <HorizontalFlex justify="space-between" align="center" grow="1">
-          <HorizontalFlex align="center">
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexGrow: 1,
+          }}
+        >
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
             <TokenIcon
               width="32px"
               height="32px"
               src={token.symbol === 'ETH' ? EthLogo : token.token.logoUri}
               name={token.symbol}
             />
-            <Typography
-              size={16}
-              height="24px"
-              margin={'0 0 0 16px'}
-              weight={500}
-            >
+            <Typography variant="h6" sx={{ ml: 2 }}>
               <TokenEllipsis text={token.name} maxLength={14} />
             </Typography>
-          </HorizontalFlex>
+          </Stack>
           <BalanceColumn>
-            <Typography size={14} height="24px">
+            <Typography variant="body1">
               {token.displayValue}{' '}
-              <InlineTokenEllipsis text={token.symbol} maxLength={8} />
+              <TokenEllipsis text={token.symbol} maxLength={8} />
             </Typography>
           </BalanceColumn>
-        </HorizontalFlex>
+        </Stack>
       </StyledDropdownMenuItem>
     );
   }
@@ -308,28 +266,31 @@ export function TokenSelect({
   };
 
   return (
-    <VerticalFlex width="100%" style={{ margin }}>
-      <HorizontalFlex
-        justify="space-between"
-        align="flex-end"
-        margin={!padding ? '0 0 8px' : '0'}
-        grow="1"
-        padding={padding}
+    <Stack sx={{ width: '100%' }}>
+      <Stack
+        sx={{
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+          padding,
+          m: () => (!padding ? '0 0 8px' : '0'),
+        }}
       >
-        <Typography size={12} color={theme.inputs.colorLabel}>
-          {label ?? t('Token')}
-        </Typography>
-        <Typography size={12} color={theme.colors.text2}>
+        <Typography variant="caption">{label ?? t('Token')}</Typography>
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
           {renderTokenLabel()}
         </Typography>
-      </HorizontalFlex>
+      </Stack>
       <SelectContainer>
         <InputContainer
           data-testid="token-selector-dropdown"
           ref={selectButtonRef}
-          style={{ borderRadius: isOpen ? '8px 8px 0 0' : 8 }}
           onClick={() => onSelectToggle && onSelectToggle()}
-          padding={padding}
+          sx={{
+            flexDirection: 'row',
+            padding,
+            borderRadius: isOpen ? '8px 8px 0 0' : '8px',
+          }}
         >
           <TokenSelector
             isOpen={isOpen}
@@ -349,7 +310,7 @@ export function TokenSelect({
                 : null
             }
             hideCaretIcon={hideTokenDropdown}
-            label={selectorLabel ?? t('Select')}
+            label={selectorLabel ?? t('Select Token')}
           />
           <BNInput
             value={
@@ -357,48 +318,38 @@ export function TokenSelect({
                 ? maxAmount || inputAmount
                 : inputAmount
             }
+            denomination={decimals}
+            onChange={handleAmountChange}
+            isValueLoading={isValueLoading}
+            data-testid="token-amount-input"
             max={
               !isValueLoading ? maxAmount || selectedToken?.balance : undefined
             }
-            denomination={decimals}
-            buttonContent={
-              !isValueLoading &&
-              maxAmount &&
-              selectedToken?.balance &&
-              selectedToken?.balance.gt(new BN(0))
-                ? t('Max')
-                : ''
-            }
-            data-testid="token-amount-input"
-            placeholder="0"
-            width="180px"
-            height="40px"
-            disabled={!selectedToken || isValueLoading}
-            onChange={handleAmountChange}
-            onClick={(e) => e.stopPropagation()}
-            onKeyPress={preventMinus}
-            style={{ borderWidth: 0, backgroundColor: theme.colors.bg3 }}
-            isValueLoading={isValueLoading}
           />
         </InputContainer>
         {!hideErrorMessage && (
-          <HorizontalFlex
-            justify="space-between"
-            grow="1"
-            margin={!padding ? '4px 0 0 0' : '0'}
-            padding={padding}
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              padding,
+              m: () => (!padding ? '4px 0 0 0' : '0'),
+            }}
           >
-            <Typography size={12} color={theme.colors.error}>
+            <Typography
+              variant="caption"
+              sx={{ color: (theme) => theme.palette.error.main }}
+            >
               {error}
             </Typography>
-            <Typography size={12} color={theme.colors.text2}>
+            <Typography variant="caption">
               {amountInCurrency ? (
                 `${amountInCurrency.replace(currency, '')} ${currency}`
               ) : (
                 <>&nbsp;</>
               )}
             </Typography>
-          </HorizontalFlex>
+          </Stack>
         )}
 
         {!hideTokenDropdown && (
@@ -408,18 +359,19 @@ export function TokenSelect({
             setIsOpen={setIsOpen}
           >
             <DropdownContents>
-              <HorizontalSeparator margin="0" />
+              <Divider sx={{ mx: 2, mt: 1 }} />
               <SearchInputContainer>
-                <StyledSearchInput
-                  searchTerm={searchQuery}
-                  data-testid="token-search-input"
+                <SearchBar
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setSearchQuery(e.currentTarget.value)
+                  }
                   placeholder={t('Search')}
-                  width="100%"
-                  onSearch={(term) => setSearchQuery(term)}
-                  autoFocus={true}
+                  sx={{
+                    my: 2,
+                  }}
                 />
               </SearchInputContainer>
-              <VerticalFlex grow="1">
+              <Stack sx={{ flexDirection: 'column', flexGrow: 1 }}>
                 <AutoSizer>
                   {({ height, width }) => (
                     <VirtualizedList
@@ -431,17 +383,11 @@ export function TokenSelect({
                     />
                   )}
                 </AutoSizer>
-              </VerticalFlex>
+              </Stack>
             </DropdownContents>
           </ContainedDropdown>
         )}
       </SelectContainer>
-    </VerticalFlex>
+    </Stack>
   );
-}
-
-function preventMinus(e) {
-  if (e.code === 'Minus') {
-    e.preventDefault();
-  }
 }

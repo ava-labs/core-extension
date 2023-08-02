@@ -10,10 +10,10 @@ import {
 } from '@avalabs/k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { Account } from '@src/background/services/accounts/models';
-import { TokenIcon } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import { SiteAvatarK2 } from '@src/components/common/SiteAvatar';
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useTranslation } from 'react-i18next';
@@ -119,7 +119,7 @@ export function PermissionsPage() {
           </Typography>
         </Box>
         <Stack sx={{ gap: 2.5, alignItems: 'center' }}>
-          <SiteAvatarK2 margin="0">
+          <SiteAvatar sx={{ m: 0 }}>
             <TokenIcon
               height="48px"
               width="48px"
@@ -127,7 +127,7 @@ export function PermissionsPage() {
             >
               <GlobeIcon size={48} color={theme.palette.text.secondary} />
             </TokenIcon>
-          </SiteAvatarK2>
+          </SiteAvatar>
           <Stack textAlign="center" gap={0.5}>
             <Typography component="h2" variant="h5">
               {request.displayData.domainName}

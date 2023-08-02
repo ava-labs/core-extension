@@ -9,7 +9,7 @@ import {
 import { Network } from '@avalabs/chains-sdk';
 import { useTranslation } from 'react-i18next';
 
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 
@@ -59,9 +59,9 @@ export function SwitchActiveNetwork() {
             }}
           >
             <SiteAvatar>
-              <TokenIconK2 height="56px" width="56px" src={network?.logoUri}>
+              <TokenIcon height="56px" width="56px" src={network?.logoUri}>
                 <GlobeIcon size={56} />
-              </TokenIconK2>
+              </TokenIcon>
             </SiteAvatar>
             <Typography variant="h3">
               {t('Switch to {{chainName}} Network?', {

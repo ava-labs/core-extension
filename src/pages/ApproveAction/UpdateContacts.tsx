@@ -8,21 +8,14 @@ import {
   Typography,
   VerticalFlex,
 } from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ContactInfo } from '@src/components/settings/components/ContactInfo';
 import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
-
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 50%;
-  margin: 8px 0;
-`;
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 export function UpdateContacts({
   method,
@@ -65,7 +58,12 @@ export function UpdateContacts({
   return (
     <VerticalFlex>
       <VerticalFlex grow="1" align="center" justify="center">
-        <SiteAvatar justify="center" align="center">
+        <SiteAvatar
+          sx={{
+            justify: 'center',
+            align: 'center',
+          }}
+        >
           <ContactsIcon height="48px" width="48px" color={theme.colors.icon1} />
         </SiteAvatar>
         <HorizontalFlex align="center" width="100%" justify="center">

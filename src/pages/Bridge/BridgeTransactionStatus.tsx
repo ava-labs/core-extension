@@ -38,7 +38,7 @@ import {
 } from '@avalabs/k2-components';
 import Dialog from '@src/components/common/Dialog';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
-import { ConfirmationTrackerK2 } from '@src/components/common/ConfirmationTrackerK2';
+import { ConfirmationTracker } from '@src/components/common/ConfirmationTracker';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { blockchainToNetwork } from './utils/blockchainConversion';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
@@ -365,7 +365,7 @@ const BridgeTransactionStatus = () => {
                       />
                     </Stack>
                   </Stack>
-                  <ConfirmationTrackerK2
+                  <ConfirmationTracker
                     started={true}
                     requiredCount={bridgeTransaction.requiredConfirmationCount}
                     currentCount={
@@ -566,7 +566,7 @@ const BridgeTransactionStatus = () => {
                   </Stack>
                   {bridgeTransaction.targetStartedAt && (
                     <>
-                      <ConfirmationTrackerK2
+                      <ConfirmationTracker
                         started={!!bridgeTransaction.targetStartedAt}
                         requiredCount={
                           1 // On destination, we just need 1 confirmation

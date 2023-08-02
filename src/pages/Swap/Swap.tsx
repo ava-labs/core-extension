@@ -42,8 +42,9 @@ import {
   Button,
   styled,
   ToastCard,
+  IconButton,
 } from '@avalabs/k2-components';
-import { TokenSelect } from '@src/components/common/TokenSelectK2';
+import { TokenSelect } from '@src/components/common/TokenSelect';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -313,12 +314,14 @@ export function Swap() {
               disabled={!selectedFromToken || !selectedToToken}
               isSwapped={isReversed}
             >
-              <SwapIcon
-                size={20}
-                sx={{
-                  transform: 'rotate(90deg)',
-                }}
-              />
+              <IconButton variant="contained" color="secondary">
+                <SwapIcon
+                  size={20}
+                  sx={{
+                    transform: 'rotate(90deg)',
+                  }}
+                />
+              </IconButton>
             </SwitchIconContainer>
           </Stack>
           <TokenSelect

@@ -11,7 +11,7 @@ import {
 } from '@avalabs/react-components';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ActionStatus } from '@src/background/services/actions/models';
-import { TokenIcon } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useEffect } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';

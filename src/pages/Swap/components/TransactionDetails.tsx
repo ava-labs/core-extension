@@ -13,10 +13,7 @@ import {
   ChevronDownIcon,
   TextField,
 } from '@avalabs/k2-components';
-import {
-  CustomFeesK2,
-  GasFeeModifier,
-} from '@src/components/common/CustomFeesK2';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -166,7 +163,7 @@ export function TransactionDetails({
           <DetailsRow sx={{ mt: 5 }}>
             <Stack sx={{ width: '100%' }}>
               {gasLimit && gasPrice && (
-                <CustomFeesK2
+                <CustomFees
                   maxFeePerGas={gasPrice}
                   limit={gasLimit}
                   onChange={onGasChange}

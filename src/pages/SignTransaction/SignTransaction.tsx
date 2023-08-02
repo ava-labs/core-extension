@@ -37,7 +37,7 @@ import { TokenType } from '@src/background/services/balances/models';
 import { ethersBigNumberToBN, hexToBN } from '@avalabs/utils-sdk';
 import { Trans, useTranslation } from 'react-i18next';
 import { RawTransactionData } from './components/RawTransactionData';
-import { CustomFeesK2 } from '@src/components/common/CustomFeesK2';
+import { CustomFees } from '@src/components/common/CustomFees';
 import { useSignTransactionHeader } from './hooks/useSignTransactionHeader';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { KeystoneApprovalOverlay } from './KeystoneApprovalOverlay';
@@ -294,7 +294,7 @@ export function SignTransactionPage() {
 
             <Stack sx={{ gap: 1, width: '100%' }}>
               {hasFeeInformation ? (
-                <CustomFeesK2
+                <CustomFees
                   maxFeePerGas={displayData.maxFeePerGas}
                   limit={displayData.gasLimit}
                   onChange={setCustomFee}

@@ -10,7 +10,7 @@ import {
 } from '../utils';
 import { stringToBN } from '@avalabs/utils-sdk';
 import { BigNumber } from 'ethers';
-import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';

@@ -19,7 +19,7 @@ import Dialog from '@src/components/common/Dialog';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { MessageType } from '@src/background/services/messages/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
@@ -152,9 +152,9 @@ export function SignMessage() {
 
           <Stack sx={{ alignItems: 'center', pt: 2, pb: 3 }}>
             <SiteAvatar justify="center" align="center">
-              <TokenIconK2 height="48px" width="48px" src={action.site?.icon}>
+              <TokenIcon height="48px" width="48px" src={action.site?.icon}>
                 <GlobeIcon size={48} />
-              </TokenIconK2>
+              </TokenIcon>
             </SiteAvatar>
             <Typography variant="h5" sx={{ mt: 1 }}>
               {action.site?.name ?? t('Unknown')}

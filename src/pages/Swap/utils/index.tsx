@@ -1,4 +1,4 @@
-import { TokenIcon as TokenImage } from '@src/components/common/TokenImage';
+import { TokenIcon as TokenImage } from '@src/components/common/TokenIcon';
 import { APIError } from 'paraswap';
 import {
   TokenType,

@@ -12,7 +12,7 @@ import {
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { TokenIcon } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useTheme } from 'styled-components';
@@ -82,7 +82,12 @@ export function ApproveAction() {
           </VerticalFlex>
 
           <VerticalFlex align="center" margin="0 0 24px">
-            <SiteAvatar margin="8px 0" justify="center" align="center">
+            <SiteAvatar
+              sx={{
+                justify: 'center',
+                align: 'center',
+              }}
+            >
               <TokenIcon height="48px" width="48px" src={action.site?.icon}>
                 <GlobeIcon
                   height="48px"

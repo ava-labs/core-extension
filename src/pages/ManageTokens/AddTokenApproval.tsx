@@ -12,7 +12,7 @@ import {
 } from '@avalabs/react-components';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { TokenIcon } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useTheme } from 'styled-components';

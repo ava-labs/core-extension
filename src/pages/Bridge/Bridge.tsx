@@ -61,7 +61,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
-import { TokenSelect } from '@src/components/common/TokenSelectK2';
+import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
 
 function formatBalance(balance: Big | undefined) {

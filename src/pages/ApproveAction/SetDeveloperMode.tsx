@@ -10,19 +10,12 @@ import {
 } from '@avalabs/react-components';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { Action, ActionStatus } from '@src/background/services/actions/models';
-import { TokenIcon } from '@src/components/common/TokenImage';
-import styled, { useTheme } from 'styled-components';
+import { TokenIcon } from '@src/components/common/TokenIcon';
+import { useTheme } from 'styled-components';
 import { Network } from '@avalabs/chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { useTranslation } from 'react-i18next';
-
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 50%;
-  margin: 8px 0;
-`;
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 export function SetDeveloperMode() {
   const { t } = useTranslation();
@@ -54,7 +47,13 @@ export function SetDeveloperMode() {
   return (
     <VerticalFlex>
       <VerticalFlex grow="1" align="center" justify="center">
-        <SiteAvatar margin="8px 0" justify="center" align="center">
+        <SiteAvatar
+          sx={{
+            justify: 'center',
+            align: 'center',
+            my: 1,
+          }}
+        >
           <TokenIcon height="48px" width="48px" src={network?.logoUri}>
             <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
           </TokenIcon>

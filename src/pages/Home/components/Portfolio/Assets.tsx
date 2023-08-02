@@ -15,7 +15,7 @@ import {
   styled,
 } from '@avalabs/k2-components';
 import { Redirect, useHistory } from 'react-router-dom';
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -72,7 +72,7 @@ export function Assets() {
             sx={{ cursor: 'pointer' }}
           />
           <LogoContainer>
-            <TokenIconK2
+            <TokenIcon
               width="40px"
               height="40px"
               src={network?.logoUri}

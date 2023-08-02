@@ -37,7 +37,12 @@ export function SelectWallet() {
   return (
     <VerticalFlex>
       <VerticalFlex grow="1" align="center" justify="center">
-        <SiteAvatar justify="center" align="center">
+        <SiteAvatar
+          sx={{
+            justify: 'center',
+            align: 'center',
+          }}
+        >
           <WalletIcon height="48px" width="48px" color={theme.colors.icon1} />
         </SiteAvatar>
         <Typography
