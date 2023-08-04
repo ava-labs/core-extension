@@ -369,6 +369,7 @@ export function TokenSelect({
                   sx={{
                     my: 2,
                   }}
+                  data-testid="search-input"
                 />
               </SearchInputContainer>
               <Stack sx={{ flexDirection: 'column', flexGrow: 1 }}>
