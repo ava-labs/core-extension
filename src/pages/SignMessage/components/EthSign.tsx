@@ -1,18 +1,21 @@
 import { Card, Scrollbars, Stack, Typography } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 import { positionValues } from 'react-custom-scrollbars-2';
-
 import { MessageParams } from '@src/background/services/messages/models';
+import { forwardRef, ForwardedRef } from 'react';
 
-export function EthSign({
-  message,
-  scrollFrameHandler,
-  updateHandler,
-}: {
-  message: MessageParams;
-  scrollFrameHandler: (values: positionValues) => void;
-  updateHandler: (values: positionValues) => void;
-}) {
+// ref(ForwardedRef) is used to track if the whole content has been viewed by the parent component
+
+export const EthSign = forwardRef(function EthSign(
+  {
+    message,
+    updateHandler,
+  }: {
+    message: MessageParams;
+    updateHandler: (values: positionValues) => void;
+  },
+  ref: ForwardedRef<HTMLDivElement | null>
+) {
   const { t } = useTranslation();
 
   return (
@@ -32,7 +35,6 @@ export function EthSign({
       <Card sx={{ py: 2, height: 105 }}>
         <Scrollbars
           style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
-          onScrollFrame={scrollFrameHandler}
           onUpdate={updateHandler}
         >
           <Stack sx={{ px: 2 }}>
@@ -40,8 +42,9 @@ export function EthSign({
               {message.data}
             </Typography>
           </Stack>
+          <div ref={ref} style={{ height: '1px' }} />
         </Scrollbars>
       </Card>
     </Stack>
   );
-}
+});

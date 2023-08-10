@@ -3,26 +3,30 @@ import { Card, Scrollbars, Stack, Typography } from '@avalabs/k2-components';
 import { positionValues } from 'react-custom-scrollbars-2';
 
 import { MessageParams } from '@src/background/services/messages/models';
+import { ForwardedRef, forwardRef } from 'react';
 
 /**
  * This is in support of of EIP-712
  * @link https://eips.ethereum.org/EIPS/eip-712
  *
  * Here is metamasks docs on this @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v1
+ * ref(ForwardedRef) is used to track if the whole content has been viewed by the parent component
  *
  * @param param0
  * @returns
  */
-export function SignData({
-  message,
-  scrollFrameHandler,
-  updateHandler,
-}: {
-  message: MessageParams;
-  scrollFrameHandler: (values: positionValues) => void;
-  updateHandler: (values: positionValues) => void;
-}) {
+export const SignData = forwardRef(function SignData(
+  {
+    message,
+    updateHandler,
+  }: {
+    message: MessageParams;
+    updateHandler: (values: positionValues) => void;
+  },
+  ref: ForwardedRef<HTMLDivElement | null>
+) {
   const { t } = useTranslation();
+
   const data = message.data;
 
   return (
@@ -30,7 +34,6 @@ export function SignData({
       <Typography variant="caption">{t('Message:')}</Typography>
       <Card sx={{ height: 250, py: 2 }}>
         <Scrollbars
-          onScrollFrame={scrollFrameHandler}
           onUpdate={updateHandler}
           style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
         >
@@ -48,8 +51,9 @@ export function SignData({
               </Typography>
             </Stack>
           ))}
+          <div ref={ref} style={{ height: '1px' }} />
         </Scrollbars>
       </Card>
     </Stack>
   );
-}
+});

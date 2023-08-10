@@ -3,21 +3,24 @@ import { positionValues } from 'react-custom-scrollbars-2';
 import { useTranslation } from 'react-i18next';
 
 import { MessageParams } from '@src/background/services/messages/models';
+import { ForwardedRef, forwardRef } from 'react';
 
 /**
  * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v4
  * @param param0
  * @returns
+ * ref(ForwardedRef) is used to track if the whole content has been viewed by the parent component
  */
-export function SignDataV4({
-  message,
-  scrollFrameHandler,
-  updateHandler,
-}: {
-  message: MessageParams;
-  scrollFrameHandler: (values: positionValues) => void;
-  updateHandler: (values: positionValues) => void;
-}) {
+export const SignDataV4 = forwardRef(function SignDataV4(
+  {
+    message,
+    updateHandler,
+  }: {
+    message: MessageParams;
+    updateHandler: (values: positionValues) => void;
+  },
+  ref: ForwardedRef<HTMLDivElement | null>
+) {
   const { t } = useTranslation();
 
   const renderRow = (rowData: any) => {
@@ -71,12 +74,12 @@ export function SignDataV4({
       <Card sx={{ height: 250, py: 2 }}>
         <Scrollbars
           style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
-          onScrollFrame={scrollFrameHandler}
           onUpdate={updateHandler}
         >
           {renderRow(dataWithoutTypes)}
+          <div ref={ref} style={{ height: '1px' }} />
         </Scrollbars>
       </Card>
     </Stack>
   );
-}
+});

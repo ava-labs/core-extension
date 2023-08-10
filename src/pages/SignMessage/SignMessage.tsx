@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -30,6 +30,7 @@ import { SignData } from './components/SignData';
 import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
+import { useIsIntersecting } from './hooks/useIsIntersecting';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -43,12 +44,15 @@ export function SignMessage() {
   const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
-
-  function scrollFrameHandler(values: { top: number }) {
-    // if values.top is 1, that means the user has scrolled to the bottom
-    if (values.top === 1) {
-      setDisableSubmitButton(false);
+  const endContentRef = useRef(null);
+  const isIntersecting = useIsIntersecting({ ref: endContentRef });
+  useEffect(() => {
+    if (isIntersecting) {
+      viewCompleteHandler();
     }
+  }, [isIntersecting]);
+  function viewCompleteHandler() {
+    setDisableSubmitButton(false);
   }
 
   function updateHandler(values: {
@@ -173,43 +177,43 @@ export function SignMessage() {
               [MessageType.ETH_SIGN]: (
                 <EthSign
                   message={action.displayData.messageParams}
-                  scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
+                  ref={endContentRef}
                 />
               ),
               [MessageType.PERSONAL_SIGN]: (
                 <PersonalSign
                   message={action.displayData.messageParams}
-                  scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
+                  ref={endContentRef}
                 />
               ),
               [MessageType.SIGN_TYPED_DATA]: (
                 <SignData
                   message={action.displayData.messageParams}
-                  scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
+                  ref={endContentRef}
                 />
               ),
               [MessageType.SIGN_TYPED_DATA_V1]: (
                 <SignData
                   message={action.displayData.messageParams}
-                  scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
+                  ref={endContentRef}
                 />
               ),
               [MessageType.SIGN_TYPED_DATA_V3]: (
                 <SignDataV3
                   message={action.displayData.messageParams}
-                  scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
+                  ref={endContentRef}
                 />
               ),
               [MessageType.SIGN_TYPED_DATA_V4]: (
                 <SignDataV4
                   message={action.displayData.messageParams}
-                  scrollFrameHandler={scrollFrameHandler}
                   updateHandler={updateHandler}
+                  ref={endContentRef}
                 />
               ),
               ['unknown']: (
