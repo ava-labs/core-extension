@@ -57,8 +57,10 @@ export function useSwap() {
             toTokenDecimals
           ) {
             const amountString = amount.bn.toString();
+
             if (amountString === '0') {
               setSwapError({ message: t('Please enter an amount') });
+              setDestAmount('');
               setIsSwapLoading(false);
               return;
             }
@@ -92,7 +94,6 @@ export function useSwap() {
                   destinationInputField === 'to'
                     ? result.optimalRate.destAmount
                     : result.optimalRate.srcAmount;
-
                 setDestAmount(resultAmount);
                 if (
                   fromTokenBalance &&
@@ -128,6 +129,7 @@ export function useSwap() {
                 setIsCalculateAvaxMax(false);
               });
           } else {
+            setDestAmount('');
             setOptimalRate(undefined);
           }
         }

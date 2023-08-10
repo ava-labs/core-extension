@@ -109,7 +109,9 @@ export function Portfolio() {
     <Stack>
       <WalletBalances />
       <Box>
-        <Box sx={{ mx: 2, mt: 1 }}>{tabs}</Box>
+        <Box sx={{ mx: 2, mt: 1, borderBottom: 1, borderColor: 'divider' }}>
+          {tabs}
+        </Box>
         <Box sx={{ height: 420 }}>
           <TabPanel
             value={activeTab}

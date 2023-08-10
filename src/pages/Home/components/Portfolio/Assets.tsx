@@ -88,7 +88,7 @@ export function Assets() {
         </Stack>
       </Stack>
       <Box>
-        <Box sx={{ mx: 2 }}>
+        <Box sx={{ mx: 2, borderBottom: 1, borderColor: 'divider' }}>
           <Tabs
             onChange={handleChange}
             value={activeTab}

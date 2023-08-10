@@ -1,6 +1,6 @@
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
 import { ReviewOrder } from './components/ReviewOrder';
@@ -107,6 +107,27 @@ export function Swap() {
     optimalRate,
     destAmount,
   } = useSwapStateFunctions();
+
+  const fromAmount = useMemo(() => {
+    const result =
+      destinationInputField === 'from' ? new BN(destAmount) : defaultFromValue;
+
+    return result;
+  }, [defaultFromValue, destAmount, destinationInputField]);
+
+  const toAmount = useMemo(() => {
+    const result =
+      destinationInputField === 'to' && destAmount
+        ? new BN(destAmount)
+        : toTokenValue?.bn;
+
+    return result;
+  }, [destAmount, destinationInputField, toTokenValue]);
+
+  const maxFromAmount = useMemo(() => {
+    if (isLoading || destinationInputField === 'to') return undefined;
+    if (destinationInputField === 'from') return maxFromValue ?? new BN(0);
+  }, [destinationInputField, isLoading, maxFromValue]);
 
   async function onHandleSwap() {
     let pendingToastId = '';
@@ -250,19 +271,11 @@ export function Swap() {
               setIsToTokenSelectOpen(false);
             }}
             tokensList={tokensWBalances}
-            maxAmount={
-              destinationInputField === 'from' && isLoading
-                ? undefined
-                : maxFromValue ?? new BN(0)
-            }
+            maxAmount={maxFromAmount}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}
-            inputAmount={
-              destinationInputField === 'from'
-                ? new BN(destAmount)
-                : defaultFromValue || new BN(0)
-            }
+            inputAmount={fromAmount}
             isValueLoading={destinationInputField === 'from' && isLoading}
             hideErrorMessage
             onInputAmountChange={(value) => {
@@ -303,14 +316,14 @@ export function Swap() {
             )}
             <SwitchIconContainer
               data-testid="swap-switch-token-button"
-              onClick={() =>
+              onClick={() => {
                 reverseTokens(
                   isReversed,
                   selectedFromToken,
                   selectedToToken,
-                  fromTokenValue
-                )
-              }
+                  undefined
+                );
+              }}
               disabled={!selectedFromToken || !selectedToToken}
               isSwapped={isReversed}
             >
@@ -341,11 +354,7 @@ export function Swap() {
             tokensList={allTokensOnNetwork}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
-            inputAmount={
-              destinationInputField === 'to' && destAmount
-                ? new BN(destAmount)
-                : toTokenValue?.bn || new BN(0)
-            }
+            inputAmount={toAmount}
             isValueLoading={destinationInputField === 'to' && isLoading}
             hideErrorMessage
             onInputAmountChange={(value) => {

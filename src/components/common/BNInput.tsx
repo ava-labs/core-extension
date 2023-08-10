@@ -56,6 +56,18 @@ export function BNInput({
 }: BNInputProps) {
   const [valStr, setValStr] = useState('');
   useEffect(() => {
+    if (value === undefined) {
+      if (Number(valStr) !== 0) {
+        setValStr('');
+      }
+
+      return;
+    }
+
+    if (value.eq(new BN(0)) && Number(valStr) === 0) {
+      return;
+    }
+
     if (value) {
       const valueAsBig = new Big(value.toString()).div(
         Math.pow(10, denomination)
@@ -65,10 +77,7 @@ export function BNInput({
        * This also preserves zeros in the input ui.
        */
 
-      if (
-        (!valStr || !valueAsBig.eq(valStr)) &&
-        valueAsBig.toString() !== '0'
-      ) {
+      if (!valStr || !valueAsBig.eq(valStr)) {
         setValStr(valueAsBig.toString());
       }
     }

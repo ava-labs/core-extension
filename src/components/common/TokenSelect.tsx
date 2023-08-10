@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
@@ -33,6 +32,7 @@ import { TokenSelector } from './TokenSelector';
 import { TokenEllipsis } from './TokenEllipsis';
 import { DropdownItem } from './Dropdown';
 import { useDisplaytokenlist } from '@src/hooks/useDisplayTokenList';
+import { TokenIcon } from './TokenIcon';
 
 const InputContainer = styled(Card)`
   justify-content: space-between;
@@ -146,7 +146,6 @@ export function TokenSelect({
             ) * selectedToken.priceUSD
           )
         : undefined;
-
     return amount;
   }, [currencyFormatter, decimals, inputAmount, selectedToken]);
 
@@ -257,7 +256,7 @@ export function TokenSelect({
               <InfoCircleIcon sx={{ mr: 0.5, cursor: 'pointer' }} />
             </Tooltip>
           )}
-          {t('Available Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
+          {t('Available Balance')}:{selectedToken?.balanceDisplayValue ?? '0'}
         </Stack>
       );
     } else {
@@ -327,30 +326,26 @@ export function TokenSelect({
             }
           />
         </InputContainer>
-        {!hideErrorMessage && (
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              padding,
-              m: () => (!padding ? '4px 0 0 0' : '0'),
-            }}
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            padding,
+            m: () => (!padding ? '4px 0 0 0' : '0'),
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ color: (theme) => theme.palette.error.main }}
           >
-            <Typography
-              variant="caption"
-              sx={{ color: (theme) => theme.palette.error.main }}
-            >
-              {error}
-            </Typography>
-            <Typography variant="caption">
-              {amountInCurrency ? (
-                `${amountInCurrency.replace(currency, '')} ${currency}`
-              ) : (
-                <>&nbsp;</>
-              )}
-            </Typography>
-          </Stack>
-        )}
+            {hideErrorMessage ? '' : error}
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {amountInCurrency
+              ? `${amountInCurrency.replace(currency, '')} ${currency}`
+              : `${currencyFormatter(0).replace(currency, '')} ${currency}`}
+          </Typography>
+        </Stack>
 
         {!hideTokenDropdown && (
           <ContainedDropdown
