@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '@avalabs/k2-components';
 import { List } from 'react-virtualized';
 
 const VirtualizedList = styled(List)`
@@ -6,7 +6,7 @@ const VirtualizedList = styled(List)`
     width: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.colors.stroke1};
+    background: ${({ theme }) => theme.palette.divider};
     border-radius: 3px;
   }
 `;

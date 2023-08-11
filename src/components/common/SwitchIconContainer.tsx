@@ -1,5 +1,4 @@
-import { Stack } from '@avalabs/k2-components';
-import styled from 'styled-components';
+import { Stack, styled } from '@avalabs/k2-components';
 
 export const SwitchIconContainer = styled(Stack)<{
   isSwapped: boolean;

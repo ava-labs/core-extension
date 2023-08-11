@@ -1,9 +1,13 @@
 import Dialog from '@src/components/common/Dialog';
-import { Divider, Stack, Typography, useTheme } from '@avalabs/k2-components';
+import {
+  CircularProgress,
+  Divider,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
 import { useEffect, useState } from 'react';
 import useRegisterBtcWalletPolicy from './hooks/useRegisterBtcWalletPolicy';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
-import { LoadingSpinnerIcon } from '@avalabs/react-components';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -33,7 +37,6 @@ const LedgerRegisterBtcWalletPolicy = () => {
     registerBtcWalletPolicy,
     closeCurrentApp,
   } = useLedgerContext();
-  const theme = useTheme();
   const { request } = useConnectionContext();
 
   const renderText = (
@@ -55,20 +58,14 @@ const LedgerRegisterBtcWalletPolicy = () => {
 
   const renderStatus = () => {
     if (hasError) {
-      return t('An error occurred, please try again later');
+      return (
+        <Typography>
+          {t('An error occurred, please try again later')}
+        </Typography>
+      );
     }
 
-    return (
-      <LoadingSpinnerIcon
-        style={{
-          width: 24,
-          height: 24,
-          marginTop: 6,
-        }}
-        color={theme.palette.secondary.light}
-        height="24px"
-      />
-    );
+    return <CircularProgress size={24} sx={{ mt: 0.75 }} />;
   };
 
   useEffect(() => {
