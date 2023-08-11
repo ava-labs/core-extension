@@ -1,6 +1,4 @@
 import { cloneElement, useEffect, useState } from 'react';
-import { SecondaryOverlay } from '@avalabs/react-components';
-import styled from 'styled-components';
 import { MainPage } from './pages/MainPage';
 import { Currencies } from './pages/Currencies';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -17,27 +15,13 @@ import { Legal } from './pages/Legal';
 import { Advanced } from './pages/Advanced';
 import { Language } from './pages/Language';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { IconButton, MenuIcon, Stack } from '@avalabs/k2-components';
-
-const OuterContainer = styled(SecondaryOverlay)`
-  flex-direction: column;
-  align-items: flex-start;
-
-  &.slideIn-enter {
-    transform: translateX(-100%);
-  }
-  &.slideIn-enter-active {
-    transform: translateX(0%);
-    transition: transform 300ms;
-  }
-  &.slideIn-exit {
-    transform: translateX(0%);
-  }
-  &.slideIn-exit-active {
-    transform: translateX(-100%);
-    transition: transform 300ms;
-  }
-`;
+import {
+  Drawer,
+  IconButton,
+  MenuIcon,
+  Stack,
+  styled,
+} from '@avalabs/k2-components';
 
 const AnimatedContainer = styled(Stack)`
   height: 100%;
@@ -208,7 +192,13 @@ export function SettingsMenu() {
         classNames="slideIn"
         unmountOnExit
       >
-        <OuterContainer onClick={() => setIsSettingsOpen(false)}>
+        <Drawer
+          open={isSettingsOpen}
+          onClose={() => {
+            setIsSettingsOpen(false);
+            resetNavigation();
+          }}
+        >
           <Stack
             sx={{
               width: '319px',
@@ -238,7 +228,7 @@ export function SettingsMenu() {
               </CSSTransition>
             </TransitionGroup>
           </Stack>
-        </OuterContainer>
+        </Drawer>
       </CSSTransition>
     </>
   );

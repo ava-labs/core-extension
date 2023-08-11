@@ -107,7 +107,7 @@ export function SecurityAndPrivacy({
               navigateTo(SettingsPages.CONNECTED_SITES);
             }}
           >
-            <ListItemText sx={{ fontSize: '14px' }} disableTypography>
+            <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
               {t('Connected Sites')}
             </ListItemText>
 
@@ -131,7 +131,7 @@ export function SecurityAndPrivacy({
               navigateTo(SettingsPages.CHANGE_PASSWORD);
             }}
           >
-            <ListItemText sx={{ fontSize: '14px' }} disableTypography>
+            <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
               {t('Change Password')}
             </ListItemText>
 
@@ -153,7 +153,7 @@ export function SecurityAndPrivacy({
               data-testid="show-recovery-phrase-menu-item"
               onClick={() => navigateTo(SettingsPages.RECOVERY_PHRASE)}
             >
-              <ListItemText sx={{ fontSize: '14px' }} disableTypography>
+              <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
                 {t('Show Recovery')}
               </ListItemText>
 
@@ -164,7 +164,7 @@ export function SecurityAndPrivacy({
           </ListItem>
         )}
         <ListItem data-testid="participate-core-analytics-menu-item">
-          <ListItemText sx={{ fontSize: '14px' }} disableTypography>
+          <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
             {t('Participate in Core Analytics')}
           </ListItemText>
           <Switch

@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
 import { useTranslation } from 'react-i18next';
-import styled, { useTheme } from 'styled-components';
 import { ChainId } from '@avalabs/chains-sdk';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
@@ -27,11 +26,6 @@ import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import BN from 'bn.js';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
-const StyledBridgeIcon = styled(BridgeIcon)`
-  height: 22px;
-  margin: 0 8px 0 0;
-`;
-
 export function TokenFlow() {
   const { t } = useTranslation();
   const history = useHistory();
@@ -45,8 +39,6 @@ export function TokenFlow() {
   const setSendDataInParams = useSetSendDataInParams();
   const { network } = useNetworkContext();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
-
-  const theme = useTheme();
 
   const isBitcoin = network?.chainId === ChainId.BITCOIN;
 
@@ -126,9 +118,7 @@ export function TokenFlow() {
             data-testid="token-details-send-button"
             color="secondary"
             onClick={() => history.push('/buy')}
-            sx={{
-              width: '164px',
-            }}
+            fullWidth
           >
             <BuyIcon size={20} sx={{ mr: 1 }} />
             {t('Buy')}
@@ -141,9 +131,7 @@ export function TokenFlow() {
               capture('TokenSendClicked', { chainId: network?.chainId });
               setSendDataInParams({ token, options: { path: '/send' } });
             }}
-            sx={{
-              width: '164px',
-            }}
+            fullWidth
           >
             <ArrowUpRightIcon size={20} sx={{ mr: 1 }} />
             {t('Send')}
@@ -157,10 +145,7 @@ export function TokenFlow() {
             capture('TokenReceiveClicked', { chainId: network?.chainId });
             history.push('/receive');
           }}
-          margin={isBitcoin ? '0 8px' : '0 0 0 16px'}
-          sx={{
-            width: '164px',
-          }}
+          fullWidth
         >
           <QRCodeIcon size={20} sx={{ mr: 1 }} />
           {t('Receive')}
@@ -168,13 +153,14 @@ export function TokenFlow() {
         {isBitcoin && (
           <Button
             data-testid="token-details-bridge-button"
+            color="secondary"
             onClick={(e) => {
               e.stopPropagation();
               history.push('/bridge');
             }}
-            padding="0 8px"
+            fullWidth
           >
-            <StyledBridgeIcon color={theme.colors.icon1} />
+            <BridgeIcon size={22} sx={{ mr: 1 }} />
             {t('Bridge')}
           </Button>
         )}

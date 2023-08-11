@@ -32,6 +32,7 @@ import { isBitcoin } from '@src/utils/isBitcoin';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { BN } from 'bn.js';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -78,6 +79,9 @@ export function ActiveNetworkWidget({
       history.push('/assets');
     }
   };
+
+  const hasNoFunds =
+    assetList.length === 1 && assetList[0]?.balance.eq(new BN(0));
 
   return (
     <>
@@ -187,19 +191,16 @@ export function ActiveNetworkWidget({
             </Stack>
           </Stack>
         </Stack>
-        {assetList.length ? (
-          <>
-            <Divider
-              sx={{
-                my: 2,
-                width: 'auto',
-              }}
-            />
-            <Assetlist assetList={assetList} />
-          </>
-        ) : (
-          <ZeroWidget />
-        )}
+        <Divider
+          sx={{
+            my: 2,
+            width: 'auto',
+          }}
+        />
+        <Assetlist assetList={assetList} />
+
+        {hasNoFunds && !isBitcoin(network) ? <ZeroWidget /> : null}
+
         {isBitcoin(network) ? (
           <Button
             data-testid="btc-bridge-button"

@@ -47,7 +47,7 @@ export function WalletExtensionButton({
   if (type === WalletExtensionType.CORE) {
     return (
       <Button
-        color="primary"
+        color="secondary"
         size="large"
         onClick={onClick}
         sx={{ mt: 2, gap: 1 }}

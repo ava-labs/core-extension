@@ -1,12 +1,7 @@
-import {
-  VerticalFlex,
-  Typography,
-  LoadingSpinnerIcon,
-} from '@avalabs/react-components';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef } from 'react';
-import styled, { useTheme } from 'styled-components';
 import { Scrollbars } from '../scrollbars/Scrollbars';
+import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
 
 export interface InfiniteScrollProps {
   loadMore: () => void;
@@ -16,10 +11,6 @@ export interface InfiniteScrollProps {
   children?: JSX.Element;
 }
 
-const Padded = styled.div`
-  padding-bottom: 72px;
-`;
-
 export function InfiniteScroll({
   loadMore,
   hasMore,
@@ -28,7 +19,6 @@ export function InfiniteScroll({
   children,
 }: InfiniteScrollProps) {
   const loader = useRef(null);
-  const theme = useTheme();
   const { t } = useTranslation();
 
   const loadMoreHandler = useCallback(
@@ -65,12 +55,12 @@ export function InfiniteScroll({
     <Scrollbars>
       {children}
       {loading && (
-        <VerticalFlex paddingBottom="16px">
-          <LoadingSpinnerIcon height="40px" color={theme.colors.icon1} />
-        </VerticalFlex>
+        <Stack sx={{ pb: 2, width: 1, alignItems: 'center' }}>
+          <CircularProgress />
+        </Stack>
       )}
-      {error && <Typography>{t('Error!')}</Typography>}
-      <Padded ref={loader} />
+      {error && <Typography variant="body1">{t('Error!')}</Typography>}
+      <Stack sx={{ pb: 9 }} ref={loader} />
     </Scrollbars>
   );
 }

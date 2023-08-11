@@ -1,6 +1,14 @@
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { Blockchain, getBtcAsset } from '@avalabs/bridge-sdk';
+import {
+  Asset,
+  Assets,
+  BitcoinConfigAsset,
+  Blockchain,
+  EthereumConfigAsset,
+  getAssets,
+  isNativeAsset,
+} from '@avalabs/bridge-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
@@ -10,6 +18,8 @@ import { Action } from '../../actions/models';
 import { BridgeService } from '../BridgeService';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { ChainId } from '@avalabs/chains-sdk';
+import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
+import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
 
 // this is used for core web
 @injectable()
@@ -43,24 +53,26 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
       };
     }
 
-    let asset = params[2];
+    // map asset from params to bridge config asset
+    const bridgeConfig = this.bridgeService.bridgeConfig;
+    const config = bridgeConfig.config;
+    const assets: Assets | undefined =
+      config && getAssets(currentBlockchain, config);
+    const assetSymbol =
+      currentBlockchain === Blockchain.BITCOIN ? 'BTC' : params[2]?.symbol;
 
-    if (currentBlockchain === Blockchain.BITCOIN) {
-      const bridgeConfig = this.bridgeService.bridgeConfig;
-      const config = bridgeConfig.config;
-      asset = config && getBtcAsset(config);
-    }
+    const asset: Asset | undefined = assetSymbol && assets?.[assetSymbol];
 
     if (!asset) {
       return {
         ...request,
-        error: 'Missing param: asset',
+        error: 'Invalid param: unknown asset',
       };
     }
 
     if (
       currentBlockchain !== asset.nativeNetwork &&
-      currentBlockchain !== asset.wrappedNetwork
+      (isNativeAsset(asset) || currentBlockchain !== asset.wrappedNetwork)
     ) {
       return {
         ...request,
@@ -68,12 +80,65 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
       };
     }
 
+    const networks = Object.values(
+      (await this.networkService.allNetworks.promisify()) ?? {}
+    );
+
+    const sourceNetwork = blockchainToNetwork(
+      currentBlockchain,
+      networks,
+      this.bridgeService.bridgeConfig
+    );
+
+    const wrappedNetwork = isNativeAsset(asset)
+      ? (
+          assets?.[asset.wrappedAssetSymbol] as
+            | BitcoinConfigAsset
+            | EthereumConfigAsset
+            | undefined
+        )?.wrappedNetwork
+      : asset.wrappedNetwork;
+
+    const targetNetwork =
+      wrappedNetwork &&
+      blockchainToNetwork(
+        currentBlockchain === asset.nativeNetwork
+          ? ((wrappedNetwork ?? '') as Blockchain)
+          : asset.nativeNetwork,
+        networks,
+        this.bridgeService.bridgeConfig
+      );
+
+    // refresh balances so we have the correct balance information for the asset
+    sourceNetwork &&
+      this.accountsService.activeAccount &&
+      (await this.balanceAggregatorService.updateBalancesForNetworks(
+        [sourceNetwork.chainId],
+        [this.accountsService.activeAccount]
+      ));
+
+    const token =
+      this.accountsService.activeAccount &&
+      sourceNetwork &&
+      findTokenForAsset(
+        asset.symbol,
+        asset.nativeNetwork,
+        Object.values(
+          this.balanceAggregatorService.balances?.[sourceNetwork.chainId]?.[
+            this.accountsService.activeAccount.addressC
+          ] ?? {}
+        )
+      );
+
     const action = {
       ...request,
       displayData: {
         currentBlockchain,
+        sourceNetwork,
+        targetNetwork,
         amountStr,
         asset,
+        token,
       },
       tabId: request.site.tabId,
     };

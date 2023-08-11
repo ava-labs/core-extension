@@ -104,8 +104,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               <ComputerIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, fontSize: '14px', my: 0, color: 'secondary.main' }}
-              disableTypography
+              sx={{ ml: 1, my: 0, color: 'secondary.main' }}
+              primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Core Web')}
             </ListItemText>
@@ -138,8 +138,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               <UserIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, fontSize: '14px', my: 0 }}
-              disableTypography
+              sx={{ ml: 1, my: 0 }}
+              primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Address Book')}
             </ListItemText>
@@ -169,8 +169,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               <CurrencyIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, fontSize: '14px', my: 0 }}
-              disableTypography
+              sx={{ ml: 1, my: 0 }}
+              primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Currency')}
             </ListItemText>
@@ -196,8 +196,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               <GlobeIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, fontSize: '14px', my: 0 }}
-              disableTypography
+              sx={{ ml: 1, my: 0 }}
+              primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Language')}
             </ListItemText>
@@ -223,8 +223,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
                 <LedgerIcon size={24} />
               </ListItemIcon>
               <ListItemText
-                sx={{ ml: 1, fontSize: '14px', my: 0 }}
-                disableTypography
+                sx={{ ml: 1, my: 0 }}
+                primaryTypographyProps={{ variant: 'body2' }}
               >
                 {t('Ledger')}
               </ListItemText>
@@ -250,8 +250,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               <GearIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, fontSize: '14px', my: 0 }}
-              disableTypography
+              sx={{ ml: 1, my: 0 }}
+              primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Advanced')}
             </ListItemText>
@@ -276,8 +276,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               <LockIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, fontSize: '14px', my: 0 }}
-              disableTypography
+              sx={{ ml: 1, my: 0 }}
+              primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Security & Privacy')}
             </ListItemText>

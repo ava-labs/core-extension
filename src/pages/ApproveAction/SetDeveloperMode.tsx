@@ -1,25 +1,20 @@
-import {
-  ComponentSize,
-  GlobeIcon,
-  HorizontalFlex,
-  LoadingSpinnerIcon,
-  PrimaryButton,
-  SecondaryButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { useTheme } from 'styled-components';
 import { Network } from '@avalabs/chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import {
+  Button,
+  CircularProgress,
+  GlobeIcon,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 export function SetDeveloperMode() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const requestId = useGetRequestId();
 
   const {
@@ -32,87 +27,94 @@ export function SetDeveloperMode() {
 
   if (!request) {
     return (
-      <HorizontalFlex
-        width={'100%'}
-        height={'100%'}
-        justify={'center'}
-        align={'center'}
+      <Stack
+        sx={{
+          width: 1,
+          height: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
       >
-        <LoadingSpinnerIcon color={theme.colors.icon1} />
-      </HorizontalFlex>
+        <CircularProgress />
+      </Stack>
     );
   }
 
-  const network: Network = request?.displayData;
+  const network: Network = request.displayData;
   return (
-    <VerticalFlex>
-      <VerticalFlex grow="1" align="center" justify="center">
-        <SiteAvatar
-          sx={{
-            justify: 'center',
-            align: 'center',
-            my: 1,
-          }}
-        >
+    <Stack sx={{ py: 1, px: 2, width: 1, height: 1 }}>
+      <Stack
+        sx={{
+          height: 1,
+          width: 1,
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          px: 2,
+        }}
+      >
+        <SiteAvatar sx={{ mb: 3 }}>
           <TokenIcon height="48px" width="48px" src={network?.logoUri}>
-            <GlobeIcon height="48px" width="48px" color={theme.colors.icon1} />
+            <GlobeIcon size={48} />
           </TokenIcon>
         </SiteAvatar>
-        <HorizontalFlex align="center" width="100%" justify="center">
-          <Typography
-            align="center"
-            size={24}
-            margin="16px 0"
-            height="29px"
-            weight={700}
-          >
-            {request?.displayData?.isTestmode ? t('Activate') : t('Deactivate')}{' '}
-            {t('Testnet Mode?')}
-          </Typography>
-        </HorizontalFlex>
-        <HorizontalFlex>
-          <Typography
-            size={14}
-            height="17px"
-            color={theme.colors.text2}
-            align="center"
-          >
-            {t('{{domain}} is requesting to turn Testnet Mode {{mode}}', {
-              mode: request?.displayData?.isTestmode ? t('ON') : t('OFF'),
-              domain: request?.site?.domain || t('This website'),
-            })}
-          </Typography>
-        </HorizontalFlex>
-      </VerticalFlex>
-
-      <VerticalFlex width="100%" justify="space-between">
-        <HorizontalFlex justify="space-between" gap="16px">
-          <SecondaryButton
-            size={ComponentSize.LARGE}
-            onClick={() => {
-              cancelHandler();
-              window.close();
+        <Typography sx={{ pb: 2 }} variant="h4">
+          {request.displayData?.isTestmode ? t('Activate') : t('Deactivate')}{' '}
+          {t('Testnet Mode?')}
+        </Typography>
+        <Typography sx={{ textAlign: 'center' }} variant="body1">
+          <Trans
+            i18nKey={
+              '{{domain}} is requesting to turn <br/>Testnet Mode {{mode}}'
+            }
+            values={{
+              mode: request.displayData?.isTestmode ? t('ON') : t('OFF'),
+              domain: request.site?.domain || t('This website'),
             }}
-            width="168px"
-          >
-            {t('Reject')}
-          </SecondaryButton>
-          <PrimaryButton
-            size={ComponentSize.LARGE}
-            onClick={() => {
-              updateMessage({
-                status: ActionStatus.SUBMITTING,
-                id: request.id,
-              });
+          />
+        </Typography>
+      </Stack>
 
-              window.close();
-            }}
-            width="168px"
-          >
-            {t('Approve')}
-          </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
-    </VerticalFlex>
+      <Stack
+        sx={{
+          width: '100%',
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          flexGrow: 1,
+          gap: 1,
+        }}
+      >
+        <Button
+          color="secondary"
+          data-testid="transaction-reject-btn"
+          size="large"
+          fullWidth
+          disabled={request.status === ActionStatus.SUBMITTING}
+          onClick={() => {
+            cancelHandler();
+            window.close();
+          }}
+        >
+          {t('Reject')}
+        </Button>
+        <Button
+          data-testid="transaction-approve-btn"
+          size="large"
+          fullWidth
+          disabled={request.status === ActionStatus.SUBMITTING}
+          onClick={() => {
+            updateMessage({
+              status: ActionStatus.SUBMITTING,
+              id: request.id,
+            });
+
+            window.close();
+          }}
+          width="168px"
+        >
+          {t('Approve')}
+        </Button>
+      </Stack>
+    </Stack>
   );
 }

@@ -155,7 +155,7 @@ export function SignMessage() {
           </Stack>
 
           <Stack sx={{ alignItems: 'center', pt: 2, pb: 3 }}>
-            <SiteAvatar justify="center" align="center">
+            <SiteAvatar>
               <TokenIcon height="48px" width="48px" src={action.site?.icon}>
                 <GlobeIcon size={48} />
               </TokenIcon>

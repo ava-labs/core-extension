@@ -1,14 +1,10 @@
 import { Blockchain, useBridgeSDK } from '@avalabs/bridge-sdk';
-import {
-  PrimaryButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAvailableBlockchains } from '../hooks/useAvailableBlockchains';
 import { blockchainToNetwork } from '../utils/blockchainConversion';
 import { useTranslation } from 'react-i18next';
+import { Button, Stack, Typography } from '@avalabs/k2-components';
 
 export const BridgeUnknownNetwork = ({ onSelect }) => {
   const { t } = useTranslation();
@@ -21,28 +17,28 @@ export const BridgeUnknownNetwork = ({ onSelect }) => {
   const network = blockchainToNetwork(blockchain, networks, bridgeConfig);
 
   return (
-    <VerticalFlex height="100%" width="100%">
+    <Stack height="100%" width="100%">
       <PageTitle variant={PageTitleVariant.PRIMARY}>{t('Back')}</PageTitle>
-      <VerticalFlex align="center" justify="center" grow="1" margin="0 16px">
-        <Typography size={18} align="center" height="24px" weight={600}>
-          {t(' Network not supported.')}
-        </Typography>
-        <Typography
-          size={16}
-          align="center"
-          height="24px"
-          margin="8px 0 24px 0"
-        >
+      <Stack
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexGrow: 1,
+          mx: 2,
+        }}
+      >
+        <Typography variant="h5">{t(' Network not supported.')}</Typography>
+        <Typography variant="body1" sx={{ mt: 1, mb: 3, textAlign: 'center' }}>
           {t(
             'Network is not supported. Change network to supported network to continue.'
           )}
         </Typography>
-        <PrimaryButton width="100%" onClick={() => onSelect(blockchain)}>
+        <Button size="large" fullWidth onClick={() => onSelect(blockchain)}>
           {t('Switch to {{chainName}}', {
             chainName: network?.chainName,
           })}
-        </PrimaryButton>
-      </VerticalFlex>
-    </VerticalFlex>
+        </Button>
+      </Stack>
+    </Stack>
   );
 };

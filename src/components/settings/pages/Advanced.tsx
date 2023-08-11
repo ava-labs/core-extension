@@ -42,8 +42,8 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
       <List>
         <ListItem data-testid="test-net-mode-menu-item">
           <ListItemText
-            sx={{ display: 'flex', fontSize: '14px', alignItems: 'center' }}
-            disableTypography
+            sx={{ alignItems: 'center' }}
+            primaryTypographyProps={{ variant: 'body2' }}
           >
             {t('Testnet Mode')}
             <Tooltip
@@ -76,8 +76,8 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
         {!isProductionBuild() ? (
           <ListItem data-testid="bridge-dev-env-menu-item">
             <ListItemText
-              sx={{ display: 'flex', fontSize: '14px', alignItems: 'center' }}
-              disableTypography
+              sx={{ alignItems: 'center' }}
+              primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Bridge DEV Environment')}
               <Tooltip
@@ -104,7 +104,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
           </ListItem>
         ) : undefined}
         <ListItem data-testid="show-tokens-without-balance-option">
-          <ListItemText sx={{ fontSize: '14px' }} disableTypography>
+          <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
             {t('Show Tokens Without Balance')}
           </ListItemText>
           <Switch

@@ -1,4 +1,3 @@
-import { LoadingIcon } from '@avalabs/react-components';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
@@ -27,6 +26,7 @@ import {
 import { concat, filter, from, map } from 'rxjs';
 import browser from 'webextension-polyfill';
 import { useConnectionContext } from './ConnectionProvider';
+import { LoadingContent } from '@src/popup/LoadingContent';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -123,7 +123,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   }, [isHome, onboardingState]);
 
   if (!onboardingState) {
-    return <LoadingIcon />;
+    return <LoadingContent />;
   }
 
   function setPasswordAndName(pass: string, name: string) {
@@ -183,7 +183,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       */}
 
       {isHome ? (
-        <Suspense fallback={<LoadingIcon />}>
+        <Suspense fallback={<LoadingContent />}>
           <Onboarding />
         </Suspense>
       ) : (

@@ -4,7 +4,9 @@ import {
   BitcoinStaticFeeConfigAsset,
   Blockchain,
   BridgeConfig,
-  getBtcAsset,
+  NativeAsset,
+  getAssets,
+  EthereumStaticFeeAssetConfig,
 } from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
@@ -17,21 +19,73 @@ import { AccountType, PrimaryAccount } from '../../accounts/models';
 import { BtcTransactionResponse } from '../models';
 import { Action, ActionStatus } from './../../actions/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
+import { TokenType } from '../../balances/models';
+import { BN } from 'bn.js';
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const originalModule = jest.requireActual('@avalabs/bridge-sdk');
   return {
     ...originalModule,
-    getBtcAsset: jest.fn(),
+    getAssets: jest.fn(),
   };
 });
 
 const frontendTabId = 654;
 
+const btcAsset: BitcoinStaticFeeConfigAsset = {
+  additionalTxFeeAmount: 0,
+  avaxPromotionAmount: '100000000000000000',
+  avaxPromotionDollarThreshold: 50,
+  bech32AddressPrefix: 'tb',
+  offboardFeeDollars: 10,
+  onboardFeeDollars: 3,
+  operatorAddress: 'tb1qcsq9k2qxf4sr5zewxvn79g7wpc08xrtecsr3zc',
+  privateKeyPrefix: 'EF',
+  reserveBalanceHighWaterMark: 200000000,
+  reserveBalanceLowWaterMark: 100000000,
+  targetChangeAmount: 5000000,
+  tokenName: 'Bitcoin',
+  wrappedContractAddress: '0x0f2071079315ba5a1c6d5b532a01a132c157ac83',
+  wrappedNetwork: 'avalanche',
+  assetType: AssetType.BTC,
+  symbol: 'BTC',
+  denomination: 8,
+  nativeNetwork: Blockchain.BITCOIN,
+};
+const nativeAsset: NativeAsset = {
+  symbol: 'ETH',
+  tokenName: 'Ether',
+  assetType: AssetType.NATIVE,
+  nativeNetwork: Blockchain.ETHEREUM,
+  wrappedAssetSymbol: 'WETH',
+  denomination: 18,
+  coingeckoId: 'ethereum',
+};
+const evmAsset: EthereumStaticFeeAssetConfig = {
+  assetType: AssetType.ERC20,
+  symbol: 'WETH',
+  avaxPromotionAmount: '100000000000000000',
+  avaxPromotionDollarThreshold: 1,
+  chainlinkFeedAddress: '0x0000000000000000000000000000000000000000',
+  chainlinkFeedNetwork: 'ethereum',
+  denomination: 18,
+  ipfsHash: '0000000000000000000000000000000000000000000000000000000000000000',
+  nativeContractAddress: '0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6',
+  nativeNetwork: Blockchain.ETHEREUM,
+  offboardFeeProcessThreshold: '1000000000000000000',
+  tokenName: 'Wrapped Ether',
+  transferGasLimit: 70000,
+  offboardFeeDollars: 10,
+  wrappedContractAddress: '0x678c4c42572ec1c44b144c5a6712b69d2a5d412c',
+  wrappedNetwork: Blockchain.AVALANCHE,
+};
+
 const mockConfig: AppConfigWithFullStaticFees = {
   critical: {
     operationMode: 'normal',
-    assets: {},
+    assets: {
+      WETH: evmAsset,
+    },
     disableFrontend: false,
     networks: { avalanche: 43113, ethereum: 5 },
     operatorAddress: 'normal',
@@ -68,26 +122,7 @@ const mockConfig: AppConfigWithFullStaticFees = {
     addressBlocklist: [],
     avalancheChainId: 43113,
     bitcoinAssets: {
-      btc: {
-        additionalTxFeeAmount: 0,
-        avaxPromotionAmount: '100000000000000000',
-        avaxPromotionDollarThreshold: 50,
-        bech32AddressPrefix: 'tb',
-        offboardFeeDollars: 10,
-        onboardFeeDollars: 3,
-        operatorAddress: 'operatorAddress',
-        privateKeyPrefix: 'EF',
-        reserveBalanceHighWaterMark: 200000000,
-        reserveBalanceLowWaterMark: 100000000,
-        targetChangeAmount: 5000000,
-        tokenName: 'Bitcoin',
-        wrappedContractAddress: 'wrappedContractAddress',
-        wrappedNetwork: 'avalanche',
-        assetType: 2,
-        symbol: 'BTC',
-        denomination: 8,
-        nativeNetwork: Blockchain.BITCOIN,
-      },
+      btc: btcAsset,
     },
     disableFrontend: false,
     operationMode: 'normal',
@@ -159,32 +194,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   const balanceAggregatorServiceMock = {
     updateBalancesForNetworks: jest.fn(),
+    balances: {},
   } as any;
 
   const networkServiceMock = {
     isMainnet: jest.fn(),
+    allNetworks: {
+      promisify: jest.fn(),
+    },
   } as any;
-
-  const btcAsset: BitcoinStaticFeeConfigAsset = {
-    additionalTxFeeAmount: 0,
-    avaxPromotionAmount: '100000000000000000',
-    avaxPromotionDollarThreshold: 50,
-    bech32AddressPrefix: 'tb',
-    offboardFeeDollars: 10,
-    onboardFeeDollars: 3,
-    operatorAddress: 'tb1qcsq9k2qxf4sr5zewxvn79g7wpc08xrtecsr3zc',
-    privateKeyPrefix: 'EF',
-    reserveBalanceHighWaterMark: 200000000,
-    reserveBalanceLowWaterMark: 100000000,
-    targetChangeAmount: 5000000,
-    tokenName: 'Bitcoin',
-    wrappedContractAddress: '0x0f2071079315ba5a1c6d5b532a01a132c157ac83',
-    wrappedNetwork: 'avalanche',
-    assetType: 2,
-    symbol: 'BTC',
-    denomination: 8,
-    nativeNetwork: Blockchain.BITCOIN,
-  };
 
   const btcAction: Action = {
     id: '123',
@@ -251,7 +269,11 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     bridgeServiceMock.transferAsset.mockResolvedValue(ethResult);
     bridgeServiceMock.createTransaction.mockResolvedValue();
     openApprovalWindowSpy.mockResolvedValue(undefined);
-    (getBtcAsset as jest.Mock).mockReturnValue(btcAsset);
+    jest.mocked(getAssets).mockReturnValue({
+      BTC: btcAsset,
+      WETH: evmAsset,
+      ETH: nativeAsset,
+    });
   });
 
   describe('handleAuthenticated', () => {
@@ -312,12 +334,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       expect(result).toEqual({
         ...request,
         params: ['testBlockchain', '1'],
-        error: 'Missing param: asset',
+        error: 'Invalid param: unknown asset',
       });
       expect(openApprovalWindowSpy).toBeCalledTimes(0);
     });
 
-    it('should get btcAsset if missing', async () => {
+    it('asset should be optional for bitcoin', async () => {
       const handler = new AvalancheBridgeAsset(
         bridgeServiceMock,
         accountsServiceMock,
@@ -350,28 +372,6 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       );
     });
 
-    it('should throw error if fails to fetch btcConfig', async () => {
-      (getBtcAsset as jest.Mock).mockReturnValue(undefined);
-
-      const handler = new AvalancheBridgeAsset(
-        bridgeServiceMock,
-        accountsServiceMock,
-        balanceAggregatorServiceMock,
-        networkServiceMock
-      );
-      const result = await handler.handleAuthenticated({
-        ...request,
-        params: ['bitcoin', '1'],
-      });
-
-      expect(result).toEqual({
-        ...request,
-        params: ['bitcoin', '1'],
-        error: 'Missing param: asset',
-      });
-      expect(openApprovalWindowSpy).toBeCalledTimes(0);
-    });
-
     it('should return error when asset is invalid', async () => {
       const handler = new AvalancheBridgeAsset(
         bridgeServiceMock,
@@ -400,30 +400,60 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
       expect(result).toEqual({
         ...mockRequest,
+        error: 'Invalid param: unknown asset',
+      });
+      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+    });
+
+    it('should return error when asset is for wrong chain', async () => {
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
+      const mockRequest = {
+        ...request,
+        params: [Blockchain.ETHEREUM, '1', btcAsset],
+      };
+      const result = await handler.handleAuthenticated(mockRequest);
+
+      expect(result).toEqual({
+        ...mockRequest,
+        error: 'Invalid param: asset',
+      });
+      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+    });
+
+    it('should return error when native is for wrong chain', async () => {
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceAggregatorServiceMock,
+        networkServiceMock
+      );
+      const mockRequest = {
+        ...request,
+        params: [Blockchain.AVALANCHE, '1', nativeAsset],
+      };
+      const result = await handler.handleAuthenticated(mockRequest);
+
+      expect(result).toEqual({
+        ...mockRequest,
         error: 'Invalid param: asset',
       });
       expect(openApprovalWindowSpy).toBeCalledTimes(0);
     });
 
     it('returns expected result', async () => {
-      const currentBlockchain = 'avalanche';
+      const currentBlockchain = Blockchain.AVALANCHE;
       const amountStr = '0.1';
 
-      const mockAsset = {
-        assetType: AssetType.ERC20,
-        coingeckoId: 'testToken',
-        denomination: 8,
-        nativeNetwork: Blockchain.ETHEREUM,
-        symbol: 'TEST',
-        tokenName: 'TestToken',
-        wrappedAssetSymbol: 'WTEST',
-        wrappedNetwork: Blockchain.AVALANCHE,
-      };
       const mockRequest = {
         id: 357,
         site: { tabId: 42 },
         method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
-        params: [currentBlockchain, amountStr, mockAsset],
+        params: [currentBlockchain, amountStr, { symbol: 'WETH' }],
       };
 
       const expectedAction = {
@@ -431,7 +461,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         displayData: {
           currentBlockchain,
           amountStr,
-          asset: mockAsset,
+          asset: evmAsset,
         },
         tabId: mockRequest.site.tabId,
       };
@@ -439,6 +469,87 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         bridgeServiceMock,
         accountsServiceMock,
         balanceAggregatorServiceMock,
+        networkServiceMock
+      );
+
+      const result = await handler.handleAuthenticated(mockRequest);
+
+      expect(result).toEqual({
+        ...mockRequest,
+        result: DEFERRED_RESPONSE,
+      });
+      expect(openApprovalWindowSpy).toBeCalledWith(
+        expectedAction,
+        `approve?id=${mockRequest.id}`
+      );
+    });
+
+    it('finds networks and token with balance for asset', async () => {
+      jest.mocked(networkServiceMock.allNetworks.promisify).mockResolvedValue([
+        {
+          chainId: ChainId.BITCOIN,
+          chainName: 'Bitcoin',
+        },
+        {
+          chainId: 43113,
+          chainName: 'Avalanche',
+        },
+        {
+          chainId: 5,
+          chainName: 'Ethereum',
+        },
+      ]);
+
+      const balanceServiceMock = {
+        ...balanceAggregatorServiceMock,
+        balances: {
+          [43113]: {
+            C_address: {
+              WETH: {
+                symbol: 'WETH',
+                type: TokenType.ERC20,
+                balance: new BN(100),
+                decimals: 1,
+              },
+            },
+          },
+        },
+      };
+
+      const mockRequest = {
+        id: 357,
+        site: { tabId: 42 },
+        method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
+        params: [Blockchain.AVALANCHE, '0.1', { symbol: 'WETH' }],
+      };
+
+      const expectedAction = {
+        ...mockRequest,
+        displayData: {
+          currentBlockchain: Blockchain.AVALANCHE,
+          amountStr: '0.1',
+          asset: evmAsset,
+          sourceNetwork: {
+            chainId: 43113,
+            chainName: 'Avalanche',
+          },
+          targetNetwork: {
+            chainId: 5,
+            chainName: 'Ethereum',
+          },
+          token: {
+            symbol: 'WETH',
+            type: TokenType.ERC20,
+            balance: new BN(100),
+            decimals: 1,
+          },
+        },
+        tabId: mockRequest.site.tabId,
+      };
+      const handler = new AvalancheBridgeAsset(
+        bridgeServiceMock,
+        accountsServiceMock,
+        balanceServiceMock,
         networkServiceMock
       );
 
