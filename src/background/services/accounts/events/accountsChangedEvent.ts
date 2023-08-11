@@ -24,6 +24,7 @@ import { AccountsChangedEventData } from '@src/background/providers/models';
 export class AccountsChangedEvents implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
   private _connectionInfo?: ConnectionInfo;
+  private _dappAccessibleAccounts?: string[];
 
   setConnectionInfo(connectionInfo: ConnectionInfo) {
     this._connectionInfo = connectionInfo;
@@ -67,6 +68,14 @@ export class AccountsChangedEvents implements DAppEventEmitter {
       ? [addressC]
       : [];
 
+    // access state of the dApp didn't change, we can return early
+    if (
+      JSON.stringify(accounts) === JSON.stringify(this._dappAccessibleAccounts)
+    ) {
+      return;
+    }
+
+    this._dappAccessibleAccounts = accounts;
     this.eventEmitter.emit('update', {
       method: Web3Event.ACCOUNTS_CHANGED,
       params: accounts,

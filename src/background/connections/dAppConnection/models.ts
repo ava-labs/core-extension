@@ -49,8 +49,6 @@ export enum Web3Event {
   ACCOUNTS_CHANGED = 'accountsChanged',
   // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
   CHAIN_CHANGED = 'chainChanged',
-  // non EIP-1193 event
-  UNLOCK_STATE_CHANGED = 'avalanche_unlockStateChanged',
 }
 export interface JsonRpcRequest<Params = unknown[]> {
   readonly jsonrpc?: '2.0';

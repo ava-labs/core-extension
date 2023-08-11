@@ -11,11 +11,26 @@ import {
 
 @singleton()
 export class PermissionsService implements OnLock {
-  private eventEmitter = new EventEmitter();
-
-  private permissions?: Permissions;
+  #eventEmitter = new EventEmitter();
+  #permissions?: Permissions;
 
   constructor(private storageService: StorageService) {}
+
+  get permissions() {
+    return this.#permissions;
+  }
+
+  set permissions(permissions: Permissions | undefined) {
+    if (JSON.stringify(this.permissions) === JSON.stringify(permissions)) {
+      return;
+    }
+
+    this.#permissions = permissions;
+    this.#eventEmitter.emit(
+      PermissionEvents.PERMISSIONS_STATE_UPDATE,
+      this.permissions ?? {}
+    );
+  }
 
   onLock(): void {
     this.permissions = undefined;
@@ -25,8 +40,9 @@ export class PermissionsService implements OnLock {
   // they are needed for every dApp rpc request
   async getPermissions(): Promise<Permissions> {
     if (this.permissions) {
-      return this.permissions;
+      return this.permissions ?? {};
     }
+
     try {
       this.permissions =
         (await this.storageService.load<Permissions>(PERMISSION_STORAGE_KEY)) ??
@@ -41,12 +57,7 @@ export class PermissionsService implements OnLock {
        */
     }
 
-    this.eventEmitter.emit(
-      PermissionEvents.PERMISSIONS_STATE_UPDATE,
-      this.permissions
-    );
-
-    return this.permissions || {};
+    return this.permissions ?? {};
   }
 
   async getPermissionsForDomain(domain: string) {
@@ -78,12 +89,8 @@ export class PermissionsService implements OnLock {
       },
     };
 
-    this.storageService.save<Permissions>(
+    this.storageService.save<Permissions | undefined>(
       PERMISSION_STORAGE_KEY,
-      this.permissions
-    );
-    this.eventEmitter.emit(
-      PermissionEvents.PERMISSIONS_STATE_UPDATE,
       this.permissions
     );
   }
@@ -112,21 +119,18 @@ export class PermissionsService implements OnLock {
         },
       },
     };
-    this.storageService.save<Permissions>(
+
+    this.storageService.save<Permissions | undefined>(
       PERMISSION_STORAGE_KEY,
-      this.permissions
-    );
-    this.eventEmitter.emit(
-      PermissionEvents.PERMISSIONS_STATE_UPDATE,
       this.permissions
     );
   }
 
   addListener(event: PermissionEvents, callback: (data: unknown) => void) {
-    this.eventEmitter.addListener(event, callback);
+    this.#eventEmitter.addListener(event, callback);
   }
 
   removeListener(event: PermissionEvents, callback: (data: unknown) => void) {
-    this.eventEmitter.removeListener(event, callback);
+    this.#eventEmitter.removeListener(event, callback);
   }
 }

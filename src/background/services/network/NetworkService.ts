@@ -98,6 +98,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     // the network for the first time (after extension startup or unlocking).
     const developerModeChanged =
       Boolean(previousNetwork) &&
+      Boolean(network) &&
       previousNetwork?.isTestnet !== network?.isTestnet;
 
     if (developerModeChanged) {
