@@ -76,7 +76,6 @@ module.exports = {
       // prevent having 2 concurrent copies of react when linking a lib with react as dev dependency
       react: path.resolve('./node_modules/react'),
       'react-dom': path.resolve('./node_modules/react-dom'),
-      'styled-components': path.resolve('./node_modules/styled-components'),
       // use alias for bn.js to prevent bundling it >23 times per output file (saves ~1.5MB)
       'bn.js': path.resolve('./node_modules/bn.js'),
     },

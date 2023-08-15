@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TokenSelect } from '@src/components/common/TokenSelectK2';
+import { TokenSelect } from '@src/components/common/TokenSelect';
 import { ContactInput } from './ContactInput';
 import type { Contact } from '@avalabs/types';
 import { BigNumber } from 'ethers';
@@ -12,10 +12,7 @@ import {
 } from '@src/background/services/send/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getSendErrorMessage } from '@src/pages/Send/utils/sendErrorMessages';
-import {
-  CustomFeesK2,
-  GasFeeModifier,
-} from '@src/components/common/CustomFeesK2';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { Stack, Typography } from '@avalabs/k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
@@ -151,7 +148,7 @@ export const SendForm = ({
           display: isContactsOpen ? 'none' : 'flex',
         }}
       >
-        <CustomFeesK2
+        <CustomFees
           maxFeePerGas={gasPrice || networkFee?.low.maxFee || BigNumber.from(0)}
           limit={sendState.customGasLimit || sendState.gasLimit || 0}
           onChange={onGasChanged}

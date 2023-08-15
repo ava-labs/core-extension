@@ -1,11 +1,6 @@
-import {
-  HorizontalFlex,
-  LoadingIcon,
-  Typography,
-} from '@avalabs/react-components';
+import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { useEffect, useState } from 'react';
-import { useTheme } from 'styled-components';
 
 const TOKEN_IMAGE_BORDER_RADIUS = '50%';
 const TOKEN_IMAGE_DFEAULT_SIZE = '32px';
@@ -39,7 +34,6 @@ export function TokenIcon({
   name?: string;
   [x: string]: any;
 }) {
-  const theme = useTheme();
   const [state, setState] = useState<{ success?: boolean; error?: boolean }>();
 
   useEffect(() => {
@@ -73,31 +67,37 @@ export function TokenIcon({
 
   if (!state) {
     return (
-      <HorizontalFlex
-        justify={'center'}
-        align={'center'}
-        radius={TOKEN_IMAGE_BORDER_RADIUS}
-        background={`${theme.colors.disabled}CC`}
-        width={width || TOKEN_IMAGE_DFEAULT_SIZE}
-        height={height || TOKEN_IMAGE_DFEAULT_SIZE}
-        style={{ flexShrink: 0 }}
+      <Stack
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
+        sx={{
+          borderRadius: TOKEN_IMAGE_BORDER_RADIUS,
+          backgroundColor: 'grey.600',
+          width: width || TOKEN_IMAGE_DFEAULT_SIZE,
+          height: height || TOKEN_IMAGE_DFEAULT_SIZE,
+          flexShrink: 0,
+        }}
         {...rest}
       >
-        <LoadingIcon height={'5px'} />
-      </HorizontalFlex>
+        <CircularProgress size={5} />
+      </Stack>
     );
   }
 
   if (state.success) {
     return (
-      <HorizontalFlex
+      <Stack
+        direction="row"
+        sx={{
+          borderRadius: TOKEN_IMAGE_BORDER_RADIUS,
+          width: width || TOKEN_IMAGE_DFEAULT_SIZE,
+          height: height || TOKEN_IMAGE_DFEAULT_SIZE,
+          flexShrink: 0,
+        }}
+        {...rest}
         as="img"
         src={ipfsResolverWithFallback(src)}
-        width={width || TOKEN_IMAGE_DFEAULT_SIZE}
-        height={height || TOKEN_IMAGE_DFEAULT_SIZE}
-        radius={TOKEN_IMAGE_BORDER_RADIUS}
-        style={{ flexShrink: 0 }}
-        {...rest}
       />
     );
   }
@@ -107,20 +107,26 @@ export function TokenIcon({
     return (
       /** Children here is so that a custom fallback element can be used */
       children ?? (
-        <HorizontalFlex
-          radius={TOKEN_IMAGE_BORDER_RADIUS}
-          background={`${theme.colors.disabled}CC`}
-          width={width || TOKEN_IMAGE_DFEAULT_SIZE}
-          height={height || TOKEN_IMAGE_DFEAULT_SIZE}
-          style={{ flexShrink: 0 }}
-          justify="center"
-          align="center"
+        <Stack
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            borderRadius: TOKEN_IMAGE_BORDER_RADIUS,
+            backgroundColor: 'grey.600',
+            width: width || TOKEN_IMAGE_DFEAULT_SIZE,
+            height: height || TOKEN_IMAGE_DFEAULT_SIZE,
+            flexShrink: 0,
+          }}
           {...rest}
         >
-          <Typography align="center" size={12}>
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: 'fontWeightSemibolds' }}
+          >
             {logoText}
           </Typography>
-        </HorizontalFlex>
+        </Stack>
       )
     );
   }

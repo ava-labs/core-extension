@@ -74,11 +74,12 @@ export function LedgerConnect({
   );
 
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.LedgerLive
+    DerivationPath.BIP44
   );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [avalancheNetwork, setAvalancheNetwork] = useState<Network>();
+  const [dropdownDisabled, setDropdownDisabled] = useState(true);
   const { t } = useTranslation();
 
   const resetStates = () => {
@@ -87,7 +88,7 @@ export function LedgerConnect({
     setPublicKeys([]);
     setAddresses([]);
     setHasPublicKeys(false);
-    setPathSpec(DerivationPath.LedgerLive);
+    setPathSpec(DerivationPath.BIP44);
   };
 
   const getAddressFromXpubKey = useCallback(
@@ -125,7 +126,7 @@ export function LedgerConnect({
       setXpubXP(xpubXP);
       setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
       capture('OnboardingLedgerConnected');
-      getAddressFromXpubKey(xpub, 0);
+      await getAddressFromXpubKey(xpub, 0);
     } catch {
       capture('OnboardingLedgerConnectionFailed');
       setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
@@ -236,15 +237,18 @@ export function LedgerConnect({
   const onPathSelected = async (selectedPathSpec: DerivationPath) => {
     resetStates();
     setPathSpec(selectedPathSpec);
+    setDropdownDisabled(true);
     if (selectedPathSpec === DerivationPath.BIP44) {
       setTimeout(async () => {
-        getXPublicKey();
+        await getXPublicKey();
+        setDropdownDisabled(false);
       }, WAIT_1500_MILLI_FOR_USER);
       return;
     }
     if (selectedPathSpec === DerivationPath.LedgerLive) {
       getDerivationPathValue(selectedPathSpec);
       await getPubKeys(selectedPathSpec);
+      setDropdownDisabled(false);
     }
   };
 
@@ -257,10 +261,10 @@ export function LedgerConnect({
         setAddresses([]);
         await getPubKeys(selectedPathSpec);
       } else if (selectedPathSpec === DerivationPath.BIP44) {
-        getXPublicKey();
+        await getXPublicKey();
+        setDropdownDisabled(false);
       }
     };
-
     if (hasPublicKeys) {
       return;
     }
@@ -337,6 +341,7 @@ export function LedgerConnect({
           <DerivationPathDropdown
             pathSpec={pathSpec}
             onPathSelected={onPathSelected}
+            isDisabled={dropdownDisabled}
           />
           {pathSpec &&
             publicKeyState !== LedgerStatus.LEDGER_UNINITIATED &&
@@ -357,8 +362,7 @@ export function LedgerConnect({
             )}
         </Stack>
         <Stack sx={{ alignItems: 'center' }}>
-          {(publicKeyState === LedgerStatus.LEDGER_CONNECTION_FAILED ||
-            publicKeyState === LedgerStatus.LEDGER_UNINITIATED) && (
+          {publicKeyState === LedgerStatus.LEDGER_CONNECTION_FAILED && (
             <Stack sx={{ mt: 1, rowGap: 3, width: theme.spacing(44) }}>
               <Stack direction="row">
                 <Typography

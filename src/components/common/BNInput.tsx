@@ -22,7 +22,10 @@ export interface BNInputProps {
   min?: BN;
   max?: BN;
   isValueLoading?: boolean;
+  disabled?: boolean;
   error?: boolean;
+  fullWidth?: boolean;
+  withMaxButton?: boolean;
 }
 
 const InputNumber = styled(TextField)`
@@ -31,7 +34,6 @@ const InputNumber = styled(TextField)`
     -webkit-appearance: none;
     margin: 0;
   }
-  width: 180px;
   padding: 0;
 `;
 
@@ -47,10 +49,25 @@ export function BNInput({
   max,
   isValueLoading,
   error,
+  disabled,
+  fullWidth,
+  withMaxButton = true,
   ...props
 }: BNInputProps) {
   const [valStr, setValStr] = useState('');
   useEffect(() => {
+    if (value === undefined) {
+      if (Number(valStr) !== 0) {
+        setValStr('');
+      }
+
+      return;
+    }
+
+    if (value.eq(new BN(0)) && Number(valStr) === 0) {
+      return;
+    }
+
     if (value) {
       const valueAsBig = new Big(value.toString()).div(
         Math.pow(10, denomination)
@@ -60,10 +77,7 @@ export function BNInput({
        * This also preserves zeros in the input ui.
        */
 
-      if (
-        (!valStr || !valueAsBig.eq(valStr)) &&
-        valueAsBig.toString() !== '0'
-      ) {
+      if (!valStr || !valueAsBig.eq(valStr)) {
         setValStr(valueAsBig.toString());
       }
     }
@@ -104,9 +118,12 @@ export function BNInput({
     onValueChanged(big.toString());
   };
 
+  const canSetMax = max && !isValueLoading;
+
   return (
     <Stack sx={{ position: 'relative' }}>
       <InputNumber
+        fullWidth={fullWidth}
         value={valStr}
         onChange={(e) => onValueChanged(e.target.value)}
         type="number"
@@ -126,9 +143,13 @@ export function BNInput({
         }}
         error={error}
         placeholder="0.0"
+        sx={{
+          width: fullWidth ? 'auto' : '180px',
+        }}
         InputProps={{
-          endAdornment:
-            max && !isValueLoading ? (
+          disabled,
+          endAdornment: withMaxButton ? (
+            canSetMax ? (
               <InputAdornment position="end">
                 <Button
                   variant="text"
@@ -141,7 +162,8 @@ export function BNInput({
               </InputAdornment>
             ) : (
               <CircularProgress size={16} sx={{ height: 'auto !important' }} />
-            ),
+            )
+          ) : null,
           inputMode: 'text',
           sx: {
             py: 1,

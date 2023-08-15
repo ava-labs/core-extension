@@ -123,8 +123,8 @@ export function ConnectedSites({
                     </Avatar>
                   </ListItemIcon>
                   <ListItemText
-                    sx={{ ml: 2, fontSize: '16px', my: 0 }}
-                    disableTypography
+                    sx={{ ml: 2, my: 0 }}
+                    primaryTypographyProps={{ variant: 'body2' }}
                   >
                     {site.domain}
                   </ListItemText>

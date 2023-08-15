@@ -2,10 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Contact } from '@avalabs/types';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
-import {
-  CustomFeesK2,
-  GasFeeModifier,
-} from '@src/components/common/CustomFeesK2';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { ContactInput } from '../Send/components/ContactInput';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
@@ -20,7 +17,6 @@ import {
   NetworkTokenWithBalance,
 } from '@src/background/services/balances/models';
 import { useSend } from '../Send/hooks/useSend';
-import { TransactionFeeTooltip } from '@src/components/common/TransactionFeeTooltip';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
@@ -227,23 +223,8 @@ export function CollectibleSend() {
             </Stack>
 
             <Stack sx={{ width: '100%', px: 2, mt: 3 }}>
-              <Stack
-                sx={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  width: '100%',
-                  mt: 2,
-                  mb: 1,
-                }}
-              >
-                <TransactionFeeTooltip
-                  gasPrice={sendState?.maxFeePerGas || BigNumber.from(0)}
-                  gasLimit={sendState.customGasLimit || sendState?.gasLimit}
-                  network={network}
-                />
-              </Stack>
               <Stack sx={{ width: '100%' }}>
-                <CustomFeesK2
+                <CustomFees
                   maxFeePerGas={sendState?.maxFeePerGas || BigNumber.from(0)}
                   limit={sendState.customGasLimit || sendState?.gasLimit || 0}
                   onChange={onGasChanged}

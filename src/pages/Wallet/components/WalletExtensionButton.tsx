@@ -1,17 +1,13 @@
-import {
-  CoinbaseIcon,
-  ComponentSize,
-  CoreIcon,
-  MetamaskColored,
-  PrimaryButton,
-  RabbyIcon,
-  SecondaryButton,
-  Typography,
-  WalletIcon,
-} from '@avalabs/react-components';
-import { WalletExtensionType } from '@src/background/services/web3/models';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from 'styled-components';
+import {
+  Button,
+  CoinbaseWalletIcon,
+  CoreIcon,
+  MetaMaskIcon,
+  WalletIcon,
+} from '@avalabs/k2-components';
+
+import { WalletExtensionType } from '@src/background/services/web3/models';
 
 interface WalletExtensionButtonProps {
   type: WalletExtensionType;
@@ -22,16 +18,14 @@ export function WalletExtensionButton({
   type,
   onClick,
 }: WalletExtensionButtonProps) {
-  const theme = useTheme();
   const { t } = useTranslation();
+
   const getWalletDisplayName = (walletType: WalletExtensionType) => {
     switch (walletType) {
       case WalletExtensionType.METAMASK:
         return 'Metamask';
       case WalletExtensionType.COINBASE:
         return 'Coinbase';
-      case WalletExtensionType.RABBY:
-        return 'Rabby';
       case WalletExtensionType.UNKNOWN:
       default:
         return t('Unknown wallet');
@@ -41,39 +35,40 @@ export function WalletExtensionButton({
   const getWalletLogo = (walletType: WalletExtensionType) => {
     switch (walletType) {
       case WalletExtensionType.METAMASK:
-        return <MetamaskColored />;
+        return <MetaMaskIcon size={24} />;
       case WalletExtensionType.COINBASE:
-        return <CoinbaseIcon />;
-      case WalletExtensionType.RABBY:
-        return <RabbyIcon color={theme.colors.text1} />;
+        return <CoinbaseWalletIcon size={24} />;
       case WalletExtensionType.UNKNOWN:
       default:
-        return <WalletIcon />;
+        return <WalletIcon size={24} />;
     }
   };
 
   if (type === WalletExtensionType.CORE) {
     return (
-      <PrimaryButton width="343px" size={ComponentSize.LARGE} onClick={onClick}>
-        <CoreIcon />
-        <Typography margin="0 0 0 8px" color="inherit" weight={600}>
-          Core
-        </Typography>
-      </PrimaryButton>
+      <Button
+        color="secondary"
+        size="large"
+        onClick={onClick}
+        sx={{ mt: 2, gap: 1 }}
+        fullWidth
+      >
+        <CoreIcon size={24} />
+        Core
+      </Button>
     );
   }
 
   return (
-    <SecondaryButton
-      width="343px"
-      margin="16px 0 0 0"
-      size={ComponentSize.LARGE}
+    <Button
+      color="secondary"
+      size="large"
+      sx={{ gap: 1, mt: 2 }}
       onClick={onClick}
+      fullWidth
     >
       {getWalletLogo(type)}
-      <Typography margin="0 0 0 8px" color="inherit" weight={600}>
-        {getWalletDisplayName(type)}
-      </Typography>
-    </SecondaryButton>
+      {getWalletDisplayName(type)}
+    </Button>
   );
 }

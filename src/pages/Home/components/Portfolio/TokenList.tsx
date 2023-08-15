@@ -12,7 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from '@src/components/common/VirtualizedList';
 import { Button, Stack, styled } from '@avalabs/k2-components';
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
+import { BN } from 'bn.js';
 
 const TokenRow = styled('div')`
   padding: 0 10px 0 16px;
@@ -30,6 +31,10 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+
+  const hasNoFunds =
+    tokensWithBalances.length === 1 &&
+    tokensWithBalances[0]?.balance.eq(new BN(0));
 
   const tokens = useMemo(
     () =>
@@ -80,7 +85,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           balanceDisplayValue={token.balanceDisplayValue}
           balanceUSD={token.balanceUSD?.toString()}
         >
-          <TokenIconK2
+          <TokenIcon
             width="32px"
             height="32px"
             src={token.logoUri}
@@ -115,7 +120,9 @@ export function TokenList({ searchQuery }: TokenListProps) {
         )}
       </Stack>
       <Stack>
-        {tokens.length && (
+        {hasNoFunds ? (
+          <WalletIsEmpty />
+        ) : (
           <AutoSizer>
             {({ width }) => (
               <VirtualizedList
@@ -128,8 +135,6 @@ export function TokenList({ searchQuery }: TokenListProps) {
             )}
           </AutoSizer>
         )}
-
-        {tokens.length === 0 && <WalletIsEmpty />}
       </Stack>
     </Stack>
   );

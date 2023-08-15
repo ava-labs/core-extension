@@ -11,5 +11,6 @@ export const StyledNumberList = styled(Typography)`
     borderRadius: '50%',
     textAlign: 'center',
     marginRight: theme.spacing(2),
+    flexShrink: 0,
   })}
 `;

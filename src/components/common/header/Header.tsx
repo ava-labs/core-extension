@@ -13,7 +13,7 @@ import { useCurrentDomain } from '@src/pages/Permissions/useCurrentDomain';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { SimpleAddressK2 } from '@src/components/common/SimpleAddressK2';
+import { SimpleAddress } from '@src/components/common/SimpleAddress';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPages } from '@src/components/settings/models';
 
@@ -110,7 +110,7 @@ export function Header() {
               sx={{ pt: 0.5, justifyContent: 'center' }}
               data-testid="header-copy-address"
             >
-              <SimpleAddressK2 address={address} />
+              <SimpleAddress address={address} />
             </Stack>
           )}
         </Stack>

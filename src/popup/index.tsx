@@ -6,11 +6,6 @@ import { render } from 'react-dom';
 import browser from 'webextension-polyfill';
 // MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
 import { HashRouter as Router } from 'react-router-dom';
-import {
-  ThemeContextProvider,
-  Toaster,
-  walletThemeDark,
-} from '@avalabs/react-components';
 import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
 import { AnalyticsContextProvider } from '@src/contexts/AnalyticsProvider';
 import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
@@ -35,25 +30,19 @@ browser.tabs.query({ active: true }).then(() => {
         }}
         theme={darkTheme}
       >
-        <ThemeContextProvider
-          lightTheme={walletThemeDark} // Always show dark until we reenable light-mode (CP-578)
-          darkTheme={walletThemeDark}
-        >
-          <I18nextProvider i18n={i18n}>
-            <ConnectionContextProvider>
-              <SettingsContextProvider>
-                <FeatureFlagsContextProvider>
-                  <AnalyticsContextProvider>
-                    <Toaster />
-                    <Suspense fallback={<LoadingContent />}>
-                      <App />
-                    </Suspense>
-                  </AnalyticsContextProvider>
-                </FeatureFlagsContextProvider>
-              </SettingsContextProvider>
-            </ConnectionContextProvider>
-          </I18nextProvider>
-        </ThemeContextProvider>
+        <I18nextProvider i18n={i18n}>
+          <ConnectionContextProvider>
+            <SettingsContextProvider>
+              <FeatureFlagsContextProvider>
+                <AnalyticsContextProvider>
+                  <Suspense fallback={<LoadingContent />}>
+                    <App />
+                  </Suspense>
+                </AnalyticsContextProvider>
+              </FeatureFlagsContextProvider>
+            </SettingsContextProvider>
+          </ConnectionContextProvider>
+        </I18nextProvider>
       </ThemeProvider>
     </Router>,
     document.getElementById('popup')

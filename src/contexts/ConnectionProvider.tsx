@@ -14,8 +14,8 @@ import { Runtime } from 'webextension-polyfill-ts';
 import extension from 'extensionizer';
 import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';
-import { LoadingIcon } from '@avalabs/react-components';
 import { Signal, ValueCache } from 'micro-signals';
+import { LoadingContent } from '@src/popup/LoadingContent';
 
 const requestEngineCache = new ValueCache<ReturnType<typeof requestEngine>>();
 const requestEngineSignal = new Signal<ReturnType<typeof requestEngine>>();
@@ -73,7 +73,7 @@ export function ConnectionContextProvider({ children }: { children: any }) {
   const events = useCallback(() => eventsHandler.asObservable(), []);
 
   if (!connection) {
-    return <LoadingIcon />;
+    return <LoadingContent />;
   }
 
   return (

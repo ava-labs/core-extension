@@ -1,35 +1,23 @@
-import {
-  Card,
-  ComponentSize,
-  GlobeIcon,
-  HorizontalFlex,
-  LoadingSpinnerIcon,
-  PrimaryButton,
-  SecondaryButton,
-  Typography,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ActionStatus } from '@src/background/services/actions/models';
-import { TokenIcon } from '@src/components/common/TokenImage';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useEffect } from 'react';
-import styled, { useTheme } from 'styled-components';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Network } from '@avalabs/chains-sdk';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTranslation } from 'react-i18next';
-
-const SiteAvatar = styled(VerticalFlex)`
-  width: 80px;
-  height: 80px;
-  background-color: ${({ theme }) => theme.colors.bg2};
-  border-radius: 50%;
-  margin: 24px 0;
-`;
+import {
+  Button,
+  Card,
+  CircularProgress,
+  GlobeIcon,
+  Stack,
+  Typography,
+} from '@avalabs/k2-components';
+import { SiteAvatar } from '@src/components/common/SiteAvatar';
 
 export function AddCustomNetworkPopup() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const requestId = useGetRequestId();
   const { action: request, updateAction: updateMessage } =
     useApproveAction(requestId);
@@ -50,211 +38,136 @@ export function AddCustomNetworkPopup() {
 
   if (!request || !request.displayData) {
     return (
-      <HorizontalFlex
-        width={'100%'}
-        height={'100%'}
-        justify={'center'}
-        align={'center'}
+      <Stack
+        sx={{
+          width: 1,
+          height: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
       >
-        <LoadingSpinnerIcon color={theme.colors.icon1} />
-      </HorizontalFlex>
+        <CircularProgress />
+      </Stack>
     );
   }
 
   const customNetwork: Network = request.displayData;
   return (
     <>
-      <VerticalFlex width="100%" padding="0 16px">
-        <VerticalFlex padding="12px 0" align="flex-start">
-          <Typography as="h1" size={24} height="29px" weight={700} align="left">
-            {t('Add New Network?')}
-          </Typography>
-        </VerticalFlex>
-
-        <VerticalFlex align="center" margin="0 0 24px">
-          <SiteAvatar justify="center" align="center">
-            <TokenIcon height="48px" width="48px" src={customNetwork.logoUri}>
-              <GlobeIcon
-                height="48px"
-                width="48px"
-                color={theme.colors.icon1}
-              />
+      <Stack sx={{ flexGrow: 1, width: 1, px: 2, py: 1 }}>
+        <Typography
+          component="h1"
+          sx={{ mt: 1, mb: 3, fontSize: 24, fontWeight: 'bold' }}
+        >
+          {t('Add New Network?')}
+        </Typography>
+        <Stack
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 3,
+          }}
+        >
+          <SiteAvatar sx={{ mb: 2 }}>
+            <TokenIcon height="48px" width="48px" src={customNetwork?.logoUri}>
+              <GlobeIcon size={48} />
             </TokenIcon>
           </SiteAvatar>
 
-          <HorizontalFlex>
-            <Typography
-              size={18}
-              height="2px"
-              weight={700}
-              color={theme.colors.text1}
-              align="center"
-              margin="0 0 8px"
-            >
-              {customNetwork.chainName}
-            </Typography>
-          </HorizontalFlex>
-          <HorizontalFlex>
-            <Typography
-              size={14}
-              height="17px"
-              color={theme.colors.text2}
-              align="center"
-            >
-              {request?.site?.domain}
-            </Typography>
-          </HorizontalFlex>
-        </VerticalFlex>
+          <Typography variant="h5">{customNetwork.chainName}</Typography>
+          <Typography
+            sx={{ textAlign: 'center', color: 'text.secondary' }}
+            variant="caption"
+          >
+            {request?.site?.domain}
+          </Typography>
+        </Stack>
 
-        <Card height="250px" padding="16px">
+        <Card sx={{ flexGrow: 1 }}>
           <Scrollbars>
-            <VerticalFlex>
-              <VerticalFlex marginBottom="16px">
-                <Typography
-                  size={14}
-                  height="17px"
-                  weight={400}
-                  color={theme.colors.text1}
-                >
+            <Stack sx={{ p: 2 }}>
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {t('Chain ID')}
                 </Typography>
 
-                <Typography
-                  size={12}
-                  height="15px"
-                  weight={400}
-                  color={theme.colors.text2}
-                >
+                <Typography variant="subtitle2">
                   {customNetwork.chainId}
                 </Typography>
-              </VerticalFlex>
-              <VerticalFlex marginBottom="16px">
-                <Typography
-                  size={14}
-                  height="17px"
-                  weight={400}
-                  color={theme.colors.text1}
-                >
+              </Stack>
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {t('Chain Name')}
                 </Typography>
 
-                <Typography
-                  size={12}
-                  height="15px"
-                  weight={400}
-                  color={theme.colors.text2}
-                >
+                <Typography variant="subtitle2">
                   {customNetwork.chainName}
                 </Typography>
-              </VerticalFlex>
-              <VerticalFlex marginBottom="16px">
-                <Typography
-                  size={14}
-                  height="17px"
-                  weight={400}
-                  color={theme.colors.text1}
-                >
+              </Stack>
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {t('RPC URL')}
                 </Typography>
 
-                <Typography
-                  size={12}
-                  height="15px"
-                  weight={400}
-                  color={theme.colors.text2}
-                >
+                <Typography variant="subtitle2">
                   {customNetwork.rpcUrl}
                 </Typography>
-              </VerticalFlex>
-              <VerticalFlex marginBottom="16px">
-                <Typography
-                  size={14}
-                  height="17px"
-                  weight={400}
-                  color={theme.colors.text1}
-                >
+              </Stack>
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {t('Explorer URL')}
                 </Typography>
 
-                <Typography
-                  size={12}
-                  height="15px"
-                  weight={400}
-                  color={theme.colors.text2}
-                >
+                <Typography variant="subtitle2">
                   {customNetwork.explorerUrl}
                 </Typography>
-              </VerticalFlex>
-              <VerticalFlex marginBottom="16px">
-                <Typography
-                  size={14}
-                  height="17px"
-                  weight={400}
-                  color={theme.colors.text1}
-                >
+              </Stack>
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {t('Network Symbol')}
                 </Typography>
 
-                <Typography
-                  size={12}
-                  height="15px"
-                  weight={400}
-                  color={theme.colors.text2}
-                >
+                <Typography variant="subtitle2">
                   {customNetwork.networkToken.symbol}
                 </Typography>
-              </VerticalFlex>
-              <VerticalFlex marginBottom="16px">
-                <Typography
-                  size={14}
-                  height="17px"
-                  weight={400}
-                  color={theme.colors.text1}
-                >
+              </Stack>
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {t('Token Name')}
                 </Typography>
 
-                <Typography
-                  size={12}
-                  height="15px"
-                  weight={400}
-                  color={theme.colors.text2}
-                >
+                <Typography variant="subtitle2">
                   {customNetwork.networkToken.name}
                 </Typography>
-              </VerticalFlex>
-              <VerticalFlex marginBottom="16px">
-                <Typography
-                  size={14}
-                  height="17px"
-                  weight={400}
-                  color={theme.colors.text1}
-                >
+              </Stack>
+              <Stack sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {t('Token Decimals')}
                 </Typography>
 
-                <Typography
-                  size={12}
-                  height="15px"
-                  weight={400}
-                  color={theme.colors.text2}
-                >
+                <Typography variant="subtitle2">
                   {customNetwork.networkToken.decimals}
                 </Typography>
-              </VerticalFlex>
-            </VerticalFlex>
+              </Stack>
+            </Stack>
           </Scrollbars>
         </Card>
-        <HorizontalFlex
-          flex={1}
-          align="flex-end"
-          width="100%"
-          justify="space-between"
-          padding="0 0 8px"
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            width: '100%',
+            justifyContent: 'space-between',
+            pt: 3,
+            gap: 1,
+          }}
         >
-          <SecondaryButton
-            size={ComponentSize.LARGE}
-            width="168px"
+          <Button
+            color="secondary"
+            data-testid="transaction-reject-btn"
+            size="large"
+            fullWidth
+            disabled={request.status === ActionStatus.SUBMITTING}
             onClick={() => {
               updateMessage({
                 status: ActionStatus.ERROR_USER_CANCELED,
@@ -264,10 +177,14 @@ export function AddCustomNetworkPopup() {
             }}
           >
             {t('Reject')}
-          </SecondaryButton>
-          <PrimaryButton
-            width="168px"
-            size={ComponentSize.LARGE}
+          </Button>
+          <Button
+            data-testid="transaction-approve-btn"
+            size="large"
+            fullWidth
+            disabled={
+              request.status === ActionStatus.SUBMITTING || !!request.error
+            }
             onClick={() => {
               updateMessage({
                 status: ActionStatus.SUBMITTING,
@@ -276,9 +193,9 @@ export function AddCustomNetworkPopup() {
             }}
           >
             {t('Approve')}
-          </PrimaryButton>
-        </HorizontalFlex>
-      </VerticalFlex>
+          </Button>
+        </Stack>
+      </Stack>
     </>
   );
 }

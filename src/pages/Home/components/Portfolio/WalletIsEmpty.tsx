@@ -1,8 +1,7 @@
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { useHistory } from 'react-router-dom';
-import { StyledQRCodeIcon } from './NetworkWidget/common/StyledQRCodeIcon';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, Typography } from '@avalabs/k2-components';
+import { Button, QRCodeIcon, Stack, Typography } from '@avalabs/k2-components';
 
 export function WalletIsEmpty() {
   const history = useHistory();
@@ -50,7 +49,7 @@ export function WalletIsEmpty() {
             }}
             sx={{ width: '343px' }}
           >
-            <StyledQRCodeIcon />
+            <QRCodeIcon size={16} sx={{ mr: 1 }} />
             {t('Receive')}
           </Button>
         </>

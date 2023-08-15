@@ -10,7 +10,7 @@ import {
 } from '../utils';
 import { stringToBN } from '@avalabs/utils-sdk';
 import { BigNumber } from 'ethers';
-import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
@@ -175,6 +175,20 @@ export function useSwapStateFunctions() {
     [avaxPrice, network?.networkToken.decimals, selectedFromToken, swapGasLimit]
   );
 
+  const resetValues = () => {
+    setFromTokenValue(undefined);
+    setFromDefaultValue(undefined);
+    setToTokenValue(undefined);
+    setSwapWarning('');
+    setDestinationInputField('');
+
+    setValuesDebouncedSubject.next({
+      ...setValuesDebouncedSubject.getValue(),
+      amount: undefined,
+      destinationInputField: undefined,
+    });
+  };
+
   const calculateSwapValue = ({
     fromToken,
     toToken,
@@ -187,11 +201,17 @@ export function useSwapStateFunctions() {
     if (!fromToken || !toToken) {
       return;
     }
-    const amount = {
-      amount: fromValue?.amount || '0',
-      bn: stringToBN(fromValue?.amount || '0', fromToken.decimals || 18),
-    };
-    calculateTokenValueToInput(amount, 'to', fromToken, toToken);
+    const amount = fromValue
+      ? ({
+          amount: fromValue.amount || '0',
+          bn: stringToBN(fromValue.amount || '0', fromToken.decimals || 18),
+        } as Amount)
+      : undefined;
+    if (amount) {
+      calculateTokenValueToInput(amount, 'to', fromToken, toToken);
+    } else {
+      resetValues();
+    }
   };
 
   const reverseTokens = (
@@ -213,12 +233,12 @@ export function useSwapStateFunctions() {
       );
       return;
     }
-    setSelectedFromToken(fromToken);
-    setSelectedToToken(toToken);
+    setSelectedFromToken(toToken);
+    setSelectedToToken(fromToken);
     setIsReversed(!reversed);
     calculateSwapValue({
-      fromToken,
-      toToken,
+      fromToken: toToken,
+      toToken: fromToken,
       fromValue,
     });
   };

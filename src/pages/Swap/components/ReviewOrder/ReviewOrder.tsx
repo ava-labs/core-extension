@@ -25,7 +25,7 @@ import {
   GasFeeModifier,
   getUpToTwoDecimals,
   getGasFeeToDisplay,
-} from '@src/components/common/CustomFeesK2';
+} from '@src/components/common/CustomFees';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 export interface ReviewOrderProps {

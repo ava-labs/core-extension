@@ -223,71 +223,20 @@ describe('background/services/transactions/TransactionsService.ts', () => {
       });
     });
 
-    describe('when dApp suggests a transaction fee', () => {
-      const params = {
+    it('persists actual current fees', async () => {
+      const message = buildMessage({
         from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
         to: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
         value: '0x5af3107a4000',
-        maxFeePerGas: '0x174876e800',
-        maxPriorityFeePerGas: '0x3b9aca00',
-      };
-
-      const message = buildMessage(params);
-
-      it('persists actual current fees', async () => {
-        await service.addTransaction(message);
-
-        expect(service.saveTransactions).toHaveBeenCalledWith({
-          [message.id]: expect.objectContaining({
-            displayValues: expect.objectContaining({
-              maxFeePerGas: mockedFees.low.maxFee,
-            }),
-          }),
-        });
       });
+      await service.addTransaction(message);
 
-      it('persists suggested fees in display data', async () => {
-        await service.addTransaction(message);
-
-        expect(service.saveTransactions).toHaveBeenCalledWith({
-          [message.id]: expect.objectContaining({
-            displayValues: expect.objectContaining({
-              suggestedMaxFeePerGas: BigNumber.from(params.maxFeePerGas),
-              suggestedMaxPriorityFeePerGas: BigNumber.from(
-                params.maxPriorityFeePerGas
-              ),
-            }),
+      expect(service.saveTransactions).toHaveBeenCalledWith({
+        [message.id]: expect.objectContaining({
+          displayValues: expect.objectContaining({
+            maxFeePerGas: mockedFees.low.maxFee,
           }),
-        });
-      });
-
-      describe('and does not suggest a priority fee', () => {
-        it('sets the priority fee to zero', async () => {
-          const { maxPriorityFeePerGas, ...noTipParams } = params; // eslint-disable-line @typescript-eslint/no-unused-vars
-          const noTipMessage = buildMessage(noTipParams);
-
-          await service.addTransaction(noTipMessage);
-
-          expect(service.saveTransactions).toHaveBeenCalledWith({
-            [noTipMessage.id]: expect.objectContaining({
-              displayValues: expect.objectContaining({
-                suggestedMaxPriorityFeePerGas: BigNumber.from(0),
-              }),
-            }),
-          });
-        });
-      });
-
-      it('persists suggested fees in display data', async () => {
-        await service.addTransaction(message);
-
-        expect(service.saveTransactions).toHaveBeenCalledWith({
-          [message.id]: expect.objectContaining({
-            displayValues: expect.objectContaining({
-              suggestedMaxFeePerGas: BigNumber.from('0x174876e800'),
-            }),
-          }),
-        });
+        }),
       });
     });
 

@@ -131,7 +131,7 @@ export const ContactInput = ({
             fullWidth
             label={t('Sending To')}
             inputLabelProps={{
-              sx: { transform: 'none', fontSize: 'body2.fontSize' },
+              sx: { transform: 'none', fontSize: 'body2.fontSize', mb: 1 },
             }}
             inputRef={inputRef}
             InputProps={{

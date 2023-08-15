@@ -36,9 +36,7 @@ export function FunctionIsOffline({
             functionName: FunctionNames[functionName] || functionName,
           })}
         </Typography>
-        <Typography size={16} align="center" height="24px">
-          {t('Please check back later.')}
-        </Typography>
+        <Typography>{t('Please check back later.')}</Typography>
         {children}
       </Stack>
     </Stack>

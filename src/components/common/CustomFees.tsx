@@ -43,7 +43,6 @@ interface CustomGasFeesProps {
   selectedGasFeeModifier?: GasFeeModifier;
   network?: Network;
   networkFee: NetworkFee | null;
-  suggestedNetworkFee?: FeeRate | null;
 }
 
 export enum GasFeeModifier {
@@ -150,7 +149,7 @@ export const getGasFeeToDisplay = (fee: string, networkFee: NetworkFee) => {
   }
 };
 
-export function CustomFeesK2({
+export function CustomFees({
   maxFeePerGas,
   limit,
   onChange,
@@ -160,7 +159,6 @@ export function CustomFeesK2({
   selectedGasFeeModifier,
   network,
   networkFee,
-  suggestedNetworkFee,
 }: CustomGasFeesProps) {
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
@@ -168,7 +166,7 @@ export function CustomFeesK2({
   const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();
   const gasLimit = customGasLimit || limit;
   const [customFee, setCustomFee] = useState<FeeRate | undefined>(
-    suggestedNetworkFee ?? networkFee?.low
+    networkFee?.low
   );
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>

@@ -1,10 +1,12 @@
 export enum AccountType {
   PRIMARY = 'primary',
-  IMPORTED = 'imported',
+  IMPORTED = 'imported', // Imported using private key
+  WALLET_CONNECT = 'walletConnect',
 }
 
 export enum ImportType {
   PRIVATE_KEY = 'privateKey',
+  WALLET_CONNECT = 'walletConnect',
 }
 
 export interface ImportData {
@@ -32,12 +34,16 @@ export interface ImportedAccount extends AccountStorageItem {
   type: AccountType.IMPORTED;
 }
 
-export type Account = PrimaryAccount | ImportedAccount;
+export interface WalletConnectAccount extends AccountStorageItem {
+  type: AccountType.WALLET_CONNECT;
+}
+
+export type Account = PrimaryAccount | ImportedAccount | WalletConnectAccount;
 
 export interface Accounts {
   active?: Account;
   primary: PrimaryAccount[];
-  imported: Record<string, ImportedAccount>;
+  imported: Record<string, ImportedAccount | WalletConnectAccount>;
 }
 
 export const ACCOUNTS_STORAGE_KEY = 'accounts';

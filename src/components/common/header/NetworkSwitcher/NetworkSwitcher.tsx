@@ -24,7 +24,11 @@ const defaultNetworks = [
   ChainId.AVALANCHE_TESTNET_ID,
 ];
 
-const Chevron = styled(ChevronDownIcon)<{ isOpen: boolean }>`
+const Chevron = styled(ChevronDownIcon, {
+  shouldForwardProp: (prop) => prop !== 'isOpen',
+})<{
+  isOpen: boolean;
+}>`
   transition: transform 0.3s ease-in-out;
   transform: rotateX(${({ isOpen }) => (isOpen ? `180deg` : `0`)});
 `;

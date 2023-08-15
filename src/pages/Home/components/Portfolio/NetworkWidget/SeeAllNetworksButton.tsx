@@ -1,7 +1,7 @@
 import { useHistory } from 'react-router-dom';
 import { NetworkCard } from './common/NetworkCard';
 import { useTranslation } from 'react-i18next';
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Button, Stack, Typography } from '@avalabs/k2-components';
 
 import { NetworkTab } from '@src/pages/Networks';
 
@@ -16,19 +16,18 @@ export function SeeAllNetworksButton({
   const history = useHistory();
 
   return isFullWidth ? (
-    <NetworkCard
+    <Button
+      color="secondary"
+      size="large"
       data-testid="see-all-networks-button"
-      sx={{
-        width: '100%',
-        textAlign: 'center',
-      }}
       onClick={(e) => {
         e.stopPropagation();
         history.push(`/networks?activeTab=${NetworkTab.All}`);
       }}
+      fullWidth
     >
       {t('View All Networks')}
-    </NetworkCard>
+    </Button>
   ) : (
     <NetworkCard
       data-testid="see-all-networks-button"

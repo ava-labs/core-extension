@@ -1,16 +1,10 @@
 import React, { FC, ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import {
-  ThemeContextProvider,
-  walletThemeDark,
-} from '@avalabs/react-components';
 
 const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <ThemeContextProvider lightTheme={walletThemeDark}>
-      {children}
-    </ThemeContextProvider>
-  );
+  // K2 ThemeProvider causes issues here.
+  // https://ava-labs.atlassian.net/browse/CP-6954
+  return <>{children}</>;
 };
 
 const customRender = (

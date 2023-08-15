@@ -1,11 +1,5 @@
-import { CircularProgress } from '@avalabs/k2-components';
+import { CircularProgress, Stack } from '@avalabs/k2-components';
 import { FeatureGates } from '@avalabs/posthog-sdk';
-import {
-  DialogContextProvider as DialogContextProviderOld,
-  HorizontalFlex,
-  LoadingIcon,
-  VerticalFlex,
-} from '@avalabs/react-components';
 import { Header } from '@src/components/common/header/Header';
 import { WalletLoading } from '@src/components/common/WalletLoading';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
@@ -55,6 +49,7 @@ import LedgerRegisterBtcWalletPolicy from '@src/pages/Ledger/LedgerRegisterBtcWa
 import { CurrenciesContextProvider } from '@src/contexts/CurrenciesProvider';
 import { DefiProtocolDetails } from '@src/pages/DeFi/DefiProtocolDetails';
 import { DefiContextProvider } from '@src/contexts/DefiProvider';
+import { WalletConnectContextProvider } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -194,6 +189,10 @@ const Assets = lazy(() => {
   return import('../pages/Home/components/Portfolio/Assets');
 });
 
+const ImportWithWalletConnect = lazy(() => {
+  return import('../pages/ImportWithWalletConnect/ImportWithWalletConnect');
+});
+
 export function Popup() {
   const { t } = useTranslation();
   const dimensions = useAppDimensions();
@@ -250,60 +249,66 @@ export function Popup() {
   }
 
   return (
-    <DialogContextProviderOld>
-      <DialogContextProvider>
-        <LedgerContextProvider>
-          <KeystoneContextProvider>
-            <OnboardingContextProvider>
-              <AccountsContextProvider>
-                <NetworkFeeContextProvider>
-                  <WalletContextProvider>
-                    <NetworkContextProvider>
-                      <CurrenciesContextProvider>
-                        <BalancesProvider>
-                          <DefiContextProvider>
-                            <SwapContextProvider>
-                              <BridgeProvider>
-                                <ContactsContextProvider>
-                                  <PermissionContextProvider>
+    <DialogContextProvider>
+      <LedgerContextProvider>
+        <KeystoneContextProvider>
+          <OnboardingContextProvider>
+            <AccountsContextProvider>
+              <NetworkFeeContextProvider>
+                <WalletContextProvider>
+                  <NetworkContextProvider>
+                    <CurrenciesContextProvider>
+                      <BalancesProvider>
+                        <DefiContextProvider>
+                          <SwapContextProvider>
+                            <BridgeProvider>
+                              <ContactsContextProvider>
+                                <PermissionContextProvider>
+                                  <WalletConnectContextProvider>
                                     <WalletLoading>
-                                      <VerticalFlex
-                                        height={dimensions.height}
-                                        width={dimensions.width}
-                                        maxHeight={'auto'}
-                                        overflow={'auto'}
-                                        align="center"
-                                        margin="auto"
+                                      <Stack
+                                        sx={{
+                                          height: dimensions.height,
+                                          width: dimensions.width,
+                                          maxHeight: 'auto',
+                                          overflow: 'auto',
+                                          alignItems: 'center',
+                                          margin: 'auto',
+                                        }}
                                       >
                                         {![
                                           '/tokens/manage',
+                                          '/bridge/confirm',
                                           '/bridge/transaction-status',
                                           '/bridge/transaction-details',
                                           '/send/confirm',
                                           '/collectible/send/confirm',
-                                          '/bridge/confirm',
                                           '/accounts',
                                           '/import-private-key',
+                                          '/import-with-walletconnect',
                                           '/defi',
                                         ].some((path) =>
                                           location.pathname.startsWith(path)
                                         ) && (
-                                          <VerticalFlex width="100%">
+                                          <Stack sx={{ width: 1 }}>
                                             {!isConfirm && <Header />}
-                                          </VerticalFlex>
+                                          </Stack>
                                         )}{' '}
-                                        <HorizontalFlex
-                                          flex={1}
-                                          justify={'center'}
-                                          padding={isMiniMode ? '' : '16px 0'}
-                                          maxWidth="100%"
-                                          width={appWidth}
-                                          maxHeight="100%"
+                                        <Stack
+                                          direction="row"
+                                          sx={{
+                                            flexGrow: 1,
+                                            justifyContent: 'center',
+                                            py: isMiniMode ? 0 : 2,
+                                            maxWidth: '100%',
+                                            maxHeight: '100%',
+                                            width: appWidth,
+                                          }}
                                         >
                                           <Switch>
                                             <Route path="/token/add">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <AddToken />
                                               </Suspense>
@@ -315,9 +320,9 @@ export function Popup() {
 
                                             <Route path="/sign/transaction">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
-                                                <SignTxErrorBoundary>
+                                                <SignTxErrorBoundary variant="OpenError">
                                                   <SignTransactionPage />
                                                 </SignTxErrorBoundary>
                                               </Suspense>
@@ -325,7 +330,7 @@ export function Popup() {
 
                                             <Route path="/ledger/connect">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <LedgerConnect />
                                               </Suspense>
@@ -333,7 +338,7 @@ export function Popup() {
 
                                             <Route path="/sign">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <SignMessage />
                                               </Suspense>
@@ -341,7 +346,7 @@ export function Popup() {
 
                                             <Route path="/approve/select-wallet">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <SelectWallet />
                                               </Suspense>
@@ -349,7 +354,7 @@ export function Popup() {
 
                                             <Route path="/approve/createContact">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <UpdateContacts method="create" />
                                               </Suspense>
@@ -357,7 +362,7 @@ export function Popup() {
 
                                             <Route path="/approve/updateContact">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <UpdateContacts method="update" />
                                               </Suspense>
@@ -365,7 +370,7 @@ export function Popup() {
 
                                             <Route path="/approve/removeContact">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <UpdateContacts method="remove" />
                                               </Suspense>
@@ -373,7 +378,7 @@ export function Popup() {
 
                                             <Route path="/approve/watch-asset">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <WatchAssetApprovalPopup />
                                               </Suspense>
@@ -381,7 +386,7 @@ export function Popup() {
 
                                             <Route path="/approve/set-developer-mode">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <SetDeveloperMode />
                                               </Suspense>
@@ -389,7 +394,7 @@ export function Popup() {
 
                                             <Route path="/approve/avalancheSignTx">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <AvalancheSignTx />
                                               </Suspense>
@@ -397,7 +402,7 @@ export function Popup() {
 
                                             <Route path="/approve/bitcoinSignTx">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <BitcoinSignTx />
                                               </Suspense>
@@ -405,7 +410,7 @@ export function Popup() {
 
                                             <Route path="/approve">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <ApproveAction />
                                               </Suspense>
@@ -413,7 +418,7 @@ export function Popup() {
 
                                             <Route path="/permissions">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <PermissionsPage />
                                               </Suspense>
@@ -421,7 +426,7 @@ export function Popup() {
 
                                             <Route path="/token">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <TokenFlowPage />
                                               </Suspense>
@@ -429,7 +434,7 @@ export function Popup() {
 
                                             <Route path="/collectible/send">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <CollectibleSend />
                                               </Suspense>
@@ -437,7 +442,7 @@ export function Popup() {
 
                                             <Route path="/collectible">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <CollectibleDetails />
                                               </Suspense>
@@ -445,7 +450,7 @@ export function Popup() {
 
                                             <Route path="/receive">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <Receive />
                                               </Suspense>
@@ -453,7 +458,7 @@ export function Popup() {
 
                                             <Route path="/send">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <SendPage />
                                               </Suspense>
@@ -461,7 +466,7 @@ export function Popup() {
 
                                             <Route path="/buy">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <Buy />
                                               </Suspense>
@@ -469,7 +474,7 @@ export function Popup() {
 
                                             <Route path="/swap">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <Swap />
                                               </Suspense>
@@ -477,7 +482,7 @@ export function Popup() {
 
                                             <Route path="/bridge/transaction-status/:sourceBlockchain/:txHash/:txTimestamp">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <BridgeTransactionStatus />
                                               </Suspense>
@@ -485,7 +490,7 @@ export function Popup() {
 
                                             <Route path="/bridge">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <Bridge />
                                               </Suspense>
@@ -493,7 +498,7 @@ export function Popup() {
 
                                             <Route path="/manage-tokens/add">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <AddToken />
                                               </Suspense>
@@ -501,7 +506,7 @@ export function Popup() {
 
                                             <Route path="/manage-tokens">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <ManageTokensPage />
                                               </Suspense>
@@ -509,7 +514,7 @@ export function Popup() {
 
                                             <Route path="/switchAccount">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <SwitchAccount />
                                               </Suspense>
@@ -517,7 +522,7 @@ export function Popup() {
 
                                             <Route exact path="/networks">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <Networks />
                                               </Suspense>
@@ -525,7 +530,7 @@ export function Popup() {
 
                                             <Route path="/networks/add">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <AddNetwork />
                                               </Suspense>
@@ -533,7 +538,7 @@ export function Popup() {
 
                                             <Route path="/networks/details/:networkId">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <NetworkDetails />
                                               </Suspense>
@@ -553,7 +558,7 @@ export function Popup() {
 
                                             <Route path="/networks/add-popup">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <AddCustomNetworkPopup />
                                               </Suspense>
@@ -561,7 +566,7 @@ export function Popup() {
 
                                             <Route path="/network/switch">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <SwitchActiveNetwork />
                                               </Suspense>
@@ -569,7 +574,7 @@ export function Popup() {
 
                                             <Route path="/accounts">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <Accounts />
                                               </Suspense>
@@ -577,7 +582,7 @@ export function Popup() {
 
                                             <Route path="/import-private-key">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <ImportPrivateKeyPage />
                                               </Suspense>
@@ -585,7 +590,7 @@ export function Popup() {
 
                                             <Route path="/assets">
                                               <Suspense
-                                                fallback={<LoadingIcon />}
+                                                fallback={<CircularProgress />}
                                               >
                                                 <Assets />
                                               </Suspense>
@@ -603,30 +608,42 @@ export function Popup() {
                                               </Suspense>
                                             </Route>
 
+                                            <Route path="/import-with-walletconnect">
+                                              <Suspense
+                                                fallback={
+                                                  <CircularProgress
+                                                    size={100}
+                                                  />
+                                                }
+                                              >
+                                                <ImportWithWalletConnect />
+                                              </Suspense>
+                                            </Route>
+
                                             <Route path="/">
                                               <Redirect to="/home" />
                                             </Route>
                                           </Switch>
                                           <LedgerIncorrectDevice />
                                           <LedgerRegisterBtcWalletPolicy />
-                                        </HorizontalFlex>
-                                      </VerticalFlex>
+                                        </Stack>
+                                      </Stack>
                                     </WalletLoading>
-                                  </PermissionContextProvider>
-                                </ContactsContextProvider>
-                              </BridgeProvider>
-                            </SwapContextProvider>
-                          </DefiContextProvider>
-                        </BalancesProvider>
-                      </CurrenciesContextProvider>
-                    </NetworkContextProvider>
-                  </WalletContextProvider>
-                </NetworkFeeContextProvider>
-              </AccountsContextProvider>
-            </OnboardingContextProvider>
-          </KeystoneContextProvider>
-        </LedgerContextProvider>
-      </DialogContextProvider>
-    </DialogContextProviderOld>
+                                  </WalletConnectContextProvider>
+                                </PermissionContextProvider>
+                              </ContactsContextProvider>
+                            </BridgeProvider>
+                          </SwapContextProvider>
+                        </DefiContextProvider>
+                      </BalancesProvider>
+                    </CurrenciesContextProvider>
+                  </NetworkContextProvider>
+                </WalletContextProvider>
+              </NetworkFeeContextProvider>
+            </AccountsContextProvider>
+          </OnboardingContextProvider>
+        </KeystoneContextProvider>
+      </LedgerContextProvider>
+    </DialogContextProvider>
   );
 }

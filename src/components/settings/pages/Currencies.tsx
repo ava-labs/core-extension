@@ -75,7 +75,6 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
             setSearchTerm(e.target.value)
           }
           autoFocus={true}
-          light
         />
       </Stack>
       <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>

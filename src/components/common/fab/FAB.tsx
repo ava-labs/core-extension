@@ -29,7 +29,9 @@ const ActionButtonWrapper = styled(Stack)`
   }
 `;
 
-const Menu = styled(Stack)<{ isOpen: boolean }>`
+const Menu = styled(Stack, {
+  shouldForwardProp: (prop) => prop !== 'isOpen',
+})<{ isOpen: boolean }>`
   border-radius: 40px;
   width: ${({ isOpen }) => (isOpen ? '80px' : '40px')};
   position: absolute;
@@ -44,7 +46,9 @@ const Menu = styled(Stack)<{ isOpen: boolean }>`
   padding: 8px 0;
 `;
 
-const MenuItems = styled(Stack)<{ isOpen: boolean }>`
+const MenuItems = styled(Stack, {
+  shouldForwardProp: (prop) => prop !== 'isOpen',
+})<{ isOpen: boolean }>`
   transition: all 0.3s;
   transform-origin: bottom;
   transform: ${({ isOpen }) =>
@@ -60,7 +64,9 @@ const FabContainer = styled(Stack)`
   user-select: none;
 `;
 
-const FabButton = styled(ActionButtonWrapper)<{ isOpen: boolean }>`
+const FabButton = styled(ActionButtonWrapper, {
+  shouldForwardProp: (prop) => prop !== 'isOpen',
+})<{ isOpen: boolean }>`
   width: 44px;
   height: 44px;
   display: flex;

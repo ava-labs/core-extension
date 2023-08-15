@@ -154,22 +154,9 @@ export class TransactionsService {
       const maxPriorityFeePerGas = fees?.low.maxTip
         ? BigNumber.from(fees?.low.maxTip)
         : undefined;
-      const suggestedMaxFeePerGas =
-        trxParams.maxFeePerGas ?? trxParams.gasPrice;
-
-      // If dApp suggests maxFeePerGas, but not maxPriorityFeePerGas, we set the tip to 0.
-      const suggestedMaxPriorityFeePerGas = trxParams.maxPriorityFeePerGas
-        ? BigNumber.from(trxParams.maxPriorityFeePerGas)
-        : suggestedMaxFeePerGas
-        ? BigNumber.from(0)
-        : undefined;
       const displayValueProps: DisplayValueParserProps = {
         maxFeePerGas,
         maxPriorityFeePerGas,
-        suggestedMaxFeePerGas: suggestedMaxFeePerGas
-          ? BigNumber.from(suggestedMaxFeePerGas)
-          : undefined,
-        suggestedMaxPriorityFeePerGas,
         erc20Tokens: tokens.filter(
           (t): t is TokenWithBalanceERC20 => t.type === TokenType.ERC20
         ),

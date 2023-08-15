@@ -14,7 +14,7 @@ Even though we only have a single bundle, the frontend has multiple entry points
 
 ## Component library
 
-The UI is using 2 different component libraries. The legacy, styled-components based [react-components](https://github.com/ava-labs/react-components) and the new MUI-based [K2](https://github.com/ava-labs/k2-components) component library.
+The UI is using the [K2](https://github.com/ava-labs/k2-components) component library.
 The UX team and the frontend team have made the decision to align all components and screens to use K2 to ease development and provide consistency across the Core suite.
 
 When you implement designs from Figma, please be mindful of a couple of things:

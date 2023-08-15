@@ -38,7 +38,7 @@ import {
   Tooltip,
 } from '@avalabs/k2-components';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
-import { GasFeeModifier } from '@src/components/common/CustomFeesK2';
+import { GasFeeModifier } from '@src/components/common/CustomFees';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';

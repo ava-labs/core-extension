@@ -6,11 +6,13 @@ import { Dropdown, DropdownItem } from '@src/components/common/Dropdown';
 interface DerivationPathDropdownProps {
   onPathSelected: (path: DerivationPath) => void;
   pathSpec: DerivationPath;
+  isDisabled: boolean;
 }
 
 export function DerivationPathDropdown({
   pathSpec,
   onPathSelected,
+  isDisabled,
 }: DerivationPathDropdownProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -35,9 +37,9 @@ export function DerivationPathDropdown({
           renderValue: () => {
             switch (pathSpec) {
               case DerivationPath.LedgerLive:
-                return <Typography>{t('Ledger Live (Default)')}</Typography>;
+                return <Typography>{t('Ledger Live')}</Typography>;
               case DerivationPath.BIP44:
-                return <Typography>{t('BIP44')}</Typography>;
+                return <Typography>{t('BIP44 (Default)')}</Typography>;
             }
           },
           onChange: (e) => {
@@ -48,26 +50,8 @@ export function DerivationPathDropdown({
           },
         }}
         label={t('Select derivation path')}
+        InputProps={{ disabled: isDisabled }}
       >
-        <DropdownItem
-          value={DerivationPath.LedgerLive}
-          selected={pathSpec === DerivationPath.LedgerLive}
-          data-testid="connect-account-menu-item"
-        >
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <Typography variant="body2">
-              {t('Ledger Live (Default)')}
-            </Typography>
-            {pathSpec === DerivationPath.LedgerLive && <CheckIcon />}
-          </Stack>
-        </DropdownItem>
-
         <DropdownItem
           value={DerivationPath.BIP44}
           selected={pathSpec === DerivationPath.BIP44}
@@ -80,8 +64,25 @@ export function DerivationPathDropdown({
               width: '100%',
             }}
           >
-            <Typography variant="body2">{t('BIP44')}</Typography>
+            <Typography variant="body2">{t('BIP44 (Default)')}</Typography>
             {pathSpec === DerivationPath.BIP44 && <CheckIcon />}
+          </Stack>
+        </DropdownItem>
+
+        <DropdownItem
+          value={DerivationPath.LedgerLive}
+          selected={pathSpec === DerivationPath.LedgerLive}
+          data-testid="connect-account-menu-item"
+        >
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <Typography variant="body2">{t('Ledger Live')}</Typography>
+            {pathSpec === DerivationPath.LedgerLive && <CheckIcon />}
           </Stack>
         </DropdownItem>
       </Dropdown>

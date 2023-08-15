@@ -9,7 +9,6 @@ import { AvalancheGetContactsHandler } from '@src/background/services/contacts/h
 import { AvalancheCreateContactHandler } from '@src/background/services/contacts/handlers/avalanche_createContact';
 import { AvalancheUpdateContactHandler } from '@src/background/services/contacts/handlers/avalanche_updateContact';
 import { AvalancheRemoveContactHandler } from '@src/background/services/contacts/handlers/avalanche_removeContact';
-import { LockStateChangedEvents } from '@src/background/services/lock/events/dAppUnlockStateChangedEvent';
 import { PersonalEcRecoverHandler } from '@src/background/services/messages/handlers/personal_ecRecover';
 import { PersonalSignHandler } from '@src/background/services/messages/handlers/signMessage';
 import { ChainChangedEvents } from '@src/background/services/network/events/chainChangedEvent';
@@ -90,7 +89,6 @@ export class DappRequestHandlerRegistry {}
  */
 @registry([
   { token: 'DAppEventEmitter', useToken: AccountsChangedEvents },
-  { token: 'DAppEventEmitter', useToken: LockStateChangedEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
   { token: 'DAppEventEmitter', useToken: ActionCompletedEvents },
   { token: 'DAppEventEmitter', useToken: TransactionCompletedEvents },

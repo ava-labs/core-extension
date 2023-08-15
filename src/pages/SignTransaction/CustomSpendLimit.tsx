@@ -1,3 +1,5 @@
+import BN from 'bn.js';
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -7,13 +9,12 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-components';
-import BN from 'bn.js';
-import { useState } from 'react';
-import { DomainMetadata } from '@src/background/models';
-import { PageTitle } from '@src/components/common/PageTitle';
-import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 import { Trans, useTranslation } from 'react-i18next';
-import { BNInput } from '@avalabs/react-components';
+
+import { BNInput } from '@src/components/common/BNInput';
+import { PageTitle } from '@src/components/common/PageTitle';
+import { DomainMetadata } from '@src/background/models';
+import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -116,9 +117,10 @@ export function CustomSpendLimit({
             <Box sx={{ pl: 3 }}>
               <BNInput
                 disabled
+                withMaxButton={false}
                 value={requestedApprovalLimit}
                 denomination={token.decimals}
-                width="100%"
+                fullWidth
               />
             </Box>
           </Stack>
@@ -130,6 +132,7 @@ export function CustomSpendLimit({
             />
             <Box sx={{ pl: 3 }}>
               <BNInput
+                withMaxButton={false}
                 onChange={(value) => {
                   setCustomSpendLimit({
                     ...customSpendLimit,
@@ -140,7 +143,7 @@ export function CustomSpendLimit({
                 denomination={token.decimals}
                 placeholder={t('Maximum Limit')}
                 value={customSpendLimit.value?.bn} // TODO: properly handle zero (BNInput sees zero as an empty value)
-                width="100%"
+                fullWidth
               />
             </Box>
           </Stack>

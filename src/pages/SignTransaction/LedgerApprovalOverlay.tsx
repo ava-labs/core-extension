@@ -1,7 +1,10 @@
-import { Overlay, VerticalFlex } from '@avalabs/react-components';
-import { LedgerApprovalDialog } from './LedgerApprovalDialog';
-import { TransactionDisplayValues } from '@src/background/services/transactions/models';
+import { Stack } from '@avalabs/k2-components';
+
+import { Overlay } from '@src/components/common/Overlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { TransactionDisplayValues } from '@src/background/services/transactions/models';
+
+import { LedgerApprovalDialog } from './LedgerApprovalDialog';
 
 interface LedgerApprovalOverlayProps {
   displayData: TransactionDisplayValues;
@@ -17,13 +20,14 @@ export function LedgerApprovalOverlay({
   }
 
   return (
-    <Overlay>
-      <VerticalFlex
-        padding="40px 16px 16px"
-        height={'100%'}
-        width={'100%'}
-        align={'center'}
-        justify="center"
+    <Overlay isBackgroundFilled>
+      <Stack
+        sx={{
+          width: 1,
+          height: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
         <LedgerApprovalDialog
           address={displayData.toAddress}
@@ -32,7 +36,7 @@ export function LedgerApprovalOverlay({
           amount={displayData.amount}
           symbol={displayData.symbol}
         />
-      </VerticalFlex>
+      </Stack>
     </Overlay>
   );
 }

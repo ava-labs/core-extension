@@ -61,7 +61,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
-import { TokenSelect } from '@src/components/common/TokenSelectK2';
+import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
 
 function formatBalance(balance: Big | undefined) {
@@ -351,7 +351,9 @@ export function Bridge() {
 
     setAmount(bigValue);
     sendAmountEnteredAnalytics('Bridge');
-    if (maximum && bigValue && !maximum.gt(bigValue)) {
+
+    // When there is no balance for given token, maximum is undefined
+    if (!maximum || (maximum && bigValue && !maximum.gt(bigValue))) {
       const errorMessage = t('Insufficient balance');
 
       if (errorMessage === bridgeError) {

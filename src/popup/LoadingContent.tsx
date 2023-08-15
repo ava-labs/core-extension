@@ -1,8 +1,8 @@
-import { VerticalFlex } from '@avalabs/react-components';
-import { useAppDimensions } from '@src/hooks/useAppDimensions';
-import styled from 'styled-components';
+import { Stack, styled } from '@avalabs/k2-components';
 
-const LogoContainer = styled.div`
+import { useAppDimensions } from '@src/hooks/useAppDimensions';
+
+const LogoContainer = styled('div')`
   img {
     width: 37px;
     animation: 6s ease-in-out infinite pulse;
@@ -23,17 +23,20 @@ const LogoContainer = styled.div`
 
 export function LoadingContent() {
   const dimensions = useAppDimensions();
+
   return (
-    <VerticalFlex
-      align="center"
-      justify="center"
-      grow="1"
-      height={dimensions.height || '100vh'}
-      width={dimensions.width || '100%'}
+    <Stack
+      sx={{
+        width: dimensions.width || '100%',
+        height: dimensions.height || '100vh',
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <LogoContainer>
         <img src="/images/icon-256.png" />
       </LogoContainer>
-    </VerticalFlex>
+    </Stack>
   );
 }

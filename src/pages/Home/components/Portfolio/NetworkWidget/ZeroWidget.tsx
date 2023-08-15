@@ -1,66 +1,64 @@
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import {
-  BuyIcon,
-  HorizontalFlex,
-  SecondaryButton,
-} from '@avalabs/react-components';
-import styled, { useTheme } from 'styled-components';
 import { useHistory } from 'react-router-dom';
 
 import { ChainId } from '@avalabs/chains-sdk';
-import { StyledQRCodeIcon } from './common/StyledQRCodeIcon';
 import { useTranslation } from 'react-i18next';
-
-const StyledBuyIcon = styled(BuyIcon)`
-  width: 16px;
-  margin: 0 8px 0 0;
-`;
+import { Button, BuyIcon, QRCodeIcon, Stack } from '@avalabs/k2-components';
 
 export function ZeroWidget() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { network } = useNetworkContext();
 
   const history = useHistory();
 
   if (network?.chainId === ChainId.AVALANCHE_MAINNET_ID) {
     return (
-      <HorizontalFlex margin={'24px 0 0 0'} justify={'space-between'}>
-        <SecondaryButton
-          width={'150px'}
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          mt: 2,
+          gap: 1,
+          justifyContent: 'space-between',
+        }}
+      >
+        <Button
+          color="secondary"
+          fullWidth
           onClick={(e) => {
             e.stopPropagation();
             history.push('/buy');
           }}
         >
-          <StyledBuyIcon color={theme.colors.icon1} />
+          <BuyIcon size={16} sx={{ mr: 1 }} />
           {t('Buy')}
-        </SecondaryButton>
-        <SecondaryButton
-          width={'150px'}
+        </Button>
+        <Button
+          color="secondary"
+          fullWidth
           onClick={(e) => {
             e.stopPropagation();
             history.push('/receive');
           }}
         >
-          <StyledQRCodeIcon color={theme.colors.icon1} />
+          <QRCodeIcon size={16} sx={{ mr: 1 }} />
           {t('Receive')}
-        </SecondaryButton>
-      </HorizontalFlex>
+        </Button>
+      </Stack>
     );
   }
   return (
-    <HorizontalFlex margin={'24px 0 0 0'}>
-      <SecondaryButton
-        width="100%"
+    <Stack sx={{ mt: 2, flexDirection: 'row' }}>
+      <Button
+        color="secondary"
+        fullWidth
         onClick={(e) => {
           e.stopPropagation();
           history.push('/receive');
         }}
       >
-        <StyledQRCodeIcon color={theme.colors.icon1} />
+        <QRCodeIcon size={16} sx={{ mr: 1 }} />
         {t('Receive')}
-      </SecondaryButton>
-    </HorizontalFlex>
+      </Button>
+    </Stack>
   );
 }

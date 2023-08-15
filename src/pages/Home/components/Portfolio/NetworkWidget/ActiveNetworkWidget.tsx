@@ -25,13 +25,14 @@ import {
   AlertTriangleIcon,
   Badge,
 } from '@avalabs/k2-components';
-import { TokenIconK2 } from '@src/components/common/TokenImageK2';
+import { TokenIcon } from '@src/components/common/TokenIcon';
 import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { BN } from 'bn.js';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -79,6 +80,9 @@ export function ActiveNetworkWidget({
     }
   };
 
+  const hasNoFunds =
+    assetList.length === 1 && assetList[0]?.balance.eq(new BN(0));
+
   return (
     <>
       <NetworkCard
@@ -113,14 +117,14 @@ export function ActiveNetworkWidget({
                   }
                   color="secondary"
                 >
-                  <TokenIconK2
+                  <TokenIcon
                     width="40px"
                     height="40px"
                     src={network.logoUri}
                     name={network.chainName}
                   >
                     <NetworkLogoK2 height="40px" src={network.logoUri} />
-                  </TokenIconK2>
+                  </TokenIcon>
                 </Badge>
               </LogoContainer>
               <Stack justifyContent="center" sx={{ rowGap: 0.5 }}>
@@ -187,19 +191,16 @@ export function ActiveNetworkWidget({
             </Stack>
           </Stack>
         </Stack>
-        {assetList.length ? (
-          <>
-            <Divider
-              sx={{
-                my: 2,
-                width: 'auto',
-              }}
-            />
-            <Assetlist assetList={assetList} />
-          </>
-        ) : (
-          <ZeroWidget />
-        )}
+        <Divider
+          sx={{
+            my: 2,
+            width: 'auto',
+          }}
+        />
+        <Assetlist assetList={assetList} />
+
+        {hasNoFunds && !isBitcoin(network) ? <ZeroWidget /> : null}
+
         {isBitcoin(network) ? (
           <Button
             data-testid="btc-bridge-button"

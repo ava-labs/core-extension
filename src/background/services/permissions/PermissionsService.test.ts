@@ -98,20 +98,25 @@ describe('background/services/permissions/PermissionsService.ts', () => {
   describe('onLock', () => {
     it('cleans up state after lock', async () => {
       const permissionService = new PermissionsService(storageService);
+      const eventListener = jest.fn();
 
       (storageService.load as jest.Mock).mockResolvedValue({
         ...mockPermissionData,
       });
+      permissionService.addListener(
+        PermissionEvents.PERMISSIONS_STATE_UPDATE,
+        eventListener
+      );
 
       await permissionService.getPermissions();
-
-      const cleanPermissionService = new PermissionsService(storageService);
-
-      expect(permissionService).not.toEqual(cleanPermissionService);
+      expect(permissionService['permissions']).toEqual(mockPermissionData);
 
       permissionService.onLock();
+      expect(permissionService['permissions']).toBeUndefined();
 
-      expect(permissionService).toEqual(cleanPermissionService);
+      expect(eventListener).toHaveBeenCalledTimes(2);
+      expect(eventListener).toHaveBeenNthCalledWith(1, mockPermissionData);
+      expect(eventListener).toHaveBeenNthCalledWith(2, {});
     });
   });
 
