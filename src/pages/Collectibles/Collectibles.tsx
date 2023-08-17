@@ -8,7 +8,7 @@ import {
 } from '@avalabs/k2-components';
 
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { useCallback, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { CollectibleGrid } from './components/CollectibleGrid';
 import { CollectibleList } from './components/CollectibleList';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
@@ -24,27 +24,21 @@ import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { ListType } from '../Home/components/Portfolio/Portfolio';
 
-enum ListType {
-  GRID = 'GRID',
-  LIST = 'LIST',
+interface CollectiblesProps {
+  listType: ListType;
+  setListType: Dispatch<SetStateAction<ListType>>;
 }
 
-export function Collectibles() {
+export function Collectibles({ listType, setListType }: CollectiblesProps) {
   const { t } = useTranslation();
   const { nfts, updateNftBalances } = useBalancesContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
   const setCollectibleParams = useSetCollectibleParams();
-  const { getPageHistoryData, setNavigationHistoryData, isHistoryLoading } =
-    usePageHistory();
+  const { setNavigationHistoryData, isHistoryLoading } = usePageHistory();
 
-  const { listType: historyListType }: { listType?: ListType } =
-    getPageHistoryData();
-
-  const [listType, setListType] = useState<ListType | undefined>(
-    historyListType
-  );
   const [loading, setLoading] = useState(false);
 
   const update = useCallback(() => {
@@ -60,17 +54,6 @@ export function Collectibles() {
       updateNftBalances(nfts.pageTokens, () => setLoading(false));
     }
   }, [loading, updateNftBalances, nfts.pageTokens]);
-
-  useEffect(() => {
-    if (isHistoryLoading) {
-      return;
-    }
-    if (historyListType) {
-      setListType(historyListType);
-      return;
-    }
-    setListType(ListType.GRID);
-  }, [historyListType, isHistoryLoading]);
 
   const handleClick = (type: ListType) => {
     setListType(type);

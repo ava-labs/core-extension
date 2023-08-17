@@ -11,11 +11,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { Redirect } from 'react-router-dom';
 import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
+import { usePageHistory } from '@src/hooks/usePageHistory';
 
 export enum PortfolioTabs {
   ASSETS,
   COLLECTIBLES,
   DEFI,
+}
+
+export enum ListType {
+  GRID = 'GRID',
+  LIST = 'LIST',
 }
 
 const functionIds = {
@@ -30,7 +36,12 @@ export function Portfolio() {
   const { featureFlags } = useFeatureFlagContext();
   const { activeTab, setActiveTab } = usePersistedTabs(PortfolioTabs.ASSETS);
   const { isReady, checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const [listType, setListType] = useState(ListType.GRID);
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
+  const { getPageHistoryData, isHistoryLoading } = usePageHistory();
+
+  const { listType: historyListType }: { listType?: ListType } =
+    getPageHistoryData();
 
   useEffect(() => {
     if (featureFlags[FeatureGates.DEFI]) {
@@ -39,6 +50,17 @@ export function Portfolio() {
       setHadDefiEnabled(true);
     }
   }, [featureFlags]);
+
+  useEffect(() => {
+    if (isHistoryLoading) {
+      return;
+    }
+    if (historyListType) {
+      setListType(historyListType);
+      return;
+    }
+    setListType(ListType.GRID);
+  }, [historyListType, isHistoryLoading, setListType]);
 
   const shouldShow = useCallback(
     (tab) => {
@@ -58,7 +80,7 @@ export function Portfolio() {
   );
 
   const handleChange = useCallback(
-    (event: React.SyntheticEvent, newValue: number) => {
+    (_event: React.SyntheticEvent, newValue: number) => {
       setActiveTab(newValue);
       if (newValue === PortfolioTabs.ASSETS) {
         capture('PortfolioAssetsClicked');
@@ -127,7 +149,7 @@ export function Portfolio() {
             sx={{ height: '100%' }}
           >
             {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
-              <Collectibles />
+              <Collectibles listType={listType} setListType={setListType} />
             ) : (
               isReady && ( // Only redirect when we have all the context needed to decide
                 <Redirect to={'/'} />
