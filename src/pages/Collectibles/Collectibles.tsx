@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   GridIcon,
   ListIcon,
@@ -7,8 +9,6 @@ import {
   Stack,
 } from '@avalabs/k2-components';
 
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { CollectibleGrid } from './components/CollectibleGrid';
 import { CollectibleList } from './components/CollectibleList';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
@@ -19,7 +19,6 @@ import {
   NftTokenWithBalance,
   TokenType,
 } from '@src/background/services/balances/models';
-import { useTranslation } from 'react-i18next';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -125,11 +124,7 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
           <CollectibleListEmpty />
         </Stack>
       )}
-      {nfts.loading && (
-        <Scrollbars>
-          <CollectibleSkeleton />
-        </Scrollbars>
-      )}
+      {nfts.loading && <CollectibleSkeleton />}
       {nfts.error && (
         <Stack
           sx={{
