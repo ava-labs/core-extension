@@ -1,3 +1,4 @@
+import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 
 export const WALLET_CONNECT_STORAGE_KEY = 'wallet-connect-data-store';
@@ -16,7 +17,10 @@ type TaskQueue = Task[];
  * Adapter to our StorageService to be used by WalletConnect libs.
  * It needs to satisfy the required interface:
  * https://github.com/WalletConnect/walletconnect-utils/tree/master/misc/keyvaluestorage#api
+ *
+ * It also needs to be a singleton so that we can ensure sequential writes to chrome.storage.
  */
+@singleton()
 export class WalletConnectStorage {
   #taskQueue: TaskQueue = [];
 

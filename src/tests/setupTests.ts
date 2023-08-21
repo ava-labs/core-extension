@@ -29,4 +29,22 @@ global.chrome = {
       addListener: jest.fn(),
     },
   },
+  i18n: {
+    getMessage(key: string) {
+      switch (key) {
+        case 'appName':
+          return 'Core Test';
+        case 'appDesc':
+          return 'Test way to Connect with Crypto';
+        default:
+          // We'll throw an error here to make sure the new keys are added
+          // within manifest/_locales/**/messages.json files.
+
+          // If you're seeing this error even though you added the key
+          // to the JSON files, please make sure to also mock it in this switch
+          // block here.
+          throw 'Unknown message key used with i18n.getMessage() call.';
+      }
+    },
+  },
 } as any;
