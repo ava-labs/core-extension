@@ -2,7 +2,7 @@ import Big from 'big.js';
 import BN from 'bn.js';
 import { BigNumber } from 'ethers';
 import { ExtensionRequest } from '../connections/extensionConnection/models';
-import { DeserializableValue, deserialize } from './deserialize';
+import { DeserializableValue, deserializeToJSON } from './deserialize';
 import { SerializableValue } from './serialize';
 
 describe('deserialize', () => {
@@ -22,14 +22,19 @@ describe('deserialize', () => {
     [BigInt(bigString), { type: 'BigInt', value: bigString }],
   ];
 
-  // Primatives
+  // Primitives
   serializableValues.forEach(([value, serializedValue]) => {
     it(`updates the result when it's a ${serializedValue.type}`, () => {
-      const request = deserialize({
+      const request = {
         ...requestDefaults,
         params: serializedValue,
-      });
-      expect(request.params).toEqual(value);
+      };
+
+      const deserializedRequestJSON = deserializeToJSON(
+        JSON.stringify(request)
+      );
+
+      expect(deserializedRequestJSON).toEqual({ ...request, params: value });
     });
   });
 
@@ -61,11 +66,20 @@ describe('deserialize', () => {
         number: 1,
         bool: true,
       };
-      const request = deserialize({
+
+      const request = {
         ...requestDefaults,
         params,
+      };
+
+      const deserializedRequestJSON = deserializeToJSON(
+        JSON.stringify(request)
+      );
+
+      expect(deserializedRequestJSON).toEqual({
+        ...request,
+        params: expectedParams,
       });
-      expect(request.params).toEqual(expectedParams);
     });
 
     it(`updates the array when there's a nested ${serializedValue.type}`, () => {
@@ -92,11 +106,20 @@ describe('deserialize', () => {
         1,
         true,
       ];
-      const request = deserialize({
+
+      const request = {
         ...requestDefaults,
         params,
+      };
+
+      const deserializedRequestJSON = deserializeToJSON(
+        JSON.stringify(request)
+      );
+
+      expect(deserializedRequestJSON).toEqual({
+        ...request,
+        params: expectedParams,
       });
-      expect(request.params).toEqual(expectedParams);
     });
   });
 });

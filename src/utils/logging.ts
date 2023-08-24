@@ -33,8 +33,29 @@ export function formatAndLog(
     now(),
     message
   );
-  console.log(value.data ? requestParser(value.data) : value);
+  console.log(value.data ? requestParser(value.data) : responseParser(value));
   console.groupEnd();
+}
+
+export function responseParser(response: ExtensionConnectionMessage) {
+  function setKeyAndValue(key: string) {
+    const value = response[key];
+
+    if (key === 'result' || key === 'value') {
+      try {
+        return value ? JSON.parse(value) : value;
+      } catch {
+        return value;
+      }
+    }
+
+    return value;
+  }
+
+  return Object.keys(response).reduce((acc, key) => {
+    acc[key] = setKeyAndValue(key);
+    return acc;
+  }, {});
 }
 
 export function requestParser(request: ExtensionConnectionMessage) {

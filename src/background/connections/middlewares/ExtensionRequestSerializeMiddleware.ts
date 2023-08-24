@@ -1,4 +1,4 @@
-import { serialize } from '@src/background/serialization/serialize';
+import { serializeFromJSON } from '@src/background/serialization/serialize';
 import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
@@ -15,7 +15,7 @@ export function ExtensionRequestSerializeMiddleware(): Middleware<
       context.response !== DEFERRED_RESPONSE &&
       'result' in context.response
     ) {
-      context.response.result = serialize(context.response.result);
+      context.response.result = serializeFromJSON(context.response.result);
     }
 
     next();

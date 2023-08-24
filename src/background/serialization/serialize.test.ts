@@ -3,7 +3,7 @@ import BN from 'bn.js';
 import { BigNumber } from 'ethers';
 import { ExtensionRequest } from '../connections/extensionConnection/models';
 import { DeserializableValue } from './deserialize';
-import { serialize, SerializableValue } from './serialize';
+import { SerializableValue, serializeFromJSON } from './serialize';
 
 describe('serialize', () => {
   const request = {
@@ -22,14 +22,19 @@ describe('serialize', () => {
     [BigInt(bigString), { type: 'BigInt', value: bigString }],
   ];
 
-  // Primatives
+  // Primitives
   serializableValues.forEach(([value, serializedValue]) => {
     it(`updates the result when it's a ${serializedValue.type}`, () => {
-      const response = serialize({
+      const response = {
         ...request,
         result: value,
-      });
-      expect(response.result).toEqual(serializedValue);
+      };
+
+      const serializedResponseString = serializeFromJSON(response);
+
+      expect(serializedResponseString).toEqual(
+        JSON.stringify({ ...request, result: serializedValue })
+      );
     });
   });
 
@@ -61,11 +66,20 @@ describe('serialize', () => {
         number: 1,
         bool: true,
       };
-      const response = serialize({
+
+      const response = {
         ...request,
         result,
-      });
-      expect(response.result).toEqual(expectedResult);
+      };
+
+      const serializedResponseString = serializeFromJSON(response);
+
+      expect(serializedResponseString).toEqual(
+        JSON.stringify({
+          ...request,
+          result: expectedResult,
+        })
+      );
     });
 
     it(`updates the array when there's a nested ${serializedValue.type}`, () => {
@@ -92,11 +106,20 @@ describe('serialize', () => {
         1,
         true,
       ];
-      const response = serialize({
+
+      const response = {
         ...request,
         result,
-      });
-      expect(response.result).toEqual(expectedResult);
+      };
+
+      const serializedResponseString = serializeFromJSON(response);
+
+      expect(serializedResponseString).toEqual(
+        JSON.stringify({
+          ...request,
+          result: expectedResult,
+        })
+      );
     });
   });
 });
