@@ -51,7 +51,7 @@
     "@ledgerhq/hw-transport-webusb": "6.27.12",
     "@metamask/eth-sig-util": "4.0.1",
     "@noble/hashes": "1.0.0",
-    "@openzeppelin/contracts": "4.9.2",
+    "@openzeppelin/contracts": "4.9.3",
     "@pangolindex/exchange-contracts": "1.0.2",
     "@sentry/browser": "7.17.3",
     "@sentry/tracing": "7.17.3",
