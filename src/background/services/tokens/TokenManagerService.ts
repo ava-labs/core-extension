@@ -18,9 +18,16 @@ export class TokenManagerService {
     private networkService: NetworkService
   ) {}
 
-  async getTokensForNetwork(network: Network): Promise<NetworkContractToken[]> {
+  async getCustomTokensForNetwork(
+    network: Network
+  ): Promise<NetworkContractToken[]> {
     const settings = await this.settingsService.getSettings();
     return Object.values(settings.customTokens[network.chainId] || {}) || [];
+  }
+
+  async getTokensByChainId(chainId: number): Promise<NetworkContractToken[]> {
+    const network = await this.networkService.getNetwork(chainId);
+    return network?.tokens ?? [];
   }
 
   async getTokenData(

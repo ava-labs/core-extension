@@ -161,17 +161,15 @@ export class BalancesServiceGlacier {
       nextPageToken = response.nextPageToken;
     } while (nextPageToken);
 
-    const customTokens = await this.tokensManagerService.getTokensForNetwork(
-      network
-    );
-    const activeTokenList = [...customTokens, ...(network.tokens || [])];
+    const customTokens =
+      await this.tokensManagerService.getCustomTokensForNetwork(network);
     /**
      * Glacier doesnt return tokens without balances so we need to polyfill that list
      * from our own list of tokens. We just set the balance to 0, these zero balance
      * tokens are only used for swap, bridge and tx parsing.
      */
     return [
-      ...this.convertNetworkTokenToTokenWithBalance(activeTokenList),
+      ...this.convertNetworkTokenToTokenWithBalance(customTokens),
       ...tokensWithBalance, // this needs to be second in the list so it overwrites its zero balance counterpart if there is one
     ].reduce((acc, token) => {
       return { ...acc, [token.address.toLowerCase()]: token };
