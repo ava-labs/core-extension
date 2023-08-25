@@ -1,7 +1,12 @@
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { Account, AccountsEvents } from '../accounts/models';
-import { Balances, BalanceServiceEvents, TotalBalance } from './models';
+import {
+  Balances,
+  BalanceServiceEvents,
+  BALANCES_CACHE_KEY,
+  TotalBalance,
+} from './models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
@@ -12,7 +17,6 @@ import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 import { StorageService } from '../storage/StorageService';
 import { CachedBalancesInfo } from './models';
 import { AccountsService } from '../accounts/AccountsService';
-import { keccak256 } from 'ethereumjs-util';
 import { getAccountKey } from '@src/utils/getAccountKey';
 
 @singleton()
@@ -27,26 +31,36 @@ export class BalanceAggregatorService implements OnLock {
     return this.#balances;
   }
 
-  set balances(balances: Balances) {
-    const haveChanged =
-      JSON.stringify(balances) !== JSON.stringify(this.balances);
+  async #setBalances(
+    balances: Balances,
+    changedNetworks?: number[],
+    fromCache = false
+  ) {
+    // prevent slow promise callbacks from mutating the state after lock
+    if (this.lockService.locked && Object.keys(balances).length) {
+      return;
+    }
 
     this.#balances = balances;
+    this.#balancesLastUpdated = Date.now();
 
-    if (haveChanged) {
-      if (!this.lockService.locked) {
-        this.#saveBalancesToCache(balances);
-      }
-      if (!this.lockService.locked && !this.isBalancesCached) {
-        this.#setTotalBalance(balances);
-      }
-      this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
-        balances,
-        isBalancesCached: this.#isBalancesCached,
-        totalBalance: this.#totalBalance,
-      });
-      this.#balancesLastUpdated = Date.now();
+    if (!fromCache && !this.lockService.locked) {
+      await this.updateBalancesValues(balances);
     }
+
+    const changedBalances =
+      (changedNetworks ?? []).length === 0
+        ? balances
+        : (changedNetworks ?? []).reduce((changed, chainId) => {
+            changed[chainId] = balances[chainId];
+            return changed;
+          }, {});
+
+    this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
+      balances: changedBalances,
+      isBalancesCached: this.#isBalancesCached,
+      totalBalance: this.#totalBalance,
+    });
   }
 
   get isBalancesCached() {
@@ -88,7 +102,7 @@ export class BalanceAggregatorService implements OnLock {
             }
 
             if (cachedBalance?.balances) {
-              this.balances = cachedBalance?.balances;
+              this.#setBalances(cachedBalance?.balances, undefined, true);
             }
           });
         }
@@ -97,35 +111,34 @@ export class BalanceAggregatorService implements OnLock {
   }
 
   async updateBalancesValues(balances: Balances) {
-    const loadedNetworks = Object.keys(balances);
+    const networksToUpdate = Object.keys(balances);
 
+    if (!networksToUpdate.length) {
+      return;
+    }
+
+    const activeNetwork = this.networkService.activeNetwork;
     const favoriteNetworks = await this.networkService.getFavoriteNetworks();
+    const cachedNetworks = [
+      ...(activeNetwork?.chainId ? [activeNetwork.chainId] : []),
+      ...favoriteNetworks,
+    ];
 
-    const isLoaded =
-      favoriteNetworks.length === 0 ||
-      favoriteNetworks.some((networkId) =>
-        loadedNetworks.includes(networkId.toString())
-      );
+    const needsCacheOverwrite = cachedNetworks.some((networkId) =>
+      networksToUpdate.includes(networkId.toString())
+    );
 
-    if (isLoaded) {
+    if (needsCacheOverwrite) {
       this.#isBalancesCached = false;
       await this.#setTotalBalance(balances);
     }
   }
 
-  #getAccountCacheKey() {
-    if (!this.accountsService.activeAccount?.addressC) {
-      return null;
-    }
-    return `balances-service-cache-${keccak256(
-      Buffer.from(this.accountsService.activeAccount?.addressC)
-    )}`;
-  }
-
   async updateBalancesForNetworks(
     chainIds: number[],
     accounts: Account[]
-  ): Promise<Balances> {
+  ): Promise<void> {
+    const isFirstUpdateAttempt = this.#isBalancesCached;
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: updateBalancesForNetworks',
     });
@@ -134,64 +147,89 @@ export class BalanceAggregatorService implements OnLock {
       await this.networkService.activeNetworks.promisify()
     ).filter((network) => chainIds.includes(network.chainId));
 
-    const results = await Promise.allSettled(
+    await Promise.allSettled(
       networks.map(async (network) => {
         const balances = await this.balancesService.getBalancesForNetwork(
           network,
           accounts
         );
-        this.balances = {
-          ...this.balances,
-          [network.chainId]: {
-            ...this.balances[network.chainId],
-            ...balances,
-          },
-        };
+
+        if (
+          isFirstUpdateAttempt ||
+          JSON.stringify(this.balances[network.chainId]) !==
+            JSON.stringify({ ...this.balances[network.chainId], ...balances })
+        ) {
+          await this.#setBalances(
+            {
+              ...this.balances,
+              [network.chainId]: {
+                ...this.balances[network.chainId],
+                ...balances,
+              },
+            },
+            [network.chainId]
+          );
+        }
       })
-    ).then(() => {
-      return networks.reduce(
-        (acc, network) => ({
-          ...acc,
-          [network.chainId]: this.balances[network.chainId],
-        }),
-        {}
-      );
-    });
-    if (this.#isBalancesCached) {
-      this.updateBalancesValues(results);
-    }
+    );
+
     sentryTracker.finish();
-    return results;
+  }
+
+  async getBatchedUpdatedBalancesForNetworks(
+    chainIds: number[],
+    accounts: Account[]
+  ): Promise<Balances> {
+    const sentryTracker = Sentry.startTransaction({
+      name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
+    });
+
+    const networks = Object.values(
+      await this.networkService.activeNetworks.promisify()
+    ).filter((network) => chainIds.includes(network.chainId));
+
+    const updatedBalancesList = await Promise.all(
+      networks.map(async (network) => {
+        try {
+          const networkBalances =
+            await this.balancesService.getBalancesForNetwork(network, accounts);
+
+          return {
+            chainId: network.chainId,
+            networkBalances,
+          };
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const updatedBalances = updatedBalancesList.reduce<Balances>(
+      (balances, balanceOfNetwork) => {
+        if (!balanceOfNetwork) {
+          return balances;
+        }
+
+        const { chainId, networkBalances } = balanceOfNetwork;
+        balances[chainId] = { ...balances[chainId], ...networkBalances };
+
+        return balances;
+      },
+      { ...this.balances }
+    );
+
+    await this.#setBalances(updatedBalances, chainIds);
+
+    sentryTracker.finish();
+    return updatedBalances;
   }
 
   async loadBalanceFromCache() {
-    if (this.lockService.locked) {
+    if (this.lockService.locked || !this.accountsService.activeAccount) {
       return;
     }
-    const accountCacheKey = this.#getAccountCacheKey();
 
-    if (!accountCacheKey) {
-      throw new Error('There is no account to get balances');
-    }
-    const balance = await this.storageService.load<CachedBalancesInfo>(
-      accountCacheKey
-    );
-
-    return balance;
-  }
-
-  async #saveBalancesToCache(balances: Balances) {
-    const accountCacheKey = this.#getAccountCacheKey();
-
-    if (!accountCacheKey) {
-      throw new Error('There is no account to save balances');
-    }
-
-    await this.storageService.save<CachedBalancesInfo>(accountCacheKey, {
-      balances,
-      totalBalance: this.#totalBalance,
-      lastUpdated: Date.now(),
-    });
+    return this.storageService.load<CachedBalancesInfo>(BALANCES_CACHE_KEY);
   }
 
   async #setTotalBalance(balances: Balances) {
@@ -212,30 +250,25 @@ export class BalanceAggregatorService implements OnLock {
         balances
       ),
     };
+
     this.#totalBalance = {
       ...this.#totalBalance,
       ...totalBalance,
     };
-    this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
-      balances: this.#balances,
-      isBalancesCached: this.#isBalancesCached,
-      totalBalance,
-    });
-    this.saveTotalBalanceToCache();
+
+    this.#updateCachedBalancesInfo();
   }
 
-  async saveTotalBalanceToCache() {
-    const accountCacheKey = this.#getAccountCacheKey();
-    accountCacheKey &&
-      (await this.storageService.save<CachedBalancesInfo>(accountCacheKey, {
-        balances: this.#balances,
-        totalBalance: this.#totalBalance,
-        lastUpdated: Date.now(),
-      }));
+  async #updateCachedBalancesInfo() {
+    return this.storageService.save<CachedBalancesInfo>(BALANCES_CACHE_KEY, {
+      balances: this.#balances,
+      totalBalance: this.#totalBalance,
+      lastUpdated: Date.now(),
+    });
   }
 
   onLock() {
-    this.balances = {};
+    this.#setBalances({});
     this.#isBalancesCached = true;
     this.#totalBalance = undefined;
   }

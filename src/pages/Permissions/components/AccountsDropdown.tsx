@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CheckIcon,
@@ -50,23 +50,23 @@ export const AccountsDropdown = ({
   const accountBalance = useBalanceTotalInCurrency(selectedAccount, false);
   const hasAccountBalance = accountBalance !== null;
 
-  const getBalance = useCallback(async () => {
+  // Set active account as default
+  useEffect(() => {
+    const getBalance = async () => {
+      setIsBalanceLoading(true);
+      await updateBalanceOnAllNetworks?.(selectedAccount);
+      setIsBalanceLoading(false);
+    };
+
     if (!selectedAccount) {
+      if (activeAccount) {
+        setSelectedAccount(activeAccount);
+      }
       return;
     }
 
-    setIsBalanceLoading(true);
-    await updateBalanceOnAllNetworks?.(selectedAccount);
-    setIsBalanceLoading(false);
-  }, [selectedAccount, updateBalanceOnAllNetworks]);
-
-  // Set active account as default
-  useEffect(() => {
-    if (!selectedAccount && activeAccount) {
-      setSelectedAccount(activeAccount);
-    }
     getBalance();
-  }, [activeAccount, selectedAccount, getBalance]);
+  }, [activeAccount, selectedAccount, updateBalanceOnAllNetworks]);
 
   // Update balance & notify parent component about changes when account is selected
   useEffect(() => {

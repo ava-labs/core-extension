@@ -53,7 +53,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
     }
 
     const balances =
-      await this.networkBalancesService.updateBalancesForNetworks(
+      await this.networkBalancesService.getBatchedUpdatedBalancesForNetworks(
         networksToFetch,
         accountsToFetch
       );
