@@ -165,9 +165,14 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this.activeNetwork?.chainId === chainId;
   }
 
-  onLock(): void {
+  async onLock(): Promise<void> {
+    const allNetworks = await this.allNetworks.promisify();
+    const avalancheNetwork =
+      allNetworks && allNetworks[ChainId.AVALANCHE_MAINNET_ID]
+        ? allNetworks[ChainId.AVALANCHE_MAINNET_ID]
+        : null;
     this._allNetworks.dispatch(undefined);
-    this.activeNetwork = undefined;
+    this.activeNetwork = avalancheNetwork || undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
     this._initChainListResolved.dispatch(false);
@@ -228,6 +233,11 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
 
     this._initChainListResolved.dispatch(true);
+    const avalancheNetwork =
+      (result && result[ChainId.AVALANCHE_MAINNET_ID]) ?? undefined;
+    if (avalancheNetwork) {
+      this.activeNetwork = avalancheNetwork;
+    }
   }
 
   async setChainListOrFallback() {

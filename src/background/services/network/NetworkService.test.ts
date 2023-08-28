@@ -1,4 +1,4 @@
-import { BITCOIN_NETWORK, NetworkVMType } from '@avalabs/chains-sdk';
+import { BITCOIN_NETWORK, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import {
   BlockCypherProvider,
   JsonRpcBatchInternal,
@@ -27,6 +27,28 @@ jest.mock('@avalabs/wallets-sdk', () => {
 
 jest.mock('@src/utils/addGlacierAPIKeyIfNeeded', () => ({
   addGlacierAPIKeyIfNeeded: jest.fn(),
+}));
+
+jest.mock('@avalabs/chains-sdk', () => ({
+  ...jest.requireActual('@avalabs/chains-sdk'),
+  getChainsAndTokens: jest.fn().mockResolvedValue({
+    [43114]: {
+      chainName: 'test chain',
+      chainId: 123,
+      vmName: 'EVM',
+      rpcUrl: 'https://rpcurl.example',
+      networkToken: {
+        name: 'test network token',
+        symbol: 'TNT',
+        description: '',
+        decimals: 18,
+        logoUri: '',
+      },
+      logoUri: '',
+      primaryColor: 'blue',
+      isTestnet: false,
+    },
+  }),
 }));
 
 const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
@@ -85,6 +107,23 @@ describe('background/services/network/NetworkService', () => {
     await networkService2.addFavoriteNetwork(2);
     const favoriteNetworks = await networkService2.getFavoriteNetworks();
     expect(favoriteNetworks).toEqual([2]);
+  });
+
+  it('should set the correct network to be active after lock', async () => {
+    const mockEVMNetwork = mockNetwork(NetworkVMType.EVM, false);
+    networkService2.setChainListOrFallback = jest.fn().mockResolvedValue({
+      promisify: () =>
+        Promise.resolve({
+          [mockEVMNetwork.chainId]: { ...mockEVMNetwork },
+        }),
+    } as any);
+    networkService2.allNetworks.promisify = jest
+      .fn()
+      .mockResolvedValue({ [ChainId.AVALANCHE_MAINNET_ID]: mockEVMNetwork });
+    await networkService2.init();
+    await networkService2.onLock();
+    const activeNetwork = networkService2.activeNetwork;
+    expect(activeNetwork).toEqual(mockEVMNetwork);
   });
 
   describe('getProviderForNetwork', () => {
