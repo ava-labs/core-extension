@@ -40,6 +40,7 @@ export function useTokenFromParams(
         : false
     );
     if (!targetToken && !withDefault) return;
+
     setSelectedToken(targetToken ?? allTokens?.[0]);
   }, [tokenSymbol, tokenAddress, allTokens, activeAccount, withDefault]);
 

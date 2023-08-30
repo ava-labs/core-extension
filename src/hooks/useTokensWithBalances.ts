@@ -12,6 +12,9 @@ import { BN } from 'bn.js';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { merge } from 'lodash';
+
+const bnZero = new BN(0);
 
 export function useTokensWithBalances(
   forceShowTokensWithoutBalances?: boolean,
@@ -52,16 +55,15 @@ export function useTokensWithBalances(
           params: [selectedChainId],
         });
 
-        const zeroBalance = new BN(0);
         const tokensWithPlaceholderBalances = Object.entries(
           networkTokens.tokens
         ).reduce<{
           [address: string]: TokenWithBalance;
         }>((tokensWithBalances, [address, tokenData]) => {
-          tokensWithBalances[address] = {
+          tokensWithBalances[address.toLowerCase()] = {
             ...tokenData,
             type: TokenType.ERC20,
-            balance: zeroBalance,
+            balance: bnZero,
           };
 
           return tokensWithBalances;
@@ -98,17 +100,35 @@ export function useTokensWithBalances(
         ? activeAccount.addressBTC
         : activeAccount.addressC;
 
-    const nonZeroBalances =
-      Object.values(tokens.balances?.[selectedChainId]?.[address] ?? {}) || [];
+    const networkBalances = tokens.balances?.[selectedChainId]?.[address] ?? {};
 
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
-      return [
-        ...Object.values(allTokensWithPlaceholderBalances),
-        ...nonZeroBalances,
-      ];
+      const merged = merge(
+        {},
+        allTokensWithPlaceholderBalances,
+        networkBalances
+      );
+
+      return Object.values(merged);
     }
 
-    return nonZeroBalances;
+    const unfilteredTokens = Object.values(networkBalances);
+
+    if (!unfilteredTokens) {
+      return [];
+    }
+
+    const nativeToken = unfilteredTokens.find(
+      (token) => token.type === TokenType.NATIVE
+    );
+
+    const defaultResult = nativeToken ? [nativeToken] : [];
+
+    const filteredTokens = unfilteredTokens.filter((token) => {
+      return token.balance.gt(bnZero);
+    });
+
+    return filteredTokens.length ? filteredTokens : defaultResult;
   }, [
     selectedChainId,
     activeAccount,

@@ -126,12 +126,13 @@ export function SendPage() {
 
   const onTokenChanged = useCallback(
     (token: TokenWithBalance) => {
-      if (selectedToken?.symbol !== token.symbol)
+      if (selectedToken?.symbol !== token.symbol) {
         setSendDataInParams({
           token,
           address: contactInput?.address,
           options: { replace: true },
         });
+      }
       updateSendState({ token });
       sendTokenSelectedAnalytics('Send');
     },
