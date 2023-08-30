@@ -184,7 +184,10 @@ export const SendConfirm = ({
 
   // Show actual send amount
   const amountDisplayValue = token
-    ? bnToLocaleString(sendState?.amount || new BN(0), token.decimals)
+    ? bnToLocaleString(sendState?.amount || new BN(0), token.decimals).replace(
+        /,/gi,
+        ''
+      )
     : fallbackAmountDisplayValue;
 
   const truncatedAmount = formatTokenAmount(
