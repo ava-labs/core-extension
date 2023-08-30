@@ -52,14 +52,23 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
       };
     }
 
-    const balances =
-      await this.networkBalancesService.getBatchedUpdatedBalancesForNetworks(
-        networksToFetch,
-        accountsToFetch
-      );
-    return {
-      ...request,
-      result: balances,
-    };
+    try {
+      const balances =
+        await this.networkBalancesService.getBatchedUpdatedBalancesForNetworks(
+          networksToFetch,
+          accountsToFetch
+        );
+      return {
+        ...request,
+        result: balances,
+      };
+    } catch (err) {
+      return {
+        ...request,
+        error: `error while fetching balances: ${
+          (err as unknown as Error).message
+        }`,
+      };
+    }
   };
 }
