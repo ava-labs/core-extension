@@ -15,7 +15,7 @@ export function useTokenFromParams(
   const allTokens = useTokensWithBalances(true);
   const [selectedToken, setSelectedToken] = useState<
     TokenWithBalance | undefined
-  >(withDefault ? allTokens?.[0] : undefined);
+  >(undefined);
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -32,16 +32,27 @@ export function useTokenFromParams(
   }, [search]);
 
   useEffect(() => {
-    const targetToken = allTokens?.find((token) =>
-      token.type === TokenType.ERC20
+    let firstNativeToken: TokenWithBalance | undefined;
+
+    /**
+     * Tries to find ERC20 token by its address or a native token by its symbol
+     * Stores the first native token as a possible fallback value
+     */
+    const targetToken = allTokens?.find((token) => {
+      if (!firstNativeToken && token.type === TokenType.NATIVE) {
+        firstNativeToken = token;
+      }
+
+      return token.type === TokenType.ERC20
         ? token.address === tokenAddress
         : token.type === TokenType.NATIVE
         ? token.symbol === tokenSymbol
-        : false
-    );
+        : false;
+    });
+
     if (!targetToken && !withDefault) return;
 
-    setSelectedToken(targetToken ?? allTokens?.[0]);
+    setSelectedToken(targetToken ?? (firstNativeToken || allTokens?.[0]));
   }, [tokenSymbol, tokenAddress, allTokens, activeAccount, withDefault]);
 
   return selectedToken;
