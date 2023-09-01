@@ -5,6 +5,7 @@ import {
   Avalanche,
 } from '@avalabs/wallets-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
+import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
 
@@ -77,7 +78,10 @@ describe('background/services/network/NetworkService', () => {
     save: jest.fn(),
     saveUnencrypted: jest.fn(),
   } as any;
-  const networkService2 = new NetworkService(storageServiceMock);
+  const networkService2 = new NetworkService(
+    storageServiceMock,
+    {} as unknown as LockService
+  );
 
   beforeAll(() => {
     process.env = {
@@ -132,7 +136,10 @@ describe('background/services/network/NetworkService', () => {
     const mockFujiProviderInstance = {};
     const mockMainnetProviderInstance = {};
 
-    const networkService = new NetworkService({} as unknown as StorageService);
+    const networkService = new NetworkService(
+      {} as unknown as StorageService,
+      {} as unknown as LockService
+    );
 
     beforeEach(() => {
       (addGlacierAPIKeyIfNeeded as jest.Mock).mockImplementation((v) => v);

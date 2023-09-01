@@ -13,7 +13,7 @@ export function useApproveAction(actionId: string) {
   const [error] = useState<string>('');
 
   const updateAction = useCallback(
-    (params: ActionUpdate, shouldWaitForResponse?: boolean) => {
+    async (params: ActionUpdate, shouldWaitForResponse?: boolean) => {
       // We need to update the status a bit faster for smoother UX.
       // use function to avoid `action` as a dependency and thus infinite loops
       setAction((prevActionData) => {
@@ -26,20 +26,22 @@ export function useApproveAction(actionId: string) {
         };
       });
 
-      request<UpdateActionHandler>({
+      return request<UpdateActionHandler>({
         method: ExtensionRequest.ACTION_UPDATE,
         params: [params, shouldWaitForResponse],
-      }).then(() => globalThis.close());
+      }).finally(() => globalThis.close());
     },
     [request]
   );
 
-  const cancelHandler = useCallback(() => {
-    updateAction({
-      status: ActionStatus.ERROR_USER_CANCELED,
-      id: actionId,
-    });
-  }, [actionId, updateAction]);
+  const cancelHandler = useCallback(
+    async () =>
+      updateAction({
+        status: ActionStatus.ERROR_USER_CANCELED,
+        id: actionId,
+      }),
+    [actionId, updateAction]
+  );
 
   useEffect(() => {
     request<GetActionHandler>({

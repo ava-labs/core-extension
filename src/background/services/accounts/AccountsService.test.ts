@@ -20,7 +20,7 @@ jest.mock('../lock/LockService');
 jest.mock('../keystone/KeystoneService');
 
 describe('background/services/accounts/AccountsService', () => {
-  const networkService = new NetworkService({} as any);
+  const networkService = new NetworkService({} as any, {} as any);
   const storageService = new StorageService({} as any);
   const ledgerService = new LedgerService();
   const lockService = new LockService({} as any, {} as any);

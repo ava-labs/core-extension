@@ -31,6 +31,7 @@ import {
 } from '@avalabs/wallets-sdk';
 import { resolve } from '@avalabs/utils-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
+import { LockService } from '../lock/LockService';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -53,7 +54,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     .readOnly();
   public activeNetworks = this._allNetworks
     .cache(this._activeNetworksCache)
-    .filter((value) => !!value)
+    .filter((value) => !!value && !this.lockService.locked)
     .map<Promise<ChainList>>(async (chainList) => {
       /**
        * Apply the config overrides for default networks.
@@ -153,7 +154,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._favoriteNetworks;
   }
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private lockService: LockService
+  ) {
     this._initChainList();
   }
 
