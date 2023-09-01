@@ -64,8 +64,9 @@ export class BalancesServiceEVM {
     activeTokenList: {
       [address: string]: NetworkContractToken;
     },
-    tokenPriceDict: {
-      [address: string]: number;
+    coingeckoInfo: {
+      coingeckoPlatformId?: string;
+      coingeckoTokenId?: string;
     },
     userAddress: string
   ): Promise<Record<string, TokenWithBalance>> {
@@ -91,13 +92,26 @@ export class BalancesServiceEVM {
     ).then((res) => {
       return res.reduce<(NetworkContractToken & { balance: BN })[]>(
         (acc, result) => {
-          return result.status === 'fulfilled' ? [...acc, result.value] : acc;
+          return result.status === 'fulfilled' && !result.value.balance.isZero()
+            ? [...acc, result.value]
+            : acc;
         },
         []
       );
     });
 
-    if (!tokensBalances) return {};
+    if (!tokensBalances.length) return {};
+
+    const { coingeckoPlatformId, coingeckoTokenId } = coingeckoInfo;
+    const tokenPriceDict =
+      coingeckoPlatformId && coingeckoTokenId
+        ? await this.tokenPricesService.getTokenPricesByAddresses(
+            tokensBalances,
+            coingeckoPlatformId,
+            coingeckoTokenId
+          )
+        : {};
+
     return tokensBalances.reduce((acc, token) => {
       const priceUSD = tokenPriceDict[token.address.toLowerCase()];
 
@@ -132,24 +146,16 @@ export class BalancesServiceEVM {
     network: Network
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const sentryTracker = Sentry.startTransaction({
-      name: 'BalancesServiceGlacier: getBalances',
+      name: 'BalancesServiceEVM: getBalances',
     });
     const provider = this.networkService.getProviderForNetwork(network, true);
-    const customTokens = await this.tokensManagerService.getTokensForNetwork(
-      network
-    );
+    const customTokens =
+      await this.tokensManagerService.getCustomTokensForNetwork(network);
     const activeTokenList = [...customTokens, ...(network.tokens || [])];
     const coingeckoTokenId = network.pricingProviders?.coingecko.nativeTokenId;
     const coingeckoPlatformId =
       network.pricingProviders?.coingecko.assetPlatformId;
-    const tokenPriceDict =
-      coingeckoPlatformId && coingeckoTokenId
-        ? await this.tokenPricesService.getTokenPricesByAddresses(
-            activeTokenList,
-            coingeckoPlatformId,
-            coingeckoTokenId
-          )
-        : {};
+
     const nativeTokenPrice = coingeckoTokenId
       ? await this.tokenPricesService.getPriceByCoinId(
           coingeckoTokenId,
@@ -173,7 +179,7 @@ export class BalancesServiceEVM {
               (acc, token) => ({ ...acc, [token.address]: token }),
               {}
             ),
-            tokenPriceDict,
+            { coingeckoTokenId, coingeckoPlatformId },
             account.addressC
           );
           return {

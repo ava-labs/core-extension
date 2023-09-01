@@ -6,16 +6,31 @@ import { Collectibles } from '../../../Collectibles/Collectibles';
 import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
 import { useTranslation } from 'react-i18next';
-import { Box, Stack, Tab, TabPanel, Tabs } from '@avalabs/k2-components';
+import {
+  Box,
+  Scrollbars,
+  Stack,
+  Tab,
+  TabPanel,
+  Tabs,
+  styled,
+} from '@avalabs/k2-components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { Redirect } from 'react-router-dom';
 import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+import { FAB } from '@src/components/common/fab/FAB';
 
 export enum PortfolioTabs {
   ASSETS,
   COLLECTIBLES,
   DEFI,
+}
+
+export enum ListType {
+  GRID = 'GRID',
+  LIST = 'LIST',
 }
 
 const functionIds = {
@@ -24,13 +39,31 @@ const functionIds = {
   [PortfolioTabs.DEFI]: 'DEFI',
 };
 
+const FlexScrollbars = styled(Scrollbars)`
+  flex-grow: 1;
+  max-height: unset;
+  height: 100%;
+  width: 100%;
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
 export function Portfolio() {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
   const { activeTab, setActiveTab } = usePersistedTabs(PortfolioTabs.ASSETS);
   const { isReady, checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const [listType, setListType] = useState(ListType.GRID);
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
+  const { getPageHistoryData, isHistoryLoading } = usePageHistory();
+
+  const { listType: historyListType }: { listType?: ListType } =
+    getPageHistoryData();
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
     if (featureFlags[FeatureGates.DEFI]) {
@@ -39,6 +72,17 @@ export function Portfolio() {
       setHadDefiEnabled(true);
     }
   }, [featureFlags]);
+
+  useEffect(() => {
+    if (isHistoryLoading) {
+      return;
+    }
+    if (historyListType) {
+      setListType(historyListType);
+      return;
+    }
+    setListType(ListType.GRID);
+  }, [historyListType, isHistoryLoading, setListType]);
 
   const shouldShow = useCallback(
     (tab) => {
@@ -58,7 +102,7 @@ export function Portfolio() {
   );
 
   const handleChange = useCallback(
-    (event: React.SyntheticEvent, newValue: number) => {
+    (_event: React.SyntheticEvent, newValue: number) => {
       setActiveTab(newValue);
       if (newValue === PortfolioTabs.ASSETS) {
         capture('PortfolioAssetsClicked');
@@ -108,40 +152,46 @@ export function Portfolio() {
   return (
     <Stack>
       <WalletBalances />
+      <FAB isContentScrolling={isScrolling} />
       <Box>
         <Box sx={{ mx: 2, mt: 1, borderBottom: 1, borderColor: 'divider' }}>
           {tabs}
         </Box>
         <Box sx={{ height: 420 }}>
-          <TabPanel
-            value={activeTab}
-            index={PortfolioTabs.ASSETS}
-            sx={{ height: '100%' }}
+          <FlexScrollbars
+            onScrollStart={() => setIsScrolling(true)}
+            onScrollStop={() => setIsScrolling(false)}
           >
-            <NetworksWidget />
-          </TabPanel>
+            <TabPanel
+              value={activeTab}
+              index={PortfolioTabs.ASSETS}
+              sx={{ height: '100%', pb: 3 }}
+            >
+              <NetworksWidget />
+            </TabPanel>
 
-          <TabPanel
-            value={activeTab}
-            index={PortfolioTabs.COLLECTIBLES}
-            sx={{ height: '100%' }}
-          >
-            {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
-              <Collectibles />
-            ) : (
-              isReady && ( // Only redirect when we have all the context needed to decide
-                <Redirect to={'/'} />
-              )
-            )}
-          </TabPanel>
+            <TabPanel
+              value={activeTab}
+              index={PortfolioTabs.COLLECTIBLES}
+              sx={{ height: '100%' }}
+            >
+              {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
+                <Collectibles listType={listType} setListType={setListType} />
+              ) : (
+                isReady && ( // Only redirect when we have all the context needed to decide
+                  <Redirect to={'/'} />
+                )
+              )}
+            </TabPanel>
 
-          <TabPanel
-            value={activeTab}
-            index={PortfolioTabs.DEFI}
-            sx={{ height: '100%' }}
-          >
-            <DeFi />
-          </TabPanel>
+            <TabPanel
+              value={activeTab}
+              index={PortfolioTabs.DEFI}
+              sx={{ height: '100%', pb: 3 }}
+            >
+              <DeFi />
+            </TabPanel>
+          </FlexScrollbars>
         </Box>
       </Box>
     </Stack>

@@ -117,4 +117,6 @@ export enum ExtensionRequest {
   DEFI_GET_PORTFOLIO = 'defi_get_portfolio',
 
   CURRENCIES_GET_EXCHANGE_RATES = 'currencies_get_exchange_rates',
+
+  GET_NETWORK_TOKENS = 'get_network_tokens',
 }

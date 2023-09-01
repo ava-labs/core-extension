@@ -4,6 +4,7 @@ import { Account, AccountType } from '../accounts/models';
 import * as Sentry from '@sentry/browser';
 import {
   BalanceServiceEvents,
+  BALANCES_CACHE_KEY,
   NetworkTokenWithBalance,
   TokenType,
 } from './models';
@@ -13,17 +14,14 @@ import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 import { LockService } from '../lock/LockService';
 import { AccountsService } from '../accounts/AccountsService';
 import { StorageService } from '../storage/StorageService';
-import { keccak256 } from 'ethereumjs-util';
+import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
 jest.mock('../accounts/AccountsService');
 jest.mock('../storage/StorageService');
-jest.mock('ethereumjs-util', () => {
-  return {
-    keccak256: jest.fn(),
-  };
-});
+jest.mock('../../../utils/calculateTotalBalance');
+
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   const balancesServiceMock = {
     getBalancesForNetwork: jest.fn(),
@@ -87,7 +85,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   } as any;
 
   const account1: Account = {
-    id: 'account1 ID',
+    id: 'account1-id',
     name: 'account1 name',
     addressBTC: 'account1 BTC address',
     addressC: 'account1 C address',
@@ -96,7 +94,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   };
 
   const account2: Account = {
-    id: 'account2 ID',
+    id: 'account2-id',
     name: 'account2 name',
     addressBTC: 'account2 BTC address',
     addressC: 'account2 C address',
@@ -212,6 +210,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     (Sentry.startTransaction as jest.Mock).mockReturnValue({
       finish: jest.fn(),
     });
+    (calculateTotalBalance as jest.Mock).mockReturnValue(1);
     cacheServiceMock.loadBalance.mockImplementation(() => Promise.resolve()),
       networkServiceMock.activeNetworks.promisify.mockReturnValue(accounts);
     balancesServiceMock.getBalancesForNetwork.mockImplementation(
@@ -239,6 +238,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         accountsServiceMock
       );
     });
+
     it('calls BalancesService.getBalancesForNetwork() with proper params', async () => {
       await service.updateBalancesForNetworks([network1.chainId], [account1]);
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(1);
@@ -247,6 +247,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         [account1]
       );
     });
+
     describe('when balance is successfully fetched for one network & one account', () => {
       it('updates the balances', async () => {
         await service.updateBalancesForNetworks([network1.chainId], [account1]);
@@ -254,6 +255,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           [network1.chainId]: balanceForNetwork1,
         });
       });
+
       it('emits the BalanceServiceEvents.UPDATED event', async () => {
         const eventListener = jest.fn();
         service.addListener(BalanceServiceEvents.UPDATED, eventListener);
@@ -268,16 +270,53 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       });
     });
 
-    it('should not emit changes if there is no change in balance', async () => {
-      await service.updateBalancesForNetworks([network1.chainId], [account1]);
+    it('should not mutate the state after lock', async () => {
+      jest.useFakeTimers();
+
       const eventListener = jest.fn();
       service.addListener(BalanceServiceEvents.UPDATED, eventListener);
-      await service.updateBalancesForNetworks([network1.chainId], [account1]);
+
+      (
+        balancesServiceMock.getBalancesForNetwork as jest.Mock
+      ).mockReturnValueOnce(
+        new Promise((res) =>
+          setTimeout(() => {
+            res(balanceForNetwork1);
+          }, 500)
+        )
+      );
+
+      const updatePromise = service.updateBalancesForNetworks(
+        [network1.chainId],
+        [account1]
+      );
+
+      service['lockService'].locked = true;
+      jest.advanceTimersByTime(500);
+      await updatePromise;
+
+      expect(service.balances).toEqual({});
+      expect(eventListener).not.toBeCalled();
+
+      service['lockService'].locked = false;
+      jest.useRealTimers();
+    });
+
+    it('should not emit changes if there is no change in balance', async () => {
+      await service.updateBalancesForNetworks([network2.chainId], [account1]);
+
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+
+      await service.updateBalancesForNetworks([network2.chainId], [account1]);
       expect(eventListener).toBeCalledTimes(0);
     });
 
     it('should update the balance when successfully fetch the balance for two network for one account', async () => {
-      const result = await service.updateBalancesForNetworks(
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+
+      await service.updateBalancesForNetworks(
         [network1.chainId, network2.chainId],
         [account1]
       );
@@ -286,65 +325,95 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         [network1.chainId]: balanceForNetwork1,
         [network2.chainId]: balanceForNetwork2,
       };
-      expect(result).toEqual(expected);
       expect(service.balances).toEqual(expected);
+
+      expect(eventListener).toBeCalledTimes(2);
+      expect(eventListener).toHaveBeenNthCalledWith(1, {
+        balances: {
+          [network1.chainId]: balanceForNetwork1,
+        },
+        isBalancesCached: false,
+        totalBalance: {},
+      });
+      expect(eventListener).toHaveBeenNthCalledWith(2, {
+        balances: {
+          [network2.chainId]: balanceForNetwork2,
+        },
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
     });
 
     it('should update the balance for one network and add it to service balances', async () => {
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+
       await service.updateBalancesForNetworks([network1.chainId], [account1]);
-      const result = await service.updateBalancesForNetworks(
-        [network2.chainId],
-        [account1]
-      );
+      await service.updateBalancesForNetworks([network2.chainId], [account1]);
+
       const expected = {
         [network1.chainId]: balanceForNetwork1,
         [network2.chainId]: balanceForNetwork2,
       };
-      expect(result).toEqual({ [network2.chainId]: balanceForNetwork2 });
+
       expect(service.balances).toEqual(expected);
+      expect(eventListener).toBeCalledTimes(2);
+      expect(eventListener).toHaveBeenNthCalledWith(1, {
+        balances: {
+          [network1.chainId]: balanceForNetwork1,
+        },
+        isBalancesCached: true,
+        totalBalance: {}, // network1 is not the active or a favorite network
+      });
+      expect(eventListener).toHaveBeenNthCalledWith(2, {
+        balances: {
+          [network2.chainId]: balanceForNetwork2,
+        },
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
     });
 
     it('should override the old balance when new balance is available', async () => {
-      balancesServiceMock.getBalancesForNetwork
-        .mockReturnValueOnce(Promise.resolve(balanceForNetwork1))
-        .mockResolvedValue(Promise.resolve(updatedBalanceForNetwork1));
-      const result1 = await service.updateBalancesForNetworks(
-        [network1.chainId],
-        [account1]
-      );
-      // Sanity check to make sure that the original balance was set as expected
-      expect(result1).toEqual({ [network1.chainId]: balanceForNetwork1 });
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
 
-      const result2 = await service.updateBalancesForNetworks(
-        [network1.chainId],
-        [account1]
-      );
-      const expected = {
-        [network1.chainId]: updatedBalanceForNetwork1,
-      };
-      expect(result2).toEqual({
+      balancesServiceMock.getBalancesForNetwork
+        .mockResolvedValueOnce(balanceForNetwork1)
+        .mockResolvedValueOnce(updatedBalanceForNetwork1);
+
+      await service.updateBalancesForNetworks([network1.chainId], [account1]);
+      // Sanity check to make sure that the original balance was set as expected
+      expect(service.balances).toEqual({
+        [network1.chainId]: balanceForNetwork1,
+      });
+
+      await service.updateBalancesForNetworks([network1.chainId], [account1]);
+      expect(service.balances).toEqual({
         [network1.chainId]: updatedBalanceForNetwork1,
       });
-      expect(service.balances).toEqual(expected);
+
+      expect(eventListener).toBeCalledTimes(2);
+      expect(eventListener).toHaveBeenNthCalledWith(1, {
+        balances: {
+          [network1.chainId]: balanceForNetwork1,
+        },
+        isBalancesCached: true,
+        totalBalance: {}, // network1 is not the active or a favorite network
+      });
+      expect(eventListener).toHaveBeenNthCalledWith(2, {
+        balances: {
+          [network1.chainId]: updatedBalanceForNetwork1,
+        },
+        isBalancesCached: true,
+        totalBalance: {}, // network1 is not the active or a favorite network
+      });
     });
 
     it('should update the balance for 2 accounts when we fetch for 2', async () => {
-      const result = await service.updateBalancesForNetworks(
-        [network2.chainId],
-        [account1, account2]
-      );
-      const expected = {
-        [network2.chainId]: balanceForTwoAccounts,
-      };
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
 
-      expect(result).toEqual(expected);
-      expect(service.balances).toEqual(expected);
-    });
-
-    it('should update the balance for 1 account value when we only update for 1 and 2 account balances exits', async () => {
-      balancesServiceMock.getBalancesForNetwork
-        .mockReturnValueOnce(Promise.resolve(balanceForTwoAccounts))
-        .mockResolvedValue(Promise.resolve(updatedBalanceForNetwork2));
       await service.updateBalancesForNetworks(
         [network2.chainId],
         [account1, account2]
@@ -354,10 +423,34 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       };
       expect(service.balances).toEqual(expected);
 
-      const result = await service.updateBalancesForNetworks(
+      expect(eventListener).toBeCalledTimes(1);
+      expect(eventListener).toBeCalledWith({
+        balances: {
+          [network2.chainId]: balanceForTwoAccounts,
+        },
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
+    });
+
+    it('should update the balance for 1 account value when we only update for 1 and 2 account balances exits', async () => {
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+
+      balancesServiceMock.getBalancesForNetwork
+        .mockResolvedValueOnce(balanceForTwoAccounts)
+        .mockResolvedValueOnce(updatedBalanceForNetwork2);
+
+      await service.updateBalancesForNetworks(
         [network2.chainId],
-        [account1]
+        [account1, account2]
       );
+      const expected = {
+        [network2.chainId]: balanceForTwoAccounts,
+      };
+      expect(service.balances).toEqual(expected);
+
+      await service.updateBalancesForNetworks([network2.chainId], [account1]);
 
       const expected2 = {
         [network2.chainId]: {
@@ -367,15 +460,31 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           },
         },
       };
-      expect(result).toEqual(expected2);
       expect(service.balances).toEqual(expected2);
+      expect(eventListener).toBeCalledTimes(2);
+      expect(eventListener).toHaveBeenNthCalledWith(1, {
+        balances: {
+          [network2.chainId]: balanceForTwoAccounts,
+        },
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
+      expect(eventListener).toHaveBeenNthCalledWith(2, {
+        balances: expected2,
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
     });
 
     it('should update balance as expected when a new UTXO is added', async () => {
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+
       const updated = { ...bitcoinTokenBalance, utxos: [utxo1, utxo2] };
+
       balancesServiceMock.getBalancesForNetwork
-        .mockReturnValueOnce(Promise.resolve(bitcoinTokenBalance))
-        .mockResolvedValue(Promise.resolve(updated));
+        .mockResolvedValueOnce(bitcoinTokenBalance)
+        .mockResolvedValueOnce(updated);
       await service.updateBalancesForNetworks(
         [network2.chainId],
         [account1, account2]
@@ -386,24 +495,38 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       // Sanity check to make sure that the original balance was set as expected
       expect(service.balances).toEqual(expected);
 
-      const result = await service.updateBalancesForNetworks(
-        [network2.chainId],
-        [account1]
-      );
+      await service.updateBalancesForNetworks([network2.chainId], [account1]);
 
       const expected2 = {
         [network2.chainId]: updated,
       };
-      expect(result).toEqual(expected2);
       expect(service.balances).toEqual(expected2);
+      expect(eventListener).toBeCalledTimes(2);
+      expect(eventListener).toHaveBeenNthCalledWith(1, {
+        balances: {
+          [network2.chainId]: bitcoinTokenBalance,
+        },
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
+      expect(eventListener).toHaveBeenNthCalledWith(2, {
+        balances: {
+          [network2.chainId]: updated,
+        },
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
     });
 
     it('should only update UTXOs when that is the only change', async () => {
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+
       const original = { ...bitcoinTokenBalance, utxos: [utxo1, utxo2] };
       const updated = { ...bitcoinTokenBalance, utxos: [utxo1Updated, utxo2] };
       balancesServiceMock.getBalancesForNetwork
-        .mockReturnValueOnce(Promise.resolve(original))
-        .mockResolvedValue(Promise.resolve(updated));
+        .mockResolvedValueOnce(original)
+        .mockResolvedValueOnce(updated);
       await service.updateBalancesForNetworks(
         [network2.chainId],
         [account1, account2]
@@ -414,30 +537,24 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       // Sanity check to make sure that the original balance was set as expected
       expect(service.balances).toEqual(expected);
 
-      const result = await service.updateBalancesForNetworks(
-        [network2.chainId],
-        [account1]
-      );
+      await service.updateBalancesForNetworks([network2.chainId], [account1]);
 
       const expected2 = {
         [network2.chainId]: updated,
       };
-      expect(result).toEqual(expected2);
       expect(service.balances).toEqual(expected2);
-    });
 
-    it('should emit the BalanceServiceEvents.UPDATED with the right properties when the balances changed', () => {
-      const eventListener = jest.fn();
-      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
-      service.balances = { [network2.chainId]: balanceForNetwork1 };
-
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({
-          balances: expect.any(Object),
-          isBalancesCached: expect.any(Boolean),
-          totalBalance: expect.any(Object),
-        })
-      );
+      expect(eventListener).toBeCalledTimes(2);
+      expect(eventListener).toHaveBeenNthCalledWith(1, {
+        balances: expected,
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
+      expect(eventListener).toHaveBeenNthCalledWith(2, {
+        balances: expected2,
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
+      });
     });
 
     it('should set the balanceCached flag', async () => {
@@ -447,10 +564,13 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(service.isBalancesCached).toBe(false);
     });
 
-    it('should set the balanceCached flag if there are no favorites', async () => {
+    it('should set the balanceCached flag for active network if there are no favorites', async () => {
       service = new BalanceAggregatorService(
         balancesServiceMock,
         {
+          activeNetwork: {
+            chainId: 2,
+          },
           activeNetworks: {
             promisify: jest.fn(),
           },
@@ -467,26 +587,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(service.isBalancesCached).toBe(false);
     });
 
-    it('should emit the event after set the balance cached flag to false', async () => {
-      const balances = { [network2.chainId]: balanceForNetwork1 };
-      const eventListener = jest.fn();
-      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
-      await service.updateBalancesValues(balances);
-      expect(eventListener).toHaveBeenCalledWith({
-        balances: {},
-        isBalancesCached: false,
-        totalBalance: { [account1.addressC]: null },
-      });
-    });
-
     describe('caching', () => {
       it('should load the right cache key from the storage when there is no balance yet', () => {
-        (keccak256 as jest.Mock).mockReturnValue('hash');
         addListenerMock.mock.calls[0][1]();
 
-        expect(storageService.load).toHaveBeenCalledWith(
-          'balances-service-cache-hash'
-        );
+        expect(storageService.load).toHaveBeenCalledWith(BALANCES_CACHE_KEY);
       });
 
       it('should load the data from cache when there is no balance yet', async () => {
@@ -528,6 +633,10 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       });
 
       it('should skip the load from the cache because of there are data in the memory', async () => {
+        balancesServiceMock.getBalancesForNetwork.mockResolvedValueOnce(
+          balanceForNetwork2
+        );
+
         const setBalances = { [network2.chainId]: balanceForNetwork1 };
         const setBalances2 = { [network2.chainId]: balanceForNetwork2 };
         const setTotalBalance = { [account1.addressC]: 2 };
@@ -537,7 +646,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           balances: setBalances,
         });
 
-        service.balances = setBalances2;
+        await service.updateBalancesForNetworks([network2.chainId], [account1]);
 
         addListenerMock.mock.calls[0][1](account1);
 
@@ -548,7 +657,42 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         const totalBalance = service.totalBalance;
 
         expect(balances).toEqual(setBalances2);
-        expect(totalBalance).toEqual({});
+        expect(totalBalance).toEqual({ [account1.addressC]: 1 });
+      });
+    });
+  });
+
+  describe('getBatchedUpdatedBalancesForNetworks', () => {
+    it('gets fetches the balances and emits an update event only once', async () => {
+      const service = new BalanceAggregatorService(
+        balancesServiceMock,
+        networkServiceMock,
+        lockService,
+        storageService,
+        accountsServiceMock
+      );
+
+      const eventListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, eventListener);
+
+      const result = await service.getBatchedUpdatedBalancesForNetworks(
+        [network1.chainId, network2.chainId],
+        [account1, account2]
+      );
+
+      const expected = {
+        [network1.chainId]: balanceForTwoAccounts,
+        [network2.chainId]: balanceForTwoAccounts,
+      };
+
+      expect(result).toEqual(expected);
+      expect(service.balances).toEqual(expected);
+
+      expect(eventListener).toBeCalledTimes(1);
+      expect(eventListener).toBeCalledWith({
+        balances: expected,
+        isBalancesCached: false,
+        totalBalance: { [account1.addressC]: 1 },
       });
     });
   });

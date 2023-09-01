@@ -35,7 +35,10 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockNetworkService = new NetworkService({} as unknown as StorageService);
+    mockNetworkService = new NetworkService(
+      {} as unknown as StorageService,
+      {} as unknown as LockService
+    );
     mockNetworkService['activeNetwork'] = networkMock;
     mockNetworkService.isActiveNetwork = jest.fn();
 

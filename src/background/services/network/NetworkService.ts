@@ -31,6 +31,7 @@ import {
 } from '@avalabs/wallets-sdk';
 import { resolve } from '@avalabs/utils-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
+import { LockService } from '../lock/LockService';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -53,7 +54,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     .readOnly();
   public activeNetworks = this._allNetworks
     .cache(this._activeNetworksCache)
-    .filter((value) => !!value)
+    .filter((value) => !!value && !this.lockService.locked)
     .map<Promise<ChainList>>(async (chainList) => {
       /**
        * Apply the config overrides for default networks.
@@ -153,7 +154,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._favoriteNetworks;
   }
 
-  constructor(private storageService: StorageService) {
+  constructor(
+    private storageService: StorageService,
+    private lockService: LockService
+  ) {
     this._initChainList();
   }
 
@@ -165,9 +169,14 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this.activeNetwork?.chainId === chainId;
   }
 
-  onLock(): void {
+  async onLock(): Promise<void> {
+    const allNetworks = await this.allNetworks.promisify();
+    const avalancheNetwork =
+      allNetworks && allNetworks[ChainId.AVALANCHE_MAINNET_ID]
+        ? allNetworks[ChainId.AVALANCHE_MAINNET_ID]
+        : null;
     this._allNetworks.dispatch(undefined);
-    this.activeNetwork = undefined;
+    this.activeNetwork = avalancheNetwork || undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
     this._initChainListResolved.dispatch(false);
@@ -228,6 +237,11 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
 
     this._initChainListResolved.dispatch(true);
+    const avalancheNetwork =
+      (result && result[ChainId.AVALANCHE_MAINNET_ID]) ?? undefined;
+    if (avalancheNetwork) {
+      this.activeNetwork = avalancheNetwork;
+    }
   }
 
   async setChainListOrFallback() {

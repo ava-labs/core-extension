@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef } from 'react';
-import { Scrollbars } from '../scrollbars/Scrollbars';
 import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
 
 export interface InfiniteScrollProps {
@@ -52,7 +51,7 @@ export function InfiniteScroll({
   }, [loadMoreHandler]);
 
   return (
-    <Scrollbars>
+    <>
       {children}
       {loading && (
         <Stack sx={{ pb: 2, width: 1, alignItems: 'center' }}>
@@ -61,6 +60,6 @@ export function InfiniteScroll({
       )}
       {error && <Typography variant="body1">{t('Error!')}</Typography>}
       <Stack sx={{ pb: 9 }} ref={loader} />
-    </Scrollbars>
+    </>
   );
 }

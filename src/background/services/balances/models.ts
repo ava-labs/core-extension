@@ -2,6 +2,8 @@ import { NetworkContractToken, NetworkToken } from '@avalabs/chains-sdk';
 import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
 import BN from 'bn.js';
 
+export const BALANCES_CACHE_KEY = 'balances-service-cache';
+
 export enum BalanceServiceEvents {
   UPDATED = 'BalanceServiceEvents:updated',
 }

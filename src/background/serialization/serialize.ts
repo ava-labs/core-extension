@@ -1,7 +1,6 @@
 import Big from 'big.js';
 import BN from 'bn.js';
 import { BigNumber } from 'ethers';
-import { cloneDeep } from 'lodash';
 import { DeserializableValue } from './deserialize';
 
 export type SerializableValue = Big | BigNumber | bigint | BN;
@@ -9,21 +8,21 @@ export type SerializableValue = Big | BigNumber | bigint | BN;
 /**
  * Prepare data for JSON serialization by converting complex numbers like `Big`,
  * `BN`, etc. into a format that can be auto-deserialized with
- * `deserialize`.
+ * `deserializeToJSON`.
  *
  * For example, `new BN(100_000_000_000)` is converted to
  * `{ type: 'BN', value: '100_000_000_000' }`
  */
-export function serialize<T>(value: T): T {
-  if (!value) return value;
-  value = cloneDeep(value);
+export function serializeFromJSON<T>(value: T): string {
+  return JSON.stringify(value, function (key, stringifiedElement) {
+    const element = this[key];
 
-  if (isSerializable(value)) {
-    return serializeValue(value) as any;
-  }
+    if (isSerializable(element)) {
+      return serializeValue(element);
+    }
 
-  serializeObject(value);
-  return value;
+    return stringifiedElement;
+  });
 }
 
 function serializeValue(value: SerializableValue): DeserializableValue {
@@ -37,35 +36,6 @@ function serializeValue(value: SerializableValue): DeserializableValue {
     return { type: 'BigInt', value: value.toString() };
   } else {
     throw new Error('unhandled serialization');
-  }
-}
-
-// Mutates the object/array for performance
-function serializeObject(obj: unknown): void {
-  if (obj === null) return;
-
-  if (Array.isArray(obj)) {
-    for (let i = 0; i < obj.length; i++) {
-      const item = obj[i];
-      if (isSerializable(item)) {
-        // change in place
-        obj[i] = serializeValue(item);
-      } else if (typeof item === 'object') {
-        // or mutate the object/array
-        serializeObject(item);
-      }
-    }
-  } else if (typeof obj === 'object') {
-    for (const k of Object.keys(obj)) {
-      const item = obj[k];
-      if (isSerializable(item)) {
-        // change in place
-        obj[k] = serializeValue(item);
-      } else if (typeof item === 'object') {
-        // or mutate the object/array
-        serializeObject(item);
-      }
-    }
   }
 }
 

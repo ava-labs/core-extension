@@ -20,7 +20,10 @@ if (process.env.SENTRY_DSN) {
       new Sentry.Integrations.Breadcrumbs({ dom: false, history: false }),
       new Integrations.Express(),
     ],
-    ignoreErrors: [/^AbortError: The user aborted a request.$/], // ignore errors caused by chrome's throttling
+    ignoreErrors: [
+      /^AbortError: The user aborted a request.$/, // ignore errors caused by chrome's throttling
+      /^Error: could not detect network \(event="noNetwork", code=NETWORK_ERROR, version=providers.+\)$/, // ignore ethers provider connection errors
+    ],
   });
 }
 addExtensionMethods();

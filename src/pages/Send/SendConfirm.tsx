@@ -36,7 +36,8 @@ import {
   bnToBig,
   bnToLocaleString,
 } from '@avalabs/utils-sdk';
-import { satoshiToBtc } from '@avalabs/bridge-sdk';
+import Big from 'big.js';
+import { formatTokenAmount, satoshiToBtc } from '@avalabs/bridge-sdk';
 import { useTranslation } from 'react-i18next';
 import { TruncatedAddress } from './components/TruncatedAddress';
 
@@ -88,6 +89,8 @@ const SectionRow: React.FC<StackProps> = ({ sx = {}, ...props }) => (
       flexDirection: 'row',
       justifyContent: 'space-between',
       width: '100%',
+      gap: 1,
+      alignItems: 'baseline',
       ...sx,
     }}
     {...props}
@@ -119,7 +122,7 @@ const TokenAmount: React.FC<TokenAmountProps & StackProps> = ({
         flexDirection: 'row',
         gap: 0.5,
         justifyContent: 'flex-end',
-        alignItems: 'flex-end',
+        alignItems: 'center',
       }}
     >
       <Typography variant="h5" component="span" color="text.primary">
@@ -181,9 +184,16 @@ export const SendConfirm = ({
 
   // Show actual send amount
   const amountDisplayValue = token
-    ? bnToLocaleString(sendState?.amount || new BN(0), token.decimals)
+    ? bnToLocaleString(sendState?.amount || new BN(0), token.decimals).replace(
+        /,/gi,
+        ''
+      )
     : fallbackAmountDisplayValue;
 
+  const truncatedAmount = formatTokenAmount(
+    new Big(amountDisplayValue ?? '0'),
+    6
+  );
   const amountInCurrency = currencyFormatter(
     Number(amount || 0) * (token?.priceUSD ?? 0)
   );
@@ -270,7 +280,7 @@ export const SendConfirm = ({
             <SectionLabel>{t('Sending')}</SectionLabel>
             <TokenAmount
               data-testid="token-send-amount"
-              amount={amountDisplayValue}
+              amount={truncatedAmount}
               symbol={token?.symbol}
               fiatValue={
                 typeof token?.priceUSD !== 'undefined' ? amountInCurrency : ''
@@ -331,7 +341,7 @@ export const SendConfirm = ({
           </SectionRow>
         </Section>
 
-        <SectionRow sx={{ pt: 0.5 }}>
+        <SectionRow sx={{ pt: 0.5, alignItems: 'center' }}>
           <SectionLabel variant="caption">
             {t('Balance after transaction')}
           </SectionLabel>

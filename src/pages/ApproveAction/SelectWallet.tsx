@@ -13,15 +13,12 @@ export function SelectWallet() {
   const { action: request, updateAction } = useApproveAction(requestId);
 
   const selectWallet = useCallback(
-    (index: number | string) => {
+    async (index: number | string) =>
       updateAction({
         status: ActionStatus.SUBMITTING,
         id: requestId,
         result: index,
-      });
-
-      window.close();
-    },
+      }),
     [requestId, updateAction]
   );
 

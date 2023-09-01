@@ -154,6 +154,8 @@ export const CORE_DOMAINS = [
   'core.app',
   'test.core.app',
   'ava-labs.github.io', // playground
+  'avacloud.io',
+  'avacloud-app.pages.dev',
 ];
 
 export interface ConnectionController {

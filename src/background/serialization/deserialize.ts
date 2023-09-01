@@ -1,7 +1,6 @@
 import Big from 'big.js';
 import BN from 'bn.js';
 import { BigNumber } from 'ethers';
-import { cloneDeep } from 'lodash';
 import { SerializableValue } from './serialize';
 
 export type DeserializableValue = {
@@ -11,21 +10,23 @@ export type DeserializableValue = {
 
 /**
  * Deserialize complex numbers like `Big`, `BN`, etc. back to their original
- * form after they were serialized with `serialize`.
+ * form after they were serialized with `serializeFromJSON`.
  *
  * For example, `{ type: 'BN', value: '100_000_000_000' }` is converted to
  * `new BN(100_000_000_000)`
  */
-export function deserialize<T>(value: T): T {
-  if (!value) return value;
-  value = cloneDeep(value);
-
-  if (isDeserializable(value)) {
-    return deserializeValue(value) as any;
+export function deserializeToJSON<T>(value?: string): T | undefined {
+  if (value === undefined) {
+    return value;
   }
 
-  deserializeObject(value);
-  return value;
+  return JSON.parse(value, function (_, element) {
+    if (isDeserializable(element)) {
+      return deserializeValue(element);
+    }
+
+    return element;
+  });
 }
 
 function deserializeValue({
@@ -43,35 +44,6 @@ function deserializeValue({
       return BigInt(value);
     default:
       throw new Error('unhandled serialization');
-  }
-}
-
-// Mutates the object/array for performance
-function deserializeObject(obj: unknown): void {
-  if (obj === null) return;
-
-  if (Array.isArray(obj)) {
-    for (let i = 0; i < obj.length; i++) {
-      const item = obj[i];
-      if (isDeserializable(item)) {
-        // change in place
-        obj[i] = deserializeValue(item);
-      } else if (typeof item === 'object') {
-        // or mutate the object/array
-        deserializeObject(item);
-      }
-    }
-  } else if (typeof obj === 'object') {
-    for (const k of Object.keys(obj)) {
-      const item = obj[k];
-      if (isDeserializable(item)) {
-        // change in place
-        obj[k] = deserializeValue(item);
-      } else if (typeof item === 'object') {
-        // or mutate the object/array
-        deserializeObject(item);
-      }
-    }
   }
 }
 

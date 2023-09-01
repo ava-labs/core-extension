@@ -1,10 +1,10 @@
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import { Stack } from '@avalabs/k2-components';
 
+import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import Scrollbars from 'react-custom-scrollbars-2';
+
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
-import { Stack } from '@avalabs/k2-components';
 
 export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
   if (!tokenList) {
@@ -30,14 +30,12 @@ export function NetworksWidget() {
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
 
   return (
-    <Scrollbars>
-      <Stack sx={{ m: 2 }}>
-        <ActiveNetworkWidget
-          assetList={activeNetworkAssetList}
-          activeNetworkBalance={activeNetworkBalance}
-        />
-        <NetworkList />
-      </Stack>
-    </Scrollbars>
+    <Stack sx={{ m: 2 }}>
+      <ActiveNetworkWidget
+        assetList={activeNetworkAssetList}
+        activeNetworkBalance={activeNetworkBalance}
+      />
+      <NetworkList />
+    </Stack>
   );
 }

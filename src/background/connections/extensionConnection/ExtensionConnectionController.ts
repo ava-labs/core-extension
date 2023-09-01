@@ -22,7 +22,7 @@ import { isDevelopment } from '@src/utils/environment';
 import './registry';
 import { ExtensionRequestDeserializeMiddleware } from '../middlewares/ExtensionRequestDeserializeMiddleware';
 import { ExtensionRequestSerializeMiddleware } from '../middlewares/ExtensionRequestSerializeMiddleware';
-import { serialize } from '@src/background/serialization/serialize';
+import { serializeFromJSON } from '@src/background/serialization/serialize';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
@@ -114,7 +114,7 @@ export class ExtensionConnectionController implements ConnectionController {
       eventLog(`extension event (${evt.name})`, evt);
     }
     try {
-      evt.value = serialize(evt.value);
+      evt.value = serializeFromJSON(evt.value);
       this.connection?.postMessage(evt);
     } catch (e) {
       console.error(e);

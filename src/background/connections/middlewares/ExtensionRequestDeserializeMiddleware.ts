@@ -1,4 +1,4 @@
-import { deserialize } from '@src/background/serialization/deserialize';
+import { deserializeToJSON } from '@src/background/serialization/deserialize';
 import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
@@ -10,7 +10,7 @@ export function ExtensionRequestDeserializeMiddleware(): Middleware<
   ExtensionConnectionMessageResponse<any, any>
 > {
   return async (context, next) => {
-    context.request.params = deserialize(context.request.params);
+    context.request.params = deserializeToJSON(context.request.params);
     next();
   };
 }
