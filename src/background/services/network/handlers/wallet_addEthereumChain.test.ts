@@ -183,6 +183,86 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
   });
 
+  it('should throw an error because of the missing name of the network', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          nativeCurrency: { symbol: 'AVAX', name: 'Avalanche', decimals: 18 },
+        },
+      ],
+    };
+    const result = await handler.handleUnauthenticated(request);
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams({
+        message: 'Network Name is required',
+      }),
+    });
+  });
+
+  it('should throw an error because of the missing name of the network token', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          nativeCurrency: { symbol: 'AVAX', decimals: 18 },
+        },
+      ],
+    };
+    const result = await handler.handleUnauthenticated(request);
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams({
+        message: 'Network Token Name is required',
+      }),
+    });
+  });
+
+  it('should throw an error because of the missing symbol of the network token', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          nativeCurrency: { name: 'Avalanche', decimals: 18 },
+        },
+      ],
+    };
+    const result = await handler.handleUnauthenticated(request);
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams({
+        message: 'Network Token Symbol is required',
+      }),
+    });
+  });
+
   it('returns error when rpc url is not valid', async () => {
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(false);
 
