@@ -54,7 +54,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     .readOnly();
   public activeNetworks = this._allNetworks
     .cache(this._activeNetworksCache)
-    .filter((value) => !!value && !this.lockService.locked)
+    .filter((value) => !!value)
     .map<Promise<ChainList>>(async (chainList) => {
       /**
        * Apply the config overrides for default networks.
