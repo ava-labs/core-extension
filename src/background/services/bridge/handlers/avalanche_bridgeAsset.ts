@@ -20,6 +20,7 @@ import { BalanceAggregatorService } from '../../balances/BalanceAggregatorServic
 import { ChainId } from '@avalabs/chains-sdk';
 import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
 import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
+import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
 
 // this is used for core web
 @injectable()
@@ -87,7 +88,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
     const sourceNetwork = blockchainToNetwork(
       currentBlockchain,
       networks,
-      this.bridgeService.bridgeConfig
+      this.bridgeService.bridgeConfig,
+      this.networkService.activeNetwork?.isTestnet
     );
 
     const wrappedNetwork = isNativeAsset(asset)
@@ -106,7 +108,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
           ? ((wrappedNetwork ?? '') as Blockchain)
           : asset.nativeNetwork,
         networks,
-        this.bridgeService.bridgeConfig
+        this.bridgeService.bridgeConfig,
+        this.networkService.activeNetwork?.isTestnet
       );
 
     // refresh balances so we have the correct balance information for the asset
@@ -125,7 +128,9 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
         asset.nativeNetwork,
         Object.values(
           this.balanceAggregatorService.balances?.[sourceNetwork.chainId]?.[
-            this.accountsService.activeAccount.addressC
+            isBitcoinNetwork(sourceNetwork)
+              ? this.accountsService.activeAccount.addressBTC
+              : this.accountsService.activeAccount.addressC
           ] ?? {}
         )
       );
