@@ -49,6 +49,7 @@ describe('background/services/actions/ActionsService.ts', () => {
     displayData: {},
     method: 'handler_with_callback',
     jsonrpc: '2.0',
+    actionId: 'uuid',
   };
 
   beforeEach(() => {
@@ -207,7 +208,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       expect(storageService.save).toHaveBeenCalledTimes(1);
       expect(storageService.save).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY, {
         1: mockAction,
-        2: expectedResult,
+        uuid: expectedResult,
       });
     });
   });

@@ -77,10 +77,7 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
       tabId: request.site.tabId,
     };
 
-    await this.openApprovalWindow(
-      actionData,
-      `approve/watch-asset?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `approve/watch-asset`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

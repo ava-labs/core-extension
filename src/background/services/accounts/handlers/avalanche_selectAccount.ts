@@ -45,7 +45,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
       tabId: request.site.tabId,
       selectedAccount,
     };
-    await this.openApprovalWindow(actionData, `switchAccount?id=${request.id}`);
+    await this.openApprovalWindow(actionData, `switchAccount`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

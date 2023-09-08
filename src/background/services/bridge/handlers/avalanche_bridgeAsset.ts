@@ -143,7 +143,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
       tabId: request.site.tabId,
     };
 
-    await this.openApprovalWindow(action, `approve?id=${request.id}`);
+    await this.openApprovalWindow(action, `approve`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

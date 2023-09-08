@@ -100,7 +100,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
         tabId: request.site.tabId,
       };
 
-      this.openApprovalWindow(actionData, `sign?id=${request.id}`);
+      this.openApprovalWindow(actionData, `sign`);
 
       return { ...request, result: DEFERRED_RESPONSE };
     } catch (err) {

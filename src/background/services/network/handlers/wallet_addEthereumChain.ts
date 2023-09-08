@@ -105,10 +105,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         tabId: request.site?.tabId,
       };
 
-      await this.openApprovalWindow(
-        actionData,
-        `network/switch?id=${request.id}`
-      );
+      await this.openApprovalWindow(actionData, `network/switch`);
 
       return { ...request, result: DEFERRED_RESPONSE };
     }
@@ -131,10 +128,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       displayData: customNetwork,
       tabId: request.site?.tabId,
     };
-    await this.openApprovalWindow(
-      actionData,
-      `networks/add-popup?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `networks/add-popup`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

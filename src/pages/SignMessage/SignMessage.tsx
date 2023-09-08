@@ -89,7 +89,7 @@ export function SignMessage() {
           onClick={() => {
             updateMessage({
               status: ActionStatus.ERROR_USER_CANCELED,
-              id: action?.id,
+              id: action?.actionId,
             });
             window.close();
           }}
@@ -285,7 +285,7 @@ export function SignMessage() {
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.ERROR_USER_CANCELED,
-                  id: action.id,
+                  id: action.actionId,
                 });
                 window.close();
               }}
@@ -299,7 +299,7 @@ export function SignMessage() {
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.SUBMITTING,
-                  id: action.id,
+                  id: action.actionId,
                 });
               }}
               fullWidth

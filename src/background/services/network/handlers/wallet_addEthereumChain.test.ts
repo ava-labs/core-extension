@@ -55,6 +55,8 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     } as any;
     handler = new WalletAddEthereumChainHandler(mockNetworkService);
     (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
+
+    (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
   });
 
   it('returns null when already on the same network', async () => {
@@ -98,12 +100,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
     expect(openExtensionNewWindow).toHaveBeenCalledWith(
-      'network/switch?id=1234',
-      ''
+      'network/switch?actionId=uuid'
     );
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
+      id: 1234,
+      actionId: 'uuid',
       displayData: {
         chainId: 43113,
         chainName: 'Avalanche',
@@ -322,12 +325,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
     expect(openExtensionNewWindow).toHaveBeenCalledWith(
-      'networks/add-popup?id=1234',
-      ''
+      'networks/add-popup?actionId=uuid'
     );
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
+      id: 1234,
+      actionId: 'uuid',
       displayData: {
         chainId: 43112,
         chainName: 'Avalanche',
@@ -373,12 +377,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
     expect(openExtensionNewWindow).toHaveBeenCalledWith(
-      'networks/add-popup?id=1234',
-      ''
+      'networks/add-popup?actionId=uuid'
     );
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
+      id: 1234,
+      actionId: 'uuid',
       displayData: {
         chainId: 43112,
         chainName: 'Avalanche',
@@ -402,7 +407,8 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   describe('onActionApproved', () => {
     const mockPendingAction: Action = {
-      id: '1234',
+      id: 'uuid',
+      actionId: 'uuid',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {

@@ -229,7 +229,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             vm: 'AVM',
           },
         },
-        'approve/avalancheSignTx?id=123'
+        'approve/avalancheSignTx'
       );
 
       expect(result).toEqual({
@@ -277,7 +277,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             vm: 'EVM',
           },
         },
-        'approve/avalancheSignTx?id=123'
+        'approve/avalancheSignTx'
       );
 
       expect(result).toEqual({

@@ -212,7 +212,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
             },
             tabId: request.site.tabId,
           },
-          `sign?id=${request.id}`
+          `sign`
         );
       }
     });
@@ -285,7 +285,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
             },
             tabId: request.site.tabId,
           },
-          `sign?id=${request.id}`
+          `sign`
         );
       }
     });
@@ -325,7 +325,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           },
           tabId: request.site.tabId,
         },
-        `sign?id=${request.id}`
+        `sign`
       );
     });
   });

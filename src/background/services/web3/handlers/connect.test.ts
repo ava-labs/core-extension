@@ -99,6 +99,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
       expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
         ...mockRequest,
+        actionId: '00000000-0000-0000-0000-000000000000',
         displayData: {
           domainIcon: 'icon.svg',
           domainName: 'Example dapp',
@@ -110,8 +111,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
       expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
       expect(openExtensionNewWindow).toHaveBeenCalledWith(
-        `permissions?id=1235`,
-        ''
+        `permissions?actionId=00000000-0000-0000-0000-000000000000`
       );
     });
   });
@@ -137,6 +137,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       jsonrpc: '2.0',
       displayData: {},
       time: 12312312,
+      actionId: 'uuid',
     };
 
     beforeEach(() => {

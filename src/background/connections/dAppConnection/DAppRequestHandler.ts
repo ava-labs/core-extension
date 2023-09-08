@@ -41,14 +41,20 @@ export abstract class DAppRequestHandler<
    */
   async openApprovalWindow(action: Action, url: string) {
     // using direct injection instead of the constructor to prevent circular dependencies
+
+    const actionId = crypto.randomUUID();
+
     const actionsService = container.resolve(ActionsService);
 
     // By having this extension window render here, we are popping the extension window before we send the completed request
     // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
-    const windowData = await openExtensionNewWindow(url, '');
+    const windowData = await openExtensionNewWindow(
+      `${url}?actionId=${actionId}`
+    );
 
     await actionsService.addAction({
       ...action,
+      actionId,
       popupWindowId: windowData.id,
     });
   }

@@ -84,7 +84,7 @@ export function BitcoinSignTx() {
     if (action) {
       updateAction({
         status: ActionStatus.ERROR_USER_CANCELED,
-        id: action.id,
+        id: action.actionId,
       });
     }
     window.close();

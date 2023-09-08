@@ -419,7 +419,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             vm: 'AVM',
           },
         },
-        'approve/avalancheSignTx?id=123'
+        'approve/avalancheSignTx'
       );
     });
 
@@ -538,7 +538,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             vm: 'AVM',
           },
         },
-        'approve/avalancheSignTx?id=123'
+        'approve/avalancheSignTx'
       );
     });
   });

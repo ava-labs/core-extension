@@ -38,10 +38,7 @@ export class AvalancheUpdateContactHandler extends DAppRequestHandler {
         contact,
       },
     };
-    await this.openApprovalWindow(
-      actionData,
-      `approve/updateContact?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `approve/updateContact`);
     return { ...request, result: DEFERRED_RESPONSE };
   };
 

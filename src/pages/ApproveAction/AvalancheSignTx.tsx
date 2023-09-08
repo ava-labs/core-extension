@@ -61,10 +61,10 @@ export function AvalancheSignTx() {
   const rejectTx = useCallback(() => {
     updateAction({
       status: ActionStatus.ERROR_USER_CANCELED,
-      id: action?.id,
+      id: action?.actionId,
     });
     window.close();
-  }, [action?.id, updateAction]);
+  }, [action?.actionId, updateAction]);
 
   const renderLedgerApproval = useCallback(
     ({ status, displayData }: Action) => {

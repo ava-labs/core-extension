@@ -247,7 +247,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
             },
           },
         },
-        'approve/bitcoinSignTx?id=123'
+        'approve/bitcoinSignTx'
       );
 
       expect(result).toEqual({

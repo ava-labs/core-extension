@@ -82,7 +82,7 @@ export class ActionsService implements OnStorageReady {
 
     this.saveActions({
       ...currentPendingActions,
-      [`${action.id}`]: pendingAction,
+      [`${action.actionId}`]: pendingAction,
     });
 
     return pendingAction;
