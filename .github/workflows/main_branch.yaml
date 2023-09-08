@@ -38,6 +38,14 @@ jobs:
         run: yarn test
       - name: Build library
         run: yarn build:alpha
+      - name: Setup sentry-cli
+        run: |
+          curl -sL https://sentry.io/get-cli/ | bash
+          echo [auth] >> .sentryclirc
+          echo token=${{ secrets.SENTRY_AUTH_TOKEN }} >> .sentryclirc
+          echo [defaults] >> .sentryclirc
+          echo org=${{ secrets.SENTRY_ORG }} >> .sentryclirc
+          echo project=${{ secrets.SENTRY_PROJECT }} >> .sentryclirc
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

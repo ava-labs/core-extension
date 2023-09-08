@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/browser';
-import { addExtensionMethods, Integrations } from '@sentry/tracing';
 import browser from 'webextension-polyfill';
 
 if (process.env.SENTRY_DSN) {
@@ -18,7 +17,6 @@ if (process.env.SENTRY_DSN) {
        * done in the sentry options beforeBreadcrumbs function.
        */
       new Sentry.Integrations.Breadcrumbs({ dom: false, history: false }),
-      new Integrations.Express(),
     ],
     ignoreErrors: [
       /^AbortError: The user aborted a request.$/, // ignore errors caused by chrome's throttling
@@ -26,4 +24,5 @@ if (process.env.SENTRY_DSN) {
     ],
   });
 }
-addExtensionMethods();
+
+Sentry.addTracingExtensions();
