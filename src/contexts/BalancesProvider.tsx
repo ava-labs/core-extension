@@ -111,7 +111,7 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { network, networks } = useNetworkContext();
+  const { network } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -242,11 +242,13 @@ export function BalancesProvider({ children }: { children: any }) {
 
   const updateBalanceOnAllNetworks = useCallback(
     async (account: Account) => {
-      const networkIds = networks.map(({ chainId }) => chainId);
+      if (!network) {
+        return;
+      }
 
       const balances = await request<UpdateBalancesForNetworkHandler>({
         method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-        params: [[account], networkIds],
+        params: [[account]],
       });
 
       dispatch({
@@ -254,7 +256,7 @@ export function BalancesProvider({ children }: { children: any }) {
         payload: { balances, isBalancesCached: false },
       });
     },
-    [request, networks]
+    [network, request]
   );
 
   const getTotalBalance = useCallback(

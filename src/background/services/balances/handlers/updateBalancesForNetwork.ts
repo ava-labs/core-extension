@@ -23,6 +23,13 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
     private networkSerice: NetworkService
   ) {}
 
+  async #getDefaultNetworksToFetch() {
+    const activeNetwork = this.networkSerice.activeNetwork?.chainId;
+    const favoriteNetworks = await this.networkSerice.getFavoriteNetworks();
+
+    return [...(activeNetwork ? [activeNetwork] : []), ...favoriteNetworks];
+  }
+
   handle: HandlerType['handle'] = async (request) => {
     const params = request.params || [];
 
@@ -42,9 +49,8 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
 
     const networksToFetch = networks?.length
       ? networks
-      : Object.values(await this.networkSerice.activeNetworks.promisify()).map(
-          (n) => n.chainId
-        );
+      : await this.#getDefaultNetworksToFetch();
+
     if (Object.keys(networksToFetch).length === 0) {
       return {
         ...request,

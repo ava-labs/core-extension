@@ -81,6 +81,12 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     activeNetworks: {
       promisify: jest.fn(),
     },
+    activeNetworkChanged: {
+      add: jest.fn(),
+    },
+    favoriteNetworksUpdated: {
+      add: jest.fn(),
+    },
     getFavoriteNetworks: () => [2, 3, 4],
   } as any;
 
@@ -574,6 +580,12 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           activeNetworks: {
             promisify: jest.fn(),
           },
+          activeNetworkChanged: {
+            add: jest.fn(),
+          },
+          favoriteNetworksUpdated: {
+            add: jest.fn(),
+          },
           getFavoriteNetworks: () => [],
         } as any,
         lockService,
@@ -692,7 +704,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(eventListener).toBeCalledWith({
         balances: expected,
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: { [account1.addressC]: 1, [account2.addressC]: 1 },
       });
     });
   });

@@ -72,7 +72,7 @@ export const AccountItem = forwardRef(
     const { renameAccount, isActiveAccount } = useAccountsContext();
     const { updateBalanceOnAllNetworks } = useBalancesContext();
     const [isBalanceLoading, setIsBalanceLoading] = useState(false);
-    const balanceTotalUSD = useBalanceTotalInCurrency(account, false);
+    const balanceTotalUSD = useBalanceTotalInCurrency(account);
     const { capture } = useAnalyticsContext();
     const { t } = useTranslation();
 

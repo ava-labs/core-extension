@@ -47,7 +47,7 @@ export const AccountsDropdown = ({
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const { updateBalanceOnAllNetworks } = useBalancesContext();
   const { currency, currencyFormatter } = useSettingsContext();
-  const accountBalance = useBalanceTotalInCurrency(selectedAccount, false);
+  const accountBalance = useBalanceTotalInCurrency(selectedAccount);
   const hasAccountBalance = accountBalance !== null;
 
   // Set active account as default
