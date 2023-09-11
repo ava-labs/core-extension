@@ -154,7 +154,7 @@ export function AddTokenApproval() {
             onClick={() => {
               updateMessage({
                 status: ActionStatus.SUBMITTING,
-                id: request.id,
+                id: requestId,
               });
             }}
           >

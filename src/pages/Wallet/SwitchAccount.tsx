@@ -156,7 +156,7 @@ export function SwitchAccount() {
             onClick={() => {
               updateMessage({
                 status: ActionStatus.SUBMITTING,
-                id: request.id,
+                id: requestId,
               });
 
               window.close();

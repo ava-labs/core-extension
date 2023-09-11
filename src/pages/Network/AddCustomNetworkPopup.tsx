@@ -19,22 +19,19 @@ import { SiteAvatar } from '@src/components/common/SiteAvatar';
 export function AddCustomNetworkPopup() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
-  const { action: request, updateAction: updateMessage } =
-    useApproveAction(requestId);
+  const {
+    action: request,
+    updateAction: updateMessage,
+    cancelHandler,
+  } = useApproveAction(requestId);
 
   useEffect(() => {
-    function cancelHandler() {
-      updateMessage({
-        status: ActionStatus.ERROR_USER_CANCELED,
-        id: requestId,
-      });
-    }
     window.addEventListener('unload', cancelHandler);
 
     return () => {
       window.removeEventListener('unload', cancelHandler);
     };
-  }, [updateMessage, requestId]);
+  }, [cancelHandler]);
 
   if (!request || !request.displayData) {
     return (
@@ -169,10 +166,7 @@ export function AddCustomNetworkPopup() {
             fullWidth
             disabled={request.status === ActionStatus.SUBMITTING}
             onClick={() => {
-              updateMessage({
-                status: ActionStatus.ERROR_USER_CANCELED,
-                id: request.id,
-              });
+              cancelHandler();
               window.close();
             }}
           >
@@ -188,7 +182,7 @@ export function AddCustomNetworkPopup() {
             onClick={() => {
               updateMessage({
                 status: ActionStatus.SUBMITTING,
-                id: request.id,
+                id: requestId,
               });
             }}
           >

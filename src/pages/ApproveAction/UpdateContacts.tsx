@@ -151,7 +151,7 @@ export function UpdateContacts({
           onClick={() => {
             updateMessage({
               status: ActionStatus.SUBMITTING,
-              id: request.id,
+              id: requestId,
             });
           }}
         >
