@@ -4,6 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 
 module.exports = {
+  devtool: 'hidden-source-map',
   entry: {
     backgroundPage: path.join(__dirname, 'src/background/index.ts'),
     popup: path.join(__dirname, 'src/popup/index.tsx'),

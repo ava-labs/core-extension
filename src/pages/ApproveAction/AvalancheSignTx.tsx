@@ -27,7 +27,7 @@ import { ExcessiveBurnWarningDialog } from './components/ExcessiveBurnWarningDia
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
-  const { action, updateAction } = useApproveAction(requestId);
+  const { action, updateAction, cancelHandler } = useApproveAction(requestId);
   const { network } = useNetworkContext();
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
@@ -59,12 +59,9 @@ export function AvalancheSignTx() {
   }, [isUsingLedgerWallet, requestId, updateAction]);
 
   const rejectTx = useCallback(() => {
-    updateAction({
-      status: ActionStatus.ERROR_USER_CANCELED,
-      id: action?.id,
-    });
+    cancelHandler();
     window.close();
-  }, [action?.id, updateAction]);
+  }, [cancelHandler]);
 
   const renderLedgerApproval = useCallback(
     ({ status, displayData }: Action) => {

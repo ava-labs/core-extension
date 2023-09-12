@@ -18,6 +18,7 @@ import { StorageService } from '../storage/StorageService';
 import { CachedBalancesInfo } from './models';
 import { AccountsService } from '../accounts/AccountsService';
 import { getAccountKey } from '@src/utils/getAccountKey';
+import { merge } from 'lodash';
 
 @singleton()
 export class BalanceAggregatorService implements OnLock {
@@ -34,7 +35,8 @@ export class BalanceAggregatorService implements OnLock {
   async #setBalances(
     balances: Balances,
     changedNetworks?: number[],
-    fromCache = false
+    fromCache = false,
+    accounts?: Account[]
   ) {
     // prevent slow promise callbacks from mutating the state after lock
     if (this.lockService.locked && Object.keys(balances).length) {
@@ -45,7 +47,7 @@ export class BalanceAggregatorService implements OnLock {
     this.#balancesLastUpdated = Date.now();
 
     if (!fromCache && !this.lockService.locked) {
-      await this.updateBalancesValues(balances);
+      await this.updateBalancesValues(balances, accounts);
     }
 
     const changedBalances =
@@ -75,8 +77,14 @@ export class BalanceAggregatorService implements OnLock {
     return this.#totalBalance;
   }
 
-  #getAccount() {
-    return this.accountsService.activeAccount?.addressC;
+  #getAccountsToUpdate(accounts?: Account[]) {
+    if (accounts?.length) {
+      return accounts;
+    }
+
+    const activeAccount = this.accountsService.activeAccount;
+
+    return activeAccount ? [activeAccount] : [];
   }
 
   constructor(
@@ -108,9 +116,28 @@ export class BalanceAggregatorService implements OnLock {
         }
       }
     );
+
+    // recalculate the total balances on network events
+    const networkChangeCallback = async () => {
+      if (
+        !this.lockService.locked &&
+        this.accountsService.activeAccount &&
+        Object.keys(this.#balances).length
+      ) {
+        await this.#setTotalBalance(this.#balances);
+        this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
+          balances: this.#balances,
+          isBalancesCached: this.#isBalancesCached,
+          totalBalance: this.#totalBalance,
+        });
+      }
+    };
+
+    this.networkService.activeNetworkChanged.add(networkChangeCallback);
+    this.networkService.favoriteNetworksUpdated.add(networkChangeCallback);
   }
 
-  async updateBalancesValues(balances: Balances) {
+  async updateBalancesValues(balances: Balances, accounts?: Account[]) {
     const networksToUpdate = Object.keys(balances);
 
     if (!networksToUpdate.length) {
@@ -130,7 +157,7 @@ export class BalanceAggregatorService implements OnLock {
 
     if (needsCacheOverwrite) {
       this.#isBalancesCached = false;
-      await this.#setTotalBalance(balances);
+      await this.#setTotalBalance(balances, accounts);
     }
   }
 
@@ -211,14 +238,19 @@ export class BalanceAggregatorService implements OnLock {
         }
 
         const { chainId, networkBalances } = balanceOfNetwork;
-        balances[chainId] = { ...balances[chainId], ...networkBalances };
+        balances[chainId] = networkBalances;
 
         return balances;
       },
-      { ...this.balances }
+      {}
     );
 
-    await this.#setBalances(updatedBalances, chainIds);
+    await this.#setBalances(
+      merge({}, this.balances, updatedBalances),
+      chainIds,
+      false,
+      accounts
+    );
 
     sentryTracker.finish();
     return updatedBalances;
@@ -232,29 +264,33 @@ export class BalanceAggregatorService implements OnLock {
     return this.storageService.load<CachedBalancesInfo>(BALANCES_CACHE_KEY);
   }
 
-  async #setTotalBalance(balances: Balances) {
-    const account = this.#getAccount();
-    if (!account) {
+  async #setTotalBalance(balances: Balances, accounts?: Account[]) {
+    const accountsToUpdate = this.#getAccountsToUpdate(accounts);
+
+    if (!accountsToUpdate.length) {
       throw new Error('There is no account to save total balances');
     }
-    const accountKey = getAccountKey({
-      address: account,
-      isTestnet: this.networkService.activeNetwork?.isTestnet,
-    });
-    const favoriteNetworks = await this.networkService.getFavoriteNetworks();
-    const totalBalance = {
-      [accountKey]: calculateTotalBalance(
-        this.networkService.activeNetwork,
-        this.accountsService.activeAccount,
-        favoriteNetworks,
-        balances
-      ),
-    };
 
-    this.#totalBalance = {
-      ...this.#totalBalance,
-      ...totalBalance,
-    };
+    for (const account of accountsToUpdate) {
+      const favoriteNetworks = await this.networkService.getFavoriteNetworks();
+      const accountKey = getAccountKey({
+        address: account.addressC,
+        isTestnet: this.networkService.activeNetwork?.isTestnet,
+      });
+      const totalBalance = {
+        [accountKey]: calculateTotalBalance(
+          this.networkService.activeNetwork,
+          account,
+          favoriteNetworks,
+          balances
+        ),
+      };
+
+      this.#totalBalance = {
+        ...this.#totalBalance,
+        ...totalBalance,
+      };
+    }
 
     this.#updateCachedBalancesInfo();
   }

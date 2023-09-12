@@ -17,7 +17,6 @@ pids
 .env
 .env.production
 
-
 # Dependency directories
 node_modules/
 jspm_packages/
@@ -43,3 +42,6 @@ todo.*
 
 # snyk
 .dccache
+
+# CLI
+.sentryclirc

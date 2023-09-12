@@ -137,10 +137,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
       displayData,
     };
 
-    await this.openApprovalWindow(
-      actionData,
-      `approve/bitcoinSignTx?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `approve/bitcoinSignTx`);
 
     return {
       ...request,

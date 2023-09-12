@@ -128,10 +128,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
       },
     };
 
-    await this.openApprovalWindow(
-      actionData,
-      `approve/avalancheSignTx?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `approve/avalancheSignTx`);
 
     return {
       ...request,

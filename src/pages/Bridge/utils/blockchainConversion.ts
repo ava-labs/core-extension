@@ -5,7 +5,8 @@ import { t } from 'i18next';
 export const blockchainToNetwork = (
   blockChain: Blockchain,
   networks: Network[],
-  bridgeConfig: BridgeConfig
+  bridgeConfig: BridgeConfig,
+  isTestnet?: boolean
 ) => {
   switch (blockChain) {
     case Blockchain.AVALANCHE:
@@ -21,11 +22,17 @@ export const blockchainToNetwork = (
           bridgeConfig.config?.critical.networks[Blockchain.ETHEREUM]
       );
     case Blockchain.BITCOIN:
-      return networks.find(
-        (network) =>
-          network.chainId === ChainId.BITCOIN ||
-          network.chainId === ChainId.BITCOIN_TESTNET
-      );
+      return networks.find((network) => {
+        if (isTestnet === undefined) {
+          return (
+            network.chainId === ChainId.BITCOIN_TESTNET ||
+            network.chainId === ChainId.BITCOIN
+          );
+        }
+        return isTestnet
+          ? network.chainId === ChainId.BITCOIN_TESTNET
+          : network.chainId === ChainId.BITCOIN;
+      });
     default:
       throw new Error(t('Blockchain not supported'));
   }

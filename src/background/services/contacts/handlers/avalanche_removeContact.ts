@@ -34,10 +34,7 @@ export class AvalancheRemoveContactHandler extends DAppRequestHandler {
         contact: existing,
       },
     };
-    await this.openApprovalWindow(
-      actionData,
-      `approve/removeContact?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `approve/removeContact`);
     return { ...request, result: DEFERRED_RESPONSE };
   };
 

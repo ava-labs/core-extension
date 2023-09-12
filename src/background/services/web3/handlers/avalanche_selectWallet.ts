@@ -27,7 +27,7 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
         },
         tabId: request.site.tabId,
       },
-      `approve/select-wallet?id=${request.id}`
+      `approve/select-wallet`
     );
 
     return { ...request, result: DEFERRED_RESPONSE };

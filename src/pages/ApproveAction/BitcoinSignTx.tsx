@@ -31,7 +31,7 @@ export function BitcoinSignTx() {
 
   const requestId = useGetRequestId();
   const tokenPrice = useNativeTokenPrice(BITCOIN_NETWORK);
-  const { action, updateAction } = useApproveAction(requestId);
+  const { action, updateAction, cancelHandler } = useApproveAction(requestId);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
@@ -81,14 +81,9 @@ export function BitcoinSignTx() {
   };
 
   const handleRejection = useCallback(() => {
-    if (action) {
-      updateAction({
-        status: ActionStatus.ERROR_USER_CANCELED,
-        id: action.id,
-      });
-    }
+    cancelHandler();
     window.close();
-  }, [updateAction, action]);
+  }, [cancelHandler]);
 
   const signTx = useCallback(() => {
     updateAction(

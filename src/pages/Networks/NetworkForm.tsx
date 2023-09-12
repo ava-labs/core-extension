@@ -81,6 +81,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
     const [chainIdError, setChainIdError] = useState<string>();
     const [tokenSymbolError, setTokenSymbolError] = useState<string>();
     const [explorerUrlError, setExplorerUrlError] = useState<string>();
+    const [tokenNameError, setTokenNameError] = useState<string>();
 
     useImperativeHandle(
       ref,
@@ -97,9 +98,9 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
       CHAIN_NAME_ERROR: t('Network Name is required'),
       CHAIN_ID_ERROR: t('Chain ID is required'),
       TOKEN_SYMBOL_ERROR: t('Network Token Symbol is required'),
-      EXPLORER_URL_ERROR: t('Explorer URL is requried'),
       CHAIN_ID_EXISTS: t('This Chain ID has been added already'),
       INVALID_URL: t('This URL is invalid'),
+      TOKEN_NAME_ERROR: t('Network Token Name is required'),
     };
 
     const validateForm = useCallback(
@@ -137,6 +138,10 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
           setTokenSymbolError(FormErrors.TOKEN_SYMBOL_ERROR);
           valid = false;
         }
+        if (!updatedNetwork.networkToken.name) {
+          setTokenNameError(FormErrors.TOKEN_NAME_ERROR);
+          valid = false;
+        }
 
         return valid;
       },
@@ -146,6 +151,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
         FormErrors.CHAIN_NAME_ERROR,
         FormErrors.INVALID_URL,
         FormErrors.RPC_ERROR,
+        FormErrors.TOKEN_NAME_ERROR,
         FormErrors.TOKEN_SYMBOL_ERROR,
         action,
         isChainIdExist,
@@ -164,6 +170,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
       setChainIdError('');
       setTokenSymbolError('');
       setExplorerUrlError('');
+      setTokenNameError('');
     };
 
     const handleUpdate = (updatedNetwork: Network) => {
@@ -281,7 +288,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
           />
         </InputContainer>
         <InputContainer>
-          <TextFieldLabel label={t('Network Token Name (Optional)')} />
+          <TextFieldLabel label={t('Network Token Name')} />
           <TextField
             size="small"
             onChange={(e) => {
@@ -303,6 +310,8 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
                 readOnly ||
                 (!isCustomNetwork && action === NetworkFormAction.Edit),
             }}
+            error={!!tokenNameError}
+            helperText={tokenNameError}
           />
         </InputContainer>
         <InputContainer>

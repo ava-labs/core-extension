@@ -215,6 +215,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       asset: btcAsset,
     },
     method: 'avalanche_bridgeAsset',
+    actionId: 'uuid',
   };
 
   const btcResult: BtcTransactionResponse = {
@@ -244,6 +245,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       },
     },
     method: 'avalanche_bridgeAsset',
+    actionId: 'uuid',
   };
 
   const ethResult: TransactionResponse = {
@@ -368,7 +370,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           },
           tabId: request.site.tabId,
         },
-        `approve?id=${request.id}`
+        `approve`
       );
     });
 
@@ -478,10 +480,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...mockRequest,
         result: DEFERRED_RESPONSE,
       });
-      expect(openApprovalWindowSpy).toBeCalledWith(
-        expectedAction,
-        `approve?id=${mockRequest.id}`
-      );
+      expect(openApprovalWindowSpy).toBeCalledWith(expectedAction, `approve`);
     });
 
     it('finds networks and token with balance for asset', async () => {
@@ -559,10 +558,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...mockRequest,
         result: DEFERRED_RESPONSE,
       });
-      expect(openApprovalWindowSpy).toBeCalledWith(
-        expectedAction,
-        `approve?id=${mockRequest.id}`
-      );
+      expect(openApprovalWindowSpy).toBeCalledWith(expectedAction, `approve`);
     });
   });
 

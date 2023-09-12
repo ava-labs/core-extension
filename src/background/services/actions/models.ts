@@ -22,6 +22,7 @@ export interface Action extends JsonRpcRequest<any> {
   // we store the window ID of the confirmation popup so
   // that we can clean up stale actions later
   popupWindowId?: number;
+  actionId: string;
 }
 
 export interface Actions {

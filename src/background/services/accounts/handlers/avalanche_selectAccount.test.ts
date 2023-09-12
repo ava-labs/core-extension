@@ -28,6 +28,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     jest.resetAllMocks();
 
     (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
+    (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
   });
 
   describe('handleAuthenticated', () => {
@@ -43,7 +44,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         accountServiceMock,
         permissionsServiceMock
       );
-      const url = 'switchAccount?id=123';
+      const url = 'switchAccount?actionId=uuid';
 
       const request = {
         id: '123',
@@ -54,6 +55,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
       const actionData = {
         ...request,
+        actionId: 'uuid',
         tabId: 1,
         selectedAccount: account,
         popupWindowId: 123,
@@ -62,7 +64,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       const result = await handler.handleAuthenticated(request);
 
       expect(openExtensionNewWindow).toHaveBeenCalled();
-      expect(openExtensionNewWindow).toHaveBeenCalledWith(url, '');
+      expect(openExtensionNewWindow).toHaveBeenCalledWith(url);
       expect(addActionMock).toHaveBeenCalled();
       expect(addActionMock).toBeCalledWith(actionData);
       expect(result).toEqual({
@@ -83,7 +85,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         accountServiceMock,
         permissionsServiceMock
       );
-      const url = 'switchAccount?id=123';
+      const url = 'switchAccount?actionId=uuid';
 
       const request = {
         id: '123',
@@ -94,6 +96,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
       const actionData = {
         ...request,
+        actionId: 'uuid',
         tabId: 1,
         selectedAccount: account,
         popupWindowId: 123,
@@ -102,7 +105,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       const result = await handler.handleAuthenticated(request);
 
       expect(openExtensionNewWindow).toHaveBeenCalled();
-      expect(openExtensionNewWindow).toHaveBeenCalledWith(url, '');
+      expect(openExtensionNewWindow).toHaveBeenCalledWith(url);
       expect(addActionMock).toHaveBeenCalled();
       expect(addActionMock).toBeCalledWith(actionData);
       expect(result).toEqual({

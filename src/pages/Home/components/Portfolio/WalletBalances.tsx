@@ -22,7 +22,7 @@ export function WalletBalances() {
 
   const { t } = useTranslation();
 
-  const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount, true);
+  const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount);
 
   const balanceTotal =
     balanceTotalUSD !== null ? balanceTotalUSD : totalBalance ?? null;

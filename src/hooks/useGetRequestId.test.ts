@@ -14,7 +14,7 @@ describe('hooks/useGetRequestId', () => {
   it('returns the id from parms', () => {
     (useHistory as jest.Mock).mockReturnValue({
       location: {
-        search: '?id=1234',
+        search: '?actionId=1234',
       },
     });
 
@@ -25,7 +25,7 @@ describe('hooks/useGetRequestId', () => {
   it('returns the id when not the first param', () => {
     (useHistory as jest.Mock).mockReturnValue({
       location: {
-        search: '?something=otherthing&id=1234',
+        search: '?something=otherthing&actionId=1234',
       },
     });
 
@@ -47,7 +47,7 @@ describe('hooks/useGetRequestId', () => {
   it('updates when the params change', () => {
     (useHistory as jest.Mock).mockReturnValue({
       location: {
-        search: '?id=1234',
+        search: '?actionId=1234',
       },
     });
 
@@ -55,7 +55,7 @@ describe('hooks/useGetRequestId', () => {
 
     (useHistory as jest.Mock).mockReturnValue({
       location: {
-        search: '?id=4567',
+        search: '?actionId=4567',
       },
     });
     rerender();

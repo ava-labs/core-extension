@@ -71,6 +71,33 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       primaryColor: 'black',
     };
 
+    if (!customNetwork.chainName) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Network Name is required',
+        }),
+      };
+    }
+
+    if (!customNetwork.networkToken.symbol) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Network Token Symbol is required',
+        }),
+      };
+    }
+
+    if (!customNetwork.networkToken.name) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Network Token Name is required',
+        }),
+      };
+    }
+
     if (chainRequestedIsSupported) {
       const actionData = {
         ...request,
@@ -78,10 +105,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         tabId: request.site?.tabId,
       };
 
-      await this.openApprovalWindow(
-        actionData,
-        `network/switch?id=${request.id}`
-      );
+      await this.openApprovalWindow(actionData, `network/switch`);
 
       return { ...request, result: DEFERRED_RESPONSE };
     }
@@ -104,10 +128,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       displayData: customNetwork,
       tabId: request.site?.tabId,
     };
-    await this.openApprovalWindow(
-      actionData,
-      `networks/add-popup?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `networks/add-popup`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };
@@ -118,7 +139,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action,
-    result,
+    _result,
     onSuccess,
     onError
   ) => {

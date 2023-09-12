@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/browser';
-import { addExtensionMethods, Integrations } from '@sentry/tracing';
+import { CaptureConsole } from '@sentry/integrations';
+
 import browser from 'webextension-polyfill';
 
 if (process.env.SENTRY_DSN) {
@@ -17,13 +18,18 @@ if (process.env.SENTRY_DSN) {
        * see if we cant modify the data before it is recorded. This can be
        * done in the sentry options beforeBreadcrumbs function.
        */
-      new Sentry.Integrations.Breadcrumbs({ dom: false, history: false }),
-      new Integrations.Express(),
+      new Sentry.Integrations.Breadcrumbs({
+        dom: false,
+        history: false,
+        console: false,
+      }),
+      new CaptureConsole({ levels: ['error'] }),
     ],
     ignoreErrors: [
       /^AbortError: The user aborted a request.$/, // ignore errors caused by chrome's throttling
       /^Error: could not detect network \(event="noNetwork", code=NETWORK_ERROR, version=providers.+\)$/, // ignore ethers provider connection errors
     ],
   });
+
+  Sentry.addTracingExtensions();
 }
-addExtensionMethods();

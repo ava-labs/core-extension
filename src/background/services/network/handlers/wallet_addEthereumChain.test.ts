@@ -55,6 +55,8 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     } as any;
     handler = new WalletAddEthereumChainHandler(mockNetworkService);
     (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
+
+    (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
   });
 
   it('returns null when already on the same network', async () => {
@@ -98,12 +100,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
     expect(openExtensionNewWindow).toHaveBeenCalledWith(
-      'network/switch?id=1234',
-      ''
+      'network/switch?actionId=uuid'
     );
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
+      id: 1234,
+      actionId: 'uuid',
       displayData: {
         chainId: 43113,
         chainName: 'Avalanche',
@@ -183,6 +186,86 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
   });
 
+  it('should throw an error because of the missing name of the network', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          nativeCurrency: { symbol: 'AVAX', name: 'Avalanche', decimals: 18 },
+        },
+      ],
+    };
+    const result = await handler.handleUnauthenticated(request);
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams({
+        message: 'Network Name is required',
+      }),
+    });
+  });
+
+  it('should throw an error because of the missing name of the network token', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          nativeCurrency: { symbol: 'AVAX', decimals: 18 },
+        },
+      ],
+    };
+    const result = await handler.handleUnauthenticated(request);
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams({
+        message: 'Network Token Name is required',
+      }),
+    });
+  });
+
+  it('should throw an error because of the missing symbol of the network token', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          nativeCurrency: { name: 'Avalanche', decimals: 18 },
+        },
+      ],
+    };
+    const result = await handler.handleUnauthenticated(request);
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams({
+        message: 'Network Token Symbol is required',
+      }),
+    });
+  });
+
   it('returns error when rpc url is not valid', async () => {
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(false);
 
@@ -242,12 +325,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
     expect(openExtensionNewWindow).toHaveBeenCalledWith(
-      'networks/add-popup?id=1234',
-      ''
+      'networks/add-popup?actionId=uuid'
     );
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
+      id: 1234,
+      actionId: 'uuid',
       displayData: {
         chainId: 43112,
         chainName: 'Avalanche',
@@ -293,12 +377,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
     expect(openExtensionNewWindow).toHaveBeenCalledWith(
-      'networks/add-popup?id=1234',
-      ''
+      'networks/add-popup?actionId=uuid'
     );
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
+      id: 1234,
+      actionId: 'uuid',
       displayData: {
         chainId: 43112,
         chainName: 'Avalanche',
@@ -322,7 +407,8 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   describe('onActionApproved', () => {
     const mockPendingAction: Action = {
-      id: '1234',
+      id: 'uuid',
+      actionId: 'uuid',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {

@@ -36,6 +36,14 @@ const commitAnalyzerSetting = [
   },
 ];
 
+// used instead of `commitAnalyzerSetting` for prereleases
+const execPatchAnyCommitSetting = [
+  '@semantic-release/exec',
+  {
+    analyzeCommitsCmd: 'echo patch',
+  },
+];
+
 const releaseReplaceSetting = [
   '@google/semantic-release-replace-plugin',
   {
@@ -57,21 +65,6 @@ const releaseReplaceSetting = [
         countMatches: true,
       },
     ],
-  },
-];
-
-const execSetting = [
-  '@semantic-release/exec',
-  {
-    prepareCmd: 'yarn zip',
-  },
-];
-
-const execSettingPatchAnyCommits = [
-  '@semantic-release/exec',
-  {
-    prepareCmd: 'yarn zip',
-    analyzeCommitsCmd: 'echo patch',
   },
 ];
 
@@ -116,12 +109,27 @@ const changelogGen = ['@semantic-release/changelog', {}];
 
 const releaseNotesGen = ['@semantic-release/release-notes-generator', {}];
 
+const execZipSetting = [
+  '@semantic-release/exec',
+  {
+    prepareCmd: 'yarn zip',
+  },
+];
+
+const execSentryReleaseSetting = [
+  '@semantic-release/exec',
+  {
+    prepareCmd: `yarn sentry core-extension@"<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
+  },
+];
+
 let plugins;
 if (process.env && process.env.RELEASE_BRANCH === 'release') {
   plugins = [
     commitAnalyzerSetting,
+    execSentryReleaseSetting,
     releaseReplaceSetting,
-    execSetting,
+    execZipSetting,
     githubSetting,
     changelogGen,
     releaseNotesGen,
@@ -130,8 +138,10 @@ if (process.env && process.env.RELEASE_BRANCH === 'release') {
   ];
 } else {
   plugins = [
+    execPatchAnyCommitSetting,
+    execSentryReleaseSetting,
     releaseReplaceSetting,
-    execSettingPatchAnyCommits,
+    execZipSetting,
     githubSetting,
     gitSetting,
   ];

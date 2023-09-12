@@ -13,6 +13,6 @@ export function useGetRequestId() {
 
   return useMemo(() => {
     const searchParams = new URLSearchParams(history.location.search ?? '');
-    return searchParams.get('id') ?? '';
+    return searchParams.get('actionId') ?? '';
   }, [history.location.search]);
 }

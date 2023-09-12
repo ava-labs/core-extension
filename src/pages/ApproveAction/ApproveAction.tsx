@@ -30,7 +30,7 @@ export function ApproveAction() {
   const { t } = useTranslation();
   const theme = useTheme();
   const requestId = useGetRequestId();
-  const { action, updateAction } = useApproveAction(requestId);
+  const { action, updateAction, cancelHandler } = useApproveAction(requestId);
   const { network } = useNetworkContext();
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
@@ -52,11 +52,8 @@ export function ApproveAction() {
     );
   }
 
-  const cancelHandler = () => {
-    updateAction({
-      status: ActionStatus.ERROR_USER_CANCELED,
-      id: action.id,
-    });
+  const onReject = () => {
+    cancelHandler();
     window.close();
   };
 
@@ -65,7 +62,7 @@ export function ApproveAction() {
       if (isUsingLedgerWallet)
         return <LedgerApprovalOverlay displayData={action.displayData} />;
       else if (isUsingKeystoneWallet)
-        return <KeystoneApprovalOverlay onReject={cancelHandler} />;
+        return <KeystoneApprovalOverlay onReject={onReject} />;
     }
   };
 
@@ -124,7 +121,7 @@ export function ApproveAction() {
               size="large"
               fullWidth
               disabled={action.status === ActionStatus.SUBMITTING}
-              onClick={cancelHandler}
+              onClick={onReject}
             >
               {t('Reject')}
             </Button>
@@ -139,7 +136,7 @@ export function ApproveAction() {
                 updateAction(
                   {
                     status: ActionStatus.SUBMITTING,
-                    id: action.id,
+                    id: requestId,
                   },
                   isUsingLedgerWallet || isUsingKeystoneWallet // wait for the response only for device wallets
                 );

@@ -27,8 +27,11 @@ const SiteAvatar = styled(Stack)`
 export function SwitchActiveNetwork() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
-  const { action: request, updateAction: updateMessage } =
-    useApproveAction(requestId);
+  const {
+    action: request,
+    updateAction: updateMessage,
+    cancelHandler,
+  } = useApproveAction(requestId);
 
   const isLoading = !request || !request.displayData;
   const network: Network = request?.displayData;
@@ -93,10 +96,7 @@ export function SwitchActiveNetwork() {
               color="secondary"
               size="large"
               onClick={() => {
-                updateMessage({
-                  status: ActionStatus.ERROR_USER_CANCELED,
-                  id: request?.id,
-                });
+                cancelHandler();
                 window.close();
               }}
             >
@@ -109,7 +109,7 @@ export function SwitchActiveNetwork() {
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.SUBMITTING,
-                  id: request?.id,
+                  id: requestId,
                 });
               }}
             >

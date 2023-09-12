@@ -30,7 +30,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
         },
         tabId: request.site.tabId,
       },
-      `permissions?id=${request.id}`
+      `permissions`
     );
 
     return { ...request, result: DEFERRED_RESPONSE };

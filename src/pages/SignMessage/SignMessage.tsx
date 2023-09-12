@@ -35,7 +35,11 @@ import { useIsIntersecting } from './hooks/useIsIntersecting';
 export function SignMessage() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
-  const { action, updateAction: updateMessage } = useApproveAction(requestId);
+  const {
+    action,
+    updateAction: updateMessage,
+    cancelHandler,
+  } = useApproveAction(requestId);
 
   // TODO: remove this in https://ava-labs.atlassian.net/browse/CP-5617
   // Message signing is not currently supported by the Ledger Avalanche app
@@ -87,10 +91,7 @@ export function SignMessage() {
         <Button
           sx={{ mb: 1 }}
           onClick={() => {
-            updateMessage({
-              status: ActionStatus.ERROR_USER_CANCELED,
-              id: action?.id,
-            });
+            cancelHandler();
             window.close();
           }}
         >
@@ -283,10 +284,7 @@ export function SignMessage() {
               size="large"
               fullWidth
               onClick={() => {
-                updateMessage({
-                  status: ActionStatus.ERROR_USER_CANCELED,
-                  id: action.id,
-                });
+                cancelHandler();
                 window.close();
               }}
             >
@@ -299,7 +297,7 @@ export function SignMessage() {
               onClick={() => {
                 updateMessage({
                   status: ActionStatus.SUBMITTING,
-                  id: action.id,
+                  id: requestId,
                 });
               }}
               fullWidth

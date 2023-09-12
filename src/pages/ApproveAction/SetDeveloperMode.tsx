@@ -105,7 +105,7 @@ export function SetDeveloperMode() {
           onClick={() => {
             updateMessage({
               status: ActionStatus.SUBMITTING,
-              id: request.id,
+              id: requestId,
             });
 
             window.close();

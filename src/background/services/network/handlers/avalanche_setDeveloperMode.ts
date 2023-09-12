@@ -35,10 +35,7 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       },
     };
 
-    await this.openApprovalWindow(
-      actionData,
-      `approve/set-developer-mode?id=${request.id}`
-    );
+    await this.openApprovalWindow(actionData, `approve/set-developer-mode`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

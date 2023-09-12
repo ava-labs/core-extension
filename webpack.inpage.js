@@ -36,7 +36,7 @@ module.exports = (env, argv) => {
     argv.mode === 'production' ? prodEvmProviderConfig : devEvmProviderConfig;
   return {
     mode: 'development',
-    devtool: 'source-map',
+    devtool: 'hidden-source-map',
     entry: {
       inpage: path.join(__dirname, 'src/inpage.js'),
     },
