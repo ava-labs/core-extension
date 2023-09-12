@@ -1,6 +1,5 @@
 import * as Sentry from '@sentry/browser';
 import { CaptureConsole } from '@sentry/integrations';
-
 import browser from 'webextension-polyfill';
 
 if (process.env.SENTRY_DSN) {
@@ -30,6 +29,6 @@ if (process.env.SENTRY_DSN) {
       /^Error: could not detect network \(event="noNetwork", code=NETWORK_ERROR, version=providers.+\)$/, // ignore ethers provider connection errors
     ],
   });
-
-  Sentry.addTracingExtensions();
 }
+
+Sentry.addTracingExtensions();
