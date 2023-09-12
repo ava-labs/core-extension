@@ -12,6 +12,7 @@ export enum SettingsPages {
   LEGAL = 'LEGAL',
   ADVANCED = 'ADVANCED',
   LANGUAGE = 'LANGUAGE',
+  FEEDBACK = 'FEEDBACK',
 }
 
 export interface SettingsPageProps {
