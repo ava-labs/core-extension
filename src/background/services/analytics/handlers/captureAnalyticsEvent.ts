@@ -1,10 +1,10 @@
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { AnalyticsServicePosthog } from '../AnalyticsServicePosthog';
 import { AnalyticsCapturedEvent } from '../models';
+import { FeatureGates } from '../../featureFlags/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CAPTURE_EVENT,

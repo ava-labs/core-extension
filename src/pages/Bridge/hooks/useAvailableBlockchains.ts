@@ -1,8 +1,8 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useEffect, useState } from 'react';
 import { SUPPORTED_CHAINS } from '../models';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export function useAvailableBlockchains() {
   const { featureFlags } = useFeatureFlagContext();

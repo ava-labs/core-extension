@@ -1,5 +1,4 @@
 import { ChainId } from '@avalabs/chains-sdk';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import {
   ParaSwap,
@@ -20,6 +19,7 @@ import {
   ParaswapPricesResponse,
   PARASWAP_RETRYABLE_ERRORS,
 } from './models';
+import { FeatureGates } from '../featureFlags/models';
 
 const NETWORK_UNSUPPORTED_ERROR = new Error(
   'Fuji network is not supported by Paraswap'

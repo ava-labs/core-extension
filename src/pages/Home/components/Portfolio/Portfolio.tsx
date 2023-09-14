@@ -1,4 +1,3 @@
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { DeFi } from '@src/pages/DeFi/DeFi';
@@ -21,6 +20,7 @@ import { Redirect } from 'react-router-dom';
 import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { FAB } from '@src/components/common/fab/FAB';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export enum PortfolioTabs {
   ASSETS,

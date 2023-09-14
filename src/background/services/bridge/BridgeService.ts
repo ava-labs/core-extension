@@ -15,7 +15,6 @@ import {
   transferAsset as transferAssetSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { EventEmitter } from 'events';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
@@ -39,6 +38,7 @@ import Big from 'big.js';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { FeatureGates } from '../featureFlags/models';
 import { TransactionResponse } from 'ethers';
 
 @singleton()

@@ -1,4 +1,3 @@
-import { FeatureGates, initFeatureFlags } from '@avalabs/posthog-sdk';
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import { AnalyticsService } from '../analytics/AnalyticsService';
@@ -7,31 +6,34 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FEATURE_FLAGS_OVERRIDES_KEY,
+  FeatureGates,
 } from './models';
 import { AnalyticsEvents } from '../analytics/models';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { formatAndLog } from '../../../utils/logging';
+import { getFeatureFlags } from './utils/getFeatureFlags';
 
 @singleton()
 export class FeatureFlagService {
-  private eventEmitter = new EventEmitter();
-  private _featureFlags = DEFAULT_FLAGS;
+  #eventEmitter = new EventEmitter();
+  #featureFlags = DEFAULT_FLAGS;
+  #featureFlagIntervalId?: NodeJS.Timeout | null = null;
 
   public get featureFlags(): FeatureFlags {
-    return this._featureFlags;
+    return this.#featureFlags;
   }
 
   private set featureFlags(newFlags: FeatureFlags) {
-    if (JSON.stringify(this._featureFlags) === JSON.stringify(newFlags)) {
+    if (JSON.stringify(this.#featureFlags) === JSON.stringify(newFlags)) {
       // do nothing since flags are the same
       // do not trigger new update cycles within the app
       return;
     }
-    this._featureFlags = newFlags;
-    this.eventEmitter.emit(
+    this.#featureFlags = newFlags;
+    this.#eventEmitter.emit(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
-      this._featureFlags
+      this.#featureFlags
     );
 
     // We need to lock the wallet when "everything" flag is disabled.
@@ -57,8 +59,6 @@ export class FeatureFlagService {
     };
   }
 
-  private featureFlagsListener?: ReturnType<typeof initFeatureFlags>;
-
   constructor(
     private analyticsService: AnalyticsService,
     private lockService: LockService,
@@ -76,8 +76,8 @@ export class FeatureFlagService {
     this.analyticsService.addListener(
       AnalyticsEvents.ANALYTICS_STATE_UPDATED,
       () => {
-        if (this.featureFlagsListener) {
-          this.featureFlagsListener.unsubscribe();
+        if (this.#featureFlagIntervalId) {
+          clearInterval(this.#featureFlagIntervalId);
         }
         this.initFeatureFlags().catch((e) => {
           console.error(e);
@@ -99,18 +99,27 @@ export class FeatureFlagService {
       throw new Error('POSTHOG_KEY missing');
     }
 
-    this.featureFlagsListener = initFeatureFlags(
-      process.env.POSTHOG_KEY,
-      analyticsState?.userId ?? '',
-      process.env.POSTHOG_URL ?? 'https://data-posthog.avax.network',
-      5000
-    );
-    this.featureFlagsListener.listen.add(async (flags) => {
-      await this.updateFeatureFlags(flags as FeatureFlags);
-    });
+    const getAndDispatchFlags = async () => {
+      try {
+        const flags = await getFeatureFlags(
+          process.env.POSTHOG_KEY,
+          analyticsState?.userId ?? '',
+          process.env.POSTHOG_URL ?? 'https://app.posthog.com'
+        );
+        await this.updateFeatureFlags(flags);
+      } catch (err) {
+        console.error((err as unknown as Error).message);
+      }
+    };
+
+    this.#featureFlagIntervalId = setInterval(() => {
+      getAndDispatchFlags();
+    }, 5000);
+
+    getAndDispatchFlags();
   }
 
   addListener(event: FeatureFlagEvents, callback: (data: unknown) => void) {
-    this.eventEmitter.on(event, callback);
+    this.#eventEmitter.on(event, callback);
   }
 }

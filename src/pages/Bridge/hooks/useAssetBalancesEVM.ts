@@ -9,8 +9,8 @@ import { getBalances } from '../utils/getBalances';
 import { AssetBalance } from '../models';
 import { useMemo } from 'react';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 /**
  * Get for the current chain.

@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -24,6 +23,7 @@ import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { DefiErrorState } from './components/DefiErrorState';
 import { DefiPortfolioItemGroup } from './components/DefiPortfolioItemGroup';
 import { DefiProtocolDetailsHeader } from './components/DefiProtocolDetailsHeader';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export function DefiProtocolDetails() {
   const { protocolId } = useParams<{ protocolId: string }>();

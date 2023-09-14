@@ -13,7 +13,6 @@ import { useContactFromParams } from './hooks/useContactFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -41,6 +40,7 @@ import { GasFeeModifier } from '@src/components/common/CustomFees';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 const DEFAULT_DECIMALS = 9;
 

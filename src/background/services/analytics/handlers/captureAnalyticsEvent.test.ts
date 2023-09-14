@@ -1,6 +1,6 @@
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { CaptureAnalyticsEventHandler } from './captureAnalyticsEvent';
+import { FeatureGates } from '../../featureFlags/models';
 
 describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
   const featureFlagServiceMock = {

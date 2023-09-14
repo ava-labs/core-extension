@@ -1,9 +1,9 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { Transaction } from '../models';
+import { FeatureGates } from '../../featureFlags/models';
 
 const getTargetNetworkForTx = async (
   tx: Transaction,

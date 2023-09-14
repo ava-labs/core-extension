@@ -7,8 +7,8 @@ import { StorageService } from '../../storage/StorageService';
 import { errorCodes, EthereumRpcError } from 'eth-rpc-errors';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { LockService } from '../../lock/LockService';
+import { FeatureGates } from '../../featureFlags/models';
 
 jest.mock('../../network/NetworkService');
 jest.mock('../../featureFlags/FeatureFlagService');

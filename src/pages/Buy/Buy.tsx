@@ -8,13 +8,13 @@ import {
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTranslation } from 'react-i18next';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useState } from 'react';
 import { BuyService, BuyDialog } from '@src/pages/Buy/BuyDialog';
 import { useCoinbasePay } from '@src/hooks/useCoinbasePay';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 const PayBox = styled(Stack)`
   background-color: ${({ theme }) => theme.palette.grey[850]};

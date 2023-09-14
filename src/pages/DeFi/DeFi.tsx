@@ -1,4 +1,3 @@
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useTranslation } from 'react-i18next';
 import { CircularProgress, Stack } from '@avalabs/k2-components';
 
@@ -9,6 +8,7 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { DefiProtocolListItem } from './components/DefiProtocolListItem';
 import { DefiZeroState } from './components/DefiZeroState';
 import { DefiErrorState } from './components/DefiErrorState';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export function DeFi() {
   const { t } = useTranslation();

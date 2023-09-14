@@ -8,7 +8,6 @@ import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
@@ -44,6 +43,7 @@ import {
   IconButton,
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;

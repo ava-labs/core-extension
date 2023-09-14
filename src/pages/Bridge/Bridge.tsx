@@ -8,7 +8,6 @@ import {
   useGetTokenSymbolOnNetwork,
   isAddressBlocklisted,
 } from '@avalabs/bridge-sdk';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -63,6 +62,7 @@ import {
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';

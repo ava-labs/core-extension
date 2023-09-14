@@ -13,7 +13,7 @@ import {
   KeystoneIcon,
 } from '@avalabs/k2-components';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 interface WelcomeProps {
   onNext: (isImportFlow: OnboardingPhase) => void;

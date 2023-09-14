@@ -23,9 +23,9 @@ import { GetTransactionHandler } from '@src/background/services/transactions/han
 import { NetworkFee } from '@src/background/services/networkFee/models';
 import { Network } from '@avalabs/chains-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useDialog } from '@src/contexts/DialogContextProvider';
 import { BN } from 'bn.js';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { MaxUint256 } from 'ethers';
 
 export const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
