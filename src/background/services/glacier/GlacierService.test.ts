@@ -22,7 +22,7 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
           status: 'ok',
         }),
       },
-      evm: {
+      evmChains: {
         supportedChains: supportedChainsMock,
       },
     });

@@ -1,7 +1,7 @@
 import extension from 'extensionizer';
 
 import { CONTENT_SCRIPT, INPAGE_SCRIPT, KEEPALIVE_SCRIPT } from './common';
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import WindowPostMessageConnection from './background/utils/messaging/WindowPostMessageConnection';
 import PortConnection from './background/utils/messaging/PortConnection';
 

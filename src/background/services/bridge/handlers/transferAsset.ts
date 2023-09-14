@@ -1,11 +1,11 @@
 import { Asset, Blockchain } from '@avalabs/bridge-sdk';
-import { TransactionResponse } from '@ethersproject/providers';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import Big from 'big.js';
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
 import { BtcTransactionResponse } from '../models';
+import { TransactionResponse } from 'ethers';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSFER_ASSET,

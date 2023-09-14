@@ -101,7 +101,7 @@ export class BalancesServiceGlacier {
     address: string,
     selectedCurrency: any
   ) {
-    return this.glacierSdkInstance.evm
+    return this.glacierSdkInstance.evmBalances
       .getNativeBalance({
         chainId: network.chainId.toString(),
         address,
@@ -146,14 +146,15 @@ export class BalancesServiceGlacier {
      */
     let nextPageToken: string | undefined = undefined;
     do {
-      const response = await this.glacierSdkInstance.evm.listErc20Balances({
-        chainId: network.chainId.toString(),
-        address,
-        currency: selectedCurrency.toLocaleLowerCase(),
-        // glacier has a cap on page size of 100
-        pageSize: 100,
-        pageToken: nextPageToken,
-      });
+      const response =
+        await this.glacierSdkInstance.evmBalances.listErc20Balances({
+          chainId: network.chainId.toString(),
+          address,
+          currency: selectedCurrency.toLocaleLowerCase(),
+          // glacier has a cap on page size of 100
+          pageSize: 100,
+          pageToken: nextPageToken,
+        });
 
       tokensWithBalance.push(
         ...this.convertErc20ToTokenWithBalance(response.erc20TokenBalances)
@@ -232,7 +233,7 @@ export class BalancesServiceGlacier {
   }
 
   async fetch721List(chainId: string, address: string, pageToken?: string) {
-    return await this.glacierSdkInstance.evm.listErc721Balances({
+    return await this.glacierSdkInstance.evmBalances.listErc721Balances({
       chainId: chainId,
       address,
       // glacier has a cap on page size of 100
@@ -242,7 +243,7 @@ export class BalancesServiceGlacier {
   }
 
   async fetch1155List(chainId: string, address: string, pageToken?: string) {
-    return await this.glacierSdkInstance.evm.listErc1155Balances({
+    return await this.glacierSdkInstance.evmBalances.listErc1155Balances({
       chainId: chainId,
       address,
       // glacier has a cap on page size of 100

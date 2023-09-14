@@ -1,5 +1,5 @@
-import { deserializeToJSON } from '@src/background/serialization/deserialize';
-import { serializeFromJSON } from '@src/background/serialization/serialize';
+import { deserializeFromJSON } from '@src/background/serialization/deserialize';
+import { serializeToJSON } from '@src/background/serialization/serialize';
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
 import {
   decrypt,
@@ -77,7 +77,7 @@ export class StorageService implements OnLock {
     const dataWithSchemaVersion = getDataWithSchemaVersion<T>(key, data);
 
     const encryptedData = await encrypt(
-      serializeFromJSON<T>(dataWithSchemaVersion),
+      serializeToJSON<T>(dataWithSchemaVersion),
       encryptionKey,
       !!customEncryptionKey
     );
@@ -118,7 +118,7 @@ export class StorageService implements OnLock {
       Uint8Array.from(encryptedData.nonce)
     );
 
-    const deserializedData = deserializeToJSON<T>(data);
+    const deserializedData = deserializeFromJSON<T>(data);
 
     if (deserializedData) {
       return migrateToLatest<T>(key, deserializedData, (migratedData) =>

@@ -1,8 +1,7 @@
 import Big from 'big.js';
 import BN from 'bn.js';
-import { BigNumber } from 'ethers';
 import { ExtensionRequest } from '../connections/extensionConnection/models';
-import { DeserializableValue, deserializeToJSON } from './deserialize';
+import { DeserializableValue, deserializeFromJSON } from './deserialize';
 import { SerializableValue } from './serialize';
 
 describe('deserialize', () => {
@@ -17,7 +16,6 @@ describe('deserialize', () => {
     serializedValue: DeserializableValue
   ][] = [
     [new Big(bigString), { type: 'Big', value: bigString }],
-    [BigNumber.from(bigString), { type: 'BigNumber', value: bigString }],
     [new BN(bigString), { type: 'BN', value: bigString }],
     [BigInt(bigString), { type: 'BigInt', value: bigString }],
   ];
@@ -30,7 +28,7 @@ describe('deserialize', () => {
         params: serializedValue,
       };
 
-      const deserializedRequestJSON = deserializeToJSON(
+      const deserializedRequestJSON = deserializeFromJSON(
         JSON.stringify(request)
       );
 
@@ -72,7 +70,7 @@ describe('deserialize', () => {
         params,
       };
 
-      const deserializedRequestJSON = deserializeToJSON(
+      const deserializedRequestJSON = deserializeFromJSON(
         JSON.stringify(request)
       );
 
@@ -112,7 +110,7 @@ describe('deserialize', () => {
         params,
       };
 
-      const deserializedRequestJSON = deserializeToJSON(
+      const deserializedRequestJSON = deserializeFromJSON(
         JSON.stringify(request)
       );
 

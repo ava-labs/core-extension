@@ -3,26 +3,15 @@ import {
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
-import { BigNumber } from 'ethers';
 import { KeystoneWallet } from './KeystoneWallet';
 import { KeystoneTransport } from './models';
-import { serializeTransaction } from 'ethers/lib/utils';
 import { FeeMarketEIP1559Transaction, Transaction } from '@ethereumjs/tx';
-
-jest.mock('ethers/lib/utils', () => {
-  const etherUtils = jest.requireActual('ethers/lib/utils');
-
-  return {
-    ...etherUtils,
-    serializeTransaction: jest.fn(),
-  };
-});
 
 const FIXTURES = {
   LEGACY_TRANSACTION_REQUEST: {
     nonce: 7,
     chainId: 5,
-    gasPrice: BigNumber.from('0x215b33677b'),
+    gasPrice: BigInt('0x215b33677b'),
     gasLimit: 21000,
     to: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
     value: '0x5af3107a4000',
@@ -30,8 +19,8 @@ const FIXTURES = {
   EIP_1559_TRANSACTION_REQUEST: {
     nonce: 7,
     chainId: 5,
-    maxFeePerGas: BigNumber.from('0x215b33677b'),
-    maxPriorityFeePerGas: BigNumber.from('0x12a05f200'),
+    maxFeePerGas: BigInt('0x215b33677b'),
+    maxPriorityFeePerGas: BigInt('0x12a05f200'),
     gasLimit: 21000,
     type: 2, // EIP-1559 tx
     to: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
@@ -51,29 +40,39 @@ const FIXTURES = {
   ),
 };
 
-const keystoneTransport: KeystoneTransport = {
-  requestSignature: jest.fn().mockResolvedValue(FIXTURES.SIGNATURE_RESPONSE),
-};
+let keystoneTransport: KeystoneTransport;
 const fingerprint = '80d3bb22';
 const currentChainId = 1337;
 const tabId = 852;
 
 describe('src/background/services/keystone/KeystoneWallet.ts', () => {
+  let wallet: KeystoneWallet;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(ETHSignature, 'fromCBOR');
+    jest.spyOn(Transaction, 'fromTxData');
+    jest
+      .spyOn(FeeMarketEIP1559Transaction, 'fromTxData')
+      .mockImplementation(() => new FeeMarketEIP1559Transaction({}));
+
+    keystoneTransport = {
+      requestSignature: jest
+        .fn()
+        .mockResolvedValue(FIXTURES.SIGNATURE_RESPONSE),
+    };
+
+    wallet = new KeystoneWallet(
+      fingerprint,
+      0,
+      keystoneTransport,
+      currentChainId,
+      tabId
+    );
+  });
+
   describe('.signTransaction()', () => {
-    let wallet: KeystoneWallet;
-
-    beforeEach(() => {
-      wallet = new KeystoneWallet(
-        fingerprint,
-        0,
-        keystoneTransport,
-        currentChainId,
-        tabId
-      );
-    });
-
     it('builds proper transaction request', async () => {
-      wallet.signTransaction(FIXTURES.LEGACY_TRANSACTION_REQUEST);
+      await wallet.signTransaction(FIXTURES.LEGACY_TRANSACTION_REQUEST);
       expect(keystoneTransport.requestSignature).toHaveBeenCalledWith(
         FIXTURES.LEGACY_SIGNATURE_REQUEST,
         tabId
@@ -84,18 +83,28 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
       const { chainId, ...txRequest } = FIXTURES.LEGACY_TRANSACTION_REQUEST; // eslint-disable-line @typescript-eslint/no-unused-vars
 
       it(`falls back to the current network's chainId if not explicitly set in the transaction`, async () => {
+        wallet = new KeystoneWallet(
+          fingerprint,
+          0,
+          keystoneTransport,
+          chainId,
+          tabId
+        );
+
         await wallet.signTransaction(txRequest);
 
-        expect(serializeTransaction).toHaveBeenCalledWith(
-          expect.objectContaining({ chainId: currentChainId }),
-          expect.anything()
+        expect(Transaction.fromTxData).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            common: expect.objectContaining({
+              _chainParams: expect.objectContaining({ chainId: chainId }),
+            }),
+          })
         );
       });
     });
 
     it('builds the signature using received response', async () => {
-      jest.spyOn(ETHSignature, 'fromCBOR');
-
       await wallet.signTransaction(FIXTURES.LEGACY_TRANSACTION_REQUEST);
 
       expect(ETHSignature.fromCBOR).toHaveBeenCalledWith(
@@ -104,8 +113,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
     });
 
     it('uses ECDSA outputs to serialize the transaction', async () => {
-      const { chainId, gasLimit, gasPrice, nonce, to, value } =
-        FIXTURES.LEGACY_TRANSACTION_REQUEST;
+      const { to, value } = FIXTURES.LEGACY_TRANSACTION_REQUEST;
 
       await wallet.signTransaction(FIXTURES.LEGACY_TRANSACTION_REQUEST);
 
@@ -115,16 +123,24 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
         '0x659cd1b54ea949317aa685831bcf241bc58089747437a8e49759158b5982cc08';
       const v = 46;
 
-      expect(serializeTransaction).toHaveBeenCalledWith(
-        { chainId, gasLimit, gasPrice, nonce, to, value },
-        { r, s, v }
+      expect(Transaction.fromTxData).toHaveBeenCalledWith(
+        {
+          data: undefined,
+          gasLimit: '0x5208',
+          gasPrice: '0x215b33677b',
+          nonce: '0x7',
+          to,
+          value,
+          r,
+          s,
+          v,
+        },
+        expect.anything()
       );
     });
 
     describe('for legacy transactions', () => {
       it('uses Transaction.fromTxData', async () => {
-        jest.spyOn(Transaction, 'fromTxData');
-
         await wallet.signTransaction(FIXTURES.LEGACY_TRANSACTION_REQUEST);
 
         expect(Transaction.fromTxData).toHaveBeenCalled();
@@ -148,8 +164,6 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
 
     describe('for EIP-1559 transactions', () => {
       it('uses FeeMarketEIP1559Transaction.fromTxData', async () => {
-        jest.spyOn(FeeMarketEIP1559Transaction, 'fromTxData');
-
         await wallet.signTransaction(FIXTURES.EIP_1559_TRANSACTION_REQUEST);
 
         expect(FeeMarketEIP1559Transaction.fromTxData).toHaveBeenCalled();
@@ -167,14 +181,6 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
           expect.anything(),
           expect.anything(),
           expect.anything()
-        );
-      });
-
-      it('builds a proper EIP-1559 transaction request', async () => {
-        wallet.signTransaction(FIXTURES.EIP_1559_TRANSACTION_REQUEST);
-        expect(keystoneTransport.requestSignature).toHaveBeenCalledWith(
-          FIXTURES.EIP_1559_SIGNATURE_REQUEST,
-          tabId
         );
       });
     });

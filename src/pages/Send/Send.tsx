@@ -18,7 +18,6 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
-import { BigNumber } from 'ethers';
 import BN from 'bn.js';
 import {
   TokenType,
@@ -67,7 +66,7 @@ export function SendPage() {
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
-  const [gasPriceState, setGasPrice] = useState<BigNumber>();
+  const [gasPriceState, setGasPrice] = useState<bigint>();
   const { capture } = useAnalyticsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -219,8 +218,8 @@ export function SendPage() {
   const onGasChanged = useCallback(
     (values: {
       customGasLimit?: number;
-      maxFeePerGas: BigNumber;
-      maxPriorityFeePerGas?: BigNumber;
+      maxFeePerGas: bigint;
+      maxPriorityFeePerGas?: bigint;
       feeType: GasFeeModifier;
     }) => {
       setGasPrice(values.maxFeePerGas);

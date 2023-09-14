@@ -6,14 +6,13 @@ import {
   SwapExactTokensForTokenDisplayValues,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import { Network } from '@avalabs/chains-sdk';
 import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
 
 export interface SwapExactTokensForAVAXData {
-  amountOutMin: BigNumber;
-  amountIn: BigNumber;
+  amountOutMin: bigint;
+  amountIn: bigint;
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
   path: string[];
@@ -38,7 +37,7 @@ export async function swapExactTokensForAvax(
     network
   );
   const lastTokenAmountBN = hexToBN(
-    (data.amountIn || data.amountOutMin).toHexString()
+    (data.amountIn || data.amountOutMin).toString(16)
   );
   const amountValue = bigToLocaleString(
     bnToBig(lastTokenAmountBN, firstTokenInPath.decimals),
@@ -56,7 +55,7 @@ export async function swapExactTokensForAvax(
     amountUSDValue,
   };
 
-  const avaxAmountInBN = hexToBN(data.amountOutMin.toHexString());
+  const avaxAmountInBN = hexToBN(data.amountOutMin.toString(16));
   const amountAvaxValue = bigToLocaleString(bnToBig(avaxAmountInBN, 18), 4);
 
   const avaxToken = {

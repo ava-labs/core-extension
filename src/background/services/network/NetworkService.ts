@@ -31,6 +31,7 @@ import {
 } from '@avalabs/wallets-sdk';
 import { resolve } from '@avalabs/utils-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
+import { Network as EthersNetwork } from 'ethers';
 import { LockService } from '../lock/LockService';
 
 @singleton()
@@ -357,7 +358,7 @@ export class NetworkService implements OnLock, OnStorageReady {
             }
           : 40,
         addGlacierAPIKeyIfNeeded(network.rpcUrl),
-        network.chainId
+        new EthersNetwork(network.chainName, network.chainId)
       );
 
       provider.pollingInterval = 2000;
@@ -386,7 +387,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
     const provider = this.getProviderForNetwork(activeNetwork);
     if (provider instanceof JsonRpcBatchInternal) {
-      return (await provider.sendTransaction(signedTx)).hash;
+      return (await provider.broadcastTransaction(signedTx)).hash;
     }
 
     if (provider instanceof BlockCypherProvider) {
@@ -402,12 +403,12 @@ export class NetworkService implements OnLock, OnStorageReady {
         maxCalls: 40,
       },
       url,
-      chainId
+      new EthersNetwork('', chainId)
     );
 
     try {
       const detectedNetwork = await provider.getNetwork();
-      return detectedNetwork.chainId === chainId;
+      return detectedNetwork.chainId === BigInt(chainId);
     } catch (e) {
       return false;
     }

@@ -7,14 +7,14 @@ import {
   LiquidityPoolToken,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { BigNumber } from 'ethers';
 import { Network } from '@avalabs/chains-sdk';
-import { bigToLocaleString, ethersBigNumberToBig } from '@avalabs/utils-sdk';
+import { bigToLocaleString } from '@avalabs/utils-sdk';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 export interface AddLiquidityAvaxData {
-  amountAVAXMin: BigNumber;
-  amountTokenDesired: BigNumber;
-  amountTokenMin: BigNumber;
+  amountAVAXMin: bigint;
+  amountTokenDesired: bigint;
+  amountTokenMin: bigint;
   contractCall: ContractCall.ADD_LIQUIDITY_AVAX;
   deadline: string;
   token: string;
@@ -41,7 +41,7 @@ export async function addLiquidityAvaxHandler(
 
   const token = erc20sIndexedByAddress[data.token.toLowerCase()];
   const firstTokenDeposited = bigToLocaleString(
-    ethersBigNumberToBig(data.amountAVAXMin, 18),
+    bigintToBig(data.amountAVAXMin, 18),
     4
   );
   const firstToken_AmountUSDValue =
@@ -54,10 +54,7 @@ export async function addLiquidityAvaxHandler(
   };
 
   const secondTokenDeposited = bigToLocaleString(
-    ethersBigNumberToBig(
-      data.amountTokenDesired,
-      token.decimals || token.denomination
-    )
+    bigintToBig(data.amountTokenDesired, token.decimals || token.denomination)
   );
   const secondToken_AmountUSDValue =
     (Number(token.priceUSD) * Number(secondTokenDeposited)).toFixed(2) ?? '';

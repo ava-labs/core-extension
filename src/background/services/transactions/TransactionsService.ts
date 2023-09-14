@@ -5,8 +5,6 @@ import {
   DisplayValueParserProps,
 } from '@src/contracts/contractParsers/models';
 import { parseBasicDisplayValues } from '@src/contracts/contractParsers/utils/parseBasicDisplayValues';
-import { BigNumber, ethers } from 'ethers';
-import { TransactionTypes } from 'ethers/lib/utils';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
@@ -44,6 +42,7 @@ import getTargetNetworkForTx from './utils/getTargetNetworkForTx';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { resolve } from '@src/utils/promiseResolver';
+import { Result, TransactionDescription } from 'ethers';
 
 @singleton()
 export class TransactionsService {
@@ -92,7 +91,7 @@ export class TransactionsService {
     const provider = this.networkService.getProviderForNetwork(network, true);
     const toAddress = trxParams.to?.toLocaleLowerCase() || '';
 
-    let decodedData: ethers.utils.Result | undefined;
+    let decodedData: Result | undefined;
     let parser: ContractParserHandler | undefined;
 
     // the toAddress is empty for contract deployments
@@ -120,11 +119,10 @@ export class TransactionsService {
           txDescription = { error: 'not a contract' };
         }
 
-        decodedData = (txDescription as ethers.utils.TransactionDescription)
-          .args;
+        decodedData = (txDescription as TransactionDescription).args;
 
         parser = contractParserMap.get(
-          (txDescription as ethers.utils.TransactionDescription).name
+          (txDescription as TransactionDescription).name
         );
       }
     }
@@ -150,9 +148,9 @@ export class TransactionsService {
         ) || [];
 
       const nativeToken = tokens.filter((t) => t.type === TokenType.NATIVE);
-      const maxFeePerGas = fees?.low.maxFee ?? BigNumber.from(0);
+      const maxFeePerGas = fees?.low.maxFee ?? 0n;
       const maxPriorityFeePerGas = fees?.low.maxTip
-        ? BigNumber.from(fees?.low.maxTip)
+        ? BigInt(fees?.low.maxTip)
         : undefined;
       const displayValueProps: DisplayValueParserProps = {
         maxFeePerGas,
@@ -173,12 +171,12 @@ export class TransactionsService {
       let gasLimit: number | null;
       try {
         gasLimit = await (trxParams.gas
-          ? BigNumber.from(trxParams.gas).toNumber()
+          ? trxParams.gas
           : this.networkFeeService.estimateGasLimit(
               trxParams.from,
               trxParams.to,
               trxParams.data as string,
-              trxParams.value,
+              trxParams.value ? BigInt(trxParams.value) : undefined,
               network
             ));
       } catch (e: any) {
@@ -299,7 +297,7 @@ export class TransactionsService {
        *
        * At the moment of writing this comment, "2" is the highest tx type available.
        */
-      type: Math.max(typeFromPayload, TransactionTypes.eip1559),
+      type: Math.max(typeFromPayload, 2),
     };
   }
 }

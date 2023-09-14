@@ -1,4 +1,4 @@
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import AbstractConnection from './AbstractConnection';
 import { Message } from './models';
 

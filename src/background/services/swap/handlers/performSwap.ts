@@ -6,7 +6,7 @@ import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve'
 import { resolve } from '@src/utils/promiseResolver';
 import Big from 'big.js';
 import { BN } from 'bn.js';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { OptimalRate } from 'paraswap-core';
 import { APIError, ETHER_ADDRESS, Transaction } from 'paraswap';
 import { injectable } from 'tsyringe';
@@ -31,7 +31,7 @@ type HandlerType = ExtensionRequestHandler<
     priceRoute: OptimalRate,
     destAmount: string,
     gasLimit: number,
-    gasPrice: BigNumber,
+    gasPrice: bigint,
     slippage: number
   ]
 >;
@@ -167,6 +167,8 @@ export class PerformSwapHandler implements HandlerType {
       priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
 
     const provider = await this.networkService.getAvalancheProvider();
+    let nonce = await provider.getTransactionCount(userAddress);
+
     // no need to approve AVAX
     if (srcToken !== activeNetwork.networkToken.symbol) {
       const contract = new ethers.Contract(
@@ -174,6 +176,13 @@ export class PerformSwapHandler implements HandlerType {
         ERC20.abi,
         provider
       );
+
+      if (!contract.allowance) {
+        return {
+          ...request,
+          error: `Allowance Conract Error`,
+        };
+      }
 
       const [allowance, allowanceError] = await resolve(
         contract.allowance(userAddress, spender)
@@ -186,26 +195,26 @@ export class PerformSwapHandler implements HandlerType {
         };
       }
 
-      if ((allowance as BigNumber).lt(sourceAmount)) {
+      if (allowance < sourceAmount) {
         const [approveGasLimit] = await resolve(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          contract.estimateGas.approve!(spender, sourceAmount)
+          contract.approve!.estimateGas(spender, sourceAmount)
         );
 
-        if (!(allowance as BigNumber).gte(sourceAmount)) {
+        if (allowance < sourceAmount) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const { data } = await contract.populateTransaction.approve!(
+          const { data } = await contract.approve!.populateTransaction(
             spender,
             sourceAmount
           );
           const [signedTx, signError] = await resolve(
             this.walletService.sign(
               {
-                nonce: await provider.getTransactionCount(userAddress),
+                nonce,
                 chainId: ChainId.AVALANCHE_MAINNET_ID,
                 gasPrice: defaultGasPrice?.low.maxFee,
                 gasLimit: approveGasLimit
-                  ? approveGasLimit.toNumber()
+                  ? Number(approveGasLimit)
                   : Number(gasLimit),
                 data,
                 to: srcTokenAddress,
@@ -213,6 +222,8 @@ export class PerformSwapHandler implements HandlerType {
               request.tabId
             )
           );
+
+          nonce++;
 
           if (signError) {
             return {
@@ -285,9 +296,9 @@ export class PerformSwapHandler implements HandlerType {
     const [signedTx, signError] = await resolve(
       this.walletService.sign(
         {
-          nonce: await provider.getTransactionCount(userAddress),
+          nonce,
           chainId: ChainId.AVALANCHE_MAINNET_ID,
-          gasPrice: BigNumber.from(gasPrice ? gasPrice : defaultGasPrice?.low),
+          gasPrice: gasPrice ? gasPrice : defaultGasPrice?.low.maxFee,
           gasLimit: Number(txBuildData.gas),
           data: txBuildData.data,
           to: txBuildData.to,

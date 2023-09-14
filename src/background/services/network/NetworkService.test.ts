@@ -8,6 +8,7 @@ import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
+import { Network } from 'ethers';
 
 jest.mock('@avalabs/wallets-sdk', () => {
   const BlockCypherProviderMock = jest.fn();
@@ -165,7 +166,7 @@ describe('background/services/network/NetworkService', () => {
       expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
         40,
         mockEVMNetwork.rpcUrl,
-        mockEVMNetwork.chainId
+        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
       );
       expect((provider as JsonRpcBatchInternal).pollingInterval).toEqual(2000);
       expect(provider).toBe(mockJsonRpcBatchInternalInstance);
@@ -191,7 +192,7 @@ describe('background/services/network/NetworkService', () => {
           multiContractAddress: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         },
         mockEVMNetwork.rpcUrl,
-        mockEVMNetwork.chainId
+        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
       );
     });
 
@@ -211,7 +212,7 @@ describe('background/services/network/NetworkService', () => {
       expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
         40,
         'https://urlwithglacierkey.example',
-        mockEVMNetwork.chainId
+        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
       );
     });
 

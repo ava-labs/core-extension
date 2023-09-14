@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { BridgeTransaction, WrapStatus } from '@avalabs/bridge-sdk';
 
 export enum TransferEventType {
@@ -48,8 +47,8 @@ export const DefaultBridgeState: BridgeState = {
 
 export interface BtcTransactionResponse {
   hash: string;
-  gasLimit: BigNumber;
-  value: BigNumber;
+  gasLimit: bigint;
+  value: bigint;
   confirmations: number;
   from: string;
 }

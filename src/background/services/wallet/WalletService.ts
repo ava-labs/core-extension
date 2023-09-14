@@ -40,7 +40,7 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
-import { Wallet } from 'ethers';
+import { BaseWallet, Wallet } from 'ethers';
 import { networks } from 'bitcoinjs-lib';
 import { AccountsService } from '../accounts/AccountsService';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
@@ -473,7 +473,7 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     if (
-      !(wallet instanceof Wallet) &&
+      !(wallet instanceof BaseWallet) &&
       !(wallet instanceof LedgerSigner) &&
       !(wallet instanceof KeystoneWallet)
     ) {
@@ -545,7 +545,7 @@ export class WalletService implements OnLock, OnUnlock {
     const wallet = await this.getWallet();
     const activeNetwork = this.networkService.activeNetwork;
 
-    if (!wallet || !(wallet instanceof Wallet)) {
+    if (!wallet || !(wallet instanceof BaseWallet)) {
       throw new Error(
         wallet
           ? `this function not supported on your wallet`

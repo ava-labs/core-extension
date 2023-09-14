@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { ContactInput } from './ContactInput';
 import type { Contact } from '@avalabs/types';
-import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import BN from 'bn.js';
@@ -29,12 +28,12 @@ type SendFormProps = {
   tokensWBalances: TokenWithBalance[];
   onGasChanged(values: {
     customGasLimit?: number;
-    maxFeePerGas: BigNumber;
-    maxPriorityFeePerGas?: BigNumber;
+    maxFeePerGas: bigint;
+    maxPriorityFeePerGas?: bigint;
     feeType: GasFeeModifier;
   }): void;
   maxGasPrice?: string;
-  gasPrice?: BigNumber;
+  gasPrice?: bigint;
   selectedGasFee?: GasFeeModifier;
   onAddressBookToggled: (visible: boolean) => void;
   onTokenSelectToggled: (visible: boolean) => void;
@@ -149,7 +148,7 @@ export const SendForm = ({
         }}
       >
         <CustomFees
-          maxFeePerGas={gasPrice || networkFee?.low.maxFee || BigNumber.from(0)}
+          maxFeePerGas={gasPrice || networkFee?.low.maxFee || 0n}
           limit={sendState.customGasLimit || sendState.gasLimit || 0}
           onChange={onGasChanged}
           onModifierChangeCallback={(modifier: GasFeeModifier | undefined) => {

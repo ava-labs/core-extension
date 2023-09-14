@@ -9,7 +9,6 @@ import {
   getTokenAddress,
 } from '../utils';
 import { stringToBN } from '@avalabs/utils-sdk';
-import { BigNumber } from 'ethers';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
@@ -39,7 +38,7 @@ export function useSwapStateFunctions() {
 
   const [destinationInputField, setDestinationInputField] =
     useState<DestinationInput>('');
-  const [customGasPrice, setCustomGasPrice] = useState<BigNumber | undefined>(
+  const [customGasPrice, setCustomGasPrice] = useState<bigint | undefined>(
     networkFee?.low.maxFee
   );
 
@@ -143,8 +142,8 @@ export function useSwapStateFunctions() {
   const onGasChange = useCallback(
     (values: {
       customGasLimit?: number | undefined;
-      maxFeePerGas: BigNumber;
-      maxPriorityFeePerGas?: BigNumber | undefined;
+      maxFeePerGas: bigint;
+      maxPriorityFeePerGas?: bigint | undefined;
       feeType: GasFeeModifier;
       error?: boolean;
     }) => {

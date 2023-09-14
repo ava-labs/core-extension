@@ -1,5 +1,5 @@
 import type { Contact } from '@avalabs/types';
-import { isAddress } from 'ethers/lib/utils';
+import { isAddress } from 'ethers';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 
 export const isContactValid = (contact: Contact) => {

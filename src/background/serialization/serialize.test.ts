@@ -1,9 +1,8 @@
 import Big from 'big.js';
 import BN from 'bn.js';
-import { BigNumber } from 'ethers';
 import { ExtensionRequest } from '../connections/extensionConnection/models';
 import { DeserializableValue } from './deserialize';
-import { SerializableValue, serializeFromJSON } from './serialize';
+import { SerializableValue, serializeToJSON } from './serialize';
 
 describe('serialize', () => {
   const request = {
@@ -17,7 +16,6 @@ describe('serialize', () => {
     serializedValue: DeserializableValue
   ][] = [
     [new Big(bigString), { type: 'Big', value: bigString }],
-    [BigNumber.from(bigString), { type: 'BigNumber', value: bigString }],
     [new BN(bigString), { type: 'BN', value: bigString }],
     [BigInt(bigString), { type: 'BigInt', value: bigString }],
   ];
@@ -30,7 +28,7 @@ describe('serialize', () => {
         result: value,
       };
 
-      const serializedResponseString = serializeFromJSON(response);
+      const serializedResponseString = serializeToJSON(response);
 
       expect(serializedResponseString).toEqual(
         JSON.stringify({ ...request, result: serializedValue })
@@ -72,7 +70,7 @@ describe('serialize', () => {
         result,
       };
 
-      const serializedResponseString = serializeFromJSON(response);
+      const serializedResponseString = serializeToJSON(response);
 
       expect(serializedResponseString).toEqual(
         JSON.stringify({
@@ -112,7 +110,7 @@ describe('serialize', () => {
         result,
       };
 
-      const serializedResponseString = serializeFromJSON(response);
+      const serializedResponseString = serializeToJSON(response);
 
       expect(serializedResponseString).toEqual(
         JSON.stringify({

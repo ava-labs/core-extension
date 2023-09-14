@@ -2,7 +2,7 @@
 
 import { DomainMetadata } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
-import * as ethers from 'ethers';
+import { TransactionDescription } from 'ethers';
 
 // A helper generic that turns only given keys (K) of type T
 // from optional to required.
@@ -33,14 +33,14 @@ export enum TransactionEvent {
 export interface TransactionDisplayValues {
   fromAddress?: string;
   toAddress?: string;
-  maxFeePerGas?: ethers.BigNumber;
-  maxPriorityFeePerGas?: ethers.BigNumber;
+  maxFeePerGas?: bigint;
+  maxPriorityFeePerGas?: bigint;
   contractType?: ContractCall;
   gasLimit?: number;
   fee?: string;
   feeUSD?: number;
   site?: DomainMetadata;
-  description?: ethers.utils.TransactionDescription;
+  description?: TransactionDescription;
   [key: string]: any;
 }
 

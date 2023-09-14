@@ -1,9 +1,8 @@
-import { deserializeToJSON } from '@src/background/serialization/deserialize';
-import { serializeFromJSON } from '@src/background/serialization/serialize';
+import { deserializeFromJSON } from '@src/background/serialization/deserialize';
 import { isDevelopment } from '@src/utils/environment';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { firstValueFrom, Subject } from 'rxjs';
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import {
   ExtensionConnectionMessageResponse,
   ExtensionConnectionMessage,
@@ -11,6 +10,7 @@ import {
   isConnectionEvent,
   ExtensionConnectionEvent,
 } from '../../background/connections/models';
+import { serializeToJSON } from '@src/background/serialization/serialize';
 
 const responseMap = new Map<
   string,
@@ -26,17 +26,20 @@ export function connectionRequest(request: ExtensionConnectionMessage) {
 export function connectionResponseHandler(
   eventHandler?: Subject<ExtensionConnectionEvent>
 ) {
-  return (
-    message: ExtensionConnectionMessageResponse | ExtensionConnectionEvent
-  ) => {
-    if (isConnectionEvent(message)) {
+  return (message: string) => {
+    const deserializedMessage = deserializeFromJSON<
+      ExtensionConnectionMessageResponse | ExtensionConnectionEvent
+    >(message);
+    if (deserializedMessage && isConnectionEvent(deserializedMessage)) {
       if (!eventHandler) return;
-      message.value = deserializeToJSON(message.value);
-      eventHandler.next(message);
-    } else if (isConnectionResponse(message)) {
-      const responseHandler = responseMap.get(message.id);
-      responseHandler?.next(message);
-      responseMap.delete(message.id);
+      eventHandler.next(deserializedMessage);
+    } else if (
+      deserializedMessage &&
+      isConnectionResponse(deserializedMessage)
+    ) {
+      const responseHandler = responseMap.get(deserializedMessage.id);
+      responseHandler?.next(deserializedMessage);
+      responseMap.delete(deserializedMessage.id);
     }
   };
 }
@@ -58,13 +61,11 @@ export function requestEngine(
       ...request,
       id: `${request.method}-${Math.floor(Math.random() * 10000000)}`,
     };
-    requestWithId.params = serializeFromJSON(requestWithId.params);
     const response = connectionRequest(requestWithId);
     isDevelopment() && requestLog('Extension Request', requestWithId);
-    connection.postMessage(requestWithId);
+    connection.postMessage(serializeToJSON(requestWithId));
     response.then((res) => {
       isDevelopment() && responseLog('Extension Response', res);
-      res.result = deserializeToJSON(res.result);
       return res;
     });
     return response;

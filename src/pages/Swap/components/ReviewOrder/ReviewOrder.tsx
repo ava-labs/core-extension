@@ -4,7 +4,6 @@ import { ReviewLoading } from './ReviewLoading';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { BigNumber } from 'ethers';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { BN } from 'bn.js';
@@ -34,7 +33,7 @@ export interface ReviewOrderProps {
   onClose: () => void;
   onConfirm: () => void;
   optimalRate: OptimalRate;
-  gasPrice: BigNumber;
+  gasPrice: bigint;
   slippage: string;
   onTimerExpire: () => void;
   isLoading: boolean;

@@ -1,16 +1,16 @@
-import { bigToLocaleString, ethersBigNumberToBig } from '@avalabs/utils-sdk';
-import { BigNumber } from 'ethers';
+import { bigToLocaleString } from '@avalabs/utils-sdk';
+import { bigintToBig } from './bigintToBig';
 
 type GasPriceArgs =
   | {
-      gasPrice: BigNumber;
+      gasPrice: bigint;
       maxFeePerGas?: never;
       maxPriorityFeePerGas?: never;
     }
   | {
       gasPrice?: never;
-      maxFeePerGas: BigNumber;
-      maxPriorityFeePerGas?: BigNumber;
+      maxFeePerGas: bigint;
+      maxPriorityFeePerGas?: bigint;
     };
 
 type Args = GasPriceArgs & {
@@ -33,15 +33,15 @@ export function calculateGasAndFees({
     throw new Error('Please provide gasPrice or maxFeePerGas parameters');
   }
 
-  const bnFee = gasLimit ? pricePerGas.mul(gasLimit) : pricePerGas;
+  const bnFee = gasLimit ? pricePerGas * BigInt(gasLimit) : pricePerGas;
   const bnTip =
     gasLimit && maxPriorityFeePerGas
-      ? maxPriorityFeePerGas.mul(gasLimit)
+      ? maxPriorityFeePerGas * BigInt(gasLimit)
       : maxPriorityFeePerGas;
 
-  const fee = bigToLocaleString(ethersBigNumberToBig(bnFee, tokenDecimals), 8);
+  const fee = bigToLocaleString(bigintToBig(bnFee, tokenDecimals), 8);
   const tip = bnTip
-    ? bigToLocaleString(ethersBigNumberToBig(bnTip, tokenDecimals), 8)
+    ? bigToLocaleString(bigintToBig(bnTip, tokenDecimals), 8)
     : null;
 
   const feeUSD = parseFloat((parseFloat(fee) * tokenPrice).toFixed(4));

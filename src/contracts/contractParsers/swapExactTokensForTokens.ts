@@ -7,19 +7,18 @@ import {
 } from './models';
 import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import { Network } from '@avalabs/chains-sdk';
 import { TokenWithBalanceERC20 } from '@src/background/services/balances/models';
 
 export interface SwapExactTokensForTokenData {
-  amountInMin: BigNumber;
-  amountIn: BigNumber;
-  amountInMax: BigNumber;
+  amountInMin: bigint;
+  amountIn: bigint;
+  amountInMax: bigint;
 
-  amountOutMin: BigNumber;
-  amountOut: BigNumber;
-  amountOutMax: BigNumber;
+  amountOutMin: bigint;
+  amountOut: bigint;
+  amountOutMax: bigint;
 
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
@@ -53,9 +52,9 @@ export async function swapExactTokensForTokenHandler(
         pathToken.address.toLowerCase() === firstTokenInPath?.toLowerCase() &&
         pathToken.decimals
       ) {
-        const amount: BigNumber =
+        const amount: bigint =
           data.amountIn || data.amountInMax || data.amountInMax;
-        const bn = hexToBN(amount.toHexString());
+        const bn = hexToBN(amount.toString(16));
         const amountValue = bigToLocaleString(
           bnToBig(bn, pathToken.decimals),
           4
@@ -78,7 +77,7 @@ export async function swapExactTokensForTokenHandler(
         pathToken.decimals
       ) {
         const amount = data.amountOutMin || data.amountOut || data.amountOutMax;
-        const bn = hexToBN(amount.toHexString());
+        const bn = hexToBN(amount.toString(16));
         const amountValue = bigToLocaleString(
           bnToBig(bn, pathToken.decimals),
           4

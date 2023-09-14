@@ -34,7 +34,7 @@ export class SendServiceBTC implements SendServiceHelper {
     outputs: BitcoinOutputUTXO[];
   }> {
     const { address: toAddress, amount } = sendState;
-    const feeRate = sendState.maxFeePerGas.toNumber();
+    const feeRate = sendState.maxFeePerGas;
     const provider = await this.networkService.getBitcoinProvider();
     const { utxos } = await this.getBalance();
 
@@ -42,7 +42,7 @@ export class SendServiceBTC implements SendServiceHelper {
       toAddress,
       this.address,
       amount.toNumber(),
-      feeRate,
+      Number(feeRate),
       utxos,
       provider.getNetwork()
     );
@@ -58,7 +58,7 @@ export class SendServiceBTC implements SendServiceHelper {
     sendState: SendState
   ): Promise<SendState | ValidSendState> {
     const { amount, address: toAddress } = sendState;
-    const feeRate = sendState.maxFeePerGas?.toNumber();
+    const feeRate = sendState.maxFeePerGas;
     const amountInSatoshis = amount?.toNumber() || 0;
     const { utxos } = await this.getBalance();
     const provider = await this.networkService.getBitcoinProvider();
@@ -100,7 +100,12 @@ export class SendServiceBTC implements SendServiceHelper {
     // Since we are only using bech32 addresses we can use this.address to estimate
     const maxAmount = new BN(
       Math.max(
-        getMaxTransferAmountBTC(utxos, toAddress, this.address, feeRate),
+        getMaxTransferAmountBTC(
+          utxos,
+          toAddress,
+          this.address,
+          Number(feeRate)
+        ),
         0
       )
     );
@@ -110,7 +115,7 @@ export class SendServiceBTC implements SendServiceHelper {
       toAddress,
       this.address,
       amountInSatoshis,
-      feeRate,
+      Number(feeRate),
       utxos,
       provider.getNetwork()
     );

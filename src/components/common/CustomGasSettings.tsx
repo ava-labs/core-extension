@@ -1,6 +1,5 @@
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { BigNumber, utils } from 'ethers';
 import { useEffect, useState } from 'react';
 import { PageTitle } from './PageTitle';
 import { useTranslation } from 'react-i18next';
@@ -17,11 +16,12 @@ import {
 } from '@avalabs/k2-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TextFieldLabel } from './TextFieldLabel';
+import { parseUnits } from 'ethers';
 
 type GasSettings = {
   gasLimit: number;
-  maxFeePerGas: BigNumber;
-  maxPriorityFeePerGas: BigNumber;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
 };
 
 type OnSave = (data: GasSettings) => void;
@@ -29,8 +29,8 @@ type OnSave = (data: GasSettings) => void;
 interface CustomGasSettingsProps {
   feeDisplayDecimals: number;
   gasLimit: number;
-  maxFeePerGas: BigNumber;
-  maxPriorityFeePerGas: BigNumber;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
   onSave: OnSave;
   onCancel(): void;
   network?: Network;
@@ -97,9 +97,9 @@ export function CustomGasSettings({
   const tokenDecimals = network?.networkToken.decimals ?? 18;
   const [customGasLimit, setCustomGasLimit] = useState<number>(gasLimit);
   const [customMaxFeePerGas, setCustomMaxFeePerGas] =
-    useState<BigNumber>(maxFeePerGas);
+    useState<bigint>(maxFeePerGas);
   const [customMaxPriorityFeePerGas, setCustomMaxPriorityFeePerGas] =
-    useState<BigNumber>(maxPriorityFeePerGas);
+    useState<bigint>(maxPriorityFeePerGas);
   const [errors, setErrors] = useState<{
     gasLimit?: string;
     maxFee?: string;
@@ -134,9 +134,14 @@ export function CustomGasSettings({
         gasLimit: t('Gas Limit too low'),
       }));
       hasErrors = true;
+    } else {
+      setErrors((existingErrors) => ({
+        ...existingErrors,
+        gasLimit: undefined,
+      }));
     }
 
-    if (customMaxPriorityFeePerGas.gt(customMaxFeePerGas)) {
+    if (customMaxPriorityFeePerGas > customMaxFeePerGas) {
       setErrors((existingErrors) => ({
         ...existingErrors,
         maxPriorityFee: t(
@@ -144,6 +149,11 @@ export function CustomGasSettings({
         ),
       }));
       hasErrors = true;
+    } else {
+      setErrors((existingErrors) => ({
+        ...existingErrors,
+        maxPriorityFee: undefined,
+      }));
     }
 
     if (hasErrors) {
@@ -205,13 +215,10 @@ export function CustomGasSettings({
             autoFocus
             fullWidth
             type={'number'}
-            value={customMaxFeePerGas.div(Math.pow(10, feeDisplayDecimals))}
+            value={Number(customMaxFeePerGas) / 10 ** feeDisplayDecimals}
             onChange={(evt) => {
               setCustomMaxFeePerGas(
-                utils.parseUnits(
-                  evt.currentTarget.value || '0',
-                  feeDisplayDecimals
-                )
+                parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals)
               );
             }}
             error={!!errors.maxFee}
@@ -236,15 +243,12 @@ export function CustomGasSettings({
             autoFocus
             fullWidth
             type={'number'}
-            value={customMaxPriorityFeePerGas.div(
-              Math.pow(10, feeDisplayDecimals)
-            )}
+            value={
+              Number(customMaxPriorityFeePerGas) / 10 ** feeDisplayDecimals
+            }
             onChange={(evt) => {
               setCustomMaxPriorityFeePerGas(
-                utils.parseUnits(
-                  evt.currentTarget.value || '0',
-                  feeDisplayDecimals
-                )
+                parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals)
               );
             }}
             error={!!errors.maxPriorityFee}

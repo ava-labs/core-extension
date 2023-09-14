@@ -9,7 +9,6 @@ import { ethErrors } from 'eth-rpc-errors';
 import { SendServiceBTC } from '@src/background/services/send/SendServiceBTC';
 import { ValidSendState } from '@src/background/services/send/models';
 import BN from 'bn.js';
-import { BigNumber } from 'ethers';
 import { DisplayData_BitcoinSendTx } from '@src/background/services/wallet/handlers/models';
 import { BalancesServiceBTC } from '@src/background/services/balances/BalancesServiceBTC';
 import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
@@ -98,7 +97,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
     const sendState = {
       address,
       amount: new BN(amountSatoshi),
-      maxFeePerGas: BigNumber.from(feeRate),
+      maxFeePerGas: BigInt(feeRate),
     };
 
     const verifiedState =

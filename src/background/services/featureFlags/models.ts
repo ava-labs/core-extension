@@ -17,6 +17,7 @@ export const DEFAULT_FLAGS = {
   [FeatureGates.BOTTOM_NAVIGATION]: true,
   [FeatureGates.DEFI]: true,
   [FeatureGates.IMPORT_WALLET_CONNECT]: true,
+  [FeatureGates.IMPORT_FIREBLOCKS]: true,
 };
 
 export enum FeatureFlagEvents {

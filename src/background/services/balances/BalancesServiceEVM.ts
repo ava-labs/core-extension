@@ -1,12 +1,9 @@
-import { Provider } from '@ethersproject/providers';
 import { singleton } from 'tsyringe';
-import { ethers } from 'ethers';
+import { JsonRpcProvider, Provider, ethers } from 'ethers';
 import {
   balanceToDisplayValue,
-  ethersBigNumberToBig,
   bigToBN,
   numberToBN,
-  ethersBigNumberToBN,
   bnToBig,
 } from '@avalabs/utils-sdk';
 import { NetworkService } from '@src/background/services/network/NetworkService';
@@ -20,6 +17,7 @@ import { SettingsService } from '../settings/SettingsService';
 import BN from 'bn.js';
 import { Account } from '../accounts/models';
 import * as Sentry from '@sentry/browser';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 @singleton()
 export class BalancesServiceEVM {
@@ -31,9 +29,7 @@ export class BalancesServiceEVM {
   ) {}
 
   getServiceForProvider(provider: any) {
-    // I dont know another prop that would be more ethereum based. If you know of one then please
-    // update.
-    if (!!provider && !!(provider as any).getEtherPrice) return this;
+    if (!!provider && provider instanceof JsonRpcProvider) return this;
   }
 
   public async getNativeTokenBalance(
@@ -43,7 +39,7 @@ export class BalancesServiceEVM {
     tokenPrice?: number
   ): Promise<NetworkTokenWithBalance> {
     const balanceBig = await provider.getBalance(userAddress);
-    const big = ethersBigNumberToBig(balanceBig, network.networkToken.decimals);
+    const big = bigintToBig(balanceBig, network.networkToken.decimals);
     const balance = bigToBN(big, network.networkToken.decimals);
 
     return {
@@ -77,10 +73,9 @@ export class BalancesServiceEVM {
           ERC20.abi,
           provider
         );
-        const balanceBig = await contract.balanceOf(userAddress);
+        const balanceBig = await contract.balanceOf?.(userAddress);
         const balance =
-          ethersBigNumberToBN(balanceBig) ||
-          numberToBN(0, token.decimals || 18);
+          new BN(balanceBig) || numberToBN(0, token.decimals || 18);
 
         const tokenWithBalance = {
           ...token,

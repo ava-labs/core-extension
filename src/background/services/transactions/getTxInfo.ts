@@ -1,5 +1,4 @@
-import * as ethers from 'ethers';
-import { Interface } from 'ethers/lib/utils';
+import { Interface, TransactionDescription } from 'ethers';
 import {
   ContractSourceCodeResponse,
   getABIForContract,
@@ -9,8 +8,8 @@ import { ChainId, Network } from '@avalabs/chains-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 
 export function isTxDescriptionError(
-  desc: ethers.utils.TransactionDescription | { error: string }
-): desc is ethers.utils.TransactionDescription {
+  desc: TransactionDescription | { error: string }
+): desc is TransactionDescription {
   // eslint-disable-next-line no-prototype-builtins
   return !!desc && !desc.hasOwnProperty('error');
 }
@@ -18,7 +17,7 @@ export function isTxDescriptionError(
 function parseDataWithABI(
   data: string,
   value: string,
-  contractInterface: ethers.ethers.utils.Interface
+  contractInterface: Interface
 ) {
   try {
     const finalResponse = contractInterface.parseTransaction({

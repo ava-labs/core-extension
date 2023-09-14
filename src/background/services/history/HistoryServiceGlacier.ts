@@ -35,11 +35,12 @@ export class HistoryServiceGlacier {
     }
 
     try {
-      const response = await this.glacierSdkInstance.evm.listTransactions({
-        chainId: network.chainId.toString(),
-        address: account,
-        pageSize: 25,
-      });
+      const response =
+        await this.glacierSdkInstance.evmTransactions.listTransactions({
+          chainId: network.chainId.toString(),
+          address: account,
+          pageSize: 25,
+        });
 
       const convertedItems = await Promise.all(
         response.transactions

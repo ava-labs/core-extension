@@ -1,5 +1,5 @@
 import { isBech32Address } from '@avalabs/bridge-sdk';
-import { isAddress } from 'ethers/lib/utils';
+import { isAddress } from 'ethers';
 
 export const isValidAddress = (address: string) => {
   return !!address.length && isAddress(address);

@@ -20,13 +20,13 @@ import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { UpdateTransactionHandler } from '@src/background/services/transactions/handlers/updateTransaction';
 import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
-import { BigNumber, constants } from 'ethers';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 import { Network } from '@avalabs/chains-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useDialog } from '@src/contexts/DialogContextProvider';
 import { BN } from 'bn.js';
+import { MaxUint256 } from 'ethers';
 
 export const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
@@ -42,8 +42,8 @@ export function useGetTransaction(requestId: string) {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [customGas, setCustomGas] = useState<{
     gasLimit?: number;
-    maxFeePerGas: BigNumber;
-    maxPriorityFeePerGas?: BigNumber;
+    maxFeePerGas: bigint;
+    maxPriorityFeePerGas?: bigint;
   } | null>(null);
   const [hash, setHash] = useState<string>('');
   const [showCustomSpendLimit, setShowCustomSpendLimit] =
@@ -78,8 +78,8 @@ export function useGetTransaction(requestId: string) {
     (
       values: {
         customGasLimit?: number;
-        maxFeePerGas: BigNumber;
-        maxPriorityFeePerGas?: BigNumber;
+        maxFeePerGas: bigint;
+        maxPriorityFeePerGas?: bigint;
         feeType: GasFeeModifier;
       },
       tx?: Transaction
@@ -162,7 +162,7 @@ export function useGetTransaction(requestId: string) {
           ...customSpendData,
           value: undefined,
         });
-        limitAmount = constants.MaxUint256.toHexString();
+        limitAmount = MaxUint256.toString(16);
         setDisplaySpendLimit(UNLIMITED_SPEND_LIMIT_LABEL);
       } else {
         setCustomSpendLimit(customSpendData);
@@ -230,9 +230,7 @@ export function useGetTransaction(requestId: string) {
 
   useEffect(() => {
     if (transaction?.displayValues?.approveData?.limit) {
-      if (
-        constants.MaxUint256.eq(transaction.displayValues.approveData.limit)
-      ) {
+      if (MaxUint256 === BigInt(transaction.displayValues.approveData.limit)) {
         setDisplaySpendLimit(UNLIMITED_SPEND_LIMIT_LABEL);
         setLimitFiatValue(UNLIMITED_SPEND_LIMIT_LABEL);
       } else {

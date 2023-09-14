@@ -67,8 +67,8 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const [utxos, setUtxos] = useState<BitcoinInputUTXO[]>();
   const [feeRates, setFeeRates] = useState<NetworkFee | null>();
 
-  const feeRate = useMemo(() => {
-    return feeRates?.high.maxFee.toNumber() || 0;
+  const feeRate: number = useMemo(() => {
+    return Number(feeRates?.high.maxFee || 0n);
   }, [feeRates]);
 
   const maximum = useMemo(() => {

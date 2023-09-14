@@ -3,9 +3,9 @@ import {
   BitcoinOutputUTXO,
   DerivationPath,
 } from '@avalabs/wallets-sdk';
-import { TransactionRequest } from '@ethersproject/providers';
 import { ImportType } from '../accounts/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { TransactionRequest } from 'ethers';
 
 export type SignTransactionRequest =
   | TransactionRequest

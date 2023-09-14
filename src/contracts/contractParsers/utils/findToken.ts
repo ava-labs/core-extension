@@ -62,6 +62,11 @@ export async function findToken(
   }
 
   const contract = new ethers.Contract(address, ERC20.abi, provider);
+
+  if (!contract.balanceOf) {
+    return UNKNOWN_TOKEN(address);
+  }
+
   const balance = await contract.balanceOf(
     accountsService.activeAccount.addressC
   );

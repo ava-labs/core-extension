@@ -28,7 +28,6 @@ import {
   TransferEventType,
   BtcTransactionResponse,
 } from './models';
-import { TransactionResponse } from '@ethersproject/providers';
 import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
 import { singleton } from 'tsyringe';
@@ -40,7 +39,7 @@ import Big from 'big.js';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
-import { BigNumber } from 'ethers';
+import { TransactionResponse } from 'ethers';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -192,10 +191,9 @@ export class BridgeService implements OnLock, OnStorageReady {
     const amountInSatoshis = btcToSatoshi(amount);
 
     // mimicing the same feeRate in useBtcBridge
-    const feeRate =
-      (
-        await this.networkFeeService.getNetworkFee(btcNetwork)
-      )?.high.maxFee.toNumber() ?? 0;
+    const feeRate = Number(
+      (await this.networkFeeService.getNetworkFee(btcNetwork))?.high.maxFee ?? 0
+    );
 
     const token =
       this.networkBalancesService.balances[btcNetwork.chainId]?.[addressBtc]?.[
@@ -230,8 +228,8 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     return {
       hash: sendResult.hash,
-      gasLimit: BigNumber.from(sendResult.fees),
-      value: BigNumber.from(amountInSatoshis),
+      gasLimit: BigInt(sendResult.fees),
+      value: BigInt(amountInSatoshis),
       confirmations: sendResult.confirmations,
       from: addressBtc,
     };

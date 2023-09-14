@@ -15,7 +15,6 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
-import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import {
   TokenType,
@@ -453,10 +452,11 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={(customGasPrice || networkFee?.low.maxFee || BigNumber.from(0))
-            .mul(gasLimit)
-            .div((10 ** (network?.networkToken.decimals ?? 18)).toString())
-            .toString()}
+          fee={(
+            ((customGasPrice || networkFee?.low.maxFee || 0n) *
+              BigInt(gasLimit)) /
+            10n ** BigInt(network?.networkToken.decimals ?? 18)
+          ).toString()}
           feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}
           symbol={selectedFromToken?.symbol}

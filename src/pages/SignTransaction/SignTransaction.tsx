@@ -31,10 +31,9 @@ import { SignTxErrorBoundary } from './components/SignTxErrorBoundary';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
-import { BigNumber } from 'ethers';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
-import { ethersBigNumberToBN, hexToBN } from '@avalabs/utils-sdk';
+import { hexToBN } from '@avalabs/utils-sdk';
 import { Trans, useTranslation } from 'react-i18next';
 import { RawTransactionData } from './components/RawTransactionData';
 import { CustomFees } from '@src/components/common/CustomFees';
@@ -44,12 +43,13 @@ import { KeystoneApprovalOverlay } from './KeystoneApprovalOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import Dialog from '@src/components/common/Dialog';
 import { TransactionErrorDialog } from './TransactionErrorDialog';
+import { BN } from 'bn.js';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
 ): displayData is TransactionDisplayValuesWithGasData => {
   return (
-    displayData.maxFeePerGas instanceof BigNumber &&
+    typeof displayData.maxFeePerGas === 'bigint' &&
     typeof displayData.gasLimit === 'number' &&
     displayData.gasLimit > 0
   );
@@ -99,9 +99,11 @@ export function SignTransactionPage() {
     return tokens
       .find(({ type }) => type === TokenType.NATIVE)
       ?.balance.gte(
-        ethersBigNumberToBN(
-          params.maxFeePerGas?.mul(params.gasLimit || BigNumber.from(0)) ??
-            BigNumber.from(0)
+        new BN(
+          (params.maxFeePerGas
+            ? params.maxFeePerGas * BigInt(params.gasLimit || 0n)
+            : 0n
+          ).toString()
         )
       );
   }, [tokens, params.maxFeePerGas, params.gasLimit]);

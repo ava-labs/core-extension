@@ -10,15 +10,14 @@ import {
 } from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
-import { TransactionResponse } from '@ethersproject/providers';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { BigNumber } from 'ethers';
 import { AccountType, PrimaryAccount } from '../../accounts/models';
 import { BtcTransactionResponse } from '../models';
 import { Action, ActionStatus } from './../../actions/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
+import { TransactionResponse } from 'ethers';
 import { TokenType } from '../../balances/models';
 import { BN } from 'bn.js';
 
@@ -220,8 +219,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   const btcResult: BtcTransactionResponse = {
     hash: '123hash123',
-    gasLimit: BigNumber.from(1),
-    value: BigNumber.from(2),
+    gasLimit: 1n,
+    value: 2n,
     confirmations: 3,
     from: '123from123',
   };
@@ -250,15 +249,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   const ethResult: TransactionResponse = {
     hash: '987hash987',
-    gasLimit: BigNumber.from(9),
-    value: BigNumber.from(8),
-    confirmations: 7,
+    gasLimit: 9n,
+    value: 8n,
+    confirmations: async () => 7,
     from: '987from987',
     wait: jest.fn(),
     nonce: 9,
     data: '987data987',
-    chainId: 8,
-  };
+    chainId: 8n,
+  } as any as TransactionResponse;
 
   const openApprovalWindowSpy = jest.spyOn(
     DAppRequestHandler.prototype,

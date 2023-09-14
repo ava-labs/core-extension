@@ -7,16 +7,16 @@ import {
   LiquidityPoolToken,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import { Network } from '@avalabs/chains-sdk';
-import { bigToLocaleString, ethersBigNumberToBig } from '@avalabs/utils-sdk';
+import { bigToLocaleString } from '@avalabs/utils-sdk';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 export interface AddLiquidityData {
-  amountAMin: BigNumber;
-  amountADesired: BigNumber;
-  amountBMin: BigNumber;
-  amountBDesired: BigNumber;
+  amountAMin: bigint;
+  amountADesired: bigint;
+  amountBMin: bigint;
+  amountBDesired: bigint;
   contractCall: ContractCall.ADD_LIQUIDITY;
   deadline: string;
   tokenA: string;
@@ -41,7 +41,7 @@ export async function addLiquidityHandler(
   const tokenB = await findToken(data.tokenB.toLowerCase(), network);
 
   const firstTokenAmountDepositedDisplayValue = bigToLocaleString(
-    ethersBigNumberToBig(data.amountADesired, tokenA.decimals),
+    bigintToBig(data.amountADesired, tokenA.decimals),
     4
   );
   const tokenA_AmountUSDValue =
@@ -55,7 +55,7 @@ export async function addLiquidityHandler(
   };
 
   const secondTokenAmountDepositedDisplayValue = bigToLocaleString(
-    ethersBigNumberToBig(data.amountBDesired, tokenB.decimals),
+    bigintToBig(data.amountBDesired, tokenB.decimals),
     4
   );
   const tokenB_AmountUSDValue =

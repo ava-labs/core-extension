@@ -4,7 +4,6 @@ import { StorageService } from '../storage/StorageService';
 import { NetworkService } from '../network/NetworkService';
 import { LedgerService } from '../ledger/LedgerService';
 import { LockService } from '../lock/LockService';
-import { Wallet } from '@ethersproject/wallet';
 import {
   personalSign,
   signTypedData,
@@ -49,6 +48,7 @@ import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { WalletPolicy } from 'ledger-bitcoin';
+import { BaseWallet, SigningKey } from 'ethers';
 
 jest.mock('../storage/StorageService');
 jest.mock('../network/NetworkService');
@@ -79,7 +79,9 @@ describe('background/services/wallet/WalletService.ts', () => {
   let lockService: LockService;
   let keystoneService: KeystoneService;
 
-  const walletMock = Object.create(Wallet.prototype);
+  const privateKeyMock =
+    '4ae3e293d0161fa90bfbf51028ceb1e51fe70bc6167afe4e0fe0927d86555503';
+  const walletMock = new BaseWallet(new SigningKey('0x' + privateKeyMock));
   const btcWalletMock = Object.create(BitcoinWallet.prototype);
   const btcLedgerWalletMock = Object.create(BitcoinLedgerWallet.prototype);
   const btcKeystoneWalletMock = Object.create(BitcoinKeystoneWallet.prototype);
@@ -90,7 +92,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     Avalanche.SimpleLedgerSigner.prototype
   );
   const keystoneWalletMock = Object.create(KeystoneWallet.prototype);
-  const privateKeyMock = 'privateKey';
   const mnemonic = 'mnemonic';
 
   let getDefaultFujiProviderMock: jest.Mock;
@@ -571,7 +572,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       await walletService.signMessage(MessageType.ETH_SIGN, {});
       expect(Buffer.from).toHaveBeenCalledTimes(1);
-      expect(Buffer.from).toHaveBeenCalledWith(walletMock.privateKey, 'hex');
+      expect(Buffer.from).toHaveBeenCalledWith(privateKeyMock, 'hex');
       expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
       expect(bufferInstance.fill).toHaveBeenCalledWith(0);
     });
@@ -583,7 +584,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         await walletService.signMessage('test' as MessageType, {});
       } catch (error) {
         expect(Buffer.from).toHaveBeenCalledTimes(1);
-        expect(Buffer.from).toHaveBeenCalledWith(walletMock.privateKey, 'hex');
+        expect(Buffer.from).toHaveBeenCalledWith(privateKeyMock, 'hex');
         expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
         expect(bufferInstance.fill).toHaveBeenCalledWith(0);
       }
