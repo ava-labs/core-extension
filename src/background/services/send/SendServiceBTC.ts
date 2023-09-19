@@ -123,6 +123,7 @@ export class SendServiceBTC implements SendServiceHelper {
     const newState: SendState = {
       ...sendState,
       canSubmit: !!psbt,
+      isValidating: false,
       loading: false,
       error: undefined,
       maxAmount,

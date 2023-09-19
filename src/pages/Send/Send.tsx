@@ -185,23 +185,29 @@ export function SendPage() {
 
   // restore page history
   useEffect(() => {
+    const inputAddress = contactInput?.address || contactInput?.addressBTC;
+    const stateUpdate = {
+      address: inputAddress || pageHistory.address,
+    };
+
     if (pageHistory.amountInput && !amountInputDisplay) {
       setAmountInputDisplay(pageHistory.amountInput);
-      updateSendState({
+      Object.assign(stateUpdate, {
         amount: stringToBN(
           pageHistory.amountInput || '0',
           selectedToken?.decimals || 9
         ),
-        address: contactInput?.address || pageHistory.address,
       });
     }
-    if (contactInput?.address && !sendState.address) {
-      updateSendState({ address: contactInput?.address });
+
+    if (Object.keys(stateUpdate).length > 0) {
+      updateSendState(stateUpdate);
     }
   }, [
     amountInput,
     amountInputDisplay,
     contactInput?.address,
+    contactInput?.addressBTC,
     pageHistory,
     selectedToken?.decimals,
     sendState.address,
@@ -372,7 +378,7 @@ export function SendPage() {
               >
                 <Tooltip
                   placement="top"
-                  wrapWithSpan={false}
+                  sx={{ width: '100%' }}
                   title={
                     sendState.error ? (
                       <Typography variant="body2">
@@ -399,7 +405,8 @@ export function SendPage() {
                         options: { path: '/send/confirm' },
                       });
                     }}
-                    disabled={!sendState.canSubmit}
+                    disabled={!sendState.canSubmit || sendState.isValidating}
+                    isLoading={sendState.isValidating}
                     fullWidth
                   >
                     {t('Next')}

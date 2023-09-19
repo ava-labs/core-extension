@@ -28,6 +28,7 @@ export interface SendState<T extends SendableToken = SendableToken> {
   customGasLimit?: number;
   canSubmit?: boolean;
   loading?: boolean;
+  isValidating?: boolean;
   token?: T;
   txId?: string;
 }

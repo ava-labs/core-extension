@@ -11,6 +11,7 @@ import {
   filter,
   Subject,
   concatMap,
+  switchMap,
 } from 'rxjs';
 import { getDefaultSendForm, SendStateWithActions } from '../models';
 
@@ -27,29 +28,50 @@ export function useSend<
     []
   );
 
+  const setIsValidating = useCallback((isValidating) => {
+    setSendState((state) => ({ ...state, isValidating }));
+  }, []);
+
   useEffect(() => {
     const subscription = backgroundQueue.current
       .pipe(
-        bufferTime(300), // buffer all updates
+        bufferTime(500), // buffer all updates
         filter((updates) => updates.length > 0), // do nothing when no updates
-        distinctUntilChanged(),
-        concatMap((updates) => {
-          const newState = Object.assign(stateRef.current, ...updates); // merge all updates
+        concatMap(
+          async (updates) =>
+            Object.assign({}, stateRef.current, ...updates) as SendState<T>
+        ),
+        distinctUntilChanged(
+          // Ignore the updates if they did not result in any actual change
+          (prev, curr) => {
+            const hasNoChanges = JSON.stringify(prev) === JSON.stringify(curr);
 
-          return request<SendValidateHandlerType<T>>({
+            // If there are no changes, the pipeline will stop here, so if that's
+            // the case, we need to notify the UI that validation is complete.
+            if (hasNoChanges) {
+              setIsValidating(false);
+              stateRef.current = { ...stateRef.current, isValidating: false };
+            }
+
+            return hasNoChanges;
+          }
+        ),
+        switchMap((newState) =>
+          request<SendValidateHandlerType<T>>({
             method: ExtensionRequest.SEND_VALIDATE,
             params: newState,
-          });
-        })
+          })
+        )
       )
       .subscribe((validatedState) => {
+        stateRef.current = validatedState;
         setSendState(validatedState);
       });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [request]);
+  }, [request, setIsValidating]);
 
   useEffect(() => {
     // Get initial maxAmount, fees, etc.
@@ -58,9 +80,14 @@ export function useSend<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateSendState = useCallback((updates: Partial<SendState<T>>) => {
-    backgroundQueue.current.next(updates);
-  }, []);
+  const updateSendState = useCallback(
+    (updates: Partial<SendState<T>>) => {
+      // Notify the UI that there is a validation request in progress
+      setIsValidating(true);
+      backgroundQueue.current.next(updates);
+    },
+    [setIsValidating]
+  );
 
   const submitSendState = useCallback(async () => {
     if (!sendState) return Promise.resolve('');

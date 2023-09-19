@@ -74,6 +74,7 @@ export class SendServiceEVM implements SendServiceHelper {
     const newState: SendState = {
       ...sendState,
       canSubmit: true,
+      isValidating: false,
       loading: token.balance.gt(new BN(0))
         ? !maxAmount || !maxFeePerGas
         : false,
