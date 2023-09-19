@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { SendableToken } from '@src/background/services/balances/models';
 import { SendSubmitHandler } from '@src/background/services/send/handlers/SendSubmitHandler';
@@ -44,7 +45,7 @@ export function useSend<
         distinctUntilChanged(
           // Ignore the updates if they did not result in any actual change
           (prev, curr) => {
-            const hasNoChanges = JSON.stringify(prev) === JSON.stringify(curr);
+            const hasNoChanges = isEqual(prev, curr);
 
             // If there are no changes, the pipeline will stop here, so if that's
             // the case, we need to notify the UI that validation is complete.
