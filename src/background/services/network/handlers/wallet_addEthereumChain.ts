@@ -69,6 +69,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       logoUri: requestedChain.iconUrls?.[0] || '',
       explorerUrl: requestedChain.blockExplorerUrls?.[0] || '',
       primaryColor: 'black',
+      isTestnet: !!requestedChain.isTestnet,
     };
 
     if (!customNetwork.chainName) {

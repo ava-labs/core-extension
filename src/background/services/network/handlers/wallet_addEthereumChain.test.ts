@@ -122,6 +122,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           name: 'AVAX',
           logoUri: '',
         },
+        isTestnet: false,
       },
       tabId: undefined,
       popupWindowId: 123,
@@ -347,6 +348,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           name: 'AVAX',
           logoUri: 'logo.png',
         },
+        isTestnet: false,
       },
       tabId: undefined,
       popupWindowId: 123,
@@ -399,6 +401,102 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           name: 'AVAX',
           logoUri: 'logo.png',
         },
+        isTestnet: false,
+      },
+      tabId: undefined,
+      popupWindowId: 123,
+    });
+  });
+
+  it('handles non standard isTestnet values', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          iconUrls: ['logo.png'],
+          isTestnet: 'ofc',
+        },
+      ],
+    };
+
+    const result = await handler.handleAuthenticated(request);
+
+    expect(result).toEqual({
+      ...request,
+      result: DEFERRED_RESPONSE,
+    });
+
+    expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
+    expect(openExtensionNewWindow).toHaveBeenCalledWith(
+      'networks/add-popup?actionId=uuid'
+    );
+    expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
+    expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
+      ...request,
+      id: 1234,
+      actionId: 'uuid',
+      displayData: expect.objectContaining({
+        isTestnet: true,
+      }),
+      tabId: undefined,
+      popupWindowId: 123,
+    });
+  });
+
+  it('adds testnet networks', async () => {
+    const request = {
+      id: 1234,
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          iconUrls: ['logo.png'],
+          isTestnet: true,
+        },
+      ],
+    };
+    const result = await handler.handleAuthenticated(request);
+
+    expect(result).toEqual({
+      ...request,
+      result: DEFERRED_RESPONSE,
+    });
+
+    expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
+    expect(openExtensionNewWindow).toHaveBeenCalledWith(
+      'networks/add-popup?actionId=uuid'
+    );
+    expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
+    expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
+      ...request,
+      id: 1234,
+      actionId: 'uuid',
+      displayData: {
+        chainId: 43112,
+        chainName: 'Avalanche',
+        vmName: NetworkVMType.EVM,
+        primaryColor: 'black',
+        rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+        logoUri: 'logo.png',
+        explorerUrl: 'https://snowtrace.io/',
+        networkToken: {
+          symbol: 'AVAX',
+          decimals: 18,
+          description: '',
+          name: 'AVAX',
+          logoUri: 'logo.png',
+        },
+        isTestnet: true,
       },
       tabId: undefined,
       popupWindowId: 123,

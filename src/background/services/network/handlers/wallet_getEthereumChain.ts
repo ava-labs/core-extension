@@ -2,13 +2,13 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { GetEthereumChainResponse } from '../models';
+import { AddEthereumChainParameter } from '../models';
 import { ethErrors } from 'eth-rpc-errors';
 import { Network } from '@avalabs/chains-sdk';
 
 export const networkToGetEthChainResponse = (
   network: Network
-): GetEthereumChainResponse => ({
+): AddEthereumChainParameter => ({
   chainId: `0x${network.chainId.toString(16)}`,
   chainName: network.chainName,
   rpcUrls: [network.rpcUrl],
@@ -39,7 +39,7 @@ export class WalletGetEthereumChainHandler extends DAppRequestHandler {
         }),
       };
     }
-    const result: GetEthereumChainResponse =
+    const result: AddEthereumChainParameter =
       networkToGetEthChainResponse(activeNetwork);
 
     return {
