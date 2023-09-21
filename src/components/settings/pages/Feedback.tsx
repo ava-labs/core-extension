@@ -9,10 +9,24 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import browser from 'webextension-polyfill';
+import { useEffect, useState } from 'react';
+
+const osMap = {
+  mac: 'macOS',
+  win: 'Windows',
+  linux: 'Linux',
+};
 
 export function Feedback({ goBack, navigateTo, width }) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const extensionVersion = browser.runtime.getManifest().version;
+  const [os, setOs] = useState('');
+
+  useEffect(() => {
+    browser.runtime.getPlatformInfo().then((res) => setOs(osMap[res.os]));
+  }, []);
 
   return (
     <Stack
@@ -43,7 +57,7 @@ export function Feedback({ goBack, navigateTo, width }) {
                 console.error(err);
               }
               window.open(
-                `https://docs.google.com/forms/d/e/1FAIpQLSdUQiVnJoqQ1g_6XTREpkSB5vxKKK8ba5DRjhzQf1XVeET8Rw/viewform?pli=1`,
+                `https://docs.google.com/forms/d/e/1FAIpQLSdUQiVnJoqQ1g_6XTREpkSB5vxKKK8ba5DRjhzQf1XVeET8Rw/viewform?usp=pp_url&entry.2070152111=Core%20browser%20extension&entry.903657115=${extensionVersion}&entry.1148340936=${os}`,
                 '_blank'
               );
             }}
