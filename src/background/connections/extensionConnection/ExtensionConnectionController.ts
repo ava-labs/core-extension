@@ -22,6 +22,9 @@ import { isDevelopment } from '@src/utils/environment';
 import './registry';
 import { serializeToJSON } from '@src/background/serialization/serialize';
 import { deserializeFromJSON } from '@src/background/serialization/deserialize';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
@@ -99,6 +102,10 @@ export class ExtensionConnectionController implements ConnectionController {
       try {
         this.connection?.postMessage(serializeToJSON(response));
       } catch (e) {
+        sentryCaptureException(
+          e as Error,
+          SentryExceptionTypes.EXTENSION_CONNECTION_MESSAGE
+        );
         console.error(e);
       }
     } else if (context) {
@@ -125,6 +132,10 @@ export class ExtensionConnectionController implements ConnectionController {
     try {
       this.connection?.postMessage(serializeToJSON(evt));
     } catch (e) {
+      sentryCaptureException(
+        e as Error,
+        SentryExceptionTypes.EXTENSION_CONNECTION_EVENT
+      );
       console.error(e);
     }
   }

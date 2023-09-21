@@ -1,5 +1,5 @@
 // initialize sentry first to enable error collection
-import '../utils/initSentry';
+import '../monitoring/initSentry';
 
 import { lazy, Suspense } from 'react';
 import { render } from 'react-dom';

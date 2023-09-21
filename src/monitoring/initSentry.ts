@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/browser';
-import { CaptureConsole } from '@sentry/integrations';
 import browser from 'webextension-polyfill';
 
 if (process.env.SENTRY_DSN) {
@@ -22,11 +21,11 @@ if (process.env.SENTRY_DSN) {
         history: false,
         console: false,
       }),
-      new CaptureConsole({ levels: ['error'] }),
     ],
     ignoreErrors: [
-      /^AbortError: The user aborted a request.$/, // ignore errors caused by chrome's throttling
-      /^Error: could not detect network \(event="noNetwork", code=NETWORK_ERROR, version=providers.+\)$/, // ignore ethers provider connection errors
+      /^.*The user aborted a request\.$/, // ignore errors caused by chrome's throttling
+      /^.*could not detect network.*$/, // ignore ethers provider connection errors
+      /^.*Failed to fetch$/, // ignore network errors
     ],
   });
 }

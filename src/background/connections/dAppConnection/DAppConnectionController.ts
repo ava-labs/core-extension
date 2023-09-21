@@ -33,6 +33,9 @@ import {
   JsonRpcRequest,
   JsonRpcSuccess,
 } from './models';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -152,6 +155,10 @@ export class DAppConnectionController implements ConnectionController {
         this.connection?.message(evt);
       }
     } catch (e) {
+      sentryCaptureException(
+        e as Error,
+        SentryExceptionTypes.DAPP_CONNECTION_EVENT
+      );
       console.error(e);
     }
   }
