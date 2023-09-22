@@ -40,7 +40,9 @@ import { GasFeeModifier } from '@src/components/common/CustomFees';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 
 const DEFAULT_DECIMALS = 9;
 
@@ -64,6 +66,9 @@ export function SendPage() {
 
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
   const [gasPriceState, setGasPrice] = useState<bigint>();
@@ -246,18 +251,7 @@ export function SendPage() {
     return '';
   }
 
-  const onSubmit = () => {
-    let pendingToastId = '';
-    setShowTxInProgress(true);
-    if (!sendState.canSubmit) return;
-    capture('SendApproved', {
-      selectedGasFee,
-    });
-    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
-      history.push('/home');
-      pendingToastId = toast.loading(t('Transaction pending...'));
-    }
-
+  function sendFunds(pendingToastId?: string) {
     submitSendState()
       .then((txId) => {
         resetSendState();
@@ -278,6 +272,27 @@ export function SendPage() {
           history.push('/home');
         }
       });
+  }
+
+  const handleSubmitClick = () => {
+    let pendingToastId = '';
+    setShowTxInProgress(true);
+    if (!sendState.canSubmit) return;
+    capture('SendApproved', {
+      selectedGasFee,
+    });
+    if (
+      !isUsingLedgerWallet &&
+      !isUsingKeystoneWallet &&
+      !isUsingWalletConnectAccount
+    ) {
+      history.push('/home');
+      pendingToastId = toast.loading(t('Transaction pending...'));
+    }
+
+    if (!isUsingWalletConnectAccount) {
+      sendFunds(pendingToastId);
+    }
   };
 
   const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
@@ -290,7 +305,7 @@ export function SendPage() {
     setIsTokenSelectOpen(visible);
   }, []);
 
-  if (!featureFlags[FeatureGates.SEND]) {
+  if (!featureFlags[FeatureGates.SEND] || !checkIsFunctionAvailable('Send')) {
     return <FunctionIsOffline functionName="Send" />;
   }
 
@@ -313,8 +328,10 @@ export function SendPage() {
                   selectedGasFee,
                 });
                 resetKeystoneRequest();
+                setShowTxInProgress(false);
                 history.goBack();
               }}
+              onSubmit={sendFunds}
             />
           )}
           <SendConfirm
@@ -322,7 +339,7 @@ export function SendPage() {
             contact={contactInput as Contact}
             token={selectedToken}
             fallbackAmountDisplayValue={amountInputDisplay}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmitClick}
             maxGasPrice={maxGasPrice}
             gasPrice={gasPriceState}
             selectedGasFee={selectedGasFee}

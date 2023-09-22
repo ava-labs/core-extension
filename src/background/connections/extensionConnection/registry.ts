@@ -109,7 +109,10 @@ import { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/
 import { CurrencyRatesUpdatedEvents } from '@src/background/services/currency/events/currencyRatesUpdatedEvent';
 import { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';
 import { DefiPortfolioUpdatedEvents } from '@src/background/services/defi/events/defiPortfolioUpdatedEvent';
+import { WalletConnectImportAccount } from '@src/background/services/walletConnect/handlers/walletConnectImportAccount';
+import { WalletConnectEvents } from '@src/background/services/walletConnect/events/walletConnectEvents';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
+import { EstablishRequiredSession } from '@src/background/services/walletConnect/handlers/establishRequiredSession';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -254,7 +257,15 @@ import { GetTokensListHandler } from '@src/background/services/tokens/handlers/g
   },
   {
     token: 'ExtensionRequestHandler',
+    useToken: WalletConnectImportAccount,
+  },
+  {
+    token: 'ExtensionRequestHandler',
     useToken: GetTokensListHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: EstablishRequiredSession,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}
@@ -287,5 +298,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: CurrencyRatesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: DefiPortfolioUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: WalletConnectEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

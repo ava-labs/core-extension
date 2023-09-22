@@ -103,7 +103,7 @@ export class UpdateTransactionHandler implements HandlerType {
           type,
         } = txToCustomEvmTx(pendingTx, calculatedFee);
 
-        const signedTx = await this.walletService.sign(
+        const signingResult = await this.walletService.sign(
           {
             nonce,
             chainId: Number(BigInt(pendingTx.chainId)),
@@ -120,7 +120,7 @@ export class UpdateTransactionHandler implements HandlerType {
         );
 
         const result = await this.networkService.sendTransaction(
-          signedTx,
+          signingResult,
           network
         );
 

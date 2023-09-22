@@ -63,6 +63,7 @@ import {
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -104,9 +105,12 @@ export function Bridge() {
   const { currencyFormatter, currency } = useSettingsContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
 
   const theme = useTheme();
   const [bridgeError, setBridgeError] = useState<string>('');
+  const [requiredSignatures, setRequiredSignatures] = useState(1);
+  const [currentSignature, setCurrentSignature] = useState(1);
 
   const [isPending, setIsPending] = useState<boolean>(false);
   const [transferWithLedger, setTransferWithLedger] = useState<boolean>(false);
@@ -410,10 +414,25 @@ export function Bridge() {
   const onSubmitClicked = () => {
     if (isUsingLedgerWallet) {
       setTransferWithLedger(true);
+    } else if (isUsingWalletConnectAccount) {
+      setIsPending(true);
     } else {
       handleTransfer();
     }
   };
+
+  useEffect(() => {
+    // If we see this status when bridging, this means we'll need two approvals
+    // from the user: first to wrap the asset, 2nd to deposit it.
+    if (wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT_CONFIRMATION) {
+      setRequiredSignatures(2);
+      setCurrentSignature(1);
+    }
+
+    if (wrapStatus === WrapStatus.WAITING_FOR_CONFIRMATION) {
+      setCurrentSignature(requiredSignatures);
+    }
+  }, [wrapStatus, requiredSignatures]);
 
   const handleTransfer = async () => {
     if (BIG_ZERO.eq(amount)) return;
@@ -544,10 +563,15 @@ export function Bridge() {
               address={t('Avalanche Bridge')}
               amount={bigToLocaleString(amount)}
               symbol={currentAsset}
+              currentSignature={currentSignature}
+              requiredSignatures={requiredSignatures}
               onReject={() => {
                 setTransferWithLedger(false);
                 resetKeystoneRequest();
                 setIsPending(false);
+              }}
+              onSubmit={() => {
+                handleTransfer();
               }}
             />
           )}

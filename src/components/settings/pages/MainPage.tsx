@@ -358,9 +358,10 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         </ListItem>
         <ListItem>
           <ListItemText>
-            <Typography variant="caption" sx={{ color: 'grey.400' }}>{`${t(
-              'Version'
-            )} ${extensionVersion}`}</Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: 'text.secondary' }}
+            >{`${t('Version')} ${extensionVersion}`}</Typography>
           </ListItemText>
         </ListItem>
       </List>

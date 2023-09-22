@@ -5,6 +5,7 @@ import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/h
 import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Action } from '@src/background/services/actions/models';
+import { AccountType } from '../../accounts/models';
 jest.mock('@src/utils/isBtcAddressInNetwork');
 
 describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', () => {
@@ -97,6 +98,58 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       {} as any,
       {} as any
     );
+
+    it('returns error if the active account is imported via WalletConnect', async () => {
+      jest.mocked(isBtcAddressInNetwork).mockReturnValueOnce(true);
+      const sendHandler = new BitcoinSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        balancesServiceBTCMock as any,
+        {
+          activeAccount: {
+            addressC: 'abcd1234',
+            addressBTC: 'bc1234',
+            type: AccountType.WALLET_CONNECT,
+          },
+        } as any,
+        sendServiceBtcMock as any,
+        balanceAggregatorServiceMock as any
+      );
+
+      const result = await sendHandler.handleAuthenticated(request);
+
+      expect(result).toEqual({
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'The active account does not support BTC transactions',
+        }),
+      });
+    });
+
+    it('returns error if the active account has no BTC address', async () => {
+      jest.mocked(isBtcAddressInNetwork).mockReturnValueOnce(true);
+      const sendHandler = new BitcoinSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        balancesServiceBTCMock as any,
+        {
+          activeAccount: {
+            addressC: 'abcd1234',
+          },
+        } as any,
+        sendServiceBtcMock as any,
+        balanceAggregatorServiceMock as any
+      );
+
+      const result = await sendHandler.handleAuthenticated(request);
+
+      expect(result).toEqual({
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'The active account does not support BTC transactions',
+        }),
+      });
+    });
 
     it('returns error if address is not provided', async () => {
       const req = {
@@ -317,6 +370,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       const onSuccessMock = jest.fn();
       const onErrorMock = jest.fn();
 
+      signMock.mockResolvedValue({ signedTx: 'resultHash' });
       sendTransactionMock.mockReturnValueOnce('resultHash');
       await handler.onActionApproved(
         pendingActionMock,

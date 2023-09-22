@@ -122,7 +122,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
     try {
       const result = await this.walletService.signMessage(
         pendingAction.method as MessageType,
-        pendingAction.displayData.messageParams.data
+        pendingAction
       );
       onSuccess(result);
     } catch (e) {

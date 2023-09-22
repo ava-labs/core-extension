@@ -249,23 +249,25 @@ export const AccountItem = forwardRef(
                 />
               </Stack>
 
-              <Stack
-                direction="row"
-                data-testid="account-selector-copy-btc-address"
-                sx={{ gap: 1 }}
-              >
-                <BitcoinColorIcon size={17} />
-                <SimpleAddress
-                  address={account.addressBTC}
-                  iconColor={isActive ? 'text.secondary' : 'text.primary'}
-                  textColor="text.secondary"
-                  copyCallback={() => {
-                    capture('AccountSelectorBtcAddressCopied', {
-                      type: account.type,
-                    });
-                  }}
-                />
-              </Stack>
+              {account.addressBTC && (
+                <Stack
+                  direction="row"
+                  data-testid="account-selector-copy-btc-address"
+                  sx={{ gap: 1 }}
+                >
+                  <BitcoinColorIcon size={17} />
+                  <SimpleAddress
+                    address={account.addressBTC}
+                    iconColor={isActive ? 'text.secondary' : 'text.primary'}
+                    textColor="text.secondary"
+                    copyCallback={() => {
+                      capture('AccountSelectorBtcAddressCopied', {
+                        type: account.type,
+                      });
+                    }}
+                  />
+                </Stack>
+              )}
             </Stack>
 
             {account.type !== AccountType.PRIMARY && (

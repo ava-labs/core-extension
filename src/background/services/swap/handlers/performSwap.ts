@@ -207,7 +207,7 @@ export class PerformSwapHandler implements HandlerType {
             spender,
             sourceAmount
           );
-          const [signedTx, signError] = await resolve(
+          const [allowanceSignResult, signError] = await resolve(
             this.walletService.sign(
               {
                 nonce,
@@ -233,7 +233,7 @@ export class PerformSwapHandler implements HandlerType {
           }
 
           const [hash, approveError] = await resolve(
-            this.networkService.sendTransaction(signedTx)
+            this.networkService.sendTransaction(allowanceSignResult)
           );
 
           if (approveError) {
@@ -293,7 +293,7 @@ export class PerformSwapHandler implements HandlerType {
       };
     }
 
-    const [signedTx, signError] = await resolve(
+    const [signResult, signError] = await resolve(
       this.walletService.sign(
         {
           nonce,
@@ -319,7 +319,7 @@ export class PerformSwapHandler implements HandlerType {
     }
 
     const [swapTxHash, txError] = await resolve(
-      this.networkService.sendTransaction(signedTx)
+      this.networkService.sendTransaction(signResult)
     );
 
     if (txError) {

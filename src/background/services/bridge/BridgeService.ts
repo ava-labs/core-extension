@@ -38,6 +38,7 @@ import Big from 'big.js';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { AccountType } from '../accounts/models';
 import { FeatureGates } from '../featureFlags/models';
 import { TransactionResponse } from 'ethers';
 
@@ -173,7 +174,15 @@ export class BridgeService implements OnLock, OnStorageReady {
     if (!this.config?.config) {
       throw new Error('Missing bridge config');
     }
-    const addressBtc = this.accountsService.activeAccount?.addressBTC;
+
+    const { activeAccount } = this.accountsService;
+
+    if (activeAccount?.type === AccountType.WALLET_CONNECT) {
+      throw new Error('WalletConnect accounts are not supported by Bridge yet');
+    }
+
+    const addressBtc = activeAccount?.addressBTC;
+
     if (!addressBtc) {
       throw new Error('No active account found');
     }
@@ -210,16 +219,20 @@ export class BridgeService implements OnLock, OnStorageReady {
       feeRate
     );
 
-    const [signedTx, error] = await resolve(
+    const [signResult, error] = await resolve(
       this.walletService.sign({ inputs, outputs }, tabId, btcNetwork)
     );
 
-    if (!signedTx || error) {
+    if (!signResult || error) {
       throw new Error('Failed to sign transaction.');
     }
 
+    if (typeof signResult.signedTx !== 'string') {
+      throw new Error('Expected Wallet to return a signed transaction.');
+    }
+
     const [sendResult, sendError] = await resolve(
-      provider.issueRawTx(signedTx)
+      provider.issueRawTx(signResult.signedTx)
     );
 
     if (!sendResult || sendError) {
@@ -278,9 +291,7 @@ export class BridgeService implements OnLock, OnStorageReady {
           type: TransferEventType.TX_HASH,
           txHash,
         }),
-      async (txData) => {
-        return await this.walletService.sign(txData, tabId, network);
-      }
+      async (txData) => this.walletService.sign(txData, tabId, network)
     );
   }
 
@@ -304,7 +315,8 @@ export class BridgeService implements OnLock, OnStorageReady {
     this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
 
     const addressC = this.accountsService.activeAccount.addressC;
-    const addressBTC = this.accountsService.activeAccount.addressBTC;
+    const addressBTC = this.accountsService.activeAccount.addressBTC ?? '';
+
     const requiredConfirmationCount = getMinimumConfirmations(
       sourceChain,
       config

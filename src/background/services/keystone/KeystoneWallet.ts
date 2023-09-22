@@ -10,11 +10,13 @@ import {
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
-
-import { BufferLike, rlp } from 'ethereumjs-util';
-import { CBOR, KeystoneTransport } from './models';
-import { convertTxData, makeBNLike } from './utils';
 import { TransactionRequest, hexlify } from 'ethers';
+import { BufferLike, rlp } from 'ethereumjs-util';
+
+import { makeBNLike } from '@src/utils/makeBNLike';
+
+import { CBOR, KeystoneTransport } from './models';
+import { convertTxData } from './utils';
 
 export class KeystoneWallet {
   constructor(

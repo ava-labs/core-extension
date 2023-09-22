@@ -15,6 +15,7 @@ import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { ChainId } from '@avalabs/chains-sdk';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
+import { AccountType } from '../../accounts/models';
 
 @injectable()
 export class BitcoinSendTransactionHandler extends DAppRequestHandler {
@@ -74,6 +75,18 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
         ...request,
         error: ethErrors.rpc.invalidRequest({
           message: 'No active account found',
+        }),
+      };
+    }
+
+    if (
+      this.accountService.activeAccount.type === AccountType.WALLET_CONNECT ||
+      !this.accountService.activeAccount.addressBTC
+    ) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'The active account does not support BTC transactions',
         }),
       };
     }
@@ -166,13 +179,14 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
       const txRequest = await this.sendServiceBTC.getTransactionRequest(
         displayData.sendState
       );
-      const signed = await this.walletService.sign(
+      const result = await this.walletService.sign(
         txRequest,
         frontendTabId,
         btcNetwork
       );
-      const result = await this.networkService.sendTransaction(
-        signed,
+
+      const hash = await this.networkService.sendTransaction(
+        result,
         btcNetwork
       );
 
@@ -182,7 +196,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
           [btcNetwork.chainId],
           [this.accountService.activeAccount]
         );
-      onSuccess(result);
+      onSuccess(hash);
     } catch (e) {
       onError(e);
     }

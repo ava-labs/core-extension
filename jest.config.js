@@ -11,6 +11,10 @@ module.exports = {
     '\\.(css|less|scss)$': 'identity-obj-proxy',
     '^uuid$': require.resolve('uuid'),
   },
+  transform: {
+    '^.+\\.(js|jsx)$': 'babel-jest',
+  },
+  transformIgnorePatterns: [`/node_modules/(?!micro-eth-signer)`],
   globals: {
     EVM_PROVIDER_INFO_NAME: 'EVM_PROVIDER_INFO_NAME',
     EVM_PROVIDER_INFO_UUID: 'EVM_PROVIDER_INFO_UUID',

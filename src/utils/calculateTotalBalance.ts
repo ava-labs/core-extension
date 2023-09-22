@@ -24,6 +24,11 @@ export function calculateTotalBalance(
 
   const sum = Array.from(chainIdsToSum).reduce((total, networkItem) => {
     const address = getAddressForChain(networkItem, account);
+
+    if (!address) {
+      return total;
+    }
+
     return (
       total +
       (Object.values(balances?.[networkItem]?.[address] ?? {})?.reduce(

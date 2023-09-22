@@ -4,6 +4,7 @@ import { StorageService } from '../storage/StorageService';
 import {
   PubKeyType,
   SignTransactionRequest,
+  SigningResult,
   WALLET_STORAGE_KEY,
   WalletEvents,
   WalletSecretInStorage,
@@ -56,6 +57,10 @@ import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
+import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
+import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { Action } from '../actions/models';
+import { UnsignedTx } from '@avalabs/avalanchejs-v2';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -68,7 +73,8 @@ export class WalletService implements OnLock, OnUnlock {
     private networkService: NetworkService,
     private ledgerService: LedgerService,
     private lockService: LockService,
-    private keystoneService: KeystoneService
+    private keystoneService: KeystoneService,
+    private walletConnectService: WalletConnectService
   ) {}
 
   public get walletType(): WalletType | undefined {
@@ -174,10 +180,16 @@ export class WalletService implements OnLock, OnUnlock {
 
     const provider = this.networkService.getProviderForNetwork(activeNetwork);
 
-    if (
-      activeAccount.type === AccountType.IMPORTED ||
-      activeAccount.type === AccountType.WALLET_CONNECT
-    ) {
+    if (activeAccount.type === AccountType.WALLET_CONNECT) {
+      return new WalletConnectSigner(
+        this.walletConnectService,
+        activeNetwork.chainId,
+        accountsService.activeAccount.addressC,
+        tabId
+      );
+    }
+
+    if (activeAccount.type === AccountType.IMPORTED) {
       const importData = walletKeys.imported?.[activeAccount.id];
 
       if (!importData) {
@@ -418,8 +430,9 @@ export class WalletService implements OnLock, OnUnlock {
   async sign(
     tx: SignTransactionRequest,
     tabId?: number,
-    network?: Network
-  ): Promise<string> {
+    network?: Network,
+    originalRequestMethod?: string
+  ): Promise<SigningResult> {
     const wallet = await this.getWallet(network, tabId);
 
     if (!wallet) {
@@ -446,7 +459,8 @@ export class WalletService implements OnLock, OnUnlock {
           : tx;
 
       const signedTx = await wallet.signTx(txToSign.inputs, txToSign.outputs);
-      return signedTx.toHex();
+
+      return this.#normalizeSigningResult(signedTx.toHex());
     }
 
     // Handle Avalanche signing, X/P/CoreEth
@@ -455,32 +469,55 @@ export class WalletService implements OnLock, OnUnlock {
         !(wallet instanceof Avalanche.SimpleSigner) &&
         !(wallet instanceof Avalanche.StaticSigner) &&
         !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
-        !(wallet instanceof Avalanche.LedgerSigner)
+        !(wallet instanceof Avalanche.LedgerSigner) &&
+        !(wallet instanceof WalletConnectSigner)
       ) {
         throw new Error('Signing error, wrong network');
       }
-      const unsignedTx = await wallet.signTx({
-        tx: tx.tx,
-        ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
-          wallet instanceof Avalanche.LedgerSigner) && {
-          transport: this.ledgerService.recentTransport,
-        }),
-        externalIndices: tx.externalIndices,
-        internalIndices: tx.internalIndices,
-      });
+      const result = await wallet.signTx(
+        {
+          tx: tx.tx,
+          ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
+            wallet instanceof Avalanche.LedgerSigner) && {
+            transport: this.ledgerService.recentTransport,
+          }),
+          externalIndices: tx.externalIndices,
+          internalIndices: tx.internalIndices,
+        },
+        originalRequestMethod
+      );
 
-      return JSON.stringify(unsignedTx.toJSON());
+      if (result instanceof UnsignedTx) {
+        return this.#normalizeSigningResult(JSON.stringify(result.toJSON()));
+      }
+
+      return this.#normalizeSigningResult(result);
     }
 
     if (
       !(wallet instanceof BaseWallet) &&
       !(wallet instanceof LedgerSigner) &&
-      !(wallet instanceof KeystoneWallet)
+      !(wallet instanceof KeystoneWallet) &&
+      !(wallet instanceof WalletConnectSigner)
     ) {
       throw new Error('Signing error, wrong network');
     }
 
-    return await wallet.signTransaction(tx);
+    return this.#normalizeSigningResult(await wallet.signTransaction(tx));
+  }
+
+  /**
+   * Wallet implementations may return either a string or a SigningResult object.
+   * If the wallet returns a string, we treat it as signed TX.
+   */
+  #normalizeSigningResult(
+    signingResult: string | SigningResult
+  ): SigningResult {
+    if (typeof signingResult === 'string') {
+      return { signedTx: signingResult };
+    }
+
+    return signingResult;
   }
 
   /**
@@ -493,10 +530,24 @@ export class WalletService implements OnLock, OnUnlock {
       WALLET_STORAGE_KEY
     );
 
-    if (
-      account.type === AccountType.IMPORTED ||
-      account.type === AccountType.WALLET_CONNECT
-    ) {
+    if (account.type === AccountType.WALLET_CONNECT) {
+      const accountSecrets = secrets?.imported?.[account.id];
+
+      if (
+        !accountSecrets ||
+        accountSecrets.type !== ImportType.WALLET_CONNECT
+      ) {
+        throw new Error('Missing data for WalletConnect-imported account');
+      }
+
+      if (typeof accountSecrets.pubKey === 'undefined') {
+        throw new Error('This account does not have its public keys imported');
+      }
+
+      return accountSecrets.pubKey;
+    }
+
+    if (account.type === AccountType.IMPORTED) {
       const secretEntry = secrets?.imported?.[account.id];
 
       if (!secretEntry) {
@@ -541,9 +592,17 @@ export class WalletService implements OnLock, OnUnlock {
     throw new Error('Unable to get public key');
   }
 
-  async signMessage(messageType: MessageType, data: any) {
+  async signMessage(messageType: MessageType, action: Action) {
     const wallet = await this.getWallet();
     const activeNetwork = this.networkService.activeNetwork;
+
+    if (!activeNetwork) {
+      throw new Error(`no active network found`);
+    }
+
+    if (wallet instanceof WalletConnectSigner) {
+      return await wallet.signMessage(messageType, action.params);
+    }
 
     if (!wallet || !(wallet instanceof BaseWallet)) {
       throw new Error(
@@ -553,9 +612,7 @@ export class WalletService implements OnLock, OnUnlock {
       );
     }
 
-    if (!activeNetwork) {
-      throw new Error(`no active network found`);
-    }
+    const data = action.displayData?.messageParams?.data;
 
     const privateKey = wallet.privateKey.toLowerCase().startsWith('0x')
       ? wallet.privateKey.slice(2)
@@ -853,17 +910,25 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     // let the AccountService validate the account's uniqueness and save the secret using this callback
-    const commit = async () =>
+    const commit = async () => {
       this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
         ...secrets,
         imported: {
           ...secrets?.imported,
-          [id]: {
-            type: importData.importType,
-            secret: importData.data,
-          },
+          [id]:
+            importData.importType === ImportType.PRIVATE_KEY
+              ? {
+                  type: ImportType.PRIVATE_KEY,
+                  secret: importData.data,
+                }
+              : {
+                  type: ImportType.WALLET_CONNECT,
+                  addresses,
+                  pubKey: importData.data.pubKey,
+                },
         },
       });
+    };
 
     return { account: { id, ...addresses }, commit };
   }
@@ -879,6 +944,10 @@ export class WalletService implements OnLock, OnUnlock {
       throw new Error(
         'Could not find an imported account with the provided identifier'
       );
+    }
+
+    if (importData.type === ImportType.WALLET_CONNECT) {
+      return importData.addresses;
     }
 
     return this.calculateImportedAddresses({
@@ -902,6 +971,8 @@ export class WalletService implements OnLock, OnUnlock {
       : Avalanche.JsonRpcProvider.getDefaultFujiProvider();
 
     switch (importType) {
+      case ImportType.WALLET_CONNECT:
+        return data.addresses;
       case ImportType.PRIVATE_KEY: {
         try {
           const publicKey = getPublicKeyFromPrivateKey(data);
@@ -945,6 +1016,15 @@ export class WalletService implements OnLock, OnUnlock {
         'Error while deleting imported wallet: storage is empty.'
       );
     }
+
+    ids.forEach(async (id) => {
+      const wallet = secrets?.imported?.[id];
+      if (wallet?.type === ImportType.WALLET_CONNECT) {
+        await this.walletConnectService.deleteSession(
+          wallet.addresses.addressC
+        );
+      }
+    });
 
     const newImportedSecrets = ids.reduce(
       (importedSecrets, id) => {

@@ -145,7 +145,14 @@ export class SendServiceBTC implements SendServiceHelper {
   private get address() {
     if (!this.accountsService.activeAccount)
       throw new Error('no active account');
-    return this.accountsService.activeAccount.addressBTC;
+
+    const { addressBTC } = this.accountsService.activeAccount;
+
+    if (!addressBTC) {
+      throw new Error('Active account does not have a BTC address');
+    }
+
+    return addressBTC;
   }
 
   private async getBalance(): Promise<{

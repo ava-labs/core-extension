@@ -72,7 +72,10 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   }, [feeRates]);
 
   const maximum = useMemo(() => {
-    if (!config || !activeAccount) return Big(0);
+    if (!config || !activeAccount || !activeAccount.addressBTC) {
+      return Big(0);
+    }
+
     const maxAmt = getMaxTransferAmount(
       utxos || [],
       // As long as the address type is the same (P2WPKH) it should not matter.
@@ -113,7 +116,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
   // balances, utxos
   useEffect(() => {
-    if (isBitcoinBridge && btcAsset && activeAccount) {
+    const { addressC, addressBTC } = activeAccount ?? {};
+
+    if (isBitcoinBridge && btcAsset && addressC && addressBTC) {
       const balance = btcTokens?.find((token) => token.symbol === 'BTC');
 
       if (balance) {
@@ -159,6 +164,10 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
   useEffect(() => {
     if (!isBitcoinBridge || !config || !activeAccount || !utxos) return;
+
+    if (!activeAccount.addressBTC) {
+      return;
+    }
 
     try {
       const btcTx = getBtcTransaction(

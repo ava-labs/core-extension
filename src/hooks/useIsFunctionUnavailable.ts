@@ -1,15 +1,49 @@
 import { ChainId } from '@avalabs/chains-sdk';
+import { Account, AccountType } from '@src/background/services/accounts/models';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
-// The list we want to DISABLE features on certain networks (blacklist)
-const disabledFeatures = {
-  ManageTokens: [ChainId.BITCOIN],
-  Bridge: [
-    ChainId.DFK,
-    ChainId.DFK_TESTNET,
-    ChainId.SWIMMER,
-    ChainId.SWIMMER_TESTNET,
-  ],
+// The list we want to DISABLE features on certain networks or account types (blacklist)
+type ComplexCheck = (activeNetwork: ChainId, activeAccount: Account) => boolean;
+type BlacklistConfig = { networks: ChainId[]; complexChecks: ComplexCheck[] };
+
+// Disables BTC bridging when:
+//  - active account has no BTC address
+//  - active account is imported through WalletConnect accounts (no Bitcoin support)
+const disableForAccountsWithoutBtcSupport = (
+  chain: ChainId,
+  account: Account
+) => {
+  const isBtc = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET].includes(chain);
+
+  if (!isBtc) {
+    return false;
+  }
+
+  const hasBtcAddress = Boolean(account.addressBTC);
+  const isWalletConnectAccount = account.type === AccountType.WALLET_CONNECT;
+
+  return isBtc && (!hasBtcAddress || isWalletConnectAccount);
+};
+
+const disabledFeatures: Record<string, BlacklistConfig> = {
+  ManageTokens: {
+    networks: [ChainId.BITCOIN],
+    complexChecks: [],
+  },
+  Send: {
+    networks: [],
+    complexChecks: [disableForAccountsWithoutBtcSupport],
+  },
+  Bridge: {
+    networks: [
+      ChainId.DFK,
+      ChainId.DFK_TESTNET,
+      ChainId.SWIMMER,
+      ChainId.SWIMMER_TESTNET,
+    ],
+    complexChecks: [disableForAccountsWithoutBtcSupport],
+  },
 };
 
 // The list we want to ENABLE features on certain networks (whitelist)
@@ -32,28 +66,40 @@ export const useIsFunctionAvailable = (
   functionName?: string
 ): FunctionIsAvailable => {
   const { network } = useNetworkContext();
-  const isReady = Boolean(network);
+  const {
+    accounts: { active },
+  } = useAccountsContext();
+  const isReady = Boolean(network && active);
 
   const checkIsFunctionAvailable = (name: string) => {
-    if (!network) {
+    if (!network || !active) {
       return false;
     }
+    // Check whitelist
     if (
       enabledFeatues[name] &&
       !enabledFeatues[name].includes(network.chainId)
     ) {
       return false;
     }
-    if (
-      disabledFeatures[name] &&
-      disabledFeatures[name].includes(network.chainId)
-    ) {
-      return false;
+    // Check blacklist
+    const blacklist = disabledFeatures[name];
+
+    if (blacklist) {
+      const blacklistedForNetwork = blacklist.networks.includes(
+        network.chainId
+      );
+      const blacklistedForOtherReasons = blacklist.complexChecks.some((check) =>
+        check(network.chainId, active)
+      );
+
+      return !blacklistedForNetwork && !blacklistedForOtherReasons;
     }
+
     return true;
   };
 
-  if (!network || !functionName) {
+  if (!network || !active || !functionName) {
     return {
       isReady,
       isFunctionAvailable: false,

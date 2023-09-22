@@ -6,6 +6,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-components';
+import { BN } from 'bn.js';
 import {
   AddLiquidityDisplayData,
   ContractCall,
@@ -43,7 +44,8 @@ import { KeystoneApprovalOverlay } from './KeystoneApprovalOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import Dialog from '@src/components/common/Dialog';
 import { TransactionErrorDialog } from './TransactionErrorDialog';
-import { BN } from 'bn.js';
+import { WalletConnectApprovalOverlay } from './WalletConnectApprovalOverlay';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
@@ -88,6 +90,7 @@ export function SignTransactionPage() {
   const header = useSignTransactionHeader(contractType);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
@@ -132,19 +135,36 @@ export function SignTransactionPage() {
     ? hexToBN(displayData.approveData.limit)
     : undefined;
 
+  const submit = () => {
+    updateTransaction({
+      status: TxStatus.SUBMITTING,
+      id: id,
+    }).finally(() => window.close());
+  };
+
   const onApproveClick = () => {
     setTransactionProgressState(TransactionProgressState.PENDING);
-    id &&
-      updateTransaction({
-        status: TxStatus.SUBMITTING,
-        id: id,
-      }).finally(() => window.close());
+    if (id && !isUsingWalletConnectAccount) submit();
 
     /*
     When wallet type is ledger or keystone, we need to show to the user that the interaction with the device is needed. 
     In this case, the popup will stay open until the promise from updateTransaction is resolved. 
       */
-    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
+    if (
+      !isUsingLedgerWallet &&
+      !isUsingKeystoneWallet &&
+      !isUsingWalletConnectAccount
+    ) {
+      window.close();
+    }
+  };
+
+  const onCancel = () => {
+    if (id) {
+      updateTransaction({
+        status: TxStatus.ERROR_USER_CANCELED,
+        id: id,
+      });
       window.close();
     }
   };
@@ -190,18 +210,30 @@ export function SignTransactionPage() {
     <>
       {transactionProgressState === TransactionProgressState.PENDING && (
         <>
-          <LedgerApprovalOverlay displayData={displayData} />
-          <KeystoneApprovalOverlay
-            onReject={() => {
-              if (id) {
-                updateTransaction({
-                  status: TxStatus.ERROR_USER_CANCELED,
-                  id: id,
-                });
-                window.close();
-              }
-            }}
-          />
+          {isUsingLedgerWallet && (
+            <LedgerApprovalOverlay displayData={displayData} />
+          )}
+
+          {isUsingKeystoneWallet && (
+            <KeystoneApprovalOverlay
+              onReject={() => {
+                if (id) {
+                  updateTransaction({
+                    status: TxStatus.ERROR_USER_CANCELED,
+                    id: id,
+                  });
+                  window.close();
+                }
+              }}
+            />
+          )}
+
+          {isUsingWalletConnectAccount && (
+            <WalletConnectApprovalOverlay
+              onReject={onCancel}
+              onSubmit={submit}
+            />
+          )}
         </>
       )}
       <Stack

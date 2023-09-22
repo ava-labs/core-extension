@@ -200,7 +200,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
       } = pendingAction;
 
       const unsignedTx = UnsignedTx.fromJSON(unsignedTxJson);
-      const signedTransactionJson = await this.walletService.sign(
+      const { signedTx } = await this.walletService.sign(
         {
           tx: unsignedTx,
         },
@@ -209,7 +209,23 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
         this.networkService.getAvalancheNetworkXP()
       );
 
-      const signedTransaction = UnsignedTx.fromJSON(signedTransactionJson);
+      if (!signedTx) {
+        throw new Error(
+          `Expected a signedTx to be returned by the wallet, ${typeof signedTx} returned.`
+        );
+      }
+
+      const result = JSON.parse(signedTx);
+
+      // With some wallets we already have a fully signed transaction data here,
+      // so we can just return here (i.e. WalletConnect + Core Mobile).
+      if (result.signedTransactionHex) {
+        onSuccess(result);
+        return;
+      }
+
+      // Otherwise, we need to append the obtained signatures.
+      const signedTransaction = UnsignedTx.fromJSON(signedTx);
       const credentials = signedTransaction.getCredentials();
 
       const newDetails = unsignedTx.getSigIndices().reduce<{

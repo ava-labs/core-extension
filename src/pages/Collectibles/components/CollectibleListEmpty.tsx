@@ -13,7 +13,7 @@ export function CollectibleListEmpty() {
       }}
     >
       <Typography variant="h5">{t('No Collectibles')}</Typography>
-      <Typography variant="body2" sx={{ color: 'grey.400' }}>
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
         {t('You don’t have any NFTs yet!')}
       </Typography>
     </Stack>

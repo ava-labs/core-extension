@@ -1,6 +1,8 @@
 import { TxData } from '@ethereumjs/tx';
-import { BNLike, BufferLike } from 'ethereumjs-util';
-import { BigNumberish, TransactionRequest } from 'ethers';
+import { BufferLike } from 'ethereumjs-util';
+import { TransactionRequest } from 'ethers';
+
+import { makeBNLike } from '@src/utils/makeBNLike';
 
 /**
  * Convert tx data from `TransactionRequest` (ethers) to `TxData` (@ethereumjs)
@@ -15,11 +17,4 @@ export function convertTxData(txData: TransactionRequest): TxData {
     data: txData.data as BufferLike,
     type: makeBNLike(txData.type),
   };
-}
-
-export function makeBNLike(
-  n: BigNumberish | undefined | null
-): BNLike | undefined {
-  if (n == null) return undefined;
-  return '0x' + BigInt(n).toString(16);
 }

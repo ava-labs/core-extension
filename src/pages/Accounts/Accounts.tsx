@@ -58,6 +58,7 @@ export function Accounts() {
   const theme = useTheme();
   const [deleteIdList, setDeleteIdList] = useState<string[]>([]);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const history = useHistory();
 
   const setActiveTab = useCallback(
@@ -105,14 +106,16 @@ export function Accounts() {
     await capture('AccountSelectorAccountSwitched', { type: account.type });
   };
 
-  const onAccountDeleteSuccess = () => {
+  const onAccountDeleteSuccess = async () => {
     capture('ImportedAccountDeleteSucceeded');
     toast.success(t('Account(s) Deleted!'), { duration: 2000 });
     setIsDeleteMode(false);
     setIsConfirmDialogOpen(false);
+    setIsDeleting(false);
   };
 
   const onAccountDelete = () => {
+    setIsDeleting(true);
     deleteAccounts(deleteIdList).then(() => {
       onAccountDeleteSuccess();
     });
@@ -145,8 +148,14 @@ export function Accounts() {
         onClose={() => setIsConfirmDialogOpen(false)}
         onConfirm={onAccountDelete}
         isMultiple={deleteIdList.length > 1}
+        isDeleting={isDeleting}
       />
-      <PageTitle margin={'22px 0 4px 0'}>{t('Account Manager')}</PageTitle>
+      <PageTitle
+        margin={'22px 0 4px 0'}
+        onBackClick={() => history.replace('/home')}
+      >
+        {t('Account Manager')}
+      </PageTitle>
 
       {hasError && <AddAccountError />}
 
