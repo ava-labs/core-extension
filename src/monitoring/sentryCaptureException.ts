@@ -10,6 +10,8 @@ export enum SentryExceptionTypes {
 
   // ledger
   LEDGER = 'ledger',
+
+  WALLETCONNECT = 'walletConnect',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

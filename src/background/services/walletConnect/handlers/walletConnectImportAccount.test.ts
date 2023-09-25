@@ -1,12 +1,25 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { WalletConnectImportAccount } from './walletConnectImportAccount';
 
+import { isCoreMobile } from '../utils';
+
+jest.mock('../utils', () => {
+  return {
+    ...jest.requireActual('../utils'),
+    isCoreMobile: jest.fn(),
+  };
+});
+
+jest.mock('@src/monitoring/sentryCaptureException');
+
 describe('background/services/walletConnect/handlers/walletConnectImportAccount.ts', () => {
   const getAccountsMock = jest.fn();
   const connectMock = jest.fn();
+  const requestMock = jest.fn();
   const activateAccountMock = undefined;
   const wcServiceMock = {
     connect: connectMock,
+    request: requestMock,
   } as any;
   const networkServiceMock = {
     activeNetwork: activateAccountMock,
@@ -34,6 +47,59 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     expect(result).toEqual({
       ...request,
       error: 'No network is active',
+    });
+  });
+
+  describe('when connected with Core Mobile, but extension is not recognized', () => {
+    beforeEach(() => {
+      jest.mocked(isCoreMobile).mockReturnValue(true);
+      requestMock.mockRejectedValue(new Error('unknown error'));
+    });
+
+    it('continues without P/X/CoreEth/BTC addresses', async () => {
+      const networkWithAccountMock = {
+        activeNetwork: { network: 'network', chainId: 44 },
+      } as any;
+
+      const accountsServiceWithAccountsMock = {
+        getAccounts: jest.fn().mockReturnValueOnce({
+          active: { name: 'account 1', type: 'primary' },
+          imported: { 'some-key': { id: 'some-key' } },
+        }),
+        addAccount: jest.fn().mockReturnValueOnce('some-key-string-returned'),
+        activateAccount: jest.fn(),
+      } as any;
+
+      const wcService = {
+        connect: jest.fn().mockReturnValueOnce({
+          addresses: ['mockreturnaddress'],
+          chains: [1],
+          walletApp: {
+            walletId: 'abcd-1234',
+          },
+        }),
+      } as any;
+      const handler = new WalletConnectImportAccount(
+        wcService,
+        networkWithAccountMock,
+        accountsServiceWithAccountsMock
+      );
+      const request = {
+        method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
+      } as any;
+      const { result } = await handler.handle(request);
+
+      expect(result).toBe(true);
+      expect(accountsServiceWithAccountsMock.addAccount).toHaveBeenCalledWith(
+        'WalletConnect #1',
+        {
+          data: {
+            addresses: { addressC: 'mockreturnaddress' },
+            pubKey: undefined,
+          },
+          importType: 'walletConnect',
+        }
+      );
     });
   });
 

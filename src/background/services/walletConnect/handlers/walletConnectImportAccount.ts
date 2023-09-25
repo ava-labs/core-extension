@@ -13,6 +13,9 @@ import {
 } from '../../accounts/models';
 import { isCoreMobile } from '../utils';
 import { PubKeyType } from '../../wallet/models';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
@@ -72,28 +75,40 @@ export class WalletConnectImportAccount implements HandlerType {
         let pubKey: PubKeyType | undefined;
 
         if (isCoreMobile(session)) {
-          // If we connected with Core Mobile, we can retrieve more addresses than just C-Chain's.
-          const accounts = await this.wcService.avalancheGetAccounts({
-            chainId,
-            tabId,
-            fromAddress: addressC,
-          });
+          // If we connected with Core Mobile, we should be able to also retrieve
+          // P/X-Chain, CoreEth and BTC addresses along with the C-Chain's.
+          // And also the public key.
+          try {
+            const accounts = await this.wcService.avalancheGetAccounts({
+              chainId,
+              tabId,
+              fromAddress: addressC,
+            });
 
-          // We can also fetch the public key, it will be useful when signing Avalanche transactions.
-          pubKey = await this.#getPublicKey(chainId, addressC, tabId);
+            // We can also fetch the public key, it will be useful when signing Avalanche transactions.
+            pubKey = await this.#getPublicKey(chainId, addressC, tabId);
 
-          const account = accounts.find(
-            ({ addressC: mobileAddressC }) => mobileAddressC === addressC
-          );
+            const account = accounts.find(
+              ({ addressC: mobileAddressC }) => mobileAddressC === addressC
+            );
 
-          if (account) {
-            addresses = {
-              addressC,
-              addressBTC: account.addressBTC,
-              addressAVM: account.addressAVM,
-              addressPVM: account.addressPVM,
-              addressCoreEth: account.addressCoreEth,
-            };
+            if (account) {
+              addresses = {
+                addressC,
+                addressBTC: account.addressBTC,
+                addressAVM: account.addressAVM,
+                addressPVM: account.addressPVM,
+                addressCoreEth: account.addressCoreEth,
+              };
+            }
+          } catch (ex: any) {
+            // We thought we can use Avalanche-specific methods with Core Mobile,
+            // but apparently that's not the case. We can't do anything about it
+            // at the moment, but it's not critical so the handler may continue.
+            sentryCaptureException(
+              ex as Error,
+              SentryExceptionTypes.WALLETCONNECT
+            );
           }
         }
 
