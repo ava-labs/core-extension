@@ -37,6 +37,7 @@ import {
 } from '@avalabs/k2-components';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 
 export function CollectibleSend() {
   const { t } = useTranslation();
@@ -59,6 +60,7 @@ export function CollectibleSend() {
 
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
 
   useEffect(() => {
     if (nft && !sendState.token) {
@@ -112,16 +114,7 @@ export function CollectibleSend() {
     return '';
   }
 
-  const onSubmit = () => {
-    setShowTxInProgress(true);
-    if (!sendState.canSubmit) return;
-
-    let pendingToastId = '';
-    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
-      history.push('/home');
-      pendingToastId = toast.loading(t('Transaction pending...'));
-    }
-
+  function sendCollectible(pendingToastId?: string) {
     capture('NftSendStarted', { chainId: network?.chainId, type: nft?.type });
 
     submitSendState()
@@ -152,6 +145,28 @@ export function CollectibleSend() {
           history.push('/home');
         }
       });
+  }
+
+  const onSubmit = () => {
+    setShowTxInProgress(true);
+    if (!sendState.canSubmit) return;
+
+    let pendingToastId = '';
+    if (
+      !isUsingLedgerWallet &&
+      !isUsingKeystoneWallet &&
+      !isUsingWalletConnectAccount
+    ) {
+      history.push('/home');
+      pendingToastId = toast.loading(t('Transaction pending...'));
+    }
+    if (!isUsingWalletConnectAccount) {
+      sendCollectible(pendingToastId);
+    }
+  };
+
+  const onReject = () => {
+    setShowTxInProgress(false);
   };
 
   if (!nft) {
@@ -171,6 +186,8 @@ export function CollectibleSend() {
                 network?.networkToken.decimals ?? 18
               )}
               feeSymbol={network?.networkToken.symbol}
+              onSubmit={sendCollectible}
+              onReject={onReject}
             />
           )}
           <CollectibleSendConfirm
