@@ -3,8 +3,8 @@ import { container, singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
   PubKeyType,
-  SignTransactionRequest,
   SigningResult,
+  SignTransactionRequest,
   WALLET_STORAGE_KEY,
   WalletEvents,
   WalletSecretInStorage,
@@ -61,6 +61,7 @@ import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { Action } from '../actions/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { toUtf8 } from 'ethereumjs-util';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -592,6 +593,45 @@ export class WalletService implements OnLock, OnUnlock {
     throw new Error('Unable to get public key');
   }
 
+  /**
+   * Signs the given message
+   * @param data Message in hex format. Will be parsed as UTF8.
+   */
+  private async signMessageAvalanche(data: string) {
+    const message = toUtf8(data);
+    const xpNetwork = this.networkService.getAvalancheNetworkXP();
+    const wallet = await this.getWallet(xpNetwork);
+
+    //TODO: Need support for WalletConnectSigner when mobile is ready
+    if (
+      !(wallet instanceof Avalanche.SimpleSigner) &&
+      !(wallet instanceof Avalanche.StaticSigner) &&
+      !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
+      !(wallet instanceof Avalanche.LedgerSigner)
+    ) {
+      throw new Error('Signing error, wrong network');
+    }
+    // TODO: These are currently fixed to X/P chains, do we need core eth support?
+
+    if (wallet instanceof Avalanche.SimpleLedgerSigner) {
+      if (!this.ledgerService.recentTransport) {
+        throw new Error('Ledger transport not available');
+      }
+
+      return await wallet.signMessage({
+        message,
+        chain: 'X',
+        transport: this.ledgerService.recentTransport,
+      });
+    }
+
+    return await wallet.signMessage({ message, chain: 'X' });
+  }
+  /**
+   * Sign EVM messages
+   * @param messageType
+   * @param data
+   */
   async signMessage(messageType: MessageType, action: Action) {
     const wallet = await this.getWallet();
     const activeNetwork = this.networkService.activeNetwork;
@@ -604,6 +644,12 @@ export class WalletService implements OnLock, OnUnlock {
       return await wallet.signMessage(messageType, action.params);
     }
 
+    const data = action.displayData?.messageParams?.data;
+
+    if (messageType === MessageType.AVALANCHE_SIGN) {
+      return this.signMessageAvalanche(data);
+    }
+
     if (!wallet || !(wallet instanceof BaseWallet)) {
       throw new Error(
         wallet
@@ -611,8 +657,6 @@ export class WalletService implements OnLock, OnUnlock {
           : 'wallet undefined in sign tx'
       );
     }
-
-    const data = action.displayData?.messageParams?.data;
 
     const privateKey = wallet.privateKey.toLowerCase().startsWith('0x')
       ? wallet.privateKey.slice(2)

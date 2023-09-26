@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -31,6 +31,10 @@ import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { useIsIntersecting } from './hooks/useIsIntersecting';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/LedgerApprovalOverlay';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 
@@ -53,6 +57,24 @@ export function SignMessage() {
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
   const endContentRef = useRef(null);
   const isIntersecting = useIsIntersecting({ ref: endContentRef });
+  const disabledForLedger = useMemo(() => {
+    return (
+      isUsingLedgerWallet &&
+      action &&
+      action.method !== DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
+    );
+  }, [isUsingLedgerWallet, action]);
+
+  const submit = useCallback(() => {
+    updateMessage(
+      {
+        status: ActionStatus.SUBMITTING,
+        id: requestId,
+      },
+      isUsingLedgerWallet || isUsingWalletConnectAccount // wait for the response only for device wallets
+    );
+  }, [updateMessage, isUsingLedgerWallet, requestId]);
+
   const [isReadyToSignRemotely, setIsReadyToSignRemotely] = useState(false);
 
   useEffect(() => {
@@ -75,20 +97,22 @@ export function SignMessage() {
   }
 
   useEffect(() => {
-    if (isUsingLedgerWallet && action) {
+    if (disabledForLedger) {
       setShowNotSupportedDialog(true);
     }
-  }, [isUsingLedgerWallet, action]);
+  }, [disabledForLedger]);
 
-  function submit() {
-    updateMessage(
-      {
-        status: ActionStatus.SUBMITTING,
-        id: requestId,
-      },
-      isUsingWalletConnectAccount // wait for the response only for device wallets
-    );
-  }
+  const renderDeviceApproval = () => {
+    if (action?.status !== ActionStatus.SUBMITTING) {
+      return null;
+    }
+
+    if (isUsingLedgerWallet) {
+      return <LedgerApprovalOverlay displayData={{}} />;
+    }
+  };
+
+  useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE);
 
   function rejectHandler() {
     setIsReadyToSignRemotely(false);
@@ -149,6 +173,7 @@ export function SignMessage() {
   return (
     <>
       <Stack sx={{ px: 2, width: 1 }}>
+        {renderDeviceApproval()}
         {isReadyToSignRemotely && (
           <WalletConnectApprovalOverlay
             onReject={rejectHandler}
@@ -219,6 +244,13 @@ export function SignMessage() {
                 />
               ),
               [MessageType.PERSONAL_SIGN]: (
+                <PersonalSign
+                  message={action.displayData.messageParams}
+                  updateHandler={updateHandler}
+                  ref={endContentRef}
+                />
+              ),
+              [MessageType.AVALANCHE_SIGN]: (
                 <PersonalSign
                   message={action.displayData.messageParams}
                   updateHandler={updateHandler}
@@ -329,7 +361,7 @@ export function SignMessage() {
             <Button
               color="primary"
               size="large"
-              disabled={isUsingLedgerWallet || disableSubmitButton}
+              disabled={disabledForLedger || disableSubmitButton}
               onClick={approveClickHandler}
               fullWidth
             >

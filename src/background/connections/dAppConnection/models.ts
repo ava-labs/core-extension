@@ -35,6 +35,7 @@ export enum DAppProviderRequest {
   AVALANCHE_GET_ACCOUNT_PUB_KEY = 'avalanche_getAccountPubKey',
   AVALANCHE_SEND_TRANSACTION = 'avalanche_sendTransaction',
   AVALANCHE_SIGN_TRANSACTION = 'avalanche_signTransaction',
+  AVALANCHE_SIGN_MESSAGE = 'avalanche_signMessage',
   BITCOIN_SEND_TRANSACTION = 'bitcoin_sendTransaction',
 }
 

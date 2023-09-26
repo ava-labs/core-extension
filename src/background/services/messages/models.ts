@@ -5,6 +5,7 @@ export enum MessageType {
   SIGN_TYPED_DATA = 'eth_signTypedData',
   PERSONAL_SIGN = 'personal_sign',
   ETH_SIGN = 'eth_sign',
+  AVALANCHE_SIGN = 'avalanche_signMessage',
 }
 
 export interface MessageDisplayData {
