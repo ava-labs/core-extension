@@ -1,12 +1,7 @@
-import {
-  bnToEthersBigNumber,
-  ethersBigNumberToBN,
-  resolve,
-} from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/utils-sdk';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
-import { TransactionRequest } from '@ethersproject/providers';
 import BN from 'bn.js';
-import { BigNumber, Contract } from 'ethers';
+import { Contract, TransactionRequest, isAddress } from 'ethers';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
 import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
@@ -24,7 +19,6 @@ import {
   TokenWithBalanceERC20,
   NftTokenWithBalance,
 } from '../balances/models';
-import { isAddress, TransactionTypes } from 'ethers/lib/utils';
 import { isNFT } from '../balances/nft/utils/isNFT';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 
@@ -52,7 +46,7 @@ export class SendServiceEVM implements SendServiceHelper {
       gasLimit: sendState.customGasLimit ?? gasLimit,
       maxFeePerGas: sendState.maxFeePerGas,
       maxPriorityFeePerGas: sendState.maxPriorityFeePerGas,
-      type: TransactionTypes.eip1559,
+      type: 2,
       nonce,
     };
   }
@@ -69,7 +63,7 @@ export class SendServiceEVM implements SendServiceHelper {
     const gasLimit = await this.getGasLimit(sendState);
 
     const sendFee = maxFeePerGas
-      ? new BN(gasLimit).mul(ethersBigNumberToBN(maxFeePerGas))
+      ? new BN(gasLimit).mul(new BN(maxFeePerGas.toString()))
       : undefined;
 
     const maxAmount =
@@ -80,6 +74,7 @@ export class SendServiceEVM implements SendServiceHelper {
     const newState: SendState = {
       ...sendState,
       canSubmit: true,
+      isValidating: false,
       loading: token.balance.gt(new BN(0))
         ? !maxAmount || !maxFeePerGas
         : false,
@@ -97,7 +92,7 @@ export class SendServiceEVM implements SendServiceHelper {
     if (!isAddress(address))
       return this.getErrorState(newState, SendErrorMessage.INVALID_ADDRESS);
 
-    if (!maxFeePerGas || maxFeePerGas.isZero())
+    if (!maxFeePerGas || maxFeePerGas === 0n)
       return this.getErrorState(newState, SendErrorMessage.INVALID_NETWORK_FEE);
 
     if (!isNFT(token.type) && (!amount || amount.isZero()))
@@ -149,7 +144,7 @@ export class SendServiceEVM implements SendServiceHelper {
       console.error(error);
     }
     // add 20% padding to ensure the tx will be accepted
-    const paddedGasLimit = Math.round((gasLimit?.toNumber() || 0) * 1.2);
+    const paddedGasLimit = Math.round(Number(gasLimit || 0) * 1.2);
     return paddedGasLimit;
   }
 
@@ -206,7 +201,7 @@ export class SendServiceEVM implements SendServiceHelper {
     return {
       from: this.fromAddress,
       to: address,
-      value: bnToEthersBigNumber(amount || new BN(0)),
+      value: amount ? BigInt(amount.toString()) : 0n,
     };
   }
 
@@ -222,14 +217,15 @@ export class SendServiceEVM implements SendServiceHelper {
       provider
     );
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const populatedTransaction = await contract.populateTransaction.transfer!(
+    const populatedTransaction = await contract.transfer!.populateTransaction(
       sendState.address,
-      sendState.amount
-        ? bnToEthersBigNumber(sendState.amount)
-        : BigNumber.from(0)
+      sendState.amount ? BigInt(sendState.amount.toString()) : 0n
     );
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction, // only includes `to` and `data`
+      chainId: populatedTransaction.chainId
+        ? Number(populatedTransaction.chainId)
+        : undefined,
       from: this.fromAddress,
     };
     return unsignedTx;
@@ -245,9 +241,13 @@ export class SendServiceEVM implements SendServiceHelper {
       provider
     );
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const populatedTransaction = await contract.populateTransaction[
+    const populatedTransaction = await contract[
       'safeTransferFrom(address,address,uint256)'
-    ]!(this.fromAddress, sendState.address, sendState.token?.tokenId);
+    ]!.populateTransaction(
+      this.fromAddress,
+      sendState.address,
+      sendState.token?.tokenId
+    );
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction, // only includes `to` and `data`
       from: this.fromAddress,
@@ -266,9 +266,16 @@ export class SendServiceEVM implements SendServiceHelper {
     );
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const populatedTransaction = await contract.populateTransaction[
+    const populatedTransaction = await contract[
       'safeTransferFrom(address,address,uint256,uint256,bytes)'
-    ]!(this.fromAddress, sendState.address, sendState.token?.tokenId, 1, []);
+    ]!.populateTransaction(
+      this.fromAddress,
+      sendState.address,
+      sendState.token?.tokenId,
+      1,
+      new Uint8Array()
+    );
+
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction,
       from: this.fromAddress,

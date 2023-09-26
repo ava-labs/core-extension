@@ -1,6 +1,4 @@
-import { TransactionRequest } from '@ethersproject/providers';
 import { BN } from 'bn.js';
-import { BigNumber } from 'ethers';
 import {
   FeeMarketEIP1559Transaction,
   FeeMarketEIP1559TxData,
@@ -12,16 +10,13 @@ import {
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
-
+import { TransactionRequest, hexlify } from 'ethers';
 import { BufferLike, rlp } from 'ethereumjs-util';
-import {
-  hexlify,
-  resolveProperties,
-  serializeTransaction,
-  UnsignedTransaction,
-} from 'ethers/lib/utils';
+
+import { makeBNLike } from '@src/utils/makeBNLike';
+
 import { CBOR, KeystoneTransport } from './models';
-import { convertTxData, makeBNLike } from './utils';
+import { convertTxData } from './utils';
 
 export class KeystoneWallet {
   constructor(
@@ -34,7 +29,7 @@ export class KeystoneWallet {
 
   async signTransaction(txRequest: TransactionRequest): Promise<string> {
     const cborBuffer = await this.keystoneTransport.requestSignature(
-      this.buildSignatureRequest(
+      await this.buildSignatureRequest(
         txRequest,
         this.fingerprint,
         this.activeAccountIndex
@@ -43,60 +38,28 @@ export class KeystoneWallet {
     );
     const signature = ETHSignature.fromCBOR(cborBuffer).getSignature();
 
-    const r = hexlify(signature.slice(0, 32));
-    const s = hexlify(signature.slice(32, 64));
+    const r = hexlify(new Uint8Array(signature.slice(0, 32)));
+    const s = hexlify(new Uint8Array(signature.slice(32, 64)));
     const v = new BN(signature.slice(64)).toNumber();
 
-    const tx = await resolveProperties(txRequest);
-    const gasPriceData =
-      typeof tx.gasPrice !== 'undefined'
-        ? {
-            gasPrice: tx.gasPrice || undefined,
-          }
-        : {
-            maxFeePerGas: tx.maxFeePerGas || undefined,
-            maxPriorityFeePerGas: tx.maxPriorityFeePerGas || undefined,
-          };
-    const baseTx: UnsignedTransaction = {
-      ...gasPriceData,
-      chainId: tx.chainId ?? this.chainId ?? undefined,
-      data: tx.data || undefined,
-      gasLimit: tx.gasLimit || undefined,
-      nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
-      to: tx.to || undefined,
-      type: tx.type,
-      value: tx.value || undefined,
-    };
+    const signedTx = await this.getTxFromTransactionRequest(txRequest, {
+      r,
+      s,
+      v,
+    });
 
-    return serializeTransaction(baseTx, { r, s, v });
+    return '0x' + signedTx.serialize().toString('hex');
   }
 
-  private buildSignatureRequest(
+  private async buildSignatureRequest(
     txRequest: TransactionRequest,
     fingerprint: string,
     activeAccountIndex: number
-  ): CBOR {
+  ): Promise<CBOR> {
     const chainId = txRequest.chainId ?? this.chainId;
     const isLegacyTx = typeof txRequest.gasPrice !== 'undefined';
 
-    const tx = isLegacyTx
-      ? Transaction.fromTxData(convertTxData(txRequest), {
-          common: Common.custom({ chainId }),
-        })
-      : FeeMarketEIP1559Transaction.fromTxData(
-          this.txRequestToFeeMarketTxData(txRequest),
-          {
-            common: Common.custom(
-              { chainId },
-              {
-                // "London" hardfork introduced EIP-1559 proposal. Setting it here allows us
-                // to use the new TX props (maxFeePerGas and maxPriorityFeePerGas) in combination
-                // with the custom chainId.
-                hardfork: Hardfork.London,
-              }
-            ),
-          }
-        );
+    const tx = await this.getTxFromTransactionRequest(txRequest);
 
     const message =
       tx instanceof FeeMarketEIP1559Transaction
@@ -117,7 +80,7 @@ export class KeystoneWallet {
       keyPath,
       fingerprint,
       crypto.randomUUID(),
-      chainId
+      Number(chainId)
     );
 
     const ur = ethSignRequest.toUR();
@@ -126,6 +89,38 @@ export class KeystoneWallet {
       cbor: ur.cbor.toString('hex'),
       type: ur.type,
     };
+  }
+
+  private async getTxFromTransactionRequest(
+    txRequest: TransactionRequest,
+    signature?: { r: string; s: string; v: number }
+  ) {
+    return typeof txRequest.gasPrice !== 'undefined'
+      ? Transaction.fromTxData(
+          {
+            ...(await convertTxData(txRequest)),
+            ...signature,
+          },
+          {
+            common: Common.custom({
+              chainId: Number(txRequest.chainId ?? this.chainId),
+            }),
+          }
+        )
+      : FeeMarketEIP1559Transaction.fromTxData(
+          { ...this.txRequestToFeeMarketTxData(txRequest), ...signature },
+          {
+            common: Common.custom(
+              { chainId: Number(txRequest.chainId ?? this.chainId) },
+              {
+                // "London" hardfork introduced EIP-1559 proposal. Setting it here allows us
+                // to use the new TX props (maxFeePerGas and maxPriorityFeePerGas) in combination
+                // with the custom chainId.
+                hardfork: Hardfork.London,
+              }
+            ),
+          }
+        );
   }
 
   private txRequestToFeeMarketTxData(
@@ -143,14 +138,14 @@ export class KeystoneWallet {
     } = txRequest;
 
     return {
-      to,
+      to: to?.toString() || undefined,
       nonce: makeBNLike(nonce),
       maxFeePerGas: makeBNLike(maxFeePerGas),
       maxPriorityFeePerGas: makeBNLike(maxPriorityFeePerGas),
       gasLimit: makeBNLike(gasLimit),
       value: makeBNLike(value),
       data: data as BufferLike,
-      type: type,
+      type: type || undefined,
     };
   }
 }

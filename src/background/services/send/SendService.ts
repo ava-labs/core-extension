@@ -40,8 +40,10 @@ export class SendService {
     }
 
     const txRequest = await service.getTransactionRequest(sendState);
-    const signedTx = await this.walletService.sign(txRequest, tabId);
-    const txId = await this.networkService.sendTransaction(signedTx);
+    const result = await this.walletService.sign(txRequest, tabId);
+
+    const txId = await this.networkService.sendTransaction(result);
+
     this.transactionUpdated({ txId });
     return txId;
   }

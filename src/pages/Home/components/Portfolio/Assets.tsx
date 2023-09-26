@@ -1,7 +1,6 @@
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTranslation } from 'react-i18next';
 import { TokenList } from './TokenList';
-import { capture } from '@avalabs/posthog-sdk';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import {
   Badge,
@@ -22,6 +21,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useState } from 'react';
 import { WalletRecentTxs } from '@src/pages/Wallet/WalletRecentTxs';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const LogoContainer = styled('div')`
   margin: 0 15px 0 8px;
@@ -40,6 +40,7 @@ export function Assets() {
   const { currencyFormatter } = useSettingsContext();
   const activeNetworkAssetList = useTokensWithBalances();
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
+  const { capture } = useAnalyticsContext();
 
   const [activeTab, setActiveTab] = useState<number>(AssetsTabs.TOKENS);
 

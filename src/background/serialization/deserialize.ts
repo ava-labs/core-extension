@@ -1,6 +1,5 @@
 import Big from 'big.js';
 import BN from 'bn.js';
-import { BigNumber } from 'ethers';
 import { SerializableValue } from './serialize';
 
 export type DeserializableValue = {
@@ -10,12 +9,12 @@ export type DeserializableValue = {
 
 /**
  * Deserialize complex numbers like `Big`, `BN`, etc. back to their original
- * form after they were serialized with `serializeFromJSON`.
+ * form after they were serialized with `serializeToJSON`.
  *
  * For example, `{ type: 'BN', value: '100_000_000_000' }` is converted to
  * `new BN(100_000_000_000)`
  */
-export function deserializeToJSON<T>(value?: string): T | undefined {
+export function deserializeFromJSON<T>(value?: string): T | undefined {
   if (value === undefined) {
     return value;
   }
@@ -36,10 +35,9 @@ function deserializeValue({
   switch (type) {
     case 'Big':
       return new Big(value);
-    case 'BigNumber':
-      return BigNumber.from(value);
     case 'BN':
       return new BN(value);
+    case 'BigNumber':
     case 'BigInt':
       return BigInt(value);
     default:

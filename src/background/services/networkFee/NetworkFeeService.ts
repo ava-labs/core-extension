@@ -1,5 +1,4 @@
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { ethersBigNumberToBig } from '@avalabs/utils-sdk';
 import {
   BitcoinProviderAbstract,
   JsonRpcBatchInternal,
@@ -7,7 +6,6 @@ import {
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { isSwimmer } from '@src/utils/isSwimmerNetwork';
 import Big from 'big.js';
-import { BigNumber, BigNumberish } from 'ethers';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
@@ -18,6 +16,7 @@ import {
   NetworkFeeEvents,
   TransactionPriority,
 } from './models';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 @singleton()
 export class NetworkFeeService implements OnUnlock, OnLock {
@@ -41,10 +40,15 @@ export class NetworkFeeService implements OnUnlock, OnLock {
   constructor(private networkService: NetworkService) {}
 
   private updateFee = async () => {
-    const newFee = await this.getNetworkFee();
+    let newFee: NetworkFee | null = null;
+    try {
+      newFee = await this.getNetworkFee();
+    } catch (e) {
+      return;
+    }
     const oldFee = this.currentNetworkFee;
 
-    if (newFee && oldFee && newFee.low.maxFee.eq(oldFee.low.maxFee)) {
+    if (newFee && oldFee && newFee.low.maxFee === oldFee.low.maxFee) {
       return;
     }
 
@@ -103,56 +107,51 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     network: Network,
     provider: JsonRpcBatchInternal
   ): Promise<NetworkFee> {
-    const {
-      lastBaseFeePerGas,
-      maxPriorityFeePerGas: lastMaxPriorityFeePerGas,
-    } = await (provider as JsonRpcBatchInternal).getFeeData();
+    const { maxFeePerGas, maxPriorityFeePerGas: lastMaxPriorityFeePerGas } =
+      await (provider as JsonRpcBatchInternal).getFeeData();
 
-    if (lastBaseFeePerGas == null) {
+    if (maxFeePerGas === null) {
       throw new Error('Fetching fee data failed');
     }
 
-    const baseFee = ethersBigNumberToBig(lastBaseFeePerGas, 0);
-    const maxPriorityFeePerGas = ethersBigNumberToBig(
-      lastMaxPriorityFeePerGas ?? BigNumber.from(0),
-      0
-    );
+    const baseMaxFee = bigintToBig(maxFeePerGas, 0);
+    const maxPriorityFeePerGas = bigintToBig(lastMaxPriorityFeePerGas ?? 0n, 0);
 
     return {
       displayDecimals: 9, // use Gwei to display amount
-      baseFee: lastBaseFeePerGas,
-      low: this.getEVMFeeForPriority(baseFee, maxPriorityFeePerGas, 'low'),
+      baseMaxFee: maxFeePerGas,
+      low: this.getEVMFeeForPriority(baseMaxFee, maxPriorityFeePerGas, 'low'),
       medium: this.getEVMFeeForPriority(
-        baseFee,
+        baseMaxFee,
         maxPriorityFeePerGas,
         'medium'
       ),
-      high: this.getEVMFeeForPriority(baseFee, maxPriorityFeePerGas, 'high'),
+      high: this.getEVMFeeForPriority(baseMaxFee, maxPriorityFeePerGas, 'high'),
       isFixedFee: isSwimmer(network) ? true : false,
     };
   }
 
   private getEVMFeeForPriority(
-    baseFee: Big,
+    baseMaxFee: Big,
     maxPriorityFee: Big,
     priority: TransactionPriority
   ): FeeRate {
     const modifier = this.evmFeeModifiers[priority];
-    const maxFee = baseFee.mul(modifier.baseFeeMultiplier);
+    const maxFee = baseMaxFee.mul(modifier.baseFeeMultiplier);
 
     // max base fee should be greater than or equal to the max priority fee
     // https://github.com/ava-labs/coreth/blob/26818b3fcdd9831cf31f15c7e65faeecb78f3e70/core/tx_pool.go#L701
     const maxTip = maxPriorityFee.gt(maxFee) ? maxFee : maxPriorityFee;
 
     return {
-      maxFee: BigNumber.from(maxFee.toFixed(0)),
-      maxTip: BigNumber.from(maxTip.toFixed(0)),
+      maxFee: BigInt(maxFee.toFixed(0)),
+      maxTip: BigInt(maxTip.toFixed(0)),
     };
   }
 
   private formatBtcFee(rate: number) {
     return {
-      maxFee: BigNumber.from(rate),
+      maxFee: BigInt(rate),
     };
   }
 
@@ -160,7 +159,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     from: string,
     to: string,
     data: string,
-    value?: BigNumberish,
+    value?: bigint,
     otherNetwork?: Network
   ): Promise<number | null> {
     const network = otherNetwork ?? this.networkService.activeNetwork;
@@ -174,7 +173,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
       from
     );
 
-    return (
+    return Number(
       await (provider as JsonRpcBatchInternal).estimateGas({
         from: from,
         nonce: nonce,
@@ -182,7 +181,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
         data: data,
         value,
       })
-    ).toNumber();
+    );
   }
 
   addListener(event: NetworkFeeEvents, callback: (data: any) => void) {

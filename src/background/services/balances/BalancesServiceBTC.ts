@@ -43,6 +43,12 @@ export class BalancesServiceBTC {
     const balances = (
       await Promise.allSettled(
         accounts.map(async (account) => {
+          // WalletConnect accounts may be imported without the BTC address.
+          // Any accounts like that are filtered out below.
+          if (!account.addressBTC) {
+            throw new Error('This account does not support BTC');
+          }
+
           if (network.vmName !== NetworkVMType.BITCOIN) {
             return {
               address: account.addressBTC,

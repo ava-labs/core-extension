@@ -1,14 +1,22 @@
 import { Box, WalletConnectIcon, useTheme } from '@avalabs/k2-components';
 
-export const WalletConnectCircledIcon = () => {
+interface WalletConnectCircledIconProps {
+  width?: number;
+  height?: number;
+}
+
+export const WalletConnectCircledIcon = ({
+  width = 80,
+  height = 80,
+}: WalletConnectCircledIconProps) => {
   const theme = useTheme();
 
   return (
     <Box
       sx={{
         borderRadius: '50%',
-        width: 80,
-        height: 80,
+        width,
+        height,
         backgroundColor: theme.palette.grey[800],
         display: 'inline-flex',
         alignItems: 'center',

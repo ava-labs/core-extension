@@ -6,6 +6,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-components';
+import { BN } from 'bn.js';
 import {
   AddLiquidityDisplayData,
   ContractCall,
@@ -31,10 +32,9 @@ import { SignTxErrorBoundary } from './components/SignTxErrorBoundary';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
-import { BigNumber } from 'ethers';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
-import { ethersBigNumberToBN, hexToBN } from '@avalabs/utils-sdk';
+import { hexToBN } from '@avalabs/utils-sdk';
 import { Trans, useTranslation } from 'react-i18next';
 import { RawTransactionData } from './components/RawTransactionData';
 import { CustomFees } from '@src/components/common/CustomFees';
@@ -44,12 +44,14 @@ import { KeystoneApprovalOverlay } from './KeystoneApprovalOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import Dialog from '@src/components/common/Dialog';
 import { TransactionErrorDialog } from './TransactionErrorDialog';
+import { WalletConnectApprovalOverlay } from './WalletConnectApprovalOverlay';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
 ): displayData is TransactionDisplayValuesWithGasData => {
   return (
-    displayData.maxFeePerGas instanceof BigNumber &&
+    typeof displayData.maxFeePerGas === 'bigint' &&
     typeof displayData.gasLimit === 'number' &&
     displayData.gasLimit > 0
   );
@@ -88,6 +90,7 @@ export function SignTransactionPage() {
   const header = useSignTransactionHeader(contractType);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
@@ -99,9 +102,11 @@ export function SignTransactionPage() {
     return tokens
       .find(({ type }) => type === TokenType.NATIVE)
       ?.balance.gte(
-        ethersBigNumberToBN(
-          params.maxFeePerGas?.mul(params.gasLimit || BigNumber.from(0)) ??
-            BigNumber.from(0)
+        new BN(
+          (params.maxFeePerGas
+            ? params.maxFeePerGas * BigInt(params.gasLimit || 0n)
+            : 0n
+          ).toString()
         )
       );
   }, [tokens, params.maxFeePerGas, params.gasLimit]);
@@ -130,19 +135,36 @@ export function SignTransactionPage() {
     ? hexToBN(displayData.approveData.limit)
     : undefined;
 
+  const submit = () => {
+    updateTransaction({
+      status: TxStatus.SUBMITTING,
+      id: id,
+    }).finally(() => window.close());
+  };
+
   const onApproveClick = () => {
     setTransactionProgressState(TransactionProgressState.PENDING);
-    id &&
-      updateTransaction({
-        status: TxStatus.SUBMITTING,
-        id: id,
-      }).finally(() => window.close());
+    if (id && !isUsingWalletConnectAccount) submit();
 
     /*
     When wallet type is ledger or keystone, we need to show to the user that the interaction with the device is needed. 
     In this case, the popup will stay open until the promise from updateTransaction is resolved. 
       */
-    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
+    if (
+      !isUsingLedgerWallet &&
+      !isUsingKeystoneWallet &&
+      !isUsingWalletConnectAccount
+    ) {
+      window.close();
+    }
+  };
+
+  const onCancel = () => {
+    if (id) {
+      updateTransaction({
+        status: TxStatus.ERROR_USER_CANCELED,
+        id: id,
+      });
       window.close();
     }
   };
@@ -188,18 +210,30 @@ export function SignTransactionPage() {
     <>
       {transactionProgressState === TransactionProgressState.PENDING && (
         <>
-          <LedgerApprovalOverlay displayData={displayData} />
-          <KeystoneApprovalOverlay
-            onReject={() => {
-              if (id) {
-                updateTransaction({
-                  status: TxStatus.ERROR_USER_CANCELED,
-                  id: id,
-                });
-                window.close();
-              }
-            }}
-          />
+          {isUsingLedgerWallet && (
+            <LedgerApprovalOverlay displayData={displayData} />
+          )}
+
+          {isUsingKeystoneWallet && (
+            <KeystoneApprovalOverlay
+              onReject={() => {
+                if (id) {
+                  updateTransaction({
+                    status: TxStatus.ERROR_USER_CANCELED,
+                    id: id,
+                  });
+                  window.close();
+                }
+              }}
+            />
+          )}
+
+          {isUsingWalletConnectAccount && (
+            <WalletConnectApprovalOverlay
+              onReject={onCancel}
+              onSubmit={submit}
+            />
+          )}
         </>
       )}
       <Stack

@@ -4,6 +4,9 @@ import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/KeystoneApprovalOverlay';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
 import { Overlay } from '@src/components/common/Overlay';
+import { WalletConnectApprovalOverlay } from '@src/pages/SignTransaction/WalletConnectApprovalOverlay';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+
 interface TxInProgressProps {
   address?: string;
   fee?: string;
@@ -11,7 +14,10 @@ interface TxInProgressProps {
   amount?: string;
   symbol?: string;
   nftName?: string;
+  requiredSignatures?: number;
+  currentSignature?: number;
   onReject?: () => void;
+  onSubmit?: () => void;
 }
 
 export function TxInProgress({
@@ -21,10 +27,31 @@ export function TxInProgress({
   symbol,
   address,
   nftName,
+  requiredSignatures,
+  currentSignature,
   onReject,
+  onSubmit,
 }: TxInProgressProps) {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const hasRejectCallback = typeof onReject === 'function';
+  const hasSubmitCallback = typeof onSubmit === 'function';
+
+  if (isUsingWalletConnectAccount) {
+    if (hasRejectCallback && hasSubmitCallback) {
+      return (
+        <WalletConnectApprovalOverlay
+          onReject={onReject}
+          onSubmit={onSubmit}
+          requiredSignatures={requiredSignatures}
+          currentSignature={currentSignature}
+        />
+      );
+    }
+
+    throw new Error('Please provide proper onSubmit and onReject callbacks');
+  }
 
   if (isUsingLedgerWallet) {
     return (
@@ -42,6 +69,10 @@ export function TxInProgress({
   }
 
   if (isUsingKeystoneWallet) {
+    if (!hasRejectCallback) {
+      throw new Error('Please provide a proper onReject callback');
+    }
+
     return <KeystoneApprovalOverlay onReject={onReject} />;
   }
 

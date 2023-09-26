@@ -554,7 +554,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       params: {},
     } as unknown as Action;
 
-    const signedTransactionJsonMock = { signed: true };
+    const signedTransactionJsonMock = JSON.stringify({ signed: true });
 
     const mockedTx = {
       getSigIndices: jest.fn(() => [[0, 2]]),
@@ -588,7 +588,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
 
     it('returns error if own signatures are missing', async () => {
       mockedTx.getSigIndices.mockReturnValueOnce([[0, 3]]);
-      walletServiceMock.sign.mockReturnValueOnce(signedTransactionJsonMock);
+      walletServiceMock.sign.mockReturnValueOnce({
+        signedTx: signedTransactionJsonMock,
+      });
       (UnsignedTx.fromJSON as jest.Mock)
         .mockReturnValueOnce(mockedTx)
         .mockReturnValueOnce(signedTxMock);
@@ -643,7 +645,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       ]);
 
       (utils.bufferToHex as jest.Mock).mockReturnValueOnce('0x0');
-      walletServiceMock.sign.mockReturnValueOnce(signedTransactionJsonMock);
+      walletServiceMock.sign.mockReturnValueOnce({
+        signedTx: signedTransactionJsonMock,
+      });
       (UnsignedTx.fromJSON as jest.Mock)
         .mockReturnValueOnce(mockedTx)
         .mockReturnValueOnce(signedTxMock);
@@ -678,7 +682,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     });
 
     it('returns the correct (partially) signed transaction details', async () => {
-      walletServiceMock.sign.mockReturnValueOnce(signedTransactionJsonMock);
+      walletServiceMock.sign.mockReturnValueOnce({
+        signedTx: signedTransactionJsonMock,
+      });
       (UnsignedTx.fromJSON as jest.Mock)
         .mockReturnValueOnce(mockedTx)
         .mockReturnValueOnce(signedTxMock);

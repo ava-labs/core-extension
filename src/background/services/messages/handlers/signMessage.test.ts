@@ -6,12 +6,12 @@ import { WalletType } from '../../wallet/models';
 import { MessageParams, MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { PersonalSignHandler } from './signMessage';
-import { _TypedDataEncoder } from 'ethers/lib/utils';
 import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
+import { TypedDataEncoder } from 'ethers';
 
 jest.mock('../../wallet/utils/ensureMessageFormatIsValid');
 jest.mock('../utils/messageParamsParser');
-jest.mock('ethers/lib/utils');
+jest.mock('ethers');
 
 describe('src/background/services/messages/handlers/signMessage.ts', () => {
   const displayDataMock: MessageParams = {
@@ -192,7 +192,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           },
         } as any;
 
-        jest.mocked(_TypedDataEncoder.getPayload).mockImplementationOnce(() => {
+        jest.mocked(TypedDataEncoder.getPayload).mockImplementationOnce(() => {
           throw new Error(errorMessage);
         });
 
@@ -255,7 +255,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           },
         } as any;
 
-        jest.mocked(_TypedDataEncoder.getPayload).mockImplementationOnce(() => {
+        jest.mocked(TypedDataEncoder.getPayload).mockImplementationOnce(() => {
           throw new Error(errorMessage);
         });
 
@@ -266,7 +266,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           result: DEFERRED_RESPONSE,
         });
 
-        expect(_TypedDataEncoder.getPayload).toHaveBeenCalledWith(
+        expect(TypedDataEncoder.getPayload).toHaveBeenCalledWith(
           {
             name: 'test site',
             chainId: 1,

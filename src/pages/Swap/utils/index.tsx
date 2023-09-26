@@ -6,7 +6,6 @@ import {
 } from '@src/background/services/balances/models';
 import { stringToBN } from '@avalabs/utils-sdk';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { BigNumber } from 'ethers';
 import { OptimalRate } from 'paraswap-core';
 import BN from 'bn.js';
 
@@ -72,7 +71,7 @@ export const getMaxValueWithGas = ({
   tokenDecimals,
   selectedFromToken,
 }: {
-  customGasPrice: BigNumber;
+  customGasPrice: bigint;
   gasLimit?: number;
   avaxPrice: number;
   tokenDecimals?: number;

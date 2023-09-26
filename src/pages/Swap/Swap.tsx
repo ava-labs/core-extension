@@ -8,14 +8,12 @@ import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
-import { BigNumber } from 'ethers';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import {
   TokenType,
@@ -45,6 +43,7 @@ import {
   IconButton,
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -453,10 +452,11 @@ export function Swap() {
 
       {txInProgress && (
         <TxInProgress
-          fee={(customGasPrice || networkFee?.low.maxFee || BigNumber.from(0))
-            .mul(gasLimit)
-            .div((10 ** (network?.networkToken.decimals ?? 18)).toString())
-            .toString()}
+          fee={(
+            ((customGasPrice || networkFee?.low.maxFee || 0n) *
+              BigInt(gasLimit)) /
+            10n ** BigInt(network?.networkToken.decimals ?? 18)
+          ).toString()}
           feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}
           symbol={selectedFromToken?.symbol}

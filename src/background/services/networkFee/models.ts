@@ -1,14 +1,13 @@
 import Big from 'big.js';
-import { BigNumber } from 'ethers';
 
 export type FeeRate = {
-  maxFee: BigNumber;
-  maxTip?: BigNumber;
+  maxFee: bigint;
+  maxTip?: bigint;
 };
 
 export interface NetworkFee {
   displayDecimals: number;
-  baseFee?: BigNumber;
+  baseMaxFee?: bigint;
   low: FeeRate;
   medium: FeeRate;
   high: FeeRate;
@@ -25,9 +24,9 @@ export type SerializedNetworkFee = Omit<
   NetworkFee,
   'low' | 'medium' | 'high'
 > & {
-  low: { type: 'BigNumber'; hex: string };
-  medium: { type: 'BigNumber'; hex: string };
-  high: { type: 'BigNumber'; hex: string };
+  low: bigint;
+  medium: bigint;
+  high: bigint;
   isFixedFee: boolean;
 };
 

@@ -10,7 +10,6 @@ import { CollectibleMedia } from './components/CollectibleMedia';
 import { useContactFromParams } from '../Send/hooks/useContactFromParams';
 import { TxInProgress } from '@src/components/common/TxInProgress';
 import { CollectibleSendConfirm } from './components/CollectibleSendConfirm';
-import { BigNumber } from 'ethers';
 import {
   TokenType,
   NftTokenWithBalance,
@@ -92,8 +91,8 @@ export function CollectibleSend() {
   const onGasChanged = useCallback(
     (values: {
       customGasLimit?: number;
-      maxFeePerGas: BigNumber;
-      maxPriorityFeePerGas?: BigNumber;
+      maxFeePerGas: bigint;
+      maxPriorityFeePerGas?: bigint;
       feeType: GasFeeModifier;
     }) => {
       updateSendState({
@@ -225,7 +224,7 @@ export function CollectibleSend() {
             <Stack sx={{ width: '100%', px: 2, mt: 3 }}>
               <Stack sx={{ width: '100%' }}>
                 <CustomFees
-                  maxFeePerGas={sendState?.maxFeePerGas || BigNumber.from(0)}
+                  maxFeePerGas={sendState?.maxFeePerGas || 0n}
                   limit={sendState.customGasLimit || sendState?.gasLimit || 0}
                   onChange={onGasChanged}
                   onModifierChangeCallback={(

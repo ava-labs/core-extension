@@ -38,6 +38,7 @@ jobs:
           echo COINBASE_APP_ID=${{ secrets.COINBASE_APP_ID }} >> .env.production
           echo CORE_WEB_BASE_URL=${{ secrets.CORE_WEB_BASE_URL }} >> .env.production
           echo GLACIER_API_KEY=${{ secrets.GLACIER_API_KEY }} >> .env.production
+          echo WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }} >> .env.production
       - name: Install dependencies
         run: yarn setup
       - name: Build library

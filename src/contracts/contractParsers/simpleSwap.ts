@@ -6,7 +6,6 @@ import {
   SimpleSwapDisplayValues,
 } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { BigNumber } from 'ethers';
 import { findToken } from './utils/findToken';
 import { Network } from '@avalabs/chains-sdk';
 import {
@@ -18,16 +17,16 @@ export interface SimpleSwapData {
   data: {
     beneficiary: string;
     callees: string[];
-    deadline: BigNumber;
+    deadline: bigint;
     exchangeData: string;
-    exchangeAmount: BigNumber;
-    feePercent: BigNumber;
-    fromAmount: BigNumber;
+    exchangeAmount: bigint;
+    feePercent: bigint;
+    fromAmount: bigint;
     fromToken: string;
     partner: string;
     permint: string;
-    startIndexes: BigNumber[];
-    toAmount: BigNumber;
+    startIndexes: bigint[];
+    toAmount: bigint;
     toToken: string;
     uuid: string;
   };
@@ -52,8 +51,8 @@ export async function simpleSwapHandler(
   const toToken = isAvaxToken(data.toToken)
     ? props.avaxToken
     : await findToken(data.toToken, network);
-  const toAmount: BigNumber = data.toAmount;
-  const fromAmount: BigNumber = data.fromAmount;
+  const toAmount: bigint = data.toAmount;
+  const fromAmount: bigint = data.fromAmount;
 
   const path: (TokenWithBalanceERC20 | NetworkTokenWithBalance)[] = [];
 

@@ -1,5 +1,4 @@
 import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
-import { BigNumber } from 'ethers';
 import {
   NetworkTokenWithBalance,
   TokenWithBalanceERC20,
@@ -10,10 +9,10 @@ export function isAvaxToken(address: string) {
 }
 
 export function getAmount(
-  amount: BigNumber,
+  amount: bigint,
   token: TokenWithBalanceERC20 | NetworkTokenWithBalance
 ) {
-  const bn = hexToBN(amount.toHexString());
+  const bn = hexToBN(amount.toString(16));
   const amountValue = bigToLocaleString(bnToBig(bn, token.decimals), 4);
   const amountUSDValue =
     (Number(token.priceUSD) * Number(amountValue)).toFixed(2) ?? '';

@@ -1,5 +1,4 @@
 import BN from 'bn.js';
-import { BigNumber } from 'ethers';
 import { SendableToken } from '../balances/models';
 import { SignTransactionRequest } from '../wallet/models';
 
@@ -23,12 +22,13 @@ export interface SendState<T extends SendableToken = SendableToken> {
   address?: string;
   error?: SendError;
   sendFee?: BN;
-  maxFeePerGas?: BigNumber;
-  maxPriorityFeePerGas?: BigNumber;
+  maxFeePerGas?: bigint;
+  maxPriorityFeePerGas?: bigint;
   gasLimit?: number;
   customGasLimit?: number;
   canSubmit?: boolean;
   loading?: boolean;
+  isValidating?: boolean;
   token?: T;
   txId?: string;
 }

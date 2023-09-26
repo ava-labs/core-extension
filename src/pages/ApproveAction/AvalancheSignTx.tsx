@@ -24,6 +24,8 @@ import { ApproveCreateChain } from './components/ApproveCreateChain';
 import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 import { AvalancheTxHeader } from './components/AvalancheTxHeader';
 import { ExcessiveBurnWarningDialog } from './components/ExcessiveBurnWarningDialog';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -32,7 +34,9 @@ export function AvalancheSignTx() {
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isWalletConnectAccount = useIsUsingWalletConnectAccount();
   const [showBurnWarning, setShowBurnWarning] = useState(false);
+  const [isReadyToSignRemotely, setIsReadyToSignRemotely] = useState(false);
   const txData = action?.displayData.txData;
 
   useEffect(() => {
@@ -54,22 +58,48 @@ export function AvalancheSignTx() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet
+      isUsingLedgerWallet || isWalletConnectAccount
     );
-  }, [isUsingLedgerWallet, requestId, updateAction]);
+  }, [isUsingLedgerWallet, requestId, updateAction, isWalletConnectAccount]);
+
+  const onApprove = useCallback(() => {
+    if (isWalletConnectAccount) {
+      setIsReadyToSignRemotely(true);
+      return;
+    }
+    signTx();
+  }, [isWalletConnectAccount, signTx]);
 
   const rejectTx = useCallback(() => {
+    setIsReadyToSignRemotely(false);
     cancelHandler();
     window.close();
   }, [cancelHandler]);
 
-  const renderLedgerApproval = useCallback(
+  const renderDeviceApproval = useCallback(
     ({ status, displayData }: Action) => {
-      if (status === ActionStatus.SUBMITTING && isUsingLedgerWallet) {
-        return <LedgerApprovalOverlay displayData={displayData} />;
+      if (status === ActionStatus.SUBMITTING || isReadyToSignRemotely) {
+        if (isUsingLedgerWallet) {
+          return <LedgerApprovalOverlay displayData={displayData} />;
+        }
+
+        if (isWalletConnectAccount) {
+          return (
+            <WalletConnectApprovalOverlay
+              onReject={rejectTx}
+              onSubmit={signTx}
+            />
+          );
+        }
       }
     },
-    [isUsingLedgerWallet]
+    [
+      isUsingLedgerWallet,
+      isWalletConnectAccount,
+      rejectTx,
+      signTx,
+      isReadyToSignRemotely,
+    ]
   );
 
   const renderSignTxDetails = useCallback(
@@ -118,7 +148,7 @@ export function AvalancheSignTx() {
 
   return (
     <Stack sx={{ px: 2, width: 1, justifyContent: 'space-between' }}>
-      {renderLedgerApproval(action)}
+      {renderDeviceApproval(action)}
       <AvalancheTxHeader tx={txData} />
 
       <Scrollbars>
@@ -142,7 +172,7 @@ export function AvalancheSignTx() {
         <Button fullWidth size="large" color="secondary" onClick={rejectTx}>
           {t('Reject')}
         </Button>
-        <Button fullWidth size="large" onClick={signTx}>
+        <Button fullWidth size="large" onClick={onApprove}>
           {t('Approve')}
         </Button>
       </Stack>

@@ -3,9 +3,9 @@ import {
   BitcoinOutputUTXO,
   DerivationPath,
 } from '@avalabs/wallets-sdk';
-import { TransactionRequest } from '@ethersproject/providers';
 import { ImportType } from '../accounts/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { TransactionRequest } from 'ethers';
 
 export type SignTransactionRequest =
   | TransactionRequest
@@ -40,10 +40,17 @@ export interface WalletSecretInStorage {
   pubKeys?: PubKeyType[];
   imported?: Record<
     string,
-    {
-      type: ImportType;
-      secret: string;
-    }
+    | {
+        type: ImportType.PRIVATE_KEY;
+        secret: string;
+      }
+    | {
+        type: ImportType.WALLET_CONNECT;
+        addresses: {
+          addressC: string;
+        };
+        pubKey?: PubKeyType;
+      }
   >;
   masterFingerprint?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
@@ -82,3 +89,7 @@ export type PubKeyType = {
   xp?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 };
+
+export type SigningResult =
+  | { txHash: string; signedTx?: never }
+  | { signedTx: string; txHash?: never };

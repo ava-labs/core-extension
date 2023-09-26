@@ -1,21 +1,17 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { BigNumber, ethers } from 'ethers';
 import { ETHER_ADDRESS, SwapSide } from 'paraswap';
 import { PerformSwapHandler } from './performSwap';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { ChainId } from '@avalabs/chains-sdk';
 import BN from 'bn.js';
+import { ethers } from 'ethers';
 
 describe('background/services/swap/handlers/performSwap.ts', () => {
   let contractSpy: jest.SpyInstance<ethers.Contract>;
 
   const allowanceMock = jest.fn();
-  const estimateGasMock = {
-    approve: jest.fn(),
-  };
-  const populateTransactionMock = {
-    approve: jest.fn(),
-  };
+  const estimateGasMock = jest.fn();
+  const populateTransactionMock = jest.fn();
   const providerMock = {
     send: jest.fn(),
     getTransactionCount: jest.fn(),
@@ -74,7 +70,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
       },
       destAmount: '20000',
       gasLimit: 1000,
-      gasPrice: BigNumber.from(100),
+      gasPrice: 100n,
       slippage: 1,
     };
 
@@ -99,8 +95,10 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     jest.resetAllMocks();
     contractSpy = jest.spyOn(ethers, 'Contract').mockReturnValue({
       allowance: allowanceMock,
-      estimateGas: estimateGasMock,
-      populateTransaction: populateTransactionMock,
+      approve: {
+        estimateGas: estimateGasMock,
+        populateTransaction: populateTransactionMock,
+      },
     } as any);
     networkServiceMock.activeNetwork = { ...activeNetworkMock };
     accountsServiceMock.activeAccount = { ...activeAccountMock };
@@ -232,11 +230,9 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     it('returns error on sign error during approval', async () => {
       const { request, params } = getRequest();
 
-      allowanceMock.mockResolvedValueOnce(
-        BigNumber.from(params.srcAmount).sub(1)
-      );
-      estimateGasMock.approve.mockResolvedValueOnce(undefined);
-      populateTransactionMock.approve.mockResolvedValueOnce({
+      allowanceMock.mockResolvedValueOnce(BigInt(params.srcAmount) - 1n);
+      estimateGasMock.mockResolvedValueOnce(undefined);
+      populateTransactionMock.mockResolvedValueOnce({
         data: 'data',
       });
       providerMock.getTransactionCount.mockResolvedValueOnce(1);
@@ -251,15 +247,15 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     it('returns error on send transaction error during approval', async () => {
       const { request, params } = getRequest();
 
-      allowanceMock.mockResolvedValueOnce(
-        BigNumber.from(params.srcAmount).sub(1)
-      );
-      estimateGasMock.approve.mockResolvedValueOnce(undefined);
-      populateTransactionMock.approve.mockResolvedValueOnce({
+      allowanceMock.mockResolvedValueOnce(BigInt(params.srcAmount) - 1n);
+      estimateGasMock.mockResolvedValueOnce(undefined);
+      populateTransactionMock.mockResolvedValueOnce({
         data: 'data',
       });
       providerMock.getTransactionCount.mockResolvedValueOnce(1);
-      walletServiceMock.sign.mockResolvedValueOnce('signedTransaction');
+      walletServiceMock.sign.mockResolvedValueOnce({
+        signedTx: 'signedTransaction',
+      });
       networkServiceMock.sendTransaction.mockRejectedValueOnce('some error');
 
       await expect(performSwapHandler.handle(request)).resolves.toStrictEqual({
@@ -271,15 +267,15 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     it('returns error on transaction build error', async () => {
       const { request, params } = getRequest();
 
-      allowanceMock.mockResolvedValueOnce(
-        BigNumber.from(params.srcAmount).sub(1)
-      );
-      estimateGasMock.approve.mockResolvedValueOnce(undefined);
-      populateTransactionMock.approve.mockResolvedValueOnce({
+      allowanceMock.mockResolvedValueOnce(BigInt(params.srcAmount) - 1n);
+      estimateGasMock.mockResolvedValueOnce(undefined);
+      populateTransactionMock.mockResolvedValueOnce({
         data: 'data',
       });
       providerMock.getTransactionCount.mockResolvedValueOnce(1);
-      walletServiceMock.sign.mockResolvedValueOnce('signedTransaction');
+      walletServiceMock.sign.mockResolvedValueOnce({
+        signedTx: 'signedTransaction',
+      });
       networkServiceMock.sendTransaction.mockResolvedValueOnce('approveTxHash');
       swapServiceMock.buildTx.mockRejectedValueOnce('some error');
 
@@ -292,15 +288,15 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     it('returns error on sign error after building the transaction', async () => {
       const { request, params } = getRequest();
 
-      allowanceMock.mockResolvedValueOnce(
-        BigNumber.from(params.srcAmount).sub(1)
-      );
-      estimateGasMock.approve.mockResolvedValueOnce(undefined);
-      populateTransactionMock.approve.mockResolvedValueOnce({
+      allowanceMock.mockResolvedValueOnce(BigInt(params.srcAmount) - 1n);
+      estimateGasMock.mockResolvedValueOnce(undefined);
+      populateTransactionMock.mockResolvedValueOnce({
         data: 'data',
       });
       providerMock.getTransactionCount.mockResolvedValueOnce(1);
-      walletServiceMock.sign.mockResolvedValueOnce('signedTransaction');
+      walletServiceMock.sign.mockResolvedValueOnce({
+        signedTx: 'signedTransaction',
+      });
       networkServiceMock.sendTransaction.mockResolvedValueOnce('approveTxHash');
       swapServiceMock.buildTx.mockResolvedValueOnce({
         gas: '1',
@@ -318,22 +314,24 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     it('returns error on sendTransaction error', async () => {
       const { request, params } = getRequest();
 
-      allowanceMock.mockResolvedValueOnce(
-        BigNumber.from(params.srcAmount).sub(1)
-      );
-      estimateGasMock.approve.mockResolvedValueOnce(undefined);
-      populateTransactionMock.approve.mockResolvedValueOnce({
+      allowanceMock.mockResolvedValueOnce(BigInt(params.srcAmount) - 1n);
+      estimateGasMock.mockResolvedValueOnce(undefined);
+      populateTransactionMock.mockResolvedValueOnce({
         data: 'data',
       });
       providerMock.getTransactionCount.mockResolvedValueOnce(1);
-      walletServiceMock.sign.mockResolvedValueOnce('signedTransaction');
+      walletServiceMock.sign.mockResolvedValueOnce({
+        signedTx: 'signedTransaction',
+      });
       networkServiceMock.sendTransaction.mockResolvedValueOnce('approveTxHash');
       swapServiceMock.buildTx.mockResolvedValueOnce({
         gas: '1',
         to: 'toAddress',
         data: 'data',
       });
-      walletServiceMock.sign.mockResolvedValueOnce('signedTransaction');
+      walletServiceMock.sign.mockResolvedValueOnce({
+        signedTx: 'signedTransaction',
+      });
       networkServiceMock.sendTransaction.mockRejectedValueOnce('some error');
 
       await expect(performSwapHandler.handle(request)).resolves.toStrictEqual({
@@ -348,9 +346,9 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     const transactionCount = 1;
     const networkFee = {
       displayDecimals: 10,
-      low: { maxFee: BigNumber.from(1) },
-      medium: { maxFee: BigNumber.from(5) },
-      high: { maxFee: BigNumber.from(10) },
+      low: { maxFee: 1n },
+      medium: { maxFee: 5n },
+      high: { maxFee: 10n },
       isFixedFee: false,
     };
     const signedTx = 'signedTx';
@@ -358,12 +356,14 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
     const swapTxHash = 'swapTxHash';
 
     beforeEach(() => {
-      allowanceMock.mockResolvedValue(BigNumber.from('9999'));
+      allowanceMock.mockResolvedValue(9999n);
 
       swapServiceMock.getParaswapSpender.mockResolvedValue(spenderAddress);
       providerMock.getTransactionCount.mockResolvedValue(transactionCount);
       networkFeeServiceMock.getNetworkFee.mockResolvedValue(networkFee);
-      walletServiceMock.sign.mockResolvedValue(signedTx);
+      walletServiceMock.sign.mockResolvedValue({
+        signedTx,
+      });
       networkServiceMock.sendTransaction.mockResolvedValue(approveTxHash);
       swapServiceMock.buildTx.mockResolvedValue({
         gas: '1',
@@ -374,8 +374,8 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
 
     describe('with approval for non-native tokens on the network', () => {
       beforeEach(() => {
-        estimateGasMock.approve.mockResolvedValue(undefined);
-        populateTransactionMock.approve.mockResolvedValue({
+        estimateGasMock.mockResolvedValue(undefined);
+        populateTransactionMock.mockResolvedValue({
           data: 'data',
         });
         networkServiceMock.sendTransaction
@@ -405,11 +405,11 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           activeAccountMock.addressC,
           spenderAddress
         );
-        expect(estimateGasMock.approve).toHaveBeenCalledWith(
+        expect(estimateGasMock).toHaveBeenCalledWith(
           spenderAddress,
           params.srcAmount
         );
-        expect(populateTransactionMock.approve).toHaveBeenCalledWith(
+        expect(populateTransactionMock).toHaveBeenCalledWith(
           spenderAddress,
           params.srcAmount
         );
@@ -425,10 +425,9 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           },
           tabId
         );
-        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
-          1,
-          signedTx
-        );
+        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(1, {
+          signedTx,
+        });
         expect(swapServiceMock.buildTx).toHaveBeenCalledWith(
           ChainId.AVALANCHE_MAINNET_ID.toString(),
           params.srcToken,
@@ -450,20 +449,19 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
         expect(walletServiceMock.sign).toHaveBeenNthCalledWith(
           2,
           {
-            nonce: 1,
+            nonce: 2,
             chainId: ChainId.AVALANCHE_MAINNET_ID,
             gasPrice: params.gasPrice,
             gasLimit: 1,
             data: 'data',
             to: 'toAddress',
-            undefined,
+            value: undefined,
           },
           tabId
         );
-        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
-          2,
-          signedTx
-        );
+        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(2, {
+          signedTx,
+        });
       });
 
       it('swaps when the route is BUY', async () => {
@@ -490,11 +488,8 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           activeAccountMock.addressC,
           spenderAddress
         );
-        expect(estimateGasMock.approve).toHaveBeenCalledWith(
-          spenderAddress,
-          '10100'
-        );
-        expect(populateTransactionMock.approve).toHaveBeenCalledWith(
+        expect(estimateGasMock).toHaveBeenCalledWith(spenderAddress, '10100');
+        expect(populateTransactionMock).toHaveBeenCalledWith(
           spenderAddress,
           '10100'
         );
@@ -510,10 +505,9 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           },
           tabId
         );
-        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
-          1,
-          signedTx
-        );
+        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(1, {
+          signedTx,
+        });
         expect(swapServiceMock.buildTx).toHaveBeenCalledWith(
           ChainId.AVALANCHE_MAINNET_ID.toString(),
           params.srcToken,
@@ -535,20 +529,19 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
         expect(walletServiceMock.sign).toHaveBeenNthCalledWith(
           2,
           {
-            nonce: 1,
+            nonce: 2,
             chainId: ChainId.AVALANCHE_MAINNET_ID,
             gasPrice: params.gasPrice,
             gasLimit: 1,
             data: 'data',
             to: 'toAddress',
-            undefined,
+            value: undefined,
           },
           tabId
         );
-        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(
-          2,
-          signedTx
-        );
+        expect(networkServiceMock.sendTransaction).toHaveBeenNthCalledWith(2, {
+          signedTx,
+        });
       });
     });
 
@@ -560,8 +553,8 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             symbol: '0x0000',
           },
         };
-        estimateGasMock.approve.mockResolvedValue(undefined);
-        populateTransactionMock.approve.mockResolvedValue({
+        estimateGasMock.mockResolvedValue(undefined);
+        populateTransactionMock.mockResolvedValue({
           data: 'data',
         });
         networkServiceMock.sendTransaction.mockResolvedValue(swapTxHash);
@@ -582,8 +575,8 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
 
         expect(contractSpy).not.toHaveBeenCalled();
         expect(allowanceMock).not.toHaveBeenCalled();
-        expect(estimateGasMock.approve).not.toHaveBeenCalled();
-        expect(populateTransactionMock.approve).not.toHaveBeenCalled();
+        expect(estimateGasMock).not.toHaveBeenCalled();
+        expect(populateTransactionMock).not.toHaveBeenCalled();
         expect(swapServiceMock.buildTx).toHaveBeenCalledWith(
           ChainId.AVALANCHE_MAINNET_ID.toString(),
           ETHER_ADDRESS,
@@ -614,9 +607,9 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           },
           tabId
         );
-        expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith(
-          signedTx
-        );
+        expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith({
+          signedTx,
+        });
       });
 
       it('swaps when the route is BUY', async () => {
@@ -636,8 +629,8 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
 
         expect(contractSpy).not.toHaveBeenCalled();
         expect(allowanceMock).not.toHaveBeenCalled();
-        expect(estimateGasMock.approve).not.toHaveBeenCalled();
-        expect(populateTransactionMock.approve).not.toHaveBeenCalled();
+        expect(estimateGasMock).not.toHaveBeenCalled();
+        expect(populateTransactionMock).not.toHaveBeenCalled();
         expect(swapServiceMock.buildTx).toHaveBeenCalledWith(
           ChainId.AVALANCHE_MAINNET_ID.toString(),
           ETHER_ADDRESS,
@@ -668,15 +661,15 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           },
           tabId
         );
-        expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith(
-          signedTx
-        );
+        expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith({
+          signedTx,
+        });
       });
     });
 
     describe('without approval for non-native tokens if allowance is enough', () => {
       beforeEach(() => {
-        allowanceMock.mockResolvedValue(BigNumber.from('10001'));
+        allowanceMock.mockResolvedValue(10001n);
         networkServiceMock.sendTransaction.mockResolvedValue(swapTxHash);
       });
 
@@ -702,8 +695,8 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           activeAccountMock.addressC,
           spenderAddress
         );
-        expect(estimateGasMock.approve).not.toHaveBeenCalled();
-        expect(populateTransactionMock.approve).not.toHaveBeenCalled();
+        expect(estimateGasMock).not.toHaveBeenCalled();
+        expect(populateTransactionMock).not.toHaveBeenCalled();
         expect(swapServiceMock.buildTx).toHaveBeenCalledWith(
           ChainId.AVALANCHE_MAINNET_ID.toString(),
           params.srcToken,
@@ -733,9 +726,9 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           },
           tabId
         );
-        expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith(
-          signedTx
-        );
+        expect(networkServiceMock.sendTransaction).toHaveBeenCalledWith({
+          signedTx,
+        });
       });
     });
   });

@@ -42,24 +42,24 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
       <List>
         <ListItem data-testid="test-net-mode-menu-item">
           <ListItemText
-            sx={{ alignItems: 'center' }}
+            sx={{ alignItems: 'center', flex: 'none' }}
             primaryTypographyProps={{ variant: 'body2' }}
           >
             {t('Testnet Mode')}
-            <Tooltip
-              sx={{ ml: 0.5 }}
-              PopperProps={{
-                sx: {
-                  maxWidth: '240px',
-                },
-              }}
-              title={t(
-                'Testnet mode changes the interface to allow you to interact with supported testnets.'
-              )}
-            >
-              <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
-            </Tooltip>
           </ListItemText>
+          <Tooltip
+            sx={{ ml: 0.5 }}
+            PopperProps={{
+              sx: {
+                maxWidth: '240px',
+              },
+            }}
+            title={t(
+              'Testnet mode changes the interface to allow you to interact with supported testnets.'
+            )}
+          >
+            <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
+          </Tooltip>
           <Switch
             size="small"
             checked={isDeveloperMode}
@@ -71,35 +71,37 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
               );
               history.push('/home');
             }}
+            sx={{ ml: 'auto' }}
           />
         </ListItem>
         {!isProductionBuild() ? (
           <ListItem data-testid="bridge-dev-env-menu-item">
             <ListItemText
-              sx={{ alignItems: 'center' }}
+              sx={{ alignItems: 'center', flex: 'none' }}
               primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Bridge DEV Environment')}
-              <Tooltip
-                sx={{ ml: 0.5 }}
-                PopperProps={{
-                  sx: {
-                    maxWidth: '240px',
-                  },
-                }}
-                title={
-                  <Trans i18nKey="When both this AND Testnet Mode are enabled then the Bridge will use the DEV warden config.<br /><br />Only available for internal builds." />
-                }
-              >
-                <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
-              </Tooltip>
             </ListItemText>
+            <Tooltip
+              sx={{ ml: 0.5 }}
+              PopperProps={{
+                sx: {
+                  maxWidth: '240px',
+                },
+              }}
+              title={
+                <Trans i18nKey="When both this AND Testnet Mode are enabled then the Bridge will use the DEV warden config.<br /><br />Only available for internal builds." />
+              }
+            >
+              <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
+            </Tooltip>
             <Switch
               size="small"
               checked={isBridgeDevEnv}
               onChange={() => {
                 setIsBridgeDevEnv(!isBridgeDevEnv);
               }}
+              sx={{ ml: 'auto' }}
             />
           </ListItem>
         ) : undefined}

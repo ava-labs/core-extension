@@ -78,7 +78,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
     (UnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     (EVMUnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
-    signMock.mockReturnValue({ biz: 'baz' });
+    signMock.mockReturnValue({ signedTx: 'baz' });
     getAvalancheNetworkXPMock.mockReturnValue('network');
     issueTxHexMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
@@ -375,7 +375,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       );
     });
 
-    it('sings transactions correctly on C', async () => {
+    it('signs transactions correctly on C', async () => {
       const signedTxHex = '0x000142';
       hasAllSignaturesMock.mockReturnValueOnce(true);
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
@@ -404,7 +404,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           internalIndices: undefined,
         },
         frontendTabId,
-        'network'
+        'network',
+        'avalanche_sendTransaction'
       );
       expect(EVMUnsignedTx.fromJSON).toBeCalledWith(
         pendingActionMock.displayData.unsignedTxJson
@@ -414,7 +415,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(onSuccessMock).toHaveBeenCalledWith(1);
     });
 
-    it('sings transactions correctly on X/P', async () => {
+    it('signs transactions correctly on X/P', async () => {
       const signedTxHex = '0x000142';
       hasAllSignaturesMock.mockReturnValueOnce(true);
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
@@ -440,7 +441,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           internalIndices: undefined,
         },
         frontendTabId,
-        'network'
+        'network',
+        'avalanche_sendTransaction'
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(
         pendingActionMock.displayData.unsignedTxJson
@@ -450,7 +452,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(onSuccessMock).toHaveBeenCalledWith(1);
     });
 
-    it('sings transactions correctly on X/P with multiple addresses', async () => {
+    it('signs transactions correctly on X/P with multiple addresses', async () => {
       const signedTxHex = '0x000142';
       hasAllSignaturesMock.mockReturnValueOnce(true);
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
@@ -481,7 +483,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           internalIndices: [2, 3],
         },
         frontendTabId,
-        'network'
+        'network',
+        'avalanche_sendTransaction'
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(
         pendingActionMock.displayData.unsignedTxJson

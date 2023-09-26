@@ -1,5 +1,5 @@
 import { injectable, injectAll } from 'tsyringe';
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import { Pipeline } from '../middlewares/models';
 import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
 import {
@@ -20,9 +20,11 @@ import {
 import { resolve } from '@avalabs/utils-sdk';
 import { isDevelopment } from '@src/utils/environment';
 import './registry';
-import { ExtensionRequestDeserializeMiddleware } from '../middlewares/ExtensionRequestDeserializeMiddleware';
-import { ExtensionRequestSerializeMiddleware } from '../middlewares/ExtensionRequestSerializeMiddleware';
-import { serializeFromJSON } from '@src/background/serialization/serialize';
+import { serializeToJSON } from '@src/background/serialization/serialize';
+import { deserializeFromJSON } from '@src/background/serialization/deserialize';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
@@ -46,9 +48,7 @@ export class ExtensionConnectionController implements ConnectionController {
   connect(connection: Runtime.Port) {
     this.connection = connection;
     this.pipeline = RequestProcessorPipeline(
-      ExtensionRequestDeserializeMiddleware(),
-      ExtensionRequestHandlerMiddleware(this.handlers),
-      ExtensionRequestSerializeMiddleware()
+      ExtensionRequestHandlerMiddleware(this.handlers)
     );
 
     connectionLog('Extension Provider');
@@ -66,41 +66,57 @@ export class ExtensionConnectionController implements ConnectionController {
     disconnectLog('Extension Provider');
   }
 
-  private async onMessage(request: ExtensionConnectionMessage) {
+  private async onMessage(requestJSON: string) {
     if (!this.pipeline || !this.connection) {
       throw Error('ExtensionConnectionController is not connected to a port');
+    }
+
+    const deserializedRequest =
+      deserializeFromJSON<ExtensionConnectionMessage>(requestJSON);
+    if (!deserializedRequest) {
+      return;
     }
 
     const [context, error] = await resolve(
       this.pipeline.execute({
         // always start with authenticated false, middlewares take care of context updates
         authenticated: false,
-        request: request,
+        request: deserializedRequest,
       })
     );
 
     if (error) {
       const response = {
-        ...request,
+        ...deserializedRequest,
         data: {
-          ...request.data,
+          ...deserializedRequest.data,
           ...{ error },
         },
       };
       if (isDevelopment()) {
-        responseLog(`extension reponse (${request.method})`, response);
+        responseLog(
+          `extension reponse (${deserializedRequest.method})`,
+          response
+        );
       }
       try {
-        this.connection?.postMessage(response);
+        this.connection?.postMessage(serializeToJSON(response));
       } catch (e) {
+        sentryCaptureException(
+          e as Error,
+          SentryExceptionTypes.EXTENSION_CONNECTION_MESSAGE
+        );
         console.error(e);
       }
     } else if (context) {
       if (isDevelopment()) {
-        responseLog(`extension reponse (${request.method})`, context.response);
+        responseLog(
+          `extension reponse (${deserializedRequest.method})`,
+          context.response
+        );
       }
       try {
-        this.connection?.postMessage(context.response);
+        this.connection?.postMessage(serializeToJSON(context.response));
       } catch (e) {
         // This try statement could throw an exception when a connection is closed with this message: "Attempting to use a disconnected port object"
         // Since the UI which made this request is disconnected, this should be harmless.
@@ -114,9 +130,12 @@ export class ExtensionConnectionController implements ConnectionController {
       eventLog(`extension event (${evt.name})`, evt);
     }
     try {
-      evt.value = serializeFromJSON(evt.value);
-      this.connection?.postMessage(evt);
+      this.connection?.postMessage(serializeToJSON(evt));
     } catch (e) {
+      sentryCaptureException(
+        e as Error,
+        SentryExceptionTypes.EXTENSION_CONNECTION_EVENT
+      );
       console.error(e);
     }
   }

@@ -13,12 +13,10 @@ import { useContactFromParams } from './hooks/useContactFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/chains-sdk';
-import { BigNumber } from 'ethers';
 import BN from 'bn.js';
 import {
   TokenType,
@@ -42,6 +40,9 @@ import { GasFeeModifier } from '@src/components/common/CustomFees';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 
 const DEFAULT_DECIMALS = 9;
 
@@ -65,9 +66,12 @@ export function SendPage() {
 
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+
   const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
-  const [gasPriceState, setGasPrice] = useState<BigNumber>();
+  const [gasPriceState, setGasPrice] = useState<bigint>();
   const { capture } = useAnalyticsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -186,23 +190,29 @@ export function SendPage() {
 
   // restore page history
   useEffect(() => {
+    const inputAddress = contactInput?.address || contactInput?.addressBTC;
+    const stateUpdate = {
+      address: inputAddress || pageHistory.address,
+    };
+
     if (pageHistory.amountInput && !amountInputDisplay) {
       setAmountInputDisplay(pageHistory.amountInput);
-      updateSendState({
+      Object.assign(stateUpdate, {
         amount: stringToBN(
           pageHistory.amountInput || '0',
           selectedToken?.decimals || 9
         ),
-        address: contactInput?.address || pageHistory.address,
       });
     }
-    if (contactInput?.address && !sendState.address) {
-      updateSendState({ address: contactInput?.address });
+
+    if (Object.keys(stateUpdate).length > 0) {
+      updateSendState(stateUpdate);
     }
   }, [
     amountInput,
     amountInputDisplay,
     contactInput?.address,
+    contactInput?.addressBTC,
     pageHistory,
     selectedToken?.decimals,
     sendState.address,
@@ -219,8 +229,8 @@ export function SendPage() {
   const onGasChanged = useCallback(
     (values: {
       customGasLimit?: number;
-      maxFeePerGas: BigNumber;
-      maxPriorityFeePerGas?: BigNumber;
+      maxFeePerGas: bigint;
+      maxPriorityFeePerGas?: bigint;
       feeType: GasFeeModifier;
     }) => {
       setGasPrice(values.maxFeePerGas);
@@ -241,18 +251,7 @@ export function SendPage() {
     return '';
   }
 
-  const onSubmit = () => {
-    let pendingToastId = '';
-    setShowTxInProgress(true);
-    if (!sendState.canSubmit) return;
-    capture('SendApproved', {
-      selectedGasFee,
-    });
-    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
-      history.push('/home');
-      pendingToastId = toast.loading(t('Transaction pending...'));
-    }
-
+  function sendFunds(pendingToastId?: string) {
     submitSendState()
       .then((txId) => {
         resetSendState();
@@ -273,6 +272,27 @@ export function SendPage() {
           history.push('/home');
         }
       });
+  }
+
+  const handleSubmitClick = () => {
+    let pendingToastId = '';
+    setShowTxInProgress(true);
+    if (!sendState.canSubmit) return;
+    capture('SendApproved', {
+      selectedGasFee,
+    });
+    if (
+      !isUsingLedgerWallet &&
+      !isUsingKeystoneWallet &&
+      !isUsingWalletConnectAccount
+    ) {
+      history.push('/home');
+      pendingToastId = toast.loading(t('Transaction pending...'));
+    }
+
+    if (!isUsingWalletConnectAccount) {
+      sendFunds(pendingToastId);
+    }
   };
 
   const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
@@ -285,7 +305,7 @@ export function SendPage() {
     setIsTokenSelectOpen(visible);
   }, []);
 
-  if (!featureFlags[FeatureGates.SEND]) {
+  if (!featureFlags[FeatureGates.SEND] || !checkIsFunctionAvailable('Send')) {
     return <FunctionIsOffline functionName="Send" />;
   }
 
@@ -308,8 +328,10 @@ export function SendPage() {
                   selectedGasFee,
                 });
                 resetKeystoneRequest();
+                setShowTxInProgress(false);
                 history.goBack();
               }}
+              onSubmit={sendFunds}
             />
           )}
           <SendConfirm
@@ -317,7 +339,7 @@ export function SendPage() {
             contact={contactInput as Contact}
             token={selectedToken}
             fallbackAmountDisplayValue={amountInputDisplay}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmitClick}
             maxGasPrice={maxGasPrice}
             gasPrice={gasPriceState}
             selectedGasFee={selectedGasFee}
@@ -373,7 +395,7 @@ export function SendPage() {
               >
                 <Tooltip
                   placement="top"
-                  wrapWithSpan={false}
+                  sx={{ width: '100%' }}
                   title={
                     sendState.error ? (
                       <Typography variant="body2">
@@ -400,7 +422,8 @@ export function SendPage() {
                         options: { path: '/send/confirm' },
                       });
                     }}
-                    disabled={!sendState.canSubmit}
+                    disabled={!sendState.canSubmit || sendState.isValidating}
+                    isLoading={sendState.isValidating}
                     fullWidth
                   >
                     {t('Next')}

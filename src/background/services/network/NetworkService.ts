@@ -31,7 +31,9 @@ import {
 } from '@avalabs/wallets-sdk';
 import { resolve } from '@avalabs/utils-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
+import { Network as EthersNetwork } from 'ethers';
 import { LockService } from '../lock/LockService';
+import { SigningResult } from '../wallet/models';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -357,7 +359,7 @@ export class NetworkService implements OnLock, OnStorageReady {
             }
           : 40,
         addGlacierAPIKeyIfNeeded(network.rpcUrl),
-        network.chainId
+        new EthersNetwork(network.chainName, network.chainId)
       );
 
       provider.pollingInterval = 2000;
@@ -376,17 +378,35 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   /**
-   * Sends a signed transaction.
+   * Sends a signed transaction if needed.
    * @returns the transaction hash
    */
-  async sendTransaction(signedTx: string, network?: Network): Promise<string> {
+  async sendTransaction(
+    { txHash, signedTx }: SigningResult,
+    network?: Network
+  ): Promise<string> {
+    // Sometimes we'll receive the TX hash directly from the wallet
+    // device that signed the transaction (it's the case for WalletConnect).
+    // In that scenario, we can just return early here with the hash we received.
+    if (typeof txHash === 'string') {
+      return txHash;
+    }
+
+    if (typeof signedTx !== 'string') {
+      // This is here to satisfy TypeScript. When we update to v5, it won't be necessary.
+      // Task: https://ava-labs.atlassian.net/browse/CP-7282
+      throw new Error(
+        `Expected signedTx to be a string, ${typeof signedTx} provided.`
+      );
+    }
+
     const activeNetwork = network || this.activeNetwork;
     if (!activeNetwork) {
       throw new Error('No active network');
     }
     const provider = this.getProviderForNetwork(activeNetwork);
     if (provider instanceof JsonRpcBatchInternal) {
-      return (await provider.sendTransaction(signedTx)).hash;
+      return (await provider.broadcastTransaction(signedTx)).hash;
     }
 
     if (provider instanceof BlockCypherProvider) {
@@ -402,12 +422,12 @@ export class NetworkService implements OnLock, OnStorageReady {
         maxCalls: 40,
       },
       url,
-      chainId
+      new EthersNetwork('', chainId)
     );
 
     try {
       const detectedNetwork = await provider.getNetwork();
-      return detectedNetwork.chainId === chainId;
+      return detectedNetwork.chainId === BigInt(chainId);
     } catch (e) {
       return false;
     }

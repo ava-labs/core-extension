@@ -16,7 +16,6 @@ import { txToCustomEvmTx } from '../utils/txToCustomEvmTx';
 import { WalletService } from '../../wallet/WalletService';
 import { NetworkService } from '../../network/NetworkService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
-import { BigNumber } from 'ethers';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import browser from 'webextension-polyfill';
 import getTargetNetworkForTx from '../utils/getTargetNetworkForTx';
@@ -104,10 +103,10 @@ export class UpdateTransactionHandler implements HandlerType {
           type,
         } = txToCustomEvmTx(pendingTx, calculatedFee);
 
-        const signedTx = await this.walletService.sign(
+        const signingResult = await this.walletService.sign(
           {
             nonce,
-            chainId: BigNumber.from(pendingTx.chainId).toNumber(),
+            chainId: Number(BigInt(pendingTx.chainId)),
             maxFeePerGas,
             maxPriorityFeePerGas,
             gasLimit: gasLimit,
@@ -121,7 +120,7 @@ export class UpdateTransactionHandler implements HandlerType {
         );
 
         const result = await this.networkService.sendTransaction(
-          signedTx,
+          signingResult,
           network
         );
 

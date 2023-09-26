@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react';
 import { Observable, Subject } from 'rxjs';
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import extension from 'extensionizer';
 import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';

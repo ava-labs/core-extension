@@ -43,7 +43,7 @@ export const useIdentifyAddress = () => {
       for (const account of allAccounts) {
         if (
           account.addressC.toLowerCase() === addressLowerCase ||
-          account.addressBTC.toLocaleLowerCase() === addressLowerCase
+          account.addressBTC?.toLocaleLowerCase() === addressLowerCase
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: account.addressBTC, address: '' }

@@ -9,7 +9,7 @@ import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIs
 import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
-import { _TypedDataEncoder } from 'ethers/lib/utils';
+import { TypedDataEncoder } from 'ethers';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
@@ -79,7 +79,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
           // remove EIP712Domain from types since ethers.js handles it separately
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { EIP712Domain, ...types } = messageParams.data.types;
-          _TypedDataEncoder.getPayload(
+          TypedDataEncoder.getPayload(
             messageParams.data.domain,
             types,
             messageParams.data.message
@@ -122,7 +122,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
     try {
       const result = await this.walletService.signMessage(
         pendingAction.method as MessageType,
-        pendingAction.displayData.messageParams.data
+        pendingAction
       );
       onSuccess(result);
     } catch (e) {

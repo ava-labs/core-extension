@@ -100,6 +100,10 @@ export function useTokensWithBalances(
         ? activeAccount.addressBTC
         : activeAccount.addressC;
 
+    if (!address) {
+      return [];
+    }
+
     const networkBalances = tokens.balances?.[selectedChainId]?.[address] ?? {};
 
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {

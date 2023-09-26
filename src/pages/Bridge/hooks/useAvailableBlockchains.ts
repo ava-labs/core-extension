@@ -1,11 +1,16 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
-import { FeatureGates } from '@avalabs/posthog-sdk';
+import { AccountType } from '@src/background/services/accounts/models';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useEffect, useState } from 'react';
 import { SUPPORTED_CHAINS } from '../models';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export function useAvailableBlockchains() {
   const { featureFlags } = useFeatureFlagContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const [availableBlockchains, setAvailableBlockchains] =
     useState<Blockchain[]>(SUPPORTED_CHAINS);
 
@@ -15,7 +20,10 @@ export function useAvailableBlockchains() {
     const availableChains = SUPPORTED_CHAINS.filter((chain) => {
       switch (chain) {
         case Blockchain.BITCOIN:
-          return featureFlags[FeatureGates.BRIDGE_BTC];
+          return (
+            featureFlags[FeatureGates.BRIDGE_BTC] &&
+            activeAccount?.type !== AccountType.WALLET_CONNECT
+          );
         case Blockchain.ETHEREUM:
           return featureFlags[FeatureGates.BRIDGE_ETH];
         default:
@@ -24,7 +32,7 @@ export function useAvailableBlockchains() {
     });
 
     setAvailableBlockchains(availableChains);
-  }, [featureFlags]);
+  }, [featureFlags, activeAccount]);
 
   return availableBlockchains;
 }

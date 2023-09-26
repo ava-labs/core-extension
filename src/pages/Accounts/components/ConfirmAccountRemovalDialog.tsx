@@ -12,12 +12,14 @@ import { useTranslation } from 'react-i18next';
 type ConfirmAccountRemovalDialogProps = DialogProps & {
   onConfirm(): void;
   isMultiple: boolean;
+  isDeleting: boolean;
 };
 
 export const ConfirmAccountRemovalDialog = ({
   onClose,
   onConfirm,
   isMultiple,
+  isDeleting,
   ...props
 }: ConfirmAccountRemovalDialogProps) => {
   const { t } = useTranslation();
@@ -45,10 +47,16 @@ export const ConfirmAccountRemovalDialog = ({
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onConfirm} variant="contained" size="large">
+        <Button
+          onClick={onConfirm}
+          variant="contained"
+          size="large"
+          disabled={isDeleting}
+          isLoading={isDeleting}
+        >
           {t('Delete')}
         </Button>
-        <Button onClick={onClose} variant="text">
+        <Button onClick={onClose} variant="text" disabled={isDeleting}>
           {t('Cancel')}
         </Button>
       </DialogActions>

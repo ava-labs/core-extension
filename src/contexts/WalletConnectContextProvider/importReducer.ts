@@ -10,6 +10,9 @@ interface BaseAction {
   payload?: unknown;
 }
 
+interface ResetStateAction extends BaseAction {
+  status: AccountImportStatus.NotInitiated;
+}
 interface ImportInitiatedAction extends BaseAction {
   status: AccountImportStatus.Initiated;
 }
@@ -23,9 +26,6 @@ interface ImportAwaitingApprovalAction extends BaseAction {
 
 interface ImportSucceededAction extends BaseAction {
   status: AccountImportStatus.Successful;
-  payload: {
-    accountId: string;
-  };
 }
 
 interface ImportFailedAction extends BaseAction {
@@ -36,6 +36,7 @@ interface ImportFailedAction extends BaseAction {
 }
 
 type ImportAction =
+  | ResetStateAction
   | ImportInitiatedAction
   | ImportAwaitingApprovalAction
   | ImportSucceededAction
@@ -47,6 +48,10 @@ export const importReducer = (
 ): AccountImportState => {
   const { status, payload } = action;
   switch (status) {
+    case AccountImportStatus.NotInitiated:
+      return {
+        status,
+      };
     case AccountImportStatus.Initiated:
       return {
         status,
@@ -60,7 +65,6 @@ export const importReducer = (
       return {
         ...(state as AwaitingApprovalAccountImportState),
         status,
-        ...payload,
       };
     case AccountImportStatus.Failed:
       return {

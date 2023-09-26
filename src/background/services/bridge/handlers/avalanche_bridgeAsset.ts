@@ -112,25 +112,29 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
         this.networkService.activeNetwork?.isTestnet
       );
 
+    const { activeAccount } = this.accountsService;
     // refresh balances so we have the correct balance information for the asset
     sourceNetwork &&
-      this.accountsService.activeAccount &&
+      activeAccount &&
       (await this.balanceAggregatorService.updateBalancesForNetworks(
         [sourceNetwork.chainId],
-        [this.accountsService.activeAccount]
+        [activeAccount]
       ));
 
+    const balanceAddress =
+      sourceNetwork && isBitcoinNetwork(sourceNetwork)
+        ? activeAccount?.addressBTC
+        : activeAccount?.addressC;
+
     const token =
-      this.accountsService.activeAccount &&
       sourceNetwork &&
+      balanceAddress &&
       findTokenForAsset(
         asset.symbol,
         asset.nativeNetwork,
         Object.values(
           this.balanceAggregatorService.balances?.[sourceNetwork.chainId]?.[
-            isBitcoinNetwork(sourceNetwork)
-              ? this.accountsService.activeAccount.addressBTC
-              : this.accountsService.activeAccount.addressC
+            balanceAddress
           ] ?? {}
         )
       );

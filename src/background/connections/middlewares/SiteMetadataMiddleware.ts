@@ -1,5 +1,5 @@
 import { DomainMetadata } from '@src/background/models';
-import { Runtime } from 'webextension-polyfill-ts';
+import { Runtime } from 'webextension-polyfill';
 import {
   DAppProviderRequest,
   JsonRpcRequest,

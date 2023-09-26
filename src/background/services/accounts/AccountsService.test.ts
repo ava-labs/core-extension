@@ -10,8 +10,11 @@ import {
   ACCOUNTS_STORAGE_KEY,
   AccountType,
   ImportType,
+  ImportData,
 } from './models';
 import { NetworkVMType } from '@avalabs/chains-sdk';
+import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
+import { WalletConnectService } from '../walletConnect/WalletConnectService';
 
 jest.mock('../storage/StorageService');
 jest.mock('../wallet/WalletService');
@@ -25,12 +28,16 @@ describe('background/services/accounts/AccountsService', () => {
   const ledgerService = new LedgerService();
   const lockService = new LockService({} as any, {} as any);
   const keystoneService = new KeystoneService();
+  const walletConnectService = new WalletConnectService(
+    new WalletConnectStorage(storageService)
+  );
   const walletService = new WalletService(
     storageService,
     networkService,
     ledgerService,
     lockService,
-    keystoneService
+    keystoneService,
+    walletConnectService
   );
 
   const emptyAccounts = {
@@ -159,36 +166,6 @@ describe('background/services/accounts/AccountsService', () => {
           ...getAllAddresses(),
         },
       ]);
-    });
-  });
-
-  describe('isAlreadyImported', () => {
-    it('returns true if the account has been already imported', async () => {
-      const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService
-      );
-      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
-
-      await accountsService.onUnlock();
-
-      expect(accountsService.isAlreadyImported(evmAddress)).toBe(true);
-    });
-
-    it('returns true if the account has not been imported yet', async () => {
-      const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService
-      );
-      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
-
-      await accountsService.onUnlock();
-
-      expect(accountsService.isAlreadyImported('some new address')).toBe(false);
     });
   });
 
@@ -504,7 +481,7 @@ describe('background/services/accounts/AccountsService', () => {
       const commitMock = jest.fn();
 
       it('adds account to the imported list correctly', async () => {
-        const options = {
+        const options: ImportData = {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         };
@@ -548,7 +525,7 @@ describe('background/services/accounts/AccountsService', () => {
       });
 
       it('sets default name when no name is given', async () => {
-        const options = {
+        const options: ImportData = {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         };
@@ -597,7 +574,7 @@ describe('background/services/accounts/AccountsService', () => {
       });
 
       it('emits event when account added', async () => {
-        const options = {
+        const options: ImportData = {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         };
@@ -642,8 +619,8 @@ describe('background/services/accounts/AccountsService', () => {
         expect(eventListener).toHaveBeenCalledWith(newAccounts);
       });
 
-      it('throws on duplicate imported accounts', async () => {
-        const options = {
+      it('returns the existing account id on duplicated accounts imports', async () => {
+        const options: ImportData = {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         };
@@ -663,16 +640,12 @@ describe('background/services/accounts/AccountsService', () => {
         (walletService.addImportedWallet as jest.Mock).mockResolvedValueOnce({
           account: {
             ...getAllAddresses(),
-            id: uuidMock,
+            id: '0x1',
           },
           commit: commitMock,
         });
 
-        await expect(
-          accountsService.addAccount('', options)
-        ).rejects.toThrowError(
-          'Account import failed with error: Account has been already imported'
-        );
+        expect(await accountsService.addAccount('', options)).toEqual('0x1');
         expect(walletService.addImportedWallet).toBeCalledTimes(1);
         expect(walletService.addImportedWallet).toBeCalledWith(options);
         expect(commitMock).not.toHaveBeenCalled();
@@ -680,7 +653,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       it('throws on error', async () => {
         const errorMessage = 'some error';
-        const options = {
+        const options: ImportData = {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         };

@@ -12,7 +12,6 @@ import {
 } from '@avalabs/k2-components';
 import { PageNav } from './components/PageNav';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import {
   KeystoneQRCodeScanner,
@@ -25,6 +24,7 @@ import { DerivedAddresses } from './components/DerivedAddresses';
 import { useGetAvalancheNetwork } from '@src/hooks/useGetAvalancheNetwork';
 import { Network } from '@avalabs/chains-sdk';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 const KeystoneStepImage = styled(Stack)`
   position: relative;

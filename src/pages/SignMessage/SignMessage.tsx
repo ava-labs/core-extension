@@ -31,6 +31,8 @@ import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { useIsIntersecting } from './hooks/useIsIntersecting';
+import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -45,11 +47,14 @@ export function SignMessage() {
   // Message signing is not currently supported by the Ledger Avalanche app
   // We also disable the "Sign" button
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
   const endContentRef = useRef(null);
   const isIntersecting = useIsIntersecting({ ref: endContentRef });
+  const [isReadyToSignRemotely, setIsReadyToSignRemotely] = useState(false);
+
   useEffect(() => {
     if (isIntersecting) {
       viewCompleteHandler();
@@ -74,6 +79,30 @@ export function SignMessage() {
       setShowNotSupportedDialog(true);
     }
   }, [isUsingLedgerWallet, action]);
+
+  function submit() {
+    updateMessage(
+      {
+        status: ActionStatus.SUBMITTING,
+        id: requestId,
+      },
+      isUsingWalletConnectAccount // wait for the response only for device wallets
+    );
+  }
+
+  function rejectHandler() {
+    setIsReadyToSignRemotely(false);
+    cancelHandler();
+    window.close();
+  }
+
+  function approveClickHandler() {
+    if (isUsingWalletConnectAccount) {
+      setIsReadyToSignRemotely(true);
+      return;
+    }
+    submit();
+  }
 
   const notSupportedDialog = (
     <Stack sx={{ justifyContent: 'center', width: '100%' }}>
@@ -120,6 +149,13 @@ export function SignMessage() {
   return (
     <>
       <Stack sx={{ px: 2, width: 1 }}>
+        {isReadyToSignRemotely && (
+          <WalletConnectApprovalOverlay
+            onReject={rejectHandler}
+            onSubmit={submit}
+          />
+        )}
+
         <SignTxErrorBoundary variant="RenderError">
           {!action.displayData.isMessageValid && !messageAlertClosed ? (
             <Stack
@@ -294,12 +330,7 @@ export function SignMessage() {
               color="primary"
               size="large"
               disabled={isUsingLedgerWallet || disableSubmitButton}
-              onClick={() => {
-                updateMessage({
-                  status: ActionStatus.SUBMITTING,
-                  id: requestId,
-                });
-              }}
+              onClick={approveClickHandler}
               fullWidth
             >
               {t('Sign')}

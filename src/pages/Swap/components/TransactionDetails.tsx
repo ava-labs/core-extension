@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { SlippageToolTip } from './SlippageToolTip';
-import { BigNumber } from 'ethers';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
@@ -21,12 +20,12 @@ interface TransactionDetailsProps {
   rate: number;
   onGasChange(values: {
     customGasLimit?: number;
-    maxFeePerGas: BigNumber;
-    maxPriorityFeePerGas?: BigNumber;
+    maxFeePerGas: bigint;
+    maxPriorityFeePerGas?: bigint;
     feeType: GasFeeModifier;
   }): void;
   gasLimit: number;
-  gasPrice: BigNumber;
+  gasPrice: bigint;
   slippage: string;
   setSlippage: (slippage: string) => void;
   setIsOpen?: (isOpen: boolean) => void;

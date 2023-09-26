@@ -175,7 +175,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
         );
       }
 
-      const signedTransactionJson = await this.walletService.sign(
+      const { txHash, signedTx } = await this.walletService.sign(
         {
           tx: unsignedTx,
           externalIndices,
@@ -183,27 +183,34 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
         },
         frontendTabId,
         // Must tell it is avalanche network
-        this.networkService.getAvalancheNetworkXP()
+        this.networkService.getAvalancheNetworkXP(),
+        DAppProviderRequest.AVALANCHE_SEND_TRANSACTION
       );
 
-      const signedTransaction =
-        vm === EVM
-          ? EVMUnsignedTx.fromJSON(signedTransactionJson)
-          : UnsignedTx.fromJSON(signedTransactionJson);
+      if (typeof txHash === 'string') {
+        // If we already have the transaction hash (i.e. it was dispatched by WalletConnect),
+        // we just return it to the caller.
+        onSuccess(txHash);
+      } else if (typeof signedTx === 'string') {
+        const signedTransaction =
+          vm === EVM
+            ? EVMUnsignedTx.fromJSON(signedTx)
+            : UnsignedTx.fromJSON(signedTx);
 
-      if (!signedTransaction.hasAllSignatures()) {
-        throw new Error('Signing error, missing signatures.');
+        if (!signedTransaction.hasAllSignatures()) {
+          throw new Error('Signing error, missing signatures.');
+        }
+
+        const signedTransactionHex = Avalanche.signedTxToHex(
+          signedTransaction.getSignedTx()
+        );
+
+        // Submit the transaction and return the tx id
+        const prov = await this.networkService.getAvalanceProviderXP();
+        const res = await prov.issueTxHex(signedTransactionHex, vm);
+
+        onSuccess(res.txID);
       }
-
-      const signedTransactionHex = Avalanche.signedTxToHex(
-        signedTransaction.getSignedTx()
-      );
-
-      // Submit the transaction and return the tx id
-      const prov = await this.networkService.getAvalanceProviderXP();
-      const res = await prov.issueTxHex(signedTransactionHex, vm);
-
-      onSuccess(res.txID);
     } catch (e) {
       onError(e);
     }

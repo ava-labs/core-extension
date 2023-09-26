@@ -1,15 +1,15 @@
 import { txParams } from '@src/background/services/transactions/models';
 import { DisplayValueParserProps } from '../models';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import * as ethers from 'ethers';
 import { Network } from '@avalabs/chains-sdk';
 import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
+import { TransactionDescription } from 'ethers';
 
 export function parseBasicDisplayValues(
   network: Network,
   request: txParams,
   props: DisplayValueParserProps,
-  description?: ethers.utils.TransactionDescription
+  description?: TransactionDescription
 ) {
   const name = description?.name;
 
@@ -18,6 +18,11 @@ export function parseBasicDisplayValues(
   if (description?.args._amount) {
     const big = bnToBig(hexToBN(description?.args._amount.toHexString()), 18);
     displayValue = bigToLocaleString(big, 18);
+  } else if (request.value) {
+    const big = bnToBig(hexToBN(request.value), network.networkToken.decimals);
+    displayValue = `${bigToLocaleString(big, network.networkToken.decimals)} ${
+      network.networkToken.symbol
+    }`;
   }
 
   return {
@@ -31,12 +36,11 @@ export function parseBasicDisplayValues(
     fromAddress: request.from,
     ...calculateGasAndFees({
       maxFeePerGas: props.maxFeePerGas,
-      gasLimit: request.gas || 0,
+      gasLimit: Number(request.gas || 0),
       tokenPrice: props.avaxPrice,
       tokenDecimals: network.networkToken.decimals,
     }),
     site: props.site,
-    description,
     name: name ? (name[0] || '').toUpperCase() + name.slice(1) : '',
     displayValue,
   };

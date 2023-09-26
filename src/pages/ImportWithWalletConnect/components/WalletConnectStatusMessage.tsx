@@ -16,9 +16,13 @@ import { getColorForStatus } from './utils/getColorForStatus';
 
 type Props = {
   importState: AccountImportState;
+  reconnectionAddress?: string;
 };
 
-export const WalletConnectStatusMessage = ({ importState }: Props) => {
+export const WalletConnectStatusMessage = ({
+  importState,
+  reconnectionAddress,
+}: Props) => {
   const { t } = useTranslation();
 
   const hasConnectionFailed = importState.status === AccountImportStatus.Failed;
@@ -49,6 +53,8 @@ export const WalletConnectStatusMessage = ({ importState }: Props) => {
       <Typography variant="caption">
         {hasConnectionFailed
           ? importState.error
+          : reconnectionAddress
+          ? t('Scan successful. Waiting to be confirmed...')
           : t('Scan successful. Importing accounts...')}
       </Typography>
     </Stack>

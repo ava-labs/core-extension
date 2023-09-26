@@ -9,8 +9,10 @@ import { getBalances } from '../utils/getBalances';
 import { AssetBalance } from '../models';
 import { useMemo } from 'react';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { AccountType } from '@src/background/services/accounts/models';
 
 /**
  * Get for the current chain.
@@ -24,6 +26,9 @@ export function useAssetBalancesEVM(
   assetsWithBalances: AssetBalance[];
 } {
   const { featureFlags } = useFeatureFlagContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
 
@@ -65,15 +70,21 @@ export function useAssetBalancesEVM(
             nativeNetwork === Blockchain.ETHEREUM &&
             !featureFlags[FeatureGates.BRIDGE_ETH]
           ) {
-            // BTC is not available filter btc tokens out
+            // ETH is not available filter ETH tokens out
             return false;
           }
-          if (
-            nativeNetwork === Blockchain.BITCOIN &&
-            !featureFlags[FeatureGates.BRIDGE_BTC]
-          ) {
-            // BTC is not available filter btc tokens out
-            return false;
+          if (nativeNetwork === Blockchain.BITCOIN) {
+            // Filter out BTC tokens if BTC bridge is not available, or
+            // the active account was imported via WalletConnect (the BTC address is unknown).
+
+            const isBtcSupportedByActiveAccount =
+              activeAccount?.addressBTC &&
+              activeAccount?.type !== AccountType.WALLET_CONNECT;
+
+            return (
+              featureFlags[FeatureGates.BRIDGE_BTC] &&
+              isBtcSupportedByActiveAccount
+            );
           }
         }
 
@@ -97,6 +108,8 @@ export function useAssetBalancesEVM(
     tokens,
     featureFlags,
     getTokenSymbolOnNetwork,
+    activeAccount?.type,
+    activeAccount?.addressBTC,
   ]);
 
   const assetsWithBalances = balances.sort(

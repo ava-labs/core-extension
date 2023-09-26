@@ -24,7 +24,6 @@ export interface AwaitingApprovalAccountImportState {
 interface SuccessfulAccountImportState {
   status: AccountImportStatus.Successful;
   uri: WalletConnectUri;
-  accountId: string;
 }
 
 interface FailedAccountImportState {

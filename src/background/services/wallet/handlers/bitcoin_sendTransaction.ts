@@ -9,13 +9,13 @@ import { ethErrors } from 'eth-rpc-errors';
 import { SendServiceBTC } from '@src/background/services/send/SendServiceBTC';
 import { ValidSendState } from '@src/background/services/send/models';
 import BN from 'bn.js';
-import { BigNumber } from 'ethers';
 import { DisplayData_BitcoinSendTx } from '@src/background/services/wallet/handlers/models';
 import { BalancesServiceBTC } from '@src/background/services/balances/BalancesServiceBTC';
 import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { ChainId } from '@avalabs/chains-sdk';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
+import { AccountType } from '../../accounts/models';
 
 @injectable()
 export class BitcoinSendTransactionHandler extends DAppRequestHandler {
@@ -79,6 +79,18 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
       };
     }
 
+    if (
+      this.accountService.activeAccount.type === AccountType.WALLET_CONNECT ||
+      !this.accountService.activeAccount.addressBTC
+    ) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'The active account does not support BTC transactions',
+        }),
+      };
+    }
+
     const btcChainID = this.networkService.isMainnet()
       ? ChainId.BITCOIN
       : ChainId.BITCOIN_TESTNET;
@@ -98,7 +110,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
     const sendState = {
       address,
       amount: new BN(amountSatoshi),
-      maxFeePerGas: BigNumber.from(feeRate),
+      maxFeePerGas: BigInt(feeRate),
     };
 
     const verifiedState =
@@ -167,13 +179,14 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
       const txRequest = await this.sendServiceBTC.getTransactionRequest(
         displayData.sendState
       );
-      const signed = await this.walletService.sign(
+      const result = await this.walletService.sign(
         txRequest,
         frontendTabId,
         btcNetwork
       );
-      const result = await this.networkService.sendTransaction(
-        signed,
+
+      const hash = await this.networkService.sendTransaction(
+        result,
         btcNetwork
       );
 
@@ -183,7 +196,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler {
           [btcNetwork.chainId],
           [this.accountService.activeAccount]
         );
-      onSuccess(result);
+      onSuccess(hash);
     } catch (e) {
       onError(e);
     }

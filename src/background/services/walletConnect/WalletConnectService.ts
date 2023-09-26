@@ -10,22 +10,31 @@ import {
   getChainsFromNamespaces,
   parseChainId,
 } from '@walletconnect/utils';
+import { intToHex } from 'ethereumjs-util';
+
+import { areArraysOverlapping } from '@src/utils/array';
+import { isDevelopment } from '@src/utils/environment';
 
 import { WalletConnectStorage } from './WalletConnectStorage';
 import {
   ConnectOptions,
+  RequestOptions,
+  RequestPayload,
   WALLET_CONNECT_APP_METADATA,
-  WalletConnectAccountInfo,
+  WalletConnectSessionInfo,
   WalletConnectError,
   WalletConnectErrorCode,
   WalletConnectEvent,
-  buildSessionProposal,
+  WalletConnectTransport,
   isNoMatchingKeyError,
   isProposalExpiredError,
+  isUserRejectionError,
 } from './models';
+import { buildSessionProposal } from './utils';
+import { WalletConnectAddresses } from '../accounts/models';
 
 @singleton()
-export class WalletConnectService {
+export class WalletConnectService implements WalletConnectTransport {
   #eventEmitter = new EventEmitter();
   #initialized = false;
 
@@ -44,6 +53,7 @@ export class WalletConnectService {
       this.#core = new Core({
         projectId: process.env.WALLET_CONNECT_PROJECT_ID,
         storage: this.storage,
+        logger: isDevelopment() ? 'debug' : 'error',
       });
       this.#setupPairingListeners(this.#core);
 
@@ -81,11 +91,114 @@ export class WalletConnectService {
     return this.#client;
   }
 
+  async establishRequiredSession({
+    chainId,
+    fromAddress,
+    tabId,
+  }: RequestOptions): Promise<null | WalletConnectSessionInfo> {
+    const requiredSession = await this.getSessionInfo(fromAddress, chainId);
+
+    // A required session is one that permits us to send the request
+    // described by the request options provided as a parameter.
+    // It's specific to the "from" account AND the source network.
+    // If we found such a session, life is good.
+    if (requiredSession) {
+      return requiredSession;
+    }
+
+    // Checking if there is valid session available for the source account,
+    // without specifying the network.
+    const accountSession = await this.getSessionInfo(fromAddress);
+
+    if (!accountSession) {
+      // If we don't have a session like that either, we'll request the user
+      // to reconnect by scanning the QR code again.
+      return this.connect({ chainId, address: fromAddress, tabId });
+    }
+
+    /**
+     * If we have a session for the source account, but not for the required chain,
+     * we can try to switch the network on the mobile device.
+     *
+     * Some mobile apps (e.g. Metamask) will automatically add the new chain to the
+     * active session's permissions after the user approves such a request.
+     * This allows us to just send the requests without additional user interaction.
+     */
+    this.#eventEmitter.emit(WalletConnectEvent.SessionPermissionsMismatch, {
+      tabId,
+      activeSession: accountSession,
+      requiredPermissions: {
+        address: fromAddress,
+        chainId,
+      },
+    });
+
+    // Send a network switch request to the device.
+    await this.request(
+      {
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: intToHex(chainId) }],
+      },
+      {
+        chainId: accountSession.chains[0] as number,
+        tabId,
+        fromAddress: accountSession.addresses[0],
+      }
+    );
+
+    /**
+     * Not all apps will extend the session permissions though, so we need to revalidate
+     * the session after the network was switched.
+     *
+     * We do it by looking for a "sufficient" session again, that is one that permits
+     * us to interact with the active account and the active chain at the same time.
+     */
+
+    const hopefullySufficientSession = await this.getSessionInfo(
+      fromAddress,
+      chainId
+    );
+
+    // At this point we either find a sufficient session or we don't.
+    // If we don't - we require a brand new connection to be established.
+    if (!hopefullySufficientSession) {
+      return this.connect({ chainId, address: fromAddress, tabId });
+    }
+
+    // If we do - we use the extended session.
+    return hopefullySufficientSession;
+  }
+
+  async request<T = string>(
+    { method, params }: RequestPayload,
+    { chainId, fromAddress }: RequestOptions
+  ): Promise<T | never> {
+    const client = await this.#getClient();
+
+    const sessionInfo = await this.getSessionInfo(fromAddress, chainId);
+
+    // If no session, throw an error.
+    if (!sessionInfo) {
+      throw new Error('Session expired, please reconnect');
+    }
+
+    try {
+      const result = await client.request<T>({
+        topic: sessionInfo.topic,
+        chainId: `eip155:${chainId}`,
+        request: { method, params },
+      });
+      return result;
+    } catch (err) {
+      this.#handleError(err);
+    }
+  }
+
   async connect({
     chainId,
     tabId,
-    reconnectionAddress,
-  }: ConnectOptions): Promise<string | never> {
+    address,
+  }: ConnectOptions): Promise<WalletConnectSessionInfo | never> {
     const client = await this.#getClient();
     try {
       const { uri, approval } = await client.connect({
@@ -105,11 +218,11 @@ export class WalletConnectService {
         tabId,
       });
 
-      const session = await approval();
+      const session = this.#mapSessionInfo(await approval());
 
       // Pick the first account.
       // TODO: should we allow multiple accounts to be imported at once?
-      const [obtainedAddress] = this.#extractAddresses(session);
+      const [obtainedAddress] = session.addresses;
 
       if (!obtainedAddress) {
         throw new WalletConnectError(
@@ -118,7 +231,7 @@ export class WalletConnectService {
         );
       }
 
-      if (!this.#isExpectedAddress(obtainedAddress, reconnectionAddress)) {
+      if (!this.#isExpectedAddress(obtainedAddress, address)) {
         // Remove the session if the user imported the wrong account.
         client.session.delete(
           session.topic,
@@ -131,16 +244,62 @@ export class WalletConnectService {
         );
       }
 
-      return obtainedAddress;
+      // Remove old sessions with overlapping credentials to prevent any weird
+      // stuff from happening (e.g. requests being sent to a different wallet,
+      // because the user connected with a different device this time).
+      await this.#deduplicateSessions(session);
+
+      return session;
     } catch (err) {
       return this.#handleError(err);
     }
+  }
+
+  async #deduplicateSessions(activeSession: WalletConnectSessionInfo) {
+    const client = await this.#getClient();
+    const sessions = client.session.getAll();
+    const duplicatedSessions = sessions
+      // Leave the active session in tact
+      .filter(({ topic }) => topic !== activeSession.topic)
+      // Find other sessions that share the same credentials (account address / chain id)
+      .filter((session) => {
+        const oldSession = this.#mapSessionInfo(session);
+
+        const addressesOverlap = areArraysOverlapping(
+          activeSession.addresses,
+          oldSession.addresses
+        );
+        const chainsOverlap = areArraysOverlapping(
+          activeSession.chains,
+          oldSession.chains
+        );
+
+        return addressesOverlap && chainsOverlap;
+      });
+
+    await duplicatedSessions.forEach(async ({ topic, pairingTopic }) => {
+      await client.session.delete(topic, getSdkError('USER_DISCONNECTED'));
+
+      if (pairingTopic) {
+        await client.pairing.delete(
+          pairingTopic,
+          getSdkError('USER_DISCONNECTED')
+        );
+      }
+    });
   }
 
   #handleError(err: any): never {
     // If it's any of our own errors, just rethrow it
     if (err instanceof WalletConnectError) {
       throw err;
+    }
+
+    if (isUserRejectionError(err)) {
+      throw new WalletConnectError(
+        'User rejected the request',
+        WalletConnectErrorCode.UserRejected
+      );
     }
 
     if (isProposalExpiredError(err)) {
@@ -170,28 +329,36 @@ export class WalletConnectService {
     this.#eventEmitter.on(event, callback);
   }
 
-  async getAccountInfo(
-    lookupAddress: string
-  ): Promise<null | WalletConnectAccountInfo> {
-    const session = await this.#findSession(lookupAddress);
-
-    if (!session) {
-      return null;
-    }
-
+  #mapSessionInfo(session: SessionTypes.Struct): WalletConnectSessionInfo {
     const chains = this.#extractChains(session);
+    const addresses = this.#extractAddresses(session);
 
     return {
-      address: lookupAddress,
+      topic: session.topic,
+      addresses,
       chains,
       walletApp: session.peer.metadata,
     };
   }
 
-  #extractAddresses(session: SessionTypes.Struct): string[] {
+  async getSessionInfo(
+    lookupAddress: string,
+    chainId?: number
+  ): Promise<null | WalletConnectSessionInfo> {
+    const session = await this.#findSession(lookupAddress, chainId);
+
+    if (!session) {
+      return null;
+    }
+
+    return this.#mapSessionInfo(session);
+  }
+
+  #extractAddresses(session: SessionTypes.Struct): [string, ...string[]] {
     const accounts = getAccountsFromNamespaces(session.namespaces);
 
-    return getAddressesFromAccounts(accounts);
+    // We know there is at least one address there, because we checked upon connection
+    return getAddressesFromAccounts(accounts) as [string, ...string[]];
   }
 
   #extractChains(session: SessionTypes.Struct): number[] {
@@ -204,19 +371,26 @@ export class WalletConnectService {
   }
 
   async #findSession(
-    lookupAddress: string
+    lookupAddress: string,
+    chainId?: number
   ): Promise<SessionTypes.Struct | null> {
     const client = await this.#getClient();
     const sessions = client.session.getAll() ?? [];
     const foundSession = sessions.find((session) => {
       const sessionAddresses = this.#extractAddresses(session);
+      const chains = this.#extractChains(session);
+      const hasRequiredAddress = sessionAddresses.includes(lookupAddress);
+      const hasRequiredChain =
+        typeof chainId === 'number' ? chains.includes(chainId) : true;
 
-      return sessionAddresses.includes(lookupAddress);
+      return hasRequiredAddress && hasRequiredChain;
     });
 
     return foundSession ?? null;
   }
-
+  //set up a lister for network changes
+  // Subscribe to as many events as possible and log it out
+  // eth_chainId
   #setupSessionListeners(client: SignClient) {
     client.on('session_delete', async (event) => {
       try {
@@ -252,6 +426,49 @@ export class WalletConnectService {
           return;
         }
         throw ex;
+      }
+    });
+  }
+
+  async avalancheGetAccounts(
+    options: RequestOptions
+  ): Promise<WalletConnectAddresses[]> {
+    return this.request<WalletConnectAddresses[]>(
+      {
+        method: 'avalanche_getAccounts',
+        params: [],
+      },
+      options
+    );
+  }
+
+  async deleteSession(address: string) {
+    const client = await this.#getClient();
+    const sessions = client.session.getAll() ?? [];
+
+    await sessions.forEach(async (session) => {
+      const sessionAddresses = this.#extractAddresses(session);
+      const hasRequiredAddress = sessionAddresses.includes(address);
+
+      if (hasRequiredAddress) {
+        try {
+          await client.session.delete(
+            session.topic,
+            getSdkError('USER_DISCONNECTED')
+          );
+
+          if (session.pairingTopic) {
+            await client.pairing.delete(
+              session.pairingTopic,
+              getSdkError('USER_DISCONNECTED')
+            );
+          }
+        } catch (ex) {
+          if (isNoMatchingKeyError(ex)) {
+            return;
+          }
+          throw ex;
+        }
       }
     });
   }

@@ -9,6 +9,8 @@ import {
   AccountType,
   ImportData,
   ImportedAccount,
+  ImportType,
+  IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
 } from './models';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { WalletService } from '../wallet/WalletService';
@@ -198,10 +200,26 @@ export class AccountsService implements OnLock, OnUnlock {
     return [...this.accounts.primary, ...Object.values(this.accounts.imported)];
   }
 
-  isAlreadyImported(addressC: string) {
-    return Object.values(this.accounts.imported).some(
+  #findAccountByAddress(addressC: string) {
+    return Object.values(this.accounts.imported).find(
       (acc) => acc.addressC === addressC
     );
+  }
+
+  #buildAccount(
+    accountData,
+    importType: ImportType,
+    suggestedName?: string
+  ): ImportedAccount {
+    const type = IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP[importType];
+
+    return {
+      ...accountData,
+      name:
+        suggestedName ||
+        `Imported Account ${Object.keys(this.accounts.imported).length + 1}`,
+      type,
+    };
   }
 
   async addAccount(name?: string, options?: ImportData) {
@@ -211,22 +229,21 @@ export class AccountsService implements OnLock, OnUnlock {
           options
         );
 
-        if (this.isAlreadyImported(account.addressC)) {
-          throw new Error('Account has been already imported');
+        const existingAccount = this.#findAccountByAddress(account.addressC);
+
+        // If the account already exists for some reason, just return its ID.
+        if (existingAccount) {
+          return existingAccount.id;
         }
 
         // the imported account is unique, we can save its secret
         await commit();
 
-        const newAccount: ImportedAccount = {
-          ...account,
-          name:
-            name ||
-            `Imported Account ${
-              Object.keys(this.accounts.imported).length + 1
-            }`,
-          type: AccountType.IMPORTED as const,
-        };
+        const newAccount: ImportedAccount = this.#buildAccount(
+          account,
+          options.importType,
+          name
+        );
 
         this.accounts = {
           ...this.accounts,
@@ -286,7 +303,11 @@ export class AccountsService implements OnLock, OnUnlock {
       const newAccounts = [...this.accounts.primary];
       newAccounts[accountToChange.index] = accountWithNewName;
       this.accounts = { ...this.accounts, primary: newAccounts };
-    } else if (accountToChange.type === AccountType.IMPORTED) {
+    } else if (
+      [AccountType.IMPORTED, AccountType.WALLET_CONNECT].includes(
+        accountToChange.type
+      )
+    ) {
       const accountWithNewName = { ...accountToChange, name };
       const newAccounts = { ...this.accounts.imported };
       newAccounts[id] = accountWithNewName;
@@ -319,9 +340,10 @@ export class AccountsService implements OnLock, OnUnlock {
       { ...this.accounts.imported }
     );
 
-    const active =
-      this.accounts.active?.type === AccountType.IMPORTED &&
-      ids.includes(this.accounts.active.id)
+    const { active } = this.accounts;
+
+    const newActive =
+      active && ids.includes(active.id)
         ? this.accounts.primary[0]
         : this.accounts.active;
 
@@ -330,7 +352,7 @@ export class AccountsService implements OnLock, OnUnlock {
     this.accounts = {
       ...this.accounts,
       imported: newAccounts,
-      active,
+      active: newActive,
     };
   }
 

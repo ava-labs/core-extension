@@ -12,7 +12,6 @@ import { ChainId } from '@avalabs/chains-sdk';
 import { BitcoinInputUTXO, getMaxTransferAmount } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -24,6 +23,7 @@ import { BridgeAdapter } from './useBridge';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
@@ -47,7 +47,16 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const { getNetworkFeeForNetwork } = useNetworkFeeContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
-  const { tokens } = useBalancesContext();
+  const avalancheTokens = useTokensWithBalances(
+    true,
+    isDeveloperMode
+      ? ChainId.AVALANCHE_TESTNET_ID
+      : ChainId.AVALANCHE_MAINNET_ID
+  );
+  const btcTokens = useTokensWithBalances(
+    true,
+    isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+  );
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -58,12 +67,15 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const [utxos, setUtxos] = useState<BitcoinInputUTXO[]>();
   const [feeRates, setFeeRates] = useState<NetworkFee | null>();
 
-  const feeRate = useMemo(() => {
-    return feeRates?.high.maxFee.toNumber() || 0;
+  const feeRate: number = useMemo(() => {
+    return Number(feeRates?.high.maxFee || 0n);
   }, [feeRates]);
 
   const maximum = useMemo(() => {
-    if (!config || !activeAccount) return Big(0);
+    if (!config || !activeAccount || !activeAccount.addressBTC) {
+      return Big(0);
+    }
+
     const maxAmt = getMaxTransferAmount(
       utxos || [],
       // As long as the address type is the same (P2WPKH) it should not matter.
@@ -78,7 +90,6 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const [networkFee, setNetworkFee] = useState<Big>();
   /** Amount minus network and bridge fees (in BTC) */
   const [receiveAmount, setReceiveAmount] = useState<Big>();
-
   const loading = !btcBalance || !btcBalanceAvalanche || !networkFee;
   const amountInSatoshis = btcToSatoshi(amountInBtc);
 
@@ -105,11 +116,10 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
   // balances, utxos
   useEffect(() => {
-    if (isBitcoinBridge && btcAsset && activeAccount) {
-      const balance =
-        tokens.balances?.[
-          isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-        ]?.[activeAccount.addressBTC]?.['BTC'];
+    const { addressC, addressBTC } = activeAccount ?? {};
+
+    if (isBitcoinBridge && btcAsset && addressC && addressBTC) {
+      const balance = btcTokens?.find((token) => token.symbol === 'BTC');
 
       if (balance) {
         setUtxos(balance.utxos);
@@ -125,13 +135,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         });
       }
 
-      const btcAvalancheBalance = Object.values(
-        tokens.balances?.[
-          isDeveloperMode
-            ? ChainId.AVALANCHE_TESTNET_ID
-            : ChainId.AVALANCHE_MAINNET_ID
-        ]?.[activeAccount.addressC] ?? {}
-      )?.find((token) => token.symbol === 'BTC.b');
+      const btcAvalancheBalance = avalancheTokens?.find(
+        (token) => token.symbol === 'BTC.b'
+      );
 
       if (btcAvalancheBalance) {
         setBtcBalanceAvalanche({
@@ -148,7 +154,8 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     }
   }, [
     activeAccount,
-    tokens,
+    avalancheTokens,
+    btcTokens,
     btcAsset,
     isBitcoinBridge,
     isDeveloperMode,
@@ -157,6 +164,10 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
 
   useEffect(() => {
     if (!isBitcoinBridge || !config || !activeAccount || !utxos) return;
+
+    if (!activeAccount.addressBTC) {
+      return;
+    }
 
     try {
       const btcTx = getBtcTransaction(

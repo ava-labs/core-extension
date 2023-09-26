@@ -20,7 +20,6 @@ import { TokenIcon } from '@src/components/common/TokenIcon';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { BigNumber } from 'ethers';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
@@ -152,7 +151,7 @@ type SendConfirmProps = {
   fallbackAmountDisplayValue?: string;
   onSubmit(): void;
   maxGasPrice?: string;
-  gasPrice?: BigNumber;
+  gasPrice?: bigint;
   selectedGasFee?: GasFeeModifier;
 };
 

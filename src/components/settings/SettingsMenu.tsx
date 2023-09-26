@@ -14,6 +14,7 @@ import { Ledger } from './pages/Ledger';
 import { Legal } from './pages/Legal';
 import { Advanced } from './pages/Advanced';
 import { Language } from './pages/Language';
+import { Feedback } from './pages/Feedback';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import {
   Drawer,
@@ -162,6 +163,9 @@ export function SettingsMenu() {
       break;
     case SettingsPages.LANGUAGE:
       pageElement = <Language {...pageProps} />;
+      break;
+    case SettingsPages.FEEDBACK:
+      pageElement = <Feedback {...pageProps} />;
       break;
     default:
       pageElement = <MainPage {...pageProps} />;

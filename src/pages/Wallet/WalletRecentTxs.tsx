@@ -112,11 +112,16 @@ export function WalletRecentTxs({
       return undefined;
     }
 
-    return getExplorerAddressByNetwork(
-      network,
-      isBitcoin(network) ? activeAccount.addressBTC : activeAccount.addressC,
-      'address'
-    );
+    const address = isBitcoin(network)
+      ? activeAccount.addressBTC
+      : activeAccount.addressC;
+
+    // Some WalletConnect accounts may come without the BTC address.
+    if (!address) {
+      return undefined;
+    }
+
+    return getExplorerAddressByNetwork(network, address, 'address');
   }, [network, activeAccount]);
 
   const baseFilteredTxHistory = useMemo(() => {

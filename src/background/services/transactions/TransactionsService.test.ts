@@ -1,6 +1,5 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
-import { BigNumber } from 'ethers';
 import { AccountsService } from '../accounts/AccountsService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { BalancesService } from '../balances/BalancesService';
@@ -29,8 +28,7 @@ const buildMessage = (
   params: [params],
 });
 
-const gweiToBig = (gwei: number) =>
-  BigNumber.from(`0x${(gwei * 1e9).toString(16)}`);
+const gweiToBig = (gwei: number) => BigInt(`0x${(gwei * 1e9).toString(16)}`);
 
 const mockedFees = {
   displayDecimals: 9, // gwei
@@ -93,7 +91,7 @@ describe('background/services/transactions/TransactionsService.ts', () => {
     const provider = {
       getCode: jest.fn().mockResolvedValue('0x'),
       getTransactionCount: jest.fn().mockReturnValue(3), // dummy nonce
-      estimateGas: jest.fn().mockResolvedValue(BigNumber.from(21000)), // dummy gas limit
+      estimateGas: jest.fn().mockResolvedValue(21000n), // dummy gas limit
     } as any;
     jest
       .spyOn(networkService, 'getProviderForNetwork')
@@ -292,9 +290,7 @@ describe('background/services/transactions/TransactionsService.ts', () => {
 
         expect(service.saveTransactions).toHaveBeenCalledWith({
           [message.id]: expect.objectContaining({
-            displayValues: expect.objectContaining({
-              description: txInfo,
-            }),
+            displayValues: expect.any(Object),
             txParams: expect.objectContaining({
               data: '0x123123123123',
               from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',

@@ -27,10 +27,7 @@ export interface AddEthereumChainParameter {
     decimals: number;
   };
   rpcUrls?: string[];
-}
-
-export interface GetEthereumChainResponse extends AddEthereumChainParameter {
-  isTestnet: boolean;
+  isTestnet?: boolean;
 }
 
 export type NetworkOverrides = PartialBy<Network, 'rpcUrl'>;

@@ -15,6 +15,7 @@ export function getDefaultSendForm<T extends SendableToken>(): SendState<T> {
     amount: new BN(0),
     address: '',
     canSubmit: false,
+    isValidating: true,
     loading: true,
   };
 }

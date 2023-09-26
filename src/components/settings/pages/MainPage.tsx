@@ -299,6 +299,24 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
               '&:hover': { borderRadius: 0 },
             }}
             onClick={() => {
+              navigateTo(SettingsPages.FEEDBACK);
+            }}
+            data-testid="feedback-option"
+          >
+            <ListItemText>
+              <Typography variant="body2">{t('Send Feedback')}</Typography>
+            </ListItemText>
+          </ListItemButton>
+        </ListItem>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              py: 0.5,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            onClick={() => {
               capture(`LegalClicked`);
               navigateTo(SettingsPages.LEGAL);
             }}
@@ -340,9 +358,10 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
         </ListItem>
         <ListItem>
           <ListItemText>
-            <Typography variant="caption" sx={{ color: 'grey.400' }}>{`${t(
-              'Version'
-            )} ${extensionVersion}`}</Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: 'text.secondary' }}
+            >{`${t('Version')} ${extensionVersion}`}</Typography>
           </ListItemText>
         </ListItem>
       </List>

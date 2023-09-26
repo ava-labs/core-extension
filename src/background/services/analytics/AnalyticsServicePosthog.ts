@@ -1,4 +1,3 @@
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { HttpClient } from '@avalabs/utils-sdk';
 import { getUserEnvironment } from '@src/utils/getUserEnvironment';
 import { singleton } from 'tsyringe';
@@ -6,6 +5,7 @@ import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { SettingsService } from '../settings/SettingsService';
 import { AnalyticsService } from './AnalyticsService';
 import { AnalyticsCapturedEvent, AnalyticsState } from './models';
+import { FeatureGates } from '../featureFlags/models';
 
 @singleton()
 export class AnalyticsServicePosthog {

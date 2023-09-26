@@ -10,7 +10,7 @@ import {
 import type { Contact } from '@avalabs/types';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { isBech32Address } from '@avalabs/bridge-sdk';
-import { isAddress } from 'ethers/lib/utils';
+import { isAddress } from 'ethers';
 import { useTranslation } from 'react-i18next';
 
 import { ContactSelect } from './ContactSelect';

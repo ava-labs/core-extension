@@ -11,14 +11,14 @@ import {
   txParams,
 } from '@src/background/services/transactions/models';
 import BN from 'bn.js';
-import * as ethers from 'ethers';
+import { TransactionDescription } from 'ethers';
 
 export type ContractParserHandler = (
   network: Network,
   request: txParams,
   data: any,
   props?: any,
-  txDetails?: ethers.utils.TransactionDescription
+  txDetails?: TransactionDescription
 ) => Promise<TransactionDisplayValues>;
 export type ContractParser = [ContractCall, ContractParserHandler];
 
@@ -64,8 +64,8 @@ export interface ApproveTransactionData extends TransactionDisplayValues {
 }
 
 type GasPricingData = {
-  maxFeePerGas: ethers.BigNumber;
-  maxPriorityFeePerGas?: ethers.BigNumber;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas?: bigint;
 };
 
 export type DisplayValueParserProps = GasPricingData & {

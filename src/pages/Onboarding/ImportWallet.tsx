@@ -3,7 +3,7 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { OnboardingPhase } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { isValidMnemonic } from 'ethers/lib/utils';
+import { Mnemonic } from 'ethers';
 import { Trans, useTranslation } from 'react-i18next';
 import { Stack, TextField, Typography, useTheme } from '@avalabs/k2-components';
 import { PageNav } from './components/PageNav';
@@ -26,7 +26,11 @@ export const Import = ({ onCancel, onBack }: ImportProps) => {
   };
 
   const isPhraseValid = (phrase: string) => {
-    return phrase && isPhraseCorrectLength(phrase) && isValidMnemonic(phrase);
+    return (
+      phrase &&
+      isPhraseCorrectLength(phrase) &&
+      Mnemonic.isValidMnemonic(phrase)
+    );
   };
 
   const onPhraseChanged = (e: React.ChangeEvent<HTMLInputElement>) => {

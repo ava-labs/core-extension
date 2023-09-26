@@ -1,26 +1,22 @@
-import {
-  AppConfigWithFullStaticFees,
-  AssetType,
-  BitcoinStaticFeeConfigAsset,
-  Blockchain,
-  BridgeConfig,
-  NativeAsset,
-  getAssets,
-  EthereumStaticFeeAssetConfig,
-} from '@avalabs/bridge-sdk';
+import { Blockchain, BridgeConfig, getAssets } from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
-import { TransactionResponse } from '@ethersproject/providers';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { BigNumber } from 'ethers';
 import { AccountType, PrimaryAccount } from '../../accounts/models';
 import { BtcTransactionResponse } from '../models';
 import { Action, ActionStatus } from './../../actions/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
+import { TransactionResponse } from 'ethers';
 import { TokenType } from '../../balances/models';
 import { BN } from 'bn.js';
+import {
+  btcAsset,
+  evmAsset,
+  mockConfig,
+  nativeAsset,
+} from '../fixtures/mockBridgeConfig';
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const originalModule = jest.requireActual('@avalabs/bridge-sdk');
@@ -32,143 +28,6 @@ jest.mock('@avalabs/bridge-sdk', () => {
 
 const frontendTabId = 654;
 
-const btcAsset: BitcoinStaticFeeConfigAsset = {
-  additionalTxFeeAmount: 0,
-  avaxPromotionAmount: '100000000000000000',
-  avaxPromotionDollarThreshold: 50,
-  bech32AddressPrefix: 'tb',
-  offboardFeeDollars: 10,
-  onboardFeeDollars: 3,
-  operatorAddress: 'tb1qcsq9k2qxf4sr5zewxvn79g7wpc08xrtecsr3zc',
-  privateKeyPrefix: 'EF',
-  reserveBalanceHighWaterMark: 200000000,
-  reserveBalanceLowWaterMark: 100000000,
-  targetChangeAmount: 5000000,
-  tokenName: 'Bitcoin',
-  wrappedContractAddress: '0x0f2071079315ba5a1c6d5b532a01a132c157ac83',
-  wrappedNetwork: 'avalanche',
-  assetType: AssetType.BTC,
-  symbol: 'BTC',
-  denomination: 8,
-  nativeNetwork: Blockchain.BITCOIN,
-};
-const nativeAsset: NativeAsset = {
-  symbol: 'ETH',
-  tokenName: 'Ether',
-  assetType: AssetType.NATIVE,
-  nativeNetwork: Blockchain.ETHEREUM,
-  wrappedAssetSymbol: 'WETH',
-  denomination: 18,
-  coingeckoId: 'ethereum',
-};
-const evmAsset: EthereumStaticFeeAssetConfig = {
-  assetType: AssetType.ERC20,
-  symbol: 'WETH',
-  avaxPromotionAmount: '100000000000000000',
-  avaxPromotionDollarThreshold: 1,
-  chainlinkFeedAddress: '0x0000000000000000000000000000000000000000',
-  chainlinkFeedNetwork: 'ethereum',
-  denomination: 18,
-  ipfsHash: '0000000000000000000000000000000000000000000000000000000000000000',
-  nativeContractAddress: '0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6',
-  nativeNetwork: Blockchain.ETHEREUM,
-  offboardFeeProcessThreshold: '1000000000000000000',
-  tokenName: 'Wrapped Ether',
-  transferGasLimit: 70000,
-  offboardFeeDollars: 10,
-  wrappedContractAddress: '0x678c4c42572ec1c44b144c5a6712b69d2a5d412c',
-  wrappedNetwork: Blockchain.AVALANCHE,
-};
-
-const mockConfig: AppConfigWithFullStaticFees = {
-  critical: {
-    operationMode: 'normal',
-    assets: {
-      WETH: evmAsset,
-    },
-    disableFrontend: false,
-    networks: { avalanche: 43113, ethereum: 5 },
-    operatorAddress: 'normal',
-    walletAddresses: {
-      avalanche: 'avalancheAddress',
-      ethereum: 'ethereumAddress',
-    },
-    addressBlocklist: [],
-  },
-  nonCritical: {
-    minimumConfirmations: {
-      avalanche: 1,
-      ethereum: 96,
-    },
-    wrapFeeApproximation: {},
-    unwrapFeeApproximation: {},
-    currentEthPrice: '325000000000',
-    currentAvaxPrice: '4000000000',
-    currentGasPrices: {
-      avalanche: {
-        nextBaseFee: '28125000000',
-        suggestedTip: '2000000000',
-      },
-      ethereum: {
-        nextBaseFee: '14743549',
-        suggestedTip: '7000693915',
-      },
-    },
-    updated: 'updated',
-    startupTime: 'startupTime',
-  },
-  criticalBitcoin: {
-    operatorAddress: '0xF759607ffee4B5482492927E51D3b7820DE4189d',
-    addressBlocklist: [],
-    avalancheChainId: 43113,
-    bitcoinAssets: {
-      btc: btcAsset,
-    },
-    disableFrontend: false,
-    operationMode: 'normal',
-    operatorEvmAddress: 'operatorEvmAddress',
-    useEip1559TransactionFormat: true,
-    walletAddresses: {
-      avalanche: 'avalancheAddress',
-      btc: 'btcAddress',
-    },
-  },
-  nonCriticalBitcoin: {
-    networkInfo: {
-      btc: {
-        minimumConfirmations: 4,
-        minimumOnboardSize: 2000,
-        currentPrice: '5000000000000',
-        currentFeeRate: {
-          feeRate: 10,
-          source: 'smartFeeEstimate',
-        },
-        currentUtxoStatistics: {
-          tb1q8nur2k3xphnsqa5zxgjl7djtkj3ya0gfs96nxk: {
-            mean: '2271118',
-            count: '32',
-          },
-        },
-        currentBridgeFeeEstimate: {
-          wrapFeeAmount: 6000,
-          constUnwrapFeeAmount: 21050,
-          unwrapFeeNumerator: 680,
-          unwrapFeeDenominator: 2271118,
-          dustThreshold: 1000,
-        },
-        reserveBalance: 1436210,
-        networkView: {
-          lastIndexedBlock: 2419333,
-          lastSeenBlock: 2419336,
-          nodeVersion: '/Satoshi:24.0.1/',
-        },
-      },
-    },
-    updated: 'updated time',
-  },
-  startupTime: 'timestamp',
-  version: '0.0.1',
-};
 const mockBridgeConfig: BridgeConfig = { config: mockConfig };
 
 describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
@@ -220,8 +79,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   const btcResult: BtcTransactionResponse = {
     hash: '123hash123',
-    gasLimit: BigNumber.from(1),
-    value: BigNumber.from(2),
+    gasLimit: 1n,
+    value: 2n,
     confirmations: 3,
     from: '123from123',
   };
@@ -250,15 +109,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   const ethResult: TransactionResponse = {
     hash: '987hash987',
-    gasLimit: BigNumber.from(9),
-    value: BigNumber.from(8),
-    confirmations: 7,
+    gasLimit: 9n,
+    value: 8n,
+    confirmations: async () => 7,
     from: '987from987',
     wait: jest.fn(),
     nonce: 9,
     data: '987data987',
-    chainId: 8,
-  };
+    chainId: 8n,
+  } as any as TransactionResponse;
 
   const openApprovalWindowSpy = jest.spyOn(
     DAppRequestHandler.prototype,

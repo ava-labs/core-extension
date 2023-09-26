@@ -1,10 +1,9 @@
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { BigNumber, utils } from 'ethers';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { formatUnits } from 'ethers/lib/utils';
+import { formatUnits, parseUnits } from 'ethers';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   FeeRate,
@@ -29,12 +28,12 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
 
 interface CustomGasFeesProps {
-  maxFeePerGas: BigNumber;
+  maxFeePerGas: bigint;
   limit: number;
   onChange(values: {
     customGasLimit?: number;
-    maxFeePerGas: BigNumber;
-    maxPriorityFeePerGas?: BigNumber;
+    maxFeePerGas: bigint;
+    maxPriorityFeePerGas?: bigint;
     feeType: GasFeeModifier;
   }): void;
   onModifierChangeCallback?: (feeType?: GasFeeModifier) => void;
@@ -116,11 +115,8 @@ const CustomInput = styled('input')`
   }
 `;
 
-export function getUpToTwoDecimals(input: BigNumber, decimals: number) {
-  const result = input
-    .mul(100)
-    .div(10 ** decimals)
-    .toNumber();
+export function getUpToTwoDecimals(input: bigint, decimals: number) {
+  const result = (input * 100n) / 10n ** BigInt(decimals);
 
   return formatUnits(result, 2);
 }
@@ -211,7 +207,7 @@ export function CustomFees({
         gasLimit,
       });
 
-      if (maxGasPrice && updatedFees.bnFee.gt(maxGasPrice)) {
+      if (maxGasPrice && updatedFees.bnFee > BigInt(maxGasPrice)) {
         setIsGasPriceTooHigh(true);
         // call cb with limit and gas
         onChange({
@@ -243,14 +239,14 @@ export function CustomFees({
 
   const getFeeRateForCustomGasPrice = useCallback(
     (customFeePerGas: string, fee: NetworkFee): FeeRate => {
-      const maxFee = utils.parseUnits(customFeePerGas, fee.displayDecimals);
-      const { baseFee } = fee;
+      const maxFee = parseUnits(customFeePerGas, fee.displayDecimals);
+      const { baseMaxFee } = fee;
       // When the user manually sets a max. fee, we also use it to calculate
       // the max. priority fee (tip) for EVM transactions.
       // If the custom max. fee is greater than the current base fee,
       // the max. tip will be set to the difference between the two.
       const maxTip =
-        baseFee && maxFee.gt(baseFee) ? maxFee.sub(baseFee) : undefined;
+        baseMaxFee && maxFee > baseMaxFee ? maxFee - baseMaxFee : undefined;
 
       return {
         maxFee,
@@ -420,7 +416,7 @@ export function CustomFees({
                   type="number"
                   value={getGasFeeToDisplay(
                     getUpToTwoDecimals(
-                      customFee?.maxFee ?? BigNumber.from(0),
+                      customFee?.maxFee ?? 0n,
                       networkFee.displayDecimals
                     ),
                     networkFee
@@ -506,8 +502,8 @@ export function CustomFees({
         <CustomGasSettings
           feeDisplayDecimals={networkFee.displayDecimals}
           gasLimit={gasLimit}
-          maxFeePerGas={customFee?.maxFee || BigNumber.from(0)}
-          maxPriorityFeePerGas={customFee?.maxTip || BigNumber.from(0)}
+          maxFeePerGas={customFee?.maxFee || 0n}
+          maxPriorityFeePerGas={customFee?.maxTip || 0n}
           onCancel={() => setShowEditGasLimit(false)}
           onSave={(data) => {
             setCustomGasLimit(data.gasLimit);

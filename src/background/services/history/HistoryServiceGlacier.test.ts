@@ -332,7 +332,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     );
     (Glacier as jest.Mock).mockImplementation(() => {
       return {
-        evm: {
+        evmTransactions: {
           listTransactions: mockedListTransactions,
         },
       };

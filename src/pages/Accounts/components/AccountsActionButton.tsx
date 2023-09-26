@@ -14,9 +14,9 @@ import {
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 type AccountsActionButtonProps = {
   disabled?: boolean;

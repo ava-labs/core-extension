@@ -134,12 +134,21 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
       });
 
       it('returns the obtained address', async () => {
-        const expectedAddress =
-          mockedSession.namespaces.eip155.accounts[0]?.split(':')[2];
-
-        expect(await service.connect({ chainId: 1, tabId })).toEqual(
-          expectedAddress
-        );
+        expect(await service.connect({ chainId: 1, tabId })).toEqual({
+          addresses: ['0xdDd288FAe290d498B9513f4BAc4a8Fc9a3Ce112d'],
+          chains: [43114, 43113, 1, 5],
+          topic:
+            '92561a7040fc2c2e1476ab157907e3468c6d9d421b8e4c359fefb00df52e21c2',
+          walletApp: {
+            description: 'Core Mobile',
+            icons: [
+              'https://assets.website-files.com/5fec984ac113c1d4eec8f1ef/62602f568fb4677b559827e5_core.jpg',
+            ],
+            name: 'Core',
+            url: 'https://www.avax.network',
+            walletId: 'c3de833a-9cb0-4274-bb52-86e402ecfcd3',
+          },
+        });
       });
     });
 
@@ -193,7 +202,7 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
           .connect({
             chainId: 1,
             tabId: 1234,
-            reconnectionAddress: 'some-dummy-incorrect-address',
+            address: 'some-dummy-incorrect-address',
           })
           .catch((err) => {
             expect(err.code).toEqual(WalletConnectErrorCode.IncorrectAddress);
@@ -206,7 +215,7 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
           .connect({
             chainId: 1,
             tabId: 1234,
-            reconnectionAddress: 'some-dummy-incorrect-address',
+            address: 'some-dummy-incorrect-address',
           })
           .catch(() => {
             // noop
@@ -237,6 +246,9 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
                       accounts: [],
                     },
                   },
+                  peer: {
+                    metadata: {},
+                  },
                 }),
             },
           },
@@ -249,7 +261,7 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
           .connect({
             chainId: 1,
             tabId: 1234,
-            reconnectionAddress: 'some-dummy-incorrect-address',
+            address: 'some-dummy-incorrect-address',
           })
           .catch((err) => {
             expect(err.code).toEqual(
@@ -278,10 +290,10 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
       const mockedAddress = '0xdDd288FAe290d498B9513f4BAc4a8Fc9a3Ce112d';
 
       it('extracts information for the account', async () => {
-        const result = await service.getAccountInfo(mockedAddress);
+        const result = await service.getSessionInfo(mockedAddress, 43114);
 
         expect(result).toEqual({
-          address: mockedAddress,
+          addresses: [mockedAddress],
           chains: [43114, 43113, 1, 5],
           walletApp: expect.objectContaining({
             description: expect.any(String),
@@ -289,6 +301,7 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
             name: expect.any(String),
             url: expect.any(String),
           }),
+          topic: mockedSession.topic,
         });
       });
     });

@@ -1,5 +1,7 @@
-import { FeatureGates } from '@avalabs/posthog-sdk';
-import { DEFAULT_FLAGS } from '@src/background/services/featureFlags/models';
+import {
+  DEFAULT_FLAGS,
+  FeatureGates,
+} from '@src/background/services/featureFlags/models';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';

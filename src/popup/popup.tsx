@@ -1,5 +1,4 @@
 import { CircularProgress, Stack } from '@avalabs/k2-components';
-import { FeatureGates } from '@avalabs/posthog-sdk';
 import { Header } from '@src/components/common/header/Header';
 import { WalletLoading } from '@src/components/common/WalletLoading';
 import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
@@ -50,6 +49,7 @@ import { CurrenciesContextProvider } from '@src/contexts/CurrenciesProvider';
 import { DefiProtocolDetails } from '@src/pages/DeFi/DefiProtocolDetails';
 import { DefiContextProvider } from '@src/contexts/DefiProvider';
 import { WalletConnectContextProvider } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({

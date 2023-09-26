@@ -7,7 +7,6 @@ import {
   WrapStatus,
 } from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
-import { TransactionResponse } from '@ethersproject/abstract-provider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   isBridgeStateUpdateEventListener,
@@ -37,6 +36,7 @@ import {
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
+import { TransactionResponse } from 'ethers';
 
 interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;

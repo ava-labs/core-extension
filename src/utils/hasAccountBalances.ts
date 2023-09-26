@@ -7,9 +7,11 @@ export function hasAccountBalances(balances: Balances, account: Account) {
       return false;
     }
     const addresses = Object.keys(item);
+
     return (
       addresses.includes(account.addressC) ||
-      addresses.includes(account.addressBTC)
+      (typeof account.addressBTC === 'string' &&
+        addresses.includes(account.addressBTC))
     );
   });
 }
