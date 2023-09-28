@@ -25,6 +25,10 @@ function parseDataWithABI(
       value: value,
     });
 
+    if (!finalResponse) {
+      return { error: 'no matching function found' };
+    }
+
     return finalResponse;
   } catch (e) {
     return { error: 'error decoding with abi' };
