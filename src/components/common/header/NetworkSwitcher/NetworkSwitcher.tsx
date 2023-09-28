@@ -16,6 +16,8 @@ import {
   MenuList,
   Popper,
   Grow,
+  ClickAwayListener,
+  Box,
 } from '@avalabs/k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
@@ -65,131 +67,136 @@ export function NetworkSwitcher() {
   const { t } = useTranslation();
 
   return (
-    <>
-      <Chip
-        clickable
-        data-testid="network-switcher-button"
-        onClick={() => {
-          if (!isOpen) {
-            capture('NetworkSwitcherOpened');
+    <ClickAwayListener onClickAway={() => setIsOpen(false)}>
+      <Box>
+        <Chip
+          clickable
+          data-testid="network-switcher-button"
+          onClick={() => {
+            if (!isOpen) {
+              capture('NetworkSwitcherOpened');
+            }
+            setIsOpen(!isOpen);
+          }}
+          ref={selectButtonRef}
+          avatar={
+            <NetworkLogo
+              src={network?.logoUri}
+              width="16px"
+              height="16px"
+              margin="0 4px 0 0"
+            />
           }
-          setIsOpen(!isOpen);
-        }}
-        ref={selectButtonRef}
-        avatar={
-          <NetworkLogo
-            src={network?.logoUri}
-            width="16px"
-            height="16px"
-            margin="0 4px 0 0"
-          />
-        }
-        label={<Chevron size={20} isOpen={isOpen} />}
-      />
+          label={<Chevron size={20} isOpen={isOpen} />}
+        />
 
-      <Popper
-        open={isOpen}
-        anchorEl={selectButtonRef.current}
-        placement="bottom-end"
-        transition
-      >
-        {({ TransitionProps }) => (
-          <Grow {...TransitionProps} timeout={250}>
-            <MenuList dense sx={{ p: 0, mt: 1 }}>
-              <Stack>
-                {!isActiveInList && network && (
-                  <MenuItem
-                    data-testid={`active-network-${network.chainId}-button`}
-                    key={network.chainId}
+        <Popper
+          open={isOpen}
+          anchorEl={selectButtonRef.current}
+          placement="bottom-end"
+          transition
+        >
+          {({ TransitionProps }) => (
+            <Grow {...TransitionProps} timeout={250}>
+              <MenuList dense sx={{ p: 0, mt: 1 }}>
+                <Stack>
+                  {!isActiveInList && network && (
+                    <MenuItem
+                      data-testid={`active-network-${network.chainId}-button`}
+                      key={network.chainId}
+                      onClick={() => {
+                        setIsOpen(false);
+                      }}
+                      sx={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        px: 1,
+                        color: 'text.primary',
+                      }}
+                    >
+                      <Stack
+                        sx={{ alignItems: 'center', flexDirection: 'row' }}
+                      >
+                        <NetworkLogo
+                          src={network.logoUri}
+                          width="16px"
+                          height="16px"
+                        />
+
+                        <Typography variant="body2" sx={{ ml: 1 }}>
+                          {network.chainName}
+                        </Typography>
+                      </Stack>
+                      <CheckIcon size={16} sx={{ pl: 1 }} />
+                    </MenuItem>
+                  )}
+                  {networkList
+                    .filter((networkItem) => {
+                      return networkItem.chainId !== ChainId.AVALANCHE_LOCAL_ID;
+                    })
+                    .map((networkItem) => {
+                      if (!networkItem) {
+                        return null;
+                      }
+                      return (
+                        <NetworkSelectronMenuItem
+                          data-testid={`select-network-${networkItem.chainId}-button`}
+                          key={networkItem.chainId}
+                          onClick={() => {
+                            setNetwork(networkItem);
+                            setIsOpen(false);
+                          }}
+                          sx={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            px: 1,
+                            color: 'text.secondary',
+                          }}
+                        >
+                          <Stack
+                            sx={{ alignItems: 'center', flexDirection: 'row' }}
+                          >
+                            <NetworkLogo
+                              src={networkItem.logoUri}
+                              width="16px"
+                              height="16px"
+                            />
+
+                            <Typography variant="body2" sx={{ ml: 1 }}>
+                              {networkItem.chainName}
+                            </Typography>
+                          </Stack>
+                          {networkItem.chainId === network?.chainId && (
+                            <CheckIcon size={16} />
+                          )}
+                        </NetworkSelectronMenuItem>
+                      );
+                    })}
+                  <NetworkSelectronMenuItem
+                    data-testid="manage-networks-button"
+                    key="NetworksPage"
                     onClick={() => {
-                      setNetwork(network);
+                      capture('ManageNetworksClicked');
+                      history.push('/networks');
+                      setIsOpen(false);
                     }}
-                    sx={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      px: 1,
-                      color: 'text.primary',
-                    }}
+                    sx={{ flexDirection: 'row', alignItems: 'center', px: 1 }}
+                    dense
+                    focusVisibleClassName="sanyi"
                   >
                     <Stack sx={{ alignItems: 'center', flexDirection: 'row' }}>
-                      <NetworkLogo
-                        src={network.logoUri}
-                        width="16px"
-                        height="16px"
-                      />
-
+                      <GearIcon size={16} />
                       <Typography variant="body2" sx={{ ml: 1 }}>
-                        {network.chainName}
+                        {t('Manage Networks')}
                       </Typography>
                     </Stack>
-                    <CheckIcon size={16} sx={{ pl: 1 }} />
-                  </MenuItem>
-                )}
-                {networkList
-                  .filter((networkItem) => {
-                    return networkItem.chainId !== ChainId.AVALANCHE_LOCAL_ID;
-                  })
-                  .map((networkItem) => {
-                    if (!networkItem) {
-                      return null;
-                    }
-                    return (
-                      <NetworkSelectronMenuItem
-                        data-testid={`select-network-${networkItem.chainId}-button`}
-                        key={networkItem.chainId}
-                        onClick={() => {
-                          setNetwork(networkItem);
-                        }}
-                        sx={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          px: 1,
-                          color: 'text.secondary',
-                        }}
-                      >
-                        <Stack
-                          sx={{ alignItems: 'center', flexDirection: 'row' }}
-                        >
-                          <NetworkLogo
-                            src={networkItem.logoUri}
-                            width="16px"
-                            height="16px"
-                          />
-
-                          <Typography variant="body2" sx={{ ml: 1 }}>
-                            {networkItem.chainName}
-                          </Typography>
-                        </Stack>
-                        {networkItem.chainId === network?.chainId && (
-                          <CheckIcon size={16} />
-                        )}
-                      </NetworkSelectronMenuItem>
-                    );
-                  })}
-                <NetworkSelectronMenuItem
-                  data-testid="manage-networks-button"
-                  key="NetworksPage"
-                  onClick={() => {
-                    capture('ManageNetworksClicked');
-                    history.push('/networks');
-                    setIsOpen(false);
-                  }}
-                  sx={{ flexDirection: 'row', alignItems: 'center', px: 1 }}
-                  dense
-                  focusVisibleClassName="sanyi"
-                >
-                  <Stack sx={{ alignItems: 'center', flexDirection: 'row' }}>
-                    <GearIcon size={16} />
-                    <Typography variant="body2" sx={{ ml: 1 }}>
-                      {t('Manage Networks')}
-                    </Typography>
-                  </Stack>
-                </NetworkSelectronMenuItem>
-              </Stack>
-            </MenuList>
-          </Grow>
-        )}
-      </Popper>
-    </>
+                  </NetworkSelectronMenuItem>
+                </Stack>
+              </MenuList>
+            </Grow>
+          )}
+        </Popper>
+      </Box>
+    </ClickAwayListener>
   );
 }
