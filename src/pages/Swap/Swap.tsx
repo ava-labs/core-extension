@@ -44,6 +44,7 @@ import {
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -71,6 +72,7 @@ export function Swap() {
   const allTokensOnNetwork = useTokensWithBalances(true);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const { resetKeystoneRequest } = useKeystoneContext();
 
   const [txInProgress, setTxInProgress] = useState<boolean>(false);
@@ -128,13 +130,7 @@ export function Swap() {
     if (destinationInputField === 'from') return maxFromValue ?? new BN(0);
   }, [destinationInputField, isLoading, maxFromValue]);
 
-  async function onHandleSwap() {
-    let pendingToastId = '';
-
-    if (!isUsingLedgerWallet && !isUsingKeystoneWallet) {
-      history.push('/home');
-      pendingToastId = toast.loading(t('Swap pending...'));
-    }
+  async function performSwap(pendingToastId?: string) {
     const {
       amount,
       fromTokenAddress,
@@ -151,9 +147,10 @@ export function Swap() {
       !fromTokenDecimals ||
       !amount
     ) {
+      setTxInProgress(false);
+
       return;
     }
-    setTxInProgress(true);
 
     const slippage = slippageTolerance || '0';
     const [result, error] = await resolve(
@@ -195,6 +192,24 @@ export function Swap() {
       id: pendingToastId,
     });
     history.push('/home');
+  }
+
+  async function onSubmit() {
+    let pendingToastId = '';
+
+    if (
+      !isUsingLedgerWallet &&
+      !isUsingKeystoneWallet &&
+      !isUsingWalletConnectAccount
+    ) {
+      history.push('/home');
+      pendingToastId = toast.loading(t('Swap pending...'));
+    }
+
+    if (!isUsingWalletConnectAccount) {
+      performSwap(pendingToastId);
+    }
+    setTxInProgress(true);
   }
 
   if (!isSwapAvailable) {
@@ -415,7 +430,7 @@ export function Swap() {
           }}
           onConfirm={() => {
             capture('SwapConfirmed');
-            onHandleSwap();
+            onSubmit();
           }}
           optimalRate={optimalRate}
           gasPrice={customGasPrice || networkFee.low.maxFee}
@@ -464,6 +479,7 @@ export function Swap() {
             resetKeystoneRequest();
             setTxInProgress(false);
           }}
+          onSubmit={performSwap}
         />
       )}
     </Stack>
