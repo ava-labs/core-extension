@@ -385,4 +385,24 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       });
     });
   });
+
+  describe('addWhitelistDomains', () => {
+    it('calls setAccountPermissionForDomain', async () => {
+      const permissionService = new PermissionsService(storageService);
+      permissionService.setAccountPermissionForDomain = jest.fn();
+
+      (storageService.load as jest.Mock).mockResolvedValue({});
+
+      await permissionService.addWhitelistDomains('0x000000');
+      expect(
+        permissionService.setAccountPermissionForDomain
+      ).toHaveBeenCalledTimes(2);
+      expect(
+        permissionService.setAccountPermissionForDomain
+      ).toHaveBeenNthCalledWith(1, 'core.app', '0x000000', true);
+      expect(
+        permissionService.setAccountPermissionForDomain
+      ).toHaveBeenNthCalledWith(2, 'test.core.app', '0x000000', true);
+    });
+  });
 });

@@ -41,7 +41,7 @@ export function Onboarding() {
       !onboardingState.isOnBoarded &&
       !submitInProgress
     ) {
-      submit();
+      submit(() => window.location.replace(`${process.env.CORE_WEB_BASE_URL}`));
     }
   }, [nextPhase, onboardingState.isOnBoarded, submit, submitInProgress]);
 
@@ -141,12 +141,6 @@ export function Onboarding() {
     case OnboardingPhase.CONFIRM:
       content = <LoadingOverlay />;
       break;
-  }
-
-  if (nextPhase === OnboardingPhase.FINALIZE) {
-    window.location.replace(
-      `${process.env.CORE_EXTENSION_LANDING_URL}/welcome`
-    );
   }
 
   return (

@@ -15,12 +15,14 @@ import {
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { PermissionsService } from '../permissions/PermissionsService';
 
 jest.mock('../storage/StorageService');
 jest.mock('../wallet/WalletService');
 jest.mock('../ledger/LedgerService');
 jest.mock('../lock/LockService');
 jest.mock('../keystone/KeystoneService');
+jest.mock('../permissions/PermissionsService');
 
 describe('background/services/accounts/AccountsService', () => {
   const networkService = new NetworkService({} as any, {} as any);
@@ -39,6 +41,7 @@ describe('background/services/accounts/AccountsService', () => {
     keystoneService,
     walletConnectService
   );
+  const permissionsService = new PermissionsService({} as any);
 
   const emptyAccounts = {
     primary: [],
@@ -130,7 +133,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
 
@@ -174,7 +178,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       await accountsService.onUnlock();
 
@@ -188,7 +193,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
 
@@ -207,7 +213,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockAccounts(false));
       (walletService.getAddresses as jest.Mock).mockResolvedValue({
@@ -241,7 +248,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockAccounts(true));
       (walletService.getAddresses as jest.Mock).mockResolvedValue({
@@ -287,7 +295,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
@@ -308,7 +317,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
@@ -329,7 +339,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
@@ -348,7 +359,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         await accountsService.onUnlock();
 
@@ -384,7 +396,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
@@ -396,6 +409,10 @@ describe('background/services/accounts/AccountsService', () => {
         await accountsService.addAccount();
         expect(walletService.addAddress).toBeCalledTimes(1);
         expect(walletService.addAddress).toBeCalledWith(2);
+        expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
+        expect(permissionsService.addWhitelistDomains).toBeCalledWith(
+          '0x000000000'
+        );
 
         const accounts = accountsService.getAccounts();
 
@@ -419,7 +436,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
@@ -428,6 +446,10 @@ describe('background/services/accounts/AccountsService', () => {
         await accountsService.addAccount('New Account');
         expect(walletService.addAddress).toBeCalledTimes(1);
         expect(walletService.addAddress).toBeCalledWith(2);
+        expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
+        expect(permissionsService.addWhitelistDomains).toBeCalledWith(
+          '0x000000000'
+        );
 
         const accounts = accountsService.getAccounts();
 
@@ -451,7 +473,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         const eventListener = jest.fn();
@@ -461,6 +484,10 @@ describe('background/services/accounts/AccountsService', () => {
           eventListener
         );
         await accountsService.addAccount('New Account');
+        expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
+        expect(permissionsService.addWhitelistDomains).toBeCalledWith(
+          '0x000000000'
+        );
 
         const newAccounts = { ...mockedAccounts };
         newAccounts.primary.push({
@@ -488,7 +515,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         await accountsService.onUnlock();
 
@@ -508,6 +536,10 @@ describe('background/services/accounts/AccountsService', () => {
         expect(walletService.addImportedWallet).toBeCalledTimes(1);
         expect(walletService.addImportedWallet).toBeCalledWith(options);
         expect(commitMock).toHaveBeenCalled();
+        expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
+        expect(permissionsService.addWhitelistDomains).toBeCalledWith(
+          '0x000000000'
+        );
 
         const accounts = accountsService.getAccounts();
         expect(accounts).toStrictEqual({
@@ -533,7 +565,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
@@ -554,6 +587,10 @@ describe('background/services/accounts/AccountsService', () => {
         expect(walletService.addImportedWallet).toBeCalledTimes(1);
         expect(walletService.addImportedWallet).toBeCalledWith(options);
         expect(commitMock).toHaveBeenCalled();
+        expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
+        expect(permissionsService.addWhitelistDomains).toBeCalledWith(
+          '0x000000001'
+        );
 
         const accounts = accountsService.getAccounts();
 
@@ -582,7 +619,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         const eventListener = jest.fn();
@@ -601,6 +639,10 @@ describe('background/services/accounts/AccountsService', () => {
         });
 
         await accountsService.addAccount('New Account', options);
+        expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
+        expect(permissionsService.addWhitelistDomains).toBeCalledWith(
+          '0x000000001'
+        );
 
         const newAccounts = {
           ...mockedAccounts,
@@ -628,7 +670,8 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
@@ -649,6 +692,7 @@ describe('background/services/accounts/AccountsService', () => {
         expect(walletService.addImportedWallet).toBeCalledTimes(1);
         expect(walletService.addImportedWallet).toBeCalledWith(options);
         expect(commitMock).not.toHaveBeenCalled();
+        expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
       });
 
       it('throws on error', async () => {
@@ -660,12 +704,14 @@ describe('background/services/accounts/AccountsService', () => {
         const accountsService = new AccountsService(
           storageService,
           walletService,
-          networkService
+          networkService,
+          permissionsService
         );
 
         (walletService.addImportedWallet as jest.Mock).mockRejectedValueOnce(
           new Error(errorMessage)
         );
+        expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
 
         await expect(
           accountsService.addAccount('New Account', options)
@@ -679,7 +725,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
@@ -711,7 +758,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(
         accountsWithUnknownTypeMock
@@ -731,7 +779,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
@@ -750,7 +799,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
@@ -768,7 +818,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
@@ -802,7 +853,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
@@ -818,7 +870,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
@@ -835,7 +888,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
@@ -856,7 +910,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockAccounts(true));
       const eventListener = jest.fn();
@@ -878,7 +933,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
@@ -910,7 +966,8 @@ describe('background/services/accounts/AccountsService', () => {
       const accountsService = new AccountsService(
         storageService,
         walletService,
-        networkService
+        networkService,
+        permissionsService
       );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();

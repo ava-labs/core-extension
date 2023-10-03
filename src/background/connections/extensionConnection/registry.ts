@@ -49,7 +49,6 @@ import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handle
 import { OnboardingUpdatedEvents } from '@src/background/services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
 import { SubmitOnboardingHandler } from '@src/background/services/onboarding/handlers/submitOnboarding';
-import { UpdateInitialOpenHandler } from '@src/background/services/onboarding/handlers/updateInitialOpen';
 import { PermissionStateUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
@@ -202,7 +201,6 @@ import { EstablishRequiredSession } from '@src/background/services/walletConnect
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
   { token: 'ExtensionRequestHandler', useToken: SubmitOnboardingHandler },
-  { token: 'ExtensionRequestHandler', useToken: UpdateInitialOpenHandler },
   { token: 'ExtensionRequestHandler', useToken: PermissionsAddDomainHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAllPermissionsHandler },
   {

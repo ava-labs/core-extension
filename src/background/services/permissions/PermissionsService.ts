@@ -126,6 +126,15 @@ export class PermissionsService implements OnLock {
     );
   }
 
+  async addWhitelistDomains(addressC: string) {
+    try {
+      await this.setAccountPermissionForDomain('core.app', addressC, true);
+      await this.setAccountPermissionForDomain('test.core.app', addressC, true);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   addListener(event: PermissionEvents, callback: (data: unknown) => void) {
     this.#eventEmitter.addListener(event, callback);
   }

@@ -2,7 +2,6 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
 import { SubmitOnboardingHandler } from '@src/background/services/onboarding/handlers/submitOnboarding';
-import { UpdateInitialOpenHandler } from '@src/background/services/onboarding/handlers/updateInitialOpen';
 import {
   OnboardingPhase,
   OnboardingState,
@@ -19,7 +18,6 @@ import {
   useEffect,
   lazy,
   useState,
-  useCallback,
   Dispatch,
   SetStateAction,
 } from 'react';
@@ -44,8 +42,7 @@ const OnboardingContext = createContext<{
   setXpubXP: Dispatch<SetStateAction<string>>;
   setAnalyticsConsent: Dispatch<SetStateAction<boolean>>;
   setPasswordAndName: (password: string, accountName: string) => void;
-  submit(): void;
-  updateInitialOpen(): void;
+  submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
   setMasterFingerprint: Dispatch<SetStateAction<string>>;
@@ -103,14 +100,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     });
   }, [request, events]);
 
-  const updateInitialOpen = useCallback(
-    () =>
-      request<UpdateInitialOpenHandler>({
-        method: ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN,
-      }),
-    [request]
-  );
-
   /**
    * If they are on the popup.html file then force onboarding to a tab. These files are created
    * in the webpack config and we decipher the environment by the .html file.
@@ -131,7 +120,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setAccountName(name);
   }
 
-  function submit() {
+  function submit(postSubmitHandler: () => void) {
     if (!mnemonic && !xpub && !password) {
       return;
     }
@@ -154,8 +143,11 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     })
       .then(() => {
         resetStates();
+        postSubmitHandler();
       })
-      .finally(() => setSubmitInProgress(false));
+      .finally(() => {
+        setSubmitInProgress(false);
+      });
   }
 
   return (
@@ -170,7 +162,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setXpubXP,
         setPasswordAndName,
         submit,
-        updateInitialOpen,
         setAnalyticsConsent,
         setPublicKeys,
         publicKeys,
