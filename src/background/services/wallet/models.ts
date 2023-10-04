@@ -3,7 +3,7 @@ import {
   BitcoinOutputUTXO,
   DerivationPath,
 } from '@avalabs/wallets-sdk';
-import { ImportType } from '../accounts/models';
+import { FireblocksImportData, ImportType } from '../accounts/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
 import { TransactionRequest } from 'ethers';
 
@@ -51,6 +51,7 @@ export interface WalletSecretInStorage {
         };
         pubKey?: PubKeyType;
       }
+    | ({ type: ImportType.FIREBLOCKS } & FireblocksImportData['data'])
   >;
   masterFingerprint?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;

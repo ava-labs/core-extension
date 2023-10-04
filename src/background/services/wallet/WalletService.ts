@@ -59,6 +59,7 @@ import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { Action } from '../actions/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
 import { toUtf8 } from 'ethereumjs-util';
@@ -187,6 +188,34 @@ export class WalletService implements OnLock, OnUnlock {
         activeNetwork.chainId,
         accountsService.activeAccount.addressC,
         tabId
+      );
+    }
+
+    if (activeAccount.type === AccountType.FIREBLOCKS) {
+      const importData = walletKeys.imported?.[activeAccount.id];
+
+      if (!importData || importData.type !== ImportType.FIREBLOCKS) {
+        throw new Error(
+          'Wallet initialization for Fireblocks account failed: no data found or of wrong type'
+        );
+      }
+
+      if (activeNetwork.vmName === NetworkVMType.BITCOIN) {
+        if (typeof importData.api === 'undefined') {
+          throw new Error(
+            `Fireblocks API access keys not found for account: ${activeAccount.name}`
+          );
+        }
+
+        return new FireblocksBTCSigner(
+          importData.api.key,
+          importData.api.secret,
+          activeNetwork.isTestnet
+        );
+      }
+
+      throw new Error(
+        `Selected VM (${activeNetwork.vmName}) is not supported by Fireblocks accounts`
       );
     }
 
@@ -530,6 +559,13 @@ export class WalletService implements OnLock, OnUnlock {
     const secrets = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
+
+    if (account.type === AccountType.FIREBLOCKS) {
+      // TODO: We technically can fetch some public keys using the API,
+      // but is it feasible? What about WalletConnect? I don't think we
+      // can fetch them via WalletConnect alone.
+      throw new Error('Public key is not known for Fireblocks accounts');
+    }
 
     if (account.type === AccountType.WALLET_CONNECT) {
       const accountSecrets = secrets?.imported?.[account.id];
@@ -965,10 +1001,16 @@ export class WalletService implements OnLock, OnUnlock {
                   type: ImportType.PRIVATE_KEY,
                   secret: importData.data,
                 }
-              : {
+              : importData.importType === ImportType.WALLET_CONNECT
+              ? {
                   type: ImportType.WALLET_CONNECT,
                   addresses,
                   pubKey: importData.data.pubKey,
+                }
+              : {
+                  type: ImportType.FIREBLOCKS,
+                  addresses,
+                  api: importData.data.api,
                 },
         },
       });
@@ -990,7 +1032,10 @@ export class WalletService implements OnLock, OnUnlock {
       );
     }
 
-    if (importData.type === ImportType.WALLET_CONNECT) {
+    if (
+      importData.type === ImportType.WALLET_CONNECT ||
+      importData.type === ImportType.FIREBLOCKS
+    ) {
       return importData.addresses;
     }
 
@@ -1016,6 +1061,7 @@ export class WalletService implements OnLock, OnUnlock {
 
     switch (importType) {
       case ImportType.WALLET_CONNECT:
+      case ImportType.FIREBLOCKS:
         return data.addresses;
       case ImportType.PRIVATE_KEY: {
         try {
