@@ -1,4 +1,5 @@
 import { initializeProvider } from './background/providers/initializeInpageProvider';
+import onPageActivated from './background/providers/utils/onPageActivated';
 import { INPAGE_SCRIPT } from './common';
 
 const shouldInjectProvider = () => {
@@ -52,5 +53,5 @@ const documentElementCheck = () => {
 };
 
 if (shouldInjectProvider()) {
-  initializeProvider(INPAGE_SCRIPT);
+  onPageActivated(() => initializeProvider(INPAGE_SCRIPT));
 }

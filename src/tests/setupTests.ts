@@ -16,6 +16,12 @@ Object.defineProperties(global.crypto, {
   },
 });
 
+Object.defineProperty(global.document, 'prerendering', {
+  writable: true,
+  configurable: true,
+  value: false,
+});
+
 global.chrome = {
   runtime: {
     id: 'testid',
