@@ -59,6 +59,7 @@ export type WalletConnectImportData = {
     pubKey?: PubKeyType;
   };
 };
+
 export type PrivateKeyImportData = {
   importType: ImportType.PRIVATE_KEY;
   data: string;
@@ -93,7 +94,6 @@ export interface ImportedPrivateKeyAccount extends AccountStorageItem {
 export interface WalletConnectAccount extends AccountStorageItem {
   type: AccountType.WALLET_CONNECT;
 }
-
 export interface FireblocksAccount extends AccountStorageItem {
   type: AccountType.FIREBLOCKS;
 }

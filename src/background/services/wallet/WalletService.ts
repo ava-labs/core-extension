@@ -63,6 +63,7 @@ import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { Action } from '../actions/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
 import { toUtf8 } from 'ethereumjs-util';
+import shouldUseWalletConnectApproval from '@src/utils/shouldUseWalletConnectApproval';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -182,7 +183,11 @@ export class WalletService implements OnLock, OnUnlock {
 
     const provider = this.networkService.getProviderForNetwork(activeNetwork);
 
-    if (activeAccount.type === AccountType.WALLET_CONNECT) {
+    if (
+      activeAccount.type === AccountType.WALLET_CONNECT ||
+      (activeAccount.type === AccountType.FIREBLOCKS &&
+        shouldUseWalletConnectApproval(activeNetwork, activeAccount))
+    ) {
       return new WalletConnectSigner(
         this.walletConnectService,
         activeNetwork.chainId,
@@ -1109,7 +1114,10 @@ export class WalletService implements OnLock, OnUnlock {
 
     ids.forEach(async (id) => {
       const wallet = secrets?.imported?.[id];
-      if (wallet?.type === ImportType.WALLET_CONNECT) {
+      if (
+        wallet?.type === ImportType.WALLET_CONNECT ||
+        wallet?.type === ImportType.FIREBLOCKS
+      ) {
         await this.walletConnectService.deleteSession(
           wallet.addresses.addressC
         );
