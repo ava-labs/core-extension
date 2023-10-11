@@ -109,7 +109,7 @@ describe('background/services/wallet/WalletService.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     storageService = new StorageService({} as any);
-    networkService = new NetworkService({} as any, {} as any);
+    networkService = new NetworkService({} as any);
     ledgerService = new LedgerService();
     lockService = new LockService({} as any, {} as any);
     keystoneService = new KeystoneService();

@@ -43,7 +43,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockNetworkService = new NetworkService({} as any, {} as any);
+    mockNetworkService = new NetworkService({} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
     (mockNetworkService as any).activeNetwork = { ...mockActiveNetwork };
     mockNetworkService.allNetworks = {

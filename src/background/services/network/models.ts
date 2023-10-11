@@ -31,3 +31,7 @@ export interface AddEthereumChainParameter {
 }
 
 export type NetworkOverrides = PartialBy<Network, 'rpcUrl'>;
+
+export type CustomNetworkPayload = Network & {
+  chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
+};
