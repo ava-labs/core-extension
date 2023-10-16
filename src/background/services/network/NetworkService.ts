@@ -44,7 +44,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _favoriteNetworks: number[] = [];
   private _chainListFetched = new Signal<ChainList>();
 
-  private _cachedChainListSignal = this._chainListFetched
+  private _fetchedChainListSignal = this._chainListFetched
     .cache(new ValueCache())
     .readOnly();
 
@@ -191,7 +191,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     // If the list was updated before we started listening here,
     // it doesn't matter - the signal is cached, so we'll get the latest
     // value anyway.
-    this._cachedChainListSignal.addOnce((chainlist) => {
+    this._fetchedChainListSignal.addOnce((chainlist) => {
       this.storageService.save(NETWORK_LIST_STORAGE_KEY, chainlist);
     });
   }
@@ -274,7 +274,11 @@ export class NetworkService implements OnLock, OnStorageReady {
       }
     } while (!chainlist);
 
+    // Dispatch the freshly fetched chainlist, so it can be cached in storage when it is unlocked.
     this._chainListFetched.dispatch(chainlist);
+
+    // Dispatch the chainlist even if storage is not unlocked yet (for onboarding)
+    this._allNetworks.dispatch(chainlist);
 
     return chainlist;
   }
