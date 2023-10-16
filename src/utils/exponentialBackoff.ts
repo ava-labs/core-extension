@@ -1,6 +1,7 @@
 type ExponentialBackoffOptions = {
   attempt: number; // The current attempt number
   startsAfter?: number; // The attempt number after which the delay should start increasing.
+  maxDelay?: number; // The maximum delay (in ms), to avoid waiting for ridiculously long time before next attempts.
 };
 
 /**
@@ -10,6 +11,7 @@ type ExponentialBackoffOptions = {
 export const getExponentialBackoffDelay = ({
   attempt,
   startsAfter = 3,
+  maxDelay = 30000,
 }: ExponentialBackoffOptions) => {
-  return 2 ** Math.max(1, attempt - startsAfter + 1) * 1000;
+  return Math.min(maxDelay, 2 ** Math.max(1, attempt - startsAfter + 1) * 1000);
 };
