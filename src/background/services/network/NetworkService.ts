@@ -11,6 +11,7 @@ import {
   NetworkStorage,
   NetworkOverrides,
   NETWORK_OVERRIDES_STORAGE_KEY,
+  CustomNetworkPayload,
 } from './models';
 import {
   AVALANCHE_XP_NETWORK,
@@ -29,33 +30,34 @@ import {
   BlockCypherProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve, wait } from '@avalabs/utils-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 import { Network as EthersNetwork } from 'ethers';
-import { LockService } from '../lock/LockService';
 import { SigningResult } from '../wallet/models';
+import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
-  private _allNetworksCache = new ValueCache<ChainList>();
-  private _activeNetworksCache = new ValueCache<ChainList>();
   private _allNetworks = new Signal<ChainList | undefined>();
   private _activeNetwork: Network | undefined = undefined;
-  public activeNetworkChanged = new Signal<Network | undefined>();
-  public developerModeChanged = new Signal<boolean | undefined>();
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
+  private _chainListFetched = new Signal<ChainList>();
+
+  private _fetchedChainListSignal = this._chainListFetched
+    .cache(new ValueCache())
+    .readOnly();
+
+  public activeNetworkChanged = new Signal<Network | undefined>();
+  public developerModeChanged = new Signal<boolean | undefined>();
   public favoriteNetworksUpdated = new Signal<number[]>();
-  private _initChainListResolved = new Signal<boolean>();
-  private _initChainListResolvedCache = new ValueCache<boolean>();
-  public initChainListResolved = this._initChainListResolved
-    .cache(this._initChainListResolvedCache)
-    .readOnly();
+
   public allNetworks = this._allNetworks
-    .cache(this._allNetworksCache)
+    .cache(new ValueCache<ChainList>())
     .readOnly();
+
   public activeNetworks = this._allNetworks
-    .cache(this._activeNetworksCache)
+    .cache(new ValueCache<ChainList>())
     .filter((value) => !!value)
     .map<Promise<ChainList>>(async (chainList) => {
       /**
@@ -156,10 +158,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._favoriteNetworks;
   }
 
-  constructor(
-    private storageService: StorageService,
-    private lockService: LockService
-  ) {
+  constructor(private storageService: StorageService) {
     this._initChainList();
   }
 
@@ -173,19 +172,28 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async onLock(): Promise<void> {
     const allNetworks = await this.allNetworks.promisify();
-    const avalancheNetwork =
-      allNetworks && allNetworks[ChainId.AVALANCHE_MAINNET_ID]
-        ? allNetworks[ChainId.AVALANCHE_MAINNET_ID]
-        : null;
+
+    // Set active network so that dApps do not break connection when
+    // extension gets locked. This is an issue with RainbowKit as an example.
+    this.activeNetwork = allNetworks?.[ChainId.AVALANCHE_MAINNET_ID];
+
     this._allNetworks.dispatch(undefined);
-    this.activeNetwork = avalancheNetwork || undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
-    this._initChainListResolved.dispatch(false);
   }
 
   onStorageReady(): void {
     this.init();
+
+    // We have access to storage now, so we can start listening for
+    // chainlist updates & store them locally.
+
+    // If the list was updated before we started listening here,
+    // it doesn't matter - the signal is cached, so we'll get the latest
+    // value anyway.
+    this._fetchedChainListSignal.addOnce((chainlist) => {
+      this.storageService.save(NETWORK_LIST_STORAGE_KEY, chainlist);
+    });
   }
 
   async updateNetworkState() {
@@ -201,8 +209,17 @@ export class NetworkService implements OnLock, OnStorageReady {
       NETWORK_STORAGE_KEY
     );
 
-    const chainlist = await this.setChainListOrFallback();
-    if (!chainlist) throw new Error('chainlist failed to load');
+    // At this point the chainlist from Glacier should already be available,
+    // as it is fetched when service worker starts (so before extension is unlocked).
+    // If it isn't available yet, we'll use the list cached in the storage.
+    const chainlist = await Promise.race([
+      this._chainListFetched.promisify(),
+      this._getCachedChainList(),
+    ]);
+
+    if (!chainlist) {
+      throw new Error('chainlist failed to load');
+    }
 
     const allNetworks = {
       ...chainlist,
@@ -211,55 +228,59 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._customNetworks = network?.customNetworks || {};
     this._allNetworks.dispatch(allNetworks);
 
-    // make sure we load a testnet network when in devmode
-    const activeNetwork =
-      allNetworks[network?.activeNetworkId || ChainId.AVALANCHE_MAINNET_ID];
+    // Fall back to Avalanche network if we don't know what previous network was,
+    // or if that network is no longer available in the network list.
+    const previouslyActiveNetwork = network?.activeNetworkId
+      ? allNetworks[network.activeNetworkId]
+      : null;
+    const avalancheMainnet = allNetworks[ChainId.AVALANCHE_MAINNET_ID];
 
-    this.activeNetwork = activeNetwork;
+    this.activeNetwork = previouslyActiveNetwork ?? avalancheMainnet;
 
     this.favoriteNetworks = network?.favoriteNetworks || [
       ChainId.AVALANCHE_MAINNET_ID,
     ];
   }
 
-  private async _initChainList() {
-    const [result] = await resolve(
-      getChainsAndTokens(
-        process.env.RELEASE === 'production',
-        process.env.TOKENLIST_OVERRIDE || ''
-      )
-    );
-    if (result) {
-      const withBitcoin = {
-        ...result,
-        [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
-        [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
-      };
-      this._allNetworks.dispatch(withBitcoin);
-    }
-
-    this._initChainListResolved.dispatch(true);
-    const avalancheNetwork =
-      (result && result[ChainId.AVALANCHE_MAINNET_ID]) ?? undefined;
-    if (avalancheNetwork) {
-      this.activeNetwork = avalancheNetwork;
-    }
+  private async _getCachedChainList(): Promise<ChainList | undefined> {
+    return this.storageService.load<ChainList>(NETWORK_LIST_STORAGE_KEY);
   }
 
-  async setChainListOrFallback() {
-    // getChainsAndTokens has default URL (It changes based on the environment being used) to fetch the chains and tokens.
-    // If the URL needs to be overridden, please use TOKENLIST_OVERRIDE to do so.
-    await this.initChainListResolved.promisify();
+  private async _initChainList(): Promise<ChainList> {
+    let chainlist: ChainList | null = null;
+    let attempt = 1;
 
-    const allNetworks = await this.allNetworks.promisify();
-    if (!allNetworks) {
-      const chainlist = await this.storageService.load<ChainList>(
-        NETWORK_LIST_STORAGE_KEY
+    do {
+      const [result] = await resolve(
+        getChainsAndTokens(
+          process.env.RELEASE === 'production',
+          process.env.TOKENLIST_OVERRIDE || ''
+        )
       );
-      return chainlist;
-    }
-    this.storageService.save(NETWORK_LIST_STORAGE_KEY, allNetworks);
-    return allNetworks;
+
+      if (result) {
+        chainlist = {
+          ...result,
+          [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
+          [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
+        };
+
+        if (!this.activeNetwork) {
+          this.activeNetwork = result[ChainId.AVALANCHE_MAINNET_ID];
+        }
+      } else {
+        attempt += 1;
+        await wait(getExponentialBackoffDelay({ attempt }));
+      }
+    } while (!chainlist);
+
+    // Dispatch the freshly fetched chainlist, so it can be cached in storage when it is unlocked.
+    this._chainListFetched.dispatch(chainlist);
+
+    // Dispatch the chainlist even if storage is not unlocked yet (for onboarding)
+    this._allNetworks.dispatch(chainlist);
+
+    return chainlist;
   }
 
   async getNetwork(networkId: number): Promise<Network | undefined> {
@@ -433,29 +454,33 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
   }
 
-  async saveCustomNetwork(customNetwork: Network) {
-    // some cases the chainId comes in a hex value, and there will be a duplicated broken entry in the list
-    const convertedChainId = parseInt(customNetwork?.chainId.toString(16), 16);
-    const chainlist = await this.setChainListOrFallback();
-    const isCustomNetworkExist = !!this._customNetworks[convertedChainId];
-    const isChainListNetwork = chainlist && !!chainlist[convertedChainId];
+  async saveCustomNetwork(customNetwork: CustomNetworkPayload) {
+    const chainId = parseInt(customNetwork.chainId.toString(16), 16);
+    const chainlist = await this.allNetworks.promisify();
+
+    if (!chainlist) {
+      throw new Error('chainlist failed to load');
+    }
+
+    const isCustomNetworkExist = !!this._customNetworks[chainId];
+    const isChainListNetwork = chainlist && !!chainlist[chainId];
 
     // customNetwork is a default chain -> dont save
     if (isChainListNetwork && !isCustomNetworkExist) {
       throw new Error('chain ID already exists');
     }
+
     this._customNetworks = {
       ...this._customNetworks,
-      [convertedChainId]: customNetwork,
+      [chainId]: customNetwork,
     };
 
-    if (!chainlist) throw new Error('chainlist failed to load');
     this._allNetworks.dispatch({
       ...chainlist,
       ...this._customNetworks,
     });
     if (!isCustomNetworkExist) {
-      this.setNetwork(convertedChainId);
+      this.setNetwork(chainId);
     }
     this.updateNetworkState();
   }
@@ -478,26 +503,34 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     await this.storageService.save(NETWORK_OVERRIDES_STORAGE_KEY, newOverrides);
 
-    const chainlist = await this.setChainListOrFallback();
-
-    this._allNetworks.dispatch({
-      ...chainlist,
-      ...this._customNetworks,
-    });
+    // Dispatch _allNetworks signal to trigger an update of overrides.
+    const chainlist = await this.allNetworks.promisify();
+    this._allNetworks.dispatch(chainlist);
   }
 
   async removeCustomNetwork(chainID: number) {
+    const networkToRemove = this._customNetworks[chainID];
+    const wasTestnet = networkToRemove?.isTestnet;
+
+    // Remove chain ID from customNetworks list and from allNetworks list.
     delete this._customNetworks[chainID];
-    const chainlist = await this.setChainListOrFallback();
+    const chainlist = await this.allNetworks.promisify();
     if (chainlist && chainlist[chainID]) {
       delete chainlist[chainID];
     }
+
+    // Update the lsit of all networks.
     this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
 
+    // Switch to Avalanache Mainnet or Fuji if the active network was removed.
     if (this.activeNetwork?.chainId === chainID) {
-      this.setNetwork(ChainId.AVALANCHE_MAINNET_ID);
+      this.setNetwork(
+        wasTestnet ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
+      );
     }
     this.removeFavoriteNetwork(chainID);
+
+    // Update storage
     this.updateNetworkState();
   }
 }

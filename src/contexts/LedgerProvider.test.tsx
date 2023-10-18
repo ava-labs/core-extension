@@ -351,7 +351,6 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       beforeUnloadCallback(eventMock);
 
       await waitFor(() => {
-        expect(eventMock.preventDefault).toHaveBeenCalled();
         expect(connectionMocks.request).toHaveBeenCalledWith(
           expect.objectContaining({
             method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,

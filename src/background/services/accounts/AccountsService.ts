@@ -16,6 +16,7 @@ import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { WalletService } from '../wallet/WalletService';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/chains-sdk';
+import { PermissionsService } from '../permissions/PermissionsService';
 
 @singleton()
 export class AccountsService implements OnLock, OnUnlock {
@@ -75,7 +76,8 @@ export class AccountsService implements OnLock, OnUnlock {
   constructor(
     private storageService: StorageService,
     private walletService: WalletService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private permissionsService: PermissionsService
   ) {}
 
   async onUnlock(): Promise<void> {
@@ -252,7 +254,7 @@ export class AccountsService implements OnLock, OnUnlock {
             [newAccount.id]: newAccount,
           },
         };
-
+        await this.permissionsService.addWhitelistDomains(newAccount.addressC);
         return account.id;
       } catch (err) {
         throw new Error(
@@ -286,7 +288,9 @@ export class AccountsService implements OnLock, OnUnlock {
           },
         ],
       };
-
+      await this.permissionsService.addWhitelistDomains(
+        addresses[NetworkVMType.EVM]
+      );
       return id;
     }
   }

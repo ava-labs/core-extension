@@ -151,6 +151,7 @@ export const ContactInput = ({
                   <IconButton
                     onClick={() => setIsOpen(!isContactsOpen)}
                     onMouseEnter={() => setInputHovered(false)}
+                    data-testid="contacts-button"
                   >
                     <UserSearchIcon />
                   </IconButton>

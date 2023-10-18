@@ -176,8 +176,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
    * Remove an instance by UUID when a window is about to unload
    */
   useEffect(() => {
-    const handler = (ev) => {
-      ev.preventDefault();
+    const handler = () => {
       request<RemoveLedgerTransportHandler>({
         method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
         params: [LEDGER_INSTANCE_UUID],

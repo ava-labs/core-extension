@@ -113,7 +113,6 @@ export class SubmitOnboardingHandler implements HandlerType {
         await this.accountsService.addAccount(newAccountName);
       }
     }
-
     // add favorite networks before account activation so they can be loaded by the balances service
     await this.networkService.addFavoriteNetwork(ChainId.BITCOIN);
     await this.networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);

@@ -27,6 +27,7 @@ import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AccountsTab } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
+import { strip0x } from '@avalabs/avalanchejs-v2';
 
 type DerivedAddresses = {
   addressC: string;
@@ -57,7 +58,7 @@ export function ImportPrivateKey() {
     try {
       await addAccount('', {
         importType: ImportType.PRIVATE_KEY,
-        data: privateKey,
+        data: strip0x(privateKey),
       });
       toast.success(t('Private Key Imported'), { duration: 2000 });
       capture('ImportPrivateKeySucceeded');
@@ -76,9 +77,11 @@ export function ImportPrivateKey() {
       setError(t('Invalid key. Please re-enter the key.'));
     }
 
-    if (privateKey.length === 64) {
+    const strippedPk = strip0x(privateKey);
+
+    if (strippedPk.length === 64) {
       try {
-        const publicKey = getPublicKeyFromPrivateKey(privateKey);
+        const publicKey = getPublicKeyFromPrivateKey(strippedPk);
         const addressC = getEvmAddressFromPubKey(publicKey);
         const addressBTC = getBtcAddressFromPubKey(
           publicKey,

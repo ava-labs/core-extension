@@ -15,7 +15,7 @@
  * The custom resolver below forces Jest to use CJS version of some packages in browser environment, even when ESM is available.
  */
 
-const packages = ['multiformats', 'uint8arrays', 'rxjs'];
+const packages = ['multiformats', 'uint8arrays', 'rxjs', 'jose'];
 
 module.exports = (path, options) => {
   // Call the defaultResolver, so we leverage its cache, error handling, etc.

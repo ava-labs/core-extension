@@ -2,7 +2,6 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
 import { SubmitOnboardingHandler } from '@src/background/services/onboarding/handlers/submitOnboarding';
-import { UpdateInitialOpenHandler } from '@src/background/services/onboarding/handlers/updateInitialOpen';
 import {
   OnboardingPhase,
   OnboardingState,
@@ -19,7 +18,6 @@ import {
   useEffect,
   lazy,
   useState,
-  useCallback,
   Dispatch,
   SetStateAction,
 } from 'react';
@@ -27,6 +25,8 @@ import { concat, filter, from, map } from 'rxjs';
 import browser from 'webextension-polyfill';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingContent } from '@src/popup/LoadingContent';
+import { toast } from '@avalabs/k2-components';
+import { useTranslation } from 'react-i18next';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -44,8 +44,7 @@ const OnboardingContext = createContext<{
   setXpubXP: Dispatch<SetStateAction<string>>;
   setAnalyticsConsent: Dispatch<SetStateAction<boolean>>;
   setPasswordAndName: (password: string, accountName: string) => void;
-  submit(): void;
-  updateInitialOpen(): void;
+  submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
   setMasterFingerprint: Dispatch<SetStateAction<string>>;
@@ -65,6 +64,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [submitInProgress, setSubmitInProgress] = useState(false);
   const [publicKeys, setPublicKeys] = useState<PubKeyType[]>();
   const [masterFingerprint, setMasterFingerprint] = useState<string>('');
+  const { t } = useTranslation();
 
   function resetStates() {
     setMnemonic('');
@@ -103,14 +103,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     });
   }, [request, events]);
 
-  const updateInitialOpen = useCallback(
-    () =>
-      request<UpdateInitialOpenHandler>({
-        method: ExtensionRequest.ONBOARDING_INITIAL_WALLET_OPEN,
-      }),
-    [request]
-  );
-
   /**
    * If they are on the popup.html file then force onboarding to a tab. These files are created
    * in the webpack config and we decipher the environment by the .html file.
@@ -131,7 +123,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setAccountName(name);
   }
 
-  function submit() {
+  function submit(postSubmitHandler: () => void) {
     if (!mnemonic && !xpub && !password) {
       return;
     }
@@ -154,8 +146,17 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     })
       .then(() => {
         resetStates();
+        postSubmitHandler();
       })
-      .finally(() => setSubmitInProgress(false));
+      .catch(() => {
+        setNextPhase(OnboardingPhase.PASSWORD);
+        toast.error(t('Something went wrong. Please try again.'), {
+          duration: 3000,
+        });
+      })
+      .finally(() => {
+        setSubmitInProgress(false);
+      });
   }
 
   return (
@@ -170,7 +171,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setXpubXP,
         setPasswordAndName,
         submit,
-        updateInitialOpen,
         setAnalyticsConsent,
         setPublicKeys,
         publicKeys,

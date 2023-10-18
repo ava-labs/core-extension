@@ -12,5 +12,16 @@ const customRender = (
   options?: Omit<RenderOptions, 'wrapper'>
 ) => render(ui, { wrapper: AllTheProviders, ...options });
 
+export const waitForIntervalRuns = async (numberOfRuns, intervalMs) => {
+  for (let i = 0; i < numberOfRuns; i++) {
+    jest.advanceTimersByTime(intervalMs + 1);
+    // Call the scheduled timer.
+    await jest.runAllTimers();
+    // .runAllTicks as well, as they may be other async methods called inside the interval.
+    // This should resolve the pending promises.
+    await jest.runAllTicks();
+  }
+};
+
 export * from '@testing-library/react';
 export { customRender as render };

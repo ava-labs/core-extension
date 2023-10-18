@@ -1,14 +1,20 @@
-import { BITCOIN_NETWORK, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import {
+  BITCOIN_NETWORK,
+  ChainId,
+  getChainsAndTokens,
+  NetworkVMType,
+} from '@avalabs/chains-sdk';
 import {
   BlockCypherProvider,
   JsonRpcBatchInternal,
   Avalanche,
 } from '@avalabs/wallets-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
-import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
 import { Network } from 'ethers';
+import { NETWORK_LIST_STORAGE_KEY } from './models';
+import { Signal } from 'micro-signals';
 
 jest.mock('@avalabs/wallets-sdk', () => {
   const BlockCypherProviderMock = jest.fn();
@@ -33,24 +39,7 @@ jest.mock('@src/utils/addGlacierAPIKeyIfNeeded', () => ({
 
 jest.mock('@avalabs/chains-sdk', () => ({
   ...jest.requireActual('@avalabs/chains-sdk'),
-  getChainsAndTokens: jest.fn().mockResolvedValue({
-    [43114]: {
-      chainName: 'test chain',
-      chainId: 123,
-      vmName: 'EVM',
-      rpcUrl: 'https://rpcurl.example',
-      networkToken: {
-        name: 'test network token',
-        symbol: 'TNT',
-        description: '',
-        decimals: 18,
-        logoUri: '',
-      },
-      logoUri: '',
-      primaryColor: 'blue',
-      isTestnet: false,
-    },
-  }),
+  getChainsAndTokens: jest.fn(),
 }));
 
 const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
@@ -79,10 +68,7 @@ describe('background/services/network/NetworkService', () => {
     save: jest.fn(),
     saveUnencrypted: jest.fn(),
   } as any;
-  const networkService2 = new NetworkService(
-    storageServiceMock,
-    {} as unknown as LockService
-  );
+  const service = new NetworkService(storageServiceMock);
 
   beforeAll(() => {
     process.env = {
@@ -94,40 +80,94 @@ describe('background/services/network/NetworkService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    jest.mocked(getChainsAndTokens).mockResolvedValue({
+      [43114]: {
+        chainName: 'test chain',
+        chainId: 123,
+        vmName: NetworkVMType.EVM,
+        rpcUrl: 'https://rpcurl.example',
+        networkToken: {
+          name: 'test network token',
+          symbol: 'TNT',
+          description: '',
+          decimals: 18,
+          logoUri: '',
+        },
+        logoUri: '',
+        primaryColor: 'blue',
+        isTestnet: false,
+      },
+    });
   });
 
   afterAll(() => {
     process.env = env;
   });
 
+  describe('when chain list is not available through Glacier', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest
+        .mocked(getChainsAndTokens)
+        .mockRejectedValue(new Error('Unavailable'));
+    });
+
+    it('falls back to the chainlist cached in storage when unlocked', async () => {
+      const cachedChainList = {
+        [1337]: {
+          chainName: 'cached chain',
+          chainId: 1337,
+          vmName: NetworkVMType.EVM,
+          rpcUrl: 'https://rpcurl.example',
+          logoUri: '',
+          primaryColor: 'blue',
+          isTestnet: false,
+        },
+      };
+      const dispatchSpy = jest.spyOn(Signal.prototype, 'dispatch');
+
+      jest.spyOn(storageServiceMock, 'load').mockResolvedValue(cachedChainList);
+
+      await service.init();
+      await service.onLock();
+
+      expect(storageServiceMock.load).toHaveBeenCalledWith(
+        NETWORK_LIST_STORAGE_KEY
+      );
+      expect(dispatchSpy).toHaveBeenCalledWith(cachedChainList);
+    });
+  });
+
   it('should return without the (filtered out testnet) favorite networks', async () => {
     const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-    networkService2.allNetworks = {
+    service.allNetworks = {
       promisify: () =>
         Promise.resolve({
           [mockEVMNetwork.chainId]: { ...mockEVMNetwork },
         }),
     } as any;
-    await networkService2.addFavoriteNetwork(123);
-    await networkService2.addFavoriteNetwork(2);
-    const favoriteNetworks = await networkService2.getFavoriteNetworks();
+    await service.addFavoriteNetwork(123);
+    await service.addFavoriteNetwork(2);
+    const favoriteNetworks = await service.getFavoriteNetworks();
     expect(favoriteNetworks).toEqual([2]);
   });
 
   it('should set the correct network to be active after lock', async () => {
     const mockEVMNetwork = mockNetwork(NetworkVMType.EVM, false);
-    networkService2.setChainListOrFallback = jest.fn().mockResolvedValue({
-      promisify: () =>
-        Promise.resolve({
-          [mockEVMNetwork.chainId]: { ...mockEVMNetwork },
-        }),
-    } as any);
-    networkService2.allNetworks.promisify = jest
+    jest
+      // eslint-disable-next-line
+      // @ts-ignore Gotta mock private property
+      .spyOn(service._chainListFetched, 'promisify')
+      .mockResolvedValue({
+        [mockEVMNetwork.chainId]: { ...mockEVMNetwork },
+      });
+    service.allNetworks.promisify = jest
       .fn()
       .mockResolvedValue({ [ChainId.AVALANCHE_MAINNET_ID]: mockEVMNetwork });
-    await networkService2.init();
-    await networkService2.onLock();
-    const activeNetwork = networkService2.activeNetwork;
+    await service.init();
+    await service.onLock();
+    const activeNetwork = service.activeNetwork;
     expect(activeNetwork).toEqual(mockEVMNetwork);
   });
 
@@ -137,10 +177,7 @@ describe('background/services/network/NetworkService', () => {
     const mockFujiProviderInstance = {};
     const mockMainnetProviderInstance = {};
 
-    const networkService = new NetworkService(
-      {} as unknown as StorageService,
-      {} as unknown as LockService
-    );
+    const networkService = new NetworkService({} as unknown as StorageService);
 
     beforeEach(() => {
       (addGlacierAPIKeyIfNeeded as jest.Mock).mockImplementation((v) => v);

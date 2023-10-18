@@ -57,9 +57,14 @@ describe('background/services/transactions/TransactionsService.ts', () => {
       saveToSessionStorage: jest.fn(),
       loadFromSessionStorage: jest.fn(),
     } as any;
-    networkService = new NetworkService({} as any, {} as any);
+    networkService = new NetworkService({} as any);
     networkFeeService = new NetworkFeeService(networkService);
-    accountsService = new AccountsService({} as any, {} as any, networkService);
+    accountsService = new AccountsService(
+      {} as any,
+      {} as any,
+      networkService,
+      {} as any
+    );
 
     const accountName = 'testAccount';
     const addListenerMock = jest.fn();
