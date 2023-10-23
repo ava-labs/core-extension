@@ -65,13 +65,7 @@ export class AvalancheSignMessageHandler extends DAppRequestHandler {
     };
   };
 
-  onActionApproved = async (
-    pendingAction: Action,
-    _,
-    onSuccess,
-    onError,
-    frontendTabId?: number
-  ) => {
+  onActionApproved = async (pendingAction: Action, _, onSuccess, onError) => {
     try {
       const res = (await this.walletService.signMessage(
         MessageType.AVALANCHE_SIGN,

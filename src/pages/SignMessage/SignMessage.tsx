@@ -73,7 +73,12 @@ export function SignMessage() {
       },
       isUsingLedgerWallet || isUsingWalletConnectAccount // wait for the response only for device wallets
     );
-  }, [updateMessage, isUsingLedgerWallet, requestId]);
+  }, [
+    updateMessage,
+    isUsingLedgerWallet,
+    requestId,
+    isUsingWalletConnectAccount,
+  ]);
 
   const [isReadyToSignRemotely, setIsReadyToSignRemotely] = useState(false);
 

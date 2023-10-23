@@ -25,7 +25,7 @@ Object.defineProperty(global.document, 'prerendering', {
 global.chrome = {
   runtime: {
     id: 'testid',
-    getManifest: () => ({ manifest_version: 3 }),
+    getManifest: () => ({ manifest_version: 3, version: '0.0.0' }),
   },
   windows: {
     onRemoved: {

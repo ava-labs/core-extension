@@ -46,7 +46,7 @@ describe('avalanche_signMessage', function () {
   it('passes the right display data', async () => {
     const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
 
-    const result = await handler.handleAuthenticated(request);
+    await handler.handleAuthenticated(request);
 
     expect(openApprovalWindowSpy).toHaveBeenCalledWith(
       {
@@ -83,7 +83,7 @@ describe('avalanche_signMessage', function () {
 
       signMessageMock.mockReturnValue(undefined);
 
-      const res = await handler.onActionApproved(
+      await handler.onActionApproved(
         pendingActionMock,
         {},
         onSuccessMock,
@@ -99,7 +99,7 @@ describe('avalanche_signMessage', function () {
       (utils.base58check.encode as jest.Mock).mockReturnValue('encoded');
       signMessageMock.mockReturnValue(Buffer.from(msgHex));
 
-      const res = await handler.onActionApproved(
+      await handler.onActionApproved(
         pendingActionMock,
         {},
         onSuccessMock,
