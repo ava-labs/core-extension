@@ -1,6 +1,7 @@
 // initialize sentry first to enable error collection
-import '../monitoring/initSentry';
+import '../monitoring/initSentryForPopup';
 
+import * as Sentry from '@sentry/react';
 import { lazy, Suspense } from 'react';
 import { render } from 'react-dom';
 import browser from 'webextension-polyfill';
@@ -23,28 +24,30 @@ const App = lazy(() => {
 
 browser.tabs.query({ active: true }).then(() => {
   render(
-    <Router>
-      <ThemeProvider
-        toasterProps={{
-          position: 'top-center',
-        }}
-        theme={darkTheme}
-      >
-        <I18nextProvider i18n={i18n}>
-          <ConnectionContextProvider>
-            <SettingsContextProvider>
-              <FeatureFlagsContextProvider>
-                <AnalyticsContextProvider>
-                  <Suspense fallback={<LoadingContent />}>
-                    <App />
-                  </Suspense>
-                </AnalyticsContextProvider>
-              </FeatureFlagsContextProvider>
-            </SettingsContextProvider>
-          </ConnectionContextProvider>
-        </I18nextProvider>
-      </ThemeProvider>
-    </Router>,
+    <Sentry.ErrorBoundary>
+      <Router>
+        <ThemeProvider
+          toasterProps={{
+            position: 'top-center',
+          }}
+          theme={darkTheme}
+        >
+          <I18nextProvider i18n={i18n}>
+            <ConnectionContextProvider>
+              <SettingsContextProvider>
+                <FeatureFlagsContextProvider>
+                  <AnalyticsContextProvider>
+                    <Suspense fallback={<LoadingContent />}>
+                      <App />
+                    </Suspense>
+                  </AnalyticsContextProvider>
+                </FeatureFlagsContextProvider>
+              </SettingsContextProvider>
+            </ConnectionContextProvider>
+          </I18nextProvider>
+        </ThemeProvider>
+      </Router>
+    </Sentry.ErrorBoundary>,
     document.getElementById('popup')
   );
 });
