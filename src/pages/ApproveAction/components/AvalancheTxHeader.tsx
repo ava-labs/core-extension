@@ -34,6 +34,12 @@ const useAvalancheTxHeader = (tx: Avalanche.Tx) => {
     case Avalanche.TxType.Base:
       return t('Approve Transaction');
 
+    case Avalanche.TxType.AddPermissionlessValidator:
+      return t('Add Elastic Validator');
+
+    case Avalanche.TxType.AddPermissionlessDelegator:
+      return t('Add Elastic Delegator');
+
     default:
       return t('Unknown Transaction');
   }

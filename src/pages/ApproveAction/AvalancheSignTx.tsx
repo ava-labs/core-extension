@@ -26,6 +26,8 @@ import { AvalancheTxHeader } from './components/AvalancheTxHeader';
 import { ExcessiveBurnWarningDialog } from './components/ExcessiveBurnWarningDialog';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
+import { AddPermissionlessValidator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessValidator';
+import { AddPermissionlessDelegator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessDelegator';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -134,6 +136,20 @@ export function AvalancheSignTx() {
             tx={tx}
             avaxPrice={tokenPrice}
           ></AddSubnetValidatorView>
+        );
+      } else if (Avalanche.isAddPermissionlessValidatorTx(tx)) {
+        return (
+          <AddPermissionlessValidator
+            tx={tx}
+            avaxPrice={tokenPrice}
+          ></AddPermissionlessValidator>
+        );
+      } else if (Avalanche.isAddPermissionlessDelegatorTx(tx)) {
+        return (
+          <AddPermissionlessDelegator
+            tx={tx}
+            avaxPrice={tokenPrice}
+          ></AddPermissionlessDelegator>
         );
       }
 
