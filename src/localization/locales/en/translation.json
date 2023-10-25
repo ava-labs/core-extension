@@ -327,6 +327,8 @@
   " Network not supported.": " Network not supported.",
   "Network is not supported. Change network to supported network to continue.": "Network is not supported. Change network to supported network to continue.",
   "Switch to {{chainName}}": "Switch to {{chainName}}",
+  "Bridging from Avalanche to Bitcoin takes approximately . Please see\n          the <FaqLink>FAQ</FaqLink> for additional info.": "Bridging from Avalanche to Bitcoin takes approximately . Please see\n          the <FaqLink>FAQ</FaqLink> for additional info.",
+  "FAQ": "FAQ",
   "Blockchain not supported": "Blockchain not supported",
   "Continue with...": "Continue with...",
   "Moonpay": "Moonpay",

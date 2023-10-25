@@ -34,9 +34,11 @@ const padTimeElapsed = (startTime: number, endTime?: number): Date => {
 };
 
 export function ElapsedTimer({
+  offloadDelayTooltip,
   startTime,
   endTime,
 }: {
+  offloadDelayTooltip?: React.ReactChild;
   startTime: number;
   endTime?: number;
 }) {
@@ -85,9 +87,11 @@ export function ElapsedTimer({
       {endTime ? (
         <CheckIcon size="12" sx={{ ml: 0.5 }} />
       ) : (
-        <Tooltip title={t('Time Elapsed')}>
-          <InfoCircleIcon />
-        </Tooltip>
+        offloadDelayTooltip ?? (
+          <Tooltip title={t('Time Elapsed')}>
+            <InfoCircleIcon />
+          </Tooltip>
+        )
       )}
     </TimeElapsed>
   );

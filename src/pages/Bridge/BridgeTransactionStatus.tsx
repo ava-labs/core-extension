@@ -43,6 +43,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { blockchainToNetwork } from './utils/blockchainConversion';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
 import { BridgeCard } from './components/BridgeCard';
+import { OffloadTimerTooltip } from './components/OffloadTimerTooltip';
 
 const BridgeTransactionStatus = () => {
   const { t } = useTranslation();
@@ -149,6 +150,15 @@ const BridgeTransactionStatus = () => {
     // We only want this to trigger when `complete` switches to `true` and on load
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bridgeTransaction?.complete, toastShown]);
+
+  const isOffboarding =
+    bridgeTransaction?.sourceChain === Blockchain.AVALANCHE &&
+    bridgeTransaction?.targetChain === Blockchain.BITCOIN;
+
+  const offboardingDelay =
+    bridgeConfig.config?.criticalBitcoin.offboardDelaySeconds;
+
+  const hasOffBoardingDelay = typeof offboardingDelay === 'number';
 
   if (!activeAccount) {
     history.push('/home');
@@ -559,6 +569,16 @@ const BridgeTransactionStatus = () => {
                         }
                       </Typography>
                       <ElapsedTimer
+                        offloadDelayTooltip={
+                          isOffboarding && hasOffBoardingDelay ? (
+                            <OffloadTimerTooltip
+                              offloadDelaySeconds={
+                                bridgeConfig.config?.criticalBitcoin
+                                  .offboardDelaySeconds || 0
+                              }
+                            />
+                          ) : undefined
+                        }
                         startTime={bridgeTransaction.targetStartedAt || 0}
                         endTime={bridgeTransaction.completedAt}
                       />
