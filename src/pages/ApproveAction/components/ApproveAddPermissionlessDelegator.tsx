@@ -38,9 +38,11 @@ export function AddPermissionlessDelegator({
             <TruncatedIdentifier identifier={nodeID} />
           </TxDetailsRow>
           <TxDetailsRow label={t('Subnet ID')}>
-            <TruncatedIdentifier
-              identifier={isPrimaryNetwork ? t('Primary Network') : subnetID}
-            />
+            {isPrimaryNetwork ? (
+              <Typography variant="caption">{t('Primary Network')}</Typography>
+            ) : (
+              <TruncatedIdentifier identifier={subnetID} />
+            )}
           </TxDetailsRow>
           <TxDetailsRow label={t('Stake Amount')}>
             <AvaxAmount amount={stake} avaxPrice={avaxPrice} />
