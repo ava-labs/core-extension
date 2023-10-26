@@ -357,7 +357,7 @@ export function Bridge() {
     sendAmountEnteredAnalytics('Bridge');
 
     // When there is no balance for given token, maximum is undefined
-    if (!maximum || (maximum && bigValue && !maximum.gt(bigValue))) {
+    if (!maximum || (maximum && bigValue && maximum.lt(bigValue))) {
       const errorMessage = t('Insufficient balance');
 
       if (errorMessage === bridgeError) {
