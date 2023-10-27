@@ -4,11 +4,10 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
 import { useTranslation } from 'react-i18next';
-import { ChainId } from '@avalabs/chains-sdk';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
 import {
@@ -25,6 +24,7 @@ import {
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import BN from 'bn.js';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -40,7 +40,10 @@ export function TokenFlow() {
   const { network } = useNetworkContext();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
 
-  const isBitcoin = network?.chainId === ChainId.BITCOIN;
+  const isBitcoin = useMemo(() => {
+    if (!network) return false;
+    return isBitcoinNetwork(network);
+  }, [network]);
 
   useEffect(() => {
     setShowSend(token?.balance.gt(new BN(0)));
@@ -60,7 +63,13 @@ export function TokenFlow() {
 
   return (
     <Stack sx={{ width: '100%', position: 'relative' }}>
-      <PageTitle>{t('Token Details')}</PageTitle>
+      <PageTitle
+        onBackClick={() => {
+          isBitcoin ? history.replace('/home') : history.replace('/assets');
+        }}
+      >
+        {t('Token Details')}
+      </PageTitle>
       <Stack
         direction="row"
         justifyContent="center"
