@@ -35,14 +35,12 @@ import {
   Scrollbars,
   Tooltip,
 } from '@avalabs/k2-components';
-import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
-import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 
 const DEFAULT_DECIMALS = 9;
 
@@ -64,14 +62,11 @@ export function SendPage() {
     GasFeeModifier.NORMAL
   );
 
-  const isUsingLedgerWallet = useIsUsingLedgerWallet();
-  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
-  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const { checkIsFunctionAvailable } = useIsFunctionAvailable();
 
-  const [showTxInProgress, setShowTxInProgress] = useState(false);
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
   const [gasPriceState, setGasPrice] = useState<bigint>();
+
   const { capture } = useAnalyticsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -251,8 +246,14 @@ export function SendPage() {
     return '';
   }
 
-  function sendFunds(pendingToastId?: string) {
-    submitSendState()
+  async function sendFunds() {
+    if (!sendState.canSubmit) return;
+
+    capture('SendApproved', {
+      selectedGasFee,
+    });
+
+    await submitSendState()
       .then((txId) => {
         resetSendState();
         toastCardWithLink({
@@ -260,40 +261,27 @@ export function SendPage() {
           url: getURL(txId),
           label: t('View in Explorer'),
         });
-        history.push('/home');
       })
       .catch(() => {
         toast.error(t('Transaction Failed'));
       })
       .finally(() => {
-        pendingToastId && toast.dismiss(pendingToastId);
-        setShowTxInProgress(false);
-        if (isUsingLedgerWallet) {
-          history.push('/home');
-        }
+        history.push('/home');
       });
   }
 
-  const handleSubmitClick = () => {
-    let pendingToastId = '';
-    setShowTxInProgress(true);
-    if (!sendState.canSubmit) return;
-    capture('SendApproved', {
-      selectedGasFee,
+  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
+    useApprovalHelpers({
+      onApprove: sendFunds,
+      onReject: () => {
+        capture('SendCancel', {
+          selectedGasFee,
+        });
+        resetKeystoneRequest();
+        history.goBack();
+      },
+      pendingMessage: t('Transaction pending...'),
     });
-    if (
-      !isUsingLedgerWallet &&
-      !isUsingKeystoneWallet &&
-      !isUsingWalletConnectAccount
-    ) {
-      history.push('/home');
-      pendingToastId = toast.loading(t('Transaction pending...'));
-    }
-
-    if (!isUsingWalletConnectAccount) {
-      sendFunds(pendingToastId);
-    }
-  };
 
   const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
   const onAddressBookToggled = useCallback((visible) => {
@@ -313,7 +301,7 @@ export function SendPage() {
     <Switch>
       <Route path="/send/confirm">
         <>
-          {showTxInProgress && (
+          {isApprovalOverlayVisible && (
             <TxInProgress
               address={sendState?.address}
               amount={amountInputDisplay}
@@ -323,15 +311,8 @@ export function SendPage() {
                 network?.networkToken.decimals ?? 18
               )}
               feeSymbol={network?.networkToken.symbol}
-              onReject={() => {
-                capture('SendCancel', {
-                  selectedGasFee,
-                });
-                resetKeystoneRequest();
-                setShowTxInProgress(false);
-                history.goBack();
-              }}
-              onSubmit={sendFunds}
+              onReject={handleRejection}
+              onSubmit={handleApproval}
             />
           )}
           <SendConfirm
@@ -339,7 +320,7 @@ export function SendPage() {
             contact={contactInput as Contact}
             token={selectedToken}
             fallbackAmountDisplayValue={amountInputDisplay}
-            onSubmit={handleSubmitClick}
+            onSubmit={handleApproval}
             maxGasPrice={maxGasPrice}
             gasPrice={gasPriceState}
             selectedGasFee={selectedGasFee}

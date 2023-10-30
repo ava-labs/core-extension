@@ -24,8 +24,6 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import {
   Button,
   Scrollbars,
@@ -37,7 +35,7 @@ import {
 } from '@avalabs/k2-components';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 
 export function CollectibleSend() {
   const { t } = useTranslation();
@@ -56,11 +54,6 @@ export function CollectibleSend() {
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.NORMAL
   );
-  const [showTxInProgress, setShowTxInProgress] = useState(false);
-
-  const isUsingLedgerWallet = useIsUsingLedgerWallet();
-  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
-  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
 
   useEffect(() => {
     if (nft && !sendState.token) {
@@ -114,10 +107,12 @@ export function CollectibleSend() {
     return '';
   }
 
-  function sendCollectible(pendingToastId?: string) {
+  async function sendCollectible() {
     capture('NftSendStarted', { chainId: network?.chainId, type: nft?.type });
 
-    submitSendState()
+    if (!sendState.canSubmit) return;
+
+    await submitSendState()
       .then((txId) => {
         resetSendState();
         toastCardWithLink({
@@ -129,7 +124,6 @@ export function CollectibleSend() {
           chainId: network?.chainId,
           type: nft?.type,
         });
-        history.push('/home');
       })
       .catch(() => {
         toast.error(t('Transaction Failed'));
@@ -139,35 +133,18 @@ export function CollectibleSend() {
         });
       })
       .finally(() => {
-        setShowTxInProgress(false);
-        pendingToastId && toast.dismiss(pendingToastId);
-        if (isUsingLedgerWallet || isUsingKeystoneWallet) {
-          history.push('/home');
-        }
+        history.push('/home');
       });
   }
 
-  const onSubmit = () => {
-    setShowTxInProgress(true);
-    if (!sendState.canSubmit) return;
-
-    let pendingToastId = '';
-    if (
-      !isUsingLedgerWallet &&
-      !isUsingKeystoneWallet &&
-      !isUsingWalletConnectAccount
-    ) {
-      history.push('/home');
-      pendingToastId = toast.loading(t('Transaction pending...'));
-    }
-    if (!isUsingWalletConnectAccount) {
-      sendCollectible(pendingToastId);
-    }
-  };
-
-  const onReject = () => {
-    setShowTxInProgress(false);
-  };
+  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
+    useApprovalHelpers({
+      onApprove: sendCollectible,
+      onReject: () => {
+        capture('NftSendCancelled');
+      },
+      pendingMessage: t('Transaction pending...'),
+    });
 
   if (!nft) {
     return <Redirect to={`/home?activeTab=${PortfolioTabs.COLLECTIBLES}`} />;
@@ -177,7 +154,7 @@ export function CollectibleSend() {
     <Switch>
       <Route path="/collectible/send/confirm">
         <>
-          {showTxInProgress && (
+          {isApprovalOverlayVisible && (
             <TxInProgress
               address={sendState?.token?.address}
               nftName={nft?.name}
@@ -186,15 +163,15 @@ export function CollectibleSend() {
                 network?.networkToken.decimals ?? 18
               )}
               feeSymbol={network?.networkToken.symbol}
-              onSubmit={sendCollectible}
-              onReject={onReject}
+              onSubmit={handleApproval}
+              onReject={handleRejection}
             />
           )}
           <CollectibleSendConfirm
             sendState={sendState}
             contact={contactInput as Contact}
             nft={nft}
-            onSubmit={onSubmit}
+            onSubmit={handleApproval}
           />
         </>
       </Route>
