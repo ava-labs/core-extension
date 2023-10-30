@@ -10,7 +10,6 @@ export enum ExtensionRequest {
   NETWORK_SAVE_CUSTOM = 'network_saveCustomNetwork',
   NETWORK_REMOVE_CUSTOM = 'network_removeCustomNetwork',
   NETWORKS_GET_STATE = 'networks_get_state',
-  NETWORK_AVALANCHE_GET = 'network_avalanche_get',
   NETWORK_UPDATE_DEFAULT = 'network_update_default',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',

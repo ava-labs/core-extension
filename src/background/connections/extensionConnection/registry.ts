@@ -91,7 +91,6 @@ import { CloseLedgerTransportHandler } from '@src/background/services/ledger/han
 import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
 import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
-import { GetAvalancheNetworkHandler } from '@src/background/services/network/handlers/getAvalancheNetwork';
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
@@ -230,7 +229,6 @@ import { EstablishRequiredSession } from '@src/background/services/walletConnect
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAvaxBalanceHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetAvalancheNetworkHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetLedgerVersionWarningHandler,

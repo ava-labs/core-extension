@@ -21,8 +21,6 @@ import { AddressType } from './LedgerConnect';
 import { getAddressFromXPub } from '@avalabs/wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { DerivedAddresses } from './components/DerivedAddresses';
-import { useGetAvalancheNetwork } from '@src/hooks/useGetAvalancheNetwork';
-import { Network } from '@avalabs/chains-sdk';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 
@@ -66,9 +64,7 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
   const [xPubKey, setXPubKey] = useState('');
   const [isQRCodeScanOpen, setIsQRCodeScanOpen] = useState(false);
   const [addresses, setAddresses] = useState<AddressType[]>([]);
-  const [avalancheNetwork, setAvalancheNetwork] = useState<Network>();
 
-  const { getAvalancheNetwork } = useGetAvalancheNetwork();
   const { getAvaxBalance } = useGetAvaxBalance();
   const { featureFlags } = useFeatureFlagContext();
 
@@ -100,16 +96,6 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
       getAddressFromXpubKey(xPubKey, 0);
     }
   }, [addresses.length, getAddressFromXpubKey, xPubKey]);
-
-  useEffect(() => {
-    const initAvalancheNetwork = async () => {
-      const { avalancheNetwork: avaxNetwork } = await getAvalancheNetwork();
-      setAvalancheNetwork(avaxNetwork);
-    };
-    if (!avalancheNetwork) {
-      initAvalancheNetwork();
-    }
-  }, [avalancheNetwork, getAvalancheNetwork]);
 
   const steps = 3;
 
@@ -194,10 +180,7 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
           )}
           {stepNumber === tutorialLastStep + 1 && (
             <Stack sx={{ alignItems: 'center', mt: 3 }}>
-              <DerivedAddresses
-                addresses={addresses}
-                network={avalancheNetwork}
-              />
+              <DerivedAddresses addresses={addresses} />
             </Stack>
           )}
         </Stack>
