@@ -1,5 +1,4 @@
 import browser, { Runtime } from 'webextension-polyfill';
-import extension from 'extensionizer';
 import {
   CONTENT_SCRIPT,
   EXTENSION_SCRIPT,
@@ -47,7 +46,7 @@ export class ConnectionService {
       return;
     }
 
-    if (connection.sender?.id !== extension.runtime.id) {
+    if (connection.sender?.id !== browser.runtime.id) {
       return;
     }
 

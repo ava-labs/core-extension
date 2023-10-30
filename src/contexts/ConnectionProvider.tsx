@@ -10,8 +10,7 @@ import {
   useState,
 } from 'react';
 import { Observable, Subject } from 'rxjs';
-import { Runtime } from 'webextension-polyfill';
-import extension from 'extensionizer';
+import browser, { Runtime } from 'webextension-polyfill';
 import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';
 import { Signal, ValueCache } from 'micro-signals';
@@ -45,7 +44,7 @@ export function ConnectionContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     function getAndSetNewConnection() {
-      const newConnection: Runtime.Port = extension.runtime.connect({
+      const newConnection: Runtime.Port = browser.runtime.connect({
         name: EXTENSION_SCRIPT,
       });
       newConnection.onDisconnect.addListener(() => {

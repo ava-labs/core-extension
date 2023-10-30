@@ -5,7 +5,7 @@ import {
   decrypt,
   encrypt,
 } from '@src/background/services/storage/utils/crypto';
-import extension from 'extensionizer';
+import browser from 'webextension-polyfill';
 import { singleton } from 'tsyringe';
 import nacl from 'tweetnacl';
 import { WALLET_STORAGE_ENCRYPTION_KEY } from './models';
@@ -90,14 +90,14 @@ export class StorageService implements OnLock {
       },
     };
 
-    await extension.storage.local.set(dataToStore);
+    await browser.storage.local.set(dataToStore);
   }
 
   async load<T>(
     key: string,
     customEncryptionKey?: string
   ): Promise<T | undefined> {
-    const result = await extension.storage.local.get(key);
+    const result = await browser.storage.local.get(key);
     if (!result || !result[key]) {
       return;
     }
@@ -133,16 +133,16 @@ export class StorageService implements OnLock {
     const dataToStore = {
       [key]: { data },
     };
-    await extension.storage.local.set(dataToStore);
+    await browser.storage.local.set(dataToStore);
   }
 
   async loadUnencrypted<T>(key: string): Promise<T | undefined> {
-    const result = await extension.storage.local.get(key);
+    const result = await browser.storage.local.get(key);
     return result?.[key]?.data as T;
   }
 
   async removeFromStorage(key: string) {
-    await extension.storage.local.remove(key);
+    await browser.storage.local.remove(key);
   }
 
   async saveToSessionStorage<T = any>(key: string, value: T) {
@@ -150,24 +150,24 @@ export class StorageService implements OnLock {
       throw new Error('trying to store an empty value');
     }
 
-    await extension.storage.session.set({ [key]: value });
+    await browser.storage.session.set({ [key]: value });
   }
 
   async loadFromSessionStorage<T = any>(key: string) {
-    const result = await extension.storage.session.get(key);
+    const result = await browser.storage.session.get(key);
     return result?.[key] as T;
   }
 
   async removeFromSessionStorage(key: string) {
-    await extension.storage.session.remove(key);
+    await browser.storage.session.remove(key);
   }
 
   async clearStorage() {
-    await extension.storage.local.clear();
-    await extension.storage.session.clear();
+    await browser.storage.local.clear();
+    await browser.storage.session.clear();
   }
 
   async clearSessionStorage() {
-    await extension.storage.session.clear();
+    await browser.storage.session.clear();
   }
 }

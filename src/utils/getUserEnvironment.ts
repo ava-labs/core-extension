@@ -1,4 +1,4 @@
-import extension from 'extensionizer';
+import browser from 'webextension-polyfill';
 import { UserEnvironmentAnalytics } from '@src/background/services/analytics/models';
 
 // This is being used for analytics
@@ -14,7 +14,7 @@ export async function getUserEnvironment(): Promise<UserEnvironmentAnalytics> {
 }
 
 async function getOs() {
-  return (await extension.runtime.getPlatformInfo()).os;
+  return (await browser.runtime.getPlatformInfo()).os;
 }
 
 function getChromeVersion() {

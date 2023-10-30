@@ -21,6 +21,7 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
+    "@avalabs/avalanchejs-v2": "1.4.0-alpha.21",
     "@avalabs/blockcypher-sdk": "2.8.0-alpha.152",
     "@avalabs/bridge-sdk": "2.8.0-alpha.152",
     "@avalabs/chains-sdk": "2.8.0-alpha.152",
@@ -35,7 +36,6 @@
     "@avalabs/types": "2.8.0-alpha.152",
     "@avalabs/utils-sdk": "2.8.0-alpha.152",
     "@avalabs/wallets-sdk": "2.8.0-alpha.152",
-    "@avalabs/avalanchejs-v2": "1.4.0-alpha.21",
     "@coinbase/cbpay-js": "1.6.0",
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
@@ -50,8 +50,8 @@
     "@noble/hashes": "1.0.0",
     "@openzeppelin/contracts": "4.9.3",
     "@sentry/browser": "7.66.0",
-    "@sentry/react": "7.66.0",
     "@sentry/integrations": "7.66.0",
+    "@sentry/react": "7.66.0",
     "@walletconnect/core": "2.9.1",
     "@walletconnect/sign-client": "2.9.1",
     "@walletconnect/utils": "2.9.2",
@@ -62,7 +62,6 @@
     "eth-rpc-errors": "4.0.3",
     "ethers": "6.7.1",
     "events": "3.3.0",
-    "extensionizer": "1.0.1",
     "fireblocks-sdk": "5.6.1",
     "i18next": "21.9.2",
     "i18next-http-backend": "1.4.4",

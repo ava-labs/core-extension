@@ -1,4 +1,4 @@
-import extension from 'extensionizer';
+import browser from 'webextension-polyfill';
 import { SessionTypes } from '@walletconnect/types';
 import { isDevelopment } from '@src/utils/environment';
 
@@ -28,7 +28,7 @@ export type WalletConnectEventType =
 export const CORE_MOBILE_WALLET_ID = 'c3de833a-9cb0-4274-bb52-86e402ecfcd3';
 
 export const WALLET_CONNECT_APP_METADATA = {
-  name: extension.i18n.getMessage('appName'),
+  name: browser.i18n.getMessage('appName'),
   // When connecting to Core Mobile, it will allow us to send avalanche_*
   // requests, as long as it recognizes us as part of the Core product.
   //
@@ -38,7 +38,7 @@ export const WALLET_CONNECT_APP_METADATA = {
   // For production & blue builds, Core Mobile is able to recognize their
   // extension IDs, since they are permanent.
   url: isDevelopment() ? 'https://localhost' : location.origin,
-  description: extension.i18n.getMessage('appDesc'),
+  description: browser.i18n.getMessage('appDesc'),
   icons: ['https://extension.core.app/apple-touch-icon.png'],
 };
 

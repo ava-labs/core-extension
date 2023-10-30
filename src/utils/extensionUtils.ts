@@ -1,5 +1,4 @@
-import { Tabs, Windows } from 'webextension-polyfill';
-import extension from 'extensionizer';
+import browser, { Windows } from 'webextension-polyfill';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
@@ -23,11 +22,11 @@ const windowFocusChangedSignal = new Subject<number>();
 /**
  * Pipe the two events blow into the matching signal. This way we dont create a bunch of listeners
  */
-extension.windows.onRemoved.addListener((windowId: number) => {
+browser.windows.onRemoved.addListener((windowId: number) => {
   windowRemovedSignal.next(windowId);
 });
 
-extension.windows.onFocusChanged.addListener((windowId: number) => {
+browser.windows.onFocusChanged.addListener((windowId: number) => {
   windowFocusChangedSignal.next(windowId);
 });
 
@@ -52,62 +51,64 @@ function createWindowInfoAndEvents(info: Windows.Window) {
 }
 
 const checkForError = () => {
-  const { lastError } = extension.runtime;
+  const { lastError } = browser.runtime;
   if (!lastError) {
     return undefined;
   }
   // if it quacks like an Error, its an Error
-  if (lastError.stack && lastError.message) {
+  if (lastError.message) {
     return lastError;
   }
   // repair incomplete error object (eg chromium v77)
-  return new Error(lastError.message);
+  return new Error('Something went wrong.');
 };
 
-export const openNewTab = (options: { url: string; selected?: boolean }) => {
-  return new Promise((resolve, reject) => {
-    extension.tabs.create(options, (newTab: Tabs.Tab) => {
-      const error = checkForError();
-      if (error) {
-        return reject(error);
-      }
-      return resolve(newTab);
-    });
-  });
-};
-
-export const openWindow = (options: Windows.CreateCreateDataType) => {
-  return new Promise<ReturnType<typeof createWindowInfoAndEvents>>(
-    (resolve) => {
-      extension.windows.create(options, (newWindow: Windows.Window) => {
-        return resolve(createWindowInfoAndEvents(newWindow));
-      });
+export const openNewTab = async (options: {
+  url: string;
+  selected?: boolean;
+}) => {
+  try {
+    const tab = await browser.tabs.create(options);
+    const error = checkForError();
+    if (error) {
+      throw new Error(error.message);
     }
-  );
+    return tab;
+  } catch (error) {
+    return error;
+  }
 };
 
-export const getTabs = () => {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  return extension.tabs.query(() => {});
+export const openWindow = async (options: Windows.CreateCreateDataType) => {
+  try {
+    const newWindow = await browser.windows.create(options);
+    return createWindowInfoAndEvents(newWindow);
+  } catch (error) {
+    console.error(error);
+    throw new Error('failed to open new window');
+  }
 };
 
 export const openExtensionNewWindow = async (
   route?: string,
   queryString?: string
 ) => {
-  let extensionURL = extension.runtime.getURL(contextToOpenIn);
+  let extensionURL = browser.runtime.getURL(contextToOpenIn);
 
-  const platform = await extension.runtime.getPlatformInfo();
+  const platform = await browser.runtime.getPlatformInfo();
 
   const isPlatformWindows = platform?.os === 'win';
 
   let left = 0;
   let top = 0;
   try {
-    const lastFocused = await extension.windows.getLastFocused();
+    const lastFocused = await browser.windows.getLastFocused();
     // Position window in top right corner of lastFocused window.
-    top = lastFocused.top;
-    left = lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH);
+    top = lastFocused.top ? lastFocused.top : 0;
+    left =
+      lastFocused.left && lastFocused.width
+        ? lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH)
+        : 0;
   } catch (_) {
     // do nothing, don't know where the last window is so let's just place it to 0,0
   }
@@ -135,5 +136,5 @@ export const openExtensionNewWindow = async (
 };
 
 export const reload = () => {
-  extension.runtime.reload();
+  browser.runtime.reload();
 };
