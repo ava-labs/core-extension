@@ -79,7 +79,7 @@ jobs:
       - name: Checkout automation repo
         uses: actions/checkout@v3
         with:
-          repository: 'ava-labs/wdio-cucumber-e2e-test'
+          repository: 'ava-labs/avalanche-test-automation'
           path: './'
           ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
       - name: Install automation repo dependencies
