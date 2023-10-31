@@ -3,7 +3,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import { WalletService } from '../WalletService';
+import { SecretsService } from '../../secrets/SecretsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS,
@@ -15,7 +15,7 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
   method = ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS as const;
 
   constructor(
-    private walletService: WalletService,
+    private secretsService: SecretsService,
     private accountService: AccountsService
   ) {}
 
@@ -31,13 +31,12 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
         throw new Error('incorrect account type');
       }
 
-      const btcWalletPolicyDetails =
-        await this.walletService.getBtcWalletPolicyDetails(activeAccount);
+      const policyInfo = await this.secretsService.getBtcWalletPolicyDetails();
 
       return {
         ...request,
         result: {
-          masterFingerprint: btcWalletPolicyDetails?.masterFingerprint,
+          masterFingerprint: policyInfo?.details?.masterFingerprint,
         },
       };
     } catch (err) {

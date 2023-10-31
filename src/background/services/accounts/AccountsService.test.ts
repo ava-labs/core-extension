@@ -4,7 +4,6 @@ import { StorageService } from '../storage/StorageService';
 import { WalletService } from '../wallet/WalletService';
 import { LedgerService } from '../ledger/LedgerService';
 import { KeystoneService } from '../keystone/KeystoneService';
-import { LockService } from '../lock/LockService';
 import {
   AccountsEvents,
   ACCOUNTS_STORAGE_KEY,
@@ -16,6 +15,7 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { PermissionsService } from '../permissions/PermissionsService';
+import { SecretsService } from '../secrets/SecretsService';
 
 jest.mock('../storage/StorageService');
 jest.mock('../wallet/WalletService');
@@ -28,18 +28,17 @@ describe('background/services/accounts/AccountsService', () => {
   const networkService = new NetworkService({} as any);
   const storageService = new StorageService({} as any);
   const ledgerService = new LedgerService();
-  const lockService = new LockService({} as any, {} as any);
   const keystoneService = new KeystoneService();
   const walletConnectService = new WalletConnectService(
     new WalletConnectStorage(storageService)
   );
+  const secretsProvider = new SecretsService(storageService);
   const walletService = new WalletService(
-    storageService,
     networkService,
     ledgerService,
-    lockService,
     keystoneService,
-    walletConnectService
+    walletConnectService,
+    secretsProvider
   );
   const permissionsService = new PermissionsService({} as any);
 

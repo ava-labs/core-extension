@@ -8,7 +8,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
     method: ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS,
   } as any;
 
-  const walletServiceMock = {
+  const secretsServiceMock = {
     getBtcWalletPolicyDetails: jest.fn(),
   } as any;
 
@@ -23,7 +23,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
 
   it('returns undefined if there is no active account', async () => {
     const handler = new GetBtcWalletPolicyDetails(
-      walletServiceMock,
+      secretsServiceMock,
       getAccountServiceMock()
     );
 
@@ -37,7 +37,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
 
   it('returns undefined if the active account is not primary', async () => {
     const handler = new GetBtcWalletPolicyDetails(
-      walletServiceMock,
+      secretsServiceMock,
       getAccountServiceMock({ type: AccountType.IMPORTED })
     );
 
@@ -52,12 +52,15 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
   it('returns the master fingerprint correctly', async () => {
     const masterFingerprint = 'fingerprint';
 
-    walletServiceMock.getBtcWalletPolicyDetails.mockResolvedValueOnce({
-      masterFingerprint,
+    secretsServiceMock.getBtcWalletPolicyDetails.mockResolvedValueOnce({
+      accountIndex: 0,
+      details: {
+        masterFingerprint,
+      },
     });
 
     const handler = new GetBtcWalletPolicyDetails(
-      walletServiceMock,
+      secretsServiceMock,
       getAccountServiceMock({ type: AccountType.PRIMARY })
     );
 

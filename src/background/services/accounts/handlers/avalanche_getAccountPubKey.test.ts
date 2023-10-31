@@ -1,6 +1,5 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
-import { AccountType } from '../models';
 import { AvalancheGetAccountPubKeyHandler } from './avalanche_getAccountPubKey';
 
 describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', () => {
@@ -9,13 +8,8 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
     xp: 'xpPubKey',
   };
 
-  const activateAccountMock = jest.fn();
-  const accountServiceMock = {
-    activateAccount: activateAccountMock,
-  } as any;
-
   const walletServiceMock = {
-    getPublicKey: () => publicKeys,
+    getActiveAccountPublicKey: () => publicKeys,
   } as any;
 
   beforeEach(() => {
@@ -24,9 +18,13 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
 
   describe('handleAuthenticated', () => {
     it('throws if no active account found', async () => {
+      const noAccountsMock = {
+        getActiveAccountPublicKey: () => {
+          throw new Error('No active account.');
+        },
+      };
       const handler = new AvalancheGetAccountPubKeyHandler(
-        accountServiceMock,
-        walletServiceMock
+        noAccountsMock as any
       );
       const request = {
         id: '123',
@@ -42,16 +40,7 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
     });
 
     it('returns the public keys correctly', async () => {
-      activateAccountMock.mockReturnValueOnce({
-        index: 1,
-        id: 'uuid1',
-        type: AccountType.PRIMARY,
-      });
-
-      const handler = new AvalancheGetAccountPubKeyHandler(
-        accountServiceMock,
-        walletServiceMock
-      );
+      const handler = new AvalancheGetAccountPubKeyHandler(walletServiceMock);
       const request = {
         id: '123',
         method: DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
@@ -61,16 +50,13 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
 
       expect(result).toStrictEqual({
         ...request,
-        error: ethErrors.rpc.internal('No active account.'),
+        result: publicKeys,
       });
     });
   });
 
   it('handleUnauthenticated', async () => {
-    const handler = new AvalancheGetAccountPubKeyHandler(
-      accountServiceMock,
-      walletServiceMock
-    );
+    const handler = new AvalancheGetAccountPubKeyHandler(walletServiceMock);
     const request = {
       id: '123',
       method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,

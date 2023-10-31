@@ -3,10 +3,10 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { networks } from 'bitcoinjs-lib';
 import { injectable } from 'tsyringe';
-import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
-import { WalletService } from '../WalletService';
+import { SecretType } from '../../secrets/models';
+import { SecretsService } from '../../secrets/SecretsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_STORE_BTC_WALLET_POLICY_DETAILS,
@@ -19,44 +19,48 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
   method = ExtensionRequest.WALLET_STORE_BTC_WALLET_POLICY_DETAILS as const;
 
   constructor(
-    private walletService: WalletService,
-    private accountService: AccountsService,
+    private secretsService: SecretsService,
     private networkService: NetworkService
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
-    const activeAccount = this.accountService.activeAccount;
-    const [xpub, masterFingerPrint, hmacHex, name] = request.params;
-    const isMainnet = this.networkService.isMainnet();
+    const secrets = await this.secretsService.getActiveAccountSecrets();
+
+    if (
+      secrets.type !== SecretType.Ledger &&
+      secrets.type !== SecretType.LedgerLive
+    ) {
+      throw new Error('incorrect account type');
+    }
+
+    const { account: activeAccount } = secrets;
 
     if (!activeAccount) {
       throw new Error('no account selected');
     }
-
     if (activeAccount.type !== AccountType.PRIMARY) {
       throw new Error('incorrect account type');
     }
 
-    const derivationPath = this.walletService.derivationPath;
+    const [xpub, masterFingerPrint, hmacHex, name] = request.params;
+    const isMainnet = this.networkService.isMainnet();
 
-    if (!derivationPath) {
+    if (!secrets.derivationPath) {
       throw new Error('unknown derivation path');
     }
 
     const accountIndex =
-      derivationPath === DerivationPath.BIP44 ? activeAccount.index : 0;
+      secrets.derivationPath === DerivationPath.BIP44 ? activeAccount.index : 0;
 
     const derivedAddressBtc = getBech32AddressFromXPub(
       xpub,
       accountIndex,
       isMainnet ? networks.bitcoin : networks.testnet
     );
-
     const isCorrectDevice = activeAccount.addressBTC === derivedAddressBtc;
 
     if (isCorrectDevice) {
-      await this.walletService.storeBtcWalletPolicyDetails(
-        activeAccount.index,
+      await this.secretsService.storeBtcWalletPolicyDetails(
         xpub,
         masterFingerPrint,
         hmacHex,

@@ -1,8 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import { WalletService } from '../WalletService';
+import { LockService } from '../../lock/LockService';
+import { SecretType } from '../../secrets/models';
+import { SecretsService } from '../../secrets/SecretsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,
@@ -14,7 +15,10 @@ type HandlerType = ExtensionRequestHandler<
 export class GetUnencryptedMnemonicHandler implements HandlerType {
   method = ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC as const;
 
-  constructor(private walletService: WalletService) {}
+  constructor(
+    private secretsService: SecretsService,
+    private lockService: LockService
+  ) {}
   handle: HandlerType['handle'] = async (request) => {
     const [password] = request.params;
 
@@ -25,20 +29,27 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
       };
     }
 
-    const [decryptedMnemonic, err] = await resolve(
-      this.walletService.getMnemonic(password)
-    );
+    const validPassword = await this.lockService.verifyPassword(password);
 
-    if (err) {
+    if (!validPassword) {
       return {
         ...request,
-        error: err.toString(),
+        error: 'Password invalid',
+      };
+    }
+
+    const secrets = await this.secretsService.getActiveAccountSecrets();
+
+    if (secrets.type !== SecretType.Mnemonic) {
+      return {
+        ...request,
+        error: 'Not a MnemonicWallet',
       };
     }
 
     return {
       ...request,
-      result: decryptedMnemonic,
+      result: secrets.mnemonic,
     };
   };
 }
