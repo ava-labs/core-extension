@@ -1,0 +1,160 @@
+<mxfile host="65bd71144e">
+    <diagram id="lq-RA1kHXfyaoD9Zy4br" name="Page-1">
+        <mxGraphModel dx="3262" dy="1215" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1000" pageHeight="2000" background="#114B5F" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="246" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;fontFamily=Courier New;fontSize=14;fillColor=#696969;gradientColor=none;gradientDirection=east;opacity=20;" vertex="1" parent="1">
+                    <mxGeometry x="-440" y="41" width="320" height="1618" as="geometry"/>
+                </mxCell>
+                <mxCell id="247" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;fontFamily=Courier New;fontSize=14;fillColor=#696969;gradientColor=none;gradientDirection=east;opacity=20;" vertex="1" parent="1">
+                    <mxGeometry x="-30" y="41" width="870" height="1618" as="geometry"/>
+                </mxCell>
+                <mxCell id="248" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=1 1;labelBackgroundColor=none;labelBorderColor=none;fillStyle=solid;strokeColor=none;strokeWidth=2;fontSize=14;fillColor=default;opacity=40;" vertex="1" parent="1">
+                    <mxGeometry x="99" y="97.5" width="605" height="78" as="geometry"/>
+                </mxCell>
+                <mxCell id="91" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="618" width="510" height="902" as="geometry"/>
+                </mxCell>
+                <mxCell id="224" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;strokeWidth=2;fontFamily=Helvetica;fontSize=12;opacity=70;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="225" target="226">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="316" y="924.5" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="238" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontFamily=Helvetica;fontSize=12;opacity=70;" edge="1" parent="1" source="232" target="226">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="240" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontFamily=Helvetica;fontSize=12;opacity=70;" edge="1" parent="1" source="226" target="212">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="-281" y="1340"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="116" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;" parent="1" vertex="1">
+                    <mxGeometry y="368" width="240" height="1262" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;h1&gt;Background script&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontStyle=1;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-30" y="52" width="870" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="71" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;strokeWidth=2;rounded=0;" parent="1" source="14" target="17" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="194" style="edgeStyle=orthogonalEdgeStyle;html=1;curved=1;strokeWidth=2;dashed=1;opacity=60;" edge="1" parent="1" source="14" target="196">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="79" y="321" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="User initiates a transaction/message when&lt;br&gt;the active account is of WalletConnect type" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-411" y="218" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;rounded=0;" parent="1" source="15" target="14" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="-306" y="141" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="&lt;b&gt;WalletConnectSigner&lt;/b&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry y="320" width="240" height="48" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="WalletConnectService" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="561" width="510" height="57" as="geometry"/>
+                </mxCell>
+                <mxCell id="62" value="&lt;h1&gt;User / UI&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-440" y="51" width="320" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="221" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=1 1;labelBackgroundColor=none;labelBorderColor=none;fillStyle=solid;strokeColor=none;strokeWidth=2;fontSize=14;fillColor=default;opacity=40;" vertex="1" parent="1">
+                    <mxGeometry x="-411" y="324" width="260" height="78" as="geometry"/>
+                </mxCell>
+                <mxCell id="196" value="The UI recognizes it's&lt;br&gt;&amp;nbsp;a WalletConnect-imported account&lt;br&gt;and shows an overlay until&lt;br&gt;the signing process is complete" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2" vertex="1" parent="1">
+                    <mxGeometry x="-410" y="328.5" width="259" height="69" as="geometry"/>
+                </mxCell>
+                <mxCell id="205" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;strokeWidth=2;fontFamily=Courier New;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="200" target="208">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="200" value="Build a request payload compatible with WalletConnect protocol." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="18" y="389" width="204" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="201" value="The data here flows through respective handlers (e.g.&amp;nbsp;&lt;font face=&quot;Courier New&quot;&gt;eth_sendTransaction&lt;/font&gt;),&lt;br&gt;the &lt;font face=&quot;Courier New&quot;&gt;WalletService&lt;/font&gt; and only then lands in the WalletConnect-specific components.&lt;br&gt;&lt;br&gt;For the simplicity, the parts not specific to WalletConnect implementation are omitted in this diagram." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2" vertex="1" parent="1">
+                    <mxGeometry x="-30" y="106" width="870" height="61" as="geometry"/>
+                </mxCell>
+                <mxCell id="211" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;strokeWidth=2;fontFamily=Courier New;" edge="1" parent="1" source="208" target="210">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="208" value="&lt;span style=&quot;font-family: &amp;quot;Courier New&amp;quot;; font-style: italic;&quot;&gt;.request(payload)&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="453" y="651" width="204" height="49" as="geometry"/>
+                </mxCell>
+                <mxCell id="216" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontFamily=Helvetica;fontSize=12;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="210" target="225">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="418" y="900" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="237" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontFamily=Helvetica;fontSize=12;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="210" target="212">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="778" y="843"/>
+                            <mxPoint x="778" y="1340"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="210" value="Has sufficient&lt;br style=&quot;font-size: 12px;&quot;&gt;permissions?" style="rhombus;whiteSpace=wrap;html=1;fontSize=12;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="504" y="796" width="182" height="94" as="geometry"/>
+                </mxCell>
+                <mxCell id="244" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontFamily=Helvetica;fontSize=12;opacity=70;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="212" target="241">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="212" value="&lt;span style=&quot;font-style: normal;&quot;&gt;Pass the request to&lt;br&gt;the remote wallet app&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=2" vertex="1" parent="1">
+                    <mxGeometry x="453" y="1315" width="204" height="49" as="geometry"/>
+                </mxCell>
+                <mxCell id="214" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;strokeWidth=0;" vertex="1" parent="1">
+                    <mxGeometry x="673" y="817" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="215" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;strokeWidth=0;" vertex="1" parent="1">
+                    <mxGeometry x="461" y="815" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="230" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontFamily=Helvetica;fontSize=12;" edge="1" parent="1" source="225" target="229">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="225" value="Has any active session?" style="rhombus;whiteSpace=wrap;html=1;fontSize=12;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="318" y="877" width="196" height="94" as="geometry"/>
+                </mxCell>
+                <mxCell id="226" value="Establish a new session by scanning&lt;br&gt;the QR code.&lt;br&gt;&lt;br&gt;&lt;i&gt;See &quot;WalletConnect Pairing&quot; diagram&lt;br&gt;for details&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-411" y="1101.75" width="260" height="100.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="227" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;strokeWidth=0;" vertex="1" parent="1">
+                    <mxGeometry x="257" y="898" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="228" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;strokeWidth=0;" vertex="1" parent="1">
+                    <mxGeometry x="420" y="977" width="60" height="30.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="233" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;strokeWidth=2;fontFamily=Helvetica;fontSize=12;" edge="1" parent="1" source="229" target="232">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="229" value="&lt;span style=&quot;font-style: normal;&quot;&gt;Try to extend session permissions&lt;br&gt;by switching the chain&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=2" vertex="1" parent="1">
+                    <mxGeometry x="314" y="1023" width="204" height="49" as="geometry"/>
+                </mxCell>
+                <mxCell id="235" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontFamily=Helvetica;fontSize=12;" edge="1" parent="1" source="232" target="212">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="232" value="Success?" style="rhombus;whiteSpace=wrap;html=1;fontSize=12;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="318" y="1105" width="196" height="94" as="geometry"/>
+                </mxCell>
+                <mxCell id="234" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;strokeWidth=0;" vertex="1" parent="1">
+                    <mxGeometry x="414" y="1204" width="60" height="30.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="239" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;strokeWidth=0;" vertex="1" parent="1">
+                    <mxGeometry x="254" y="1121" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="241" value="&lt;span style=&quot;font-style: normal; font-size: 13px;&quot;&gt;Parse the result &amp;amp; return it to the&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;font face=&quot;Courier New&quot; style=&quot;font-size: 13px;&quot;&gt;WalletService&lt;/font&gt;&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=2;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="18" y="1561" width="204" height="49" as="geometry"/>
+                </mxCell>
+                <mxCell id="243" value="Await user's approval, rejection or timeout." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;opacity=20;fontStyle=2" vertex="1" parent="1">
+                    <mxGeometry x="309" y="1463" width="309" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="245" value="Pass the response to the signer." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;opacity=20;fontStyle=2" vertex="1" parent="1">
+                    <mxGeometry x="309" y="1485" width="309" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

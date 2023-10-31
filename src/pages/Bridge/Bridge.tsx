@@ -357,7 +357,7 @@ export function Bridge() {
     sendAmountEnteredAnalytics('Bridge');
 
     // When there is no balance for given token, maximum is undefined
-    if (!maximum || (maximum && bigValue && !maximum.gt(bigValue))) {
+    if (!maximum || (maximum && bigValue && maximum.lt(bigValue))) {
       const errorMessage = t('Insufficient balance');
 
       if (errorMessage === bridgeError) {
@@ -690,10 +690,7 @@ export function Bridge() {
 
                   {/* Switch to swap from and to */}
                   <Stack sx={{ alignItems: 'center', mt: -2.5, pb: 1 }}>
-                    <Tooltip
-                      placement="auto"
-                      content={<Typography>{t('Switch')}</Typography>}
-                    >
+                    <Tooltip title={<Typography>{t('Switch')}</Typography>}>
                       <Button
                         data-testid="bridge-switch-button"
                         usehigherzindex={isTokenSelectOpen ? '0' : '1'}
@@ -786,7 +783,7 @@ export function Bridge() {
                 mb: 3,
               }}
             >
-              {isPending && <CircularProgress height="16px" sx={{ mr: 1 }} />}
+              {isPending && <CircularProgress size="16px" sx={{ mr: 1 }} />}
               {t('Next')}
             </Button>
           </Stack>

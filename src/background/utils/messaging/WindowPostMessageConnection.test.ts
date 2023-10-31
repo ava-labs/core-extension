@@ -1,7 +1,17 @@
 import WindowPostMessageConnection from './WindowPostMessageConnection';
 
 describe('background/providers/utils/WindowPostMessageConnection', () => {
+  const originalLocation = window.location;
+
+  beforeEach(() => {
+    jest.spyOn(window, 'location', 'get').mockReturnValue({
+      ...originalLocation,
+      origin: 'core.app',
+    });
+  });
+
   afterEach(() => {
+    window.location = originalLocation;
     jest.clearAllMocks();
   });
 
@@ -63,6 +73,7 @@ describe('background/providers/utils/WindowPostMessageConnection', () => {
     connection.addListener('message', messageListener);
 
     (addEventListenerSpy.mock.calls[0]?.[1] as any)?.({
+      origin: 'core.app',
       data: {
         connectionName: 'connection name',
         message: {
@@ -97,8 +108,32 @@ describe('background/providers/utils/WindowPostMessageConnection', () => {
     expect(messageListener).not.toHaveBeenCalled();
 
     (addEventListenerSpy.mock.calls[0]?.[1] as any)?.({
+      origin: 'core.app',
       data: {
         connectionName: 'some other connection',
+        message: {
+          type: 'message',
+          data: 'message-data',
+        },
+      },
+    });
+
+    expect(messageListener).not.toHaveBeenCalled();
+  });
+
+  it('ignores messages for other origins', () => {
+    const connection = new WindowPostMessageConnection('connection name');
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+
+    connection.connect();
+
+    const messageListener = jest.fn();
+    connection.addListener('message', messageListener);
+
+    (addEventListenerSpy.mock.calls[0]?.[1] as any)?.({
+      origin: 'definitelynotcore.app',
+      data: {
+        connectionName: 'connection name',
         message: {
           type: 'message',
           data: 'message-data',

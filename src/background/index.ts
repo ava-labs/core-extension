@@ -1,5 +1,5 @@
 // initialize sentry first to enable error collection
-import '../monitoring/initSentry';
+import '../monitoring/initSentryForBackground';
 import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { BackgroundRuntime } from './runtime/BackgroundRuntime';

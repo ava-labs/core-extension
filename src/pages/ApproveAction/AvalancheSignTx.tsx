@@ -26,6 +26,9 @@ import { AvalancheTxHeader } from './components/AvalancheTxHeader';
 import { ExcessiveBurnWarningDialog } from './components/ExcessiveBurnWarningDialog';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
+import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
+import { AddPermissionlessValidator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessValidator';
+import { AddPermissionlessDelegator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessDelegator';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -36,7 +39,6 @@ export function AvalancheSignTx() {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
   const [showBurnWarning, setShowBurnWarning] = useState(false);
-  const [isReadyToSignRemotely, setIsReadyToSignRemotely] = useState(false);
   const txData = action?.displayData.txData;
 
   useEffect(() => {
@@ -52,8 +54,8 @@ export function AvalancheSignTx() {
 
   useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
 
-  const signTx = useCallback(() => {
-    updateAction(
+  const signTx = useCallback(async () => {
+    await updateAction(
       {
         status: ActionStatus.SUBMITTING,
         id: requestId,
@@ -62,23 +64,15 @@ export function AvalancheSignTx() {
     );
   }, [isUsingLedgerWallet, requestId, updateAction, isWalletConnectAccount]);
 
-  const onApprove = useCallback(() => {
-    if (isWalletConnectAccount) {
-      setIsReadyToSignRemotely(true);
-      return;
-    }
-    signTx();
-  }, [isWalletConnectAccount, signTx]);
-
-  const rejectTx = useCallback(() => {
-    setIsReadyToSignRemotely(false);
-    cancelHandler();
-    window.close();
-  }, [cancelHandler]);
+  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
+    useApprovalHelpers({
+      onApprove: signTx,
+      onReject: cancelHandler,
+    });
 
   const renderDeviceApproval = useCallback(
-    ({ status, displayData }: Action) => {
-      if (status === ActionStatus.SUBMITTING || isReadyToSignRemotely) {
+    ({ displayData }: Action) => {
+      if (isApprovalOverlayVisible) {
         if (isUsingLedgerWallet) {
           return <LedgerApprovalOverlay displayData={displayData} />;
         }
@@ -86,19 +80,19 @@ export function AvalancheSignTx() {
         if (isWalletConnectAccount) {
           return (
             <WalletConnectApprovalOverlay
-              onReject={rejectTx}
-              onSubmit={signTx}
+              onReject={handleRejection}
+              onSubmit={handleApproval}
             />
           );
         }
       }
     },
     [
+      isApprovalOverlayVisible,
       isUsingLedgerWallet,
       isWalletConnectAccount,
-      rejectTx,
-      signTx,
-      isReadyToSignRemotely,
+      handleRejection,
+      handleApproval,
     ]
   );
 
@@ -135,6 +129,20 @@ export function AvalancheSignTx() {
             avaxPrice={tokenPrice}
           ></AddSubnetValidatorView>
         );
+      } else if (Avalanche.isAddPermissionlessValidatorTx(tx)) {
+        return (
+          <AddPermissionlessValidator
+            tx={tx}
+            avaxPrice={tokenPrice}
+          ></AddPermissionlessValidator>
+        );
+      } else if (Avalanche.isAddPermissionlessDelegatorTx(tx)) {
+        return (
+          <AddPermissionlessDelegator
+            tx={tx}
+            avaxPrice={tokenPrice}
+          ></AddPermissionlessDelegator>
+        );
       }
 
       return <>UNKNOWN TX</>;
@@ -158,7 +166,7 @@ export function AvalancheSignTx() {
       <ExcessiveBurnWarningDialog
         open={showBurnWarning}
         onContinue={() => setShowBurnWarning(false)}
-        onReject={rejectTx}
+        onReject={handleRejection}
       />
 
       <Stack
@@ -169,10 +177,15 @@ export function AvalancheSignTx() {
           gap: 1,
         }}
       >
-        <Button fullWidth size="large" color="secondary" onClick={rejectTx}>
+        <Button
+          fullWidth
+          size="large"
+          color="secondary"
+          onClick={handleRejection}
+        >
           {t('Reject')}
         </Button>
-        <Button fullWidth size="large" onClick={onApprove}>
+        <Button fullWidth size="large" onClick={handleApproval}>
           {t('Approve')}
         </Button>
       </Stack>

@@ -8,9 +8,10 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
     jest.resetAllMocks();
     realFetch = global.fetch;
     global.fetch = jest.fn().mockResolvedValue({
-      json: jest
-        .fn()
-        .mockResolvedValue({ featureFlags: { [FeatureGates.BRIDGE]: false } }),
+      json: jest.fn().mockResolvedValue({
+        featureFlags: { [FeatureGates.BRIDGE]: false },
+        featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
+      }),
     });
   });
 
@@ -35,15 +36,10 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
     );
   });
 
-  it('calls posthog api and returns the flags with disabled flag values', async () => {
+  it('properly calls posthog api', async () => {
     jest.spyOn(Date, 'now').mockReturnValue(1234);
 
-    expect(
-      await getFeatureFlags('token', 'userID', 'https://example.com')
-    ).toEqual({
-      ...DISABLED_FLAG_VALUES,
-      [FeatureGates.BRIDGE]: false,
-    });
+    getFeatureFlags('token', 'userID', 'https://example.com');
 
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch).toHaveBeenCalledWith(
@@ -53,6 +49,33 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         method: 'POST',
       }
+    );
+  });
+
+  it('does not omit disabled flags', async () => {
+    const { flags } = await getFeatureFlags(
+      'token',
+      'userID',
+      'https://example.com'
+    );
+
+    expect(flags).toEqual({
+      ...DISABLED_FLAG_VALUES,
+      [FeatureGates.BRIDGE]: false,
+    });
+  });
+
+  it('returns the feature flag payloads', async () => {
+    const { flagPayloads } = await getFeatureFlags(
+      'token',
+      'userID',
+      'https://example.com'
+    );
+
+    expect(flagPayloads).toEqual(
+      expect.objectContaining({
+        [FeatureGates.DEFI]: '>=1.60.0',
+      })
     );
   });
 });

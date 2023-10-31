@@ -11,9 +11,7 @@ import {
   getEvmAddressFromPubKey,
 } from '@avalabs/wallets-sdk';
 import { DerivedAddresses } from './components/DerivedAddresses';
-import { Network } from '@avalabs/chains-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
-import { useGetAvalancheNetwork } from '@src/hooks/useGetAvalancheNetwork';
 import { PubKeyType } from '@src/background/services/wallet/models';
 import { Trans, useTranslation } from 'react-i18next';
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
@@ -68,7 +66,6 @@ export function LedgerConnect({
   } = useLedgerContext();
   const { getAvaxBalance } = useGetAvaxBalance();
   const { setXpub, setXpubXP, setPublicKeys } = useOnboardingContext();
-  const { getAvalancheNetwork } = useGetAvalancheNetwork();
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
     LedgerStatus.LEDGER_UNINITIATED
   );
@@ -78,7 +75,6 @@ export function LedgerConnect({
   );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
-  const [avalancheNetwork, setAvalancheNetwork] = useState<Network>();
   const [dropdownDisabled, setDropdownDisabled] = useState(true);
   const { t } = useTranslation();
 
@@ -152,18 +148,8 @@ export function LedgerConnect({
   );
 
   useEffect(() => {
-    const initLedger = async () => {
-      await initLedgerTransport();
-    };
-    const initAvalancheNetwork = async () => {
-      const { avalancheNetwork: avaxNetwork } = await getAvalancheNetwork();
-      setAvalancheNetwork(avaxNetwork);
-    };
-    initLedger();
-    if (!avalancheNetwork) {
-      initAvalancheNetwork();
-    }
-  }, [avalancheNetwork, getAvalancheNetwork, initLedgerTransport]);
+    initLedgerTransport();
+  }, [initLedgerTransport]);
 
   const getPubKeys = useCallback(
     async (
@@ -355,7 +341,6 @@ export function LedgerConnect({
                 <Divider flexItem />
                 <DerivedAddresses
                   addresses={addresses}
-                  network={avalancheNetwork}
                   hideLoadinSkeleton={pathSpec === DerivationPath.BIP44}
                 />
               </Stack>

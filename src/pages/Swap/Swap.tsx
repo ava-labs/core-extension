@@ -26,8 +26,6 @@ import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
 import { calculateRate } from './utils';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import {
@@ -39,12 +37,11 @@ import {
   useTheme,
   Button,
   styled,
-  ToastCard,
   IconButton,
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -70,12 +67,8 @@ export function Swap() {
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
-  const isUsingLedgerWallet = useIsUsingLedgerWallet();
-  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
-  const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const { resetKeystoneRequest } = useKeystoneContext();
 
-  const [txInProgress, setTxInProgress] = useState<boolean>(false);
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
   const [slippageTolerance, setSlippageTolerance] = useState('1');
   const [isFromTokenSelectOpen, setIsFromTokenSelectOpen] = useState(false);
@@ -130,7 +123,9 @@ export function Swap() {
     if (destinationInputField === 'from') return maxFromValue ?? new BN(0);
   }, [destinationInputField, isLoading, maxFromValue]);
 
-  async function performSwap(pendingToastId?: string) {
+  async function performSwap() {
+    capture('SwapConfirmed');
+
     const {
       amount,
       fromTokenAddress,
@@ -147,12 +142,11 @@ export function Swap() {
       !fromTokenDecimals ||
       !amount
     ) {
-      setTxInProgress(false);
-
       return;
     }
 
     const slippage = slippageTolerance || '0';
+
     const [result, error] = await resolve(
       swap(
         fromTokenAddress,
@@ -167,21 +161,10 @@ export function Swap() {
         parseFloat(slippage)
       )
     );
-    setTxInProgress(false);
     if (error) {
-      toast.custom(
-        <ToastCard
-          onDismiss={() => toast.remove(pendingToastId)}
-          variant="error"
-        >
-          {t('Swap Failed')}
-        </ToastCard>,
-        {
-          id: pendingToastId,
-          duration: Infinity,
-        }
-      );
+      toast.error(t('Swap Failed'));
       setIsReviewOrderOpen(false);
+      history.push('/home');
 
       return;
     }
@@ -189,28 +172,20 @@ export function Swap() {
       title: t('Swap Successful'),
       url: network && getExplorerAddressByNetwork(network, result.swapTxHash),
       label: t('View in Explorer'),
-      id: pendingToastId,
     });
     history.push('/home');
   }
 
-  async function onSubmit() {
-    let pendingToastId = '';
-
-    if (
-      !isUsingLedgerWallet &&
-      !isUsingKeystoneWallet &&
-      !isUsingWalletConnectAccount
-    ) {
-      history.push('/home');
-      pendingToastId = toast.loading(t('Swap pending...'));
-    }
-
-    if (!isUsingWalletConnectAccount) {
-      performSwap(pendingToastId);
-    }
-    setTxInProgress(true);
-  }
+  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
+    useApprovalHelpers({
+      onApprove: performSwap,
+      onReject: () => {
+        resetKeystoneRequest();
+        capture('SwapCancelled');
+        setIsReviewOrderOpen(false);
+      },
+      pendingMessage: t('Swap pending...'),
+    });
 
   if (!isSwapAvailable) {
     return (
@@ -424,14 +399,8 @@ export function Swap() {
         <ReviewOrder
           fromToken={selectedFromToken}
           toToken={selectedToToken}
-          onClose={() => {
-            capture('SwapCancelled');
-            setIsReviewOrderOpen(false);
-          }}
-          onConfirm={() => {
-            capture('SwapConfirmed');
-            onSubmit();
-          }}
+          onClose={handleRejection}
+          onConfirm={handleApproval}
           optimalRate={optimalRate}
           gasPrice={customGasPrice || networkFee.low.maxFee}
           slippage={slippageTolerance}
@@ -465,7 +434,7 @@ export function Swap() {
         />
       )}
 
-      {txInProgress && (
+      {isApprovalOverlayVisible && (
         <TxInProgress
           fee={(
             ((customGasPrice || networkFee?.low.maxFee || 0n) *
@@ -475,11 +444,8 @@ export function Swap() {
           feeSymbol={network?.networkToken.symbol}
           amount={fromTokenValue?.amount}
           symbol={selectedFromToken?.symbol}
-          onReject={() => {
-            resetKeystoneRequest();
-            setTxInProgress(false);
-          }}
-          onSubmit={performSwap}
+          onReject={handleRejection}
+          onSubmit={handleApproval}
         />
       )}
     </Stack>

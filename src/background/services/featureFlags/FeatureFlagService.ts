@@ -1,5 +1,7 @@
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
+import browser from 'webextension-polyfill';
+
 import { AnalyticsService } from '../analytics/AnalyticsService';
 import {
   DEFAULT_FLAGS,
@@ -13,6 +15,7 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { formatAndLog } from '../../../utils/logging';
 import { getFeatureFlags } from './utils/getFeatureFlags';
+import { coerce, satisfies, validRange } from 'semver';
 
 @singleton()
 export class FeatureFlagService {
@@ -40,6 +43,52 @@ export class FeatureFlagService {
     if (!newFlags[FeatureGates.EVERYTHING] && !this.lockService.locked) {
       this.lockService.lock();
     }
+  }
+
+  #evaluateFeatureFlags(
+    rawFlags: FeatureFlags,
+    payloads?: Partial<Record<FeatureGates, string>>
+  ): FeatureFlags {
+    // If there are no flag payloads to evaluate, just return the bare flags.
+    if (!payloads) {
+      return rawFlags;
+    }
+
+    const coreVersion = coerce(browser.runtime.getManifest().version);
+
+    // If we don't know the current Core version, default to whatever was returned by the API
+    if (!coreVersion) {
+      return rawFlags;
+    }
+
+    const evaluatedFlags = Object.fromEntries(
+      Object.entries(payloads)
+        .filter(([flagName]) => rawFlags[flagName]) // Only evaluate flags that are enabled
+        .map(([flagName, payload]) => {
+          let range = '';
+
+          try {
+            range = JSON.parse(payload);
+          } catch {
+            // If the payload is not JSON-parsable, default to disabled state.
+            return [flagName, false];
+          }
+
+          const versionRange = validRange(range);
+
+          // Default to disabled state if the payload string is not a valid semver range.
+          if (!versionRange) {
+            return [flagName, false];
+          }
+
+          return [flagName, satisfies(coreVersion, versionRange)];
+        })
+    );
+
+    return {
+      ...rawFlags,
+      ...evaluatedFlags,
+    };
   }
 
   private async updateFeatureFlags(newFlags: FeatureFlags) {
@@ -101,12 +150,14 @@ export class FeatureFlagService {
 
     const getAndDispatchFlags = async () => {
       try {
-        const flags = await getFeatureFlags(
+        const { flags, flagPayloads } = await getFeatureFlags(
           process.env.POSTHOG_KEY,
           analyticsState?.userId ?? '',
           process.env.POSTHOG_URL ?? 'https://app.posthog.com'
         );
-        await this.updateFeatureFlags(flags);
+        await this.updateFeatureFlags(
+          this.#evaluateFeatureFlags(flags, flagPayloads)
+        );
       } catch (err) {
         console.error((err as unknown as Error).message);
       }

@@ -27,6 +27,7 @@ module.exports = {
       // Return the string '__NOT_TRANSLATED__' for other languages
       return '';
     },
+    sort: true,
     resource: {
       loadPath: '/localization/locales/{{lng}}/{{ns}}.json',
       savePath: 'localization/locales/{{lng}}/{{ns}}.json',

@@ -1,10 +1,12 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
 import { Network } from '@avalabs/chains-sdk';
 
+function getAvalancheExplorerBaseUrl(isMainnet = true) {
+  return isMainnet ? 'https://snowtrace.io' : 'https://testnet.snowtrace.io';
+}
+
 function getAvalancheTxLink(hash: string, isMainnet = true) {
-  const root = isMainnet
-    ? 'https://snowtrace.io'
-    : 'https://testnet.snowtrace.io';
+  const root = getAvalancheExplorerBaseUrl(isMainnet);
   return `${root}/tx/${hash}`;
 }
 
@@ -32,6 +34,12 @@ export function getExplorerAddress(
     default:
       return getEtherscanLink(txHash, isMainnet);
   }
+}
+
+export function getAvalancheAddressLink(hash: string, isMainnet = true) {
+  const root = getAvalancheExplorerBaseUrl(isMainnet);
+
+  return `${root}/address/${hash}`;
 }
 
 export function getExplorerAddressByNetwork(

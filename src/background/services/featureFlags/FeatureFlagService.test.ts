@@ -1,9 +1,12 @@
 import { noop } from '@avalabs/utils-sdk';
+import browser from 'webextension-polyfill';
+
 import { AnalyticsEvents } from '../analytics/models';
 import { LockService } from '../lock/LockService';
+import { StorageService } from '../storage/StorageService';
+
 import { FeatureFlagService } from './FeatureFlagService';
 import { DEFAULT_FLAGS, FeatureFlagEvents, FeatureGates } from './models';
-import { StorageService } from '../storage/StorageService';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 
 jest.mock('./utils/getFeatureFlags');
@@ -30,6 +33,10 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       POSTHOG_KEY: 'posthogkey',
       POSTHOG_URL: 'posthogurl',
     };
+
+    jest
+      .mocked(getFeatureFlags)
+      .mockResolvedValue({ flags: DEFAULT_FLAGS, flagPayloads: {} });
   });
 
   afterEach(() => {
@@ -173,7 +180,9 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       ...DEFAULT_FLAGS,
       newflag: true,
     };
-    jest.mocked(getFeatureFlags).mockResolvedValue(newFlags);
+    jest
+      .mocked(getFeatureFlags)
+      .mockResolvedValue({ flags: newFlags, flagPayloads: {} });
 
     const featureFlagsService = new FeatureFlagService(
       analyticsServiceMock,
@@ -200,7 +209,9 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       ...DEFAULT_FLAGS,
       newflag: true,
     };
-    jest.mocked(getFeatureFlags).mockResolvedValue(newFlags);
+    jest
+      .mocked(getFeatureFlags)
+      .mockResolvedValue({ flags: newFlags, flagPayloads: {} });
 
     const featureFlagsService = new FeatureFlagService(
       analyticsServiceMock,
@@ -227,6 +238,150 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     expect(eventSubscription).toHaveBeenCalledTimes(1);
   });
 
+  describe('when a feature flag arrives with a custom payload', () => {
+    describe('but the payload is not a valid semver range', () => {
+      let featureFlagsService: FeatureFlagService;
+
+      beforeEach(async () => {
+        jest.mocked(getFeatureFlags).mockResolvedValue({
+          flags: {
+            [FeatureGates.DEFI]: true,
+            [FeatureGates.SEND]: true,
+            [FeatureGates.SWAP]: false,
+          } as any,
+          flagPayloads: {
+            [FeatureGates.DEFI]: JSON.stringify('a.b.c'), // Gotta stringify it, that's how it will come from Posthog
+          },
+        });
+
+        featureFlagsService = new FeatureFlagService(
+          analyticsServiceMock,
+          lockServiceMock,
+          storageServiceMock
+        );
+
+        await new Promise(process.nextTick);
+      });
+
+      it('the version-specific feature flag is disabled', async () => {
+        expect(featureFlagsService.featureFlags).toEqual(
+          expect.objectContaining({
+            [FeatureGates.DEFI]: false,
+          })
+        );
+      });
+
+      it('the basic feature flags are left in-tact', async () => {
+        expect(featureFlagsService.featureFlags).toEqual(
+          expect.objectContaining({
+            [FeatureGates.SEND]: true,
+            [FeatureGates.SWAP]: false,
+          })
+        );
+      });
+    });
+
+    describe('and the payload is a valid semver range', () => {
+      it.each([
+        {
+          coreVersion: '1.32.8',
+          flagVersionRange: '^1.32',
+          isEnabled: true,
+        },
+        {
+          coreVersion: '1.34.8',
+          flagVersionRange: '^1.32',
+          isEnabled: true,
+        },
+        {
+          coreVersion: '1.32.8',
+          flagVersionRange: '~1.32',
+          isEnabled: true,
+        },
+        {
+          coreVersion: '1.33.0',
+          flagVersionRange: '~1.32',
+          isEnabled: false,
+        },
+        {
+          coreVersion: '1.40.8',
+          flagVersionRange: '>=1.33.7',
+          isEnabled: true,
+        },
+        {
+          coreVersion: '1.40.8',
+          flagVersionRange: '1.33.x',
+          isEnabled: false,
+        },
+        {
+          coreVersion: '1.40.8',
+          flagVersionRange: '1.40.x',
+          isEnabled: true,
+        },
+        {
+          coreVersion: '1.40.8',
+          flagVersionRange: '1.33 - 1.41',
+          isEnabled: true,
+        },
+        {
+          coreVersion: '1.32.8',
+          flagVersionRange: '1.33 - 1.41',
+          isEnabled: false,
+        },
+        {
+          coreVersion: '1.32.8',
+          flagVersionRange: '1.32 || 1.33',
+          isEnabled: true,
+        },
+        {
+          coreVersion: '1.99.99',
+          flagVersionRange: '^2',
+          isEnabled: false,
+        },
+        {
+          coreVersion: '2.0.0',
+          flagVersionRange: '^2',
+          isEnabled: true,
+        },
+      ])(
+        'enables the feature flag if current Core version satisfies configured range',
+        async ({ coreVersion, flagVersionRange, isEnabled }) => {
+          jest
+            .spyOn(browser.runtime, 'getManifest')
+            .mockReturnValue({ version: coreVersion } as any);
+
+          jest.mocked(getFeatureFlags).mockResolvedValue({
+            flags: {
+              [FeatureGates.BUY]: false,
+              [FeatureGates.DEFI]: true,
+              [FeatureGates.SEND]: true,
+              [FeatureGates.SWAP]: false,
+            } as any,
+            flagPayloads: {
+              [FeatureGates.BUY]: JSON.stringify(flagVersionRange),
+              [FeatureGates.DEFI]: JSON.stringify(flagVersionRange),
+            },
+          });
+
+          const featureFlagsService = new FeatureFlagService(
+            analyticsServiceMock,
+            lockServiceMock,
+            storageServiceMock
+          );
+
+          await new Promise(process.nextTick);
+
+          expect(featureFlagsService.featureFlags).toEqual({
+            [FeatureGates.BUY]: false, // Comes disabled, should stay disabled even though it has a version attached.
+            [FeatureGates.DEFI]: isEnabled, // Comes enabled with a payload, gotta be matched against the current version
+            [FeatureGates.SEND]: true, // Comes without a payload, should stay in-tact
+            [FeatureGates.SWAP]: false, // Comes without a payload, should stay in-tact
+          });
+        }
+      );
+    });
+  });
+
   describe('when feature flags overrides  are set in session storage', () => {
     let featureFlagsService: FeatureFlagService;
     const eventSubscription = jest.fn();
@@ -247,7 +402,9 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
         .mocked(storageServiceMock.loadUnencrypted)
         .mockResolvedValue(flagOverrides);
 
-      jest.mocked(getFeatureFlags).mockResolvedValue(productionFlags);
+      jest
+        .mocked(getFeatureFlags)
+        .mockResolvedValue({ flags: productionFlags, flagPayloads: {} });
       featureFlagsService = new FeatureFlagService(
         analyticsServiceMock,
         lockServiceMock,
@@ -279,7 +436,9 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
         ...DEFAULT_FLAGS,
         everything: false,
       };
-      jest.mocked(getFeatureFlags).mockResolvedValue(newFlags);
+      jest
+        .mocked(getFeatureFlags)
+        .mockResolvedValue({ flags: newFlags, flagPayloads: {} });
 
       const featureFlagsService = new FeatureFlagService(
         analyticsServiceMock,
@@ -304,9 +463,11 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
         [FeatureGates.EVERYTHING]: true,
         [FeatureGates.SWAP]: true,
         [FeatureGates.BRIDGE]: false,
-      };
+      } as any;
 
-      jest.mocked(getFeatureFlags).mockResolvedValue(flags as any);
+      jest
+        .mocked(getFeatureFlags)
+        .mockResolvedValue({ flags, flagPayloads: {} });
       service = new FeatureFlagService(
         analyticsServiceMock,
         lockServiceMock,

@@ -1,7 +1,5 @@
-import extension from 'extensionizer';
-
 import { CONTENT_SCRIPT, INPAGE_SCRIPT, KEEPALIVE_SCRIPT } from './common';
-import { Runtime } from 'webextension-polyfill';
+import browser, { Runtime } from 'webextension-polyfill';
 import WindowPostMessageConnection from './background/utils/messaging/WindowPostMessageConnection';
 import PortConnection from './background/utils/messaging/PortConnection';
 import onPageActivated from './background/providers/utils/onPageActivated';
@@ -12,7 +10,7 @@ function setupStream() {
    * to the dApp
    */
   const backgroundConnection = new PortConnection(
-    extension.runtime.connect({
+    browser.runtime.connect({
       name: CONTENT_SCRIPT,
     })
   );
@@ -36,7 +34,7 @@ function setupStream() {
 
   function keepAlive() {
     if (backgroundKeepaliveConnection) return;
-    backgroundKeepaliveConnection = extension.runtime.connect({
+    backgroundKeepaliveConnection = browser.runtime.connect({
       name: KEEPALIVE_SCRIPT,
     });
     backgroundKeepaliveConnection?.onDisconnect.addListener(() => {

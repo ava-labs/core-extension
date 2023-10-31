@@ -1,7 +1,6 @@
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { AddressType } from '../LedgerConnect';
-import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { Network } from '@avalabs/chains-sdk';
+import { getAvalancheAddressLink } from '@src/utils/getExplorerAddress';
 import { useTranslation } from 'react-i18next';
 import {
   Card,
@@ -17,13 +16,9 @@ import {
 
 interface DerivedAddressesProps {
   addresses: AddressType[];
-  network?: Network;
   hideLoadinSkeleton?: boolean;
 }
-export function DerivedAddresses({
-  addresses,
-  network,
-}: DerivedAddressesProps) {
+export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -42,13 +37,8 @@ export function DerivedAddresses({
           </Typography>
           <Stack alignItems="space-between" divider={<Divider flexItem />}>
             {addresses.map((addressData, index) => {
-              const explorerLink = network
-                ? getExplorerAddressByNetwork(
-                    network,
-                    addressData.address,
-                    'address'
-                  )
-                : null;
+              const explorerLink = getAvalancheAddressLink(addressData.address);
+
               return (
                 <Stack key={index}>
                   <Stack

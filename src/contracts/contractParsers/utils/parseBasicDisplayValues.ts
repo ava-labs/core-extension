@@ -15,8 +15,11 @@ export function parseBasicDisplayValues(
 
   let displayValue = '';
 
-  if (description?.args._amount) {
-    const big = bnToBig(hexToBN(description?.args._amount.toHexString()), 18);
+  if (
+    description?.args._amount &&
+    typeof description.args._amount === 'bigint'
+  ) {
+    const big = bnToBig(hexToBN(description?.args._amount.toString(16)), 18);
     displayValue = bigToLocaleString(big, 18);
   } else if (request.value) {
     const big = bnToBig(hexToBN(request.value), network.networkToken.decimals);

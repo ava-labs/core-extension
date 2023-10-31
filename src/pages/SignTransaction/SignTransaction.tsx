@@ -46,6 +46,7 @@ import Dialog from '@src/components/common/Dialog';
 import { TransactionErrorDialog } from './TransactionErrorDialog';
 import { WalletConnectApprovalOverlay } from './WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
@@ -111,12 +112,15 @@ export function SignTransactionPage() {
       );
   }, [tokens, params.maxFeePerGas, params.gasLimit]);
 
-  const cancelHandler = useCallback(() => {
-    updateTransaction({
-      status: TxStatus.ERROR_USER_CANCELED,
-      id: id,
-    });
-  }, [id, updateTransaction]);
+  const cancelHandler = () => {
+    if (id) {
+      updateTransaction({
+        status: TxStatus.ERROR_USER_CANCELED,
+        id: id,
+      });
+      window.close();
+    }
+  };
 
   useWindowGetsClosedOrHidden(cancelHandler);
 
@@ -135,39 +139,19 @@ export function SignTransactionPage() {
     ? hexToBN(displayData.approveData.limit)
     : undefined;
 
-  const submit = () => {
-    updateTransaction({
+  const submit = async () => {
+    setTransactionProgressState(TransactionProgressState.PENDING);
+    await updateTransaction({
       status: TxStatus.SUBMITTING,
       id: id,
     }).finally(() => window.close());
   };
 
-  const onApproveClick = () => {
-    setTransactionProgressState(TransactionProgressState.PENDING);
-    if (id && !isUsingWalletConnectAccount) submit();
-
-    /*
-    When wallet type is ledger or keystone, we need to show to the user that the interaction with the device is needed. 
-    In this case, the popup will stay open until the promise from updateTransaction is resolved. 
-      */
-    if (
-      !isUsingLedgerWallet &&
-      !isUsingKeystoneWallet &&
-      !isUsingWalletConnectAccount
-    ) {
-      window.close();
-    }
-  };
-
-  const onCancel = () => {
-    if (id) {
-      updateTransaction({
-        status: TxStatus.ERROR_USER_CANCELED,
-        id: id,
-      });
-      window.close();
-    }
-  };
+  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
+    useApprovalHelpers({
+      onApprove: submit,
+      onReject: cancelHandler,
+    });
 
   if (!Object.keys(displayData).length) {
     return (
@@ -208,30 +192,20 @@ export function SignTransactionPage() {
 
   return (
     <>
-      {transactionProgressState === TransactionProgressState.PENDING && (
+      {isApprovalOverlayVisible && (
         <>
           {isUsingLedgerWallet && (
             <LedgerApprovalOverlay displayData={displayData} />
           )}
 
           {isUsingKeystoneWallet && (
-            <KeystoneApprovalOverlay
-              onReject={() => {
-                if (id) {
-                  updateTransaction({
-                    status: TxStatus.ERROR_USER_CANCELED,
-                    id: id,
-                  });
-                  window.close();
-                }
-              }}
-            />
+            <KeystoneApprovalOverlay onReject={handleRejection} />
           )}
 
           {isUsingWalletConnectAccount && (
             <WalletConnectApprovalOverlay
-              onReject={onCancel}
-              onSubmit={submit}
+              onReject={handleRejection}
+              onSubmit={handleApproval}
             />
           )}
         </>
@@ -397,7 +371,7 @@ export function SignTransactionPage() {
             isLoading={!isReadyForApproval}
             size="large"
             fullWidth
-            onClick={onApproveClick}
+            onClick={handleApproval}
           >
             {t('Approve')}
           </Button>

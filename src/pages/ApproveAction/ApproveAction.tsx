@@ -27,7 +27,7 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
-import { useState } from 'react';
+import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 
 export function ApproveAction() {
   const { t } = useTranslation();
@@ -38,7 +38,22 @@ export function ApproveAction() {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
-  const [isReadyToSignRemotely, setIsReadyToSignRemotely] = useState(false);
+
+  const submitHandler = async () => {
+    await updateAction(
+      {
+        status: ActionStatus.SUBMITTING,
+        id: requestId,
+      },
+      isUsingLedgerWallet || isUsingKeystoneWallet || isWalletConnectAccount // wait for the response only for device wallets
+    );
+  };
+
+  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
+    useApprovalHelpers({
+      onApprove: submitHandler,
+      onReject: cancelHandler,
+    });
 
   useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
 
@@ -57,43 +72,17 @@ export function ApproveAction() {
     );
   }
 
-  const onReject = () => {
-    if (isReadyToSignRemotely) {
-      setIsReadyToSignRemotely(false);
-    }
-    cancelHandler();
-    window.close();
-  };
-
-  const submitHandler = () => {
-    updateAction(
-      {
-        status: ActionStatus.SUBMITTING,
-        id: requestId,
-      },
-      isUsingLedgerWallet || isUsingKeystoneWallet || isWalletConnectAccount // wait for the response only for device wallets
-    );
-  };
-
-  const approveClickHandler = () => {
-    if (isWalletConnectAccount) {
-      setIsReadyToSignRemotely(true);
-      return;
-    }
-    submitHandler();
-  };
-
   const renderDeviceApproval = () => {
-    if (action.status === ActionStatus.SUBMITTING || isReadyToSignRemotely) {
+    if (isApprovalOverlayVisible) {
       if (isUsingLedgerWallet)
         return <LedgerApprovalOverlay displayData={action.displayData} />;
       else if (isUsingKeystoneWallet)
-        return <KeystoneApprovalOverlay onReject={onReject} />;
+        return <KeystoneApprovalOverlay onReject={handleRejection} />;
       else if (isWalletConnectAccount)
         return (
           <WalletConnectApprovalOverlay
-            onSubmit={submitHandler}
-            onReject={onReject}
+            onSubmit={handleApproval}
+            onReject={handleRejection}
           />
         );
     }
@@ -154,7 +143,7 @@ export function ApproveAction() {
               size="large"
               fullWidth
               disabled={action.status === ActionStatus.SUBMITTING}
-              onClick={onReject}
+              onClick={handleRejection}
             >
               {t('Reject')}
             </Button>
@@ -165,7 +154,7 @@ export function ApproveAction() {
               disabled={
                 action.status === ActionStatus.SUBMITTING || !!action.error
               }
-              onClick={() => approveClickHandler()}
+              onClick={handleApproval}
             >
               {t('Approve')}
             </Button>

@@ -1,13 +1,9 @@
 import * as Sentry from '@sentry/browser';
-import browser from 'webextension-polyfill';
+import sharedSentryConfig from './sharedSentryConfig';
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.RELEASE || 'dev',
-    release: `core-extension@${browser.runtime.getManifest().version}`,
-    debug: process.env.NODE_ENV === 'development',
-    tracesSampleRate: 0.003,
+    ...sharedSentryConfig,
     integrations: [
       /**
        * eliminating dom and history from the breadcrumbs. This should eliminate
@@ -21,11 +17,6 @@ if (process.env.SENTRY_DSN) {
         history: false,
         console: false,
       }),
-    ],
-    ignoreErrors: [
-      /^.*The user aborted a request\.$/, // ignore errors caused by chrome's throttling
-      /^.*could not detect network.*$/, // ignore ethers provider connection errors
-      /^.*Failed to fetch$/, // ignore network errors
     ],
   });
 }

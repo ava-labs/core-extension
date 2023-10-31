@@ -30,7 +30,10 @@ export async function getFeatureFlags(
     ver,
   });
 
-  const response: { featureFlags: { [key in FeatureGates]: boolean } } = await (
+  const response: {
+    featureFlags: { [key in FeatureGates]: boolean };
+    featureFlagPayloads: Partial<Record<FeatureGates, string>>;
+  } = await (
     await fetch(`${posthogUrl}/decide/?${params}`, {
       method: 'POST',
       body: 'data=' + encodeURIComponent(data),
@@ -40,5 +43,11 @@ export async function getFeatureFlags(
 
   // Posthog API does not return disabled flags on their `/decide` api endpoint
   // Define disabled state values for the flags
-  return { ...DISABLED_FLAG_VALUES, ...response.featureFlags };
+  return {
+    flags: {
+      ...DISABLED_FLAG_VALUES,
+      ...response.featureFlags,
+    },
+    flagPayloads: response.featureFlagPayloads ?? {},
+  };
 }

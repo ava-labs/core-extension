@@ -10,8 +10,13 @@ export default class WindowPostMessageConnection extends AbstractConnection {
     this.#channel = window;
   }
 
-  #messageListener = ({ data: { connectionName, message } }) => {
-    if (connectionName === this.name) return this.onMessage(message);
+  #messageListener = ({ origin, data: { connectionName, message } }) => {
+    // ignore cross origin messages and messages from other connections
+    if (origin !== window.location.origin || connectionName !== this.name) {
+      return;
+    }
+
+    return this.onMessage(message);
   };
 
   _connect = () => {
