@@ -106,7 +106,7 @@ export const mockConfig: AppConfigWithFullStaticFees = {
       avalanche: 'avalancheAddress',
       btc: 'btcAddress',
     },
-    offboardDelaySeconds: 1,
+    offboardDelaySeconds: 300,
   },
   nonCriticalBitcoin: {
     networkInfo: {

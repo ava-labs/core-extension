@@ -128,7 +128,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         operationMode: 'normal',
         operatorAddress: 'operatorAddressBtc',
         operatorEvmAddress: 'operatorEvmAddressBtc',
-        offboardDelaySeconds: 1,
+        offboardDelaySeconds: 300,
       },
       nonCriticalBitcoin: {
         networkInfo: {

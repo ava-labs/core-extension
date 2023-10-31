@@ -17,6 +17,7 @@ jest.mock('@avalabs/avalanchejs-v2');
 jest.mock('@avalabs/wallets-sdk');
 
 describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts', () => {
+  const env = process.env;
   const request = {
     id: '123',
     method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
@@ -55,6 +56,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   const networkServiceMock = {
     getAvalanceProviderXP: getAvalanceProviderXPMock,
     getAvalancheNetworkXP: getAvalancheNetworkXPMock,
+    isMainnet: () => false,
   };
   const accountsServiceMock = {};
   const unsignedTxJson = { foo: 'bar' };
@@ -72,6 +74,19 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   const providerMock = {
     issueTxHex: issueTxHexMock,
   };
+  const utxosMock = [{ utxoId: '1' }, { utxoId: '2' }];
+
+  beforeAll(() => {
+    process.env = {
+      ...env,
+      GLACIER_URL: 'https://glacierurl.example',
+      GLACIER_API_KEY: 'apiKey',
+    };
+  });
+
+  afterAll(() => {
+    process.env = env;
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -86,6 +101,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     openApprovalWindowSpy.mockResolvedValue(undefined);
     (accountsServiceMock as any).activeAccount = activeAccountMock;
     (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(AVM);
+    (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValue(utxosMock);
     (utils.hexToBuffer as jest.Mock).mockReturnValue(txBytes);
   });
 
@@ -237,9 +253,17 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         result: DEFERRED_RESPONSE,
       });
 
+      expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
+        transactionHex: request.params.transactionHex,
+        chainAlias: request.params.chainAlias,
+        isTestnet: true,
+        url: process.env.GLACIER_URL,
+        token: process.env.GLACIER_API_KEY,
+      });
+
       expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
         tx,
-        vm: AVM,
+        utxos: utxosMock,
         provider: providerMock,
         fromAddressBytes: [new Uint8Array([0, 1, 2])],
       });
@@ -285,10 +309,18 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         result: DEFERRED_RESPONSE,
       });
 
+      expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
+        transactionHex: request.params.transactionHex,
+        chainAlias: request.params.chainAlias,
+        isTestnet: true,
+        url: process.env.GLACIER_URL,
+        token: process.env.GLACIER_API_KEY,
+      });
+
       expect(Avalanche.createAvalancheEvmUnsignedTx).toHaveBeenCalledWith({
         txBytes: new Uint8Array([0, 1, 2]),
+        utxos: utxosMock,
         vm: EVM,
-        provider: providerMock,
         fromAddress: activeAccountMock.addressCoreEth,
       });
     });

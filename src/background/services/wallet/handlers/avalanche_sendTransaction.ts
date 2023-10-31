@@ -61,11 +61,19 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
       };
     }
 
+    const utxos = await Avalanche.getUtxosByTxFromGlacier({
+      transactionHex,
+      chainAlias,
+      isTestnet: !this.networkService.isMainnet(),
+      url: process.env.GLACIER_URL as string,
+      token: process.env.GLACIER_API_KEY,
+    });
+
     if (vm === EVM) {
       unsignedTx = await Avalanche.createAvalancheEvmUnsignedTx({
         txBytes,
         vm,
-        provider,
+        utxos,
         fromAddress: currentAddress,
       });
     } else {
@@ -97,7 +105,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
 
       unsignedTx = await Avalanche.createAvalancheUnsignedTx({
         tx,
-        vm,
+        utxos,
         provider,
         fromAddressBytes,
       });
