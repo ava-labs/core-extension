@@ -1,11 +1,4 @@
-import {
-  CircularProgress,
-  Dialog,
-  IconButton,
-  Stack,
-  Typography,
-  XIcon,
-} from '@avalabs/k2-components';
+import { CircularProgress, Stack } from '@avalabs/k2-components';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,17 +9,15 @@ import { useRequiredSession } from '@src/components/common/walletConnect/useRequ
 import { WalletConnectApprovalReview } from './components/WalletConnectApproval/WalletConnectApprovalReview';
 import { WalletConnectApprovalConnect } from './components/WalletConnectApproval/WalletConnectApprovalConnect';
 import { WalletConnectApprovalSent } from './components/WalletConnectApproval/WalletConnectApprovalSent';
-
-export enum ApprovalStep {
-  APPROVAL,
-  CONNECT,
-  SENT,
-  LOADING,
-}
+import { RemoteApprovalDialog } from './components/RemoteApproval/RemoteApprovalDialog';
+import {
+  ApprovalStep,
+  getActiveStep,
+} from './utils/getActiveStepForRemoteApproval';
 
 interface WalletConnectApprovalOverlayProps {
   onReject: () => void;
-  onSubmit: () => void;
+  onSubmit: () => Promise<unknown>;
   requiredSignatures?: number;
   currentSignature?: number;
 }
@@ -50,18 +41,11 @@ export function WalletConnectApprovalOverlay({
   } = useRequiredSession();
   const [requestSent, setRequestSent] = useState(false);
 
-  const activeStep = useMemo(() => {
-    if (requestSent) {
-      return ApprovalStep.SENT;
-    }
-    if (activeSession && !isNewConnectionRequired) {
-      return ApprovalStep.APPROVAL;
-    }
-    if (isNewConnectionRequired) {
-      return ApprovalStep.CONNECT;
-    }
-    return ApprovalStep.LOADING;
-  }, [requestSent, isNewConnectionRequired, activeSession]);
+  const activeStep = useMemo(
+    () => getActiveStep(requestSent, activeSession, isNewConnectionRequired),
+
+    [requestSent, isNewConnectionRequired, activeSession]
+  );
 
   const pageTitle = useMemo(() => {
     switch (activeStep) {
@@ -74,7 +58,7 @@ export function WalletConnectApprovalOverlay({
     }
   }, [activeStep, t]);
 
-  function signHandler() {
+  function submitHandler() {
     setRequestSent(true);
     onSubmit();
   }
@@ -86,29 +70,7 @@ export function WalletConnectApprovalOverlay({
   }, [activeAccount, activeNetwork, establishRequiredSession]);
 
   return (
-    <Dialog
-      open
-      showCloseIcon={false}
-      PaperProps={{
-        sx: {
-          m: 2,
-          width: 1,
-          height: 1,
-          maxWidth: 'none',
-          position: 'relative',
-        },
-      }}
-    >
-      <IconButton
-        onClick={onReject}
-        sx={{ position: 'absolute', top: 8, right: 8, p: 1 }}
-        disableRipple
-      >
-        <XIcon size={24} />
-      </IconButton>
-      <Typography variant="h4" sx={{ py: 3, pl: 3, pr: 6 }}>
-        {pageTitle}
-      </Typography>
+    <RemoteApprovalDialog onReject={onReject} pageTitle={pageTitle}>
       {
         {
           [ApprovalStep.LOADING]: (
@@ -128,7 +90,7 @@ export function WalletConnectApprovalOverlay({
               session={activeSession}
               isValidSession={isValidSession}
               onReject={onReject}
-              onSign={signHandler}
+              onSign={submitHandler}
             />
           ),
           [ApprovalStep.CONNECT]: (
@@ -147,13 +109,13 @@ export function WalletConnectApprovalOverlay({
           ),
           [ApprovalStep.SENT]: (
             <WalletConnectApprovalSent
-              onResend={signHandler}
+              onResend={submitHandler}
               requiredSignatures={requiredSignatures}
               currentSignature={currentSignature}
             />
           ),
         }[activeStep]
       }
-    </Dialog>
+    </RemoteApprovalDialog>
   );
 }

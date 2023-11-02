@@ -570,9 +570,7 @@ export function Bridge() {
                 resetKeystoneRequest();
                 setIsPending(false);
               }}
-              onSubmit={() => {
-                handleTransfer();
-              }}
+              onSubmit={handleTransfer}
             />
           )}
         </>

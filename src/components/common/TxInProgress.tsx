@@ -17,7 +17,7 @@ interface TxInProgressProps {
   requiredSignatures?: number;
   currentSignature?: number;
   onReject?: () => void;
-  onSubmit?: () => void;
+  onSubmit?: () => Promise<unknown>;
 }
 
 export function TxInProgress({

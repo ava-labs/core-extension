@@ -141,6 +141,7 @@ export function SignTransactionPage() {
 
   const submit = async () => {
     setTransactionProgressState(TransactionProgressState.PENDING);
+
     await updateTransaction({
       status: TxStatus.SUBMITTING,
       id: id,
