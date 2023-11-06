@@ -111,7 +111,7 @@ export function ActiveNetworkWidget({
                         }
                         sx={{ cursor: 'pointer' }}
                       >
-                        {Object.values(bridgeTransactions).length}
+                        <>{Object.values(bridgeTransactions).length}</>
                       </Tooltip>
                     ) : null
                   }

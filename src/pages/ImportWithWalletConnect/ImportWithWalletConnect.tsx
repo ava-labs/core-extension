@@ -5,18 +5,37 @@ import { Stack, useTheme } from '@avalabs/k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { WalletConnectCircledIcon } from './components/WalletConnectCircledIcon';
-import WalletConnectConnector from './components/WallectConnectConnector';
+import WalletConnectConnector from './components/WalletConnectConnector';
 
 import { AccountsTab } from '../Accounts/Accounts';
+import { OnConnectCallback } from '@src/contexts/WalletConnectContextProvider/models';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
-export default function ImportWithWalletConnect() {
+type ImportWithWalletConnectProps = {
+  onConnect?: OnConnectCallback;
+  appIcon?: React.ReactElement;
+};
+
+export default function ImportWithWalletConnect({
+  onConnect,
+  appIcon,
+}: ImportWithWalletConnectProps) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { goBack, replace } = useHistory();
+  const { capture } = useAnalyticsContext();
 
-  const onConnect = useCallback(() => {
-    replace(`/accounts?activeTab=${AccountsTab.Imported}`);
-  }, [replace]);
+  const handleSuccessfulConnection: OnConnectCallback = useCallback(
+    (result) => {
+      if (typeof onConnect === 'function') {
+        onConnect(result);
+      } else {
+        capture('ImportWithWalletConnect_Success');
+        replace(`/accounts?activeTab=${AccountsTab.Imported}`);
+      }
+    },
+    [replace, onConnect, capture]
+  );
 
   return (
     <Stack
@@ -38,8 +57,8 @@ export default function ImportWithWalletConnect() {
           alignItems: 'center',
         }}
       >
-        <WalletConnectCircledIcon />
-        <WalletConnectConnector onConnect={onConnect} />
+        {appIcon ?? <WalletConnectCircledIcon />}
+        <WalletConnectConnector onConnect={handleSuccessfulConnection} />
       </Stack>
     </Stack>
   );

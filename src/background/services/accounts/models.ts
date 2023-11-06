@@ -29,6 +29,7 @@ export type ImportData =
   | FireblocksImportData;
 
 export type FireblocksApiData = {
+  vaultAccountId: string;
   key: string;
   secret: string;
 };

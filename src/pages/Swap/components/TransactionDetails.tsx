@@ -149,8 +149,12 @@ export function TransactionDetails({
                 placeholder="Input Percent %"
                 fullWidth
                 type="number"
-                min="0"
-                max="100"
+                InputProps={{
+                  inputProps: {
+                    min: 0,
+                    max: 100,
+                  },
+                }}
                 onChange={(e) => {
                   const value = e.target.value;
                   const isValid = isSlippageValid(value);

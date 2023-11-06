@@ -37,7 +37,7 @@ import {
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
 import { BaseWallet, Wallet } from 'ethers';
-import { networks } from 'bitcoinjs-lib';
+import { networks, Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { ImportData, ImportType } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
@@ -51,6 +51,7 @@ import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { Action } from '../actions/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
 import { toUtf8 } from 'ethereumjs-util';
+import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { SecretType } from '../secrets/models';
 
@@ -65,6 +66,7 @@ export class WalletService implements OnLock, OnUnlock {
     private ledgerService: LedgerService,
     private keystoneService: KeystoneService,
     private walletConnectService: WalletConnectService,
+    private fireblocksService: FireblocksService,
     private secretService: SecretsService
   ) {}
 
@@ -228,15 +230,13 @@ export class WalletService implements OnLock, OnUnlock {
         );
       }
       if (type === SecretType.Fireblocks) {
-        if (!secrets.api || !secrets.api.key || !secrets.api.secret) {
-          throw new Error(
-            `Fireblocks API access keys not found for account: ${secrets.account.name}`
-          );
+        if (!secrets.api) {
+          throw new Error(`Fireblocks API access keys not configured`);
         }
 
         return new FireblocksBTCSigner(
-          secrets.api.key,
-          secrets.api.secret,
+          this.fireblocksService,
+          secrets.api.vaultAccountId,
           activeNetwork.isTestnet
         );
       }
@@ -412,7 +412,8 @@ export class WalletService implements OnLock, OnUnlock {
       if (
         !(wallet instanceof BitcoinWallet) &&
         !(wallet instanceof BitcoinLedgerWallet) &&
-        !(wallet instanceof BitcoinKeystoneWallet)
+        !(wallet instanceof BitcoinKeystoneWallet) &&
+        !(wallet instanceof FireblocksBTCSigner)
       ) {
         throw new Error('Signing error, wrong network');
       }
@@ -426,9 +427,9 @@ export class WalletService implements OnLock, OnUnlock {
             )
           : tx;
 
-      const signedTx = await wallet.signTx(txToSign.inputs, txToSign.outputs);
+      const result = await wallet.signTx(txToSign.inputs, txToSign.outputs);
 
-      return this.#normalizeSigningResult(signedTx.toHex());
+      return this.#normalizeSigningResult(result);
     }
 
     // Handle Avalanche signing, X/P/CoreEth
@@ -455,10 +456,6 @@ export class WalletService implements OnLock, OnUnlock {
         originalRequestMethod
       );
 
-      if (result instanceof UnsignedTx) {
-        return this.#normalizeSigningResult(JSON.stringify(result.toJSON()));
-      }
-
       return this.#normalizeSigningResult(result);
     }
 
@@ -479,10 +476,18 @@ export class WalletService implements OnLock, OnUnlock {
    * If the wallet returns a string, we treat it as signed TX.
    */
   #normalizeSigningResult(
-    signingResult: string | SigningResult
+    signingResult: string | UnsignedTx | Transaction | SigningResult
   ): SigningResult {
     if (typeof signingResult === 'string') {
       return { signedTx: signingResult };
+    }
+
+    if (signingResult instanceof UnsignedTx) {
+      return { signedTx: JSON.stringify(signingResult.toJSON()) };
+    }
+
+    if (signingResult instanceof Transaction) {
+      return { signedTx: signingResult.toHex() };
     }
 
     return signingResult;
@@ -739,7 +744,12 @@ export class WalletService implements OnLock, OnUnlock {
   async getAddresses(
     index: number
   ): Promise<Record<NetworkVMType, string> | never> {
-    const secrets = await this.secretService.getActiveAccountSecrets();
+    const secrets = await this.secretService.getPrimaryAccountSecrets();
+
+    if (!secrets) {
+      throw new Error('Wallet is not initialized');
+    }
+
     const isMainnet = this.networkService.isMainnet();
     const provXP = await this.networkService.getAvalanceProviderXP();
 

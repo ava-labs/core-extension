@@ -5,14 +5,22 @@ import { WalletConnectImportAccount } from '@src/background/services/walletConne
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { isUriGeneratedEvent } from '@src/background/services/walletConnect/events/eventFilters';
 
-import { AccountImportState, AccountImportStatus } from './models';
+import {
+  AccountImportState,
+  AccountImportStatus,
+  OnConnectCallback,
+} from './models';
 import { importReducer } from './importReducer';
 import { useConnectionContext } from '../ConnectionProvider';
 
 const WalletConnectContext = createContext<{
   importState: AccountImportState;
-  initiateImport(reconnectionAddress?: string): void;
+  initiateImport(
+    reconnectionAddress?: string,
+    onConnected?: OnConnectCallback
+  ): void;
   reset(): void;
+  appName?: string;
 }>({
   importState: {
     status: AccountImportStatus.NotInitiated,
@@ -36,7 +44,7 @@ export const WalletConnectContextProvider: React.FC = ({ children }) => {
   }, []);
 
   const initiateImport = useCallback(
-    (reconnectionAddress?: string) => {
+    (reconnectionAddress?: string, onConnected?: OnConnectCallback) => {
       const qrCodeSubscription = events()
         .pipe(filter(isUriGeneratedEvent))
         .subscribe(async ({ value }) => {
@@ -56,7 +64,8 @@ export const WalletConnectContextProvider: React.FC = ({ children }) => {
         method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
         params: [reconnectionAddress],
       })
-        .then(() => {
+        .then((result) => {
+          onConnected?.(result);
           dispatch({
             status: AccountImportStatus.Successful,
           });

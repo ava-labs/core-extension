@@ -14,7 +14,10 @@ import { useWalletConnectContext } from '@src/contexts/WalletConnectContextProvi
 import { WalletConnectQRCode } from './WalletConnectQRCode';
 import { WalletConnectStatusMessage } from './WalletConnectStatusMessage';
 import { WalletConnectURIField } from './WalletConnectURIField';
-import { AccountImportStatus } from '@src/contexts/WalletConnectContextProvider/models';
+import {
+  AccountImportStatus,
+  OnConnectCallback,
+} from '@src/contexts/WalletConnectContextProvider/models';
 
 enum WalletConnectTabs {
   QR,
@@ -24,7 +27,7 @@ enum WalletConnectTabs {
 interface WalletConnectConnectorProps {
   reconnectionAddress?: string;
   customMessage?: string;
-  onConnect: () => void;
+  onConnect: OnConnectCallback;
 }
 
 export default function WalletConnectConnector({
@@ -46,15 +49,9 @@ export default function WalletConnectConnector({
   // as long as it wasn't already initiated.
   useEffect(() => {
     if (importState.status === AccountImportStatus.NotInitiated) {
-      initiateImport(reconnectionAddress);
+      initiateImport(reconnectionAddress, onConnect);
     }
-  }, [initiateImport, reconnectionAddress, importState.status]);
-
-  useEffect(() => {
-    if (importState.status === AccountImportStatus.Successful) {
-      onConnect();
-    }
-  }, [importState, onConnect]);
+  }, [initiateImport, reconnectionAddress, importState.status, onConnect]);
 
   return (
     <Stack
@@ -126,7 +123,7 @@ export default function WalletConnectConnector({
           {showRegenerateButton && (
             <Button
               sx={{ mb: 4 }}
-              onClick={() => initiateImport(reconnectionAddress)}
+              onClick={() => initiateImport(reconnectionAddress, onConnect)}
             >
               {t('Regenerate QR code')}
             </Button>

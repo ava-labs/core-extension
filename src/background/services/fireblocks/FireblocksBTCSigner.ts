@@ -25,12 +25,18 @@ import { FireblocksService } from './FireblocksService';
  * Class used to dispatch BTC transactions using Fireblocks API.
  */
 export class FireblocksBTCSigner {
-  #isTestnet?: boolean;
   #client: FireblocksService;
+  #vaultAccountId: string;
+  #isTestnet?: boolean;
 
-  constructor(apiKey: string, secretKey: string, isTestnet?: boolean) {
+  constructor(
+    fireblocksService: FireblocksService,
+    vaultAccountId: string,
+    isTestnet?: boolean
+  ) {
     this.#isTestnet = isTestnet;
-    this.#client = new FireblocksService(apiKey, secretKey);
+    this.#vaultAccountId = vaultAccountId;
+    this.#client = fireblocksService;
   }
 
   async signTx(
@@ -153,31 +159,33 @@ export class FireblocksBTCSigner {
       txAssetId
     );
 
-    // TODO: We need to filter-out the source address from outputs. Fireblocks adds
-    // it on its own. If we add it, it errors out. But to do it, we first need to know
-    // the source address :D
-    return outputs.map<TransactionDestination>(({ value, address }) => {
-      // The easiest approach for us would be to use "one time addresses" here,
-      // but these are discouraged by Fireblocks and disabled  by default in the
-      // Transaction Approval Policies (TAP), as per:
-      // https://developers.fireblocks.com/reference/transaction-sources-destinations#one_time_address
+    // The last output seems to always be the "rest".
+    // We can't have it here - Fireblocks "wants to" add it on its own,
+    // otherwise it errors out.
+    return outputs
+      .slice(0, -1)
+      .map<TransactionDestination>(({ value, address }) => {
+        // The easiest approach for us would be to use "one time addresses" here,
+        // but these are discouraged by Fireblocks and disabled  by default in the
+        // Transaction Approval Policies (TAP), as per:
+        // https://developers.fireblocks.com/reference/transaction-sources-destinations#one_time_address
 
-      // We need to find a way to map the output addresses to known Fireblocks wallets,
-      // so that we're not using ONE_TIME_ADDRESS as destination.type, but rather things like:
-      // VAULT_ACCOUNT, EXCHANGE_ACCOUNT, INTERNAL_WALLET, EXTERNAL_WALLET, etc.
-      // This way we won't require the one time addresses to be allowed from our users, making
-      // the transfers more secure and easier to use (no TAP changes needed).
+        // We need to find a way to map the output addresses to known Fireblocks wallets,
+        // so that we're not using ONE_TIME_ADDRESS as destination.type, but rather things like:
+        // VAULT_ACCOUNT, EXCHANGE_ACCOUNT, INTERNAL_WALLET, EXTERNAL_WALLET, etc.
+        // This way we won't require the one time addresses to be allowed from our users, making
+        // the transfers more secure and easier to use (no TAP changes needed).
 
-      return {
-        amount: satoshiToBtc(value).toString(),
-        destination: knownAddresses.get(address) ?? {
-          type: PeerType.ONE_TIME_ADDRESS,
-          oneTimeAddress: {
-            address,
+        return {
+          amount: satoshiToBtc(value).toString(),
+          destination: knownAddresses.get(address) ?? {
+            type: PeerType.ONE_TIME_ADDRESS,
+            oneTimeAddress: {
+              address,
+            },
           },
-        },
-      };
-    });
+        };
+      });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -199,8 +207,7 @@ export class FireblocksBTCSigner {
      */
 
     return {
-      // TODO: Get it from storage or map it from the tx input addresses if possible.
-      id: '0',
+      id: this.#vaultAccountId,
       type: PeerType.VAULT_ACCOUNT,
     };
   }

@@ -361,13 +361,13 @@ export class WalletConnectService implements WalletConnectTransport {
     return getAddressesFromAccounts(accounts) as [string, ...string[]];
   }
 
-  #extractChains(session: SessionTypes.Struct): number[] {
+  #extractChains(session: SessionTypes.Struct): [number, ...number[]] {
     const chains = getChainsFromNamespaces(session.namespaces);
 
     return chains
       .map(parseChainId)
       .map(({ reference }) => reference)
-      .map(Number);
+      .map(Number) as [number, ...number[]];
   }
 
   async #findSession(

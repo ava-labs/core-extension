@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
+import useWillSwitchToPrimaryAccount from '@src/hooks/useWillSwitchToPrimaryAccount';
 
 export function SetDeveloperMode() {
   const { t } = useTranslation();
@@ -22,6 +23,10 @@ export function SetDeveloperMode() {
     updateAction: updateMessage,
     cancelHandler,
   } = useApproveAction(requestId);
+
+  const willSwitchToPrimaryAccount = useWillSwitchToPrimaryAccount(
+    action?.displayData.isTestmode
+  );
 
   const request = action as Action;
 
@@ -73,6 +78,13 @@ export function SetDeveloperMode() {
             }}
           />
         </Typography>
+        {willSwitchToPrimaryAccount && (
+          <Typography variant="caption" sx={{ mt: 3, color: 'warning.main' }}>
+            {t(
+              'Approving will also switch to your primary account, as Fireblocks-imported accounts are not supported in testnet mode at the moment.'
+            )}
+          </Typography>
+        )}
       </Stack>
 
       <Stack

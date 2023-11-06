@@ -17,6 +17,8 @@ import { WalletService } from '../wallet/WalletService';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { PermissionsService } from '../permissions/PermissionsService';
+import { isProductionBuild } from '@src/utils/environment';
+import { DerivedAddresses } from '../secrets/models';
 
 @singleton()
 export class AccountsService implements OnLock, OnUnlock {
@@ -45,7 +47,7 @@ export class AccountsService implements OnLock, OnUnlock {
         if (activeAccount) {
           this._accounts.active = activeAccount;
         }
-      } else if (accounts.active?.type === AccountType.IMPORTED) {
+      } else if (accounts.active) {
         const activeAccount = accounts.imported[accounts.active.id];
 
         if (activeAccount) {
@@ -100,8 +102,26 @@ export class AccountsService implements OnLock, OnUnlock {
     );
   }
 
-  private onDeveloperModeChanged = () => {
-    this.init(true);
+  private onDeveloperModeChanged = async (isTestnet?: boolean) => {
+    await this.init(true);
+
+    // In production builds, Fireblocks accounts can only be used in mainnet mode.
+    // If user switches to testnet mode while Fireblocks account is active,
+    // we need to change to the primary account instead.
+    // UI is responsible for communicating this to the user.
+    const isOnFireblocksAccount =
+      this.activeAccount?.type === AccountType.FIREBLOCKS;
+
+    const [primaryAccount] = this.accounts.primary;
+    const shouldSwitchToPrimaryAccount =
+      primaryAccount &&
+      isOnFireblocksAccount &&
+      isTestnet &&
+      isProductionBuild();
+
+    if (shouldSwitchToPrimaryAccount) {
+      await this.activateAccount(primaryAccount.id);
+    }
   };
 
   private init = async (updateAddresses?: boolean) => {
@@ -111,52 +131,33 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
-    const isUpdated = (account: Account) =>
-      !updateAddresses &&
-      account.addressC &&
-      account.addressBTC &&
-      account.addressAVM &&
-      account.addressPVM &&
-      account.addressCoreEth;
+    const refreshAccount = async <T extends Account>(
+      account: T
+    ): Promise<T> => {
+      const isUpdated =
+        !updateAddresses &&
+        account.addressC &&
+        account.addressBTC &&
+        account.addressAVM &&
+        account.addressPVM &&
+        account.addressCoreEth;
+
+      if (isUpdated) {
+        return account;
+      }
+
+      const addresses = await this.getAddressesForAccount(account);
+
+      return {
+        ...account,
+        ...addresses,
+      };
+    };
 
     const [primaryAccountsWithAddresses, importedAccountsWithAddresses] =
       await Promise.all([
-        Promise.all(
-          accounts.primary.map(async (account) => {
-            if (isUpdated(account)) {
-              return account;
-            } else {
-              const addresses = await this.walletService.getAddresses(
-                account.index
-              );
-
-              return {
-                ...account,
-                addressC: addresses[NetworkVMType.EVM],
-                addressBTC: addresses[NetworkVMType.BITCOIN],
-                addressAVM: addresses[NetworkVMType.AVM],
-                addressPVM: addresses[NetworkVMType.PVM],
-                addressCoreEth: addresses[NetworkVMType.CoreEth],
-              };
-            }
-          })
-        ),
-        Promise.all(
-          Object.values(accounts.imported).map(async (account) => {
-            if (isUpdated(account)) {
-              return account;
-            } else {
-              const addresses = await this.walletService.getImportedAddresses(
-                account.id
-              );
-
-              return {
-                ...account,
-                ...addresses,
-              };
-            }
-          })
-        ),
+        Promise.all(accounts.primary.map(refreshAccount)),
+        Promise.all(Object.values(accounts.imported).map(refreshAccount)),
       ]);
 
     this.accounts = {
@@ -168,6 +169,61 @@ export class AccountsService implements OnLock, OnUnlock {
       }, {}),
     };
   };
+
+  async getAddressesForAccount(account: Account): Promise<DerivedAddresses> {
+    if (account.type !== AccountType.PRIMARY) {
+      return this.walletService.getImportedAddresses(account.id);
+    }
+
+    const addresses = await this.walletService.getAddresses(account.index);
+
+    return {
+      addressC: addresses[NetworkVMType.EVM],
+      addressBTC: addresses[NetworkVMType.BITCOIN],
+      addressAVM: addresses[NetworkVMType.AVM],
+      addressPVM: addresses[NetworkVMType.PVM],
+      addressCoreEth: addresses[NetworkVMType.CoreEth],
+    };
+  }
+
+  async refreshAddressesForAccount(accountId: string): Promise<void> {
+    const account = this.getAccountByID(accountId);
+
+    if (!account) {
+      return;
+    }
+
+    const addresses = await this.getAddressesForAccount(account);
+
+    if (account.type === AccountType.PRIMARY) {
+      this.accounts = {
+        ...this.accounts,
+        primary: this.accounts.primary.map((acc) => {
+          if (acc.id !== accountId) {
+            return acc;
+          }
+
+          return {
+            ...acc,
+            ...addresses,
+          };
+        }),
+      };
+
+      return;
+    } else {
+      this.accounts = {
+        ...this.accounts,
+        imported: {
+          ...this.accounts.imported,
+          [accountId]: {
+            ...account,
+            ...addresses,
+          },
+        },
+      };
+    }
+  }
 
   private async loadAccounts(): Promise<Accounts> {
     const accounts = await this.storageService.load<Accounts>(

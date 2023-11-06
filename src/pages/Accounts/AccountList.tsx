@@ -43,6 +43,7 @@ export enum ImportFilterType {
   ALL = 'ALL',
   PRIVATE_KEY = 'PRIVATE_KEY',
   WALLET_CONNECT = 'WALLET_CONNECT',
+  FIREBLOCKS = 'FIREBLOCKS',
 }
 
 export function AccountList({
@@ -69,6 +70,7 @@ export function AccountList({
     [ImportFilterType.ALL]: t('All'),
     [ImportFilterType.PRIVATE_KEY]: t('Private Key'),
     [ImportFilterType.WALLET_CONNECT]: t('Wallet Connect'),
+    [ImportFilterType.FIREBLOCKS]: t('Fireblocks'),
   };
 
   useEffect(() => {

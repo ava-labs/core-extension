@@ -781,7 +781,7 @@ export function Bridge() {
                 mb: 3,
               }}
             >
-              {isPending && <CircularProgress size="16px" sx={{ mr: 1 }} />}
+              {isPending && <CircularProgress size={16} sx={{ mr: 1 }} />}
               {t('Next')}
             </Button>
           </Stack>

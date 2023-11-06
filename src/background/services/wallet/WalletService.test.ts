@@ -32,8 +32,6 @@ import {
 } from '@avalabs/wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
-import { networks } from 'bitcoinjs-lib';
-import { Account, AccountType, ImportType } from '../accounts/models';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneService } from '../keystone/KeystoneService';
@@ -45,8 +43,11 @@ import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { Action, ActionStatus } from '../actions/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
+import { Account, AccountType, ImportType } from '../accounts/models';
 import { SecretType } from '../secrets/models';
+import { networks, Transaction } from 'bitcoinjs-lib';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -75,6 +76,7 @@ describe('background/services/wallet/WalletService.ts', () => {
   let ledgerService: LedgerService;
   let keystoneService: KeystoneService;
   let walletConnectService: WalletConnectService;
+  let fireblocksService: FireblocksService;
   let secretsService: jest.Mocked<SecretsService>;
 
   const privateKeyMock =
@@ -167,6 +169,8 @@ describe('background/services/wallet/WalletService.ts', () => {
     walletConnectService = new WalletConnectService(
       new WalletConnectStorage({} as any)
     );
+    fireblocksService = new FireblocksService({} as any);
+
     secretsService = jest.mocked(new SecretsService({} as any));
 
     getAddressMock = jest.fn().mockImplementation((pubkey, chain) => {
@@ -186,6 +190,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       ledgerService,
       keystoneService,
       walletConnectService,
+      fireblocksService,
       secretsService
     );
 
@@ -380,9 +385,9 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('signs btc tx correctly using BitcoinWallet', async () => {
       const buffer = Buffer.from('0x1');
-      btcWalletMock.signTx = jest.fn().mockResolvedValueOnce({
-        toHex: jest.fn(() => buffer.toString('hex')),
-      });
+      const tx = new Transaction();
+      tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
+      btcWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       getWalletSpy.mockResolvedValueOnce(btcWalletMock);
 
       const { signedTx } = await walletService.sign(
@@ -400,9 +405,9 @@ describe('background/services/wallet/WalletService.ts', () => {
     it('signs BTC transactions correctly using BitcoinKeystoneWallet', async () => {
       const blockCypherProviderMock = new BlockCypherProvider(false);
       const buffer = Buffer.from('0x1');
-      btcKeystoneWalletMock.signTx = jest.fn().mockResolvedValueOnce({
-        toHex: jest.fn(() => buffer.toString('hex')),
-      });
+      const tx = new Transaction();
+      tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
+      btcKeystoneWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       getWalletSpy.mockResolvedValueOnce(btcKeystoneWalletMock);
       (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
         blockCypherProviderMock
@@ -422,9 +427,9 @@ describe('background/services/wallet/WalletService.ts', () => {
     it('signs btc tx correctly using BitcoinLedgerWallet', async () => {
       const blockCypherProviderMock = new BlockCypherProvider(false);
       const buffer = Buffer.from('0x1');
-      btcLedgerWalletMock.signTx = jest.fn().mockResolvedValueOnce({
-        toHex: jest.fn(() => buffer.toString('hex')),
-      });
+      const tx = new Transaction();
+      tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
+      btcLedgerWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       getWalletSpy.mockResolvedValueOnce(btcLedgerWalletMock);
       (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
         blockCypherProviderMock
@@ -1027,6 +1032,34 @@ describe('background/services/wallet/WalletService.ts', () => {
       mockMnemonicWallet({ type: 'unknown' });
       await expect(walletService.getAddresses(0)).rejects.toThrowError(
         'No public key available'
+      );
+    });
+
+    it('works when active account is imported', async () => {
+      mockLedgerWallet(
+        {
+          imported: {
+            fb: {
+              type: ImportType.FIREBLOCKS,
+              addresses: { addressC: 'addressC' },
+            },
+          },
+        },
+        { type: AccountType.FIREBLOCKS, id: 'fb' }
+      );
+
+      (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
+      (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
+      (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
+      await expect(walletService.getAddresses(0)).resolves.toStrictEqual(
+        addressesMock('0x1', '0x2')
+      );
+      expect(Avalanche.getAddressPublicKeyFromXpub).toBeCalledWith('xpubXP', 0);
+      expect(getAddressFromXPub).toHaveBeenCalledWith('xpub', 0);
+      expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
+        'xpub',
+        0,
+        networks.testnet
       );
     });
 

@@ -42,7 +42,8 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
         result: null,
       };
     }
-    // If the network is not currently on the requested network and we currently support the network
+
+    // If the extension is not currently on the requested network and we currently support the network
     // then we need to show a confirmation popup to confirm user wants to switch to the requested network
     // from the dApp they are on.
     if (supportedNetwork?.chainId) {

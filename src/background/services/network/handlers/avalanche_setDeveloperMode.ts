@@ -56,7 +56,6 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       } = pendingAction as Action & {
         isTestmode: boolean;
       };
-
       await this.networkService.setNetwork(
         isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
       );

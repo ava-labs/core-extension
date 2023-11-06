@@ -15,7 +15,9 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { PermissionsService } from '../permissions/PermissionsService';
+import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
+import { isProductionBuild } from '@src/utils/environment';
 
 jest.mock('../storage/StorageService');
 jest.mock('../wallet/WalletService');
@@ -23,6 +25,8 @@ jest.mock('../ledger/LedgerService');
 jest.mock('../lock/LockService');
 jest.mock('../keystone/KeystoneService');
 jest.mock('../permissions/PermissionsService');
+jest.mock('../fireblocks/FireblocksService');
+jest.mock('@src/utils/environment');
 
 describe('background/services/accounts/AccountsService', () => {
   const networkService = new NetworkService({} as any);
@@ -32,14 +36,17 @@ describe('background/services/accounts/AccountsService', () => {
   const walletConnectService = new WalletConnectService(
     new WalletConnectStorage(storageService)
   );
+  const fireblocksService = new FireblocksService({} as any);
   const secretsProvider = new SecretsService(storageService);
   const walletService = new WalletService(
     networkService,
     ledgerService,
     keystoneService,
     walletConnectService,
+    fireblocksService,
     secretsProvider
   );
+
   const permissionsService = new PermissionsService({} as any);
 
   const emptyAccounts = {
@@ -99,6 +106,11 @@ describe('background/services/accounts/AccountsService', () => {
         name: 'Imported Account 2',
         type: AccountType.IMPORTED,
         ...addresses,
+      },
+      'fb-acc': {
+        id: 'fb-acc',
+        name: 'Fireblocks account',
+        type: AccountType.FIREBLOCKS,
       },
     };
 
@@ -168,6 +180,7 @@ describe('background/services/accounts/AccountsService', () => {
           type: AccountType.IMPORTED,
           ...getAllAddresses(),
         },
+        { id: 'fb-acc', name: 'Fireblocks account', type: 'fireblocks' },
       ]);
     });
   });
@@ -235,7 +248,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
       expect(walletService.getAddresses).toBeCalledTimes(2);
-      expect(walletService.getImportedAddresses).toBeCalledTimes(2);
+      expect(walletService.getImportedAddresses).toBeCalledTimes(3);
 
       const accounts = accountsService.getAccounts();
 
@@ -260,6 +273,9 @@ describe('background/services/accounts/AccountsService', () => {
       });
       (walletService.getImportedAddresses as jest.Mock)
         .mockResolvedValueOnce({
+          ...mockedAccounts.imported['fb-acc'],
+        })
+        .mockResolvedValueOnce({
           ...mockedAccounts.imported['0x1'],
           id: '0x1',
           addressC: otherEvmAddress,
@@ -270,7 +286,11 @@ describe('background/services/accounts/AccountsService', () => {
           id: '0x2',
           addressC: otherEvmAddress,
           addressBTC: otherBtcAddress,
+        })
+        .mockResolvedValueOnce({
+          ...mockedAccounts.imported['fb-acc'],
         });
+
       await accountsService.onUnlock();
 
       expect(walletService.getAddresses).not.toBeCalled();
@@ -285,6 +305,124 @@ describe('background/services/accounts/AccountsService', () => {
       const updatedAccounts = accountsService.getAccounts();
 
       expect(updatedAccounts).toStrictEqual(mockAccounts(true, true));
+    });
+  });
+
+  describe('.refreshAddressesForAccount()', () => {
+    let accountsService, mockedAccounts;
+
+    beforeEach(async () => {
+      mockedAccounts = mockAccounts(true);
+      accountsService = new AccountsService(
+        storageService,
+        walletService,
+        networkService,
+        permissionsService
+      );
+      jest.mocked(storageService.load).mockResolvedValue(mockedAccounts);
+      jest.mocked(walletService.getAddresses).mockResolvedValue({
+        [NetworkVMType.EVM]: otherEvmAddress,
+        [NetworkVMType.BITCOIN]: otherBtcAddress,
+        [NetworkVMType.AVM]: avmAddress,
+        [NetworkVMType.PVM]: pvmAddress,
+        [NetworkVMType.CoreEth]: coreEthAddress,
+      });
+
+      await accountsService.onUnlock();
+    });
+
+    it('correctly updates addresses for selected primary account', async () => {
+      jest
+        .mocked(walletService.getImportedAddresses)
+        .mockImplementation((id) => mockedAccounts.imported[id]);
+      await accountsService.refreshAddressesForAccount(
+        mockedAccounts.primary[0]?.id as string
+      );
+
+      expect(walletService.getAddresses).toHaveBeenCalledTimes(1);
+      expect(accountsService.getAccounts().primary[0]).toEqual(
+        mockAccounts(true, true).primary[0]
+      );
+    });
+
+    it('correctly updates addresses for selected imported account', async () => {
+      jest
+        .mocked(walletService.getImportedAddresses)
+        .mockImplementation((id) => {
+          if (id === 'fb-acc') {
+            return {
+              ...mockedAccounts.imported['fb-acc'],
+              addressC: 'addressC-new',
+            };
+          }
+
+          return mockedAccounts.imported[id];
+        });
+
+      await accountsService.refreshAddressesForAccount('fb-acc');
+
+      expect(walletService.getImportedAddresses).toHaveBeenCalledWith('fb-acc');
+      expect(walletService.getAddresses).toHaveBeenCalledTimes(0);
+      expect(accountsService.getAccounts().imported['fb-acc']).toEqual({
+        ...mockAccounts(true, true).imported['fb-acc'],
+        addressC: 'addressC-new',
+      });
+    });
+  });
+
+  describe('when testnet mode gets enabled and fireblocks account is active', () => {
+    beforeEach(() => {
+      jest.mocked(isProductionBuild).mockReturnValue(true);
+    });
+
+    it('activates the primary account', async () => {
+      const mockedAccounts = mockAccounts(true, false, 'fb-acc');
+      const accountsService = new AccountsService(
+        storageService,
+        walletService,
+        networkService,
+        permissionsService
+      );
+      jest.spyOn(accountsService, 'activateAccount');
+      jest.mocked(storageService.load).mockResolvedValue(mockedAccounts);
+      jest.mocked(walletService.getAddresses).mockResolvedValue({
+        [NetworkVMType.EVM]: otherEvmAddress,
+        [NetworkVMType.BITCOIN]: otherBtcAddress,
+        [NetworkVMType.AVM]: avmAddress,
+        [NetworkVMType.PVM]: pvmAddress,
+        [NetworkVMType.CoreEth]: coreEthAddress,
+      });
+      jest
+        .mocked(walletService.getImportedAddresses)
+        .mockResolvedValueOnce({
+          ...mockedAccounts.imported['0x1'],
+          addressC: otherEvmAddress,
+          addressBTC: otherBtcAddress,
+        })
+        .mockResolvedValueOnce({
+          ...mockedAccounts.imported['0x2'],
+          addressC: otherEvmAddress,
+          addressBTC: otherBtcAddress,
+        })
+        .mockResolvedValueOnce({
+          ...mockedAccounts.imported['fb-acc'],
+          addressC: 'addressC',
+        });
+
+      await accountsService.onUnlock();
+
+      const testnetModeListener = jest.mocked(
+        networkService.developerModeChanged.add
+      ).mock.calls[0]?.[0];
+
+      // mocks a change to testnet
+      testnetModeListener?.(true);
+
+      await new Promise(process.nextTick);
+
+      expect(accountsService.activateAccount).toHaveBeenCalledWith(
+        mockedAccounts.primary[0]?.id
+      );
     });
   });
 
@@ -600,7 +738,7 @@ describe('background/services/accounts/AccountsService', () => {
             [uuidMock]: {
               id: uuidMock,
               ...getAllAddresses(true),
-              name: 'Imported Account 3',
+              name: 'Imported Account 4',
               type: AccountType.IMPORTED,
             },
           },
@@ -949,7 +1087,16 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.deleteAccounts(['0x1', '0x2']);
 
       const result = accountsService.getAccounts();
-      const expectedAccounts = { ...mockedAccounts, imported: {} };
+      const expectedAccounts = {
+        ...mockedAccounts,
+        imported: {
+          'fb-acc': {
+            id: 'fb-acc',
+            name: 'Fireblocks account',
+            type: 'fireblocks',
+          },
+        },
+      };
 
       expect(result).toStrictEqual(expectedAccounts);
       expect(eventListener).toHaveBeenCalledTimes(1);

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Stack,
   List,
@@ -16,15 +17,30 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { AccountType } from '@src/background/services/accounts/models';
 
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { setDeveloperMode, isDeveloperMode } = useNetworkContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const { isBridgeDevEnv, setIsBridgeDevEnv } = useBridgeContext();
   const { capture } = useAnalyticsContext();
   const { showTokensWithoutBalances, toggleShowTokensWithoutBalanceSetting } =
     useSettingsContext();
   const history = useHistory();
+
+  const testnetModeUnavailableReason = useMemo(() => {
+    const isFireblocksAccount = activeAccount?.type === AccountType.FIREBLOCKS;
+
+    if (isProductionBuild() && isFireblocksAccount && !isDeveloperMode) {
+      return t('Fireblocks accounts do not support the Testnet Mode currently');
+    }
+
+    return '';
+  }, [activeAccount, isDeveloperMode, t]);
 
   return (
     <Stack
@@ -60,19 +76,27 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
           >
             <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
           </Tooltip>
-          <Switch
-            size="small"
-            checked={isDeveloperMode}
-            onChange={() => {
-              const isEnabled = !isDeveloperMode;
-              setDeveloperMode(isEnabled);
-              capture(
-                isEnabled ? 'DeveloperModeEnabled' : 'DeveloperModeDisabled'
-              );
-              history.push('/home');
-            }}
-            sx={{ ml: 'auto' }}
-          />
+          <Tooltip title={testnetModeUnavailableReason} sx={{ ml: 'auto' }}>
+            <Switch
+              size="small"
+              checked={isDeveloperMode}
+              disabled={Boolean(testnetModeUnavailableReason)}
+              onChange={() => {
+                const isEnabled = !isDeveloperMode;
+                setDeveloperMode(isEnabled);
+                capture(
+                  isEnabled ? 'DeveloperModeEnabled' : 'DeveloperModeDisabled'
+                );
+                history.push('/home');
+              }}
+              sx={{
+                ml: 'auto',
+                cursor: testnetModeUnavailableReason
+                  ? 'not-allowed'
+                  : 'pointer',
+              }}
+            />
+          </Tooltip>
         </ListItem>
         {!isProductionBuild() ? (
           <ListItem data-testid="bridge-dev-env-menu-item">

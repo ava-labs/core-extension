@@ -249,7 +249,7 @@ export class SendServiceEVM implements SendServiceHelper {
       sendState.token?.tokenId
     );
     const unsignedTx: TransactionRequest = {
-      ...populatedTransaction, // only includes `to` and `data`
+      ...populatedTransaction,
       from: this.fromAddress,
     };
     return unsignedTx;
@@ -278,6 +278,7 @@ export class SendServiceEVM implements SendServiceHelper {
 
     const unsignedTx: TransactionRequest = {
       ...populatedTransaction,
+      chainId: populatedTransaction.chainId,
       from: this.fromAddress,
     };
     return unsignedTx;
