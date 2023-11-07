@@ -197,7 +197,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
                   chainId: network?.chainId,
                   type: historyItem.type,
                 });
-                window.open(historyItem.explorerLink, '_blank');
+                window.open(historyItem.explorerLink, '_blank', 'noreferrer');
               }}
               data-testid="explorer-link"
             >

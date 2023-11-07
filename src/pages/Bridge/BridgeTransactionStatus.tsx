@@ -279,7 +279,9 @@ const BridgeTransactionStatus = () => {
                             bridgeTransaction.sourceChain,
                             bridgeTransaction.sourceTxHash,
                             isMainnet
-                          )
+                          ),
+                          '_blank',
+                          'noreferrer'
                         )
                       }
                       disableRipple
@@ -474,7 +476,9 @@ const BridgeTransactionStatus = () => {
                             bridgeTransaction.targetChain,
                             bridgeTransaction.targetTxHash || '',
                             isMainnet
-                          )
+                          ),
+                          '_blank',
+                          'noreferrer'
                         )
                       }
                       disableRipple

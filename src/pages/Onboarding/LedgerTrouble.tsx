@@ -95,7 +95,7 @@ export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
                       as="a"
                       href="https://www.ledger.com/ledger-live"
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noreferrer"
                       variant="body2"
                       sx={{
                         cursor: 'pointer',
@@ -116,7 +116,7 @@ export function LedgerTrouble({ onBack }: LedgerTroubleProps) {
                       as="a"
                       href="https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true"
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noreferrer"
                       variant="body2"
                       sx={{
                         cursor: 'pointer',

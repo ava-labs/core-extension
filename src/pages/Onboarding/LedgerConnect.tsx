@@ -389,7 +389,11 @@ export function LedgerConnect({
         <Button
           variant="text"
           onClick={() => {
-            window.open('https://www.ledger.com/ledger-live', '_blank');
+            window.open(
+              'https://www.ledger.com/ledger-live',
+              '_blank',
+              'noreferrer'
+            );
           }}
         >
           <ExternalLinkIcon size={16} sx={{ color: 'secondary.main' }} />

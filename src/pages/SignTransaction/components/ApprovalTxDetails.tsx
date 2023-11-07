@@ -87,7 +87,7 @@ export const WebsiteDetails = ({ site }: WebsiteDetailsProps) => {
       <Link
         href={`https://${site.domain}`}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noreferrer"
         sx={{ display: 'inline-flex', color: 'text.primary' }}
       >
         <LinkIcon size={14} />

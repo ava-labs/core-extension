@@ -214,7 +214,7 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
           <Button
             variant="text"
             onClick={() => {
-              window.open(KEYSTONE_CONNECT_SUPPORT_URL, '_blank');
+              window.open(KEYSTONE_CONNECT_SUPPORT_URL, '_blank', 'noreferrer');
             }}
           >
             <ExternalLinkIcon

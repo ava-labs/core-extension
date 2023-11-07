@@ -94,7 +94,7 @@ export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
                           as="a"
                           href={explorerLink}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="noreferrer"
                         >
                           <ExternalLinkIcon sx={{ color: 'primary.main' }} />
                         </Typography>

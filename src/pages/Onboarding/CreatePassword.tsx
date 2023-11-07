@@ -152,6 +152,7 @@ export const CreatePassword = ({
                           sx={{
                             color: 'secondary.main',
                           }}
+                          rel="noreferrer"
                         />
                       ),
                       privacyLink: (
@@ -163,6 +164,7 @@ export const CreatePassword = ({
                           sx={{
                             color: 'secondary.main',
                           }}
+                          rel="noreferrer"
                         />
                       ),
                     }}

@@ -354,7 +354,7 @@ export function WalletRecentTxs({
               fullWidth
               width="100%"
               onClick={() => {
-                window.open(explorerUrl);
+                window.open(explorerUrl, '_blank', 'noreferrer');
               }}
             >
               {t('View on explorer')}

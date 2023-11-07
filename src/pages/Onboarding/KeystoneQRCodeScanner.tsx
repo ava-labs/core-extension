@@ -181,7 +181,7 @@ export const KeystoneQRCodeScanner = ({
           <Button
             variant="text"
             onClick={() => {
-              window.open(KEYSTONE_CONNECT_SUPPORT_URL, '_blank');
+              window.open(KEYSTONE_CONNECT_SUPPORT_URL, '_blank', 'noreferrer');
             }}
           >
             <ExternalLinkIcon

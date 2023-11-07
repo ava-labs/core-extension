@@ -58,7 +58,8 @@ export function Feedback({ goBack, navigateTo, width }) {
               }
               window.open(
                 `https://docs.google.com/forms/d/e/1FAIpQLSdUQiVnJoqQ1g_6XTREpkSB5vxKKK8ba5DRjhzQf1XVeET8Rw/viewform?usp=pp_url&entry.2070152111=Core%20browser%20extension&entry.903657115=${extensionVersion}&entry.1148340936=${os}`,
-                '_blank'
+                '_blank',
+                'noreferrer'
               );
             }}
             data-testid="report-bug-link"
@@ -84,7 +85,8 @@ export function Feedback({ goBack, navigateTo, width }) {
               }
               window.open(
                 `https://portal.productboard.com/dndv9ahlkdfye4opdm8ksafi/tabs/1-core-browser-extension`,
-                '_blank'
+                '_blank',
+                'noreferrer'
               );
             }}
             data-testid="product-feedback-request-link"

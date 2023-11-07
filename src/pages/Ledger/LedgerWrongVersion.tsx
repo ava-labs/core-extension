@@ -42,7 +42,7 @@ export const LedgerWrongVersionContent = () => (
               as="a"
               target="_blank"
               href="https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true"
-              rel="noopener noreferrer"
+              rel="noreferrer"
             />
           ),
         }}

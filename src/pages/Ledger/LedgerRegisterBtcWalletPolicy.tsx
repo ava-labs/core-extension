@@ -231,7 +231,7 @@ const LedgerRegisterBtcWalletPolicy = () => {
                       as="a"
                       target="_blank"
                       href="https://support.avax.network/en/articles/7178568-what-are-ledger-wallet-policies"
-                      rel="noopener noreferrer"
+                      rel="noreferrer"
                     />
                   ),
                 }}

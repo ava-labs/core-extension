@@ -350,7 +350,8 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
                 `https://support.avax.network/${
                   currentLanguage ? currentLanguage.linkCode : 'en'
                 }/collections/3391518-core`,
-                '_blank'
+                '_blank',
+                'noreferrer'
               );
             }}
             data-testid="help-center-option"
