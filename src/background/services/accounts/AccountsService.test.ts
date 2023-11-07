@@ -873,44 +873,6 @@ describe('background/services/accounts/AccountsService', () => {
       ).rejects.toThrow('Account rename failed: account not found');
     });
 
-    it('throws error if account has unknown type', async () => {
-      const uuid = 'uuid';
-
-      const accountsWithUnknownTypeMock = {
-        primary: [
-          {
-            id: uuid,
-            type: 'unknown',
-            name: 'name',
-            addressC: 'addressC',
-            addressBTC: 'addressBTC',
-            addressAVM: 'addressAVM',
-            addressPVM: 'addressPVM',
-            addressCoreEth: 'addressCoreEth',
-          },
-        ],
-        imported: {},
-      };
-
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
-      (storageService.load as jest.Mock).mockResolvedValue(
-        accountsWithUnknownTypeMock
-      );
-      await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(
-        accountsWithUnknownTypeMock
-      );
-
-      await expect(
-        accountsService.setAccountName(uuid, 'updated name')
-      ).rejects.toThrow('Account rename failed: unknown account type');
-    });
-
     it('renames primary accounts correctly', async () => {
       const mockedAccounts = mockAccounts(true);
       const accountsService = new AccountsService(

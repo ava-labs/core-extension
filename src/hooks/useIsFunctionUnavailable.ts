@@ -1,5 +1,10 @@
 import { ChainId } from '@avalabs/chains-sdk';
-import { Account, AccountType } from '@src/background/services/accounts/models';
+import { Account } from '@src/background/services/accounts/models';
+import {
+  isFireblocksAccount,
+  isWalletConnectAccount,
+} from '@src/background/services/accounts/utils/typeGuards';
+import isFireblocksApiSupported from '@src/background/services/fireblocks/utils/isFireblocksApiSupported';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
@@ -7,9 +12,10 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 type ComplexCheck = (activeNetwork: ChainId, activeAccount: Account) => boolean;
 type BlacklistConfig = { networks: ChainId[]; complexChecks: ComplexCheck[] };
 
-// Disables BTC bridging when:
+// Disables given feature on BTC networks when:
 //  - active account has no BTC address
-//  - active account is imported through WalletConnect accounts (no Bitcoin support)
+//  - active account is imported through WalletConnect (no Bitcoin support)
+//  - active account is imported from Fireblocks without BTC support
 const disableForAccountsWithoutBtcSupport = (
   chain: ChainId,
   account: Account
@@ -21,9 +27,12 @@ const disableForAccountsWithoutBtcSupport = (
   }
 
   const hasBtcAddress = Boolean(account.addressBTC);
-  const isWalletConnectAccount = account.type === AccountType.WALLET_CONNECT;
 
-  return isBtc && (!hasBtcAddress || isWalletConnectAccount);
+  return (
+    !hasBtcAddress ||
+    isWalletConnectAccount(account) ||
+    (isFireblocksAccount(account) && !isFireblocksApiSupported(account))
+  );
 };
 
 const disabledFeatures: Record<string, BlacklistConfig> = {

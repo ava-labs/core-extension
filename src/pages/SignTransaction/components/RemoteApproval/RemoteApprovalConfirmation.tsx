@@ -11,6 +11,7 @@ interface AdditionalConfirmationForRemoteApprovalProps {
   isValidSession: boolean;
   connectingToIcon: JSX.Element;
   useRetryButton: boolean;
+  useWalletConnectApproval: boolean;
   onReject: () => void;
   onSign: () => void;
   account?: Account;
@@ -23,6 +24,7 @@ export function RemoteApprovalConfirmation({
   isValidSession,
   connectingToIcon,
   useRetryButton,
+  useWalletConnectApproval,
   onReject,
   onSign,
   account,
@@ -113,8 +115,9 @@ export function RemoteApprovalConfirmation({
           onClick={() => {
             setSubmitted(true);
             setEnableSubmitButton(false);
-            // TODO: Need create a logic to actually check the updates for fireblocks.
-            setTimeout(() => setEnableSubmitButton(true), 5000);
+            if (useWalletConnectApproval) {
+              setTimeout(() => setEnableSubmitButton(true), 5000);
+            }
             onSign();
           }}
           disabled={!isValidSession || !enableSubmitButton}

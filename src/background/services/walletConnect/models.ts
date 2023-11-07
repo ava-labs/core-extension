@@ -109,6 +109,7 @@ export type RequestOptions = {
   chainId: number;
   fromAddress: string;
   tabId?: number;
+  expiry?: number; // in seconds, between 300 (5 minutes) and 604800 (7 days)
 };
 export interface WalletConnectTransport {
   connect(options: ConnectOptions): Promise<WalletConnectSessionInfo | never>;

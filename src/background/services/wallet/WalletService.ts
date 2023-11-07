@@ -54,6 +54,7 @@ import { toUtf8 } from 'ethereumjs-util';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { SecretType } from '../secrets/models';
+import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -207,7 +208,10 @@ export class WalletService implements OnLock, OnUnlock {
           this.walletConnectService,
           activeNetwork.chainId,
           secrets.account.addressC,
-          tabId
+          tabId,
+          // Due to Fireblocks nature, transaction sign requests may need
+          // more time than WalletConnect's default of 5 minutes.
+          type === SecretType.Fireblocks ? FIREBLOCKS_REQUEST_EXPIRY : undefined
         );
       }
 

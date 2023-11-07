@@ -40,6 +40,7 @@ export function WalletConnectApprovalReview({
       isValidSession={isValidSession}
       connectingToIcon={<WalletImage src={session?.walletApp?.icons[0]} />}
       useRetryButton={false}
+      useWalletConnectApproval={true}
       account={account}
       session={session}
       onReject={onReject}

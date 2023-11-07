@@ -27,11 +27,16 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
       isSuccess: boolean;
       response: any;
     };
+    request?: jest.SpyInstance;
     session?: {
       getAll?: () => SessionTypes.Struct[];
     };
   };
-  const mockClient = ({ connect, session }: ClientMockOptions = {}) => {
+  const mockClient = ({
+    connect,
+    request,
+    session,
+  }: ClientMockOptions = {}) => {
     const client = {
       on: jest.fn(),
       session: {
@@ -52,6 +57,12 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
 
           throw new Error(response);
         }),
+      });
+    }
+
+    if (request) {
+      Object.assign(client, {
+        request,
       });
     }
 
@@ -304,6 +315,46 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
           topic: mockedSession.topic,
         });
       });
+    });
+  });
+
+  describe('.request', () => {
+    const requestMock = jest.fn();
+    const mockedAddress = '0xdDd288FAe290d498B9513f4BAc4a8Fc9a3Ce112d';
+    let service: WalletConnectService;
+    let client: SignClient;
+
+    beforeEach(async () => {
+      client = mockClient({
+        session: {
+          getAll: jest.fn().mockReturnValue([mockedSession]),
+        },
+        request: requestMock,
+      });
+      service = new WalletConnectService(fakeStorage);
+    });
+
+    it('accepts expiry param', async () => {
+      await service.request(
+        {
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              to: '0x1234',
+              value: '0x1',
+            },
+          ],
+        },
+        {
+          chainId: 1,
+          fromAddress: mockedAddress,
+          expiry: 1234,
+        }
+      );
+
+      expect(client.request).toHaveBeenCalledWith(
+        expect.objectContaining({ expiry: 1234 })
+      );
     });
   });
 });

@@ -6,16 +6,18 @@ interface WalletConnectApprovalConnectProps {
   reconnectionAddress: string;
   customMessage?: string;
   onConnect: () => void;
+  appIcon?: React.ReactElement;
 }
 
 export function WalletConnectApprovalConnect({
   reconnectionAddress,
   customMessage,
   onConnect,
+  appIcon,
 }: WalletConnectApprovalConnectProps) {
   return (
-    <Stack sx={{ alignItems: 'center', height: '100%' }}>
-      <WalletConnectCircledIcon />
+    <Stack sx={{ alignItems: 'center', height: '100%', gap: 2 }}>
+      {appIcon ?? <WalletConnectCircledIcon />}
       <WalletConnectConnector
         reconnectionAddress={reconnectionAddress}
         customMessage={customMessage}

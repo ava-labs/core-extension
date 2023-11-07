@@ -28,6 +28,8 @@ import {
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
+import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
 
 export function ApproveAction() {
   const { t } = useTranslation();
@@ -38,6 +40,7 @@ export function ApproveAction() {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const isFireblocksAccount = useIsUsingFireblocksAccount();
 
   const submitHandler = async () => {
     await updateAction(
@@ -45,7 +48,10 @@ export function ApproveAction() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isUsingKeystoneWallet || isWalletConnectAccount // wait for the response only for device wallets
+      isUsingLedgerWallet ||
+        isUsingKeystoneWallet ||
+        isWalletConnectAccount ||
+        isFireblocksAccount // wait for the response only for device wallets
     );
   };
 
@@ -81,6 +87,13 @@ export function ApproveAction() {
       else if (isWalletConnectAccount)
         return (
           <WalletConnectApprovalOverlay
+            onSubmit={handleApproval}
+            onReject={handleRejection}
+          />
+        );
+      else if (isFireblocksAccount)
+        return (
+          <FireblocksApprovalOverlay
             onSubmit={handleApproval}
             onReject={handleRejection}
           />

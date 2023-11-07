@@ -19,6 +19,7 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 import { PermissionsService } from '../permissions/PermissionsService';
 import { isProductionBuild } from '@src/utils/environment';
 import { DerivedAddresses } from '../secrets/models';
+import { isPrimaryAccount } from './utils/typeGuards';
 
 @singleton()
 export class AccountsService implements OnLock, OnUnlock {
@@ -41,18 +42,12 @@ export class AccountsService implements OnLock, OnUnlock {
 
     // do not save empty list of accounts to storage
     if (accounts.primary.length > 0) {
-      if (accounts.active?.type === AccountType.PRIMARY) {
-        const activeAccount = accounts.primary[accounts.active.index];
+      if (accounts.active) {
+        const activeAccount = isPrimaryAccount(accounts.active)
+          ? accounts.primary[accounts.active.index]
+          : accounts.imported[accounts.active.id];
 
-        if (activeAccount) {
-          this._accounts.active = activeAccount;
-        }
-      } else if (accounts.active) {
-        const activeAccount = accounts.imported[accounts.active.id];
-
-        if (activeAccount) {
-          this._accounts.active = activeAccount;
-        }
+        this._accounts.active = activeAccount;
       }
 
       this.saveAccounts(this._accounts);
@@ -363,17 +358,11 @@ export class AccountsService implements OnLock, OnUnlock {
       const newAccounts = [...this.accounts.primary];
       newAccounts[accountToChange.index] = accountWithNewName;
       this.accounts = { ...this.accounts, primary: newAccounts };
-    } else if (
-      [AccountType.IMPORTED, AccountType.WALLET_CONNECT].includes(
-        accountToChange.type
-      )
-    ) {
+    } else {
       const accountWithNewName = { ...accountToChange, name };
       const newAccounts = { ...this.accounts.imported };
       newAccounts[id] = accountWithNewName;
       this.accounts = { ...this.accounts, imported: newAccounts };
-    } else {
-      throw new Error('Account rename failed: unknown account type');
     }
   }
 

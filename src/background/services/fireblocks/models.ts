@@ -60,6 +60,8 @@ export const TESTNET_LOOKUP_ASSETS = [
 // Knowing the vault account allows us to find the matching BTC address.
 export const MAINNET_LOOKUP_ASSETS = ['AVAX'];
 
+export const FIREBLOCKS_REQUEST_EXPIRY = 120 * 60; // 2 hours, used only by WalletConnect connections
+
 export interface FireblocksSecretsProvider {
   getSecrets(): Promise<{ apiKey: string; privateKey: KeyLike }>;
 }

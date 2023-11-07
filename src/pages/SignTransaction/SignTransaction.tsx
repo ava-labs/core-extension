@@ -47,6 +47,8 @@ import { TransactionErrorDialog } from './TransactionErrorDialog';
 import { WalletConnectApprovalOverlay } from './WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
+import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import { FireblocksApprovalOverlay } from './FireblocksApprovalOverlay';
 
 const hasGasPriceData = (
   displayData: TransactionDisplayValues
@@ -92,6 +94,7 @@ export function SignTransactionPage() {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
@@ -205,6 +208,12 @@ export function SignTransactionPage() {
 
           {isUsingWalletConnectAccount && (
             <WalletConnectApprovalOverlay
+              onReject={handleRejection}
+              onSubmit={handleApproval}
+            />
+          )}
+          {isUsingFireblocksAccount && (
+            <FireblocksApprovalOverlay
               onReject={handleRejection}
               onSubmit={handleApproval}
             />

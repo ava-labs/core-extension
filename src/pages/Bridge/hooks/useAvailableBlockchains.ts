@@ -1,10 +1,14 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
-import { AccountType } from '@src/background/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useEffect, useState } from 'react';
 import { SUPPORTED_CHAINS } from '../models';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import {
+  isFireblocksAccount,
+  isWalletConnectAccount,
+} from '@src/background/services/accounts/utils/typeGuards';
+import isFireblocksApiSupported from '@src/background/services/fireblocks/utils/isFireblocksApiSupported';
 
 export function useAvailableBlockchains() {
   const { featureFlags } = useFeatureFlagContext();
@@ -20,10 +24,19 @@ export function useAvailableBlockchains() {
     const availableChains = SUPPORTED_CHAINS.filter((chain) => {
       switch (chain) {
         case Blockchain.BITCOIN:
-          return (
-            featureFlags[FeatureGates.BRIDGE_BTC] &&
-            activeAccount?.type !== AccountType.WALLET_CONNECT
-          );
+          if (!featureFlags[FeatureGates.BRIDGE_BTC]) {
+            return false;
+          }
+
+          if (isWalletConnectAccount(activeAccount)) {
+            return false;
+          }
+
+          if (isFireblocksAccount(activeAccount)) {
+            return isFireblocksApiSupported(activeAccount);
+          }
+
+          return true;
         case Blockchain.ETHEREUM:
           return featureFlags[FeatureGates.BRIDGE_ETH];
         default:

@@ -4,6 +4,7 @@ import useIsUsingLedgerWallet from './useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from './useIsUsingKeystoneWallet';
 import useIsUsingWalletConnectAccount from './useIsUsingWalletConnectAccount';
 import { toast } from '@avalabs/k2-components';
+import useIsUsingFireblocksAccount from './useIsUsingFireblocksAccount';
 
 type UseApprovalHelpersProps = {
   onApprove: () => Promise<unknown>;
@@ -19,10 +20,15 @@ export function useApprovalHelpers({
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
 
-  const isTwoStepApproval = isUsingWalletConnectAccount;
+  const isTwoStepApproval =
+    isUsingWalletConnectAccount || isUsingFireblocksAccount;
   const isUsingExternalSigner =
-    isUsingLedgerWallet || isUsingKeystoneWallet || isUsingWalletConnectAccount;
+    isUsingLedgerWallet ||
+    isUsingKeystoneWallet ||
+    isUsingWalletConnectAccount ||
+    isUsingFireblocksAccount;
 
   const [isReadyToSign, setIsReadyToSign] = useState(!isTwoStepApproval);
   const [isApprovalOverlayVisible, setIsApprovalOverlayVisible] =
@@ -40,12 +46,7 @@ export function useApprovalHelpers({
       return;
     }
 
-    if (
-      pendingMessage &&
-      !isUsingLedgerWallet &&
-      !isUsingKeystoneWallet &&
-      !isUsingWalletConnectAccount
-    ) {
+    if (pendingMessage && !isUsingExternalSigner) {
       const toastId = toast.loading(pendingMessage);
       pendingToastIdRef.current = toastId;
     }
@@ -61,9 +62,6 @@ export function useApprovalHelpers({
     isTwoStepApproval,
     isReadyToSign,
     pendingMessage,
-    isUsingLedgerWallet,
-    isUsingKeystoneWallet,
-    isUsingWalletConnectAccount,
     onApprove,
   ]);
 

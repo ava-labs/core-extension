@@ -19,10 +19,12 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
   const testTabId = 987;
   const testResultString = 'Here is the response!';
   const testResultString2 = 'Here is another response!';
+  const requestExpiry = 1337;
   const transportTestOptions = {
     chainId: testChainId,
     tabId: testTabId,
     fromAddress: testAddress,
+    expiry: requestExpiry,
   };
   const testPubKeyType: PubKeyType = {
     evm: 'hello',
@@ -59,7 +61,8 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
       transportMock,
       testChainId,
       testAddress,
-      testTabId
+      testTabId,
+      requestExpiry
     );
 
     jest.mocked(makeBNLike).mockImplementation((input) => input as BNLike);
@@ -156,7 +159,11 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
             internalIndices: [2],
           },
         },
-        { ...transportTestOptions, chainId: testSession.chains[0] }
+        {
+          ...transportTestOptions,
+          chainId: testSession.chains[0],
+          expiry: requestExpiry,
+        }
       );
     });
 
