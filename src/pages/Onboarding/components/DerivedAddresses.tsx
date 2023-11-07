@@ -1,5 +1,5 @@
 import { truncateAddress } from '@src/utils/truncateAddress';
-import { AddressType } from '../LedgerConnect';
+import { AddressType } from '../pages/Ledger/LedgerConnect';
 import { getAvalancheAddressLink } from '@src/utils/getExplorerAddress';
 import { useTranslation } from 'react-i18next';
 import {

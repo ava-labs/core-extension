@@ -1,193 +1,144 @@
-import { useEffect, useState } from 'react';
-import { CreatePassword } from '@src/pages/Onboarding/CreatePassword';
-import { CreateWallet } from './CreateWallet/CreateWallet';
-import { OnboardingPhase } from '@src/background/services/onboarding/models';
-import { Import } from './ImportWallet';
-import { Welcome } from './Welcome';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { Logo } from '@src/components/icons/Logo';
-import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
-import { LedgerConnect } from './LedgerConnect';
-import { LedgerTrouble } from './LedgerTrouble';
-import { BrandName } from '@src/components/icons/BrandName';
-import { AnalyticsConsent } from './AnalyticsConsent';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { BetaLabel } from '@src/components/icons/BetaLabel';
+import {
+  styled,
+  Stack,
+  CircularProgress,
+  HomeIcon,
+  Box,
+} from '@avalabs/k2-components';
 import { LanguageSelector } from './components/LanguageSelector';
-import { Card, Stack, useTheme } from '@avalabs/k2-components';
-import { Keystone } from './Keystone';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+} from 'react-router-dom';
+import { Suspense, useEffect } from 'react';
+import { Welcome } from './pages/Welcome';
+import { CreateWallet } from './pages/CreateWallet/CreateWallet';
+import { OnboardingURLs } from '@src/background/services/onboarding/models';
+import { Keystone } from './pages/Keystone/Keystone';
+import { LedgerConnect } from './pages/Ledger/LedgerConnect';
+import { ImportWallet } from './pages/ImportWallet';
+import { CreatePassword } from './pages/CreatePassword';
+import { AnalyticsConsent } from './pages/AnalyticsConsent';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+import { LedgerTrouble } from './pages/Ledger/LedgerTrouble';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
-export enum OnboardingPath {
-  NEW_WALLET = 'new-wallet',
-  RECOVERY = 'recovery',
-  LEDGER = 'ledger',
-  KEYSTONE = 'keystone',
-}
+const ContentPart = styled(Stack)`
+  flex-grow: 1;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+`;
+
+const OnboardingStep = styled(Stack)`
+  align-items: center;
+  flex: 1;
+`;
+
+const AppBackground = styled(Stack)`
+  height: 100%;
+  background: url('/images/onboarding-background.png') no-repeat center/cover;
+`;
 
 export function Onboarding() {
-  const { nextPhase, onboardingState, setNextPhase, submit, submitInProgress } =
+  const history = useHistory();
+  const location = useLocation();
+  const { submitInProgress, setOnboardingPhase, onboardingPhase } =
     useOnboardingContext();
   const { initAnalyticsIds, capture } = useAnalyticsContext();
-  const [onboardingPath, setOnboardingPath] = useState<OnboardingPath>();
-  const theme = useTheme();
-
-  async function handleOnCancel() {
-    capture('OnboardingCancelled', { step: nextPhase });
-    setNextPhase(OnboardingPhase.RESTART);
-  }
-  useEffect(() => {
-    if (
-      nextPhase === OnboardingPhase.FINALIZE &&
-      !onboardingState.isOnBoarded &&
-      !submitInProgress
-    ) {
-      submit(() => window.location.replace(`${process.env.CORE_WEB_BASE_URL}`));
-    }
-  }, [nextPhase, onboardingState.isOnBoarded, submit, submitInProgress]);
 
   useEffect(() => {
     initAnalyticsIds(false);
-    if (onboardingState.isOnBoarded) {
-      setNextPhase(OnboardingPhase.FINALIZE);
-    } else if (onboardingState.reImportMnemonic) {
-      setNextPhase(OnboardingPhase.IMPORT_WALLET);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  let content = (
-    <Welcome
-      onNext={(nextStep) => {
-        const eventNames = {
-          [OnboardingPhase.ANALYTICS_CONSENT]:
-            'OnboardingCreateNewWalletSelected',
-          [OnboardingPhase.IMPORT_WALLET]: 'OnboardingImportMnemonicSelected',
-          [OnboardingPhase.LEDGER]: 'OnboardingImportLedgerSelected',
-          [OnboardingPhase.KEYSTONE]: 'OnboardingKeystoneSelected',
-        };
-        capture(eventNames[nextStep]);
-        setNextPhase(nextStep);
-        if (nextStep === OnboardingPhase.ANALYTICS_CONSENT) {
-          setOnboardingPath(OnboardingPath.NEW_WALLET);
-          return;
-        }
-        if (nextStep === OnboardingPhase.LEDGER) {
-          setOnboardingPath(OnboardingPath.LEDGER);
-          return;
-        }
-        if (nextStep === OnboardingPhase.KEYSTONE) {
-          setOnboardingPath(OnboardingPath.KEYSTONE);
-          return;
-        }
-        setOnboardingPath(OnboardingPath.RECOVERY);
-      }}
-    />
-  );
-
-  switch (nextPhase) {
-    case OnboardingPhase.CREATE_WALLET:
-      content = (
-        <CreateWallet
-          onCancel={handleOnCancel}
-          onBack={() => setNextPhase(OnboardingPhase.PASSWORD)}
-        />
-      );
-      break;
-    case OnboardingPhase.IMPORT_WALLET:
-      content = <Import onCancel={handleOnCancel} onBack={handleOnCancel} />;
-      break;
-    case OnboardingPhase.PASSWORD:
-      content = (
-        <CreatePassword
-          onCancel={handleOnCancel}
-          onBack={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
-          isImportFlow={onboardingPath !== OnboardingPath.NEW_WALLET}
-          onboardingPath={onboardingPath}
-        />
-      );
-      break;
-    case OnboardingPhase.LEDGER:
-      content = (
-        <LedgerConnect
-          onCancel={handleOnCancel}
-          onNext={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
-          onError={() => setNextPhase(OnboardingPhase.LEDGER_TROUBLE)}
-        />
-      );
-      break;
-    // Temporary - where does this get displayed?
-    case OnboardingPhase.LEDGER_TROUBLE:
-      content = (
-        <LedgerTrouble onBack={() => setNextPhase(OnboardingPhase.LEDGER)} />
-      );
-      break;
-    case OnboardingPhase.ANALYTICS_CONSENT:
-      content = (
-        <AnalyticsConsent
-          onCancel={handleOnCancel}
-          onboardingPath={onboardingPath}
-        />
-      );
-      break;
-    case OnboardingPhase.KEYSTONE:
-      content = (
-        <Keystone
-          onCancel={handleOnCancel}
-          onNext={() => setNextPhase(OnboardingPhase.ANALYTICS_CONSENT)}
-        />
-      );
-      break;
-    case OnboardingPhase.FINALIZE:
-    case OnboardingPhase.CONFIRM:
-      content = <LoadingOverlay />;
-      break;
-  }
-
   return (
-    <Stack sx={{ height: `100%`, alignItems: 'center' }}>
-      <Stack
-        sx={{
-          flexDirection: 'row',
-          maxWidth: '90%',
-          width: theme.spacing(150),
-          py: 2,
-        }}
-      >
-        <Stack
-          onClick={handleOnCancel}
-          sx={{
-            cursor: 'pointer',
-            width: '100%',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Logo height={29} />
-            <BrandName height={15} margin={`0 0 0 ${theme.spacing(1)}`} />
-            <Stack
-              sx={{
-                flexDirection: 'row',
-                width: 'auto',
-                ml: 1,
-              }}
-            >
-              <BetaLabel />
-            </Stack>
-          </Stack>
+    <Box
+      sx={{ display: 'grid', height: '100%', gridTemplateColumns: '1fr 1fr' }}
+    >
+      {submitInProgress && <LoadingOverlay />}
+      <ContentPart sx={{ px: 2 }}>
+        <Stack sx={{ alignItems: 'end', py: 2 }}>
+          <LanguageSelector />
         </Stack>
-
-        <LanguageSelector />
-      </Stack>
-      <Stack sx={{ justifyContent: 'center', flexGrow: 1 }}>
-        <Card
-          sx={{
-            width: theme.spacing(73),
-            height: theme.spacing(82),
-          }}
-        >
-          {content}
-        </Card>
-      </Stack>
-    </Stack>
+        <OnboardingStep sx={{ justifyContent: 'space-between' }}>
+          <Stack
+            sx={{
+              height: '100%',
+              justifyContent: 'center',
+              mt: 2,
+            }}
+          >
+            <Switch>
+              <Route path={OnboardingURLs.ANALYTICS_CONSENT}>
+                <Suspense fallback={<CircularProgress />}>
+                  <AnalyticsConsent />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.CREATE_PASSWORD}>
+                <Suspense fallback={<CircularProgress />}>
+                  <CreatePassword />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.SEED_PHRASE}>
+                <Suspense fallback={<CircularProgress />}>
+                  <ImportWallet />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.KEYSTONE}>
+                <Suspense fallback={<CircularProgress />}>
+                  <Keystone />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.LEDGER}>
+                <Suspense fallback={<CircularProgress />}>
+                  <LedgerConnect />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.LEDGER_TROUBLE}>
+                <Suspense fallback={<CircularProgress />}>
+                  <LedgerTrouble />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.CREATE_WALLET}>
+                <Suspense fallback={<CircularProgress />}>
+                  <CreateWallet />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.ONBOARDING_HOME}>
+                <Suspense fallback={<CircularProgress />}>
+                  <Welcome />
+                </Suspense>
+              </Route>
+              <Route path="/">
+                <Suspense fallback={<CircularProgress />}>
+                  <Redirect to="/onboarding" />
+                </Suspense>
+              </Route>
+            </Switch>
+          </Stack>
+          {location.pathname !== OnboardingURLs.ONBOARDING_HOME && (
+            <Stack sx={{ width: '100%', pl: 1, pb: 2 }}>
+              <HomeIcon
+                size={20}
+                sx={{ cursor: 'pointer' }}
+                onClick={() => {
+                  capture('OnboardingCancelled', { step: onboardingPhase });
+                  setOnboardingPhase(null);
+                  history.push(OnboardingURLs.ONBOARDING_HOME);
+                }}
+              />
+            </Stack>
+          )}
+        </OnboardingStep>
+      </ContentPart>
+      <ContentPart sx={{ backgroundColor: 'background.paper' }}>
+        <AppBackground />
+      </ContentPart>
+    </Box>
   );
 }

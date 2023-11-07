@@ -46,7 +46,7 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
 
   const onCopy = () => {
     navigator.clipboard.writeText(phrase);
-    toast(t('Copied!'), { duration: 2000 });
+    toast.success(t('Copied!'), { duration: 2000, position: 'top-left' });
   };
 
   return (

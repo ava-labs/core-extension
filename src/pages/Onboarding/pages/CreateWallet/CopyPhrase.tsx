@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
+import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import { Checkbox, Stack, Typography, useTheme } from '@avalabs/k2-components';
 import { Mnemonic } from './Mnemonic';
-import { PageNav } from '../components/PageNav';
+import { PageNav } from '../../components/PageNav';
 
 interface CopyPhraseProps {
   mnemonic: string;
@@ -13,12 +13,7 @@ interface CopyPhraseProps {
   onNext: () => void;
 }
 
-export function CopyPhrase({
-  onCancel,
-  onBack,
-  onNext,
-  mnemonic,
-}: CopyPhraseProps) {
+export function CopyPhrase({ onBack, onNext, mnemonic }: CopyPhraseProps) {
   const { capture } = useAnalyticsContext();
   const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
   const { t } = useTranslation();
@@ -27,35 +22,32 @@ export function CopyPhrase({
   return (
     <Stack
       sx={{
-        width: '100%',
+        width: '410px',
         height: '100%',
       }}
     >
       <OnboardingStepHeader
         testId="copy-phrase"
-        title={t('Secret Recovery Phrase')}
-        onClose={onCancel}
+        title={t('Write Down Seed Phrase')}
       />
       <Stack
         data-testid="copy-phrase-section"
         sx={{
-          pt: 1,
-          px: 6,
           flexGrow: 1,
+          textAlign: 'center',
+          mb: 3,
         }}
       >
-        <Typography variant="body2" sx={{ mb: 5 }}>
+        <Typography
+          variant="body2"
+          sx={{ mb: 5 }}
+          color={theme.palette.text.secondary}
+        >
           <Trans i18nKey="This is your secret recovery phrase. Write it down, and store it in a secure location." />
         </Typography>
         <Stack alignItems="center" sx={{ rowGap: 1 }}>
-          <Stack sx={{ width: theme.spacing(44) }}>
-            <Mnemonic
-              phrase={mnemonic}
-              confirmMnemonic={false}
-              onConfirmedChange={() => {
-                //noop, confirmation is next step
-              }}
-            />
+          <Stack sx={{ width: theme.spacing(44), mb: 4 }}>
+            <Mnemonic phrase={mnemonic} confirmMnemonic={false} />
           </Stack>
           <Stack sx={{ width: theme.spacing(44) }}>
             <Checkbox
@@ -71,9 +63,11 @@ export function CopyPhrase({
                   : theme.palette.primary.main,
               }}
               label={
-                <Typography variant="caption">
-                  <Trans i18nKey="I understand losing this phrase will result in lost funds. I have stored it in a secure location." />
-                </Typography>
+                <Stack sx={{ textAlign: 'left' }}>
+                  <Typography variant="caption">
+                    <Trans i18nKey="I understand losing this phrase will result in lost funds. I have stored it in a secure location." />
+                  </Typography>
+                </Stack>
               }
             />
           </Stack>
@@ -89,7 +83,7 @@ export function CopyPhrase({
         disableNext={!termsConfirmed}
         expand={false}
         steps={4}
-        activeStep={2}
+        activeStep={0}
       />
     </Stack>
   );

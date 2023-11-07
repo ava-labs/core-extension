@@ -6,7 +6,7 @@ export interface MnemonicProps {
   wordCount?: number;
   confirmWordCount?: number;
   confirmMnemonic?: boolean;
-  onConfirmedChange: (confirmed: boolean) => void;
+  onConfirmedChange?: (confirmed: boolean) => void;
 }
 
 export function Mnemonic(props: MnemonicProps) {

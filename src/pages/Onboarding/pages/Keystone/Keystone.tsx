@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { OnboardingStepHeader } from './components/OnboardingStepHeader';
+import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import {
@@ -10,19 +10,25 @@ import {
   Button,
   styled,
 } from '@avalabs/k2-components';
-import { PageNav } from './components/PageNav';
+import { PageNav } from '../../components/PageNav';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import {
   KeystoneQRCodeScanner,
   KEYSTONE_CONNECT_SUPPORT_URL,
 } from './KeystoneQRCodeScanner';
-import { AddressType } from './LedgerConnect';
+import { AddressType } from '../Ledger/LedgerConnect';
 import { getAddressFromXPub } from '@avalabs/wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
-import { DerivedAddresses } from './components/DerivedAddresses';
+import { DerivedAddresses } from '../../components/DerivedAddresses';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import {
+  ONBOARDING_EVENT_NAMES,
+  OnboardingPhase,
+  OnboardingURLs,
+} from '@src/background/services/onboarding/models';
+import { useHistory } from 'react-router-dom';
 
 const KeystoneStepImage = styled(Stack)`
   position: relative;
@@ -48,18 +54,16 @@ const KeystoneImageBackground = styled(Stack)`
   z-index: 0;
 `;
 
-interface KeystoneProps {
-  onCancel(): void;
-  onNext(): void;
-}
-
 const tutorialLastStep = 2; // there are 3 steps to get through the tutorial (the images basically)
 
-export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
+export const Keystone = () => {
   const { capture } = useAnalyticsContext();
-  const { setMasterFingerprint, setXpub } = useOnboardingContext();
+  const { setMasterFingerprint, setXpub, setOnboardingPhase } =
+    useOnboardingContext();
   const { t } = useTranslation();
   const theme = useTheme();
+  const history = useHistory();
+
   const [stepNumber, setStepNumber] = useState(0);
   const [xPubKey, setXPubKey] = useState('');
   const [isQRCodeScanOpen, setIsQRCodeScanOpen] = useState(false);
@@ -67,6 +71,15 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
 
   const { getAvaxBalance } = useGetAvaxBalance();
   const { featureFlags } = useFeatureFlagContext();
+
+  useEffect(() => {
+    setOnboardingPhase(OnboardingPhase.KEYSTONE);
+    if (!stepNumber) {
+      capture(ONBOARDING_EVENT_NAMES.keystone);
+    } else {
+      capture(`KeystoneTutorialStep${stepNumber}`);
+    }
+  }, [capture, setOnboardingPhase, stepNumber]);
 
   const getAddressFromXpubKey = useCallback(
     async (
@@ -129,10 +142,7 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
           height: '100%',
         }}
       >
-        <OnboardingStepHeader
-          title={headerTitles[stepNumber]}
-          onClose={onCancel}
-        />
+        <OnboardingStepHeader title={headerTitles[stepNumber]} />
         <FunctionIsOffline functionName={t('Keystone')} hidePageTitle />
       </Stack>
     );
@@ -142,20 +152,20 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
     <>
       <Stack
         sx={{
-          width: '100%',
+          width: '460px',
           height: '100%',
         }}
       >
         <OnboardingStepHeader
           testId="keystone-tutorial-step-1"
           title={headerTitles[stepNumber]}
-          onClose={onCancel}
         />
         <Stack
           sx={{
             flexGrow: 1,
             pt: 1,
             px: 6,
+            textAlign: 'center',
           }}
         >
           <Typography variant="body2" minHeight={40}>
@@ -187,14 +197,17 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
         <PageNav
           onBack={() => {
             if (!stepNumber) {
-              onCancel();
+              capture('OnboardingCancelled', {
+                step: OnboardingPhase.KEYSTONE_TUTORIAL,
+              });
+              history.goBack();
               return;
             }
             setStepNumber(stepNumber - 1);
           }}
           onNext={() => {
             if (stepNumber === tutorialLastStep + 1) {
-              onNext();
+              history.push(OnboardingURLs.CREATE_PASSWORD);
             }
             if (stepNumber === tutorialLastStep) {
               setIsQRCodeScanOpen(true);
@@ -202,7 +215,6 @@ export const Keystone = ({ onCancel, onNext }: KeystoneProps) => {
             if (stepNumber + 1 === steps) {
               return;
             }
-            capture(`KeystoneTutorialStep${stepNumber + 1}`);
             setStepNumber(stepNumber + 1);
           }}
           disableNext={false}

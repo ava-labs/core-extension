@@ -12,10 +12,10 @@ import {
   Button,
   ExternalLinkIcon,
   useTheme,
+  XIcon,
 } from '@avalabs/k2-components';
 import { Overlay } from '@src/components/common/Overlay';
 import { useTranslation } from 'react-i18next';
-import { OnboardingStepHeader } from './components/OnboardingStepHeader';
 import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry-eth';
 import { useKeystoneScannerContents } from '@src/hooks/useKeystoneScannerContents';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -52,6 +52,7 @@ export const KeystoneQRCodeScanner = ({
   const { t } = useTranslation();
   const { palette } = useTheme();
   const { capture } = useAnalyticsContext();
+  const theme = useTheme();
 
   const [cameraPermission, setCameraPermission] = useState<PermissionState>();
   const [hasError, setHasError] = useState(false);
@@ -140,11 +141,38 @@ export const KeystoneQRCodeScanner = ({
           borderRadius: 1,
         }}
       >
-        <OnboardingStepHeader
-          testId="keystone-tutorial-step-1"
-          title={pageContent?.headLine}
-          onClose={onCancel}
-        />
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            pt: 2,
+            px: 2,
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              pt: 3,
+              px: 4,
+            }}
+            data-testid={`keystone-modal-header`}
+          >
+            {pageContent?.headLine}
+          </Typography>
+          <Button
+            variant="text"
+            data-testid={`keystone-modal-close-button`}
+            onClick={onCancel}
+            sx={{
+              p: 0,
+              height: theme.spacing(3),
+              width: theme.spacing(3),
+              minWidth: theme.spacing(3),
+            }}
+          >
+            <XIcon size={24} sx={{ color: 'primary.main' }} />
+          </Button>
+        </Stack>
         <Stack
           sx={{
             flexGrow: 1,

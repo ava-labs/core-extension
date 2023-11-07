@@ -48,23 +48,40 @@ const OnboardingContext = createContext<{
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
   setMasterFingerprint: Dispatch<SetStateAction<string>>;
+  mnemonic: string;
+  onboardingPhase: OnboardingPhase | null;
+  setOnboardingPhase: Dispatch<SetStateAction<OnboardingPhase | null>>;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const isHome = useIsSpecificContextContainer(ContextContainer.HOME);
   const [onboardingState, setOnboardingState] = useState<OnboardingState>();
+
   const [nextPhase, setNextPhase] = useState<OnboardingPhase>();
+
   const [mnemonic, setMnemonic] = useState('');
+
   const [xpub, setXpub] = useState('');
+
   const [xpubXP, setXpubXP] = useState('');
+
   const [password, setPassword] = useState('');
+
   const [accountName, setAccountName] = useState<string>('Account 1');
+
   const [analyticsConsent, setAnalyticsConsent] = useState(false);
+
   const [submitInProgress, setSubmitInProgress] = useState(false);
+
   const [publicKeys, setPublicKeys] = useState<PubKeyType[]>();
+
   const [masterFingerprint, setMasterFingerprint] = useState<string>('');
+
   const { t } = useTranslation();
+
+  const [onboardingPhase, setOnboardingPhase] =
+    useState<OnboardingPhase | null>(null);
 
   function resetStates() {
     setMnemonic('');
@@ -175,6 +192,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setPublicKeys,
         publicKeys,
         setMasterFingerprint,
+        mnemonic,
+        onboardingPhase,
+        setOnboardingPhase,
       }}
     >
       {/*

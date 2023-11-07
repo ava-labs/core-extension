@@ -1,9 +1,7 @@
-import { lazy } from 'react';
 import { t as translate } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { useTheme, darkTheme } from '@avalabs/k2-components';
-
-const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'));
+import { useTheme, darkTheme, Typography, Stack } from '@avalabs/k2-components';
+import zxcvbn from 'zxcvbn';
 
 const REQUIRED_PASSWORD_STRENTGH = 2; // can be 0-4
 
@@ -34,12 +32,12 @@ export const getPasswordErrorMessage = (
   return '';
 };
 
-const getBarColors = (theme: typeof darkTheme) => {
+const getColors = (theme: typeof darkTheme) => {
   return [
-    theme.palette.grey[400],
     theme.palette.error.main,
     theme.palette.error.light,
     theme.palette.warning.main,
+    theme.palette.success.light,
     theme.palette.success.light,
   ];
 };
@@ -53,29 +51,25 @@ export function PasswordStrength({
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const barColors = getBarColors(theme);
+  const { score: strength } = zxcvbn(password);
+  setPasswordStrength(strength);
+  const scoreWords = [
+    t('Strength: weak. Keep adding characters.'),
+    t('Strength: weak. Keep adding characters.'),
+    t('Strength: medium. This will do. '),
+    t('Strength: strong. Keep this one!'),
+    t('Strength: strong. Keep this one!'),
+  ];
+  const colors = getColors(theme);
   return (
-    <PasswordStrengthBar
-      password={password}
-      scoreWordStyle={{
-        fontSize: '12px',
-        fontFamily: theme.typography.fontFamily,
-        color: theme.palette.text.secondary,
-        textAlign: 'left',
-      }}
-      scoreWords={[
-        t('Password strength: Too weak'),
-        t('Password strength: Too weak'),
-        t('Password strength: Weak'),
-        t('Password strength: Good enough'),
-        t('Password strength: Strong'),
-      ]}
-      shortScoreWord={t('Password must be at least 8 characters.')}
-      onChangeScore={(score) => {
-        setPasswordStrength(score);
-      }}
-      minLength={8}
-      barColors={barColors}
-    />
+    <Stack sx={{ mt: 1 }}>
+      <Typography
+        color={colors[strength]}
+        sx={{ textAlign: 'left' }}
+        variant="caption"
+      >
+        {scoreWords[strength]}
+      </Typography>
+    </Stack>
   );
 }

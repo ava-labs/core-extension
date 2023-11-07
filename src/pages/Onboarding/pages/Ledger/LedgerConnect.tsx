@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
-import { OnboardingStepHeader } from './components/OnboardingStepHeader';
+import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { DerivationPathDropdown } from './components/DerivationPathDropDown';
+import { DerivationPathDropdown } from '../../components/DerivationPathDropDown';
 import {
   Avalanche,
   DerivationPath,
   getAddressFromXPub,
   getEvmAddressFromPubKey,
 } from '@avalabs/wallets-sdk';
-import { DerivedAddresses } from './components/DerivedAddresses';
+import { DerivedAddresses } from '../../components/DerivedAddresses';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { PubKeyType } from '@src/background/services/wallet/models';
 import { Trans, useTranslation } from 'react-i18next';
-import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
+import { LedgerWrongVersionOverlay } from '../../../Ledger/LedgerWrongVersionOverlay';
 import {
   Button,
   Divider,
@@ -25,12 +25,13 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
-import { PageNav } from './components/PageNav';
-interface LedgerConnectProps {
-  onCancel(): void;
-  onNext(): void;
-  onError(): void;
-}
+import { PageNav } from '../../components/PageNav';
+import {
+  ONBOARDING_EVENT_NAMES,
+  OnboardingPhase,
+  OnboardingURLs,
+} from '@src/background/services/onboarding/models';
+import { useHistory } from 'react-router-dom';
 
 export interface AddressType {
   address: string;
@@ -49,11 +50,7 @@ export enum LedgerStatus {
  */
 const WAIT_1500_MILLI_FOR_USER = 1500;
 
-export function LedgerConnect({
-  onCancel,
-  onNext,
-  onError,
-}: LedgerConnectProps) {
+export function LedgerConnect() {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const {
@@ -65,7 +62,8 @@ export function LedgerConnect({
     getPublicKey,
   } = useLedgerContext();
   const { getAvaxBalance } = useGetAvaxBalance();
-  const { setXpub, setXpubXP, setPublicKeys } = useOnboardingContext();
+  const { setXpub, setXpubXP, setPublicKeys, setOnboardingPhase } =
+    useOnboardingContext();
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
     LedgerStatus.LEDGER_UNINITIATED
   );
@@ -77,6 +75,7 @@ export function LedgerConnect({
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [dropdownDisabled, setDropdownDisabled] = useState(true);
   const { t } = useTranslation();
+  const history = useHistory();
 
   const resetStates = () => {
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
@@ -86,6 +85,11 @@ export function LedgerConnect({
     setHasPublicKeys(false);
     setPathSpec(DerivationPath.BIP44);
   };
+
+  useEffect(() => {
+    setOnboardingPhase(OnboardingPhase.LEDGER);
+    capture(ONBOARDING_EVENT_NAMES.ledger);
+  }, [capture, setOnboardingPhase]);
 
   const getAddressFromXpubKey = useCallback(
     async (
@@ -300,7 +304,6 @@ export function LedgerConnect({
       <OnboardingStepHeader
         testId="connect-ledger"
         title={t('Connect your Ledger')}
-        onClose={onCancel}
       />
       <Stack sx={{ flexGrow: 1, pt: 1, px: 6 }}>
         <Typography variant="body2">
@@ -359,7 +362,9 @@ export function LedgerConnect({
                     components={{
                       linkText: (
                         <span
-                          onClick={onError}
+                          onClick={() =>
+                            history.push(OnboardingURLs.LEDGER_TROUBLE)
+                          }
                           style={{
                             cursor: 'pointer',
                             textDecoration: 'underline',
@@ -379,8 +384,11 @@ export function LedgerConnect({
         </Stack>
       </Stack>
       <PageNav
-        onBack={onCancel}
-        onNext={onNext}
+        onBack={() => {
+          capture('OnboardingCancelled', { step: OnboardingPhase.LEDGER });
+          history.goBack();
+        }}
+        onNext={() => history.push(OnboardingURLs.CREATE_PASSWORD)}
         disableNext={!hasPublicKeys}
         expand={true}
         steps={3}
@@ -409,7 +417,7 @@ export function LedgerConnect({
         </Button>
       </PageNav>
 
-      <LedgerWrongVersionOverlay onClose={() => onCancel()} />
+      <LedgerWrongVersionOverlay onClose={() => history.goBack()} />
     </Stack>
   );
 }

@@ -16,6 +16,9 @@ export enum FeatureGates {
   DEFI = 'defi-feature',
   IMPORT_WALLET_CONNECT = 'import-wallet-connect',
   IMPORT_FIREBLOCKS = 'import-fireblocks',
+  SEEDLESS_ONBOARDING = 'seedless-onboarding',
+  SEEDLESS_ONBOARDING_GOOGLE = 'seedless-onboarding-google',
+  SEEDLESS_ONBOARDING_APPLE = 'seedless-onboarding-apple',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -38,6 +41,9 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.DEFI]: false,
   [FeatureGates.IMPORT_WALLET_CONNECT]: false,
   [FeatureGates.IMPORT_FIREBLOCKS]: false,
+  [FeatureGates.SEEDLESS_ONBOARDING]: false,
+  [FeatureGates.SEEDLESS_ONBOARDING_GOOGLE]: false,
+  [FeatureGates.SEEDLESS_ONBOARDING_APPLE]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -59,6 +65,9 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.DEFI]: true,
   [FeatureGates.IMPORT_WALLET_CONNECT]: true,
   [FeatureGates.IMPORT_FIREBLOCKS]: true,
+  [FeatureGates.SEEDLESS_ONBOARDING]: true,
+  [FeatureGates.SEEDLESS_ONBOARDING_GOOGLE]: true,
+  [FeatureGates.SEEDLESS_ONBOARDING_APPLE]: true,
 };
 
 export enum FeatureFlagEvents {

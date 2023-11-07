@@ -1,4 +1,4 @@
-import { Stack, Typography, useTheme } from '@avalabs/k2-components';
+import { Stack, Typography, styled, useTheme } from '@avalabs/k2-components';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MnemonicProps } from './Mnemonic';
@@ -8,6 +8,10 @@ interface WordToConfirm {
   randomWords: string[];
   selected: string;
 }
+
+const BoldText = styled('span')`
+  font-weight: bold;
+`;
 
 export function ConfirmMnemonic({
   phrase,
@@ -79,11 +83,12 @@ export function ConfirmMnemonic({
       };
       setWordsToConfirm(newState);
 
-      onConfirmedChange(
-        Object.values(newState).every(
-          (item) => item.index >= 0 && words[item.index] === item.selected
-        )
-      );
+      onConfirmedChange &&
+        onConfirmedChange(
+          Object.values(newState).every(
+            (item) => item.index >= 0 && words[item.index] === item.selected
+          )
+        );
     }
   };
 
@@ -92,10 +97,19 @@ export function ConfirmMnemonic({
       {Object.keys(wordsToConfirm)
         .map(Number)
         .map((i) => (
-          <Stack key={i} sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              {i !== 0 ? `${nextWordText} ${words[i - 1]}` : firstWordText}
-            </Typography>
+          <Stack key={i} sx={{ mb: 4, textAlign: 'left' }}>
+            {i !== 0 ? (
+              <>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                  {nextWordText} <BoldText>{`(${words[i - 1]})`}</BoldText>
+                </Typography>
+              </>
+            ) : (
+              <Typography
+                variant="body1"
+                sx={{ mb: 2, fontWeight: 'fontWeightBold' }}
+              >{`${firstWordText}`}</Typography>
+            )}
             <Stack sx={{ flexDirection: 'row' }}>
               {wordsToConfirm[i]?.randomWords.map((randomWord) => {
                 const selected = wordsToConfirm[i]?.selected === randomWord;

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
+import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography, useTheme } from '@avalabs/k2-components';
 import { Mnemonic } from './Mnemonic';
-import { PageNav } from '../components/PageNav';
+import { PageNav } from '../../components/PageNav';
 
 interface ConfirmPhraseProps {
   mnemonic: string;
@@ -14,7 +14,6 @@ interface ConfirmPhraseProps {
 }
 
 export function ConfirmPhrase({
-  onCancel,
   onNext,
   onBack,
   mnemonic,
@@ -22,18 +21,17 @@ export function ConfirmPhrase({
   const { capture } = useAnalyticsContext();
   const [termsConfirmed, setTermsConfirmed] = useState<boolean>(false);
   const { t } = useTranslation();
+  const theme = useTheme();
 
   return (
     <Stack
       sx={{
-        width: '100%',
         height: '100%',
       }}
     >
       <OnboardingStepHeader
         testId="confirm-phrase"
-        title={t('Verify Secret Recovery Phrase')}
-        onClose={onCancel}
+        title={t('Verify Phrase')}
       />
       <Stack
         data-testid="confirm-phrase-section"
@@ -41,9 +39,14 @@ export function ConfirmPhrase({
           flexGrow: 1,
           pt: 1,
           px: 6,
+          textAlign: 'center',
         }}
       >
-        <Typography variant="body2" sx={{ mb: 5 }}>
+        <Typography
+          variant="body2"
+          sx={{ mb: 5 }}
+          color={theme.palette.text.secondary}
+        >
           <Trans i18nKey="Select the words below to verify your secret recovery phrase." />
         </Typography>
         <Stack alignSelf="center">
@@ -67,7 +70,7 @@ export function ConfirmPhrase({
         disableNext={!termsConfirmed}
         expand={false}
         steps={4}
-        activeStep={3}
+        activeStep={1}
       />
     </Stack>
   );

@@ -1,7 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { OnboardingPhase } from '@src/background/services/onboarding/models';
-import { OnboardingStepHeader } from './components/OnboardingStepHeader';
+import {
+  OnboardingPhase,
+  OnboardingURLs,
+} from '@src/background/services/onboarding/models';
+import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -11,23 +14,15 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
-import { OnboardingPath } from './Onboarding';
-import { PageNav } from './components/PageNav';
-interface CreatePasswordProps {
-  onCancel(): void;
-  onBack(): void;
-  isImportFlow: boolean;
-  onboardingPath?: OnboardingPath;
-}
+import { PageNav } from '../components/PageNav';
+import { PasswordStrength } from '@src/components/common/PasswordStrength';
+import { useHistory } from 'react-router-dom';
+import { TypographyLink } from '../components/TypographyLink';
 
-export const CreatePassword = ({
-  onCancel,
-  onBack,
-  isImportFlow,
-  onboardingPath,
-}: CreatePasswordProps) => {
+export const CreatePassword = () => {
   const { capture } = useAnalyticsContext();
-  const { setPasswordAndName, setNextPhase } = useOnboardingContext();
+  const history = useHistory();
+  const { setPasswordAndName, onboardingPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
@@ -37,16 +32,24 @@ export const CreatePassword = ({
   const [isPasswordInputFilled, setIsPasswordInputFilled] = useState(false);
   const { t } = useTranslation();
   const theme = useTheme();
+  const [newPasswordStrength, setNewPasswordStrength] = useState<number>(0);
 
   const getSteps = useMemo(() => {
-    if (onboardingPath === OnboardingPath.NEW_WALLET) {
-      return { stepsNumber: 4, activeStep: 1 };
+    if (onboardingPhase === OnboardingPhase.IMPORT_WALLET) {
+      return { stepsNumber: 3, activeStep: 1 };
     }
-    if (onboardingPath === OnboardingPath.KEYSTONE) {
-      return { stepsNumber: 6, activeStep: 5 };
+    if (onboardingPhase === OnboardingPhase.KEYSTONE) {
+      return { stepsNumber: 6, activeStep: 4 };
     }
-    return { stepsNumber: 3, activeStep: 2 };
-  }, [onboardingPath]);
+    return { stepsNumber: 4, activeStep: 2 };
+  }, [onboardingPhase]);
+
+  useEffect(() => {
+    if (!onboardingPhase) {
+      history.push(OnboardingURLs.ONBOARDING_HOME);
+    }
+    capture(OnboardingPhase.PASSWORD);
+  }, [capture, history, onboardingPhase]);
 
   const isFieldsFilled = !!(password && confirmPasswordVal);
   const confirmationError = !!(
@@ -57,10 +60,10 @@ export const CreatePassword = ({
   const passwordLengthError =
     isPasswordInputFilled && password && password.length < 8;
   const canSubmit =
-    !passwordLengthError &&
     !confirmationError &&
     isFieldsFilled &&
-    termAndPolicyChecked;
+    termAndPolicyChecked &&
+    newPasswordStrength > 1;
 
   return (
     <Stack
@@ -71,12 +74,15 @@ export const CreatePassword = ({
     >
       <OnboardingStepHeader
         testId="name-and-password"
-        title={t('Create a Name and Password')}
-        onClose={onCancel}
+        title={t('Account Details')}
       />
-      <Stack sx={{ flexGrow: 1, pt: 1, px: 6 }}>
-        <Typography variant="body2" sx={{ mb: 4 }}>
-          <Trans i18nKey="For your security, please create a new name and password." />
+      <Stack sx={{ flexGrow: 1, textAlign: 'center', mb: 3 }}>
+        <Typography
+          variant="body2"
+          sx={{ mb: 4 }}
+          color={theme.palette.text.secondary}
+        >
+          <Trans i18nKey="For your security, please create a name and password." />
         </Typography>
 
         <Stack
@@ -103,11 +109,14 @@ export const CreatePassword = ({
               onBlur={() => {
                 setIsPasswordInputFilled(true);
               }}
-              helperText={
-                passwordLengthError ? t('Must be at least 8 characters') : ''
-              }
               fullWidth
             />
+            {password && (
+              <PasswordStrength
+                password={password}
+                setPasswordStrength={setNewPasswordStrength}
+              />
+            )}
           </Stack>
           <Stack sx={{ height: theme.spacing(12) }}>
             <TextField
@@ -144,7 +153,7 @@ export const CreatePassword = ({
                     i18nKey="I agree to the <termLink>Terms of Use</termLink> and the <privacyLink>Privacy Policy</privacyLink>"
                     components={{
                       termLink: (
-                        <Typography
+                        <TypographyLink
                           as="a"
                           target="_blank"
                           href="https://core.app/terms/core"
@@ -156,7 +165,7 @@ export const CreatePassword = ({
                         />
                       ),
                       privacyLink: (
-                        <Typography
+                        <TypographyLink
                           as="a"
                           target="_blank"
                           href="https://www.avalabs.org/privacy-policy"
@@ -176,23 +185,22 @@ export const CreatePassword = ({
         </Stack>
       </Stack>
       <PageNav
-        onBack={onBack}
+        onBack={() => {
+          capture('OnboardingPasswordCancelled');
+          history.goBack();
+        }}
         onNext={() => {
           capture('OnboardingPasswordSet', {
             AccountNameSet: !!accountName,
           });
           setPasswordAndName(password, accountName);
-          setNextPhase(
-            isImportFlow
-              ? OnboardingPhase.FINALIZE
-              : OnboardingPhase.CREATE_WALLET
-          );
+          history.push(OnboardingURLs.ANALYTICS_CONSENT);
         }}
-        nextText={
-          onboardingPath === OnboardingPath.NEW_WALLET ? t('Next') : t('Save')
-        }
+        nextText={t('Save')}
         disableNext={!canSubmit}
-        expand={onboardingPath === OnboardingPath.NEW_WALLET ? false : true}
+        expand={
+          onboardingPhase === OnboardingPhase.CREATE_WALLET ? false : true
+        }
         steps={getSteps.stepsNumber}
         activeStep={getSteps.activeStep}
       />
