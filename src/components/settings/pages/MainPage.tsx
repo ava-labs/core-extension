@@ -97,7 +97,11 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
             }}
             data-testid="core-web-link-button"
             onClick={() => {
-              window.open(getCoreWebUrl(activeAccount?.addressC), '_blank');
+              window.open(
+                getCoreWebUrl(activeAccount?.addressC),
+                '_blank',
+                'noreferrer'
+              );
             }}
           >
             <ListItemIcon>
