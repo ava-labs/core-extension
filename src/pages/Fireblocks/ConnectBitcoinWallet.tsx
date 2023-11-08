@@ -38,10 +38,9 @@ export default function ConnectBitcoinWallet() {
   const [isLoading, setIsLoading] = useState(false);
 
   const onNextStep = useCallback(() => {
-    capture('ImportWithFireblocks_Success_BTC');
     toast.success(t('New Account Added!'), { duration: 2000 });
     history.push(`/accounts?activeTab=${AccountsTab.Imported}`);
-  }, [history, t, capture]);
+  }, [history, t]);
 
   const onConnect = useCallback(() => {
     if (!apiKey || !secretKey) {
@@ -53,14 +52,25 @@ export default function ConnectBitcoinWallet() {
       method: ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
       params: [accountId, apiKey, secretKey],
     })
-      .then(onNextStep)
+      .then(() => {
+        capture('ImportWithFireblocks_Success_BTC');
+        onNextStep();
+      })
       .catch((err) => {
         setApiKey('');
         setSecretKey('');
         setErrorMessage(getErrorMessage(err));
       })
       .finally(() => setIsLoading(false));
-  }, [accountId, getErrorMessage, apiKey, onNextStep, request, secretKey]);
+  }, [
+    accountId,
+    capture,
+    getErrorMessage,
+    apiKey,
+    onNextStep,
+    request,
+    secretKey,
+  ]);
   return (
     <Stack
       sx={{
