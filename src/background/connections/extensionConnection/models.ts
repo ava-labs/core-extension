@@ -121,4 +121,6 @@ export enum ExtensionRequest {
 
   WALLET_CONNECT_ESTABLISH_REQUIRED_SESSION = 'wallet_connect_establish_required_session',
   WALLET_CONNECT_IMPORT_ACCOUNT = 'wallet_connect_import_account',
+
+  FIREBLOCKS_UPDATE_API_CREDENTIALS = 'fireblocks_update_api_credentials',
 }

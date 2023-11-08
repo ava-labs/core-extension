@@ -27,7 +27,6 @@ import { AddNetwork } from '@src/pages/Networks/AddNetwork';
 import { EditNetwork } from '@src/pages/Networks/EditNetwork';
 import { NetworkDetails } from '@src/pages/Networks/NetworkDetails';
 import { Receive } from '@src/pages/Receive/Receive';
-import { Buy } from '@src/pages/Buy/Buy';
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
 import { Accounts } from '@src/pages/Accounts/Accounts';
 import { DialogContextProvider } from '@src/contexts/DialogContextProvider';
@@ -193,6 +192,28 @@ const ImportWithWalletConnect = lazy(() => {
   return import('../pages/ImportWithWalletConnect/ImportWithWalletConnect');
 });
 
+const ImportFireblocksWithWalletConnect = lazy(() => {
+  return import('../pages/Fireblocks/ImportFireblocksWithWalletConnect');
+});
+
+const ConnectBitcoinWallet = lazy(() => {
+  return import('../pages/Fireblocks/ConnectBitcoinWallet');
+});
+
+const pagesWithoutHeader = [
+  '/tokens/manage',
+  '/bridge/confirm',
+  '/bridge/transaction-status',
+  '/bridge/transaction-details',
+  '/send/confirm',
+  '/collectible/send/confirm',
+  '/accounts',
+  '/import-private-key',
+  '/import-with-walletconnect',
+  '/defi',
+  '/fireblocks',
+];
+
 export function Popup() {
   const { t } = useTranslation();
   const dimensions = useAppDimensions();
@@ -276,18 +297,7 @@ export function Popup() {
                                           margin: 'auto',
                                         }}
                                       >
-                                        {![
-                                          '/tokens/manage',
-                                          '/bridge/confirm',
-                                          '/bridge/transaction-status',
-                                          '/bridge/transaction-details',
-                                          '/send/confirm',
-                                          '/collectible/send/confirm',
-                                          '/accounts',
-                                          '/import-private-key',
-                                          '/import-with-walletconnect',
-                                          '/defi',
-                                        ].some((path) =>
+                                        {!pagesWithoutHeader.some((path) =>
                                           location.pathname.startsWith(path)
                                         ) && (
                                           <Stack sx={{ width: 1 }}>
@@ -464,14 +474,6 @@ export function Popup() {
                                               </Suspense>
                                             </Route>
 
-                                            <Route path="/buy">
-                                              <Suspense
-                                                fallback={<CircularProgress />}
-                                              >
-                                                <Buy />
-                                              </Suspense>
-                                            </Route>
-
                                             <Route path="/swap">
                                               <Suspense
                                                 fallback={<CircularProgress />}
@@ -617,6 +619,30 @@ export function Popup() {
                                                 }
                                               >
                                                 <ImportWithWalletConnect />
+                                              </Suspense>
+                                            </Route>
+
+                                            <Route path="/fireblocks/import-with-walletconnect">
+                                              <Suspense
+                                                fallback={
+                                                  <CircularProgress
+                                                    size={100}
+                                                  />
+                                                }
+                                              >
+                                                <ImportFireblocksWithWalletConnect />
+                                              </Suspense>
+                                            </Route>
+
+                                            <Route path="/fireblocks/connect-bitcoin/:accountId">
+                                              <Suspense
+                                                fallback={
+                                                  <CircularProgress
+                                                    size={100}
+                                                  />
+                                                }
+                                              >
+                                                <ConnectBitcoinWallet />
                                               </Suspense>
                                             </Route>
 

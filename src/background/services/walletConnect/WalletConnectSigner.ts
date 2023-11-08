@@ -14,7 +14,8 @@ export class WalletConnectSigner {
     private transport: WalletConnectTransport,
     private chainId: number,
     private address: string,
-    private tabId?: number
+    private tabId?: number,
+    private requestExpiry?: number
   ) {}
 
   /**
@@ -53,6 +54,7 @@ export class WalletConnectSigner {
         chainId: this.chainId,
         tabId: this.tabId,
         fromAddress: this.address,
+        expiry: this.requestExpiry,
       }
     );
 
@@ -104,6 +106,7 @@ export class WalletConnectSigner {
         chainId,
         tabId: this.tabId,
         fromAddress: this.address,
+        expiry: this.requestExpiry,
       }
     );
 
@@ -126,6 +129,7 @@ export class WalletConnectSigner {
         chainId: this.chainId,
         tabId: this.tabId,
         fromAddress: this.address,
+        expiry: this.requestExpiry,
       }
     );
   }

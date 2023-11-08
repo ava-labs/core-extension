@@ -3,7 +3,11 @@ import {
   BitcoinOutputUTXO,
   DerivationPath,
 } from '@avalabs/wallets-sdk';
-import { FireblocksImportData, ImportType } from '../accounts/models';
+import {
+  FireblocksApiData,
+  FireblocksImportData,
+  ImportType,
+} from '../accounts/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
 import { TransactionRequest } from 'ethers';
 
@@ -56,6 +60,33 @@ export interface WalletSecretInStorage {
   masterFingerprint?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 }
+
+export type PrivateKeyWalletData = {
+  type: ImportType.PRIVATE_KEY;
+  secret: string;
+};
+
+export type WalletConnectWalletData = {
+  type: ImportType.WALLET_CONNECT;
+  addresses: {
+    addressC: string;
+  };
+  pubKey?: PubKeyType;
+};
+
+export type FireblocksWalletData = {
+  type: ImportType.FIREBLOCKS;
+  addresses: {
+    addressC: string;
+    addressBTC?: string;
+  };
+  api?: FireblocksApiData;
+};
+
+export type ImportedWalletData =
+  | PrivateKeyWalletData
+  | WalletConnectWalletData
+  | FireblocksWalletData;
 
 export enum WalletEvents {
   WALLET_STATE_UPDATE = 'wallet-state-updated',

@@ -73,6 +73,8 @@ export const DefiProtocolListItem = ({
               },
             }}
             badgeProps={{
+              // eslint-disable-next-line
+              // @ts-ignore
               'data-testid': `defi-protocol-chain-${protocol.chainId}`,
               anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
             }}

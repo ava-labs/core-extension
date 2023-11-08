@@ -28,12 +28,12 @@ import { AccountList } from './AccountList';
 import { ConfirmAccountRemovalDialog } from './components/ConfirmAccountRemovalDialog';
 
 export enum AccountsTab {
-  Primary = 'primary',
-  Imported = 'imported',
+  Primary,
+  Imported,
 }
 
-const isKnownTab = (tab: string): tab is AccountsTab =>
-  Object.values<string>(AccountsTab).includes(tab);
+const isKnownTab = (tab: number): tab is AccountsTab =>
+  Object.values(AccountsTab).includes(tab);
 
 export function Accounts() {
   const {
@@ -48,7 +48,9 @@ export function Accounts() {
   } = useAccountsContext();
 
   const { activeTab: tabFromUrl } = useTabFromParams();
-  const activeTab = isKnownTab(tabFromUrl) ? tabFromUrl : AccountsTab.Primary;
+  const activeTab = isKnownTab(parseInt(tabFromUrl))
+    ? parseInt(tabFromUrl)
+    : AccountsTab.Primary;
   const [isEditing, setIsEditing] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [addAccountLoading, setAddAccountLoading] = useState(false);
@@ -64,7 +66,7 @@ export function Accounts() {
   const setActiveTab = useCallback(
     (tab: AccountsTab) => {
       // Avoid unnecessary re-renders
-      if (tab === tabFromUrl) {
+      if (tab === parseInt(tabFromUrl)) {
         return;
       }
 
@@ -129,7 +131,6 @@ export function Accounts() {
       setActiveTab(AccountsTab.Primary);
     }
   }, [hasAnyAccounts, hasImportedAccounts, setActiveTab]);
-
   return (
     <Stack
       sx={{

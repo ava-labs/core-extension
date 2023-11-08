@@ -2,6 +2,8 @@ import { DerivationPath, getBech32AddressFromXPub } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { networks } from 'bitcoinjs-lib';
 import { AccountType } from '../../accounts/models';
+import { AccountWithSecrets, SecretType } from '../../secrets/models';
+import { SecretsService } from '../../secrets/SecretsService';
 import { StoreBtcWalletPolicyDetails } from './storeBtcWalletPolicyDetails';
 
 jest.mock('@avalabs/wallets-sdk');
@@ -13,32 +15,26 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     params: ['xpub', 'masterFingerprint', 'hmacHex', 'name'],
   } as any;
 
-  const walletServiceMock = {
+  const secretsServiceMock = jest.mocked({
     storeBtcWalletPolicyDetails: jest.fn(),
-    derivationPath: DerivationPath.BIP44,
-  } as any;
+    getActiveAccountSecrets: jest.fn(),
+  } as unknown as SecretsService);
 
   const networkServiceMock = {
     isMainnet: () => false,
   } as any;
-
-  const getAccountServiceMock = (activeAccount?: {
-    type: AccountType;
-    index: number;
-    addressBTC: string;
-  }) =>
-    ({
-      activeAccount,
-    } as any);
 
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
   it('throws if there is no active account', async () => {
+    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+      type: SecretType.Ledger,
+    } as AccountWithSecrets);
+
     const handler = new StoreBtcWalletPolicyDetails(
-      walletServiceMock,
-      getAccountServiceMock(),
+      secretsServiceMock,
       networkServiceMock
     );
 
@@ -48,13 +44,14 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   });
 
   it('throws if the active account is not primary', async () => {
-    const handler = new StoreBtcWalletPolicyDetails(
-      walletServiceMock,
-      getAccountServiceMock({
+    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+      type: SecretType.Ledger,
+      account: {
         type: AccountType.IMPORTED,
-        index: 0,
-        addressBTC: '0x1',
-      }),
+      } as any,
+    } as AccountWithSecrets);
+    const handler = new StoreBtcWalletPolicyDetails(
+      secretsServiceMock,
       networkServiceMock
     );
 
@@ -64,13 +61,17 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   });
 
   it('throws if wallet derivation path is unknown', async () => {
-    const handler = new StoreBtcWalletPolicyDetails(
-      { ...walletServiceMock, derivationPath: undefined },
-      getAccountServiceMock({
+    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+      type: SecretType.Ledger,
+      account: {
         type: AccountType.PRIMARY,
         index: 0,
         addressBTC: '0x1',
-      }),
+      },
+    } as AccountWithSecrets);
+
+    const handler = new StoreBtcWalletPolicyDetails(
+      secretsServiceMock,
       networkServiceMock
     );
 
@@ -79,23 +80,28 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     );
   });
 
-  it('does nothing if the device is incorrect', async () => {
-    (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
-
-    const handler = new StoreBtcWalletPolicyDetails(
-      walletServiceMock,
-      getAccountServiceMock({
+  it('does nothing if the device is incorrect (BTC addresses dont match)', async () => {
+    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+      type: SecretType.Ledger,
+      derivationPath: DerivationPath.BIP44,
+      account: {
         type: AccountType.PRIMARY,
         index: 0,
         addressBTC: '0x1',
-      }),
+      },
+    } as AccountWithSecrets);
+
+    (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
+
+    const handler = new StoreBtcWalletPolicyDetails(
+      secretsServiceMock,
       networkServiceMock
     );
 
     const result = await handler.handle(request);
 
     expect(
-      walletServiceMock.storeBtcWalletPolicyDetails
+      secretsServiceMock.storeBtcWalletPolicyDetails
     ).not.toHaveBeenCalled();
 
     expect(result).toStrictEqual({
@@ -107,15 +113,19 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   });
 
   it('stores the details if the device is correct for BIP44', async () => {
-    (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
-
-    const handler = new StoreBtcWalletPolicyDetails(
-      { ...walletServiceMock, derivationPath: DerivationPath.BIP44 },
-      getAccountServiceMock({
+    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+      type: SecretType.Ledger,
+      derivationPath: DerivationPath.BIP44,
+      account: {
         type: AccountType.PRIMARY,
         index: 1,
         addressBTC: '0x1',
-      }),
+      },
+    } as AccountWithSecrets);
+    (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
+
+    const handler = new StoreBtcWalletPolicyDetails(
+      secretsServiceMock,
       networkServiceMock
     );
 
@@ -127,9 +137,11 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networks.testnet
     );
 
-    expect(walletServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
-      1,
-      ...['xpub', 'masterFingerprint', 'hmacHex', 'name']
+    expect(secretsServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
+      'xpub',
+      'masterFingerprint',
+      'hmacHex',
+      'name'
     );
 
     expect(result).toStrictEqual({
@@ -141,15 +153,20 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   });
 
   it('stores the details if the device is correct for Ledger Live', async () => {
-    (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
-
-    const handler = new StoreBtcWalletPolicyDetails(
-      { ...walletServiceMock, derivationPath: DerivationPath.LedgerLive },
-      getAccountServiceMock({
+    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+      type: SecretType.Ledger,
+      derivationPath: DerivationPath.BIP44,
+      account: {
         type: AccountType.PRIMARY,
         index: 1,
         addressBTC: '0x1',
-      }),
+      },
+    } as AccountWithSecrets);
+
+    (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
+
+    const handler = new StoreBtcWalletPolicyDetails(
+      secretsServiceMock,
       networkServiceMock
     );
 
@@ -157,13 +174,15 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
       'xpub',
-      0,
+      1,
       networks.testnet
     );
 
-    expect(walletServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
-      1,
-      ...['xpub', 'masterFingerprint', 'hmacHex', 'name']
+    expect(secretsServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
+      'xpub',
+      'masterFingerprint',
+      'hmacHex',
+      'name'
     );
 
     expect(result).toStrictEqual({

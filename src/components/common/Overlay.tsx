@@ -15,7 +15,7 @@ export const Overlay = ({ children, isBackgroundFilled, sx }: OverlayProps) => {
         backgroundColor: theme.palette.background.default,
       }
     : {
-        backdropFilter: 'blur(30px)',
+        backdropFilter: 'blur(12.5px)',
         backgroundColor: 'transparent',
       };
 

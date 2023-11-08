@@ -111,6 +111,7 @@ import { WalletConnectImportAccount } from '@src/background/services/walletConne
 import { WalletConnectEvents } from '@src/background/services/walletConnect/events/walletConnectEvents';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { EstablishRequiredSession } from '@src/background/services/walletConnect/handlers/establishRequiredSession';
+import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -262,6 +263,10 @@ import { EstablishRequiredSession } from '@src/background/services/walletConnect
   {
     token: 'ExtensionRequestHandler',
     useToken: EstablishRequiredSession,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FireblocksUpdateApiCredentialsHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

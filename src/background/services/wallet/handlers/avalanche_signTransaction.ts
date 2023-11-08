@@ -9,7 +9,6 @@ import {
   UnsignedTx,
   Credential,
   avaxSerial,
-  Utxo,
 } from '@avalabs/avalanchejs-v2';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
@@ -31,7 +30,6 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
 
   handleAuthenticated = async (request) => {
     let credentials: Credential[] | undefined = undefined;
-    let utxos: Utxo[] | undefined;
 
     const { transactionHex, chainAlias } = (request.params ?? {}) as any;
 
@@ -63,14 +61,22 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
 
     const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
+    const utxos = await Avalanche.getUtxosByTxFromGlacier({
+      transactionHex,
+      chainAlias,
+      isTestnet: !this.networkService.isMainnet(),
+      url: process.env.GLACIER_URL as string,
+      token: process.env.GLACIER_API_KEY,
+    });
+
     try {
       const codecManager = utils.getManagerForVM(vm);
       const signedTx = codecManager.unpack(txBytes, avaxSerial.SignedTx);
       const unsignedTx = await Avalanche.createAvalancheUnsignedTx({
         tx,
-        vm,
         provider,
         credentials: signedTx.getCredentials(),
+        utxos,
       });
 
       // transaction has been already (partially) signed, but it may have gaps in its signatures arrays
@@ -84,9 +90,6 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
             })
           )
       );
-
-      // prevents double-fetching
-      utxos = unsignedTx.getInputUtxos();
     } catch (err) {
       // transaction hasn't been signed yet thus we continue with a custom list of empty credentials
       // to ensure it contains a signature slot for all signature indices from the inputs
@@ -99,7 +102,6 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
 
     const unsignedTx = await Avalanche.createAvalancheUnsignedTx({
       tx,
-      vm,
       provider,
       credentials,
       utxos,

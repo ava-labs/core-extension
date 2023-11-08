@@ -6,6 +6,8 @@ import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalD
 import { Overlay } from '@src/components/common/Overlay';
 import { WalletConnectApprovalOverlay } from '@src/pages/SignTransaction/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import { FireblocksApprovalOverlay } from '@src/pages/SignTransaction/FireblocksApprovalOverlay';
 
 interface TxInProgressProps {
   address?: string;
@@ -17,7 +19,7 @@ interface TxInProgressProps {
   requiredSignatures?: number;
   currentSignature?: number;
   onReject?: () => void;
-  onSubmit?: () => void;
+  onSubmit?: () => Promise<unknown>;
 }
 
 export function TxInProgress({
@@ -35,8 +37,19 @@ export function TxInProgress({
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
   const hasRejectCallback = typeof onReject === 'function';
   const hasSubmitCallback = typeof onSubmit === 'function';
+
+  if (isUsingFireblocksAccount) {
+    if (hasRejectCallback && hasSubmitCallback) {
+      return (
+        <FireblocksApprovalOverlay onReject={onReject} onSubmit={onSubmit} />
+      );
+    }
+
+    throw new Error('Please provide proper onSubmit and onReject callbacks');
+  }
 
   if (isUsingWalletConnectAccount) {
     if (hasRejectCallback && hasSubmitCallback) {

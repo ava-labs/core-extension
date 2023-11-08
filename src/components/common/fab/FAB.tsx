@@ -24,6 +24,7 @@ import {
 
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 
 const ActionButtonWrapper = styled(Stack)`
   padding: 0 8px;
@@ -128,9 +129,10 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
     },
     {
       text: t('Buy'),
-      route: '/buy',
       name: 'Buy',
       icon: <BuyIcon size={24} sx={{ color: theme.palette.common.black }} />,
+      onclick: () =>
+        window.open(`${getCoreWebUrl()}/buy`, '_blank', 'noreferrer'),
     },
     {
       text: t('Bridge'),
@@ -243,7 +245,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
               <Grow {...TransitionProps} timeout={250}>
                 <Menu isOpen={isOpen}>
                   {isOpen &&
-                    FABMenuItems.map(({ text, route, icon, name }) => {
+                    FABMenuItems.map(({ text, route, icon, name, onclick }) => {
                       if (!checkIsFunctionAvailable(name)) {
                         return null;
                       }
@@ -254,7 +256,8 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
                           icon={icon}
                           onClick={() => {
                             capture(`FABItemSelected_${name}`);
-                            history.push(route);
+                            onclick && onclick();
+                            route && history.push(route);
                           }}
                         />
                       );

@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import useWillSwitchToPrimaryAccount from '@src/hooks/useWillSwitchToPrimaryAccount';
 
 import { useApproveAction } from '../../hooks/useApproveAction';
 
@@ -35,6 +36,9 @@ export function SwitchActiveNetwork() {
 
   const isLoading = !request || !request.displayData;
   const network: Network = request?.displayData;
+  const willSwitchToPrimaryAccount = useWillSwitchToPrimaryAccount(
+    Boolean(network?.isTestnet)
+  );
 
   return (
     <Stack
@@ -80,6 +84,16 @@ export function SwitchActiveNetwork() {
                 }
               )}
             </Typography>
+            {willSwitchToPrimaryAccount && (
+              <Typography
+                variant="caption"
+                sx={{ mt: 3, color: 'warning.main' }}
+              >
+                {t(
+                  'Approving will also switch to your primary account, as Fireblocks-imported accounts are not supported in testnet mode at the moment.'
+                )}
+              </Typography>
+            )}
           </Stack>
           <Stack
             direction="row"

@@ -8,6 +8,8 @@ interface PageTrackerrProps {
 export function PageTracker({ steps, activeStep }: PageTrackerrProps) {
   return (
     <MobileStepper
+      backButton={null}
+      nextButton={null}
       variant="dots"
       steps={steps}
       position="static"

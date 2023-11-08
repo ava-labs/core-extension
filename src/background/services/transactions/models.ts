@@ -1,12 +1,8 @@
 /* eslint-disable no-prototype-builtins */
 
-import { DomainMetadata } from '@src/background/models';
+import { DomainMetadata, EnsureDefined } from '@src/background/models';
 import { ContractCall } from '@src/contracts/contractParsers/models';
 import { TransactionDescription } from 'ethers';
-
-// A helper generic that turns only given keys (K) of type T
-// from optional to required.
-export type EnsureDefined<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval

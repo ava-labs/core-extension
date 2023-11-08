@@ -38,6 +38,8 @@ import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/LedgerApproval
 import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
+import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -53,6 +55,7 @@ export function SignMessage() {
   // We also disable the "Sign" button
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const isFireblocksAccount = useIsUsingFireblocksAccount();
   const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
@@ -72,13 +75,14 @@ export function SignMessage() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isUsingWalletConnectAccount // wait for the response only for device wallets
+      isUsingLedgerWallet || isUsingWalletConnectAccount || isFireblocksAccount // wait for the response only for device wallets
     );
   }, [
     updateMessage,
     requestId,
     isUsingLedgerWallet,
     isUsingWalletConnectAccount,
+    isFireblocksAccount,
   ]);
 
   useEffect(() => {
@@ -113,13 +117,22 @@ export function SignMessage() {
     });
 
   const renderDeviceApproval = () => {
-    if (isApprovalOverlayVisible && isUsingWalletConnectAccount) {
-      return (
-        <WalletConnectApprovalOverlay
-          onReject={handleRejection}
-          onSubmit={handleApproval}
-        />
-      );
+    if (isApprovalOverlayVisible) {
+      if (isUsingWalletConnectAccount) {
+        return (
+          <WalletConnectApprovalOverlay
+            onReject={handleRejection}
+            onSubmit={handleApproval}
+          />
+        );
+      } else if (isFireblocksAccount) {
+        return (
+          <FireblocksApprovalOverlay
+            onReject={handleRejection}
+            onSubmit={handleApproval}
+          />
+        );
+      }
     }
 
     if (isUsingLedgerWallet && action?.status === ActionStatus.SUBMITTING) {

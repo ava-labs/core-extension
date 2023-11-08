@@ -31,8 +31,6 @@ jest.mock('jose', () => {
   };
 });
 
-const apiKey = 'api-key';
-const secretKey = 'secret-key';
 const knownAddress = 'tb1q32r4p22fyexux0m0gr8lf8z9entmzu8sl2t29n';
 const unknownAddress = 'tb1a2b3c4d5e6f5e4d3c2b1axuxemuzebalt2t2nda';
 const fireblocksContacts: KnownAddressDictionary = new Map([
@@ -40,10 +38,11 @@ const fireblocksContacts: KnownAddressDictionary = new Map([
     knownAddress,
     {
       type: PeerType.EXTERNAL_WALLET,
-      walletId: 'test-wallet',
+      id: 'test-wallet',
     },
   ],
 ]);
+const fbService = new FireblocksService({} as any);
 
 describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
   describe('.signTx()', () => {
@@ -51,7 +50,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
       jest.useFakeTimers();
       jest.clearAllMocks();
       jest
-        .spyOn(FireblocksService.prototype, 'getAllKnownAddressesForAsset')
+        .spyOn(fbService, 'getAllKnownAddressesForAsset')
         .mockResolvedValue(fireblocksContacts);
 
       global.fetch = jest.fn();
@@ -59,16 +58,16 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
 
     it('polls Fireblocks for transaction status until we have a hash', async () => {
       jest
-        .spyOn(FireblocksService.prototype, 'request')
+        .spyOn(fbService, 'request')
         .mockResolvedValueOnce({ id: 'tx-id' }) // mocked POST transaction request (tx creation)
         .mockResolvedValueOnce({ status: 'SUBMITTING' }) // 1st polling request (transaction is still submitting)
         .mockResolvedValueOnce({ status: 'QUEUED' }) // 2nd polling request (transaction is queued)
         .mockResolvedValueOnce({ status: 'PENDING_SIGNATURE' }) // 3rd polling request (transaction is pending signatures)
         .mockResolvedValueOnce({ status: 'BROADCASTING', txHash: 'tx-hash' }); // 4th polling request (transaction is being broadcasted to the blockchain)
 
-      const service = new FireblocksBTCSigner(apiKey, secretKey);
+      const signer = new FireblocksBTCSigner(fbService, '0', true);
 
-      service
+      signer
         .signTx(
           [],
           [
@@ -93,23 +92,21 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
         expectedNumberOfCalls,
         TRANSACTION_POLLING_INTERVAL_MS
       );
-      expect(FireblocksService.prototype.request).toHaveBeenCalledTimes(
-        expectedNumberOfCalls
-      );
+      expect(fbService.request).toHaveBeenCalledTimes(expectedNumberOfCalls);
     });
 
     describe('during a happy path', () => {
       beforeEach(async () => {
         jest
-          .spyOn(FireblocksService.prototype, 'request')
+          .spyOn(fbService, 'request')
           .mockResolvedValueOnce({ id: 'tx-id' }) // mocked POST transaction request (tx creation)
           .mockResolvedValueOnce({ txHash: 'tx-hash' }); // mocked GET transaction request (tx status tracking)
       });
 
       it('calls Fireblocks API with BTC asset on mainnet', async () => {
-        const service = new FireblocksBTCSigner(apiKey, secretKey);
+        const signer = new FireblocksBTCSigner(fbService, '0', false);
 
-        await service.signTx(
+        await signer.signTx(
           [],
           [
             {
@@ -118,7 +115,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
             },
           ]
         );
-        expect(FireblocksService.prototype.request).toHaveBeenCalledWith(
+        expect(fbService.request).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
               assetId: 'BTC',
@@ -128,9 +125,9 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
       });
 
       it('calls Fireblocks API with BTC_TEST asset on testnet', async () => {
-        const service = new FireblocksBTCSigner(apiKey, secretKey, true);
+        const signer = new FireblocksBTCSigner(fbService, '0', true);
 
-        await service.signTx(
+        await signer.signTx(
           [],
           [
             {
@@ -139,7 +136,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
             },
           ]
         );
-        expect(FireblocksService.prototype.request).toHaveBeenCalledWith(
+        expect(fbService.request).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
               assetId: 'BTC_TEST',
@@ -149,9 +146,9 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
       });
 
       it('calls Fireblocks API with proper source', async () => {
-        const service = new FireblocksBTCSigner(apiKey, secretKey, true);
+        const signer = new FireblocksBTCSigner(fbService, '0', true);
 
-        await service.signTx(
+        await signer.signTx(
           [],
           [
             {
@@ -161,7 +158,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
           ]
         );
 
-        expect(FireblocksService.prototype.request).toHaveBeenCalledWith(
+        expect(fbService.request).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
               source: {
@@ -174,9 +171,9 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
       });
 
       it('calls Fireblocks API with proper destinations', async () => {
-        const service = new FireblocksBTCSigner(apiKey, secretKey, true);
+        const signer = new FireblocksBTCSigner(fbService, '0', true);
 
-        await service.signTx(
+        await signer.signTx(
           [],
           [
             {
@@ -187,10 +184,14 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               address: unknownAddress,
               value: 2000000,
             },
+            {
+              address: 'source-address',
+              value: 500000,
+            },
           ]
         );
 
-        expect(FireblocksService.prototype.request).toHaveBeenCalledWith(
+        expect(fbService.request).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
               destinations: [
@@ -198,7 +199,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
                   amount: '0.01',
                   destination: {
                     type: PeerType.EXTERNAL_WALLET,
-                    walletId: 'test-wallet',
+                    id: 'test-wallet',
                   },
                 },
                 {
@@ -221,10 +222,10 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
       it('returns a NetworkError', async () => {
         jest.mocked(global.fetch).mockRejectedValueOnce(new Error('Timeout'));
 
-        const service = new FireblocksBTCSigner(apiKey, secretKey);
+        const signer = new FireblocksBTCSigner(fbService, '0', true);
 
         expect(() =>
-          service.signTx(
+          signer.signTx(
             [],
             [
               {
@@ -242,14 +243,14 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
         '"%s" status, we return a proper FireblocksError',
         async (status) => {
           jest
-            .spyOn(FireblocksService.prototype, 'request')
+            .spyOn(fbService, 'request')
             .mockResolvedValueOnce({ id: 'tx-id' }) // mocked POST transaction request (tx creation)
             .mockResolvedValueOnce({ status }); // mocked GET transaction request (tx status tracking)
 
-          const service = new FireblocksBTCSigner(apiKey, secretKey);
+          const signer = new FireblocksBTCSigner(fbService, '0', true);
 
           expect(() =>
-            service.signTx(
+            signer.signTx(
               [],
               [
                 {

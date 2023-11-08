@@ -16,6 +16,7 @@ export const toastCardWithLink = ({ url, title, label, id = '' }) => {
       <Button
         component={Link}
         target="_blank"
+        rel="noreferrer"
         href={url}
         size="xlarge"
         variant="text"

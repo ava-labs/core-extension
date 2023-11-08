@@ -43,7 +43,11 @@ export function Legal({ goBack, navigateTo, width }) {
                 console.error(err);
               }
 
-              window.open(`https://core.app/terms/core`, '_blank');
+              window.open(
+                `https://core.app/terms/core`,
+                '_blank',
+                'noreferrer'
+              );
             }}
             data-testid="terms-of-use-link"
           >
@@ -66,7 +70,11 @@ export function Legal({ goBack, navigateTo, width }) {
               } catch (err) {
                 console.error(err);
               }
-              window.open(`https://www.avalabs.org/privacy-policy`, '_blank');
+              window.open(
+                `https://www.avalabs.org/privacy-policy`,
+                '_blank',
+                'noreferrer'
+              );
             }}
             data-testid="privacy-policy-link"
           >

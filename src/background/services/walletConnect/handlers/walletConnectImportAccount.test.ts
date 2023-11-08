@@ -40,6 +40,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     );
     const request = {
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
+      params: [],
     } as any;
     const result = await handler.handle(request);
 
@@ -61,23 +62,25 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
         activeNetwork: { network: 'network', chainId: 44 },
       } as any;
 
+      const importedAccountId = 'new-account-id';
       const accountsServiceWithAccountsMock = {
         getAccounts: jest.fn().mockReturnValueOnce({
           active: { name: 'account 1', type: 'primary' },
           imported: { 'some-key': { id: 'some-key' } },
         }),
-        addAccount: jest.fn().mockReturnValueOnce('some-key-string-returned'),
+        addAccount: jest.fn().mockReturnValueOnce(importedAccountId),
         activateAccount: jest.fn(),
       } as any;
 
+      const mockedSessionInfo = {
+        addresses: ['mockreturnaddress'],
+        chains: [1],
+        walletApp: {
+          walletId: 'abcd-1234',
+        },
+      };
       const wcService = {
-        connect: jest.fn().mockReturnValueOnce({
-          addresses: ['mockreturnaddress'],
-          chains: [1],
-          walletApp: {
-            walletId: 'abcd-1234',
-          },
-        }),
+        connect: jest.fn().mockReturnValueOnce(mockedSessionInfo),
       } as any;
       const handler = new WalletConnectImportAccount(
         wcService,
@@ -86,10 +89,14 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       );
       const request = {
         method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
+        params: [],
       } as any;
       const { result } = await handler.handle(request);
 
-      expect(result).toBe(true);
+      expect(result).toEqual({
+        accountId: importedAccountId,
+        connectedApp: mockedSessionInfo.walletApp,
+      });
       expect(accountsServiceWithAccountsMock.addAccount).toHaveBeenCalledWith(
         'WalletConnect #1',
         {
@@ -103,28 +110,30 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     });
   });
 
-  it('returns true on successful connection', async () => {
+  it('returns account ID and session info on successful connection', async () => {
     const networkWithAccountMock = {
       activeNetwork: { network: 'network', chainId: 44 },
     } as any;
 
+    const importedAccountId = 'new-account-key';
     const accountsServiceWithAccountsMock = {
       getAccounts: jest.fn().mockReturnValueOnce({
         active: { name: 'account 1', type: 'primary' },
         imported: { 'some-key': { id: 'some-key' } },
       }),
-      addAccount: jest.fn().mockReturnValueOnce('some-key-string-returned'),
+      addAccount: jest.fn().mockReturnValueOnce(importedAccountId),
       activateAccount: jest.fn(),
     } as any;
 
+    const sessionInfo = {
+      addresses: ['mockreturnaddress'],
+      chains: [1],
+      walletApp: {
+        walletId: 'abcd-1234',
+      },
+    };
     const wcServiceWithReturnMock = {
-      connect: jest.fn().mockReturnValueOnce({
-        addresses: ['mockreturnaddress'],
-        chains: [1],
-        walletApp: {
-          walletId: 'abcd-1234',
-        },
-      }),
+      connect: jest.fn().mockReturnValueOnce(sessionInfo),
     } as any;
 
     const handler = new WalletConnectImportAccount(
@@ -134,6 +143,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     );
     const request = {
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
+      params: [],
     } as any;
     const result = await handler.handle(request);
 
@@ -156,13 +166,13 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
         importType: 'walletConnect',
       }
     );
-    expect(accountsServiceWithAccountsMock.addAccount).toReturnWith(
-      'some-key-string-returned'
-    );
     expect(accountsServiceWithAccountsMock.activateAccount).toBeCalledTimes(1);
     expect(result).toEqual({
       ...request,
-      result: true,
+      result: {
+        accountId: importedAccountId,
+        connectedApp: sessionInfo.walletApp,
+      },
     });
   });
 
@@ -182,6 +192,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     );
     const request = {
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
+      params: [],
     } as any;
     const result = await handler.handle(request);
     expect(wcServiceWithReturnMock.connect).toBeCalledTimes(1);

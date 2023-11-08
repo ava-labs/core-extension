@@ -59,7 +59,6 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
             setSearchTerm(e.target.value)
           }
           autoFocus={true}
-          light
         />
       </Stack>
       <Scrollbars>

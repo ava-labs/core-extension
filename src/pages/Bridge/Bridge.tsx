@@ -64,6 +64,7 @@ import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -106,6 +107,7 @@ export function Bridge() {
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
 
   const theme = useTheme();
   const [bridgeError, setBridgeError] = useState<string>('');
@@ -414,7 +416,7 @@ export function Bridge() {
   const onSubmitClicked = () => {
     if (isUsingLedgerWallet) {
       setTransferWithLedger(true);
-    } else if (isUsingWalletConnectAccount) {
+    } else if (isUsingWalletConnectAccount || isUsingFireblocksAccount) {
       setIsPending(true);
     } else {
       handleTransfer();
@@ -570,9 +572,7 @@ export function Bridge() {
                 resetKeystoneRequest();
                 setIsPending(false);
               }}
-              onSubmit={() => {
-                handleTransfer();
-              }}
+              onSubmit={handleTransfer}
             />
           )}
         </>
@@ -783,7 +783,7 @@ export function Bridge() {
                 mb: 3,
               }}
             >
-              {isPending && <CircularProgress size="16px" sx={{ mr: 1 }} />}
+              {isPending && <CircularProgress size={16} sx={{ mr: 1 }} />}
               {t('Next')}
             </Button>
           </Stack>

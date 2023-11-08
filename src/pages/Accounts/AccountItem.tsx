@@ -1,4 +1,10 @@
-import React, { ForwardedRef, forwardRef, useCallback, useState } from 'react';
+import React, {
+  ForwardedRef,
+  forwardRef,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AvalancheColorIcon,
@@ -7,6 +13,7 @@ import {
   Checkbox,
   Chip,
   EditIcon,
+  FireblocksIcon,
   Grow,
   IconButton,
   KeyIcon,
@@ -16,6 +23,7 @@ import {
   WalletConnectIcon,
   styled,
   useTheme,
+  Tooltip,
 } from '@avalabs/k2-components';
 
 import { Account, AccountType } from '@src/background/services/accounts/models';
@@ -26,6 +34,8 @@ import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency'
 import { SimpleAddress } from '@src/components/common/SimpleAddress';
 
 import { AccountBalance } from './AccountBalance';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { isProductionBuild } from '@src/utils/environment';
 
 interface AccountItemProps {
   account: Account;
@@ -71,13 +81,29 @@ export const AccountItem = forwardRef(
     const [accountName, setAccountName] = useState<string>(account.name);
     const { renameAccount, isActiveAccount } = useAccountsContext();
     const { updateBalanceOnAllNetworks } = useBalancesContext();
+    const { isDeveloperMode } = useNetworkContext();
     const [isBalanceLoading, setIsBalanceLoading] = useState(false);
     const balanceTotalUSD = useBalanceTotalInCurrency(account);
     const { capture } = useAnalyticsContext();
     const { t } = useTranslation();
 
     const isActive = isActiveAccount(account.id);
+    const isFireblocksAccount = account.type === AccountType.FIREBLOCKS;
     const inEditMode = isActive && editing;
+
+    const disabledReason = useMemo(() => {
+      if (
+        isFireblocksAccount &&
+        !isDeleteMode &&
+        isProductionBuild() &&
+        isDeveloperMode
+      ) {
+        return t(
+          'Fireblocks accounts are not supported with Testnet Mode enabled'
+        );
+      }
+      return '';
+    }, [isDeleteMode, isDeveloperMode, t, isFireblocksAccount]);
 
     const editAddress = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -111,191 +137,215 @@ export const AccountItem = forwardRef(
     const handleClick = useCallback(() => {
       if (isDeleteMode) {
         toggle?.(account.id);
-      } else {
+      } else if (!disabledReason) {
         onClick();
       }
-    }, [isDeleteMode, account.id, toggle, onClick]);
+    }, [isDeleteMode, account.id, toggle, onClick, disabledReason]);
 
-    const chipLogo =
-      account.type === AccountType.IMPORTED ? (
-        <KeyIcon size={16} color="currentColor" />
-      ) : account.type === AccountType.WALLET_CONNECT ? (
-        <WalletConnectIcon size={16} color="currentColor" />
-      ) : undefined;
+    const getChipLabel = (type: AccountType) => {
+      if (type === AccountType.IMPORTED) {
+        return t('Private Key');
+      }
+      if (type === AccountType.WALLET_CONNECT) {
+        return t('Wallet Connect');
+      }
+      if (type === AccountType.FIREBLOCKS) {
+        return t('Fireblocks');
+      }
+      return undefined;
+    };
 
-    const chipLabel =
-      account.type === AccountType.IMPORTED
-        ? t('Private Key')
-        : account.type === AccountType.WALLET_CONNECT
-        ? t('Wallet Connect')
-        : undefined;
+    const getChipLogo = (type: AccountType) => {
+      const iconColor = 'currentColor';
+      if (type === AccountType.IMPORTED) {
+        return <KeyIcon size={16} color={iconColor} />;
+      }
+      if (type === AccountType.WALLET_CONNECT) {
+        return <WalletConnectIcon size={16} color={iconColor} />;
+      }
+      if (type === AccountType.FIREBLOCKS) {
+        return <FireblocksIcon size={16} color={iconColor} />;
+      }
+      return undefined;
+    };
+
+    const chipLogo = getChipLogo(account.type);
+
+    const chipLabel = getChipLabel(account.type);
 
     return (
-      <Wrapper
-        ref={ref}
-        isActive={isActive}
-        isDeleteMode={isDeleteMode}
-        onClick={handleClick}
-        data-testid={`account-li-item-${account.id}`}
-      >
-        <Grow in={isDeleteMode} mountOnEnter unmountOnExit>
-          <Stack sx={{ justifyContent: 'center', ml: -1.5, mr: 1 }}>
-            <Checkbox
-              size="medium"
-              checked={isChecked}
-              onChange={() => toggle?.(account.id)}
-            />
-          </Stack>
-        </Grow>
-        <Stack sx={{ width: '100%', zIndex: 0, mr: -0.5, gap: 0.5 }}>
-          {/* Header */}
-          <Stack
-            direction="row"
-            sx={{ justifyContent: 'space-between', gap: 3 }}
-          >
+      <Tooltip title={disabledReason}>
+        <Wrapper
+          ref={ref}
+          isDisabled={Boolean(disabledReason)}
+          isActive={isActive}
+          isDeleteMode={isDeleteMode}
+          onClick={handleClick}
+          data-testid={`account-li-item-${account.id}`}
+        >
+          <Grow in={isDeleteMode} mountOnEnter unmountOnExit>
+            <Stack sx={{ justifyContent: 'center', ml: -1.5, mr: 1 }}>
+              <Checkbox
+                size="medium"
+                checked={isChecked}
+                onChange={() => toggle?.(account.id)}
+              />
+            </Stack>
+          </Grow>
+          <Stack sx={{ width: '100%', zIndex: 0, mr: -0.5, gap: 0.5 }}>
+            {/* Header */}
             <Stack
               direction="row"
-              sx={{
-                alignItems: 'center',
-                flexGrow: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                height: 32,
-                gap: 1,
-              }}
+              sx={{ justifyContent: 'space-between', gap: 3 }}
             >
-              {inEditMode ? (
-                <>
-                  <AccountNameInput
-                    autoFocus
-                    data-testid="account-name-edit-input"
-                    value={accountName}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setAccountName(e.target.value);
-                    }}
-                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                      if (e.key === 'Enter') {
-                        onSaveClicked(e);
-                      } else if (e.key === 'Escape') {
-                        onCancelEdit(e);
-                      }
-                    }}
-                  />
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={onSaveClicked}
-                    data-testid="account-name-save-button"
-                  >
-                    {t('Save')}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                    data-testid="account-name"
-                  >
-                    {accountName}
-                  </Typography>
-                  {isActive && (
-                    <IconButton
-                      size="small"
-                      onClick={editAddress}
-                      data-testid="account-name-edit-button"
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  )}
-                </>
-              )}
-            </Stack>
-            <AccountBalance
-              refreshBalance={getBalance}
-              balanceTotalUSD={balanceTotalUSD}
-              isBalanceLoading={isBalanceLoading}
-              accountType={account.type}
-            />
-          </Stack>
-          {/* Addresses */}
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Stack sx={{ gap: 1 }}>
               <Stack
                 direction="row"
-                data-testid="account-selector-copy-ava-address"
-                sx={{ gap: 1 }}
+                sx={{
+                  alignItems: 'center',
+                  flexGrow: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  height: 32,
+                  gap: 1,
+                }}
               >
-                <AvalancheColorIcon size={17} />
-                <SimpleAddress
-                  address={account.addressC}
-                  iconColor={isActive ? 'text.secondary' : 'text.primary'}
-                  textColor="text.secondary"
-                  copyCallback={() => {
-                    capture('AccountSelectorEthAddressCopied', {
-                      type: account.type,
-                    });
-                  }}
-                />
+                {inEditMode ? (
+                  <>
+                    <AccountNameInput
+                      autoFocus
+                      data-testid="account-name-edit-input"
+                      value={accountName}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setAccountName(e.target.value);
+                      }}
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                        if (e.key === 'Enter') {
+                          onSaveClicked(e);
+                        } else if (e.key === 'Escape') {
+                          onCancelEdit(e);
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={onSaveClicked}
+                      data-testid="account-name-save-button"
+                    >
+                      {t('Save')}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                      data-testid="account-name"
+                    >
+                      {accountName}
+                    </Typography>
+                    {isActive && (
+                      <IconButton
+                        size="small"
+                        onClick={editAddress}
+                        data-testid="account-name-edit-button"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    )}
+                  </>
+                )}
               </Stack>
-
-              {account.addressBTC && (
+              <AccountBalance
+                refreshBalance={getBalance}
+                balanceTotalUSD={balanceTotalUSD}
+                isBalanceLoading={isBalanceLoading}
+                accountType={account.type}
+              />
+            </Stack>
+            {/* Addresses */}
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Stack sx={{ gap: 1 }}>
                 <Stack
                   direction="row"
-                  data-testid="account-selector-copy-btc-address"
+                  data-testid="account-selector-copy-ava-address"
                   sx={{ gap: 1 }}
                 >
-                  <BitcoinColorIcon size={17} />
+                  <AvalancheColorIcon size={17} />
                   <SimpleAddress
-                    address={account.addressBTC}
+                    address={account.addressC}
                     iconColor={isActive ? 'text.secondary' : 'text.primary'}
                     textColor="text.secondary"
                     copyCallback={() => {
-                      capture('AccountSelectorBtcAddressCopied', {
+                      capture('AccountSelectorEthAddressCopied', {
                         type: account.type,
                       });
                     }}
                   />
                 </Stack>
+
+                {account.addressBTC && (
+                  <Stack
+                    direction="row"
+                    data-testid="account-selector-copy-btc-address"
+                    sx={{ gap: 1 }}
+                  >
+                    <BitcoinColorIcon size={17} />
+                    <SimpleAddress
+                      address={account.addressBTC}
+                      iconColor={isActive ? 'text.secondary' : 'text.primary'}
+                      textColor="text.secondary"
+                      copyCallback={() => {
+                        capture('AccountSelectorBtcAddressCopied', {
+                          type: account.type,
+                        });
+                      }}
+                    />
+                  </Stack>
+                )}
+              </Stack>
+
+              {account.type !== AccountType.PRIMARY && (
+                <Chip
+                  icon={chipLogo}
+                  label={chipLabel}
+                  sx={{
+                    backgroundColor: 'grey.50',
+                    color: 'background.paper',
+                    py: 0,
+                    height: '20px',
+                    alignSelf: 'flex-end',
+                  }}
+                />
               )}
             </Stack>
-
-            {account.type !== AccountType.PRIMARY && (
-              <Chip
-                icon={chipLogo}
-                label={chipLabel}
-                sx={{
-                  backgroundColor: 'grey.50',
-                  color: 'background.paper',
-                  py: 0,
-                  height: '20px',
-                  alignSelf: 'flex-end',
-                }}
-              />
-            )}
           </Stack>
-        </Stack>
-      </Wrapper>
+        </Wrapper>
+      </Tooltip>
     );
   }
 );
 
 AccountItem.displayName = 'AccountItem';
 
-type WrapperProps = StackProps & { isActive: boolean; isDeleteMode: boolean };
+type WrapperProps = StackProps & {
+  isActive: boolean;
+  isDeleteMode: boolean;
+  isDisabled: boolean;
+};
 const Wrapper = forwardRef(
   (
-    { isActive, isDeleteMode, ...props }: WrapperProps,
+    { isActive, isDeleteMode, isDisabled, ...props }: WrapperProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
     const theme = useTheme();
@@ -305,7 +355,7 @@ const Wrapper = forwardRef(
       ? {}
       : {
           ':hover': {
-            opacity: 1,
+            ...(isDisabled ? null : { opacity: 1 }),
             backgroundColor: isActive ? theme.palette.grey[850] : 'transparent',
           },
         };
@@ -324,9 +374,13 @@ const Wrapper = forwardRef(
           position: 'relative',
           transition:
             'opacity ease-in-out .15s, background-color ease-in-out .15s',
-          opacity: isActive || isDeleteMode ? 1 : 0.6,
+          opacity: !isDisabled && (isActive || isDeleteMode) ? 1 : 0.6,
           backgroundColor: isActive ? theme.palette.grey[850] : 'transparent',
-          cursor: isActive ? 'default' : 'pointer',
+          cursor: isActive
+            ? 'default'
+            : isDisabled && !isDeleteMode
+            ? 'not-allowed'
+            : 'pointer',
 
           ...hoverStyles,
         }}

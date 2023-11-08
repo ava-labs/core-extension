@@ -204,7 +204,7 @@ export function InProgressBridgeActivityCard({
                 size={16}
                 sx={{ color: theme.palette.primary.main, cursor: 'pointer' }}
                 onClick={() => {
-                  window.open(explorerUrl, '_blank');
+                  window.open(explorerUrl, '_blank', 'noreferrer');
                 }}
               />
             )}

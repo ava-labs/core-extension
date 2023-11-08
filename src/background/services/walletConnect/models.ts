@@ -27,6 +27,8 @@ export type WalletConnectEventType =
 
 export const CORE_MOBILE_WALLET_ID = 'c3de833a-9cb0-4274-bb52-86e402ecfcd3';
 
+export const FIREBLOCKS_APP_NAME = 'Fireblocks';
+
 export const WALLET_CONNECT_APP_METADATA = {
   name: browser.i18n.getMessage('appName'),
   // When connecting to Core Mobile, it will allow us to send avalanche_*
@@ -45,7 +47,7 @@ export const WALLET_CONNECT_APP_METADATA = {
 export type WalletConnectSessionInfo = {
   addresses: [string, ...string[]];
   topic: string;
-  chains: number[];
+  chains: [number, ...number[]];
   walletApp: SessionTypes.Struct['peer']['metadata'] & { walletId?: string };
 };
 
@@ -107,6 +109,7 @@ export type RequestOptions = {
   chainId: number;
   fromAddress: string;
   tabId?: number;
+  expiry?: number; // in seconds, between 300 (5 minutes) and 604800 (7 days)
 };
 export interface WalletConnectTransport {
   connect(options: ConnectOptions): Promise<WalletConnectSessionInfo | never>;

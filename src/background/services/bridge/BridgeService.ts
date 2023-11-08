@@ -38,7 +38,7 @@ import Big from 'big.js';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
-import { AccountType } from '../accounts/models';
+import { isWalletConnectAccount } from '../accounts/utils/typeGuards';
 import { FeatureGates } from '../featureFlags/models';
 import { TransactionResponse } from 'ethers';
 
@@ -177,7 +177,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     const { activeAccount } = this.accountsService;
 
-    if (activeAccount?.type === AccountType.WALLET_CONNECT) {
+    if (isWalletConnectAccount(activeAccount)) {
       throw new Error('WalletConnect accounts are not supported by Bridge yet');
     }
 
@@ -227,25 +227,47 @@ export class BridgeService implements OnLock, OnStorageReady {
       throw new Error('Failed to sign transaction.');
     }
 
-    if (typeof signResult.signedTx !== 'string') {
-      throw new Error('Expected Wallet to return a signed transaction.');
+    // If we received a signed tx, we need to issue it ourselves.
+    if (typeof signResult.signedTx === 'string') {
+      const [sendResult, sendError] = await resolve(
+        provider.issueRawTx(signResult.signedTx)
+      );
+
+      if (!sendResult || sendError) {
+        throw new Error('Failed to send transaction.');
+      }
+
+      return {
+        hash: sendResult.hash,
+        gasLimit: BigInt(sendResult.fees),
+        value: BigInt(amountInSatoshis),
+        confirmations: sendResult.confirmations,
+        from: addressBtc,
+      };
     }
 
-    const [sendResult, sendError] = await resolve(
-      provider.issueRawTx(signResult.signedTx)
+    // If we received the tx hash, we can look it up for details.
+    if (typeof signResult.txHash === 'string') {
+      const [tx, txLookupError] = await resolve(
+        provider.getBlockCypher().getTxData(signResult.txHash)
+      );
+
+      if (!tx || txLookupError) {
+        throw new Error('Transaction not found');
+      }
+
+      return {
+        hash: tx.hash,
+        gasLimit: BigInt(tx.fees),
+        value: BigInt(amountInSatoshis),
+        confirmations: tx.confirmations,
+        from: addressBtc,
+      };
+    }
+
+    throw new Error(
+      'Unsupported signing result format. Signed TX or TX hash expected'
     );
-
-    if (!sendResult || sendError) {
-      throw new Error('Failed to send transaction.');
-    }
-
-    return {
-      hash: sendResult.hash,
-      gasLimit: BigInt(sendResult.fees),
-      value: BigInt(amountInSatoshis),
-      confirmations: sendResult.confirmations,
-      from: addressBtc,
-    };
   }
 
   async transferAsset(

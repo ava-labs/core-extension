@@ -10,13 +10,19 @@ import {
   Popper,
   WalletConnectIcon,
   styled,
+  FireblocksIcon,
+  Tooltip,
 } from '@avalabs/k2-components';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { isProductionBuild } from '@src/utils/environment';
+import { ChainId } from '@avalabs/chains-sdk';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 type AccountsActionButtonProps = {
   disabled?: boolean;
@@ -39,16 +45,36 @@ export const AccountsActionButton = ({
   const toggleButtonRef = useRef();
   const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
+  const { capture } = useAnalyticsContext();
+  const { network } = useNetworkContext();
 
-  const goToImportScreen = useCallback(
-    () => history.push('/import-private-key'),
-    [history]
-  );
+  const goToImportScreen = useCallback(() => {
+    capture('ImportPrivateKey_Clicked');
+    history.push('/import-private-key');
+  }, [history, capture]);
 
-  const goToWalletConnectScreen = useCallback(
-    () => history.push('/import-with-walletconnect'),
-    [history]
-  );
+  const goToWalletConnectScreen = useCallback(() => {
+    capture('ImportWithWalletConnect_Clicked');
+    history.push('/import-with-walletconnect');
+  }, [history, capture]);
+
+  const goToFireblocksWalletConnectScreen = useCallback(() => {
+    capture('ImportWithFireblocks_Clicked');
+    history.push('/fireblocks/import-with-walletconnect');
+  }, [history, capture]);
+
+  const fireblocksDisabledReason = useMemo(() => {
+    if (
+      isProductionBuild() &&
+      network?.chainId !== ChainId.AVALANCHE_MAINNET_ID
+    ) {
+      return t(
+        'Please switch to Avalanche C-Chain to import your Fireblocks account.'
+      );
+    }
+
+    return '';
+  }, [t, network]);
 
   return (
     <ButtonGroup
@@ -102,6 +128,25 @@ export const AccountsActionButton = ({
                       <WalletConnectIcon size={16} sx={{ pr: 1 }} />
                       {t('Import with Wallet Connect')}
                     </StyledMenuItem>
+                  )}
+                  {featureFlags[FeatureGates.IMPORT_FIREBLOCKS] && (
+                    <Tooltip
+                      title={fireblocksDisabledReason}
+                      sx={{
+                        cursor: fireblocksDisabledReason
+                          ? 'not-allowed'
+                          : 'pointer',
+                      }}
+                    >
+                      <StyledMenuItem
+                        data-testid="import-wallet-connect"
+                        onClick={goToFireblocksWalletConnectScreen}
+                        disabled={Boolean(fireblocksDisabledReason)}
+                      >
+                        <FireblocksIcon size={16} sx={{ pr: 1 }} />
+                        {t('Import with Fireblocks')}
+                      </StyledMenuItem>
+                    </Tooltip>
                   )}
                 </MenuList>
               </Grow>

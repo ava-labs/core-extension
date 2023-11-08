@@ -20,10 +20,10 @@ export function PageNav({
   onNext,
   nextText,
   disableNext,
-  expand,
   steps,
   activeStep,
   children,
+  expand,
 }: PropsWithChildren<PageNavProps>) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -34,8 +34,8 @@ export function PageNav({
         width: '100%',
         justifyItems: 'space-between',
         alignContent: 'center',
-        mb: 3,
-        rowGap: 2,
+        my: 3,
+        rowGap: `${expand && children ? theme.spacing(2) : theme.spacing(8)}`,
       }}
     >
       <Stack
@@ -71,7 +71,9 @@ export function PageNav({
           {nextText ? nextText : t('Next')}
         </Button>
       </Stack>
-      {expand && <Stack sx={{ height: theme.spacing(4) }}>{children}</Stack>}
+      {expand && children && (
+        <Stack sx={{ height: theme.spacing(4) }}>{children}</Stack>
+      )}
       <PageTracker steps={steps} activeStep={activeStep} />
     </Stack>
   );

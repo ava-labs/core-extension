@@ -52,7 +52,7 @@ export const CameraAccessPromptDialog = ({ QRScanner }) => {
           <Button
             variant="text"
             onClick={() => {
-              window.open('https://keyst.one', '_blank');
+              window.open('https://keyst.one', '_blank', 'noreferrer');
             }}
           >
             <ExternalLinkIcon

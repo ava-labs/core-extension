@@ -3,35 +3,31 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { WalletService } from '../../wallet/WalletService';
-import { AccountsService } from '../AccountsService';
 
 @injectable()
 export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY];
 
-  constructor(
-    private accountsService: AccountsService,
-    private walletService: WalletService
-  ) {
+  constructor(private walletService: WalletService) {
     super();
   }
 
   handleAuthenticated = async (request) => {
-    const activeAccount = this.accountsService.activeAccount;
+    try {
+      const publicKey = await this.walletService.getActiveAccountPublicKey();
 
-    if (!activeAccount) {
       return {
         ...request,
-        error: ethErrors.rpc.internal('No active account.'),
+        result: publicKey,
+      };
+    } catch (err: any) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: err instanceof Error ? err.message : err.toString(),
+        }),
       };
     }
-
-    const publicKey = await this.walletService.getPublicKey(activeAccount);
-
-    return {
-      ...request,
-      result: publicKey,
-    };
   };
 
   handleUnauthenticated = (request) => {

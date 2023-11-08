@@ -1,3 +1,5 @@
+import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
+
 export type WalletConnectUri = `wc:${string}`;
 
 export enum AccountImportStatus {
@@ -38,3 +40,8 @@ export type AccountImportState =
   | AwaitingApprovalAccountImportState
   | SuccessfulAccountImportState
   | FailedAccountImportState;
+
+export type OnConnectCallback = (result: {
+  accountId: string;
+  connectedApp: WalletConnectSessionInfo['walletApp'];
+}) => void;

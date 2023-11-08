@@ -1,11 +1,15 @@
+import { sha256 } from 'ethers';
 import { PeerType } from 'fireblocks-sdk';
+import { AccountType, FireblocksAccount } from '../accounts/models';
+import { SecretType } from '../secrets/models';
+import { SecretsService } from '../secrets/SecretsService';
+import { FireblocksSecretsService } from './FireblocksSecretsService';
 import { FireblocksService } from './FireblocksService';
 import { FireblocksError, NetworkError } from './models';
 
-jest.mock('ethers', () => ({
-  ...jest.requireActual('ethers'),
-  sha256: jest.fn().mockReturnValue('0x1234'),
-}));
+jest.mock('ethers');
+jest.mock('../accounts/AccountsService');
+jest.mock('../secrets/SecretsService');
 
 jest.mock('jose', () => {
   const jose = jest.requireActual('jose');
@@ -23,8 +27,6 @@ jest.mock('jose', () => {
   };
 });
 
-const apiKey = 'api-key';
-const secretKey = 'secret-key';
 const extWalletAddr = 'tb1q32r4p22fyexux0m0gr8lf8z9entmzu8sl2t29n';
 const intWalletAddr = 'tb1a2b3c4d5e6f5e4d3c2b1axuxemuzebalt2t2nda';
 const vaultAcctAddr = 'tb1jsdjadsuidhkjadj8as78yu1idajdjk12387a8s';
@@ -50,11 +52,35 @@ const mockResponsesByPath =
   };
 
 describe('src/background/services/fireblocks/FireblocksService', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+  const secretsService = jest.mocked(new SecretsService({} as any));
+  const secretsProvider = new FireblocksSecretsService(secretsService);
 
+  beforeEach(() => {
+    jest.resetAllMocks();
+
+    jest.mocked(sha256).mockReturnValue('0x1234');
+    secretsService.getActiveAccountSecrets.mockResolvedValue({
+      type: SecretType.Fireblocks,
+      addresses: {
+        addressC: 'addressC',
+        addressBTC: 'addressBTC',
+      },
+      api: {
+        key: 'key',
+        secret: 'secret',
+        vaultAccountId: '1',
+      },
+      account: {
+        type: AccountType.FIREBLOCKS,
+        id: 'abcd-1234',
+        index: 0,
+      } as unknown as FireblocksAccount,
+    });
     global.fetch = jest.fn();
+    service = new FireblocksService(secretsProvider);
   });
+
+  let service: FireblocksService;
 
   describe('.getAllKnownAddressesForAsset()', () => {
     describe('when matching external wallets exist', () => {
@@ -77,13 +103,11 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
       });
 
       it('includes the external wallets', async () => {
-        const service = new FireblocksService(apiKey, secretKey);
-
         const addresses = await service.getAllKnownAddressesForAsset('BTC');
 
         expect(addresses.get(extWalletAddr)).toEqual({
           type: PeerType.EXTERNAL_WALLET,
-          walletId: 'ext-wallet-1',
+          id: 'ext-wallet-1',
         });
       });
     });
@@ -108,13 +132,11 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
       });
 
       it('includes internal wallets', async () => {
-        const service = new FireblocksService(apiKey, secretKey);
-
         const addresses = await service.getAllKnownAddressesForAsset('BTC');
 
         expect(addresses.get(intWalletAddr)).toEqual({
           type: PeerType.INTERNAL_WALLET,
-          walletId: 'int-wallet-1',
+          id: 'int-wallet-1',
         });
       });
     });
@@ -143,8 +165,6 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
       });
 
       it('includes vault accounts wallets', async () => {
-        const service = new FireblocksService(apiKey, secretKey);
-
         const addresses = await service.getAllKnownAddressesForAsset('BTC');
 
         expect(addresses.get(vaultAcctAddr)).toEqual({
@@ -168,9 +188,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
       statusText: 'Invalid Request',
     } as Response);
 
-    const service = new FireblocksService(apiKey, secretKey);
-
-    expect(() => service.request({ path: '/anything' })).rejects.toThrowError(
+    await expect(service.request({ path: '/anything' })).rejects.toThrowError(
       new FireblocksError(`Request failed: [400] Invalid Request`, apiResponse)
     );
   });
@@ -179,9 +197,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
     const error = new Error('Timeout');
     jest.mocked(global.fetch).mockRejectedValueOnce(error);
 
-    const service = new FireblocksService(apiKey, secretKey);
-
-    expect(() => service.request({ path: '/anything' })).rejects.toThrowError(
+    await expect(service.request({ path: '/anything' })).rejects.toThrowError(
       new NetworkError(error)
     );
   });

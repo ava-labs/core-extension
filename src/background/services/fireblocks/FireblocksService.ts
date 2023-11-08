@@ -1,30 +1,32 @@
 import { sha256, toUtf8Bytes } from 'ethers';
-import { PagedVaultAccountsResponse, PeerType } from 'fireblocks-sdk';
+import {
+  PagedVaultAccountsResponse,
+  PeerType,
+  VaultAccountResponse,
+} from 'fireblocks-sdk';
 import type {
   DepositAddressResponse,
   ExternalWalletAsset,
   InternalWalletAsset,
   WalletContainerResponse,
 } from 'fireblocks-sdk';
-import { importPKCS8, KeyLike, SignJWT } from 'jose';
+import { SignJWT } from 'jose';
+import { inject, singleton } from 'tsyringe';
 
+import type { FireblocksSecretsProvider } from './models';
 import {
   FireblocksError,
   KnownAddressDictionary,
   NetworkError,
 } from './models';
 
+// Create registry for FireblocksSecretsProviders to be injected.
+// FireblocksSecretsProvider is an interface that can have multiple implementation,
+// the registry defines which one to be injected automatically
+import './registry';
+
 /**
  * Fireblocks API client.
- *
- * Please keep in mind that it should live only when it's necessary.
- *
- * Avoid having it in memory longer than necessary or injecting it into
- * other objects as a dependency. This would increase the surface area
- * for potential attackers.
- *
- * Obtaining access to instance of this class would give the attacker
- * access to user's Fireblock workspace.
  *
  * API reference:
  * Responses & Error Codes:
@@ -34,21 +36,86 @@ import {
  *   - Primary statuses: https://developers.fireblocks.com/reference/primary-transaction-statuses
  *   - Substatuses: https://developers.fireblocks.com/reference/transaction-substatuses
  */
-
+@singleton()
 export class FireblocksService {
-  #apiKey?: string;
-  #privateKey?: KeyLike;
-  #initialized: Promise<void>;
+  constructor(
+    @inject('FireblocksSecretsProvider')
+    private secretsProvider: FireblocksSecretsProvider
+  ) {}
 
-  constructor(apiKey: string, secretKey: string) {
-    this.#initialized = this.#init(apiKey, secretKey);
+  async fetchVaultAccountByWalletAddress(address: string, assetIds: string[]) {
+    for (const assetId of assetIds) {
+      const addressMap = await this.fetchVaultAccountsForAsset(assetId);
+
+      if (addressMap.has(address)) {
+        return addressMap.get(address) as string;
+      }
+    }
+
+    return null;
   }
 
-  async #init(apiKey: string, secretKey: string) {
-    this.#apiKey = apiKey;
-    // Fireblocks requires JWT to be signed using RS256 algorithm.
-    // https://developers.fireblocks.com/reference/signing-a-request-jwt-structure#jwt-structure
-    this.#privateKey = await importPKCS8(secretKey, 'RS256');
+  async getBtcAddressByAccountId(accountId: string, isMainnet: boolean) {
+    const assetId = isMainnet ? 'BTC' : 'BTC_TEST';
+    const addresses = await this.request<DepositAddressResponse[]>({
+      path: `/vault/accounts/${accountId}/${assetId}/addresses`,
+    });
+
+    const permanent = addresses.find((address) => {
+      return address.type === 'Permanent' && address.addressFormat === 'SEGWIT';
+    });
+
+    return permanent?.address;
+  }
+
+  async getVaultAccountById(id: string) {
+    return this.request<VaultAccountResponse>({
+      path: `/vault/accounts/${id}`,
+    });
+  }
+
+  async fetchVaultAccountsForAsset(assetId: string) {
+    const vaultAccounts = await this.request<PagedVaultAccountsResponse>({
+      path: `/vault/accounts_paged?assetId=${assetId}`,
+    });
+
+    /**
+     * Once we know the vault accounts, we can look up the asset addresses
+     * for each of them.
+     *
+     * TODO:
+     * There is a new endpoint incoming that will make it easier and not
+     * require so many API calls. At the moment of writing this, it's only
+     * available for selected customers, though:
+     * https://developers.fireblocks.com/reference/get_vault-asset-wallets
+     */
+    const vaultAccountsForAsset = await Promise.allSettled<{
+      vaultId: string;
+      addresses: DepositAddressResponse[];
+    }>(
+      vaultAccounts.accounts.map(async ({ id }) => ({
+        vaultId: id,
+        addresses: await this.request({
+          path: `/vault/accounts/${id}/${assetId}/addresses`,
+        }),
+      }))
+    );
+
+    const addressToVaultMap = new Map<string, string>();
+
+    vaultAccountsForAsset.forEach((result) => {
+      if (result.status === 'rejected') {
+        return;
+      }
+
+      const { vaultId, addresses } = result.value;
+
+      addresses.forEach(({ address }) => {
+        addressToVaultMap.set(address, vaultId);
+      });
+    });
+
+    return addressToVaultMap;
   }
 
   /**
@@ -68,48 +135,16 @@ export class FireblocksService {
         this.request<WalletContainerResponse<InternalWalletAsset>[]>({
           path: '/internal_wallets',
         }),
-        this.request<PagedVaultAccountsResponse>({
-          path: `/vault/accounts_paged?assetId=${assetId}`,
-        }),
+        this.fetchVaultAccountsForAsset(assetId),
       ]);
 
-    /**
-     * Once we know the vault accounts, we can look up the asset addresses
-     * for each of them.
-     *
-     * TODO:
-     * There is a new endpoint incoming that will make it easier and not
-     * require so many API calls. At the moment of writing this, it's only
-     * available for selected customers, though:
-     * https://developers.fireblocks.com/reference/get_vault-asset-wallets
-     */
     if (vaultAccountsReq.status === 'fulfilled') {
-      const vaultAccounts = vaultAccountsReq.value.accounts;
+      const vaultAccounts = vaultAccountsReq.value;
 
-      const vaultAccountsForAsset = await Promise.allSettled<{
-        vaultId: string;
-        addresses: DepositAddressResponse[];
-      }>(
-        vaultAccounts.map(async ({ id }) => ({
-          vaultId: id,
-          addresses: await this.request({
-            path: `/vault/accounts/${id}/${assetId}/addresses`,
-          }),
-        }))
-      );
-
-      vaultAccountsForAsset.forEach((result) => {
-        if (result.status === 'rejected') {
-          return;
-        }
-
-        const { vaultId, addresses } = result.value;
-
-        addresses.forEach(({ address }) => {
-          addressDictionary.set(address, {
-            type: PeerType.VAULT_ACCOUNT,
-            id: vaultId,
-          });
+      vaultAccounts.forEach((vaultId, address) => {
+        addressDictionary.set(address, {
+          type: PeerType.VAULT_ACCOUNT,
+          id: vaultId,
         });
       });
     }
@@ -120,7 +155,7 @@ export class FireblocksService {
           if (asset.address && assetId === asset.id) {
             addressDictionary.set(asset.address, {
               type: PeerType.INTERNAL_WALLET,
-              walletId,
+              id: walletId,
             });
           }
         });
@@ -133,7 +168,7 @@ export class FireblocksService {
           if (asset.address && assetId === asset.id) {
             addressDictionary.set(asset.address, {
               type: PeerType.EXTERNAL_WALLET,
-              walletId,
+              id: walletId,
             });
           }
         });
@@ -143,9 +178,14 @@ export class FireblocksService {
     return addressDictionary;
   }
 
-  async #buildRequestHeaders({ path, body }): Promise<Record<string, string>> {
-    // Await private key import
-    await this.#initialized;
+  async #buildRequestHeaders({
+    path,
+    body,
+  }: {
+    path: string;
+    body?: object;
+  }): Promise<Record<string, string>> {
+    const { apiKey, privateKey } = await this.secretsProvider.getSecrets();
 
     // Hash the request body using SHA-256 and get rid of the 0x at the start.
     const bodyHash = sha256(toUtf8Bytes(JSON.stringify(body ?? {}))).slice(2);
@@ -155,7 +195,7 @@ export class FireblocksService {
     const token = await new SignJWT({
       uri: path,
       nonce: crypto.randomUUID(),
-      sub: this.#apiKey as string,
+      sub: apiKey,
       bodyHash,
     })
       .setIssuedAt() // current time
@@ -164,10 +204,10 @@ export class FireblocksService {
         alg: 'RS256',
         typ: 'JWT',
       })
-      .sign(this.#privateKey as KeyLike);
+      .sign(privateKey);
 
     return {
-      'X-API-Key': this.#apiKey as string,
+      'X-API-Key': apiKey,
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
@@ -186,9 +226,6 @@ export class FireblocksService {
     method?: string;
     body?: object;
   }): Promise<T | never> {
-    // Await private key import
-    await this.#initialized;
-
     const prefixedPath = this.#prefixPath(path);
 
     try {

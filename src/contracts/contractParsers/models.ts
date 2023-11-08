@@ -1,12 +1,11 @@
 import { Network } from '@avalabs/chains-sdk';
-import { DomainMetadata } from '@src/background/models';
+import { DomainMetadata, EnsureDefined } from '@src/background/models';
 import {
   TokenWithBalanceERC20,
   NetworkTokenWithBalance,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import {
-  EnsureDefined,
   TransactionDisplayValues,
   txParams,
 } from '@src/background/services/transactions/models';

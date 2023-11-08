@@ -53,7 +53,7 @@ export class WalletConnectService implements WalletConnectTransport {
       this.#core = new Core({
         projectId: process.env.WALLET_CONNECT_PROJECT_ID,
         storage: this.storage,
-        logger: isDevelopment() ? 'debug' : 'error',
+        logger: isDevelopment() ? 'info' : 'error',
       });
       this.#setupPairingListeners(this.#core);
 
@@ -134,17 +134,23 @@ export class WalletConnectService implements WalletConnectTransport {
     });
 
     // Send a network switch request to the device.
-    await this.request(
-      {
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: intToHex(chainId) }],
-      },
-      {
-        chainId: accountSession.chains[0] as number,
-        tabId,
-        fromAddress: accountSession.addresses[0],
-      }
-    );
+    try {
+      await this.request(
+        {
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: intToHex(chainId) }],
+        },
+        {
+          chainId: accountSession.chains[0] as number,
+          tabId,
+          fromAddress: accountSession.addresses[0],
+        }
+      );
+    } catch {
+      // If this request throws an error for whatever reason,
+      // initiate pairing by showing the QR code.
+      return this.connect({ chainId, address: fromAddress, tabId });
+    }
 
     /**
      * Not all apps will extend the session permissions though, so we need to revalidate
@@ -171,7 +177,7 @@ export class WalletConnectService implements WalletConnectTransport {
 
   async request<T = string>(
     { method, params }: RequestPayload,
-    { chainId, fromAddress }: RequestOptions
+    { chainId, fromAddress, expiry }: RequestOptions
   ): Promise<T | never> {
     const client = await this.#getClient();
 
@@ -187,6 +193,7 @@ export class WalletConnectService implements WalletConnectTransport {
         topic: sessionInfo.topic,
         chainId: `eip155:${chainId}`,
         request: { method, params },
+        expiry,
       });
       return result;
     } catch (err) {
@@ -361,13 +368,13 @@ export class WalletConnectService implements WalletConnectTransport {
     return getAddressesFromAccounts(accounts) as [string, ...string[]];
   }
 
-  #extractChains(session: SessionTypes.Struct): number[] {
+  #extractChains(session: SessionTypes.Struct): [number, ...number[]] {
     const chains = getChainsFromNamespaces(session.namespaces);
 
     return chains
       .map(parseChainId)
       .map(({ reference }) => reference)
-      .map(Number);
+      .map(Number) as [number, ...number[]];
   }
 
   async #findSession(

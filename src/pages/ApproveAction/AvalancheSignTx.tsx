@@ -29,6 +29,8 @@ import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectAp
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import { AddPermissionlessValidator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessValidator';
 import { AddPermissionlessDelegator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessDelegator';
+import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -38,6 +40,7 @@ export function AvalancheSignTx() {
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const isFireblocksAccount = useIsUsingFireblocksAccount();
   const [showBurnWarning, setShowBurnWarning] = useState(false);
   const txData = action?.displayData.txData;
 
@@ -60,9 +63,15 @@ export function AvalancheSignTx() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isWalletConnectAccount
+      isUsingLedgerWallet || isWalletConnectAccount || isFireblocksAccount
     );
-  }, [isUsingLedgerWallet, requestId, updateAction, isWalletConnectAccount]);
+  }, [
+    updateAction,
+    requestId,
+    isUsingLedgerWallet,
+    isWalletConnectAccount,
+    isFireblocksAccount,
+  ]);
 
   const { handleApproval, handleRejection, isApprovalOverlayVisible } =
     useApprovalHelpers({
@@ -85,12 +94,21 @@ export function AvalancheSignTx() {
             />
           );
         }
+        if (isFireblocksAccount) {
+          return (
+            <FireblocksApprovalOverlay
+              onReject={handleRejection}
+              onSubmit={handleApproval}
+            />
+          );
+        }
       }
     },
     [
       isApprovalOverlayVisible,
       isUsingLedgerWallet,
       isWalletConnectAccount,
+      isFireblocksAccount,
       handleRejection,
       handleApproval,
     ]
