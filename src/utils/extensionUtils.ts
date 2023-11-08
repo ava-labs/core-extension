@@ -106,7 +106,8 @@ export const openExtensionNewWindow = async (
     // Position window in top right corner of lastFocused window.
     top = lastFocused.top ? lastFocused.top : 0;
     left =
-      lastFocused.left && lastFocused.width
+      typeof lastFocused.left === 'number' &&
+      typeof lastFocused.width === 'number'
         ? lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH)
         : 0;
   } catch (_) {
