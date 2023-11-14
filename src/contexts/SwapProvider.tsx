@@ -15,7 +15,7 @@ const SwapContext = createContext<{
     amount: string,
     swapSide: SwapSide
   ): Promise<{
-    optimalRate: OptimalRate | APIError;
+    optimalRate: OptimalRate | APIError | null;
     destAmount: string | undefined;
   }>;
   swap(

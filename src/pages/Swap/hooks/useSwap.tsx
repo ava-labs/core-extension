@@ -18,7 +18,7 @@ export function useSwap() {
 
   const [swapError, setSwapError] = useState<SwapError>({ message: '' });
   const [isSwapLoading, setIsSwapLoading] = useState<boolean>(false);
-  const [optimalRate, setOptimalRate] = useState<OptimalRate>();
+  const [optimalRate, setOptimalRate] = useState<OptimalRate | null>();
   const [swapGasLimit, setSwapGasLimit] = useState<number>(0);
   const [destAmount, setDestAmount] = useState('');
   const [isCalculateAvaxMax, setIsCalculateAvaxMax] = useState(false);
@@ -92,13 +92,13 @@ export function useSwap() {
                 setSwapGasLimit(Number(result.optimalRate?.gasCost || 0));
                 const resultAmount =
                   destinationInputField === 'to'
-                    ? result.optimalRate.destAmount
-                    : result.optimalRate.srcAmount;
-                setDestAmount(resultAmount);
+                    ? result.optimalRate?.destAmount
+                    : result.optimalRate?.srcAmount;
+                setDestAmount(resultAmount ?? '');
                 if (
                   fromTokenBalance &&
                   destinationInputField === 'from' &&
-                  new BN(resultAmount).gt(fromTokenBalance)
+                  new BN(resultAmount ?? '').gt(fromTokenBalance)
                 ) {
                   setSwapError({ message: t('Insufficient balance.') });
                   return;

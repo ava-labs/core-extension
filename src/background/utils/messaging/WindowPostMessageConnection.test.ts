@@ -42,7 +42,7 @@ describe('background/providers/utils/WindowPostMessageConnection', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledTimes(1);
     // check if same listener is removed
     expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      ...addEventListenerSpy.mock.calls[0]
+      ...(addEventListenerSpy.mock.calls[0] as any)
     );
   });
 

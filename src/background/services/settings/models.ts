@@ -23,6 +23,7 @@ export enum LanguageLinks {
   DE = 'de',
   ES = 'es',
   JA = 'ja',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   HI = 'en', // does not have translated pages in HelpCenter TODO: modify if we are having more external pages with HI language set up
   KO = 'ko',
   RU = 'ru',

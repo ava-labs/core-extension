@@ -1,4 +1,7 @@
-function incrementAndCall<T>(prom: () => Promise<T>, interval = 0) {
+function incrementAndCall<T>(
+  prom: () => Promise<T>,
+  interval = 0
+): Promise<T | never> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       prom()

@@ -413,14 +413,6 @@ export class NetworkService implements OnLock, OnStorageReady {
       return txHash;
     }
 
-    if (typeof signedTx !== 'string') {
-      // This is here to satisfy TypeScript. When we update to v5, it won't be necessary.
-      // Task: https://ava-labs.atlassian.net/browse/CP-7282
-      throw new Error(
-        `Expected signedTx to be a string, ${typeof signedTx} provided.`
-      );
-    }
-
     const activeNetwork = network || this.activeNetwork;
     if (!activeNetwork) {
       throw new Error('No active network');

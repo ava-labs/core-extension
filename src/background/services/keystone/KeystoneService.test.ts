@@ -33,7 +33,7 @@ describe('background/services/keystone/KeystoneService.ts', () => {
   };
 
   const mockedRequest = { toUR: jest.fn() };
-  const requestId = 'uuid';
+  const requestId: any = 'uuid';
 
   beforeEach(() => {
     jest.resetAllMocks();

@@ -33,7 +33,7 @@ const vaultAcctAddr = 'tb1jsdjadsuidhkjadj8as78yu1idajdjk12387a8s';
 
 const mockResponsesByPath =
   (responses: Record<string, any>) =>
-  async (url: RequestInfo): Promise<Response> => {
+  async (url: URL | RequestInfo): Promise<Response> => {
     const path = (url as string).replace('https://api.fireblocks.io/v1', '');
 
     if (responses[path]) {
