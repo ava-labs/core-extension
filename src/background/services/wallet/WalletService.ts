@@ -55,6 +55,9 @@ import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { SecretType } from '../secrets/models';
 import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
+import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
+import { SeedlessWallet } from './seedless/SeedlessWallet';
+import { SeedlessTokenStorage } from './seedless/SeedlessTokenStorage';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -96,6 +99,10 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     switch (secrets.type) {
+      case SecretType.Seedless:
+        this._walletType = WalletType.SEEDLESS;
+        break;
+
       case SecretType.Mnemonic:
         this._walletType = WalletType.MNEMONIC;
         break;
@@ -127,13 +134,27 @@ export class WalletService implements OnLock, OnUnlock {
     xpubXP,
     pubKeys,
     masterFingerprint,
+    seedlessSignerToken,
   }: {
     xpub?: string;
     xpubXP?: string;
     pubKeys?: PubKeyType[];
     mnemonic?: string;
     masterFingerprint?: string;
+    seedlessSignerToken?: SignerSessionData;
   }) {
+    if (seedlessSignerToken) {
+      const seedlessStorage = new SeedlessTokenStorage(this.secretService);
+
+      await seedlessStorage.save(seedlessSignerToken);
+      const seedlessWallet = new SeedlessWallet(seedlessStorage);
+      pubKeys = await seedlessWallet.getPublicKeys();
+
+      if (!pubKeys) {
+        throw new Error('Unable to get pubkey for seedless wallet');
+      }
+    }
+
     if (!mnemonic && !xpub && !pubKeys?.length) {
       throw new Error('Mnemonic, pubKeys or xpub is required');
     }
@@ -168,6 +189,20 @@ export class WalletService implements OnLock, OnUnlock {
 
     const provider = this.networkService.getProviderForNetwork(activeNetwork);
     const { type } = secrets;
+
+    // Seedless wallet uses a universal signer class (one for all tx types)
+    if (type === SecretType.Seedless) {
+      const addressPublicKey = secrets.pubKeys[secrets.account.index];
+
+      if (!addressPublicKey) {
+        throw new Error('Account public key not available');
+      }
+
+      const wallet = new SeedlessWallet(
+        new SeedlessTokenStorage(this.secretService)
+      );
+      return wallet;
+    }
 
     // EVM signers
     if (activeNetwork.vmName === NetworkVMType.EVM) {
@@ -572,7 +607,11 @@ export class WalletService implements OnLock, OnUnlock {
       };
     }
 
-    if (secrets.type === SecretType.LedgerLive && secrets.account) {
+    if (
+      (secrets.type === SecretType.LedgerLive ||
+        secrets.type === SecretType.Seedless) &&
+      secrets.account
+    ) {
       const publicKey = secrets.pubKeys[secrets.account.index];
 
       if (!publicKey)
@@ -791,7 +830,10 @@ export class WalletService implements OnLock, OnUnlock {
       };
     }
 
-    if (secrets.type === SecretType.LedgerLive) {
+    if (
+      secrets.type === SecretType.LedgerLive ||
+      secrets.type === SecretType.Seedless
+    ) {
       // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
       // and for X/P derivation paths  m/44'/9000'/n'/0/0
       const addressPublicKey = secrets.pubKeys[index];

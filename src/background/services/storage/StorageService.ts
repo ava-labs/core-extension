@@ -33,7 +33,6 @@ export class StorageService implements OnLock {
 
       this.callbackManager.onStorageReady();
     } catch (err) {
-      console.error(err);
       return Promise.reject(new Error('password incorrect'));
     }
   }
@@ -53,7 +52,6 @@ export class StorageService implements OnLock {
 
       await this.save(WALLET_STORAGE_ENCRYPTION_KEY, key, newPassword);
     } catch (err) {
-      console.error(err);
       return Promise.reject(new Error('password incorrect'));
     }
   }
@@ -98,6 +96,7 @@ export class StorageService implements OnLock {
     customEncryptionKey?: string
   ): Promise<T | undefined> {
     const result = await browser.storage.local.get(key);
+
     if (!result || !result[key]) {
       return;
     }

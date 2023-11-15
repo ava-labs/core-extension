@@ -1,4 +1,5 @@
 import { DerivationPath } from '@avalabs/wallets-sdk';
+import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
 
 import {
   FireblocksApiData,
@@ -9,10 +10,13 @@ import {
 import { BtcWalletPolicyDetails, PubKeyType } from '../wallet/models';
 
 export enum SecretType {
+  // Primary wallet types
   Mnemonic = 'mnemonic',
   Ledger = 'ledger',
   LedgerLive = 'ledger-live',
   Keystone = 'keystone',
+  Seedless = 'seedless',
+  // Importable wallets types
   PrivateKey = 'private-key',
   WalletConnect = 'wallet-connect',
   Fireblocks = 'fireblocks',
@@ -20,6 +24,16 @@ export enum SecretType {
 
 interface SecretsBase {
   type: SecretType;
+}
+
+interface SeedlessSecrets extends SecretsBase {
+  type: SecretType.Seedless;
+  pubKeys: PubKeyType[];
+  seedlessSignerToken: SignerSessionData;
+  derivationPath: DerivationPath;
+  mnemonic?: never;
+  xpub?: never;
+  xpubXP?: never;
 }
 
 interface MnemonicSecrets extends SecretsBase {
@@ -77,7 +91,8 @@ export type PrimaryAccountSecrets =
   | MnemonicSecrets
   | KeystoneSecrets
   | LedgerSecrets
-  | LedgerLiveSecrets;
+  | LedgerLiveSecrets
+  | SeedlessSecrets;
 
 export type ImportedAccountSecrets =
   | ImportedPrivateKeySecrets

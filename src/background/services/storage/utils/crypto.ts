@@ -46,6 +46,7 @@ export async function decrypt(
     derive || encryptionKey.length !== 32
       ? await deriveKey(encryptionKey, salt)
       : Buffer.from(encryptionKey);
+
   try {
     // throws error when using the wrong key
     const bytes = nacl.secretbox.open(cypher, nonce, key);

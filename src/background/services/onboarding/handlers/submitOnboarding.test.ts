@@ -84,7 +84,8 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
 
     expect(result).toEqual({
       ...request,
-      error: 'unable to create a wallet, mnemonic or public key required',
+      error:
+        'unable to create a wallet, mnemonic, public key or seedless token is required',
     });
   });
 

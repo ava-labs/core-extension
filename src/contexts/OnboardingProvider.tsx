@@ -27,6 +27,7 @@ import { useConnectionContext } from './ConnectionProvider';
 import { LoadingContent } from '@src/popup/LoadingContent';
 import { toast } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
+import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -51,6 +52,11 @@ const OnboardingContext = createContext<{
   mnemonic: string;
   onboardingPhase: OnboardingPhase | null;
   setOnboardingPhase: Dispatch<SetStateAction<OnboardingPhase | null>>;
+  setOidcToken: Dispatch<SetStateAction<string>>;
+  oidcToken?: string;
+  setSeedlessSignerToken: Dispatch<
+    SetStateAction<SignerSessionData | undefined>
+  >;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -80,6 +86,11 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const { t } = useTranslation();
 
+  const [oidcToken, setOidcToken] = useState<string>('');
+  const [seedlessSignerToken, setSeedlessSignerToken] = useState<
+    SignerSessionData | undefined
+  >(undefined);
+
   const [onboardingPhase, setOnboardingPhase] =
     useState<OnboardingPhase | null>(null);
 
@@ -92,6 +103,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setAccountName('Account 1');
     setAnalyticsConsent(false);
     setMasterFingerprint('');
+    setOidcToken('');
+    setSeedlessSignerToken(undefined);
   }
 
   useEffect(() => {
@@ -158,6 +171,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           analyticsConsent,
           pubKeys: publicKeys,
           masterFingerprint,
+          seedlessSignerToken,
         },
       ],
     })
@@ -195,6 +209,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         mnemonic,
         onboardingPhase,
         setOnboardingPhase,
+        setOidcToken,
+        oidcToken,
+        setSeedlessSignerToken,
       }}
     >
       {/*

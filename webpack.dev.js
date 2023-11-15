@@ -3,6 +3,7 @@ const common = require('./webpack.common.js');
 const { DefinePlugin } = require('webpack');
 const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+require('dotenv').config({ path: './.env' });
 
 module.exports = merge(common, {
   mode: 'development',
@@ -24,12 +25,21 @@ module.exports = merge(common, {
           context: 'manifest/',
           from: '**/*.json',
           to: '../',
-          transform: (content) =>
-            content
+          transform: (content) => {
+            return content
               .toString()
               .replace('__NAME__', 'Core Dev')
               .replace('__SHORT_NAME__', 'Core Dev')
-              .replace('__DEFAULT_TITLE__', 'Core Dev Browser Extension'),
+              .replace('__DEFAULT_TITLE__', 'Core Dev Browser Extension')
+              .replace(
+                '__OAUTH_CLIENT_ID__',
+                process.env.GOOGLE_OAUTH_CLIENT_ID
+              )
+              .replace(
+                '__EXTENSION_PUBLIC_KEY__',
+                process.env.EXTENSION_PUBLIC_KEY
+              );
+          },
           force: true,
         },
       ],

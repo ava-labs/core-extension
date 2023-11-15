@@ -263,7 +263,17 @@ export class SecretsService {
       xpubXP,
       derivationPath,
       btcWalletPolicyDetails,
+      seedlessSignerToken,
     } = walletKeys;
+
+    if (seedlessSignerToken) {
+      return {
+        type: SecretType.Seedless,
+        pubKeys: pubKeys ?? [],
+        seedlessSignerToken,
+        derivationPath,
+      };
+    }
 
     // If we have a phrase, we know it's a mnemonic wallet
     if (mnemonic && xpub && xpubXP) {

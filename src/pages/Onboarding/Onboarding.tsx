@@ -14,7 +14,6 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { Suspense, useEffect } from 'react';
-import { Welcome } from './pages/Welcome';
 import { CreateWallet } from './pages/CreateWallet/CreateWallet';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { Keystone } from './pages/Keystone/Keystone';
@@ -26,6 +25,9 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { LedgerTrouble } from './pages/Ledger/LedgerTrouble';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { Welcome } from './pages/Welcome/Welcome';
+import { SignIn } from './pages/Welcome/SignIn';
+import { RecoveryMethods } from './pages/Seedless/RecoveryMethods';
 
 const ContentPart = styled(Stack)`
   flex-grow: 1;
@@ -69,7 +71,6 @@ export function Onboarding() {
           <Stack
             sx={{
               height: '100%',
-              justifyContent: 'center',
               mt: 2,
             }}
           >
@@ -107,6 +108,16 @@ export function Onboarding() {
               <Route path={OnboardingURLs.CREATE_WALLET}>
                 <Suspense fallback={<CircularProgress />}>
                   <CreateWallet />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.SIGN_IN}>
+                <Suspense fallback={<CircularProgress />}>
+                  <SignIn />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.RECOVERY_METHODS}>
+                <Suspense fallback={<CircularProgress />}>
+                  <RecoveryMethods />
                 </Suspense>
               </Route>
               <Route path={OnboardingURLs.ONBOARDING_HOME}>

@@ -1,6 +1,7 @@
 const { merge } = require('webpack-merge');
 const prod = require('./webpack.prod.js');
 const CopyPlugin = require('copy-webpack-plugin');
+require('dotenv').config({ path: './.env' });
 
 module.exports = merge(prod, {
   plugins: [
@@ -18,7 +19,12 @@ module.exports = merge(prod, {
               .replace(
                 '__DEFAULT_TITLE__',
                 'Core Beta Browser Extension DEVELOPMENT BUILD'
-              ),
+              )
+              .replace(
+                '__OAUTH_CLIENT_ID__',
+                process.env.GOOGLE_OAUTH_CLIENT_ID
+              )
+              .replace('"key": "__EXTENSION_PUBLIC_KEY__",', ''),
           force: true,
         },
         { from: 'src/images/beta-logos', to: '../images', force: true },

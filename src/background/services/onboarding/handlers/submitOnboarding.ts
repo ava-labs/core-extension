@@ -12,6 +12,7 @@ import { StorageService } from '../../storage/StorageService';
 import { PubKeyType } from '../../wallet/models';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
+import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ONBOARDING_SUBMIT,
@@ -26,6 +27,7 @@ type HandlerType = ExtensionRequestHandler<
       analyticsConsent: boolean;
       pubKeys: PubKeyType[] | undefined;
       masterFingerprint: string | undefined;
+      seedlessSignerToken: SignerSessionData | undefined;
     }
   ]
 >;
@@ -55,12 +57,14 @@ export class SubmitOnboardingHandler implements HandlerType {
       analyticsConsent,
       pubKeys,
       masterFingerprint,
+      seedlessSignerToken,
     } = (request.params ?? [])[0] ?? {};
 
-    if (!mnemonic && !xPubFromHardware && !pubKeys) {
+    if (!seedlessSignerToken && !mnemonic && !xPubFromHardware && !pubKeys) {
       return {
         ...request,
-        error: 'unable to create a wallet, mnemonic or public key required',
+        error:
+          'unable to create a wallet, mnemonic, public key or seedless token is required',
       };
     }
 
@@ -84,7 +88,7 @@ export class SubmitOnboardingHandler implements HandlerType {
     const xpub =
       xPubFromHardware || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
 
-    if (!xpub && !pubKeys) {
+    if (!xpub && !pubKeys && !seedlessSignerToken) {
       return {
         ...request,
         error: 'unable to create a wallet',
@@ -105,6 +109,9 @@ export class SubmitOnboardingHandler implements HandlerType {
         xpubXP,
         masterFingerprint,
       });
+      await this.accountsService.addAccount(accountName);
+    } else if (seedlessSignerToken) {
+      await this.walletService.init({ seedlessSignerToken });
       await this.accountsService.addAccount(accountName);
     } else if (pubKeys?.length) {
       await this.walletService.init({ pubKeys });

@@ -34,6 +34,9 @@ export const AnalyticsConsent = () => {
     if (onboardingPhase === OnboardingPhase.KEYSTONE) {
       return { stepsNumber: 6, activeStep: 5 };
     }
+    if (onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE) {
+      return { stepsNumber: 2, activeStep: 1 };
+    }
     return { stepsNumber: 4, activeStep: 3 };
   }, [onboardingPhase]);
 

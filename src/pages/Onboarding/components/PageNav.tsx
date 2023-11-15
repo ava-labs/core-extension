@@ -9,7 +9,7 @@ interface PageNavProps {
   onNext: () => void;
   nextText?: string;
   disableNext: boolean;
-  expand: boolean;
+  expand?: boolean;
   steps: number;
   activeStep: number;
 }

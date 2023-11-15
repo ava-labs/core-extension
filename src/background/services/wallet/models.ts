@@ -9,6 +9,7 @@ import {
   ImportType,
 } from '../accounts/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
 import { TransactionRequest } from 'ethers';
 
 export type SignTransactionRequest =
@@ -58,6 +59,7 @@ export interface WalletSecretInStorage {
     | ({ type: ImportType.FIREBLOCKS } & FireblocksImportData['data'])
   >;
   masterFingerprint?: string;
+  seedlessSignerToken?: SignerSessionData;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 }
 
@@ -95,6 +97,7 @@ export enum WalletEvents {
 export const WALLET_STORAGE_KEY = 'wallet';
 
 export enum WalletType {
+  SEEDLESS = 'SEEDLESS',
   MNEMONIC = 'MNEMONIC',
   LEDGER = 'LEDGER',
   KEYSTONE = 'KEYSTONE',
