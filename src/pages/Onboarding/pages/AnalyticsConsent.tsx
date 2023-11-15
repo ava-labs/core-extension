@@ -27,6 +27,11 @@ export const AnalyticsConsent = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
+  const coreWebLink =
+    onboardingPhase === OnboardingPhase.CREATE_WALLET
+      ? `${process.env.CORE_WEB_BASE_URL}/discover/?newUser=1`
+      : process.env.CORE_WEB_BASE_URL;
+
   const getSteps = useMemo(() => {
     if (onboardingPhase === OnboardingPhase.IMPORT_WALLET) {
       return { stepsNumber: 3, activeStep: 2 };
@@ -119,7 +124,7 @@ export const AnalyticsConsent = () => {
           stopDataCollection();
           setAnalyticsConsent(false);
           submit(() =>
-            window.location.replace(`${process.env.CORE_WEB_BASE_URL}`)
+            coreWebLink ? window.location.replace(coreWebLink) : window.close()
           );
         }}
         backText={t('No Thanks')}
@@ -127,7 +132,7 @@ export const AnalyticsConsent = () => {
           capture('OnboardingAnalyticsAccepted');
           setAnalyticsConsent(true);
           submit(() =>
-            window.location.replace(`${process.env.CORE_WEB_BASE_URL}`)
+            coreWebLink ? window.location.replace(coreWebLink) : window.close()
           );
         }}
         nextText={t('I Agree')}
