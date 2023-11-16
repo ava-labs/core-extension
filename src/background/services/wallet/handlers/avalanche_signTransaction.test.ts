@@ -12,9 +12,11 @@ import { AvalancheSignTransactionHandler } from './avalanche_signTransaction';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Action } from '../../actions/models';
+import getProvidedUtxos from '../utils/getProvidedUtxos';
 
 jest.mock('@avalabs/avalanchejs-v2');
 jest.mock('@avalabs/wallets-sdk');
+jest.mock('../utils/getProvidedUtxos');
 
 describe('src/background/services/wallet/handlers/avalanche_signTransaction', () => {
   const env = process.env;
@@ -29,6 +31,13 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     params: { transactionHex: '0x00001', chainAlias: 'X' },
     site: {
       tabId: 1,
+    },
+  };
+  const requestWithUtxos = {
+    ...request,
+    params: {
+      ...request.params,
+      utxos: ['0x1', '0x2'],
     },
   };
   const activeAccountMock = {
@@ -99,6 +108,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     unsignedTxMock.toJSON.mockReturnValue(unsignedTxJson);
     openApprovalWindowSpy.mockResolvedValue(undefined);
     (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValue(utxosMock);
+    (getProvidedUtxos as jest.Mock).mockReturnValue(utxosMock);
   });
 
   describe('handleUnauthenticated', () => {
@@ -185,6 +195,8 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     });
 
     it('returns error if signer address is missing', async () => {
+      (getProvidedUtxos as jest.Mock).mockReturnValue([]);
+
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -227,6 +239,8 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     });
 
     it('returns error if there are no signature indices for the account', async () => {
+      (getProvidedUtxos as jest.Mock).mockReturnValue([]);
+
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -278,6 +292,8 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     });
 
     it('returns error if there are no valid signature indices for the account', async () => {
+      (getProvidedUtxos as jest.Mock).mockReturnValue([]);
+
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -329,6 +345,8 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     });
 
     it('returns error if it fails to parse the transaction', async () => {
+      (getProvidedUtxos as jest.Mock).mockReturnValue([]);
+
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -387,206 +405,310 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       );
     });
 
-    it('unsigned: opens the approval window and returns deferred response', async () => {
-      const handler = new AvalancheSignTransactionHandler(
-        walletServiceMock as any,
-        networkServiceMock as any,
-        accountsServiceMock as any
-      );
+    describe('approval window and deferred response', () => {
+      describe('unsinged tx', () => {
+        const checkExpected = (req, result) => {
+          expect(result).toEqual({
+            ...req,
+            result: DEFERRED_RESPONSE,
+          });
 
-      txMock.getSigIndices.mockReturnValueOnce([
-        [0, 1],
-        [1, 1],
-      ]);
-      codecManagerMock.unpack.mockReturnValueOnce(new Error('some error'));
-      unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
-      unsignedTxMock.getSigIndices.mockReturnValueOnce([[1, 2]]);
-      (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-        unsignedTxMock
-      );
-      (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
-        type: 'import',
-      });
+          expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
+            req.params.chainAlias
+          );
+          expect(utils.hexToBuffer).toHaveBeenCalledWith(
+            req.params.transactionHex
+          );
+          expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledTimes(1);
+          expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
+            tx: txMock,
+            provider: providerMock,
+            credentials: [
+              (Credential as unknown as jest.Mock).mock.instances[0],
+              (Credential as unknown as jest.Mock).mock.instances[1],
+            ],
+            utxos: utxosMock,
+          });
+          expect(utils.addressesFromBytes).toHaveBeenCalledWith([
+            signerAddressBytesMock,
+          ]);
+          expect(utils.parse).toHaveBeenCalledWith(
+            activeAccountMock.addressAVM
+          );
+          expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
+            signerAddressMock
+          );
+          expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
+          expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
+            unsignedTxMock,
+            providerMock,
+            activeAccountMock.addressAVM
+          );
 
-      const result = await handler.handleAuthenticated(request);
-
-      expect(result).toEqual({
-        ...request,
-        result: DEFERRED_RESPONSE,
-      });
-
-      expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-        request.params.chainAlias
-      );
-      expect(utils.hexToBuffer).toHaveBeenCalledWith(
-        request.params.transactionHex
-      );
-      expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
-        transactionHex: request.params.transactionHex,
-        chainAlias: request.params.chainAlias,
-        isTestnet: true,
-        url: process.env.GLACIER_URL,
-        token: process.env.GLACIER_API_KEY,
-      });
-      expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledTimes(1);
-      expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
-        tx: txMock,
-        provider: providerMock,
-        credentials: [
-          (Credential as unknown as jest.Mock).mock.instances[0],
-          (Credential as unknown as jest.Mock).mock.instances[1],
-        ],
-        utxos: utxosMock,
-      });
-      expect(utils.addressesFromBytes).toHaveBeenCalledWith([
-        signerAddressBytesMock,
-      ]);
-      expect(utils.parse).toHaveBeenCalledWith(activeAccountMock.addressAVM);
-      expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
-        signerAddressMock
-      );
-      expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
-      expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        unsignedTxMock,
-        providerMock,
-        activeAccountMock.addressAVM
-      );
-
-      expect(openApprovalWindowSpy).toHaveBeenCalledWith(
-        {
-          ...request,
-          tabId: request.site.tabId,
-          displayData: {
-            unsignedTxJson: JSON.stringify(unsignedTxJson),
-            txData: {
-              type: 'import',
+          expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+            {
+              ...req,
+              tabId: req.site.tabId,
+              displayData: {
+                unsignedTxJson: JSON.stringify(unsignedTxJson),
+                txData: {
+                  type: 'import',
+                },
+                ownSignatureIndices: [[0, 1]],
+                vm: 'AVM',
+              },
             },
-            ownSignatureIndices: [[0, 1]],
-            vm: 'AVM',
-          },
-        },
-        'approve/avalancheSignTx'
-      );
-    });
+            'approve/avalancheSignTx'
+          );
+        };
 
-    it('signed: opens the approval window and returns deferred response', async () => {
-      const signedTxMock = {
-        getCredentials: () =>
-          [{ biz: 'baz' }, { baz: 'biz' }] as unknown as Credential[],
-      };
+        it('works with provided UTXOs', async () => {
+          const handler = new AvalancheSignTransactionHandler(
+            walletServiceMock as any,
+            networkServiceMock as any,
+            accountsServiceMock as any
+          );
 
-      const signaturesMock = [
-        [{ _type: 'signature' }],
-        [{ _type: 'signature' }, { _type: 'signature' }],
-      ];
+          txMock.getSigIndices.mockReturnValueOnce([
+            [0, 1],
+            [1, 1],
+          ]);
+          codecManagerMock.unpack.mockReturnValueOnce(new Error('some error'));
+          unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
+          unsignedTxMock.getSigIndices.mockReturnValueOnce([[1, 2]]);
+          (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
+            unsignedTxMock
+          );
+          (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+            type: 'import',
+          });
 
-      const handler = new AvalancheSignTransactionHandler(
-        walletServiceMock as any,
-        networkServiceMock as any,
-        accountsServiceMock as any
-      );
+          const result = await handler.handleAuthenticated(requestWithUtxos);
 
-      txMock.getSigIndices.mockReturnValueOnce([
-        [0, 1],
-        [1, 1],
-      ]);
-      codecManagerMock.unpack.mockReturnValueOnce(signedTxMock);
-      unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
-      unsignedTxMock.getSigIndices.mockReturnValueOnce([
-        [1, 2],
-        [1, 0],
-      ]);
-      (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-        unsignedTxMock
-      );
-      (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
-        type: 'import',
-      });
-      (Avalanche.populateCredential as jest.Mock)
-        .mockReturnValueOnce(signaturesMock[0])
-        .mockReturnValueOnce(signaturesMock[1]);
+          checkExpected(requestWithUtxos, result);
+          expect(Avalanche.getUtxosByTxFromGlacier).not.toHaveBeenCalled();
+        });
 
-      const result = await handler.handleAuthenticated(request);
+        it('works without provided UTXOs', async () => {
+          (getProvidedUtxos as jest.Mock).mockReturnValue([]);
 
-      expect(result).toEqual({
-        ...request,
-        result: DEFERRED_RESPONSE,
-      });
+          const handler = new AvalancheSignTransactionHandler(
+            walletServiceMock as any,
+            networkServiceMock as any,
+            accountsServiceMock as any
+          );
 
-      expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-        request.params.chainAlias
-      );
-      expect(utils.hexToBuffer).toHaveBeenCalledWith(
-        request.params.transactionHex
-      );
+          txMock.getSigIndices.mockReturnValueOnce([
+            [0, 1],
+            [1, 1],
+          ]);
+          codecManagerMock.unpack.mockReturnValueOnce(new Error('some error'));
+          unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
+          unsignedTxMock.getSigIndices.mockReturnValueOnce([[1, 2]]);
+          (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
+            unsignedTxMock
+          );
+          (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+            type: 'import',
+          });
 
-      expect(Credential).toHaveBeenCalledTimes(2);
-      expect(Credential).toHaveBeenNthCalledWith(1, signaturesMock[0]);
-      expect(Credential).toHaveBeenNthCalledWith(2, signaturesMock[1]);
+          const result = await handler.handleAuthenticated(request);
 
-      expect(Avalanche.populateCredential).toHaveBeenCalledTimes(2);
-      expect(Avalanche.populateCredential).toHaveBeenNthCalledWith(1, [0, 1], {
-        unsignedTx: unsignedTxMock,
-        credentialIndex: 0,
-      });
-      expect(Avalanche.populateCredential).toHaveBeenNthCalledWith(2, [1, 1], {
-        unsignedTx: unsignedTxMock,
-        credentialIndex: 1,
+          checkExpected(request, result);
+          expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
+            transactionHex: request.params.transactionHex,
+            chainAlias: request.params.chainAlias,
+            isTestnet: true,
+            url: process.env.GLACIER_URL,
+            token: process.env.GLACIER_API_KEY,
+          });
+        });
       });
 
-      expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
-        transactionHex: request.params.transactionHex,
-        chainAlias: request.params.chainAlias,
-        isTestnet: true,
-        url: process.env.GLACIER_URL,
-        token: process.env.GLACIER_API_KEY,
-      });
+      describe('(partially) signex tx', () => {
+        const checkExpected = (req, result, signaturesMock) => {
+          expect(result).toEqual({
+            ...req,
+            result: DEFERRED_RESPONSE,
+          });
 
-      expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledTimes(2);
-      expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenNthCalledWith(1, {
-        tx: txMock,
-        provider: providerMock,
-        credentials: [{ biz: 'baz' }, { baz: 'biz' }],
-        utxos: utxosMock,
-      });
-      expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenNthCalledWith(2, {
-        tx: txMock,
-        provider: providerMock,
-        credentials: [
-          (Credential as unknown as jest.Mock).mock.instances[0],
-          (Credential as unknown as jest.Mock).mock.instances[1],
-        ],
-        utxos: utxosMock,
-      });
-      expect(utils.addressesFromBytes).toHaveBeenCalledWith([
-        signerAddressBytesMock,
-      ]);
-      expect(utils.parse).toHaveBeenCalledWith(activeAccountMock.addressAVM);
-      expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
-        signerAddressMock
-      );
-      expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
-      expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
-        unsignedTxMock,
-        providerMock,
-        activeAccountMock.addressAVM
-      );
+          expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
+            req.params.chainAlias
+          );
+          expect(utils.hexToBuffer).toHaveBeenCalledWith(
+            req.params.transactionHex
+          );
 
-      expect(openApprovalWindowSpy).toHaveBeenCalledWith(
-        {
-          ...request,
-          tabId: request.site.tabId,
-          displayData: {
-            unsignedTxJson: JSON.stringify(unsignedTxJson),
-            txData: {
-              type: 'import',
+          expect(Credential).toHaveBeenCalledTimes(2);
+          expect(Credential).toHaveBeenNthCalledWith(1, signaturesMock[0]);
+          expect(Credential).toHaveBeenNthCalledWith(2, signaturesMock[1]);
+
+          expect(Avalanche.populateCredential).toHaveBeenCalledTimes(2);
+          expect(Avalanche.populateCredential).toHaveBeenNthCalledWith(
+            1,
+            [0, 1],
+            {
+              unsignedTx: unsignedTxMock,
+              credentialIndex: 0,
+            }
+          );
+          expect(Avalanche.populateCredential).toHaveBeenNthCalledWith(
+            2,
+            [1, 1],
+            {
+              unsignedTx: unsignedTxMock,
+              credentialIndex: 1,
+            }
+          );
+          expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledTimes(2);
+          expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenNthCalledWith(
+            1,
+            {
+              tx: txMock,
+              provider: providerMock,
+              credentials: [{ biz: 'baz' }, { baz: 'biz' }],
+              utxos: utxosMock,
+            }
+          );
+          expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenNthCalledWith(
+            2,
+            {
+              tx: txMock,
+              provider: providerMock,
+              credentials: [
+                (Credential as unknown as jest.Mock).mock.instances[0],
+                (Credential as unknown as jest.Mock).mock.instances[1],
+              ],
+              utxos: utxosMock,
+            }
+          );
+          expect(utils.addressesFromBytes).toHaveBeenCalledWith([
+            signerAddressBytesMock,
+          ]);
+          expect(utils.parse).toHaveBeenCalledWith(
+            activeAccountMock.addressAVM
+          );
+          expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
+            signerAddressMock
+          );
+          expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
+          expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
+            unsignedTxMock,
+            providerMock,
+            activeAccountMock.addressAVM
+          );
+
+          expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+            {
+              ...req,
+              tabId: req.site.tabId,
+              displayData: {
+                unsignedTxJson: JSON.stringify(unsignedTxJson),
+                txData: {
+                  type: 'import',
+                },
+                ownSignatureIndices: [[0, 1]],
+                vm: 'AVM',
+              },
             },
-            ownSignatureIndices: [[0, 1]],
-            vm: 'AVM',
-          },
-        },
-        'approve/avalancheSignTx'
-      );
+            'approve/avalancheSignTx'
+          );
+        };
+
+        it('works with provided UTXOs', async () => {
+          const signedTxMock = {
+            getCredentials: () =>
+              [{ biz: 'baz' }, { baz: 'biz' }] as unknown as Credential[],
+          };
+
+          const signaturesMock = [
+            [{ _type: 'signature' }],
+            [{ _type: 'signature' }, { _type: 'signature' }],
+          ];
+
+          const handler = new AvalancheSignTransactionHandler(
+            walletServiceMock as any,
+            networkServiceMock as any,
+            accountsServiceMock as any
+          );
+
+          txMock.getSigIndices.mockReturnValueOnce([
+            [0, 1],
+            [1, 1],
+          ]);
+          codecManagerMock.unpack.mockReturnValueOnce(signedTxMock);
+          unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
+          unsignedTxMock.getSigIndices.mockReturnValueOnce([
+            [1, 2],
+            [1, 0],
+          ]);
+          (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
+            unsignedTxMock
+          );
+          (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+            type: 'import',
+          });
+          (Avalanche.populateCredential as jest.Mock)
+            .mockReturnValueOnce(signaturesMock[0])
+            .mockReturnValueOnce(signaturesMock[1]);
+
+          const result = await handler.handleAuthenticated(requestWithUtxos);
+
+          checkExpected(requestWithUtxos, result, signaturesMock);
+          expect(Avalanche.getUtxosByTxFromGlacier).not.toHaveBeenCalled();
+        });
+
+        it('works without provided UTXOs', async () => {
+          (getProvidedUtxos as jest.Mock).mockReturnValue([]);
+
+          const signedTxMock = {
+            getCredentials: () =>
+              [{ biz: 'baz' }, { baz: 'biz' }] as unknown as Credential[],
+          };
+
+          const signaturesMock = [
+            [{ _type: 'signature' }],
+            [{ _type: 'signature' }, { _type: 'signature' }],
+          ];
+
+          const handler = new AvalancheSignTransactionHandler(
+            walletServiceMock as any,
+            networkServiceMock as any,
+            accountsServiceMock as any
+          );
+
+          txMock.getSigIndices.mockReturnValueOnce([
+            [0, 1],
+            [1, 1],
+          ]);
+          codecManagerMock.unpack.mockReturnValueOnce(signedTxMock);
+          unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
+          unsignedTxMock.getSigIndices.mockReturnValueOnce([
+            [1, 2],
+            [1, 0],
+          ]);
+          (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
+            unsignedTxMock
+          );
+          (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+            type: 'import',
+          });
+          (Avalanche.populateCredential as jest.Mock)
+            .mockReturnValueOnce(signaturesMock[0])
+            .mockReturnValueOnce(signaturesMock[1]);
+
+          const result = await handler.handleAuthenticated(request);
+
+          checkExpected(request, result, signaturesMock);
+          expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
+            transactionHex: request.params.transactionHex,
+            chainAlias: request.params.chainAlias,
+            isTestnet: true,
+            url: process.env.GLACIER_URL,
+            token: process.env.GLACIER_API_KEY,
+          });
+        });
+      });
     });
   });
 

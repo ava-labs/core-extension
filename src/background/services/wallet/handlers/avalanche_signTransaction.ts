@@ -15,9 +15,16 @@ import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/wallets-sdk';
+import getProvidedUtxos from '../utils/getProvidedUtxos';
+
+type TxParams = {
+  transactionHex: string;
+  chainAlias: 'X' | 'P';
+  utxos?: string[];
+};
 
 @injectable()
-export class AvalancheSignTransactionHandler extends DAppRequestHandler {
+export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams> {
   methods = [DAppProviderRequest.AVALANCHE_SIGN_TRANSACTION];
 
   constructor(
@@ -31,7 +38,11 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
   handleAuthenticated = async (request) => {
     let credentials: Credential[] | undefined = undefined;
 
-    const { transactionHex, chainAlias } = (request.params ?? {}) as any;
+    const {
+      transactionHex,
+      chainAlias,
+      utxos: providedUtxoHexes,
+    } = (request.params ?? {}) as TxParams;
 
     if (!transactionHex || !chainAlias) {
       return {
@@ -61,13 +72,19 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler {
 
     const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
-    const utxos = await Avalanche.getUtxosByTxFromGlacier({
-      transactionHex,
-      chainAlias,
-      isTestnet: !this.networkService.isMainnet(),
-      url: process.env.GLACIER_URL as string,
-      token: process.env.GLACIER_API_KEY,
+    const providedUtxos = getProvidedUtxos({
+      utxoHexes: providedUtxoHexes,
+      vm,
     });
+    const utxos = providedUtxos.length
+      ? providedUtxos
+      : await Avalanche.getUtxosByTxFromGlacier({
+          transactionHex,
+          chainAlias,
+          isTestnet: !this.networkService.isMainnet(),
+          url: process.env.GLACIER_URL as string,
+          token: process.env.GLACIER_API_KEY,
+        });
 
     try {
       const codecManager = utils.getManagerForVM(vm);
