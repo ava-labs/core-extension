@@ -1,0 +1,176 @@
+<mxfile host="65bd71144e">
+    <diagram id="ikVnFOtW2PevHxWWv3t5" name="Page-1">
+        <mxGraphModel dx="2571" dy="802" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#114B5F" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="57" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;dashed=1;strokeColor=#FFFFFF;strokeWidth=2;opacity=40;fillColor=#696969;dashPattern=1 1;labelBackgroundColor=default;" parent="1" vertex="1">
+                    <mxGeometry x="-350" y="50" width="320" height="1020" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;dashed=1;strokeColor=#FFFFFF;strokeWidth=2;opacity=40;fillColor=#696969;dashPattern=1 2;" parent="1" vertex="1">
+                    <mxGeometry x="210" y="50" width="600" height="1020" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;dashed=1;strokeColor=#FFFFFF;strokeWidth=2;opacity=40;fillColor=#696969;dashPattern=1 1;" parent="1" vertex="1">
+                    <mxGeometry x="-800" y="40" width="320" height="1030" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="&lt;h1&gt;Background script&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontStyle=1;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="50" width="640" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Start" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="-665" y="140" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="570" y="545" width="220" height="82.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="&lt;h1&gt;User&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-800" y="50" width="320" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;" parent="1" vertex="1">
+                    <mxGeometry x="235" y="360" width="280" height="580" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="" style="edgeLabel;resizable=0;html=1;align=right;verticalAlign=middle;dashed=1;dashPattern=1 1;fillStyle=solid;strokeColor=#030303;strokeWidth=6;fontSize=14;fillColor=none;opacity=40;labelBackgroundColor=none;labelBorderColor=none;spacingTop=0;spacing=4;textOpacity=70;rounded=0;" parent="1" connectable="0" vertex="1">
+                    <mxGeometry x="110" y="1709.9966666666664" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="End" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="-215" y="1010" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;rounded=0;endArrow=none;" parent="1" source="12" target="26" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-640" y="190" as="sourcePoint"/>
+                        <mxPoint x="-640" y="353" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="43" style="edgeStyle=none;html=1;exitX=0.981;exitY=0.203;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="57" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint y="266" as="sourcePoint"/>
+                        <mxPoint x="360" y="266" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="310" y="266"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="44" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;Non-BTC&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="43" vertex="1" connectable="0">
+                    <mxGeometry x="-0.0542" y="1" relative="1" as="geometry">
+                        <mxPoint x="-30" y="1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="87" style="edgeStyle=none;html=1;entryX=0.097;entryY=0.218;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;" parent="1" source="26" target="57" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="User initiate the transaction&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-770" y="220" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="79" style="edgeStyle=none;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;entryX=0.573;entryY=0.67;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" target="3" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="500" y="733" as="sourcePoint"/>
+                        <mxPoint x="550" y="720" as="targetPoint"/>
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="81" style="edgeStyle=none;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;" parent="1" source="27" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="375" y="790" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="27" value="" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="265" y="660" width="220" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="&lt;span style=&quot;font-size: 12px;&quot;&gt;Keep calling the transaction status endpoint using fireblocks API until it comes back with error or txHash&lt;br&gt;&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;labelBackgroundColor=#;" parent="1" vertex="1">
+                    <mxGeometry x="290" y="661.25" width="160" height="77.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="80" style="edgeStyle=none;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" parent="1" source="30" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="490" y="710" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="30" value="&lt;b&gt;FireblocksService&lt;/b&gt;&lt;br&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; line-height: 18px;&quot;&gt;transaction status&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="560" y="680" width="240" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="82" style="edgeStyle=none;html=1;entryX=0.906;entryY=0.824;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" parent="1" source="34" target="57" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="If error, throws an exception.&lt;br&gt;If success, returns&amp;nbsp;TransactionResponse" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;labelBackgroundColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="257.5" y="800" width="240" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="42" value="WalletConnect Signing process&lt;br&gt;See WalletConnect Doc for details&lt;br&gt;&lt;div style=&quot;line-height: 18px;&quot;&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;labelBackgroundColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="370" y="220" width="280" height="93" as="geometry"/>
+                </mxCell>
+                <mxCell id="54" style="edgeStyle=none;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;entryX=0;entryY=0.75;entryDx=0;entryDy=0;dashed=1;" parent="1" source="52" target="30" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="55" value="&lt;font&gt;The state changes when &lt;br&gt;approval process is completed&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;fontFamily=Helvetica;fontColor=#F0F0F0;" parent="54" vertex="1" connectable="0">
+                    <mxGeometry x="-0.52" relative="1" as="geometry">
+                        <mxPoint x="-144" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="52" value="Required approval(s) are completed in the Fireblocks App&amp;nbsp;&lt;br&gt;Fireblocks allows 2 hours to collect all required approvals" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-760" y="730" width="220" height="82.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="58" value="&lt;h1&gt;Frontend&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-340" y="50" width="320" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="86" style="edgeStyle=none;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;" parent="1" source="59" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-190" y="1000" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="59" value="&lt;b&gt;Display error or &lt;br&gt;a link to the transaction in explorer&lt;/b&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-310" y="870" width="240" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="69" value="Confirmation page" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-310" y="236.5" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="70" style="edgeStyle=none;html=1;entryX=0.588;entryY=0.493;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;startArrow=none;" parent="1" source="84" target="3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="78" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;" parent="1" source="14" target="27" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;fontSize=14;strokeWidth=2;rounded=0;exitX=0.934;exitY=0.217;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" target="20" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-29.999999999999886" y="290.02" as="sourcePoint"/>
+                        <mxPoint x="321.12" y="427" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="321" y="290"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="45" value="BTC" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" parent="7" vertex="1" connectable="0">
+                    <mxGeometry x="-0.2441" relative="1" as="geometry">
+                        <mxPoint x="-44" y="10" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="71" style="edgeStyle=none;html=1;exitX=0.588;exitY=0.561;exitDx=0;exitDy=0;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;exitPerimeter=0;dashed=1;entryX=0.841;entryY=0.686;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="3" target="4" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-547" y="716" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="18" value="&lt;b style=&quot;font-size: 12px;&quot;&gt;FireblocksService&lt;br&gt;&lt;/b&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;&lt;br&gt;Create transaction&amp;nbsp;&lt;br&gt;&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="550" width="160" height="72.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="75" style="edgeStyle=none;html=1;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;" parent="1" source="72" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="375" y="500" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="72" value="&lt;div style=&quot;background-color: rgb(31, 31, 31); line-height: 18px;&quot;&gt;&lt;/div&gt;&lt;div style=&quot;line-height: 18px;&quot;&gt;Handler&lt;br&gt;Calls Wallet Service to create the transaction&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="252.5" y="370" width="245" height="93" as="geometry"/>
+                </mxCell>
+                <mxCell id="85" value="" style="edgeStyle=none;html=1;entryX=0.588;entryY=0.493;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Helvetica;fontSize=12;fontColor=#FFFCFD;endArrow=none;" parent="1" source="14" target="84" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-105" y="564.3857395925597" as="sourcePoint"/>
+                        <mxPoint x="562.8000000000002" y="552.8600000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="84" value="&lt;div style=&quot;background-color: rgb(31, 31, 31); line-height: 18px;&quot;&gt;&lt;/div&gt;&lt;div style=&quot;background-color: rgb(31, 31, 31); line-height: 18px;&quot;&gt;&lt;font color=&quot;#f7fcfb&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="255" y="504" width="245" height="106" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="&lt;div style=&quot;line-height: 18px;&quot;&gt;&lt;/div&gt;&lt;div style=&quot;line-height: 18px;&quot;&gt;Wallet Service with FireblocksBTCSigner&lt;br&gt;&lt;br&gt;&lt;div style=&quot;line-height: 18px;&quot;&gt;Create externalTxId and submit the approval request using Fireblocks API&lt;/div&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;labelBackgroundColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="252.5" y="508.5" width="245" height="93" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

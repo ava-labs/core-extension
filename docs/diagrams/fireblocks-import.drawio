@@ -1,0 +1,167 @@
+<mxfile host="65bd71144e">
+    <diagram id="IfbSHu1qeb66g8-ugtAH" name="Page-1">
+        <mxGraphModel dx="2571" dy="802" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#114B5F" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="96" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;dashed=1;strokeColor=#FFFFFF;strokeWidth=2;opacity=40;fillColor=#696969;dashPattern=1 2;" parent="1" vertex="1">
+                    <mxGeometry x="-440" y="40" width="320" height="1060" as="geometry"/>
+                </mxCell>
+                <mxCell id="97" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;dashed=1;strokeColor=#FFFFFF;strokeWidth=2;opacity=40;fillColor=#696969;dashPattern=1 2;" parent="1" vertex="1">
+                    <mxGeometry x="-40" y="40" width="600" height="1060" as="geometry"/>
+                </mxCell>
+                <mxCell id="98" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;dashed=1;strokeColor=#FFFFFF;strokeWidth=2;opacity=40;fillColor=#696969;dashPattern=1 1;" parent="1" vertex="1">
+                    <mxGeometry x="-800" y="40" width="320" height="1060" as="geometry"/>
+                </mxCell>
+                <mxCell id="99" value="&lt;h1&gt;Background script&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontStyle=1;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-80" y="50" width="640" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="100" value="&lt;h1&gt;Frontend&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-440" y="50" width="320" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="101" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;strokeWidth=2;rounded=0;" parent="1" source="102" target="106" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="176" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="101" vertex="1" connectable="0">
+                    <mxGeometry x="-0.7" y="-1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="166" style="edgeStyle=none;html=1;exitX=0.856;exitY=0.353;exitDx=0;exitDy=0;entryX=0.147;entryY=0.521;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=none;exitPerimeter=0;" parent="1" source="98" target="96" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="102" value="Optional: Provides the API credentials" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-770" y="353" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="103" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;rounded=0;startArrow=none;" parent="1" source="148" target="102" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="104" value="Start" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="-665" y="140" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="105" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=18;strokeWidth=2;rounded=0;" parent="1" source="106" target="109" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="420" y="460"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="106" value="&lt;div style=&quot;line-height: 18px;&quot;&gt;FireblocksUpdateApiCredentialsHandler&lt;/div&gt;&lt;br&gt;Ask the FireblocksService &lt;br&gt;to verify vault info and&lt;br&gt;get the vault ID&amp;nbsp;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry y="413" width="280" height="93" as="geometry"/>
+                </mxCell>
+                <mxCell id="109" value="" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="497.5" width="240" height="132.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="112" value="&lt;h1&gt;User&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-800" y="50" width="320" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="121" value="&lt;b style=&quot;font-size: 12px;&quot;&gt;FireblocksService&lt;br&gt;&lt;/b&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;&lt;br&gt;Using Fireblocks API, vault account ID and BTC address are fetched.&amp;nbsp;&lt;br&gt;&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="500" width="150" height="132.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="180" style="edgeStyle=none;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.906;entryY=0.887;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="127" target="96" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="127" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;" parent="1" vertex="1">
+                    <mxGeometry y="500" width="280" height="530" as="geometry"/>
+                </mxCell>
+                <mxCell id="129" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;curved=1;opacity=40;exitX=0.5;exitY=1;exitDx=0;exitDy=0;rounded=0;" parent="1" source="127" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="119.99999999999955" y="1090" as="sourcePoint"/>
+                        <mxPoint x="150" y="520" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="142" value="" style="edgeLabel;resizable=0;html=1;align=right;verticalAlign=middle;dashed=1;dashPattern=1 1;fillStyle=solid;strokeColor=#030303;strokeWidth=6;fontSize=14;fillColor=none;opacity=40;labelBackgroundColor=none;labelBorderColor=none;spacingTop=0;spacing=4;textOpacity=70;rounded=0;" parent="1" connectable="0" vertex="1">
+                    <mxGeometry x="110" y="1709.9966666666664" as="geometry"/>
+                </mxCell>
+                <mxCell id="145" style="html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;strokeWidth=2;rounded=0;exitX=0.5;exitY=0.559;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="96" target="147" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-280" y="1930" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="147" value="End" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="-300" y="1040" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="149" value="" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;rounded=0;endArrow=none;" parent="1" source="104" target="148" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-640" y="190" as="sourcePoint"/>
+                        <mxPoint x="-640" y="353" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="148" value="Required: WalletConnect connection using Fireblocks&lt;br&gt;(See WalletConnect doc for more details)" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-770" y="220" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="151" value="" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="620" width="240" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="152" value="&lt;span style=&quot;font-size: 12px;&quot;&gt;Request the imported account to be updated with the new API credentials, vault account ID, and BTC address&amp;nbsp;&lt;br&gt;&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="632.5" width="160" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="161" style="edgeStyle=none;html=1;" parent="1" source="153" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="730" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="153" value="&lt;b&gt;SecretService&lt;/b&gt;&lt;br&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; line-height: 18px;&quot;&gt;saveImportedWallet&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="730" width="240" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="154" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=18;strokeWidth=2;rounded=0;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="280" y="710" as="sourcePoint"/>
+                        <mxPoint x="420" y="720.5" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="420" y="710.5"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="158" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;strokeWidth=2;fontSize=14;sourcePerimeterSpacing=4;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" target="152" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="300" y="562.5" as="sourcePoint"/>
+                        <mxPoint x="24" y="632.5" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="140" y="563"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="159" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;strokeWidth=2;fontSize=14;sourcePerimeterSpacing=4;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="300" y="782.5" as="sourcePoint"/>
+                        <mxPoint x="140" y="852.5" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="140" y="783"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="160" value="Request accounts refresh to emit the account info changes" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="850" width="240" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="162" value="&lt;b&gt;AccountsService&lt;/b&gt;&lt;br&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; line-height: 18px;&quot;&gt;&lt;div style=&quot;line-height: 18px;&quot;&gt;refreshAddressesForAccount&lt;/div&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="910" width="240" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="163" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=18;strokeWidth=2;rounded=0;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="280" y="899.5" as="sourcePoint"/>
+                        <mxPoint x="420" y="910" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="420" y="900"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="165" value="Not supporting BTC" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-390" y="580" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="167" value="&lt;span style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;NO&lt;/b&gt;&lt;br&gt;&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="-510" y="482.5" width="80" height="17.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="175" value="NO" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-530" y="482.5" width="100" height="31.25" as="geometry"/>
+                </mxCell>
+                <mxCell id="177" value="YES" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-430" y="367.38" width="100" height="31.25" as="geometry"/>
+                </mxCell>
+                <mxCell id="178" value="Show imported account page" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-395" y="920" width="240" height="85" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
