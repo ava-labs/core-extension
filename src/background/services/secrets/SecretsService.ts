@@ -10,6 +10,7 @@ import {
   ImportedWalletData,
   WalletSecretInStorage,
   WALLET_STORAGE_KEY,
+  SeedlessAuthProvider,
 } from '../wallet/models';
 
 import {
@@ -264,6 +265,7 @@ export class SecretsService {
       derivationPath,
       btcWalletPolicyDetails,
       seedlessSignerToken,
+      authProvider,
     } = walletKeys;
 
     if (seedlessSignerToken) {
@@ -272,6 +274,7 @@ export class SecretsService {
         pubKeys: pubKeys ?? [],
         seedlessSignerToken,
         derivationPath,
+        authProvider: authProvider ?? SeedlessAuthProvider.Google,
       };
     }
 

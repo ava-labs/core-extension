@@ -1,5 +1,5 @@
 import { DerivationPath } from '@avalabs/wallets-sdk';
-import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import {
   FireblocksApiData,
@@ -7,7 +7,11 @@ import {
   PrimaryAccount,
   WalletConnectAddresses,
 } from '../accounts/models';
-import { BtcWalletPolicyDetails, PubKeyType } from '../wallet/models';
+import {
+  BtcWalletPolicyDetails,
+  PubKeyType,
+  SeedlessAuthProvider,
+} from '../wallet/models';
 
 export enum SecretType {
   // Primary wallet types
@@ -31,6 +35,7 @@ interface SeedlessSecrets extends SecretsBase {
   pubKeys: PubKeyType[];
   seedlessSignerToken: SignerSessionData;
   derivationPath: DerivationPath;
+  authProvider: SeedlessAuthProvider;
   mnemonic?: never;
   xpub?: never;
   xpubXP?: never;

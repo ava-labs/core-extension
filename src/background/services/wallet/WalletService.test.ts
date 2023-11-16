@@ -37,6 +37,7 @@ import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
+import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { WalletPolicy } from 'ledger-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
@@ -48,6 +49,7 @@ import { SecretsService } from '../secrets/SecretsService';
 import { Account, AccountType, ImportType } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { networks, Transaction } from 'bitcoinjs-lib';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -58,6 +60,7 @@ jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('./utils/getDerivationPath');
+jest.mock('../seedless/SeedlessWallet');
 
 jest.mock('@metamask/eth-sig-util', () => {
   const personalSignMock = jest.fn();
@@ -93,6 +96,7 @@ describe('background/services/wallet/WalletService.ts', () => {
   );
   const keystoneWalletMock = Object.create(KeystoneWallet.prototype);
   const walletConnectSignerMock = Object.create(WalletConnectSigner.prototype);
+  const seedlessWalletMock = Object.create(SeedlessWallet.prototype);
   const mnemonic = 'mnemonic';
 
   let getDefaultFujiProviderMock: jest.Mock;
@@ -148,6 +152,26 @@ describe('background/services/wallet/WalletService.ts', () => {
     const data = {
       type: SecretType.LedgerLive,
       derivationPath: DerivationPath.LedgerLive,
+      pubKeys: [{ evm: 'evm', xp: 'xp' }],
+      ...additionalData,
+      account: {
+        type: AccountType.PRIMARY,
+        ...account,
+      },
+    };
+    secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+
+    return data;
+  };
+
+  const mockSeedlessWallet = (
+    additionalData = {},
+    account?: Partial<Account>
+  ) => {
+    const data = {
+      type: SecretType.Seedless,
+      derivationPath: DerivationPath.BIP44,
       pubKeys: [{ evm: 'evm', xp: 'xp' }],
       ...additionalData,
       account: {
@@ -318,6 +342,44 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
     });
 
+    describe('when seedless token is provided', () => {
+      const token = {} as SignerSessionData;
+      const keys = [
+        {
+          evm: 'la la la',
+          xp: 'xp xp xp',
+        },
+      ];
+      beforeEach(() => {
+        jest.mocked(SeedlessWallet).mockReturnValue(seedlessWalletMock);
+        jest.spyOn(seedlessWalletMock, 'getPublicKeys').mockResolvedValue(keys);
+      });
+
+      it('uses SeedlessWallet to fetch the keys', async () => {
+        await walletService.init({ seedlessSignerToken: token });
+
+        expect(seedlessWalletMock.getPublicKeys).toHaveBeenCalled();
+      });
+
+      it('raises na error if no keys are returned', async () => {
+        jest.spyOn(seedlessWalletMock, 'getPublicKeys').mockResolvedValue([]);
+
+        await expect(
+          walletService.init({ seedlessSignerToken: token })
+        ).rejects.toThrowError('Unable to get pubkey for seedless wallet');
+      });
+
+      it('updates pub keys via SecretsService', async () => {
+        await walletService.init({ seedlessSignerToken: token });
+
+        expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+          expect.objectContaining({
+            pubKeys: keys,
+          })
+        );
+      });
+    });
+
     it('stores the data and invokes onUnlock', async () => {
       const onUnlockSpy = jest.spyOn(walletService as any, 'onUnlock');
       (getDerivationPath as jest.Mock).mockReturnValueOnce(
@@ -472,6 +534,16 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(signedTx).toBe('0x1');
     });
 
+    it('signs evm tx correctly using SeedlessWallet', async () => {
+      seedlessWalletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
+      getWalletSpy.mockResolvedValueOnce(seedlessWalletMock);
+
+      const { signedTx } = await walletService.sign(txMock, tabId, networkMock);
+
+      expect(seedlessWalletMock.signTransaction).toHaveBeenCalledWith(txMock);
+      expect(signedTx).toBe('0x1');
+    });
+
     describe('avalanche signing - XP / Coreth', () => {
       const unsignedTxJSON = {
         codecId: '0',
@@ -592,6 +664,24 @@ describe('background/services/wallet/WalletService.ts', () => {
           undefined
         );
       });
+
+      it('signs transaction correctly using SeedlessWallet', async () => {
+        seedlessWalletMock.signAvalancheTx = jest
+          .fn()
+          .mockReturnValueOnce(unsignedTxMock);
+        getWalletSpy.mockResolvedValueOnce(seedlessWalletMock);
+
+        const { signedTx } = await walletService.sign(
+          avalancheTxMock,
+          tabId,
+          networkMock
+        );
+
+        expect(signedTx).toEqual(JSON.stringify(unsignedTxJSON));
+        expect(seedlessWalletMock.signAvalancheTx).toHaveBeenCalledWith({
+          tx: unsignedTxMock,
+        });
+      });
     });
   });
 
@@ -649,6 +739,19 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       await walletService.signMessage(MessageType.ETH_SIGN, action);
       expect(walletConnectSignerMock.signMessage).toHaveBeenCalledTimes(1);
+    });
+
+    it('delegates to SeedlessWallet when needed', async () => {
+      seedlessWalletMock.signMessage = jest
+        .fn()
+        .mockResolvedValueOnce('result hex');
+
+      jest
+        .spyOn(walletService as any, 'getWallet')
+        .mockReturnValue(seedlessWalletMock);
+
+      await walletService.signMessage(MessageType.ETH_SIGN, action);
+      expect(seedlessWalletMock.signMessage).toHaveBeenCalledTimes(1);
     });
 
     it('should call Buffer.fill after signing', async () => {
@@ -825,8 +928,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       await expect(
         walletService.signMessage(MessageType.ETH_SIGN, action)
       ).rejects.toThrow(errorMessage);
-      expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
-      expect(bufferInstance.fill).toHaveBeenCalledWith(0);
+      expect(Buffer.from).not.toHaveBeenCalled();
     });
 
     it('should throw an exception when there is no active network', async () => {
@@ -1414,6 +1516,27 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       it('returns the public keys based from the storage', async () => {
         mockLedgerLiveWallet(
+          {
+            pubKeys: [
+              {
+                evm: evmPub,
+                xp: xpPub,
+              },
+            ],
+          },
+          { index: 0 }
+        );
+
+        const result = await walletService.getActiveAccountPublicKey();
+
+        expect(result).toStrictEqual({
+          evm: evmPub,
+          xp: xpPub,
+        });
+      });
+
+      it('returns the public keys for seedless wallets', async () => {
+        mockSeedlessWallet(
           {
             pubKeys: [
               {

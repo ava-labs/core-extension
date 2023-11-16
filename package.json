@@ -21,6 +21,7 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
+    "@avalabs/avalanchejs-v2": "1.4.0-alpha.21",
     "@avalabs/blockcypher-sdk": "2.8.0-alpha.153",
     "@avalabs/bridge-sdk": "2.8.0-alpha.153",
     "@avalabs/chains-sdk": "2.8.0-alpha.153",
@@ -35,9 +36,8 @@
     "@avalabs/types": "2.8.0-alpha.153",
     "@avalabs/utils-sdk": "2.8.0-alpha.153",
     "@avalabs/wallets-sdk": "2.8.0-alpha.153",
-    "@avalabs/avalanchejs-v2": "1.4.0-alpha.21",
     "@coinbase/cbpay-js": "1.6.0",
-    "@cubist-dev/cubesigner-sdk": "https://github.com/cubist-labs/CubeSigner-TypeScript-SDK.git#f5e330fb6e258ff1d418dfe851dc0429dce8ca6d",
+    "@cubist-labs/cubesigner-sdk": "https://github.com/cubist-labs/CubeSigner-TypeScript-SDK.git#f5e330fb6e258ff1d418dfe851dc0429dce8ca6d",
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
     "@keystonehq/animated-qr": "0.5.2",
@@ -61,7 +61,7 @@
     "date-fns": "2.28.0",
     "eth-json-rpc-middleware": "8.0.1",
     "eth-rpc-errors": "4.0.3",
-    "ethers": "6.7.1",
+    "ethers": "6.8.1",
     "events": "3.3.0",
     "fireblocks-sdk": "5.6.1",
     "i18next": "21.9.2",

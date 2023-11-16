@@ -3,7 +3,7 @@ import {
   CubeSigner,
   envs,
   SignerSessionManager,
-} from '@cubist-dev/cubesigner-sdk';
+} from '@cubist-labs/cubesigner-sdk';
 import {
   SeedlessRegistartionResult,
   approveSeedlessRegistration,
@@ -15,9 +15,11 @@ import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { getCubeSigner } from '../utils/getCubeSigner';
 import { useTranslation } from 'react-i18next';
 import { Dispatch, SetStateAction, useCallback } from 'react';
+import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
 
 export function useSeedlessButtonActions() {
-  const { setOidcToken, setSeedlessSignerToken } = useOnboardingContext();
+  const { setOidcToken, setSeedlessSignerToken, setAuthProvider } =
+    useOnboardingContext();
   const history = useHistory();
   const { t } = useTranslation();
 
@@ -56,6 +58,7 @@ export function useSeedlessButtonActions() {
             );
             const signerToken = await sessionMgr.storage.retrieve();
 
+            setAuthProvider(SeedlessAuthProvider.Google);
             setSeedlessSignerToken(signerToken);
             history.push(OnboardingURLs.CREATE_PASSWORD);
           } catch (e) {
@@ -69,7 +72,7 @@ export function useSeedlessButtonActions() {
           setIsLoading(false);
         });
     },
-    [history, setOidcToken, setSeedlessSignerToken, t]
+    [history, setOidcToken, setSeedlessSignerToken, setAuthProvider, t]
   );
   return {
     googleButtonAction,

@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import {
   PubKeyType,
+  SeedlessAuthProvider,
   SigningResult,
   SignTransactionRequest,
   WalletEvents,
@@ -27,6 +28,7 @@ import {
   JsonRpcBatchInternal,
   LedgerSigner,
 } from '@avalabs/wallets-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { NetworkService } from '../network/NetworkService';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
@@ -55,9 +57,8 @@ import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { SecretType } from '../secrets/models';
 import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
-import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
-import { SeedlessWallet } from './seedless/SeedlessWallet';
-import { SeedlessTokenStorage } from './seedless/SeedlessTokenStorage';
+import { SeedlessWallet } from '../seedless/SeedlessWallet';
+import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -102,7 +103,6 @@ export class WalletService implements OnLock, OnUnlock {
       case SecretType.Seedless:
         this._walletType = WalletType.SEEDLESS;
         break;
-
       case SecretType.Mnemonic:
         this._walletType = WalletType.MNEMONIC;
         break;
@@ -135,6 +135,7 @@ export class WalletService implements OnLock, OnUnlock {
     pubKeys,
     masterFingerprint,
     seedlessSignerToken,
+    authProvider,
   }: {
     xpub?: string;
     xpubXP?: string;
@@ -142,15 +143,18 @@ export class WalletService implements OnLock, OnUnlock {
     mnemonic?: string;
     masterFingerprint?: string;
     seedlessSignerToken?: SignerSessionData;
+    authProvider?: SeedlessAuthProvider;
   }) {
     if (seedlessSignerToken) {
       const seedlessStorage = new SeedlessTokenStorage(this.secretService);
-
       await seedlessStorage.save(seedlessSignerToken);
-      const seedlessWallet = new SeedlessWallet(seedlessStorage);
+      const seedlessWallet = new SeedlessWallet(
+        this.networkService,
+        seedlessStorage
+      );
       pubKeys = await seedlessWallet.getPublicKeys();
 
-      if (!pubKeys) {
+      if (!pubKeys.length) {
         throw new Error('Unable to get pubkey for seedless wallet');
       }
     }
@@ -168,6 +172,7 @@ export class WalletService implements OnLock, OnUnlock {
       xpubXP,
       derivationPath,
       masterFingerprint,
+      authProvider,
     });
     await this.onUnlock();
   }
@@ -199,7 +204,10 @@ export class WalletService implements OnLock, OnUnlock {
       }
 
       const wallet = new SeedlessWallet(
-        new SeedlessTokenStorage(this.secretService)
+        this.networkService,
+        new SeedlessTokenStorage(this.secretService),
+        activeNetwork,
+        addressPublicKey
       );
       return wallet;
     }
@@ -452,7 +460,8 @@ export class WalletService implements OnLock, OnUnlock {
         !(wallet instanceof BitcoinWallet) &&
         !(wallet instanceof BitcoinLedgerWallet) &&
         !(wallet instanceof BitcoinKeystoneWallet) &&
-        !(wallet instanceof FireblocksBTCSigner)
+        !(wallet instanceof FireblocksBTCSigner) &&
+        !(wallet instanceof SeedlessWallet)
       ) {
         throw new Error('Signing error, wrong network');
       }
@@ -478,22 +487,25 @@ export class WalletService implements OnLock, OnUnlock {
         !(wallet instanceof Avalanche.StaticSigner) &&
         !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
         !(wallet instanceof Avalanche.LedgerSigner) &&
-        !(wallet instanceof WalletConnectSigner)
+        !(wallet instanceof WalletConnectSigner) &&
+        !(wallet instanceof SeedlessWallet)
       ) {
         throw new Error('Signing error, wrong network');
       }
-      const result = await wallet.signTx(
-        {
-          tx: tx.tx,
-          ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
-            wallet instanceof Avalanche.LedgerSigner) && {
-            transport: this.ledgerService.recentTransport,
-          }),
-          externalIndices: tx.externalIndices,
-          internalIndices: tx.internalIndices,
-        },
-        originalRequestMethod
-      );
+      const txToSign = {
+        tx: tx.tx,
+        ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
+          wallet instanceof Avalanche.LedgerSigner) && {
+          transport: this.ledgerService.recentTransport,
+        }),
+        externalIndices: tx.externalIndices,
+        internalIndices: tx.internalIndices,
+      };
+
+      const result =
+        wallet instanceof SeedlessWallet
+          ? await wallet.signAvalancheTx(txToSign)
+          : await wallet.signTx(txToSign, originalRequestMethod);
 
       return this.#normalizeSigningResult(result);
     }
@@ -502,7 +514,8 @@ export class WalletService implements OnLock, OnUnlock {
       !(wallet instanceof BaseWallet) &&
       !(wallet instanceof LedgerSigner) &&
       !(wallet instanceof KeystoneWallet) &&
-      !(wallet instanceof WalletConnectSigner)
+      !(wallet instanceof WalletConnectSigner) &&
+      !(wallet instanceof SeedlessWallet)
     ) {
       throw new Error('Signing error, wrong network');
     }
@@ -670,11 +683,17 @@ export class WalletService implements OnLock, OnUnlock {
       throw new Error(`no active network found`);
     }
 
+    const data = action.displayData?.messageParams?.data;
+
+    ensureMessageIsValid(messageType, data, activeNetwork.chainId);
+
     if (wallet instanceof WalletConnectSigner) {
       return await wallet.signMessage(messageType, action.params);
     }
 
-    const data = action.displayData?.messageParams?.data;
+    if (wallet instanceof SeedlessWallet) {
+      return wallet.signMessage(messageType, action.displayData?.messageParams);
+    }
 
     if (messageType === MessageType.AVALANCHE_SIGN) {
       return this.signMessageAvalanche(data);
@@ -696,8 +715,6 @@ export class WalletService implements OnLock, OnUnlock {
 
     try {
       if (data) {
-        ensureMessageIsValid(messageType, data, activeNetwork.chainId);
-
         switch (messageType) {
           case MessageType.ETH_SIGN:
           case MessageType.PERSONAL_SIGN:

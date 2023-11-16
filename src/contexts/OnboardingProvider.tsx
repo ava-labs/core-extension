@@ -6,7 +6,10 @@ import {
   OnboardingPhase,
   OnboardingState,
 } from '@src/background/services/onboarding/models';
-import { PubKeyType } from '@src/background/services/wallet/models';
+import {
+  PubKeyType,
+  SeedlessAuthProvider,
+} from '@src/background/services/wallet/models';
 import {
   useIsSpecificContextContainer,
   ContextContainer,
@@ -27,7 +30,7 @@ import { useConnectionContext } from './ConnectionProvider';
 import { LoadingContent } from '@src/popup/LoadingContent';
 import { toast } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
-import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -54,6 +57,7 @@ const OnboardingContext = createContext<{
   setOnboardingPhase: Dispatch<SetStateAction<OnboardingPhase | null>>;
   setOidcToken: Dispatch<SetStateAction<string>>;
   oidcToken?: string;
+  setAuthProvider: Dispatch<SetStateAction<SeedlessAuthProvider | undefined>>;
   setSeedlessSignerToken: Dispatch<
     SetStateAction<SignerSessionData | undefined>
   >;
@@ -83,6 +87,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [publicKeys, setPublicKeys] = useState<PubKeyType[]>();
 
   const [masterFingerprint, setMasterFingerprint] = useState<string>('');
+
+  const [authProvider, setAuthProvider] = useState<SeedlessAuthProvider>();
 
   const { t } = useTranslation();
 
@@ -172,6 +178,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           pubKeys: publicKeys,
           masterFingerprint,
           seedlessSignerToken,
+          authProvider,
         },
       ],
     })
@@ -212,6 +219,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setOidcToken,
         oidcToken,
         setSeedlessSignerToken,
+        setAuthProvider,
       }}
     >
       {/*

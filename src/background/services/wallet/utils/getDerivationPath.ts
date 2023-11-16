@@ -1,16 +1,19 @@
 import { DerivationPath } from '@avalabs/wallets-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { PubKeyType } from '../models';
 
 const getDerivationPath = ({
   mnemonic,
   xpub,
   pubKeys,
+  seedlessSignerToken,
 }: {
   xpub?: string;
   pubKeys?: PubKeyType[];
   mnemonic?: string;
+  seedlessSignerToken?: SignerSessionData;
 }) => {
-  if (mnemonic || xpub) {
+  if (mnemonic || xpub || seedlessSignerToken) {
     return DerivationPath.BIP44;
   }
 

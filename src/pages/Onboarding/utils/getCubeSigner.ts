@@ -1,4 +1,4 @@
-import { CubeSigner, MfaReceipt } from '@cubist-dev/cubesigner-sdk';
+import { CubeSigner, MfaReceipt } from '@cubist-labs/cubesigner-sdk';
 
 export async function getCubeSigner(
   oidcToken: string,

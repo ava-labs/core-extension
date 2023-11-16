@@ -105,6 +105,23 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     });
   });
 
+  it('returns error if seedless is attempted without specifying the auth provider', async () => {
+    const handler = getHandler();
+    const request = getRequest([
+      {
+        password: 'pass',
+        seedlessSignerToken: {} as any,
+      },
+    ]);
+
+    const result = await handler.handle(request);
+
+    expect(result).toEqual({
+      ...request,
+      error: 'Auth provider is required to create a seedless wallet',
+    });
+  });
+
   it('returns error if derivation path is not determinable', async () => {
     const handler = getHandler();
     const request = getRequest([

@@ -1,5 +1,6 @@
 import { ChainId } from '@avalabs/chains-sdk';
 import { getXpubFromMnemonic, Avalanche } from '@avalabs/wallets-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
@@ -9,10 +10,9 @@ import { LockService } from '../../lock/LockService';
 import { NetworkService } from '../../network/NetworkService';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
-import { PubKeyType } from '../../wallet/models';
+import { PubKeyType, SeedlessAuthProvider } from '../../wallet/models';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
-import { SignerSessionData } from '@cubist-dev/cubesigner-sdk';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ONBOARDING_SUBMIT,
@@ -28,6 +28,7 @@ type HandlerType = ExtensionRequestHandler<
       pubKeys: PubKeyType[] | undefined;
       masterFingerprint: string | undefined;
       seedlessSignerToken: SignerSessionData | undefined;
+      authProvider: SeedlessAuthProvider | undefined;
     }
   ]
 >;
@@ -58,6 +59,7 @@ export class SubmitOnboardingHandler implements HandlerType {
       pubKeys,
       masterFingerprint,
       seedlessSignerToken,
+      authProvider,
     } = (request.params ?? [])[0] ?? {};
 
     if (!seedlessSignerToken && !mnemonic && !xPubFromHardware && !pubKeys) {
@@ -81,6 +83,13 @@ export class SubmitOnboardingHandler implements HandlerType {
       return {
         ...request,
         error: "unable to determine wallet's derivation path",
+      };
+    }
+
+    if (seedlessSignerToken && !authProvider) {
+      return {
+        ...request,
+        error: 'Auth provider is required to create a seedless wallet',
       };
     }
 
@@ -111,7 +120,7 @@ export class SubmitOnboardingHandler implements HandlerType {
       });
       await this.accountsService.addAccount(accountName);
     } else if (seedlessSignerToken) {
-      await this.walletService.init({ seedlessSignerToken });
+      await this.walletService.init({ authProvider, seedlessSignerToken });
       await this.accountsService.addAccount(accountName);
     } else if (pubKeys?.length) {
       await this.walletService.init({ pubKeys });
