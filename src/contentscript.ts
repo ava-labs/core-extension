@@ -1,8 +1,8 @@
-import { CONTENT_SCRIPT, INPAGE_SCRIPT, KEEPALIVE_SCRIPT } from './common';
+import { CONTENT_SCRIPT, KEEPALIVE_SCRIPT } from './common';
 import browser, { Runtime } from 'webextension-polyfill';
-import WindowPostMessageConnection from './background/utils/messaging/WindowPostMessageConnection';
 import PortConnection from './background/utils/messaging/PortConnection';
 import onPageActivated from './background/providers/utils/onPageActivated';
+import AutoPairingPostMessageConnection from './background/utils/messaging/AutoPairingPostMessageConnection';
 
 function setupStream() {
   /**
@@ -15,7 +15,7 @@ function setupStream() {
     })
   );
   backgroundConnection.connect();
-  const dappConnection = new WindowPostMessageConnection(INPAGE_SCRIPT);
+  const dappConnection = new AutoPairingPostMessageConnection(true);
   dappConnection.connect(async (data) => {
     const request = await backgroundConnection.request(data);
 

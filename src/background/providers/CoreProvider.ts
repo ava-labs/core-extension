@@ -1,7 +1,6 @@
 import { ethErrors, serializeError } from 'eth-rpc-errors';
 import EventEmitter from 'events';
 import { getSiteMetadata } from './utils/getSiteMetadata';
-import WindowPostMessageConnection from '../utils/messaging/WindowPostMessageConnection';
 import onDomReady from './utils/onDomReady';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 import {
@@ -18,6 +17,7 @@ import {
   JsonRpcRequest,
 } from '../connections/dAppConnection/models';
 import { ProviderInfo } from '../models';
+import AbstractConnection from '../utils/messaging/AbstractConnection';
 
 interface ProviderState {
   accounts: string[] | null;
@@ -27,7 +27,7 @@ interface ProviderState {
 }
 
 export class CoreProvider extends EventEmitter {
-  #contentScriptConnection: WindowPostMessageConnection;
+  #contentScriptConnection: AbstractConnection;
   #requestRateLimiter = new RequestRatelimiter(['eth_requestAccounts']);
   #providerReadyPromise = new ProviderReadyPromise();
 
@@ -66,17 +66,15 @@ export class CoreProvider extends EventEmitter {
   };
 
   constructor({
-    channelName,
+    connection,
     maxListeners = 100,
   }: {
-    channelName: string;
+    connection: AbstractConnection;
     maxListeners?: number;
   }) {
     super();
     this.setMaxListeners(maxListeners);
-    this.#contentScriptConnection = new WindowPostMessageConnection(
-      channelName
-    );
+    this.#contentScriptConnection = connection;
     this.#init();
   }
 
@@ -84,7 +82,7 @@ export class CoreProvider extends EventEmitter {
    * Initializes provider state,  and collects dApp information
    */
   #init = async () => {
-    this.#contentScriptConnection.connect();
+    await this.#contentScriptConnection.connect();
     this.#contentScriptConnection.on('message', this.#handleBackgroundMessage);
 
     onDomReady(async () => {

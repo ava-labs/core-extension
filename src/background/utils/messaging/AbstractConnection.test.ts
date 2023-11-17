@@ -16,7 +16,7 @@ class TestConnection extends AbstractConnection {
     super(concurrentReuestLimit);
   }
 
-  _connect = () => {
+  _connect = async () => {
     this.mocks.connect();
   };
 

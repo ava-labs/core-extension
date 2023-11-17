@@ -25,13 +25,13 @@ export default abstract class AbstractConnection extends EventEmitter {
   }
 
   protected abstract _send(message: Message): void;
-  protected abstract _connect(): void;
+  protected abstract _connect(): Promise<void>;
   protected abstract _disconnect(): void;
 
-  connect = (listenCallback?: (message: any) => void) => {
+  connect = async (listenCallback?: (message: any) => void) => {
     this.#listenCallback = listenCallback;
 
-    this._connect();
+    await this._connect();
   };
 
   message = (data: unknown) => {

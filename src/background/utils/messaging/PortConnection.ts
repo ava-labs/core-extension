@@ -14,7 +14,7 @@ export default class PortConnection extends AbstractConnection {
     });
   }
 
-  _connect = () => {
+  _connect = async () => {
     this.#port.onMessage.addListener((message) => {
       return this.onMessage(message);
     });

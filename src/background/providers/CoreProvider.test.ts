@@ -1,12 +1,12 @@
 import { ethErrors } from 'eth-rpc-errors';
-import WindowPostMessageConnection from '../utils/messaging/WindowPostMessageConnection';
 import { CoreProvider } from './CoreProvider';
 import onDomReady from './utils/onDomReady';
 import { DAppProviderRequest } from '../connections/dAppConnection/models';
+import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPostMessageConnection';
 
-jest.mock('../utils/messaging/WindowPostMessageConnection', () => {
+jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   const mocks = {
-    connect: jest.fn(),
+    connect: jest.fn().mockResolvedValue(undefined),
     on: jest.fn(),
     request: jest.fn().mockResolvedValue({}),
   };
@@ -16,9 +16,11 @@ jest.mock('../utils/messaging/WindowPostMessageConnection', () => {
 jest.mock('./utils/onDomReady');
 
 describe('src/background/providers/CoreProvider', () => {
-  const channelMock = new WindowPostMessageConnection('');
+  const channelMock = new AutoPairingPostMessageConnection(false);
 
   beforeEach(() => {
+    jest.mocked(channelMock.connect).mockResolvedValueOnce(undefined);
+
     (channelMock.request as jest.Mock).mockResolvedValueOnce({
       isUnlocked: true,
       chainId: '0x1',
@@ -33,7 +35,7 @@ describe('src/background/providers/CoreProvider', () => {
 
   describe('EIP-5749', () => {
     it('sets the ProviderInfo', () => {
-      const provider = new CoreProvider({ channelName: 'channel-name' });
+      const provider = new CoreProvider({ connection: channelMock });
       expect(provider.info).toEqual({
         description: 'EVM_PROVIDER_INFO_DESCRIPTION',
         icon: 'EVM_PROVIDER_INFO_ICON',
@@ -46,7 +48,7 @@ describe('src/background/providers/CoreProvider', () => {
   describe('EIP-1193', () => {
     describe('request', () => {
       it('collects pending requests till the dom is ready', async () => {
-        const provider = new CoreProvider({ channelName: 'channel-name' });
+        const provider = new CoreProvider({ connection: channelMock });
 
         // wait for init to finish
         await new Promise(process.nextTick);
@@ -86,7 +88,7 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       it('rate limits `eth_requestAccounts` requests', async () => {
-        const provider = new CoreProvider({ channelName: 'channel-name' });
+        const provider = new CoreProvider({ connection: channelMock });
 
         // wait for init to finish
         await new Promise(process.nextTick);
@@ -137,7 +139,7 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       it('always returns JSON RPC-compatible error', async () => {
-        const provider = new CoreProvider({ channelName: 'channel-name' });
+        const provider = new CoreProvider({ connection: channelMock });
 
         // wait for init to finish
         await new Promise(process.nextTick);
@@ -183,7 +185,7 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       it('does not double wraps JSON RPC errors', async () => {
-        const provider = new CoreProvider({ channelName: 'channel-name' });
+        const provider = new CoreProvider({ connection: channelMock });
 
         // wait for init to finish
         await new Promise(process.nextTick);
@@ -234,7 +236,7 @@ describe('src/background/providers/CoreProvider', () => {
     describe('events', () => {
       describe(`connect`, () => {
         it('emits `connect` when chainId first set', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const connectSubscription = jest.fn();
           provider.addListener('connect', connectSubscription);
 
@@ -258,7 +260,7 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: 'loading',
             accounts: ['0x00000'],
           });
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const connectSubscription = jest.fn();
           provider.addListener('connect', connectSubscription);
 
@@ -283,7 +285,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('emits connect on re-connect after disconnected', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const connectSubscription = jest.fn();
           const disconnectSubscription = jest.fn();
           provider.addListener('connect', connectSubscription);
@@ -318,7 +320,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('disconnect', () => {
         it('emits disconnect event with error', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const disconnectSubscription = jest.fn();
           provider.addListener('disconnect', disconnectSubscription);
 
@@ -350,7 +352,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('chainChanged', () => {
         it('does not emit `chainChanged` on initialization', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -368,7 +370,7 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: 'loading',
             accounts: ['0x00000'],
           });
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -386,7 +388,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('does not emit `chainChanged` when chain is set to the same value', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -409,7 +411,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('emits `chainChanged` when chain is set to new value', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -436,7 +438,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('accountsChanged', () => {
         it('emits `accountsChanged` on initialization', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -457,7 +459,7 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: '1',
             accounts: undefined,
           });
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -469,7 +471,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('does not emit `accountsChanged` when account is set to the same value', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -487,7 +489,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('emits `accountsChanged` when account is set to new value', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -512,7 +514,7 @@ describe('src/background/providers/CoreProvider', () => {
     describe('legacy', () => {
       describe('sendAsync', () => {
         it('collects pending requests till the dom is ready', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -551,7 +553,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('rate limits `eth_requestAccounts` requests', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -606,7 +608,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('supports batched requets', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -655,7 +657,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('send', () => {
         it('collects pending requests till the dom is ready', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -694,7 +696,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('rate limits `eth_requestAccounts` requests', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -749,7 +751,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('supports batched requets', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -796,7 +798,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('supports method as the only param', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -831,7 +833,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('supports method with params', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -866,7 +868,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('returns eth_accounts response syncronously', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -882,7 +884,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('returns eth_coinbase response syncronously', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -898,7 +900,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('throws error if method not supported syncronously', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -923,7 +925,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('enable', () => {
         it('collects pending requests till the dom is ready', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -952,7 +954,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('rate limits enable calls', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -990,7 +992,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('net_version', () => {
         it('supports net_version call', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
 
           // wait for init to finish
           await new Promise(process.nextTick);
@@ -1021,7 +1023,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('close event', () => {
         it('emits close event with error', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const closeSubscription = jest.fn();
           provider.on('close', closeSubscription);
 
@@ -1053,7 +1055,7 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('networkChanged event', () => {
         it('does not emit `networkChanged` on initialization', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1071,7 +1073,7 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: 'loading',
             accounts: ['0x00000'],
           });
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1089,7 +1091,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('does not emit `networkChanged` when chain is set to the same value', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1112,7 +1114,7 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('emits `chainChanged` when chain is set to new value', async () => {
-          const provider = new CoreProvider({ channelName: 'channel-name' });
+          const provider = new CoreProvider({ connection: channelMock });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1140,22 +1142,38 @@ describe('src/background/providers/CoreProvider', () => {
   });
 
   describe('init', () => {
-    it('initializes messaging channel with the correct name', () => {
-      new CoreProvider({ channelName: 'channel-name' });
-      expect(WindowPostMessageConnection).toHaveBeenCalledWith('channel-name');
+    it('waits for message channel to be connected', async () => {
+      const mockedChannel = new AutoPairingPostMessageConnection(false);
+      let resolve;
+      const promise = new Promise<void>((res) => {
+        resolve = res;
+      });
+
+      jest.mocked(mockedChannel.connect).mockReturnValue(promise);
+
+      new CoreProvider({ connection: mockedChannel });
+      expect(mockedChannel.connect).toHaveBeenCalled();
+      expect(mockedChannel.request).not.toHaveBeenCalled();
+
+      resolve();
+      await new Promise(process.nextTick);
+      expect(mockedChannel.request).toHaveBeenCalled();
     });
 
     it('loads provider state from the background', async () => {
-      const mockedChannel = new WindowPostMessageConnection('');
+      const mockedChannel = new AutoPairingPostMessageConnection(false);
+
+      jest.mocked(mockedChannel.connect).mockResolvedValueOnce(undefined);
       (mockedChannel.request as jest.Mock).mockResolvedValueOnce({
         isUnlocked: true,
         chainId: '0x1',
         networkVersion: '1',
         accounts: ['0x00000'],
       });
-      const provider = new CoreProvider({ channelName: 'channel-name' });
+      const provider = new CoreProvider({ connection: mockedChannel });
       const initializedSubscription = jest.fn();
       provider.addListener('_initialized', initializedSubscription);
+      await new Promise(process.nextTick);
 
       expect(mockedChannel.request).toHaveBeenCalledTimes(1);
       expect(mockedChannel.request).toHaveBeenCalledWith({
@@ -1177,7 +1195,7 @@ describe('src/background/providers/CoreProvider', () => {
 
   describe('Metamask compatibility', () => {
     it('supports _metamask.isUnlocked', async () => {
-      const provider = new CoreProvider({ channelName: 'channel-name' });
+      const provider = new CoreProvider({ connection: channelMock });
 
       expect(await provider._metamask.isUnlocked()).toBe(false);
 
@@ -1186,11 +1204,11 @@ describe('src/background/providers/CoreProvider', () => {
       expect(await provider._metamask.isUnlocked()).toBe(true);
     });
     it('isMetamask is true', () => {
-      const provider = new CoreProvider({ channelName: 'channel-name' });
+      const provider = new CoreProvider({ connection: channelMock });
       expect(provider.isMetaMask).toBe(true);
     });
     it('isAvalanche is true', async () => {
-      const provider = new CoreProvider({ channelName: 'channel-name' });
+      const provider = new CoreProvider({ connection: channelMock });
       expect(provider.isAvalanche).toBe(true);
     });
   });
