@@ -196,7 +196,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when target network is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, undefined, {
+        wallet = new SeedlessWallet(networkService, sessionStorage, {
           evm: 'la la la',
         });
       });
@@ -211,9 +211,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when incompatible provider is obtained for provided network', () => {
       beforeEach(() => {
         networkService.getProviderForNetwork.mockReturnValue({} as any);
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any, {
-          evm: 'la la la',
-        });
+        wallet = new SeedlessWallet(
+          networkService,
+          sessionStorage,
+          {
+            evm: 'la la la',
+          },
+          {} as any
+        );
       });
 
       it('raises an error', async () => {
@@ -242,10 +247,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet(
           networkService,
           sessionStorage,
-          { vmName: NetworkVMType.EVM } as any,
           {
             evm: evmKey.publicKey,
-          }
+          },
+          { vmName: NetworkVMType.EVM } as any
         );
       });
 
@@ -329,10 +334,15 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       };
 
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any, {
-          evm: strip0x(evmKey.publicKey),
-          xp: 'xp xp xp',
-        });
+        wallet = new SeedlessWallet(
+          networkService,
+          sessionStorage,
+          {
+            evm: strip0x(evmKey.publicKey),
+            xp: 'xp xp xp',
+          },
+          {} as any
+        );
       });
 
       it('uses the EVM public key', async () => {
@@ -384,10 +394,15 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       };
 
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any, {
-          evm: strip0x(evmKey.publicKey),
-          xp: strip0x(avaKey.publicKey),
-        });
+        wallet = new SeedlessWallet(
+          networkService,
+          sessionStorage,
+          {
+            evm: strip0x(evmKey.publicKey),
+            xp: strip0x(avaKey.publicKey),
+          },
+          {} as any
+        );
       });
 
       describe('in testnet mode', () => {
@@ -468,7 +483,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any);
+        wallet = new SeedlessWallet(networkService, sessionStorage);
       });
 
       it('raises an error', async () => {
@@ -480,7 +495,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when network is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any);
       });
 
       it('raises an error', async () => {
@@ -492,9 +507,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('with EVM messages', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any, {
-          evm: strip0x(evmKey.publicKey),
-        });
+        wallet = new SeedlessWallet(
+          networkService,
+          sessionStorage,
+          {
+            evm: strip0x(evmKey.publicKey),
+          },
+          {} as any
+        );
 
         jest.mocked(getEvmAddressFromPubKey).mockReturnValue(evmKey.materialId);
       });
@@ -594,16 +614,26 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           getAddress: () => `X-${avaKey.materialId}`,
         } as any);
 
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any, {
-          evm: strip0x(evmKey.publicKey),
-          xp: 'xp xp xp',
-        });
+        wallet = new SeedlessWallet(
+          networkService,
+          sessionStorage,
+          {
+            evm: strip0x(evmKey.publicKey),
+            xp: 'xp xp xp',
+          },
+          {} as any
+        );
       });
 
       it('validates presence of X/P public key', async () => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any, {
-          evm: strip0x(evmKey.publicKey),
-        });
+        wallet = new SeedlessWallet(
+          networkService,
+          sessionStorage,
+          {
+            evm: strip0x(evmKey.publicKey),
+          },
+          {} as any
+        );
 
         await expect(
           wallet.signMessage(MessageType.AVALANCHE_SIGN, getMessage())
@@ -631,9 +661,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     });
 
     it('returns the obtained signature', async () => {
-      wallet = new SeedlessWallet(networkService, sessionStorage, {} as any, {
-        evm: strip0x(evmKey.publicKey),
-      });
+      wallet = new SeedlessWallet(
+        networkService,
+        sessionStorage,
+        {
+          evm: strip0x(evmKey.publicKey),
+        },
+        {} as any
+      );
 
       jest.mocked(getEvmAddressFromPubKey).mockReturnValue(evmKey.materialId);
 
@@ -649,6 +684,91 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           getMessage({ data: '0x1234' })
         )
       ).toEqual('dummy-signature');
+    });
+  });
+
+  describe('.addAccount()', () => {
+    let session: jest.Mocked<cs.SignerSession>;
+
+    beforeEach(() => {
+      session = {
+        keys: jest.fn().mockResolvedValue(validKeySet),
+        proveIdentity: jest.fn(),
+      } as any;
+      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+
+      wallet = new SeedlessWallet(networkService, sessionStorage, {
+        evm: strip0x(evmKey.publicKey),
+      });
+
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+      });
+    });
+
+    it('raises an error for invalid account index', async () => {
+      await expect(wallet.addAccount(-1)).rejects.toThrowError(
+        /Account index must be greater than or equal to 1/
+      );
+    });
+
+    describe('when seedless api is unreachable', () => {
+      beforeEach(() => {
+        global.fetch = jest.fn().mockRejectedValue(new Error('Timeout'));
+      });
+
+      it('raises an error', async () => {
+        await expect(wallet.addAccount(1)).rejects.toThrowError(
+          /Core Seedless API is unreachable/
+        );
+      });
+    });
+
+    describe('when the mnemonic id cannot be established', () => {
+      beforeEach(() => {
+        global.fetch = jest.fn().mockRejectedValue(new Error('Timeout'));
+        wallet = new SeedlessWallet(networkService, sessionStorage, {
+          evm: 'unpaired-public-key',
+        });
+      });
+
+      it('raises an error', async () => {
+        await expect(wallet.addAccount(1)).rejects.toThrowError(
+          /Cannot establish the mnemonic id/
+        );
+      });
+    });
+
+    it('calls the seedless api with proper payload', async () => {
+      const identityProof = { email: 'test@core.app' };
+      const mnemonicId = evmKey.derivation_info.mnemonic_id;
+      const accountIndex = 1;
+
+      session.proveIdentity.mockResolvedValue(identityProof as any);
+      await wallet.addAccount(accountIndex);
+
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringMatching(/\/addAccount$/),
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ accountIndex, identityProof, mnemonicId }),
+        })
+      );
+    });
+
+    describe('when API responds with a non-OK status', () => {
+      beforeEach(() => {
+        global.fetch = jest.fn().mockResolvedValue({
+          ok: false,
+        });
+      });
+
+      it('raises an error', async () => {
+        session.proveIdentity.mockResolvedValue({} as any);
+        await expect(wallet.addAccount(1)).rejects.toThrowError(
+          /Adding new account failed/
+        );
+      });
     });
   });
 
@@ -699,7 +819,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when non-Bitcoin network is provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {
+        wallet = new SeedlessWallet(networkService, sessionStorage, undefined, {
           chainId: ChainId.ETHEREUM_HOMESTEAD,
         } as Network);
       });
@@ -717,10 +837,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet(
           networkService,
           sessionStorage,
-          { chainId: ChainId.BITCOIN } as any,
           {
             evm: 'la la la',
-          }
+          },
+          { chainId: ChainId.BITCOIN } as any
         );
       });
 
@@ -737,7 +857,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         networkService.getProviderForNetwork.mockReturnValue(
           new BlockCypherProvider()
         );
-        wallet = new SeedlessWallet(networkService, sessionStorage, {
+        wallet = new SeedlessWallet(networkService, sessionStorage, undefined, {
           chainId: ChainId.BITCOIN,
         } as Network);
       });
@@ -766,8 +886,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet(
           networkService,
           sessionStorage,
-          network,
-          pubKey
+          pubKey,
+          network
         );
       });
 

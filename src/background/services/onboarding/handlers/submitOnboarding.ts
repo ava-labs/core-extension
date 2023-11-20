@@ -13,6 +13,8 @@ import { StorageService } from '../../storage/StorageService';
 import { PubKeyType, SeedlessAuthProvider } from '../../wallet/models';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { SecretType } from '../../secrets/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ONBOARDING_SUBMIT,
@@ -45,7 +47,8 @@ export class SubmitOnboardingHandler implements HandlerType {
     private walletService: WalletService,
     private accountsService: AccountsService,
     private settingsService: SettingsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private secretsService: SecretsService
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
@@ -121,7 +124,18 @@ export class SubmitOnboardingHandler implements HandlerType {
       await this.accountsService.addAccount(accountName);
     } else if (seedlessSignerToken) {
       await this.walletService.init({ authProvider, seedlessSignerToken });
-      await this.accountsService.addAccount(accountName);
+
+      // Create accounts for all obtained keys.
+      const secrets = await this.secretsService.getPrimaryAccountSecrets();
+      if (secrets?.type === SecretType.Seedless) {
+        // Adding accounts cannot be parallelized, they need to be added one-by-one.
+        // Otherwise race conditions occur and addresses get mixed up.
+        for (let i = 0; i < secrets.pubKeys.length; i++) {
+          await this.accountsService.addAccount(i === 0 ? accountName : '');
+        }
+      } else {
+        throw new Error('Seedless wallet initialization failed');
+      }
     } else if (pubKeys?.length) {
       await this.walletService.init({ pubKeys });
       for (let i = 0; i < pubKeys.length; i++) {

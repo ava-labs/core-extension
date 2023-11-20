@@ -206,8 +206,8 @@ export class WalletService implements OnLock, OnUnlock {
       const wallet = new SeedlessWallet(
         this.networkService,
         new SeedlessTokenStorage(this.secretService),
-        activeNetwork,
-        addressPublicKey
+        addressPublicKey,
+        activeNetwork
       );
       return wallet;
     }
@@ -795,6 +795,21 @@ export class WalletService implements OnLock, OnUnlock {
 
       await this.secretService.updateSecrets({
         pubKeys,
+      });
+    }
+
+    if (secrets.type === SecretType.Seedless && !secrets.pubKeys[index]) {
+      const wallet = new SeedlessWallet(
+        this.networkService,
+        new SeedlessTokenStorage(this.secretService),
+        secrets.pubKeys[0]
+      );
+
+      // Prompt Core Seedless API to derive new keys
+      await wallet.addAccount(index);
+      // Update the public keys in wallet
+      await this.secretService.updateSecrets({
+        pubKeys: await wallet.getPublicKeys(),
       });
     }
 

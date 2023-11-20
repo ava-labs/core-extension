@@ -50,6 +50,7 @@ import { Account, AccountType, ImportType } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { networks, Transaction } from 'bitcoinjs-lib';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -1116,6 +1117,73 @@ describe('background/services/wallet/WalletService.ts', () => {
               xp: addressBuffXP.toString('hex'),
             },
           ],
+        });
+      });
+    });
+
+    describe('seedless', () => {
+      const oldKeys = [{ evm: 'evm', xp: 'xp' }];
+      const newKeys = [...oldKeys, { evm: 'evm2', xp: 'xp2' }];
+
+      describe('when public keys for given account are not known yet', () => {
+        beforeEach(() => {
+          mockSeedlessWallet({
+            pubKeys: oldKeys,
+          });
+          jest.mocked(SeedlessWallet).mockReturnValue(seedlessWalletMock);
+
+          jest
+            .spyOn(seedlessWalletMock, 'getPublicKeys')
+            .mockResolvedValue(newKeys);
+
+          jest
+            .spyOn(walletService, 'getAddresses')
+            .mockResolvedValueOnce(addressesMock as any);
+        });
+
+        it('calls addAccount on SeedlessWallet', async () => {
+          const result = await walletService.addAddress(1);
+
+          expect(SeedlessWallet).toHaveBeenCalledWith(
+            networkService,
+            expect.any(SeedlessTokenStorage),
+            { evm: 'evm', xp: 'xp' }
+          );
+
+          expect(seedlessWalletMock.addAccount).toHaveBeenCalledWith(1);
+          expect(secretsService.updateSecrets).toHaveBeenCalledWith({
+            pubKeys: newKeys,
+          });
+          expect(getAddressesSpy).toHaveBeenCalledWith(1);
+          expect(result).toStrictEqual(addressesMock);
+        });
+      });
+
+      describe('when the public keys for the new account are known', () => {
+        beforeEach(() => {
+          mockSeedlessWallet({
+            pubKeys: newKeys,
+          });
+        });
+
+        it('it retrieves the addresses without contacting seedless api', async () => {
+          const addressBuffEvm = Buffer.from('0x1');
+          const addressBuffXP = Buffer.from('0x2');
+
+          getAddressesSpy.mockReturnValueOnce(addressesMock);
+
+          jest
+            .mocked(getPubKeyFromTransport)
+            .mockReturnValueOnce(addressBuffEvm as any)
+            .mockReturnValueOnce(addressBuffXP as any);
+
+          const result = await walletService.addAddress(1);
+
+          expect(SeedlessWallet).not.toHaveBeenCalled();
+          expect(secretsService.updateSecrets).not.toHaveBeenCalled();
+
+          expect(getAddressesSpy).toHaveBeenCalledWith(1);
+          expect(result).toStrictEqual(addressesMock);
         });
       });
     });

@@ -30,6 +30,7 @@ import { MessageParams, MessageType } from '../messages/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
+import { CoreApiError } from './models';
 
 export class SeedlessWallet {
   #signerSession?: cs.SignerSession;
@@ -37,8 +38,8 @@ export class SeedlessWallet {
   constructor(
     private networkService: NetworkService,
     private sessionStorage: cs.SessionStorage<cs.SignerSessionData>,
-    private network?: Network,
-    private addressPublicKey?: PubKeyType
+    private addressPublicKey?: PubKeyType,
+    private network?: Network
   ) {}
 
   get #connected() {
@@ -53,6 +54,69 @@ export class SeedlessWallet {
     this.#signerSession = await cs.CubeSigner.loadSignerSession(
       this.sessionStorage
     );
+  }
+
+  async addAccount(accountIndex) {
+    if (accountIndex < 1) {
+      // To add a new account this way, we first need to know at least one
+      // public key -- to be able to finx the mnemonic ID that we'll use
+      // to derive the next keys.
+      // To derive the first (0-index) key, /register endpoint should be used.
+      throw new Error('Account index must be greater than or equal to 1');
+    }
+
+    const session = await this.#getSession();
+    const identityProof = await session.proveIdentity();
+    const mnemonicId = await this.#getMnemonicId();
+
+    try {
+      const response = await fetch(
+        process.env.SEEDLESS_URL + '/v1/addAccount',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            accountIndex,
+            identityProof,
+            mnemonicId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new CoreApiError('Adding new account failed');
+      }
+    } catch (err) {
+      // Rethrow known errors
+      if (err instanceof CoreApiError) {
+        throw err;
+      }
+
+      throw new Error('Core Seedless API is unreachable');
+    }
+  }
+
+  async #getMnemonicId(): Promise<string> {
+    if (!this.addressPublicKey) {
+      throw new Error('Public key not available');
+    }
+
+    const session = await this.#getSession();
+    const keys = await session.keys();
+
+    const activeAccountKey = keys.find(
+      (key) => strip0x(key.publicKey) === this.addressPublicKey?.evm
+    );
+
+    const mnemonicId = activeAccountKey?.derivation_info?.mnemonic_id;
+
+    if (!mnemonicId) {
+      throw new Error('Cannot establish the mnemonic id');
+    }
+
+    return mnemonicId;
   }
 
   async #getSession(): Promise<cs.SignerSession> {
@@ -261,12 +325,12 @@ export class SeedlessWallet {
     messageType: MessageType,
     messageParams: MessageParams
   ): Promise<string | Buffer> {
-    if (!this.network) {
-      throw new Error('Network not available');
-    }
-
     if (!this.addressPublicKey) {
       throw new Error('Public key not available');
+    }
+
+    if (!this.network) {
+      throw new Error('Network not available');
     }
 
     if (messageType === MessageType.AVALANCHE_SIGN) {
