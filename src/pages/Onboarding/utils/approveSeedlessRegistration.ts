@@ -1,3 +1,5 @@
+import { IdentityProof } from '@cubist-labs/cubesigner-sdk';
+
 export enum SeedlessRegistartionResult {
   ALREADY_REGISTERED = 'ALREADY_REGISTERED',
   APPROVED = 'APPROVED',
@@ -13,23 +15,14 @@ interface SeedlessRegistartionResponseTextObject {
 }
 
 export async function approveSeedlessRegistration(
-  oidcToken: string
+  identityProof: IdentityProof
 ): Promise<SeedlessRegistartionResult> {
-  // Extract user identity from token
-  const payload = JSON.parse(
-    Buffer.from(oidcToken.split('.')?.[1] ?? '', 'base64').toString('ascii')
-  );
-  const iss = payload.iss;
-  const sub = payload.sub;
-  const email = payload.email;
-
   return fetch(process.env.SEEDLESS_URL + '/v1/register', {
     method: 'POST',
-    body: JSON.stringify({
-      iss,
-      sub,
-      email,
-    }),
+    body: JSON.stringify(identityProof),
+    headers: {
+      'Content-Type': 'application/json',
+    },
   })
     .then(async (response) => {
       const responseText: SeedlessRegistartionResponseTextObject = JSON.parse(

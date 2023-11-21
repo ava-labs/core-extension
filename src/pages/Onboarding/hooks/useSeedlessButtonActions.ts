@@ -41,7 +41,7 @@ export function useSeedlessButtonActions() {
           );
 
           if (!identity.user_info) {
-            const result = await approveSeedlessRegistration(idToken);
+            const result = await approveSeedlessRegistration(identity);
 
             if (result !== SeedlessRegistartionResult.APPROVED) {
               toast.error(t('Seedless login error'));
