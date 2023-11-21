@@ -88,7 +88,7 @@ export function Assets() {
           </Stack>
         </Stack>
       </Stack>
-      <Box>
+      <Stack sx={{ flexGrow: 1 }}>
         <Box sx={{ mx: 2, borderBottom: 1, borderColor: 'divider' }}>
           <Tabs
             onChange={handleChange}
@@ -110,11 +110,14 @@ export function Assets() {
             />
           </Tabs>
         </Box>
-        <Box sx={{ height: 370 }}>
+        <Stack sx={{ flexGrow: 1 }}>
           <TabPanel
             value={activeTab}
             index={AssetsTabs.TOKENS}
-            sx={{ height: '100%' }}
+            sx={{
+              flexGrow: activeTab === AssetsTabs.TOKENS ? 1 : 0,
+              display: 'flex',
+            }}
           >
             {network && isBitcoinNetwork(network) ? (
               <Redirect to={'/token'} />
@@ -125,7 +128,7 @@ export function Assets() {
           <TabPanel
             value={activeTab}
             index={AssetsTabs.ACTIVITY}
-            sx={{ height: 360, my: 2 }}
+            sx={{ flexGrow: activeTab === AssetsTabs.ACTIVITY ? 1 : 0, my: 2 }}
           >
             {network && isBitcoinNetwork(network) ? (
               <Redirect to={'/token'} />
@@ -133,8 +136,8 @@ export function Assets() {
               <WalletRecentTxs />
             )}
           </TabPanel>
-        </Box>
-      </Box>
+        </Stack>
+      </Stack>
     </Stack>
   );
 }

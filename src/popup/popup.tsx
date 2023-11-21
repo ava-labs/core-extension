@@ -49,6 +49,7 @@ import { DefiProtocolDetails } from '@src/pages/DeFi/DefiProtocolDetails';
 import { DefiContextProvider } from '@src/contexts/DefiProvider';
 import { WalletConnectContextProvider } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { TestnetBanner } from '@src/components/common/TestnetBanner';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -287,9 +288,10 @@ export function Popup() {
                                 <PermissionContextProvider>
                                   <WalletConnectContextProvider>
                                     <WalletLoading>
+                                      <TestnetBanner />
                                       <Stack
                                         sx={{
-                                          height: dimensions.height,
+                                          flexGrow: 1,
                                           width: dimensions.width,
                                           maxHeight: 'auto',
                                           overflow: 'auto',

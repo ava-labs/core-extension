@@ -97,14 +97,14 @@ export function TokenList({ searchQuery }: TokenListProps) {
   }
 
   return (
-    <Stack sx={{ flexGrow: 1, mt: 1 }}>
+    <Stack sx={{ flexGrow: 1, overflow: 'hidden' }}>
       <Stack
         direction="row"
         alignItems="center"
         justifyContent="flex-end"
         sx={{
           mx: 2,
-          mb: 1,
+          my: 1,
         }}
       >
         {checkIsFunctionAvailable('ManageTokens') && tokens.length && (
@@ -119,14 +119,14 @@ export function TokenList({ searchQuery }: TokenListProps) {
           </Button>
         )}
       </Stack>
-      <Stack>
+      <Stack sx={{ flexGrow: 1 }}>
         {hasNoFunds ? (
           <WalletIsEmpty />
         ) : (
           <AutoSizer>
-            {({ width }) => (
+            {({ width, height }) => (
               <VirtualizedList
-                height={335}
+                height={height}
                 rowCount={tokens.length}
                 rowHeight={72}
                 rowRenderer={rowRenderer}

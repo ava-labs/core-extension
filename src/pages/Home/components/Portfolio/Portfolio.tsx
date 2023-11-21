@@ -150,14 +150,14 @@ export function Portfolio() {
   }, [activeTab, handleChange, shouldShow, t]);
 
   return (
-    <Stack>
+    <Stack sx={{ flexGrow: 1 }}>
       <WalletBalances />
       <FAB isContentScrolling={isScrolling} />
-      <Box>
+      <Stack sx={{ flexGrow: 1 }}>
         <Box sx={{ mx: 2, mt: 1, borderBottom: 1, borderColor: 'divider' }}>
           {tabs}
         </Box>
-        <Box sx={{ height: 420 }}>
+        <Stack sx={{ flexGrow: 1 }}>
           <FlexScrollbars
             onScrollStart={() => setIsScrolling(true)}
             onScrollStop={() => setIsScrolling(false)}
@@ -192,8 +192,8 @@ export function Portfolio() {
               <DeFi />
             </TabPanel>
           </FlexScrollbars>
-        </Box>
-      </Box>
+        </Stack>
+      </Stack>
     </Stack>
   );
 }

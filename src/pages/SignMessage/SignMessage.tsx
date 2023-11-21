@@ -40,6 +40,7 @@ import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAc
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -55,6 +56,7 @@ export function SignMessage() {
   // We also disable the "Sign" button
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
+  const { isDeveloperMode } = useNetworkContext();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
@@ -189,16 +191,17 @@ export function SignMessage() {
           {!action.displayData.isMessageValid && !messageAlertClosed ? (
             <Stack
               sx={{
-                backgroundColor: 'common.black',
-                px: 2,
-                pt: 2,
-                width: 1,
+                mx: 2,
+                mt: isDeveloperMode ? 5 : 2,
                 position: 'absolute',
                 left: 0,
                 top: 0,
               }}
             >
               <Alert
+                sx={{
+                  backgroundColor: 'common.black',
+                }}
                 onClose={() => {
                   setMessageAlertClosed(true);
                 }}

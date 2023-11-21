@@ -5,7 +5,7 @@ import { Stack } from '@avalabs/k2-components';
 export function Home() {
   return (
     <>
-      <Stack sx={{ width: '100%' }}>
+      <Stack sx={{ width: '100%', flexGrow: 1 }}>
         <Portfolio />
       </Stack>
       <LedgerWrongVersionOverlay />
