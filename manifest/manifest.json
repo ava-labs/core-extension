@@ -5,7 +5,7 @@
   "key": "__EXTENSION_PUBLIC_KEY__",
   "manifest_version": 3,
   "author": "AvaLabs",
-  "description": "The Best Way to Connect to Crypto",
+  "description": "Your home for Avalanche (AVAX) and beyond.",
   "default_locale": "en",
   "commands": {
     "_execute_browser_action": {
