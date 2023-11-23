@@ -108,7 +108,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setMnemonic('');
     setXpub('');
     setXpubXP('');
-    setPublicKeys([]);
+    setPublicKeys(undefined);
     setPassword('');
     setAccountName('Account 1');
     setAnalyticsConsent(undefined);
@@ -161,6 +161,10 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const submit = useCallback(
     (postSubmitHandler: () => void) => {
+      if (submitInProgress) {
+        return;
+      }
+
       if (!mnemonic && !xpub && !password) {
         return;
       }
@@ -210,6 +214,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       t,
       xpub,
       xpubXP,
+      submitInProgress,
     ]
   );
 

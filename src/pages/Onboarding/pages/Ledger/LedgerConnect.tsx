@@ -80,7 +80,7 @@ export function LedgerConnect() {
   const resetStates = () => {
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
     setXpub('');
-    setPublicKeys([]);
+    setPublicKeys(undefined);
     setAddresses([]);
     setHasPublicKeys(false);
     setPathSpec(DerivationPath.BIP44);
