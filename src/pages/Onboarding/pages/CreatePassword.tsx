@@ -18,6 +18,7 @@ import { PageNav } from '../components/PageNav';
 import { PasswordStrength } from '@src/components/common/PasswordStrength';
 import { useHistory } from 'react-router-dom';
 import { TypographyLink } from '../components/TypographyLink';
+import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 
 export const CreatePassword = () => {
   const { capture } = useAnalyticsContext();
@@ -33,6 +34,7 @@ export const CreatePassword = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const [newPasswordStrength, setNewPasswordStrength] = useState<number>(0);
+  const [isVerifyGoBackModalOpen, setIsVerifyGoBackModalOpen] = useState(false);
 
   const getSteps = useMemo(() => {
     if (onboardingPhase === OnboardingPhase.IMPORT_WALLET) {
@@ -42,7 +44,7 @@ export const CreatePassword = () => {
       return { stepsNumber: 6, activeStep: 4 };
     }
     if (onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE) {
-      return { stepsNumber: 2, activeStep: 0 };
+      return { stepsNumber: 3, activeStep: 1 };
     }
     return { stepsNumber: 4, activeStep: 2 };
   }, [onboardingPhase]);
@@ -190,6 +192,10 @@ export const CreatePassword = () => {
       <PageNav
         onBack={() => {
           capture('OnboardingPasswordCancelled');
+          if (onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE) {
+            setIsVerifyGoBackModalOpen(true);
+            return;
+          }
           history.goBack();
         }}
         onNext={() => {
@@ -206,6 +212,16 @@ export const CreatePassword = () => {
         }
         steps={getSteps.stepsNumber}
         activeStep={getSteps.activeStep}
+      />
+      <VerifyGoBackModal
+        isOpen={isVerifyGoBackModalOpen}
+        onBack={() => {
+          history.push(OnboardingURLs.ONBOARDING_HOME);
+          setIsVerifyGoBackModalOpen(false);
+        }}
+        onCancel={() => {
+          setIsVerifyGoBackModalOpen(false);
+        }}
       />
     </Stack>
   );

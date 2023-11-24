@@ -1,10 +1,17 @@
-import { KeyIcon, Stack, Typography, UsbIcon } from '@avalabs/k2-components';
+import {
+  KeyIcon,
+  Stack,
+  Typography,
+  UsbIcon,
+  styled,
+  QRCodeIcon,
+} from '@avalabs/k2-components';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { Trans, useTranslation } from 'react-i18next';
 import { MethodCard } from './components/MethodCard';
 import { PageNav } from '../../components/PageNav';
 import { useHistory } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import {
@@ -12,13 +19,17 @@ import {
   AuthenticatorSteps,
 } from './modals/AuthenticatorModal';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
-import { VerifyGoBackModal } from './modals/VerifyGoBackModal';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 export enum Methods {
   PASSKEY = 'passkey',
-  AUTHENTICATOR = 'authenticator',
+  AUTHENTICATOR = 'totp',
   YUBIKEY = 'yubikey',
 }
+
+export const Bold = styled('span')`
+  font-weight: bold;
+`;
 
 export function RecoveryMethods() {
   const history = useHistory();
@@ -26,12 +37,20 @@ export function RecoveryMethods() {
   const [selectedMethod, setSelectedMethod] = useState<Methods | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
+  const { oidcToken } = useOnboardingContext();
+
+  useEffect(() => {
+    if (!oidcToken) {
+      history.push(OnboardingURLs.ONBOARDING_HOME);
+      return;
+    }
+  }, [history, oidcToken, t]);
 
   return (
     <>
       <Stack
         sx={{
-          width: '410px',
+          width: '420px',
           height: '100%',
         }}
       >
@@ -50,7 +69,7 @@ export function RecoveryMethods() {
             <Trans
               i18nKey="Add <bold>one</bold> recovery method to continue."
               components={{
-                bold: <Typography variant="h6" sx={{ display: 'inline' }} />,
+                bold: <Bold />,
               }}
             />
           </Typography>
@@ -71,7 +90,7 @@ export function RecoveryMethods() {
             )}
             {featureFlags[FeatureGates.SEEDLESS_MFA_AUTHENTICATOR] && (
               <MethodCard
-                icon={<KeyIcon size={24} />}
+                icon={<QRCodeIcon size={24} />}
                 title={t('Authenticator')}
                 description={t(
                   'Use an authenticator app as a recovery method.'
@@ -96,21 +115,23 @@ export function RecoveryMethods() {
           onBack={() => {
             history.goBack();
           }}
-          onNext={() => setIsModalOpen(true)}
+          onNext={() => {
+            setIsModalOpen(true);
+          }}
           activeStep={0}
           steps={3}
           disableNext={!selectedMethod}
         />
       </Stack>
-      {/* TODO: bring these modals alive when the mfa option is in the sight */}
-      {false && isModalOpen && selectedMethod === Methods.AUTHENTICATOR && (
+      {isModalOpen && selectedMethod === Methods.AUTHENTICATOR && (
         <AuthenticatorModal
           activeStep={AuthenticatorSteps.SCAN}
-          onFinish={() => history.push(OnboardingURLs.CREATE_PASSWORD)}
+          onFinish={() => {
+            history.push(OnboardingURLs.CREATE_PASSWORD);
+          }}
           onCancel={() => setIsModalOpen(false)}
         />
       )}
-      {false && <VerifyGoBackModal />}
     </>
   );
 }

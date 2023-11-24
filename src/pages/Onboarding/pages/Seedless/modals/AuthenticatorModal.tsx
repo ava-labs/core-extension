@@ -7,11 +7,15 @@ import {
   TextField,
   CopyIcon,
   toast,
+  CircularProgress,
 } from '@avalabs/k2-components';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Overlay } from '@src/components/common/Overlay';
 import { TypographyLink } from '@src/pages/Onboarding/components/TypographyLink';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import QRCode from 'qrcode.react';
+import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
+import { Bold } from '../RecoveryMethods';
 
 export enum AuthenticatorSteps {
   SCAN = 'scan',
@@ -34,12 +38,23 @@ export function AuthenticatorModal({
   const { t } = useTranslation();
   const theme = useTheme();
   const [step, setStep] = useState(activeStep);
-  const code = 'random code strings number and other animals';
+  const { registerTOTPStart, totpChallenge, verifyRegistrationCode } =
+    useSeedlessActions();
+  const [totpCode, setTotpCode] = useState('');
+  const [isCodeVerifying, setIsCodeVerifying] = useState(false);
+  const [error, setError] = useState('');
+  const totpSecret = totpChallenge
+    ? new URL(totpChallenge.totpUrl).searchParams.get('secret')
+    : '';
+
+  useEffect(() => {
+    registerTOTPStart();
+  }, [registerTOTPStart]);
 
   const onCopy = useCallback(() => {
-    navigator.clipboard.writeText(code);
+    navigator.clipboard.writeText(totpSecret || '');
     toast.success(t('Copied!'), { duration: 2000, position: 'top-left' });
-  }, [t]);
+  }, [t, totpSecret]);
 
   const headLines = useMemo(
     () => ({
@@ -56,9 +71,12 @@ export function AuthenticatorModal({
       scan: (
         <>
           <Typography>
-            {t(
-              'On your mobile device, install an authenticator app and use it to scan this QR code. Or enter the code manually.'
-            )}
+            <Trans
+              i18nKey="On your mobile device, install an <bold>authenticator app</bold> and use it to scan this QR code. Or enter the code manually."
+              components={{
+                bold: <Bold />,
+              }}
+            />
           </Typography>
           <TypographyLink onClick={() => setStep(AuthenticatorSteps.HELP)}>
             {t('Learn more')}
@@ -71,11 +89,16 @@ export function AuthenticatorModal({
         </Typography>
       ),
       key: (
-        <Typography>
-          {t(
-            'Open any authenticator app and use it to enter the key found below. Or tap Scan QR Code. Learn more.'
-          )}
-        </Typography>
+        <>
+          <Typography>
+            {t(
+              'Open any authenticator app and use it to enter the key found below. Or tap Scan QR Code.'
+            )}
+          </Typography>
+          <TypographyLink onClick={() => setStep(AuthenticatorSteps.HELP)}>
+            {t('Learn more')}
+          </TypographyLink>
+        </>
       ),
       help: (
         <Typography>
@@ -88,12 +111,40 @@ export function AuthenticatorModal({
 
   const contents = useMemo(
     () => ({
-      scan: <Stack sx={{ p: 3 }}>Content Placeholder</Stack>,
-      verify: (
+      scan: (
         <Stack sx={{ p: 3 }}>
+          {totpChallenge ? (
+            <Stack
+              sx={{
+                p: 1,
+                backgroundColor: theme.palette.common.white,
+                borderRadius: 1,
+              }}
+            >
+              <QRCode
+                renderAs="svg"
+                fgColor={theme.palette.common.black}
+                bgColor={theme.palette.common.white}
+                value={totpChallenge.totpUrl}
+                level="H"
+                size={180}
+              />
+            </Stack>
+          ) : (
+            <CircularProgress />
+          )}
+        </Stack>
+      ),
+      verify: (
+        <Stack sx={{ width: '100%' }}>
           <TextField
-            inputProps={{ style: { textAlign: 'center' } }}
+            inputProps={{ style: { width: '100%' } }}
             type="tel"
+            onChange={(event) => setTotpCode(event.target.value)}
+            rows={3}
+            multiline
+            error={!!error}
+            helperText={error}
           />
         </Stack>
       ),
@@ -112,7 +163,7 @@ export function AuthenticatorModal({
           <Stack sx={{ rowGap: 1 }}>
             <CopyIcon size={24} />
           </Stack>
-          <Stack>
+          <Stack sx={{ wordBreak: 'break-all' }}>
             <Typography
               variant="button"
               sx={{ fontSize: theme.typography.subtitle2.fontSize }}
@@ -123,7 +174,7 @@ export function AuthenticatorModal({
               variant="button"
               sx={{ fontSize: theme.typography.h5.fontSize }}
             >
-              [{code}]
+              {totpSecret}
             </Typography>
           </Stack>
         </Stack>
@@ -144,7 +195,7 @@ export function AuthenticatorModal({
             <Stack sx={{ rowGap: 1 }}>
               <CopyIcon size={24} />
             </Stack>
-            <Stack sx={{ rowGap: 0.5 }}>
+            <Stack sx={{ rowGap: 0.5, wordBreak: 'break-all' }}>
               <Typography
                 variant="button"
                 sx={{ fontSize: theme.typography.subtitle2.fontSize }}
@@ -155,7 +206,7 @@ export function AuthenticatorModal({
                 variant="button"
                 sx={{ fontSize: theme.typography.h5.fontSize }}
               >
-                [{code}]
+                {totpSecret}
               </Typography>
             </Stack>
           </Stack>
@@ -174,11 +225,16 @@ export function AuthenticatorModal({
       ),
     }),
     [
+      error,
       onCopy,
       t,
+      theme.palette.common.black,
+      theme.palette.common.white,
       theme.palette.grey,
       theme.typography.h5.fontSize,
       theme.typography.subtitle2.fontSize,
+      totpChallenge,
+      totpSecret,
     ]
   );
 
@@ -193,7 +249,7 @@ export function AuthenticatorModal({
           {t('Enter Code Manually')}
         </TypographyLink>
       ),
-      verify: <TypographyLink>{t('Resend')}</TypographyLink>,
+      verify: null,
       key: (
         <TypographyLink
           onClick={() => {
@@ -217,11 +273,21 @@ export function AuthenticatorModal({
       scan: () => setStep(AuthenticatorSteps.VERIFY),
       help: () => setStep(AuthenticatorSteps.VERIFY),
       code: () => setStep(AuthenticatorSteps.VERIFY),
-      verify: () => {
-        onFinish();
+      verify: async () => {
+        setIsCodeVerifying(true);
+        const isSuccessful = await verifyRegistrationCode(totpCode);
+        if (!isSuccessful) {
+          setError(t('Incorrect code. Try again.'));
+        }
+        if (isSuccessful) {
+          onFinish();
+          setError('');
+        }
+
+        setIsCodeVerifying(false);
       },
     }),
-    [onFinish]
+    [onFinish, t, totpCode, verifyRegistrationCode]
   );
 
   return (
@@ -279,7 +345,8 @@ export function AuthenticatorModal({
             sx={{
               alignItems: 'center',
               height: '100%',
-              justifyContent: 'center',
+              justifyContent:
+                step !== AuthenticatorSteps.VERIFY ? 'center' : 'flex-start',
               flexGrow: 1,
             }}
           >
@@ -308,6 +375,8 @@ export function AuthenticatorModal({
             <Button
               data-testid="authenticator-modal-next"
               onClick={nextStepAction[step]}
+              isLoading={isCodeVerifying}
+              isDisabled={isCodeVerifying}
             >
               {t('Next')}
             </Button>

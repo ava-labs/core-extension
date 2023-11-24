@@ -7,7 +7,7 @@ import {
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
-import { useSeedlessButtonActions } from '@src/pages/Onboarding/hooks/useSeedlessButtonActions';
+import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 
 interface SeedlesButton {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
@@ -17,7 +17,7 @@ export function GoogleButton({ setIsLoading }: SeedlesButton) {
   const { capture } = useAnalyticsContext();
   const { setOnboardingPhase } = useOnboardingContext();
   const { t } = useTranslation();
-  const { googleButtonAction } = useSeedlessButtonActions();
+  const { googleButtonAction } = useSeedlessActions();
 
   return (
     <Button

@@ -7,6 +7,7 @@ import {
   useTheme,
 } from '@avalabs/k2-components';
 import { ReactElement } from 'react';
+import { Bold } from '../RecoveryMethods';
 
 interface MethodCardProps {
   icon: ReactElement;
@@ -48,8 +49,18 @@ export function MethodCard({
           <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
             {icon}
             <Stack>
-              <Typography>{title}</Typography>
-              <Typography>{description}</Typography>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                <Bold>{title}</Bold>
+              </Typography>
+              <Typography
+                sx={{
+                  color: isActive
+                    ? theme.palette.common.black
+                    : theme.palette.text.secondary,
+                }}
+              >
+                {description}
+              </Typography>
             </Stack>
           </Stack>
           <ChevronRightIcon size={24} />

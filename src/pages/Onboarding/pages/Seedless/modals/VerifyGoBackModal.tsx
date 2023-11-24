@@ -9,9 +9,23 @@ import {
 import { Overlay } from '@src/components/common/Overlay';
 import { useTranslation } from 'react-i18next';
 
-export function VerifyGoBackModal() {
+interface VerifyGoBackModalProps {
+  onBack: () => void;
+  onCancel: () => void;
+  isOpen: boolean;
+}
+
+export function VerifyGoBackModal({
+  onBack,
+  onCancel,
+  isOpen,
+}: VerifyGoBackModalProps) {
   const theme = useTheme();
   const { t } = useTranslation();
+
+  if (!isOpen) {
+    return null;
+  }
   return (
     <Overlay>
       <Stack
@@ -42,7 +56,7 @@ export function VerifyGoBackModal() {
           <Button
             variant="text"
             data-testid={`authenticator-modal-close-button`}
-            onClick={() => console.log('cancel verify goback modal')}
+            onClick={onCancel}
             sx={{
               p: 0,
               height: theme.spacing(3),
@@ -60,7 +74,7 @@ export function VerifyGoBackModal() {
             px: 4,
           }}
         >
-          <Typography variant="body2" minHeight={40}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {t(
               'Going back will take you to the beginning of the onboarding flow. You will need to re-verify the MFA you just set up before continuing with account creation.'
             )}
@@ -88,18 +102,11 @@ export function VerifyGoBackModal() {
           <Button
             color="secondary"
             data-testid="authenticator-modal-cancel"
-            onClick={() =>
-              console.log('cancel and go back to the onboarding start')
-            }
+            onClick={onCancel}
           >
             {t('Cancel')}
           </Button>
-          <Button
-            data-testid="authenticator-modal-next"
-            onClick={() =>
-              console.log('close the modal and go back to the verify page')
-            }
-          >
+          <Button data-testid="authenticator-modal-next" onClick={onBack}>
             {t('Back')}
           </Button>
         </Stack>

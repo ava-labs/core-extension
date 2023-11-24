@@ -30,6 +30,7 @@ export enum OnboardingURLs {
   LEDGER_TROUBLE = '/onboarding/ledger-trouble',
   SIGN_IN = '/onboarding/sign-in',
   RECOVERY_METHODS = '/onboarding/recovery-methods',
+  RECOVERY_METHODS_LOGIN = '/onboarding/recovery-methods-login',
 }
 
 export const ONBOARDING_EVENT_NAMES = {
