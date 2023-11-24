@@ -63,7 +63,7 @@ export function SignIn() {
             <GoogleButton setIsLoading={setIsAuthenticationInProgress} />
           )}
           {featureFlags[FeatureGates.SEEDLESS_ONBOARDING_APPLE] && (
-            <AppleButton />
+            <AppleButton setIsLoading={setIsAuthenticationInProgress} />
           )}
           <Stack
             sx={{

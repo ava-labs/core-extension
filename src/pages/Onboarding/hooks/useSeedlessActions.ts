@@ -1,4 +1,3 @@
-import { authenticateWithGoogle } from '../utils/authenticateWithGoogle';
 import {
   CubeSigner,
   envs,
@@ -23,10 +22,15 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+
+type OidcTokenGetter = () => Promise<string>;
+type GetAuthButtonCallbackOptions = {
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  getOidcToken: OidcTokenGetter;
+};
 
 export function useSeedlessActions() {
-  const { setOidcToken, setSeedlessSignerToken, oidcToken, setAuthProvider } =
+  const { setOidcToken, setSeedlessSignerToken, oidcToken } =
     useOnboardingContext();
   const history = useHistory();
   const { t } = useTranslation();
@@ -42,52 +46,56 @@ export function useSeedlessActions() {
     errorMessage && toast.error(errorMessage);
   }, [errorMessage]);
 
-  const googleButtonAction = useCallback(
-    (setIsLoading: Dispatch<SetStateAction<boolean>>) => {
+  const handleOidcToken = useCallback(
+    async (idToken) => {
+      setOidcToken(idToken);
+
+      const cubesigner = new CubeSigner({
+        orgId: process.env.SEEDLESS_ORG_ID || '',
+        env: envs[process.env.CUBESIGNER_ENV || ''],
+      });
+
+      const identity = await cubesigner.oidcProveIdentity(
+        idToken,
+        process.env.SEEDLESS_ORG_ID || ''
+      );
+
+      if (!identity.user_info) {
+        const result = await approveSeedlessRegistration(identity);
+
+        if (result !== SeedlessRegistartionResult.APPROVED) {
+          toast.error(t('Seedless login error'));
+          return;
+        }
+      }
+      try {
+        const oidcAuthResponse = await getCubeSigner(idToken);
+        const sessionInfo = oidcAuthResponse.data();
+        const sessionMgr = await SignerSessionManager.createFromSessionInfo(
+          envs[process.env.CUBESIGNER_ENV || ''],
+          process.env.SEEDLESS_ORG_ID || '',
+          sessionInfo
+        );
+        const signerToken = await sessionMgr.storage.retrieve();
+
+        setSeedlessSignerToken(signerToken);
+        if ((identity.user_info?.configured_mfa ?? []).length === 0) {
+          history.push(OnboardingURLs.RECOVERY_METHODS);
+        } else {
+          history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
+        }
+      } catch (e) {
+        toast.error(t('Invalid code'));
+      }
+    },
+    [history, setSeedlessSignerToken, setOidcToken, t]
+  );
+
+  const signIn = useCallback(
+    ({ setIsLoading, getOidcToken }: GetAuthButtonCallbackOptions) => {
       setIsLoading(true);
-      authenticateWithGoogle()
-        .then(async (idToken) => {
-          setOidcToken(idToken);
-
-          const cubesigner = new CubeSigner({
-            orgId: process.env.SEEDLESS_ORG_ID || '',
-            env: envs[process.env.CUBESIGNER_ENV || ''],
-          });
-
-          const identity = await cubesigner.oidcProveIdentity(
-            idToken,
-            process.env.SEEDLESS_ORG_ID || ''
-          );
-
-          if (!identity.user_info) {
-            const result = await approveSeedlessRegistration(identity);
-
-            if (result !== SeedlessRegistartionResult.APPROVED) {
-              toast.error(t('Seedless login error'));
-              return;
-            }
-          }
-          try {
-            const oidcAuthResponse = await getCubeSigner(idToken);
-            const sessionInfo = oidcAuthResponse.data();
-            const sessionMgr = await SignerSessionManager.createFromSessionInfo(
-              envs[process.env.CUBESIGNER_ENV || ''],
-              process.env.SEEDLESS_ORG_ID || '',
-              sessionInfo
-            );
-            const signerToken = await sessionMgr.storage.retrieve();
-            setAuthProvider(SeedlessAuthProvider.Google);
-
-            setSeedlessSignerToken(signerToken);
-            if ((identity.user_info?.configured_mfa ?? []).length === 0) {
-              history.push(OnboardingURLs.RECOVERY_METHODS);
-            } else {
-              history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
-            }
-          } catch (e) {
-            toast.error(t('Invalid code'));
-          }
-        })
+      getOidcToken()
+        .then(handleOidcToken)
         .catch(() => {
           toast.error(t('Seedless login error'));
         })
@@ -95,7 +103,7 @@ export function useSeedlessActions() {
           setIsLoading(false);
         });
     },
-    [history, setAuthProvider, setOidcToken, setSeedlessSignerToken, t]
+    [handleOidcToken, t]
   );
 
   const registerTOTPStart = useCallback(() => {
@@ -274,7 +282,7 @@ export function useSeedlessActions() {
   );
 
   return {
-    googleButtonAction,
+    signIn,
     registerTOTPStart,
     totpChallenge,
     verifyRegistrationCode,

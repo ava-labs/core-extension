@@ -1,17 +1,37 @@
 import { AppleIcon, Button } from '@avalabs/k2-components';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTranslation } from 'react-i18next';
+import { SeedlesButton } from './GoogleButton';
+import {
+  ONBOARDING_EVENT_NAMES,
+  OnboardingPhase,
+} from '@src/background/services/onboarding/models';
+import { authenticateWithApple } from '@src/pages/Onboarding/utils/authenticateWithApple';
+import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 
-export function AppleButton() {
+export function AppleButton({ setIsLoading }: SeedlesButton) {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
+  const { setOnboardingPhase, setAuthProvider } = useOnboardingContext();
+  const { signIn } = useSeedlessActions();
+
   return (
     <Button
       sx={{ width: '100%' }}
-      data-testid="create-wallet-seed-phrase-button"
+      data-testid="create-wallet-apple-button"
       color="secondary"
       size="large"
       endIcon={<AppleIcon size={20} />}
       onClick={() => {
-        console.log('Apple Login');
+        setOnboardingPhase(OnboardingPhase.SEEDLESS_APPLE);
+        capture(ONBOARDING_EVENT_NAMES[OnboardingPhase.SEEDLESS_APPLE]);
+        setAuthProvider(SeedlessAuthProvider.Apple);
+        signIn({
+          setIsLoading,
+          getOidcToken: authenticateWithApple,
+        });
       }}
     >
       {t('Apple ID')}

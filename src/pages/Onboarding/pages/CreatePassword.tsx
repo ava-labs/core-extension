@@ -43,7 +43,10 @@ export const CreatePassword = () => {
     if (onboardingPhase === OnboardingPhase.KEYSTONE) {
       return { stepsNumber: 6, activeStep: 4 };
     }
-    if (onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE) {
+    if (
+      onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE ||
+      onboardingPhase === OnboardingPhase.SEEDLESS_APPLE
+    ) {
       return { stepsNumber: 3, activeStep: 1 };
     }
     return { stepsNumber: 4, activeStep: 2 };

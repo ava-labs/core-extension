@@ -106,6 +106,7 @@ export enum WalletType {
 
 export enum SeedlessAuthProvider {
   Google = 'google',
+  Apple = 'apple',
 }
 
 export type BtcWalletPolicyDetails = {

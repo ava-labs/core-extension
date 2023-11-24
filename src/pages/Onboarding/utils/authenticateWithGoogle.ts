@@ -1,3 +1,5 @@
+import { launchWebAuthFlow } from './launchWebAuthFlow';
+
 export async function authenticateWithGoogle(): Promise<string> {
   const manifest = chrome.runtime.getManifest();
 
@@ -5,49 +7,13 @@ export async function authenticateWithGoogle(): Promise<string> {
     throw new Error('Oauth not configured');
   }
 
-  const clientId = encodeURIComponent(manifest.oauth2.client_id);
-  const scopes = encodeURIComponent(manifest.oauth2.scopes.join(' '));
-  const redirectUri = encodeURIComponent(
-    'https://' + chrome.runtime.id + '.chromiumapp.org'
-  );
+  const redirectUri = 'https://' + chrome.runtime.id + '.chromiumapp.org';
+  const url = new URL('https://accounts.google.com/o/oauth2/auth');
 
-  const url =
-    'https://accounts.google.com/o/oauth2/auth' +
-    '?client_id=' +
-    clientId +
-    '&response_type=id_token' +
-    '&redirect_uri=' +
-    redirectUri +
-    '&scope=' +
-    scopes;
+  url.searchParams.set('client_id', manifest.oauth2.client_id);
+  url.searchParams.set('response_type', 'id_token');
+  url.searchParams.set('redirect_uri', redirectUri);
+  url.searchParams.set('scope', manifest.oauth2.scopes.join(' '));
 
-  return new Promise((resolve, reject) => {
-    chrome.identity.launchWebAuthFlow(
-      {
-        url: url,
-        interactive: true,
-      },
-      (redirectedTo) => {
-        if (!redirectedTo) {
-          reject(new Error('Redirect url is undefined'));
-          return;
-        }
-
-        if (chrome.runtime.lastError) {
-          // Example: Authorization page could not be loaded.
-          reject(chrome.runtime.lastError);
-        } else {
-          const response = redirectedTo.split('#', 2)[1];
-          const idToken = response?.split('&')[0]?.replace('id_token=', '');
-
-          if (!idToken) {
-            reject(new Error('Id token not found'));
-            return;
-          }
-
-          resolve(idToken);
-        }
-      }
-    );
-  });
+  return launchWebAuthFlow(url);
 }

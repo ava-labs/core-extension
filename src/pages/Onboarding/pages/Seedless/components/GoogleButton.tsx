@@ -8,16 +8,18 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
+import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { authenticateWithGoogle } from '@src/pages/Onboarding/utils/authenticateWithGoogle';
 
-interface SeedlesButton {
+export interface SeedlesButton {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 export function GoogleButton({ setIsLoading }: SeedlesButton) {
   const { capture } = useAnalyticsContext();
-  const { setOnboardingPhase } = useOnboardingContext();
+  const { setOnboardingPhase, setAuthProvider } = useOnboardingContext();
   const { t } = useTranslation();
-  const { googleButtonAction } = useSeedlessActions();
+  const { signIn } = useSeedlessActions();
 
   return (
     <Button
@@ -29,7 +31,11 @@ export function GoogleButton({ setIsLoading }: SeedlesButton) {
       onClick={() => {
         setOnboardingPhase(OnboardingPhase.SEEDLESS_GOOGLE);
         capture(ONBOARDING_EVENT_NAMES.seedless_google);
-        googleButtonAction(setIsLoading);
+        setAuthProvider(SeedlessAuthProvider.Google);
+        signIn({
+          setIsLoading,
+          getOidcToken: authenticateWithGoogle,
+        });
       }}
     >
       {t('Google')}

@@ -17,6 +17,7 @@ export enum OnboardingPhase {
   KEYSTONE = 'keystone',
   KEYSTONE_TUTORIAL = 'keystone_tutorial',
   SEEDLESS_GOOGLE = 'seedless_google',
+  SEEDLESS_APPLE = 'seedless_apple',
 }
 
 export enum OnboardingURLs {
@@ -39,6 +40,7 @@ export const ONBOARDING_EVENT_NAMES = {
   [OnboardingPhase.LEDGER]: 'OnboardingImportLedgerSelected',
   [OnboardingPhase.KEYSTONE]: 'OnboardingKeystoneSelected',
   [OnboardingPhase.SEEDLESS_GOOGLE]: 'OnboardingSeedlessGoogleSelected',
+  [OnboardingPhase.SEEDLESS_APPLE]: 'OnboardingSeedlessAppleSelected',
 };
 
 export enum OnboardingEvents {
