@@ -1,6 +1,8 @@
 import { Runtime } from 'webextension-polyfill';
 import AbstractConnection from './AbstractConnection';
 import { Message } from './models';
+import { serializeToJSON } from '@src/background/serialization/serialize';
+import { deserializeFromJSON } from '@src/background/serialization/deserialize';
 
 export default class PortConnection extends AbstractConnection {
   #port: Runtime.Port;
@@ -15,8 +17,9 @@ export default class PortConnection extends AbstractConnection {
   }
 
   _connect = async () => {
-    this.#port.onMessage.addListener((message) => {
-      return this.onMessage(message);
+    this.#port.onMessage.addListener((message: string) => {
+      const deserialised = deserializeFromJSON<Message>(message);
+      return deserialised && this.onMessage(deserialised);
     });
   };
 
@@ -25,6 +28,8 @@ export default class PortConnection extends AbstractConnection {
   };
 
   _send = (message: Message) => {
-    this.#port.postMessage(message);
+    // we need to serialize some values that the browser does not know how to handle,
+    // but still pass the message forward as an object (not a JSON string)
+    this.#port.postMessage(serializeToJSON(message));
   };
 }
