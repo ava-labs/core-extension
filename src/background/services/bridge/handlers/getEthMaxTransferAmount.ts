@@ -74,7 +74,7 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
         currentBlockchain,
         balance: bnToBig(token.balance, token.decimals),
         currentAsset,
-        ethereumAssets,
+        assets: ethereumAssets,
         provider,
         config,
       });

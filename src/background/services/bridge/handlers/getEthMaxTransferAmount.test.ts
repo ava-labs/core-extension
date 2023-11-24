@@ -250,7 +250,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       currentBlockchain: Blockchain.ETHEREUM,
       balance: new Big('100'),
       currentAsset: 'NTT',
-      ethereumAssets: ethAssets,
+      assets: ethAssets,
       provider: mockProvider,
       config: bridgeServiceMock.bridgeConfig.config,
     });
