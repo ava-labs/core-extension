@@ -1,7 +1,7 @@
 const { merge } = require('webpack-merge');
 const prod = require('./webpack.prod.js');
 const CopyPlugin = require('copy-webpack-plugin');
-require('dotenv').config({ path: './.env' });
+require('dotenv').config({ path: './.env.production' });
 
 module.exports = merge(prod, {
   plugins: [
