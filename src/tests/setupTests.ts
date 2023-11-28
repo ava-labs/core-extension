@@ -1,10 +1,11 @@
 import 'reflect-metadata';
-import { TextEncoder, TextDecoder } from 'util';
+import { TextDecoder } from 'util';
 import { jest } from '@jest/globals';
+import { MockTextEncoder } from './MockTextEncoder';
 
 // polyfill TextEncoder till it's supported in jsdom
 // https://github.com/jsdom/jsdom/issues/2524
-global.TextEncoder = TextEncoder;
+global.TextEncoder = MockTextEncoder;
 global.TextDecoder = TextDecoder as any;
 
 Object.defineProperties(global.crypto, {

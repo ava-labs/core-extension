@@ -2,13 +2,14 @@ import { deserializeFromJSON } from '@src/background/serialization/deserialize';
 import { serializeToJSON } from '@src/background/serialization/serialize';
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
 import {
-  decrypt,
-  encrypt,
+  decryptWithKey,
+  decryptWithPassword,
+  encryptWithKey,
+  encryptWithPassword,
 } from '@src/background/services/storage/utils/crypto';
 import browser from 'webextension-polyfill';
 import { singleton } from 'tsyringe';
-import nacl from 'tweetnacl';
-import { WALLET_STORAGE_ENCRYPTION_KEY } from './models';
+import { EncryptedData, WALLET_STORAGE_ENCRYPTION_KEY } from './models';
 import {
   getDataWithSchemaVersion,
   migrateToLatest,
@@ -57,9 +58,11 @@ export class StorageService implements OnLock {
   }
 
   async createStorageKey(password: string) {
-    const storageKey = Buffer.from(nacl.box.keyPair().secretKey).toString(
-      'hex'
-    );
+    const storageKey = Buffer.from(
+      // generate cryptographically strong random values
+      // https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
+      crypto.getRandomValues(new Uint8Array(32))
+    ).toString('hex');
 
     await this.save(WALLET_STORAGE_ENCRYPTION_KEY, storageKey, password);
     this._storageKey = storageKey;
@@ -67,24 +70,31 @@ export class StorageService implements OnLock {
   }
 
   async save<T>(key: string, data: T, customEncryptionKey?: string) {
-    const encryptionKey = customEncryptionKey ?? this._storageKey;
-    if (!encryptionKey) {
+    if (!this._storageKey && !customEncryptionKey) {
       throw new Error('No encryption key defined');
     }
 
     const dataWithSchemaVersion = getDataWithSchemaVersion<T>(key, data);
 
-    const encryptedData = await encrypt(
-      serializeToJSON<T>(dataWithSchemaVersion),
-      encryptionKey,
-      !!customEncryptionKey
-    );
+    const encryptedData: {
+      cypher: Uint8Array;
+      nonce: Uint8Array;
+      salt?: Uint8Array;
+    } = customEncryptionKey
+      ? await encryptWithPassword({
+          secret: serializeToJSON<T>(dataWithSchemaVersion),
+          password: customEncryptionKey,
+        })
+      : await encryptWithKey({
+          secret: serializeToJSON<T>(dataWithSchemaVersion),
+          encryptionKey: Buffer.from(this._storageKey ?? ''),
+        });
 
-    const dataToStore = {
+    const dataToStore: Record<string, EncryptedData> = {
       [key]: {
         cypher: Array.from(encryptedData.cypher),
         nonce: Array.from(encryptedData.nonce),
-        salt: Array.from(encryptedData.salt),
+        salt: encryptedData.salt ? Array.from(encryptedData.salt) : undefined,
       },
     };
 
@@ -102,20 +112,36 @@ export class StorageService implements OnLock {
     }
 
     const encryptedData = result[key];
-    if (!encryptedData.nonce || !encryptedData.salt || !encryptedData.cypher) {
+    if (!encryptedData.nonce || !encryptedData.cypher) {
       return;
     }
-    const encryptionKey = customEncryptionKey ?? this._storageKey;
-    if (!encryptionKey) {
+
+    if (!customEncryptionKey && !this._storageKey) {
       throw new Error('encryption key missing');
     }
 
-    const data = await decrypt(
-      Uint8Array.from(encryptedData.cypher),
-      encryptionKey,
-      Uint8Array.from(encryptedData.salt),
-      Uint8Array.from(encryptedData.nonce)
-    );
+    let data: string;
+    if (customEncryptionKey) {
+      data = await decryptWithPassword({
+        cypher: Uint8Array.from(encryptedData.cypher),
+        password: customEncryptionKey,
+        salt: Uint8Array.from(encryptedData.salt),
+        nonce: Uint8Array.from(encryptedData.nonce),
+      });
+    } else {
+      const keyBuffer = Buffer.from(this._storageKey ?? '');
+
+      try {
+        data = await decryptWithKey({
+          cypher: Uint8Array.from(encryptedData.cypher),
+          encryptionKey: keyBuffer,
+          nonce: Uint8Array.from(encryptedData.nonce),
+          salt: encryptedData.salt && Uint8Array.from(encryptedData.salt),
+        });
+      } finally {
+        keyBuffer.fill(0);
+      }
+    }
 
     const deserializedData = deserializeFromJSON<T>(data);
 

@@ -1,9 +1,19 @@
-import { decrypt, encrypt } from './crypto';
+import {
+  decryptWithKey,
+  decryptWithPassword,
+  encryptWithKey,
+  encryptWithPassword,
+} from './crypto';
 import nacl from 'tweetnacl';
 import { scrypt } from '@noble/hashes/scrypt';
+import { sha256 } from '@noble/hashes/sha256';
 
 jest.mock('@noble/hashes/scrypt', () => ({
   scrypt: jest.fn(),
+}));
+
+jest.mock('@noble/hashes/sha256', () => ({
+  sha256: jest.fn(),
 }));
 
 jest.mock('tweetnacl', () => ({
@@ -11,7 +21,16 @@ jest.mock('tweetnacl', () => ({
 }));
 
 const secret = 'secret';
-const encryptionKey = '12345678901234567890123456789012'; // length 32
+const encryptionPassword = 'somepassword';
+const encryptionKey = new Uint8Array([
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1,
+]);
+const mockSha256Hash = new Uint8Array([
+  1, 2, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1,
+]);
+
 const cypher = new Uint8Array(10);
 const salt = new Uint8Array(11);
 const nonce = new Uint8Array(12);
@@ -31,8 +50,10 @@ describe('background/services/storage/utils/crypto.ts', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    (scrypt as jest.Mock).mockReturnValue(new Uint8Array(6));
-    (nacl.secretbox as unknown as jest.Mock).mockReturnValue(cypherResult);
+    jest.mocked(scrypt).mockReturnValue(encryptionKey);
+    jest.mocked(nacl.secretbox).mockReturnValue(cypherResult);
+
+    jest.mocked(sha256).mockReturnValue(mockSha256Hash);
 
     jest.spyOn(Uint8Array.prototype, 'fill');
     // eslint-disable-next-line no-global-assign
@@ -48,18 +69,9 @@ describe('background/services/storage/utils/crypto.ts', () => {
     Buffer = buffer;
   });
 
-  describe('encrypt', () => {
-    it('should call Buffer.fill if key holds buffer value', async () => {
-      await encrypt(secret, encryptionKey, false);
-      expect(Buffer.from).toHaveBeenCalledTimes(1);
-      expect(Buffer.from).toHaveBeenCalledWith(encryptionKey);
-      expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
-      expect(bufferInstance.fill).toHaveBeenCalledWith(0);
-      expect(Uint8Array.prototype.fill).toHaveBeenCalledTimes(0);
-    });
-
+  describe('encryptWithPassword', () => {
     it('should call Uint8Array.fill value if key holds Uint8Array value', async () => {
-      await encrypt(secret, encryptionKey, true);
+      await encryptWithPassword({ secret, password: encryptionPassword });
       expect(Buffer.from).toHaveBeenCalledTimes(0);
       expect(Uint8Array.prototype.fill).toHaveBeenCalledTimes(1);
       expect(Uint8Array.prototype.fill).toHaveBeenCalledWith(0);
@@ -67,58 +79,155 @@ describe('background/services/storage/utils/crypto.ts', () => {
     });
 
     it('should return expected results using Uint8Array', async () => {
-      const result = await encrypt(secret, encryptionKey, true);
-      expect(result.cypher).toEqual(cypherResult);
-      expect(result.nonce).toEqual(expectedNonceForEncrypt);
-      expect(result.salt).toEqual(expectedSaltForEncrypt);
-    });
-
-    it('should return expected results using Buffer', async () => {
-      const result = await encrypt(secret, encryptionKey, false);
+      const result = await encryptWithPassword({
+        secret,
+        password: encryptionPassword,
+      });
       expect(result.cypher).toEqual(cypherResult);
       expect(result.nonce).toEqual(expectedNonceForEncrypt);
       expect(result.salt).toEqual(expectedSaltForEncrypt);
     });
   });
 
-  describe('decrypt', () => {
+  describe('encryptWithKey', () => {
+    it('throws error when encryption key is wrong length', async () => {
+      try {
+        await encryptWithKey({
+          secret,
+          encryptionKey: new Uint8Array([1, 1, 1]),
+        });
+      } catch (e) {
+        expect(e).toStrictEqual(new Error('invalid encryption key'));
+      }
+    });
+
+    it('should return expected results using Buffer', async () => {
+      const result = await encryptWithKey({ secret, encryptionKey });
+      expect(sha256).not.toHaveBeenCalled();
+      expect(result.cypher).toEqual(cypherResult);
+      expect(result.nonce).toEqual(expectedNonceForEncrypt);
+    });
+
+    it('only accepts 32 and 64 byte long keys', async () => {
+      await expect(
+        encryptWithKey({ secret, encryptionKey: new Uint8Array(4) })
+      ).rejects.toThrow(new Error('invalid encryption key'));
+      await expect(
+        encryptWithKey({ secret, encryptionKey: new Uint8Array(33) })
+      ).rejects.toThrow(new Error('invalid encryption key'));
+      await expect(
+        encryptWithKey({
+          secret,
+          encryptionKey: crypto.getRandomValues(new Uint8Array(65)),
+        })
+      ).rejects.toThrow(new Error('invalid encryption key'));
+    });
+
+    it('hashes 64 byte long keys down to 32', async () => {
+      const result = await encryptWithKey({
+        secret,
+        encryptionKey: new Uint8Array(64),
+      });
+
+      expect(sha256).toHaveBeenCalledTimes(1);
+      expect(sha256).toHaveBeenCalledWith(new Uint8Array(64));
+      expect(jest.mocked(nacl.secretbox).mock.calls[0]).toStrictEqual([
+        new TextEncoder().encode(secret),
+        crypto.getRandomValues(new Uint8Array(24)),
+        mockSha256Hash,
+      ]);
+
+      expect(result.cypher).toEqual(cypherResult);
+      expect(result.nonce).toEqual(expectedNonceForEncrypt);
+    });
+  });
+
+  describe('decryptWithKey', () => {
     beforeEach(() => {
       nacl.secretbox.open = jest.fn();
     });
 
-    it('should call Buffer.fill if key holds buffer value', async () => {
-      (nacl.secretbox.open as jest.Mock).mockReturnValue(new Uint8Array(5));
-      await decrypt(cypher, encryptionKey, salt, nonce, false);
-
-      expect(Buffer.from).toHaveBeenCalledTimes(1);
-      expect(Buffer.from).toHaveBeenCalledWith(encryptionKey);
-      expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
-      expect(bufferInstance.fill).toHaveBeenCalledWith(0);
-      expect(Uint8Array.prototype.fill).toHaveBeenCalledTimes(0);
+    it('should throw if key is the wrong length', async () => {
+      try {
+        await decryptWithKey({ cypher, encryptionKey, nonce });
+      } catch (e) {
+        expect(e).toStrictEqual(new Error('invalid encryption key'));
+      }
     });
 
-    it('should call Buffer.fill if key holds buffer value and open attempt fails', async () => {
-      (nacl.secretbox.open as jest.Mock).mockImplementation(() => {
-        throw new Error('Test error');
+    it('should throw if decryption fails', async () => {
+      (nacl.secretbox.open as jest.Mock).mockReturnValue(null);
+      try {
+        await decryptWithKey({ cypher, encryptionKey, nonce });
+      } catch (e) {
+        expect(e).toStrictEqual(new Error('decryption failed'));
+      }
+    });
+
+    it('should return expected results using Buffer', async () => {
+      const encoder = new TextEncoder();
+      const expected = 'Expected';
+      const mockValue = encoder.encode(expected);
+      (nacl.secretbox.open as jest.Mock).mockReturnValue(mockValue);
+
+      const result = await decryptWithKey({ cypher, encryptionKey, nonce });
+      expect(result).toEqual(expected);
+      expect(sha256).not.toHaveBeenCalled();
+    });
+
+    it('only accepts 32 and 64 byte long keys', async () => {
+      await expect(
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(4), nonce })
+      ).rejects.toThrow(new Error('invalid decryption key'));
+      await expect(
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(33), nonce })
+      ).rejects.toThrow(new Error('invalid decryption key'));
+      await expect(
+        decryptWithKey({
+          cypher,
+          encryptionKey: crypto.getRandomValues(new Uint8Array(65)),
+          nonce,
+        })
+      ).rejects.toThrow(new Error('invalid decryption key'));
+    });
+
+    it('hashes 64 byte long keys down to 32', async () => {
+      const expected = 'Expected';
+      const mockValue = new TextEncoder().encode(expected);
+      (nacl.secretbox.open as jest.Mock).mockReturnValue(mockValue);
+      const result = await decryptWithKey({
+        cypher,
+        encryptionKey: new Uint8Array(64),
+        nonce,
       });
 
-      try {
-        await decrypt(cypher, encryptionKey, salt, nonce, false);
-        fail('Should have thrown an exception');
-      } catch (error) {
-        expect(Buffer.from).toHaveBeenCalledTimes(1);
-        expect(Buffer.from).toHaveBeenCalledWith(encryptionKey);
-        expect(bufferInstance.fill).toHaveBeenCalledTimes(1);
-        expect(bufferInstance.fill).toHaveBeenCalledWith(0);
-        expect(Uint8Array.prototype.fill).toHaveBeenCalledTimes(0);
-      }
+      expect(sha256).toHaveBeenCalledTimes(1);
+      expect(sha256).toHaveBeenCalledWith(new Uint8Array(64));
+      expect(jest.mocked(nacl.secretbox.open).mock.calls[0]).toStrictEqual([
+        cypher,
+        nonce,
+        mockSha256Hash,
+      ]);
+
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('decryptWithPassword', () => {
+    beforeEach(() => {
+      nacl.secretbox.open = jest.fn();
     });
 
     it('should call Uint8Array.fill value if key holds Uint8Array value', async () => {
       (nacl.secretbox.open as jest.Mock).mockImplementation(() => {
         return cypher;
       });
-      await decrypt(cypher, encryptionKey, salt, nonce, true);
+      await decryptWithPassword({
+        cypher,
+        password: encryptionPassword,
+        salt,
+        nonce,
+      });
       expect(Buffer.from).toHaveBeenCalledTimes(0);
       expect(Uint8Array.prototype.fill).toHaveBeenCalledTimes(1);
       expect(Uint8Array.prototype.fill).toHaveBeenCalledWith(0);
@@ -130,7 +239,12 @@ describe('background/services/storage/utils/crypto.ts', () => {
         throw new Error('Test error');
       });
       try {
-        await decrypt(cypher, encryptionKey, salt, nonce, true);
+        await decryptWithPassword({
+          cypher,
+          password: encryptionPassword,
+          salt,
+          nonce,
+        });
         fail('Should have thrown an exception');
       } catch (error) {
         expect(Buffer.from).toHaveBeenCalledTimes(0);
@@ -146,17 +260,12 @@ describe('background/services/storage/utils/crypto.ts', () => {
       const mockValue = encoder.encode(expected);
       (nacl.secretbox.open as jest.Mock).mockReturnValue(mockValue);
 
-      const result = await decrypt(cypher, encryptionKey, salt, nonce, true);
-      expect(result).toEqual(expected);
-    });
-
-    it('should return expected results using Buffer', async () => {
-      const encoder = new TextEncoder();
-      const expected = 'Expected';
-      const mockValue = encoder.encode(expected);
-      (nacl.secretbox.open as jest.Mock).mockReturnValue(mockValue);
-
-      const result = await decrypt(cypher, encryptionKey, salt, nonce, false);
+      const result = await decryptWithPassword({
+        cypher,
+        password: encryptionPassword,
+        salt,
+        nonce,
+      });
       expect(result).toEqual(expected);
     });
   });
