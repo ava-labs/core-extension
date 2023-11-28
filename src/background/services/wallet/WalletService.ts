@@ -163,7 +163,12 @@ export class WalletService implements OnLock, OnUnlock {
       throw new Error('Mnemonic, pubKeys or xpub is required');
     }
 
-    const derivationPath = getDerivationPath({ mnemonic, xpub, pubKeys });
+    const derivationPath = getDerivationPath({
+      mnemonic,
+      xpub,
+      pubKeys,
+      seedlessSignerToken,
+    });
 
     await this.secretService.updateSecrets({
       mnemonic,
