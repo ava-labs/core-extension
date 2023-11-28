@@ -25,6 +25,8 @@ import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
 import BN from 'bn.js';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { openNewTab } from '@src/utils/extensionUtils';
+import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -126,7 +128,9 @@ export function TokenFlow() {
           <Button
             data-testid="token-details-send-button"
             color="secondary"
-            onClick={() => history.push('/buy')}
+            onClick={() => {
+              openNewTab({ url: `${getCoreWebUrl()}/buy` });
+            }}
             fullWidth
           >
             <BuyIcon size={20} sx={{ mr: 1 }} />
