@@ -21,9 +21,9 @@ export const TokenAmount = ({ token, amount, fiatValue }: TokenAmountProps) => {
   return (
     <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-        <TokenIcon src={token.logoUri} />
+        <TokenIcon src={token?.logoUri} />
         <Typography variant="body1" sx={{ fontWeight: 'fontWeightSemibold' }}>
-          {token.symbol}
+          {token?.symbol || t('Unknown')}
         </Typography>
       </Stack>
       <Stack
