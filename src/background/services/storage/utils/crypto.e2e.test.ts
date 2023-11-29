@@ -20,6 +20,7 @@ describe('background/services/storage/utils/crypto.e2e', () => {
           password: 'password123',
           salt: Uint8Array.from(cypher.salt),
           nonce: Uint8Array.from(cypher.nonce),
+          keyDerivationVersion: cypher.keyDerivationVersion,
         })
       ).toEqual(data);
     });
@@ -41,6 +42,7 @@ describe('background/services/storage/utils/crypto.e2e', () => {
           password: 'password123',
           salt: Uint8Array.from(cypher.salt),
           nonce: Uint8Array.from(cypher.nonce),
+          keyDerivationVersion: cypher.keyDerivationVersion,
         })
       ).rejects.toEqual(new Error('decryption failed'));
     });

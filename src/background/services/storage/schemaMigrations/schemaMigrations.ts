@@ -43,7 +43,9 @@ export const migrateToLatest = async <T>(
       return currentMigration.migration.up(result);
     },
     Promise.resolve(
-      Array.isArray(data) ? data : { ...data, version: currentVersion }
+      typeof data === 'object' && !Array.isArray(data) && data !== null
+        ? { ...data, version: currentVersion }
+        : data
     )
   );
 

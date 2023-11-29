@@ -7,10 +7,14 @@ import {
 import nacl from 'tweetnacl';
 import { scrypt } from '@noble/hashes/scrypt';
 import { sha256 } from '@noble/hashes/sha256';
+import { KeyDerivationVersion } from '../models';
+import argon2Browser from 'argon2-browser';
 
 jest.mock('@noble/hashes/scrypt', () => ({
   scrypt: jest.fn(),
 }));
+
+jest.mock('argon2-browser');
 
 jest.mock('@noble/hashes/sha256', () => ({
   sha256: jest.fn(),
@@ -51,6 +55,9 @@ describe('background/services/storage/utils/crypto.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.mocked(scrypt).mockReturnValue(encryptionKey);
+    jest
+      .mocked(argon2Browser.hash)
+      .mockResolvedValue({ hash: encryptionKey, encoded: '', hashHex: '0x' });
     jest.mocked(nacl.secretbox).mockReturnValue(cypherResult);
 
     jest.mocked(sha256).mockReturnValue(mockSha256Hash);
@@ -86,6 +93,26 @@ describe('background/services/storage/utils/crypto.ts', () => {
       expect(result.cypher).toEqual(cypherResult);
       expect(result.nonce).toEqual(expectedNonceForEncrypt);
       expect(result.salt).toEqual(expectedSaltForEncrypt);
+      expect(result.keyDerivationVersion).toEqual(KeyDerivationVersion.V2);
+    });
+
+    it('uses V2 encryption method', async () => {
+      await encryptWithPassword({
+        secret,
+        password: encryptionPassword,
+      });
+
+      expect(argon2Browser.hash).toHaveBeenCalledTimes(1);
+      expect(argon2Browser.hash).toHaveBeenCalledWith(
+        expect.objectContaining({
+          hashLen: 32,
+          mem: 65536,
+          parallelism: 1,
+          pass: encryptionPassword,
+          time: 3,
+          type: argon2Browser.ArgonType.Argon2id,
+        })
+      );
     });
   });
 
@@ -218,6 +245,60 @@ describe('background/services/storage/utils/crypto.ts', () => {
       nacl.secretbox.open = jest.fn();
     });
 
+    it('should return expected results using Buffer', async () => {
+      const encoder = new TextEncoder();
+      const expected = 'Expected';
+      const mockValue = encoder.encode(expected);
+      (nacl.secretbox.open as jest.Mock).mockReturnValue(mockValue);
+
+      const result = await decryptWithKey({ cypher, encryptionKey, nonce });
+      expect(result).toEqual(expected);
+      expect(sha256).not.toHaveBeenCalled();
+    });
+
+    it('only accepts 32 and 64 byte long keys', async () => {
+      await expect(
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(4), nonce })
+      ).rejects.toThrow(new Error('invalid decryption key'));
+      await expect(
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(33), nonce })
+      ).rejects.toThrow(new Error('invalid decryption key'));
+      await expect(
+        decryptWithKey({
+          cypher,
+          encryptionKey: crypto.getRandomValues(new Uint8Array(65)),
+          nonce,
+        })
+      ).rejects.toThrow(new Error('invalid decryption key'));
+    });
+
+    it('hashes 64 byte long keys down to 32', async () => {
+      const expected = 'Expected';
+      const mockValue = new TextEncoder().encode(expected);
+      (nacl.secretbox.open as jest.Mock).mockReturnValue(mockValue);
+      const result = await decryptWithKey({
+        cypher,
+        encryptionKey: new Uint8Array(64),
+        nonce,
+      });
+
+      expect(sha256).toHaveBeenCalledTimes(1);
+      expect(sha256).toHaveBeenCalledWith(new Uint8Array(64));
+      expect(jest.mocked(nacl.secretbox.open).mock.calls[0]).toStrictEqual([
+        cypher,
+        nonce,
+        mockSha256Hash,
+      ]);
+
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('decryptWithPassword', () => {
+    beforeEach(() => {
+      nacl.secretbox.open = jest.fn();
+    });
+
     it('should call Uint8Array.fill value if key holds Uint8Array value', async () => {
       (nacl.secretbox.open as jest.Mock).mockImplementation(() => {
         return cypher;
@@ -227,6 +308,7 @@ describe('background/services/storage/utils/crypto.ts', () => {
         password: encryptionPassword,
         salt,
         nonce,
+        keyDerivationVersion: KeyDerivationVersion.V2,
       });
       expect(Buffer.from).toHaveBeenCalledTimes(0);
       expect(Uint8Array.prototype.fill).toHaveBeenCalledTimes(1);
@@ -244,6 +326,7 @@ describe('background/services/storage/utils/crypto.ts', () => {
           password: encryptionPassword,
           salt,
           nonce,
+          keyDerivationVersion: KeyDerivationVersion.V2,
         });
         fail('Should have thrown an exception');
       } catch (error) {
@@ -265,8 +348,33 @@ describe('background/services/storage/utils/crypto.ts', () => {
         password: encryptionPassword,
         salt,
         nonce,
+        keyDerivationVersion: KeyDerivationVersion.V2,
       });
       expect(result).toEqual(expected);
+    });
+
+    it('uses V1 key derviation method', async () => {
+      await decryptWithPassword({
+        cypher,
+        password: encryptionPassword,
+        salt,
+        nonce,
+        keyDerivationVersion: KeyDerivationVersion.V1,
+      });
+      expect(argon2Browser.hash).not.toHaveBeenCalled();
+      expect(scrypt).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses V2 key derviation method', async () => {
+      await decryptWithPassword({
+        cypher,
+        password: encryptionPassword,
+        salt,
+        nonce,
+        keyDerivationVersion: KeyDerivationVersion.V2,
+      });
+      expect(argon2Browser.hash).toHaveBeenCalledTimes(1);
+      expect(scrypt).not.toHaveBeenCalled();
     });
   });
 });
