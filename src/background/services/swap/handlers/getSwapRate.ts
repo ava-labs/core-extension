@@ -9,7 +9,7 @@ import { SwapService } from '../SwapService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SWAP_GET_RATE,
   {
-    optimalRate: OptimalRate | APIError;
+    optimalRate: OptimalRate | APIError | null;
     destAmount: string | undefined;
   },
   [
@@ -90,12 +90,12 @@ export class GetSwapRateHandler implements HandlerType {
       };
     }
 
-    const destAmount = result.destAmount;
+    const destAmount = result?.destAmount;
 
     return {
       ...request,
       result: {
-        optimalRate: result,
+        optimalRate: result ?? null,
         destAmount,
       },
     };

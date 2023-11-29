@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { ActionsService } from '@src/background/services/actions/ActionsService';
 import { Action } from '@src/background/services/actions/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';

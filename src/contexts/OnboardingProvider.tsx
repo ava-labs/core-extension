@@ -6,7 +6,10 @@ import {
   OnboardingPhase,
   OnboardingState,
 } from '@src/background/services/onboarding/models';
-import { PubKeyType } from '@src/background/services/wallet/models';
+import {
+  PubKeyType,
+  SeedlessAuthProvider,
+} from '@src/background/services/wallet/models';
 import {
   useIsSpecificContextContainer,
   ContextContainer,
@@ -20,6 +23,7 @@ import {
   useState,
   Dispatch,
   SetStateAction,
+  useCallback,
 } from 'react';
 import { concat, filter, from, map } from 'rxjs';
 import browser from 'webextension-polyfill';
@@ -27,6 +31,7 @@ import { useConnectionContext } from './ConnectionProvider';
 import { LoadingContent } from '@src/popup/LoadingContent';
 import { toast } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -42,7 +47,8 @@ const OnboardingContext = createContext<{
   setMnemonic: Dispatch<SetStateAction<string>>;
   setXpub: Dispatch<SetStateAction<string>>;
   setXpubXP: Dispatch<SetStateAction<string>>;
-  setAnalyticsConsent: Dispatch<SetStateAction<boolean>>;
+  setAnalyticsConsent: Dispatch<SetStateAction<boolean | undefined>>;
+  analyticsConsent: boolean | undefined;
   setPasswordAndName: (password: string, accountName: string) => void;
   submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
@@ -51,6 +57,12 @@ const OnboardingContext = createContext<{
   mnemonic: string;
   onboardingPhase: OnboardingPhase | null;
   setOnboardingPhase: Dispatch<SetStateAction<OnboardingPhase | null>>;
+  setOidcToken: Dispatch<SetStateAction<string>>;
+  oidcToken?: string;
+  setAuthProvider: Dispatch<SetStateAction<SeedlessAuthProvider | undefined>>;
+  setSeedlessSignerToken: Dispatch<
+    SetStateAction<SignerSessionData | undefined>
+  >;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -70,7 +82,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [accountName, setAccountName] = useState<string>('Account 1');
 
-  const [analyticsConsent, setAnalyticsConsent] = useState(false);
+  const [analyticsConsent, setAnalyticsConsent] = useState<boolean | undefined>(
+    undefined
+  );
 
   const [submitInProgress, setSubmitInProgress] = useState(false);
 
@@ -78,7 +92,14 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [masterFingerprint, setMasterFingerprint] = useState<string>('');
 
+  const [authProvider, setAuthProvider] = useState<SeedlessAuthProvider>();
+
   const { t } = useTranslation();
+
+  const [oidcToken, setOidcToken] = useState<string>('');
+  const [seedlessSignerToken, setSeedlessSignerToken] = useState<
+    SignerSessionData | undefined
+  >(undefined);
 
   const [onboardingPhase, setOnboardingPhase] =
     useState<OnboardingPhase | null>(null);
@@ -87,11 +108,13 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setMnemonic('');
     setXpub('');
     setXpubXP('');
-    setPublicKeys([]);
+    setPublicKeys(undefined);
     setPassword('');
     setAccountName('Account 1');
-    setAnalyticsConsent(false);
+    setAnalyticsConsent(undefined);
     setMasterFingerprint('');
+    setOidcToken('');
+    setSeedlessSignerToken(undefined);
   }
 
   useEffect(() => {
@@ -131,49 +154,72 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     }
   }, [isHome, onboardingState]);
 
-  if (!onboardingState) {
-    return <LoadingContent />;
-  }
-
-  function setPasswordAndName(pass: string, name: string) {
+  const setPasswordAndName = useCallback((pass: string, name: string) => {
     setPassword(pass);
     setAccountName(name);
-  }
+  }, []);
 
-  function submit(postSubmitHandler: () => void) {
-    if (!mnemonic && !xpub && !password) {
-      return;
-    }
+  const submit = useCallback(
+    (postSubmitHandler: () => void) => {
+      if (submitInProgress) {
+        return;
+      }
 
-    setSubmitInProgress(true);
-    request<SubmitOnboardingHandler>({
-      method: ExtensionRequest.ONBOARDING_SUBMIT,
-      params: [
-        {
-          mnemonic,
-          xpub,
-          xpubXP,
-          password,
-          accountName,
-          analyticsConsent,
-          pubKeys: publicKeys,
-          masterFingerprint,
-        },
-      ],
-    })
-      .then(() => {
-        resetStates();
-        postSubmitHandler();
+      if (!mnemonic && !xpub && !password) {
+        return;
+      }
+
+      setSubmitInProgress(true);
+      request<SubmitOnboardingHandler>({
+        method: ExtensionRequest.ONBOARDING_SUBMIT,
+        params: [
+          {
+            mnemonic,
+            xpub,
+            xpubXP,
+            password,
+            accountName,
+            analyticsConsent: !!analyticsConsent,
+            pubKeys: publicKeys,
+            masterFingerprint,
+            seedlessSignerToken,
+            authProvider,
+          },
+        ],
       })
-      .catch(() => {
-        setNextPhase(OnboardingPhase.PASSWORD);
-        toast.error(t('Something went wrong. Please try again.'), {
-          duration: 3000,
+        .then(() => {
+          resetStates();
+          postSubmitHandler();
+        })
+        .catch(() => {
+          setNextPhase(OnboardingPhase.PASSWORD);
+          toast.error(t('Something went wrong. Please try again.'), {
+            duration: 3000,
+          });
+        })
+        .finally(() => {
+          setSubmitInProgress(false);
         });
-      })
-      .finally(() => {
-        setSubmitInProgress(false);
-      });
+    },
+    [
+      accountName,
+      analyticsConsent,
+      authProvider,
+      masterFingerprint,
+      mnemonic,
+      password,
+      publicKeys,
+      request,
+      seedlessSignerToken,
+      t,
+      xpub,
+      xpubXP,
+      submitInProgress,
+    ]
+  );
+
+  if (!onboardingState) {
+    return <LoadingContent />;
   }
 
   return (
@@ -189,12 +235,17 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setPasswordAndName,
         submit,
         setAnalyticsConsent,
+        analyticsConsent,
         setPublicKeys,
         publicKeys,
         setMasterFingerprint,
         mnemonic,
         onboardingPhase,
         setOnboardingPhase,
+        setOidcToken,
+        oidcToken,
+        setSeedlessSignerToken,
+        setAuthProvider,
       }}
     >
       {/*

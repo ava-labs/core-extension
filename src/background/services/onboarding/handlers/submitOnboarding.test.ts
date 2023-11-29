@@ -10,6 +10,9 @@ import { StorageService } from '../../storage/StorageService';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
 import { SubmitOnboardingHandler } from './submitOnboarding';
+import { SecretsService } from '../../secrets/SecretsService';
+import { SeedlessAuthProvider } from '../../wallet/models';
+import { SecretType } from '../../secrets/models';
 
 jest.mock('@avalabs/wallets-sdk', () => ({
   getXpubFromMnemonic: jest.fn(),
@@ -45,6 +48,9 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
   const networkServiceMock = {
     addFavoriteNetwork: jest.fn(),
   } as unknown as NetworkService;
+  const secretsServiceMock = {
+    getPrimaryAccountSecrets: jest.fn(),
+  } as unknown as SecretsService;
 
   const accountMock = {
     id: '1',
@@ -59,7 +65,8 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       walletServiceMock,
       accountsServiceMock,
       settingsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      secretsServiceMock
     );
 
   const getRequest = (params: unknown[]) =>
@@ -84,7 +91,8 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
 
     expect(result).toEqual({
       ...request,
-      error: 'unable to create a wallet, mnemonic or public key required',
+      error:
+        'unable to create a wallet, mnemonic, public key or seedless token is required',
     });
   });
 
@@ -101,6 +109,23 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     expect(result).toEqual({
       ...request,
       error: 'unable to create a wallet, password is required',
+    });
+  });
+
+  it('returns error if seedless is attempted without specifying the auth provider', async () => {
+    const handler = getHandler();
+    const request = getRequest([
+      {
+        password: 'pass',
+        seedlessSignerToken: {} as any,
+      },
+    ]);
+
+    const result = await handler.handle(request);
+
+    expect(result).toEqual({
+      ...request,
+      error: 'Auth provider is required to create a seedless wallet',
     });
   });
 
@@ -139,6 +164,78 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       ...request,
       error: 'unable to create a wallet',
     });
+  });
+
+  it('sets up seedless wallets correctly', async () => {
+    jest
+      .mocked(secretsServiceMock.getPrimaryAccountSecrets)
+      .mockResolvedValueOnce({
+        type: SecretType.Seedless,
+        pubKeys: [
+          {
+            evm: 'evm',
+            xp: 'xp',
+          },
+          {
+            evm: 'evm2',
+            xp: 'xp2',
+          },
+        ],
+      } as any);
+    const handler = getHandler();
+    const request = getRequest([
+      {
+        password: 'password',
+        accountName: 'test-acc',
+        seedlessSignerToken: {},
+        authProvider: SeedlessAuthProvider.Google,
+        analyticsConsent: true,
+      },
+    ]);
+
+    const result = await handler.handle(request);
+
+    expect(result).toEqual({
+      ...request,
+      result: true,
+    });
+
+    // Creates the storage key
+    expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
+      'password'
+    );
+
+    // Initializes the wallet
+    expect(walletServiceMock.init).toHaveBeenCalledWith({
+      seedlessSignerToken: {},
+      authProvider: SeedlessAuthProvider.Google,
+    });
+
+    // Adds all derived accounts
+    expect(accountsServiceMock.addAccount).toHaveBeenCalledTimes(2);
+    expect(accountsServiceMock.addAccount).toHaveBeenNthCalledWith(
+      1,
+      'test-acc'
+    );
+    expect(accountsServiceMock.addAccount).toHaveBeenNthCalledWith(2, '');
+
+    // Adds favorite networks
+    expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
+      1,
+      ChainId.BITCOIN
+    );
+    expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
+      2,
+      ChainId.ETHEREUM_HOMESTEAD
+    );
+
+    // Activates the first account
+    expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith(
+      accountMock.id
+    );
+    expect(onboardingServiceMock.setIsOnboarded).toHaveBeenCalledWith(true);
+    expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(true);
+    expect(lockServiceMock.unlock).toHaveBeenCalledWith('password');
   });
 
   it('sets up an mnemonic wallet correctly', async () => {

@@ -112,6 +112,8 @@ export function AccountList({
         return account.type === AccountType.IMPORTED;
       } else if (selectedImportFilter === ImportFilterType.WALLET_CONNECT) {
         return account.type === AccountType.WALLET_CONNECT;
+      } else if (selectedImportFilter === ImportFilterType.FIREBLOCKS) {
+        return account.type === AccountType.FIREBLOCKS;
       }
     });
   }, [accounts, selectedImportFilter]);

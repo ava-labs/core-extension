@@ -1,20 +1,21 @@
+import AbstractConnection from '../utils/messaging/AbstractConnection';
 import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
  *
- * @param channelName - Communication channel name to communicate with the contentscript on
+ * @param connection - Communication channel name to communicate with the contentscript on
  * @param maxListeners - The maximum number of event listeners.
  * @param globalObject - Defaults to window. Defines what to set the provider on.
  * @returns The initialized provider (whether set or not).
  */
 export function initializeProvider(
-  channelName: string,
+  connection: AbstractConnection,
   maxListeners = 100,
   globalObject = window
 ): CoreProvider {
-  const provider = new Proxy(new CoreProvider({ channelName, maxListeners }), {
+  const provider = new Proxy(new CoreProvider({ connection, maxListeners }), {
     // some common libraries, e.g. web3@1.x, mess with our API
     deleteProperty: () => true,
   });

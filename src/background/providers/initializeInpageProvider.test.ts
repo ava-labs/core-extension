@@ -1,7 +1,9 @@
+import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPostMessageConnection';
 import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { initializeProvider } from './initializeInpageProvider';
 
+jest.mock('../utils/messaging/AutoPairingPostMessageConnection');
 jest.mock('./CoreProvider', () => ({
   CoreProvider: jest.fn().mockImplementation(() => ({ isAvalanche: true })),
 }));
@@ -10,6 +12,7 @@ jest.mock('./MultiWalletProviderProxy', () => ({
 }));
 
 describe('src/background/providers/initializeInpageProvider', () => {
+  const connectionMock = new AutoPairingPostMessageConnection(false);
   let windowMock: any;
   const mockMultiWalletProxy = { defaultProvider: {}, addProvider: jest.fn() };
   beforeEach(() => {
@@ -20,16 +23,16 @@ describe('src/background/providers/initializeInpageProvider', () => {
   });
 
   it('initializes CoreProvider with the correct channel name', () => {
-    const provider = initializeProvider('some-channel', 10, windowMock);
+    const provider = initializeProvider(connectionMock, 10, windowMock);
     expect(CoreProvider).toHaveBeenCalledWith({
-      channelName: 'some-channel',
+      connection: connectionMock,
       maxListeners: 10,
     });
     expect(provider.isAvalanche).toBe(true);
   });
 
   it('wraps the provider in a proxy to prevent deletions', () => {
-    const provider = initializeProvider('some-channel', 10, windowMock);
+    const provider = initializeProvider(connectionMock, 10, windowMock);
 
     expect(provider.isAvalanche).toBe(true);
     delete (provider as any).isAvalanche;
@@ -38,7 +41,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
   describe('EIP-1193', () => {
     it('creates the window.ethereum object', () => {
-      const provider = initializeProvider('some-channel', 10, windowMock);
+      const provider = initializeProvider(connectionMock, 10, windowMock);
 
       expect(createMultiWalletProxy).toHaveBeenCalledTimes(1);
       expect(createMultiWalletProxy).toHaveBeenCalledWith(provider);
@@ -47,7 +50,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
     });
 
     it('adds other wallets to proxy when trying to set window.ethereum', () => {
-      initializeProvider('some-channel', 10, windowMock);
+      initializeProvider(connectionMock, 10, windowMock);
 
       const provider2 = { isMetaMask: true };
 
@@ -60,7 +63,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
     });
 
     it('dispatches ethereum#initialized event', () => {
-      initializeProvider('some-channel', 10, windowMock);
+      initializeProvider(connectionMock, 10, windowMock);
 
       expect(windowMock.ethereum).toBe(mockMultiWalletProxy);
       expect(windowMock.dispatchEvent).toHaveBeenCalledWith(
@@ -79,7 +82,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
         //do nothing
       });
-      const provider = initializeProvider('some-channel', 10, windowMock);
+      const provider = initializeProvider(connectionMock, 10, windowMock);
 
       expect(windowMock.ethereum).toBe(otherWalletMock);
       expect(setMock).toHaveBeenCalledWith(provider);
@@ -88,7 +91,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
     describe('legacy support: window.web3', () => {
       it('sets window.web3 object', () => {
-        const provider = initializeProvider('some-channel', 10, windowMock);
+        const provider = initializeProvider(connectionMock, 10, windowMock);
 
         expect(createMultiWalletProxy).toHaveBeenCalledTimes(1);
         expect(createMultiWalletProxy).toHaveBeenCalledWith(provider);
@@ -100,7 +103,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
       // some legacy libraries like to decorate window.web3 like crazy
       it('lets setting properties on window.web3 except the metamask shim', () => {
-        initializeProvider('some-channel', 10, windowMock);
+        initializeProvider(connectionMock, 10, windowMock);
 
         windowMock.web3.someData = { data: true };
 
@@ -121,7 +124,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
   describe('EIP-5749', () => {
     it('sets window.evmproviders if not defined and adds core', () => {
-      const provider = initializeProvider('some-channel', 10, windowMock);
+      const provider = initializeProvider(connectionMock, 10, windowMock);
 
       expect(windowMock.evmproviders).toStrictEqual({ core: provider });
     });
@@ -129,7 +132,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
       windowMock.evmproviders = {
         MetaMask: { isMetaMask: true },
       };
-      const provider = initializeProvider('some-channel', 10, windowMock);
+      const provider = initializeProvider(connectionMock, 10, windowMock);
 
       expect(windowMock.evmproviders).toStrictEqual({
         MetaMask: { isMetaMask: true },
@@ -140,13 +143,13 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
   describe('window.avalanche', () => {
     it('creates the window.avalanche object', () => {
-      const provider = initializeProvider('some-channel', 10, windowMock);
+      const provider = initializeProvider(connectionMock, 10, windowMock);
 
       expect(windowMock.avalanche).toBe(provider);
     });
 
     it('dispatches avalanche#initialized event', () => {
-      const provider = initializeProvider('some-channel', 10, windowMock);
+      const provider = initializeProvider(connectionMock, 10, windowMock);
 
       expect(windowMock.avalanche).toBe(provider);
       expect(windowMock.dispatchEvent).toHaveBeenCalledWith(
@@ -155,7 +158,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
     });
 
     it('makes window.avalanche non writable', () => {
-      initializeProvider('some-channel', 10, windowMock);
+      initializeProvider(connectionMock, 10, windowMock);
       try {
         windowMock.avalanche = { isMetaMask: true };
       } catch (e) {

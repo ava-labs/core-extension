@@ -4,6 +4,8 @@ import { useHistory } from 'react-router-dom';
 import { ChainId } from '@avalabs/chains-sdk';
 import { useTranslation } from 'react-i18next';
 import { Button, BuyIcon, QRCodeIcon, Stack } from '@avalabs/k2-components';
+import { openNewTab } from '@src/utils/extensionUtils';
+import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 
 export function ZeroWidget() {
   const { t } = useTranslation();
@@ -26,7 +28,7 @@ export function ZeroWidget() {
           fullWidth
           onClick={(e) => {
             e.stopPropagation();
-            history.push('/buy');
+            openNewTab({ url: `${getCoreWebUrl()}/buy` });
           }}
         >
           <BuyIcon size={16} sx={{ mr: 1 }} />

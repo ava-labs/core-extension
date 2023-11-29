@@ -13,10 +13,12 @@ import {
   useHistory,
   useLocation,
 } from 'react-router-dom';
-import { Suspense, useEffect } from 'react';
-import { Welcome } from './pages/Welcome';
+import { Suspense, useEffect, useState } from 'react';
 import { CreateWallet } from './pages/CreateWallet/CreateWallet';
-import { OnboardingURLs } from '@src/background/services/onboarding/models';
+import {
+  OnboardingPhase,
+  OnboardingURLs,
+} from '@src/background/services/onboarding/models';
 import { Keystone } from './pages/Keystone/Keystone';
 import { LedgerConnect } from './pages/Ledger/LedgerConnect';
 import { ImportWallet } from './pages/ImportWallet';
@@ -26,6 +28,11 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { LedgerTrouble } from './pages/Ledger/LedgerTrouble';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { Welcome } from './pages/Welcome/Welcome';
+import { SignIn } from './pages/Welcome/SignIn';
+import { RecoveryMethods } from './pages/Seedless/RecoveryMethods';
+import { RecoveryMethodsLogin } from './pages/Seedless/RecoveryMethodsLogin';
+import { VerifyGoBackModal } from './pages/Seedless/modals/VerifyGoBackModal';
 
 const ContentPart = styled(Stack)`
   flex-grow: 1;
@@ -50,6 +57,7 @@ export function Onboarding() {
   const { submitInProgress, setOnboardingPhase, onboardingPhase } =
     useOnboardingContext();
   const { initAnalyticsIds, capture } = useAnalyticsContext();
+  const [isVerifyGoBackModalOpen, setIsVerifyGoBackModalOpen] = useState(false);
 
   useEffect(() => {
     initAnalyticsIds(false);
@@ -69,7 +77,6 @@ export function Onboarding() {
           <Stack
             sx={{
               height: '100%',
-              justifyContent: 'center',
               mt: 2,
             }}
           >
@@ -109,6 +116,21 @@ export function Onboarding() {
                   <CreateWallet />
                 </Suspense>
               </Route>
+              <Route path={OnboardingURLs.SIGN_IN}>
+                <Suspense fallback={<CircularProgress />}>
+                  <SignIn />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.RECOVERY_METHODS}>
+                <Suspense fallback={<CircularProgress />}>
+                  <RecoveryMethods />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.RECOVERY_METHODS_LOGIN}>
+                <Suspense fallback={<CircularProgress />}>
+                  <RecoveryMethodsLogin />
+                </Suspense>
+              </Route>
               <Route path={OnboardingURLs.ONBOARDING_HOME}>
                 <Suspense fallback={<CircularProgress />}>
                   <Welcome />
@@ -128,12 +150,26 @@ export function Onboarding() {
                 sx={{ cursor: 'pointer' }}
                 onClick={() => {
                   capture('OnboardingCancelled', { step: onboardingPhase });
+                  if (onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE) {
+                    setIsVerifyGoBackModalOpen(true);
+                    return;
+                  }
                   setOnboardingPhase(null);
                   history.push(OnboardingURLs.ONBOARDING_HOME);
                 }}
               />
             </Stack>
           )}
+          <VerifyGoBackModal
+            isOpen={isVerifyGoBackModalOpen}
+            onBack={() => {
+              history.push(OnboardingURLs.ONBOARDING_HOME);
+              setIsVerifyGoBackModalOpen(false);
+            }}
+            onCancel={() => {
+              setIsVerifyGoBackModalOpen(false);
+            }}
+          />
         </OnboardingStep>
       </ContentPart>
       <ContentPart sx={{ backgroundColor: 'background.paper' }}>

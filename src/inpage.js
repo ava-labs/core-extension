@@ -1,6 +1,6 @@
 import { initializeProvider } from './background/providers/initializeInpageProvider';
 import onPageActivated from './background/providers/utils/onPageActivated';
-import { INPAGE_SCRIPT } from './common';
+import AutoPairingPostMessageConnection from './background/utils/messaging/AutoPairingPostMessageConnection';
 
 const shouldInjectProvider = () => {
   return doctypeCheck() && suffixCheck() && documentElementCheck();
@@ -52,6 +52,8 @@ const documentElementCheck = () => {
   return true;
 };
 
+const connection = new AutoPairingPostMessageConnection(false);
+
 if (shouldInjectProvider()) {
-  onPageActivated(() => initializeProvider(INPAGE_SCRIPT));
+  onPageActivated(() => initializeProvider(connection));
 }

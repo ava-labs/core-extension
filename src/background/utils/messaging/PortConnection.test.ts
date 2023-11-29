@@ -1,3 +1,4 @@
+import { serializeToJSON } from '@src/background/serialization/serialize';
 import PortConnection from './PortConnection';
 
 describe('background/providers/utils/PortConnection', () => {
@@ -49,10 +50,12 @@ describe('background/providers/utils/PortConnection', () => {
     connection.connect();
 
     expect(portMock.onMessage.addListener).toHaveBeenCalledTimes(1);
-    portMock.onMessage.addListener.mock.calls[0]?.[0]({
-      type: 'message',
-      data: 'mock-message',
-    });
+    portMock.onMessage.addListener.mock.calls[0]?.[0](
+      serializeToJSON({
+        type: 'message',
+        data: 'mock-message',
+      })
+    );
 
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledWith('mock-message');
@@ -66,9 +69,32 @@ describe('background/providers/utils/PortConnection', () => {
     connection.message('message-data');
 
     expect(portMock.postMessage).toHaveBeenCalledTimes(1);
-    expect(portMock.postMessage).toHaveBeenCalledWith({
-      type: 'message',
-      data: 'message-data',
-    });
+    expect(portMock.postMessage).toHaveBeenCalledWith(
+      serializeToJSON({
+        type: 'message',
+        data: 'message-data',
+      })
+    );
+  });
+
+  it('serializes the message', () => {
+    const connection = new PortConnection(portMock as any);
+
+    expect(portMock.postMessage).not.toHaveBeenCalled();
+
+    connection.message({ value: 1000n });
+
+    expect(portMock.postMessage).toHaveBeenCalledTimes(1);
+    expect(portMock.postMessage).toHaveBeenCalledWith(
+      serializeToJSON({
+        type: 'message',
+        data: {
+          value: {
+            type: 'BigInt',
+            value: '1000',
+          },
+        },
+      })
+    );
   });
 });

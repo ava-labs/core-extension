@@ -19,6 +19,9 @@ export enum FeatureGates {
   SEEDLESS_ONBOARDING = 'seedless-onboarding',
   SEEDLESS_ONBOARDING_GOOGLE = 'seedless-onboarding-google',
   SEEDLESS_ONBOARDING_APPLE = 'seedless-onboarding-apple',
+  SEEDLESS_MFA_PASSKEY = 'seedless-mfa-passkey',
+  SEEDLESS_MFA_AUTHENTICATOR = 'seedless-mfa-authenticator',
+  SEEDLESS_MFA_YUBIKEY = 'seedless-mfa-yubikey',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -44,6 +47,9 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.SEEDLESS_ONBOARDING]: false,
   [FeatureGates.SEEDLESS_ONBOARDING_GOOGLE]: false,
   [FeatureGates.SEEDLESS_ONBOARDING_APPLE]: false,
+  [FeatureGates.SEEDLESS_MFA_PASSKEY]: false,
+  [FeatureGates.SEEDLESS_MFA_AUTHENTICATOR]: false,
+  [FeatureGates.SEEDLESS_MFA_YUBIKEY]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -68,6 +74,9 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.SEEDLESS_ONBOARDING]: true,
   [FeatureGates.SEEDLESS_ONBOARDING_GOOGLE]: true,
   [FeatureGates.SEEDLESS_ONBOARDING_APPLE]: true,
+  [FeatureGates.SEEDLESS_MFA_PASSKEY]: true,
+  [FeatureGates.SEEDLESS_MFA_AUTHENTICATOR]: true,
+  [FeatureGates.SEEDLESS_MFA_YUBIKEY]: true,
 };
 
 export enum FeatureFlagEvents {

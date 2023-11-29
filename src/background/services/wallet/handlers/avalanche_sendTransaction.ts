@@ -16,9 +16,18 @@ import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/wallets-sdk';
+import getProvidedUtxos from '../utils/getProvidedUtxos';
+
+type TxParams = {
+  transactionHex: string;
+  chainAlias: 'X' | 'P' | 'C';
+  externalIndices?: number[];
+  internalIndices?: number[];
+  utxos?: string[];
+};
 
 @injectable()
-export class AvalancheSendTransactionHandler extends DAppRequestHandler {
+export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams> {
   methods = [DAppProviderRequest.AVALANCHE_SEND_TRANSACTION];
 
   constructor(
@@ -32,8 +41,13 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
   handleAuthenticated = async (request) => {
     let unsignedTx: UnsignedTx | EVMUnsignedTx;
 
-    const { transactionHex, chainAlias, externalIndices, internalIndices } =
-      (request.params ?? {}) as any;
+    const {
+      transactionHex,
+      chainAlias,
+      externalIndices,
+      internalIndices,
+      utxos: providedUtxoHexes,
+    } = (request.params ?? {}) as TxParams;
 
     if (!transactionHex || !chainAlias) {
       return {
@@ -61,13 +75,19 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
       };
     }
 
-    const utxos = await Avalanche.getUtxosByTxFromGlacier({
-      transactionHex,
-      chainAlias,
-      isTestnet: !this.networkService.isMainnet(),
-      url: process.env.GLACIER_URL as string,
-      token: process.env.GLACIER_API_KEY,
+    const providedUtxos = getProvidedUtxos({
+      utxoHexes: providedUtxoHexes,
+      vm,
     });
+    const utxos = providedUtxos.length
+      ? providedUtxos
+      : await Avalanche.getUtxosByTxFromGlacier({
+          transactionHex,
+          chainAlias,
+          isTestnet: !this.networkService.isMainnet(),
+          url: process.env.GLACIER_URL as string,
+          token: process.env.GLACIER_API_KEY,
+        });
 
     if (vm === EVM) {
       unsignedTx = await Avalanche.createAvalancheEvmUnsignedTx({
@@ -81,13 +101,13 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler {
 
       const externalAddresses = await this.walletService.getAddressesByIndices(
         externalIndices ?? [],
-        chainAlias,
+        chainAlias as 'X' | 'P',
         false
       );
 
       const internalAddresses = await this.walletService.getAddressesByIndices(
         internalIndices ?? [],
-        chainAlias,
+        chainAlias as 'X' | 'P',
         true
       );
 

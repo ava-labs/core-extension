@@ -35,7 +35,7 @@ export function ConfirmMnemonic({
     const getRandomWordsForIndex = (index: number): string[] => {
       const randomWords: string[] = [];
       while (randomWords.length < 2) {
-        const randomIndex = Math.ceil(Math.random() * wordCount - 1);
+        const randomIndex = Math.floor(Math.random() * wordCount);
         const randomWord = words[randomIndex];
 
         if (

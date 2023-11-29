@@ -16,6 +16,8 @@ export enum OnboardingPhase {
   ANALYTICS_CONSENT = 'analytics_consent',
   KEYSTONE = 'keystone',
   KEYSTONE_TUTORIAL = 'keystone_tutorial',
+  SEEDLESS_GOOGLE = 'seedless_google',
+  SEEDLESS_APPLE = 'seedless_apple',
 }
 
 export enum OnboardingURLs {
@@ -27,6 +29,9 @@ export enum OnboardingURLs {
   CREATE_PASSWORD = '/onboarding/create-password',
   ANALYTICS_CONSENT = '/onboarding/analytics-consent',
   LEDGER_TROUBLE = '/onboarding/ledger-trouble',
+  SIGN_IN = '/onboarding/sign-in',
+  RECOVERY_METHODS = '/onboarding/recovery-methods',
+  RECOVERY_METHODS_LOGIN = '/onboarding/recovery-methods-login',
 }
 
 export const ONBOARDING_EVENT_NAMES = {
@@ -34,6 +39,8 @@ export const ONBOARDING_EVENT_NAMES = {
   [OnboardingPhase.IMPORT_WALLET]: 'OnboardingImportMnemonicSelected',
   [OnboardingPhase.LEDGER]: 'OnboardingImportLedgerSelected',
   [OnboardingPhase.KEYSTONE]: 'OnboardingKeystoneSelected',
+  [OnboardingPhase.SEEDLESS_GOOGLE]: 'OnboardingSeedlessGoogleSelected',
+  [OnboardingPhase.SEEDLESS_APPLE]: 'OnboardingSeedlessAppleSelected',
 };
 
 export enum OnboardingEvents {

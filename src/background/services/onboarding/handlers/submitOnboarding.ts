@@ -1,5 +1,6 @@
 import { ChainId } from '@avalabs/chains-sdk';
 import { getXpubFromMnemonic, Avalanche } from '@avalabs/wallets-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
@@ -9,9 +10,11 @@ import { LockService } from '../../lock/LockService';
 import { NetworkService } from '../../network/NetworkService';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
-import { PubKeyType } from '../../wallet/models';
+import { PubKeyType, SeedlessAuthProvider } from '../../wallet/models';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { SecretType } from '../../secrets/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ONBOARDING_SUBMIT,
@@ -26,6 +29,8 @@ type HandlerType = ExtensionRequestHandler<
       analyticsConsent: boolean;
       pubKeys: PubKeyType[] | undefined;
       masterFingerprint: string | undefined;
+      seedlessSignerToken: SignerSessionData | undefined;
+      authProvider: SeedlessAuthProvider | undefined;
     }
   ]
 >;
@@ -42,7 +47,8 @@ export class SubmitOnboardingHandler implements HandlerType {
     private walletService: WalletService,
     private accountsService: AccountsService,
     private settingsService: SettingsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private secretsService: SecretsService
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
@@ -55,12 +61,15 @@ export class SubmitOnboardingHandler implements HandlerType {
       analyticsConsent,
       pubKeys,
       masterFingerprint,
+      seedlessSignerToken,
+      authProvider,
     } = (request.params ?? [])[0] ?? {};
 
-    if (!mnemonic && !xPubFromHardware && !pubKeys) {
+    if (!seedlessSignerToken && !mnemonic && !xPubFromHardware && !pubKeys) {
       return {
         ...request,
-        error: 'unable to create a wallet, mnemonic or public key required',
+        error:
+          'unable to create a wallet, mnemonic, public key or seedless token is required',
       };
     }
 
@@ -80,11 +89,18 @@ export class SubmitOnboardingHandler implements HandlerType {
       };
     }
 
+    if (seedlessSignerToken && !authProvider) {
+      return {
+        ...request,
+        error: 'Auth provider is required to create a seedless wallet',
+      };
+    }
+
     // XPUB form EVM m/44'/60'/0'
     const xpub =
       xPubFromHardware || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
 
-    if (!xpub && !pubKeys) {
+    if (!xpub && !pubKeys && !seedlessSignerToken) {
       return {
         ...request,
         error: 'unable to create a wallet',
@@ -106,6 +122,20 @@ export class SubmitOnboardingHandler implements HandlerType {
         masterFingerprint,
       });
       await this.accountsService.addAccount(accountName);
+    } else if (seedlessSignerToken) {
+      await this.walletService.init({ authProvider, seedlessSignerToken });
+
+      // Create accounts for all obtained keys.
+      const secrets = await this.secretsService.getPrimaryAccountSecrets();
+      if (secrets?.type === SecretType.Seedless) {
+        // Adding accounts cannot be parallelized, they need to be added one-by-one.
+        // Otherwise race conditions occur and addresses get mixed up.
+        for (let i = 0; i < secrets.pubKeys.length; i++) {
+          await this.accountsService.addAccount(i === 0 ? accountName : '');
+        }
+      } else {
+        throw new Error('Seedless wallet initialization failed');
+      }
     } else if (pubKeys?.length) {
       await this.walletService.init({ pubKeys });
       for (let i = 0; i < pubKeys.length; i++) {

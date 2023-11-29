@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   LoadingDots,
+  Scrollbars,
   Skeleton,
   Stack,
   Typography,
@@ -248,100 +249,105 @@ export function SignTransactionPage() {
           </Box>
         )}
         {/* Actions  */}
-        <Stack
-          sx={{
-            flex: 1,
-            overflow: 'auto',
-            width: '100%',
-            px: 2,
-            gap: 3,
-            pb: 5,
-          }}
-        >
-          <SignTxErrorBoundary>
-            {
+        <Scrollbars>
+          <Stack
+            sx={{
+              flex: 1,
+              width: '100%',
+              px: 2,
+              gap: 3,
+              pb: 5,
+            }}
+          >
+            <SignTxErrorBoundary>
               {
-                [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
-                  <SwapTx
-                    {...(displayData as SwapExactTokensForTokenDisplayValues)}
-                    setShowRawTransactionData={setShowRawTransactionData}
-                    network={network}
-                  />
-                ),
-                [ContractCall.SIMPLE_SWAP]: (
-                  <SwapTx
-                    {...(displayData as SimpleSwapDisplayValues)}
-                    setShowRawTransactionData={setShowRawTransactionData}
-                    network={network}
-                  />
-                ),
-                [ContractCall.APPROVE]: (
-                  <ApproveTx
-                    {...(displayData as ApproveTransactionData)}
-                    setShowCustomSpendLimit={setShowCustomSpendLimit}
-                    setShowRawTransactionData={setShowRawTransactionData}
-                    displaySpendLimit={displaySpendLimit}
-                    requestedApprovalLimit={requestedApprovalLimit}
-                    limitFiatValue={limitFiatValue}
-                    network={network}
-                  />
-                ),
-                [ContractCall.ADD_LIQUIDITY]: (
-                  <AddLiquidityTx
-                    {...(displayData as AddLiquidityDisplayData)}
-                    setShowRawTransactionData={setShowRawTransactionData}
-                    network={network}
-                  />
-                ),
-                [ContractCall.ADD_LIQUIDITY_AVAX]: (
-                  <AddLiquidityTx
-                    {...(displayData as AddLiquidityDisplayData)}
-                    setShowRawTransactionData={setShowRawTransactionData}
-                    network={network}
-                  />
-                ),
-                ['unknown']: (
-                  <UnknownTx
-                    {...(displayData as TransactionDisplayValues)}
-                    setShowRawTransactionData={setShowRawTransactionData}
-                    network={network}
-                  />
-                ),
-              }[contractType || 'unknown']
-            }
-
-            <Stack sx={{ gap: 1, width: '100%' }}>
-              {hasFeeInformation ? (
-                <CustomFees
-                  maxFeePerGas={displayData.maxFeePerGas}
-                  limit={displayData.gasLimit}
-                  onChange={setCustomFee}
-                  selectedGasFeeModifier={selectedGasFee}
-                  network={network}
-                  networkFee={networkFee}
-                />
-              ) : (
-                <>
-                  <Skeleton variant="text" width="100%" />
-                  <Skeleton variant="rectangular" width="100%" height="136px" />
-                </>
-              )}
-
-              {!hasEnoughForNetworkFee && (
-                <Stack sx={{ width: '100%', alignItems: 'flex-start' }}>
-                  <Typography
-                    sx={{ color: 'error.main', fontSize: 'caption.fontSize' }}
-                  >
-                    <Trans
-                      i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
-                      values={{ symbol: network?.networkToken.symbol }}
+                {
+                  [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
+                    <SwapTx
+                      {...(displayData as SwapExactTokensForTokenDisplayValues)}
+                      setShowRawTransactionData={setShowRawTransactionData}
+                      network={network}
                     />
-                  </Typography>
-                </Stack>
-              )}
-            </Stack>
-          </SignTxErrorBoundary>
-        </Stack>
+                  ),
+                  [ContractCall.SIMPLE_SWAP]: (
+                    <SwapTx
+                      {...(displayData as SimpleSwapDisplayValues)}
+                      setShowRawTransactionData={setShowRawTransactionData}
+                      network={network}
+                    />
+                  ),
+                  [ContractCall.APPROVE]: (
+                    <ApproveTx
+                      {...(displayData as ApproveTransactionData)}
+                      setShowCustomSpendLimit={setShowCustomSpendLimit}
+                      setShowRawTransactionData={setShowRawTransactionData}
+                      displaySpendLimit={displaySpendLimit}
+                      requestedApprovalLimit={requestedApprovalLimit}
+                      limitFiatValue={limitFiatValue}
+                      network={network}
+                    />
+                  ),
+                  [ContractCall.ADD_LIQUIDITY]: (
+                    <AddLiquidityTx
+                      {...(displayData as AddLiquidityDisplayData)}
+                      setShowRawTransactionData={setShowRawTransactionData}
+                      network={network}
+                    />
+                  ),
+                  [ContractCall.ADD_LIQUIDITY_AVAX]: (
+                    <AddLiquidityTx
+                      {...(displayData as AddLiquidityDisplayData)}
+                      setShowRawTransactionData={setShowRawTransactionData}
+                      network={network}
+                    />
+                  ),
+                  ['unknown']: (
+                    <UnknownTx
+                      {...(displayData as TransactionDisplayValues)}
+                      setShowRawTransactionData={setShowRawTransactionData}
+                      network={network}
+                    />
+                  ),
+                }[contractType || 'unknown']
+              }
+
+              <Stack sx={{ gap: 1, width: '100%' }}>
+                {hasFeeInformation ? (
+                  <CustomFees
+                    maxFeePerGas={displayData.maxFeePerGas}
+                    limit={displayData.gasLimit}
+                    onChange={setCustomFee}
+                    selectedGasFeeModifier={selectedGasFee}
+                    network={network}
+                    networkFee={networkFee}
+                  />
+                ) : (
+                  <>
+                    <Skeleton variant="text" width="100%" />
+                    <Skeleton
+                      variant="rectangular"
+                      width="100%"
+                      height="136px"
+                    />
+                  </>
+                )}
+
+                {!hasEnoughForNetworkFee && (
+                  <Stack sx={{ width: '100%', alignItems: 'flex-start' }}>
+                    <Typography
+                      sx={{ color: 'error.main', fontSize: 'caption.fontSize' }}
+                    >
+                      <Trans
+                        i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
+                        values={{ symbol: network?.networkToken.symbol }}
+                      />
+                    </Typography>
+                  </Stack>
+                )}
+              </Stack>
+            </SignTxErrorBoundary>
+          </Stack>
+        </Scrollbars>
 
         {/* Action Buttons */}
         <Stack

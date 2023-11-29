@@ -79,6 +79,7 @@ module.exports = {
       'react-dom': path.resolve('./node_modules/react-dom'),
       // use alias for bn.js to prevent bundling it >23 times per output file (saves ~1.5MB)
       'bn.js': path.resolve('./node_modules/bn.js'),
+      path: require.resolve('path-browserify'),
     },
     // We're using different node.js modules in our code,
     // this prevents WebPack from failing on them or embedding

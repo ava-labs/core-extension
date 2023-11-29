@@ -16,16 +16,18 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { PageNav } from '../components/PageNav';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { TypographyLink } from '../components/TypographyLink';
+import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 
 export const AnalyticsConsent = () => {
-  const { setAnalyticsConsent, submit, onboardingPhase } =
+  const { setAnalyticsConsent, submit, onboardingPhase, analyticsConsent } =
     useOnboardingContext();
   const { capture, stopDataCollection } = useAnalyticsContext();
   const { t } = useTranslation();
   const history = useHistory();
+  const [isVerifyGoBackModalOpen, setIsVerifyGoBackModalOpen] = useState(false);
 
   const getSteps = useMemo(() => {
     if (onboardingPhase === OnboardingPhase.IMPORT_WALLET) {
@@ -33,6 +35,12 @@ export const AnalyticsConsent = () => {
     }
     if (onboardingPhase === OnboardingPhase.KEYSTONE) {
       return { stepsNumber: 6, activeStep: 5 };
+    }
+    if (
+      onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE ||
+      onboardingPhase === OnboardingPhase.SEEDLESS_APPLE
+    ) {
+      return { stepsNumber: 3, activeStep: 2 };
     }
     return { stepsNumber: 4, activeStep: 3 };
   }, [onboardingPhase]);
@@ -43,6 +51,23 @@ export const AnalyticsConsent = () => {
     }
     capture(OnboardingPhase.ANALYTICS_CONSENT);
   }, [capture, history, onboardingPhase]);
+
+  useEffect(() => {
+    if (analyticsConsent === undefined) {
+      return;
+    }
+
+    const coreWebLink =
+      onboardingPhase === OnboardingPhase.CREATE_WALLET
+        ? `${process.env.CORE_WEB_BASE_URL}/discover/?newUser=1`
+        : process.env.CORE_WEB_BASE_URL;
+
+    // submit handler can't be in the onNext and onBack callbacks since it would run in a stale closure
+    // resulting in an always false analytics consent
+    submit(() =>
+      coreWebLink ? window.location.replace(coreWebLink) : window.close()
+    );
+  }, [analyticsConsent, onboardingPhase, submit]);
 
   return (
     <Stack
@@ -115,17 +140,11 @@ export const AnalyticsConsent = () => {
           capture('OnboardingAnalyticsRejected');
           stopDataCollection();
           setAnalyticsConsent(false);
-          submit(() =>
-            window.location.replace(`${process.env.CORE_WEB_BASE_URL}`)
-          );
         }}
         backText={t('No Thanks')}
         onNext={async () => {
           capture('OnboardingAnalyticsAccepted');
           setAnalyticsConsent(true);
-          submit(() =>
-            window.location.replace(`${process.env.CORE_WEB_BASE_URL}`)
-          );
         }}
         nextText={t('I Agree')}
         disableNext={false}
@@ -135,7 +154,13 @@ export const AnalyticsConsent = () => {
       >
         <Button
           variant="text"
-          onClick={() => history.goBack()}
+          onClick={() => {
+            if (onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE) {
+              setIsVerifyGoBackModalOpen(true);
+              return;
+            }
+            history.goBack();
+          }}
           sx={{
             color: 'secondary',
           }}
@@ -146,6 +171,16 @@ export const AnalyticsConsent = () => {
           </Typography>
         </Button>
       </PageNav>
+      <VerifyGoBackModal
+        isOpen={isVerifyGoBackModalOpen}
+        onBack={() => {
+          history.push(OnboardingURLs.ONBOARDING_HOME);
+          setIsVerifyGoBackModalOpen(false);
+        }}
+        onCancel={() => {
+          setIsVerifyGoBackModalOpen(false);
+        }}
+      />
     </Stack>
   );
 };

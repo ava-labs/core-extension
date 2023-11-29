@@ -3,6 +3,7 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+require('dotenv').config({ path: './.env.production' });
 
 module.exports = merge(common, {
   mode: 'production',
@@ -31,7 +32,12 @@ module.exports = merge(common, {
               .replace(
                 '__DEFAULT_TITLE__',
                 'Core | Crypto Wallet & NFT Extension'
-              ),
+              )
+              .replace(
+                '__OAUTH_CLIENT_ID__',
+                process.env.GOOGLE_OAUTH_CLIENT_ID
+              )
+              .replace('"key": "__EXTENSION_PUBLIC_KEY__",', ''),
           force: true,
         },
       ],

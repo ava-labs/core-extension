@@ -10,6 +10,7 @@ import {
   ImportedWalletData,
   WalletSecretInStorage,
   WALLET_STORAGE_KEY,
+  SeedlessAuthProvider,
 } from '../wallet/models';
 
 import {
@@ -263,7 +264,19 @@ export class SecretsService {
       xpubXP,
       derivationPath,
       btcWalletPolicyDetails,
+      seedlessSignerToken,
+      authProvider,
     } = walletKeys;
+
+    if (seedlessSignerToken) {
+      return {
+        type: SecretType.Seedless,
+        pubKeys: pubKeys ?? [],
+        seedlessSignerToken,
+        derivationPath,
+        authProvider: authProvider ?? SeedlessAuthProvider.Google,
+      };
+    }
 
     // If we have a phrase, we know it's a mnemonic wallet
     if (mnemonic && xpub && xpubXP) {

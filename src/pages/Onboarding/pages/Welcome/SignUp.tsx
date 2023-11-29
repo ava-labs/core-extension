@@ -36,7 +36,7 @@ const StyledMenuItem = styled(MenuItem)`
   padding: 8px 16px;
 `;
 
-export function Welcome() {
+export function SignUp() {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleButtonRef = useRef();
@@ -44,12 +44,12 @@ export function Welcome() {
   const history = useHistory();
   const { setOnboardingPhase } = useOnboardingContext();
   const { featureFlags } = useFeatureFlagContext();
+
   return (
     <Stack
       sx={{
         width: '322px',
         textAlign: 'center',
-        mt: '-300px',
       }}
     >
       <Stack

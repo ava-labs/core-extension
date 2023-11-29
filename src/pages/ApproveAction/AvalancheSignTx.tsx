@@ -31,6 +31,7 @@ import { AddPermissionlessValidator } from '@src/pages/ApproveAction/components/
 import { AddPermissionlessDelegator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessDelegator';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
+import { RemoveSubnetValidatorView } from './components/ApproveRemoveSubnetValidator';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -146,6 +147,13 @@ export function AvalancheSignTx() {
             tx={tx}
             avaxPrice={tokenPrice}
           ></AddSubnetValidatorView>
+        );
+      } else if (Avalanche.isRemoveSubnetValidatorTx(tx)) {
+        return (
+          <RemoveSubnetValidatorView
+            tx={tx}
+            avaxPrice={tokenPrice}
+          ></RemoveSubnetValidatorView>
         );
       } else if (Avalanche.isAddPermissionlessValidatorTx(tx)) {
         return (

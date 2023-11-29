@@ -2,9 +2,10 @@
   "name": "__NAME__",
   "short_name": "__SHORT_NAME__",
   "version": "0.0.0",
+  "key": "__EXTENSION_PUBLIC_KEY__",
   "manifest_version": 3,
   "author": "AvaLabs",
-  "description": "The Best Way to Connect to Crypto",
+  "description": "Your home for Avalanche (AVAX) and beyond.",
   "default_locale": "en",
   "commands": {
     "_execute_browser_action": {
@@ -38,9 +39,14 @@
     "contextMenus",
     "notifications",
     "tabs",
-    "scripting"
+    "scripting",
+    "identity"
   ],
   "host_permissions": ["file://*/*", "http://*/*", "https://*/*"],
+  "oauth2": {
+    "client_id": "__OAUTH_CLIENT_ID__",
+    "scopes": ["openid", "email"]
+  },
   "content_scripts": [
     {
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
