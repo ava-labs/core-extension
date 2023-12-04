@@ -3,7 +3,6 @@ import {
   Stack,
   Typography,
   UsbIcon,
-  styled,
   QRCodeIcon,
 } from '@avalabs/k2-components';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
@@ -20,21 +19,18 @@ import {
 } from './modals/AuthenticatorModal';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-
-export enum Methods {
-  PASSKEY = 'passkey',
-  AUTHENTICATOR = 'totp',
-  YUBIKEY = 'yubikey',
-}
-
-export const Bold = styled('span')`
-  font-weight: bold;
-`;
+import { FIDOModal } from './modals/FIDOModal';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { InlineBold } from '@src/components/common/InlineBold';
+import { RecoveryMethodTypes } from './models';
 
 export function RecoveryMethods() {
   const history = useHistory();
   const { t } = useTranslation();
-  const [selectedMethod, setSelectedMethod] = useState<Methods | null>(null);
+  const { capture } = useAnalyticsContext();
+
+  const [selectedMethod, setSelectedMethod] =
+    useState<RecoveryMethodTypes | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
   const { oidcToken } = useOnboardingContext();
@@ -69,7 +65,7 @@ export function RecoveryMethods() {
             <Trans
               i18nKey="Add <bold>one</bold> recovery method to continue."
               components={{
-                bold: <Bold />,
+                bold: <InlineBold />,
               }}
             />
           </Typography>
@@ -84,8 +80,8 @@ export function RecoveryMethods() {
                 icon={<KeyIcon size={24} />}
                 title={t('Passkey')}
                 description={t('Add a Passkey as a recovery method.')}
-                onClick={() => setSelectedMethod(Methods.PASSKEY)}
-                isActive={selectedMethod === Methods.PASSKEY}
+                onClick={() => setSelectedMethod(RecoveryMethodTypes.PASSKEY)}
+                isActive={selectedMethod === RecoveryMethodTypes.PASSKEY}
               />
             )}
             {featureFlags[FeatureGates.SEEDLESS_MFA_AUTHENTICATOR] && (
@@ -95,8 +91,8 @@ export function RecoveryMethods() {
                 description={t(
                   'Use an authenticator app as a recovery method.'
                 )}
-                onClick={() => setSelectedMethod(Methods.AUTHENTICATOR)}
-                isActive={selectedMethod === Methods.AUTHENTICATOR}
+                onClick={() => setSelectedMethod(RecoveryMethodTypes.TOTP)}
+                isActive={selectedMethod === RecoveryMethodTypes.TOTP}
               />
             )}
             {featureFlags[FeatureGates.SEEDLESS_MFA_YUBIKEY] && (
@@ -104,8 +100,8 @@ export function RecoveryMethods() {
                 icon={<UsbIcon size={24} />}
                 title={t('Yubikey ')}
                 description={t('Add a Yubikey as a recovery method.')}
-                onClick={() => setSelectedMethod(Methods.YUBIKEY)}
-                isActive={selectedMethod === Methods.YUBIKEY}
+                onClick={() => setSelectedMethod(RecoveryMethodTypes.YUBIKEY)}
+                isActive={selectedMethod === RecoveryMethodTypes.YUBIKEY}
               />
             )}
           </Stack>
@@ -123,7 +119,7 @@ export function RecoveryMethods() {
           disableNext={!selectedMethod}
         />
       </Stack>
-      {isModalOpen && selectedMethod === Methods.AUTHENTICATOR && (
+      {isModalOpen && selectedMethod === RecoveryMethodTypes.TOTP && (
         <AuthenticatorModal
           activeStep={AuthenticatorSteps.SCAN}
           onFinish={() => {
@@ -132,6 +128,20 @@ export function RecoveryMethods() {
           onCancel={() => setIsModalOpen(false)}
         />
       )}
+      {isModalOpen &&
+        (selectedMethod === RecoveryMethodTypes.YUBIKEY ||
+          selectedMethod === RecoveryMethodTypes.PASSKEY) && (
+          <FIDOModal
+            onFinish={() => {
+              history.push(OnboardingURLs.CREATE_PASSWORD);
+            }}
+            onCancel={() => {
+              setIsModalOpen(false);
+              capture(`FidoDevice${selectedMethod}Cancelled`);
+            }}
+            selectedMethod={selectedMethod}
+          />
+        )}
     </>
   );
 }

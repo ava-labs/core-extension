@@ -8,7 +8,7 @@ import {
 } from '@avalabs/k2-components';
 import { Overlay } from '@src/components/common/Overlay';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface TOTPModalProps {
@@ -28,6 +28,19 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
   useEffect(() => {
     loginTOTPStart();
   }, [loginTOTPStart]);
+
+  const verifyCode = useCallback(async () => {
+    setIsLoading(true);
+    const isSuccessful = await verifyLoginCode(totpCode);
+    if (!isSuccessful) {
+      setError(t('Incorrect code. Try again.'));
+    }
+    if (isSuccessful) {
+      onFinish();
+      setError('');
+    }
+    setIsLoading(false);
+  }, [onFinish, t, totpCode, verifyLoginCode]);
 
   return (
     <Overlay>
@@ -97,6 +110,12 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
                 multiline
                 error={!!error}
                 helperText={error}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    verifyCode();
+                  }
+                }}
               />
             </Stack>
           </Stack>
@@ -114,6 +133,7 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
               color="secondary"
               data-testid="authenticator-modal-cancel"
               onClick={onCancel}
+              disabled={isLoading}
             >
               {t('Cancel')}
             </Button>
@@ -121,18 +141,7 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
               isLoading={isLoading}
               disabled={isLoading}
               data-testid="authenticator-modal-next"
-              onClick={async () => {
-                setIsLoading(true);
-                const isSuccessful = await verifyLoginCode(totpCode);
-                if (!isSuccessful) {
-                  setError(t('Incorrect code. Try again.'));
-                }
-                if (isSuccessful) {
-                  onFinish();
-                  setError('');
-                }
-                setIsLoading(false);
-              }}
+              onClick={verifyCode}
             >
               {t('Next')}
             </Button>

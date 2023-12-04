@@ -51,7 +51,7 @@ export function VerifyGoBackModal({
             }}
             data-testid={`authenticator-modal-header`}
           >
-            {t('Are You Sure You want to go Back?')}
+            {t('Are You Sure You Want To Go Back?')}
           </Typography>
           <Button
             variant="text"
@@ -107,7 +107,7 @@ export function VerifyGoBackModal({
             {t('Cancel')}
           </Button>
           <Button data-testid="authenticator-modal-next" onClick={onBack}>
-            {t('Back')}
+            {t('Go Back')}
           </Button>
         </Stack>
       </Stack>

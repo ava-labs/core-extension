@@ -97,6 +97,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const { t } = useTranslation();
 
   const [oidcToken, setOidcToken] = useState<string>('');
+
   const [seedlessSignerToken, setSeedlessSignerToken] = useState<
     SignerSessionData | undefined
   >(undefined);

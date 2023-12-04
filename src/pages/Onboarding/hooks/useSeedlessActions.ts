@@ -22,6 +22,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { RecoveryMethodTypes } from '../pages/Seedless/models';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {
@@ -281,6 +282,125 @@ export function useSeedlessActions() {
     [mfaManager, mfaId, oidcToken, setSeedlessSignerToken, t]
   );
 
+  const loginWithFIDO = useCallback(async () => {
+    if (!oidcToken) {
+      return false;
+    }
+    const cs = new CubeSigner({
+      orgId: process.env.SEEDLESS_ORG_ID || '',
+      env: envs[process.env.CUBESIGNER_ENV || ''],
+    });
+    let resp = await cs.oidcLogin(
+      oidcToken,
+      process.env.SEEDLESS_ORG_ID || '',
+      ['sign:*']
+    );
+    if (resp.requiresMfa()) {
+      const mfaSession = resp.mfaSessionInfo();
+      if (!mfaSession) {
+        return false;
+      }
+      const mfaSessionMgr = await SignerSessionManager.createFromSessionInfo(
+        envs[process.env.CUBESIGNER_ENV || ''],
+        process.env.SEEDLESS_ORG_ID || '',
+        mfaSession
+      );
+
+      const signerSession = new SignerSession(mfaSessionMgr);
+      const respondMfaId = resp.mfaId();
+
+      const challenge = await signerSession.fidoApproveStart(respondMfaId);
+
+      // Extensions need to leave rpId blank
+      // https://chromium.googlesource.com/chromium/src/+/main/content/browser/webauth/origins.md
+      delete challenge.options.rpId;
+
+      // prompt the user to tap their FIDO and send the answer back to CubeSigner
+      const mfaInfo = await challenge.createCredentialAndAnswer();
+
+      // print out the current status of the MFA request and assert that it has been approved
+      if (!mfaInfo.receipt) {
+        throw new Error('MFA not approved yet');
+      }
+
+      // proceed with the MFA approval
+      resp = await resp.signWithMfaApproval({
+        mfaId: respondMfaId,
+        mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
+        mfaConf: mfaInfo.receipt.confirmation,
+      });
+    }
+    if (resp.requiresMfa()) {
+      throw new Error('MFA should not be required after approval');
+    }
+    const sessionInfo = resp.data();
+    const signerSessionManager =
+      await SignerSessionManager.createFromSessionInfo(
+        envs[process.env.CUBESIGNER_ENV || ''],
+        process.env.SEEDLESS_ORG_ID || '',
+        sessionInfo
+      );
+
+    setSeedlessSignerToken(await signerSessionManager.storage.retrieve());
+    return true;
+  }, [oidcToken, setSeedlessSignerToken]);
+
+  const addFIDODevice = useCallback(
+    async (name: string, selectedMethod: RecoveryMethodTypes) => {
+      if (!oidcToken) {
+        return false;
+      }
+      let cs = new CubeSigner({
+        orgId: process.env.SEEDLESS_ORG_ID || '',
+        env: envs[process.env.CUBESIGNER_ENV || ''],
+      });
+      const loginResp = await cs.oidcLogin(
+        oidcToken,
+        process.env.SEEDLESS_ORG_ID || '',
+        ['manage:mfa']
+      );
+
+      const mfaSessionInfo = loginResp.requiresMfa()
+        ? loginResp.mfaSessionInfo()
+        : loginResp.data();
+
+      if (!mfaSessionInfo) {
+        console.error('No MFA info');
+        return;
+      }
+
+      const sessionMgr = await SignerSessionManager.createFromSessionInfo(
+        envs[process.env.CUBESIGNER_ENV || ''],
+        process.env.SEEDLESS_ORG_ID || '',
+        mfaSessionInfo
+      );
+      cs = new CubeSigner({
+        orgId: process.env.SEEDLESS_ORG_ID || '',
+        env: envs[process.env.CUBESIGNER_ENV || ''],
+        sessionMgr,
+      });
+      const addFidoResp = await cs.addFidoStart(name);
+      const challenge = addFidoResp.data();
+      if (
+        selectedMethod === RecoveryMethodTypes.PASSKEY &&
+        (await PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable())
+      ) {
+        challenge.options.authenticatorSelection = {
+          authenticatorAttachment: 'platform',
+        };
+      }
+
+      // Extensions need to leave rpId blank
+      // https://chromium.googlesource.com/chromium/src/+/main/content/browser/webauth/origins.md
+      delete challenge.options.rp.id;
+
+      await challenge.createCredentialAndAnswer();
+
+      return true;
+    },
+    [oidcToken]
+  );
+
   return {
     signIn,
     registerTOTPStart,
@@ -288,5 +408,7 @@ export function useSeedlessActions() {
     verifyRegistrationCode,
     verifyLoginCode,
     loginTOTPStart,
+    addFIDODevice,
+    loginWithFIDO,
   };
 }

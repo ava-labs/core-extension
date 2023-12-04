@@ -7,7 +7,7 @@ import {
   useTheme,
 } from '@avalabs/k2-components';
 import { ReactElement } from 'react';
-import { Bold } from '../RecoveryMethods';
+import { InlineBold } from '@src/components/common/InlineBold';
 
 interface MethodCardProps {
   icon: ReactElement;
@@ -27,6 +27,7 @@ export function MethodCard({
   const theme = useTheme();
   return (
     <Card
+      data-testid={`method-card-${title}`}
       onClick={onClick}
       sx={{
         backgroundColor: isActive
@@ -50,7 +51,7 @@ export function MethodCard({
             {icon}
             <Stack>
               <Typography variant="h6" sx={{ mb: 1 }}>
-                <Bold>{title}</Bold>
+                <InlineBold>{title}</InlineBold>
               </Typography>
               <Typography
                 sx={{
