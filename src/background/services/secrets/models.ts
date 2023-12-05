@@ -36,6 +36,7 @@ interface SeedlessSecrets extends SecretsBase {
   seedlessSignerToken: SignerSessionData;
   derivationPath: DerivationPath;
   authProvider: SeedlessAuthProvider;
+  userEmail: string;
   mnemonic?: never;
   xpub?: never;
   xpubXP?: never;

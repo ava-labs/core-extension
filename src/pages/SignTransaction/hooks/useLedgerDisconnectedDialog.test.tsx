@@ -55,7 +55,9 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
 
     (useTranslation as jest.Mock).mockReturnValue({ t: translationMock });
     (useWalletContext as jest.Mock).mockReturnValue({
-      walletType: WalletType.LEDGER,
+      walletDetails: {
+        type: WalletType.LEDGER,
+      },
     });
     (useLedgerContext as jest.Mock).mockReturnValue({
       hasLedgerTransport: true,

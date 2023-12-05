@@ -6,8 +6,11 @@ import {
   XIcon,
   useTheme,
 } from '@avalabs/k2-components';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { Overlay } from '@src/components/common/Overlay';
-import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
+import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -19,28 +22,33 @@ interface TOTPModalProps {
 export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { loginTOTPStart, verifyLoginCode } = useSeedlessActions();
+  const { oidcToken, setSeedlessSignerToken } = useOnboardingContext();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const [totpCode, setTotpCode] = useState('');
 
-  useEffect(() => {
-    loginTOTPStart();
-  }, [loginTOTPStart]);
-
-  const verifyCode = useCallback(async () => {
-    setIsLoading(true);
-    const isSuccessful = await verifyLoginCode(totpCode);
-    if (!isSuccessful) {
-      setError(t('Incorrect code. Try again.'));
-    }
-    if (isSuccessful) {
+  const onSignerTokenObtained = useCallback(
+    async (token: SignerSessionData) => {
+      setSeedlessSignerToken(token);
       onFinish();
-      setError('');
+    },
+    [setSeedlessSignerToken, onFinish]
+  );
+
+  const getOidcToken = useCallback(async () => oidcToken ?? '', [oidcToken]);
+
+  const { error, authenticate, verifyTotpCode, step } = useSeedlessAuth({
+    setIsLoading,
+    onSignerTokenObtained,
+    getOidcToken,
+  });
+
+  const totpError = useTotpErrorMessage(error);
+
+  useEffect(() => {
+    if (step === AuthStep.NotInitialized) {
+      authenticate();
     }
-    setIsLoading(false);
-  }, [onFinish, t, totpCode, verifyLoginCode]);
+  }, [authenticate, step]);
 
   return (
     <Overlay>
@@ -108,12 +116,12 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
                 onChange={(event) => setTotpCode(event.target.value)}
                 rows={3}
                 multiline
-                error={!!error}
-                helperText={error}
-                onKeyDown={(event) => {
+                error={!!totpError}
+                helperText={totpError}
+                onKeyDown={async (event) => {
                   if (event.key === 'Enter') {
                     event.preventDefault();
-                    verifyCode();
+                    await verifyTotpCode(totpCode);
                   }
                 }}
               />
@@ -141,7 +149,9 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
               isLoading={isLoading}
               disabled={isLoading}
               data-testid="authenticator-modal-next"
-              onClick={verifyCode}
+              onClick={async () => {
+                await verifyTotpCode(totpCode);
+              }}
             >
               {t('Next')}
             </Button>

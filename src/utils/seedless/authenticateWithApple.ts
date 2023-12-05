@@ -1,4 +1,4 @@
-import { launchWebAuthFlow } from './launchWebAuthFlow';
+import { launchWebAuthFlow } from '../../pages/Onboarding/utils/launchWebAuthFlow';
 
 export async function authenticateWithApple(): Promise<string> {
   const clientId = process.env.APPLE_OAUTH_CLIENT_ID;

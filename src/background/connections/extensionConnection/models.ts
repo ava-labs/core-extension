@@ -123,4 +123,7 @@ export enum ExtensionRequest {
   WALLET_CONNECT_IMPORT_ACCOUNT = 'wallet_connect_import_account',
 
   FIREBLOCKS_UPDATE_API_CREDENTIALS = 'fireblocks_update_api_credentials',
+
+  SEEDLESS_UPDATE_SIGNER_TOKEN = 'seedless_update_signer_token',
+  SEEDLESS_HAS_TOKEN_EXPIRED = 'seedless_has_token_expired',
 }

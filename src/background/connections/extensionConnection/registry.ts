@@ -112,6 +112,9 @@ import { WalletConnectEvents } from '@src/background/services/walletConnect/even
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { EstablishRequiredSession } from '@src/background/services/walletConnect/handlers/establishRequiredSession';
 import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
+import { SeedlessTokenEvents } from '@src/background/services/seedless/events/seedlessTokenEvents';
+import { UpdateSignerTokenHandler } from '@src/background/services/seedless/handlers/updateSignerToken';
+import { HasSignerTokenExpiredHandler } from '@src/background/services/seedless/handlers/hasSignerTokenExpired';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -268,6 +271,14 @@ import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/
     token: 'ExtensionRequestHandler',
     useToken: FireblocksUpdateApiCredentialsHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UpdateSignerTokenHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: HasSignerTokenExpiredHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -300,5 +311,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: CurrencyRatesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: DefiPortfolioUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: WalletConnectEvents },
+  { token: 'ExtensionEventEmitter', useToken: SeedlessTokenEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

@@ -10,7 +10,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 const useIsIncorrectDevice = () => {
   const [isIncorrectDevice, setIsIncorrectDevice] = useState<boolean>(false);
-  const { isWalletLocked, walletType, derivationPath } = useWalletContext();
+  const { isWalletLocked, walletDetails } = useWalletContext();
   const { request } = useConnectionContext();
   const {
     hasLedgerTransport,
@@ -28,13 +28,12 @@ const useIsIncorrectDevice = () => {
 
       if (
         !isWalletLocked &&
-        walletType === WalletType.LEDGER &&
-        hasLedgerTransport &&
-        derivationPath
+        walletDetails?.type === WalletType.LEDGER &&
+        hasLedgerTransport
       ) {
         try {
           if (firstAddress && appType === LedgerAppType.AVALANCHE) {
-            const pubKey = await getPublicKey(0, derivationPath);
+            const pubKey = await getPublicKey(0, walletDetails.derivationPath);
             const address = getEvmAddressFromPubKey(pubKey);
             const isMatching = firstAddress === address;
 
@@ -63,8 +62,7 @@ const useIsIncorrectDevice = () => {
     compareAddresses();
   }, [
     isWalletLocked,
-    walletType,
-    derivationPath,
+    walletDetails,
     firstAddress,
     getPublicKey,
     hasLedgerTransport,

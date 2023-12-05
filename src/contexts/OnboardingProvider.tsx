@@ -63,6 +63,7 @@ const OnboardingContext = createContext<{
   setSeedlessSignerToken: Dispatch<
     SetStateAction<SignerSessionData | undefined>
   >;
+  setUserEmail: Dispatch<SetStateAction<string | undefined>>;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -94,6 +95,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [authProvider, setAuthProvider] = useState<SeedlessAuthProvider>();
 
+  const [userEmail, setUserEmail] = useState<string>();
+
   const { t } = useTranslation();
 
   const [oidcToken, setOidcToken] = useState<string>('');
@@ -116,6 +119,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setMasterFingerprint('');
     setOidcToken('');
     setSeedlessSignerToken(undefined);
+    setUserEmail(undefined);
   }
 
   useEffect(() => {
@@ -185,6 +189,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
             masterFingerprint,
             seedlessSignerToken,
             authProvider,
+            userEmail,
           },
         ],
       })
@@ -216,6 +221,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       xpub,
       xpubXP,
       submitInProgress,
+      userEmail,
     ]
   );
 
@@ -247,6 +253,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         oidcToken,
         setSeedlessSignerToken,
         setAuthProvider,
+        setUserEmail,
       }}
     >
       {/*

@@ -30,7 +30,7 @@ export function SecurityAndPrivacy({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const { walletType } = useWalletContext();
+  const { walletDetails } = useWalletContext();
   const { analyticsConsent, setAnalyticsConsent } = useSettingsContext();
   const { capture, stopDataCollection, initAnalyticsIds } =
     useAnalyticsContext();
@@ -140,7 +140,7 @@ export function SecurityAndPrivacy({
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        {walletType === WalletType.MNEMONIC && (
+        {walletDetails?.type === WalletType.MNEMONIC && (
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               sx={{

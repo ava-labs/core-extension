@@ -1,13 +1,13 @@
 import { CubeSigner, MfaReceipt, envs } from '@cubist-labs/cubesigner-sdk';
 
-export async function getCubeSigner(
+export async function loginWithCubeSigner(
   oidcToken: string,
   mfaReceipt?: MfaReceipt | undefined
 ) {
   const cubesigner = new CubeSigner({
     env: envs[process.env.CUBESIGNER_ENV || ''],
   });
-  const oidcCubeSigner = await cubesigner.oidcLogin(
+  const authResponse = await cubesigner.oidcLogin(
     oidcToken,
     process.env.SEEDLESS_ORG_ID || '',
     ['sign:*', 'manage:*'],
@@ -23,5 +23,5 @@ export async function getCubeSigner(
     mfaReceipt
   );
 
-  return oidcCubeSigner;
+  return authResponse;
 }

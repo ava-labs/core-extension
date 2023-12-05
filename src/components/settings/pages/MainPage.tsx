@@ -36,7 +36,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
   const { t } = useTranslation();
-  const { walletType } = useWalletContext();
+  const { walletDetails } = useWalletContext();
   const { lockWallet } = useSettingsContext();
   const { currentLanguage } = useLanguage();
   const {
@@ -211,7 +211,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        {walletType === WalletType.LEDGER && (
+        {walletDetails?.type === WalletType.LEDGER && (
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               sx={{

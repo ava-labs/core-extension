@@ -31,16 +31,38 @@ import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
 import { CoreApiError } from './models';
+import { SeedlessSessionManager } from './SeedlessSessionManager';
+import { isTokenExpiredError } from './utils';
+
+type ConstructorOpts = {
+  networkService: NetworkService;
+  sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
+  addressPublicKey?: PubKeyType;
+  network?: Network;
+  sessionManager?: SeedlessSessionManager;
+};
 
 export class SeedlessWallet {
+  #networkService: NetworkService;
+  #sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
+  #addressPublicKey?: PubKeyType;
+  #network?: Network;
+  #sessionManager?: SeedlessSessionManager;
   #signerSession?: cs.SignerSession;
 
-  constructor(
-    private networkService: NetworkService,
-    private sessionStorage: cs.SessionStorage<cs.SignerSessionData>,
-    private addressPublicKey?: PubKeyType,
-    private network?: Network
-  ) {}
+  constructor({
+    networkService,
+    sessionStorage,
+    addressPublicKey,
+    network,
+    sessionManager,
+  }: ConstructorOpts) {
+    this.#networkService = networkService;
+    this.#sessionStorage = sessionStorage;
+    this.#addressPublicKey = addressPublicKey;
+    this.#network = network;
+    this.#sessionManager = sessionManager;
+  }
 
   get #connected() {
     return Boolean(this.#signerSession);
@@ -52,7 +74,7 @@ export class SeedlessWallet {
     }
 
     this.#signerSession = await cs.CubeSigner.loadSignerSession(
-      this.sessionStorage
+      this.#sessionStorage
     );
   }
 
@@ -99,24 +121,29 @@ export class SeedlessWallet {
   }
 
   async #getMnemonicId(): Promise<string> {
-    if (!this.addressPublicKey) {
+    if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
     }
 
     const session = await this.#getSession();
-    const keys = await session.keys();
 
-    const activeAccountKey = keys.find(
-      (key) => strip0x(key.publicKey) === this.addressPublicKey?.evm
-    );
+    try {
+      const keys = await session.keys();
 
-    const mnemonicId = activeAccountKey?.derivation_info?.mnemonic_id;
+      const activeAccountKey = keys.find(
+        (key) => strip0x(key.publicKey) === this.#addressPublicKey?.evm
+      );
 
-    if (!mnemonicId) {
-      throw new Error('Cannot establish the mnemonic id');
+      const mnemonicId = activeAccountKey?.derivation_info?.mnemonic_id;
+
+      if (!mnemonicId) {
+        throw new Error('Cannot establish the mnemonic id');
+      }
+
+      return mnemonicId;
+    } catch (err) {
+      this.#handleError(err);
     }
-
-    return mnemonicId;
   }
 
   async #getSession(): Promise<cs.SignerSession> {
@@ -132,7 +159,14 @@ export class SeedlessWallet {
   async getPublicKeys(): Promise<PubKeyType[]> {
     const session = await this.#getSession();
     // get keys and filter out non derived ones and group them
-    const rawKeys = await session.keys();
+    let rawKeys: cs.KeyInfo[];
+
+    try {
+      rawKeys = await session.keys();
+    } catch (err) {
+      this.#handleError(err);
+    }
+
     const requiredKeyTypes = ['SecpEthAddr', 'SecpAvaAddr'];
     const keys = rawKeys
       ?.filter(
@@ -211,81 +245,94 @@ export class SeedlessWallet {
       throw new Error('Public key not available');
     }
 
-    const session = await this.#getSession();
-    const keys = await session.keys();
-    const key = keys
-      .filter(({ key_type }) => key_type === type)
-      .find(({ publicKey }) => strip0x(publicKey) === lookupPublicKey);
+    try {
+      const session = await this.#getSession();
+      const keys = await session.keys();
+      const key = keys
+        .filter(({ key_type }) => key_type === type)
+        .find(({ publicKey }) => strip0x(publicKey) === lookupPublicKey);
 
-    if (!key) {
-      throw new Error('Signing key not found');
+      if (!key) {
+        throw new Error('Signing key not found');
+      }
+
+      return key;
+    } catch (err) {
+      this.#handleError(err);
     }
-
-    return key;
   }
 
   async signTransaction(transaction: TransactionRequest): Promise<string> {
-    if (!this.addressPublicKey || !this.addressPublicKey.evm) {
+    if (!this.#addressPublicKey || !this.#addressPublicKey.evm) {
       throw new Error('Public key not available');
     }
 
-    if (!this.network) {
+    if (!this.#network) {
       throw new Error('Unknown network');
     }
 
-    const provider = this.networkService.getProviderForNetwork(this.network);
+    const provider = this.#networkService.getProviderForNetwork(this.#network);
     if (!(provider instanceof JsonRpcApiProvider)) {
       throw new Error('Wrong provider obtained for EVM transaction');
     }
 
-    const signer = new cs.ethers.Signer(
-      getEvmAddressFromPubKey(Buffer.from(this.addressPublicKey.evm, 'hex')),
-      await this.#getSession(),
-      provider
-    );
-
-    return signer.signTransaction(transaction);
+    try {
+      const signer = new cs.ethers.Signer(
+        getEvmAddressFromPubKey(Buffer.from(this.#addressPublicKey.evm, 'hex')),
+        await this.#getSession(),
+        provider
+      );
+      // We need to await the signing call here so the errors can be
+      // caught by catch clause.
+      return await signer.signTransaction(transaction);
+    } catch (err) {
+      this.#handleError(err);
+    }
   }
 
   async signAvalancheTx(
     request: Avalanche.SignTxRequest
   ): Promise<Avalanche.SignTxRequest['tx']> {
-    if (!this.addressPublicKey) {
+    if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
     }
 
     const isEvmTx = request.tx.getVM() === 'EVM';
-    const isMainnet = this.networkService.isMainnet();
+    const isMainnet = this.#networkService.isMainnet();
     const session = await this.#getSession();
     const key = isEvmTx
-      ? await this.#getSigningKey(cs.Secp256k1.Evm, this.addressPublicKey.evm)
+      ? await this.#getSigningKey(cs.Secp256k1.Evm, this.#addressPublicKey.evm)
       : await this.#getSigningKey(
           isMainnet ? cs.Secp256k1.Ava : cs.Secp256k1.AvaTest,
-          this.addressPublicKey.xp
+          this.#addressPublicKey.xp
         );
 
-    const response = await session.signBlob(key.key_id, {
-      message_base64: Buffer.from(sha256(request.tx.toBytes())).toString(
-        'base64'
-      ),
-    });
+    try {
+      const response = await session.signBlob(key.key_id, {
+        message_base64: Buffer.from(sha256(request.tx.toBytes())).toString(
+          'base64'
+        ),
+      });
 
-    request.tx.addSignature(hexToBuffer(response.data().signature));
+      request.tx.addSignature(hexToBuffer(response.data().signature));
 
-    return request.tx;
+      return request.tx;
+    } catch (err) {
+      this.#handleError(err);
+    }
   }
 
   async signTx(
     ins: BitcoinInputUTXO[],
     outs: BitcoinOutputUTXO[]
   ): Promise<Transaction> {
-    if (!this.network || !isBitcoinNetwork(this.network)) {
+    if (!this.#network || !isBitcoinNetwork(this.#network)) {
       throw new Error(
         'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
       );
     }
 
-    const provider = this.networkService.getProviderForNetwork(this.network);
+    const provider = this.#networkService.getProviderForNetwork(this.#network);
 
     if (!(provider instanceof BlockCypherProvider)) {
       throw new Error('Wrong provider obtained for BTC transaction');
@@ -295,24 +342,27 @@ export class SeedlessWallet {
     const psbt = createPsbt(ins, outs, btcNetwork);
     const session = await this.#getSession();
 
-    // Sign the inputs
-    await Promise.all(
-      psbt.txInputs.map((_, i) => {
-        if (!this.addressPublicKey) {
-          throw new Error('Public key not available');
-        }
+    try {
+      await Promise.all(
+        psbt.txInputs.map((_, i) => {
+          if (!this.#addressPublicKey) {
+            throw new Error('Public key not available');
+          }
 
-        const signer = new SeedlessBtcSigner(
-          this.addressPublicKey.evm,
-          psbt,
-          i,
-          ins,
-          btcNetwork,
-          session
-        );
-        return psbt.signInputAsync(i, signer);
-      })
-    );
+          const signer = new SeedlessBtcSigner(
+            this.#addressPublicKey.evm,
+            psbt,
+            i,
+            ins,
+            btcNetwork,
+            session
+          );
+          return psbt.signInputAsync(i, signer);
+        })
+      );
+    } catch (err) {
+      this.#handleError(err);
+    }
 
     // Validate inputs
     psbt.validateSignaturesOfAllInputs();
@@ -325,22 +375,22 @@ export class SeedlessWallet {
     messageType: MessageType,
     messageParams: MessageParams
   ): Promise<string | Buffer> {
-    if (!this.addressPublicKey) {
+    if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
     }
 
-    if (!this.network) {
+    if (!this.#network) {
       throw new Error('Network not available');
     }
 
     if (messageType === MessageType.AVALANCHE_SIGN) {
-      if (!this.addressPublicKey.xp) {
+      if (!this.#addressPublicKey.xp) {
         throw new Error('X/P public key not available');
       }
 
-      const xpProvider = await this.networkService.getAvalanceProviderXP();
+      const xpProvider = await this.#networkService.getAvalanceProviderXP();
       const addressAVM = await xpProvider
-        .getAddress(Buffer.from(this.addressPublicKey.xp, 'hex'), 'X')
+        .getAddress(Buffer.from(this.#addressPublicKey.xp, 'hex'), 'X')
         .slice(2); // remove chain prefix
 
       return Buffer.from(
@@ -355,7 +405,7 @@ export class SeedlessWallet {
     }
 
     const addressEVM = getEvmAddressFromPubKey(
-      Buffer.from(this.addressPublicKey.evm, 'hex')
+      Buffer.from(this.#addressPublicKey.evm, 'hex')
     ).toLowerCase();
 
     switch (messageType) {
@@ -398,14 +448,30 @@ export class SeedlessWallet {
     const blobReq = {
       message_base64: Buffer.from(getBytes(digest)).toString('base64'),
     };
-    // Get the key corresponding to this address
-    const keys = await session.keys();
-    const key = keys.find((k) => k.material_id === address);
-    if (key === undefined) {
-      throw new Error(`Cannot access key '${address}'`);
+
+    try {
+      // Get the key corresponding to this address
+      const keys = await session.keys();
+      const key = keys.find((k) => k.material_id === address);
+      if (key === undefined) {
+        throw new Error(`Cannot access key '${address}'`);
+      }
+      const res = await session.signBlob(key.key_id, blobReq);
+      return res.data().signature;
+    } catch (err) {
+      this.#handleError(err);
+    }
+  }
+
+  #handleError(err): never {
+    if (isTokenExpiredError(err)) {
+      this.#sessionManager?.notifyTokenExpired();
+
+      // Prevent leaking user information outside of extension
+      // (original error message contains the user id).
+      err.message = 'Session has expired';
     }
 
-    const res = await session.signBlob(key.key_id, blobReq);
-    return res.data().signature;
+    throw err;
   }
 }

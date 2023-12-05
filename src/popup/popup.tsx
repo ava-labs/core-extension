@@ -50,6 +50,7 @@ import { DefiContextProvider } from '@src/contexts/DefiProvider';
 import { WalletConnectContextProvider } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { TestnetBanner } from '@src/components/common/TestnetBanner';
+import { SeedlessAuthPrompt } from '@src/components/common/seedless/SeedlessAuthPrompt';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -199,6 +200,12 @@ const ImportFireblocksWithWalletConnect = lazy(() => {
 
 const ConnectBitcoinWallet = lazy(() => {
   return import('../pages/Fireblocks/ConnectBitcoinWallet');
+});
+
+const SeedlessAuthPopup = lazy(() => {
+  return import('../pages/SeedlessAuthPopup/SeedlessAuthPopup').then((m) => ({
+    default: m.SeedlessAuthPopup,
+  }));
 });
 
 const pagesWithoutHeader = [
@@ -648,12 +655,21 @@ export function Popup() {
                                               </Suspense>
                                             </Route>
 
+                                            <Route path="/seedless-auth">
+                                              <Suspense
+                                                fallback={<CircularProgress />}
+                                              >
+                                                <SeedlessAuthPopup />
+                                              </Suspense>
+                                            </Route>
+
                                             <Route path="/">
                                               <Redirect to="/home" />
                                             </Route>
                                           </Switch>
                                           <LedgerIncorrectDevice />
                                           <LedgerRegisterBtcWalletPolicy />
+                                          <SeedlessAuthPrompt />
                                         </Stack>
                                       </Stack>
                                     </WalletLoading>

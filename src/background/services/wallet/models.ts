@@ -11,6 +11,7 @@ import {
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { TransactionRequest } from 'ethers';
+import { Never } from '@src/background/models';
 
 export type SignTransactionRequest =
   | TransactionRequest
@@ -32,7 +33,18 @@ export interface WalletLockedState {
   locked: boolean;
 }
 
-export interface WalletSecretInStorage {
+type SeedlessWalletData = {
+  authProvider: SeedlessAuthProvider;
+  seedlessSignerToken: SignerSessionData;
+  userEmail: string;
+};
+
+// For Seedless, either all properties are there or none of them are.
+// It's useful for typechecking - i.e. we can only check if "seedlessSignerToken"
+// is present to stop TypeScript from complaining about the rest.
+type SeedlessSecretsInStorage = SeedlessWalletData | Never<SeedlessWalletData>;
+
+export type WalletSecretInStorage = {
   derivationPath: DerivationPath;
   mnemonic?: string;
   // Extended public key of m/44'/60'/0'
@@ -58,11 +70,9 @@ export interface WalletSecretInStorage {
       }
     | ({ type: ImportType.FIREBLOCKS } & FireblocksImportData['data'])
   >;
-  authProvider?: SeedlessAuthProvider;
   masterFingerprint?: string;
-  seedlessSignerToken?: SignerSessionData;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
-}
+} & SeedlessSecretsInStorage;
 
 export type PrivateKeyWalletData = {
   type: ImportType.PRIVATE_KEY;
@@ -103,6 +113,20 @@ export enum WalletType {
   LEDGER = 'LEDGER',
   KEYSTONE = 'KEYSTONE',
 }
+
+export type WalletDetails =
+  | {
+      type: WalletType;
+      derivationPath: DerivationPath;
+      authProvider?: never;
+      userEmail?: never;
+    }
+  | {
+      type: WalletType.SEEDLESS;
+      derivationPath: DerivationPath;
+      authProvider: SeedlessAuthProvider;
+      userEmail: string;
+    };
 
 export enum SeedlessAuthProvider {
   Google = 'google',
