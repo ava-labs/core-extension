@@ -28,7 +28,6 @@ export function RecoveryMethods() {
   const history = useHistory();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-
   const [selectedMethod, setSelectedMethod] =
     useState<RecoveryMethodTypes | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,7 +97,7 @@ export function RecoveryMethods() {
             {featureFlags[FeatureGates.SEEDLESS_MFA_YUBIKEY] && (
               <MethodCard
                 icon={<UsbIcon size={24} />}
-                title={t('Yubikey ')}
+                title={t('Yubikey')}
                 description={t('Add a Yubikey as a recovery method.')}
                 onClick={() => setSelectedMethod(RecoveryMethodTypes.YUBIKEY)}
                 isActive={selectedMethod === RecoveryMethodTypes.YUBIKEY}
@@ -123,9 +122,13 @@ export function RecoveryMethods() {
         <AuthenticatorModal
           activeStep={AuthenticatorSteps.SCAN}
           onFinish={() => {
+            capture('recoveryMethodAdded', { method: selectedMethod });
             history.push(OnboardingURLs.CREATE_PASSWORD);
           }}
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={() => {
+            capture(`FidoDevice${selectedMethod}Cancelled`);
+            setIsModalOpen(false);
+          }}
         />
       )}
       {isModalOpen &&
@@ -133,6 +136,7 @@ export function RecoveryMethods() {
           selectedMethod === RecoveryMethodTypes.PASSKEY) && (
           <FIDOModal
             onFinish={() => {
+              capture(`recoveryMethodAdded`, { method: selectedMethod });
               history.push(OnboardingURLs.CREATE_PASSWORD);
             }}
             onCancel={() => {

@@ -31,6 +31,7 @@ export function AppleButton({ setIsLoading }: SeedlesButton) {
         signIn({
           setIsLoading,
           getOidcToken: authenticateWithApple,
+          provider: SeedlessAuthProvider.Apple,
         });
       }}
     >

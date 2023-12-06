@@ -21,6 +21,8 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
 import { loginWithCubeSigner } from '@src/utils/seedless/loginWithCubeSigner';
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
@@ -29,9 +31,11 @@ type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   getOidcToken: OidcTokenGetter;
+  provider: SeedlessAuthProvider;
 };
 
 export function useSeedlessActions() {
+  const { capture } = useAnalyticsContext();
   const { setOidcToken, setSeedlessSignerToken, oidcToken, setUserEmail } =
     useOnboardingContext();
   const history = useHistory();
@@ -88,18 +92,23 @@ export function useSeedlessActions() {
   );
 
   const signIn = useCallback(
-    ({ setIsLoading, getOidcToken }: GetAuthButtonCallbackOptions) => {
+    ({
+      setIsLoading,
+      getOidcToken,
+      provider,
+    }: GetAuthButtonCallbackOptions) => {
       setIsLoading(true);
       getOidcToken()
         .then(handleOidcToken)
         .catch(() => {
+          capture('SeedlessSignInFailed', { provider });
           toast.error(t('Seedless login error'));
         })
         .finally(() => {
           setIsLoading(false);
         });
     },
-    [handleOidcToken, t]
+    [capture, handleOidcToken, t]
   );
 
   const registerTOTPStart = useCallback(() => {
@@ -136,9 +145,10 @@ export function useSeedlessActions() {
       })
       .catch((e) => {
         console.error(e);
+        capture('SeedlessRegisterTOTPStartFailed');
         return false;
       });
-  }, [oidcToken, t]);
+  }, [capture, oidcToken, t]);
 
   const verifyRegistrationCode = useCallback(
     async (code: string) => {

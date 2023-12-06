@@ -750,7 +750,7 @@
   "Your password has been changed succesfully.": "Your password has been changed succesfully.",
   "Your transaction is processing. Go to Activity to see the current status.": "Your transaction is processing. Go to Activity to see the current status.",
   "You’ve blocked access to your camera. Please allow access to continue.": "You’ve blocked access to your camera. Please allow access to continue.",
-  "Yubikey ": "Yubikey ",
+  "Yubikey": "Yubikey",
   "creating...": "creating...",
   "paraswap error message while get rate: {{message}}": "paraswap error message while get rate: {{message}}",
   "removing": "removing",

@@ -35,6 +35,7 @@ export function GoogleButton({ setIsLoading }: SeedlesButton) {
         signIn({
           setIsLoading,
           getOidcToken: authenticateWithGoogle,
+          provider: SeedlessAuthProvider.Google,
         });
       }}
     >

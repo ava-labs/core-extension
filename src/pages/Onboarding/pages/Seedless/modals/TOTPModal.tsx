@@ -8,11 +8,11 @@ import {
 } from '@avalabs/k2-components';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { Overlay } from '@src/components/common/Overlay';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
 import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 
 interface TOTPModalProps {
   onFinish: () => void;

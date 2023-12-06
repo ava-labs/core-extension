@@ -15,6 +15,7 @@ import sentryCaptureException, {
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { loginWithCubeSigner } from '@src/utils/seedless/loginWithCubeSigner';
 import { OidcTokenGetter } from '@src/utils/seedless/getOidcTokenProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export enum AuthStep {
   NotInitialized,
@@ -59,6 +60,7 @@ export const useSeedlessAuth = ({
   const [error, setError] = useState<AuthErrorCode>();
   const [email, setEmail] = useState('');
   const [mfaDeviceName, setMfaDeviceName] = useState('');
+  const { capture } = useAnalyticsContext();
 
   const getUserDetails = useCallback(async (idToken) => {
     const cubesigner = new CubeSigner({
@@ -93,6 +95,7 @@ export const useSeedlessAuth = ({
         const idToken = await getOidcToken();
 
         if (!idToken) {
+          capture('SeedlessLoginFailed');
           setError(AuthErrorCode.FailedToFetchOidcToken);
           return;
         }
@@ -161,7 +164,7 @@ export const useSeedlessAuth = ({
         setIsLoading(false);
       }
     },
-    [getOidcToken, onSignerTokenObtained, setIsLoading, getUserDetails]
+    [setIsLoading, getOidcToken, getUserDetails, capture, onSignerTokenObtained]
   );
 
   const verifyTotpCode = useCallback(
@@ -185,11 +188,13 @@ export const useSeedlessAuth = ({
 
         if (!status.receipt?.confirmation) {
           setError(AuthErrorCode.TotpVerificationError);
+          capture(AuthErrorCode.TotpVerificationError);
           setIsLoading(false);
           return false;
         }
       } catch {
         setError(AuthErrorCode.InvalidTotpCode);
+        capture(AuthErrorCode.InvalidTotpCode);
         setIsLoading(false);
         return false;
       }
@@ -203,14 +208,16 @@ export const useSeedlessAuth = ({
         const token = await getSignerToken(oidcAuthResponse);
 
         if (!token) {
+          capture('TotpNoToken');
           return false;
         }
 
         await onSignerTokenObtained?.(token, email);
-
+        capture('TotpVaridationSuccess');
         return true;
       } catch (err) {
         setError(AuthErrorCode.UnknownError);
+        capture('TotpVaridationFailed');
         sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
 
         return false;
@@ -218,7 +225,15 @@ export const useSeedlessAuth = ({
         setIsLoading(false);
       }
     },
-    [mfaId, oidcToken, session, onSignerTokenObtained, setIsLoading, email]
+    [
+      session,
+      setIsLoading,
+      mfaId,
+      capture,
+      oidcToken,
+      onSignerTokenObtained,
+      email,
+    ]
   );
 
   const completeFidoChallenge = useCallback(async () => {

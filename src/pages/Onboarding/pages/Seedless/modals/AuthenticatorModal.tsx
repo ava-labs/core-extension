@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode.react';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 import { InlineBold } from '@src/components/common/InlineBold';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export enum AuthenticatorSteps {
   SCAN = 'scan',
@@ -36,6 +37,7 @@ export function AuthenticatorModal({
   onCancel,
 }: AuthenticatorModalProps) {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
   const theme = useTheme();
   const [step, setStep] = useState(activeStep);
   const { registerTOTPStart, totpChallenge, verifyRegistrationCode } =
@@ -70,15 +72,17 @@ export function AuthenticatorModal({
     setIsCodeVerifying(true);
     const isSuccessful = await verifyRegistrationCode(totpCode);
     if (!isSuccessful) {
+      capture('SeedlessAuthenticatorVerificationFailed');
       setError(t('Incorrect code. Try again.'));
     }
     if (isSuccessful) {
+      capture('SeedlessAuthenticatorVerificationSuccess');
       onFinish();
       setError('');
     }
 
     setIsCodeVerifying(false);
-  }, [onFinish, t, totpCode, verifyRegistrationCode]);
+  }, [capture, onFinish, t, totpCode, verifyRegistrationCode]);
 
   const descriptions = useMemo(
     () => ({

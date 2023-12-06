@@ -32,6 +32,7 @@ import { LoadingContent } from '@src/popup/LoadingContent';
 import { toast } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { useAnalyticsContext } from './AnalyticsProvider';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -108,6 +109,10 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [onboardingPhase, setOnboardingPhase] =
     useState<OnboardingPhase | null>(null);
 
+  const [walletType, setWalletType] = useState<string>();
+
+  const { capture } = useAnalyticsContext();
+
   function resetStates() {
     setMnemonic('');
     setXpub('');
@@ -119,6 +124,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setMasterFingerprint('');
     setOidcToken('');
     setSeedlessSignerToken(undefined);
+    setWalletType(undefined);
     setUserEmail(undefined);
   }
 
@@ -127,6 +133,24 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       resetStates();
     }
   }, [nextPhase]);
+
+  useEffect(() => {
+    const walletTypeSelectingPhases = [
+      OnboardingPhase.CREATE_WALLET,
+      OnboardingPhase.IMPORT_WALLET,
+      OnboardingPhase.LEDGER,
+      OnboardingPhase.KEYSTONE,
+      OnboardingPhase.SEEDLESS_GOOGLE,
+      OnboardingPhase.SEEDLESS_APPLE,
+    ];
+
+    if (
+      onboardingPhase &&
+      walletTypeSelectingPhases.includes(onboardingPhase)
+    ) {
+      setWalletType(onboardingPhase);
+    }
+  }, [onboardingPhase]);
 
   useEffect(() => {
     if (!request || !events) {
@@ -194,10 +218,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         ],
       })
         .then(() => {
+          capture('OnboardingSubmitSucceeded', { walletType });
           resetStates();
           postSubmitHandler();
         })
         .catch(() => {
+          capture('OnboardingSubmitFailed', { walletType });
           setNextPhase(OnboardingPhase.PASSWORD);
           toast.error(t('Something went wrong. Please try again.'), {
             duration: 3000,
@@ -208,19 +234,21 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         });
     },
     [
+      submitInProgress,
+      mnemonic,
+      xpub,
+      password,
+      request,
+      xpubXP,
       accountName,
       analyticsConsent,
       authProvider,
-      masterFingerprint,
-      mnemonic,
-      password,
       publicKeys,
-      request,
+      masterFingerprint,
       seedlessSignerToken,
+      capture,
+      walletType,
       t,
-      xpub,
-      xpubXP,
-      submitInProgress,
       userEmail,
     ]
   );
