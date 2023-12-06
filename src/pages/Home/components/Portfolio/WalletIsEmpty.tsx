@@ -1,11 +1,15 @@
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, QRCodeIcon, Stack, Typography } from '@avalabs/k2-components';
 
 export function WalletIsEmpty() {
   const history = useHistory();
-  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { isFunctionSupported: isManageTokenSupported } =
+    useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
   const { t } = useTranslation();
   return (
     <Stack
@@ -14,7 +18,7 @@ export function WalletIsEmpty() {
         my: 6,
       }}
     >
-      {checkIsFunctionAvailable('ManageTokens') ? (
+      {isManageTokenSupported ? (
         <>
           <Typography variant="h6" sx={{ mb: 2 }}>
             {t('No assets')}

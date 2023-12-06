@@ -23,7 +23,6 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useTranslation } from 'react-i18next';
 import { getSendErrorMessage } from './utils/sendErrorMessages';
 import { SendErrorMessage } from '@src/background/services/send/models';
@@ -37,16 +36,18 @@ import {
 } from '@avalabs/k2-components';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 
 const DEFAULT_DECIMALS = 9;
 
 export function SendPage() {
   const { t } = useTranslation();
-  const { featureFlags } = useFeatureFlagContext();
   const selectedToken = useTokenFromParams(false);
   const contactInput = useContactFromParams();
   const setSendDataInParams = useSetSendDataInParams();
@@ -62,7 +63,9 @@ export function SendPage() {
     GasFeeModifier.NORMAL
   );
 
-  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
+    FunctionNames.SEND
+  );
 
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
   const [gasPriceState, setGasPrice] = useState<bigint>();
@@ -293,8 +296,17 @@ export function SendPage() {
     setIsTokenSelectOpen(visible);
   }, []);
 
-  if (!featureFlags[FeatureGates.SEND] || !checkIsFunctionAvailable('Send')) {
-    return <FunctionIsOffline functionName="Send" />;
+  if (!isFunctionSupported) {
+    return (
+      <FunctionIsUnavailable
+        functionName={FunctionNames.SEND}
+        network={network?.chainName || 'Testnet'}
+      />
+    );
+  }
+
+  if (!isFunctionAvailable) {
+    return <FunctionIsOffline functionName={FunctionNames.SEND} />;
   }
 
   return (

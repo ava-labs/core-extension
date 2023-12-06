@@ -42,7 +42,6 @@ import {
   blockchainToNetwork,
   networkToBlockchain,
 } from './utils/blockchainConversion';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useAvailableBlockchains } from './hooks/useAvailableBlockchains';
 import { Trans, useTranslation } from 'react-i18next';
@@ -62,9 +61,12 @@ import {
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -100,7 +102,6 @@ export function Bridge() {
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
   const { t } = useTranslation();
-  const { featureFlags } = useFeatureFlagContext();
   const availableBlockchains = useAvailableBlockchains();
 
   const { currencyFormatter, currency } = useSettingsContext();
@@ -108,6 +109,8 @@ export function Bridge() {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
+
+  const { isFunctionAvailable } = useIsFunctionAvailable(FunctionNames.BRIDGE);
 
   const theme = useTheme();
   const [bridgeError, setBridgeError] = useState<string>('');
@@ -484,11 +487,11 @@ export function Bridge() {
 
   if (
     error ||
-    !featureFlags[FeatureGates.BRIDGE] ||
+    !isFunctionAvailable ||
     availableBlockchains.length < 2 // we need at least to blockchains to bridge between
   ) {
     return (
-      <FunctionIsOffline functionName="Bridge">
+      <FunctionIsOffline functionName={FunctionNames.BRIDGE}>
         <Button
           href="https://status.avax.network/"
           target="_blank"

@@ -41,6 +41,11 @@ import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -58,6 +63,9 @@ export function SignMessage() {
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const { isDeveloperMode } = useNetworkContext();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
+  const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
+    FunctionNames.SIGN
+  );
   const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
@@ -179,6 +187,12 @@ export function SignMessage() {
       >
         <CircularProgress size={60} />
       </Stack>
+    );
+  }
+
+  if (!isSigningAvailable) {
+    return (
+      <FunctionIsOffline functionName={FunctionNames.FEATURE} hidePageTitle />
     );
   }
 

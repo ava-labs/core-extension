@@ -21,7 +21,10 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-components';
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 import BN from 'bn.js';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
@@ -40,7 +43,9 @@ export function TokenFlow() {
   const [showSend, setShowSend] = useState<boolean>();
   const setSendDataInParams = useSetSendDataInParams();
   const { network } = useNetworkContext();
-  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { isFunctionAvailable: isBuyAvailable } = useIsFunctionAvailable(
+    FunctionNames.BUY
+  );
 
   const isBitcoin = useMemo(() => {
     if (!network) return false;
@@ -124,7 +129,7 @@ export function TokenFlow() {
         justifyContent="center"
         sx={{ mb: 3, mt: 1, mx: 2, columnGap: 1 }}
       >
-        {!showSend && checkIsFunctionAvailable('Buy') ? (
+        {!showSend && isBuyAvailable ? (
           <Button
             data-testid="token-details-send-button"
             color="secondary"

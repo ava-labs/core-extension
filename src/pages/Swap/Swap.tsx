@@ -12,7 +12,10 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import {
@@ -21,7 +24,6 @@ import {
 } from '@src/background/services/balances/models';
 import BN from 'bn.js';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
@@ -40,7 +42,6 @@ import {
   IconButton,
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 
 const ReviewOrderButtonContainer = styled('div')<{
@@ -55,14 +56,15 @@ const ReviewOrderButtonContainer = styled('div')<{
 
 export function Swap() {
   const { t } = useTranslation();
-  const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
   const { swap } = useSwapContext();
   const { networkFee } = useNetworkFeeContext();
 
-  const { isFunctionAvailable: isSwapAvailable } =
-    useIsFunctionAvailable('Swap');
+  const {
+    isFunctionAvailable: isSwapAvailable,
+    isFunctionSupported: isSwapSupported,
+  } = useIsFunctionAvailable(FunctionNames.SWAP);
   const history = useHistory();
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
@@ -187,17 +189,17 @@ export function Swap() {
       pendingMessage: t('Swap pending...'),
     });
 
-  if (!isSwapAvailable) {
+  if (!isSwapSupported) {
     return (
       <FunctionIsUnavailable
-        functionName="Swap"
+        functionName={FunctionNames.SWAP}
         network={network?.chainName || 'Testnet'}
       />
     );
   }
 
-  if (!featureFlags[FeatureGates.SWAP]) {
-    return <FunctionIsOffline functionName="Swap" />;
+  if (!isSwapAvailable) {
+    return <FunctionIsOffline functionName={FunctionNames.SWAP} />;
   }
 
   const maxGasPrice =

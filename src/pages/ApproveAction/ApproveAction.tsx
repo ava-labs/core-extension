@@ -30,6 +30,11 @@ import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectAp
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 
 export function ApproveAction() {
   const { t } = useTranslation();
@@ -41,6 +46,9 @@ export function ApproveAction() {
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
+  const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
+    FunctionNames.SIGN
+  );
 
   const submitHandler = async () => {
     await updateAction(
@@ -75,6 +83,12 @@ export function ApproveAction() {
       >
         <CircularProgress />
       </Stack>
+    );
+  }
+
+  if (!isSigningAvailable) {
+    return (
+      <FunctionIsOffline functionName={FunctionNames.FEATURE} hidePageTitle />
     );
   }
 

@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { CircularProgress, Stack } from '@avalabs/k2-components';
 
 import { useDefiContext } from '@src/contexts/DefiProvider';
@@ -9,14 +8,16 @@ import { DefiProtocolListItem } from './components/DefiProtocolListItem';
 import { DefiZeroState } from './components/DefiZeroState';
 import { DefiErrorState } from './components/DefiErrorState';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 
 export function DeFi() {
-  const { t } = useTranslation();
   const { portfolio, hasError, isLoading } = useDefiContext();
   const { featureFlags } = useFeatureFlagContext();
 
   if (!featureFlags[FeatureGates.DEFI]) {
-    return <FunctionIsOffline hidePageTitle functionName={t('DeFi')} />;
+    return (
+      <FunctionIsOffline hidePageTitle functionName={FunctionNames.DEFI} />
+    );
   }
 
   const hasProtocols = portfolio.protocols.length > 0;

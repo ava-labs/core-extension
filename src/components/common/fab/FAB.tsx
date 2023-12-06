@@ -22,7 +22,10 @@ import {
   IconButton,
 } from '@avalabs/k2-components';
 
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 
@@ -95,7 +98,7 @@ const ActionButton = ({ icon, text, ...rest }) => (
 export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const history = useHistory();
-  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { checkIsFunctionSupported } = useIsFunctionAvailable();
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -107,7 +110,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
     {
       text: t('Send'),
       route: '/send',
-      name: 'Send',
+      name: FunctionNames.SEND,
       icon: (
         <ArrowUpRightIcon
           size={24}
@@ -118,18 +121,18 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
     {
       text: t('Receive'),
       route: '/receive',
-      name: 'Receive',
+      name: FunctionNames.RECEIVE,
       icon: <QRCodeIcon size={24} sx={{ color: theme.palette.common.black }} />,
     },
     {
       text: t('Swap'),
       route: '/swap',
-      name: 'Swap',
+      name: FunctionNames.SWAP,
       icon: <SwapIcon size={24} sx={{ color: theme.palette.common.black }} />,
     },
     {
       text: t('Buy'),
-      name: 'Buy',
+      name: FunctionNames.BUY,
       icon: <BuyIcon size={24} sx={{ color: theme.palette.common.black }} />,
       onclick: () =>
         window.open(`${getCoreWebUrl()}/buy`, '_blank', 'noreferrer'),
@@ -137,7 +140,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
     {
       text: t('Bridge'),
       route: '/bridge',
-      name: 'Bridge',
+      name: FunctionNames.BRIDGE,
       icon: <BridgeIcon size={24} sx={{ color: theme.palette.common.black }} />,
     },
   ];
@@ -246,7 +249,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
                 <Menu isOpen={isOpen}>
                   {isOpen &&
                     FABMenuItems.map(({ text, route, icon, name, onclick }) => {
-                      if (!checkIsFunctionAvailable(name)) {
+                      if (!checkIsFunctionSupported(name)) {
                         return null;
                       }
                       return (

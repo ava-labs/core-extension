@@ -22,6 +22,7 @@ export enum FeatureGates {
   SEEDLESS_MFA_PASSKEY = 'seedless-mfa-passkey',
   SEEDLESS_MFA_AUTHENTICATOR = 'seedless-mfa-authenticator',
   SEEDLESS_MFA_YUBIKEY = 'seedless-mfa-yubikey',
+  SEEDLESS_SIGNING = 'seedless-signing',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -50,6 +51,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.SEEDLESS_MFA_PASSKEY]: false,
   [FeatureGates.SEEDLESS_MFA_AUTHENTICATOR]: false,
   [FeatureGates.SEEDLESS_MFA_YUBIKEY]: false,
+  [FeatureGates.SEEDLESS_SIGNING]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -77,6 +79,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.SEEDLESS_MFA_PASSKEY]: true,
   [FeatureGates.SEEDLESS_MFA_AUTHENTICATOR]: true,
   [FeatureGates.SEEDLESS_MFA_YUBIKEY]: true,
+  [FeatureGates.SEEDLESS_SIGNING]: true,
 };
 
 export enum FeatureFlagEvents {

@@ -32,12 +32,20 @@ import { AddPermissionlessDelegator } from '@src/pages/ApproveAction/components/
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
 import { RemoveSubnetValidatorView } from './components/ApproveRemoveSubnetValidator';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
   const { action, updateAction, cancelHandler } = useApproveAction(requestId);
   const { network } = useNetworkContext();
   const { t } = useTranslation();
+  const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
+    FunctionNames.SIGN
+  );
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
@@ -178,6 +186,12 @@ export function AvalancheSignTx() {
 
   if (!action) {
     return <LoadingOverlay />;
+  }
+
+  if (!isSigningAvailable) {
+    return (
+      <FunctionIsOffline functionName={FunctionNames.FEATURE} hidePageTitle />
+    );
   }
 
   return (

@@ -1,20 +1,27 @@
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
 import { t as translate } from 'i18next';
-import { Stack, Typography } from '@avalabs/k2-components';
+import { AlertCircleIcon, Stack, Typography } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
+import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 
 interface FunctionIsOfflineProps {
-  functionName: 'Bridge' | 'Send' | 'Swap' | 'Buy';
+  functionName: FunctionNames;
   hidePageTitle?: boolean;
 }
 
-export const FunctionNames = {
-  Bridge: translate('Bridge'),
-  Swap: translate('Swap'),
-  Send: translate('Send'),
-  Buy: translate('Buy'),
-};
+export function getTranslatedFunctionName(name: FunctionNames) {
+  const translations = {
+    [FunctionNames.BRIDGE]: translate('Bridge'),
+    [FunctionNames.SWAP]: translate('Swap'),
+    [FunctionNames.SEND]: translate('Send'),
+    [FunctionNames.BUY]: translate('Buy'),
+    [FunctionNames.DEFI]: translate('DeFi'),
+    [FunctionNames.KEYSTONE]: translate('Keystone'),
+  };
+
+  return translations[name];
+}
 
 export function FunctionIsOffline({
   functionName,
@@ -31,12 +38,24 @@ export function FunctionIsOffline({
       <Stack
         sx={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
       >
-        <Typography size={16} align="center" height="24px">
-          {t('Sorry, {{functionName}} is currently unavailable.', {
-            functionName: FunctionNames[functionName] || functionName,
+        <AlertCircleIcon size={72} sx={{ mb: 3, mt: -9 }} />
+        <Typography variant="h5" sx={{ mb: 1 }}>
+          {t('Feature Disabled')}
+        </Typography>
+        <Typography
+          size={16}
+          align="center"
+          height="24px"
+          sx={{ color: 'text.secondary' }}
+        >
+          {t('{{functionName}} is currently unavailable.', {
+            functionName:
+              getTranslatedFunctionName(functionName) ?? t('This Feature'),
           })}
         </Typography>
-        <Typography>{t('Please check back later.')}</Typography>
+        <Typography sx={{ color: 'text.secondary' }}>
+          {t('Please check back later and try again.')}
+        </Typography>
         {children}
       </Stack>
     </Stack>
