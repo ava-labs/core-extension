@@ -23,6 +23,11 @@ import {
   wordPhraseLength,
 } from '../components/WordsLengthSelector';
 
+const isPhraseCorrectLength = (phrase: string) => {
+  const isCorrect = wordPhraseLength.includes(phrase.trim().split(' ').length);
+  return isCorrect;
+};
+
 export const ImportWallet = () => {
   const { capture } = useAnalyticsContext();
   const { setMnemonic, setOnboardingPhase } = useOnboardingContext();
@@ -34,25 +39,27 @@ export const ImportWallet = () => {
   const [words, setWords] = useState<string[]>([]);
   const history = useHistory();
 
+  const onNext = useCallback(async () => {
+    capture('OnboardingMnemonicImported');
+    setMnemonic(recoveryPhrase);
+    history.push(OnboardingURLs.CREATE_PASSWORD);
+  }, [capture, history, recoveryPhrase, setMnemonic]);
+
   useEffect(() => {
     setOnboardingPhase(OnboardingPhase.IMPORT_WALLET);
     capture(ONBOARDING_EVENT_NAMES.import_wallet);
   }, [capture, setOnboardingPhase]);
 
-  const sliceWords = (length) => {
-    setWordsLength(length);
-    const cutWords = [...words];
-    setWords(
-      [...words.slice(0, wordsLength), ...cutWords].slice(0, wordsLength)
-    );
-  };
-
-  const isPhraseCorrectLength = (phrase: string) => {
-    const isCorrect = wordPhraseLength.includes(
-      phrase.trim().split(' ').length
-    );
-    return isCorrect;
-  };
+  const sliceWords = useCallback((selectedLength: number) => {
+    setWordsLength(selectedLength);
+    setWords((currentWords) => {
+      const cutWords = [...currentWords];
+      return [...currentWords.slice(0, selectedLength), ...cutWords].slice(
+        0,
+        selectedLength
+      );
+    });
+  }, []);
 
   const isPhraseValid = useCallback((phrase: string) => {
     return (
@@ -71,8 +78,9 @@ export const ImportWallet = () => {
       setError(t('Invalid mnemonic phrase'));
     } else {
       setError('');
+      onNext();
     }
-  }, [isPhraseValid, t, words]);
+  }, [isPhraseValid, onNext, t, words]);
 
   useEffect(() => {
     onPhraseChanged();
@@ -90,7 +98,10 @@ export const ImportWallet = () => {
             autoFocus={i === 0}
             placeholder={`${i + 1}.`}
             onPaste={(e) => {
-              const pastedText = e.clipboardData.getData('Text').split(' ');
+              const pastedText = e.clipboardData
+                .getData('Text')
+                .trim()
+                .split(' ');
 
               setWords(
                 [...words.slice(0, i), ...pastedText].slice(0, wordsLength)
@@ -178,11 +189,7 @@ export const ImportWallet = () => {
           });
           history.goBack();
         }}
-        onNext={async () => {
-          capture('OnboardingMnemonicImported');
-          setMnemonic(recoveryPhrase);
-          history.push(OnboardingURLs.CREATE_PASSWORD);
-        }}
+        onNext={onNext}
         disableNext={nextButtonDisabled}
         expand={true}
         steps={3}
