@@ -26,7 +26,7 @@ import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
-import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
+import { FIDOApiEndpoint, KeyType } from '@src/utils/seedless/fido/types';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {
@@ -36,6 +36,19 @@ type GetAuthButtonCallbackOptions = {
 };
 
 const TOTP_ISSUER: string = 'Core';
+
+const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
+  switch (method) {
+    case RecoveryMethodTypes.PASSKEY:
+      return KeyType.Passkey;
+
+    case RecoveryMethodTypes.YUBIKEY:
+      return KeyType.Yubikey;
+
+    default:
+      throw new Error('Unsupported FIDO device');
+  }
+};
 
 export function useSeedlessActions() {
   const { capture } = useAnalyticsContext();
@@ -237,7 +250,8 @@ export function useSeedlessActions() {
 
       const answer = await launchFidoFlow(
         FIDOApiEndpoint.Register,
-        challenge.options
+        challenge.options,
+        recoveryMethodToFidoKeyType(selectedMethod)
       );
 
       await challenge.answer(answer);

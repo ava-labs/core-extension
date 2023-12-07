@@ -21,6 +21,11 @@ export type FIDOApiRequest =
   | FIDORegistrationRequest
   | FIDOAuthenticationRequest;
 
+export enum KeyType {
+  Passkey = 'passkey',
+  Yubikey = 'yubikey',
+}
+
 type Base64UrlString = string;
 
 type BufferLikeValue<T> = T extends true ? Base64UrlString : Buffer;

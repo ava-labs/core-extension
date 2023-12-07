@@ -2,14 +2,20 @@ import browser from 'webextension-polyfill';
 
 import { openPopup } from '../../extensionUtils';
 
-import { DecodedFIDOResult, FIDOApiEndpoint, FIDOApiRequest } from './types';
+import {
+  DecodedFIDOResult,
+  FIDOApiEndpoint,
+  FIDOApiRequest,
+  KeyType,
+} from './types';
 import { convertRequest } from './convertRequest';
 import { convertResult } from './convertResult';
 import { isValidResponse } from './validateResponse';
 
 export async function launchFidoFlow(
   endpoint: FIDOApiEndpoint,
-  challenge: FIDOApiRequest
+  challenge: FIDOApiRequest,
+  keyType?: KeyType
 ): Promise<DecodedFIDOResult> {
   const baseUrl = process.env.SEEDLESS_FIDO_IDENTITY_URL;
 
@@ -22,6 +28,14 @@ export async function launchFidoFlow(
   url.searchParams.set('responseMode', 'post-message');
   url.searchParams.set('origin', location.origin);
   url.searchParams.set('options', convertRequest(endpoint, challenge));
+
+  if (endpoint === FIDOApiEndpoint.Register) {
+    if (!keyType) {
+      throw new Error('FIDO key type not defined for registration request');
+    }
+
+    url.searchParams.set('keyType', keyType);
+  }
 
   const popup = await openPopup({
     url: url.toString(),
