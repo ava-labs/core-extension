@@ -1120,6 +1120,26 @@ describe('background/services/wallet/WalletService.ts', () => {
         );
       });
 
+      it('uses pubkey if index is already known', async () => {
+        const addressBuffEvm = Buffer.from('0x1');
+        const addressBuffXP = Buffer.from('0x2');
+        getAddressesSpy.mockReturnValueOnce(addressesMock);
+        mockLedgerLiveWallet({
+          pubKeys: [
+            {
+              evm: addressBuffEvm.toString('hex'),
+              xp: addressBuffXP.toString('hex'),
+            },
+          ],
+        });
+
+        const result = await walletService.addAddress(0);
+        expect(getAddressesSpy).toHaveBeenCalledWith(0);
+        expect(getPubKeyFromTransport).not.toHaveBeenCalled();
+        expect(result).toStrictEqual(addressesMock);
+        expect(secretsService.updateSecrets).not.toHaveBeenCalled();
+      });
+
       it('gets the addresses correctly', async () => {
         const addressBuffEvm = Buffer.from('0x1');
         const addressBuffXP = Buffer.from('0x2');

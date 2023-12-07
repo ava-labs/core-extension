@@ -778,7 +778,7 @@ export class WalletService implements OnLock, OnUnlock {
   async addAddress(index: number): Promise<Record<NetworkVMType, string>> {
     const secrets = await this.secretService.getActiveAccountSecrets();
 
-    if (secrets.type === SecretType.LedgerLive) {
+    if (secrets.type === SecretType.LedgerLive && !secrets.pubKeys[index]) {
       // With LedgerLive, we don't have xPub or Mnemonic, so we need
       // to get the new address pubkey from the Ledger device.
       if (!this.ledgerService.recentTransport) {
