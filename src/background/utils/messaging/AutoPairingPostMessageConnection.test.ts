@@ -51,6 +51,18 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
     });
 
     (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+      origin: 'core.app',
+      data: {
+        someProp: 'totallydifferentformat',
+      },
+    });
+
+    (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+      origin: 'core.app',
+      data: undefined,
+    });
+
+    (addEventListenerSpy.mock.calls[0]?.[1] as any)({
       origin: 'cross-origin.app',
       data: {
         message: {
@@ -294,6 +306,22 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
         },
         connectionId: 'PM-Connection-00000000-0000-0000-0000-000000000000',
       },
+    });
+    expect(messageListener).not.toHaveBeenCalled();
+
+    // ignores message with different format
+    (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+      origin: 'core.app',
+      data: {
+        someProp: 'totallydifferentformat',
+      },
+    });
+    expect(messageListener).not.toHaveBeenCalled();
+
+    // ignores message with no data
+    (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+      origin: 'core.app',
+      data: undefined,
     });
     expect(messageListener).not.toHaveBeenCalled();
 
