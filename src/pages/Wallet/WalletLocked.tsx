@@ -132,7 +132,7 @@ export function WalletLocked({
         onClick={() => onImportClick()}
         sx={{ mb: 1 }}
       >
-        {t('Reset Secret Recovery Phrase')}
+        {t('Forgot Password?')}
       </Button>
       <Dialog
         open={showDialog}
@@ -142,10 +142,10 @@ export function WalletLocked({
       >
         <Stack sx={{ justifyContent: 'center', p: 3, rowGap: 2 }}>
           <Typography variant="h5" sx={{ textAlign: 'center' }}>
-            {t('Have You Written Down your Recovery Phrase?')}
+            {t('Forgot Password?')}
           </Typography>
           <Typography variant="body2" sx={{ textAlign: 'center' }}>
-            <Trans i18nKey="Pressing yes will terminate this session, without your phrase you will not be able to access the current wallet" />
+            <Trans i18nKey="Pressing yes will terminate this session. Without your recovery phrase or methods you will not be able to recover this wallet." />
           </Typography>
           <Stack
             sx={{

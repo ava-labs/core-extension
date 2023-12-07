@@ -227,33 +227,37 @@ export function SecurityAndPrivacy({
         </ListItem>
       </List>
 
-      <Divider />
+      {walletDetails?.type !== WalletType.SEEDLESS && (
+        <>
+          <Divider />
 
-      <Stack
-        sx={{
-          mt: 3,
-          px: 2,
-        }}
-      >
-        <Button
-          variant="text"
-          color="error"
-          size="medium"
-          data-testid="reset-recovery-phrase-menu-item"
-          onClick={() => {
-            capture('RecoveryPhraseResetClicked');
-            setShowLogoutDialog(true);
-          }}
-        >
-          {t('Reset Secret Recovery Phrase')}
-        </Button>
-      </Stack>
-      <Dialog
-        open={showLogoutDialog}
-        onClose={() => setShowLogoutDialog(false)}
-        content={logoutDialogContent}
-        bgColorDefault
-      />
+          <Stack
+            sx={{
+              mt: 3,
+              px: 2,
+            }}
+          >
+            <Button
+              variant="text"
+              color="error"
+              size="medium"
+              data-testid="reset-recovery-phrase-menu-item"
+              onClick={() => {
+                capture('RecoveryPhraseResetClicked');
+                setShowLogoutDialog(true);
+              }}
+            >
+              {t('Reset Secret Recovery Phrase')}
+            </Button>
+          </Stack>
+          <Dialog
+            open={showLogoutDialog}
+            onClose={() => setShowLogoutDialog(false)}
+            content={logoutDialogContent}
+            bgColorDefault
+          />
+        </>
+      )}
     </Stack>
   );
 }
